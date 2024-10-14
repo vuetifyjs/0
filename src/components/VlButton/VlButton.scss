@@ -1,0 +1,21 @@
+@layer vuetify-lite-button {
+  .vl-button {
+    align-items: center;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    outline: none;
+    gap: #{var(--vl-button-gap)};
+
+    &--disabled,
+    &--readonly,
+    &--loading {
+      cursor: default;
+    }
+
+    &--disabled {
+      opacity: .64;
+    }
+  }
+}
