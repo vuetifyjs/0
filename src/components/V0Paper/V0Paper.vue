@@ -7,7 +7,7 @@
 <script setup lang="ts">
   import { useColor, type ColorProps } from '@/composables/color'
 
-  export interface VlPaperProps extends ColorProps {
+  export interface V0PaperProps extends ColorProps {
     borderRadius?: string
     borderColor?: string
     borderStyle?: string
@@ -19,29 +19,29 @@
     tag?: string
   }
 
-  const { tag = 'div', ...props } = defineProps<VlPaperProps>()
+  const { tag = 'div', ...props } = defineProps<V0PaperProps>()
 
   const bgColor = useColor(props.bgColor)
   const color = useColor(props.color ?? bgColor?.value, !props.color)
   const borderColor = useColor(props.borderColor ?? color?.value)
 
   const classes = {
-    'vl-paper': true,
+    'v0-paper': true,
   }
 
   const styles = {
-    ['--vl-paper-bg-color']: bgColor?.value,
-    ['--vl-paper-border-radius']: props.borderRadius,
-    ['--vl-paper-border-color']: borderColor?.value,
-    ['--vl-paper-border-style']: props.borderStyle,
-    ['--vl-paper-border-width']: props.borderWidth,
-    ['--vl-paper-color']: color?.value,
-    ['--vl-paper-font-size']: props.fontSize,
-    ['--vl-paper-font-weight']: props.fontWeight,
-    ['--vl-paper-padding']: props.padding,
+    ['--v0-paper-bg-color']: bgColor?.value,
+    ['--v0-paper-border-radius']: props.borderRadius,
+    ['--v0-paper-border-color']: borderColor?.value,
+    ['--v0-paper-border-style']: props.borderStyle,
+    ['--v0-paper-border-width']: props.borderWidth,
+    ['--v0-paper-color']: color?.value,
+    ['--v0-paper-font-size']: props.fontSize,
+    ['--v0-paper-font-weight']: props.fontWeight,
+    ['--v0-paper-padding']: props.padding,
   }
 </script>
 
 <style lang="scss">
-  @import './VlPaper.scss';
+  @import './V0Paper.scss';
 </style>

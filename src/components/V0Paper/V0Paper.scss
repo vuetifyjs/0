@@ -1,0 +1,13 @@
+@layer vuetify-0-paper {
+  .v0-paper {
+    border-radius: #{var(--v0-paper-border-radius)};
+    background-color: #{var(--v0-paper-bg-color)};
+    color: #{var(--v0-paper-color)};
+    font-size: #{var(--v0-paper-font-size)};
+    font-weight: #{var(--v0-paper-font-weight)};
+    padding: #{var(--v0-paper-padding)};
+    border-width: #{var(--v0-paper-border-width)};
+    border-color: #{var(--v0-paper-border-color)};
+    border-style: #{var(--v0-paper-border-style)};
+  }
+}

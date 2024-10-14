@@ -1,5 +1,5 @@
 <template>
-  <vl-paper
+  <v0-paper
     :class="classes"
     :tag="tag"
     :padding="padding"
@@ -28,15 +28,15 @@
     <div v-if="$slots.append" class="append">
       <slot name="append" />
     </div>
-  </vl-paper>
+  </v0-paper>
 </template>
 
 <script setup lang="ts">
   // Components
-  import VlPaper from '@/components/VlPaper/VlPaper.vue'
+  import V0Paper from '@/components/V0Paper/V0Paper.vue'
 
   // Types
-  import type { VlPaperProps } from '@/components/VlPaper/VlPaper.vue'
+  import type { V0PaperProps } from '@/components/V0Paper/V0Paper.vue'
 
   const { tag = 'button', ...props } = defineProps<{
     gap?: string
@@ -47,22 +47,22 @@
     disabled?: boolean
     readonly?: boolean
     loading?: boolean
-  } & VlPaperProps>()
+  } & V0PaperProps>()
 
   const classes = {
-    'vl-button': true,
-    'vl-button--active': props.active,
-    'vl-button--hover': props.hover,
-    'vl-button--disabled': props.disabled,
-    'vl-button--readonly': props.readonly,
-    'vl-button--loading': props.loading,
+    'v0-button': true,
+    'v0-button--active': props.active,
+    'v0-button--hover': props.hover,
+    'v0-button--disabled': props.disabled,
+    'v0-button--readonly': props.readonly,
+    'v0-button--loading': props.loading,
   }
 
   const styles = {
-    '--vl-button-gap': props.gap,
+    '--v0-button-gap': props.gap,
   }
 </script>
 
 <style lang="scss">
-  @import './VlButton.scss';
+  @import './V0Button.scss';
 </style>

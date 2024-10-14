@@ -140,7 +140,7 @@ export function createTheme (options: ThemeOptions) {
     let cssVariables = ':root {\n'
 
     for (const [key, value] of Object.entries(currentTheme.colors)) {
-      cssVariables += `  --vl-${key}: ${value};\n`
+      cssVariables += `  --v0-${key}: ${value};\n`
     }
 
     cssVariables += '}'

@@ -1,12 +1,12 @@
-@layer vuetify-lite-button {
-  .vl-button {
+@layer vuetify-0-button {
+  .v0-button {
     align-items: center;
     border: none;
     cursor: pointer;
     display: flex;
     justify-content: center;
     outline: none;
-    gap: #{var(--vl-button-gap)};
+    gap: #{var(--v0-button-gap)};
 
     &--disabled,
     &--readonly,

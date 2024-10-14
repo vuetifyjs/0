@@ -14,16 +14,16 @@
   const color = useColor(props.color)
 
   const classes = {
-    'vl-icon': true,
+    'v0-icon': true,
     [`${props.icon}`]: true,
   }
 
   const styles = {
-    ['--vl-icon-color']: color?.value,
-    ['--vl-icon-font-size']: props.fontSize,
+    ['--v0-icon-color']: color?.value,
+    ['--v0-icon-font-size']: props.fontSize,
   }
 </script>
 
 <style lang="scss">
-  @import './VlIcon.scss';
+  @import './V0Icon.scss';
 </style>
