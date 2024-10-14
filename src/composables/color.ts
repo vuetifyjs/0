@@ -2,85 +2,85 @@ import { inject, shallowRef } from 'vue'
 import { useContrast } from './contrast'
 
 export interface ColorProps {
-	bgColor?: string
-	color?: string
-	theme?: string
+  bgColor?: string
+  color?: string
+  theme?: string
 }
 
 export function rgbToRgba (rgb: string): string {
-	if (rgb.startsWith('rgba')) {
-		return rgb
-	}
-	return rgb.replace('rgb', 'rgba').replace(')', ', 1)')
+  if (rgb.startsWith('rgba')) {
+    return rgb
+  }
+  return rgb.replace('rgb', 'rgba').replace(')', ', 1)')
 }
 
 export function hexaToRgba (hexa: string): string {
-	const bigint = parseInt(hexa.slice(1), 16)
-	const r = (bigint >> 16) & 255
-	const g = (bigint >> 8) & 255
-	const b = bigint & 255
-	const a = Math.round((bigint >> 24) / 255 * 100) / 100
-	return `rgba(${r}, ${g}, ${b}, ${a})`
+  const bigint = parseInt(hexa.slice(1), 16)
+  const r = (bigint >> 16) & 255
+  const g = (bigint >> 8) & 255
+  const b = bigint & 255
+  const a = Math.round((bigint >> 24) / 255 * 100) / 100
+  return `rgba(${r}, ${g}, ${b}, ${a})`
 }
 
 export function hexToRgba (hexCode: string, opacity = 1): string {
-	let hex = hexCode.replace('#', '')
+  let hex = hexCode.replace('#', '')
 
-	if (hex.length === 3) {
-			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
-	}
+  if (hex.length === 3) {
+      hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
+  }
 
-	const r = parseInt(hex.substring(0, 2), 16)
-	const g = parseInt(hex.substring(2, 4), 16)
-	const b = parseInt(hex.substring(4, 6), 16)
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
 
-	if (opacity > 1 && opacity <= 100) opacity = opacity / 100
+  if (opacity > 1 && opacity <= 100) opacity = opacity / 100
 
-	return `rgba(${r},${g},${b},${opacity})`
+  return `rgba(${r},${g},${b},${opacity})`
 }
 
 export function rgbaToHexa (rgba: string): string {
-	const sep = rgba.indexOf(',') > -1 ? ',' : ' '
-	const rgbaArray = rgba
-		.substr(5)
-		.split(')')[0]
-		.split(sep)
-		.map((string: string) => parseInt(string, 10))
-	if (rgbaArray.length === 3) {
-		rgbaArray.push(1)
-	}
-	const [r, g, b, a] = rgbaArray
-	const alpha = Math.round(a * 255)
-	return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16)
-		.slice(1)}${(alpha + 0x10000).toString(16).slice(-2)}`
+  const sep = rgba.indexOf(',') > -1 ? ',' : ' '
+  const rgbaArray = rgba
+    .substr(5)
+    .split(')')[0]
+    .split(sep)
+    .map((string: string) => parseInt(string, 10))
+  if (rgbaArray.length === 3) {
+    rgbaArray.push(1)
+  }
+  const [r, g, b, a] = rgbaArray
+  const alpha = Math.round(a * 255)
+  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16)
+    .slice(1)}${(alpha + 0x10000).toString(16).slice(-2)}`
 }
 
 export function useColor (color?: string, contrast = false) {
   if (!color) return undefined
 
-	const theme = inject('theme')
+  const theme = inject('theme')
 
-	const rgba = shallowRef<string | undefined>('')
+  const rgba = shallowRef<string | undefined>('')
 
-	if (color.startsWith('#')) {
-		rgba.value = color.length === 9 ? hexaToRgba(color) : hexToRgba(color)
-	} else if (color.startsWith('rgb')) {
-		rgba.value = rgbToRgba(color)
-	} else {
-		const themeColor = theme?.get().colors[color]
+  if (color.startsWith('#')) {
+    rgba.value = color.length === 9 ? hexaToRgba(color) : hexToRgba(color)
+  } else if (color.startsWith('rgb')) {
+    rgba.value = rgbToRgba(color)
+  } else {
+    const themeColor = theme?.get().colors[color]
 
-		if (!themeColor) {
-			rgba.value = color
+    if (!themeColor) {
+      rgba.value = color
 
-			return rgba
-		}
+      return rgba
+    }
 
-		rgba.value = color.length === 9 ? hexaToRgba(themeColor) : hexToRgba(themeColor)
-	}
+    rgba.value = color.length === 9 ? hexaToRgba(themeColor) : hexToRgba(themeColor)
+  }
 
-	if (contrast) {
-		rgba.value = useContrast(rgba.value)?.value
-	}
+  if (contrast) {
+    rgba.value = useContrast(rgba.value)?.value
+  }
 
-	return rgba
+  return rgba
 }
