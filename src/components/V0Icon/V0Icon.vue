@@ -3,15 +3,17 @@
 </template>
 
 <script setup lang="ts">
-  import { useColor } from '@/composables/color'
+  import { useColor, type ColorProps } from '@/composables/color'
 
-  const props = defineProps<{
-    color?: string
+  export interface V0IconProps extends ColorProps {
     icon?: string
     fontSize?: string
-  }>()
+  }
 
-  const color = useColor(props.color)
+  const props = defineProps<V0IconProps>()
+
+  const bgColor = useColor(props.bgColor)
+  const color = useColor(props.color ?? bgColor?.value, !props.color)
 
   const classes = {
     'v0-icon': true,
@@ -19,6 +21,7 @@
   }
 
   const styles = {
+    ['--v0-icon-bg-color']: bgColor?.value,
     ['--v0-icon-color']: color?.value,
     ['--v0-icon-font-size']: props.fontSize,
   }

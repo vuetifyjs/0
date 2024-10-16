@@ -6,8 +6,9 @@
 
 <script setup lang="ts">
   import { useColor, type ColorProps } from '@/composables/color'
+  import { useDimensions, type DimensionProps } from '@/composables/dimensions'
 
-  export interface V0PaperProps extends ColorProps {
+  export interface V0PaperProps extends ColorProps, DimensionProps {
     borderRadius?: string
     borderColor?: string
     borderStyle?: string
@@ -24,6 +25,7 @@
   const bgColor = useColor(props.bgColor)
   const color = useColor(props.color ?? bgColor?.value, !props.color)
   const borderColor = useColor(props.borderColor ?? color?.value)
+  const { dimensionStyles } = useDimensions(props, 'paper')
 
   const classes = {
     'v0-paper': true,
@@ -39,6 +41,8 @@
     ['--v0-paper-font-size']: props.fontSize,
     ['--v0-paper-font-weight']: props.fontWeight,
     ['--v0-paper-padding']: props.padding,
+
+    ...dimensionStyles.value,
   }
 </script>
 

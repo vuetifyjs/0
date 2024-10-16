@@ -9,5 +9,11 @@
     border-width: #{var(--v0-paper-border-width)};
     border-color: #{var(--v0-paper-border-color)};
     border-style: #{var(--v0-paper-border-style)};
+    width: #{var(--v0-paper-width, auto)};
+    height: #{var(--v0-paper-height, auto)};
+    min-height: #{var(--v0-paper-minHeight, auto)};
+    max-height: #{var(--v0-paper-maxHeight, auto)};
+    min-width: #{var(--v0-paper-minWidth, auto)};
+    max-width: #{var(--v0-paper-maxWidth, auto)};
   }
 }

@@ -1,16 +1,8 @@
 <template>
   <v0-paper
+    v-bind="props"
     :class="classes"
     :tag="tag"
-    :padding="padding"
-    :border-radius="borderRadius"
-    :border-color="borderColor"
-    :border-style="borderStyle"
-    :border-width="borderWidth"
-    :font-size="fontSize"
-    :font-weight="fontWeight"
-    :bg-color="bgColor"
-    :color="color"
     :style="styles"
   >
     <div v-if="$slots.prepend" class="prepend">
@@ -38,7 +30,7 @@
   // Types
   import type { V0PaperProps } from '@/components/V0Paper/V0Paper.vue'
 
-  const { tag = 'button', ...props } = defineProps<{
+  export interface V0ButtonProps extends V0PaperProps {
     gap?: string
     text?: string
 
@@ -47,7 +39,9 @@
     disabled?: boolean
     readonly?: boolean
     loading?: boolean
-  } & V0PaperProps>()
+  }
+
+  const { tag = 'button', ...props } = defineProps<V0ButtonProps>()
 
   const classes = {
     'v0-button': true,

@@ -1,26 +1,22 @@
 <template>
-  <img :src="src" :alt="alt" :class="classes" :style="styles" />
+  <v0-paper v-bind="props" :class="classes">
+    <img :src="src" :alt="alt" />
+  </v0-paper>
 </template>
 
 <script setup lang="ts">
-import { useDimensions, type DimensionProps } from '@/composables/dimensions'
+  import V0Paper, { type V0PaperProps } from '@/components/V0Paper/V0Paper.vue'
 
-const props = defineProps<{
-  src: string
-  alt?: string
-  width?: string
-  height?: string
-} & DimensionProps>()
+  export interface V0ImgProps extends V0PaperProps {
+    src?: string
+    alt?: string
+  }
 
-const { dimensionStyles } = useDimensions(props, 'img')
+  const props = defineProps<V0ImgProps>()
 
-const classes = {
-  'v0-img': true,
-}
-
-const styles = {
-  ...dimensionStyles.value,
-}
+  const classes = {
+    'v0-img': true,
+  }
 </script>
 
 <style lang="scss">

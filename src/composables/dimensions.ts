@@ -1,12 +1,12 @@
 import { shallowRef } from 'vue'
 
 export interface DimensionProps {
-  width?: string | number
-  height?: string | number
-  maxWidth?: string | number
-  maxHeight?: string | number
-  minWidth?: string | number
-  minHeight?: string | number
+  width?: string
+  height?: string
+  maxWidth?: string
+  maxHeight?: string
+  minWidth?: string
+  minHeight?: string
 }
 
 export function useDimensions (props: DimensionProps, name: string) {
