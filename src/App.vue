@@ -1,5 +1,8 @@
 <template>
   <main style="background-color: var(--v0-background)">
+    <h1>Images</h1>
+    <v0-img src="https://cdn.vuetifyjs.com/images/john-beard.png" height="128px" width="128px"></v0-img>
+
     <h1>Paper</h1>
 
     <v0-paper padding="1em" border-color="#eaeaea" border-width="thin" border-style="solid" border-radius="0.5em">
@@ -84,6 +87,7 @@
   import V0Button from '@/components/V0Button/V0Button.vue'
   import V0Paper from '@/components/V0Paper/V0Paper.vue'
   import V0Icon from '@/components/V0Icon/V0Icon.vue'
+  import V0Img from '@/components/V0Img/V0Img.vue'
   import { createTheme } from '@/composables/theme'
 
   const { theme, get } = createTheme({

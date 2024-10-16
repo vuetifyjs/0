@@ -1,0 +1,12 @@
+@layer vuetify-0-img {
+  .v0-img {
+    display: inline-block;
+    width: #{var(--v0-img-width, auto)};
+    height: #{var(--v0-img-height, auto)};
+    min-height: #{var(--v0-img-minHeight, auto)};
+    max-height: #{var(--v0-img-maxHeight, auto)};
+    min-width: #{var(--v0-img-minWidth, auto)};
+    max-width: #{var(--v0-img-maxWidth, auto)};
+    filter: #{var(--v0-img-color, none)};
+  }
+}
