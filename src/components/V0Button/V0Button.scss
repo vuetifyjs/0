@@ -1,12 +1,13 @@
+@use './variables' as *;
+
 @layer vuetify-0-button {
   .v0-button {
-    align-items: center;
-    border: none;
+    align-items: align-center;
     cursor: pointer;
-    display: flex;
+    display: $v0-button-display;
     justify-content: center;
     outline: none;
-    gap: #{var(--v0-button-gap)};
+    gap: #{$v0-button-gap};
 
     &--disabled,
     &--readonly,
@@ -15,7 +16,7 @@
     }
 
     &--disabled {
-      opacity: .64;
+      opacity: #{$v0-button-disabled-opacity};
     }
   }
 }

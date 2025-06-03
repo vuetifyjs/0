@@ -32,6 +32,7 @@
     />
 
     <br>
+    <br>
 
     <v0-button
       bg-color="primary"
@@ -44,6 +45,7 @@
     />
 
     <br>
+    <br>
 
     <v0-button
       bg-color="primary"
@@ -55,6 +57,7 @@
       text="Readonly"
     />
 
+    <br>
     <br>
 
     <v0-button
@@ -71,6 +74,7 @@
       </template>
     </v0-button>
 
+    <br>
     <br>
 
     <v0-button
@@ -92,6 +96,7 @@
       </template>
     </v0-button>
 
+    <br>
     <br>
 
     <v0-button

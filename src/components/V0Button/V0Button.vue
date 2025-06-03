@@ -37,23 +37,30 @@
     active?: boolean
     hover?: boolean
     disabled?: boolean
+    disabledOpacity?: string | number
     readonly?: boolean
     loading?: boolean
   }
 
-  const { tag = 'button', ...props } = defineProps<V0ButtonProps>()
+  const {
+    tag = 'button',
+    disabledOpacity = '.64',
+    gap = '.5em',
+    ...props
+  } = defineProps<V0ButtonProps>()
 
   const classes = {
     'v0-button': true,
     'v0-button--active': props.active,
-    'v0-button--hover': props.hover,
     'v0-button--disabled': props.disabled,
-    'v0-button--readonly': props.readonly,
+    'v0-button--hover': props.hover,
     'v0-button--loading': props.loading,
+    'v0-button--readonly': props.readonly,
   }
 
   const styles = {
-    '--v0-button-gap': props.gap,
+    '--v0-button-disabled-opacity': disabledOpacity,
+    '--v0-button-gap': gap,
   }
 </script>
 
