@@ -67,7 +67,7 @@ export function useColor (color?: string, contrast = false) {
   } else if (color.startsWith('rgb')) {
     rgba.value = rgbToRgba(color)
   } else {
-    const themeColor = theme?.get().colors[color]
+    const themeColor = (theme as any).get().colors[color]
 
     if (!themeColor) {
       rgba.value = color
