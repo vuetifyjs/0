@@ -2,16 +2,16 @@
   <v0-paper
     v-bind="props"
     :class="classes"
-    :tag="tag"
     :style="styles"
+    :tag="tag"
   >
     <div v-if="$slots.prepend" class="prepend">
       <slot name="prepend" />
     </div>
 
-    <slot v-if="$slots.loading && loading" name="loading"></slot>
+    <slot v-if="$slots.loading && loading" name="loading" />
 
-    <slot v-else-if="$slots.default"></slot>
+    <slot v-else-if="$slots.default" />
 
     <template v-else-if="text">
       {{ text }}

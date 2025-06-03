@@ -8,7 +8,7 @@
 
     <v0-img v-else-if="src" :src="src" />
 
-    <v0-icon v-else-if="icon" :icon="icon" :font-size="width" />
+    <v0-icon v-else-if="icon" :font-size="width" :icon="icon" />
   </v0-paper>
 </template>
 

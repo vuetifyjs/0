@@ -1,6 +1,6 @@
 <template>
   <v0-paper v-bind="props" :class="classes">
-    <img :src="src" :alt="alt" />
+    <img :alt="alt" :src="src">
   </v0-paper>
 </template>
 

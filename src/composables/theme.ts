@@ -81,7 +81,7 @@ export function DEFAULT_LIGHT (): Theme {
       onSurfaceLight: '#000000',
       onSurfaceBright: '#000000',
       onSurfaceTint: '#000000',
-    }
+    },
   }
 }
 
@@ -118,7 +118,7 @@ export function DEFAULT_DARK (): Theme {
       onSurfaceLight: '#FFFFFF',
       onSurfaceBright: '#FFFFFF',
       onSurfaceTint: '#FFFFFF',
-    }
+    },
   }
 }
 
@@ -134,7 +134,9 @@ export function createTheme (options: ThemeOptions) {
   })
 
   const css = computed(() => {
-    if (!theme.value.current) return ''
+    if (!theme.value.current) {
+      return ''
+    }
 
     const currentTheme = theme.value.themes[theme.value.current]
     let cssVariables = ':root {\n'
@@ -149,15 +151,17 @@ export function createTheme (options: ThemeOptions) {
   })
 
   watchEffect(() => {
-    if (typeof document === 'undefined') return
+    if (typeof document === 'undefined') {
+      return
+    }
 
-    styleEl.value = document.getElementById('vue-theme-styles')
+    styleEl.value = document.querySelector('#vue-theme-styles')
 
     if (!styleEl.value) {
       styleEl.value = document.createElement('style')
       styleEl.value.id = 'vue-theme-styles'
       styleEl.value.type = 'text/css'
-      document.head.appendChild(styleEl.value)
+      document.head.append(styleEl.value)
     }
 
     styleEl.value.textContent = css.value
@@ -174,13 +178,17 @@ export function createTheme (options: ThemeOptions) {
   }
 
   function get (name: string | undefined = theme.value.current) {
-    if (!name) return
+    if (!name) {
+      return
+    }
 
     return theme.value.themes[name]
   }
 
   function set (key: keyof Theme['colors'], value: string) {
-    if (!theme.value.current) return
+    if (!theme.value.current) {
+      return
+    }
 
     theme.value.themes[theme.value.current].colors[key] = value
   }
