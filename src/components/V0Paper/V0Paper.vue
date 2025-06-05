@@ -16,12 +16,12 @@
     borderWidth?: string
     fontSize?: string
     fontWeight?: string | number
-    margin?: string | number
+    margin?: string
     opacity?: string | number
-    padding?: string | number
+    padding?: string
     gradient?: string
 
-    tag?: string
+    tag?: keyof HTMLElementTagNameMap
   }
 
   const { tag = 'div', ...props } = defineProps<V0PaperProps>()
