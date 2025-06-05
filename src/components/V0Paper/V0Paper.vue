@@ -14,8 +14,10 @@
     borderStyle?: string
     borderWidth?: string
     fontSize?: string
-    fontWeight?: string
-    padding?: string
+    fontWeight?: string | number
+    margin?: string | number
+    opacity?: string | number
+    padding?: string | number
 
     tag?: string
   }
@@ -41,7 +43,8 @@
     ['--v0-paper-font-size']: props.fontSize,
     ['--v0-paper-font-weight']: props.fontWeight,
     ['--v0-paper-padding']: props.padding,
-
+    ['--v0-paper-opacity']: props.opacity,
+    ['--v0-paper-margin']: props.margin,
     ...dimensionStyles.value,
   }
 </script>

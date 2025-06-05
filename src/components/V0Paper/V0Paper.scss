@@ -1,19 +1,23 @@
+@import './_variables.scss';
+
 @layer vuetify-0-paper {
   .v0-paper {
-    border-radius: #{var(--v0-paper-border-radius)};
-    background-color: #{var(--v0-paper-bg-color)};
-    color: #{var(--v0-paper-color)};
-    font-size: #{var(--v0-paper-font-size)};
-    font-weight: #{var(--v0-paper-font-weight)};
-    padding: #{var(--v0-paper-padding)};
-    border-width: #{var(--v0-paper-border-width)};
-    border-color: #{var(--v0-paper-border-color)};
-    border-style: #{var(--v0-paper-border-style)};
-    width: #{var(--v0-paper-width, auto)};
-    height: #{var(--v0-paper-height, auto)};
-    min-height: #{var(--v0-paper-minHeight, auto)};
-    max-height: #{var(--v0-paper-maxHeight, auto)};
-    min-width: #{var(--v0-paper-minWidth, auto)};
-    max-width: #{var(--v0-paper-maxWidth, auto)};
+    background-color: #{$paper-bg-color};
+    border-color: #{$paper-border-color};
+    border-radius: #{$paper-border-radius};
+    border-style: #{$paper-border-style};
+    border-width: #{$paper-border-width};
+    color: #{$paper-color};
+    font-size: #{$paper-font-size};
+    font-weight: #{$paper-font-weight};
+    height: #{$paper-height};
+    margin: #{$paper-margin};
+    max-height: #{$paper-max-height};
+    max-width: #{$paper-max-width};
+    min-height: #{$paper-min-height};
+    min-width: #{$paper-min-width};
+    opacity: #{$paper-opacity};
+    padding: #{$paper-padding};
+    width: #{$paper-width};
   }
 }
