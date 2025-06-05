@@ -3,6 +3,7 @@
 @layer vuetify-0-paper {
   .v0-paper {
     background-color: #{$paper-bg-color};
+    background-image: #{$paper-gradient};
     border-color: #{$paper-border-color};
     border-radius: #{$paper-border-radius};
     border-style: #{$paper-border-style};
