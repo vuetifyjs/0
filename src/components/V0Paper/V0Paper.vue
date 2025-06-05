@@ -7,6 +7,7 @@
 <script setup lang="ts">
   import { useColor, type ColorProps } from '@/composables/color'
   import { useDimensions, type DimensionProps } from '@/composables/dimensions'
+  import { useElevation } from '@/composables/elevation'
   import { computed } from 'vue'
 
   export interface V0PaperProps extends ColorProps, DimensionProps {
@@ -14,12 +15,13 @@
     borderColor?: string
     borderStyle?: string
     borderWidth?: string
+    elevation?: string
     fontSize?: string
     fontWeight?: string | number
+    gradient?: string
     margin?: string
     opacity?: string | number
     padding?: string
-    gradient?: string
 
     tag?: keyof HTMLElementTagNameMap
   }
@@ -30,6 +32,9 @@
   const color = useColor(props.color ?? bgColor?.value, !props.color)
   const borderColor = useColor(props.borderColor ?? color?.value)
   const { dimensionStyles } = useDimensions(props, 'paper')
+  const { getElevation } = useElevation()
+
+  const elevation = computed(() => getElevation(props.elevation))
 
   const gradient = computed(() => {
     if (!props.gradient) return null
@@ -63,7 +68,7 @@
     ['--v0-paper-opacity']: props.opacity,
     ['--v0-paper-margin']: props.margin,
     ['--v0-paper-gradient']: gradient.value,
-
+    ['--v0-paper-elevation']: elevation.value,
     ...dimensionStyles.value,
   }
 </script>

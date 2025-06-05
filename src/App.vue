@@ -1,5 +1,10 @@
 <template>
   <main>
+    <v0-paper max-width="300px" padding="1em" gradient="linear-gradient(to right, #000000, #e0e0e0)" bg-color="primary" elevation="sm">
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni culpa amet aut velit laudantium? Obcaecati sit doloribus porro provident quisquam illum explicabo, ut nulla commodi sequi cum, unde veritatis adipisci!
+    </v0-paper>
+
+
     <h1>Avatars</h1>
     <v0-avatar height="32px" src="https://cdn.vuetifyjs.com/images/john-beard.png" width="32px" />
     <v0-avatar icon="mdi mdi-cog" />
@@ -126,9 +131,27 @@
   import V0Paper from '@/components/V0Paper/V0Paper.vue'
   import V0Icon from '@/components/V0Icon/V0Icon.vue'
   import V0Img from '@/components/V0Img/V0Img.vue'
+  import V0Typography from '@/components/V0Typography/V0Typography.vue'
   import { createTheme } from '@/composables/theme'
+  import { createTypography } from '@/composables/typography'
 
   createTheme({
     current: 'light',
+  })
+
+  createTypography({
+    'display': {
+      fontSize: '4rem',
+      fontWeight: 'bold',
+      lineHeight: '1.1',
+      letterSpacing: '-0.03em',
+      tag: 'h1'
+    },
+    'lead': {
+      fontSize: '1.25rem',
+      fontWeight: 'normal',
+      lineHeight: '1.7',
+      tag: 'p'
+    }
   })
 </script>
