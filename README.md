@@ -7,6 +7,7 @@
 Currently implemented:
 
 * **Avatar** — `<VAvatar>`
+* **Divider** — `<VDivider>`
 
 > Additional components will be added incrementally as they are extracted from the core Vuetify library.
 
