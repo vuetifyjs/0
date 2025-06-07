@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, ref, type Ref, watch } from 'vue'
+import { onMounted, onUnmounted, type Ref, watch } from 'vue'
 import { useImageLoadingState } from './useLoadingState'
 
 /**
@@ -26,10 +26,8 @@ export function useImageLoad (
     }
 
     if (imageRef.value.complete) {
-      // Image is already loaded/failed
       setState(imageRef.value.naturalWidth ? 'loaded' : 'error')
     } else {
-      // Add event listeners for loading
       imageRef.value.addEventListener('load', handleLoad)
       imageRef.value.addEventListener('error', handleError)
     }
@@ -44,7 +42,6 @@ export function useImageLoad (
     imageRef.value.removeEventListener('error', handleError)
   }
 
-  // Watch for src changes to reset loading state
   watch(
     () => src.value,
     () => {

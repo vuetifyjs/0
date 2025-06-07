@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import { computed, nextTick, ref, toRef, watch } from 'vue'
-  import { useContextConsumer } from '../../composables/useContext'
+  import { computed, inject, nextTick, ref, toRef, watch } from 'vue'
   import { useImageLoad } from '../../composables/useImageLoad'
   import { VAtom, type VAtomProps } from '../VAtom/VAtom'
   import { AvatarContext } from './VAvatarRoot.vue'
@@ -11,7 +10,7 @@
 
   const props = defineProps<VAvatarImageProps>()
 
-  const context = useContextConsumer(AvatarContext)
+  const context = inject(AvatarContext)!
   const atomRef = ref()
 
   const srcRef = toRef(props, 'src')

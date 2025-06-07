@@ -174,5 +174,5 @@
 
 <script setup lang="ts">
   import { User } from 'lucide-vue-next'
-  import VAvatar from './VAvatar.vue'
+  import VAvatar from '../components/VAvatar.vue'
 </script>

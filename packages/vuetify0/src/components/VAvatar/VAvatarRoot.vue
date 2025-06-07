@@ -1,14 +1,12 @@
 <script setup lang="ts">
   import type { InjectionKey, Ref } from 'vue'
   import type { LoadingState } from '../../types/componentStates'
-  import { useContextProvider } from '../../composables/useContext'
+  import { provide } from 'vue'
   import { useImageLoadingState } from '../../composables/useLoadingState'
   import { CONTEXT_KEYS } from '../../constants/contextKeys'
   import { VAtom, type VAtomProps } from '../VAtom/VAtom'
 
-  export interface VAvatarRootProps extends VAtomProps {
-    // Add any specific props for VAvatarRoot here
-  }
+  export interface VAvatarRootProps extends VAtomProps {}
 
   export interface AvatarContextValue {
     imageLoadingStatus: Ref<LoadingState>
@@ -24,7 +22,7 @@
     setImageLoadingStatus,
   }
 
-  useContextProvider(AvatarContext, contextValue)
+  provide(AvatarContext, contextValue)
 </script>
 
 <script lang="ts">

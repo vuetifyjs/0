@@ -26,7 +26,7 @@
 <script setup lang="ts">
   import { Icon } from '@iconify/vue'
   import { computed, useSlots } from 'vue'
-  import { VAvatarFallback, VAvatarImage, VAvatarRoot } from '../../lib'
+  import { VAvatarFallback, VAvatarImage, VAvatarRoot } from 'vuetify0'
 
   export interface VAvatarProps {
     // Core props

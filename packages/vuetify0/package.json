@@ -1,0 +1,37 @@
+{
+  "name": "vuetify0",
+  "version": "0.0.1",
+  "description": "A Vuetify project",
+  "author": "Andrei Elkin <andreyyolkin@gmail.com>",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./composables": {
+      "types": "./dist/composables.d.mts",
+      "import": "./dist/composables.mjs"
+    }
+  },
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "module": "./dist/index.mjs",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "stub": "obuild --stub",
+    "build": "pnpm typecheck && obuild",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@vue/tsconfig": "catalog:",
+    "obuild": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

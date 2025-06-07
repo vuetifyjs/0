@@ -1,3 +1,13 @@
 onlyBuiltDependencies:
   - esbuild
   - unrs-resolver
+
+packages:
+  - 'packages/*'
+  - 'playground/'
+
+catalog:
+  obuild: ^0.2.1
+  vue: ^3.5.16
+  '@vue/tsconfig': ^0.7.0
+  vue-tsc: ^2.2.10

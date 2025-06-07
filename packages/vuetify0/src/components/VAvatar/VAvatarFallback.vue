@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import { computed } from 'vue'
-  import { useContextConsumer } from '../../composables/useContext'
+  import { computed, inject } from 'vue'
   import { VAtom, type VAtomProps } from '../VAtom/VAtom'
   import { AvatarContext } from './VAvatarRoot.vue'
 
@@ -8,7 +7,7 @@
 
   const props = withDefaults(defineProps<VAvatarFallbackProps>(), {})
 
-  const context = useContextConsumer(AvatarContext)
+  const context = inject(AvatarContext)!
 
   const canRender = computed(() => {
     // Show fallback when image is loading or failed to load
