@@ -1,0 +1,1 @@
+import 'smooth-corners'
