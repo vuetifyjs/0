@@ -1,7 +1,7 @@
 <template>
   <VAtom
     v-if="canRender"
-    :as="as || 'span'"
+    :as="as"
     :as-child="asChild"
     class="v-avatar-fallback"
   >
@@ -16,7 +16,9 @@
 
   export interface VAvatarFallbackProps extends VAtomProps {}
 
-  defineProps<VAvatarFallbackProps>()
+  const {
+    as = 'span',
+  } = defineProps<VAvatarFallbackProps>()
 
   const context = inject(AvatarContext)!
 
