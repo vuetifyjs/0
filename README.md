@@ -12,12 +12,29 @@ Vuetify 0 decouples Vuetify from design systems, providing lightweight, unopinio
 
 ## Components
 
-Currently implemented:
+### Roadmap
 
-* **Avatar** — `<VAvatar>`
-* **Divider** — `<VDivider>`
+Vuetify 0 focuses on components that provide complex behavior, state management, and accessibility patterns.
 
-> Additional components will be added incrementally as they are extracted from the core Vuetify library.
+* **Dialog** — Complex focus management, backdrop handling, escape key behavior
+* **Menu** — Keyboard navigation, positioning, nested menus
+* **Select** — Dropdown behavior, search filtering, multi-select, keyboard navigation (includes Combobox/Autocomplete functionality)
+* **Tooltip** — Positioning, hover/focus states, delay management
+* **Field** — Form validation, error states, accessibility labeling
+* **Input** — Checkbox, Radio, and other grouped inputs with keyboard navigation
+* **Slider** — Range handling, keyboard controls, accessibility announcements
+* **Accordion** — Expand/collapse state, keyboard navigation
+* **Tabs** — Tab panel management, keyboard navigation, focus handling
+* **Scroller** — (optionally) Virtual scrolling, keyboard navigation
+* **Hover** — Hover state management, keyboard navigation
+* **Progress** — Linear and circular progress indicators
+
+### Currently Implemented
+
+* **Avatar** — `<VAvatar>` (basic display component)
+* **Divider** — `<VDivider>` (basic styling component)
+
+> Components are being developed incrementally, prioritizing those with complex interaction patterns and accessibility requirements.
 
 ## Getting Started
 
