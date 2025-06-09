@@ -23,19 +23,19 @@
 
     /**
      * Whether the divider is decorative (no semantic meaning)
-     * @default true
+     * @default false
      */
-    decorative?: boolean
+    separator?: boolean
   }
 
   const {
     as = 'div',
     orientation = 'horizontal',
-    decorative = true,
+    separator = true,
   } = defineProps<VDividerProps>()
 
-  const role = decorative ? 'none' : 'separator'
+  const role = separator ? 'none' : 'separator'
   const ariaOrientation = computed(() => {
-    return decorative ? undefined : orientation
+    return separator ? undefined : orientation
   })
 </script>

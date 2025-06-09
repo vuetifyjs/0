@@ -1,5 +1,8 @@
 <template>
-  <VAtom :as="as" :as-child="asChild">
+  <VAtom
+    :as="as"
+    :as-child="asChild"
+  >
     <slot />
   </VAtom>
 </template>

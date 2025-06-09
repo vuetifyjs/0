@@ -20,6 +20,7 @@
   export interface VAvatarImageProps extends VAtomProps {
     /**
      * The image source URL.
+     * @default undefined
      */
     src?: string
   }
