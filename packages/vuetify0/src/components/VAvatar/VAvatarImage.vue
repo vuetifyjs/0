@@ -22,9 +22,7 @@
     context.setImageLoadingStatus(newStatus)
   }, { immediate: true })
 
-  const shouldShow = computed(() => {
-    return context.imageLoadingStatus.value === 'loaded'
-  })
+  const shouldShow = toRef(() => context.imageLoadingStatus.value === 'loaded')
 
   const imageStyle = computed(() => {
     return {

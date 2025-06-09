@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { computed, inject } from 'vue'
+  import { inject, toRef } from 'vue'
   import { VAtom, type VAtomProps } from '../VAtom/VAtom'
   import { AvatarContext } from './VAvatarRoot.vue'
 
@@ -9,10 +9,7 @@
 
   const context = inject(AvatarContext)!
 
-  const canRender = computed(() => {
-    // Show fallback when image is loading or failed to load
-    return context.imageLoadingStatus.value !== 'loaded'
-  })
+  const canRender = toRef(() => context.imageLoadingStatus.value !== 'loaded')
 </script>
 
 <template>
