@@ -1,3 +1,14 @@
+<template>
+  <VAtom
+    v-if="canRender"
+    :as="as || 'span'"
+    :as-child="asChild"
+    class="v-avatar-fallback"
+  >
+    <slot />
+  </VAtom>
+</template>
+
 <script setup lang="ts">
   import { inject, toRef } from 'vue'
   import { VAtom, type VAtomProps } from '../VAtom/VAtom'
@@ -5,20 +16,9 @@
 
   export interface VAvatarFallbackProps extends VAtomProps {}
 
-  const props = withDefaults(defineProps<VAvatarFallbackProps>(), {})
+  defineProps<VAvatarFallbackProps>()
 
   const context = inject(AvatarContext)!
 
   const canRender = toRef(() => context.imageLoadingStatus.value !== 'loaded')
 </script>
-
-<template>
-  <VAtom
-    v-if="canRender"
-    :as="props.as || 'span'"
-    :as-child="props.asChild"
-    class="v-avatar-fallback"
-  >
-    <slot />
-  </VAtom>
-</template>

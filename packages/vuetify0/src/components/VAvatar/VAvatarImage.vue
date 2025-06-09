@@ -1,3 +1,16 @@
+<template>
+  <VAtom
+    ref="atomRef"
+    :as="as || 'img'"
+    :as-child="asChild"
+    class="v-avatar-image"
+    :src="src"
+    :style="imageStyle"
+  >
+    <slot />
+  </VAtom>
+</template>
+
 <script setup lang="ts">
   import { computed, inject, nextTick, ref, toRef, watch } from 'vue'
   import { useImageLoad } from '../../composables/useImageLoad'
@@ -13,9 +26,8 @@
   const context = inject(AvatarContext)!
   const atomRef = ref()
 
-  const srcRef = toRef(props, 'src')
   const imageRef = ref<HTMLImageElement | null>(null)
-  const { status, setupImageListeners } = useImageLoad(srcRef, imageRef)
+  const { status, setupImageListeners } = useImageLoad(toRef(() => props.src), imageRef)
 
   // Sync local image loading status with context
   watch(status, newStatus => {
@@ -43,16 +55,3 @@
     }
   })
 </script>
-
-<template>
-  <VAtom
-    ref="atomRef"
-    :as="props.as || 'img'"
-    :as-child="props.asChild"
-    class="v-avatar-image"
-    :src="props.src"
-    :style="imageStyle"
-  >
-    <slot />
-  </VAtom>
-</template>

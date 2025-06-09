@@ -1,3 +1,15 @@
+<template>
+  <VAtom
+    :aria-orientation="ariaOrientation"
+    :as="as"
+    :as-child="asChild"
+    :data-orientation="orientation"
+    :role="role"
+  >
+    <slot />
+  </VAtom>
+</template>
+
 <script setup lang="ts">
   import { computed } from 'vue'
   import { VAtom, type VAtomProps } from '../VAtom/VAtom'
@@ -16,26 +28,14 @@
     decorative?: boolean
   }
 
-  const props = withDefaults(defineProps<VDividerProps>(), {
-    as: 'div',
-    orientation: 'horizontal',
-    decorative: true,
-  })
+  const {
+    as = 'div',
+    orientation = 'horizontal',
+    decorative = true,
+  } = defineProps<VDividerProps>()
 
-  const role = props.decorative ? 'none' : 'separator'
+  const role = decorative ? 'none' : 'separator'
   const ariaOrientation = computed(() => {
-    return props.decorative ? undefined : props.orientation
+    return decorative ? undefined : orientation
   })
 </script>
-
-<template>
-  <VAtom
-    :aria-orientation="ariaOrientation"
-    :as="as"
-    :as-child="asChild"
-    :data-orientation="orientation"
-    :role="role"
-  >
-    <slot />
-  </VAtom>
-</template>

@@ -55,26 +55,25 @@
     density?: 'default' | 'comfortable' | 'compact'
   }
 
-  const props = withDefaults(defineProps<VAvatarProps>(), {
-    size: 'default',
-    rounded: true,
-    tile: false,
-    variant: 'flat',
-    border: false,
-    density: 'default',
-    start: false,
-    end: false,
-  })
+  const {
+    color,
+    size = 'default',
+    rounded = true,
+    tile = false,
+    variant = 'flat',
+    border = false,
+    density = 'default',
+  } = defineProps<VAvatarProps>()
 
   const slots = useSlots()
 
   const hasSlotContent = computed(() => {
-    return slots.default && slots.default().length > 0
+    return slots.default?.().length ?? 0 > 0
   })
 
   // Size calculations
   const sizeClasses = computed(() => {
-    if (typeof props.size === 'number') {
+    if (typeof size === 'number') {
       return ''
     }
 
@@ -86,18 +85,18 @@
       'x-large': 'w-16 h-16',
     }
 
-    return sizeMap[props.size as keyof typeof sizeMap] || 'w-10 h-10'
+    return sizeMap[size as keyof typeof sizeMap] || 'w-10 h-10'
   })
 
   const avatarStyles = computed(() => {
     const styles: Record<string, string> = {}
 
-    if (typeof props.size === 'number') {
-      styles.width = `${props.size}px`
-      styles.height = `${props.size}px`
-    } else if (typeof props.size === 'string' && !['x-small', 'small', 'default', 'large', 'x-large'].includes(props.size)) {
-      styles.width = props.size
-      styles.height = props.size
+    if (typeof size === 'number') {
+      styles.width = `${size}px`
+      styles.height = `${size}px`
+    } else if (typeof size === 'string' && !['x-small', 'small', 'default', 'large', 'x-large'].includes(size)) {
+      styles.width = size
+      styles.height = size
     }
 
     return styles
@@ -105,10 +104,10 @@
 
   // Rounded calculations
   const roundedClasses = computed(() => {
-    if (props.tile) return ''
+    if (tile) return ''
 
-    if (typeof props.rounded === 'boolean') {
-      return props.rounded ? 'rounded-full' : ''
+    if (typeof rounded === 'boolean') {
+      return rounded ? 'rounded-full' : ''
     }
 
     const roundedMap = {
@@ -121,13 +120,13 @@
       full: 'rounded-full',
     }
 
-    return roundedMap[props.rounded as keyof typeof roundedMap] || 'rounded-full'
+    return roundedMap[rounded as keyof typeof roundedMap] || 'rounded-full'
   })
 
   // Color and variant calculations
   const colorClasses = computed(() => {
-    if (!props.color) {
-      return props.variant === 'flat' ? 'bg-gray-100' : 'bg-transparent'
+    if (!color) {
+      return variant === 'flat' ? 'bg-gray-100' : 'bg-transparent'
     }
 
     // Handle utility colors
@@ -140,8 +139,8 @@
       info: 'bg-info text-white',
     }
 
-    if (utilityColors[props.color as keyof typeof utilityColors]) {
-      return utilityColors[props.color as keyof typeof utilityColors]
+    if (utilityColors[color as keyof typeof utilityColors]) {
+      return utilityColors[color as keyof typeof utilityColors]
     }
 
     // Handle CSS colors
@@ -158,28 +157,28 @@
       plain: 'bg-transparent opacity-60',
     }
 
-    return variantMap[props.variant] || ''
+    return variantMap[variant] || ''
   })
 
   // Border calculations
   const borderClasses = computed(() => {
-    if (!props.border) return ''
+    if (!border) return ''
 
-    if (typeof props.border === 'boolean') {
+    if (typeof border === 'boolean') {
       return 'border border-gray-300'
     }
 
-    if (typeof props.border === 'string') {
+    if (typeof border === 'string') {
       const borderMap = {
         sm: 'border',
         md: 'border-2',
         lg: 'border-4',
         xl: 'border-8',
       }
-      return borderMap[props.border as keyof typeof borderMap] || 'border'
+      return borderMap[border as keyof typeof borderMap] || 'border'
     }
 
-    return `border-${props.border}`
+    return `border-${border}`
   })
 
   // Density calculations
@@ -191,13 +190,13 @@
       compact: 'p-0.5',
     }
 
-    return densityMap[props.density] || ''
+    return densityMap[density] || ''
   })
 
   // Icon size based on avatar size
   const iconSize = computed(() => {
-    if (typeof props.size === 'number') {
-      return Math.round(props.size * 0.5)
+    if (typeof size === 'number') {
+      return Math.round(size * 0.5)
     }
 
     const iconSizeMap = {
@@ -208,7 +207,7 @@
       'x-large': 32,
     }
 
-    return iconSizeMap[props.size as keyof typeof iconSizeMap] || 20
+    return iconSizeMap[size as keyof typeof iconSizeMap] || 20
   })
 
   // Combined avatar classes
@@ -234,8 +233,8 @@
       'x-large': 'text-lg',
     }
 
-    const textSize = typeof props.size === 'string' && textSizeMap[props.size as keyof typeof textSizeMap]
-      ? textSizeMap[props.size as keyof typeof textSizeMap]
+    const textSize = typeof size === 'string' && textSizeMap[size as keyof typeof textSizeMap]
+      ? textSizeMap[size as keyof typeof textSizeMap]
       : 'text-sm'
 
     return `font-medium ${textSize}`

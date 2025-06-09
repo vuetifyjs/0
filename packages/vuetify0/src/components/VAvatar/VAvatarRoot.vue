@@ -1,3 +1,9 @@
+<template>
+  <VAtom :as="as" :as-child="asChild">
+    <slot />
+  </VAtom>
+</template>
+
 <script setup lang="ts">
   import type { InjectionKey, Ref } from 'vue'
   import type { LoadingState } from '../../types/componentStates'
@@ -13,7 +19,7 @@
     setImageLoadingStatus: (state: LoadingState) => void
   }
 
-  const props = defineProps<VAvatarRootProps>()
+  defineProps<VAvatarRootProps>()
 
   const { state: imageLoadingStatus, setState: setImageLoadingStatus } = useImageLoadingState()
 
@@ -28,9 +34,3 @@
 <script lang="ts">
   export const AvatarContext: InjectionKey<AvatarContextValue> = CONTEXT_KEYS.AVATAR
 </script>
-
-<template>
-  <VAtom :as="props.as" :as-child="props.asChild">
-    <slot />
-  </VAtom>
-</template>
