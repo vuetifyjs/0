@@ -1,7 +1,7 @@
 <template>
   <VAtom
     ref="atomRef"
-    :as="as || 'img'"
+    :as="as"
     :as-child="asChild"
     class="v-avatar-image"
     :src="src"
@@ -18,16 +18,22 @@
   import { AvatarContext } from './VAvatarRoot.vue'
 
   export interface VAvatarImageProps extends VAtomProps {
+    /**
+     * The image source URL.
+     */
     src?: string
   }
 
-  const props = defineProps<VAvatarImageProps>()
+  const {
+    src,
+    as = 'img',
+  } = defineProps<VAvatarImageProps>()
 
   const context = inject(AvatarContext)!
   const atomRef = ref()
 
   const imageRef = ref<HTMLImageElement | null>(null)
-  const { status, setupImageListeners } = useImageLoad(toRef(() => props.src), imageRef)
+  const { status, setupImageListeners } = useImageLoad(toRef(() => src), imageRef)
 
   // Sync local image loading status with context
   watch(status, newStatus => {
