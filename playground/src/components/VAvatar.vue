@@ -68,7 +68,7 @@
   const slots = useSlots()
 
   const hasSlotContent = computed(() => {
-    return slots.default?.().length ?? 0 > 0
+    return (slots.default?.().length ?? 0) > 0
   })
 
   // Size calculations
