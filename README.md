@@ -52,6 +52,12 @@ pnpm dev:prepare
 pnpm dev
 ```
 
+### Storybook
+
+```sh
+pnpm storybook
+```
+
 ### Type‑check, compile for production
 
 > [!WARNING]
