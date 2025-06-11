@@ -1,5 +1,6 @@
 export * from './components/VAtom'
 export * from './components/VAvatar'
+export * from './components/VButton'
 export * from './components/VDivider'
 export * from './constants/contextKeys'
 export * from './constants/htmlElements'

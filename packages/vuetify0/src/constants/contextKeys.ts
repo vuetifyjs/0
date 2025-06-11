@@ -6,6 +6,7 @@ import type { InjectionKey } from 'vue'
  */
 export const CONTEXT_KEYS = {
   AVATAR: Symbol('AvatarContext'),
+  BUTTON: Symbol('ButtonContext'),
   DIALOG: Symbol('DialogContext'),
   DROPDOWN: Symbol('DropdownContext'),
   ACCORDION: Symbol('AccordionContext'),

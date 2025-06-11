@@ -15,14 +15,14 @@
       />
     </VButtonLoading>
 
-    <VButtonContent v-if="icon && !isLeading" :hide-on-loading="isLeading">
+    <VButtonContent v-if="icon && isLeading" :hide-on-loading="isLeading">
       <Icon
         :class="['nuxt-ui-btn__icon', 'nuxt-ui-btn__icon--leading']"
         :icon="icon"
       />
     </VButtonContent>
 
-    <VButtonContent v-if="label || hasSlotContent" :hide-on-loading="!!icon">
+    <VButtonContent v-if="label ||hasSlotContent" :hide-on-loading="false">
       <span class="nuxt-ui-btn__text">
         <slot>{{ label }}</slot>
       </span>
@@ -73,9 +73,7 @@
     size: 'md',
     loadingIcon: 'lucide:loader-circle',
     disabled: false,
-    leading: true,
     loading: false,
-    trailing: false,
     square: false,
     block: false,
     state: 'default',
@@ -110,7 +108,12 @@
     ]
   })
 
-  const isLeading = computed(() => props.leading || !props.trailing)
+  const isLeading = computed(() => {
+    if (props.leading === undefined && props.trailing === undefined) {
+      return true
+    }
+    return props.leading || !props.trailing
+  })
 </script>
 
 <style>
