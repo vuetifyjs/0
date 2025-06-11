@@ -8,6 +8,7 @@
     "dev": "pnpm --filter=playground dev",
     "stub": "pnpm --filter=vuetify0 stub",
     "build": "pnpm --filter=vuetify0 build",
+    "storybook": "pnpm --filter=playground storybook",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
@@ -15,6 +16,7 @@
     "@types/node": "^22.15.30",
     "eslint": "^9.28.0",
     "eslint-config-vuetify": "4.1.0-0",
+    "eslint-plugin-storybook": "^9.0.8",
     "typescript": "5.8.3"
   },
   "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912"
