@@ -22,6 +22,7 @@ export default defineConfig({
       dirs: [
         './src/composables',
         './src/constants',
+        './src/utils',
       ],
       dts: 'src/composables.d.ts',
       eslintrc: {

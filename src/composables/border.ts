@@ -1,0 +1,24 @@
+export interface BorderProps {
+  borderColor?: string
+  borderStyle?: string
+  borderWidth?: string
+}
+
+export function useBorder (
+  props: BorderProps,
+  name?: string,
+) {
+  name = getCurrentInstanceName(name)
+
+  const borderStyles = toRef(() => {
+    return {
+      [`--v0-${name}-border-color`]: props.borderColor,
+      [`--v0-${name}-border-style`]: props.borderStyle,
+      [`--v0-${name}-border-width`]: props.borderWidth,
+    }
+  })
+
+  return {
+    borderStyles,
+  }
+}

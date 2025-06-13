@@ -1,5 +1,6 @@
 {
   "globals": {
+    "BorderProps": true,
     "COMMON_ELEMENTS": true,
     "ColorProps": true,
     "Component": true,
@@ -22,6 +23,7 @@
     "MaybeRefOrGetter": true,
     "PropType": true,
     "Ref": true,
+    "RoundedProps": true,
     "SELF_CLOSING_TAGS": true,
     "SelfClosingElement": true,
     "Slot": true,
@@ -41,6 +43,7 @@
     "defineComponent": true,
     "effectScope": true,
     "getCurrentInstance": true,
+    "getCurrentInstanceName": true,
     "getCurrentScope": true,
     "h": true,
     "hexToRgba": true,
@@ -85,6 +88,7 @@
     "triggerRef": true,
     "unref": true,
     "useAttrs": true,
+    "useBorder": true,
     "useColor": true,
     "useContrast": true,
     "useCssModule": true,
@@ -93,6 +97,7 @@
     "useElevation": true,
     "useId": true,
     "useModel": true,
+    "useRounded": true,
     "useSlots": true,
     "useTemplateRef": true,
     "watch": true,

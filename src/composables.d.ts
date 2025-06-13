@@ -21,6 +21,7 @@ declare global {
   const defineComponent: typeof import('vue')['defineComponent']
   const effectScope: typeof import('vue')['effectScope']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
+  const getCurrentInstanceName: typeof import('./utils/getCurrentInstanceName')['getCurrentInstanceName']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
   const hexToRgba: typeof import('./composables/color')['hexToRgba']
@@ -65,6 +66,7 @@ declare global {
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAttrs: typeof import('vue')['useAttrs']
+  const useBorder: typeof import('./composables/border')['useBorder']
   const useColor: typeof import('./composables/color')['useColor']
   const useContrast: typeof import('./composables/contrast')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
@@ -73,6 +75,7 @@ declare global {
   const useElevation: typeof import('./composables/elevation')['useElevation']
   const useId: typeof import('vue')['useId']
   const useModel: typeof import('vue')['useModel']
+  const useRounded: typeof import('./composables/rounded')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const watch: typeof import('vue')['watch']
@@ -86,6 +89,9 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
+  export type { BorderProps } from './composables/border'
+  import('./composables/border')
+  // @ts-ignore
   export type { ColorProps } from './composables/color'
   import('./composables/color')
   // @ts-ignore
@@ -94,6 +100,9 @@ declare global {
   // @ts-ignore
   export type { ElevationConfig, ElevationComposable, ElevationKeys } from './composables/elevation'
   import('./composables/elevation')
+  // @ts-ignore
+  export type { RoundedProps } from './composables/rounded'
+  import('./composables/rounded')
   // @ts-ignore
   export type { Theme, ThemeOptions, ThemeProvider } from './composables/theme'
   import('./composables/theme')
@@ -122,6 +131,7 @@ declare module 'vue' {
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
+    readonly getCurrentInstanceName: UnwrapRef<typeof import('./utils/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hexToRgba: UnwrapRef<typeof import('./composables/color')['hexToRgba']>
@@ -166,6 +176,7 @@ declare module 'vue' {
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useBorder: UnwrapRef<typeof import('./composables/border')['useBorder']>
     readonly useColor: UnwrapRef<typeof import('./composables/color')['useColor']>
     readonly useContrast: UnwrapRef<typeof import('./composables/contrast')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
@@ -174,6 +185,7 @@ declare module 'vue' {
     readonly useElevation: UnwrapRef<typeof import('./composables/elevation')['useElevation']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useRounded: UnwrapRef<typeof import('./composables/rounded')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
