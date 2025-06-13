@@ -1,8 +1,11 @@
+@use './variables' as *;
+
 @layer vuetify-0-icon {
   .v0-icon {
-    background-color: #{var(--v0-icon-bg-color)};
-    color: #{var(--v0-icon-color)};
+    background-color: #{$v0-icon-background-color};
+    color: #{$v0-icon-color};
     display: inline-flex;
-    font-size: #{var(--v0-icon-font-size)};
+    font-size: #{$v0-icon-font-size};
+    opacity: #{$v0-icon-opacity};
   }
 }

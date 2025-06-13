@@ -1,16 +1,27 @@
 <template>
-  <i :class="classes" :style="styles" />
+  <V0Atom
+    :as="as"
+    :as-child="asChild"
+    :class="classes"
+    :style="styles"
+  />
 </template>
 
 <script setup lang="ts">
-  import { useColor, type ColorProps } from '@/composables/color'
+  import { V0Atom } from '@/components/V0Atom'
+  import type { ColorProps } from '@/composables/color'
+  import type { V0AtomProps } from '@/components/V0Atom'
 
-  export interface V0IconProps extends ColorProps {
-    icon?: string
+  export interface V0IconProps extends V0AtomProps,ColorProps {
     fontSize?: string
+    icon?: string
+    opacity?: number | string
   }
 
-  const props = defineProps<V0IconProps>()
+  const {
+    as = 'i',
+    ...props
+  } = defineProps<V0IconProps>()
 
   const bgColor = useColor(props.bgColor)
   const color = useColor(props.color ?? bgColor?.value, !props.color)
@@ -20,11 +31,12 @@
     [`${props.icon}`]: true,
   }
 
-  const styles = {
-    ['--v0-icon-bg-color']: bgColor?.value,
+  const styles = toRef(() => ({
+    ['--v0-icon-background-color']: bgColor?.value,
     ['--v0-icon-color']: color?.value,
     ['--v0-icon-font-size']: props.fontSize,
-  }
+    ['--v0-icon-opacity']: props.opacity,
+  }))
 </script>
 
 <style lang="scss">

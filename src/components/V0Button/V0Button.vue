@@ -1,9 +1,10 @@
 <template>
-  <v0-paper
+  <V0Paper
     v-bind="props"
     :class="classes"
     :style="styles"
-    :tag="tag"
+    :as="as"
+    :as-child="asChild"
   >
     <div v-if="$slots.prepend" class="prepend">
       <slot name="prepend" />
@@ -20,7 +21,7 @@
     <div v-if="$slots.append" class="append">
       <slot name="append" />
     </div>
-  </v0-paper>
+  </V0Paper>
 </template>
 
 <script setup lang="ts">
@@ -43,7 +44,7 @@
   }
 
   const {
-    tag = 'button',
+    as = 'button',
     disabledOpacity = '.64',
     gap = '.5em',
     ...props

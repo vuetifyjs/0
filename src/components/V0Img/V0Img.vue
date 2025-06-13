@@ -1,22 +1,31 @@
 <template>
-  <v0-paper v-bind="props" :class="classes">
+  <V0Paper
+    :as="as"
+    :as-child="asChild"
+    :class="classes"
+    :style="styles"
+  >
     <img :alt="alt" :src="src">
-  </v0-paper>
+  </V0Paper>
 </template>
 
 <script setup lang="ts">
-  import V0Paper, { type V0PaperProps } from '@/components/V0Paper/V0Paper.vue'
+  import type { V0PaperProps } from '@/components/V0Paper'
 
   export interface V0ImgProps extends V0PaperProps {
     src?: string
     alt?: string
   }
 
-  const props = defineProps<V0ImgProps>()
+  defineProps<V0ImgProps>()
 
-  const classes = {
+  const classes = toRef(() => ({
     'v0-img': true,
-  }
+  }))
+
+  const styles = toRef(() => ({
+    //
+  }))
 </script>
 
 <style lang="scss">

@@ -126,11 +126,6 @@
 </template>
 
 <script setup>
-  import V0Avatar from '@/components/V0Avatar/V0Avatar.vue'
-  import V0Button from '@/components/V0Button/V0Button.vue'
-  import V0Paper from '@/components/V0Paper/V0Paper.vue'
-  import V0Icon from '@/components/V0Icon/V0Icon.vue'
-  import V0Img from '@/components/V0Img/V0Img.vue'
   import { createTheme } from '@/composables/theme'
 
   createTheme({

@@ -1,16 +1,21 @@
 <template>
-  <tag :class="classes" :style="styles">
+  <V0Atom
+    :as="as"
+    :as-child="asChild"
+    :class="classes"
+    :style="styles"
+  >
     <slot />
-  </tag>
+  </V0Atom>
 </template>
 
 <script setup lang="ts">
-  import { useColor, type ColorProps } from '@/composables/color'
-  import { useDimensions, type DimensionProps } from '@/composables/dimensions'
-  import { useElevation } from '@/composables/elevation'
-  import { computed } from 'vue'
+  import { V0Atom } from '@/components/V0Atom'
+  import type { V0AtomProps } from '@/components/V0Atom'
+  import type { ColorProps } from '@/composables/color'
+  import type { DimensionProps } from '@/composables/dimensions'
 
-  export interface V0PaperProps extends ColorProps, DimensionProps {
+  export interface V0PaperProps extends V0AtomProps, ColorProps, DimensionProps {
     borderRadius?: string
     borderColor?: string
     borderStyle?: string
@@ -18,7 +23,6 @@
     elevation?: string
     fontSize?: string
     fontWeight?: string | number
-    gradient?: string
     margin?: string
     opacity?: string | number
     padding?: string
@@ -26,7 +30,7 @@
     tag?: keyof HTMLElementTagNameMap
   }
 
-  const { tag = 'div', ...props } = defineProps<V0PaperProps>()
+  const props = defineProps<V0PaperProps>()
 
   const bgColor = useColor(props.bgColor)
   const color = useColor(props.color ?? bgColor?.value, !props.color)
@@ -35,21 +39,6 @@
   const { getElevation } = useElevation()
 
   const elevation = computed(() => getElevation(props.elevation))
-
-  const gradient = computed(() => {
-    if (!props.gradient) return null
-    // gradient="linear-gradient(to right, #000000, #ffffff)"
-    if (props.gradient.includes('gradient(')) return props.gradient
-
-    const parts = props.gradient.split(' ')
-    // gradient="radial #ff0000 #00ff00"
-    const isRadial = parts.includes('radial')
-    // gradient="45deg #ff0000 #00ff00 #0000ff"
-    const direction = parts.find(p => p.includes('deg')) || (isRadial ? '' : 'to right')
-    const colors = parts.filter(p => p !== 'radial' && !p.includes('deg')).join(', ')
-
-    return isRadial ? `radial-gradient(${colors})` : `linear-gradient(${direction}, ${colors})`
-  })
 
   const classes = {
     'v0-paper': true,
@@ -67,7 +56,6 @@
     ['--v0-paper-padding']: props.padding,
     ['--v0-paper-opacity']: props.opacity,
     ['--v0-paper-margin']: props.margin,
-    ['--v0-paper-gradient']: gradient.value,
     ['--v0-paper-elevation']: elevation.value,
     ...dimensionStyles.value,
   }
