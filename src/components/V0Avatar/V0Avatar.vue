@@ -34,5 +34,5 @@
 </script>
 
 <style lang="scss">
-@import './V0Avatar.scss';
+  @import './V0Avatar.scss';
 </style>
