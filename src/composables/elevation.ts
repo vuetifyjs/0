@@ -1,66 +1,51 @@
-import { inject, provide, computed, type ComputedRef, type InjectionKey } from 'vue'
+import type { InjectionKey } from 'vue'
 
 export interface ElevationConfig {
   [key: string]: number | 'none'
 }
 
-export interface ElevationComposable {
-  config: ComputedRef<ElevationConfig>
-  getElevation: (key?: string) => string | null
+export const VUETIFY_0_ELEVATION_KEY: InjectionKey<ElevationConfig> = Symbol('v0:elevation')
+
+export interface ElevationProps {
+  elevation?: number | string | 'none'
 }
 
-const VUETIFY_0_ELEVATION_DEFAULTS: ElevationConfig = {
-  none: 'none',
-  sm: 2,
-  md: 4,
-  lg: 8,
-  xl: 16,
-  xxl: 24
-}
-
-export type ElevationKeys = keyof typeof VUETIFY_0_ELEVATION_DEFAULTS
-
-export const VUETIFY_0_ELEVATION_KEY: InjectionKey<ElevationConfig> = Symbol('vuetify-0:elevation')
-
-export function provideElevation(config: ElevationConfig) {
+export function createElevation (config: ElevationConfig = {}) {
   provide(VUETIFY_0_ELEVATION_KEY, config)
 }
 
-export function useElevation(): ElevationComposable {
+export function useElevation (
+  props: ElevationProps,
+  name?: string
+) {
+  name = getCurrentInstanceName(name)
+
   const injection = inject(VUETIFY_0_ELEVATION_KEY, null)
 
-  const config = computed(() => injection || VUETIFY_0_ELEVATION_DEFAULTS)
+  const elevationStyles = toRef(() => {
+    const injected = injection?.[props.elevation!]
+    const elevation = injected ?? props.elevation ?? 'none'
 
-  function getElevation(key?: string): string | null {
-    if (!key) return null
-
-    const current = config.value
-    const level = current[key]
-
-    if (level === undefined) {
-      const fallback = VUETIFY_0_ELEVATION_DEFAULTS[key]
-
-      return (fallback === undefined) ? null : generateShadow(fallback)
+    return {
+      [`--v0-${name}-elevation`]: generateShadow(elevation),
     }
-
-    return generateShadow(level)
-  }
+  })
 
   return {
-    config,
-    getElevation
+    elevationStyles,
   }
 }
 
-function generateShadow(level: number | 'none'): string {
-  if (level === 'none') return 'none'
-  if (typeof level !== 'number' || level <= 0) return 'none'
+function generateShadow (_level: number | string | 'none') {
+  if (_level === 'none') return 'none'
 
-  const blur = Math.max(1, level * 0.5)
-  const spread = Math.max(0, level * 0.1)
-  const offset = Math.max(1, level * 0.2)
+  const level = Number(_level)
+
+  if (isNaN(level)) return _level
+
+  const blur = Math.round(Math.max(1, level * 0.5))
+  const spread = Math.round(Math.max(0, level * 0.1))
+  const offset = Math.round(Math.max(1, level * 0.2))
 
   return `0px ${offset}px ${blur}px ${spread}px rgba(0, 0, 0, 0.12), 0px ${Math.max(1, offset * 0.5)}px ${blur * 2}px 0px rgba(0, 0, 0, 0.08)`
 }
-
-export { VUETIFY_0_ELEVATION_DEFAULTS }

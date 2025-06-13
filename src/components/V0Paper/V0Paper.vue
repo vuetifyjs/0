@@ -15,6 +15,7 @@
   import type { BorderProps } from '@/composables/border'
   import type { ColorProps } from '@/composables/color'
   import type { DimensionProps } from '@/composables/dimensions'
+  import type { ElevationProps } from '@/composables/elevation'
   import type { RoundedProps } from '@/composables/rounded'
 
   export interface V0PaperProps extends
@@ -22,9 +23,9 @@
     BorderProps,
     ColorProps,
     DimensionProps,
+    ElevationProps,
     RoundedProps
   {
-    elevation?: string
     fontSize?: string
     fontWeight?: string | number
     margin?: string
@@ -37,10 +38,9 @@
   const bgColor = useColor(props.bgColor)
   const color = useColor(props.color ?? bgColor?.value, !props.color)
 
-  const { dimensionStyles } = useDimensions(props)
   const { borderStyles } = useBorder(props)
-
-  const { getElevation } = useElevation()
+  const { dimensionStyles } = useDimensions(props)
+  const { elevationStyles } = useElevation(props)
 
   const classes = toRef(() => ({
     'v0-paper': true,
@@ -55,10 +55,10 @@
     ['--v0-paper-padding']: props.padding,
     ['--v0-paper-opacity']: props.opacity,
     ['--v0-paper-margin']: props.margin,
-    ['--v0-paper-elevation']: getElevation(props.elevation),
 
     ...borderStyles.value,
     ...dimensionStyles.value,
+    ...elevationStyles.value,
   }))
 </script>
 
