@@ -11,10 +11,12 @@ declare global {
   const DEFAULT_LIGHT: typeof import('./composables/theme')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
   const SELF_CLOSING_TAGS: typeof import('./constants/htmlElements')['SELF_CLOSING_TAGS']
+  const V0_ELEVATION_KEY: typeof import('./composables/elevation')['V0_ELEVATION_KEY']
   const VUETIFY_0_ELEVATION_DEFAULTS: typeof import('./composables/elevation')['VUETIFY_0_ELEVATION_DEFAULTS']
   const VUETIFY_0_ELEVATION_KEY: typeof import('./composables/elevation')['VUETIFY_0_ELEVATION_KEY']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
+  const createElevation: typeof import('./composables/elevation')['createElevation']
   const createTheme: typeof import('./composables/theme')['createTheme']
   const customRef: typeof import('vue')['customRef']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
@@ -98,7 +100,7 @@ declare global {
   export type { DimensionProps } from './composables/dimensions'
   import('./composables/dimensions')
   // @ts-ignore
-  export type { ElevationConfig, ElevationComposable, ElevationKeys } from './composables/elevation'
+  export type { ElevationConfig, ElevationProps } from './composables/elevation'
   import('./composables/elevation')
   // @ts-ignore
   export type { RoundedProps } from './composables/rounded'
@@ -121,10 +123,10 @@ declare module 'vue' {
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('./composables/theme')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('./constants/htmlElements')['SELF_CLOSING_TAGS']>
-    readonly VUETIFY_0_ELEVATION_DEFAULTS: UnwrapRef<typeof import('./composables/elevation')['VUETIFY_0_ELEVATION_DEFAULTS']>
-    readonly VUETIFY_0_ELEVATION_KEY: UnwrapRef<typeof import('./composables/elevation')['VUETIFY_0_ELEVATION_KEY']>
+    readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('./composables/elevation')['V0_ELEVATION_KEY']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createElevation: UnwrapRef<typeof import('./composables/elevation')['createElevation']>
     readonly createTheme: UnwrapRef<typeof import('./composables/theme')['createTheme']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
@@ -159,7 +161,6 @@ declare module 'vue' {
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
-    readonly provideElevation: UnwrapRef<typeof import('./composables/elevation')['provideElevation']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
