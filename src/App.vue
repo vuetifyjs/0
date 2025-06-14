@@ -3,7 +3,7 @@
     <V0AffixRoot icon="mdi mdi-account">
       <V0AffixContent></V0AffixContent>
 
-      <V0AffixLoading></V0AffixLoading>
+      <V0AffixLoading>Loading</V0AffixLoading>
     </V0AffixRoot>
   </main>
 </template>

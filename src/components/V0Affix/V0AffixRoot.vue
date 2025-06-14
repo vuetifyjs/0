@@ -4,13 +4,15 @@
 
   // Types
   import type { V0AtomProps } from '@/components/V0Atom'
-  import type { InjectionKey, MaybeRefOrGetter, ShallowRef } from 'vue'
+  import type { InjectionKey, MaybeRefOrGetter } from 'vue'
 
-  export type V0AffixProvide = ShallowRef<{
-    isLoading: boolean
+  export type V0AffixInstance = {
     avatar: V0AffixProps['avatar']
     icon: V0AffixProps['icon']
-  }>
+    loading: V0AffixProps['loading']
+  }
+
+  export type V0AffixProvide = MaybeRefOrGetter<V0AffixInstance>
 
   export interface V0AffixProps extends V0AtomProps {
     avatar?: string
@@ -39,10 +41,10 @@
     '--v0-affix-gap': props.gap,
   }))
 
-  const provides: MaybeRefOrGetter<V0AffixProvide> = toRef(() => ({
-    isLoading: props.loading,
+  const provides: V0AffixProvide = toRef(() => ({
     avatar: props.avatar,
     icon: props.icon,
+    loading: props.loading,
   }))
 
   provide(V0AffixKey, provides)
