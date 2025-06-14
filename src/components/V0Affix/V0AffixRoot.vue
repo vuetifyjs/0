@@ -1,32 +1,11 @@
-<script lang="ts">
+<script lang="ts" setup>
   // Components
   import { V0Atom } from '@/components/V0Atom'
 
   // Types
-  import type { V0AtomProps } from '@/components/V0Atom'
-  import type { InjectionKey, MaybeRefOrGetter } from 'vue'
+  import { V0AffixKey } from './types'
+  import type { V0AffixProps, V0AffixProvide } from './types'
 
-  export type V0AffixInstance = {
-    avatar: V0AffixProps['avatar']
-    icon: V0AffixProps['icon']
-    loading: V0AffixProps['loading']
-  }
-
-  export type V0AffixProvide = MaybeRefOrGetter<V0AffixInstance>
-
-  export interface V0AffixProps extends V0AtomProps {
-    avatar?: string
-    icon?: string
-    gap?: number | string
-    loading?: boolean
-    start?: boolean
-    end?: boolean
-  }
-
-  export const V0AffixKey: InjectionKey<V0AffixProvide> = Symbol('v0-affix')
-</script>
-
-<script lang="ts" setup>
   defineOptions({ name: 'V0AffixRoot' })
 
   const props = defineProps<V0AffixProps>()
@@ -62,7 +41,7 @@
 <style lang="scss">
   @use './_variables' as *;
 
-  @layer v0-affix {
+  @layer v0-components {
     .v0-affix {
       display: inline-flex;
       align-items: center;

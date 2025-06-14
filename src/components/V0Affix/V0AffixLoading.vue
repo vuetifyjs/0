@@ -1,18 +1,11 @@
-<script lang="ts">
+<script lang="ts" setup>
   // Components
   import { V0Atom } from '@/components/V0Atom'
 
   // Types
-  import { V0AffixKey } from './V0AffixRoot.vue'
-  import type { V0AffixProvide } from './V0AffixRoot.vue'
-  import type { V0AtomProps } from '@/components/V0Atom'
+  import { V0AffixKey } from './types'
+  import type { V0AffixLoadingProps, V0AffixProvide } from './types'
 
-  export interface V0AffixLoadingProps extends V0AtomProps {
-    loading?: boolean
-  }
-</script>
-
-<script lang="ts" setup>
   defineOptions({ name: 'V0AffixLoading' })
 
   const {

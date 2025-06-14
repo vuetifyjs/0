@@ -1,19 +1,11 @@
-<script lang="ts">
+<script lang="ts" setup>
   // Components
   import { V0Atom } from '@/components/V0Atom'
 
   // Types
-  import { V0AffixKey } from '@/components/V0Affix'
-  import type { V0AffixProvide } from '@/components/V0Affix'
-  import type { V0AtomProps } from '@/components/V0Atom'
+  import { V0AffixKey } from './types'
+  import type { V0AffixContentProps, V0AffixProvide } from './types'
 
-  export interface V0AffixContentProps extends V0AtomProps {
-    avatar?: string
-    icon?: string
-  }
-</script>
-
-<script lang="ts" setup>
   defineOptions({ name: 'V0AffixContent' })
 
   const props = defineProps<V0AffixContentProps>()
