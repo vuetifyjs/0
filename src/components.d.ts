@@ -9,6 +9,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     V0Affix: typeof import('./components/V0Affix/V0Affix.vue')['default']
+    V0AffixContent: typeof import('./components/V0Affix/V0AffixContent.vue')['default']
+    V0AffixLoading: typeof import('./components/V0Affix/V0AffixLoading.vue')['default']
+    V0AffixRoot: typeof import('./components/V0Affix/V0AffixRoot.vue')['default']
     V0Avatar: typeof import('./components/V0Avatar/V0Avatar.vue')['default']
     V0Button: typeof import('./components/V0Button/V0Button.vue')['default']
     V0Icon: typeof import('./components/V0Icon/V0Icon.vue')['default']

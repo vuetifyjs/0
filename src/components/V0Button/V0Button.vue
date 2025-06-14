@@ -25,11 +25,8 @@
 </template>
 
 <script setup lang="ts">
-  // Components
-  import V0Paper from '@/components/V0Paper/V0Paper.vue'
-
   // Types
-  import type { V0PaperProps } from '@/components/V0Paper/V0Paper.vue'
+  import type { V0PaperProps } from '@/components/V0Paper'
 
   export interface V0ButtonProps extends V0PaperProps {
     gap?: string
@@ -50,19 +47,19 @@
     ...props
   } = defineProps<V0ButtonProps>()
 
-  const classes = {
+  const classes = toRef(() => ({
     'v0-button': true,
     'v0-button--active': props.active,
     'v0-button--disabled': props.disabled,
     'v0-button--hover': props.hover,
     'v0-button--loading': props.loading,
     'v0-button--readonly': props.readonly,
-  }
+  }))
 
-  const styles = {
+  const styles = toRef(() => ({
     '--v0-button-disabled-opacity': disabledOpacity,
     '--v0-button-gap': gap,
-  }
+  }))
 </script>
 
 <style lang="scss">

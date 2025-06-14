@@ -33,6 +33,8 @@
     padding?: string
   }
 
+  defineOptions({ name: 'V0Paper' })
+
   const props = defineProps<V0PaperProps>()
 
   const bgColor = useColor(props.bgColor)

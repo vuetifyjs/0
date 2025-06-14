@@ -1,6 +1,6 @@
 @use './variables' as *;
 
-@layer vuetify-0-avatar {
+@layer v0-avatar {
   .v0-avatar {
     border-radius: #{$v0-avatar-border-radius};
     display: inline-flex;

@@ -1,15 +1,21 @@
 <template>
   <V0Paper
-    :as="as"
-    :as-child="asChild"
     :class="classes"
     :style="styles"
+    v-bind="props"
   >
     <slot v-if="$slots.default" />
 
-    <V0Img v-else-if="src" :src="src" />
+    <V0Img
+      v-else-if="src"
+      :src="src"
+    />
 
-    <V0Icon v-else-if="icon" :font-size="width" :icon="icon" />
+    <V0Icon
+      v-else-if="icon"
+      :font-size="width"
+      :icon="icon"
+    />
   </V0Paper>
 </template>
 
@@ -22,7 +28,14 @@
     text?: string
   }
 
-  defineProps<V0AvatarProps>()
+  defineOptions({ name: 'V0Avatar' })
+
+  const {
+    src,
+    icon,
+    text,
+    ...props
+  } = defineProps<V0AvatarProps>()
 
   const classes = toRef(() => ({
     'v0-avatar': true,

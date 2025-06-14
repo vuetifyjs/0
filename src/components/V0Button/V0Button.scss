@@ -1,13 +1,14 @@
 @use './variables' as *;
 
-@layer vuetify-0-button {
+@layer v0-button {
   .v0-button {
-    align-items: align-center;
+    align-items: center;
     cursor: pointer;
-    display: $v0-button-display;
+    display: inline-flex;
+    gap: #{$v0-button-gap};
     justify-content: center;
     outline: none;
-    gap: #{$v0-button-gap};
+    vertical-align: middle;
 
     &--disabled,
     &--readonly,
