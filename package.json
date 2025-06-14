@@ -21,6 +21,7 @@
     "@vue/tsconfig": "^0.7.0",
     "eslint": "^9.29.0",
     "eslint-config-vuetify": "4.1.0-0",
+    "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "sass-embedded": "1.79.6",
     "typescript": "~5.8.3",
     "unplugin-auto-import": "^19.3.0",
