@@ -4,14 +4,14 @@ export interface ElevationConfig {
   [key: string]: number | 'none'
 }
 
-export const VUETIFY_0_ELEVATION_KEY: InjectionKey<ElevationConfig> = Symbol('v0:elevation')
+export const V0_ELEVATION_KEY: InjectionKey<ElevationConfig> = Symbol('v0:elevation')
 
 export interface ElevationProps {
   elevation?: number | string | 'none'
 }
 
 export function createElevation (config: ElevationConfig = {}) {
-  provide(VUETIFY_0_ELEVATION_KEY, config)
+  provide(V0_ELEVATION_KEY, config)
 }
 
 export function useElevation (
@@ -20,14 +20,16 @@ export function useElevation (
 ) {
   name = getCurrentInstanceName(name)
 
-  const injection = inject(VUETIFY_0_ELEVATION_KEY, null)
+  const injection = inject(V0_ELEVATION_KEY, null)
 
   const elevationStyles = toRef(() => {
     const injected = injection?.[props.elevation!]
-    const elevation = injected ?? props.elevation ?? 'none'
+    const elevation = injected ?? props.elevation
+
+    if (elevation == null) return {}
 
     return {
-      [`--v0-${name}-elevation`]: generateShadow(elevation),
+      [`--v0-${name}-elevation`]: elevate(elevation),
     }
   })
 
@@ -36,7 +38,7 @@ export function useElevation (
   }
 }
 
-function generateShadow (_level: number | string | 'none') {
+function elevate (_level: number | string | 'none') {
   if (_level === 'none') return 'none'
 
   const level = Number(_level)
