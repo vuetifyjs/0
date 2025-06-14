@@ -60,5 +60,15 @@
 </template>
 
 <style lang="scss">
-  @import './V0Affix.scss';
+  @use './_variables' as *;
+
+  @layer v0-affix {
+    .v0-affix {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: #{$v0-affix-gap};
+      vertical-align: middle;
+    }
+  }
 </style>
