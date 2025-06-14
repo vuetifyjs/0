@@ -9,7 +9,7 @@ export interface DimensionProps {
 
 export function useDimensions (
   props: DimensionProps,
-  name?: string
+  name?: string,
 ) {
   name = getCurrentInstanceName(name)
 

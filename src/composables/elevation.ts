@@ -16,7 +16,7 @@ export function createElevation (config: ElevationConfig = {}) {
 
 export function useElevation (
   props: ElevationProps,
-  name?: string
+  name?: string,
 ) {
   name = getCurrentInstanceName(name)
 
@@ -26,7 +26,9 @@ export function useElevation (
     const injected = injection?.[props.elevation!]
     const elevation = injected ?? props.elevation
 
-    if (elevation == null) return {}
+    if (elevation == null) {
+      return {}
+    }
 
     return {
       [`--v0-${name}-elevation`]: elevate(elevation),
@@ -39,11 +41,15 @@ export function useElevation (
 }
 
 function elevate (_level: number | string | 'none') {
-  if (_level === 'none') return 'none'
+  if (_level === 'none') {
+    return 'none'
+  }
 
   const level = Number(_level)
 
-  if (isNaN(level)) return _level
+  if (Number.isNaN(level)) {
+    return _level
+  }
 
   const blur = Math.round(Math.max(1, level * 0.5))
   const spread = Math.round(Math.max(0, level * 0.1))

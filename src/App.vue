@@ -1,7 +1,7 @@
 <template>
   <main>
     <V0AffixRoot icon="mdi mdi-account">
-      <V0AffixContent></V0AffixContent>
+      <V0AffixContent />
 
       <V0AffixLoading>Loading</V0AffixLoading>
     </V0AffixRoot>

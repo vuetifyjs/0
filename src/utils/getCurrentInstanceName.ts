@@ -1,5 +1,7 @@
 export function getCurrentInstanceName (name?: string): string | undefined {
-  if (name) return name
+  if (name) {
+    return name
+  }
 
   const vm = getCurrentInstance()
 

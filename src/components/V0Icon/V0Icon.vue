@@ -12,7 +12,7 @@
   import type { ColorProps } from '@/composables/color'
   import type { V0AtomProps } from '@/components/V0Atom'
 
-  export interface V0IconProps extends V0AtomProps,ColorProps {
+  export interface V0IconProps extends V0AtomProps, ColorProps {
     fontSize?: string
     icon?: string
     opacity?: number | string

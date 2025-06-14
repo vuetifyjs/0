@@ -54,8 +54,7 @@ export function rgbaToHexa (rgba: string): string {
   }
   const [r, g, b, a] = rgbaArray
   const alpha = Math.round(a * 255)
-  return `#${(0x1_00_00_00 + r * 0x1_00_00 + g * 0x1_00 + b).toString(16)
-    .slice(1)}${(alpha + 0x1_00_00).toString(16).slice(-2)}`
+  return `#${(0x1_00_00_00 + r * 0x1_00_00 + g * 0x1_00 + b).toString(16).slice(1)}${(alpha + 0x1_00_00).toString(16).slice(-2)}`
 }
 
 export function useColor (color?: string, contrast = false) {

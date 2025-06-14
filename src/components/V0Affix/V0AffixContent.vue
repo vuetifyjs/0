@@ -31,8 +31,8 @@
 
     <V0Avatar
       v-else-if="avatar || icon"
-      :src="avatar"
       :icon="icon"
+      :src="avatar"
     />
   </V0Atom>
 </template>

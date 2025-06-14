@@ -1,10 +1,10 @@
 <template>
   <V0Paper
     v-bind="props"
-    :class="classes"
-    :style="styles"
     :as="as"
     :as-child="asChild"
+    :class="classes"
+    :style="styles"
   >
     <div v-if="$slots.prepend" class="prepend">
       <slot name="prepend" />

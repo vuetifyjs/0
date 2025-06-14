@@ -24,14 +24,13 @@
     ColorProps,
     DimensionProps,
     ElevationProps,
-    RoundedProps
-  {
-    fontSize?: string
-    fontWeight?: string | number
-    margin?: string
-    opacity?: string | number
-    padding?: string
-  }
+    RoundedProps {
+      fontSize?: string
+      fontWeight?: string | number
+      margin?: string
+      opacity?: string | number
+      padding?: string
+    }
 
   defineOptions({ name: 'V0Paper' })
 

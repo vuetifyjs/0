@@ -28,8 +28,8 @@
 <template>
   <V0Atom
     v-if="isLoading"
-    :as="as"
     aria-label="loading"
+    :as="as"
     role="status"
   >
     <slot />
