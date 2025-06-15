@@ -19,6 +19,7 @@ declare global {
   const createElevation: typeof import('./composables/elevation')['createElevation']
   const createTheme: typeof import('./composables/theme')['createTheme']
   const customRef: typeof import('vue')['customRef']
+  const defaultElevationGenerator: typeof import('./composables/elevation')['defaultElevationGenerator']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const effectScope: typeof import('vue')['effectScope']

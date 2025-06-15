@@ -40,6 +40,7 @@
     "createElevation": true,
     "createTheme": true,
     "customRef": true,
+    "defaultElevationGenerator": true,
     "defineAsyncComponent": true,
     "defineComponent": true,
     "effectScope": true,
