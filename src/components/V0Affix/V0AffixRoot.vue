@@ -10,14 +10,16 @@
 
   const props = defineProps<V0AffixProps>()
 
+  const { spacingStyles } = useSpacing(props)
+
   const classes = toRef(() => ({
     'v0-affix-root': true,
-    'v0-affix-start': props.start,
-    'v0-affix-end': props.end,
   }))
 
   const styles = toRef(() => ({
-    '--v0-affix-gap': props.gap,
+    '--v0-affix-root-gap': props.gap,
+
+    ...spacingStyles.value,
   }))
 
   const provides: V0AffixProvide = toRef(() => ({
@@ -46,7 +48,9 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: #{$v0-affix-gap};
+      gap: #{$v0-affix-root-gap};
+      margin: #{$v0-affix-root-margin};
+      padding: #{$v0-affix-root-padding};
       vertical-align: middle;
     }
   }

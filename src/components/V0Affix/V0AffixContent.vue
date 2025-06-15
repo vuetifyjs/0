@@ -25,6 +25,8 @@
       v-else-if="avatar || icon"
       :icon="icon"
       :src="avatar"
-    />
+    >
+      <V0AvatarContent />
+    </V0AvatarRoot>
   </V0Atom>
 </template>

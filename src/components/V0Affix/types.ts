@@ -1,29 +1,33 @@
 // Types
 import type { InjectionKey, MaybeRefOrGetter } from 'vue'
 import type { V0AtomProps } from '@/components/V0Atom'
+import type { SpacingProps } from '@/composables/spacing'
 
-export interface V0AffixProps extends V0AtomProps {
+export interface V0AffixPropsRoot {
   avatar?: string
   icon?: string
-  gap?: number | string
+  gap?: string
   loading?: boolean
-  start?: boolean
-  end?: boolean
 }
 
+export interface V0AffixProps extends
+  V0AffixPropsRoot,
+  V0AtomProps,
+  SpacingProps {}
+
 export interface V0AffixContentProps extends V0AtomProps {
-  avatar?: string
-  icon?: string
+  avatar?: V0AffixPropsRoot['avatar']
+  icon?: V0AffixPropsRoot['icon']
 }
 
 export interface V0AffixLoadingProps extends V0AtomProps {
-  loading?: boolean
+  loading?: V0AffixPropsRoot['loading']
 }
 
 export interface V0AffixInstance {
-  avatar: V0AffixProps['avatar']
-  icon: V0AffixProps['icon']
-  loading: V0AffixProps['loading']
+  avatar: V0AffixPropsRoot['avatar']
+  icon: V0AffixPropsRoot['icon']
+  loading: V0AffixPropsRoot['loading']
 }
 
 export type V0AffixProvide = MaybeRefOrGetter<V0AffixInstance>
