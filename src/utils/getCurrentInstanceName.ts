@@ -1,9 +1,5 @@
-export function getCurrentInstanceName (name?: string): string | undefined {
-  if (name) {
-    return name
-  }
+export function getCurrentInstanceName () {
+  const vm = getCurrentInstance()?.type
 
-  const vm = getCurrentInstance()
-
-  return vm?.type?.__name?.replace('V0', '').replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '')
+  return toKebabCase(vm?.name?.replace('V0', '') ?? '')
 }

@@ -9,10 +9,8 @@ export interface DimensionProps {
 
 export function useDimensions (
   props: DimensionProps,
-  name?: string,
+  name = getCurrentInstanceName(),
 ) {
-  name = getCurrentInstanceName(name)
-
   const dimensionStyles = toRef(() => ({
     [`--v0-${name}-width`]: props.width,
     [`--v0-${name}-height`]: props.height,

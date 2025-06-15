@@ -94,10 +94,8 @@ export function parseColor (color?: string, contrast = false) {
 
 export function useColor (
   props: ColorProps,
-  name?: string,
+  name = getCurrentInstanceName(),
 ) {
-  name = getCurrentInstanceName(name)
-
   const bgColor = parseColor(props.bgColor)
   const color = parseColor(props.color ?? bgColor?.value, !props.color)
 

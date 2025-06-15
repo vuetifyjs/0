@@ -16,10 +16,8 @@ export function createElevation (config: ElevationConfig = {}) {
 
 export function useElevation (
   props: ElevationProps,
-  name?: string,
+  name = getCurrentInstanceName(),
 ) {
-  name = getCurrentInstanceName(name)
-
   const injection = inject(V0_ELEVATION_KEY, null)
 
   const elevationStyles = toRef(() => {

@@ -5,10 +5,8 @@ export interface SpacingProps {
 
 export function useSpacing (
   props: SpacingProps,
-  name?: string,
+  name = getCurrentInstanceName(),
 ) {
-  name = getCurrentInstanceName(name)
-
   const spacingStyles = toRef(() => {
     return {
       [`--v0-${name}-padding`]: props.padding,
