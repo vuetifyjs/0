@@ -96,13 +96,15 @@ export function useColor (
   props: ColorProps,
   name = getCurrentInstanceName(),
 ) {
-  const bgColor = parseColor(props.bgColor)
-  const color = parseColor(props.color ?? bgColor?.value, !props.color)
+  const colorStyles = toRef(() => {
+    const bgColor = parseColor(props.bgColor)
+    const color = parseColor(props.color ?? bgColor?.value, !props.color)
 
-  const colorStyles = toRef(() => ({
-    [`--v0-${name}-bg-color`]: bgColor?.value,
-    [`--v0-${name}-color`]: color?.value,
-  }))
+    return {
+      [`--v0-${name}-bg-color`]: bgColor?.value,
+      [`--v0-${name}-color`]: color?.value,
+    }
+  })
 
   return {
     colorStyles,
