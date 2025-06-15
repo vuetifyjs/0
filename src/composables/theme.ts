@@ -1,4 +1,4 @@
-import { computed, provide, ref, watchEffect, type Ref } from 'vue'
+import type { Ref } from 'vue'
 
 export interface Theme {
   dark: boolean
@@ -142,7 +142,7 @@ export function createTheme (options: ThemeOptions) {
     let cssVariables = ':root {\n'
 
     for (const [key, value] of Object.entries(currentTheme.colors)) {
-      cssVariables += `  --v0-${key}: ${value};\n`
+      cssVariables += `  --v0-${toKebabCase(key)}: ${value};\n`
     }
 
     cssVariables += '}'

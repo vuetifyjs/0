@@ -137,6 +137,7 @@ declare module 'vue' {
     readonly createElevation: UnwrapRef<typeof import('./composables/elevation')['createElevation']>
     readonly createTheme: UnwrapRef<typeof import('./composables/theme')['createTheme']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
+    readonly defaultElevationGenerator: UnwrapRef<typeof import('./composables/elevation')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
