@@ -12,6 +12,7 @@
     "DirectiveBinding": true,
     "EffectScope": true,
     "ElevationConfig": true,
+    "ElevationOptions": true,
     "ElevationProps": true,
     "ExtractDefaultPropTypes": true,
     "ExtractPropTypes": true,

@@ -4,14 +4,20 @@ export interface ElevationConfig {
   [key: string]: number | 'none'
 }
 
-export const V0_ELEVATION_KEY: InjectionKey<ElevationConfig> = Symbol('v0:elevation')
+export interface ElevationOptions {
+  levels?: Record<string, number | 'none'>
+  generator?: (level: number | string | 'none') => string
+}
+
+export const V0_ELEVATION_KEY: InjectionKey<{ config: ElevationConfig, generator?: ElevationOptions['generator'] }> = Symbol('v0:elevation')
 
 export interface ElevationProps {
   elevation?: number | string | 'none'
 }
 
-export function createElevation (config: ElevationConfig = {}) {
-  provide(V0_ELEVATION_KEY, config)
+export function createElevation (options: ElevationOptions = {}) {
+  const { levels = {}, generator } = options
+  provide(V0_ELEVATION_KEY, { config: levels, generator })
 }
 
 export function useElevation (
@@ -21,15 +27,17 @@ export function useElevation (
   const injection = inject(V0_ELEVATION_KEY, null)
 
   const elevationStyles = toRef(() => {
-    const injected = injection?.[props.elevation!]
+    const injected = injection?.config?.[props.elevation!]
     const elevation = injected ?? props.elevation
 
     if (elevation == null) {
       return {}
     }
 
+    const generator = injection?.generator ?? defaultElevationGenerator
+
     return {
-      [`--v0-${name}-elevation`]: elevate(elevation),
+      [`--v0-${name}-elevation`]: generator(elevation),
     }
   })
 
@@ -38,7 +46,7 @@ export function useElevation (
   }
 }
 
-function elevate (_level: number | string | 'none') {
+export function defaultElevationGenerator (_level: number | string | 'none') {
   if (_level === 'none') {
     return 'none'
   }

@@ -13,7 +13,7 @@
     <br>
     <br>
 
-    <v0-paper elevation="32" max-width="300px" padding="1em">
+    <v0-paper elevation="xxl" max-width="300px" padding="1em">
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni culpa amet aut velit laudantium? Obcaecati sit doloribus porro provident quisquam illum explicabo, ut nulla commodi sequi cum, unde veritatis adipisci!
     </v0-paper>
 
@@ -142,5 +142,13 @@
 
   createTheme({
     current: 'light',
+  })
+
+  createElevation({
+    levels: {
+      sm: 2,
+      md: 4,
+      xxl: 16,
+    },
   })
 </script>

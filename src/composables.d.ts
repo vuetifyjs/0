@@ -104,7 +104,7 @@ declare global {
   export type { DimensionProps } from './composables/dimensions'
   import('./composables/dimensions')
   // @ts-ignore
-  export type { ElevationConfig, ElevationProps } from './composables/elevation'
+  export type { ElevationConfig, ElevationOptions, ElevationProps } from './composables/elevation'
   import('./composables/elevation')
   // @ts-ignore
   export type { RoundedProps } from './composables/rounded'
