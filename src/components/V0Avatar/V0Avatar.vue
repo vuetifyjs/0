@@ -29,11 +29,13 @@
     :width
   >
     <V0AvatarRoot :icon :loading :src :text>
-      <V0AvatarImage>
-        <slot />
-      </V0AvatarImage>
+      <slot>
+        <V0AvatarImage />
+      </slot>
 
-      <V0AvatarIcon />
+      <slot name="icon">
+        <V0AvatarIcon />
+      </slot>
 
       <V0AvatarLoading>
         <slot name="loading" />
