@@ -11,7 +11,7 @@
   const props = defineProps<V0AffixProps>()
 
   const classes = toRef(() => ({
-    'v0-affix': true,
+    'v0-affix-root': true,
     'v0-affix-start': props.start,
     'v0-affix-end': props.end,
   }))
@@ -42,7 +42,7 @@
   @use './_variables' as *;
 
   @layer v0-components {
-    .v0-affix {
+    .v0-affix-root {
       display: inline-flex;
       align-items: center;
       justify-content: center;
