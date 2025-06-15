@@ -1,33 +1,44 @@
-<template>
-  <V0Paper
-    :as="as"
-    :as-child="asChild"
-    :class="classes"
-    :style="styles"
-  >
-    <img :alt="alt" :src="src">
-  </V0Paper>
-</template>
-
 <script setup lang="ts">
-  import type { V0PaperProps } from '@/components/V0Paper'
+  // Components
+  import { V0Atom } from '@/components/V0Atom'
 
-  export interface V0ImgProps extends V0PaperProps {
-    src?: string
-    alt?: string
-  }
+  // Types
+  import type { V0ImgProps } from './types'
 
-  defineProps<V0ImgProps>()
+  const {
+    as = 'img',
+    ...props
+  } = defineProps<V0ImgProps>()
+
+  const { dimensionStyles } = useDimensions(props)
 
   const classes = toRef(() => ({
     'v0-img': true,
   }))
 
   const styles = toRef(() => ({
-    //
+    ...dimensionStyles.value,
   }))
 </script>
 
+<template>
+  <V0Atom
+    :alt="alt"
+    :as="as"
+    :class="classes"
+    :src="src"
+    :style="styles"
+  />
+</template>
+
 <style lang="scss">
-@import './V0Img.scss';
+  @layer v0-components {
+    .v0-img {
+      border-radius: inherit;
+      display: inline-block;
+      overflow: hidden;
+      height: var(--v0-img-height);
+      width: var(--v0-img-width);
+    }
+  }
 </style>

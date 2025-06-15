@@ -64,5 +64,29 @@
 </script>
 
 <style lang="scss">
-  @import './V0Paper.scss';
+  @import './_variables.scss';
+
+  @layer v0-components {
+    .v0-paper {
+      background-color: #{$paper-bg-color};
+      background-image: #{$paper-gradient};
+      border-color: #{$paper-border-color};
+      border-radius: #{$paper-border-radius};
+      border-style: #{$paper-border-style};
+      border-width: #{$paper-border-width};
+      box-shadow: #{$paper-elevation};
+      color: #{$paper-color};
+      font-size: #{$paper-font-size};
+      font-weight: #{$paper-font-weight};
+      height: #{$paper-height};
+      margin: #{$paper-margin};
+      max-height: #{$paper-max-height};
+      max-width: #{$paper-max-width};
+      min-height: #{$paper-min-height};
+      min-width: #{$paper-min-width};
+      opacity: #{$paper-opacity};
+      padding: #{$paper-padding};
+      width: #{$paper-width};
+    }
+  }
 </style>

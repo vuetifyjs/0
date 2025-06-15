@@ -40,5 +40,15 @@
 </script>
 
 <style lang="scss">
-  @import './V0Icon.scss';
+  @use './variables' as *;
+
+  @layer v0-components {
+    .v0-icon {
+      background-color: #{$v0-icon-background-color};
+      color: #{$v0-icon-color};
+      display: inline-flex;
+      font-size: #{$v0-icon-font-size};
+      opacity: #{$v0-icon-opacity};
+    }
+  }
 </style>

@@ -63,5 +63,27 @@
 </script>
 
 <style lang="scss">
-  @import './V0Button.scss';
+  @use './variables' as *;
+
+  @layer v0-components {
+    .v0-button {
+      align-items: center;
+      cursor: pointer;
+      display: inline-flex;
+      gap: #{$v0-button-gap};
+      justify-content: center;
+      outline: none;
+      vertical-align: middle;
+
+      &--disabled,
+      &--readonly,
+      &--loading {
+        cursor: default;
+      }
+
+      &--disabled {
+        opacity: #{$v0-button-disabled-opacity};
+      }
+    }
+  }
 </style>
