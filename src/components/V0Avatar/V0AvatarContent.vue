@@ -4,7 +4,7 @@
 
   // Types
   import { V0AvatarKey } from './types'
-  import type { V0AvatarContentProps, V0AvatarProvide } from './types'
+  import type { V0AvatarContentEmits, V0AvatarContentProps, V0AvatarProvide } from './types'
 
   defineOptions({ name: 'V0AvatarContent' })
 
@@ -13,6 +13,8 @@
     ...props
   } = defineProps<V0AvatarContentProps>()
 
+  const emit = defineEmits<V0AvatarContentEmits>()
+
   const injected = inject<V0AvatarProvide>(V0AvatarKey)
 
   const src = toRef(() => props.src || toValue(injected)?.src)
@@ -20,12 +22,16 @@
   const text = toRef(() => props.text || toValue(injected)?.text)
   const isLoading = toRef(() => props.loading || toValue(injected)?.loading)
 
-  function onLoad () {
+  function onLoad (e: Event) {
     toValue(injected)?.setStatus('loaded')
+
+    emit('load', e)
   }
 
-  function onError () {
+  function onError (e: Event) {
     toValue(injected)?.setStatus('error')
+
+    emit('error', e)
   }
 </script>
 

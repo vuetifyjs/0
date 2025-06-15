@@ -13,10 +13,17 @@ interface V0AvatarPropsBase {
 export interface V0AvatarProps extends V0PaperProps, V0AvatarPropsBase {
   size?: string
 }
+
 export interface V0AvatarContentProps extends V0AtomProps, V0AvatarPropsBase {}
+export interface V0AvatarContentEmits {
+  load: [e: Event]
+  error: [e: Event]
+}
+
 export interface V0AvatarLoadingProps extends V0AtomProps {
   loading?: V0AvatarPropsBase['loading']
 }
+
 export interface V0AvatarFallbackProps extends V0AtomProps {}
 
 export interface V0AvatarInstance extends V0AvatarPropsBase {
