@@ -79,6 +79,7 @@ declare global {
   const useModel: typeof import('vue')['useModel']
   const useRounded: typeof import('./composables/rounded')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
+  const useSpacing: typeof import('./composables/spacing')['useSpacing']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
@@ -105,6 +106,9 @@ declare global {
   // @ts-ignore
   export type { RoundedProps } from './composables/rounded'
   import('./composables/rounded')
+  // @ts-ignore
+  export type { SpacingProps } from './composables/spacing'
+  import('./composables/spacing')
   // @ts-ignore
   export type { Theme, ThemeOptions, ThemeProvider } from './composables/theme'
   import('./composables/theme')
@@ -188,6 +192,7 @@ declare module 'vue' {
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRounded: UnwrapRef<typeof import('./composables/rounded')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
+    readonly useSpacing: UnwrapRef<typeof import('./composables/spacing')['useSpacing']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>

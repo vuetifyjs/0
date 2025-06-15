@@ -16,6 +16,7 @@
   const { dimensionStyles } = useDimensions(props)
   const { elevationStyles } = useElevation(props)
   const { roundedStyles } = useRounded(props)
+  const { spacingStyles } = useSpacing(props)
 
   const classes = toRef(() => ({
     'v0-paper-root': true,
@@ -26,14 +27,13 @@
     ['--v0-paper-color']: color?.value,
     ['--v0-paper-font-size']: props.fontSize,
     ['--v0-paper-font-weight']: props.fontWeight,
-    ['--v0-paper-padding']: props.padding,
     ['--v0-paper-opacity']: props.opacity,
-    ['--v0-paper-margin']: props.margin,
 
     ...borderStyles.value,
     ...dimensionStyles.value,
     ...elevationStyles.value,
     ...roundedStyles.value,
+    ...spacingStyles.value,
   }))
 </script>
 
