@@ -50,25 +50,25 @@
 
   @layer v0-components {
     .v0-paper {
-      background-color: #{$paper-bg-color};
-      background-image: #{$paper-gradient};
-      border-color: #{$paper-border-color};
-      border-radius: #{$paper-border-radius};
-      border-style: #{$paper-border-style};
-      border-width: #{$paper-border-width};
-      box-shadow: #{$paper-elevation};
-      color: #{$paper-color};
-      font-size: #{$paper-font-size};
-      font-weight: #{$paper-font-weight};
-      height: #{$paper-height};
-      margin: #{$paper-margin};
-      max-height: #{$paper-max-height};
-      max-width: #{$paper-max-width};
-      min-height: #{$paper-min-height};
-      min-width: #{$paper-min-width};
-      opacity: #{$paper-opacity};
-      padding: #{$paper-padding};
-      width: #{$paper-width};
+      background-color: #{$v0-paper-bg-color};
+      background-image: #{$v0-paper-gradient};
+      border-color: #{$v0-paper-border-color};
+      border-radius: #{$v0-paper-border-radius};
+      border-style: #{$v0-paper-border-style};
+      border-width: #{$v0-paper-border-width};
+      box-shadow: #{$v0-paper-elevation};
+      color: #{$v0-paper-color};
+      font-size: #{$v0-paper-font-size};
+      font-weight: #{$v0-paper-font-weight};
+      height: #{$v0-paper-height};
+      margin: #{$v0-paper-margin};
+      max-height: #{$v0-paper-max-height};
+      max-width: #{$v0-paper-max-width};
+      min-height: #{$v0-paper-min-height};
+      min-width: #{$v0-paper-min-width};
+      opacity: #{$v0-paper-opacity};
+      padding: #{$v0-paper-padding};
+      width: #{$v0-paper-width};
     }
   }
 </style>
