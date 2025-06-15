@@ -1,10 +1,26 @@
 <template>
   <main>
-    <V0AffixRoot icon="mdi mdi-account">
-      <V0AffixContent />
+    <V0AvatarRoot bg-color="#eeeeee" size="32px" src="https://vuetifyjs.b-cdn.net/docs/images/avatars/one.png">
+      <V0AvatarContent />
 
-      <V0AffixLoading>Loading</V0AffixLoading>
-    </V0AffixRoot>
+      <V0AvatarLoading>
+        <span>Load</span>
+      </V0AvatarLoading>
+
+      <V0AvatarFallback>
+        <span>Fallback</span>
+      </V0AvatarFallback>
+    </V0AvatarRoot>
+
+    <!-- <V0AvatarRoot
+      bg-color="primary"
+      font-size="2rem"
+      height="64px"
+      icon="mdi mdi-account"
+      width="64px"
+    >
+      <V0AvatarContent />
+    </V0AvatarRoot> -->
   </main>
 </template>
 

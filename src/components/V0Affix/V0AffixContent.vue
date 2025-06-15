@@ -21,7 +21,7 @@
   <V0Atom v-if="!isLoading">
     <slot v-if="$slots.default" />
 
-    <V0Avatar
+    <V0AvatarRoot
       v-else-if="avatar || icon"
       :icon="icon"
       :src="avatar"
