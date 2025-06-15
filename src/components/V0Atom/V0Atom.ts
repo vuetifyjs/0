@@ -1,4 +1,7 @@
+// Utils
 import { mergeProps } from 'vue'
+
+// Types
 import type { PropType, VNode } from 'vue'
 
 type DOMElements = Parameters<typeof h>[0]

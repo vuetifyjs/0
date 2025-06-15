@@ -1,22 +1,9 @@
-<template>
-  <V0Atom
-    :as="as"
-    :as-child="asChild"
-    :class="classes"
-    :style="styles"
-  />
-</template>
-
 <script setup lang="ts">
+  // Components
   import { V0Atom } from '@/components/V0Atom'
-  import type { ColorProps } from '@/composables/color'
-  import type { V0AtomProps } from '@/components/V0Atom'
 
-  export interface V0IconProps extends V0AtomProps, ColorProps {
-    fontSize?: string
-    icon?: string
-    opacity?: number | string
-  }
+  // Types
+  import type { V0IconProps } from './types'
 
   const {
     as = 'i',
@@ -38,6 +25,15 @@
     ['--v0-icon-opacity']: props.opacity,
   }))
 </script>
+
+<template>
+  <V0Atom
+    :as="as"
+    :as-child="asChild"
+    :class="classes"
+    :style="styles"
+  />
+</template>
 
 <style lang="scss">
   @use './variables' as *;
