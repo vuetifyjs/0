@@ -6,29 +6,34 @@
 
   const {
     borderRadius = '50%',
+    borderWidth = '0',
     src,
     icon,
     loading,
     text,
+    size = '32px',
     ...props
   } = defineProps<V0AvatarProps>()
 
-  const height = toRef(() => props.height ?? props.size)
-  const width = toRef(() => props.width ?? props.size)
+  const height = toRef(() => props.height ?? size)
+  const width = toRef(() => props.width ?? size)
 </script>
 
 <template>
   <V0Paper
     v-bind="props"
     :border-radius
+    :border-width
     class="v0-avatar"
     :height
     :width
   >
     <V0AvatarRoot :icon :loading :src :text>
-      <V0AvatarContent>
+      <V0AvatarImage>
         <slot />
-      </V0AvatarContent>
+      </V0AvatarImage>
+
+      <V0AvatarIcon />
 
       <V0AvatarLoading>
         <slot name="loading" />
@@ -48,7 +53,6 @@
     .v0-avatar {
       align-items: center;
       justify-content: center;
-      border-radius: #{$v0-avatar-border-radius};
       display: inline-flex;
       overflow: hidden;
       vertical-align: middle;

@@ -21,8 +21,8 @@
 <template>
   <V0Atom
     v-if="isLoading"
-    aria-label="loading"
     :as
+    class="v0-avatar-loading"
     role="status"
   >
     <slot />

@@ -1,12 +1,16 @@
 <template>
   <main>
-    <v0-affix-root gap="1em" icon="mdi mdi-cog" margin="0 0 0 2em">
-      Content
+    <div style="display: flex; gap: 1em;">
+      <v0-avatar bg-color="accent" text="JD" />
+      <v0-avatar bg-color="warning" icon="mdi mdi-cog" />
+      <v0-avatar src="https://cdn.vuetifyjs.com/images/john-beard.png" />
 
-      <v0-affix-content />
-
-      Content
-    </v0-affix-root>
+      <v0-avatar>
+        <template #fallback>
+          <v0-icon color="success" icon="mdi mdi-cog" />
+        </template>
+      </v0-avatar>
+    </div>
 
     <br>
     <br>

@@ -15,6 +15,8 @@ declare module 'vue' {
     V0Avatar: typeof import('./components/V0Avatar/V0Avatar.vue')['default']
     V0AvatarContent: typeof import('./components/V0Avatar/V0AvatarContent.vue')['default']
     V0AvatarFallback: typeof import('./components/V0Avatar/V0AvatarFallback.vue')['default']
+    V0AvatarIcon: typeof import('./components/V0Avatar/V0AvatarIcon.vue')['default']
+    V0AvatarImage: typeof import('./components/V0Avatar/V0AvatarImage.vue')['default']
     V0AvatarLoading: typeof import('./components/V0Avatar/V0AvatarLoading.vue')['default']
     V0AvatarRoot: typeof import('./components/V0Avatar/V0AvatarRoot.vue')['default']
     V0Button: typeof import('./components/V0Button/V0Button.vue')['default']
