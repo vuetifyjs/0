@@ -5,6 +5,8 @@
   // Types
   import type { V0IconProps } from './types'
 
+  defineOptions({ name: 'V0Icon' })
+
   const {
     as = 'i',
     ...props
