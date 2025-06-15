@@ -1,5 +1,7 @@
-import { inject, shallowRef } from 'vue'
+// Composables
 import { useContrast } from './contrast'
+
+// Types
 import type { ThemeProvider } from './theme'
 
 export interface ColorProps {
@@ -57,7 +59,7 @@ export function rgbaToHexa (rgba: string): string {
   return `#${(0x1_00_00_00 + r * 0x1_00_00 + g * 0x1_00 + b).toString(16).slice(1)}${(alpha + 0x1_00_00).toString(16).slice(-2)}`
 }
 
-export function useColor (color?: string, contrast = false) {
+export function parseColor (color?: string, contrast = false) {
   if (!color) {
     return undefined
   }
@@ -88,4 +90,23 @@ export function useColor (color?: string, contrast = false) {
   }
 
   return rgba
+}
+
+export function useColor (
+  props: ColorProps,
+  name?: string,
+) {
+  name = getCurrentInstanceName(name)
+
+  const bgColor = parseColor(props.bgColor)
+  const color = parseColor(props.color ?? bgColor?.value, !props.color)
+
+  const colorStyles = toRef(() => ({
+    [`--v0-${name}-bg-color`]: bgColor?.value,
+    [`--v0-${name}-color`]: color?.value,
+  }))
+
+  return {
+    colorStyles,
+  }
 }

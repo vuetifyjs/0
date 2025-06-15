@@ -10,8 +10,7 @@
     ...props
   } = defineProps<V0IconProps>()
 
-  const bgColor = useColor(props.bgColor)
-  const color = useColor(props.color ?? bgColor?.value, !props.color)
+  const { colorStyles } = useColor(props)
 
   const classes = {
     'v0-icon': true,
@@ -19,10 +18,10 @@
   }
 
   const styles = toRef(() => ({
-    ['--v0-icon-background-color']: bgColor?.value,
-    ['--v0-icon-color']: color?.value,
     ['--v0-icon-font-size']: props.fontSize,
     ['--v0-icon-opacity']: props.opacity,
+
+    ...colorStyles.value,
   }))
 </script>
 

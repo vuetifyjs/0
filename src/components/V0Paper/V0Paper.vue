@@ -9,27 +9,24 @@
 
   const props = defineProps<V0PaperProps>()
 
-  const bgColor = useColor(props.bgColor)
-  const color = useColor(props.color ?? bgColor?.value, !props.color)
-
   const { borderStyles } = useBorder(props)
+  const { colorStyles } = useColor(props)
   const { dimensionStyles } = useDimensions(props)
   const { elevationStyles } = useElevation(props)
   const { roundedStyles } = useRounded(props)
   const { spacingStyles } = useSpacing(props)
 
   const classes = toRef(() => ({
-    'v0-paper-root': true,
+    'v0-paper': true,
   }))
 
   const styles = toRef(() => ({
-    ['--v0-paper-bg-color']: bgColor?.value,
-    ['--v0-paper-color']: color?.value,
     ['--v0-paper-font-size']: props.fontSize,
     ['--v0-paper-font-weight']: props.fontWeight,
     ['--v0-paper-opacity']: props.opacity,
 
     ...borderStyles.value,
+    ...colorStyles.value,
     ...dimensionStyles.value,
     ...elevationStyles.value,
     ...roundedStyles.value,
@@ -52,7 +49,7 @@
   @import './_variables.scss';
 
   @layer v0-components {
-    .v0-paper-root {
+    .v0-paper {
       background-color: #{$paper-bg-color};
       background-image: #{$paper-gradient};
       border-color: #{$paper-border-color};
