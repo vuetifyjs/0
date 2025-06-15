@@ -4,17 +4,13 @@
 
   // Types
   import { V0AffixKey } from './types'
-  import type { V0AffixProps, V0AffixProvide } from './types'
+  import type { V0AffixRootProps, V0AffixProvide } from './types'
 
   defineOptions({ name: 'V0AffixRoot' })
 
-  const props = defineProps<V0AffixProps>()
+  const props = defineProps<V0AffixRootProps>()
 
   const { spacingStyles } = useSpacing(props)
-
-  const classes = toRef(() => ({
-    'v0-affix-root': true,
-  }))
 
   const styles = toRef(() => ({
     '--v0-affix-root-gap': props.gap,
@@ -33,7 +29,7 @@
 
 <template>
   <V0Atom
-    :class="classes"
+    class="v0-affix-root"
     :style="styles"
   >
     <slot />

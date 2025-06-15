@@ -22,7 +22,7 @@
   <V0Atom
     v-if="isLoading"
     aria-label="loading"
-    :as="as"
+    :as
     role="status"
   >
     <slot />

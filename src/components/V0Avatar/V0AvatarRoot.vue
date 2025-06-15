@@ -1,31 +1,21 @@
 <script setup lang="ts">
+  // Components
+  import { V0Atom } from '@/components/V0Atom'
+
   // Types
   import { V0AvatarKey } from './types'
-  import type { V0AvatarInstance, V0AvatarProps, V0AvatarProvide } from './types'
+  import type { V0AvatarInstance, V0AvatarRootProps, V0AvatarProvide } from './types'
 
   defineOptions({ name: 'V0AvatarRoot' })
 
   const {
-    borderRadius = '50%',
     src,
     icon,
     loading,
     text,
-    ...props
-  } = defineProps<V0AvatarProps>()
+  } = defineProps<V0AvatarRootProps>()
 
   const status = shallowRef<V0AvatarInstance['status']>('loading')
-
-  const classes = toRef(() => ({
-    'v0-avatar-root': true,
-  }))
-
-  const styles = toRef(() => {
-    //
-  })
-
-  const height = toRef(() => props.height ?? props.size)
-  const width = toRef(() => props.width ?? props.size)
 
   const provides: V0AvatarProvide = toRef(() => ({
     src,
@@ -45,28 +35,19 @@
 </script>
 
 <template>
-  <V0Paper
-    v-bind="props"
-    :border-radius="borderRadius"
-    :class="classes"
-    :height="height"
-    :style="styles"
-    :width="width"
-  >
+  <V0Atom class="v0-avatar-root">
     <slot />
-  </V0Paper>
+  </V0Atom>
 </template>
 
 <style lang="scss">
-  @use './variables' as *;
-
   @layer v0-components {
     .v0-avatar-root {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: #{$v0-avatar-border-radius};
-      display: inline-flex;
-      vertical-align: middle;
+      width: inherit;
+      height: inherit;
     }
   }
 </style>

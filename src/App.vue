@@ -1,12 +1,25 @@
 <template>
   <main>
+    <v0-affix-root gap="1em" icon="mdi mdi-cog" margin="0 0 0 2em">
+      Content
+
+      <v0-affix-content />
+
+      Content
+    </v0-affix-root>
+
+    <br>
+    <br>
+    <br>
+    <br>
+
     <v0-paper elevation="32" max-width="300px" padding="1em">
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni culpa amet aut velit laudantium? Obcaecati sit doloribus porro provident quisquam illum explicabo, ut nulla commodi sequi cum, unde veritatis adipisci!
     </v0-paper>
 
     <h1>Avatars</h1>
     <v0-avatar height="32px" src="https://cdn.vuetifyjs.com/images/john-beard.png" width="32px" />
-    <v0-avatar icon="mdi mdi-cog" />
+    <!-- <v0-avatar bg-color="primary" font-size="24px" icon="mdi mdi-cog" /> -->
 
     <h1>Images</h1>
 

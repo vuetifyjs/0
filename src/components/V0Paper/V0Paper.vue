@@ -16,10 +16,6 @@
   const { roundedStyles } = useRounded(props)
   const { spacingStyles } = useSpacing(props)
 
-  const classes = toRef(() => ({
-    'v0-paper': true,
-  }))
-
   const styles = toRef(() => ({
     ['--v0-paper-font-size']: props.fontSize,
     ['--v0-paper-font-weight']: props.fontWeight,
@@ -36,9 +32,8 @@
 
 <template>
   <V0Atom
-    :as="as"
-    :as-child="asChild"
-    :class="classes"
+    :as
+    class="v0-paper"
     :style="styles"
   >
     <slot />

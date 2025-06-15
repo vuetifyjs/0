@@ -10,9 +10,11 @@ interface V0AvatarPropsBase {
   loading?: boolean
 }
 
-export interface V0AvatarProps extends V0PaperProps, V0AvatarPropsBase {
+export interface V0AvatarRootProps extends V0AtomProps, V0AvatarPropsBase {
   size?: string
 }
+
+export interface V0AvatarProps extends V0AvatarRootProps, V0PaperProps {}
 
 export interface V0AvatarContentProps extends V0AtomProps, V0AvatarPropsBase {}
 export interface V0AvatarContentEmits {

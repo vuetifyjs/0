@@ -12,7 +12,7 @@
 
   const injected = inject<V0AffixProvide>(V0AffixKey)
 
-  const avatar = toRef(() => props.avatar || toValue(injected)?.avatar)
+  const src = toRef(() => props.avatar || toValue(injected)?.avatar)
   const icon = toRef(() => props.icon || toValue(injected)?.icon)
   const isLoading = toRef(() => toValue(injected)?.loading)
 </script>
@@ -21,12 +21,10 @@
   <V0Atom v-if="!isLoading">
     <slot v-if="$slots.default" />
 
-    <V0AvatarRoot
-      v-else-if="avatar || icon"
-      :icon="icon"
-      :src="avatar"
-    >
-      <V0AvatarContent />
-    </V0AvatarRoot>
+    <V0Avatar
+      v-else-if="src || icon"
+      :icon
+      :src
+    />
   </V0Atom>
 </template>

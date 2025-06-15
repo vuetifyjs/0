@@ -19,7 +19,7 @@
 <template>
   <V0Atom
     v-if="isErrored && !isLoading"
-    :as="as"
+    :as
   >
     <slot />
   </V0Atom>

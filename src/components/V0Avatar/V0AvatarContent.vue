@@ -38,19 +38,19 @@
 <template>
   <V0Atom
     v-if="!isLoading"
-    :as="as"
+    :as
     class="v0-avatar-content"
   >
     <V0Img
       v-if="src"
-      :src="src"
+      :src
       @error="onError"
       @load="onLoad"
     />
 
     <V0Icon
       v-else-if="icon"
-      :icon="icon"
+      :icon
     />
 
     <template v-else-if="text">

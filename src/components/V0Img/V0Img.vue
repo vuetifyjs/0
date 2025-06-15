@@ -12,10 +12,6 @@
 
   const { dimensionStyles } = useDimensions(props)
 
-  const classes = toRef(() => ({
-    'v0-img': true,
-  }))
-
   const styles = toRef(() => ({
     ...dimensionStyles.value,
   }))
@@ -23,10 +19,10 @@
 
 <template>
   <V0Atom
-    :alt="alt"
-    :as="as"
-    :class="classes"
-    :src="src"
+    :alt
+    :as
+    class="v0-img"
+    :src
     :style="styles"
   />
 </template>

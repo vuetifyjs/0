@@ -14,10 +14,10 @@
 
   const { colorStyles } = useColor(props)
 
-  const classes = {
+  const classes = toRef(() => ({
     'v0-icon': true,
     [`${props.icon}`]: true,
-  }
+  }))
 
   const styles = toRef(() => ({
     ['--v0-icon-font-size']: props.fontSize,
@@ -29,8 +29,7 @@
 
 <template>
   <V0Atom
-    :as="as"
-    :as-child="asChild"
+    :as
     :class="classes"
     :style="styles"
   />
