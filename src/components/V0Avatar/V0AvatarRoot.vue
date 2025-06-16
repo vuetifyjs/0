@@ -1,31 +1,28 @@
+<script lang="ts">
+  // Types
+  import type { V0AtomProps } from '@/components/V0Atom'
+  import type { ShallowRef } from 'vue'
+
+  export interface V0AvatarRootProps extends V0AtomProps {}
+
+  export interface V0AvatarContext {
+    status: ShallowRef<'idle' | 'loaded' | 'error' | 'loading'>
+  }
+
+  export const [defineProvides, defineInjects] = useContext<V0AvatarContext>('V0AvatarRoot')
+</script>
+
 <script setup lang="ts">
   // Components
   import { V0Atom } from '@/components/V0Atom'
 
-  // Types
-  import { V0AvatarKey } from './types'
-  import type { V0AvatarContext, V0AvatarRootProps, V0AvatarProvide } from './types'
-
   defineOptions({ name: 'V0AvatarRoot' })
 
-  const {
-    as = 'span',
-    ...props
-  } = defineProps<V0AvatarRootProps>()
+  const { as = 'span' } = defineProps<V0AvatarRootProps>()
 
-  const status = shallowRef<V0AvatarContext['status']>('loading')
-
-  const provides: V0AvatarProvide = toRef(() => ({
-    status: status.value,
-    size: props.size,
-    setStatus,
-  }))
-
-  function setStatus (val: V0AvatarContext['status']) {
-    status.value = val
-  }
-
-  provide(V0AvatarKey, provides)
+  defineProvides({
+    status: shallowRef('idle' as const)
+  })
 </script>
 
 <template>

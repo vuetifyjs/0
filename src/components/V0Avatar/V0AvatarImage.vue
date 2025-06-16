@@ -1,28 +1,37 @@
-<script lang="ts" setup>
+<script lang="ts">
   // Types
-  import { V0AvatarKey } from './types'
-  import type { V0AvatarImageEmits, V0AvatarImageProps, V0AvatarProvide } from './types'
+  import type { V0ImgProps } from '@/components/V0Img'
+  import { defineInjects } from './V0AvatarRoot.vue'
 
+  export interface V0AvatarImageProps extends V0ImgProps {
+    size?: string
+  }
+
+  export interface V0AvatarImageEmits {
+    load: [e: Event]
+    error: [e: Event]
+  }
+</script>
+
+<script lang="ts" setup>
   defineOptions({ name: 'V0AvatarImage' })
 
-  const props = defineProps<V0AvatarImageProps>()
+  defineProps<V0AvatarImageProps>()
 
   const emit = defineEmits<V0AvatarImageEmits>()
 
-  const injected = inject<V0AvatarProvide>(V0AvatarKey)
+  const injected = defineInjects()
 
-  const src = toRef(() => props.src || toValue(injected)?.src)
-  const size = toRef(() => toValue(injected)?.size)
-  const isErrored = toRef(() => toValue(injected)?.status === 'error')
+  const isErrored = toRef(() => injected?.status.value === 'error')
 
   function onLoad (e: Event) {
-    toValue(injected)?.setStatus('loaded')
+    injected.status.value = 'loaded'
 
     emit('load', e)
   }
 
   function onError (e: Event) {
-    toValue(injected)?.setStatus('error')
+    injected.status.value = 'error'
 
     emit('error', e)
   }
@@ -32,8 +41,7 @@
   <V0Img
     v-if="!isErrored"
     :height="height || size"
-    :src
-    :width="height ||size"
+    :width="width ||size"
     @error="onError"
     @load="onLoad"
   />

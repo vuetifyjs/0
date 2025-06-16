@@ -94,6 +94,7 @@
     "useAttrs": true,
     "useBorder": true,
     "useColor": true,
+    "useContext": true,
     "useContrast": true,
     "useCssModule": true,
     "useCssVars": true,

@@ -74,6 +74,7 @@ declare global {
   const useAttrs: typeof import('vue')['useAttrs']
   const useBorder: typeof import('./composables/border')['useBorder']
   const useColor: typeof import('./composables/color')['useColor']
+  const useContext: typeof import('./composables/context')['useContext']
   const useContrast: typeof import('./composables/contrast')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
@@ -191,6 +192,7 @@ declare module 'vue' {
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('./composables/border')['useBorder']>
     readonly useColor: UnwrapRef<typeof import('./composables/color')['useColor']>
+    readonly useContext: UnwrapRef<typeof import('./composables/context')['useContext']>
     readonly useContrast: UnwrapRef<typeof import('./composables/contrast')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>

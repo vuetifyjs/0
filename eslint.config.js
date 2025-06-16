@@ -7,4 +7,7 @@ export default vuetify({
   vue: {
     a11y: true,
   },
+  rules: {
+    'import/first': 'off',
+  },
 })

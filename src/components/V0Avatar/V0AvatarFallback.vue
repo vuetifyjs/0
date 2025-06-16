@@ -1,10 +1,14 @@
+<script lang="ts">
+  // Types
+  import { V0AvatarKey } from './V0AvatarRoot.vue'
+  import type { V0AvatarProvide } from './V0AvatarRoot.vue'
+  import type { V0AtomProps } from '@/components/V0Atom'
+</script>
+
 <script lang="ts" setup>
   // Components
   import { V0Atom } from '@/components/V0Atom'
-
-  // Types
-  import { V0AvatarKey } from './types'
-  import type { V0AvatarFallbackProps, V0AvatarProvide } from './types'
+  export interface V0AvatarFallbackProps extends V0AtomProps {}
 
   const {
     as = 'span',

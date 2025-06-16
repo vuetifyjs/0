@@ -1,7 +1,22 @@
-<script setup lang="ts">
+<script lang="ts">
   // Types
-  import type { V0AvatarProps } from './types'
+  import type { V0IconProps } from '../V0Icon';
+  import type { V0AvatarImageProps } from './V0AvatarImage.vue'
+  import type { V0AvatarRootProps } from './V0AvatarRoot.vue'
+  import type { V0PaperProps } from '@/components/V0Paper'
 
+  export interface V0AvatarProps extends
+    V0AvatarRootProps,
+    V0PaperProps,
+    Pick<V0AvatarImageProps, 'size' | 'src'>,
+    Pick<V0IconProps, 'icon'>
+  {
+    text?: string
+    loading?: boolean
+  }
+</script>
+
+<script setup lang="ts">
   defineOptions({ name: 'V0Avatar' })
 
   const {
@@ -28,13 +43,13 @@
     :height
     :width
   >
-    <V0AvatarRoot class="v0-avatar-root" :size>
+    <V0AvatarRoot class="v0-avatar-root">
       <slot v-if="loading" name="loading" />
 
       <slot v-else-if="$slots.default" />
 
       <template v-else-if="src">
-        <V0AvatarImage class="v0-avatar-image" :src />
+        <V0AvatarImage class="v0-avatar-image" :src :size />
 
         <V0AvatarFallback class="v0-avatar-fallback">
           <slot name="fallback">{{ text }}</slot>
