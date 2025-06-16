@@ -1,6 +1,6 @@
 <script lang="ts">
   // Types
-  import type { V0IconProps } from '../V0Icon';
+  import type { V0IconProps } from '../V0Icon'
   import type { V0AvatarImageProps } from './V0AvatarImage.vue'
   import type { V0AvatarRootProps } from './V0AvatarRoot.vue'
   import type { V0PaperProps } from '@/components/V0Paper'
@@ -9,11 +9,10 @@
     V0AvatarRootProps,
     V0PaperProps,
     Pick<V0AvatarImageProps, 'size' | 'src'>,
-    Pick<V0IconProps, 'icon'>
-  {
-    text?: string
-    loading?: boolean
-  }
+    Pick<V0IconProps, 'icon'> {
+      text?: string
+      loading?: boolean
+    }
 </script>
 
 <script setup lang="ts">
@@ -49,7 +48,7 @@
       <slot v-else-if="$slots.default" />
 
       <template v-else-if="src">
-        <V0AvatarImage class="v0-avatar-image" :src :size />
+        <V0AvatarImage class="v0-avatar-image" :size :src />
 
         <V0AvatarFallback class="v0-avatar-fallback">
           <slot name="fallback">{{ text }}</slot>

@@ -21,7 +21,7 @@
   const { as = 'span' } = defineProps<V0AvatarRootProps>()
 
   provideAvatarContext({
-    status: shallowRef('idle' as const)
+    status: shallowRef('idle' as const),
   })
 </script>
 

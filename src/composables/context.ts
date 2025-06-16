@@ -1,4 +1,4 @@
-export function useContext<T>(key: string) {
+export function useContext<T> (key: string) {
   function provideContext (value: T) {
     provide(key, value)
   }
