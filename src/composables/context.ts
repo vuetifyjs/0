@@ -1,9 +1,9 @@
 export function useContext<T>(key: string) {
-  function defineProvides (value: T) {
+  function provideContext (value: T) {
     provide(key, value)
   }
 
-  function defineInjects (): T {
+  function injectContext (): T {
     const contextValue = inject<T>(key)
 
     if (contextValue === undefined) {
@@ -13,5 +13,5 @@ export function useContext<T>(key: string) {
     return contextValue
   }
 
-  return [defineProvides, defineInjects] as const
+  return [provideContext, injectContext] as const
 }
