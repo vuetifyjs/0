@@ -1,7 +1,7 @@
 <script lang="ts">
   // Types
   import type { V0ImgProps } from '@/components/V0Img'
-  import { defineInjects } from './V0AvatarRoot.vue'
+  import { useAvatarContext } from './V0AvatarRoot.vue'
 
   export interface V0AvatarImageProps extends V0ImgProps {
     size?: string
@@ -20,18 +20,18 @@
 
   const emit = defineEmits<V0AvatarImageEmits>()
 
-  const injected = defineInjects()
+  const context = useAvatarContext()
 
-  const isErrored = toRef(() => injected?.status.value === 'error')
+  const isErrored = toRef(() => context.status.value === 'error')
 
   function onLoad (e: Event) {
-    injected.status.value = 'loaded'
+    context.status.value = 'loaded'
 
     emit('load', e)
   }
 
   function onError (e: Event) {
-    injected.status.value = 'error'
+    context.status.value = 'error'
 
     emit('error', e)
   }

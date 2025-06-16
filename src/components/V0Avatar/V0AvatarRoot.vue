@@ -9,7 +9,7 @@
     status: ShallowRef<'idle' | 'loaded' | 'error' | 'loading'>
   }
 
-  export const [defineProvides, defineInjects] = useContext<V0AvatarContext>('V0AvatarRoot')
+  export const [provideAvatarContext, useAvatarContext] = useContext<V0AvatarContext>('V0AvatarRoot')
 </script>
 
 <script setup lang="ts">
@@ -20,7 +20,7 @@
 
   const { as = 'span' } = defineProps<V0AvatarRootProps>()
 
-  defineProvides({
+  provideAvatarContext({
     status: shallowRef('idle' as const)
   })
 </script>
