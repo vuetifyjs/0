@@ -3,12 +3,10 @@
     <div style="display: flex; gap: 1em;">
       <v0-avatar bg-color="accent" text="JD" />
       <v0-avatar bg-color="warning" icon="mdi mdi-cog" />
-      <v0-avatar src="https://cdn.vuetifyjs.com/images/john-beard.png" />
+      <v0-avatar src="https://cdn.vuetifyjs.com/images/john-beard.png" text="JS" />
 
-      <v0-avatar>
-        <template #fallback>
-          <v0-icon color="success" icon="mdi mdi-cog" />
-        </template>
+      <v0-avatar border-color="#000000" border-width="thin">
+        <v0-icon color="success" icon="mdi mdi-cog" />
       </v0-avatar>
     </div>
 

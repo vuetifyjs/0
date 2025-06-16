@@ -12,6 +12,7 @@
   const injected = inject<V0AvatarProvide>(V0AvatarKey)
 
   const src = toRef(() => props.src || toValue(injected)?.src)
+  const size = toRef(() => toValue(injected)?.size)
   const isErrored = toRef(() => toValue(injected)?.status === 'error')
 
   function onLoad (e: Event) {
@@ -29,13 +30,11 @@
 
 <template>
   <V0Img
-    v-if="src && !isErrored"
+    v-if="!isErrored"
+    :height="height || size"
     :src
+    :width="height ||size"
     @error="onError"
     @load="onLoad"
   />
 </template>
-
-<style lang="scss">
-  //
-</style>
