@@ -5,6 +5,8 @@
   // Types
   import type { V0ImgProps } from './types'
 
+  defineOptions({ name: 'V0Img' })
+
   const {
     as = 'img',
     ...props
@@ -22,6 +24,7 @@
     :alt
     :as
     class="v0-img"
+    role="img"
     :src
     :style="styles"
   />
