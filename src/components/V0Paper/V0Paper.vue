@@ -32,7 +32,6 @@
 
 <template>
   <V0Atom
-    :as
     class="v0-paper"
     :style="styles"
   >
