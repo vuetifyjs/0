@@ -1,9 +1,9 @@
 <script lang="ts">
   // Types
-  import type { V0ImgProps } from '@/components/V0Img'
   import { useAvatarContext } from './V0AvatarRoot.vue'
+  import type { V0AtomProps } from '@/components/V0Atom'
 
-  export interface V0AvatarImageProps extends V0ImgProps {
+  export interface V0AvatarImageProps extends V0AtomProps {
     size?: string
   }
 
@@ -16,7 +16,7 @@
 <script lang="ts" setup>
   defineOptions({ name: 'V0AvatarImage' })
 
-  defineProps<V0AvatarImageProps>()
+  const { as = 'img' } = defineProps<V0AvatarImageProps>()
 
   const emit = defineEmits<V0AvatarImageEmits>()
 
@@ -38,11 +38,11 @@
 </script>
 
 <template>
-  <V0Img
+  <V0Atom
+    :as
     v-if="!isErrored"
-    :height="height || size"
-    :width="width ||size"
     @error="onError"
     @load="onLoad"
+    role="img"
   />
 </template>
