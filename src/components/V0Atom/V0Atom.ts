@@ -3,7 +3,13 @@ import { mergeProps } from 'vue'
 
 // Types
 import type { PropType, VNode } from 'vue'
-import type { V0AtomProps } from './types'
+
+type DOMElements = Parameters<typeof h>[0]
+
+export interface V0AtomProps {
+  as?: DOMElements
+  asChild?: boolean
+}
 
 export const V0Atom = defineComponent({
   name: 'V0Atom',
