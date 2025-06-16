@@ -39,10 +39,10 @@
 
 <template>
   <V0Atom
-    :as
     v-if="!isErrored"
+    :as
+    role="img"
     @error="onError"
     @load="onLoad"
-    role="img"
   />
 </template>
