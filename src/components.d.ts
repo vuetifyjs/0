@@ -8,20 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    V0Affix: typeof import('./components/V0Affix/V0Affix.vue')['default']
-    V0AffixContent: typeof import('./components/V0Affix/V0AffixContent.vue')['default']
-    V0AffixLoading: typeof import('./components/V0Affix/V0AffixLoading.vue')['default']
-    V0AffixRoot: typeof import('./components/V0Affix/V0AffixRoot.vue')['default']
-    V0Avatar: typeof import('./components/V0Avatar/V0Avatar.vue')['default']
-    V0AvatarContent: typeof import('./components/V0Avatar/V0AvatarContent.vue')['default']
-    V0AvatarFallback: typeof import('./components/V0Avatar/V0AvatarFallback.vue')['default']
-    V0AvatarIcon: typeof import('./components/V0Avatar/V0AvatarIcon.vue')['default']
-    V0AvatarImage: typeof import('./components/V0Avatar/V0AvatarImage.vue')['default']
-    V0AvatarLoading: typeof import('./components/V0Avatar/V0AvatarLoading.vue')['default']
-    V0AvatarRoot: typeof import('./components/V0Avatar/V0AvatarRoot.vue')['default']
-    V0Button: typeof import('./components/V0Button/V0Button.vue')['default']
-    V0Icon: typeof import('./components/V0Icon/V0Icon.vue')['default']
-    V0Img: typeof import('./components/V0Img/V0Img.vue')['default']
-    V0Paper: typeof import('./components/V0Paper/V0Paper.vue')['default']
+    VButton: typeof import('./components/VButton/VButton.vue')['default']
+    VDialog: typeof import('./components/VDialog/VDialog.vue')['default']
   }
 }

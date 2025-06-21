@@ -35,6 +35,7 @@ declare global {
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
   const isSelfClosingTag: typeof import('./constants/htmlElements')['isSelfClosingTag']
+  const makeIsRenderless: typeof import('./utils/helpers')['makeIsRenderless']
   const markRaw: typeof import('vue')['markRaw']
   const nextTick: typeof import('vue')['nextTick']
   const onActivated: typeof import('vue')['onActivated']
@@ -154,6 +155,7 @@ declare module 'vue' {
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isSelfClosingTag: UnwrapRef<typeof import('./constants/htmlElements')['isSelfClosingTag']>
+    readonly makeIsRenderless: UnwrapRef<typeof import('./utils/helpers')['makeIsRenderless']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>

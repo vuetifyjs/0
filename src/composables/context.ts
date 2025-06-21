@@ -1,17 +1,19 @@
-export function useContext<T> (key: string) {
-  function provideContext (value: T) {
+import type { InjectionKey } from 'vue'
+
+export function useContext<T> (key: InjectionKey<T> | string) {
+  function provideContext (value: any) {
     provide(key, value)
   }
 
-  function injectContext (): T {
-    const contextValue = inject<T>(key)
+  function injectContext () {
+    const contextValue = inject(key)
 
     if (contextValue === undefined) {
-      throw new Error(`Context "${key}" not found. Ensure it's provided by an ancestor component.`)
+      throw new Error(`Context "${key.toString()}" not found. Ensure it's provided by an ancestor component.`)
     }
 
     return contextValue
   }
 
-  return [provideContext, injectContext] as const
+  return [injectContext, provideContext] as const
 }
