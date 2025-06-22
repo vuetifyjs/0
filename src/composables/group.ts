@@ -27,7 +27,7 @@ export type GroupOptions = {
 }
 
 export function useGroup (namespace: string, options?: GroupOptions) {
-  const [provideGroupContext, useGroupContext] = useContext<GroupContext>(namespace)
+  const [useGroupContext, provideGroupContext] = useContext<GroupContext>(namespace)
 
   const registered = new Map<GroupItem['id'], GroupItem>()
   const selected = reactive(new Set<string>())
@@ -82,6 +82,12 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     }
   }
 
+  function transform (map: Set<string>) {
+    return options?.multiple
+      ? Array.from(map)
+      : map.values().next().value
+  }
+
   function register (item: GroupItem): RegisteredGroupItem {
     const index = registered.size
 
@@ -109,6 +115,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   }
 
   return [
+    useGroupContext,
     function (_model?: MaybeRefOrGetter) {
       let isUpdatingModel = false
 
@@ -116,38 +123,34 @@ export function useGroup (namespace: string, options?: GroupOptions) {
         watch(selected, value => {
           if (isUpdatingModel) return
 
-          _model.value = options?.multiple ? Array.from(value) : value.values().next().value
+          _model.value = transform(value)
         })
-
-        // custom return value ??
 
         watch(_model, async value => {
           isUpdatingModel = true
-          // Compare current model value with selected state
-          const currentValue = options?.multiple ? Array.from(selected) : selected.values().next().value
+          const current = transform(selected)
 
-          // Handle array comparison for multiple mode
+          const values = Array.isArray(value) ? value : [value]
+
           if (options?.multiple) {
-            const modelArray = Array.isArray(value) ? value : [value]
-
             if (
-              modelArray.length === selected.size &&
-              modelArray.every(val => selected.has(val))
+              values.length === selected.size &&
+              values.every(val => selected.has(val))
             ) return
           } else {
-            if (value === currentValue) return
+            if (value === current) return
           }
 
           selected.clear()
-
-          const values = Array.isArray(value) ? value : [value]
 
           for (const val of values) {
             if (!registered.has(val)) continue
 
             selected.add(val)
           }
+        })
 
+        watch(_model, async () => {
           await nextTick()
 
           isUpdatingModel = false
@@ -161,6 +164,5 @@ export function useGroup (namespace: string, options?: GroupOptions) {
         mandate,
       })
     },
-    useGroupContext,
   ] as const
 }

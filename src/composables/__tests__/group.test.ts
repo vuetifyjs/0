@@ -2,12 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 import { useGroup, type GroupItem } from '../group'
 
-// Mock the useContext function
-const mockProvideGroupContext = vi.fn()
 const mockUseGroupContext = vi.fn()
+const mockProvideGroupContext = vi.fn()
 
 vi.mock('../context', () => ({
-  useContext: vi.fn(() => [mockProvideGroupContext, mockUseGroupContext]),
+  useContext: vi.fn(() => [mockUseGroupContext, mockProvideGroupContext]),
 }))
 
 describe('useGroup', () => {
@@ -17,7 +16,7 @@ describe('useGroup', () => {
 
   describe('basic functionality', () => {
     it('should initialize with empty state', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -30,7 +29,7 @@ describe('useGroup', () => {
     })
 
     it('should register items and assign index', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -51,7 +50,7 @@ describe('useGroup', () => {
     })
 
     it('should unregister items', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -72,7 +71,7 @@ describe('useGroup', () => {
 
   describe('single selection mode (default)', () => {
     it('should allow selecting single item', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -91,7 +90,7 @@ describe('useGroup', () => {
     })
 
     it('should deselect when toggling selected item', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -107,7 +106,7 @@ describe('useGroup', () => {
     })
 
     it('should clear previous selection when selecting new item', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -127,7 +126,7 @@ describe('useGroup', () => {
     })
 
     it('should support array of ids in toggle', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -143,9 +142,6 @@ describe('useGroup', () => {
       context.register(item1)
       context.register(item2)
 
-      // Simulate direct toggle call with array
-      const toggleSpy = vi.spyOn(context, 'register').getMockImplementation()
-
       // Test by calling toggle directly on each registered item
       registered1.toggle()
       registered2.toggle()
@@ -157,7 +153,7 @@ describe('useGroup', () => {
 
   describe('multiple selection mode', () => {
     it('should allow multiple selections', () => {
-      const [provideGroup] = useGroup('test-group', { multiple: true })
+      const [,provideGroup] = useGroup('test-group', { multiple: true })
 
       provideGroup()
 
@@ -177,7 +173,7 @@ describe('useGroup', () => {
     })
 
     it('should deselect individual items', () => {
-      const [provideGroup] = useGroup('test-group', { multiple: true })
+      const [,provideGroup] = useGroup('test-group', { multiple: true })
 
       provideGroup()
 
@@ -200,7 +196,7 @@ describe('useGroup', () => {
 
   describe('mandatory selection', () => {
     it('should select first item when mandatory is true after reset', () => {
-      const [provideGroup] = useGroup('test-group', { mandatory: true })
+      const [,provideGroup] = useGroup('test-group', { mandatory: true })
 
       provideGroup()
 
@@ -218,7 +214,7 @@ describe('useGroup', () => {
     })
 
     it('should not allow deselecting the only selected item when mandatory', () => {
-      const [provideGroup] = useGroup('test-group', { mandatory: true })
+      const [,provideGroup] = useGroup('test-group', { mandatory: true })
 
       provideGroup()
 
@@ -237,7 +233,7 @@ describe('useGroup', () => {
     })
 
     it('should force select first item when mandatory is "force"', () => {
-      const [provideGroup] = useGroup('test-group', { mandatory: 'force' })
+      const [,provideGroup] = useGroup('test-group', { mandatory: 'force' })
 
       provideGroup()
 
@@ -250,7 +246,7 @@ describe('useGroup', () => {
     })
 
     it('should not allow deselecting last item in multiple+mandatory mode', () => {
-      const [provideGroup] = useGroup('test-group', { multiple: true, mandatory: true })
+      const [,provideGroup] = useGroup('test-group', { multiple: true, mandatory: true })
 
       provideGroup()
 
@@ -282,7 +278,7 @@ describe('useGroup', () => {
 
   describe('disabled items', () => {
     it('should not allow selecting disabled items', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -297,7 +293,7 @@ describe('useGroup', () => {
     })
 
     it('should not allow deselecting disabled items that are selected', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -317,7 +313,7 @@ describe('useGroup', () => {
     })
 
     it('should skip disabled items when toggling array of ids', () => {
-      const [provideGroup] = useGroup('test-group', { multiple: true })
+      const [,provideGroup] = useGroup('test-group', { multiple: true })
 
       provideGroup()
 
@@ -341,7 +337,7 @@ describe('useGroup', () => {
   describe('model binding', () => {
     it('should update model when selection changes in single mode', async () => {
       const model = ref()
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup(model)
 
@@ -359,7 +355,7 @@ describe('useGroup', () => {
 
     it('should update model when selection changes in multiple mode', async () => {
       const model = ref([])
-      const [provideGroup] = useGroup('test-group', { multiple: true })
+      const [,provideGroup] = useGroup('test-group', { multiple: true })
 
       provideGroup(model)
 
@@ -381,7 +377,7 @@ describe('useGroup', () => {
 
     it('should update selection when model changes', async () => {
       const model = ref('item2')
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup(model)
 
@@ -404,7 +400,7 @@ describe('useGroup', () => {
 
   describe('reset functionality', () => {
     it('should reset indices when reset is called', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -427,7 +423,7 @@ describe('useGroup', () => {
     })
 
     it('should update values for items with valueIsIndex after reset', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -450,7 +446,7 @@ describe('useGroup', () => {
     })
 
     it('should call mandate after reset', () => {
-      const [provideGroup] = useGroup('test-group', { mandatory: true })
+      const [,provideGroup] = useGroup('test-group', { mandatory: true })
 
       provideGroup()
 
@@ -468,7 +464,7 @@ describe('useGroup', () => {
 
   describe('edge cases', () => {
     it('should handle empty group', () => {
-      const [provideGroup] = useGroup('test-group', { mandatory: true })
+      const [,provideGroup] = useGroup('test-group', { mandatory: true })
 
       provideGroup()
 
@@ -481,7 +477,7 @@ describe('useGroup', () => {
     })
 
     it('should handle registering item with same id twice', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 
@@ -499,7 +495,7 @@ describe('useGroup', () => {
     })
 
     it('should handle unregistering non-existent item', () => {
-      const [provideGroup] = useGroup('test-group')
+      const [,provideGroup] = useGroup('test-group')
 
       provideGroup()
 

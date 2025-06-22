@@ -20,8 +20,8 @@
 <script setup lang="ts">
   import { useGroup } from './composables/group'
 
-  const [provideGroupContext, useGroupContext] = useGroup('radio-group', {
-    mandatory: false,
+  const [useGroupContext, provideGroupContext] = useGroup('radio-group', {
+    mandatory: true,
     multiple: false,
   })
 
@@ -30,6 +30,8 @@
   provideGroupContext(model)
 
   const Radio = defineComponent({
+    name: 'Radio',
+
     props: {
       id: String,
       disabled: Boolean,
