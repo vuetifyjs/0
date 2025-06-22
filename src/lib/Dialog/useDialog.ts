@@ -30,6 +30,7 @@ export interface DialogContext {
 
 export const DialogSymbol: InjectionKey<DialogContext> = Symbol('Dialog')
 
+// TODO: persistence
 export function useDialog ({ modelValue = false, onOpen, onClose }: {
   modelValue?: boolean
   onOpen?: () => void
