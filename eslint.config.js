@@ -11,5 +11,7 @@ export default vuetify({
 {
   rules: {
     'import/first': 'off',
+    'curly': 'off',
+    '@stylistic/operator-linebreak': 'off',
   },
 })
