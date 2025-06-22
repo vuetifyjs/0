@@ -84,6 +84,10 @@ describe('useGroup', () => {
       registered.toggle()
 
       expect(registered.isActive.value).toBe(true)
+
+      registered.toggle()
+
+      expect(registered.isActive.value).toBe(false)
     })
 
     it('should deselect when toggling selected item', () => {

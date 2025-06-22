@@ -9,6 +9,8 @@
       <Radio id="radio 4" value="radio 4" />
 
       The current value is: <strong>{{ model }}</strong>
+      <br>
+      <br>
 
       <button @click="model = undefined">Reset</button>
     </div>
