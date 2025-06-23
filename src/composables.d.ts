@@ -124,7 +124,7 @@ declare global {
   export type { ElevationConfig, ElevationOptions, ElevationProps } from './composables/elevation'
   import('./composables/elevation')
   // @ts-ignore
-  export type { GroupItem, GroupContext, GroupTicket, GroupOptions } from './composables/group'
+  export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from './composables/group'
   import('./composables/group')
   // @ts-ignore
   export type { RoundedProps } from './composables/rounded'

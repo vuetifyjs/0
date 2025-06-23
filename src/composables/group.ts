@@ -179,7 +179,14 @@ export function useGroup (namespace: string, options?: GroupOptions) {
           if (options?.multiple) {
             if (
               values.length === selected.size &&
-              values.every(val => selected.has(val))
+              values.every(val => {
+                for (const [id, item] of registered) {
+                  if (item.value === val && selected.has(id)) {
+                    return true
+                  }
+                }
+                return false
+              })
             ) return
           } else {
             if (value === current) return
@@ -188,9 +195,12 @@ export function useGroup (namespace: string, options?: GroupOptions) {
           selected.clear()
 
           for (const val of values) {
-            if (!registered.has(val)) continue
-
-            selected.add(val)
+            for (const [id, item] of registered) {
+              if (item.value === val) {
+                selected.add(id)
+                break
+              }
+            }
           }
         })
 
