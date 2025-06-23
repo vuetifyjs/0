@@ -25,7 +25,7 @@
 
   const [,provideGroupContext] = useGroup(namespace, props)
 
-  const { register, unregister, reset, mandate } = provideGroupContext(model)
+  const { register, unregister, reset, mandate, select } = provideGroupContext(model)
 </script>
 
 <template>
@@ -34,6 +34,7 @@
     :model
     :register
     :reset
+    :select
     :unregister
   />
 </template>

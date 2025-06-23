@@ -1,7 +1,7 @@
 import type { MaybeRefOrGetter } from 'vue'
 
 export interface GroupItem {
-  id: string
+  id: string | number
   disabled: boolean
   index: number
   value: unknown
@@ -19,6 +19,7 @@ export interface GroupContext {
   unregister: (id: GroupItem['id']) => void
   reset: () => void
   mandate: () => void
+  select: (ids: GroupItem['id'] | GroupItem['id'][]) => void
 }
 
 export type GroupOptions = {
@@ -63,6 +64,10 @@ export function useGroup (namespace: string, options?: GroupOptions) {
         value.value = value.index
       }
     }
+  }
+
+  function select (ids: GroupItem['id'] | GroupItem['id'][]) {
+    toggle(ids)
   }
 
   function toggle (ids: GroupItem['id'] | GroupItem['id'][]) {
@@ -196,11 +201,12 @@ export function useGroup (namespace: string, options?: GroupOptions) {
         })
       }
 
-      const context = {
+      const context: GroupContext = {
         register,
         unregister,
         reset,
         mandate,
+        select,
       }
 
       provideGroupContext(context)
