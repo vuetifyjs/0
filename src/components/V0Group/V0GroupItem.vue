@@ -1,5 +1,6 @@
 <script lang="ts">
   import { useGroup } from '@/composables/group'
+  import type { RegisteredGroupItem } from '@/composables/group'
 
   export interface V0GroupItemProps {
     id?: string
@@ -7,10 +8,15 @@
     disabled?: boolean
     namespace?: string
   }
+
+  export interface V0GroupItemSlots {
+    default: RegisteredGroupItem
+  }
 </script>
 
 <script lang="ts" setup>
   defineOptions({ name: 'V0GroupItem' })
+  defineSlots<V0GroupItemSlots>()
 
   const {
     id = useId(),
@@ -27,13 +33,21 @@
     throw new Error(`Failed to get group context at namespace "${namespace}"`)
   }
 
-  const { isActive, toggle } = group.register({
+  const { isActive, toggle, index } = group.register({
     id,
     value,
     disabled,
   })
+
+  onUnmounted(() => {
+    group.unregister(id)
+  })
 </script>
 
 <template>
-  <slot :is-active :toggle />
+  <slot
+    :index
+    :is-active
+    :toggle
+  />
 </template>

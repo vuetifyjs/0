@@ -2,14 +2,14 @@ import type { MaybeRefOrGetter } from 'vue'
 
 export interface GroupItem {
   id: string
-  disabled?: boolean
-  index?: number
+  disabled: boolean
+  index: number
   value: unknown
-  valueIsIndex?: boolean
+  valueIsIndex: boolean
 }
 
 export interface GroupContext {
-  register: (item: GroupItem) => RegisteredGroupItem
+  register: (item: Partial<GroupItem>) => RegisteredGroupItem
   unregister: (id: GroupItem['id']) => void
   reset: () => void
   mandate: () => void
@@ -18,7 +18,7 @@ export interface GroupContext {
 export interface RegisteredGroupItem {
   isActive: MaybeRefOrGetter<boolean>
   toggle: () => void
-  index: number
+  index: MaybeRefOrGetter<number>
 }
 
 export type GroupOptions = {
@@ -29,26 +29,36 @@ export type GroupOptions = {
 export function useGroup (namespace: string, options?: GroupOptions) {
   const [useGroupContext, provideGroupContext] = useContext<GroupContext>(namespace)
 
-  const registered = new Map<GroupItem['id'], GroupItem>()
+  const registered = reactive(new Map<GroupItem['id'], GroupItem>())
   const selected = reactive(new Set<string>())
 
   function mandate () {
     if (!options?.mandatory || selected.size > 0 || registered.size === 0) return
 
-    const first = registered.values().next().value?.id
+    let first = registered.values().next().value
 
-    if (first) selected.add(first)
+    while (first?.disabled) {
+      const next = registered.values().next().value
+      if (next === first) break
+      first = next
+    }
+
+    if (first) selected.add(first.id)
   }
 
   function reset () {
+    selected.clear()
+
     let index = 0
 
     for (const [, value] of registered) {
-      value.index = index++
+      value.index = index
 
       if (value.valueIsIndex) {
-        value.value = value.index
+        value.value = index
       }
+
+      index++
     }
 
     mandate()
@@ -56,11 +66,12 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
   function toggle (ids: GroupItem['id'] | GroupItem['id'][]) {
     for (const id of Array.isArray(ids) ? ids : [ids]) {
+      console.log(id)
+      if (!id) continue
+
       const item = registered.get(id)
 
-      if (!item) continue
-
-      if (item?.disabled) continue
+      if (!item || item.disabled) continue
 
       const hasId = selected.has(id)
 
@@ -83,33 +94,53 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   }
 
   function transform (map: Set<string>) {
-    return options?.multiple
-      ? Array.from(map)
-      : map.values().next().value
-  }
+    console.log(map)
+    if (!options?.multiple) {
+      const current = map.values().next().value
 
-  function register (item: GroupItem): RegisteredGroupItem {
-    const index = registered.size
+      if (!current) return undefined
 
-    if (item.value == null) {
-      item.value = index
-      item.valueIsIndex = true
+      return registered.get(current)?.value
     }
 
-    registered.set(item.id, item)
+    const array = []
+
+    for (const id of map) {
+      // console.log(id)
+      const item = registered.get(id)
+
+      if (!item) continue
+
+      array.push(item.value)
+    }
+
+    return array
+  }
+
+  function register (item: Partial<GroupItem>): RegisteredGroupItem {
+    const index = registered.size
+
+    const registrant: GroupItem = reactive({
+      id: item.id ?? useId(),
+      disabled: item.disabled ?? false,
+      index,
+      value: item.value ?? index,
+      valueIsIndex: item.value == null,
+    })
+
+    registered.set(registrant.id, registrant)
 
     if (options?.mandatory === 'force') mandate()
 
     return {
-      isActive: toRef(() => selected.has(item.id)),
-      toggle: () => toggle(item.id),
-      index,
+      isActive: toRef(() => selected.has(registrant.id)),
+      index: toRef(() => registrant.index),
+      toggle: () => toggle(registrant.id),
     }
   }
 
-  function unregister (id: GroupItem['id']) {
+  async function unregister (id: GroupItem['id']) {
     registered.delete(id)
-    selected.delete(id)
 
     reset()
   }
@@ -123,11 +154,16 @@ export function useGroup (namespace: string, options?: GroupOptions) {
         watch(selected, value => {
           if (isUpdatingModel) return
 
+          isUpdatingModel = true
+
           model.value = transform(value)
         })
 
         watch(model, async value => {
+          if (isUpdatingModel) return
+
           isUpdatingModel = true
+
           const current = transform(selected)
 
           const values = Array.isArray(value) ? value : [value]
@@ -157,12 +193,16 @@ export function useGroup (namespace: string, options?: GroupOptions) {
         })
       }
 
-      provideGroupContext({
+      const context = {
         register,
         unregister,
         reset,
         mandate,
-      })
+      }
+
+      provideGroupContext(context)
+
+      return context
     },
   ] as const
 }
