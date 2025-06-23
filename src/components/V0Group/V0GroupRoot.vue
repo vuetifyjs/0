@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { useGroup } from '@/composables/group'
+  // Types
   import type { GroupContext, GroupOptions } from '@/composables/group'
   import type { ModelRef } from 'vue'
 

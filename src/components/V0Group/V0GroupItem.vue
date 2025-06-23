@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { useGroup } from '@/composables/group'
+  // Types
   import type { GroupTicket } from '@/composables/group'
 
   export interface V0GroupItemProps {
