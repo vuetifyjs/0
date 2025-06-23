@@ -8,17 +8,17 @@ export interface GroupItem {
   valueIsIndex: boolean
 }
 
+export interface GroupTicket {
+  isActive: MaybeRefOrGetter<boolean>
+  index: MaybeRefOrGetter<number>
+  toggle: () => void
+}
+
 export interface GroupContext {
-  register: (item: Partial<GroupItem>) => RegisteredGroupItem
+  register: (item: Partial<GroupItem>) => GroupTicket
   unregister: (id: GroupItem['id']) => void
   reset: () => void
   mandate: () => void
-}
-
-export interface RegisteredGroupItem {
-  isActive: MaybeRefOrGetter<boolean>
-  toggle: (ids: GroupItem['id'] | GroupItem['id'][]) => void
-  index: MaybeRefOrGetter<number>
 }
 
 export type GroupOptions = {
@@ -31,7 +31,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   const [useGroupContext, provideGroupContext] = useContext<GroupContext>(namespace)
 
   const registered = reactive(new Map<GroupItem['id'], GroupItem>())
-  const selected = reactive(new Set<string>())
+  const selected = reactive(new Set<GroupItem['id']>())
 
   function mandate () {
     if (!options?.mandatory || selected.size > 0 || registered.size === 0) return
@@ -76,9 +76,9 @@ export function useGroup (namespace: string, options?: GroupOptions) {
       const hasId = selected.has(id)
 
       if (hasId && options?.mandatory) {
-        // For single selection, can't select if it's the only one
+        // For single selection, can't deselect if it's the only one
         if (!options?.multiple) continue
-        // For multiple selection, can't select if it's the last one
+        // For multiple selection, can't deselect if it's the last one
         if (selected.size === 1) continue
       }
 
@@ -93,7 +93,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     }
   }
 
-  function transform (map: Set<string>) {
+  function transform (map: Set<GroupItem['id']>): unknown | unknown[] | undefined {
     const returnObject = options?.returnObject
 
     if (!options?.multiple) {
@@ -119,7 +119,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     return array
   }
 
-  function register (item: Partial<GroupItem>): RegisteredGroupItem {
+  function register (item: Partial<GroupItem>): GroupTicket {
     const index = registered.size
 
     const registrant: GroupItem = reactive({
@@ -127,7 +127,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
       disabled: item.disabled ?? false,
       index,
       value: item.value ?? index,
-      valueIsIndex: item.value == null,
+      valueIsIndex: item.valueIsIndex ?? item.value == null,
     })
 
     registered.set(registrant.id, registrant)
@@ -150,7 +150,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
   return [
     useGroupContext,
-    function (model?: MaybeRefOrGetter) {
+    function (model?: Ref<unknown | unknown[]>) {
       if (model) {
         let isUpdatingModel = false
 

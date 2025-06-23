@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useGroup } from '@/composables/group'
-  import type { RegisteredGroupItem } from '@/composables/group'
+  import type { GroupTicket } from '@/composables/group'
 
   export interface V0GroupItemProps {
     id?: string
@@ -10,7 +10,7 @@
   }
 
   export interface V0GroupItemSlots {
-    default: (scope: RegisteredGroupItem) => any
+    default: (scope: GroupTicket) => any
   }
 </script>
 

@@ -26,7 +26,7 @@
     "MaybeRefOrGetter": true,
     "PropType": true,
     "Ref": true,
-    "RegisteredGroupItem": true,
+    "GroupTicket": true,
     "RoundedProps": true,
     "SELF_CLOSING_TAGS": true,
     "SelfClosingElement": true,
