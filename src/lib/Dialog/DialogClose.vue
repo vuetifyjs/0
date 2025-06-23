@@ -1,20 +1,15 @@
 <template>
-  <slot
-    v-if="isRenderless"
-    v-bind="dialog.getCloseProps()"
-  />
   <Atom
-    v-else
+    v-slot="slotProps"
     :as="as"
     v-bind="dialog.getCloseProps()"
   >
-    <slot />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>
 
 <script setup lang="ts">
   import { DialogSymbol } from './useDialog'
-  import { makeIsRenderless } from '@/utils/helpers'
   import { useContext } from '@/composables/context'
   import { Atom, type AtomProps } from '@/lib/Atom'
 
@@ -22,6 +17,5 @@
 
   const [injectDialog] = useContext(DialogSymbol)
   const dialog = injectDialog()
-  const props = withDefaults(defineProps<AtomProps>(), { as: 'button' })
-  const isRenderless = toRef(() => makeIsRenderless(props.as))
+  withDefaults(defineProps<AtomProps>(), { as: 'button' })
 </script>

@@ -1,7 +1,11 @@
 <template>
-  <slot v-if="isRenderless" />
+  <slot
+    v-if="isRenderless"
+    v-bind="$attrs"
+    :ref="elementRef"
+  />
   <component
-    :is="props.as"
+    :is="as"
     v-else
     v-bind="$attrs"
     :ref="elementRef"
