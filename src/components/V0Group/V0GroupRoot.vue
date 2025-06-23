@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { V0Atom } from '@/components/V0Atom'
   import { useGroup, type GroupOptions } from '@/composables/group'
-  import type { V0AtomProps } from '@/components/V0Atom'
 
-  export interface V0GroupRootProps extends V0AtomProps, GroupOptions {
+  export interface V0GroupRootProps extends GroupOptions {
     namespace?: string
   }
 </script>
@@ -20,7 +18,5 @@
 </script>
 
 <template>
-  <V0Atom>
-    <slot />
-  </V0Atom>
+  <slot :model />
 </template>

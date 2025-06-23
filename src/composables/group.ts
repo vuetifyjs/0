@@ -116,17 +116,17 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
   return [
     useGroupContext,
-    function (_model?: MaybeRefOrGetter) {
+    function (model?: MaybeRefOrGetter) {
       let isUpdatingModel = false
 
-      if (_model) {
+      if (model) {
         watch(selected, value => {
           if (isUpdatingModel) return
 
-          _model.value = transform(value)
+          model.value = transform(value)
         })
 
-        watch(_model, async value => {
+        watch(model, async value => {
           isUpdatingModel = true
           const current = transform(selected)
 
@@ -150,7 +150,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
           }
         })
 
-        watch(_model, async () => {
+        watch(model, async () => {
           await nextTick()
 
           isUpdatingModel = false

@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { V0Atom } from '@/components/V0Atom'
   import { useGroup } from '@/composables/group'
-  import type { V0AtomProps } from '@/components/V0Atom'
 
-  export interface V0GroupItemProps extends V0AtomProps {
+  export interface V0GroupItemProps {
     id?: string
     value?: any
     disabled?: boolean
@@ -37,7 +35,5 @@
 </script>
 
 <template>
-  <V0Atom>
-    <slot :is-active :toggle />
-  </V0Atom>
+  <slot :is-active :toggle />
 </template>
