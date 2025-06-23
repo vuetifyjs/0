@@ -24,6 +24,7 @@ export interface RegisteredGroupItem {
 export type GroupOptions = {
   mandatory?: boolean | 'force'
   multiple?: boolean
+  returnObject?: boolean
 }
 
 export function useGroup (namespace: string, options?: GroupOptions) {
@@ -48,25 +49,24 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
   function reset () {
     selected.clear()
+    reindex()
+    mandate()
+  }
 
+  function reindex () {
     let index = 0
 
     for (const [, value] of registered) {
-      value.index = index
+      value.index = index++
 
       if (value.valueIsIndex) {
-        value.value = index
+        value.value = value.index
       }
-
-      index++
     }
-
-    mandate()
   }
 
   function toggle (ids: GroupItem['id'] | GroupItem['id'][]) {
     for (const id of Array.isArray(ids) ? ids : [ids]) {
-      console.log(id)
       if (!id) continue
 
       const item = registered.get(id)
@@ -94,24 +94,26 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   }
 
   function transform (map: Set<string>) {
-    console.log(map)
+    const returnObject = options?.returnObject
+
     if (!options?.multiple) {
       const current = map.values().next().value
 
       if (!current) return undefined
 
-      return registered.get(current)?.value
+      const item = registered.get(current)
+
+      return returnObject ? item : item?.value
     }
 
     const array = []
 
     for (const id of map) {
-      // console.log(id)
       const item = registered.get(id)
 
       if (!item) continue
 
-      array.push(item.value)
+      array.push(returnObject ? item : item.value)
     }
 
     return array
@@ -141,8 +143,9 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
   async function unregister (id: GroupItem['id']) {
     registered.delete(id)
+    selected.delete(id)
 
-    reset()
+    reindex()
   }
 
   return [

@@ -7,22 +7,24 @@
         </button>
       </V0GroupItem>
 
+      <br>
+
       <V0GroupItem v-slot="{ isActive, toggle, index }">
         <button @click="toggle">
           {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
         </button>
       </V0GroupItem>
 
-      <!-- <br>
+      <br>
 
-      <V0GroupItem v-if="yes" id="1" v-slot="{ isActive, toggle, index }" :value="null">
+      <V0GroupItem v-if="yes" id="1" v-slot="{ isActive, toggle, index }">
         <button @click="toggle">
           {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
         </button>
       </V0GroupItem>
       <br>
 
-      <V0GroupItem id="2" v-slot="{ isActive, toggle, index }" value="2">
+      <V0GroupItem id="2" v-slot="{ isActive, toggle, index }" value="foobar">
         <button @click="toggle">
           {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
         </button>
@@ -36,7 +38,7 @@
 
       <button @click="yes = !yes">
         {{ yes ? 'Hide' : 'Show' }} second item
-      </button> -->
+      </button>
 
       <pre>{{ model || 'No model' }}</pre>
     </V0GroupRoot>

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { useGroup, type GroupContext, type GroupItem, type GroupOptions } from '@/composables/group'
+  import { useGroup } from '@/composables/group'
+  import type { GroupContext, GroupOptions } from '@/composables/group'
 
   export interface V0GroupRootProps extends GroupOptions {
     namespace?: string
