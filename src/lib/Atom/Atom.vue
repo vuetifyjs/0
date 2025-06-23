@@ -2,18 +2,12 @@
   <slot v-if="isRenderless" />
   <component
     :is="props.as"
-    v-else-if="!isSelfClosing"
-    v-bind="$attrs"
-    :ref="elementRef"
-  >
-    <slot />
-  </component>
-  <component
-    :is="props.as"
     v-else
     v-bind="$attrs"
     :ref="elementRef"
-  />
+  >
+    <slot v-if="!isSelfClosing" />
+  </component>
 </template>
 
 <script setup lang="ts">
