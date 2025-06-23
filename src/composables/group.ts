@@ -17,7 +17,7 @@ export interface GroupContext {
 
 export interface RegisteredGroupItem {
   isActive: MaybeRefOrGetter<boolean>
-  toggle: () => void
+  toggle: (ids: GroupItem['id'] | GroupItem['id'][]) => void
   index: MaybeRefOrGetter<number>
 }
 
@@ -141,7 +141,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     }
   }
 
-  async function unregister (id: GroupItem['id']) {
+  function unregister (id: GroupItem['id']) {
     registered.delete(id)
     selected.delete(id)
 
@@ -151,9 +151,9 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   return [
     useGroupContext,
     function (model?: MaybeRefOrGetter) {
-      let isUpdatingModel = false
-
       if (model) {
+        let isUpdatingModel = false
+
         watch(selected, value => {
           if (isUpdatingModel) return
 

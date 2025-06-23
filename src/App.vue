@@ -1,6 +1,6 @@
 <template>
   <div>
-    <V0GroupRoot v-slot="{ model, reset }" multiple>
+    <V0GroupRoot v-slot="{ model, reset }" v-model="_model" multiple return-object>
       <V0GroupItem v-slot="{ isActive, toggle, index }">
         <button @click="toggle">
           {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
@@ -9,7 +9,7 @@
 
       <br>
 
-      <V0GroupItem v-slot="{ isActive, toggle, index }">
+      <V0GroupItem v-slot="{ isActive, toggle, index }" disabled>
         <button @click="toggle">
           {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
         </button>
@@ -29,6 +29,7 @@
           {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
         </button>
       </V0GroupItem>
+
       <br>
       <br>
 
@@ -41,11 +42,12 @@
       </button>
 
       <pre>{{ model || 'No model' }}</pre>
+      <pre>{{ _model || 'No model' }}</pre>
     </V0GroupRoot>
   </div>
 </template>
 
 <script lang="ts" setup>
-  // const model = ref()
+  const _model = ref()
   const yes = ref(true)
 </script>
