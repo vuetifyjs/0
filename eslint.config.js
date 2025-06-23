@@ -4,9 +4,6 @@ export default vuetify({
   perfectionist: {
     import: false,
   },
-  vue: {
-    a11y: true,
-  },
 },
 {
   rules: {
