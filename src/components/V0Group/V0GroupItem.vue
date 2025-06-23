@@ -10,12 +10,13 @@
   }
 
   export interface V0GroupItemSlots {
-    default: RegisteredGroupItem
+    default: (scope: RegisteredGroupItem) => any
   }
 </script>
 
 <script lang="ts" setup>
   defineOptions({ name: 'V0GroupItem' })
+
   defineSlots<V0GroupItemSlots>()
 
   const {
