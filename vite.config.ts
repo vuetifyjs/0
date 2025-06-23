@@ -8,6 +8,9 @@ import UnocssVitePlugin from 'unocss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  experimental: {
+    enableNativePlugin: true,
+  },
   plugins: [
     Vue(),
     UnocssVitePlugin(),
@@ -34,16 +37,21 @@ export default defineConfig({
     }),
   ],
   define: { 'process.env': {} },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: 'modern-compiler',
-      },
-    },
-  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
     },
+  },
+  build: {
+    lib: {
+      entry: fileURLToPath(new URL('src/build.ts', import.meta.url)),
+      name: 'Vuetify',
+      fileName: () => `vuetify0.mjs`,
+      formats: ['es'],
+    },
+    rollupOptions: {
+      external: ['vue', 'focus-trap', '@vueuse/integrations'],
+    },
+    copyPublicDir: false,
   },
 })
