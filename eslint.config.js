@@ -1,3 +1,5 @@
+import storybook from 'eslint-plugin-storybook'
+
 import vuetify from 'eslint-config-vuetify'
 
 export default vuetify({
@@ -12,4 +14,6 @@ export default vuetify({
   rules: {
     'import/first': 'off',
   },
-})
+},
+...storybook.configs['flat/recommended'],
+)
