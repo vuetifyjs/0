@@ -13,5 +13,5 @@ export function useContext<T> (key: string) {
     return contextValue
   }
 
-  return [provideContext, injectContext] as const
+  return [injectContext, provideContext] as const
 }

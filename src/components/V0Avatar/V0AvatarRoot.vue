@@ -9,7 +9,7 @@
     status: ShallowRef<'idle' | 'loaded' | 'error' | 'loading'>
   }
 
-  export const [provideAvatarContext, useAvatarContext] = useContext<V0AvatarContext>('V0AvatarRoot')
+  export const [useAvatarContext, provideAvatarContext] = useContext<V0AvatarContext>('V0AvatarRoot')
 </script>
 
 <script setup lang="ts">

@@ -14,6 +14,12 @@ declare global {
   const V0_ELEVATION_KEY: typeof import('./composables/elevation')['V0_ELEVATION_KEY']
   const VUETIFY_0_ELEVATION_DEFAULTS: typeof import('./composables/elevation')['VUETIFY_0_ELEVATION_DEFAULTS']
   const VUETIFY_0_ELEVATION_KEY: typeof import('./composables/elevation')['VUETIFY_0_ELEVATION_KEY']
+  const afterAll: typeof import('vitest')['afterAll']
+  const afterEach: typeof import('vitest')['afterEach']
+  const assert: typeof import('vitest')['assert']
+  const beforeAll: typeof import('vitest')['beforeAll']
+  const beforeEach: typeof import('vitest')['beforeEach']
+  const chai: typeof import('vitest')['chai']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createElevation: typeof import('./composables/elevation')['createElevation']
@@ -22,7 +28,9 @@ declare global {
   const defaultElevationGenerator: typeof import('./composables/elevation')['defaultElevationGenerator']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
+  const describe: typeof import('vitest')['describe']
   const effectScope: typeof import('vue')['effectScope']
+  const expect: typeof import('vitest')['expect']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentInstanceName: typeof import('./utils/getCurrentInstanceName')['getCurrentInstanceName']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
@@ -35,6 +43,7 @@ declare global {
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
   const isSelfClosingTag: typeof import('./constants/htmlElements')['isSelfClosingTag']
+  const it: typeof import('vitest')['it']
   const markRaw: typeof import('vue')['markRaw']
   const nextTick: typeof import('vue')['nextTick']
   const onActivated: typeof import('vue')['onActivated']
@@ -63,6 +72,8 @@ declare global {
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
+  const suite: typeof import('vitest')['suite']
+  const test: typeof import('vitest')['test']
   const toCamelCase: typeof import('./utils/helpers')['toCamelCase']
   const toKebabCase: typeof import('./utils/helpers')['toKebabCase']
   const toRaw: typeof import('vue')['toRaw']
@@ -80,12 +91,16 @@ declare global {
   const useCssVars: typeof import('vue')['useCssVars']
   const useDimensions: typeof import('./composables/dimensions')['useDimensions']
   const useElevation: typeof import('./composables/elevation')['useElevation']
+  const useGroup: typeof import('./composables/group')['useGroup']
+  const useGroupItem: typeof import('./composables/group')['useGroupItem']
   const useId: typeof import('vue')['useId']
   const useModel: typeof import('vue')['useModel']
   const useRounded: typeof import('./composables/rounded')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
   const useSpacing: typeof import('./composables/spacing')['useSpacing']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
+  const vi: typeof import('vitest')['vi']
+  const vitest: typeof import('vitest')['vitest']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -108,6 +123,9 @@ declare global {
   // @ts-ignore
   export type { ElevationConfig, ElevationOptions, ElevationProps } from './composables/elevation'
   import('./composables/elevation')
+  // @ts-ignore
+  export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from './composables/group'
+  import('./composables/group')
   // @ts-ignore
   export type { RoundedProps } from './composables/rounded'
   import('./composables/rounded')
@@ -133,6 +151,12 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('./constants/htmlElements')['SELF_CLOSING_TAGS']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('./composables/elevation')['V0_ELEVATION_KEY']>
+    readonly afterAll: UnwrapRef<typeof import('vitest')['afterAll']>
+    readonly afterEach: UnwrapRef<typeof import('vitest')['afterEach']>
+    readonly assert: UnwrapRef<typeof import('vitest')['assert']>
+    readonly beforeAll: UnwrapRef<typeof import('vitest')['beforeAll']>
+    readonly beforeEach: UnwrapRef<typeof import('vitest')['beforeEach']>
+    readonly chai: UnwrapRef<typeof import('vitest')['chai']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createElevation: UnwrapRef<typeof import('./composables/elevation')['createElevation']>
@@ -141,7 +165,9 @@ declare module 'vue' {
     readonly defaultElevationGenerator: UnwrapRef<typeof import('./composables/elevation')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
+    readonly describe: UnwrapRef<typeof import('vitest')['describe']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly expect: UnwrapRef<typeof import('vitest')['expect']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentInstanceName: UnwrapRef<typeof import('./utils/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
@@ -154,6 +180,7 @@ declare module 'vue' {
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isSelfClosingTag: UnwrapRef<typeof import('./constants/htmlElements')['isSelfClosingTag']>
+    readonly it: UnwrapRef<typeof import('vitest')['it']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
@@ -181,6 +208,8 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly suite: UnwrapRef<typeof import('vitest')['suite']>
+    readonly test: UnwrapRef<typeof import('vitest')['test']>
     readonly toCamelCase: UnwrapRef<typeof import('./utils/helpers')['toCamelCase']>
     readonly toKebabCase: UnwrapRef<typeof import('./utils/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
@@ -198,12 +227,15 @@ declare module 'vue' {
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDimensions: UnwrapRef<typeof import('./composables/dimensions')['useDimensions']>
     readonly useElevation: UnwrapRef<typeof import('./composables/elevation')['useElevation']>
+    readonly useGroup: UnwrapRef<typeof import('./composables/group')['useGroup']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRounded: UnwrapRef<typeof import('./composables/rounded')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('./composables/spacing')['useSpacing']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly vi: UnwrapRef<typeof import('vitest')['vi']>
+    readonly vitest: UnwrapRef<typeof import('vitest')['vitest']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>
