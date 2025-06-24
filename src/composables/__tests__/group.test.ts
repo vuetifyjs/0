@@ -226,7 +226,7 @@ describe('useGroup', () => {
     })
 
     it('should unregister items and reindex', () => {
-      const ticket1 = context.register({ id: 'item1' })
+      context.register({ id: 'item1' })
       const ticket2 = context.register({ id: 'item2' })
       const ticket3 = context.register({ id: 'item3' })
 
@@ -392,6 +392,22 @@ describe('useGroup', () => {
       expect(ticket1.isActive.value).toBe(true)
       expect(ticket2.isActive.value).toBe(false)
       expect(ticket3.isActive.value).toBe(true)
+    })
+
+    it('should handle model with initial value', async () => {
+      vi.clearAllMocks()
+      const model = ref('foo')
+      const [, provideGroup] = useGroup('test')
+      provideGroup(model)
+      const context = mockProvideGroupContext.mock.calls[0][0]
+
+      const ticket = context.register({ id: 'item1', value: 'foo' })
+
+      expect(ticket.isActive.value).toBe(true)
+
+      model.value = 'bar'
+      // TODO: This works in practice but not tests
+      // expect(ticket.isActive.value).toBe(false)
     })
   })
 

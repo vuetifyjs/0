@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from 'vue'
+import type { Ref } from 'vue'
 
 export interface GroupItem {
   id: string | number
@@ -9,8 +9,8 @@ export interface GroupItem {
 }
 
 export interface GroupTicket {
-  isActive: MaybeRefOrGetter<boolean>
-  index: MaybeRefOrGetter<number>
+  isActive: Ref<boolean>
+  index: Ref<number>
   toggle: () => void
 }
 
@@ -33,6 +33,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
   const registered = reactive(new Map<GroupItem['id'], GroupItem>())
   const selected = reactive(new Set<GroupItem['id']>())
+  let initialValue: unknown | unknown[] = null
 
   function mandate () {
     if (!options?.mandatory || selected.size > 0 || registered.size === 0) return
@@ -128,7 +129,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     const index = registered.size
 
     const registrant: GroupItem = reactive({
-      id: item.id ?? useId(),
+      id: item.id ?? crypto.randomUUID(),
       disabled: item.disabled ?? false,
       index,
       value: item.value ?? index,
@@ -136,6 +137,16 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     })
 
     registered.set(registrant.id, registrant)
+
+    if (initialValue != null) {
+      const shouldSelect = Array.isArray(initialValue)
+        ? initialValue.includes(registrant.value)
+        : initialValue === registrant.value
+
+      if (shouldSelect) {
+        selected.add(registrant.id)
+      }
+    }
 
     if (options?.mandatory === 'force') mandate()
 
@@ -153,24 +164,28 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     reindex()
   }
 
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      initialValue = undefined
+    })
+  }
+
   return [
     useGroupContext,
     function (model?: Ref<unknown | unknown[]>) {
+      let isUpdatingModel = false
+
       if (model) {
-        let isUpdatingModel = false
+        initialValue = toValue(model)
 
         watch(selected, value => {
           if (isUpdatingModel) return
-
-          isUpdatingModel = true
 
           model.value = transform(value)
         })
 
         watch(model, async value => {
           if (isUpdatingModel) return
-
-          isUpdatingModel = true
 
           const current = transform(selected)
 
@@ -196,15 +211,18 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
           for (const val of values) {
             for (const [id, item] of registered) {
-              if (item.value === val) {
-                selected.add(id)
-                break
-              }
+              if (item.value !== val) continue
+
+              selected.add(id)
+
+              break
             }
           }
         })
 
-        watch(model, async () => {
+        watch([model, selected], async () => {
+          isUpdatingModel = true
+
           await nextTick()
 
           isUpdatingModel = false
