@@ -1,27 +1,34 @@
 <script lang="ts">
-  import type { AtomProps } from '@/lib/Atom'
-  import { AvatarSymbol, useAvatar } from './useAvatar'
-
-  export interface AvatarRootProps extends AtomProps {}
-
-  const [, provideAvatarContext] = useContext(AvatarSymbol)
-</script>
-
-<script setup lang="ts">
   // Components
   import { Atom } from '@/lib/Atom'
 
+  // Types
+  import type { AtomProps } from '@/lib/Atom'
+  import type { InjectionKey, ShallowRef } from 'vue'
+
+  export interface AvatarRootProps extends AtomProps {}
+
+  export interface AvatarContext {
+    status: ShallowRef<'idle' | 'loaded' | 'error' | 'loading'>
+  }
+
+  export const AvatarSymbol: InjectionKey<AvatarContext> = Symbol('V0Avatar')
+
+  export const [useAvatarContext, provideAvatarContext] = useContext<AvatarContext>(AvatarSymbol)
+</script>
+
+<script setup lang="ts">
   defineOptions({ name: 'AvatarRoot' })
 
-  const { as = 'span', renderless } = defineProps<AvatarRootProps>()
+  const { as = 'span' } = defineProps<AvatarRootProps>()
 
-  const avatar = useAvatar()
-
-  provideAvatarContext(avatar)
+  provideAvatarContext({
+    status: shallowRef('idle' as const),
+  })
 </script>
 
 <template>
-  <Atom :as :renderless>
+  <Atom :as>
     <slot />
   </Atom>
 </template>

@@ -1,5 +1,9 @@
 <script lang="ts">
+  // Components
+  import { Atom } from '@/lib/Atom'
+
   // Types
+  import { useAvatarContext } from './AvatarRoot.vue'
   import type { AtomProps } from '@/lib/Atom'
 
   export interface AvatarImageProps extends AtomProps {
@@ -13,15 +17,12 @@
 </script>
 
 <script lang="ts" setup>
-  import { mergeProps } from 'vue'
-  import { AvatarSymbol } from './useAvatar'
   defineOptions({ name: 'AvatarImage' })
 
-  const { as = 'img', renderless, ...avatarImageProps } = defineProps<AvatarImageProps>()
+  const { as = 'img' } = defineProps<AvatarImageProps>()
 
   const emit = defineEmits<AvatarImageEmits>()
 
-  const [useAvatarContext] = useContext(AvatarSymbol)
   const context = useAvatarContext()
 
   const isErrored = toRef(() => context.status.value === 'error')
@@ -37,21 +38,14 @@
 
     emit('error', e)
   }
-
-  const props = mergeProps(avatarImageProps, {
-    onError,
-    onLoad,
-  })
 </script>
 
 <template>
   <Atom
     v-if="!isErrored"
-    v-slot="slotProps"
-    :as="as"
-    :props="props"
-    :renderless="renderless"
-  >
-    <slot v-bind="slotProps" />
-  </Atom>
+    :as
+    role="img"
+    @error="onError"
+    @load="onLoad"
+  />
 </template>
