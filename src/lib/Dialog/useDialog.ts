@@ -1,6 +1,7 @@
 import { shallowRef, watch, onBeforeUnmount, computed } from 'vue'
 import type { ComponentPublicInstance, ShallowRef, InjectionKey, Ref } from 'vue'
 import { createFocusTrap, type FocusTrap } from 'focus-trap'
+import { useKeydown } from '@/composables/useKeydown'
 
 export interface DialogContext {
   isOpen: ShallowRef<boolean>
@@ -77,11 +78,11 @@ export function useDialog ({ modelValue = false, onOpen, onClose }: {
     onClose?.()
   }
 
-  const onKeydown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      close()
-    }
-  }
+  const { startListening: startKeydownListening, stopListening: stopKeydownListening } = useKeydown({
+    key: 'Escape',
+    handler: close,
+    preventDefault: true,
+  })
 
   const onClickOutside = (e: MouseEvent) => {
     if (dialogRef.value && !dialogRef.value.$el.contains(e.target as Node)) {
@@ -91,14 +92,14 @@ export function useDialog ({ modelValue = false, onOpen, onClose }: {
 
   watch(isOpen, v => {
     if (v) {
-      document.addEventListener('keydown', onKeydown)
+      startKeydownListening()
       document.addEventListener('mousedown', onClickOutside)
       nextTick(() => {
         createOrActivateFocusTrap()
       })
     } else {
       deactivateFocusTrap()
-      document.removeEventListener('keydown', onKeydown)
+      stopKeydownListening()
       document.removeEventListener('mousedown', onClickOutside)
     }
   })
@@ -111,7 +112,7 @@ export function useDialog ({ modelValue = false, onOpen, onClose }: {
 
   onBeforeUnmount(() => {
     deactivateFocusTrap()
-    document.removeEventListener('keydown', onKeydown)
+    stopKeydownListening()
     document.removeEventListener('mousedown', onClickOutside)
   })
 

@@ -91,6 +91,7 @@ declare global {
   const useElevation: typeof import('./composables/elevation')['useElevation']
   const useGroup: typeof import('./composables/group')['useGroup']
   const useId: typeof import('vue')['useId']
+  const useKeydown: typeof import('./composables/useKeydown')['useKeydown']
   const useModel: typeof import('vue')['useModel']
   const useRounded: typeof import('./composables/rounded')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
@@ -132,6 +133,9 @@ declare global {
   // @ts-ignore
   export type { Theme, ThemeOptions, ThemeProvider } from './composables/theme'
   import('./composables/theme')
+  // @ts-ignore
+  export type { KeyHandler } from './composables/useKeydown'
+  import('./composables/useKeydown')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from './constants/htmlElements'
   import('./constants/htmlElements')
@@ -227,6 +231,7 @@ declare module 'vue' {
     readonly useElevation: UnwrapRef<typeof import('./composables/elevation')['useElevation']>
     readonly useGroup: UnwrapRef<typeof import('./composables/group')['useGroup']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useKeydown: UnwrapRef<typeof import('./composables/useKeydown')['useKeydown']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRounded: UnwrapRef<typeof import('./composables/rounded')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
