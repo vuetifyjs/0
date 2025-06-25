@@ -9,6 +9,10 @@
   </Atom>
 </template>
 
+<script lang="ts">
+  export interface DialogCloseProps extends AtomProps {}
+</script>
+
 <script setup lang="ts">
   import { DialogSymbol } from './useDialog'
   import { useContext } from '@/composables/context'
@@ -18,5 +22,5 @@
 
   const [injectDialog] = useContext(DialogSymbol)
   const dialog = injectDialog()
-  withDefaults(defineProps<AtomProps>(), { as: 'button', renderless: false })
+  withDefaults(defineProps<DialogCloseProps>(), { as: 'button', renderless: false })
 </script>

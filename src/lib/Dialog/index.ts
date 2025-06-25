@@ -13,3 +13,11 @@ export const Dialog = {
   Content,
   Close,
 }
+
+export type { DialogBackdropProps } from './DialogBackdrop.vue'
+export type { DialogCloseProps } from './DialogClose.vue'
+export type { DialogContentProps } from './DialogContent.vue'
+export type { DialogPortalProps } from './DialogPortal.vue'
+export type { DialogRootProps } from './DialogRoot.vue'
+export type { DialogTriggerProps } from './DialogTrigger.vue'
+export type { DialogContext } from './useDialog'

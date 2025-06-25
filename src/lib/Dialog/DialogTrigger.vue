@@ -9,16 +9,21 @@
   </Atom>
 </template>
 
+<script lang="ts">
+  import type { AtomProps } from '@/lib/Atom'
+  export interface DialogTriggerProps extends AtomProps {}
+</script>
+
 <script setup lang="ts">
   import { DialogSymbol, type DialogContext } from './useDialog'
-  import { Atom, type AtomProps } from '@/lib/Atom'
+  import { Atom } from '@/lib/Atom'
   import { useContext } from '@/composables/context'
 
   defineOptions({ name: 'DialogTrigger' })
 
   const [injectDialog] = useContext(DialogSymbol)
   const dialog = injectDialog()
-  withDefaults(defineProps<AtomProps>(), { as: 'button', renderless: false })
+  withDefaults(defineProps<DialogTriggerProps>(), { as: 'button', renderless: false })
 
   defineSlots<{
     default: (props: ReturnType<DialogContext['getTriggerProps']>) => any

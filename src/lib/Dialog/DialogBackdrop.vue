@@ -10,14 +10,19 @@
   </Atom>
 </template>
 
+<script lang="ts">
+  import type { AtomProps } from '@/lib/Atom'
+  export interface DialogBackdropProps extends AtomProps {}
+</script>
+
 <script setup lang="ts">
   import { DialogSymbol } from './useDialog'
   import { useContext } from '@/composables/context'
-  import { Atom, type AtomProps } from '@/lib/Atom'
+  import { Atom } from '@/lib/Atom'
 
   defineOptions({ name: 'DialogBackdrop' })
 
   const [injectDialog] = useContext(DialogSymbol)
   const dialog = injectDialog()
-  withDefaults(defineProps<AtomProps>(), { as: 'div', renderless: false })
+  withDefaults(defineProps<DialogBackdropProps>(), { as: 'div', renderless: false })
 </script>
