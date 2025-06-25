@@ -42,7 +42,6 @@ declare global {
   const isRef: typeof import('vue')['isRef']
   const isSelfClosingTag: typeof import('./constants/htmlElements')['isSelfClosingTag']
   const it: typeof import('vitest')['it']
-  const makeIsRenderless: typeof import('./utils/helpers')['makeIsRenderless']
   const markRaw: typeof import('vue')['markRaw']
   const nextTick: typeof import('vue')['nextTick']
   const onActivated: typeof import('vue')['onActivated']

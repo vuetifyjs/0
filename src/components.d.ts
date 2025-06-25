@@ -9,6 +9,5 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     VButton: typeof import('./components/VButton/VButton.vue')['default']
-    VDialog: typeof import('./components/VDialog/VDialog.vue')['default']
   }
 }

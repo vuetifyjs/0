@@ -52,7 +52,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', 'focus-trap', '@vueuse/integrations'],
+      external: ['vue'],
     },
     copyPublicDir: false,
   },
