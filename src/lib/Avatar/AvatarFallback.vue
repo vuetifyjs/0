@@ -12,7 +12,7 @@
 
   defineOptions({ name: 'AvatarFallback' })
 
-  const { as = 'span' } = defineProps<AvatarFallbackProps>()
+  const { as = 'span', renderless } = defineProps<AvatarFallbackProps>()
 
   const [useAvatarContext] = useContext(AvatarSymbol)
   const context = useAvatarContext()
@@ -24,6 +24,7 @@
   <Atom
     v-if="isErrored"
     :as
+    :renderless
   >
     <slot />
   </Atom>

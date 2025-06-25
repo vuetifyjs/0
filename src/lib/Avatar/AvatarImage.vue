@@ -13,12 +13,11 @@
 </script>
 
 <script lang="ts" setup>
+  import { mergeProps } from 'vue'
   import { AvatarSymbol } from './useAvatar'
   defineOptions({ name: 'AvatarImage' })
 
-  withDefaults(defineProps<AvatarImageProps>(), {
-    as: 'img',
-  })
+  const { as = 'img', renderless, ...avatarImageProps } = defineProps<AvatarImageProps>()
 
   const emit = defineEmits<AvatarImageEmits>()
 
@@ -38,14 +37,21 @@
 
     emit('error', e)
   }
+
+  const props = mergeProps(avatarImageProps, {
+    onError,
+    onLoad,
+  })
 </script>
 
 <template>
   <Atom
     v-if="!isErrored"
+    v-slot="slotProps"
     :as="as"
-    role="img"
-    @error="onError"
-    @load="onLoad"
-  />
+    :props="props"
+    :renderless="renderless"
+  >
+    <slot v-bind="slotProps" />
+  </Atom>
 </template>

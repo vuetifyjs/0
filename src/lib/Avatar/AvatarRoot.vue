@@ -13,7 +13,7 @@
 
   defineOptions({ name: 'AvatarRoot' })
 
-  const { as = 'span' } = defineProps<AvatarRootProps>()
+  const { as = 'span', renderless } = defineProps<AvatarRootProps>()
 
   const avatar = useAvatar()
 
@@ -21,7 +21,7 @@
 </script>
 
 <template>
-  <Atom :as>
+  <Atom :as :renderless>
     <slot />
   </Atom>
 </template>
