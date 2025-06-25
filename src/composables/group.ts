@@ -15,7 +15,7 @@ export interface GroupTicket {
 }
 
 export interface GroupContext {
-  register: (item: Partial<GroupItem>) => GroupTicket
+  register: (item?: Partial<GroupItem>) => GroupTicket
   unregister: (id: GroupItem['id']) => void
   reset: () => void
   mandate: () => void
@@ -35,8 +35,11 @@ export type GroupOptions = {
   returnObject?: boolean
 }
 
-export function useGroup (namespace: string, options?: GroupOptions) {
-  const [useGroupContext, provideGroupContext] = useContext<GroupContext>(namespace)
+export function useGroup<T extends GroupContext> (
+  namespace: string,
+  options?: GroupOptions,
+) {
+  const [useGroupContext, provideGroupContext] = useContext<T>(namespace)
 
   const registeredItems = reactive(new Map<GroupItem['id'], GroupItem>())
   const selectedIds = reactive(new Set<GroupItem['id']>())
@@ -118,15 +121,15 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     }
   }
 
-  function register (item: Partial<GroupItem>): GroupTicket {
+  function register (item?: Partial<GroupItem>): GroupTicket {
     const index = registeredItems.size
 
     const registrant: GroupItem = reactive({
-      id: item.id ?? crypto.randomUUID(),
-      disabled: item.disabled ?? false,
+      id: item?.id ?? crypto.randomUUID(),
+      disabled: item?.disabled ?? false,
       index,
-      value: item.value ?? index,
-      valueIsIndex: item.valueIsIndex ?? item.value == null,
+      value: item?.value ?? index,
+      valueIsIndex: item?.valueIsIndex ?? item?.value == null,
     })
 
     registeredItems.set(registrant.id, registrant)
@@ -165,7 +168,10 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
   return [
     useGroupContext,
-    function (model?: Ref<unknown | unknown[]>) {
+    function (
+      model?: Ref<unknown | unknown[]>,
+      context?: Omit<T, keyof GroupContext>,
+    ) {
       let isUpdatingModel = false
 
       if (model) {
@@ -211,17 +217,19 @@ export function useGroup (namespace: string, options?: GroupOptions) {
         })
       }
 
-      const context: GroupContext = {
+      const group = {
         register,
         unregister,
         reset,
         mandate,
         select,
-      }
 
-      provideGroupContext(context)
+        ...context,
+      } as T
 
-      return context
+      provideGroupContext(group)
+
+      return group
     },
     {
       selectedItems,
