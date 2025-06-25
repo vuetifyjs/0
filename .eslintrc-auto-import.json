@@ -20,6 +20,7 @@
     "GroupContext": true,
     "GroupItem": true,
     "GroupOptions": true,
+    "GroupState": true,
     "GroupTicket": true,
     "HTMLElementName": true,
     "InjectionKey": true,

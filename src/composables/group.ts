@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type { ComputedRef, Reactive, Ref } from 'vue'
 
 export interface GroupItem {
   id: string | number
@@ -22,6 +22,13 @@ export interface GroupContext {
   select: (ids: GroupItem['id'] | GroupItem['id'][]) => void
 }
 
+export interface GroupState {
+  selectedIds: Reactive<Set<GroupItem['id']>>
+  selectedItems: ComputedRef<Set<GroupItem>>
+  selectedValues: ComputedRef<Set<unknown>>
+  registered: Reactive<Map<GroupItem['id'], GroupItem>>
+}
+
 export type GroupOptions = {
   mandatory?: boolean | 'force'
   multiple?: boolean
@@ -32,11 +39,23 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   const [useGroupContext, provideGroupContext] = useContext<GroupContext>(namespace)
 
   const registered = reactive(new Map<GroupItem['id'], GroupItem>())
-  const selected = reactive(new Set<GroupItem['id']>())
+  const selectedIds = reactive(new Set<GroupItem['id']>())
   let initialValue: unknown | unknown[] = null
 
+  const selectedItems = computed(() => {
+    return new Set(
+      Array.from(selectedIds).map(id => registered.get(id)),
+    )
+  })
+
+  const selectedValues = computed(() => {
+    return new Set(
+      Array.from(selectedItems.value).map(item => item?.value),
+    )
+  })
+
   function mandate () {
-    if (!options?.mandatory || selected.size > 0 || registered.size === 0) return
+    if (!options?.mandatory || selectedIds.size > 0 || registered.size === 0) return
 
     let first = registered.values().next().value
 
@@ -46,11 +65,11 @@ export function useGroup (namespace: string, options?: GroupOptions) {
       first = next
     }
 
-    if (first) selected.add(first.id)
+    if (first) selectedIds.add(first.id)
   }
 
   function reset () {
-    selected.clear()
+    selectedIds.clear()
     reindex()
     mandate()
   }
@@ -79,50 +98,24 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
       if (!item || item.disabled) continue
 
-      const hasId = selected.has(id)
+      const hasId = selectedIds.has(id)
 
       if (hasId && options?.mandatory) {
         // For single selection, can't deselect if it's the only one
         if (!options?.multiple) continue
         // For multiple selection, can't deselect if it's the last one
-        if (selected.size === 1) continue
+        if (selectedIds.size === 1) continue
       }
 
       if (hasId) {
-        selected.delete(id)
+        selectedIds.delete(id)
       } else {
         // For single selection, clear others first
-        if (!options?.multiple) selected.clear()
+        if (!options?.multiple) selectedIds.clear()
 
-        selected.add(id)
+        selectedIds.add(id)
       }
     }
-  }
-
-  function transform (map: Set<GroupItem['id']>): unknown | unknown[] | undefined {
-    const returnObject = options?.returnObject
-
-    if (!options?.multiple) {
-      const current = map.values().next().value
-
-      if (!current) return undefined
-
-      const item = registered.get(current)
-
-      return returnObject ? item : item?.value
-    }
-
-    const array = []
-
-    for (const id of map) {
-      const item = registered.get(id)
-
-      if (!item) continue
-
-      array.push(returnObject ? item : item.value)
-    }
-
-    return array
   }
 
   function register (item: Partial<GroupItem>): GroupTicket {
@@ -144,14 +137,14 @@ export function useGroup (namespace: string, options?: GroupOptions) {
         : initialValue === registrant.value
 
       if (shouldSelect) {
-        selected.add(registrant.id)
+        selectedIds.add(registrant.id)
       }
     }
 
     if (options?.mandatory === 'force') mandate()
 
     return {
-      isActive: toRef(() => selected.has(registrant.id)),
+      isActive: toRef(() => selectedIds.has(registrant.id)),
       index: toRef(() => registrant.index),
       toggle: () => toggle(registrant.id),
     }
@@ -159,7 +152,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
   function unregister (id: GroupItem['id']) {
     registered.delete(id)
-    selected.delete(id)
+    selectedIds.delete(id)
 
     reindex()
   }
@@ -178,49 +171,38 @@ export function useGroup (namespace: string, options?: GroupOptions) {
       if (model) {
         initialValue = toValue(model)
 
-        watch(selected, value => {
+        watch(selectedIds, () => {
           if (isUpdatingModel) return
 
-          model.value = transform(value)
+          const returnObject = options?.returnObject
+          const target = returnObject ? selectedItems : selectedValues
+
+          model.value = options?.multiple
+            ? Array.from(target.value)
+            : target.value.values().next().value
         })
 
         watch(model, async value => {
           if (isUpdatingModel) return
 
-          const current = transform(selected)
+          const values = new Set(Array.isArray(value) ? value : [value])
 
-          const values = Array.isArray(value) ? value : [value]
+          if ((selectedValues.value.symmetricDifference(values)).size === 0) return
 
-          if (options?.multiple) {
-            if (
-              values.length === selected.size &&
-              values.every(val => {
-                for (const [id, item] of registered) {
-                  if (item.value === val && selected.has(id)) {
-                    return true
-                  }
-                }
-                return false
-              })
-            ) return
-          } else {
-            if (value === current) return
-          }
-
-          selected.clear()
+          selectedIds.clear()
 
           for (const val of values) {
             for (const [id, item] of registered) {
               if (item.value !== val) continue
 
-              selected.add(id)
+              selectedIds.add(id)
 
               break
             }
           }
         })
 
-        watch([model, selected], async () => {
+        watch([model, selectedIds], async () => {
           isUpdatingModel = true
 
           await nextTick()
@@ -241,5 +223,11 @@ export function useGroup (namespace: string, options?: GroupOptions) {
 
       return context
     },
+    {
+      selectedItems,
+      selectedIds,
+      selectedValues,
+      registered,
+    } as GroupState,
   ] as const
 }
