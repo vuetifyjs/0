@@ -32,6 +32,7 @@
     "eslint-config-vuetify": "4.1.0-0",
     "eslint-plugin-storybook": "^9.0.13",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
+    "happy-dom": "^18.0.1",
     "sass-embedded": "1.89.2",
     "storybook": "^9.0.13",
     "typescript": "~5.8.3",

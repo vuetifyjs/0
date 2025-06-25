@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
@@ -55,9 +54,5 @@ export default defineConfig({
       external: ['vue'],
     },
     copyPublicDir: false,
-  },
-  test: {
-    environment: 'jsdom',
-    globals: true,
   },
 })
