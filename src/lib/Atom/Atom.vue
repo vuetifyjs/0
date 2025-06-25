@@ -7,6 +7,10 @@
     as?: DOMElement
     renderless?: boolean
   }
+
+  interface AtomPrivateProps<T extends Record<string, any> = {}> extends AtomProps {
+    props?: T
+  }
 </script>
 
 <script setup lang="ts" generic="T extends Record<string, any> = {}">
@@ -17,8 +21,8 @@
   const {
     as = 'div',
     renderless = false,
-    ...props
-  } = defineProps<AtomProps>()
+    props = {},
+  } = defineProps<AtomPrivateProps<T>>()
 
   const attrs = useAttrs()
   const elementRef = shallowRef<HTMLElement>()
