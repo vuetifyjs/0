@@ -1,5 +1,6 @@
 import { shallowRef, watch, onBeforeUnmount, computed } from 'vue'
-import type { ComponentPublicInstance, ShallowRef, InjectionKey } from 'vue'
+import type { ComponentPublicInstance, ShallowRef, InjectionKey, Ref } from 'vue'
+import { createFocusTrap, type FocusTrap } from 'focus-trap'
 
 export interface DialogContext {
   isOpen: ShallowRef<boolean>
@@ -40,13 +41,38 @@ export function useDialog ({ modelValue = false, onOpen, onClose }: {
   const triggerRef = shallowRef<ComponentPublicInstance | null>(null)
   const dialogRef = shallowRef<ComponentPublicInstance | null>(null)
   const dataState = computed(() => isOpen.value ? 'open' : 'closed')
+  const focusTrap = ref(null) as Ref<FocusTrap | null>
+
+  const createOrActivateFocusTrap = () => {
+    if (!dialogRef.value?.$el) {
+      return
+    }
+    if (!focusTrap.value) {
+      focusTrap.value = createFocusTrap(dialogRef.value?.$el, {
+        allowOutsideClick: true,
+      })
+    }
+    if (isOpen.value) {
+      focusTrap.value?.activate()
+    }
+  }
+
+  const deactivateFocusTrap = () => {
+    if (isOpen.value) {
+      focusTrap.value?.deactivate()
+    }
+  }
 
   const open = () => {
     isOpen.value = true
     onOpen?.()
+    nextTick(() => {
+      createOrActivateFocusTrap()
+    })
   }
 
   const close = () => {
+    deactivateFocusTrap()
     isOpen.value = false
     onClose?.()
   }
@@ -67,13 +93,24 @@ export function useDialog ({ modelValue = false, onOpen, onClose }: {
     if (v) {
       document.addEventListener('keydown', onKeydown)
       document.addEventListener('mousedown', onClickOutside)
+      nextTick(() => {
+        createOrActivateFocusTrap()
+      })
     } else {
+      deactivateFocusTrap()
       document.removeEventListener('keydown', onKeydown)
       document.removeEventListener('mousedown', onClickOutside)
     }
   })
 
+  onMounted(() => {
+    if (isOpen.value) {
+      createOrActivateFocusTrap()
+    }
+  })
+
   onBeforeUnmount(() => {
+    deactivateFocusTrap()
     document.removeEventListener('keydown', onKeydown)
     document.removeEventListener('mousedown', onClickOutside)
   })
