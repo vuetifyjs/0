@@ -4,6 +4,7 @@
     :as="as"
     data-dialog-backdrop
     :data-state="dialog.dataState.value"
+    :renderless="renderless"
   >
     <slot />
   </Atom>
@@ -18,5 +19,5 @@
 
   const [injectDialog] = useContext(DialogSymbol)
   const dialog = injectDialog()
-  withDefaults(defineProps<AtomProps>(), { as: 'div' })
+  withDefaults(defineProps<AtomProps>(), { as: 'div', renderless: false })
 </script>

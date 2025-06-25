@@ -1,7 +1,8 @@
-import type { AtomDOMElement } from '@/types'
+import type { DOMElement } from '@/types'
 
 export { default as Atom } from './Atom.vue'
 
 export type AtomProps = {
-  as?: AtomDOMElement
+  as?: DOMElement
+  renderless?: boolean
 }

@@ -3,6 +3,7 @@
     v-if="dialog.isOpen.value"
     v-bind="dialog.getDialogProps()"
     :as="as"
+    :renderless="renderless"
   >
     <slot />
   </Atom>
@@ -17,5 +18,5 @@
 
   const [injectDialog] = useContext(DialogSymbol)
   const dialog = injectDialog()
-  defineProps<AtomProps>()
+  withDefaults(defineProps<AtomProps>(), { as: 'div', renderless: false })
 </script>

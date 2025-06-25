@@ -71,7 +71,6 @@
     "isRef": true,
     "isSelfClosingTag": true,
     "it": true,
-    "makeIsRenderless": true,
     "markRaw": true,
     "nextTick": true,
     "onActivated": true,

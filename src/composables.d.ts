@@ -182,7 +182,6 @@ declare module 'vue' {
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isSelfClosingTag: UnwrapRef<typeof import('./constants/htmlElements')['isSelfClosingTag']>
     readonly it: UnwrapRef<typeof import('vitest')['it']>
-    readonly makeIsRenderless: UnwrapRef<typeof import('./utils/helpers')['makeIsRenderless']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>

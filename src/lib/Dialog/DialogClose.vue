@@ -2,6 +2,7 @@
   <Atom
     v-slot="slotProps"
     :as="as"
+    :renderless="renderless"
     v-bind="dialog.getCloseProps()"
   >
     <slot v-bind="slotProps" />
@@ -17,5 +18,5 @@
 
   const [injectDialog] = useContext(DialogSymbol)
   const dialog = injectDialog()
-  withDefaults(defineProps<AtomProps>(), { as: 'button' })
+  withDefaults(defineProps<AtomProps>(), { as: 'button', renderless: false })
 </script>

@@ -6,7 +6,7 @@
 
 <template>
   <Dialog.Root v-model="isOpen">
-    <Dialog.Trigger v-slot="props" as="renderless">
+    <Dialog.Trigger v-slot="props" renderless>
       <VButton v-bind="props">
         Open Dialog2
       </VButton>
