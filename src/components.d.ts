@@ -13,5 +13,7 @@ declare module 'vue' {
     V0AvatarRoot: typeof import('./components/V0Avatar/V0AvatarRoot.vue')['default']
     V0GroupItem: typeof import('./components/V0Group/V0GroupItem.vue')['default']
     V0GroupRoot: typeof import('./components/V0Group/V0GroupRoot.vue')['default']
+    V0StepItem: typeof import('./components/V0Step/V0StepItem.vue')['default']
+    V0StepRoot: typeof import('./components/V0Step/V0StepRoot.vue')['default']
   }
 }
