@@ -1,8 +1,8 @@
 <template>
   <Atom
     v-if="dialog.isOpen.value"
-    v-bind="dialog.getDialogProps()"
     :as="as"
+    :props="dialog.getDialogProps()"
     :renderless="renderless"
   >
     <slot />

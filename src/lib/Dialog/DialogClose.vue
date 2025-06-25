@@ -2,8 +2,8 @@
   <Atom
     v-slot="slotProps"
     :as="as"
+    :props="dialog.getCloseProps()"
     :renderless="renderless"
-    v-bind="dialog.getCloseProps()"
   >
     <slot v-bind="slotProps" />
   </Atom>
