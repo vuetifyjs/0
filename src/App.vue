@@ -1,5 +1,9 @@
 <template>
   <div>
+    <Atom v-slot="slotProps" :props="{ value: 'Atom' }">
+      {{ slotProps.value }}
+    </Atom>
+    <br>
     <Group.Root v-slot="{ model, reset, select }">
       <Group.Item v-slot="{ isActive, toggle, index }">
         <button @click="toggle">
@@ -47,6 +51,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { Group } from './lib'
+  import { Atom, Group } from './lib'
   const yes = ref(true)
 </script>
