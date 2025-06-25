@@ -51,7 +51,7 @@
           <Dialog.Close
             :class="[
               'inline-flex items-center justify-center',
-              'px-4 py-2',
+              'px-4 py-2 text-sm font-medium rounded-md text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:hover:bg-gray-800 dark:focus:ring-gray-700',
             ]"
           >
             Close
