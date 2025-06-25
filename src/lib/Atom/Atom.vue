@@ -1,6 +1,6 @@
 <template>
   <slot
-    v-if="isRenderless"
+    v-if="renderless"
     v-bind="$attrs"
     :ref="elementRef"
   />
@@ -23,6 +23,5 @@
 
   const props = withDefaults(defineProps<AtomProps>(), { as: 'div', renderless: false })
   const elementRef = shallowRef<HTMLElement>()
-  const isRenderless = toRef(() => props.renderless)
   const isSelfClosing = computed(() => typeof props.as === 'string' && isSelfClosingTag(props.as as keyof HTMLElementTagNameMap))
 </script>
