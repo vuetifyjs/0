@@ -20,7 +20,6 @@
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "target": "esnext",
-    "lib": ["esnext"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": ["src/**/__tests__/*"]
