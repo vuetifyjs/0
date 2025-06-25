@@ -17,7 +17,7 @@
 
       <br>
 
-      <Group.Item v-if="yes" id="1" v-slot="{ isActive, toggle, index }">
+      <Group.Item v-if="yes" id="1" v-slot="{ isActive, index }">
         <button @click="select('2')">
           {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
         </button>

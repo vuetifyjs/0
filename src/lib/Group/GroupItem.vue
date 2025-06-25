@@ -1,6 +1,7 @@
 <script lang="ts">
   // Types
   import type { GroupTicket } from '@/composables/group'
+  import type { UnwrapNestedRefs } from 'vue'
 
   export interface GroupItemProps {
     id?: string
@@ -10,7 +11,7 @@
   }
 
   export interface GroupItemSlots {
-    default: (scope: GroupTicket) => any
+    default: (scope: UnwrapNestedRefs<GroupTicket>) => any
   }
 </script>
 
