@@ -11,7 +11,10 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@vueuse/integrations": "^13.4.0",
@@ -24,6 +27,8 @@
     "@tsconfig/node20": "^20.1.5",
     "@types/node": "^22.15.29",
     "@vitejs/plugin-vue": "^5.2.4",
+    "@vitest/coverage-v8": "3.2.4",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
     "eslint": "^9.29.0",
     "eslint-config-vuetify": "4.1.0-0",
@@ -35,6 +40,7 @@
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",
     "vite": "npm:rolldown-vite@7.0.1",
+    "vitest": "^3.2.4",
     "vue-tsc": "^2.2.10"
   },
   "packageManager": "pnpm@10.11.1"
