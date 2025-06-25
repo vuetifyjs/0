@@ -26,7 +26,7 @@ export interface GroupState {
   selectedIds: Reactive<Set<GroupItem['id']>>
   selectedItems: ComputedRef<Set<GroupItem>>
   selectedValues: ComputedRef<Set<unknown>>
-  registered: Reactive<Map<GroupItem['id'], GroupItem>>
+  registeredItems: Reactive<Map<GroupItem['id'], GroupItem>>
 }
 
 export type GroupOptions = {
@@ -38,13 +38,13 @@ export type GroupOptions = {
 export function useGroup (namespace: string, options?: GroupOptions) {
   const [useGroupContext, provideGroupContext] = useContext<GroupContext>(namespace)
 
-  const registered = reactive(new Map<GroupItem['id'], GroupItem>())
+  const registeredItems = reactive(new Map<GroupItem['id'], GroupItem>())
   const selectedIds = reactive(new Set<GroupItem['id']>())
   let initialValue: unknown | unknown[] = null
 
   const selectedItems = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registered.get(id)),
+      Array.from(selectedIds).map(id => registeredItems.get(id)),
     )
   })
 
@@ -55,12 +55,12 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   })
 
   function mandate () {
-    if (!options?.mandatory || selectedIds.size > 0 || registered.size === 0) return
+    if (!options?.mandatory || selectedIds.size > 0 || registeredItems.size === 0) return
 
-    let first = registered.values().next().value
+    let first = registeredItems.values().next().value
 
     while (first?.disabled) {
-      const next = registered.values().next().value
+      const next = registeredItems.values().next().value
       if (next === first) break
       first = next
     }
@@ -77,7 +77,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   function reindex () {
     let index = 0
 
-    for (const [, value] of registered) {
+    for (const [, value] of registeredItems) {
       value.index = index++
 
       if (value.valueIsIndex) {
@@ -94,7 +94,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
     for (const id of Array.isArray(ids) ? ids : [ids]) {
       if (!id) continue
 
-      const item = registered.get(id)
+      const item = registeredItems.get(id)
 
       if (!item || item.disabled) continue
 
@@ -119,7 +119,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   }
 
   function register (item: Partial<GroupItem>): GroupTicket {
-    const index = registered.size
+    const index = registeredItems.size
 
     const registrant: GroupItem = reactive({
       id: item.id ?? crypto.randomUUID(),
@@ -129,7 +129,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
       valueIsIndex: item.valueIsIndex ?? item.value == null,
     })
 
-    registered.set(registrant.id, registrant)
+    registeredItems.set(registrant.id, registrant)
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
@@ -151,7 +151,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
   }
 
   function unregister (id: GroupItem['id']) {
-    registered.delete(id)
+    registeredItems.delete(id)
     selectedIds.delete(id)
 
     reindex()
@@ -192,7 +192,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
           selectedIds.clear()
 
           for (const val of values) {
-            for (const [id, item] of registered) {
+            for (const [id, item] of registeredItems) {
               if (item.value !== val) continue
 
               selectedIds.add(id)
@@ -227,7 +227,7 @@ export function useGroup (namespace: string, options?: GroupOptions) {
       selectedItems,
       selectedIds,
       selectedValues,
-      registered,
+      registeredItems,
     } as GroupState,
   ] as const
 }
