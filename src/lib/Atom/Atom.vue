@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed } from 'vue'
+  import { shallowRef, computed } from 'vue'
   import { isSelfClosingTag } from '@/constants/htmlElements'
   import type { AtomProps } from '@/lib/Atom'
 
