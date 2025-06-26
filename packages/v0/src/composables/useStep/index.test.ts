@@ -4,7 +4,7 @@ import { useStep } from './index'
 const mockUseGroupContext = vi.fn()
 const mockProvideGroupContext = vi.fn()
 
-vi.mock('../context', () => ({
+vi.mock('../useContext', () => ({
   useContext: vi.fn(() => [mockUseGroupContext, mockProvideGroupContext]),
 }))
 

@@ -1,4 +1,4 @@
-import { useGroup, type GroupContext, type GroupOptions, type GroupState } from '#v0/composables/useGroup'
+import { useGroup, type GroupContext, type GroupOptions, type GroupState } from '../useGroup'
 import { computed, toRef, type Ref } from 'vue'
 
 export interface StepOptions extends Omit<GroupOptions, 'multiple'> {}
