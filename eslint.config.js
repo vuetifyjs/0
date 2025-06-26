@@ -6,6 +6,7 @@ export default vuetify({
   perfectionist: {
     import: false,
   },
+  autoimports: false,
 },
 {
   rules: {

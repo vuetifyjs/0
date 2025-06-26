@@ -1,3 +1,6 @@
+import { getCurrentInstanceName } from '#paper/utils/getCurrentInstanceName'
+import { toRef } from 'vue'
+
 export interface DimensionProps {
   width?: string
   height?: string

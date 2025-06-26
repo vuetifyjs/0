@@ -1,4 +1,5 @@
-import type { InjectionKey } from 'vue'
+import { getCurrentInstanceName } from '#paper/utils/getCurrentInstanceName'
+import { inject, provide, toRef, type InjectionKey } from 'vue'
 
 export interface ElevationConfig {
   [key: string]: number | 'none'

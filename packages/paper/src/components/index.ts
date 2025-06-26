@@ -1,1 +1,1 @@
-export * from './V0Paper';
+export * from './V0Paper'

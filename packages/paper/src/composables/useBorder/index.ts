@@ -1,3 +1,6 @@
+import { getCurrentInstanceName } from '#paper/utils/getCurrentInstanceName'
+import { toRef } from 'vue'
+
 export interface BorderProps {
   borderColor?: string
   borderStyle?: string

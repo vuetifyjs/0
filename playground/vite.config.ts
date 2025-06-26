@@ -19,21 +19,15 @@ export default defineConfig({
         '../packages/paper/src/components/',
         '../packages/v0/src/components/',
       ],
-      dts: '../components.d.ts',
+      dts: 'src/components.d.ts',
     }),
     AutoImport({
       imports: [
         'vue',
       ],
-      dirs: [
-        '../packages/v0/src/composables/',
-        '../packages/v0/src/utils',
-        '../packages/paper/src/composables/',
-        '../packages/paper/src/utils/',
-      ],
-      dts: '../composables.d.ts',
+      dts: 'src/composables.d.ts',
       eslintrc: {
-        enabled: true,
+        enabled: false,
       },
       vueTemplate: true,
     }),

@@ -1,3 +1,5 @@
+import { ref } from 'vue'
+
 function getLuminance (r: number, g: number, b: number): number {
   const [red, green, blue] = [r, g, b].map(value => {
     const normalized = value / 255
