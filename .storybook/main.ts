@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/vue3-vite'
+import { fileURLToPath, URL } from 'node:url'
 
 const config: StorybookConfig = {
   stories: [
@@ -8,7 +9,9 @@ const config: StorybookConfig = {
   addons: [],
   framework: {
     name: '@storybook/vue3-vite',
-    options: {},
+    options: {
+      docgen: 'vue-component-meta',
+    },
   },
 }
 export default config

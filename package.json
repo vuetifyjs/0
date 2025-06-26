@@ -10,8 +10,8 @@
     "type-check": "vue-tsc -b",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "storybook": "STORYBOOK=1 storybook dev -p 6006",
+    "build-storybook": "STORYBOOK=1 storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage"

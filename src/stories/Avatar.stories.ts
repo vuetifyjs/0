@@ -28,13 +28,13 @@ export const Default: Story = {
       return { args }
     },
     template: `
-      <AvatarRoot v-bind="args" style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #f0f0f0;">
+      <AvatarRoot v-bind="args" class="size-16 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
         <AvatarImage 
           src="https://picsum.photos/64/64?random=1" 
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
-        <AvatarFallback style="font-weight: bold; color: #666;">JD</AvatarFallback>
+        <AvatarFallback class="font-bold text-gray-600">JD</AvatarFallback>
       </AvatarRoot>
     `,
   }),
@@ -51,13 +51,13 @@ export const WithFallback: Story = {
       return { args }
     },
     template: `
-      <AvatarRoot v-bind="args" style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #f0f0f0;">
+      <AvatarRoot v-bind="args" class="size-16 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
         <AvatarImage 
           src="https://broken-image-url.jpg" 
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
-        <AvatarFallback style="font-weight: bold; color: #666; font-size: 18px;">JD</AvatarFallback>
+        <AvatarFallback class="font-bold text-gray-600 text-lg">JD</AvatarFallback>
       </AvatarRoot>
     `,
   }),
@@ -74,13 +74,13 @@ export const Small: Story = {
       return { args }
     },
     template: `
-      <AvatarRoot v-bind="args" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #f0f0f0;">
+      <AvatarRoot v-bind="args" class="size-8 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
         <AvatarImage 
           src="https://picsum.photos/32/32?random=2" 
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
-        <AvatarFallback style="font-weight: bold; color: #666; font-size: 12px;">SM</AvatarFallback>
+        <AvatarFallback class="font-bold text-gray-600 text-xs">SM</AvatarFallback>
       </AvatarRoot>
     `,
   }),
@@ -97,13 +97,13 @@ export const Large: Story = {
       return { args }
     },
     template: `
-      <AvatarRoot v-bind="args" style="width: 96px; height: 96px; border-radius: 50%; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #f0f0f0;">
+      <AvatarRoot v-bind="args" class="size-24 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
         <AvatarImage 
           src="https://picsum.photos/96/96?random=3" 
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
-        <AvatarFallback style="font-weight: bold; color: #666; font-size: 24px;">LG</AvatarFallback>
+        <AvatarFallback class="font-bold text-gray-600 text-2xl">LG</AvatarFallback>
       </AvatarRoot>
     `,
   }),
@@ -120,13 +120,13 @@ export const Square: Story = {
       return { args }
     },
     template: `
-      <AvatarRoot v-bind="args" style="width: 64px; height: 64px; border-radius: 8px; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #f0f0f0;">
+      <AvatarRoot v-bind="args" class="size-16 rounded-lg overflow-hidden inline-flex items-center justify-center bg-gray-100">
         <AvatarImage 
           src="https://picsum.photos/64/64?random=4" 
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
-        <AvatarFallback style="font-weight: bold; color: #666;">SQ</AvatarFallback>
+        <AvatarFallback class="font-bold text-gray-600">SQ</AvatarFallback>
       </AvatarRoot>
     `,
   }),
@@ -184,8 +184,8 @@ export const TextOnly: Story = {
       return { args }
     },
     template: `
-      <AvatarRoot v-bind="args" style="width: 64px; height: 64px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-        <AvatarFallback style="font-weight: bold; font-size: 18px;">AB</AvatarFallback>
+      <AvatarRoot v-bind="args" class="size-16 rounded-full inline-flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+        <AvatarFallback class="font-bold text-lg">AB</AvatarFallback>
       </AvatarRoot>
     `,
   }),
@@ -202,7 +202,7 @@ export const MultiplePriority: Story = {
       return { args }
     },
     template: `
-      <AvatarRoot v-bind="args" style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: #f0f0f0;">
+      <AvatarRoot v-bind="args" class="size-16 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
         <!-- High priority image (should show if loaded) -->
         <AvatarImage 
           :priority="1"
@@ -218,7 +218,7 @@ export const MultiplePriority: Story = {
           class="w-full h-full object-cover"
         />
         <!-- Fallback -->
-        <AvatarFallback style="font-weight: bold; color: #666;">MP</AvatarFallback>
+        <AvatarFallback class="font-bold text-gray-600">MP</AvatarFallback>
       </AvatarRoot>
     `,
   }),
