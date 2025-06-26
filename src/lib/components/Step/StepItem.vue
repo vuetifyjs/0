@@ -1,5 +1,10 @@
 <script lang="ts">
+  // Composables
+  import { useStep } from '@/lib/composables/useStep'
+
+  // Types
   import type { GroupTicket } from '@/lib/composables/useGroup'
+  import type { UnwrapNestedRefs } from 'vue'
 
   export interface StepItemProps {
     id?: string
@@ -9,7 +14,7 @@
   }
 
   export interface StepItemSlots {
-    default: (scope: GroupTicket) => any
+    default: (scope: UnwrapNestedRefs<GroupTicket>) => any
   }
 </script>
 
@@ -33,7 +38,7 @@
     throw new Error(`Failed to get step context at namespace "${namespace}"`)
   }
 
-  const ticket = step.register({
+  const { index, isActive, toggle } = step.register({
     id,
     value,
     disabled,
@@ -46,8 +51,8 @@
 
 <template>
   <slot
-    :index="ticket.index"
-    :is-active="ticket.isActive"
-    :toggle="ticket.toggle"
+    :index
+    :is-active
+    :toggle
   />
 </template>

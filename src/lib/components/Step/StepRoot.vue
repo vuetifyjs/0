@@ -1,4 +1,8 @@
 <script lang="ts">
+  // Composables
+  import { useStep } from '@/lib/composables/useStep'
+
+  // Types
   import type { StepContext, StepOptions } from '@/lib/composables/useStep'
   import type { ModelRef } from 'vue'
 
@@ -24,7 +28,18 @@
 
   const [,provideStepContext] = useStep(namespace, props)
 
-  const { register, unregister, reset, mandate, select, first, last, next, prev, step } = provideStepContext(model)
+  const {
+    register,
+    unregister,
+    reset,
+    mandate,
+    select,
+    first,
+    last,
+    next,
+    prev,
+    step,
+  } = provideStepContext(model)
 </script>
 
 <template>
