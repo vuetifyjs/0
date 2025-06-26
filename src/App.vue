@@ -1,13 +1,5 @@
 <template>
-  <div>
-    <V0Paper
-      border="1px solid black"
-      font-weight="bold"
-      padding="2em"
-    >
-      Hello World!
-    </V0Paper>
-
+  <div class="m-4">
     <Atom v-slot="slotProps" :props="{ value: 'Atom' }">
       {{ slotProps.value }}
     </Atom>
@@ -59,6 +51,6 @@
 </template>
 
 <script lang="ts" setup>
-  import { Atom, Group } from './lib'
+  import { Atom, Group, Avatar } from './lib'
   const yes = ref(true)
 </script>

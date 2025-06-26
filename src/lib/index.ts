@@ -3,6 +3,7 @@ export * from './components/Avatar'
 export * from './components/Group'
 export * from './components/Step'
 
+export * from './composables/useAvatar'
 export * from './composables/useContext'
 export * from './composables/useGroup'
 export * from './composables/useStep'

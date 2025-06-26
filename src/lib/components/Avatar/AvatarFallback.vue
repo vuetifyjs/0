@@ -10,18 +10,26 @@
 </script>
 
 <script lang="ts" setup>
+  import { onUnmounted } from 'vue'
+
   defineOptions({ name: 'AvatarFallback' })
 
-  const { as = 'span', renderless = true } = defineProps<AvatarFallbackProps>()
+  const { as = 'span', renderless } = defineProps<AvatarFallbackProps>()
 
   const context = useAvatarContext()
 
-  const isErrored = toRef(() => context.status.value === 'error')
+  const ticket = context.register({
+    type: 'fallback',
+  })
+
+  onUnmounted(() => {
+    context.unregister(ticket.id)
+  })
 </script>
 
 <template>
   <Atom
-    v-if="isErrored"
+    v-if="ticket.isVisible.value"
     :as
     :renderless
   >
