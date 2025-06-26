@@ -1,15 +1,19 @@
-/// <reference types="vitest" />
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
+import UnocssVitePlugin from 'unocss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  experimental: {
+    enableNativePlugin: true,
+  },
   plugins: [
     Vue(),
+    UnocssVitePlugin(),
     Components({
       dirs: [
         './src/components',
@@ -34,20 +38,21 @@ export default defineConfig({
     }),
   ],
   define: { 'process.env': {} },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: 'modern-compiler',
-      },
-    },
-  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
     },
   },
-  test: {
-    environment: 'jsdom',
-    globals: true,
+  build: {
+    lib: {
+      entry: fileURLToPath(new URL('src/build.ts', import.meta.url)),
+      name: 'Vuetify',
+      fileName: () => `vuetify0.mjs`,
+      formats: ['es'],
+    },
+    rollupOptions: {
+      external: ['vue'],
+    },
+    copyPublicDir: false,
   },
 })

@@ -1,30 +1,31 @@
 <script lang="ts">
   // Types
   import type { GroupTicket } from '@/composables/group'
+  import type { UnwrapNestedRefs } from 'vue'
 
-  export interface V0GroupItemProps {
+  export interface GroupItemProps {
     id?: string
     value?: any
     disabled?: boolean
     namespace?: string
   }
 
-  export interface V0GroupItemSlots {
-    default: (scope: GroupTicket) => any
+  export interface GroupItemSlots {
+    default: (scope: UnwrapNestedRefs<GroupTicket>) => any
   }
 </script>
 
 <script lang="ts" setup>
-  defineOptions({ name: 'V0GroupItem' })
+  defineOptions({ name: 'GroupItem' })
 
-  defineSlots<V0GroupItemSlots>()
+  defineSlots<GroupItemSlots>()
 
   const {
     id = useId(),
     value,
     disabled,
     namespace = 'group',
-  } = defineProps<V0GroupItemProps>()
+  } = defineProps<GroupItemProps>()
 
   const [useGroupContext] = useGroup(namespace)
 
