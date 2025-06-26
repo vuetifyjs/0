@@ -4,11 +4,11 @@
 
   // Types
   import type { AtomProps } from '@/lib/components/Atom'
-  import type { BorderProps } from '@/composables/border'
-  import type { ColorProps } from '@/composables/color'
-  import type { DimensionProps } from '@/composables/dimensions'
-  import type { ElevationProps } from '@/composables/elevation'
-  import type { RoundedProps } from '@/composables/rounded'
+  import type { BorderProps } from '@/composables/useBorder'
+  import type { ColorProps } from '@/composables/useColor'
+  import type { DimensionProps } from '@/composables/useDimensions'
+  import type { ElevationProps } from '@/composables/useElevation'
+  import type { RoundedProps } from '@/composables/useRounded'
 
   interface V0PaperPropsBase {
     fontSize?: string

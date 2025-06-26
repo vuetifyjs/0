@@ -1,8 +1,8 @@
 // Composables
-import { useContrast } from './contrast'
+import { useContrast } from '@/composables/useContrast'
 
 // Types
-import type { ThemeProvider } from './theme'
+import type { ThemeProvider } from '@/composables/useTheme'
 
 export interface ColorProps {
   bgColor?: string

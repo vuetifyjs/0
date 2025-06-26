@@ -1,5 +1,3 @@
-import { ref } from 'vue'
-
 function getLuminance (r: number, g: number, b: number): number {
   const [red, green, blue] = [r, g, b].map(value => {
     const normalized = value / 255
@@ -22,7 +20,7 @@ function parseRgba (color: string): { r: number, g: number, b: number } | null {
   return null
 }
 
-function useContrast (color?: string) {
+export function useContrast (color?: string) {
   if (!color) {
     return undefined
   }
@@ -37,5 +35,3 @@ function useContrast (color?: string) {
 
   return contrastColor
 }
-
-export { useContrast }

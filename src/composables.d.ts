@@ -7,11 +7,11 @@
 export {}
 declare global {
   const COMMON_ELEMENTS: typeof import('./constants/htmlElements')['COMMON_ELEMENTS']
-  const DEFAULT_DARK: typeof import('./composables/theme')['DEFAULT_DARK']
-  const DEFAULT_LIGHT: typeof import('./composables/theme')['DEFAULT_LIGHT']
+  const DEFAULT_DARK: typeof import('./composables/useTheme')['DEFAULT_DARK']
+  const DEFAULT_LIGHT: typeof import('./composables/useTheme')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
   const SELF_CLOSING_TAGS: typeof import('./constants/htmlElements')['SELF_CLOSING_TAGS']
-  const V0_ELEVATION_KEY: typeof import('./composables/elevation')['V0_ELEVATION_KEY']
+  const V0_ELEVATION_KEY: typeof import('./composables/useElevation')['V0_ELEVATION_KEY']
   const afterAll: typeof import('vitest')['afterAll']
   const afterEach: typeof import('vitest')['afterEach']
   const assert: typeof import('vitest')['assert']
@@ -20,10 +20,10 @@ declare global {
   const chai: typeof import('vitest')['chai']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
-  const createElevation: typeof import('./composables/elevation')['createElevation']
-  const createTheme: typeof import('./composables/theme')['createTheme']
+  const createElevation: typeof import('./composables/useElevation')['createElevation']
+  const createTheme: typeof import('./composables/useTheme')['createTheme']
   const customRef: typeof import('vue')['customRef']
-  const defaultElevationGenerator: typeof import('./composables/elevation')['defaultElevationGenerator']
+  const defaultElevationGenerator: typeof import('./composables/useElevation')['defaultElevationGenerator']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const describe: typeof import('vitest')['describe']
@@ -33,8 +33,8 @@ declare global {
   const getCurrentInstanceName: typeof import('./utils/getCurrentInstanceName')['getCurrentInstanceName']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
-  const hexToRgba: typeof import('./composables/color')['hexToRgba']
-  const hexaToRgba: typeof import('./composables/color')['hexaToRgba']
+  const hexToRgba: typeof import('./composables/useColor')['hexToRgba']
+  const hexaToRgba: typeof import('./composables/useColor')['hexaToRgba']
   const inject: typeof import('vue')['inject']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
@@ -58,14 +58,14 @@ declare global {
   const onUnmounted: typeof import('vue')['onUnmounted']
   const onUpdated: typeof import('vue')['onUpdated']
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
-  const parseColor: typeof import('./composables/color')['parseColor']
+  const parseColor: typeof import('./composables/useColor')['parseColor']
   const provide: typeof import('vue')['provide']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
   const ref: typeof import('vue')['ref']
   const resolveComponent: typeof import('vue')['resolveComponent']
-  const rgbToRgba: typeof import('./composables/color')['rgbToRgba']
-  const rgbaToHexa: typeof import('./composables/color')['rgbaToHexa']
+  const rgbToRgba: typeof import('./composables/useColor')['rgbToRgba']
+  const rgbaToHexa: typeof import('./composables/useColor')['rgbaToHexa']
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
@@ -80,21 +80,21 @@ declare global {
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAttrs: typeof import('vue')['useAttrs']
-  const useBorder: typeof import('./composables/border')['useBorder']
-  const useColor: typeof import('./composables/color')['useColor']
+  const useBorder: typeof import('./composables/useBorder')['useBorder']
+  const useColor: typeof import('./composables/useColor')['useColor']
   const useContext: typeof import('./lib/composables/useContext')['useContext']
-  const useContrast: typeof import('./composables/contrast')['useContrast']
+  const useContrast: typeof import('./composables/useContrast')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
-  const useDimensions: typeof import('./composables/dimensions')['useDimensions']
-  const useElevation: typeof import('./composables/elevation')['useElevation']
+  const useDimensions: typeof import('./composables/useDimensions')['useDimensions']
+  const useElevation: typeof import('./composables/useElevation')['useElevation']
   const useGroup: typeof import('./lib/composables/useGroup')['useGroup']
   const useId: typeof import('vue')['useId']
   const useKeydown: typeof import('./composables/useKeydown')['useKeydown']
   const useModel: typeof import('vue')['useModel']
-  const useRounded: typeof import('./composables/rounded')['useRounded']
+  const useRounded: typeof import('./composables/useRounded')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
-  const useSpacing: typeof import('./composables/spacing')['useSpacing']
+  const useSpacing: typeof import('./composables/useSpacing')['useSpacing']
   const useStep: typeof import('./lib/composables/step')['useStep']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const vi: typeof import('vitest')['vi']
@@ -110,27 +110,6 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
-  export type { BorderProps } from './composables/border'
-  import('./composables/border')
-  // @ts-ignore
-  export type { ColorProps } from './composables/color'
-  import('./composables/color')
-  // @ts-ignore
-  export type { DimensionProps } from './composables/dimensions'
-  import('./composables/dimensions')
-  // @ts-ignore
-  export type { ElevationConfig, ElevationOptions, ElevationProps } from './composables/elevation'
-  import('./composables/elevation')
-  // @ts-ignore
-  export type { RoundedProps } from './composables/rounded'
-  import('./composables/rounded')
-  // @ts-ignore
-  export type { SpacingProps } from './composables/spacing'
-  import('./composables/spacing')
-  // @ts-ignore
-  export type { Theme, ThemeOptions, ThemeProvider } from './composables/theme'
-  import('./composables/theme')
-  // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from './constants/htmlElements'
   import('./constants/htmlElements')
 }
@@ -141,11 +120,8 @@ declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
     readonly COMMON_ELEMENTS: UnwrapRef<typeof import('./constants/htmlElements')['COMMON_ELEMENTS']>
-    readonly DEFAULT_DARK: UnwrapRef<typeof import('./composables/theme')['DEFAULT_DARK']>
-    readonly DEFAULT_LIGHT: UnwrapRef<typeof import('./composables/theme')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('./constants/htmlElements')['SELF_CLOSING_TAGS']>
-    readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('./composables/elevation')['V0_ELEVATION_KEY']>
     readonly afterAll: UnwrapRef<typeof import('vitest')['afterAll']>
     readonly afterEach: UnwrapRef<typeof import('vitest')['afterEach']>
     readonly assert: UnwrapRef<typeof import('vitest')['assert']>
@@ -154,10 +130,7 @@ declare module 'vue' {
     readonly chai: UnwrapRef<typeof import('vitest')['chai']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
-    readonly createElevation: UnwrapRef<typeof import('./composables/elevation')['createElevation']>
-    readonly createTheme: UnwrapRef<typeof import('./composables/theme')['createTheme']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
-    readonly defaultElevationGenerator: UnwrapRef<typeof import('./composables/elevation')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly describe: UnwrapRef<typeof import('vitest')['describe']>
@@ -167,8 +140,6 @@ declare module 'vue' {
     readonly getCurrentInstanceName: UnwrapRef<typeof import('./utils/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
-    readonly hexToRgba: UnwrapRef<typeof import('./composables/color')['hexToRgba']>
-    readonly hexaToRgba: UnwrapRef<typeof import('./composables/color')['hexaToRgba']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
@@ -192,14 +163,11 @@ declare module 'vue' {
     readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
-    readonly parseColor: UnwrapRef<typeof import('./composables/color')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
-    readonly rgbToRgba: UnwrapRef<typeof import('./composables/color')['rgbToRgba']>
-    readonly rgbaToHexa: UnwrapRef<typeof import('./composables/color')['rgbaToHexa']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
@@ -214,18 +182,11 @@ declare module 'vue' {
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
-    readonly useBorder: UnwrapRef<typeof import('./composables/border')['useBorder']>
-    readonly useColor: UnwrapRef<typeof import('./composables/color')['useColor']>
-    readonly useContrast: UnwrapRef<typeof import('./composables/contrast')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
-    readonly useDimensions: UnwrapRef<typeof import('./composables/dimensions')['useDimensions']>
-    readonly useElevation: UnwrapRef<typeof import('./composables/elevation')['useElevation']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
-    readonly useRounded: UnwrapRef<typeof import('./composables/rounded')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
-    readonly useSpacing: UnwrapRef<typeof import('./composables/spacing')['useSpacing']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly vi: UnwrapRef<typeof import('vitest')['vi']>
     readonly vitest: UnwrapRef<typeof import('vitest')['vitest']>
