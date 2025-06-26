@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    V0Paper: typeof import('./components/V0Paper/V0Paper.vue')['default']
     VButton: typeof import('./components/VButton/VButton.vue')['default']
   }
 }

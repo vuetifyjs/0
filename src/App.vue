@@ -1,5 +1,13 @@
 <template>
   <div>
+    <V0Paper
+      border="1px solid black"
+      font-weight="bold"
+      padding="2em"
+    >
+      Hello World!
+    </V0Paper>
+
     <Atom v-slot="slotProps" :props="{ value: 'Atom' }">
       {{ slotProps.value }}
     </Atom>
