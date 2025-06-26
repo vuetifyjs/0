@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
-import { useGroup } from '../group'
+import { useGroup } from './index'
 
 const mockUseGroupContext = vi.fn()
 const mockProvideGroupContext = vi.fn()
@@ -448,7 +448,7 @@ describe('useGroup', () => {
     })
 
     it('should handle value updates on reindex', () => {
-      const ticket1 = context.register({ id: 'item1' })
+      context.register({ id: 'item1' })
       const ticket2 = context.register({ id: 'item2' })
       const ticket3 = context.register({ id: 'item3', value: 'custom' })
 

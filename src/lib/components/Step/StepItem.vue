@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { GroupTicket } from '@/composables/group'
+  import type { GroupTicket } from '@/lib/composables/useGroup'
 
   export interface StepItemProps {
     id?: string

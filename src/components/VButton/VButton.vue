@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-  import type { AtomProps } from '@/lib/Atom'
-  import { Atom } from '@/lib/Atom'
+  import type { AtomProps } from '@/lib/components/Atom'
+  import { Atom } from '@/lib/components/Atom'
 
   withDefaults(defineProps<AtomProps>(), {
     as: 'button',

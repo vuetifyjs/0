@@ -1,6 +1,9 @@
 <script lang="ts">
+  // Composables
+  import { useGroup } from '@/lib/composables/useGroup'
+
   // Types
-  import type { GroupContext, GroupOptions } from '@/composables/group'
+  import type { GroupContext, GroupOptions } from '@/lib/composables/useGroup'
   import type { ModelRef } from 'vue'
 
   export interface GroupRootProps extends GroupOptions {

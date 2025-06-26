@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { StepContext, StepOptions } from '@/composables/step'
+  import type { StepContext, StepOptions } from '@/lib/composables/useStep'
   import type { ModelRef } from 'vue'
 
   export interface StepRootProps extends StepOptions {

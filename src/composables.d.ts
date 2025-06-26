@@ -82,20 +82,20 @@ declare global {
   const useAttrs: typeof import('vue')['useAttrs']
   const useBorder: typeof import('./composables/border')['useBorder']
   const useColor: typeof import('./composables/color')['useColor']
-  const useContext: typeof import('./composables/context')['useContext']
+  const useContext: typeof import('./lib/composables/useContext')['useContext']
   const useContrast: typeof import('./composables/contrast')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDimensions: typeof import('./composables/dimensions')['useDimensions']
   const useElevation: typeof import('./composables/elevation')['useElevation']
-  const useGroup: typeof import('./composables/group')['useGroup']
+  const useGroup: typeof import('./lib/composables/useGroup')['useGroup']
   const useId: typeof import('vue')['useId']
   const useKeydown: typeof import('./composables/useKeydown')['useKeydown']
   const useModel: typeof import('vue')['useModel']
   const useRounded: typeof import('./composables/rounded')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
   const useSpacing: typeof import('./composables/spacing')['useSpacing']
-  const useStep: typeof import('./composables/step')['useStep']
+  const useStep: typeof import('./lib/composables/step')['useStep']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const vi: typeof import('vitest')['vi']
   const vitest: typeof import('vitest')['vitest']
@@ -122,23 +122,14 @@ declare global {
   export type { ElevationConfig, ElevationOptions, ElevationProps } from './composables/elevation'
   import('./composables/elevation')
   // @ts-ignore
-  export type { GroupItem, GroupTicket, GroupContext, GroupState, GroupOptions } from './composables/group'
-  import('./composables/group')
-  // @ts-ignore
   export type { RoundedProps } from './composables/rounded'
   import('./composables/rounded')
   // @ts-ignore
   export type { SpacingProps } from './composables/spacing'
   import('./composables/spacing')
   // @ts-ignore
-  export type { StepOptions, StepContext, StepState } from './composables/step'
-  import('./composables/step')
-  // @ts-ignore
   export type { Theme, ThemeOptions, ThemeProvider } from './composables/theme'
   import('./composables/theme')
-  // @ts-ignore
-  export type { KeyHandler } from './composables/useKeydown'
-  import('./composables/useKeydown')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from './constants/htmlElements'
   import('./constants/htmlElements')
@@ -225,20 +216,16 @@ declare module 'vue' {
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('./composables/border')['useBorder']>
     readonly useColor: UnwrapRef<typeof import('./composables/color')['useColor']>
-    readonly useContext: UnwrapRef<typeof import('./composables/context')['useContext']>
     readonly useContrast: UnwrapRef<typeof import('./composables/contrast')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDimensions: UnwrapRef<typeof import('./composables/dimensions')['useDimensions']>
     readonly useElevation: UnwrapRef<typeof import('./composables/elevation')['useElevation']>
-    readonly useGroup: UnwrapRef<typeof import('./composables/group')['useGroup']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
-    readonly useKeydown: UnwrapRef<typeof import('./composables/useKeydown')['useKeydown']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRounded: UnwrapRef<typeof import('./composables/rounded')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('./composables/spacing')['useSpacing']>
-    readonly useStep: UnwrapRef<typeof import('./composables/step')['useStep']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly vi: UnwrapRef<typeof import('vitest')['vi']>
     readonly vitest: UnwrapRef<typeof import('vitest')['vitest']>

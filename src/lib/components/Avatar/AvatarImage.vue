@@ -1,10 +1,10 @@
 <script lang="ts">
   // Components
-  import { Atom } from '@/lib/Atom'
+  import { Atom } from '@/lib/components/Atom'
 
   // Types
   import { useAvatarContext } from './AvatarRoot.vue'
-  import type { AtomProps } from '@/lib/Atom'
+  import type { AtomProps } from '@/lib/components/Atom'
 
   export interface AvatarImageProps extends AtomProps {
     size?: string

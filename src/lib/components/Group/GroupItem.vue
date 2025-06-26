@@ -1,6 +1,9 @@
 <script lang="ts">
+  // Composables
+  import { useGroup } from '@/lib/composables/useGroup'
+
   // Types
-  import type { GroupTicket } from '@/composables/group'
+  import type { GroupTicket } from '@/lib/composables/useGroup'
   import type { UnwrapNestedRefs } from 'vue'
 
   export interface GroupItemProps {

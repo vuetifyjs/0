@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useStep } from '../step'
+import { useStep } from './index'
 
 const mockUseGroupContext = vi.fn()
 const mockProvideGroupContext = vi.fn()

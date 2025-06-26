@@ -1,9 +1,15 @@
 <script lang="ts">
   // Components
-  import { Atom } from '@/lib/Atom'
+  import { Atom } from '@/lib/components/Atom'
+
+  // Composables
+  import { useContext } from '@/lib/composables/useContext'
+
+  // Utilities
+  import { shallowRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '@/lib/Atom'
+  import type { AtomProps } from '@/lib/components/Atom'
   import type { ShallowRef } from 'vue'
 
   export interface AvatarRootProps extends AtomProps {}
