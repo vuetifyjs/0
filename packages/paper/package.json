@@ -1,0 +1,27 @@
+{
+  "name": "@vuetify0/paper",
+  "version": "0.0.0",
+  "description": "Vuetify Paper",
+  "license": "MIT",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {},
+  "peerDependencies": {
+    "vue": ">=3.3.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.mjs"
+    }
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "@vitejs/plugin-vue": "catalog:"
+  }
+}

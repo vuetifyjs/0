@@ -1,0 +1,21 @@
+{
+  "name": "playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "catalog:",
+    "sass-embedded": "1.89.2",
+    "typescript": "catalog:",
+    "unocss": "^66.3.2",
+    "unplugin-auto-import": "^19.3.0",
+    "unplugin-vue-components": "^28.7.0",
+    "vite": "catalog:"
+  },
+  "dependencies": {
+    "vue": "catalog:"
+  }
+}

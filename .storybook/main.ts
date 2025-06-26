@@ -1,5 +1,4 @@
 import type { StorybookConfig } from '@storybook/vue3-vite'
-import { fileURLToPath, URL } from 'node:url'
 
 const config: StorybookConfig = {
   stories: [
