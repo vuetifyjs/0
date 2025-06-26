@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter=playground dev",
-    "build": "vue-tsc -b && vite build",
+    "build": "pnpm --filter='@vuetifyjs/*' build",
     "preview": "vite preview",
     "type-check": "vue-tsc -b",
     "lint": "eslint",

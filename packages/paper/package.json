@@ -1,5 +1,5 @@
 {
-  "name": "@vuetify0/paper",
+  "name": "@vuetifyjs/paper",
   "version": "0.0.0",
   "description": "Vuetify Paper",
   "license": "MIT",
@@ -9,7 +9,10 @@
   "files": [
     "dist"
   ],
-  "scripts": {},
+  "scripts": {
+    "build": "vite build",
+    "build:watch": "vite build --watch"
+  },
   "peerDependencies": {
     "vue": ">=3.3.0"
   },

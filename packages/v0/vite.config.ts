@@ -20,7 +20,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: fileURLToPath(new URL('src/build.ts', import.meta.url)),
+      entry: fileURLToPath(new URL('src/index.ts', import.meta.url)),
       name: 'VuetifyV0',
       fileName: () => `index.mjs`,
       formats: ['es'],
