@@ -3,11 +3,11 @@
   import type { GroupContext, GroupOptions } from '@/composables/group'
   import type { ModelRef } from 'vue'
 
-  export interface V0GroupRootProps extends GroupOptions {
+  export interface GroupRootProps extends GroupOptions {
     namespace?: string
   }
 
-  export interface V0GroupRootSlots {
+  export interface GroupRootSlots {
     default: (scope: GroupContext & {
       model: ModelRef<any>
     }) => any
@@ -15,11 +15,11 @@
 </script>
 
 <script lang="ts" setup>
-  defineOptions({ name: 'V0GroupRoot' })
+  defineOptions({ name: 'GroupRoot' })
 
-  defineSlots<V0GroupRootSlots>()
+  defineSlots<GroupRootSlots>()
 
-  const { namespace = 'group', ...props } = defineProps<V0GroupRootProps>()
+  const { namespace = 'group', ...props } = defineProps<GroupRootProps>()
 
   const model = defineModel<any>()
 

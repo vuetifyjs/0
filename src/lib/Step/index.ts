@@ -1,5 +1,5 @@
-export * from './V0StepItem.vue'
-export * from './V0StepRoot.vue'
+export * from './StepItem.vue'
+export * from './StepRoot.vue'
 
 import StepItem from './StepItem.vue'
 import StepRoot from './StepRoot.vue'
