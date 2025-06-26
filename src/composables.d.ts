@@ -12,8 +12,6 @@ declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const SELF_CLOSING_TAGS: typeof import('./constants/htmlElements')['SELF_CLOSING_TAGS']
   const V0_ELEVATION_KEY: typeof import('./composables/elevation')['V0_ELEVATION_KEY']
-  const VUETIFY_0_ELEVATION_DEFAULTS: typeof import('./composables/elevation')['VUETIFY_0_ELEVATION_DEFAULTS']
-  const VUETIFY_0_ELEVATION_KEY: typeof import('./composables/elevation')['VUETIFY_0_ELEVATION_KEY']
   const afterAll: typeof import('vitest')['afterAll']
   const afterEach: typeof import('vitest')['afterEach']
   const assert: typeof import('vitest')['assert']
@@ -62,7 +60,6 @@ declare global {
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
   const parseColor: typeof import('./composables/color')['parseColor']
   const provide: typeof import('vue')['provide']
-  const provideElevation: typeof import('./composables/elevation')['provideElevation']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
   const ref: typeof import('vue')['ref']
@@ -92,8 +89,8 @@ declare global {
   const useDimensions: typeof import('./composables/dimensions')['useDimensions']
   const useElevation: typeof import('./composables/elevation')['useElevation']
   const useGroup: typeof import('./composables/group')['useGroup']
-  const useGroupItem: typeof import('./composables/group')['useGroupItem']
   const useId: typeof import('vue')['useId']
+  const useKeydown: typeof import('./composables/useKeydown')['useKeydown']
   const useModel: typeof import('vue')['useModel']
   const useRounded: typeof import('./composables/rounded')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
@@ -139,6 +136,9 @@ declare global {
   // @ts-ignore
   export type { Theme, ThemeOptions, ThemeProvider } from './composables/theme'
   import('./composables/theme')
+  // @ts-ignore
+  export type { KeyHandler } from './composables/useKeydown'
+  import('./composables/useKeydown')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from './constants/htmlElements'
   import('./constants/htmlElements')
@@ -233,6 +233,7 @@ declare module 'vue' {
     readonly useElevation: UnwrapRef<typeof import('./composables/elevation')['useElevation']>
     readonly useGroup: UnwrapRef<typeof import('./composables/group')['useGroup']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useKeydown: UnwrapRef<typeof import('./composables/useKeydown')['useKeydown']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRounded: UnwrapRef<typeof import('./composables/rounded')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>

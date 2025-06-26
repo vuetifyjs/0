@@ -8,12 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    V0AvatarFallback: typeof import('./components/V0Avatar/V0AvatarFallback.vue')['default']
-    V0AvatarImage: typeof import('./components/V0Avatar/V0AvatarImage.vue')['default']
-    V0AvatarRoot: typeof import('./components/V0Avatar/V0AvatarRoot.vue')['default']
-    V0GroupItem: typeof import('./components/V0Group/V0GroupItem.vue')['default']
-    V0GroupRoot: typeof import('./components/V0Group/V0GroupRoot.vue')['default']
-    V0StepItem: typeof import('./components/V0Step/V0StepItem.vue')['default']
-    V0StepRoot: typeof import('./components/V0Step/V0StepRoot.vue')['default']
+    VButton: typeof import('./components/VButton/VButton.vue')['default']
   }
 }

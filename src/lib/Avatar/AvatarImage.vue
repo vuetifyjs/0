@@ -1,24 +1,27 @@
 <script lang="ts">
-  // Types
-  import { useAvatarContext } from './V0AvatarRoot.vue'
-  import type { V0AtomProps } from '@/components/V0Atom'
+  // Components
+  import { Atom } from '@/lib/Atom'
 
-  export interface V0AvatarImageProps extends V0AtomProps {
+  // Types
+  import { useAvatarContext } from './AvatarRoot.vue'
+  import type { AtomProps } from '@/lib/Atom'
+
+  export interface AvatarImageProps extends AtomProps {
     size?: string
   }
 
-  export interface V0AvatarImageEmits {
+  export interface AvatarImageEmits {
     load: [e: Event]
     error: [e: Event]
   }
 </script>
 
 <script lang="ts" setup>
-  defineOptions({ name: 'V0AvatarImage' })
+  defineOptions({ name: 'AvatarImage' })
 
-  const { as = 'img' } = defineProps<V0AvatarImageProps>()
+  const { as = 'img' } = defineProps<AvatarImageProps>()
 
-  const emit = defineEmits<V0AvatarImageEmits>()
+  const emit = defineEmits<AvatarImageEmits>()
 
   const context = useAvatarContext()
 
@@ -38,7 +41,7 @@
 </script>
 
 <template>
-  <V0Atom
+  <Atom
     v-if="!isErrored"
     :as
     role="img"
