@@ -1,29 +1,29 @@
 <script lang="ts">
   import type { GroupTicket } from '@/composables/group'
 
-  export interface V0StepItemProps {
+  export interface StepItemProps {
     id?: string
     value?: any
     disabled?: boolean
     namespace?: string
   }
 
-  export interface V0StepItemSlots {
+  export interface StepItemSlots {
     default: (scope: GroupTicket) => any
   }
 </script>
 
 <script lang="ts" setup>
-  defineOptions({ name: 'V0StepItem' })
+  defineOptions({ name: 'StepItem' })
 
-  defineSlots<V0StepItemSlots>()
+  defineSlots<StepItemSlots>()
 
   const {
     id = useId(),
     value,
     disabled,
     namespace = 'step',
-  } = defineProps<V0StepItemProps>()
+  } = defineProps<StepItemProps>()
 
   const [useStepContext] = useStep(namespace)
 

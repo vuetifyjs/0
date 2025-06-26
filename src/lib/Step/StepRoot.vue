@@ -2,11 +2,11 @@
   import type { StepContext, StepOptions } from '@/composables/step'
   import type { ModelRef } from 'vue'
 
-  export interface V0StepRootProps extends StepOptions {
+  export interface StepRootProps extends StepOptions {
     namespace?: string
   }
 
-  export interface V0StepRootSlots {
+  export interface StepRootSlots {
     default: (scope: StepContext & {
       model: ModelRef<any>
     }) => any
@@ -14,11 +14,11 @@
 </script>
 
 <script lang="ts" setup>
-  defineOptions({ name: 'V0StepRoot' })
+  defineOptions({ name: 'StepRoot' })
 
-  defineSlots<V0StepRootSlots>()
+  defineSlots<StepRootSlots>()
 
-  const { namespace = 'step', ...props } = defineProps<V0StepRootProps>()
+  const { namespace = 'step', ...props } = defineProps<StepRootProps>()
 
   const model = defineModel<any>()
 
