@@ -4,7 +4,7 @@
 
   // Types
   import type { AtomProps } from '@/lib/Atom'
-  import type { InjectionKey, ShallowRef } from 'vue'
+  import type { ShallowRef } from 'vue'
 
   export interface AvatarRootProps extends AtomProps {}
 
@@ -12,9 +12,7 @@
     status: ShallowRef<'idle' | 'loaded' | 'error' | 'loading'>
   }
 
-  export const AvatarSymbol: InjectionKey<AvatarContext> = Symbol('V0Avatar')
-
-  export const [useAvatarContext, provideAvatarContext] = useContext<AvatarContext>(AvatarSymbol)
+  export const [useAvatarContext, provideAvatarContext] = useContext<AvatarContext>('Avatar')
 </script>
 
 <script setup lang="ts">
