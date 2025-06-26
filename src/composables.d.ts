@@ -95,6 +95,7 @@ declare global {
   const useRounded: typeof import('./composables/rounded')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
   const useSpacing: typeof import('./composables/spacing')['useSpacing']
+  const useStep: typeof import('./composables/step')['useStep']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const vi: typeof import('vitest')['vi']
   const vitest: typeof import('vitest')['vitest']
@@ -129,6 +130,9 @@ declare global {
   // @ts-ignore
   export type { SpacingProps } from './composables/spacing'
   import('./composables/spacing')
+  // @ts-ignore
+  export type { StepOptions, StepContext, StepState } from './composables/step'
+  import('./composables/step')
   // @ts-ignore
   export type { Theme, ThemeOptions, ThemeProvider } from './composables/theme'
   import('./composables/theme')
@@ -234,6 +238,7 @@ declare module 'vue' {
     readonly useRounded: UnwrapRef<typeof import('./composables/rounded')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('./composables/spacing')['useSpacing']>
+    readonly useStep: UnwrapRef<typeof import('./composables/step')['useStep']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly vi: UnwrapRef<typeof import('vitest')['vi']>
     readonly vitest: UnwrapRef<typeof import('vitest')['vitest']>
