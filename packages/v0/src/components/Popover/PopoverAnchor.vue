@@ -2,10 +2,12 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import { usePopoverContext } from './PopoverRoot.vue'
   import type { AtomProps } from '#v0/components/Atom'
-import { toRef } from 'vue'
 
   export interface PopoverContentProps extends AtomProps {
     target?: string

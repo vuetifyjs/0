@@ -2,9 +2,11 @@
   // Composables
   import { useGroup } from '#v0/composables/useGroup'
 
+  // Utilities
+  import { onUnmounted, useId, type UnwrapNestedRefs } from 'vue'
+
   // Types
   import type { GroupTicket } from '#v0/composables/useGroup'
-  import { onUnmounted, useId, type UnwrapNestedRefs } from 'vue'
 
   export interface GroupItemProps {
     id?: string

@@ -5,9 +5,11 @@
   // Composables
   import { useContext } from '#v0/composables/useContext'
 
+  // Utilities
+  import { toRef, useId, type ShallowRef } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import { toRef, useId, type ShallowRef } from 'vue'
 
   export interface PopoverContext {
     isActive: ShallowRef<boolean>

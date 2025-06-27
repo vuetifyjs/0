@@ -2,6 +2,9 @@
   // Composables
   import { useStep } from '#v0/composables/useStep'
 
+  // Utilities
+  import { onUnmounted, useId } from 'vue'
+
   // Types
   import type { GroupTicket } from '#v0/composables/useGroup'
   import type { UnwrapNestedRefs } from 'vue'

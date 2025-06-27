@@ -2,6 +2,9 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Utilities
+  import { onUnmounted } from 'vue'
+
   // Types
   import { useAvatarContext } from './AvatarRoot.vue'
   import type { AtomProps } from '#v0/components/Atom'
@@ -10,8 +13,6 @@
 </script>
 
 <script lang="ts" setup>
-  import { onUnmounted } from 'vue'
-
   defineOptions({ name: 'AvatarFallback' })
 
   const { as = 'span', renderless } = defineProps<AvatarFallbackProps>()
