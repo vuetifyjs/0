@@ -3,13 +3,12 @@
   import { Atom } from '@/lib/components/Atom'
 
   // Types
+  import { usePopoverContext } from './PopoverRoot.vue'
   import type { AtomProps } from '@/lib/components/Atom'
 
   export interface PopoverContentProps extends AtomProps {
     target?: string
   }
-
-  import { usePopoverContext } from './PopoverRoot.vue'
 </script>
 
 <script lang="ts" setup>
