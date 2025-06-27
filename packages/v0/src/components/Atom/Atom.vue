@@ -1,11 +1,19 @@
 <script lang="ts">
-  import { mergeProps, useAttrs, toRef, useTemplateRef } from 'vue'
+  // Utils
+  import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
   import { isSelfClosingTag } from '#v0/constants/htmlElements'
+
+  // Types
   import type { DOMElement } from '#v0/types'
+  import type { ShallowRef } from 'vue'
 
   export type AtomProps = {
     as?: DOMElement
     renderless?: boolean
+  }
+
+  export type AtomExpose = {
+    element: Readonly<ShallowRef<HTMLElement | null>>
   }
 
   interface AtomPrivateProps<T extends Record<string, any> = {}> extends AtomProps {
@@ -24,8 +32,9 @@
     props = {},
   } = defineProps<AtomPrivateProps<T>>()
 
-  const aRef = useTemplateRef<HTMLElement>('aRef')
-  defineExpose({ aRef })
+  const element = useTemplateRef<HTMLElement>('element')
+
+  defineExpose<AtomExpose>({ element })
 
   const attrs = useAttrs()
   const isSelfClosing = toRef(() => typeof as === 'string' && isSelfClosingTag(as as keyof HTMLElementTagNameMap))
@@ -42,7 +51,7 @@
     :is="as"
     v-else
     v-bind="slotProps"
-    ref="aRef"
+    ref="element"
   >
     <slot v-if="!isSelfClosing" v-bind="slotProps" />
   </component>
