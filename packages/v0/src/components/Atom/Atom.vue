@@ -8,7 +8,7 @@
   import type { ShallowRef } from 'vue'
 
   export type AtomProps = {
-    as?: DOMElement
+    as?: DOMElement | null
     renderless?: boolean
   }
 
@@ -50,7 +50,6 @@
   <component
     :is="as"
     v-else
-    v-bind="slotProps"
     ref="element"
   >
     <slot v-if="!isSelfClosing" v-bind="slotProps" />
