@@ -1,5 +1,5 @@
 {
-  "name": "@vuetifyjs/storybook",
+  "name": "@vuetify-private/storybook",
   "version": "0.0.0",
   "private": true,
   "type": "module",
