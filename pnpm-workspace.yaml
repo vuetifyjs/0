@@ -1,19 +1,21 @@
+packages:
+  - packages/*
+  - apps/*
+  - playground
+
+catalog:
+  '@vitejs/plugin-vue': ^6.0.0
+  vue: ^3.5.17
+  vite: npm:rolldown-vite@^7.0.3
+  typescript: ^5.8.3
+  '@vue/tsconfig': ^0.7.0
+  '@tsconfig/node22': ^22.0.2
+
 onlyBuiltDependencies:
   - esbuild
   - unrs-resolver
 
-packages:
-  - 'packages/*'
-  - 'apps/*'
-  - 'playground'
-
-catalog:
-  '@vitejs/plugin-vue': ^6.0.0
-  vue: '^3.5.17'
-  vite: npm:rolldown-vite@^7.0.3
-  typescript: ^5.8.3
-  "@vue/tsconfig": ^0.7.0
-  "@tsconfig/node22": "^22.0.2"
-
 overrides:
+  '@storybook/vue3-vite>vite': ^7.0.0
+  '@storybook/builder-vite>vite': ^7.0.0
   vite: npm:rolldown-vite@^7.0.3
