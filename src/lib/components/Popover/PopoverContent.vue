@@ -9,6 +9,7 @@
   export interface PopoverContentProps extends AtomProps {
     id?: string
     positionArea?: string
+    positionTry?: string
   }
 
   export interface PopoverContentEmits {
@@ -21,6 +22,7 @@
 
   const {
     positionArea = 'bottom',
+    positionTry = 'most-width bottom',
     ...props
   } = defineProps<PopoverContentProps>()
 
@@ -28,12 +30,20 @@
 
   const context = usePopoverContext()
 
+  const ref = useTemplateRef('ref')
   const id = toRef(() => props.id ?? context.id)
 
   const style = toRef(() => ({
     positionArea,
     positionAnchor: `--${id.value}`,
+    positionTry,
   }))
+
+  onMounted(() => {
+    if (context.isActive.value) {
+      ref.value?.element?.showPopover()
+    }
+  })
 
   function onBeforeToggle (e: ToggleEvent) {
     context.isActive.value = e.newState === 'open'
@@ -45,6 +55,7 @@
 <template>
   <Atom
     :id
+    ref="ref"
     popover
     :style
     @beforetoggle="onBeforeToggle"

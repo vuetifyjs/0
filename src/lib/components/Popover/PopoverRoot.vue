@@ -44,7 +44,7 @@
 
 <template>
   <Atom
-    :props="{ isActive, toggle }"
+    :props="{ isActive, toggle, id }"
     :renderless
   >
     <slot />
