@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mergeProps, useAttrs, shallowRef, toRef } from 'vue'
+  import { mergeProps, useAttrs, toRef, useTemplateRef } from 'vue'
   import { isSelfClosingTag } from '#v0/constants/htmlElements'
   import type { DOMElement } from '#v0/types'
 
