@@ -1,15 +1,20 @@
-import { useContext } from '../useContext'
-import { watch, nextTick } from 'vue'
+// Composables
+import { useRegistrar } from '../useRegistrar'
 
-import { computed, getCurrentInstance, onMounted, reactive, toRef, toValue, type ComputedRef, type Reactive, type Ref } from 'vue'
+// Utilities
+import { watch, nextTick, computed, getCurrentInstance, onMounted, reactive, toRef, toValue } from 'vue'
 
-export interface GroupItem {
-  id: string | number
+// Types
+import type { ComputedRef, Reactive, Ref } from 'vue'
+import type { RegistrarContext, RegistrarItem } from '../useRegistrar'
+
+export interface GroupItemExtension {
   disabled: boolean
-  index: number
   value: unknown
   valueIsIndex: boolean
 }
+
+export type GroupItem = RegistrarItem<GroupItemExtension>
 
 export interface GroupTicket {
   isActive: Ref<boolean>
@@ -17,10 +22,7 @@ export interface GroupTicket {
   toggle: () => void
 }
 
-export interface GroupContext {
-  register: (item?: Partial<GroupItem>) => GroupTicket
-  unregister: (id: GroupItem['id']) => void
-  reset: () => void
+export interface GroupContext extends RegistrarContext<GroupItemExtension> {
   mandate: () => void
   select: (ids: GroupItem['id'] | GroupItem['id'][]) => void
 }
@@ -42,9 +44,9 @@ export function useGroup<T extends GroupContext> (
   namespace: string,
   options?: GroupOptions,
 ) {
-  const [useGroupContext, provideGroupContext] = useContext<T>(namespace)
+  const [useGroupContext, provideRegistrarContext, registrarState] = useRegistrar<GroupItemExtension, T>(namespace)
 
-  const registeredItems = reactive(new Map<GroupItem['id'], GroupItem>())
+  const registeredItems = registrarState.registeredItems
   const selectedIds = reactive(new Set<GroupItem['id']>())
   let initialValue: unknown | unknown[] = null
 
@@ -125,16 +127,23 @@ export function useGroup<T extends GroupContext> (
   }
 
   function register (item?: Partial<GroupItem>): GroupTicket {
-    const index = registeredItems.size
-
-    const registrant: GroupItem = reactive({
-      id: item?.id ?? crypto.randomUUID(),
+    const groupItem = {
+      ...item,
       disabled: item?.disabled ?? false,
-      index,
-      value: item?.value ?? index,
+      value: item?.value ?? registeredItems.size,
       valueIsIndex: item?.valueIsIndex ?? item?.value == null,
-    })
+    }
 
+    const index = registeredItems.size
+    const fullItem = {
+      id: groupItem.id ?? crypto.randomUUID(),
+      index,
+      disabled: groupItem.disabled,
+      value: groupItem.value,
+      valueIsIndex: groupItem.valueIsIndex,
+    } as GroupItem
+
+    const registrant = reactive(fullItem)
     registeredItems.set(registrant.id, registrant)
 
     if (initialValue != null) {
@@ -159,7 +168,6 @@ export function useGroup<T extends GroupContext> (
   function unregister (id: GroupItem['id']) {
     registeredItems.delete(id)
     selectedIds.delete(id)
-
     reindex()
   }
 
@@ -226,11 +234,11 @@ export function useGroup<T extends GroupContext> (
         reset,
         mandate,
         select,
-
         ...context,
-      } as T
+      } as unknown as T
 
-      provideGroupContext(group)
+      // Use the registrar's provide function but with our group context
+      provideRegistrarContext(group as any)
 
       return group
     },

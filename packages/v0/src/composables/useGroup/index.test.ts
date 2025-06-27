@@ -5,8 +5,8 @@ import { useGroup } from './index'
 const mockUseGroupContext = vi.fn()
 const mockProvideGroupContext = vi.fn()
 
-vi.mock('../useContext', () => ({
-  useContext: vi.fn(() => [mockUseGroupContext, mockProvideGroupContext]),
+vi.mock('../useRegistrar', () => ({
+  useRegistrar: vi.fn(() => [mockUseGroupContext, mockProvideGroupContext, { registeredItems: new Map() }]),
 }))
 
 describe('useGroup', () => {
