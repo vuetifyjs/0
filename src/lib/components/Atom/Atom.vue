@@ -1,7 +1,11 @@
 <script lang="ts">
+  // Utils
   import { mergeProps } from 'vue'
   import { isSelfClosingTag } from '@/constants/htmlElements'
+
+  // Types
   import type { DOMElement } from '@/types'
+  import type { ShallowRef } from 'vue'
 
   export type AtomProps = {
     as?: DOMElement
@@ -9,7 +13,7 @@
   }
 
   export type AtomExpose = {
-    element: HTMLElement | null
+    element: Readonly<ShallowRef<HTMLElement | null>>
   }
 
   interface AtomPrivateProps<T extends Record<string, any> = {}> extends AtomProps {
@@ -29,7 +33,8 @@
   } = defineProps<AtomPrivateProps<T>>()
 
   const element = useTemplateRef<HTMLElement>('element')
-  defineExpose<AtomExpose>({ element: element.value })
+
+  defineExpose<AtomExpose>({ element })
 
   const attrs = useAttrs()
   const isSelfClosing = toRef(() => typeof as === 'string' && isSelfClosingTag(as as keyof HTMLElementTagNameMap))
