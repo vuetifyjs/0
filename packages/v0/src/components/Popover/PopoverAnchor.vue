@@ -2,14 +2,16 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Context
+  import { usePopoverContext } from './PopoverRoot.vue'
+
   // Utilities
   import { toRef } from 'vue'
 
   // Types
-  import { usePopoverContext } from './PopoverRoot.vue'
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface PopoverContentProps extends AtomProps {
+  export interface PopoverAnchorProps extends AtomProps {
     target?: string
   }
 </script>
@@ -17,7 +19,7 @@
 <script lang="ts" setup>
   defineOptions({ name: 'PopoverAnchor' })
 
-  const { as = 'button', ...props } = defineProps<PopoverContentProps>()
+  const { as = 'button', ...props } = defineProps<PopoverAnchorProps>()
 
   const context = usePopoverContext()
 

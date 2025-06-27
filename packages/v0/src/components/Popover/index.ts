@@ -1,9 +1,15 @@
-import PopoverRoot from './PopoverRoot.vue'
-import PopoverAnchor from './PopoverAnchor.vue'
-import PopoverContent from './PopoverContent.vue'
+export type { PopoverAnchorProps } from './PopoverAnchor.vue'
+export type { PopoverContentProps } from './PopoverContent.vue'
+export type { PopoverRootProps } from './PopoverRoot.vue'
+
+export { providePopoverContext, usePopoverContext } from './PopoverRoot.vue'
+
+import Root from './PopoverRoot.vue'
+import Anchor from './PopoverAnchor.vue'
+import Content from './PopoverContent.vue'
 
 export const Popover = {
-  Root: PopoverRoot,
-  Anchor: PopoverAnchor,
-  Content: PopoverContent,
+  Root,
+  Anchor,
+  Content,
 }
