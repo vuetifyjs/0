@@ -1,26 +1,56 @@
 <template>
-  <div class="pa-10" style="height: 10000vh;">
-    <!-- <button popovertarget="mypopover">Toggle the popover</button>
-    <div id="mypopover" class="bg-grey-500" popover>Popover content</div> -->
+  <div class="m-4">
+    <Atom v-slot="slotProps" :props="{ value: 'Atom' }">
+      {{ slotProps.value }}
+    </Atom>
+    <br>
+    <Group.Root v-slot="{ model, reset, select }">
+      <Group.Item v-slot="{ isActive, toggle, index }">
+        <button @click="toggle">
+          {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
+        </button>
+      </Group.Item>
 
-    <pre>{{ yes }}</pre>
-    <Popover.Root v-model="yes">
-      <Popover.Anchor class="pa-2 border rounded bg-gray-200">
-        Toggle the popover
-      </Popover.Anchor>
+      <br>
 
-      <Popover.Content class="pa-4 border bg-grey-100">
-        Popover content
-      </Popover.Content>
-    </Popover.Root>
+      <Group.Item v-slot="{ isActive, toggle, index }" disabled>
+        <button @click="toggle">
+          {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
+        </button>
+      </Group.Item>
+
+      <br>
+
+      <Group.Item v-if="yes" id="1" v-slot="{ isActive, index }">
+        <button @click="select('2')">
+          {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
+        </button>
+      </Group.Item>
+      <br>
+
+      <Group.Item id="2" v-slot="{ isActive, toggle, index }" value="foobar">
+        <button @click="toggle">
+          {{ isActive ? 'Active' : 'Inactive' }} {{ index }}
+        </button>
+      </Group.Item>
+
+      <br>
+      <br>
+
+      <button @click="reset">
+        Reset
+      </button>
+
+      <button @click="yes = !yes">
+        {{ yes ? 'Hide' : 'Show' }} second item
+      </button>
+
+      <pre>{{ model || 'No model' }}</pre>
+    </Group.Root>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { Atom, Group, Popover } from './lib'
-  const yes = ref(false)
+  import { Atom, Group, Avatar } from './lib'
+  const yes = ref(true)
 </script>
-
-<style>
-
-</style>
