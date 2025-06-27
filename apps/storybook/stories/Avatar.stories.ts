@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { Avatar } from '#v0'
+import { Avatar } from '@vuetify/v0'
 
 const meta: Meta<typeof Avatar.Root> = {
   title: 'Components/Avatar',
@@ -8,13 +8,6 @@ const meta: Meta<typeof Avatar.Root> = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  argTypes: {
-    as: {
-      control: 'select',
-      options: ['div', 'span'],
-      description: 'The HTML element to render',
-    },
-  },
 }
 
 export default meta
@@ -38,9 +31,6 @@ export const Default: Story = {
       </AvatarRoot>
     `,
   }),
-  args: {
-    as: 'div',
-  },
 }
 
 // Avatar with Fallback (broken image)
@@ -61,9 +51,6 @@ export const WithFallback: Story = {
       </AvatarRoot>
     `,
   }),
-  args: {
-    as: 'div',
-  },
 }
 
 // Small Avatar
@@ -84,9 +71,6 @@ export const Small: Story = {
       </AvatarRoot>
     `,
   }),
-  args: {
-    as: 'div',
-  },
 }
 
 // Large Avatar
@@ -107,9 +91,6 @@ export const Large: Story = {
       </AvatarRoot>
     `,
   }),
-  args: {
-    as: 'div',
-  },
 }
 
 // Square Avatar
@@ -130,9 +111,6 @@ export const Square: Story = {
       </AvatarRoot>
     `,
   }),
-  args: {
-    as: 'div',
-  },
 }
 
 // Avatar Group
@@ -171,9 +149,6 @@ export const Group: Story = {
     </div>
     `,
   }),
-  args: {
-    as: 'div',
-  },
 }
 
 // Text Only Avatar (fallback only)
@@ -184,14 +159,11 @@ export const TextOnly: Story = {
       return { args }
     },
     template: `
-      <AvatarRoot v-bind="args" class="size-16 rounded-full inline-flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+      <AvatarRoot v-bind="args" class="size-16 rounded-full inline-flex items-center justify-center bg-linear-to-br from-indigo-500 to-purple-600 text-white">
         <AvatarFallback class="font-bold text-lg">AB</AvatarFallback>
       </AvatarRoot>
     `,
   }),
-  args: {
-    as: 'div',
-  },
 }
 
 // Multiple Images with Priority
@@ -222,7 +194,4 @@ export const MultiplePriority: Story = {
       </AvatarRoot>
     `,
   }),
-  args: {
-    as: 'div',
-  },
 }

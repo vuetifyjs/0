@@ -24,7 +24,7 @@
     }
   },
   "devDependencies": {
-    "vite": "catalog:",
-    "@vitejs/plugin-vue": "catalog:"
+    "@vitejs/plugin-vue": "catalog:",
+    "vite": "catalog:"
   }
 }

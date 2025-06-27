@@ -4,6 +4,7 @@ onlyBuiltDependencies:
 
 packages:
   - 'packages/*'
+  - 'apps/*'
   - 'playground'
 
 catalog:

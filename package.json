@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter=playground dev",
-    "build": "pnpm --filter='@vuetifyjs/*' build",
+    "build": "pnpm --filter=v0 --filter=paper build",
     "preview": "vite preview",
     "type-check": "vue-tsc -b",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "storybook": "STORYBOOK=1 storybook dev -p 6006",
-    "build-storybook": "STORYBOOK=1 storybook build",
+    "storybook": "pnpm --filter=storybook dev",
+    "build:storybook": "pnpm --filter=storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage"
@@ -21,7 +21,6 @@
     "pnpm": ">=10.6"
   },
   "devDependencies": {
-    "@storybook/vue3-vite": "^9.0.13",
     "@tsconfig/node22": "catalog:",
     "@types/node": "^22.15.29",
     "@vitest/coverage-v8": "3.2.4",
@@ -32,7 +31,6 @@
     "eslint-plugin-storybook": "^9.0.13",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "happy-dom": "^18.0.1",
-    "storybook": "^9.0.13",
     "typescript": "catalog:",
     "vitest": "^3.2.4",
     "vue-tsc": "^2.2.10"

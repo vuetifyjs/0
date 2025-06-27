@@ -1,0 +1,19 @@
+{
+  "name": "@vuetifyjs/storybook",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build",
+    "preview": "storybook build && npx http-server storybook-static"
+  },
+  "devDependencies": {
+    "@storybook/vue3-vite": "^9.0.13",
+    "@vitejs/plugin-vue": "catalog:",
+    "storybook": "^9.0.13",
+    "unocss": "^66.3.2",
+    "vite": "catalog:",
+    "vue": "catalog:"
+  }
+}
