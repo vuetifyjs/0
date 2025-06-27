@@ -10,7 +10,7 @@
 
   export interface AvatarRootProps extends AtomProps {}
 
-  export const [useAvatarContext, provideAvatarContext] = useAvatar('avatar')
+  export const [useAvatarContext] = useAvatar('avatar')
 </script>
 
 <script setup lang="ts">
@@ -18,6 +18,7 @@
 
   const { as = 'div', renderless } = defineProps<AvatarRootProps>()
 
+  const [, provideAvatarContext] = useAvatar('avatar')
   provideAvatarContext()
 </script>
 
