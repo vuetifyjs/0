@@ -34,8 +34,8 @@
   const context = usePopoverContext()
 
   const ref = useTemplateRef('ref')
-  const id = toRef(() => props.id ?? context.id)
 
+  const id = toRef(() => props.id ?? context.id)
   const style = toRef(() => ({
     positionArea,
     positionAnchor: `--${id.value}`,

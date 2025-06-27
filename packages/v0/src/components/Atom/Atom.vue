@@ -5,7 +5,7 @@
 
   // Types
   import type { DOMElement } from '#v0/types'
-  import type { ShallowRef } from 'vue'
+  import type { TemplateRef } from 'vue'
 
   export interface AtomProps {
     as?: DOMElement | null
@@ -17,7 +17,7 @@
   }
 
   export interface AtomExpose {
-    element: Readonly<ShallowRef<HTMLElement | null>>
+    element: TemplateRef<HTMLElement | null>
   }
 
   interface AtomPrivateProps<T extends Record<string, any> = {}> extends AtomProps {

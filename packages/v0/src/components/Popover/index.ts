@@ -1,6 +1,6 @@
 export type { PopoverAnchorProps } from './PopoverAnchor.vue'
-export type { PopoverContentProps } from './PopoverContent.vue'
-export type { PopoverRootProps } from './PopoverRoot.vue'
+export type { PopoverContentEmits, PopoverContentProps } from './PopoverContent.vue'
+export type { PopoverContext, PopoverRootProps } from './PopoverRoot.vue'
 
 export { providePopoverContext, usePopoverContext } from './PopoverRoot.vue'
 
