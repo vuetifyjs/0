@@ -1,10 +1,11 @@
 <script lang="ts">
   // Components
-  import { Atom } from '@/lib/components/Atom'
+  import { Atom } from '#v0/components/Atom'
 
   // Types
   import { usePopoverContext } from './PopoverRoot.vue'
-  import type { AtomProps } from '@/lib/components/Atom'
+  import type { AtomProps } from '#v0/components/Atom'
+import { onMounted, toRef, useTemplateRef } from 'vue'
 
   export interface PopoverContentProps extends AtomProps {
     id?: string

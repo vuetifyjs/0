@@ -1,13 +1,13 @@
 <script lang="ts">
   // Components
-  import { Atom } from '@/lib/components/Atom'
+  import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { useContext } from '@/lib/composables/useContext'
+  import { useContext } from '#v0/composables/useContext'
 
   // Types
-  import type { AtomProps } from '@/lib/components/Atom'
-  import type { ShallowRef } from 'vue'
+  import type { AtomProps } from '#v0/components/Atom'
+  import { toRef, useId, type ShallowRef } from 'vue'
 
   export interface PopoverContext {
     isActive: ShallowRef<boolean>
