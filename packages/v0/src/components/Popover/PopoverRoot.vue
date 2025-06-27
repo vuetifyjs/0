@@ -46,7 +46,6 @@
   <Atom
     :as
     :props="{ isActive, toggle, id }"
-    :renderless="renderless || as == null"
   >
     <slot />
   </Atom>

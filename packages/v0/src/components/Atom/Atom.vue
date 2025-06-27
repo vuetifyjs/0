@@ -7,12 +7,16 @@
   import type { DOMElement } from '#v0/types'
   import type { ShallowRef } from 'vue'
 
-  export type AtomProps = {
+  export interface AtomProps {
     as?: DOMElement | null
     renderless?: boolean
   }
 
-  export type AtomExpose = {
+  export interface AtomSlots<T> {
+    default: (props: T) => any
+  }
+
+  export interface AtomExpose {
     element: Readonly<ShallowRef<HTMLElement | null>>
   }
 
@@ -24,7 +28,7 @@
 <script setup lang="ts" generic="T extends Record<string, any> = {}">
   defineOptions({ name: 'Atom' })
 
-  defineSlots<{ default: (props: T) => any }>()
+  defineSlots<AtomSlots<T>>()
 
   const {
     as = 'div',
@@ -43,7 +47,7 @@
 
 <template>
   <slot
-    v-if="renderless"
+    v-if="renderless || as === null"
     v-bind="slotProps"
   />
 
