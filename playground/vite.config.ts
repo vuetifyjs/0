@@ -25,6 +25,12 @@ export default defineConfig({
       imports: [
         'vue',
       ],
+      dirs: [
+        '../packages/paper/src/composables',
+        '../packages/paper/src/utils',
+        '../packages/v0/src/composables',
+        '../packages/v0/src/constants',
+      ],
       dts: 'src/composables.d.ts',
       eslintrc: {
         enabled: false,
