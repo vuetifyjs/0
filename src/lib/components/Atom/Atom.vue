@@ -8,6 +8,10 @@
     renderless?: boolean
   }
 
+  export type AtomExpose = {
+    element: HTMLElement | null
+  }
+
   interface AtomPrivateProps<T extends Record<string, any> = {}> extends AtomProps {
     props?: T
   }
@@ -24,8 +28,8 @@
     props = {},
   } = defineProps<AtomPrivateProps<T>>()
 
-  const aRef = useTemplateRef<HTMLElement>('aRef')
-  defineExpose({ aRef })
+  const element = useTemplateRef<HTMLElement>('element')
+  defineExpose<AtomExpose>({ element: element.value })
 
   const attrs = useAttrs()
   const isSelfClosing = toRef(() => typeof as === 'string' && isSelfClosingTag(as as keyof HTMLElementTagNameMap))
@@ -42,7 +46,7 @@
     :is="as"
     v-else
     v-bind="slotProps"
-    ref="aRef"
+    ref="element"
   >
     <slot v-if="!isSelfClosing" v-bind="slotProps" />
   </component>
