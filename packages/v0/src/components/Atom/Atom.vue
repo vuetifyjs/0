@@ -24,8 +24,10 @@
     props = {},
   } = defineProps<AtomPrivateProps<T>>()
 
+  const aRef = useTemplateRef<HTMLElement>('aRef')
+  defineExpose({ aRef })
+
   const attrs = useAttrs()
-  const elementRef = shallowRef<HTMLElement>()
   const isSelfClosing = toRef(() => typeof as === 'string' && isSelfClosingTag(as as keyof HTMLElementTagNameMap))
   const slotProps = toRef(() => mergeProps(props, attrs) as T)
 </script>
@@ -40,7 +42,7 @@
     :is="as"
     v-else
     v-bind="slotProps"
-    :ref="elementRef"
+    ref="aRef"
   >
     <slot v-if="!isSelfClosing" v-bind="slotProps" />
   </component>
