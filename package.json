@@ -14,7 +14,9 @@
     "build:storybook": "pnpm --filter=storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "dev:docs": "pnpm --filter=docs dev",
+    "build:docs": "pnpm --filter=docs build"
   },
   "engines": {
     "node": ">=20.19 || >=22",

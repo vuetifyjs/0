@@ -69,6 +69,25 @@ importers:
         specifier: ^2.2.10
         version: 2.2.10(typescript@5.8.3)
 
+  apps/docs:
+    dependencies:
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.17(typescript@5.8.3)
+      vue-router:
+        specifier: ^4.5.1
+        version: 4.5.1(vue@3.5.17(typescript@5.8.3))
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: 'catalog:'
+        version: 6.0.0(rolldown-vite@7.0.3(@types/node@22.15.31)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))
+      unocss:
+        specifier: ^66.3.2
+        version: 66.3.2(postcss@8.5.6)(rolldown-vite@7.0.3(@types/node@22.15.31)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(yaml@2.8.0))(vue@3.5.17(typescript@5.8.3))
+      vite:
+        specifier: npm:rolldown-vite@^7.0.3
+        version: rolldown-vite@7.0.3(@types/node@22.15.31)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(yaml@2.8.0)
+
   apps/storybook:
     devDependencies:
       '@storybook/vue3-vite':
@@ -1036,6 +1055,9 @@ packages:
 
   '@vue/compiler-vue2@2.7.16':
     resolution: {integrity: sha512-qYC3Psj9S/mfu9uVi5WvNZIzq+xnXMhOwbTFKKDD7b1lhpnn71jXSFdTQ+WsIEk0ONCd7VV2IMm7ONl6tbQ86A==}
+
+  '@vue/devtools-api@6.6.4':
+    resolution: {integrity: sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==}
 
   '@vue/language-core@2.2.10':
     resolution: {integrity: sha512-+yNoYx6XIKuAO8Mqh1vGytu8jkFEOH5C8iOv3i8Z/65A7x9iAOXA97Q+PqZ3nlm2lxf5rOJuIGI/wDtx/riNYw==}
@@ -2955,6 +2977,11 @@ packages:
     peerDependencies:
       vue: '>=2'
 
+  vue-router@4.5.1:
+    resolution: {integrity: sha512-ogAF3P97NPm8fJsE4by9dwSYtDwXIY1nFY9T6DyQnGHd1E2Da94w9JIolpe42LJGIl0DwOHBi8TcRPlPGwbTtw==}
+    peerDependencies:
+      vue: ^3.2.0
+
   vue-tsc@2.2.10:
     resolution: {integrity: sha512-jWZ1xSaNbabEV3whpIDMbjVSVawjAyW+x1n3JeGQo7S0uv2n9F/JMgWW90tGWNFRKya4YwKMZgCtr0vRAM7DeQ==}
     hasBin: true
@@ -4034,6 +4061,8 @@ snapshots:
     dependencies:
       de-indent: 1.0.2
       he: 1.2.0
+
+  '@vue/devtools-api@6.6.4': {}
 
   '@vue/language-core@2.2.10(typescript@5.8.3)':
     dependencies:
@@ -6089,6 +6118,11 @@ snapshots:
 
   vue-inbrowser-compiler-independent-utils@4.71.1(vue@3.5.17(typescript@5.8.3)):
     dependencies:
+      vue: 3.5.17(typescript@5.8.3)
+
+  vue-router@4.5.1(vue@3.5.17(typescript@5.8.3)):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
       vue: 3.5.17(typescript@5.8.3)
 
   vue-tsc@2.2.10(typescript@5.8.3):
