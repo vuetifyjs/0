@@ -25,7 +25,7 @@
 <script lang="ts" setup>
   defineOptions({ name: 'PopoverRoot' })
 
-  const { renderless = true, ...props } = defineProps<PopoverRootProps>()
+  const { as = null, ...props } = defineProps<PopoverRootProps>()
 
   const isActive = defineModel<boolean>({ default: false })
 
@@ -44,8 +44,9 @@
 
 <template>
   <Atom
+    :as
     :props="{ isActive, toggle, id }"
-    :renderless
+    :renderless="renderless || as == null"
   >
     <slot />
   </Atom>
