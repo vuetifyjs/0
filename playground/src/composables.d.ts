@@ -69,18 +69,24 @@ declare global {
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAttrs: typeof import('vue')['useAttrs']
+  const useAvatar: typeof import('../../packages/v0/src/composables/useAvatar/index')['useAvatar']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
   const useColor: typeof import('../../packages/paper/src/composables/useColor/index')['useColor']
+  const useContext: typeof import('../../packages/v0/src/composables/useContext/index')['useContext']
   const useContrast: typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
+  const useGroup: typeof import('../../packages/v0/src/composables/useGroup/index')['useGroup']
   const useId: typeof import('vue')['useId']
+  const useKeydown: typeof import('../../packages/v0/src/composables/useKeydown/index')['useKeydown']
   const useModel: typeof import('vue')['useModel']
+  const useRegistrar: typeof import('../../packages/v0/src/composables/useRegistrar/index')['useRegistrar']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
   const useSpacing: typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']
+  const useStep: typeof import('../../packages/v0/src/composables/useStep/index')['useStep']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
@@ -113,6 +119,21 @@ declare global {
   // @ts-ignore
   export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
+  // @ts-ignore
+  export type { AvatarItem, AvatarTicket, AvatarContext, AvatarState } from '../../packages/v0/src/composables/useAvatar/index'
+  import('../../packages/v0/src/composables/useAvatar/index')
+  // @ts-ignore
+  export type { GroupItemExtension, GroupItem, GroupTicket, GroupContext, GroupState, GroupOptions } from '../../packages/v0/src/composables/useGroup/index'
+  import('../../packages/v0/src/composables/useGroup/index')
+  // @ts-ignore
+  export type { KeyHandler } from '../../packages/v0/src/composables/useKeydown/index'
+  import('../../packages/v0/src/composables/useKeydown/index')
+  // @ts-ignore
+  export type { RegistrarItem, RegistrarTicket, RegistrarContext, RegistrarState } from '../../packages/v0/src/composables/useRegistrar/index'
+  import('../../packages/v0/src/composables/useRegistrar/index')
+  // @ts-ignore
+  export type { StepOptions, StepContext, StepState } from '../../packages/v0/src/composables/useStep/index'
+  import('../../packages/v0/src/composables/useStep/index')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/v0/src/constants/htmlElements'
   import('../../packages/v0/src/constants/htmlElements')
@@ -186,18 +207,24 @@ declare module 'vue' {
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
+    readonly useAvatar: UnwrapRef<typeof import('../../packages/v0/src/composables/useAvatar/index')['useAvatar']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
     readonly useColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['useColor']>
+    readonly useContext: UnwrapRef<typeof import('../../packages/v0/src/composables/useContext/index')['useContext']>
     readonly useContrast: UnwrapRef<typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
+    readonly useGroup: UnwrapRef<typeof import('../../packages/v0/src/composables/useGroup/index')['useGroup']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useKeydown: UnwrapRef<typeof import('../../packages/v0/src/composables/useKeydown/index')['useKeydown']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useRegistrar: UnwrapRef<typeof import('../../packages/v0/src/composables/useRegistrar/index')['useRegistrar']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
+    readonly useStep: UnwrapRef<typeof import('../../packages/v0/src/composables/useStep/index')['useStep']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
