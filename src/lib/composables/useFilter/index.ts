@@ -1,37 +1,51 @@
-export type FilterQuery = string
+import type { ComputedRef, Ref } from 'vue'
+import { computed, isRef } from 'vue'
 
+export type FilterQuery = string | Ref<string>
 export type FilterItem = string | number | boolean | Record<string, any>
+export type FilterFunction = (query: string, item: FilterItem) => boolean
 
-export interface FilterFunction {
-  (query: FilterQuery, item: FilterItem): boolean
+export interface UseFilterOptions {
+  customFilter?: FilterFunction
+  keys?: string[]
 }
 
-export interface UseFilterResult {
-  filter: (query: FilterQuery, items: FilterItem | FilterItem[]) => FilterItem[]
+export interface UseFilterResult<T extends FilterItem = FilterItem> {
+  items: ComputedRef<T[]>
 }
 
-function defaultFilter (query: FilterQuery, item: FilterItem) {
+function defaultFilter (query: string, item: FilterItem, keys?: string[]): boolean {
   if (['string', 'number', 'boolean'].includes(typeof item)) {
-    return String(item).toLowerCase().includes(String(query).toLowerCase())
+    return String(item).toLowerCase().includes(query.toLowerCase())
   }
 
   if (typeof item === 'object' && item !== null) {
-    return Object.values(item).some(value =>
-      String(value).toLowerCase().includes(String(query).toLowerCase()),
+    const values = keys?.length ? keys.map(k => item[k]) : Object.values(item)
+    return values.some(value =>
+      String(value).toLowerCase().includes(query.toLowerCase()),
     )
   }
 
   return false
 }
 
-export function useFilter (customFn?: FilterFunction): UseFilterResult {
-  const filterFn = customFn ?? defaultFilter
-  function filter (query: FilterQuery, item: FilterItem): FilterItem[] {
-    if (!query) return []
+export function useFilter<T extends FilterItem> (
+  query: FilterQuery,
+  items: Ref<T[]> | T[],
+  options: UseFilterOptions = {},
+): UseFilterResult<T> {
+  const { customFilter, keys } = options
+  const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys))
 
-    const array = Array.isArray(item) ? item : [item]
-    return array.filter(i => filterFn(query, i))
+  const itemsRef = isRef(items) ? items : computed(() => items)
+  const queryRef = isRef(query) ? query : computed(() => query)
+
+  const filteredItems = computed(() => {
+    if (!queryRef.value) return itemsRef.value
+    return itemsRef.value.filter(item => filterFunction(queryRef.value, item))
+  })
+
+  return {
+    items: filteredItems,
   }
-
-  return { filter }
 }
