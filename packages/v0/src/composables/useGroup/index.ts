@@ -2,7 +2,7 @@
 import { useRegistrar } from '../useRegistrar'
 
 // Utilities
-import { watch, nextTick, computed, getCurrentInstance, onMounted, reactive, toRef, toValue } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { ComputedRef, Reactive, Ref } from 'vue'
@@ -44,9 +44,13 @@ export function useGroup<T extends GroupContext> (
   namespace: string,
   options?: GroupOptions,
 ) {
-  const [useGroupContext, provideRegistrarContext, registrarState] = useRegistrar<GroupItemExtension, T>(namespace)
+  const [
+    useGroupContext,
+    provideGroupContext,
+    registrar,
+  ] = useRegistrar<GroupItemExtension, GroupContext>(namespace)
 
-  const registeredItems = registrarState.registeredItems
+  const { registeredItems, register: _register, unregister: _unregister, reindex } = registrar
   const selectedIds = reactive(new Set<GroupItem['id']>())
   let initialValue: unknown | unknown[] = null
 
@@ -65,33 +69,24 @@ export function useGroup<T extends GroupContext> (
   function mandate () {
     if (!options?.mandatory || selectedIds.size > 0 || registeredItems.size === 0) return
 
-    let first = registeredItems.values().next().value
-
-    while (first?.disabled) {
-      const next = registeredItems.values().next().value
-      if (next === first) break
-      first = next
+    if (options.mandatory === 'force') {
+      const first = registeredItems.values().next().value
+      if (first) selectedIds.add(first.id)
+      return
     }
 
-    if (first) selectedIds.add(first.id)
+    for (const item of registeredItems.values()) {
+      if (item.disabled) continue
+
+      selectedIds.add(item.id)
+      break
+    }
   }
 
   function reset () {
     selectedIds.clear()
     reindex()
     mandate()
-  }
-
-  function reindex () {
-    let index = 0
-
-    for (const [, value] of registeredItems) {
-      value.index = index++
-
-      if (value.valueIsIndex) {
-        value.value = value.index
-      }
-    }
   }
 
   function select (ids: GroupItem['id'] | GroupItem['id'][]) {
@@ -134,41 +129,28 @@ export function useGroup<T extends GroupContext> (
       valueIsIndex: item?.valueIsIndex ?? item?.value == null,
     }
 
-    const index = registeredItems.size
-    const fullItem = {
-      id: groupItem.id ?? crypto.randomUUID(),
-      index,
-      disabled: groupItem.disabled,
-      value: groupItem.value,
-      valueIsIndex: groupItem.valueIsIndex,
-    } as GroupItem
-
-    const registrant = reactive(fullItem)
-    registeredItems.set(registrant.id, registrant)
+    const ticket = _register(groupItem)
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
-        ? initialValue.includes(registrant.value)
-        : initialValue === registrant.value
+        ? initialValue.includes(ticket.value)
+        : initialValue === ticket.value
 
-      if (shouldSelect) {
-        selectedIds.add(registrant.id)
-      }
+      if (shouldSelect) selectedIds.add(ticket.id)
     }
 
     if (options?.mandatory === 'force') mandate()
 
     return {
-      isActive: toRef(() => selectedIds.has(registrant.id)),
-      index: toRef(() => registrant.index),
-      toggle: () => toggle(registrant.id),
+      isActive: toRef(() => selectedIds.has(ticket.id)),
+      index: toRef(() => registeredItems.get(ticket.id)?.index ?? 0),
+      toggle: () => toggle(ticket.id),
     }
   }
 
   function unregister (id: GroupItem['id']) {
-    registeredItems.delete(id)
     selectedIds.delete(id)
-    reindex()
+    _unregister(id)
   }
 
   if (getCurrentInstance()) {
@@ -237,8 +219,7 @@ export function useGroup<T extends GroupContext> (
         ...context,
       } as unknown as T
 
-      // Use the registrar's provide function but with our group context
-      provideRegistrarContext(group as any)
+      provideGroupContext(group)
 
       return group
     },

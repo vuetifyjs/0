@@ -3,14 +3,68 @@ import { useStep } from './index'
 
 const mockUseGroupContext = vi.fn()
 const mockProvideGroupContext = vi.fn()
+const mockRegister = vi.fn()
+const mockUnregister = vi.fn()
+const mockReindex = vi.fn()
+const mockRegisteredItems = new Map()
 
 vi.mock('../useRegistrar', () => ({
-  useRegistrar: vi.fn(() => [mockUseGroupContext, mockProvideGroupContext, { registeredItems: new Map() }]),
+  useRegistrar: vi.fn(() => [
+    mockUseGroupContext,
+    mockProvideGroupContext,
+    {
+      registeredItems: mockRegisteredItems,
+      register: mockRegister,
+      unregister: mockUnregister,
+      reindex: mockReindex,
+    },
+  ]),
 }))
 
 describe('useStep', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockRegisteredItems.clear()
+
+    // Setup mock behavior for register function
+    let itemCounter = 0
+    mockRegister.mockImplementation(item => {
+      const id = item?.id || `auto-${itemCounter++}`
+      const index = mockRegisteredItems.size
+      const registeredItem = {
+        id,
+        index,
+        disabled: false,
+        value: mockRegisteredItems.size,
+        valueIsIndex: true,
+        ...item,
+      }
+      mockRegisteredItems.set(id, registeredItem)
+      return {
+        id,
+        index,
+        ...item,
+      }
+    })
+
+    // Setup mock behavior for unregister function
+    mockUnregister.mockImplementation(id => {
+      mockRegisteredItems.delete(id)
+      // Reindex after unregistering
+      let index = 0
+      for (const item of mockRegisteredItems.values()) {
+        item.index = index++
+      }
+    })
+
+    // Setup mock behavior for reindex function
+    mockReindex.mockImplementation(() => {
+      // Simple reindex implementation for testing
+      let index = 0
+      for (const item of mockRegisteredItems.values()) {
+        item.index = index++
+      }
+    })
   })
 
   it('should provide step context with navigation functions', () => {

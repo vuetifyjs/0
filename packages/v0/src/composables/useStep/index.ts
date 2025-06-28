@@ -1,5 +1,5 @@
 import { useGroup, type GroupContext, type GroupOptions, type GroupState } from '../useGroup'
-import { computed, toRef, type Ref } from 'vue'
+import { toRef, type Ref } from 'vue'
 
 export interface StepOptions extends Omit<GroupOptions, 'multiple'> {}
 
@@ -28,16 +28,17 @@ export function useStep<T extends StepContext> (
   const currentItem = toRef(() => groupState.selectedItems.value.values().next().value)
   const currentIndex = toRef(() => currentItem.value?.index ?? -1)
 
-  const registeredIds = computed(() => {
-    return new Map(
-      Array.from(groupState.registeredItems).map(([id, item]) => [item.index, id]),
-    )
-  })
+  function getIdByIndex (index: number) {
+    for (const [id, item] of groupState.registeredItems) {
+      if (item.index === index) return id
+    }
+    return undefined
+  }
 
   function first () {
-    if (registeredIds.value.size === 0) return
+    if (groupState.registeredItems.size === 0) return
 
-    const firstId = registeredIds.value.get(0)
+    const firstId = getIdByIndex(0)
 
     if (firstId === undefined) return
 
@@ -46,10 +47,10 @@ export function useStep<T extends StepContext> (
   }
 
   function last () {
-    if (registeredIds.value.size === 0) return
+    if (groupState.registeredItems.size === 0) return
 
     const lastIndex = groupState.registeredItems.size - 1
-    const lastId = registeredIds.value.get(lastIndex)
+    const lastId = getIdByIndex(lastIndex)
 
     if (lastId === undefined) return
 
@@ -70,7 +71,7 @@ export function useStep<T extends StepContext> (
 
     const current = currentIndex.value
     const newIndex = ((current + count) % groupState.registeredItems.size + groupState.registeredItems.size) % groupState.registeredItems.size
-    const newId = registeredIds.value.get(newIndex)
+    const newId = getIdByIndex(newIndex)
 
     if (newId === undefined) return
 

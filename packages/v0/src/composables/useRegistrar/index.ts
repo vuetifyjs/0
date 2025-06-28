@@ -24,6 +24,9 @@ export interface RegistrarContext<U extends Record<string, any> = {}> {
 
 export interface RegistrarState<U extends Record<string, any> = {}> {
   registeredItems: Reactive<Map<string | number, RegistrarItem<U>>>
+  register: (item?: Partial<RegistrarItem<U>>) => RegistrarTicket<U>
+  unregister: (id: string | number) => void
+  reindex: () => void
 }
 
 export function useRegistrar<U extends Record<string, any> = {}, T extends RegistrarContext<U> = RegistrarContext<U>> (
@@ -31,35 +34,30 @@ export function useRegistrar<U extends Record<string, any> = {}, T extends Regis
 ) {
   const [useRegistrarContext, provideRegistrarContext] = useContext<T>(namespace)
 
-  const registeredItems = reactive(new Map<string | number, any>()) as Reactive<Map<string | number, RegistrarItem<U>>>
+  const registeredItems = reactive(new Map<string | number, RegistrarItem<U>>())
 
   function reindex () {
     let index = 0
-
-    for (const [, value] of registeredItems) {
-      value.index = index++
+    for (const item of registeredItems.values()) {
+      item.index = index++
     }
   }
 
   function register (item?: Partial<RegistrarItem<U>>): RegistrarTicket<U> {
+    const id = item?.id ?? crypto.randomUUID()
     const index = registeredItems.size
 
-    const baseItem = {
-      id: item?.id ?? crypto.randomUUID(),
+    const registrant = {
+      id,
       index,
-    }
-
-    const fullItem = {
-      ...baseItem,
       ...item,
     } as RegistrarItem<U>
 
-    const registrant = reactive(fullItem)
-
-    registeredItems.set(registrant.id, registrant as any)
+    registeredItems.set(id, registrant as any)
 
     return {
-      ...baseItem,
+      id,
+      index,
       ...item,
     } as RegistrarTicket<U>
   }
@@ -71,11 +69,10 @@ export function useRegistrar<U extends Record<string, any> = {}, T extends Regis
 
   return [
     useRegistrarContext,
-    function (context?: Omit<T, keyof RegistrarContext<U>>) {
+    function provideRegistrar (context?: Omit<T, keyof RegistrarContext<U>>) {
       const registrar = {
         register,
         unregister,
-
         ...context,
       } as T
 
@@ -85,6 +82,9 @@ export function useRegistrar<U extends Record<string, any> = {}, T extends Regis
     },
     {
       registeredItems,
+      register,
+      unregister,
+      reindex,
     } as RegistrarState<U>,
   ] as const
 }
