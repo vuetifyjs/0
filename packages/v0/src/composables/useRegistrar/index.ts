@@ -5,33 +5,34 @@ import { useContext } from '../useContext'
 import { reactive } from 'vue'
 
 // Types
+import type { GenericObject, ID } from '#v0/types'
 import type { Reactive } from 'vue'
 
-export type RegistrarItem<T extends Record<string, any> = {}> = {
-  id: string | number
+export type RegistrarItem<T extends GenericObject = {}> = {
+  id?: ID
+} & T
+
+export type RegistrarTicket<T extends GenericObject = {}> = {
+  id: ID
   index: number
 } & T
 
-export type RegistrarTicket<T extends Record<string, any> = {}> = {
-  id: string | number
-  index: number
-} & T
-
-export interface RegistrarContext<U extends Record<string, any> = {}> {
+export interface RegistrarContext<U extends GenericObject = {}> {
   register: (item?: Partial<RegistrarItem<U>>) => RegistrarTicket<U>
-  unregister: (id: string | number) => void
+  unregister: (id: RegistrarItem['id']) => void
 }
 
-export interface RegistrarState<U extends Record<string, any> = {}> {
+export interface RegistrarState<U extends GenericObject = {}> {
   registeredItems: Reactive<Map<string | number, RegistrarItem<U>>>
   register: (item?: Partial<RegistrarItem<U>>) => RegistrarTicket<U>
-  unregister: (id: string | number) => void
+  unregister: (id: RegistrarItem['id']) => void
   reindex: () => void
 }
 
-export function useRegistrar<U extends Record<string, any> = {}, T extends RegistrarContext<U> = RegistrarContext<U>> (
-  namespace: string,
-) {
+export function useRegistrar<
+  U extends GenericObject = {},
+  T extends RegistrarContext<U> = RegistrarContext<U>,
+> (namespace: string) {
   const [useRegistrarContext, provideRegistrarContext] = useContext<T>(namespace)
 
   const registeredItems = reactive(new Map<string | number, RegistrarItem<U>>())
@@ -48,9 +49,8 @@ export function useRegistrar<U extends Record<string, any> = {}, T extends Regis
     const index = registeredItems.size
 
     const registrant = {
-      id,
-      index,
       ...item,
+      id,
     } as RegistrarItem<U>
 
     registeredItems.set(id, registrant as any)
