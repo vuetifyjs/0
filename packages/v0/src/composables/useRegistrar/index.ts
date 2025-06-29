@@ -2,11 +2,11 @@
 import { useContext } from '../useContext'
 
 // Utilities
-import { reactive } from 'vue'
+import { shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { GenericObject, ID } from '#v0/types'
-import type { Reactive } from 'vue'
+import type { ShallowReactive, ShallowRef } from 'vue'
 
 export type RegistrarItem<T extends GenericObject = {}> = {
   id?: ID
@@ -14,18 +14,18 @@ export type RegistrarItem<T extends GenericObject = {}> = {
 
 export type RegistrarTicket<T extends GenericObject = {}> = {
   id: ID
-  index: number
+  index: ShallowRef<number>
 } & T
 
 export interface RegistrarContext<U extends GenericObject = {}> {
   register: (item?: Partial<RegistrarItem<U>>) => RegistrarTicket<U>
-  unregister: (id: RegistrarItem['id']) => void
+  unregister: (id: ID) => void
 }
 
 export interface RegistrarState<U extends GenericObject = {}> {
-  registeredItems: Reactive<Map<string | number, RegistrarItem<U>>>
+  registeredItems: ShallowReactive<Map<ID, RegistrarTicket<U>>>
   register: (item?: Partial<RegistrarItem<U>>) => RegistrarTicket<U>
-  unregister: (id: RegistrarItem['id']) => void
+  unregister: (id: ID) => void
   reindex: () => void
 }
 
@@ -35,34 +35,27 @@ export function useRegistrar<
 > (namespace: string) {
   const [useRegistrarContext, provideRegistrarContext] = useContext<T>(namespace)
 
-  const registeredItems = reactive(new Map<string | number, RegistrarItem<U>>())
+  const registeredItems = shallowReactive(new Map<ID, RegistrarTicket<U>>())
 
   function reindex () {
     let index = 0
     for (const item of registeredItems.values()) {
-      item.index = index++
+      item.index.value = index++
     }
   }
 
   function register (item?: Partial<RegistrarItem<U>>): RegistrarTicket<U> {
-    const id = item?.id ?? crypto.randomUUID()
-    const index = registeredItems.size
-
     const registrant = {
-      ...item,
-      id,
-    } as RegistrarItem<U>
-
-    registeredItems.set(id, registrant as any)
-
-    return {
-      id,
-      index,
-      ...item,
+      id: item?.id ?? crypto.randomUUID(),
+      index: shallowRef(registeredItems.size),
     } as RegistrarTicket<U>
+
+    registeredItems.set(registrant.id, registrant as any)
+
+    return registrant
   }
 
-  function unregister (id: string | number) {
+  function unregister (id: ID) {
     registeredItems.delete(id)
     reindex()
   }

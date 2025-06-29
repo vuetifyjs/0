@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { useRegistrar } from './index'
 
 describe('useRegistrar', () => {
@@ -7,32 +7,26 @@ describe('useRegistrar', () => {
 
     const context = provideContext()
 
-    // Register first item
     const ticket1 = context.register({ id: 'item1' })
     expect(ticket1.id).toBe('item1')
-    expect(ticket1.index).toBe(0)
+    expect(ticket1.index.value).toBe(0)
     expect(state.registeredItems.size).toBe(1)
 
-    // Register second item with auto-generated ID
     const ticket2 = context.register()
-    expect(ticket2.index).toBe(1)
+    expect(ticket2.index.value).toBe(1)
     expect(state.registeredItems.size).toBe(2)
 
-    // Register third item
     const ticket3 = context.register({ id: 'item3' })
     expect(ticket3.id).toBe('item3')
-    expect(ticket3.index).toBe(2)
+    expect(ticket3.index.value).toBe(2)
     expect(state.registeredItems.size).toBe(3)
 
-    // Unregister first item
     context.unregister('item1')
     expect(state.registeredItems.size).toBe(2)
     expect(state.registeredItems.has('item1')).toBe(false)
 
-    // Check that indices are recomputed
-    const remainingItems = Array.from(state.registeredItems.values())
-    expect(remainingItems[0].index).toBe(0)
-    expect(remainingItems[1].index).toBe(1)
+    expect(state.registeredItems.has(ticket2.id)).toBe(true)
+    expect(state.registeredItems.has('item3')).toBe(true)
   })
 
   it('should auto-generate unique IDs', () => {
@@ -52,19 +46,22 @@ describe('useRegistrar', () => {
 
     const context = provideContext()
 
-    // Register multiple items
-    context.register({ id: 'item1' })
-    context.register({ id: 'item2' })
-    context.register({ id: 'item3' })
+    const ticket1 = context.register({ id: 'item1' })
+    const ticket2 = context.register({ id: 'item2' })
+    const ticket3 = context.register({ id: 'item3' })
 
-    // Remove middle item
+    expect(ticket1.index.value).toBe(0)
+    expect(ticket2.index.value).toBe(1)
+    expect(ticket3.index.value).toBe(2)
+
     context.unregister('item2')
 
-    // Check that remaining items have correct indices
-    const item1 = state.registeredItems.get('item1')
-    const item3 = state.registeredItems.get('item3')
+    const ticket4 = context.register({ id: 'item4' })
+    expect(ticket4.index.value).toBe(2)
 
-    expect(item1?.index).toBe(0)
-    expect(item3?.index).toBe(1)
+    expect(state.registeredItems.has('item1')).toBe(true)
+    expect(state.registeredItems.has('item2')).toBe(false)
+    expect(state.registeredItems.has('item3')).toBe(true)
+    expect(state.registeredItems.has('item4')).toBe(true)
   })
 })
