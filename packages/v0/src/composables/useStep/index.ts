@@ -1,18 +1,26 @@
-import { useGroup, type GroupContext, type GroupOptions, type GroupState } from '../useGroup'
-import { toRef, type Ref } from 'vue'
+// Composables
+import { useGroup } from '../useGroup'
+
+// Utilities
+import { toRef } from 'vue'
+
+// Types
+import type { GroupContext, GroupItem, GroupOptions, GroupTicket } from '../useGroup'
+import type { Ref } from 'vue'
+
+export interface StepItem extends GroupItem {}
+
+export interface StepTicket extends GroupTicket {}
 
 export interface StepOptions extends Omit<GroupOptions, 'multiple'> {}
 
 export interface StepContext extends GroupContext {
+  currentItem: Ref<any>
   first: () => void
   last: () => void
   next: () => void
   prev: () => void
   step: (count: number) => void
-}
-
-export interface StepState extends GroupState {
-  currentItem: Ref<any>
 }
 
 export function useStep<T extends StepContext> (
@@ -22,40 +30,40 @@ export function useStep<T extends StepContext> (
   const [
     useGroupContext,
     provideGroupContext,
-    groupState,
-  ] = useGroup<StepContext>(namespace, options)
+    group,
+  ] = useGroup<T>(namespace, options)
 
-  const currentItem = toRef(() => groupState.selectedItems.value.values().next().value)
+  const currentItem = toRef(() => group.selectedItems.value.values().next().value)
   const currentIndex = toRef(() => currentItem.value?.index ?? -1)
 
   function getIdByIndex (index: number) {
-    for (const [id, item] of groupState.registeredItems) {
+    for (const [id, item] of group.registeredItems) {
       if (item.index === index) return id
     }
     return undefined
   }
 
   function first () {
-    if (groupState.registeredItems.size === 0) return
+    if (group.registeredItems.size === 0) return
 
     const firstId = getIdByIndex(0)
 
     if (firstId === undefined) return
 
-    groupState.selectedIds.clear()
-    groupState.selectedIds.add(firstId)
+    group.selectedIds.clear()
+    group.selectedIds.add(firstId)
   }
 
   function last () {
-    if (groupState.registeredItems.size === 0) return
+    if (group.registeredItems.size === 0) return
 
-    const lastIndex = groupState.registeredItems.size - 1
+    const lastIndex = group.registeredItems.size - 1
     const lastId = getIdByIndex(lastIndex)
 
     if (lastId === undefined) return
 
-    groupState.selectedIds.clear()
-    groupState.selectedIds.add(lastId)
+    group.selectedIds.clear()
+    group.selectedIds.add(lastId)
   }
 
   function next () {
@@ -63,38 +71,39 @@ export function useStep<T extends StepContext> (
   }
 
   function prev () {
-    step(groupState.registeredItems.size - 1)
+    step(group.registeredItems.size - 1)
   }
 
   function step (count: number) {
-    if (groupState.registeredItems.size === 0) return
+    if (group.registeredItems.size === 0) return
 
     const current = currentIndex.value
-    const newIndex = ((current + count) % groupState.registeredItems.size + groupState.registeredItems.size) % groupState.registeredItems.size
+    const newIndex = ((current + count) % group.registeredItems.size + group.registeredItems.size) % group.registeredItems.size
     const newId = getIdByIndex(newIndex)
 
     if (newId === undefined) return
 
-    groupState.selectedIds.clear()
-    groupState.selectedIds.add(newId)
+    group.selectedIds.clear()
+    group.selectedIds.add(newId)
   }
+
+  const context = {
+    ...group,
+    currentItem,
+    first,
+    last,
+    next,
+    prev,
+    step,
+  } as T
 
   return [
     useGroupContext,
     function (model?: Ref<unknown | unknown[]>) {
-      const group = provideGroupContext(model, {
-        next,
-        prev,
-        step,
-        first,
-        last,
-      }) as T
+      provideGroupContext(model, context)
 
-      return group
+      return context
     },
-    {
-      ...groupState,
-      currentItem,
-    } as StepState,
+    context,
   ] as const
 }

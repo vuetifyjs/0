@@ -2,53 +2,51 @@
 import { useContext } from '../useContext'
 
 // Utilities
-import { shallowReactive, shallowRef } from 'vue'
+import { reactive } from 'vue'
 
 // Types
-import type { GenericObject, ID } from '#v0/types'
-import type { ShallowReactive, ShallowRef } from 'vue'
+import type { ID } from '#v0/types'
+import type { Reactive } from 'vue'
 
-export type RegistrarItem<T extends GenericObject = {}> = {
-  id?: ID
-} & T
-
-export type RegistrarTicket<T extends GenericObject = {}> = {
+export interface RegistrarItem {
   id: ID
-  index: ShallowRef<number>
-} & T
-
-export interface RegistrarContext<U extends GenericObject = {}> {
-  register: (item?: Partial<RegistrarItem<U>>) => RegistrarTicket<U>
-  unregister: (id: ID) => void
 }
 
-export interface RegistrarState<U extends GenericObject = {}> {
-  registeredItems: ShallowReactive<Map<ID, RegistrarTicket<U>>>
-  register: (item?: Partial<RegistrarItem<U>>) => RegistrarTicket<U>
+export interface RegistrarTicket extends RegistrarItem {
+  index: number
+}
+
+export interface RegistrarContext<
+  R extends RegistrarItem = RegistrarItem,
+  T extends RegistrarTicket = RegistrarTicket,
+> {
+  registeredItems: Reactive<Map<ID, T>>
+  register: (item?: Partial<R>) => Reactive<T>
   unregister: (id: ID) => void
   reindex: () => void
 }
 
 export function useRegistrar<
-  U extends GenericObject = {},
-  T extends RegistrarContext<U> = RegistrarContext<U>,
+  R extends RegistrarItem,
+  T extends RegistrarTicket,
+  U extends RegistrarContext,
 > (namespace: string) {
-  const [useRegistrarContext, provideRegistrarContext] = useContext<T>(namespace)
+  const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
 
-  const registeredItems = shallowReactive(new Map<ID, RegistrarTicket<U>>())
+  const registeredItems = reactive(new Map<ID, T>())
 
   function reindex () {
     let index = 0
     for (const item of registeredItems.values()) {
-      item.index.value = index++
+      item.index = index++
     }
   }
 
-  function register (item?: Partial<RegistrarItem<U>>): RegistrarTicket<U> {
-    const registrant = {
+  function register (item?: Partial<R>): Reactive<T> {
+    const registrant = reactive({
       id: item?.id ?? crypto.randomUUID(),
-      index: shallowRef(registeredItems.size),
-    } as RegistrarTicket<U>
+      index: registeredItems.size,
+    }) as Reactive<T>
 
     registeredItems.set(registrant.id, registrant as any)
 
@@ -60,24 +58,21 @@ export function useRegistrar<
     reindex()
   }
 
+  const context = {
+    registeredItems,
+    register,
+    unregister,
+    reindex,
+  } as unknown as U
+
   return [
     useRegistrarContext,
-    function provideRegistrar (context?: Omit<T, keyof RegistrarContext<U>>) {
-      const registrar = {
-        register,
-        unregister,
-        ...context,
-      } as T
+    function provideRegistrar (_context?: U) {
+      provideRegistrarContext(_context ?? context,
+      )
 
-      provideRegistrarContext(registrar)
-
-      return registrar
+      return _context ?? context
     },
-    {
-      registeredItems,
-      register,
-      unregister,
-      reindex,
-    } as RegistrarState<U>,
+    context,
   ] as const
 }

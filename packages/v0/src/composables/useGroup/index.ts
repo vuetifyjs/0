@@ -5,33 +5,30 @@ import { useRegistrar } from '../useRegistrar'
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarItem } from '../useRegistrar'
+import type { ComputedGetter, ComputedRef, Reactive, Ref, ShallowRef } from 'vue'
+import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '../useRegistrar'
+import type { ID } from '#v0/types'
 
-export interface GroupItemExtension {
+export interface GroupItem extends RegistrarItem {
+  disabled: boolean
+  value: unknown
+}
+
+export interface GroupTicket extends RegistrarTicket {
   disabled: boolean
   value: unknown
   valueIsIndex: boolean
-}
-
-export type GroupItem = RegistrarItem<GroupItemExtension>
-
-export interface GroupTicket {
-  isActive: Ref<boolean>
-  index: Ref<number>
+  isActive: Readonly<ComputedGetter<boolean>>
   toggle: () => void
 }
 
-export interface GroupContext extends RegistrarContext<GroupItemExtension> {
-  mandate: () => void
-  select: (ids: GroupItem['id'] | GroupItem['id'][]) => void
-}
-
-export interface GroupState {
-  selectedIds: Reactive<Set<GroupItem['id']>>
-  selectedItems: ComputedRef<Set<GroupItem>>
+export interface GroupContext extends RegistrarContext<GroupItem, GroupTicket> {
+  selectedItems: ComputedRef<Set<GroupTicket | undefined>>
+  selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
-  registeredItems: Reactive<Map<GroupItem['id'], GroupItem>>
+  mandate: () => void
+  select: (ids: ID | ID[]) => void
+  reset: () => void
 }
 
 export type GroupOptions = {
@@ -48,15 +45,14 @@ export function useGroup<T extends GroupContext> (
     useGroupContext,
     provideGroupContext,
     registrar,
-  ] = useRegistrar<GroupItemExtension, GroupContext>(namespace)
+  ] = useRegistrar<GroupItem, GroupTicket, GroupContext>(namespace)
 
-  const { registeredItems, register: _register, unregister: _unregister, reindex } = registrar
-  const selectedIds = reactive(new Set<GroupItem['id']>())
+  const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
 
   const selectedItems = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registeredItems.get(id)),
+      Array.from(selectedIds).map(id => registrar.registeredItems.get(id)),
     )
   })
 
@@ -67,19 +63,30 @@ export function useGroup<T extends GroupContext> (
   })
 
   function mandate () {
-    if (!options?.mandatory || selectedIds.size > 0 || registeredItems.size === 0) return
+    if (!options?.mandatory || selectedIds.size > 0 || registrar.registeredItems.size === 0) return
 
     if (options.mandatory === 'force') {
-      const first = registeredItems.values().next().value
+      const first = registrar.registeredItems.values().next().value
       if (first) selectedIds.add(first.id)
       return
     }
 
-    for (const item of registeredItems.values()) {
+    for (const item of registrar.registeredItems.values()) {
       if (item.disabled) continue
 
       selectedIds.add(item.id)
       break
+    }
+  }
+
+  function reindex () {
+    let index = 0
+    for (const item of registrar.registeredItems.values()) {
+      item.index = index++
+
+      if (item.valueIsIndex) {
+        item.value = item.index
+      }
     }
   }
 
@@ -89,15 +96,15 @@ export function useGroup<T extends GroupContext> (
     mandate()
   }
 
-  function select (ids: GroupItem['id'] | GroupItem['id'][]) {
+  function select (ids: ID | ID[]) {
     toggle(ids)
   }
 
-  function toggle (ids: GroupItem['id'] | GroupItem['id'][]) {
+  function toggle (ids: ID | ID[]) {
     for (const id of Array.isArray(ids) ? ids : [ids]) {
       if (!id) continue
 
-      const item = registeredItems.get(id)
+      const item = registrar.registeredItems.get(id)
 
       if (!item || item.disabled) continue
 
@@ -121,15 +128,14 @@ export function useGroup<T extends GroupContext> (
     }
   }
 
-  function register (item?: Partial<GroupItem>): GroupTicket {
-    const groupItem = {
-      ...item,
-      disabled: item?.disabled ?? false,
-      value: item?.value ?? registeredItems.size,
-      valueIsIndex: item?.valueIsIndex ?? item?.value == null,
-    }
+  function register (item?: Partial<GroupItem>): Reactive<GroupTicket> {
+    const ticket = registrar.register(item)
 
-    const ticket = _register(groupItem)
+    ticket.disabled = item?.disabled ?? false
+    ticket.value = item?.value ?? ticket.index
+    ticket.valueIsIndex = item?.value == null
+    ticket.isActive = toRef(() => selectedIds.has(ticket.id))
+    ticket.toggle = () => toggle(ticket.id)
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
@@ -141,16 +147,12 @@ export function useGroup<T extends GroupContext> (
 
     if (options?.mandatory === 'force') mandate()
 
-    return {
-      isActive: toRef(() => selectedIds.has(ticket.id)),
-      index: toRef(() => registeredItems.get(ticket.id)?.index ?? 0),
-      toggle: () => toggle(ticket.id),
-    }
+    return ticket
   }
 
-  function unregister (id: GroupItem['id']) {
+  function unregister (id: ID) {
     selectedIds.delete(id)
-    _unregister(id)
+    registrar.unregister(id)
   }
 
   if (getCurrentInstance()) {
@@ -159,11 +161,24 @@ export function useGroup<T extends GroupContext> (
     })
   }
 
+  const context = {
+    ...registrar,
+    selectedItems,
+    selectedIds,
+    selectedValues,
+    register,
+    unregister,
+    reset,
+    reindex,
+    mandate,
+    select,
+  } as unknown as T
+
   return [
     useGroupContext,
     function (
       model?: Ref<unknown | unknown[]>,
-      context?: Omit<T, keyof GroupContext>,
+      _context?: T,
     ) {
       let isUpdatingModel = false
 
@@ -191,7 +206,7 @@ export function useGroup<T extends GroupContext> (
           selectedIds.clear()
 
           for (const val of values) {
-            for (const [id, item] of registeredItems) {
+            for (const [id, item] of registrar.registeredItems) {
               if (item.value !== val) continue
 
               selectedIds.add(id)
@@ -210,24 +225,10 @@ export function useGroup<T extends GroupContext> (
         })
       }
 
-      const group = {
-        register,
-        unregister,
-        reset,
-        mandate,
-        select,
-        ...context,
-      } as unknown as T
+      provideGroupContext(_context ?? context)
 
-      provideGroupContext(group)
-
-      return group
+      return _context ?? context
     },
-    {
-      selectedItems,
-      selectedIds,
-      selectedValues,
-      registeredItems,
-    } as GroupState,
+    context,
   ] as const
 }

@@ -123,13 +123,13 @@ declare global {
   export type { AvatarItem, AvatarTicket, AvatarContext, AvatarState } from '../../packages/v0/src/composables/useAvatar/index'
   import('../../packages/v0/src/composables/useAvatar/index')
   // @ts-ignore
-  export type { GroupItemExtension, GroupItem, GroupTicket, GroupContext, GroupState, GroupOptions } from '../../packages/v0/src/composables/useGroup/index'
+  export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/v0/src/composables/useGroup/index'
   import('../../packages/v0/src/composables/useGroup/index')
   // @ts-ignore
   export type { KeyHandler } from '../../packages/v0/src/composables/useKeydown/index'
   import('../../packages/v0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { RegistrarItem, RegistrarTicket, RegistrarContext, RegistrarState } from '../../packages/v0/src/composables/useRegistrar/index'
+  export type { RegistrarItem, RegistrarTicket, RegistrarItems, RegistrarContext } from '../../packages/v0/src/composables/useRegistrar/index'
   import('../../packages/v0/src/composables/useRegistrar/index')
   // @ts-ignore
   export type { StepOptions, StepContext, StepState } from '../../packages/v0/src/composables/useStep/index'
