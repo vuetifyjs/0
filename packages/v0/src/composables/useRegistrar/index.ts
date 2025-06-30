@@ -67,11 +67,10 @@ export function useRegistrar<
 
   return [
     useRegistrarContext,
-    function provideRegistrar (_context?: U) {
-      provideRegistrarContext(_context ?? context,
-      )
+    function provideRegistrar (_context: U = context) {
+      provideRegistrarContext(_context)
 
-      return _context ?? context
+      return _context
     },
     context,
   ] as const

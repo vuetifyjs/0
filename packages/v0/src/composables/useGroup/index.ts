@@ -178,7 +178,7 @@ export function useGroup<T extends GroupContext> (
     useGroupContext,
     function (
       model?: Ref<unknown | unknown[]>,
-      _context?: T,
+      _context: T = context,
     ) {
       let isUpdatingModel = false
 
@@ -225,9 +225,9 @@ export function useGroup<T extends GroupContext> (
         })
       }
 
-      provideGroupContext(_context ?? context)
+      provideGroupContext(_context)
 
-      return _context ?? context
+      return _context
     },
     context,
   ] as const
