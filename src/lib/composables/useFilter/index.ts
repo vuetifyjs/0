@@ -1,9 +1,9 @@
 import type { ComputedRef, Ref } from 'vue'
 import { computed, isRef } from 'vue'
 
-export type FilterQuery = string | Ref<string>
+export type FilterQuery = string | Ref<string> | number | Ref<number> | boolean | Ref<boolean>
 export type FilterItem = string | number | boolean | Record<string, any>
-export type FilterFunction = (query: string, item: FilterItem) => boolean
+export type FilterFunction = (query: FilterQuery, item: FilterItem) => boolean
 
 export interface UseFilterOptions {
   customFilter?: FilterFunction
@@ -14,15 +14,15 @@ export interface UseFilterResult<T extends FilterItem = FilterItem> {
   items: ComputedRef<T[]>
 }
 
-function defaultFilter (query: string, item: FilterItem, keys?: string[]): boolean {
+function defaultFilter (query: FilterQuery, item: FilterItem, keys?: string[]): boolean {
   if (['string', 'number', 'boolean'].includes(typeof item)) {
-    return String(item).toLowerCase().includes(query.toLowerCase())
+    return String(item).toLowerCase().includes(String(query).toLowerCase())
   }
 
   if (typeof item === 'object' && item !== null) {
     const values = keys?.length ? keys.map(k => item[k]) : Object.values(item)
     return values.some(value =>
-      String(value).toLowerCase().includes(query.toLowerCase()),
+      String(value).toLowerCase().includes(String(query).toLowerCase()),
     )
   }
 
