@@ -1,3 +1,8 @@
+<script lang="ts" setup>
+  import { Atom, Group } from '@vuetify/v0'
+  const yes = ref(true)
+</script>
+
 <template>
   <div class="m-4">
     <Atom v-slot="slotProps" :props="{ value: 'Atom' }">
@@ -49,8 +54,3 @@
     </Group.Root>
   </div>
 </template>
-
-<script lang="ts" setup>
-  import { Atom, Group } from '@vuetify/v0'
-  const yes = ref(true)
-</script>
