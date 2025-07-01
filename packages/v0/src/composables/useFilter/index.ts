@@ -69,8 +69,12 @@ export function useFilter<T extends FilterItem> (
 
   const filteredItems = computed(() => {
     const q = queryRef.value
-    if (!q || (Array.isArray(q) && q.length === 0)) return itemsRef.value
-    return itemsRef.value.filter(item => filterFunction(q, item))
+    const queries = (Array.isArray(q) ? q : [q]).filter(q => String(q).trim())
+
+    if (queries.length === 0) return itemsRef.value
+    return itemsRef.value.filter(item =>
+      filterFunction(queries.length === 1 ? queries[0] : queries, item),
+    )
   })
 
   return {
