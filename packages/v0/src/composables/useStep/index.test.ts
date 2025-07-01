@@ -4,10 +4,10 @@ import { useStep } from './index'
 describe('useStep', () => {
   describe('basic functionality', () => {
     it('should return useContext, provideContext, and state', () => {
-      const [useCtx, provideCtx, stepState] = useStep('test')
+      const [useStepContext, provideStepContext, stepState] = useStep('test')
 
-      expect(typeof useCtx).toBe('function')
-      expect(typeof provideCtx).toBe('function')
+      expect(typeof useStepContext).toBe('function')
+      expect(typeof provideStepContext).toBe('function')
       expect(stepState).toHaveProperty('selectedIds')
       expect(stepState).toHaveProperty('selectedItems')
       expect(stepState).toHaveProperty('selectedValues')
@@ -72,9 +72,9 @@ describe('useStep', () => {
     })
 
     it('should navigate to first item', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
 
       context.select('item2')
       expect(state.selectedIds.has('item2')).toBe(true)
@@ -87,9 +87,9 @@ describe('useStep', () => {
     })
 
     it('should navigate to last item', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
 
       context.select('item1')
       expect(state.selectedIds.has('item1')).toBe(true)
@@ -102,9 +102,9 @@ describe('useStep', () => {
     })
 
     it('should navigate to next item', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
 
       context.select('item1')
       expect(state.selectedIds.has('item1')).toBe(true)
@@ -117,9 +117,9 @@ describe('useStep', () => {
     })
 
     it('should wrap around when navigating next from last item', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
 
       context.select('item3')
       expect(state.selectedIds.has('item3')).toBe(true)
@@ -132,9 +132,9 @@ describe('useStep', () => {
     })
 
     it('should navigate to previous item', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
 
       context.select('item2')
       expect(state.selectedIds.has('item2')).toBe(true)
@@ -147,9 +147,9 @@ describe('useStep', () => {
     })
 
     it('should wrap around when navigating prev from first item', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
 
       context.select('item1')
       expect(state.selectedIds.has('item1')).toBe(true)
@@ -162,10 +162,10 @@ describe('useStep', () => {
     })
 
     it('should navigate by specific step count', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
-      const ticket4 = context.register({ id: 'item4' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
+      context.register({ id: 'item4' })
 
       context.select('item1')
       expect(state.selectedIds.has('item1')).toBe(true)
@@ -179,9 +179,9 @@ describe('useStep', () => {
     })
 
     it.skip('should wrap around when stepping beyond bounds', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
 
       context.select('item2')
       expect(state.selectedIds.has('item2')).toBe(true)
@@ -207,7 +207,7 @@ describe('useStep', () => {
     })
 
     it('should handle navigation with single item', () => {
-      const ticket1 = context.register({ id: 'item1' })
+      context.register({ id: 'item1' })
 
       context.first()
       expect(state.selectedIds.has('item1')).toBe(true)
@@ -231,8 +231,8 @@ describe('useStep', () => {
     })
 
     it('should handle navigation from no current selection', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
 
       context.next()
       expect(state.selectedIds.has('item1')).toBe(true)
@@ -241,9 +241,9 @@ describe('useStep', () => {
     })
 
     it('should handle negative step counts', () => {
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
+      context.register({ id: 'item3' })
 
       context.select('item2')
       expect(state.selectedIds.has('item2')).toBe(true)
@@ -262,8 +262,8 @@ describe('useStep', () => {
 
       expect(state.currentItem.value).toBeUndefined()
 
-      const ticket1 = context.register({ id: 'item1', value: 'value1' })
-      const ticket2 = context.register({ id: 'item2', value: 'value2' })
+      context.register({ id: 'item1', value: 'value1' })
+      context.register({ id: 'item2', value: 'value2' })
 
       context.select('item2')
       expect(state.currentItem.value?.id).toBe('item2')
@@ -280,9 +280,9 @@ describe('useStep', () => {
       const [, provideStepContext, state] = useStep('test')
       const context = provideStepContext()
 
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2', disabled: true })
-      const ticket3 = context.register({ id: 'item3' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2', disabled: true })
+      context.register({ id: 'item3' })
 
       context.select('item1')
       context.next() // Should skip disabled item2 and go to item3
@@ -296,8 +296,8 @@ describe('useStep', () => {
       const [, provideStepContext, state] = useStep('test')
       const context = provideStepContext()
 
-      const ticket1 = context.register({ id: 'item1' })
-      const ticket2 = context.register({ id: 'item2' })
+      context.register({ id: 'item1' })
+      context.register({ id: 'item2' })
 
       context.select('item1')
       expect(state.currentItem.value?.id).toBe('item1')
