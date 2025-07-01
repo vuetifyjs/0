@@ -1,5 +1,8 @@
-import type { ComputedRef, Ref } from 'vue'
+// Utilities
 import { computed, isRef } from 'vue'
+
+// Types
+import type { ComputedRef, Ref } from 'vue'
 
 export type Primitive = string | number | boolean
 export type FilterQuery = Primitive | Primitive[] | Ref<Primitive> | Ref<Primitive[]>
