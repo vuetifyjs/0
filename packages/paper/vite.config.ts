@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
-import Vue from '@vitejs/plugin-vue'
+import Vue from 'unplugin-vue/rolldown'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,7 +9,7 @@ export default defineConfig({
     enableNativePlugin: true,
   },
   plugins: [
-    Vue(),
+    Vue({ isProduction: true }),
   ],
   define: { 'process.env': {} },
   resolve: {

@@ -17,7 +17,7 @@
     "vue": ">=3.3.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "catalog:",
+    "unplugin-vue": "catalog:",
     "vite": "catalog:"
   }
 }

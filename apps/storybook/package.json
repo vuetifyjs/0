@@ -10,9 +10,9 @@
   },
   "devDependencies": {
     "@storybook/vue3-vite": "^9.0.13",
-    "@vitejs/plugin-vue": "catalog:",
     "storybook": "^9.0.13",
     "unocss": "^66.3.2",
+    "unplugin-vue": "catalog:",
     "vite": "catalog:",
     "vue": "catalog:"
   }

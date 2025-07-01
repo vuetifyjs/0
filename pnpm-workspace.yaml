@@ -4,12 +4,12 @@ packages:
   - playground
 
 catalog:
-  '@vitejs/plugin-vue': ^6.0.0
   vue: ^3.5.17
   vite: npm:rolldown-vite@^7.0.3
   typescript: ^5.8.3
   '@vue/tsconfig': ^0.7.0
   '@tsconfig/node22': ^22.0.2
+  unplugin-vue: ^6.2.0
 
 onlyBuiltDependencies:
   - esbuild

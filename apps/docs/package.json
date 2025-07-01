@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "catalog:",
     "unocss": "^66.3.2",
+    "unplugin-vue": "catalog:",
     "vite": "catalog:"
   },
   "dependencies": {
