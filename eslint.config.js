@@ -1,17 +1,33 @@
+import vuetify from 'eslint-config-vuetify'
 import storybook from 'eslint-plugin-storybook'
 
-import vuetify from 'eslint-config-vuetify'
-
 export default vuetify({
+  vue: true,
   perfectionist: {
     import: false,
   },
+  autoimports: false,
 },
 {
   rules: {
     'import/first': 'off',
     'curly': 'off',
     '@stylistic/operator-linebreak': 'off',
+  },
+},
+{
+  files: ['**/*.ts'],
+  rules: {
+    '@typescript-eslint/consistent-type-imports': ['error', {
+      prefer: 'type-imports',
+      disallowTypeAnnotations: false,
+    }],
+  },
+},
+{
+  files: ['**/*.vue'],
+  rules: {
+    'vue/block-order': ['warn', { order: ['script', 'template', 'style'] }],
   },
 },
 ...storybook.configs['flat/recommended'],

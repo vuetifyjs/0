@@ -4,43 +4,38 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "dev": "pnpm --filter=playground dev",
+    "build": "pnpm --filter=v0 --filter=paper build",
     "preview": "vite preview",
     "type-check": "vue-tsc -b",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "storybook": "STORYBOOK=1 storybook dev -p 6006",
-    "build-storybook": "STORYBOOK=1 storybook build",
+    "storybook": "pnpm --filter=storybook dev",
+    "build:storybook": "pnpm --filter=storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "dev:docs": "pnpm --filter=docs dev",
+    "build:docs": "pnpm --filter=docs build"
   },
-  "dependencies": {
-    "unocss": "^66.2.3",
-    "vue": "^3.5.16"
+  "engines": {
+    "node": ">=20.19 || >=22",
+    "pnpm": ">=10.6"
   },
   "devDependencies": {
-    "@storybook/vue3-vite": "^9.0.13",
-    "@tsconfig/node20": "^20.1.5",
-    "@types/node": "^22.15.29",
-    "@vitejs/plugin-vue": "^5.2.4",
+    "@tsconfig/node22": "catalog:",
+    "@types/node": "^24.0.4",
     "@vitest/coverage-v8": "3.2.4",
     "@vue/test-utils": "^2.4.6",
-    "@vue/tsconfig": "^0.7.0",
+    "@vue/tsconfig": "catalog:",
     "eslint": "^9.29.0",
     "eslint-config-vuetify": "4.1.0-0",
     "eslint-plugin-storybook": "^9.0.13",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "happy-dom": "^18.0.1",
-    "sass-embedded": "1.89.2",
-    "storybook": "^9.0.13",
-    "typescript": "~5.8.3",
-    "unplugin-auto-import": "^19.3.0",
-    "unplugin-vue-components": "^28.7.0",
-    "vite": "npm:rolldown-vite@7.0.1",
+    "typescript": "catalog:",
     "vitest": "^3.2.4",
     "vue-tsc": "^2.2.10"
   },
-  "packageManager": "pnpm@10.11.1"
+  "packageManager": "pnpm@10.12.4"
 }
