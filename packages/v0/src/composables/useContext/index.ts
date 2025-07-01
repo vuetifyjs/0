@@ -1,4 +1,8 @@
-import { inject, provide, type InjectionKey } from 'vue'
+// Utilities
+import { inject, provide } from 'vue'
+
+// Types
+import type { InjectionKey } from 'vue'
 
 export function useContext<T> (key: InjectionKey<T> | string) {
   function provideContext (value: T) {

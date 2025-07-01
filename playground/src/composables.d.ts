@@ -129,10 +129,10 @@ declare global {
   export type { KeyHandler } from '../../packages/v0/src/composables/useKeydown/index'
   import('../../packages/v0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { RegistrarItem, RegistrarTicket, RegistrarItems, RegistrarContext } from '../../packages/v0/src/composables/useRegistrar/index'
+  export type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../../packages/v0/src/composables/useRegistrar/index'
   import('../../packages/v0/src/composables/useRegistrar/index')
   // @ts-ignore
-  export type { StepOptions, StepContext, StepState } from '../../packages/v0/src/composables/useStep/index'
+  export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/v0/src/composables/useStep/index'
   import('../../packages/v0/src/composables/useStep/index')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/v0/src/constants/htmlElements'
