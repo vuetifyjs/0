@@ -63,4 +63,27 @@ describe('useFilter', () => {
     const { items: filtered } = useFilter('apple', prim)
     expect(filtered.value).toEqual(['apple', 'apple pie'])
   })
+
+  it('works with getter functions for query', () => {
+    const searchTerm = ref('apple')
+    const { items: filtered } = useFilter(() => searchTerm.value, items)
+    expect(filtered.value).toHaveLength(3)
+
+    searchTerm.value = 'banana'
+    expect(filtered.value).toHaveLength(1)
+    expect(filtered.value[0].name).toBe('banana')
+  })
+
+  it('works with array getter functions for query', () => {
+    const searchTerms = ref(['banana', 'orange'])
+    const { items: filtered } = useFilter(() => searchTerms.value, items, {
+      keys: ['name', 'color'],
+      mode: 'union',
+    })
+    expect(filtered.value).toHaveLength(2)
+    expect(filtered.value.map(i => i.name)).toEqual(expect.arrayContaining(['carrot', 'banana']))
+
+    searchTerms.value = ['apple']
+    expect(filtered.value).toHaveLength(3)
+  })
 })

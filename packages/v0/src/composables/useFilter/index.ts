@@ -1,11 +1,11 @@
 // Utilities
-import { computed, isRef } from 'vue'
+import { computed, isRef, toRef, toValue } from 'vue'
 
 // Types
-import type { ComputedRef, Ref } from 'vue'
+import type { ComputedRef, Ref, MaybeRefOrGetter, MaybeRef } from 'vue'
 
 export type Primitive = string | number | boolean
-export type FilterQuery = Primitive | Primitive[] | Ref<Primitive> | Ref<Primitive[]>
+export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>
 export type FilterItem = Primitive | Record<string, any>
 export type FilterMode = 'some' | 'every' | 'union' | 'intersection'
 export type FilterFunction = (query: Primitive | Primitive[], item: FilterItem) => boolean
@@ -59,24 +59,30 @@ function defaultFilter (
   return false
 }
 
+function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
+  return isRef(value) ? value : (typeof value === 'function' ? toRef(value as () => T) : toRef(() => value as T))
+}
+
 export function useFilter<T extends FilterItem> (
   query: FilterQuery,
-  items: Ref<T[]> | T[],
+  items: MaybeRef<T[]>,
   options: UseFilterOptions = {},
 ): UseFilterResult<T> {
   const { customFilter, keys, mode = 'some' } = options
   const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys, mode))
 
-  const itemsRef = isRef(items) ? items : computed(() => items)
-  const queryRef = isRef(query) ? query : computed(() => query)
+  const itemsRef = isRef(items) ? items : toRef(() => items)
+  const queryRef = toRefOrGetter(query)
 
   const filteredItems = computed(() => {
-    const q = queryRef.value
+    const q = toValue(queryRef)
     const queries = (Array.isArray(q) ? q : [q]).filter(q => String(q).trim())
 
     if (queries.length === 0) return itemsRef.value
+
+    const queryParam = queries.length === 1 ? queries[0] : queries
     return itemsRef.value.filter(item =>
-      filterFunction(queries.length === 1 ? queries[0] : queries, item),
+      filterFunction(queryParam, item),
     )
   })
 
