@@ -1,6 +1,5 @@
-import storybook from 'eslint-plugin-storybook'
-
 import vuetify from 'eslint-config-vuetify'
+import storybook from 'eslint-plugin-storybook'
 
 export default vuetify({
   vue: true,
@@ -14,6 +13,15 @@ export default vuetify({
     'import/first': 'off',
     'curly': 'off',
     '@stylistic/operator-linebreak': 'off',
+  },
+},
+{
+  files: ['**/*.ts'],
+  rules: {
+    '@typescript-eslint/consistent-type-imports': ['error', {
+      prefer: 'type-imports',
+      disallowTypeAnnotations: false,
+    }],
   },
 },
 {
