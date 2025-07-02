@@ -172,7 +172,7 @@ export function useGroup<T extends GroupContext> (
     reindex,
     mandate,
     select,
-  } as unknown as T
+  } as T
 
   return [
     useGroupContext,
