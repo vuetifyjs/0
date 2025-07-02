@@ -34,19 +34,18 @@ const handlerMap: Map<ID, KeyHandler> = new Map()
 
 function startGlobalListener () {
   if (typeof document === 'undefined') return
+  if (globalListener) return
 
-  if (!globalListener) {
-    globalListener = (event: KeyboardEvent) => {
-      for (const h of handlerMap.values()) {
-        if (h.key === event.key) {
-          if (h.preventDefault) event.preventDefault()
-          if (h.stopPropagation) event.stopPropagation()
-          h.handler(event)
-        }
+  globalListener = (event: KeyboardEvent) => {
+    for (const h of handlerMap.values()) {
+      if (h.key === event.key) {
+        if (h.preventDefault) event.preventDefault()
+        if (h.stopPropagation) event.stopPropagation()
+        h.handler(event)
       }
     }
-    document.addEventListener('keydown', globalListener)
   }
+  document.addEventListener('keydown', globalListener)
 }
 
 function stopGlobalListener () {
@@ -74,34 +73,34 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
   const isListening = ref(false)
 
   function startListening () {
-    if (!isListening.value) {
-      const ids = Array.from({ length: keyHandlers.length }, genId)
+    if (isListening.value) return
 
-      for (const [index, id] of ids.entries()) {
-        handlerMap.set(id, keyHandlers[index]!)
-      }
+    const ids = Array.from({ length: keyHandlers.length }, genId)
 
-      handlerIds.value = ids
-
-      if (handlerMap.size > 0) {
-        startGlobalListener()
-      }
-
-      isListening.value = true
+    for (const [index, id] of ids.entries()) {
+      handlerMap.set(id, keyHandlers[index]!)
     }
+
+    handlerIds.value = ids
+
+    if (handlerMap.size > 0) {
+      startGlobalListener()
+    }
+
+    isListening.value = true
   }
 
   function stopListening () {
-    if (isListening.value) {
-      for (const id of handlerIds.value) {
-        handlerMap.delete(id)
-      }
-      handlerIds.value = []
-      isListening.value = false
+    if (!isListening.value) return
 
-      if (handlerMap.size === 0) {
-        stopGlobalListener()
-      }
+    for (const id of handlerIds.value) {
+      handlerMap.delete(id)
+    }
+    handlerIds.value = []
+    isListening.value = false
+
+    if (handlerMap.size === 0) {
+      stopGlobalListener()
     }
   }
 
