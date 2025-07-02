@@ -2,13 +2,13 @@
 import { useContext } from '../useContext'
 
 // Utilities
-import { onMounted, shallowRef, toRef } from 'vue'
+import { onMounted, shallowReadonly, shallowRef } from 'vue'
 
 // Types
-import type { App, ComputedGetter } from 'vue'
+import type { App, ShallowRef } from 'vue'
 
 export interface HydrationContext {
-  isHydrated: Readonly<ComputedGetter<boolean>>
+  isHydrated: Readonly<ShallowRef<boolean>>
   hydrate: () => void
 }
 
@@ -26,7 +26,7 @@ export function createHydration (): HydrationContext {
   })
 
   return {
-    isHydrated: toRef(() => isHydrated.value),
+    isHydrated: shallowReadonly(isHydrated),
     hydrate,
   }
 }
