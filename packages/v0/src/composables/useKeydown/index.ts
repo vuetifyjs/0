@@ -1,4 +1,4 @@
-import { onMounted, getCurrentScope, onScopeDispose, ref, readonly } from 'vue'
+import { onMounted, getCurrentScope, onScopeDispose, ref, shallowReadonly } from 'vue'
 import type { ID } from '#v0/types'
 
 export interface KeyHandler {
@@ -88,7 +88,7 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
   return {
     startListening,
     stopListening,
-    isListening: readonly(isListening),
+    isListening: shallowReadonly(isListening),
   }
 }
 
