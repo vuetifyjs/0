@@ -99,10 +99,13 @@ export function useStep<T extends StepContext> (
 
   return [
     useGroupContext,
-    function (model?: Ref<unknown | unknown[]>) {
-      provideGroupContext(model, context)
+    function (
+      model?: Ref<unknown | unknown[]>,
+      _context: T = context,
+    ) {
+      provideGroupContext(model, _context)
 
-      return context
+      return _context
     },
     context,
   ] as const
