@@ -49,11 +49,13 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
 
   const startListening = () => {
     if (!isListening.value) {
-      handlerIds.value = keyHandlers.map(handler => {
-        const id = crypto.randomUUID()
-        handlerMap.set(id, handler)
-        return id
-      })
+      const ids = Array.from({ length: keyHandlers.length }, () => crypto.randomUUID())
+
+      for (const [index, id] of ids.entries()) {
+        handlerMap.set(id, keyHandlers[index])
+      }
+
+      handlerIds.value = ids
 
       if (handlerMap.size > 0) {
         startGlobalListener()
