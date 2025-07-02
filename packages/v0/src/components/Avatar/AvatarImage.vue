@@ -33,19 +33,18 @@
   const context = useAvatarContext()
 
   const ticket = context.register({
-    type: 'image',
     priority,
+    status: 'loading',
+    type: 'image',
   })
 
-  ticket.setStatus('loading')
-
   function onLoad (e: Event) {
-    ticket.setStatus('loaded')
+    ticket.status = 'loaded'
     emit('load', e)
   }
 
   function onError (e: Event) {
-    ticket.setStatus('error')
+    ticket.status = 'error'
     emit('error', e)
   }
 
@@ -57,7 +56,7 @@
 
 <template>
   <Atom
-    v-show="ticket.isVisible.value"
+    v-show="ticket.isVisible"
     v-slot="slotProps"
     :as
     :props="{
