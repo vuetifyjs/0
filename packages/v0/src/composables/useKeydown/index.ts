@@ -1,7 +1,5 @@
 import { onMounted, getCurrentScope, onScopeDispose, ref, readonly } from 'vue'
-import { useRegistrar } from '../useRegistrar'
 import type { ID } from '#v0/types'
-import type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../useRegistrar'
 
 export interface KeyHandler {
   key: string
@@ -14,36 +12,15 @@ export interface UseKeydownOptions {
   autoStart?: boolean
 }
 
-interface KeydownRegistrarItem extends RegistrarItem {
-  key: string
-  handler: (event: KeyboardEvent) => void
-  preventDefault?: boolean
-  stopPropagation?: boolean
-}
-
-interface KeydownRegistrarTicket extends RegistrarTicket {
-  key: string
-  handler: (event: KeyboardEvent) => void
-  preventDefault?: boolean
-  stopPropagation?: boolean
-}
-
-interface KeydownRegistrarContext extends RegistrarContext<KeydownRegistrarItem, KeydownRegistrarTicket> {}
-
-const [
-  _,
-  __,
-  keydownRegistrar,
-] = useRegistrar<KeydownRegistrarItem, KeydownRegistrarTicket, KeydownRegistrarContext>('keydown')
-
 let globalListener: ((event: KeyboardEvent) => void) | null = null
+const handlerMap: Map<ID, KeyHandler> = new Map()
 
 function startGlobalListener () {
   if (typeof document === 'undefined') return
 
   if (!globalListener) {
     globalListener = (event: KeyboardEvent) => {
-      for (const h of keydownRegistrar.registeredItems.values()) {
+      for (const h of handlerMap.values()) {
         if (h.key === event.key) {
           if (h.preventDefault) event.preventDefault()
           if (h.stopPropagation) event.stopPropagation()
@@ -58,7 +35,7 @@ function startGlobalListener () {
 function stopGlobalListener () {
   if (typeof document === 'undefined') return
 
-  if (globalListener && keydownRegistrar.registeredItems.size === 0) {
+  if (globalListener && handlerMap.size === 0) {
     document.removeEventListener('keydown', globalListener)
     globalListener = null
   }
@@ -73,12 +50,12 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
   const startListening = () => {
     if (!isListening.value) {
       handlerIds.value = keyHandlers.map(handler => {
-        const ticket = keydownRegistrar.register(handler)
-        Object.assign(ticket, handler)
-        return ticket.id
+        const id = crypto.randomUUID()
+        handlerMap.set(id, handler)
+        return id
       })
 
-      if (keydownRegistrar.registeredItems.size > 0) {
+      if (handlerMap.size > 0) {
         startGlobalListener()
       }
 
@@ -88,11 +65,15 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
 
   const stopListening = () => {
     if (isListening.value) {
-      for (const id of handlerIds.value) keydownRegistrar.unregister(id)
+      for (const id of handlerIds.value) {
+        handlerMap.delete(id)
+      }
       handlerIds.value = []
       isListening.value = false
 
-      stopGlobalListener()
+      if (handlerMap.size === 0) {
+        stopGlobalListener()
+      }
     }
   }
 
@@ -109,4 +90,4 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
   }
 }
 
-export { keydownRegistrar }
+export { handlerMap }

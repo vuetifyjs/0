@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { useKeydown, keydownRegistrar } from './index'
+import { useKeydown, handlerMap } from './index'
 
 describe('useKeydown optimization', () => {
   let addEventListenerSpy: ReturnType<typeof vi.spyOn>
@@ -13,9 +13,7 @@ describe('useKeydown optimization', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
-    if (keydownRegistrar && keydownRegistrar.registeredItems.size > 0) {
-      keydownRegistrar.registeredItems.clear()
-    }
+    handlerMap.clear()
   })
 
   it('should create only one global listener for multiple useKeydown calls', () => {
@@ -34,14 +32,14 @@ describe('useKeydown optimization', () => {
     expect(addEventListenerSpy).toHaveBeenCalledTimes(1)
     expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
 
-    expect(keydownRegistrar.registeredItems.size).toBe(3)
+    expect(handlerMap.size).toBe(3)
 
     keydown1.stopListening()
     keydown2.stopListening()
     keydown3.stopListening()
 
     expect(removeEventListenerSpy).toHaveBeenCalledTimes(1)
-    expect(keydownRegistrar.registeredItems.size).toBe(0)
+    expect(handlerMap.size).toBe(0)
   })
 
   it('should handle multiple handlers for the same key', () => {
@@ -81,11 +79,11 @@ describe('useKeydown optimization', () => {
     keydown1.stopListening()
 
     expect(removeEventListenerSpy).not.toHaveBeenCalled()
-    expect(keydownRegistrar.registeredItems.size).toBe(1)
+    expect(handlerMap.size).toBe(1)
 
     keydown2.stopListening()
 
     expect(removeEventListenerSpy).toHaveBeenCalledTimes(1)
-    expect(keydownRegistrar.registeredItems.size).toBe(0)
+    expect(handlerMap.size).toBe(0)
   })
 })
