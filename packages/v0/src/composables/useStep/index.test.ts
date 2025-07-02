@@ -178,7 +178,7 @@ describe('useStep', () => {
       expect(state.currentItem.value?.id).toBe('item3')
     })
 
-    it.skip('should wrap around when stepping beyond bounds', () => {
+    it('should wrap around when stepping beyond bounds', () => {
       context.register({ id: 'item1' })
       context.register({ id: 'item2' })
       context.register({ id: 'item3' })
@@ -186,11 +186,11 @@ describe('useStep', () => {
       context.select('item2')
       expect(state.selectedIds.has('item2')).toBe(true)
 
-      context.step(5) // 2 + 5 = 7, 7 % 3 = 1
-      expect(state.selectedIds.has('item1')).toBe(false)
-      expect(state.selectedIds.has('item2')).toBe(true)
+      context.step(5) // 1 + 5 = 6, 6 % 3 = 0
+      expect(state.selectedIds.has('item1')).toBe(true)
+      expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item2')
+      expect(state.currentItem.value?.id).toBe('item1')
     })
 
     it('should handle navigation with no items registered', () => {
@@ -276,7 +276,7 @@ describe('useStep', () => {
   })
 
   describe('edge cases', () => {
-    it('should maintain step behavior with disabled items', () => {
+    it('skips disabled items when stepping', () => {
       const [, provideStepContext, state] = useStep('test')
       const context = provideStepContext()
 
@@ -285,11 +285,12 @@ describe('useStep', () => {
       context.register({ id: 'item3' })
 
       context.select('item1')
-      context.next() // Should skip disabled item2 and go to item3
+      context.next() // item2 is disabled → item3
 
-      // Note: The current implementation doesn't skip disabled items in navigation
-      // It only prevents manual selection of disabled items
-      expect(state.selectedIds.has('item2')).toBe(true)
+      expect(state.selectedIds.has('item1')).toBe(false)
+      expect(state.selectedIds.has('item2')).toBe(false)
+      expect(state.selectedIds.has('item3')).toBe(true)
+      expect(state.currentItem.value?.id).toBe('item3')
     })
 
     it('should handle unregistering current item', () => {

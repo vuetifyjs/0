@@ -74,17 +74,29 @@ export function useStep<T extends StepContext> (
     step(group.registeredItems.size - 1)
   }
 
-  function step (count: number) {
-    if (group.registeredItems.size === 0) return
+  function wrapped (length: number, index: number) {
+    return (index + length) % length
+  }
 
-    const current = currentIndex.value
-    const newIndex = ((current + count) % group.registeredItems.size + group.registeredItems.size) % group.registeredItems.size
-    const newId = getIdByIndex(newIndex)
+  function step (count = 1) {
+    const length = group.registeredItems.size
+    if (!length) return
 
-    if (newId === undefined) return
+    const direction = Math.sign(count || 1)
+    let hops = 0
+    let index = wrapped(length, currentIndex.value + count)
+    let id = getIdByIndex(index)
+
+    while (id !== undefined && group.registeredItems.get(id)?.disabled && hops < length) {
+      index = wrapped(length, index + direction)
+      id = getIdByIndex(index)
+      hops++
+    }
+
+    if (id === undefined || hops === length) return
 
     group.selectedIds.clear()
-    group.selectedIds.add(newId)
+    group.selectedIds.add(id)
   }
 
   const context = {
