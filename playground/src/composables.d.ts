@@ -120,9 +120,6 @@ declare global {
   export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
-  export type { AvatarItem, AvatarTicket, AvatarContext, AvatarState } from '../../packages/v0/src/composables/useAvatar/index'
-  import('../../packages/v0/src/composables/useAvatar/index')
-  // @ts-ignore
   export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/v0/src/composables/useGroup/index'
   import('../../packages/v0/src/composables/useGroup/index')
   // @ts-ignore
@@ -207,7 +204,6 @@ declare module 'vue' {
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
-    readonly useAvatar: UnwrapRef<typeof import('../../packages/v0/src/composables/useAvatar/index')['useAvatar']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
     readonly useColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['useColor']>
     readonly useContext: UnwrapRef<typeof import('../../packages/v0/src/composables/useContext/index')['useContext']>

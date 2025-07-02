@@ -1,4 +1,3 @@
-export * from './useAvatar'
 export * from './useContext'
 export * from './useGroup'
 export * from './useKeydown'
