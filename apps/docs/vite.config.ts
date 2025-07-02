@@ -1,4 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
+import Layouts from 'vite-plugin-vue-layouts-next'
+import VueRouter from 'unplugin-vue-router/vite'
 
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
@@ -10,8 +12,12 @@ export default defineConfig({
     enableNativePlugin: true,
   },
   plugins: [
+    VueRouter({
+      dts: './src/typed-router.d.ts',
+    }),
     Vue(),
     UnocssVitePlugin(),
+    Layouts(),
   ],
   define: { 'process.env': {} },
   resolve: {

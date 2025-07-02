@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="m-4">
-    Site
+  <div>
+    <router-view />
   </div>
 </template>
