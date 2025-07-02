@@ -5,7 +5,7 @@ import { useRegistrar } from '../useRegistrar'
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { ComputedGetter, ComputedRef, Reactive, Ref, ShallowRef } from 'vue'
+import type { ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
 import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '../useRegistrar'
 import type { ID } from '#v0/types'
 
