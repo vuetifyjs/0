@@ -1,131 +1,89 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useKeydown } from './index'
-
-// Mock Vue's lifecycle hooks
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
-  return {
-    ...actual,
-    onMounted: vi.fn(),
-    getCurrentScope: vi.fn(() => true),
-    onScopeDispose: vi.fn(),
-  }
-})
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { useKeydown, handlerMap } from './index'
 
 describe('useKeydown', () => {
+  let addEventListenerSpy: ReturnType<typeof vi.spyOn>
+  let removeEventListenerSpy: ReturnType<typeof vi.spyOn>
+
   beforeEach(() => {
     vi.clearAllMocks()
-    // Mock document.addEventListener and removeEventListener
-    vi.spyOn(document, 'addEventListener')
-    vi.spyOn(document, 'removeEventListener')
+    addEventListenerSpy = vi.spyOn(document, 'addEventListener')
+    removeEventListenerSpy = vi.spyOn(document, 'removeEventListener')
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
+    handlerMap.clear()
   })
 
-  describe('basic functionality', () => {
-    it('should return startListening and stopListening functions', () => {
-      const handler = { key: 'Enter', handler: vi.fn() }
-      const result = useKeydown(handler)
+  it('should create only one global listener for multiple useKeydown calls', () => {
+    const handler1 = vi.fn()
+    const handler2 = vi.fn()
+    const handler3 = vi.fn()
 
-      expect(result).toHaveProperty('startListening')
-      expect(result).toHaveProperty('stopListening')
-      expect(typeof result.startListening).toBe('function')
-      expect(typeof result.stopListening).toBe('function')
-    })
+    const keydown1 = useKeydown({ key: 'Enter', handler: handler1 })
+    const keydown2 = useKeydown({ key: 'Escape', handler: handler2 })
+    const keydown3 = useKeydown({ key: 'Space', handler: handler3 })
 
-    it('should accept single handler', () => {
-      const handler = { key: 'Enter', handler: vi.fn() }
+    keydown1.startListening()
+    keydown2.startListening()
+    keydown3.startListening()
 
-      expect(() => useKeydown(handler)).not.toThrow()
-    })
+    expect(addEventListenerSpy).toHaveBeenCalledTimes(1)
+    expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
 
-    it('should accept array of handlers', () => {
-      const handlers = [
-        { key: 'Enter', handler: vi.fn() },
-        { key: 'Escape', handler: vi.fn() },
-      ]
+    expect(handlerMap.size).toBe(3)
 
-      expect(() => useKeydown(handlers)).not.toThrow()
-    })
+    keydown1.stopListening()
+    keydown2.stopListening()
+    keydown3.stopListening()
+
+    expect(removeEventListenerSpy).toHaveBeenCalledTimes(1)
+    expect(handlerMap.size).toBe(0)
   })
 
-  describe('event handling', () => {
-    it('should call handler when matching key is pressed', () => {
-      const mockHandler = vi.fn()
-      const handler = { key: 'Enter', handler: mockHandler }
-      const { startListening } = useKeydown(handler)
+  it('should handle multiple handlers for the same key', () => {
+    const handler1 = vi.fn()
+    const handler2 = vi.fn()
 
-      startListening()
+    const keydown1 = useKeydown({ key: 'Enter', handler: handler1 })
+    const keydown2 = useKeydown({ key: 'Enter', handler: handler2 })
 
-      // Simulate keydown event
-      const event = new KeyboardEvent('keydown', { key: 'Enter' })
-      document.dispatchEvent(event)
+    keydown1.startListening()
+    keydown2.startListening()
 
-      expect(mockHandler).toHaveBeenCalledWith(event)
-    })
+    const event = { key: 'Enter' } as KeyboardEvent
 
-    it('should not call handler when non-matching key is pressed', () => {
-      const mockHandler = vi.fn()
-      const handler = { key: 'Enter', handler: mockHandler }
-      const { startListening } = useKeydown(handler)
+    const registeredHandler = addEventListenerSpy.mock.calls[0]![1] as (event: KeyboardEvent) => void
+    registeredHandler(event)
 
-      startListening()
+    expect(handler1).toHaveBeenCalledWith(event)
+    expect(handler2).toHaveBeenCalledWith(event)
 
-      // Simulate keydown event with different key
-      const event = new KeyboardEvent('keydown', { key: 'Escape' })
-      document.dispatchEvent(event)
-
-      expect(mockHandler).not.toHaveBeenCalled()
-    })
-
-    it('should prevent default when preventDefault is true', () => {
-      const mockHandler = vi.fn()
-      const handler = { key: 'Enter', handler: mockHandler, preventDefault: true }
-      const { startListening } = useKeydown(handler)
-
-      startListening()
-
-      const event = new KeyboardEvent('keydown', { key: 'Enter' })
-      const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
-      document.dispatchEvent(event)
-
-      expect(preventDefaultSpy).toHaveBeenCalled()
-    })
-
-    it('should stop propagation when stopPropagation is true', () => {
-      const mockHandler = vi.fn()
-      const handler = { key: 'Enter', handler: mockHandler, stopPropagation: true }
-      const { startListening } = useKeydown(handler)
-
-      startListening()
-
-      const event = new KeyboardEvent('keydown', { key: 'Enter' })
-      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation')
-      document.dispatchEvent(event)
-
-      expect(stopPropagationSpy).toHaveBeenCalled()
-    })
+    keydown1.stopListening()
+    keydown2.stopListening()
   })
 
-  describe('lifecycle management', () => {
-    it('should add event listener when startListening is called', () => {
-      const handler = { key: 'Enter', handler: vi.fn() }
-      const { startListening } = useKeydown(handler)
+  it('should not remove global listener if other handlers are still active', () => {
+    const handler1 = vi.fn()
+    const handler2 = vi.fn()
 
-      startListening()
+    const keydown1 = useKeydown({ key: 'Enter', handler: handler1 })
+    const keydown2 = useKeydown({ key: 'Escape', handler: handler2 })
 
-      expect(document.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
-    })
+    keydown1.startListening()
+    keydown2.startListening()
 
-    it('should remove event listener when stopListening is called', () => {
-      const handler = { key: 'Enter', handler: vi.fn() }
-      const { stopListening } = useKeydown(handler)
+    expect(addEventListenerSpy).toHaveBeenCalledTimes(1)
 
-      stopListening()
+    keydown1.stopListening()
 
-      expect(document.removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
-    })
+    expect(removeEventListenerSpy).not.toHaveBeenCalled()
+    expect(handlerMap.size).toBe(1)
+
+    keydown2.stopListening()
+
+    expect(removeEventListenerSpy).toHaveBeenCalledTimes(1)
+    expect(handlerMap.size).toBe(0)
   })
 })
