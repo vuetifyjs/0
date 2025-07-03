@@ -1,3 +1,4 @@
+// Utilities
 import { onMounted, getCurrentScope, onScopeDispose } from 'vue'
 
 export interface KeyHandler {
@@ -10,7 +11,7 @@ export interface KeyHandler {
 export function useKeydown (handlers: KeyHandler[] | KeyHandler) {
   const keyHandlers = Array.isArray(handlers) ? handlers : [handlers]
 
-  const onKeydown = (event: KeyboardEvent) => {
+  function onKeydown (event: KeyboardEvent) {
     const handler = keyHandlers.find(h => h.key === event.key)
     if (handler) {
       if (handler.preventDefault) event.preventDefault()
@@ -19,11 +20,11 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler) {
     }
   }
 
-  const startListening = () => {
+  function startListening () {
     document.addEventListener('keydown', onKeydown)
   }
 
-  const stopListening = () => {
+  function stopListening () {
     document.removeEventListener('keydown', onKeydown)
   }
 
