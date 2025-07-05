@@ -6,6 +6,12 @@
     },
     {
       "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "../packages/v0"
+    },
+    {
+      "path": "../packages/paper"
     }
   ]
 }

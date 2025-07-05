@@ -2,6 +2,7 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
     "composite": true,
+    "incremental": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "baseUrl": ".",
     "paths": {
@@ -36,9 +37,12 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.vue",
-    "../packages/*/src/**/*.ts",
-    "../packages/*/src/**/*.vue"
+    "src/**/*.vue"
+  ],
+  "references": [
+    {
+      "path": "../packages/paper/tsconfig.app.json"
+    }
   ],
   "exclude": [
     "src/**/__tests__/*"
