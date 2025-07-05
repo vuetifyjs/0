@@ -1,77 +1,60 @@
-// Composables
-import { useContext } from '../useContext'
-
-// Utilities
-import { reactive } from 'vue'
-
-// Types
-import type { ID } from '#v0/types'
 import type { Reactive } from 'vue'
+import { reactive, computed } from 'vue'
+import type { GenericObject } from '#v0/types'
+
+export type ID = string | number
 
 export interface RegistrarItem {
-  id: ID
+  id?: ID
 }
 
-export interface RegistrarTicket extends RegistrarItem {
-  index: number
-}
+export interface RegistrarTicket extends Required<RegistrarItem> { }
 
-export interface RegistrarContext<
-  R extends RegistrarItem = RegistrarItem,
-  T extends RegistrarTicket = RegistrarTicket,
-> {
-  registeredItems: Reactive<Map<ID, T>>
-  register: (item?: Partial<R>) => Reactive<T>
-  unregister: (id: ID) => void
-  reindex: () => void
-}
+export function useRegistrar<Defined extends GenericObject> () {
+  const registeredItems = reactive(new Map<ID, Reactive<Defined> | null>())
 
-export function useRegistrar<
-  R extends RegistrarItem,
-  T extends RegistrarTicket,
-  U extends RegistrarContext,
-> (namespace: string) {
-  const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
+  type Item = NonNullable<ReturnType<typeof registeredItems['get']>>
 
-  const registeredItems = reactive(new Map<ID, T>())
+  const definedItems = computed(() =>
+    Array.from(registeredItems.entries())
+      .reduce((map, [key, value]) => value === null ? map : map.set(key, value as Item), new Map<ID, Item>()),
+  )
 
-  function reindex () {
-    let index = 0
-    for (const item of registeredItems.values()) {
-      item.index = index++
+  function register (item?: RegistrarItem) {
+    const id = (item?.id ?? crypto.randomUUID()) as ID
+
+    registeredItems.set(id, null)
+
+    function define (callback: (arg: RegistrarTicket) => Defined) {
+      const ticket = reactive(callback({ id }))
+      registeredItems.set(id, ticket as Item)
+      return ticket
     }
-  }
 
-  function register (item?: Partial<R>): Reactive<T> {
-    const registrant = reactive({
-      id: item?.id ?? crypto.randomUUID(),
-      index: registeredItems.size,
-    }) as Reactive<T>
+    function undefine () {
+      registeredItems.delete(id)
+    }
 
-    registeredItems.set(registrant.id, registrant as any)
-
-    return registrant
+    return {
+      id,
+      define,
+      undefine,
+    }
   }
 
   function unregister (id: ID) {
     registeredItems.delete(id)
-    reindex()
   }
 
-  const context = {
+  function reset () {
+    registeredItems.clear()
+  }
+
+  return {
     registeredItems,
+    definedItems,
     register,
     unregister,
-    reindex,
-  } as unknown as U
-
-  return [
-    useRegistrarContext,
-    function provideRegistrar (_context: U = context) {
-      provideRegistrarContext(_context)
-
-      return _context
-    },
-    context,
-  ] as const
+    reset,
+  }
 }

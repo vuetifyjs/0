@@ -1,28 +1,28 @@
 // Composables
 import { useRegistrar } from '../useRegistrar'
+import { useContext } from '../useContext'
 
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
 
 // Types
 import type { ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '../useRegistrar'
+import type { RegistrarItem, RegistrarTicket } from '../useRegistrar'
 import type { ID } from '#v0/types'
 
 export interface GroupItem extends RegistrarItem {
   disabled: boolean
   value: unknown
+  index: number
 }
 
-export interface GroupTicket extends RegistrarTicket {
-  disabled: boolean
-  value: unknown
+export interface GroupTicket extends Required<GroupItem>, RegistrarTicket {
   valueIsIndex: boolean
   isActive: Readonly<ComputedGetter<boolean>>
   toggle: () => void
 }
 
-export interface GroupContext extends RegistrarContext<GroupItem, GroupTicket> {
+export interface GroupContext {
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
@@ -41,11 +41,10 @@ export function useGroup<T extends GroupContext> (
   namespace: string,
   options?: GroupOptions,
 ) {
-  const [
-    useGroupContext,
-    provideGroupContext,
-    registrar,
-  ] = useRegistrar<GroupItem, GroupTicket, GroupContext>(namespace)
+  const registrar = useRegistrar<GroupTicket>()
+
+  const [useGroupContext,
+    provideGroupContext] = useContext<GroupContext>(namespace)
 
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
@@ -66,12 +65,12 @@ export function useGroup<T extends GroupContext> (
     if (!options?.mandatory || selectedIds.size > 0 || registrar.registeredItems.size === 0) return
 
     if (options.mandatory === 'force') {
-      const first = registrar.registeredItems.values().next().value
+      const first = registrar.definedItems.value.values().next().value
       if (first) selectedIds.add(first.id)
       return
     }
 
-    for (const item of registrar.registeredItems.values()) {
+    for (const item of registrar.definedItems.value.values()) {
       if (item.disabled) continue
 
       selectedIds.add(item.id)
@@ -81,7 +80,7 @@ export function useGroup<T extends GroupContext> (
 
   function reindex () {
     let index = 0
-    for (const item of registrar.registeredItems.values()) {
+    for (const item of registrar.definedItems.value.values()) {
       item.index = index++
 
       if (item.valueIsIndex) {
@@ -129,13 +128,17 @@ export function useGroup<T extends GroupContext> (
   }
 
   function register (item?: Partial<GroupItem>): Reactive<GroupTicket> {
-    const ticket = registrar.register(item)
+    const order = registrar.register(item)
 
-    ticket.disabled = item?.disabled ?? false
-    ticket.value = item?.value ?? ticket.index
-    ticket.valueIsIndex = item?.value == null
-    ticket.isActive = toRef(() => selectedIds.has(ticket.id))
-    ticket.toggle = () => toggle(ticket.id)
+    const ticket = order.define(data => ({
+      ...data,
+      index: registrar.registeredItems.size,
+      disabled: item?.disabled ?? false,
+      value: item?.value ?? ticket.index,
+      valueIsIndex: item?.value == null,
+      isActive: toRef(() => selectedIds.has(ticket.id)),
+      toggle: () => toggle(ticket.id),
+    }))
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
@@ -206,7 +209,7 @@ export function useGroup<T extends GroupContext> (
           selectedIds.clear()
 
           for (const val of values) {
-            for (const [id, item] of registrar.registeredItems) {
+            for (const [id, item] of registrar.definedItems.value) {
               if (item.value !== val) continue
 
               selectedIds.add(id)
