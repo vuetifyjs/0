@@ -4,14 +4,14 @@
 
   // Types
   import type { GroupContext, GroupOptions } from '#v0/composables/useGroup'
-  import type { ModelRef } from 'vue'
+  import type { ModelRef, UnwrapNestedRefs } from 'vue'
 
   export interface GroupRootProps extends GroupOptions {
     namespace?: string
   }
 
   export interface GroupRootSlots {
-    default: (scope: GroupContext & {
+    default: (scope: UnwrapNestedRefs<GroupContext> & {
       model: ModelRef<any>
     }) => any
   }
@@ -28,7 +28,7 @@
 
   const [,provideGroupContext] = useGroup(namespace, props)
 
-  const { register, unregister, reset, mandate, select } = provideGroupContext(model)
+  const { register, unregister, reset, mandate, select, selectedIds, selectedItems, selectedValues } = provideGroupContext(model)
 </script>
 
 <template>
@@ -38,6 +38,9 @@
     :register
     :reset
     :select
+    :selected-ids
+    :selected-items
+    :selected-values
     :unregister
   />
 </template>
