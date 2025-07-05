@@ -23,6 +23,8 @@ export interface GroupTicket extends Required<GroupItem>, RegistrarTicket {
 }
 
 export interface GroupContext {
+  register: (item?: Partial<GroupItem>) => Reactive<GroupTicket>
+  unregister: (id: ID) => void
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
