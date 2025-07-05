@@ -3,33 +3,9 @@
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "customConditions": ["development"],
     "baseUrl": ".",
-    "paths": {
-      "#paper": [
-        "../../packages/paper/src",
-      ],
-      "#paper/*": [
-        "../../packages/paper/src/*",
-      ],
-      "#v0": [
-        "../../packages/v0/src",
-      ],
-      "#v0/*": [
-        "../../packages/v0/src/*",
-      ],
-      "@vuetify/paper": [
-        "../../packages/paper/src",
-      ],
-      "@vuetify/paper/*": [
-        "../../packages/paper/src/*",
-      ],
-      "@vuetify/v0": [
-        "../../packages/v0/src",
-      ],
-      "@vuetify/v0/*": [
-        "../../packages/v0/src/*",
-      ],
-    },
+    "paths": {},
     "lib": [
       "dom",
       "dom.iterable",
@@ -45,8 +21,6 @@
   },
   "include": [
     "stories/**/*.ts",
-    "stories/**/*.vue",
-    "../../packages/*/src/**/*.ts",
-    "../../packages/*/src/**/*.vue"
+    "stories/**/*.vue"
   ],
 }

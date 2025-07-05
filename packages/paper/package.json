@@ -20,10 +20,19 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.mjs"
+      "require": "./dist/index.mjs",
+      "development": {
+        "types": "./src/index.ts",
+        "import": "./src/index.ts"
+
+      }
     }
   },
+  "dependencies": {
+    "@vuetifyjs/v0": "workspace:"
+  },
   "devDependencies": {
+    "typescript": "catalog:",
     "unplugin-vue": "catalog:",
     "vite": "catalog:"
   }

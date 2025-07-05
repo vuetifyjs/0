@@ -3,23 +3,12 @@
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "customConditions": ["development"],
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@vuetify/v0": [
-        "../packages/v0/src",
-      ],
-      "@vuetify/paper": [
-        "../packages/paper/src",
-      ],
-      "@vuetify/v0/*": [
-        "../packages/v0/src/*",
-      ],
-      "@vuetify/paper/*": [
-        "../packages/paper/src/*",
-      ],
+      ]
     },
     "lib": [
       "dom",
@@ -36,9 +25,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.vue",
-    "../packages/*/src/**/*.ts",
-    "../packages/*/src/**/*.vue"
+    "src/**/*.vue"
   ],
   "exclude": [
     "src/**/__tests__/*"
