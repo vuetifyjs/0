@@ -15,11 +15,21 @@ export default defineConfig({
     Vue(),
     UnocssVitePlugin(),
     Components({
+      dirs: [
+        '../packages/paper/src/components/',
+        '../packages/v0/src/components/',
+      ],
       dts: 'src/components.d.ts',
     }),
     AutoImport({
       imports: [
         'vue',
+      ],
+      dirs: [
+        '../packages/paper/src/composables',
+        '../packages/paper/src/utils',
+        '../packages/v0/src/composables',
+        '../packages/v0/src/constants',
       ],
       dts: 'src/composables.d.ts',
       eslintrc: {
