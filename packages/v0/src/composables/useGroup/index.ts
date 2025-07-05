@@ -43,15 +43,14 @@ export function useGroup<T extends GroupContext> (
 ) {
   const registrar = useRegistrar<GroupTicket>()
 
-  const [useGroupContext,
-    provideGroupContext] = useContext<GroupContext>(namespace)
+  const [useGroupContext, provideGroupContext] = useContext<T>(namespace)
 
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
 
   const selectedItems = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registrar.registeredItems.get(id)),
+      Array.from(selectedIds).map(id => registrar.definedItems.value.get(id)),
     )
   })
 
@@ -62,7 +61,7 @@ export function useGroup<T extends GroupContext> (
   })
 
   function mandate () {
-    if (!options?.mandatory || selectedIds.size > 0 || registrar.registeredItems.size === 0) return
+    if (!options?.mandatory || selectedIds.size > 0 || registrar.definedItems.value.size === 0) return
 
     if (options.mandatory === 'force') {
       const first = registrar.definedItems.value.values().next().value
@@ -164,7 +163,7 @@ export function useGroup<T extends GroupContext> (
     })
   }
 
-  const context = {
+  const context: T = {
     ...registrar,
     selectedItems,
     selectedIds,
@@ -175,7 +174,7 @@ export function useGroup<T extends GroupContext> (
     reindex,
     mandate,
     select,
-  } as T
+  }
 
   return [
     useGroupContext,
