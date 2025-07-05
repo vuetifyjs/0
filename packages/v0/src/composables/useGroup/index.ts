@@ -30,6 +30,7 @@ export interface GroupContext {
   selectedValues: ComputedRef<Set<unknown>>
   mandate: () => void
   select: (ids: ID | ID[]) => void
+  reindex: () => void
   reset: () => void
 }
 
