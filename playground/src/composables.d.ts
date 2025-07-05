@@ -15,6 +15,8 @@ declare global {
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
+  const createMarkdown: typeof import('../../packages/v0/src/composables/useMarkdown/index')['createMarkdown']
+  const createMarkdownPlugin: typeof import('../../packages/v0/src/composables/useMarkdown/index')['createMarkdownPlugin']
   const createTheme: typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']
   const customRef: typeof import('vue')['customRef']
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']
@@ -28,6 +30,7 @@ declare global {
   const hexToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']
   const hexaToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']
   const inject: typeof import('vue')['inject']
+  const installMarkdownPlugin: typeof import('../../packages/v0/src/composables/useMarkdown/index')['installMarkdownPlugin']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
@@ -81,6 +84,7 @@ declare global {
   const useGroup: typeof import('../../packages/v0/src/composables/useGroup/index')['useGroup']
   const useId: typeof import('vue')['useId']
   const useKeydown: typeof import('../../packages/v0/src/composables/useKeydown/index')['useKeydown']
+  const useMarkdown: typeof import('../../packages/v0/src/composables/useMarkdown/index')['useMarkdown']
   const useModel: typeof import('vue')['useModel']
   const useRegistrar: typeof import('../../packages/v0/src/composables/useRegistrar/index')['useRegistrar']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
@@ -126,6 +130,9 @@ declare global {
   export type { KeyHandler } from '../../packages/v0/src/composables/useKeydown/index'
   import('../../packages/v0/src/composables/useKeydown/index')
   // @ts-ignore
+  export type { MarkdownAdapter, MarkdownContext, MarkdownOptions, MarkdownPlugin } from '../../packages/v0/src/composables/useMarkdown/index'
+  import('../../packages/v0/src/composables/useMarkdown/index')
+  // @ts-ignore
   export type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../../packages/v0/src/composables/useRegistrar/index'
   import('../../packages/v0/src/composables/useRegistrar/index')
   // @ts-ignore
@@ -150,6 +157,8 @@ declare module 'vue' {
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
+    readonly createMarkdown: UnwrapRef<typeof import('../../packages/v0/src/composables/useMarkdown/index')['createMarkdown']>
+    readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/v0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
@@ -215,6 +224,7 @@ declare module 'vue' {
     readonly useGroup: UnwrapRef<typeof import('../../packages/v0/src/composables/useGroup/index')['useGroup']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/v0/src/composables/useKeydown/index')['useKeydown']>
+    readonly useMarkdown: UnwrapRef<typeof import('../../packages/v0/src/composables/useMarkdown/index')['useMarkdown']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRegistrar: UnwrapRef<typeof import('../../packages/v0/src/composables/useRegistrar/index')['useRegistrar']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>

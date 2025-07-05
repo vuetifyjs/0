@@ -1,10 +1,27 @@
 <script lang="ts" setup>
-  import { Atom, Group } from '@vuetify/v0'
+  import { Atom, Group, Markdown } from '@vuetify/v0'
+  import { MarkdownItAdapter, MarkdownJsAdapter, MarkedAdapter, MicromarkAdapter } from '@vuetify/v0/composables/useMarkdown/adapters'
   const yes = ref(true)
+
+  const render1 = new MarkedAdapter().render
+  const render2 = new MarkdownItAdapter().render
+  const render3 = new MarkdownJsAdapter().render
+  const render4 = new MicromarkAdapter().render
 </script>
 
 <template>
   <div class="m-4">
+    <Markdown.Provider :render="render3">
+      <Markdown.Root>
+        # Hello World
+
+        How are you doing?
+
+        ----
+
+        Testing one two three.
+      </Markdown.Root>
+    </Markdown.Provider>
     <Atom v-slot="slotProps" :props="{ value: 'Atom' }">
       {{ slotProps.value }}
     </Atom>

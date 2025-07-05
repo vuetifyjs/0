@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { provide, inject } from 'vue'
 import { useContext } from './index'
 
+// Mock App interface
+const mockApp = {
+  provide: vi.fn(),
+}
+
 vi.mock('vue', () => ({
   provide: vi.fn(),
   inject: vi.fn(),
@@ -13,6 +18,7 @@ const mockInject = vi.mocked(inject)
 describe('useContext', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockApp.provide.mockClear()
   })
 
   it('should return inject and provide functions', () => {
@@ -109,5 +115,15 @@ describe('useContext', () => {
 
       expect(injectContext()).toBe(value)
     }
+  })
+
+  it('should provide context value with custom App context', () => {
+    const [, provideContext] = useContext('app-test-key')
+    const testValue = { data: 'app-test' }
+
+    provideContext(testValue, mockApp as any)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('app-test-key', testValue)
+    expect(mockProvide).not.toHaveBeenCalled()
   })
 })
