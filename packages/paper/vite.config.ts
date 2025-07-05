@@ -15,7 +15,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
-      '@vuetifyjs/v0': fileURLToPath(new URL('../v0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../paper/src', import.meta.url)),
       // internal - do not use it explicitly
       '#v0': fileURLToPath(new URL('../v0/src', import.meta.url)),
