@@ -11,6 +11,11 @@
       "dom.iterable",
       "esnext"
     ],
+    /* Performance optimizations */
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    "verbatimModuleSyntax": true,
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
