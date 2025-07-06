@@ -28,7 +28,7 @@
 
   const [,provideGroupContext] = useGroup(namespace, props)
 
-  const { register, unregister, reset, mandate, select, selectedIds, selectedItems, selectedValues } = provideGroupContext(model)
+  const { reindex, register, unregister, reset, mandate, select, selectedIds, selectedItems, selectedValues } = provideGroupContext(model)
 </script>
 
 <template>
@@ -36,6 +36,7 @@
     :mandate
     :model
     :register
+    :reindex
     :reset
     :select
     :selected-ids
