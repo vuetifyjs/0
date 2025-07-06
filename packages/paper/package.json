@@ -1,5 +1,5 @@
 {
-  "name": "@vuetifyjs/paper",
+  "name": "@vuetify/paper",
   "version": "0.0.0",
   "description": "Vuetify Paper",
   "license": "MIT",
@@ -37,7 +37,7 @@
     }
   },
   "dependencies": {
-    "@vuetifyjs/v0": "workspace:"
+    "@vuetify/v0": "workspace:"
   },
   "devDependencies": {
     "typescript": "catalog:",

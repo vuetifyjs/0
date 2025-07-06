@@ -73,10 +73,10 @@ importers:
 
   apps/docs:
     dependencies:
-      '@vuetifyjs/paper':
+      '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
-      '@vuetifyjs/v0':
+      '@vuetify/v0':
         specifier: workspace:*
         version: link:../../packages/v0
       unplugin-vue-router:
@@ -104,10 +104,10 @@ importers:
 
   apps/storybook:
     dependencies:
-      '@vuetifyjs/paper':
+      '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
-      '@vuetifyjs/v0':
+      '@vuetify/v0':
         specifier: workspace:*
         version: link:../../packages/v0
     devDependencies:
@@ -132,7 +132,7 @@ importers:
 
   packages/paper:
     dependencies:
-      '@vuetifyjs/v0':
+      '@vuetify/v0':
         specifier: 'workspace:'
         version: link:../v0
       vue:
@@ -166,10 +166,10 @@ importers:
 
   playground:
     dependencies:
-      '@vuetifyjs/paper':
+      '@vuetify/paper':
         specifier: 'workspace:'
         version: link:../packages/paper
-      '@vuetifyjs/v0':
+      '@vuetify/v0':
         specifier: 'workspace:'
         version: link:../packages/v0
       vue:

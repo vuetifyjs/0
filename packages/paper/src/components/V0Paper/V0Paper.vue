@@ -1,9 +1,9 @@
 <script lang="ts">
   // Components
-  import { Atom } from '@vuetifyjs/v0'
+  import { Atom } from '@vuetify/v0'
 
   // Types
-  import type { AtomProps } from '@vuetifyjs/v0'
+  import type { AtomProps } from '@vuetify/v0'
   import { useBorder, type BorderProps } from '#paper/composables/useBorder'
   import { useColor, type ColorProps } from '#paper/composables/useColor'
   import { useDimensions, type DimensionProps } from '#paper/composables/useDimensions'
