@@ -2,6 +2,7 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
     "composite": true,
+    "incremental": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "customConditions": ["development"],
     "baseUrl": ".",
@@ -14,6 +15,11 @@
       "dom.iterable",
       "esnext"
     ],
+    /* Performance optimizations */
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    "verbatimModuleSyntax": true,
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
