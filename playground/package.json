@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "vue": "catalog:",
-    "@vuetify/paper": "workspace:",
-    "@vuetify/v0": "workspace:"
+    "@vuetify/paper": "workspace:*",
+    "@vuetify/v0": "workspace:*"
   }
 }

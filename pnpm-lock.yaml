@@ -133,7 +133,7 @@ importers:
   packages/paper:
     dependencies:
       '@vuetify/v0':
-        specifier: 'workspace:'
+        specifier: workspace:*
         version: link:../v0
       vue:
         specifier: '>=3.3.0'
@@ -167,10 +167,10 @@ importers:
   playground:
     dependencies:
       '@vuetify/paper':
-        specifier: 'workspace:'
+        specifier: workspace:*
         version: link:../packages/paper
       '@vuetify/v0':
-        specifier: 'workspace:'
+        specifier: workspace:*
         version: link:../packages/v0
       vue:
         specifier: 'catalog:'
