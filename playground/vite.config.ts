@@ -17,7 +17,7 @@ export default defineConfig({
     Components({
       dirs: [
         '../packages/paper/src/components/',
-        '../packages/v0/src/components/',
+        '../packages/0/src/components/',
       ],
       dts: 'src/components.d.ts',
     }),
@@ -28,8 +28,8 @@ export default defineConfig({
       dirs: [
         '../packages/paper/src/composables',
         '../packages/paper/src/utils',
-        '../packages/v0/src/composables',
-        '../packages/v0/src/constants',
+        '../packages/0/src/composables',
+        '../packages/0/src/constants',
       ],
       dts: 'src/composables.d.ts',
       eslintrc: {
@@ -42,10 +42,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
-      '@vuetify/v0': fileURLToPath(new URL('../packages/v0/src', import.meta.url)),
+      '@vuetify/0': fileURLToPath(new URL('../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../packages/paper/src', import.meta.url)),
       // internal
-      '#v0': fileURLToPath(new URL('../packages/v0/src', import.meta.url)),
+      '#v0': fileURLToPath(new URL('../packages/0/src', import.meta.url)),
       '#paper': fileURLToPath(new URL('../packages/paper/src', import.meta.url)),
     },
   },

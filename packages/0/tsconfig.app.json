@@ -2,8 +2,9 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
     "composite": true,
+    "incremental": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-
+    "customConditions": ["development"],
     "baseUrl": ".",
     "paths": {
       "#v0": ["./src"],
@@ -14,6 +15,11 @@
       "dom.iterable",
       "esnext"
     ],
+    /* Performance optimizations */
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    "verbatimModuleSyntax": true,
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
@@ -22,6 +28,6 @@
     "module": "esnext",
     "target": "esnext",
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "stories/**.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": ["src/**/__tests__/*"]
 }

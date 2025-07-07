@@ -1,9 +1,11 @@
 export * from './components/Atom'
 export * from './components/Avatar'
 export * from './components/Group'
+export * from './components/Markdown'
 export * from './components/Popover'
 export * from './components/Step'
 
 export * from './composables/useContext'
 export * from './composables/useGroup'
+export * from './composables/useMarkdown'
 export * from './composables/useStep'

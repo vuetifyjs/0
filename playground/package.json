@@ -16,6 +16,8 @@
     "vite": "catalog:"
   },
   "dependencies": {
-    "vue": "catalog:"
+    "vue": "catalog:",
+    "@vuetify/paper": "workspace:*",
+    "@vuetify/0": "workspace:*"
   }
 }

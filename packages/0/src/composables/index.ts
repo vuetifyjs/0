@@ -1,5 +1,6 @@
 export * from './useContext'
 export * from './useGroup'
 export * from './useKeydown'
+export * from './useMarkdown'
 export * from './useRegistrar'
 export * from './useStep'

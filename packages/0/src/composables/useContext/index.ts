@@ -2,11 +2,11 @@
 import { inject, provide } from 'vue'
 
 // Types
-import type { InjectionKey } from 'vue'
+import type { App, InjectionKey } from 'vue'
 
 export function useContext<T> (key: InjectionKey<T> | string) {
-  function provideContext (value: T) {
-    provide(key, value)
+  function provideContext (value: T, app?: App) {
+    app ? app.provide(key, value) : provide(key, value)
   }
 
   function injectContext (): T {
