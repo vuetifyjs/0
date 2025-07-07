@@ -18,6 +18,8 @@ export interface RegistrarTicket extends Required<RegistrarItem> {
 
 export type RegisterCallback<Item extends RegistrarItem, Ticket extends RegistrarTicket> = (item: Partial<Item> | ((order: RegistrarTicket) => Partial<Item>)) => Reactive<Ticket>
 
+export type RegisterArgument<Item extends RegistrarItem> = Parameters<RegisterCallback<Item, RegistrarTicket>>[0]
+
 export interface RegistrarContext<
   T extends RegistrarTicket = RegistrarTicket,
 > {
@@ -42,13 +44,18 @@ export function useRegistrar<
     }
   }
 
-  function register (createRegistrant: (order: RegistrarTicket) => Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>): Reactive<T> {
+  type PartialTicket = Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>
+
+  function register (createRegistrant: RegisterArgument<PartialTicket>): Reactive<T> {
     const ticket = {
       id: crypto.randomUUID(),
       index: registeredItems.size,
     }
 
-    const ordered = createRegistrant(ticket)
+    // TODO: Add extract function
+    const ordered = typeof createRegistrant === 'function'
+      ? createRegistrant(ticket)
+      : createRegistrant
 
     const registrant = reactive({
       ...ordered,

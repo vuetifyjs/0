@@ -6,7 +6,7 @@ import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toV
 
 // Types
 import type { ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterCallback } from '../useRegistrar'
+import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterCallback, RegisterArgument } from '../useRegistrar'
 import type { ID } from '#v0/types'
 
 export interface GroupItem extends RegistrarItem {
@@ -129,8 +129,9 @@ export function useGroup<T extends GroupContext> (
     }
   }
 
-  function register (createGroupItem: Partial<GroupItem> | ((order: RegistrarTicket) => Partial<GroupItem>)): Reactive<GroupTicket> {
+  function register (createGroupItem: RegisterArgument<GroupItem>): Reactive<GroupTicket> {
     const ticket = registrar.register(order => {
+      // TODO: Add extract function
       const item = typeof createGroupItem === 'function'
         ? createGroupItem(order)
         : createGroupItem
