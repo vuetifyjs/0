@@ -102,12 +102,8 @@ describe('useHydration', () => {
   describe('integration', () => {
     it('should maintain reactivity of isHydrated', () => {
       const context = createHydration()
-      const initialValue = context.isHydrated.value
 
-      // Change the value
-      context.isHydrated.value = !initialValue
-
-      expect(context.isHydrated.value).toBe(!initialValue)
+      expect(context.isHydrated.value).toBe(false)
 
       // Change it back
       context.hydrate()

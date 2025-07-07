@@ -53,9 +53,16 @@
 
   <component
     :is="as"
-    v-else
+    v-else-if="!isSelfClosing"
+    v-bind="props"
     ref="element"
   >
     <slot v-if="!isSelfClosing" v-bind="slotProps" />
   </component>
+  <component
+    :is="as"
+    v-else
+    ref="element"
+    v-bind="props"
+  />
 </template>

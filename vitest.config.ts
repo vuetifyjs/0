@@ -13,6 +13,7 @@ export default defineConfig({
     },
   },
   test: {
+    projects: ['packages/*'],
     environment: 'happy-dom',
     globals: true,
   },
