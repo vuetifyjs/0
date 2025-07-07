@@ -8,6 +8,10 @@
     "build": "storybook build",
     "preview": "storybook build && npx http-server storybook-static"
   },
+  "dependencies": {
+    "@vuetify/paper": "workspace:*",
+    "@vuetify/0": "workspace:*"
+  },
   "devDependencies": {
     "@storybook/vue3-vite": "^9.0.13",
     "storybook": "^9.0.13",

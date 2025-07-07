@@ -73,6 +73,12 @@ importers:
 
   apps/docs:
     dependencies:
+      '@vuetify/paper':
+        specifier: workspace:*
+        version: link:../../packages/paper
+      '@vuetify/0':
+        specifier: workspace:*
+        version: link:../../packages/0
       unplugin-vue-router:
         specifier: ^0.14.0
         version: 0.14.0(@vue/compiler-sfc@3.5.17)(vue-router@4.5.1(vue@3.5.17(typescript@5.8.3)))(vue@3.5.17(typescript@5.8.3))
@@ -97,6 +103,13 @@ importers:
         version: rolldown-vite@7.0.3(@types/node@24.0.4)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(yaml@2.8.0)
 
   apps/storybook:
+    dependencies:
+      '@vuetify/paper':
+        specifier: workspace:*
+        version: link:../../packages/paper
+      '@vuetify/0':
+        specifier: workspace:*
+        version: link:../../packages/0
     devDependencies:
       '@storybook/vue3-vite':
         specifier: ^9.0.13
@@ -119,10 +132,16 @@ importers:
 
   packages/paper:
     dependencies:
+      '@vuetify/0':
+        specifier: workspace:*
+        version: link:../0
       vue:
         specifier: '>=3.3.0'
         version: 3.5.17(typescript@5.8.3)
     devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
       unplugin-vue:
         specifier: 'catalog:'
         version: 6.2.0(@types/node@24.0.4)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(vue@3.5.17(typescript@5.8.3))(yaml@2.8.0)
@@ -130,21 +149,29 @@ importers:
         specifier: npm:rolldown-vite@^7.0.3
         version: rolldown-vite@7.0.3(@types/node@24.0.4)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(yaml@2.8.0)
 
-  packages/v0:
-    dependencies:
-      vue:
-        specifier: '>=3.3.0'
-        version: 3.5.17(typescript@5.8.3)
+  packages/0:
     devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
       unplugin-vue:
         specifier: 'catalog:'
         version: 6.2.0(@types/node@24.0.4)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(vue@3.5.17(typescript@5.8.3))(yaml@2.8.0)
       vite:
         specifier: npm:rolldown-vite@^7.0.3
         version: rolldown-vite@7.0.3(@types/node@24.0.4)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(yaml@2.8.0)
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.17(typescript@5.8.3)
 
   playground:
     dependencies:
+      '@vuetify/paper':
+        specifier: workspace:*
+        version: link:../packages/paper
+      '@vuetify/0':
+        specifier: workspace:*
+        version: link:../packages/0
       vue:
         specifier: 'catalog:'
         version: 3.5.17(typescript@5.8.3)
@@ -204,11 +231,6 @@ packages:
   '@babel/helper-validator-identifier@7.27.1':
     resolution: {integrity: sha512-D2hP9eA+Sqx1kBZgzxZh0y1trbuU+JoDkiEwqhQ36nodYqJwyEIhPSdMNd7lOm/4io72luTPWH20Yda0xOuUow==}
     engines: {node: '>=6.9.0'}
-
-  '@babel/parser@7.27.5':
-    resolution: {integrity: sha512-OsQd175SxWkGlzbny8J3K8TnnDD0N3lrIUtB92xwyRpzaenGZhxDvxN/JgU00U3CDZNj9tPuDJ5H0WS4Nt3vKg==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
 
   '@babel/parser@7.27.7':
     resolution: {integrity: sha512-qnzXzDXdr/po3bOTbTIQZ7+TxNKxpkN5IifVLXS+r7qwynkZfPyjZfE7hCXbo7IoO9TNcSyibgONsf2HauUd3Q==}
@@ -3177,10 +3199,6 @@ snapshots:
 
   '@babel/helper-validator-identifier@7.27.1': {}
 
-  '@babel/parser@7.27.5':
-    dependencies:
-      '@babel/types': 7.27.7
-
   '@babel/parser@7.27.7':
     dependencies:
       '@babel/types': 7.27.7
@@ -4061,7 +4079,7 @@ snapshots:
 
   '@vue/compiler-sfc@3.5.17':
     dependencies:
-      '@babel/parser': 7.27.5
+      '@babel/parser': 7.27.7
       '@vue/compiler-core': 3.5.17
       '@vue/compiler-dom': 3.5.17
       '@vue/compiler-ssr': 3.5.17

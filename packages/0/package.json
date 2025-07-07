@@ -1,7 +1,7 @@
 {
-  "name": "@vuetify/paper",
+  "name": "@vuetify/0",
   "version": "0.0.0",
-  "description": "Vuetify Paper",
+  "description": "Vuetify 0",
   "license": "MIT",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
@@ -12,9 +12,6 @@
   "scripts": {
     "build": "vite build",
     "build:watch": "vite build --watch"
-  },
-  "peerDependencies": {
-    "vue": ">=3.3.0"
   },
   "exports": {
     ".": {
@@ -36,12 +33,13 @@
       }
     }
   },
-  "dependencies": {
-    "@vuetify/0": "workspace:*"
+  "peerDependencies": {
+    "vue": ">=3.3.0"
   },
   "devDependencies": {
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vue": "catalog:"
   }
 }

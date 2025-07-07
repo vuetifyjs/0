@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { Avatar } from '@vuetify/v0'
+import { Avatar } from '@vuetify/0'
 
 const meta: Meta<typeof Avatar.Root> = {
   title: 'Components/Avatar',
@@ -22,8 +22,8 @@ export const Default: Story = {
     },
     template: `
       <AvatarRoot v-bind="args" class="size-16 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
-        <AvatarImage 
-          src="https://picsum.photos/64/64?random=1" 
+        <AvatarImage
+          src="https://picsum.photos/64/64?random=1"
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
@@ -42,8 +42,8 @@ export const WithFallback: Story = {
     },
     template: `
       <AvatarRoot v-bind="args" class="size-16 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
-        <AvatarImage 
-          src="https://broken-image-url.jpg" 
+        <AvatarImage
+          src="https://broken-image-url.jpg"
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
@@ -62,8 +62,8 @@ export const Small: Story = {
     },
     template: `
       <AvatarRoot v-bind="args" class="size-8 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
-        <AvatarImage 
-          src="https://picsum.photos/32/32?random=2" 
+        <AvatarImage
+          src="https://picsum.photos/32/32?random=2"
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
@@ -82,8 +82,8 @@ export const Large: Story = {
     },
     template: `
       <AvatarRoot v-bind="args" class="size-24 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
-        <AvatarImage 
-          src="https://picsum.photos/96/96?random=3" 
+        <AvatarImage
+          src="https://picsum.photos/96/96?random=3"
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
@@ -102,8 +102,8 @@ export const Square: Story = {
     },
     template: `
       <AvatarRoot v-bind="args" class="size-16 rounded-lg overflow-hidden inline-flex items-center justify-center bg-gray-100">
-        <AvatarImage 
-          src="https://picsum.photos/64/64?random=4" 
+        <AvatarImage
+          src="https://picsum.photos/64/64?random=4"
           alt="User Avatar"
           class="w-full h-full object-cover"
         />
@@ -176,16 +176,16 @@ export const MultiplePriority: Story = {
     template: `
       <AvatarRoot v-bind="args" class="size-16 rounded-full overflow-hidden inline-flex items-center justify-center bg-gray-100">
         <!-- High priority image (should show if loaded) -->
-        <AvatarImage 
+        <AvatarImage
           :priority="1"
-          src="https://picsum.photos/64/64?random=7" 
+          src="https://picsum.photos/64/64?random=7"
           alt="High Priority Avatar"
           class="w-full h-full object-cover"
         />
         <!-- Low priority image (backup) -->
-        <AvatarImage 
+        <AvatarImage
           :priority="2"
-          src="https://picsum.photos/64/64?random=8" 
+          src="https://picsum.photos/64/64?random=8"
           alt="Low Priority Avatar"
           class="w-full h-full object-cover"
         />
