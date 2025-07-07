@@ -132,13 +132,13 @@ importers:
 
   packages/v0:
     dependencies:
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       vue:
         specifier: '>=3.3.0'
         version: 3.5.17(typescript@5.8.3)
     devDependencies:
-      '@types/markdown-it':
-        specifier: ^14.1.2
-        version: 14.1.2
       markdown:
         specifier: ^0.5.0
         version: 0.5.0
