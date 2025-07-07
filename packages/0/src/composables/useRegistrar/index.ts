@@ -9,25 +9,25 @@ import type { ID } from '#v0/types'
 import type { Reactive } from 'vue'
 
 export interface RegistrarItem {
-  id: ID
+  id?: ID
 }
 
-export interface RegistrarTicket extends RegistrarItem {
+export interface RegistrarTicket extends Required<RegistrarItem> {
   index: number
 }
 
+export type RegisterCallback<Item extends RegistrarItem, Ticket extends RegistrarTicket> = (item: Partial<Item> | ((order: RegistrarTicket) => Partial<Item>)) => Reactive<Ticket>
+
 export interface RegistrarContext<
-  R extends RegistrarItem = RegistrarItem,
   T extends RegistrarTicket = RegistrarTicket,
 > {
   registeredItems: Reactive<Map<ID, T>>
-  register: (item?: Partial<R>) => Reactive<T>
+  register: (order: (order: RegistrarTicket) => Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>) => Reactive<T>
   unregister: (id: ID) => void
   reindex: () => void
 }
 
 export function useRegistrar<
-  R extends RegistrarItem,
   T extends RegistrarTicket,
   U extends RegistrarContext,
 > (namespace: string) {
@@ -42,10 +42,18 @@ export function useRegistrar<
     }
   }
 
-  function register (item?: Partial<R>): Reactive<T> {
-    const registrant = reactive({
-      id: item?.id ?? crypto.randomUUID(),
+  function register (createRegistrant: (order: RegistrarTicket) => Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>): Reactive<T> {
+    const ticket = {
+      id: crypto.randomUUID(),
       index: registeredItems.size,
+    }
+
+    const ordered = createRegistrant(ticket)
+
+    const registrant = reactive({
+      ...ordered,
+      id: ordered.id ?? ticket.id,
+      index: ordered.index ?? ticket.index,
     }) as Reactive<T>
 
     registeredItems.set(registrant.id, registrant as any)

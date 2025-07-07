@@ -7,6 +7,7 @@ import { toRef } from 'vue'
 // Types
 import type { GroupContext, GroupItem, GroupOptions, GroupTicket } from '../useGroup'
 import type { Ref } from 'vue'
+import type { RegisterCallback } from '../useRegistrar'
 
 export interface StepItem extends GroupItem {}
 
@@ -14,7 +15,8 @@ export interface StepTicket extends GroupTicket {}
 
 export interface StepOptions extends Omit<GroupOptions, 'multiple'> {}
 
-export interface StepContext extends GroupContext {
+export interface StepContext extends Omit<GroupContext, 'register'> {
+  register: RegisterCallback<StepItem, StepTicket>
   currentItem: Ref<any>
   first: () => void
   last: () => void

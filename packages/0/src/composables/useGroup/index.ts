@@ -6,7 +6,7 @@ import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toV
 
 // Types
 import type { ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '../useRegistrar'
+import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterCallback } from '../useRegistrar'
 import type { ID } from '#v0/types'
 
 export interface GroupItem extends RegistrarItem {
@@ -22,10 +22,11 @@ export interface GroupTicket extends RegistrarTicket {
   toggle: () => void
 }
 
-export interface GroupContext extends RegistrarContext<GroupItem, GroupTicket> {
+export interface GroupContext extends Omit<RegistrarContext<GroupTicket>, 'register'> {
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
+  register: RegisterCallback<GroupItem, GroupTicket>
   mandate: () => void
   select: (ids: ID | ID[]) => void
   reset: () => void
@@ -45,7 +46,7 @@ export function useGroup<T extends GroupContext> (
     useGroupContext,
     provideGroupContext,
     registrar,
-  ] = useRegistrar<GroupItem, GroupTicket, GroupContext>(namespace)
+  ] = useRegistrar<GroupTicket, GroupContext>(namespace)
 
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
@@ -128,14 +129,20 @@ export function useGroup<T extends GroupContext> (
     }
   }
 
-  function register (item?: Partial<GroupItem>): Reactive<GroupTicket> {
-    const ticket = registrar.register(item)
-
-    ticket.disabled = item?.disabled ?? false
-    ticket.value = item?.value ?? ticket.index
-    ticket.valueIsIndex = item?.value == null
-    ticket.isActive = toRef(() => selectedIds.has(ticket.id))
-    ticket.toggle = () => toggle(ticket.id)
+  function register (createGroupItem: Partial<GroupItem> | ((order: RegistrarTicket) => Partial<GroupItem>)): Reactive<GroupTicket> {
+    const ticket = registrar.register(order => {
+      const item = typeof createGroupItem === 'function'
+        ? createGroupItem(order)
+        : createGroupItem
+      return {
+        disabled: item?.disabled ?? false,
+        value: item?.value ?? order.index,
+        valueIsIndex: item?.value == null,
+        isActive: toRef(() => selectedIds.has(order.id)),
+        toggle: () => toggle(order.id),
+        ...item,
+      }
+    })
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
