@@ -8,6 +8,21 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+<<<<<<< HEAD
+    Atom: typeof import('./../../packages/v0/src/components/Atom/Atom.vue')['default']
+    AvatarFallback: typeof import('./../../packages/v0/src/components/Avatar/AvatarFallback.vue')['default']
+    AvatarImage: typeof import('./../../packages/v0/src/components/Avatar/AvatarImage.vue')['default']
+    AvatarRoot: typeof import('./../../packages/v0/src/components/Avatar/AvatarRoot.vue')['default']
+    GroupItem: typeof import('./../../packages/v0/src/components/Group/GroupItem.vue')['default']
+    GroupRoot: typeof import('./../../packages/v0/src/components/Group/GroupRoot.vue')['default']
+    MarkdownProvider: typeof import('./../../packages/v0/src/components/Markdown/MarkdownProvider.vue')['default']
+    MarkdownRoot: typeof import('./../../packages/v0/src/components/Markdown/MarkdownRoot.vue')['default']
+    PopoverAnchor: typeof import('./../../packages/v0/src/components/Popover/PopoverAnchor.vue')['default']
+    PopoverContent: typeof import('./../../packages/v0/src/components/Popover/PopoverContent.vue')['default']
+    PopoverRoot: typeof import('./../../packages/v0/src/components/Popover/PopoverRoot.vue')['default']
+    StepItem: typeof import('./../../packages/v0/src/components/Step/StepItem.vue')['default']
+    StepRoot: typeof import('./../../packages/v0/src/components/Step/StepRoot.vue')['default']
+=======
     Atom: typeof import('../../packages/0/src/components/Atom/Atom.vue')['default']
     AvatarFallback: typeof import('../../packages/0/src/components/Avatar/AvatarFallback.vue')['default']
     AvatarImage: typeof import('../../packages/0/src/components/Avatar/AvatarImage.vue')['default']
@@ -19,6 +34,7 @@ declare module 'vue' {
     PopoverRoot: typeof import('../../packages/0/src/components/Popover/PopoverRoot.vue')['default']
     StepItem: typeof import('../../packages/0/src/components/Step/StepItem.vue')['default']
     StepRoot: typeof import('../../packages/0/src/components/Step/StepRoot.vue')['default']
+>>>>>>> master
     V0Paper: typeof import('./../../packages/paper/src/components/V0Paper/V0Paper.vue')['default']
   }
 }

@@ -37,6 +37,10 @@
     "vue": ">=3.3.0"
   },
   "devDependencies": {
+    "markdown": "^0.5.0",
+    "markdown-it": "^14.1.0",
+    "marked": "^16.0.0",
+    "micromark": "^4.0.2",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
     "vite": "catalog:",
