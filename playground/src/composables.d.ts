@@ -73,7 +73,7 @@ declare global {
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAttrs: typeof import('vue')['useAttrs']
-  const useAvatar: typeof import('../../packages/v0/src/composables/useAvatar/index')['useAvatar']
+  const useAvatar: typeof import('../../packages/0/src/composables/useAvatar/index')['useAvatar']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
   const useColor: typeof import('../../packages/paper/src/composables/useColor/index')['useColor']
   const useContext: typeof import('../../packages/v0/src/composables/useContext/index')['useContext']
@@ -132,9 +132,6 @@ declare global {
   export type { KeyHandler } from '../../packages/v0/src/composables/useKeydown/index'
   import('../../packages/v0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { MarkdownAdapter, MarkdownContext, MarkdownOptions, MarkdownPlugin } from '../../packages/v0/src/composables/useMarkdown/index'
-  import('../../packages/v0/src/composables/useMarkdown/index')
-  // @ts-ignore
   export type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../../packages/v0/src/composables/useRegistrar/index'
   import('../../packages/v0/src/composables/useRegistrar/index')
   // @ts-ignore
@@ -159,8 +156,6 @@ declare module 'vue' {
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
-    readonly createMarkdown: UnwrapRef<typeof import('../../packages/v0/src/composables/useMarkdown/index')['createMarkdown']>
-    readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/v0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
@@ -197,7 +192,6 @@ declare module 'vue' {
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly parseColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
-    readonly provideMarkdownContext: UnwrapRef<typeof import('../../packages/v0/src/composables/useMarkdown/index')['provideMarkdownContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
@@ -227,8 +221,6 @@ declare module 'vue' {
     readonly useGroup: UnwrapRef<typeof import('../../packages/v0/src/composables/useGroup/index')['useGroup']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/v0/src/composables/useKeydown/index')['useKeydown']>
-    readonly useMarkdown: UnwrapRef<typeof import('../../packages/v0/src/composables/useMarkdown/index')['useMarkdown']>
-    readonly useMarkdownContext: UnwrapRef<typeof import('../../packages/v0/src/composables/useMarkdown/index')['useMarkdownContext']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRegistrar: UnwrapRef<typeof import('../../packages/v0/src/composables/useRegistrar/index')['useRegistrar']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
