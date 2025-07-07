@@ -76,7 +76,7 @@ importers:
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
-      '@vuetify/v0':
+      '@vuetify/0':
         specifier: workspace:*
         version: link:../../packages/v0
       unplugin-vue-router:
@@ -107,7 +107,7 @@ importers:
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
-      '@vuetify/v0':
+      '@vuetify/0':
         specifier: workspace:*
         version: link:../../packages/v0
     devDependencies:
@@ -132,7 +132,7 @@ importers:
 
   packages/paper:
     dependencies:
-      '@vuetify/v0':
+      '@vuetify/0':
         specifier: workspace:*
         version: link:../v0
       vue:
@@ -169,7 +169,7 @@ importers:
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../packages/paper
-      '@vuetify/v0':
+      '@vuetify/0':
         specifier: workspace:*
         version: link:../packages/v0
       vue:

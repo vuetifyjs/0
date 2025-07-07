@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@vuetify/paper": "workspace:*",
-    "@vuetify/v0": "workspace:*"
+    "@vuetify/0": "workspace:*"
   },
   "devDependencies": {
     "@storybook/vue3-vite": "^9.0.13",

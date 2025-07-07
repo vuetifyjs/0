@@ -37,7 +37,7 @@
     }
   },
   "dependencies": {
-    "@vuetify/v0": "workspace:*"
+    "@vuetify/0": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:",

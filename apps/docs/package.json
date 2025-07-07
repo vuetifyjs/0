@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@vuetify/paper": "workspace:*",
-    "@vuetify/v0": "workspace:*",
+    "@vuetify/0": "workspace:*",
     "unplugin-vue-router": "^0.14.0",
     "vite-plugin-vue-layouts-next": "^1.0.0",
     "vue": "catalog:",

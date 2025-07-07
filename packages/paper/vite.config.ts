@@ -28,7 +28,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@vuetify/v0'],
+      external: ['vue', '@vuetify/0'],
     },
     copyPublicDir: false,
   },
