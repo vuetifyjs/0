@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/v0"
+      "path": "./packages/0"
     },
     {
       "path": "./packages/paper"

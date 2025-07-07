@@ -6,11 +6,11 @@
 // biome-ignore lint: disable
 export {}
 declare global {
-  const COMMON_ELEMENTS: typeof import('../../packages/v0/src/constants/htmlElements')['COMMON_ELEMENTS']
+  const COMMON_ELEMENTS: typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']
   const DEFAULT_DARK: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
-  const SELF_CLOSING_TAGS: typeof import('../../packages/v0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
+  const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
@@ -32,7 +32,7 @@ declare global {
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
-  const isSelfClosingTag: typeof import('../../packages/v0/src/constants/htmlElements')['isSelfClosingTag']
+  const isSelfClosingTag: typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']
   const markRaw: typeof import('vue')['markRaw']
   const nextTick: typeof import('vue')['nextTick']
   const onActivated: typeof import('vue')['onActivated']
@@ -69,24 +69,24 @@ declare global {
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAttrs: typeof import('vue')['useAttrs']
-  const useAvatar: typeof import('../../packages/v0/src/composables/useAvatar/index')['useAvatar']
+  const useAvatar: typeof import('../../packages/0/src/composables/useAvatar/index')['useAvatar']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
   const useColor: typeof import('../../packages/paper/src/composables/useColor/index')['useColor']
-  const useContext: typeof import('../../packages/v0/src/composables/useContext/index')['useContext']
+  const useContext: typeof import('../../packages/0/src/composables/useContext/index')['useContext']
   const useContrast: typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
-  const useGroup: typeof import('../../packages/v0/src/composables/useGroup/index')['useGroup']
+  const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
   const useId: typeof import('vue')['useId']
-  const useKeydown: typeof import('../../packages/v0/src/composables/useKeydown/index')['useKeydown']
+  const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
   const useModel: typeof import('vue')['useModel']
-  const useRegistrar: typeof import('../../packages/v0/src/composables/useRegistrar/index')['useRegistrar']
+  const useRegistrar: typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
   const useSlots: typeof import('vue')['useSlots']
   const useSpacing: typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']
-  const useStep: typeof import('../../packages/v0/src/composables/useStep/index')['useStep']
+  const useStep: typeof import('../../packages/0/src/composables/useStep/index')['useStep']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
@@ -120,20 +120,20 @@ declare global {
   export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
-  export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/v0/src/composables/useGroup/index'
-  import('../../packages/v0/src/composables/useGroup/index')
+  export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
+  import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
-  export type { KeyHandler } from '../../packages/v0/src/composables/useKeydown/index'
-  import('../../packages/v0/src/composables/useKeydown/index')
+  export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
+  import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../../packages/v0/src/composables/useRegistrar/index'
-  import('../../packages/v0/src/composables/useRegistrar/index')
+  export type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
+  import('../../packages/0/src/composables/useRegistrar/index')
   // @ts-ignore
-  export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/v0/src/composables/useStep/index'
-  import('../../packages/v0/src/composables/useStep/index')
+  export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
+  import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
-  export type { HTMLElementName, SelfClosingElement } from '../../packages/v0/src/constants/htmlElements'
-  import('../../packages/v0/src/constants/htmlElements')
+  export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
+  import('../../packages/0/src/constants/htmlElements')
 }
 
 // for vue template auto import
@@ -141,11 +141,11 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
-    readonly COMMON_ELEMENTS: UnwrapRef<typeof import('../../packages/v0/src/constants/htmlElements')['COMMON_ELEMENTS']>
+    readonly COMMON_ELEMENTS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']>
     readonly DEFAULT_DARK: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']>
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
-    readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/v0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
+    readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
@@ -167,7 +167,7 @@ declare module 'vue' {
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
-    readonly isSelfClosingTag: UnwrapRef<typeof import('../../packages/v0/src/constants/htmlElements')['isSelfClosingTag']>
+    readonly isSelfClosingTag: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
@@ -206,21 +206,21 @@ declare module 'vue' {
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
     readonly useColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['useColor']>
-    readonly useContext: UnwrapRef<typeof import('../../packages/v0/src/composables/useContext/index')['useContext']>
+    readonly useContext: UnwrapRef<typeof import('../../packages/0/src/composables/useContext/index')['useContext']>
     readonly useContrast: UnwrapRef<typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
-    readonly useGroup: UnwrapRef<typeof import('../../packages/v0/src/composables/useGroup/index')['useGroup']>
+    readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
-    readonly useKeydown: UnwrapRef<typeof import('../../packages/v0/src/composables/useKeydown/index')['useKeydown']>
+    readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
-    readonly useRegistrar: UnwrapRef<typeof import('../../packages/v0/src/composables/useRegistrar/index')['useRegistrar']>
+    readonly useRegistrar: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
-    readonly useStep: UnwrapRef<typeof import('../../packages/v0/src/composables/useStep/index')['useStep']>
+    readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['useStep']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>

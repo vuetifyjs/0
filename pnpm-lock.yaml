@@ -78,7 +78,7 @@ importers:
         version: link:../../packages/paper
       '@vuetify/0':
         specifier: workspace:*
-        version: link:../../packages/v0
+        version: link:../../packages/0
       unplugin-vue-router:
         specifier: ^0.14.0
         version: 0.14.0(@vue/compiler-sfc@3.5.17)(vue-router@4.5.1(vue@3.5.17(typescript@5.8.3)))(vue@3.5.17(typescript@5.8.3))
@@ -109,7 +109,7 @@ importers:
         version: link:../../packages/paper
       '@vuetify/0':
         specifier: workspace:*
-        version: link:../../packages/v0
+        version: link:../../packages/0
     devDependencies:
       '@storybook/vue3-vite':
         specifier: ^9.0.13
@@ -134,7 +134,7 @@ importers:
     dependencies:
       '@vuetify/0':
         specifier: workspace:*
-        version: link:../v0
+        version: link:../0
       vue:
         specifier: '>=3.3.0'
         version: 3.5.17(typescript@5.8.3)
@@ -149,7 +149,7 @@ importers:
         specifier: npm:rolldown-vite@^7.0.3
         version: rolldown-vite@7.0.3(@types/node@24.0.4)(esbuild@0.25.5)(jiti@2.4.2)(sass-embedded@1.89.2)(tsx@4.20.3)(yaml@2.8.0)
 
-  packages/v0:
+  packages/0:
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -171,7 +171,7 @@ importers:
         version: link:../packages/paper
       '@vuetify/0':
         specifier: workspace:*
-        version: link:../packages/v0
+        version: link:../packages/0
       vue:
         specifier: 'catalog:'
         version: 3.5.17(typescript@5.8.3)
