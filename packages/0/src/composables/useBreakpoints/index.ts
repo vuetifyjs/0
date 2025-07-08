@@ -1,6 +1,9 @@
 // Composables
 import { useContext } from '#v0/composables/useContext'
 
+// Utilities
+import { deepMerge } from '#v0/utils'
+
 // Types
 import { reactive, shallowRef, type App } from 'vue'
 
