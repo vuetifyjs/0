@@ -32,11 +32,11 @@
 
   const context = useAvatarContext()
 
-  const ticket = context.register(() => ({
+  const ticket = context.register({
     priority,
     status: 'loading',
     type: 'image',
-  }))
+  })
 
   function onLoad (e: Event) {
     ticket.status = 'loaded'
