@@ -24,7 +24,7 @@ export interface RegistrarContext<
   T extends RegistrarTicket = RegistrarTicket,
   RegisterFn = RegisterCallback<RegistrarItem, T>,
 > {
-  registeredItems: Reactive<Map<ID, T>>
+  registeredItems: Reactive<Map<ID, Reactive<T>>>
   register: RegisterFn
   unregister: (id: ID) => void
   reindex: () => void
@@ -38,7 +38,7 @@ export function useRegistrar<
 
   const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
 
-  const registeredItems = reactive(new Map<ID, T>())
+  const registeredItems = reactive(new Map())
 
   function reindex () {
     let index = 0
@@ -53,16 +53,16 @@ export function useRegistrar<
       index: registeredItems.size,
     }
 
-    // TODO: Add extract function
-    const item = typeof registration === 'function' ? registration(ticket) : registration
-
     const registrant = reactive({
-      ...item,
-      id: item?.id ?? ticket.id,
-      index: item?.index ?? ticket.index,
+      id: ticket.id,
+      index: ticket.index,
     }) as Reactive<T>
 
-    registeredItems.set(registrant.id, registrant as any)
+    const item = (typeof registration === 'function' ? registration(registrant) : registration) ?? ticket
+
+    Object.assign(registrant, item)
+
+    registeredItems.set(registrant.id, registrant)
 
     return registrant
   }

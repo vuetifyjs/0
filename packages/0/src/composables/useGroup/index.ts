@@ -22,7 +22,7 @@ export interface GroupTicket extends RegistrarTicket {
   toggle: () => void
 }
 
-export interface GroupContext extends Omit<RegistrarContext<GroupTicket>, 'register'> {
+export interface GroupContext extends RegistrarContext<GroupTicket> {
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
@@ -129,18 +129,16 @@ export function useGroup<T extends GroupContext> (
     }
   }
 
-  function register (createGroupItem: RegisterArgument<GroupItem>): Reactive<GroupTicket> {
-    const ticket = registrar.register(order => {
-      // TODO: Add extract function
-      const item = typeof createGroupItem === 'function'
-        ? createGroupItem(order)
-        : createGroupItem
+  function register (registration: RegisterArgument<GroupItem>): Reactive<GroupTicket> {
+    const ticket = registrar.register(registrant => {
+      const item = typeof registration === 'function' ? registration(registrant) : registration
+
       return {
         disabled: item?.disabled ?? false,
-        value: item?.value ?? order.index,
+        value: item?.value ?? registrant.index,
         valueIsIndex: item?.value == null,
-        isActive: toRef(() => selectedIds.has(order.id)),
-        toggle: () => toggle(order.id),
+        isActive: toRef(() => selectedIds.has(registrant.id)),
+        toggle: () => toggle(registrant.id),
         ...item,
       }
     })

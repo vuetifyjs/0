@@ -15,9 +15,9 @@ export interface StepTicket extends GroupTicket {}
 
 export interface StepOptions extends Omit<GroupOptions, 'multiple'> {}
 
-export interface StepContext extends Omit<GroupContext, 'register'> {
-  register: RegisterCallback<StepItem, StepTicket>
+export interface StepContext extends GroupContext {
   currentItem: Ref<any>
+  register: RegisterCallback<StepItem, StepTicket>
   first: () => void
   last: () => void
   next: () => void
