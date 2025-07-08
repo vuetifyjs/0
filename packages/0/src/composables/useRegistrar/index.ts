@@ -16,15 +16,16 @@ export interface RegistrarTicket extends Required<RegistrarItem> {
   index: number
 }
 
-export type RegisterCallback<Item extends RegistrarItem, Ticket extends RegistrarTicket> = (item: Partial<Item> | ((order: RegistrarTicket) => Partial<Item>)) => Reactive<Ticket>
+export type RegisterCallback<Item extends RegistrarItem, Stub extends RegistrarTicket> = (item?: Partial<Item> | ((order: Stub) => Partial<Item>)) => Reactive<Stub>
 
 export type RegisterArgument<Item extends RegistrarItem> = Parameters<RegisterCallback<Item, RegistrarTicket>>[0]
 
 export interface RegistrarContext<
   T extends RegistrarTicket = RegistrarTicket,
+  RegisterFn = RegisterCallback<RegistrarItem, T>,
 > {
   registeredItems: Reactive<Map<ID, T>>
-  register: (order: (order: RegistrarTicket) => Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>) => Reactive<T>
+  register: RegisterFn
   unregister: (id: ID) => void
   reindex: () => void
 }
@@ -33,6 +34,8 @@ export function useRegistrar<
   T extends RegistrarTicket,
   U extends RegistrarContext,
 > (namespace: string) {
+  type PartialTicket = Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>
+
   const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
 
   const registeredItems = reactive(new Map<ID, T>())
@@ -44,23 +47,19 @@ export function useRegistrar<
     }
   }
 
-  type PartialTicket = Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>
-
-  function register (createRegistrant: RegisterArgument<PartialTicket>): Reactive<T> {
-    const ticket = {
+  function register (registration?: RegisterArgument<PartialTicket>): Reactive<T> {
+    const stub = {
       id: crypto.randomUUID(),
       index: registeredItems.size,
     }
 
     // TODO: Add extract function
-    const ordered = typeof createRegistrant === 'function'
-      ? createRegistrant(ticket)
-      : createRegistrant
+    const ticket = typeof registration === 'function' ? registration(stub) : registration
 
     const registrant = reactive({
-      ...ordered,
-      id: ordered.id ?? ticket.id,
-      index: ordered.index ?? ticket.index,
+      ...ticket,
+      id: ticket?.id ?? stub.id,
+      index: ticket?.index ?? stub.index,
     }) as Reactive<T>
 
     registeredItems.set(registrant.id, registrant as any)
