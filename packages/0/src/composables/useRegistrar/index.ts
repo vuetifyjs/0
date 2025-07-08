@@ -16,7 +16,7 @@ export interface RegistrarTicket extends Required<RegistrarItem> {
   index: number
 }
 
-export type RegisterCallback<Item extends RegistrarItem, Stub extends RegistrarTicket> = (item?: Partial<Item> | ((order: Stub) => Partial<Item>)) => Reactive<Stub>
+export type RegisterCallback<Item extends RegistrarItem, Ticket extends RegistrarTicket> = (item?: Partial<Item> | ((ticket: Ticket) => Partial<Item>)) => Reactive<Ticket>
 
 export type RegisterArgument<Item extends RegistrarItem> = Parameters<RegisterCallback<Item, RegistrarTicket>>[0]
 
@@ -32,9 +32,9 @@ export interface RegistrarContext<
 
 export function useRegistrar<
   T extends RegistrarTicket,
-  U extends RegistrarContext,
+  U extends RegistrarContext<T>,
 > (namespace: string) {
-  type PartialTicket = Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>
+  type PartialItem = Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>
 
   const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
 
@@ -47,19 +47,19 @@ export function useRegistrar<
     }
   }
 
-  function register (registration?: RegisterArgument<PartialTicket>): Reactive<T> {
-    const stub = {
+  function register (registration?: RegisterArgument<PartialItem>): Reactive<T> {
+    const ticket: RegistrarTicket = {
       id: crypto.randomUUID(),
       index: registeredItems.size,
     }
 
     // TODO: Add extract function
-    const ticket = typeof registration === 'function' ? registration(stub) : registration
+    const item = typeof registration === 'function' ? registration(ticket) : registration
 
     const registrant = reactive({
-      ...ticket,
-      id: ticket?.id ?? stub.id,
-      index: ticket?.index ?? stub.index,
+      ...item,
+      id: item?.id ?? ticket.id,
+      index: item?.index ?? ticket.index,
     }) as Reactive<T>
 
     registeredItems.set(registrant.id, registrant as any)
