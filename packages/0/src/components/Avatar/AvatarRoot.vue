@@ -11,7 +11,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '#v0/composables'
-  import type { ComputedGetter, Reactive } from 'vue'
+  import type { ComputedGetter } from 'vue'
 
   export interface AvatarRootProps extends AtomProps {}
 
@@ -28,11 +28,11 @@
     isVisible: Readonly<ComputedGetter<boolean>>
   }
 
-  export interface AvatarContext extends RegistrarContext<AvatarItem, AvatarTicket> {
+  export interface AvatarContext extends RegistrarContext<AvatarTicket, AvatarItem> {
     reset: () => void
   }
 
-  export const [useAvatarContext, provideAvatarContext, registrar] = useRegistrar<AvatarItem, AvatarTicket, AvatarContext>('avatar')
+  export const [useAvatarContext, provideAvatarContext, registrar] = useRegistrar<AvatarTicket, AvatarContext>('avatar')
 </script>
 
 <script setup lang="ts">
@@ -64,13 +64,18 @@
     return undefined
   })
 
-  function register (item?: Partial<AvatarItem>): Reactive<AvatarTicket> {
-    const ticket = registrar.register(item)
+  const register: typeof registrar.register = createAvatarItem => {
+    const ticket = registrar.register(order => {
+      const avatarItem = registrar.intake(order, createAvatarItem)
 
-    ticket.type = item?.type ?? 'fallback'
-    ticket.priority = item?.priority ?? registrar.registeredItems.size
-    ticket.status = item?.status ?? 'idle'
-    ticket.isVisible = toRef(() => visibleItem.value?.id === ticket.id)
+      return {
+        ...avatarItem,
+        type: avatarItem?.type ?? 'fallback',
+        priority: avatarItem?.priority ?? registrar.registeredItems.size,
+        status: avatarItem?.status ?? 'idle',
+        isVisible: toRef(() => visibleItem.value?.id === order.id),
+      }
+    })
 
     return ticket
   }
