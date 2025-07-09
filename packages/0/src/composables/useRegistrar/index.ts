@@ -3,6 +3,7 @@ import { useContext } from '../useContext'
 
 // Utilities
 import { reactive } from 'vue'
+import { genId } from '#v0/utils/helpers'
 
 // Types
 import type { ID } from '#v0/types'
@@ -38,7 +39,7 @@ export function useRegistrar<
 
   const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
 
-  const registeredItems = reactive(new Map())
+  const registeredItems = reactive(new Map<ID, any>())
 
   function reindex () {
     let index = 0
@@ -48,12 +49,14 @@ export function useRegistrar<
   }
 
   function register (registration?: RegisterArgument<PartialItem>): Reactive<T> {
+    const isFunction = typeof registration === 'function'
+
     const ticket: RegistrarTicket = {
-      id: crypto.randomUUID(),
+      id: isFunction ? genId() : registration?.id ?? genId(),
       index: registeredItems.size,
     }
 
-    const item = typeof registration === 'function' ? registration(ticket) : registration
+    const item = isFunction ? registration(ticket) : registration
 
     Object.assign(ticket, item)
 
