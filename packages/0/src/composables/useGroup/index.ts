@@ -6,7 +6,7 @@ import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toV
 
 // Types
 import type { ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterCallback, RegisterArgument } from '../useRegistrar'
+import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterArgument } from '../useRegistrar'
 import type { ID } from '#v0/types'
 
 export interface GroupItem extends RegistrarItem {
