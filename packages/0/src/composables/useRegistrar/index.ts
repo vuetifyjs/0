@@ -53,14 +53,11 @@ export function useRegistrar<
       index: registeredItems.size,
     }
 
-    const registrant = reactive({
-      id: ticket.id,
-      index: ticket.index,
-    }) as Reactive<T>
+    const item = typeof registration === 'function' ? registration(ticket) : registration
 
-    const item = (typeof registration === 'function' ? registration(registrant) : registration) ?? ticket
+    Object.assign(ticket, item)
 
-    Object.assign(registrant, item)
+    const registrant = reactive(ticket) as Reactive<T>
 
     registeredItems.set(registrant.id, registrant)
 
