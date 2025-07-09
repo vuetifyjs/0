@@ -10,8 +10,8 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterArgument } from '#v0/composables'
-  import type { ComputedGetter, Reactive } from 'vue'
+  import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '#v0/composables'
+  import type { ComputedGetter } from 'vue'
 
   export interface AvatarRootProps extends AtomProps {}
 
@@ -64,7 +64,7 @@
     return undefined
   })
 
-  function register (createAvatarItem: RegisterArgument<AvatarItem, AvatarTicket>): Reactive<AvatarTicket> {
+  const register: typeof registrar.register = createAvatarItem => {
     const ticket = registrar.register(order => {
       const avatarItem = registrar.intake(order, createAvatarItem)
 

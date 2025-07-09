@@ -6,7 +6,7 @@ import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toV
 
 // Types
 import type { ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterArgument } from '../useRegistrar'
+import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '../useRegistrar'
 import type { ID } from '#v0/types'
 
 export interface GroupItem extends RegistrarItem {
@@ -128,7 +128,7 @@ export function useGroup<T extends GroupContext> (
     }
   }
 
-  function register (registration: RegisterArgument<GroupItem, GroupTicket>): Reactive<GroupTicket> {
+  const register: typeof registrar.register = registration => {
     const ticket = registrar.register(registrant => {
       const item = registrar.intake(registrant, registration)
 
