@@ -10,7 +10,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterCallback, RegisterArgument } from '#v0/composables'
+  import type { RegistrarContext, RegistrarItem, RegistrarTicket, RegisterArgument } from '#v0/composables'
   import type { ComputedGetter, Reactive } from 'vue'
 
   export interface AvatarRootProps extends AtomProps {}
@@ -28,8 +28,7 @@
     isVisible: Readonly<ComputedGetter<boolean>>
   }
 
-  export interface AvatarContext extends Omit<RegistrarContext<AvatarTicket>, 'register'> {
-    register: RegisterCallback<AvatarItem, AvatarTicket>
+  export interface AvatarContext extends RegistrarContext<AvatarTicket, AvatarItem> {
     reset: () => void
   }
 
@@ -65,12 +64,10 @@
     return undefined
   })
 
-  function register (createAvatarItem: RegisterArgument<AvatarItem>): Reactive<AvatarTicket> {
+  function register (createAvatarItem: RegisterArgument<AvatarItem, AvatarTicket>): Reactive<AvatarTicket> {
     const ticket = registrar.register(order => {
-      // TODO: Add extract function
-      const avatarItem = typeof createAvatarItem === 'function'
-        ? createAvatarItem(order)
-        : createAvatarItem
+      const avatarItem = registrar.intake(order, createAvatarItem)
+
       return {
         ...avatarItem,
         type: avatarItem?.type ?? 'fallback',

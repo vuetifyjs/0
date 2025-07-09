@@ -22,11 +22,10 @@ export interface GroupTicket extends RegistrarTicket {
   toggle: () => void
 }
 
-export interface GroupContext extends RegistrarContext<GroupTicket> {
+export interface GroupContext extends RegistrarContext<GroupTicket, GroupItem> {
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
-  register: RegisterCallback<GroupItem, GroupTicket>
   mandate: () => void
   select: (ids: ID | ID[]) => void
   reset: () => void
@@ -46,7 +45,7 @@ export function useGroup<T extends GroupContext> (
     useGroupContext,
     provideGroupContext,
     registrar,
-  ] = useRegistrar<GroupTicket, GroupContext>(namespace)
+  ] = useRegistrar<GroupTicket, T>(namespace)
 
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
@@ -129,9 +128,9 @@ export function useGroup<T extends GroupContext> (
     }
   }
 
-  function register (registration: RegisterArgument<GroupItem>): Reactive<GroupTicket> {
+  function register (registration: RegisterArgument<GroupItem, GroupTicket>): Reactive<GroupTicket> {
     const ticket = registrar.register(registrant => {
-      const item = typeof registration === 'function' ? registration(registrant) : registration
+      const item = registrar.intake(registrant, registration)
 
       return {
         disabled: item?.disabled ?? false,
