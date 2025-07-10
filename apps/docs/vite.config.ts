@@ -1,7 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import VueRouter from 'unplugin-vue-router/vite'
-import Markdown from 'vite-plugin-md'
+import Markdown from 'unplugin-vue-markdown/vite'
 
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
@@ -20,7 +20,7 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
-    Markdown(),
+    Markdown({}),
     UnocssVitePlugin(),
     Layouts(),
   ],
