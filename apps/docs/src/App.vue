@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-  import HelloMd from './app.md'
+  //
 </script>
 
 <template>
-  <div>
-    <HelloMd />
+  <div id="app" class="grid grid-cols-[250px_1fr]">
     <router-view />
   </div>
 </template>
