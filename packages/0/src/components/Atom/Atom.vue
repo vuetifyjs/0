@@ -1,6 +1,6 @@
 <script lang="ts">
   // Utils
-  import { mergeProps, toRef, useAttrs, useTemplateRef } from 'vue'
+  import { toRef, useAttrs, useTemplateRef } from 'vue'
   import { isSelfClosingTag } from '#v0/constants/htmlElements'
 
   // Types
@@ -20,9 +20,7 @@
     element: TemplateRef<HTMLElement | null>
   }
 
-  interface AtomPrivateProps<T extends Record<string, any> = {}> extends AtomProps {
-    props?: T
-  }
+  interface AtomPrivateProps extends AtomProps {}
 </script>
 
 <script setup lang="ts" generic="T extends Record<string, any> = {}">
@@ -33,8 +31,7 @@
   const {
     as = 'div',
     renderless = false,
-    props = {},
-  } = defineProps<AtomPrivateProps<T>>()
+  } = defineProps<AtomPrivateProps>()
 
   const element = useTemplateRef<HTMLElement>('element')
 
@@ -42,7 +39,7 @@
 
   const attrs = useAttrs()
   const isSelfClosing = toRef(() => typeof as === 'string' && isSelfClosingTag(as as keyof HTMLElementTagNameMap))
-  const slotProps = toRef(() => mergeProps(props, attrs) as T)
+  const slotProps = toRef(() => attrs as T)
 </script>
 
 <template>
@@ -54,7 +51,7 @@
   <component
     :is="as"
     v-else-if="!isSelfClosing"
-    v-bind="props"
+    v-bind="slotProps"
     ref="element"
   >
     <slot v-if="!isSelfClosing" v-bind="slotProps" />
@@ -63,6 +60,6 @@
     :is="as"
     v-else
     ref="element"
-    v-bind="props"
+    v-bind="slotProps"
   />
 </template>
