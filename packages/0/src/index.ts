@@ -7,5 +7,8 @@ export * from './components/Step'
 
 export * from './composables/useContext'
 export * from './composables/useGroup'
+export * from './composables/useHydration'
+export * from './composables/useKeydown'
 export * from './composables/useMarkdown'
+export * from './composables/useRegistrar'
 export * from './composables/useStep'
