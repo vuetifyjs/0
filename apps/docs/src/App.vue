@@ -4,6 +4,7 @@
 
 <template>
   <div id="app" class="grid grid-cols-[220px_1fr]">
+    <div />
     <router-view />
   </div>
 </template>
@@ -45,8 +46,20 @@
       border-left: 4px solid #d1d5db;
     }
 
+    code {
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #f6f8fa;
+      padding: 0.2rem 0.4rem;
+    }
+
     p {
       margin-bottom: .5rem;
+    }
+
+    ul {
+      list-style-type: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     pre {
