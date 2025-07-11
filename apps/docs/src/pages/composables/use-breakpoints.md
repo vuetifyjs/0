@@ -2,7 +2,7 @@
 
 The `useBreakpoints` composable provides responsive breakpoint detection for your application. It allows you to create responsive layouts that adapt to different screen sizes and provides convenient boolean flags for common breakpoint scenarios.
 
-## Installation
+## Usage
 
 ```ts
 // src/app.ts
@@ -13,8 +13,6 @@ const app = createApp(App)
 
 app.use(createBreakpointsPlugin())
 ```
-
-## Usage
 
 ```vue
 <script lang="ts" setup>
@@ -264,16 +262,3 @@ The composable is designed to work with Server-Side Rendering (SSR). It integrat
 - On the server, breakpoints start with default values
 - After hydration, breakpoints are updated based on the actual window dimensions
 - This prevents hydration mismatches between server and client
-
-## Performance
-
-The composable uses `shallowReactive` for optimal performance:
-
-- Only top-level properties are reactive
-- Window resize events are debounced automatically by the browser
-- Event listeners are properly cleaned up when components unmount
-- Minimal re-renders when breakpoints change
-
-## Browser Compatibility
-
-The composable works in all modern browsers and gracefully handles non-browser environments (SSR, testing, etc.) by using the `IN_BROWSER` constant to conditionally register event listeners.
