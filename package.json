@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter=playground dev",
-    "build": "pnpm --filter=v0 --filter=paper build",
+    "build": "pnpm --filter=0 --filter=paper build",
     "preview": "vite preview",
     "type-check": "vue-tsc -b --incremental",
     "type-check:watch": "vue-tsc -b --incremental --watch",
