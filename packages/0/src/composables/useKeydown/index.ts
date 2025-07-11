@@ -66,7 +66,7 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
     }
   }
 
-  const stopListening = () => {
+  function stopListening () {
     if (isListening.value) {
       for (const id of handlerIds.value) {
         handlerMap.delete(id)
