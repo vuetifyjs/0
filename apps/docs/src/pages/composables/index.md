@@ -6,6 +6,7 @@ Composables are reusable pieces of logic that can be shared across components in
 
 | Name | Description |
 | - | - |
+| [useBreakpoints](/composables/use-breakpoints) | Responsive breakpoint detection for creating adaptive layouts across different screen sizes. |
 | [useContext](/composables/use-context) | Create a reusable context to share state and methods across components. |
 | [useFilter](/composables/use-filter) | Filter items in a collection based on specified criteria. |
 | [useGroup](/composables/use-group) | Manage a group of items or components, allowing for easy manipulation of collections. |

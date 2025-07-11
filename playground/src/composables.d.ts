@@ -15,6 +15,8 @@ declare global {
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
+  const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
+  const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
   const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
   const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
   const createTheme: typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']
@@ -83,6 +85,7 @@ declare global {
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
+  const useHydration: typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']
   const useId: typeof import('vue')['useId']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
   const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
@@ -129,13 +132,16 @@ declare global {
   export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
+  export type { HydrationContext, HydrationPlugin } from '../../packages/0/src/composables/useHydration/index'
+  import('../../packages/0/src/composables/useHydration/index')
+  // @ts-ignore
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
   export type { MarkdownAdapter, MarkdownContext, MarkdownOptions, MarkdownPlugin } from '../../packages/0/src/composables/useMarkdown/index'
   import('../../packages/0/src/composables/useMarkdown/index')
   // @ts-ignore
-  export type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
+  export type { RegistrarItem, RegistrarTicket, RegisterCallback, RegisterArgument, IntakeFunction, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
   import('../../packages/0/src/composables/useRegistrar/index')
   // @ts-ignore
   export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
@@ -159,6 +165,8 @@ declare module 'vue' {
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
+    readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
+    readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
     readonly createMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']>
     readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']>
@@ -225,6 +233,7 @@ declare module 'vue' {
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
+    readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']>

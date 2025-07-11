@@ -5,6 +5,7 @@
       name: 'Composables',
       to: '/composables',
       children: [
+        { name: 'useBreakpoints', to: '/composables/use-breakpoints' },
         { name: 'useContext', to: '/composables/use-context' },
         { name: 'useFilter', to: '/composables/use-filter' },
         { name: 'useGroup', to: '/composables/use-group' },
