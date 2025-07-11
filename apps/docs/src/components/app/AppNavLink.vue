@@ -7,22 +7,46 @@
   import type { AtomProps } from '@vuetify/0'
   import type { RouterLinkProps } from 'vue-router'
 
-  export interface ComponentProps extends AtomProps, RouterLinkProps {}
+  export interface NavItem {
+    name: string
+    to: string
+  }
+
+  export interface ComponentProps extends AtomProps, RouterLinkProps {
+    children?: NavItem[]
+  }
 
   const {
     as = RouterLink,
     activeClass = 'underline',
+    children = [],
     ...props
   } = defineProps<ComponentProps>()
 </script>
 
 <template>
-  <Atom
-    :active-class
-    :as
-    class="font-semibold"
-    v-bind="props"
-  >
-    <slot />
-  </Atom>
+  <li>
+    <Atom
+      :active-class
+      :as
+      class="font-semibold"
+      v-bind="props"
+    >
+      <slot />
+    </Atom>
+
+    <ul
+      v-if="children.length > 0"
+      class="ml-4 mt-2 flex flex-col gap-2"
+    >
+      <AppNavLink
+        v-for="child in children"
+        :key="child.name"
+        class="text-sm opacity-80"
+        :to="child.to"
+      >
+        {{ child.name }}
+      </AppNavLink>
+    </ul>
+  </li>
 </template>

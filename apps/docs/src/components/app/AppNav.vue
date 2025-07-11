@@ -9,7 +9,7 @@
 <template>
   <Atom
     :as
-    class="pa-4 bg-4 bg-[#212121] text-[#e0e0e0]"
+    class="bg-4 bg-[#212121] text-[#e0e0e0] flex flex-col h-[100vh]"
   >
     <slot />
   </Atom>
