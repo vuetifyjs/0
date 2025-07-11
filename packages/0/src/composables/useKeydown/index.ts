@@ -1,5 +1,6 @@
 import { onMounted, getCurrentScope, onScopeDispose, ref, shallowReadonly } from 'vue'
 import type { ID } from '#v0/types'
+import { genId } from '#v0/utils/helpers'
 
 export interface KeyHandler {
   key: string
@@ -49,7 +50,7 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
 
   const startListening = () => {
     if (!isListening.value) {
-      const ids = Array.from({ length: keyHandlers.length }, () => crypto.randomUUID())
+      const ids = Array.from({ length: keyHandlers.length }, genId)
 
       for (const [index, id] of ids.entries()) {
         handlerMap.set(id, keyHandlers[index])
