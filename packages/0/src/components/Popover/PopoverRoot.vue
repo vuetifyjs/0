@@ -37,6 +37,16 @@
     isActive.value = !isActive.value
   }
 
+  const bindableProps = toRef(() => ({
+    id,
+    isActive,
+    toggle,
+  }))
+
+  type BindableProps = typeof bindableProps.value
+
+  defineSlots<{ default: (props: BindableProps) => any }>()
+
   providePopoverContext({
     isActive,
     toggle,
@@ -47,8 +57,9 @@
 <template>
   <Atom
     :as
-    :props="{ isActive, toggle, id }"
+    :renderless
+    v-bind="bindableProps"
   >
-    <slot />
+    <slot v-bind="bindableProps" />
   </Atom>
 </template>
