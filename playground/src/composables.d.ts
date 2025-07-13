@@ -10,7 +10,10 @@ declare global {
   const DEFAULT_DARK: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
+  const IN_BROWSER: typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
+  const SUPPORTS_MATCH_MEDIA: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']
+  const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
@@ -19,7 +22,8 @@ declare global {
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
   const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
   const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
-  const createTheme: typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']
+  const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
+  const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
   const customRef: typeof import('vue')['customRef']
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
@@ -97,6 +101,7 @@ declare global {
   const useSpacing: typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']
   const useStep: typeof import('../../packages/0/src/composables/useStep/index')['useStep']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
+  const useTheme: typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -126,7 +131,7 @@ declare global {
   export type { SpacingProps } from '../../packages/paper/src/composables/useSpacing/index'
   import('../../packages/paper/src/composables/useSpacing/index')
   // @ts-ignore
-  export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
+  export type { Theme, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
   export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
@@ -147,6 +152,9 @@ declare global {
   export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
+  export type { Colors, ThemeDefinition, ThemeOptions, ThemeContext } from '../../packages/0/src/composables/useTheme/index'
+  import('../../packages/0/src/composables/useTheme/index')
+  // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
   import('../../packages/0/src/constants/htmlElements')
 }
@@ -160,7 +168,10 @@ declare module 'vue' {
     readonly DEFAULT_DARK: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']>
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
+    readonly SUPPORTS_MATCH_MEDIA: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']>
+    readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
@@ -169,7 +180,8 @@ declare module 'vue' {
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
     readonly createMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']>
     readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
-    readonly createTheme: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']>
+    readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
+    readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
@@ -245,6 +257,7 @@ declare module 'vue' {
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
     readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['useStep']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>
