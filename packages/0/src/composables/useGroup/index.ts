@@ -5,7 +5,7 @@ import { useRegistrar } from '../useRegistrar'
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
+import type { App, ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
 import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '../useRegistrar'
 import type { ID } from '#v0/types'
 
@@ -184,6 +184,7 @@ export function useGroup<T extends GroupContext> (
     function (
       model?: Ref<unknown | unknown[]>,
       _context: T = context,
+      app?: App,
     ) {
       let isUpdatingModel = false
 
@@ -230,7 +231,7 @@ export function useGroup<T extends GroupContext> (
         })
       }
 
-      provideGroupContext(_context)
+      provideGroupContext(_context, app)
 
       return _context
     },
