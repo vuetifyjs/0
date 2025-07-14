@@ -7,7 +7,7 @@ import { genId } from '#v0/utils/helpers'
 
 // Types
 import type { ID } from '#v0/types'
-import type { Reactive } from 'vue'
+import type { App, Reactive } from 'vue'
 
 export interface RegistrarItem {
   id?: ID
@@ -94,8 +94,11 @@ export function useRegistrar<
 
   return [
     useRegistrarContext,
-    function provideRegistrar (_context: U = context) {
-      provideRegistrarContext(_context)
+    function provideRegistrar (
+      _context: U = context,
+      app?: App,
+    ) {
+      provideRegistrarContext(_context, app)
 
       return _context
     },

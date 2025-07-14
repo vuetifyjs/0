@@ -1,212 +1,173 @@
 // Composables
+import { useRegistrar } from '#v0/composables/useRegistrar'
 import { useContext } from '#v0/composables/useContext'
 
 // Utilities
-import { computed, getCurrentScope, onScopeDispose, reactive, shallowRef, toRef, watch } from 'vue'
-import { mergeDeep } from '#v0/utils/helpers'
+import { computed, nextTick, shallowRef, toRef, toValue, watch, type App, type ComputedRef, type Reactive, type Ref } from 'vue'
+
+// Adapters
+import { V0ThemeAdapter, type ThemeAdapter } from './adapters'
 
 // Globals
-import { IN_BROWSER, SUPPORTS_MATCH_MEDIA } from '#v0/constants/globals'
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { App, ComputedRef, Reactive, Ref, ShallowRef } from 'vue'
+import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '#v0/composables/useRegistrar'
+import type { ID } from '#v0/types'
 
 export interface Colors {
   [key: string]: string
 }
 
-export interface ThemeDefinition {
+export interface ThemeItem extends RegistrarItem {
   dark: boolean
   colors: Colors
 }
 
-export interface ThemeOptions {
-  cspNonce?: string
-  default?: 'light' | 'dark' | 'system' | string
-  stylesheetId?: string
-  themes?: Record<string, Partial<ThemeDefinition>>
+export interface ThemeTicket extends RegistrarTicket {
+  dark: boolean
+  colors: Colors
+  toggle: () => void
 }
 
-export interface ThemeContext {
-  name: Readonly<Ref<string>>
-  current: Readonly<Ref<ThemeDefinition>>
-  cspNonce?: string
-  themes: Reactive<Record<string, ThemeDefinition>>
-  stylesheetId: string
+export interface ThemeContext extends RegistrarContext<ThemeTicket, ThemeItem> {
   styles: ComputedRef<string>
-  change: (name: string) => void
-  cycle: (themeArray?: string[]) => void
-  reset: () => void
-  toggle: (themeArray?: [string, string]) => void
+  selectedId: Ref<ID>
+  selectedItem: ComputedRef<ThemeItem | undefined>
+  selectedColors: ComputedRef<Colors | undefined>
+  cycle: (themeArray?: ID[]) => void
+  select: (name: ID) => void
+  toggle: (themeArray?: [ID, ID]) => void
 }
 
-const [useThemeContext, provideThemeContext] = useContext<ThemeContext>('theme')
-
-function getOrCreateStyleElement (id: string, cspNonce?: string) {
-  if (!IN_BROWSER) return null
-
-  let style = document.querySelector(id) as HTMLStyleElement | null
-
-  if (!style) {
-    style = document.createElement('style')
-    style.id = id.startsWith('#') ? id.slice(1) : id
-
-    if (cspNonce) style.setAttribute('nonce', cspNonce)
-
-    document.head.append(style)
-  }
-
-  return style
+export interface ThemePluginOptions {
+  adapter?: ThemeAdapter
 }
 
-function upsertStyles (id: string, cspNonce: string | undefined, styles: string) {
-  const styleEl = getOrCreateStyleElement(id, cspNonce)
+export function createTheme<T extends ThemeContext> (namespace: string) {
+  const [, provideThemeContext, registrar] = useRegistrar<ThemeTicket, T>(namespace)
 
-  if (!styleEl) return
+  const selectedId = shallowRef()
+  let initialValue: unknown = null
 
-  styleEl.textContent = styles
-}
+  const selectedItem = computed(() => registrar.registeredItems.get(selectedId.value))
+  const selectedColors = computed(() => selectedItem.value?.colors)
+  const themeNames = computed(() => Array.from(registrar.registeredItems.keys()))
 
-function parseThemes (_themes: ThemeOptions['themes'] = {}): Record<string, ThemeDefinition> {
-  function genDefaults () {
-    return {
-      light: {
-        dark: false,
-        colors: {
-          primary: '#1976D2',
-          secondary: '#424242',
-          accent: '#82B1FF',
-          success: '#4CAF50',
-          warning: '#FB8C00',
-          error: '#FF5252',
-          info: '#2196F3',
-          background: '#FFFFFF',
-          surface: '#F5F5F5',
-          text: '#000000',
-        },
-      },
-      dark: {
-        dark: true,
-        colors: {
-          primary: '#2196F3',
-          secondary: '#757575',
-          accent: '#BBDEFB',
-          success: '#81C784',
-          warning: '#FFB74D',
-          error: '#E57373',
-          info: '#64B5F6',
-          background: '#121212',
-          surface: '#1E1E1E',
-          text: '#FFFFFF',
-        },
-      },
-    }
+  function select (value: ID) {
+    selectedId.value = value
   }
 
-  const defaults = genDefaults()
-
-  return Object.entries(_themes).reduce<Record<string, ThemeDefinition>>((acc, [key, theme]) => {
-    const defaultTheme = theme.dark || key === 'dark' ? defaults.dark : defaults.light
-    acc[key] = mergeDeep<ThemeDefinition>(defaultTheme, theme)
-    return acc
-  }, genDefaults())
-}
-
-export function createTheme (options: Partial<ThemeOptions> = {}): ThemeContext {
-  const themes = reactive(parseThemes(options.themes))
-  const _name = shallowRef(options.default || 'light')
-  const stylesheetId = shallowRef(options.stylesheetId || '#v0-theme-stylesheet')
-  const system = shallowRef('light')
-
-  const name = computed({
-    get () {
-      return _name.value === 'system' ? system.value : _name.value
-    },
-    set (val: string) {
-      _name.value = val
-    },
-  })
-  const themeNames = toRef(() => Object.keys(themes))
-  const current = toRef(() => themes[name.value])
-
-  const styles = computed(() => {
-    if (!current.value) return ''
-    const vars = Object.entries(current.value.colors).map(([key, val]) => `  --v0-theme-${key}: ${val};`).join('\n')
-    return `:root {\n${vars}\n}`
-  })
-
-  if (SUPPORTS_MATCH_MEDIA) {
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
-
-    function updateSystem () {
-      system.value = media.matches ? 'dark' : 'light'
-    }
-
-    updateSystem()
-
-    media.addEventListener('change', updateSystem, { passive: true })
-
-    if (getCurrentScope()) {
-      onScopeDispose(() => {
-        media.removeEventListener('change', updateSystem)
-      })
-    }
-  }
-
-  function change (value: string) {
-    name.value = value
-  }
-
-  function cycle (themeArray: string[] = themeNames.value) {
-    const currentIndex = themeArray.indexOf(name.value)
+  function cycle (themeArray: ID[] = themeNames.value) {
+    const currentIndex = themeArray.indexOf(selectedId.value)
     const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % themeArray.length
 
-    change(themeArray[nextIndex])
+    select(themeArray[nextIndex])
   }
 
-  function toggle (themeArray: [string, string] = ['light', 'dark']) {
+  function toggle (themeArray: [ID, ID]) {
     cycle(themeArray)
   }
 
-  function reset () {
-    name.value = options.default ?? 'light'
+  const register: typeof registrar.register = registration => {
+    const ticket = registrar.register(registrant => {
+      const item = registrar.intake(registrant, registration)
+
+      return {
+        isActive: toRef(() => selectedId.value === registrant.id),
+        toggle: () => select(registrant.id),
+        ...item,
+      }
+    })
+
+    if (initialValue != null && initialValue === ticket.id) {
+      selectedId.value = ticket.id
+    }
+
+    return ticket
   }
 
-  return {
-    name: toRef(() => name.value),
-    current,
-    stylesheetId: stylesheetId.value,
-    styles,
-    cspNonce: options.cspNonce,
-    themes,
-    change,
+  const context = {
+    ...registrar,
+    selectedId,
+    selectedItem,
+    selectedColors,
+    register,
+    select,
     cycle,
     toggle,
-    reset,
-  }
+  } as T
+
+  return [
+    function (
+      app?: App,
+      _context: T = context,
+      model?: Ref<ID>,
+    ) {
+      let isUpdatingModel = false
+
+      if (model) {
+        initialValue = toValue(model)
+
+        watch(selectedId, () => {
+          if (isUpdatingModel || !selectedItem.value) return
+
+          model.value = selectedItem.value.id
+        })
+
+        watch(model, value => {
+          if (isUpdatingModel) return
+
+          selectedId.value = value
+        })
+
+        watch([model, selectedId], async () => {
+          isUpdatingModel = true
+
+          await nextTick()
+
+          isUpdatingModel = false
+        })
+      }
+
+      provideThemeContext(_context, app)
+
+      return _context
+    },
+    context,
+  ] as const
 }
 
 export function useTheme (): ThemeContext {
-  return useThemeContext()
+  return useContext<ThemeContext>('v0:theme')[0]()
 }
 
-export function createThemePlugin () {
+export function createThemePlugin (options: ThemePluginOptions = {}) {
   return {
     install (app: App) {
-      const theme = createTheme()
+      const { adapter = new V0ThemeAdapter() } = options
+      const [provideThemeContext, themeContext] = createTheme<ThemeContext>('v0:theme')
+
+      const styles = computed(() => {
+        if (!themeContext.selectedItem.value) return ''
+        const vars = Object.entries(themeContext.selectedItem.value.colors).map(([key, val]) => `  --v0-theme-${key}: ${val};`).join('\n')
+        return `:root {\n${vars}\n}`
+      })
 
       if (IN_BROWSER) {
-        watch(theme.styles, updateStyles, { immediate: true, deep: true })
+        watch(styles, updateStyles, { immediate: true, deep: true })
       } else {
         updateStyles()
       }
 
       function updateStyles () {
-        upsertStyles(theme.stylesheetId, theme.cspNonce, theme.styles.value)
+        if (!styles.value) return
+
+        adapter.upsertStyles(styles.value)
       }
 
       app.runWithContext(() => {
-        provideThemeContext(theme, app)
+        provideThemeContext(app)
       })
     },
   }
