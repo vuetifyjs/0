@@ -6,7 +6,7 @@ import { toRef } from 'vue'
 
 // Types
 import type { GroupContext, GroupItem, GroupOptions, GroupTicket } from '../useGroup'
-import type { Ref } from 'vue'
+import type { App, Ref } from 'vue'
 import type { RegisterCallback } from '../useRegistrar'
 
 export interface StepItem extends GroupItem {}
@@ -116,8 +116,9 @@ export function useStep<T extends StepContext> (
     function (
       model?: Ref<unknown | unknown[]>,
       _context: T = context,
+      app?: App,
     ) {
-      provideGroupContext(model, _context)
+      provideGroupContext(model, _context, app)
 
       return _context
     },
