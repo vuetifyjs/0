@@ -14,6 +14,7 @@
         { name: 'useMarkdown', to: '/composables/use-markdown' },
         { name: 'useRegistrar', to: '/composables/use-registrar' },
         { name: 'useStep', to: '/composables/use-step' },
+        { name: 'useTheme', to: '/composables/use-theme' },
       ],
     },
   ]

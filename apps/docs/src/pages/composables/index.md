@@ -15,3 +15,4 @@ Composables are reusable pieces of logic that can be shared across components in
 | [useMarkdown](/composables/use-markdown) | Render Markdown content in Vue applications with customizable adapters and plugin support. |
 | [useRegistrar](/composables/use-registrar) | Foundation for building registration-based systems with automatic indexing and lifecycle management. |
 | [useStep](/composables/use-step) | Manage the state of a step in a multi-step process, such as a form or wizard. |
+| [useTheme](/composables/use-theme) | Manage application themes with dynamic switching and automatic CSS custom property generation. |

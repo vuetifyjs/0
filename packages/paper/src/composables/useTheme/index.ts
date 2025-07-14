@@ -223,7 +223,7 @@ export function createTheme (options: ThemeOptions) {
 //   return style
 // }
 
-// function upsertStyles (id: string, cspNonce: string | undefined, styles: string) {
+// function upsert (id: string, cspNonce: string | undefined, styles: string) {
 //   const styleEl = getOrCreateStyleElement(id, cspNonce)
 
 //   if (!styleEl) return

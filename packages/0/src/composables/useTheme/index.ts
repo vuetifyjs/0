@@ -170,7 +170,7 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
       function updateStyles () {
         if (!styles.value) return
 
-        adapter.upsertStyles(styles.value)
+        adapter.upsert(styles.value)
       }
 
       app.runWithContext(() => {

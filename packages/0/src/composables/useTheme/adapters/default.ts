@@ -1,7 +1,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 export interface ThemeAdapter {
-  upsertStyles: (styles: string) => void
+  upsert: (styles: string) => void
 }
 
 export interface V0ThemeOptions {
@@ -18,7 +18,7 @@ export class V0ThemeAdapter implements ThemeAdapter {
     this.stylesheetId = options.stylesheetId ?? this.stylesheetId
   }
 
-  upsertStyles (styles: string): void {
+  upsert (styles: string): void {
     if (!IN_BROWSER) return
 
     let styleEl = document.querySelector(this.stylesheetId) as HTMLStyleElement | null
