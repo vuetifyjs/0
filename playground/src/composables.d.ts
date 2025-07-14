@@ -131,7 +131,7 @@ declare global {
   export type { SpacingProps } from '../../packages/paper/src/composables/useSpacing/index'
   import('../../packages/paper/src/composables/useSpacing/index')
   // @ts-ignore
-  export type { Theme, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
+  export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
   export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
@@ -152,7 +152,7 @@ declare global {
   export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
-  export type { Colors, ThemeDefinition, ThemeOptions, ThemeContext } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeItem, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'

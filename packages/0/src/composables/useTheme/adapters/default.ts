@@ -1,36 +1,32 @@
+// Adapters
+import { BaseThemeAdapter } from './adapter'
+
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
-import type { ThemeAdapter } from './adapter'
+
+// Types
 import type { Colors } from '../index'
 
-export interface V0ThemeOptions {
+export interface Vuetify0ThemeOptions {
   cspNonce?: string
   stylesheetId?: string
   prefix?: string
 }
 
-export class V0ThemeAdapter implements ThemeAdapter {
+export class Vuetify0ThemeAdapter extends BaseThemeAdapter {
   cspNonce?: string
   stylesheetId = 'v0-theme-stylesheet'
-  prefix = 'v0-theme'
 
-  constructor (options: V0ThemeOptions = {}) {
+  constructor (options: Vuetify0ThemeOptions = {}) {
+    super(options.prefix ?? 'v0')
     this.cspNonce = options.cspNonce
     this.stylesheetId = options.stylesheetId ?? this.stylesheetId
-    this.prefix = options.prefix ?? this.prefix
   }
 
   update (colors: Colors): void {
     if (!IN_BROWSER) return
 
     this.upsert(this.generate(colors))
-  }
-
-  generate (colors: Colors): string {
-    const vars = Object.entries(colors)
-      .map(([key, val]) => `  --${this.prefix}-${key}: ${val};`)
-      .join('\n')
-
-    return `:root {\n${vars}\n}`
   }
 
   upsert (styles: string): void {

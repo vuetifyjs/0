@@ -6,7 +6,7 @@ import { useContext } from '#v0/composables/useContext'
 import { computed, nextTick, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Adapters
-import { V0ThemeAdapter, type ThemeAdapter } from './adapters'
+import { Vuetify0ThemeAdapter, type ThemeAdapter } from './adapters'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -152,7 +152,7 @@ export function useTheme (): ThemeContext {
 export function createThemePlugin (options: ThemePluginOptions = {}) {
   return {
     install (app: App) {
-      const { adapter = new V0ThemeAdapter() } = options
+      const { adapter = new Vuetify0ThemeAdapter() } = options
       const [provideThemeContext, themeContext] = createTheme<ThemeContext>('v0:theme')
 
       function updateStyles (colors: Colors | undefined) {
@@ -168,7 +168,7 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
       }
 
       app.runWithContext(() => {
-        provideThemeContext(undefined, undefined, app)
+        provideThemeContext(undefined, themeContext, app)
       })
     },
   }

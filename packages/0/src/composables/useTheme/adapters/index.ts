@@ -1,3 +1,6 @@
+// Base types and classes
 export type { ThemeAdapter } from './adapter'
+export { BaseThemeAdapter } from './adapter'
 
-export { V0ThemeAdapter } from './default'
+// Adapters
+export { Vuetify0ThemeAdapter } from './default'
