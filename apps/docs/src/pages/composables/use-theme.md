@@ -32,6 +32,7 @@ const theme = useTheme()
 // Register themes
 const light = theme.register({
   id: 'light',
+  dark: false,
   colors: {
     background: '#ffffff',
     text: '#000000',
@@ -42,6 +43,7 @@ const light = theme.register({
 
 const dark = theme.register({
   id: 'dark',
+  dark: true,
   colors: {
     background: '#121212',
     text: '#ffffff',
@@ -60,25 +62,27 @@ theme.select('light')
       <button @click="theme.select('light')">Light Theme</button>
       <button @click="theme.select('dark')">Dark Theme</button>
       <button @click="theme.toggle(['light', 'dark'])">Toggle</button>
+      <button @click="theme.cycle()">Cycle All</button>
     </div>
 
     <div class="content">
       <h1>Current Theme: {{ theme.selectedId }}</h1>
       <p>Background: {{ theme.selectedColors?.background }}</p>
+      <p>Is Dark: {{ theme.selectedItem?.dark }}</p>
     </div>
   </div>
 </template>
 
 <style>
 .app {
-  background-color: var(--v0-theme-background);
-  color: var(--v0-theme-text);
+  background-color: var(--v0-background);
+  color: var(--v0-text);
   min-height: 100vh;
 }
 
 .theme-controls button {
-  background-color: var(--v0-theme-primary);
-  color: var(--v0-theme-background);
+  background-color: var(--v0-primary);
+  color: var(--v0-background);
   border: none;
   padding: 8px 16px;
   margin: 4px;
@@ -105,13 +109,12 @@ Returns the theme context with methods and properties for theme management.
 | `selectedId` | `Ref<ID>` | The ID of the currently selected theme |
 | `selectedItem` | `ComputedRef<ThemeItem \| undefined>` | The complete theme object for the current selection |
 | `selectedColors` | `ComputedRef<Colors \| undefined>` | The color palette of the current theme |
-| `styles` | `ComputedRef<string>` | Generated CSS custom properties for the current theme |
 
 ### Theme Context Methods
 
 | Method | Parameters | Description |
 |--------|------------|-------------|
-| `register(registration)` | `{ id: string, colors: Colors, dark?: boolean }` | Register a new theme and return a theme ticket |
+| `register(registration)` | `{ id: string, dark: boolean, colors: Colors }` | Register a new theme and return a theme ticket |
 | `select(id)` | `id: ID` | Switch to the specified theme |
 | `toggle(themeArray)` | `themeArray: [ID, ID]` | Toggle between two specified themes |
 | `cycle(themeArray?)` | `themeArray?: ID[]` | Cycle through an array of themes (defaults to all registered themes) |
@@ -123,8 +126,8 @@ When registering a theme, you provide:
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
 | `id` | `string` | Yes | Unique identifier for the theme |
+| `dark` | `boolean` | Yes | Whether this is a dark theme |
 | `colors` | `Colors` | Yes | Object containing color definitions |
-| `dark` | `boolean` | No | Whether this is a dark theme (defaults to `false`) |
 
 The `colors` object can contain any key-value pairs where keys become CSS custom property names:
 
@@ -133,6 +136,7 @@ const theme = useTheme()
 
 theme.register({
   id: 'custom',
+  dark: false,
   colors: {
     background: '#f5f5f5',
     text: '#333333',
@@ -145,11 +149,11 @@ theme.register({
 })
 ```
 
-These colors become available as CSS custom properties with the `--v0-theme-` prefix:
+These colors become available as CSS custom properties with the `--v0-` prefix:
 
-- `--v0-theme-background: #f5f5f5`
-- `--v0-theme-text: #333333`
-- `--v0-theme-primary: #007bff`
+- `--v0-background: #f5f5f5`
+- `--v0-text: #333333`
+- `--v0-primary: #007bff`
 - etc.
 
 ### Theme Ticket
@@ -159,8 +163,8 @@ When you register a theme, you receive a `ThemeTicket` object:
 | Property | Type | Description |
 |----------|------|-------------|
 | `id` | `string` | The theme's unique identifier |
-| `colors` | `Colors` | The theme's color palette |
 | `dark` | `boolean` | Whether this is a dark theme |
+| `colors` | `Colors` | The theme's color palette |
 | `isActive` | `ComputedRef<boolean>` | Whether this theme is currently active |
 | `toggle()` | `() => void` | Function to activate this theme |
 
@@ -169,19 +173,20 @@ When you register a theme, you receive a `ThemeTicket` object:
 The `createThemePlugin` accepts optional configuration:
 
 ```ts
-import { createThemePlugin, V0ThemeAdapter } from '@vuetify/0'
+import { createThemePlugin, Vuetify0ThemeAdapter } from '@vuetify/0'
 
 app.use(createThemePlugin({
-  adapter: new V0ThemeAdapter({
+  adapter: new Vuetify0ThemeAdapter({
     cspNonce: 'your-nonce-here',
-    stylesheetId: 'custom-theme-stylesheet'
+    stylesheetId: 'custom-theme-stylesheet',
+    prefix: 'my-theme'
   })
 }))
 ```
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `adapter` | `ThemeAdapter` | Custom adapter for CSS injection (defaults to `V0ThemeAdapter`) |
+| `adapter` | `ThemeAdapter` | Custom adapter for CSS injection (defaults to `Vuetify0ThemeAdapter`) |
 
 ## Theme Adapters
 
@@ -193,22 +198,23 @@ All theme adapters must implement the `ThemeAdapter` interface:
 
 ```ts
 interface ThemeAdapter {
-  upsert: (styles: string) => void
+  update: (colors: Colors) => void
 }
 ```
 
-The `upsert` method receives a CSS string containing custom properties and is responsible for applying them to the document.
+The `update` method receives a `Colors` object and is responsible for applying the theme colors to the document.
 
-### V0ThemeAdapter (Default)
+### Vuetify0ThemeAdapter (Default)
 
 The default adapter that injects styles via a `<style>` element in the document head:
 
 ```ts
-import { V0ThemeAdapter } from '@vuetify/0'
+import { Vuetify0ThemeAdapter } from '@vuetify/0'
 
-const adapter = new V0ThemeAdapter({
+const adapter = new Vuetify0ThemeAdapter({
   cspNonce: 'your-csp-nonce',
-  stylesheetId: 'custom-theme-id'
+  stylesheetId: 'custom-theme-id',
+  prefix: 'my-theme'
 })
 ```
 
@@ -218,25 +224,49 @@ const adapter = new V0ThemeAdapter({
 |--------|------|---------|-------------|
 | `cspNonce` | `string` | `undefined` | CSP nonce for inline styles (security) |
 | `stylesheetId` | `string` | `'v0-theme-stylesheet'` | ID attribute for the injected style element |
+| `prefix` | `string` | `'v0'` | Prefix for CSS custom properties |
 
 #### How it works
 
 1. Creates or finds a `<style>` element with the specified ID
-2. Updates the element's `textContent` with the generated CSS
-3. Automatically handles CSP nonce attribution if provided
-4. Gracefully handles SSR environments (no-op when not in browser)
+2. Generates CSS custom properties with the format `--{prefix}-{colorKey}: {colorValue}`
+3. Updates the element's `textContent` with the generated CSS
+4. Automatically handles CSP nonce attribution if provided
+5. Gracefully handles SSR environments (no-op when not in browser)
+
+### BaseThemeAdapter
+
+An abstract base class that provides common functionality for theme adapters:
+
+```ts
+import { BaseThemeAdapter } from '@vuetify/0'
+
+class CustomThemeAdapter extends BaseThemeAdapter {
+  constructor() {
+    super('my-prefix') // Set the CSS custom property prefix
+  }
+
+  update(colors: Colors): void {
+    // Your custom implementation
+    const cssString = this.generate(colors)
+    // Apply cssString however you need
+  }
+}
+```
+
+The `generate(colors)` method creates a CSS string with `:root` selector and custom properties.
 
 ### Custom Adapters
 
 You can create custom adapters for specialized use cases:
 
 ```ts
-import type { ThemeAdapter } from '@vuetify/0'
+import type { ThemeAdapter, Colors } from '@vuetify/0'
 
 // Example: Adapter that logs styles instead of injecting them
 class LoggingThemeAdapter implements ThemeAdapter {
-  upsert(styles: string): void {
-    console.log('Theme styles updated:', styles)
+  update(colors: Colors): void {
+    console.log('Theme colors updated:', colors)
   }
 }
 
@@ -244,25 +274,33 @@ class LoggingThemeAdapter implements ThemeAdapter {
 class FileThemeAdapter implements ThemeAdapter {
   constructor(private filePath: string) {}
 
-  upsert(styles: string): void {
+  update(colors: Colors): void {
     if (typeof window === 'undefined') {
       // Server-side: write to file
-      require('fs').writeFileSync(this.filePath, styles)
+      const css = this.generateCSS(colors)
+      require('fs').writeFileSync(this.filePath, css)
     }
+  }
+
+  private generateCSS(colors: Colors): string {
+    const vars = Object.entries(colors)
+      .map(([key, val]) => `  --v0-${key}: ${val};`)
+      .join('\n')
+    return `:root {\n${vars}\n}`
   }
 }
 
 // Example: Adapter that integrates with CSS-in-JS libraries
 class StyledComponentsAdapter implements ThemeAdapter {
-  upsert(styles: string): void {
-    // Parse CSS and apply via styled-components theme
-    const theme = this.parseCSSToTheme(styles)
+  update(colors: Colors): void {
+    // Convert colors to styled-components theme format
+    const theme = this.convertToStyledTheme(colors)
     // Update your styled-components theme provider
   }
 
-  private parseCSSToTheme(styles: string) {
-    // Implementation to parse CSS custom properties
-    // and convert to theme object
+  private convertToStyledTheme(colors: Colors) {
+    // Implementation to convert colors to theme object
+    return colors
   }
 }
 
@@ -280,10 +318,23 @@ For applications with strict Content Security Policy:
 
 ```ts
 app.use(createThemePlugin({
-  adapter: new V0ThemeAdapter({
+  adapter: new Vuetify0ThemeAdapter({
     cspNonce: document.querySelector('meta[name="csp-nonce"]')?.getAttribute('content')
   })
 }))
+```
+
+#### Custom CSS Prefix
+
+For applications that need different CSS custom property naming:
+
+```ts
+app.use(createThemePlugin({
+  adapter: new Vuetify0ThemeAdapter({
+    prefix: 'my-app'
+  })
+}))
+// Creates variables like --my-app-background, --my-app-primary, etc.
 ```
 
 #### Multiple Theme Contexts
@@ -293,34 +344,78 @@ For applications needing different injection strategies:
 ```ts
 // Main app themes
 app.use(createThemePlugin({
-  adapter: new V0ThemeAdapter({ stylesheetId: 'app-themes' })
+  adapter: new Vuetify0ThemeAdapter({ stylesheetId: 'app-themes' })
 }))
 
 // Component library themes
 app.use(createThemePlugin({
-  adapter: new V0ThemeAdapter({ stylesheetId: 'component-themes' })
+  adapter: new Vuetify0ThemeAdapter({ stylesheetId: 'component-themes' })
 }))
 ```
 
 ## CSS Custom Properties
 
-All registered theme colors are automatically converted to CSS custom properties with the `--v0-theme-` prefix. This allows you to use theme colors throughout your application:
+All registered theme colors are automatically converted to CSS custom properties with the configurable prefix (default: `--v0-`). This allows you to use theme colors throughout your application:
 
 ```css
 .my-component {
-  background-color: var(--v0-theme-background);
-  color: var(--v0-theme-text);
-  border: 1px solid var(--v0-theme-primary);
+  background-color: var(--v0-background);
+  color: var(--v0-text);
+  border: 1px solid var(--v0-primary);
 }
 
 .button {
-  background-color: var(--v0-theme-primary);
-  color: var(--v0-theme-background);
+  background-color: var(--v0-primary);
+  color: var(--v0-background);
 }
 
 .card {
-  background-color: var(--v0-theme-surface, #f5f5f5); /* with fallback */
+  background-color: var(--v0-surface, #f5f5f5); /* with fallback */
 }
+```
+
+## Advanced Usage
+
+### V-Model Support
+
+The theme system supports v-model binding through the `createTheme` function:
+
+```vue
+<script lang="ts" setup>
+import { ref } from 'vue'
+import { createTheme } from '@vuetify/0'
+
+const selectedTheme = ref('light')
+const [provideTheme] = createTheme('my-theme')
+
+// The theme will be bound to selectedTheme
+const theme = provideTheme(selectedTheme)
+</script>
+```
+
+### Theme Cycling
+
+Use the `cycle` method to rotate through multiple themes:
+
+```ts
+const theme = useTheme()
+
+// Cycle through all registered themes
+theme.cycle()
+
+// Cycle through specific themes
+theme.cycle(['light', 'dark', 'auto'])
+```
+
+### Theme Validation
+
+The system warns when selecting unregistered themes:
+
+```ts
+const theme = useTheme()
+
+// This will log a warning if 'nonexistent' theme is not registered
+theme.select('nonexistent')
 ```
 
 ## Related
