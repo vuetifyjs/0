@@ -1,8 +1,8 @@
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
-export interface ThemeAdapter {
-  upsert: (styles: string) => void
-}
+// Types
+import type { ThemeAdapter } from './adapter'
 
 export interface V0ThemeOptions {
   cspNonce?: string
@@ -31,8 +31,6 @@ export class V0ThemeAdapter implements ThemeAdapter {
 
       document.head.append(styleEl)
     }
-
-    if (!styleEl) return
 
     styleEl.textContent = styles
   }

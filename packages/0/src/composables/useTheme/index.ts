@@ -107,9 +107,9 @@ export function createTheme<T extends ThemeContext> (namespace: string) {
 
   return [
     function (
-      app?: App,
-      _context: T = context,
       model?: Ref<ID>,
+      _context: T = context,
+      app?: App,
     ) {
       let isUpdatingModel = false
 
@@ -174,7 +174,7 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
       }
 
       app.runWithContext(() => {
-        provideThemeContext(app)
+        provideThemeContext(undefined, undefined, app)
       })
     },
   }
