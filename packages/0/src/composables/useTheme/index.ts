@@ -3,7 +3,7 @@ import { useRegistrar } from '#v0/composables/useRegistrar'
 import { useContext } from '#v0/composables/useContext'
 
 // Utilities
-import { computed, nextTick, shallowRef, toRef, toValue, watch, type App, type ComputedRef, type Reactive, type Ref } from 'vue'
+import { computed, nextTick, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Adapters
 import { V0ThemeAdapter, type ThemeAdapter } from './adapters'
@@ -14,6 +14,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 // Types
 import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '#v0/composables/useRegistrar'
 import type { ID } from '#v0/types'
+import type { App, ComputedRef, Ref } from 'vue'
 
 export interface Colors {
   [key: string]: string
