@@ -35,9 +35,9 @@ export interface ThemeContext extends RegistrarContext<ThemeTicket, ThemeItem> {
   selectedId: Ref<ID>
   selectedItem: ComputedRef<ThemeItem | undefined>
   selectedColors: ComputedRef<Colors | undefined>
-  cycle: (themeArray?: ID[]) => void
+  cycle: (themeArray: ID[]) => void
   select: (name: ID) => void
-  toggle: (themeArray?: [ID, ID]) => void
+  toggle: (themeArray: [ID, ID]) => void
 }
 
 export interface ThemePluginOptions {
@@ -55,6 +55,12 @@ export function createTheme<T extends ThemeContext> (namespace: string) {
   const themeNames = computed(() => Array.from(registrar.registeredItems.keys()))
 
   function select (value: ID) {
+    if (!registrar.registeredItems.has(value)) {
+      console.warn(`Theme "${value}" is not registered.`)
+
+      return
+    }
+
     selectedId.value = value
   }
 
