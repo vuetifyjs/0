@@ -1,3 +1,6 @@
+// Types
+import type { Colors } from '..'
+
 export interface ThemeAdapter {
-  upsert: (styles: string) => void
+  update: (colors: Colors) => void
 }

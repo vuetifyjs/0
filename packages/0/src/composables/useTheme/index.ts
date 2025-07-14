@@ -155,22 +155,16 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
       const { adapter = new V0ThemeAdapter() } = options
       const [provideThemeContext, themeContext] = createTheme<ThemeContext>('v0:theme')
 
-      const styles = computed(() => {
-        if (!themeContext.selectedItem.value) return ''
-        const vars = Object.entries(themeContext.selectedItem.value.colors).map(([key, val]) => `  --v0-theme-${key}: ${val};`).join('\n')
-        return `:root {\n${vars}\n}`
-      })
+      function updateStyles (colors: Colors | undefined) {
+        if (!colors) return
 
-      if (IN_BROWSER) {
-        watch(styles, updateStyles, { immediate: true, deep: true })
-      } else {
-        updateStyles()
+        adapter.update(colors)
       }
 
-      function updateStyles () {
-        if (!styles.value) return
-
-        adapter.upsert(styles.value)
+      if (IN_BROWSER) {
+        watch(themeContext.selectedColors, updateStyles, { immediate: true, deep: true })
+      } else {
+        updateStyles(themeContext.selectedColors.value)
       }
 
       app.runWithContext(() => {
