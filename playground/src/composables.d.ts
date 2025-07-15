@@ -61,6 +61,7 @@ declare global {
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
   const parseColor: typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']
   const provide: typeof import('vue')['provide']
+  const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
   const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
@@ -91,6 +92,7 @@ declare global {
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']
+  const useHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']
   const useId: typeof import('vue')['useId']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
   const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
@@ -219,6 +221,7 @@ declare module 'vue' {
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly parseColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
+    readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
     readonly provideMarkdownContext: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
@@ -248,6 +251,7 @@ declare module 'vue' {
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
+    readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']>
