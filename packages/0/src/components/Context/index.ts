@@ -1,2 +1,7 @@
-export { default as Context } from './Context.vue'
-export { default as ContextRoot } from './ContextRoot.vue'
+import ContextItem from './ContextItem.vue'
+import ContextRoot from './ContextRoot.vue'
+
+export const Context = {
+  Item: ContextItem,
+  Root: ContextRoot,
+}

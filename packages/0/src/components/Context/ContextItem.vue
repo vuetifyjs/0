@@ -19,7 +19,7 @@
 </script>
 
 <script setup lang="ts" generic="T">
-  defineOptions({ name: 'Context' })
+  defineOptions({ name: 'ContextItem' })
 
   defineSlots<ContextSlots<T>>()
 
