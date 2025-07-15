@@ -24,7 +24,13 @@
       "require": "./dist/index.mjs"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuetifyjs/0.git",
+    "directory": "packages/0"
+  },
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
     "exports": {
       ".": {
         "types": "./dist/index.d.ts",
