@@ -7,6 +7,7 @@ export * from './components/Hydration'
 export * from './components/Markdown'
 export * from './components/Popover'
 export * from './components/Step'
+export * from './components/Theme'
 
 export * from './composables/useBreakpoints'
 export * from './composables/useContext'
