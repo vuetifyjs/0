@@ -2,4 +2,6 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import 'virtual:uno.css'
 
-createApp(App).mount('#app')
+import { createHydrationPlugin } from '@vuetify/0'
+
+createApp(App).use(createHydrationPlugin()).mount('#app')
