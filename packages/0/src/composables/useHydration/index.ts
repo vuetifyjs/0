@@ -2,7 +2,7 @@
 import { useContext } from '../useContext'
 
 // Utilities
-import { getCurrentInstance, onMounted, shallowReadonly, shallowRef } from 'vue'
+import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
 import type { App, ShallowRef } from 'vue'
@@ -16,19 +16,13 @@ export interface HydrationPlugin {
   install: (app: App) => void
 }
 
-const [useHydrationContext, provideHydrationContext] = useContext<HydrationContext>('v0:hydration')
+export const [useHydrationContext, provideHydrationContext] = useContext<HydrationContext>('v0:hydration')
 
 export function createHydration (): HydrationContext {
   const isHydrated = shallowRef(false)
 
   function hydrate () {
     isHydrated.value = true
-  }
-
-  if (getCurrentInstance()) {
-    onMounted(() => {
-      hydrate()
-    })
   }
 
   return {
@@ -48,6 +42,14 @@ export function createHydrationPlugin (): HydrationPlugin {
 
       app.runWithContext(() => {
         provideHydrationContext(context, app)
+      })
+
+      app.mixin({
+        mounted () {
+          if (this.$parent !== null) return
+
+          context.hydrate()
+        },
       })
     },
   }

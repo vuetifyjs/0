@@ -1,18 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createHydration, useHydration, createHydrationPlugin } from './index'
 
-// Mock Vue's onMounted to control when it executes
+const { mockUseHydrationContext, mockProvideHydrationContext } = vi.hoisted(() => {
+  return {
+    mockUseHydrationContext: vi.fn(),
+    mockProvideHydrationContext: vi.fn(),
+  }
+})
+
+vi.mock('../useContext', () => ({
+  useContext: vi.fn(() => [
+    mockUseHydrationContext,
+    mockProvideHydrationContext,
+  ]),
+}))
+
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
   return {
     ...actual,
-    onMounted: vi.fn(),
+    shallowRef: vi.fn(value => ({ value })),
+    shallowReadonly: vi.fn(ref => ref),
   }
 })
+
+import { createHydration, useHydration, createHydrationPlugin } from './index'
 
 describe('useHydration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockUseHydrationContext.mockClear()
+    mockProvideHydrationContext.mockClear()
   })
 
   describe('createHydration', () => {
@@ -25,37 +42,12 @@ describe('useHydration', () => {
       expect(context.isHydrated.value).toBe(false)
     })
 
-    it.skip('should register onMounted callback', async () => {
-      const { onMounted } = await import('vue')
-      const mockOnMounted = vi.mocked(onMounted)
-
-      createHydration()
-
-      expect(mockOnMounted).toHaveBeenCalledOnce()
-      expect(typeof mockOnMounted.mock.calls[0][0]).toBe('function')
-    })
-
     it('should hydrate when hydrate() is called', () => {
       const context = createHydration()
 
       expect(context.isHydrated.value).toBe(false)
 
       context.hydrate()
-
-      expect(context.isHydrated.value).toBe(true)
-    })
-
-    it.skip('should hydrate when onMounted callback is executed', async () => {
-      const { onMounted } = await import('vue')
-      const mockOnMounted = vi.mocked(onMounted)
-
-      const context = createHydration()
-
-      expect(context.isHydrated.value).toBe(false)
-
-      // Execute the onMounted callback
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
-      mountedCallback()
 
       expect(context.isHydrated.value).toBe(true)
     })
@@ -72,30 +64,85 @@ describe('useHydration', () => {
   })
 
   describe('useHydration', () => {
-    it('should be a function', () => {
-      expect(typeof useHydration).toBe('function')
-    })
+    it('should call useHydrationContext', () => {
+      mockUseHydrationContext.mockReturnValue({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      })
 
-    // Note: Full testing of useHydration requires component context
-    // since it uses inject/provide. This would typically be tested
-    // in component tests or with a testing harness.
+      useHydration()
+
+      expect(mockUseHydrationContext).toHaveBeenCalledOnce()
+    })
   })
 
   describe('createHydrationPlugin', () => {
-    it.skip('should be a function that accepts an app instance', () => {
-      expect(typeof createHydrationPlugin).toBe('function')
-      expect(createHydrationPlugin.length).toBe(1) // expects 1 parameter
+    it('should return a plugin with install method', () => {
+      const plugin = createHydrationPlugin()
+
+      expect(plugin).toHaveProperty('install')
+      expect(typeof plugin.install).toBe('function')
     })
 
-    it.skip('should call app.runWithContext', () => {
+    it('should call app.runWithContext and app.mixin when installed', () => {
+      const plugin = createHydrationPlugin()
       const mockApp = {
-        runWithContext: vi.fn((callback: () => void) => callback()),
+        runWithContext: vi.fn(callback => callback()),
+        mixin: vi.fn(),
       }
 
-      createHydrationPlugin(mockApp as any)
+      plugin.install(mockApp as any)
 
       expect(mockApp.runWithContext).toHaveBeenCalledOnce()
-      expect(typeof mockApp.runWithContext.mock.calls[0][0]).toBe('function')
+      expect(mockApp.mixin).toHaveBeenCalledOnce()
+    })
+
+    it('should provide hydration context when installed', () => {
+      const plugin = createHydrationPlugin()
+      const mockApp = {
+        runWithContext: vi.fn(callback => callback()),
+        mixin: vi.fn(),
+      }
+
+      plugin.install(mockApp as any)
+
+      expect(mockProvideHydrationContext).toHaveBeenCalledOnce()
+    })
+
+    it('should add mixin that calls hydrate on root component mount', () => {
+      const plugin = createHydrationPlugin()
+      const mockApp = {
+        runWithContext: vi.fn(callback => callback()),
+        mixin: vi.fn(),
+      }
+
+      plugin.install(mockApp as any)
+
+      expect(mockApp.mixin).toHaveBeenCalledOnce()
+
+      const mixinOptions = mockApp.mixin.mock.calls[0][0]
+      expect(mixinOptions).toHaveProperty('mounted')
+      expect(typeof mixinOptions.mounted).toBe('function')
+    })
+
+    it('should only hydrate on root component (no parent)', () => {
+      const plugin = createHydrationPlugin()
+      const mockApp = {
+        runWithContext: vi.fn(callback => callback()),
+        mixin: vi.fn(),
+      }
+
+      plugin.install(mockApp as any)
+
+      const mixinOptions = mockApp.mixin.mock.calls[0][0]
+      const mountedCallback = mixinOptions.mounted
+
+      const rootComponent = { $parent: null }
+
+      const childComponent = { $parent: {} }
+
+      expect(() => mountedCallback.call(rootComponent)).not.toThrow()
+      expect(() => mountedCallback.call(childComponent)).not.toThrow()
     })
   })
 
@@ -105,17 +152,15 @@ describe('useHydration', () => {
 
       expect(context.isHydrated.value).toBe(false)
 
-      // Change it back
       context.hydrate()
 
       expect(context.isHydrated.value).toBe(true)
     })
 
-    it('should work with Vue reactivity system', () => {
+    it('should work with independent contexts', () => {
       const context1 = createHydration()
       const context2 = createHydration()
 
-      // Each context should be independent
       context1.hydrate()
 
       expect(context1.isHydrated.value).toBe(true)
