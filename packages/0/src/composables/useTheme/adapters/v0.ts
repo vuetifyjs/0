@@ -1,5 +1,5 @@
 // Adapters
-import { BaseThemeAdapter } from './adapter'
+import { ThemeAdapter } from './adapter'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -13,7 +13,7 @@ export interface Vuetify0ThemeOptions {
   prefix?: string
 }
 
-export class Vuetify0ThemeAdapter extends BaseThemeAdapter {
+export class Vuetify0ThemeAdapter extends ThemeAdapter {
   cspNonce?: string
   stylesheetId = 'v0-theme-stylesheet'
 

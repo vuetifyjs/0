@@ -186,18 +186,18 @@ app.use(createThemePlugin({
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `adapter` | `ThemeAdapter` | Custom adapter for CSS injection (defaults to `Vuetify0ThemeAdapter`) |
+| `adapter` | `ThemeAdapterInterface` | Custom adapter for CSS injection (defaults to `Vuetify0ThemeAdapter`) |
 
 ## Theme Adapters
 
 Theme adapters control how CSS custom properties are injected into your application. The theme system uses adapters to provide flexibility in how styles are applied, allowing you to customize the injection mechanism for different environments or requirements.
 
-### ThemeAdapter Interface
+### ThemeAdapterInterface
 
-All theme adapters must implement the `ThemeAdapter` interface:
+All theme adapters must implement the `ThemeAdapterInterface` interface:
 
 ```ts
-interface ThemeAdapter {
+interface ThemeAdapterInterface {
   update: (colors: Colors) => void
 }
 ```
@@ -234,14 +234,14 @@ const adapter = new Vuetify0ThemeAdapter({
 4. Automatically handles CSP nonce attribution if provided
 5. Gracefully handles SSR environments (no-op when not in browser)
 
-### BaseThemeAdapter
+### Vuetify0ThemeAdapter
 
 An abstract base class that provides common functionality for theme adapters:
 
 ```ts
-import { BaseThemeAdapter } from '@vuetify/0'
+import { ThemeAdapter } from '@vuetify/0'
 
-class CustomThemeAdapter extends BaseThemeAdapter {
+class CustomThemeAdapter extends ThemeAdapter {
   constructor() {
     super('my-prefix') // Set the CSS custom property prefix
   }
@@ -261,17 +261,17 @@ The `generate(colors)` method creates a CSS string with `:root` selector and cus
 You can create custom adapters for specialized use cases:
 
 ```ts
-import type { ThemeAdapter, Colors } from '@vuetify/0'
+import type { ThemeAdapterInterface, Colors } from '@vuetify/0'
 
 // Example: Adapter that logs styles instead of injecting them
-class LoggingThemeAdapter implements ThemeAdapter {
+class LoggingThemeAdapter implements ThemeAdapterInterface {
   update(colors: Colors): void {
     console.log('Theme colors updated:', colors)
   }
 }
 
 // Example: Adapter that writes to a CSS file (Node.js)
-class FileThemeAdapter implements ThemeAdapter {
+class FileThemeAdapter implements ThemeAdapterInterface {
   constructor(private filePath: string) {}
 
   update(colors: Colors): void {
@@ -291,7 +291,7 @@ class FileThemeAdapter implements ThemeAdapter {
 }
 
 // Example: Adapter that integrates with CSS-in-JS libraries
-class StyledComponentsAdapter implements ThemeAdapter {
+class StyledComponentsAdapter implements ThemeAdapterInterface {
   update(colors: Colors): void {
     // Convert colors to styled-components theme format
     const theme = this.convertToStyledTheme(colors)

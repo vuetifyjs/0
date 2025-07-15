@@ -1,11 +1,11 @@
 // Types
 import type { Colors } from '..'
 
-export interface ThemeAdapter {
+export interface ThemeAdapterInterface {
   update: (colors: Colors) => void
 }
 
-export abstract class BaseThemeAdapter implements ThemeAdapter {
+export abstract class ThemeAdapter implements ThemeAdapterInterface {
   protected prefix: string
 
   constructor (prefix: string) {

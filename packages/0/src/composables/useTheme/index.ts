@@ -6,7 +6,7 @@ import { useContext } from '#v0/composables/useContext'
 import { computed, nextTick, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Adapters
-import { Vuetify0ThemeAdapter, type ThemeAdapter } from './adapters'
+import { Vuetify0ThemeAdapter } from './adapters/v0'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -15,6 +15,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '#v0/composables/useRegistrar'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Ref } from 'vue'
+import type { ThemeAdapter } from './adapters/adapter'
 
 export interface Colors {
   [key: string]: string
@@ -173,3 +174,5 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
     },
   }
 }
+
+export { Vuetify0ThemeAdapter } from './adapters/v0'
