@@ -1,8 +1,9 @@
 name: Publish
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - ae-setup-publish
 
 jobs:
   publish:
