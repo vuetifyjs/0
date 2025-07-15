@@ -1,5 +1,6 @@
 export * from './components/Atom'
 export * from './components/Avatar'
+export * from './components/Context'
 export * from './components/Group'
 export * from './components/Hydration'
 export * from './components/Markdown'
