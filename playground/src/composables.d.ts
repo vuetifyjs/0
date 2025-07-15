@@ -10,7 +10,9 @@ declare global {
   const DEFAULT_DARK: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
+  const IN_BROWSER: typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
+  const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
@@ -20,6 +22,7 @@ declare global {
   const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
   const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
   const createTheme: typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']
+  const createTokens: typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']
   const customRef: typeof import('vue')['customRef']
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
@@ -56,6 +59,7 @@ declare global {
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
   const parseColor: typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']
   const provide: typeof import('vue')['provide']
+  const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
   const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
@@ -86,6 +90,7 @@ declare global {
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']
+  const useHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']
   const useId: typeof import('vue')['useId']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
   const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
@@ -147,6 +152,9 @@ declare global {
   export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
+  export type { TokenAlias, TokenValue, TokenCollection, TokenItem, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
+  import('../../packages/0/src/composables/useTokens/index')
+  // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
   import('../../packages/0/src/constants/htmlElements')
 }
@@ -160,7 +168,9 @@ declare module 'vue' {
     readonly DEFAULT_DARK: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']>
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
+    readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
@@ -170,6 +180,7 @@ declare module 'vue' {
     readonly createMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']>
     readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']>
+    readonly createTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
@@ -205,6 +216,7 @@ declare module 'vue' {
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly parseColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
+    readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
     readonly provideMarkdownContext: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
@@ -234,6 +246,7 @@ declare module 'vue' {
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
+    readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']>
