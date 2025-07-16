@@ -13,6 +13,7 @@
         { name: 'useKeyboard', to: '/composables/use-keyboard' },
         { name: 'useMarkdown', to: '/composables/use-markdown' },
         { name: 'useRegistrar', to: '/composables/use-registrar' },
+        { name: 'useSingle', to: '/composables/use-single' },
         { name: 'useStep', to: '/composables/use-step' },
       ],
     },
