@@ -1,9 +1,10 @@
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
 import { useContext } from '#v0/composables/useContext'
+import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
-import { computed, nextTick, toValue, watch } from 'vue'
+import { computed, watch } from 'vue'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from './adapters/v0'
@@ -14,44 +15,43 @@ import { IN_BROWSER } from '#v0/constants/globals'
 // Types
 import type { SingleContext, SingleItem, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, Ref } from 'vue'
+import type { App, Ref } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
-import { createTokens, type TokenAlias, type TokenCollection, type TokenContext, type TokenItem, type TokenTicket } from '../useTokens'
+import type { TokenCollection } from '#v0/composables/useTokens'
 
 export interface Colors {
-  [key: string]: string | TokenAlias
+  [key: string]: string
 }
 
 export interface ThemeItem extends SingleItem {
   dark: boolean
-  colors: Colors
+  value: TokenCollection
 }
 
 export interface ThemeTicket extends SingleTicket {
   dark: boolean
-  colors: TokenCollection
+  value: TokenCollection
   toggle: () => void
 }
 
 export interface ThemeContext extends SingleContext {
-  selectedColors: ComputedRef<Colors | undefined>
+  tokens: TokenCollection
   cycle: (themeArray: ID[]) => void
   toggle: (themeArray: [ID, ID]) => void
 }
 
-export interface ThemePluginOptions {
+export interface ThemePluginOptions<T extends TokenCollection = TokenCollection> {
   adapter?: ThemeAdapter
-  themes?: Record<ID, TokenCollection>
+  themes?: Record<ID, T>
 }
 
-export function createTheme<T extends ThemeContext> (namespace: string) {
+export function createTheme<T extends ThemeContext> (namespace: string, tokens: TokenCollection = {}) {
   const [
     ,
     provideThemeContext,
     single,
   ] = useSingle<T>(namespace)
 
-  const selectedColors = computed(() => (single.selectedItem.value as ThemeTicket)?.colors)
   const themeNames = computed(() => Array.from(single.registeredItems.keys()))
 
   function cycle (themeArray: ID[] = themeNames.value) {
@@ -67,7 +67,7 @@ export function createTheme<T extends ThemeContext> (namespace: string) {
 
   const context = {
     ...single,
-    selectedColors,
+    tokens,
     cycle,
     toggle,
   } as T
@@ -94,19 +94,27 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
   return {
     install (app: App) {
       const { adapter = new Vuetify0ThemeAdapter() } = options
-      const [provideThemeContext, themeContext] = createTheme<ThemeContext>('v0:theme')
+      const [provideThemeContext, themeContext] = createTheme<ThemeContext>('v0:theme', options.themes)
       const [, provideThemeTokenContext, tokensContext] = createTokens('v0:theme:tokens', options.themes)
+
+      const resolvedColors = computed(() => {
+        const selectedValue = themeContext.selectedValue.value
+        if (!selectedValue || typeof selectedValue !== 'object' || Object.keys(selectedValue).length === 0) {
+          return undefined
+        }
+
+        return tokensContext.resolve(selectedValue as TokenCollection)
+      })
 
       function updateStyles (colors: Colors | undefined) {
         if (!colors) return
-
         adapter.update(colors)
       }
 
       if (IN_BROWSER) {
-        watch(themeContext.selectedColors, updateStyles, { immediate: true, deep: true })
+        watch(resolvedColors, updateStyles, { immediate: true, deep: true })
       } else {
-        updateStyles(themeContext.selectedColors.value)
+        updateStyles(resolvedColors.value)
       }
 
       app.runWithContext(() => {
