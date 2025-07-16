@@ -1,9 +1,9 @@
 // Composables
-import { useRegistrar } from '#v0/composables/useRegistrar'
+import { useSingle } from '#v0/composables/useSingle'
 import { useContext } from '#v0/composables/useContext'
 
 // Utilities
-import { computed, nextTick, shallowRef, toRef, toValue, watch } from 'vue'
+import { computed, nextTick, toValue, watch } from 'vue'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from './adapters/v0'
@@ -12,96 +12,62 @@ import { Vuetify0ThemeAdapter } from './adapters/v0'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '#v0/composables/useRegistrar'
+import type { SingleContext, SingleItem, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Ref } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
+import { createTokens, type TokenAlias, type TokenCollection, type TokenContext, type TokenItem, type TokenTicket } from '../useTokens'
 
 export interface Colors {
-  [key: string]: string
+  [key: string]: string | TokenAlias
 }
 
-export interface ThemeItem extends RegistrarItem {
+export interface ThemeItem extends SingleItem {
   dark: boolean
   colors: Colors
 }
 
-export interface ThemeTicket extends RegistrarTicket {
+export interface ThemeTicket extends SingleTicket {
   dark: boolean
-  colors: Colors
+  colors: TokenCollection
   toggle: () => void
 }
 
-export interface ThemeContext extends RegistrarContext<ThemeTicket, ThemeItem> {
-  styles: ComputedRef<string>
-  selectedId: Ref<ID>
-  selectedItem: ComputedRef<ThemeItem | undefined>
+export interface ThemeContext extends SingleContext {
   selectedColors: ComputedRef<Colors | undefined>
   cycle: (themeArray: ID[]) => void
-  select: (name: ID) => void
   toggle: (themeArray: [ID, ID]) => void
 }
 
 export interface ThemePluginOptions {
   adapter?: ThemeAdapter
+  themes?: Record<ID, TokenCollection>
 }
 
 export function createTheme<T extends ThemeContext> (namespace: string) {
-  const [, provideThemeContext, registrar] = useRegistrar<ThemeTicket, T>(namespace)
+  const [
+    ,
+    provideThemeContext,
+    single,
+  ] = useSingle<T>(namespace)
 
-  const selectedId = shallowRef()
-  let initialValue: unknown = null
-
-  const selectedItem = computed(() => registrar.registeredItems.get(selectedId.value))
-  const selectedColors = computed(() => selectedItem.value?.colors)
-  const themeNames = computed(() => Array.from(registrar.registeredItems.keys()))
-
-  function select (value: ID) {
-    if (!registrar.registeredItems.has(value)) {
-      console.warn(`Theme "${value}" is not registered.`)
-
-      return
-    }
-
-    selectedId.value = value
-  }
+  const selectedColors = computed(() => (single.selectedItem.value as ThemeTicket)?.colors)
+  const themeNames = computed(() => Array.from(single.registeredItems.keys()))
 
   function cycle (themeArray: ID[] = themeNames.value) {
-    const currentIndex = themeArray.indexOf(selectedId.value)
+    const currentIndex = themeArray.indexOf(single.selectedId.value ?? '')
     const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % themeArray.length
 
-    select(themeArray[nextIndex])
+    single.select(themeArray[nextIndex])
   }
 
   function toggle (themeArray: [ID, ID]) {
     cycle(themeArray)
   }
 
-  const register: typeof registrar.register = registration => {
-    const ticket = registrar.register(registrant => {
-      const item = registrar.intake(registrant, registration)
-
-      return {
-        isActive: toRef(() => selectedId.value === registrant.id),
-        toggle: () => select(registrant.id),
-        ...item,
-      }
-    })
-
-    if (initialValue != null && initialValue === ticket.id) {
-      selectedId.value = ticket.id
-    }
-
-    return ticket
-  }
-
   const context = {
-    ...registrar,
-    selectedId,
-    selectedItem,
+    ...single,
     selectedColors,
-    register,
-    select,
     cycle,
     toggle,
   } as T
@@ -112,33 +78,7 @@ export function createTheme<T extends ThemeContext> (namespace: string) {
       _context: T = context,
       app?: App,
     ) {
-      let isUpdatingModel = false
-
-      if (model) {
-        initialValue = toValue(model)
-
-        watch(selectedId, () => {
-          if (isUpdatingModel || !selectedItem.value) return
-
-          model.value = selectedItem.value.id
-        })
-
-        watch(model, value => {
-          if (isUpdatingModel) return
-
-          selectedId.value = value
-        })
-
-        watch([model, selectedId], async () => {
-          isUpdatingModel = true
-
-          await nextTick()
-
-          isUpdatingModel = false
-        })
-      }
-
-      provideThemeContext(_context, app)
+      provideThemeContext(model, _context, app)
 
       return _context
     },
@@ -155,6 +95,7 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
     install (app: App) {
       const { adapter = new Vuetify0ThemeAdapter() } = options
       const [provideThemeContext, themeContext] = createTheme<ThemeContext>('v0:theme')
+      const [, provideThemeTokenContext, tokensContext] = createTokens('v0:theme:tokens', options.themes)
 
       function updateStyles (colors: Colors | undefined) {
         if (!colors) return
@@ -170,6 +111,7 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
 
       app.runWithContext(() => {
         provideThemeContext(undefined, themeContext, app)
+        provideThemeTokenContext(tokensContext, app)
       })
     },
   }
