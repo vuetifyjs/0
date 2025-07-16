@@ -17,25 +17,22 @@ import type { SingleContext, SingleItem, SingleTicket } from '#v0/composables/us
 import type { ID } from '#v0/types'
 import type { App, Ref } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
-import type { TokenCollection } from '#v0/composables/useTokens'
+import type { TokenCollection, TokenContext } from '#v0/composables/useTokens'
 
 export interface Colors {
   [key: string]: string
 }
 
 export interface ThemeItem extends SingleItem {
-  dark: boolean
   value: TokenCollection
 }
 
 export interface ThemeTicket extends SingleTicket {
-  dark: boolean
   value: TokenCollection
   toggle: () => void
 }
 
 export interface ThemeContext extends SingleContext {
-  tokens: TokenCollection
   cycle: (themeArray: ID[]) => void
   toggle: (themeArray: [ID, ID]) => void
 }
@@ -45,9 +42,9 @@ export interface ThemePluginOptions<T extends TokenCollection = TokenCollection>
   themes?: Record<ID, T>
 }
 
-export function createTheme<T extends ThemeContext> (namespace: string, tokens: TokenCollection = {}) {
+export function createTheme<T extends ThemeContext> (namespace: string) {
   const [
-    ,
+    useThemeContext,
     provideThemeContext,
     single,
   ] = useSingle<T>(namespace)
@@ -67,12 +64,12 @@ export function createTheme<T extends ThemeContext> (namespace: string, tokens: 
 
   const context = {
     ...single,
-    tokens,
     cycle,
     toggle,
   } as T
 
   return [
+    useThemeContext,
     function (
       model?: Ref<ID>,
       _context: T = context,
@@ -90,12 +87,15 @@ export function useTheme (): ThemeContext {
   return useContext<ThemeContext>('v0:theme')[0]()
 }
 
-export function createThemePlugin (options: ThemePluginOptions = {}) {
+export function createThemePlugin<
+  T extends ThemeContext = ThemeContext,
+  U extends TokenContext = TokenContext,
+> (options: ThemePluginOptions = {}) {
   return {
     install (app: App) {
       const { adapter = new Vuetify0ThemeAdapter() } = options
-      const [provideThemeContext, themeContext] = createTheme<ThemeContext>('v0:theme', options.themes)
-      const [, provideThemeTokenContext, tokensContext] = createTokens('v0:theme:tokens', options.themes)
+      const [, provideThemeContext, themeContext] = createTheme<T>('v0:theme')
+      const [, provideThemeTokenContext, tokensContext] = createTokens<U>('v0:theme:tokens', options.themes)
 
       const resolvedColors = computed(() => {
         const selectedValue = themeContext.selectedValue.value
@@ -107,7 +107,6 @@ export function createThemePlugin (options: ThemePluginOptions = {}) {
       })
 
       function updateStyles (colors: Colors | undefined) {
-        if (!colors) return
         adapter.update(colors)
       }
 

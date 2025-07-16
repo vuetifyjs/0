@@ -2,7 +2,7 @@
 import type { Colors } from '..'
 
 export interface ThemeAdapterInterface {
-  update: (colors: Colors) => void
+  update: (colors: Colors | undefined) => void
 }
 
 export abstract class ThemeAdapter implements ThemeAdapterInterface {
@@ -20,5 +20,5 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     return `:root {\n${vars}\n}`
   }
 
-  abstract update (colors: Colors): void
+  abstract update (colors: Colors | undefined): void
 }
