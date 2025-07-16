@@ -24,7 +24,8 @@ export interface TokenTicket extends RegistrarTicket {
 }
 
 export interface TokenContext extends RegistrarContext<TokenTicket, TokenItem> {
-  resolve: (token: string) => string | undefined
+  resolve: (collection: TokenCollection) => Record<string, string>
+  resolveToken: (token: string) => string | undefined
   resolveItem: (token: string) => TokenItem | undefined
 }
 
@@ -114,7 +115,7 @@ export function createTokens<T extends TokenContext> (namespace: string, tokens:
     })
   }
 
-  function resolve (token: string): string | undefined {
+  function resolveToken (token: string): string | undefined {
     const cleanToken = token.startsWith('{') && token.endsWith('}')
       ? token.slice(1, -1)
       : token
@@ -130,9 +131,27 @@ export function createTokens<T extends TokenContext> (namespace: string, tokens:
     return registrar.registeredItems.get(cleanToken)
   }
 
+  function resolve (collection: TokenCollection): Record<string, string> {
+    const resolved: Record<string, string> = {}
+
+    for (const [key, value] of Object.entries(collection)) {
+      if (typeof value === 'string') {
+        // Check if it's an alias pattern like {token.name}
+        resolved[key] = value.startsWith('{') && value.endsWith('}') ? resolveToken(value) || value : value
+      } else if (value && typeof value === 'object' && '$value' in value) {
+        resolved[key] = typeof value.$value === 'string' ? (resolveToken(value.$value) || value.$value) : String(value.$value)
+      } else {
+        resolved[key] = String(value)
+      }
+    }
+
+    return resolved
+  }
+
   const context = {
     ...registrar,
     resolve,
+    resolveToken,
     resolveItem,
   } as T
 

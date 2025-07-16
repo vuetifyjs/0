@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mount } from '@vue/test-utils'
+import { defineComponent, ref, nextTick, watch, computed } from 'vue'
 import { createTokens } from './index'
 import type { TokenCollection } from './index'
 
@@ -328,5 +330,217 @@ describe('createTokens', () => {
       expect(context.resolve('spacing.md')).toBe('16px')
       expect(context.resolve('spacing.lg')).toBe('16px')
     })
+  })
+})
+
+describe('useTokens reactivity in components', () => {
+  it('should provide reactive token resolution in Vue component', async () => {
+    const tokens = {
+      primary: '#1976d2',
+      secondary: '#424242',
+      accent: { $value: '{primary}' },
+    }
+
+    const [useTokens, provideTokens] = createTokens('test-reactivity', tokens)
+
+    const TestComponent = defineComponent({
+      setup () {
+        const context = useTokens()
+        const resolvedPrimary = ref(context.resolve('primary'))
+        const resolvedAccent = ref(context.resolve('accent'))
+
+        return {
+          resolvedPrimary,
+          resolvedAccent,
+          context,
+        }
+      },
+      template: '<div></div>',
+    })
+
+    const ParentComponent = defineComponent({
+      setup () {
+        provideTokens()
+      },
+      components: { TestComponent },
+      template: '<TestComponent />',
+    })
+
+    const wrapper = mount(ParentComponent)
+    const testComponent = wrapper.findComponent(TestComponent)
+
+    expect(testComponent.vm.resolvedPrimary).toBe('#1976d2')
+    expect(testComponent.vm.resolvedAccent).toBe('#1976d2')
+  })
+
+  it('should demonstrate reactive token resolution with computed properties', async () => {
+    const tokens = {
+      primary: '#1976d2',
+      secondary: '#424242',
+      accent: { $value: '{primary}' },
+    }
+
+    const [useTokens, provideTokens] = createTokens('test-reactive', tokens)
+
+    const TestComponent = defineComponent({
+      setup () {
+        const context = useTokens()
+        const selectedToken = ref('primary')
+
+        // Reactive computed that depends on selectedToken
+        const currentTokenValue = computed(() => {
+          return context.resolve(selectedToken.value)
+        })
+
+        // Reactive computed for accent that always resolves to primary
+        const accentValue = computed(() => {
+          return context.resolve('accent')
+        })
+
+        return {
+          selectedToken,
+          currentTokenValue,
+          accentValue,
+          switchToSecondary: () => {
+            selectedToken.value = 'secondary'
+          },
+        }
+      },
+      template: '<div></div>',
+    })
+
+    const ParentComponent = defineComponent({
+      setup () {
+        provideTokens()
+      },
+      components: { TestComponent },
+      template: '<TestComponent />',
+    })
+
+    const wrapper = mount(ParentComponent)
+    const testComponent = wrapper.findComponent(TestComponent)
+
+    // Initial values - should resolve primary
+    expect(testComponent.vm.currentTokenValue).toBe('#1976d2')
+    expect(testComponent.vm.accentValue).toBe('#1976d2') // accent resolves to primary
+    expect(testComponent.vm.selectedToken).toBe('primary')
+
+    // Switch to secondary token reactively
+    testComponent.vm.switchToSecondary()
+    await nextTick()
+
+    // Values should update reactively through computed properties
+    expect(testComponent.vm.currentTokenValue).toBe('#424242')
+    expect(testComponent.vm.accentValue).toBe('#1976d2') // accent still resolves to primary
+    expect(testComponent.vm.selectedToken).toBe('secondary')
+  })
+
+  it('should resolve token items reactively', async () => {
+    const tokens = {
+      colors: {
+        primary: '#1976d2',
+        secondary: '#424242',
+      },
+      spacing: {
+        small: '8px',
+        medium: '16px',
+      },
+    }
+
+    const [useTokens, provideTokens] = createTokens('test-items', tokens)
+
+    const TestComponent = defineComponent({
+      setup () {
+        const context = useTokens()
+        const primaryItem = ref(context.resolveItem('colors.primary'))
+        const spacingItem = ref(context.resolveItem('spacing.medium'))
+
+        return {
+          primaryItem,
+          spacingItem,
+          registeredItems: context.registeredItems,
+        }
+      },
+      template: '<div></div>',
+    })
+
+    const ParentComponent = defineComponent({
+      setup () {
+        provideTokens()
+      },
+      components: { TestComponent },
+      template: '<TestComponent />',
+    })
+
+    const wrapper = mount(ParentComponent)
+    const testComponent = wrapper.findComponent(TestComponent)
+
+    expect(testComponent.vm.primaryItem?.id).toBe('colors.primary')
+    expect(testComponent.vm.primaryItem?.value).toBe('#1976d2')
+    expect(testComponent.vm.spacingItem?.id).toBe('spacing.medium')
+    expect(testComponent.vm.spacingItem?.value).toBe('16px')
+    expect(testComponent.vm.registeredItems.size).toBe(4)
+  })
+
+  it('should handle context injection errors gracefully', () => {
+    const [useTokens] = createTokens('test-error')
+
+    const TestComponent = defineComponent({
+      setup () {
+        useTokens()
+      },
+      template: '<div></div>',
+    })
+
+    expect(() => {
+      mount(TestComponent)
+    }).toThrow()
+  })
+
+  it('should work with multiple token contexts', async () => {
+    const themeTokens = {
+      primary: '#1976d2',
+      secondary: '#424242',
+    }
+
+    const spacingTokens = {
+      small: '8px',
+      large: '24px',
+    }
+
+    const [useThemeTokens, provideThemeTokens] = createTokens('theme', themeTokens)
+    const [useSpacingTokens, provideSpacingTokens] = createTokens('spacing', spacingTokens)
+
+    const TestComponent = defineComponent({
+      setup () {
+        const themeContext = useThemeTokens()
+        const spacingContext = useSpacingTokens()
+
+        return {
+          primaryColor: themeContext.resolve('primary'),
+          smallSpacing: spacingContext.resolve('small'),
+          themeItemsCount: themeContext.registeredItems.size,
+          spacingItemsCount: spacingContext.registeredItems.size,
+        }
+      },
+      template: '<div></div>',
+    })
+
+    const ParentComponent = defineComponent({
+      setup () {
+        provideThemeTokens()
+        provideSpacingTokens()
+      },
+      components: { TestComponent },
+      template: '<TestComponent />',
+    })
+
+    const wrapper = mount(ParentComponent)
+    const testComponent = wrapper.findComponent(TestComponent)
+
+    expect(testComponent.vm.primaryColor).toBe('#1976d2')
+    expect(testComponent.vm.smallSpacing).toBe('8px')
+    expect(testComponent.vm.themeItemsCount).toBe(2)
+    expect(testComponent.vm.spacingItemsCount).toBe(2)
   })
 })

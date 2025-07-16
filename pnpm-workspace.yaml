@@ -10,6 +10,7 @@ catalog:
   '@vue/tsconfig': ^0.7.0
   '@tsconfig/node22': ^22.0.2
   unplugin-vue: ^6.2.0
+  '@vue/test-utils': ^2.4.6
 
 onlyBuiltDependencies:
   - esbuild
