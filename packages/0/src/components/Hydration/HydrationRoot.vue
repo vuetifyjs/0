@@ -1,4 +1,4 @@
-ww<script lang="ts">
+<script lang="ts">
   // Composables
   import { createHydration, provideHydrationContext } from '#v0/composables/useHydration'
 
