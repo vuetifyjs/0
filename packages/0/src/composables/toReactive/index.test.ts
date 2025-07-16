@@ -289,11 +289,11 @@ describe('toReactive', () => {
       const setRef = ref(new Set([refValue]))
       const result = toReactive(setRef)
 
-      const values = result.values()
+      const values = Array.from(result.values())
       expect(values).toEqual(['test'])
 
       refValue.value = 'updated'
-      const updatedValues = result.values()
+      const updatedValues = Array.from(result.values())
       expect(updatedValues).toEqual(['updated'])
     })
   })

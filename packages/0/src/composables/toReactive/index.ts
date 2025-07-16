@@ -29,8 +29,8 @@ export function toReactive<T extends object> (
         if (p === 'set') {
           return (key: any, value: any) => {
             const existingValue = map.get(key)
-            if (isRef(existingValue) && !isRef(value)) {
-              existingValue.value = value
+            if (isRef(existingValue)) {
+              existingValue.value = unref(value)
             } else {
               map.set(key, value)
             }
@@ -53,10 +53,18 @@ export function toReactive<T extends object> (
           return () => map.keys()
         }
         if (p === 'values') {
-          return () => Array.from(map.values()).map(v => unref(v))
+          return function* () {
+            for (const value of map.values()) {
+              yield unref(value)
+            }
+          }
         }
         if (p === 'entries') {
-          return () => Array.from(map.entries()).map(([k, v]) => [k, unref(v)])
+          return function* () {
+            for (const [key, value] of map.entries()) {
+              yield [key, unref(value)] as [any, any]
+            }
+          }
         }
         if (p === 'forEach') {
           return (callback: (value: any, key: any, map: Map<any, any>) => void, thisArg?: any) => {
@@ -66,7 +74,11 @@ export function toReactive<T extends object> (
           }
         }
         if (p === Symbol.iterator) {
-          return () => Array.from(map.entries()).map(([k, v]) => [k, unref(v)])[Symbol.iterator]()
+          return function* () {
+            for (const [key, value] of map.entries()) {
+              yield [key, unref(value)] as [any, any]
+            }
+          }
         }
         return Reflect.get(map, p)
       },
@@ -98,10 +110,19 @@ export function toReactive<T extends object> (
           return set.size
         }
         if (p === 'keys' || p === 'values') {
-          return () => Array.from(set.values()).map(v => unref(v))
+          return function* () {
+            for (const value of set.values()) {
+              yield unref(value)
+            }
+          }
         }
         if (p === 'entries') {
-          return () => Array.from(set.values()).map(v => [unref(v), unref(v)])
+          return function* () {
+            for (const value of set.values()) {
+              const unreffedValue = unref(value)
+              yield [unreffedValue, unreffedValue] as [any, any]
+            }
+          }
         }
         if (p === 'forEach') {
           return (callback: (value: any, value2: any, set: Set<any>) => void, thisArg?: any) => {
@@ -112,7 +133,11 @@ export function toReactive<T extends object> (
           }
         }
         if (p === Symbol.iterator) {
-          return () => Array.from(set.values()).map(v => unref(v))[Symbol.iterator]()
+          return function* () {
+            for (const value of set.values()) {
+              yield unref(value)
+            }
+          }
         }
         return Reflect.get(set, p)
       },
@@ -127,12 +152,7 @@ export function toReactive<T extends object> (
     },
     set (_, p, value) {
       const currentTarget = objectRef.value as Record<PropertyKey, any>
-      const currentValue = currentTarget[p]
-      if (isRef(currentValue) && !isRef(value)) {
-        currentValue.value = value
-      } else {
-        currentTarget[p] = value
-      }
+      currentTarget[p] = value
       return true
     },
     deleteProperty (_, p) {
