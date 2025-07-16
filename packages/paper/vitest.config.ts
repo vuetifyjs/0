@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
+import Vue from 'unplugin-vue/rolldown'
 
 export default defineConfig({
   resolve: {
@@ -12,6 +13,7 @@ export default defineConfig({
       '#paper': fileURLToPath(new URL('src', import.meta.url)),
     },
   },
+  plugins: [Vue()],
   test: {
     projects: ['packages/*'],
     environment: 'happy-dom',
