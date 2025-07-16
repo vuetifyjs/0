@@ -8,6 +8,7 @@ export * from './components/Markdown'
 export * from './components/Popover'
 export * from './components/Step'
 
+export * from './composables/toReactive'
 export * from './composables/useBreakpoints'
 export * from './composables/useContext'
 export * from './composables/useFilter'
