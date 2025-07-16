@@ -1,23 +1,21 @@
 // Composables
-import { useGroup } from '../useGroup'
+import { useSingle } from '../useSingle'
 
 // Utilities
 import { toRef } from 'vue'
 
 // Types
-import type { GroupContext, GroupItem, GroupOptions, GroupTicket } from '../useGroup'
+import type { SingleContext, SingleItem, SingleOptions, SingleTicket } from '../useSingle'
 import type { App, Ref } from 'vue'
-import type { RegisterCallback } from '../useRegistrar'
 
-export interface StepItem extends GroupItem {}
+export interface StepItem extends SingleItem {}
 
-export interface StepTicket extends GroupTicket {}
+export interface StepTicket extends SingleTicket {}
 
-export interface StepOptions extends Omit<GroupOptions, 'multiple'> {}
+export interface StepOptions extends SingleOptions {}
 
-export interface StepContext extends GroupContext {
-  currentItem: Ref<any>
-  register: RegisterCallback<StepItem, StepTicket>
+export interface StepContext extends SingleContext {
+  selectedIndex: Ref<number>
   first: () => void
   last: () => void
   next: () => void
@@ -33,10 +31,9 @@ export function useStep<T extends StepContext> (
     useGroupContext,
     provideGroupContext,
     group,
-  ] = useGroup<T>(namespace, options)
+  ] = useSingle<T>(namespace, options)
 
-  const currentItem = toRef(() => group.selectedItems.value.values().next().value)
-  const currentIndex = toRef(() => currentItem.value?.index ?? -1)
+  const selectedIndex = toRef(() => group.selectedItem.value?.index ?? -1)
 
   function getIdByIndex (index: number) {
     for (const [id, item] of group.registeredItems) {
@@ -86,7 +83,7 @@ export function useStep<T extends StepContext> (
 
     const direction = Math.sign(count || 1)
     let hops = 0
-    let index = wrapped(length, currentIndex.value + count)
+    let index = wrapped(length, selectedIndex.value + count)
     let id = getIdByIndex(index)
 
     while (id !== undefined && group.registeredItems.get(id)?.disabled && hops < length) {
@@ -103,7 +100,7 @@ export function useStep<T extends StepContext> (
 
   const context = {
     ...group,
-    currentItem,
+    selectedIndex,
     first,
     last,
     next,

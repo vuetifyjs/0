@@ -1,6 +1,6 @@
 # useStep
 
-The `useStep` composable manages navigation through a multi-step process, such as forms, wizards, or onboarding flows. It provides methods to navigate between steps, track the current step, and handle step completion while supporting features like disabled steps and circular navigation.
+The `useStep` composable manages navigation through a multi-step process, such as forms, wizards, or onboarding flows. It provides methods to navigate between steps, track the current step, and handle step completion while supporting features like disabled steps and circular navigation. Built on top of `useSingle`, it provides a single-selection interface for step management.
 
 ## Usage
 
@@ -23,7 +23,8 @@ const [useStepContext, provideStepContext, stepContext] = useStep('wizard')
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `mandatory` | `boolean` | `true` | Whether a step must always be selected |
+| `mandatory` | `boolean \| 'force'` | `false` | Whether a step must always be selected |
+| `returnObject` | `boolean` | `false` | Whether to return full objects instead of values |
 
 ### Returns
 
@@ -37,8 +38,10 @@ const [useStepContext, provideStepContext, stepContext] = useStep('wizard')
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `currentItem` | `Ref<StepItem>` | Currently active step item |
-| `selectedIds` | `Set<string>` | Set of selected step IDs |
+| `selectedId` | `ComputedRef<ID \| undefined>` | ID of the currently selected step |
+| `selectedItem` | `ComputedRef<StepTicket \| undefined>` | Currently selected step item |
+| `selectedValue` | `ComputedRef<unknown>` | Value of the currently selected step |
+| `selectedIndex` | `Ref<number>` | Index of the currently selected step |
 | `registeredItems` | `Map<string, StepItem>` | Map of all registered steps |
 | `register` | `(options?) => StepTicket` | Function to register a new step |
 | `unregister` | `(id: string) => void` | Function to unregister a step |
@@ -53,22 +56,14 @@ const [useStepContext, provideStepContext, stepContext] = useStep('wizard')
 The composable is fully typed with TypeScript:
 
 ```ts
-export interface StepItem extends GroupItem {
-  title?: string
-  disabled?: boolean
-  index: number
-}
+export interface StepItem extends SingleItem {}
 
-export interface StepTicket extends GroupTicket {
-  id: string
-  disabled: boolean
-  index: number
-}
+export interface StepTicket extends SingleTicket {}
 
-export interface StepContext extends GroupContext {
-  currentItem: Ref<StepItem>
-  register: (options?: Partial<StepItem>) => StepTicket
-  unregister: (id: string) => void
+export interface StepOptions extends SingleOptions {}
+
+export interface StepContext extends SingleContext {
+  selectedIndex: Ref<number>
   first: () => void
   last: () => void
   next: () => void

@@ -25,6 +25,7 @@ declare global {
   const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
   const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
   const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
+  const createTokens: typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']
   const customRef: typeof import('vue')['customRef']
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
@@ -158,6 +159,9 @@ declare global {
   export type { Colors, ThemeItem, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
+  export type { TokenAlias, TokenValue, TokenCollection, TokenItem, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
+  import('../../packages/0/src/composables/useTokens/index')
+  // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
   import('../../packages/0/src/constants/htmlElements')
 }
@@ -186,6 +190,7 @@ declare module 'vue' {
     readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
     readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
+    readonly createTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
