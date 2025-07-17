@@ -3,7 +3,7 @@ import { useRegistrar } from '../useRegistrar'
 
 // Types
 import type { App } from 'vue'
-import type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../useRegistrar'
+import type { RegistrarTicket, RegistrarContext } from '../useRegistrar'
 
 export interface TokenAlias {
   $value: string
@@ -15,17 +15,13 @@ export interface TokenCollection {
   [key: string]: TokenValue | TokenCollection
 }
 
-export interface TokenItem extends RegistrarItem {
-  value: string
-}
-
 export interface TokenTicket extends RegistrarTicket {
   value: string
 }
 
-export interface TokenContext extends RegistrarContext<TokenTicket, TokenItem> {
+export type TokenContext = RegistrarContext & {
   resolve: (token: string) => string | undefined
-  resolveItem: (token: string) => TokenItem | undefined
+  resolveItem: (token: string) => TokenTicket | undefined
 }
 
 interface FlattenedToken {
@@ -103,15 +99,13 @@ export function createTokens<T extends TokenContext> (namespace: string, tokens:
     Object.fromEntries(tokenMap.entries()),
   )
 
+  // Register tokens with the registrar
   for (const { path, value } of flatTokens) {
-    registrar.register(() => {
-      const resolvedValue = resolvedTokens[path] || (typeof value === 'string' ? value : value.$value)
+    const resolvedValue = resolvedTokens[path] || (typeof value === 'string' ? value : value.$value)
 
-      return {
-        id: path,
-        value: resolvedValue,
-      }
-    })
+    registrar.register({
+      value: resolvedValue,
+    } as Partial<TokenTicket>, path)
   }
 
   function resolve (token: string): string | undefined {
@@ -122,7 +116,7 @@ export function createTokens<T extends TokenContext> (namespace: string, tokens:
     return resolvedTokens[cleanToken]
   }
 
-  function resolveItem (token: string): TokenItem | undefined {
+  function resolveItem (token: string): TokenTicket | undefined {
     const cleanToken = token.startsWith('{') && token.endsWith('}')
       ? token.slice(1, -1)
       : token

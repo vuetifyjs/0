@@ -9,42 +9,25 @@ import { genId } from '#v0/utils/helpers'
 import type { ID } from '#v0/types'
 import type { App, Reactive } from 'vue'
 
-export interface RegistrarItem {
-  id?: ID
-}
-
-export interface RegistrarTicket extends Required<RegistrarItem> {
+export interface RegistrarTicket {
+  id: ID
   index: number
 }
 
-export type RegisterCallback<Item extends RegistrarItem, Ticket extends RegistrarTicket> = (item?: Partial<Item> | ((ticket: Ticket) => Partial<Item>)) => Reactive<Ticket>
-
-export type RegisterArgument<Item extends RegistrarItem, Ticket extends RegistrarTicket> = Parameters<RegisterCallback<Item, Ticket>>[0]
-
-export type IntakeFunction<Item extends RegistrarItem, Ticket extends RegistrarTicket> = (ticket: RegistrarTicket, item?: Partial<Item> | ((ticket: Ticket) => Partial<Item>)) => Partial<Ticket>
-
-export interface RegistrarContext<
-  T extends RegistrarTicket = RegistrarTicket,
-  R extends RegistrarItem = RegistrarItem,
-  RegisterFn = RegisterCallback<R, T>,
-  IntakeFn = IntakeFunction<R, T>,
-> {
-  registeredItems: Reactive<Map<ID, Reactive<T>>>
-  register: RegisterFn
-  intake: IntakeFn
+export interface RegistrarContext {
+  registeredItems: Reactive<Map<ID, Reactive<any>>>
+  register: (item: any, id?: ID) => Reactive<any>
   unregister: (id: ID) => void
   reindex: () => void
 }
 
 export function useRegistrar<
   T extends RegistrarTicket,
-  U extends RegistrarContext<T>,
+  U extends RegistrarContext,
 > (namespace: string) {
-  type PartialItem = Omit<T, keyof RegistrarTicket> & Partial<RegistrarTicket>
-
   const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
 
-  const registeredItems = reactive(new Map<ID, any>())
+  const registeredItems = reactive(new Map<ID, T>())
 
   function reindex () {
     let index = 0
@@ -53,30 +36,16 @@ export function useRegistrar<
     }
   }
 
-  function intake (ticket: RegistrarTicket, item: RegisterArgument<PartialItem, RegistrarTicket>) {
-    if (typeof item === 'function') {
-      return item(ticket)
-    }
+  function register (registrant: Partial<T>, id: ID = genId()): Reactive<T> {
+    const item = reactive({
+      id,
+      index: registrant?.index ?? registeredItems.size,
+      ...registrant,
+    }) as Reactive<T>
+
+    registeredItems.set(item.id, item as any)
+
     return item
-  }
-
-  function register (registration?: RegisterArgument<PartialItem, T>): Reactive<T> {
-    const isFunction = typeof registration === 'function'
-
-    const ticket: RegistrarTicket = {
-      id: isFunction ? genId() : registration?.id ?? genId(),
-      index: registeredItems.size,
-    }
-
-    const item = intake(ticket, registration as T)
-
-    Object.assign(ticket, item)
-
-    const registrant = reactive(ticket) as Reactive<T>
-
-    registeredItems.set(registrant.id, registrant)
-
-    return registrant
   }
 
   function unregister (id: ID) {
@@ -89,7 +58,6 @@ export function useRegistrar<
     register,
     unregister,
     reindex,
-    intake,
   } as unknown as U
 
   return [
