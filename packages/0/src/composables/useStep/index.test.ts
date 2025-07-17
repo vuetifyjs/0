@@ -12,7 +12,7 @@ describe('useStep', () => {
       expect(stepState).toHaveProperty('selectedItems')
       expect(stepState).toHaveProperty('selectedValues')
       expect(stepState).toHaveProperty('registeredItems')
-      expect(stepState).toHaveProperty('currentItem')
+      expect(stepState).toHaveProperty('selectedItem')
       expect(stepState).toHaveProperty('first')
       expect(stepState).toHaveProperty('last')
       expect(stepState).toHaveProperty('next')
@@ -27,7 +27,7 @@ describe('useStep', () => {
       expect(state.selectedItems.value.size).toBe(0)
       expect(state.selectedValues.value.size).toBe(0)
       expect(state.registeredItems.size).toBe(0)
-      expect(state.currentItem.value).toBeUndefined()
+      expect(state.selectedItem.value).toBeUndefined()
     })
   })
 
@@ -83,7 +83,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(true)
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
     })
 
     it('should navigate to last item', () => {
@@ -98,7 +98,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(false)
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(true)
-      expect(state.currentItem.value?.id).toBe('item3')
+      expect(state.selectedItem.value?.id).toBe('item3')
     })
 
     it('should navigate to next item', () => {
@@ -113,7 +113,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(false)
       expect(state.selectedIds.has('item2')).toBe(true)
       expect(state.selectedIds.has('item3')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item2')
+      expect(state.selectedItem.value?.id).toBe('item2')
     })
 
     it('should wrap around when navigating next from last item', () => {
@@ -128,7 +128,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(true)
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
     })
 
     it('should navigate to previous item', () => {
@@ -143,7 +143,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(true)
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
     })
 
     it('should wrap around when navigating prev from first item', () => {
@@ -158,7 +158,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(false)
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(true)
-      expect(state.currentItem.value?.id).toBe('item3')
+      expect(state.selectedItem.value?.id).toBe('item3')
     })
 
     it('should navigate by specific step count', () => {
@@ -175,7 +175,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(true)
       expect(state.selectedIds.has('item4')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item3')
+      expect(state.selectedItem.value?.id).toBe('item3')
     })
 
     it('should wrap around when stepping beyond bounds', () => {
@@ -190,7 +190,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(true)
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
     })
 
     it('should handle navigation with no items registered', () => {
@@ -203,7 +203,7 @@ describe('useStep', () => {
       }).not.toThrow()
 
       expect(state.selectedIds.size).toBe(0)
-      expect(state.currentItem.value).toBeUndefined()
+      expect(state.selectedItem.value).toBeUndefined()
     })
 
     it('should handle navigation with single item', () => {
@@ -211,23 +211,23 @@ describe('useStep', () => {
 
       context.first()
       expect(state.selectedIds.has('item1')).toBe(true)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
 
       context.last()
       expect(state.selectedIds.has('item1')).toBe(true)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
 
       context.next()
       expect(state.selectedIds.has('item1')).toBe(true)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
 
       context.prev()
       expect(state.selectedIds.has('item1')).toBe(true)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
 
       context.step(10)
       expect(state.selectedIds.has('item1')).toBe(true)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
     })
 
     it('should handle navigation from no current selection', () => {
@@ -237,7 +237,7 @@ describe('useStep', () => {
       context.next()
       expect(state.selectedIds.has('item1')).toBe(true)
       expect(state.selectedIds.has('item2')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
     })
 
     it('should handle negative step counts', () => {
@@ -251,27 +251,27 @@ describe('useStep', () => {
       context.step(-1) // Should go backwards
       expect(state.selectedIds.has('item1')).toBe(true)
       expect(state.selectedIds.has('item2')).toBe(false)
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
     })
   })
 
-  describe('currentItem computed property', () => {
+  describe('selectedItem computed property', () => {
     it('should return the currently selected item', () => {
       const [, provideStepContext, state] = useStep('test')
       const context = provideStepContext()
 
-      expect(state.currentItem.value).toBeUndefined()
+      expect(state.selectedItem.value).toBeUndefined()
 
       context.register({ id: 'item1', value: 'value1' })
       context.register({ id: 'item2', value: 'value2' })
 
       context.select('item2')
-      expect(state.currentItem.value?.id).toBe('item2')
-      expect(state.currentItem.value?.value).toBe('value2')
+      expect(state.selectedItem.value?.id).toBe('item2')
+      expect(state.selectedItem.value?.value).toBe('value2')
 
       context.select('item1')
-      expect(state.currentItem.value?.id).toBe('item1')
-      expect(state.currentItem.value?.value).toBe('value1')
+      expect(state.selectedItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.value).toBe('value1')
     })
   })
 
@@ -290,7 +290,7 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(false)
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedIds.has('item3')).toBe(true)
-      expect(state.currentItem.value?.id).toBe('item3')
+      expect(state.selectedItem.value?.id).toBe('item3')
     })
 
     it('should handle unregistering current item', () => {
@@ -301,10 +301,10 @@ describe('useStep', () => {
       context.register({ id: 'item2' })
 
       context.select('item1')
-      expect(state.currentItem.value?.id).toBe('item1')
+      expect(state.selectedItem.value?.id).toBe('item1')
 
       context.unregister('item1')
-      expect(state.currentItem.value).toBeUndefined()
+      expect(state.selectedItem.value).toBeUndefined()
       expect(state.selectedIds.size).toBe(0)
     })
   })
