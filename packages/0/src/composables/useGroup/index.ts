@@ -6,15 +6,10 @@ import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toV
 
 // Types
 import type { App, ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '../useRegistrar'
+import type { RegistrarContext, RegistrarTicket } from '../useRegistrar'
 import type { ID } from '#v0/types'
 
-export interface GroupItem extends RegistrarItem {
-  disabled: boolean
-  value: unknown
-}
-
-export interface GroupTicket extends RegistrarTicket {
+export type GroupTicket = RegistrarTicket & {
   disabled: boolean
   value: unknown
   valueIsIndex: boolean
@@ -22,10 +17,11 @@ export interface GroupTicket extends RegistrarTicket {
   toggle: () => void
 }
 
-export interface GroupContext extends RegistrarContext<GroupTicket, GroupItem> {
+export type GroupContext = RegistrarContext & {
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
+  register: (item?: Partial<GroupTicket>, id?: ID) => Reactive<GroupTicket>
   mandate: () => void
   select: (ids: ID | ID[]) => void
   reset: () => void
@@ -42,8 +38,8 @@ export function useGroup<T extends GroupContext> (
   options?: GroupOptions,
 ) {
   const [
-    useGroupContext,
-    provideGroupContext,
+    useRegistrarContext,
+    provideRegistrarContext,
     registrar,
   ] = useRegistrar<GroupTicket, T>(namespace)
 
@@ -80,14 +76,7 @@ export function useGroup<T extends GroupContext> (
   }
 
   function reindex () {
-    let index = 0
-    for (const item of registrar.registeredItems.values()) {
-      item.index = index++
-
-      if (item.valueIsIndex) {
-        item.value = item.index
-      }
-    }
+    registrar.reindex()
   }
 
   function reset () {
@@ -128,18 +117,19 @@ export function useGroup<T extends GroupContext> (
     }
   }
 
-  const register: typeof registrar.register = registration => {
-    const ticket = registrar.register(registrant => {
-      const item = registrar.intake(registrant, registration)
+  function register (item?: Partial<GroupTicket>, id?: ID): Reactive<GroupTicket> {
+    const groupItem: Partial<GroupTicket> = {
+      disabled: false,
+      value: item?.value ?? registrar.registeredItems.size,
+      valueIsIndex: item?.value == null,
+      ...item,
+    }
 
-      return {
-        disabled: item?.disabled ?? false,
-        value: item?.value ?? registrant.index,
-        valueIsIndex: item?.value == null,
-        isActive: toRef(() => selectedIds.has(registrant.id)),
-        toggle: () => toggle(registrant.id),
-        ...item,
-      }
+    const ticket = registrar.register(groupItem, id)
+
+    Object.assign(ticket, {
+      isActive: toRef(() => selectedIds.has(ticket.id)),
+      toggle: () => toggle(ticket.id),
     })
 
     if (initialValue != null) {
@@ -180,7 +170,7 @@ export function useGroup<T extends GroupContext> (
   } as T
 
   return [
-    useGroupContext,
+    useRegistrarContext,
     function (
       model?: Ref<unknown | unknown[]>,
       _context: T = context,
@@ -231,7 +221,7 @@ export function useGroup<T extends GroupContext> (
         })
       }
 
-      provideGroupContext(_context, app)
+      provideRegistrarContext(_context, app)
 
       return _context
     },

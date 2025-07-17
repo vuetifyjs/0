@@ -2,22 +2,22 @@
 import { useGroup } from '#v0/composables/useGroup'
 
 // Utilities
-import { computed, type App, type ComputedRef, type Ref } from 'vue'
+import { computed } from 'vue'
 
 // Types
-import type { GroupContext, GroupItem, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
+import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
-
-export interface SingleItem extends GroupItem {}
+import type { App, ComputedRef, Ref } from 'vue'
 
 export interface SingleTicket extends GroupTicket {}
 
 export interface SingleOptions extends Omit<GroupOptions, 'multiple'> {}
 
-export interface SingleContext extends GroupContext {
+export type SingleContext = GroupContext & {
   selectedId: ComputedRef<ID | undefined>
   selectedItem: ComputedRef<SingleTicket | undefined>
   selectedValue: ComputedRef<unknown>
+  select: (id: ID) => void
 }
 
 export function useSingle<T extends SingleContext> (
@@ -34,7 +34,6 @@ export function useSingle<T extends SingleContext> (
   const selectedItem = computed(() => selectedId.value ? group.registeredItems.get(selectedId.value) : undefined)
   const selectedValue = computed(() => selectedItem.value ? selectedItem.value.value : undefined)
 
-  // TODO: can't figure out how to type this properly
   function select (id: ID) {
     group.select(id)
   }

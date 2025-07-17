@@ -76,6 +76,7 @@ declare global {
   const toCamelCase: typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']
   const toKebabCase: typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']
   const toRaw: typeof import('vue')['toRaw']
+  const toReactive: typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
@@ -138,7 +139,7 @@ declare global {
   export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
-  export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
+  export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
   export type { HydrationContext, HydrationPlugin } from '../../packages/0/src/composables/useHydration/index'
@@ -150,7 +151,7 @@ declare global {
   export type { MarkdownAdapter, MarkdownContext, MarkdownOptions, MarkdownPlugin } from '../../packages/0/src/composables/useMarkdown/index'
   import('../../packages/0/src/composables/useMarkdown/index')
   // @ts-ignore
-  export type { RegistrarItem, RegistrarTicket, RegisterCallback, RegisterArgument, IntakeFunction, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
+  export type { RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
   import('../../packages/0/src/composables/useRegistrar/index')
   // @ts-ignore
   export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
@@ -159,7 +160,7 @@ declare global {
   export type { Colors, ThemeItem, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
-  export type { TokenAlias, TokenValue, TokenCollection, TokenItem, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
+  export type { TokenAlias, TokenValue, TokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
   import('../../packages/0/src/composables/useTokens/index')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
@@ -240,6 +241,7 @@ declare module 'vue' {
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
+    readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>

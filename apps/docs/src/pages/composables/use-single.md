@@ -29,17 +29,23 @@ const aboutTab = group.register({ value: 'about', disabled: false })
     <button @click="aboutTab.toggle()" :disabled="aboutTab.disabled">
       About {{ aboutTab.isActive ? '(active)' : '' }}
     </button>
-    
-    <p>Selected: {{ tabSingle.selectedValue.value }}</p>
+
+    <p>Selected: {{ tabSingle.selectedValue }}</p>
   </div>
 </template>
 ```
 
 ## API Reference
 
-### `useSingle(namespace, options?)`
+### `useSingle<T>(namespace, options?)`
 
-Creates a single-selection group management system.
+Creates a single-selection group management system built on top of `useGroup`.
+
+**Generic Parameters:**
+
+| Parameter | Description |
+|-----------|-------------|
+| `T` | Type extending `SingleContext` for the context |
 
 **Parameters:**
 
@@ -51,13 +57,17 @@ Creates a single-selection group management system.
 **Returns:**
 
 A tuple containing:
-- `useSingleContext`: Function to access group context in child components
-- `provideSingleContext`: Function to provide group context to children
+- `useGroupContext`: Function to access group context in child components
+- `provideGroupContext`: Function to provide group context to children with model binding
 - `singleContext`: The single-selection context object
 
 ### SingleOptions
 
 Extends `GroupOptions` but omits the `multiple` property (always `false`).
+
+```typescript
+interface SingleOptions extends Omit<GroupOptions, 'multiple'> {}
+```
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -68,14 +78,90 @@ Extends `GroupOptions` but omits the `multiple` property (always `false`).
 
 Extends `GroupContext` with additional singular selection properties:
 
+```typescript
+export type SingleContext = GroupContext & {
+  selectedId: ComputedRef<ID | undefined>
+  selectedItem: ComputedRef<SingleTicket | undefined>
+  selectedValue: ComputedRef<unknown>
+  select: (id: ID) => void
+}
+```
+
 | Property | Type | Description |
 |----------|------|-------------|
-| `selectedId` | `ComputedRef<ID \| undefined>` | ID of the selected item |
+| `selectedId` | `ComputedRef<ID \| undefined>` | ID of the selected item (first from selectedIds) |
 | `selectedItem` | `ComputedRef<SingleTicket \| undefined>` | The selected item ticket |
 | `selectedValue` | `ComputedRef<unknown>` | Value of the selected item |
 | `select` | `(id: ID) => void` | Simplified select function for single ID |
 
 All other properties from `GroupContext` are inherited (including `selectedIds`, `selectedItems`, `selectedValues` for backward compatibility).
+
+### SingleTicket
+
+Extends `GroupTicket` with the same interface:
+
+```typescript
+export interface SingleTicket extends GroupTicket {}
+```
+
+## Implementation Details
+
+`useSingle` internally uses `useGroup` with `multiple: false` and adds convenience computed properties:
+
+```typescript
+export function useSingle<T extends SingleContext> (
+  namespace: string,
+  options?: SingleOptions,
+) {
+  const [useGroupContext, provideGroupContext, group] = useGroup<T>(namespace, options)
+
+  const selectedId = computed(() => group.selectedIds.values().next().value)
+  const selectedItem = computed(() => selectedId.value ? group.registeredItems.get(selectedId.value) : undefined)
+  const selectedValue = computed(() => selectedItem.value ? selectedItem.value.value : undefined)
+
+  function select (id: ID) {
+    group.select(id)
+  }
+
+  const context = {
+    ...group,
+    selectedId,
+    selectedItem,
+    selectedValue,
+    select,
+  } as T
+
+  return [useGroupContext, provideGroupContext, context] as const
+}
+```
+
+## Model Binding
+
+Like `useGroup`, `useSingle` supports model binding with automatic synchronization:
+
+```vue
+<script setup>
+import { useSingle } from '@vuetify/0'
+import { ref } from 'vue'
+
+const selectedValue = ref('home')
+
+const [useTabSingle, provideTabSingle] = useSingle('tabs', {
+  mandatory: true
+})
+
+// Bind model to single selection
+provideTabSingle(selectedValue)
+
+const group = useTabSingle()
+group.register({ value: 'home' })
+group.register({ value: 'about' })
+group.register({ value: 'contact' })
+
+// selectedValue automatically updates when selection changes
+// Selection automatically updates when selectedValue changes
+</script>
+```
 
 ## TypeScript Support
 
