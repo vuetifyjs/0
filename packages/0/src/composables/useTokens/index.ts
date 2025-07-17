@@ -5,17 +5,17 @@ import { useRegistrar } from '../useRegistrar'
 import type { App } from 'vue'
 import type { RegistrarTicket, RegistrarContext } from '../useRegistrar'
 
-export interface TokenAlias {
+export type TokenAlias = {
   $value: string
 }
 
 export type TokenValue = string | TokenAlias
 
-export interface TokenCollection {
+export type TokenCollection = {
   [key: string]: TokenValue | TokenCollection
 }
 
-export interface TokenTicket extends RegistrarTicket {
+export type TokenTicket = RegistrarTicket & {
   value: string
 }
 
@@ -86,7 +86,11 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
 }
 
 export function createTokens<T extends TokenContext> (namespace: string, tokens: TokenCollection = {}) {
-  const [useTokenContext, provideTokenContext, registrar] = useRegistrar<TokenTicket, T>(namespace)
+  const [
+    useTokenContext,
+    provideTokenContext,
+    registrar,
+  ] = useRegistrar<TokenTicket, T>(namespace)
 
   const flatTokens = flattenTokens(tokens)
   const tokenMap = new Map<string, TokenValue>()
@@ -99,7 +103,6 @@ export function createTokens<T extends TokenContext> (namespace: string, tokens:
     Object.fromEntries(tokenMap.entries()),
   )
 
-  // Register tokens with the registrar
   for (const { path, value } of flatTokens) {
     const resolvedValue = resolvedTokens[path] || (typeof value === 'string' ? value : value.$value)
 

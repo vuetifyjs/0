@@ -58,7 +58,7 @@ export function useRegistrar<
     register,
     unregister,
     reindex,
-  } as unknown as U
+  } as U
 
   return [
     useRegistrarContext,
