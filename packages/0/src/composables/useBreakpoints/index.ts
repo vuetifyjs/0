@@ -1,9 +1,8 @@
 // Composables
 import { useContext } from '#v0/composables/useContext'
-import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { getCurrentInstance, onMounted, onScopeDispose, shallowReactive, watch } from 'vue'
+import { onScopeDispose, shallowReactive } from 'vue'
 import { mergeDeep } from '#v0/utils/helpers'
 
 // Constants
@@ -36,6 +35,7 @@ export interface BreakpointsContext {
   lgAndDown: boolean
   xlAndDown: boolean
   xxlAndDown: boolean
+  update: () => void
 }
 
 export interface BreakpointsOptions {
@@ -64,8 +64,6 @@ function createDefaultBreakpoints () {
 }
 
 export function createBreakpoints (options: BreakpointsOptions = {}) {
-  const { isHydrated } = useHydration()
-
   const defaults = createDefaultBreakpoints()
   const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as any)
   const sorted = Object.entries(breakpoints!).sort((a, b) => a[1] - b[1]) as [BreakpointName, number][]
@@ -94,6 +92,7 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
     lgAndDown: true,
     xlAndDown: true,
     xxlAndDown: true,
+    update,
   })
 
   function update () {
@@ -133,19 +132,6 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
     state.xxlAndDown = index <= 5
   }
 
-  if (getCurrentInstance()) {
-    onMounted(() => {
-      if (isHydrated.value) update()
-      else watch(isHydrated, update, { immediate: true })
-    })
-  }
-
-  if (IN_BROWSER) {
-    const listener = () => update()
-    window.addEventListener('resize', listener, { passive: true })
-    onScopeDispose(() => window.removeEventListener('resize', listener))
-  }
-
   return state
 }
 
@@ -156,6 +142,14 @@ export function createBreakpointsPlugin (options: BreakpointsOptions = {}) {
 
       app.runWithContext(() => {
         provideBreakpointsContext(context, app)
+      })
+
+      app.mixin({
+        mounted () {
+          const listener = () => context.update()
+          window.addEventListener('resize', listener, { passive: true })
+          onScopeDispose(() => window.removeEventListener('resize', listener))
+        },
       })
     },
   }
