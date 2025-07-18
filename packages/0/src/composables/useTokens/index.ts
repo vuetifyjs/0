@@ -22,6 +22,7 @@ export type TokenTicket = RegistrarTicket & {
 export type TokenContext = RegistrarContext & {
   resolve: (token: string) => string | undefined
   resolveItem: (token: string) => TokenTicket | undefined
+  resolved: Record<string, string>
 }
 
 interface FlattenedToken {
@@ -52,11 +53,13 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
   const resolving = new Set<string>()
 
   function resolveValue (key: string, value: TokenValue): string {
-    if (typeof value === 'string') return value
+    const isTokenAlias = (v: any): v is TokenAlias => typeof v === 'object' && v !== null && '$value' in v
+    const ref = isTokenAlias(value) ? value.$value : value
 
-    const ref = value.$value
-    if (!ref.startsWith('{') || !ref.endsWith('}')) {
-      console.warn(`Invalid alias format for "${key}": ${ref}`)
+    if (typeof ref !== 'string' || !ref.startsWith('{') || !ref.endsWith('}')) {
+      if (isTokenAlias(value)) {
+        console.warn(`Invalid alias format for "${key}": ${ref}`)
+      }
       return ref
     }
 
@@ -131,6 +134,7 @@ export function createTokens<T extends TokenContext> (namespace: string, tokens:
     ...registrar,
     resolve,
     resolveItem,
+    resolved: resolvedTokens,
   } as T
 
   return [

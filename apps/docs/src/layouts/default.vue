@@ -15,6 +15,7 @@
         { name: 'useRegistrar', to: '/composables/use-registrar' },
         { name: 'useSingle', to: '/composables/use-single' },
         { name: 'useStep', to: '/composables/use-step' },
+        { name: 'useTheme', to: '/composables/use-theme' },
       ],
     },
   ]

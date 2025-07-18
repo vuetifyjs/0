@@ -12,8 +12,10 @@ declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
+  const SUPPORTS_MATCH_MEDIA: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
+  const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
@@ -21,7 +23,8 @@ declare global {
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
   const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
   const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
-  const createTheme: typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']
+  const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
+  const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
   const createTokens: typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']
   const customRef: typeof import('vue')['customRef']
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']
@@ -103,6 +106,7 @@ declare global {
   const useSpacing: typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']
   const useStep: typeof import('../../packages/0/src/composables/useStep/index')['useStep']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
+  const useTheme: typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -153,6 +157,9 @@ declare global {
   export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
+  export type { Colors, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
+  import('../../packages/0/src/composables/useTheme/index')
+  // @ts-ignore
   export type { TokenAlias, TokenValue, TokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
   import('../../packages/0/src/composables/useTokens/index')
   // @ts-ignore
@@ -171,8 +178,10 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
+    readonly SUPPORTS_MATCH_MEDIA: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']>
     readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
+    readonly Vuetify0ThemeAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
@@ -180,7 +189,8 @@ declare module 'vue' {
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
     readonly createMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']>
     readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
-    readonly createTheme: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']>
+    readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
+    readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
     readonly createTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
@@ -260,6 +270,7 @@ declare module 'vue' {
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
     readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['useStep']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>

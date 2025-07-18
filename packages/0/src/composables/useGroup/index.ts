@@ -8,6 +8,7 @@ import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toV
 import type { App, ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
 import type { RegistrarContext, RegistrarTicket } from '../useRegistrar'
 import type { ID } from '#v0/types'
+import { genId } from '#v0/utils/helpers'
 
 export type GroupTicket = RegistrarTicket & {
   disabled: boolean
@@ -33,7 +34,10 @@ export type GroupOptions = {
   returnObject?: boolean
 }
 
-export function useGroup<T extends GroupContext> (
+export function useGroup<
+  T extends GroupTicket,
+  U extends GroupContext,
+> (
   namespace: string,
   options?: GroupOptions,
 ) {
@@ -41,7 +45,7 @@ export function useGroup<T extends GroupContext> (
     useRegistrarContext,
     provideRegistrarContext,
     registrar,
-  ] = useRegistrar<GroupTicket, T>(namespace)
+  ] = useRegistrar<T, U>(namespace)
 
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
@@ -117,12 +121,12 @@ export function useGroup<T extends GroupContext> (
     }
   }
 
-  function register (item?: Partial<GroupTicket>, id?: ID): Reactive<GroupTicket> {
-    const groupItem: Partial<GroupTicket> = {
+  function register (registrant: Partial<T>, id: ID = genId()): Reactive<T> {
+    const groupItem: Partial<T> = {
       disabled: false,
-      value: item?.value ?? registrar.registeredItems.size,
-      valueIsIndex: item?.value == null,
-      ...item,
+      value: registrant?.value ?? registrar.registeredItems.size,
+      valueIsIndex: registrant?.value == null,
+      ...registrant,
     }
 
     const ticket = registrar.register(groupItem, id)
@@ -167,13 +171,13 @@ export function useGroup<T extends GroupContext> (
     reindex,
     mandate,
     select,
-  } as T
+  } as U
 
   return [
     useRegistrarContext,
     function (
       model?: Ref<unknown | unknown[]>,
-      _context: T = context,
+      _context: U = context,
       app?: App,
     ) {
       let isUpdatingModel = false

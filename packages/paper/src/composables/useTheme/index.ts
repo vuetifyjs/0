@@ -205,3 +205,73 @@ export function createTheme (options: ThemeOptions) {
 
   return providing
 }
+
+// function getOrCreateStyleElement (id: string, cspNonce?: string) {
+//   if (!IN_BROWSER) return null
+
+//   let style = document.querySelector(id) as HTMLStyleElement | null
+
+//   if (!style) {
+//     style = document.createElement('style')
+//     style.id = id.startsWith('#') ? id.slice(1) : id
+
+//     if (cspNonce) style.setAttribute('nonce', cspNonce)
+
+//     document.head.append(style)
+//   }
+
+//   return style
+// }
+
+// function upsert (id: string, cspNonce: string | undefined, styles: string) {
+//   const styleEl = getOrCreateStyleElement(id, cspNonce)
+
+//   if (!styleEl) return
+
+//   styleEl.textContent = styles
+// }
+
+// function parseThemes (_themes: ThemePluginOptions['themes'] = {}): Record<string, ThemeItem> {
+//   function genDefaults () {
+//     return {
+//       light: {
+//         dark: false,
+//         colors: {
+//           primary: '#1976D2',
+//           secondary: '#424242',
+//           accent: '#82B1FF',
+//           success: '#4CAF50',
+//           warning: '#FB8C00',
+//           error: '#FF5252',
+//           info: '#2196F3',
+//           background: '#FFFFFF',
+//           surface: '#F5F5F5',
+//           text: '#000000',
+//         },
+//       },
+//       dark: {
+//         dark: true,
+//         colors: {
+//           primary: '#2196F3',
+//           secondary: '#757575',
+//           accent: '#BBDEFB',
+//           success: '#81C784',
+//           warning: '#FFB74D',
+//           error: '#E57373',
+//           info: '#64B5F6',
+//           background: '#121212',
+//           surface: '#1E1E1E',
+//           text: '#FFFFFF',
+//         },
+//       },
+//     }
+//   }
+
+//   const defaults = genDefaults()
+
+//   return Object.entries(_themes).reduce<Record<string, ThemeDefinition>>((acc, [key, theme]) => {
+//     const defaultTheme = theme.dark || key === 'dark' ? defaults.dark : defaults.light
+//     acc[key] = mergeDeep<ThemeDefinition>(defaultTheme, theme)
+//     return acc
+//   }, genDefaults())
+// }

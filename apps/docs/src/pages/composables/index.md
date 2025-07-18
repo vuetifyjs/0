@@ -16,3 +16,4 @@ Composables are reusable pieces of logic that can be shared across components in
 | [useRegistrar](/composables/use-registrar) | Foundation for building registration-based systems with automatic indexing, lifecycle management, and type-safe registration callbacks. |
 | [useSingle](/composables/use-single) | Simplified single-selection wrapper around useGroup with convenient singular selection properties and streamlined API. |
 | [useStep](/composables/use-step) | Manage the state of a step in a multi-step process, such as a form or wizard. |
+| [useTheme](/composables/use-theme) | Manage application themes with dynamic switching and automatic CSS custom property generation. |

@@ -27,6 +27,8 @@ declare module 'vue' {
     PopoverRoot: typeof import('./../../packages/0/src/components/Popover/PopoverRoot.vue')['default']
     StepItem: typeof import('./../../packages/0/src/components/Step/StepItem.vue')['default']
     StepRoot: typeof import('./../../packages/0/src/components/Step/StepRoot.vue')['default']
+    ThemeItem: typeof import('./../../packages/0/src/components/Theme/ThemeItem.vue')['default']
+    ThemeRoot: typeof import('./../../packages/0/src/components/Theme/ThemeRoot.vue')['default']
     V0Paper: typeof import('./../../packages/paper/src/components/V0Paper/V0Paper.vue')['default']
   }
 }
