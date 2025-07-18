@@ -6,7 +6,7 @@ The `useKeydown` composable provides a simple and efficient way to handle keyboa
 
 ```vue
 <script lang="ts" setup>
-import { useKeydown } from '@vuetify/0'
+import { useKeydown } from 'v0'
 import { ref } from 'vue'
 
 const message = ref('')
@@ -43,8 +43,8 @@ Registers keyboard event handlers with automatic cleanup.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `startListening` | `Function` | Manually start listening for events |
-| `stopListening` | `Function` | Manually stop listening for events |
+| `startListening` | `() => void` | Manually start listening for events |
+| `stopListening` | `() => void` | Manually stop listening for events |
 
 ### KeyHandler
 
@@ -60,8 +60,8 @@ Registers keyboard event handlers with automatic cleanup.
 The composable is fully typed:
 
 ```typescript
-import { useKeydown } from '@vuetify/0'
-import type { KeyHandler } from '@vuetify/0'
+import { useKeydown } from 'v0'
+import type { KeyHandler } from 'v0'
 
 // Type-safe handler definition
 const handlers: KeyHandler[] = [

@@ -20,16 +20,18 @@ declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/composables/': RouteRecordInfo<'/composables/', '/composables', Record<never, never>, Record<never, never>>,
+    '/composables/to-reactive': RouteRecordInfo<'/composables/to-reactive', '/composables/to-reactive', Record<never, never>, Record<never, never>>,
     '/composables/use-breakpoints': RouteRecordInfo<'/composables/use-breakpoints', '/composables/use-breakpoints', Record<never, never>, Record<never, never>>,
     '/composables/use-context': RouteRecordInfo<'/composables/use-context', '/composables/use-context', Record<never, never>, Record<never, never>>,
     '/composables/use-filter': RouteRecordInfo<'/composables/use-filter', '/composables/use-filter', Record<never, never>, Record<never, never>>,
     '/composables/use-group': RouteRecordInfo<'/composables/use-group', '/composables/use-group', Record<never, never>, Record<never, never>>,
     '/composables/use-hydration': RouteRecordInfo<'/composables/use-hydration', '/composables/use-hydration', Record<never, never>, Record<never, never>>,
-    '/composables/use-keyboard': RouteRecordInfo<'/composables/use-keyboard', '/composables/use-keyboard', Record<never, never>, Record<never, never>>,
+    '/composables/use-keydown': RouteRecordInfo<'/composables/use-keydown', '/composables/use-keydown', Record<never, never>, Record<never, never>>,
     '/composables/use-markdown': RouteRecordInfo<'/composables/use-markdown', '/composables/use-markdown', Record<never, never>, Record<never, never>>,
     '/composables/use-registrar': RouteRecordInfo<'/composables/use-registrar', '/composables/use-registrar', Record<never, never>, Record<never, never>>,
     '/composables/use-single': RouteRecordInfo<'/composables/use-single', '/composables/use-single', Record<never, never>, Record<never, never>>,
     '/composables/use-step': RouteRecordInfo<'/composables/use-step', '/composables/use-step', Record<never, never>, Record<never, never>>,
     '/composables/use-theme': RouteRecordInfo<'/composables/use-theme', '/composables/use-theme', Record<never, never>, Record<never, never>>,
+    '/composables/use-tokens': RouteRecordInfo<'/composables/use-tokens', '/composables/use-tokens', Record<never, never>, Record<never, never>>,
   }
 }

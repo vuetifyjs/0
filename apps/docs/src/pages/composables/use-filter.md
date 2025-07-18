@@ -5,7 +5,7 @@ The `useFilter` composable provides a powerful way to filter arrays of items bas
 ## Usage
 
 ```ts
-import { useFilter } from '@vuetify/0'
+import { useFilter } from 'v0'
 
 const items = ref(['apple', 'banana', 'cherry'])
 const query = ref('ban')
@@ -31,7 +31,7 @@ console.log(filteredItems.value) // ['banana']
 |--------|------|---------|-------------|
 | `customFilter` | `FilterFunction` | `undefined` | Custom filtering function |
 | `keys` | `string[]` | `undefined` | Object keys to search in |
-| `mode` | `FilterMode` | `'some'` | How to match multiple queries |
+| `mode` | `MaybeRef<FilterMode>` | `'some'` | How to match multiple queries |
 
 ### Filter Modes
 
@@ -55,7 +55,7 @@ console.log(filteredItems.value) // ['banana']
 ```vue
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useFilter } from '@vuetify/0'
+import { useFilter } from 'v0'
 
 const searchQuery = ref('')
 const fruits = ref([
@@ -93,7 +93,7 @@ const { items: filteredFruits } = useFilter(searchQuery, fruits)
 ```vue
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useFilter } from '@vuetify/0'
+import { useFilter } from 'v0'
 
 interface User {
   id: number
@@ -139,7 +139,7 @@ const { items: filteredUsers } = useFilter(searchQuery, users, {
 ```vue
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useFilter } from '@vuetify/0'
+import { useFilter } from 'v0'
 
 interface Product {
   id: number
@@ -211,7 +211,7 @@ const { items: filteredProducts } = useFilter(searchQuery, products, {
 ```vue
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useFilter } from '@vuetify/0'
+import { useFilter } from 'v0'
 
 const searchQuery = ref(['javascript', 'vue'])
 const filterMode = ref<'some' | 'every' | 'union' | 'intersection'>('union')
@@ -262,7 +262,7 @@ const { items: filteredArticles } = useFilter(searchQuery, articles, {
 ```vue
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
-import { useFilter } from '@vuetify/0'
+import { useFilter } from 'v0'
 
 const searchQuery = ref('')
 const debouncedQuery = ref('')
@@ -319,7 +319,7 @@ export type FilterFunction = (query: Primitive | Primitive[], item: FilterItem) 
 export interface UseFilterOptions {
   customFilter?: FilterFunction
   keys?: string[]
-  mode?: FilterMode
+  mode?: MaybeRef<FilterMode>
 }
 
 export interface UseFilterResult<T extends FilterItem = FilterItem> {

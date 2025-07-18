@@ -3,13 +3,17 @@
 </script>
 
 <template>
-  <div id="app" class="grid grid-cols-[220px_1fr]">
+  <div id="app" class="grid grid-cols-[220px_1fr] v0-theme--slate">
     <div />
     <router-view />
   </div>
 </template>
 
 <style>
+  #app {
+    background-color: var(--v0-background);
+  }
+
   .markdown-body {
     h1 {
       font-size: 2.25rem;
@@ -30,19 +34,20 @@
     }
 
     a {
-      color: #1867c0;
+      color: var(--v0-primary);
       text-decoration: underline;
       transition: color 0.2s;
+      opacity: 0.8;
 
       &:hover {
-        color: #1697f6;
+        opacity: 1;
       }
     }
 
     blockquote {
       margin: 1rem 0;
       padding: 0.5rem 1rem;
-      background-color: #f9fafb;
+      background-color: var(--v0-surface);
       border-left: 4px solid #d1d5db;
     }
 

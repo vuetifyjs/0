@@ -13,7 +13,7 @@
   }
 
   export interface ComponentProps extends AtomProps, RouterLinkProps {
-    children?: NavItem[]
+    children?: (NavItem | { name: string, children: NavItem[] })[]
   }
 
   const {
@@ -42,8 +42,9 @@
       <AppNavLink
         v-for="child in children"
         :key="child.name"
+        :children="(child as any).children"
         class="text-sm opacity-80"
-        :to="child.to"
+        :to="(child as any).to"
       >
         {{ child.name }}
       </AppNavLink>

@@ -6,15 +6,15 @@ The `useSingle` composable is a wrapper around `useGroup` that provides a simpli
 
 ```vue
 <script lang="ts" setup>
-import { useSingle } from '@vuetify/0'
+import { useSingle } from 'v0'
 import { ref } from 'vue'
 
-const [useTabSingle, provideTabSingle, tabSingle] = useSingle('tabs', {
+const [useTabSingle, provideTabSingle] = useSingle('tabs', {
   mandatory: true
 })
 
 const selectedTab = ref('home')
-provideTabSingle(selectedTab, tabSingle)
+provideTabSingle(selectedTab)
 
 const group = useTabSingle()
 const homeTab = group.register({ value: 'home', disabled: false })
@@ -37,7 +37,7 @@ const aboutTab = group.register({ value: 'about', disabled: false })
 
 ## API Reference
 
-### `useSingle<T>(namespace, options?)`
+### `useSingle<T, U>(namespace, options?)`
 
 Creates a single-selection group management system built on top of `useGroup`.
 
@@ -45,7 +45,8 @@ Creates a single-selection group management system built on top of `useGroup`.
 
 | Parameter | Description |
 |-----------|-------------|
-| `T` | Type extending `SingleContext` for the context |
+| `T` | Type extending `SingleTicket` for the context |
+| `U` | Type extending `SingleContext` for the context |
 
 **Parameters:**
 
@@ -109,11 +110,18 @@ export interface SingleTicket extends GroupTicket {}
 `useSingle` internally uses `useGroup` with `multiple: false` and adds convenience computed properties:
 
 ```typescript
-export function useSingle<T extends SingleContext> (
+export function useSingle<
+  T extends SingleTicket,
+  U extends SingleContext,
+> (
   namespace: string,
   options?: SingleOptions,
 ) {
-  const [useGroupContext, provideGroupContext, group] = useGroup<T>(namespace, options)
+  const [
+    useGroupContext,
+    provideGroupContext,
+    group,
+  ] = useGroup<T, U>(namespace, options)
 
   const selectedId = computed(() => group.selectedIds.values().next().value)
   const selectedItem = computed(() => selectedId.value ? group.registeredItems.get(selectedId.value) : undefined)
@@ -129,9 +137,21 @@ export function useSingle<T extends SingleContext> (
     selectedItem,
     selectedValue,
     select,
-  } as T
+  } as U
 
-  return [useGroupContext, provideGroupContext, context] as const
+  return [
+    useGroupContext,
+    function (
+      model?: Ref<unknown | unknown[]>,
+      _context: U = context,
+      app?: App,
+    ) {
+      provideGroupContext(model, _context, app)
+
+      return _context
+    },
+    context,
+  ] as const
 }
 ```
 
@@ -141,7 +161,7 @@ Like `useGroup`, `useSingle` supports model binding with automatic synchronizati
 
 ```vue
 <script setup>
-import { useSingle } from '@vuetify/0'
+import { useSingle } from 'v0'
 import { ref } from 'vue'
 
 const selectedValue = ref('home')
@@ -168,15 +188,15 @@ group.register({ value: 'contact' })
 The composable supports generic constraints similar to `useGroup`:
 
 ```typescript
-import { useSingle } from '@vuetify/0'
-import type { SingleContext, SingleItem, SingleTicket } from '@vuetify/0'
+import { useSingle } from 'v0'
+import type { SingleContext, SingleTicket } from 'v0'
 
 interface CustomSingleContext extends SingleContext {
   getCurrentLabel: () => string
 }
 
 export function useCustomSingle() {
-  const [useSingle, provideSingle, single] = useSingle<CustomSingleContext>('custom-single')
+  const [useSingle, provideSingle, single] = useSingle<SingleTicket, CustomSingleContext>('custom-single')
 
   const context: CustomSingleContext = {
     ...single,
@@ -186,3 +206,5 @@ export function useCustomSingle() {
   }
 
   return [useSingle, provideSingle, context]
+}
+```

@@ -7,16 +7,16 @@ The `useHydration` composable manages the hydration process of your application.
 ```ts
 // src/app.ts
 import { createApp } from 'vue'
-import { createHydrationPlugin } from '@vuetify/0'
+import { createHydrationPlugin } from 'v0'
 
 const app = createApp(App)
 
-app.use(createHydrationPlugin())
+app.use(createHyditationPlugin())
 ```
 
 ```vue
 <script lang="ts" setup>
-import { useHydration } from '@vuetify/0'
+import { useHydration } from 'v0'
 
 const { isHydrated } = useHydration()
 </script>
@@ -48,7 +48,7 @@ const { isHydrated } = useHydration()
 
 ```vue
 <script lang="ts" setup>
-import { useHydration } from '@vuetify/0'
+import { useHydration } from 'v0'
 
 const { isHydrated } = useHydration()
 </script>
@@ -78,7 +78,7 @@ const { isHydrated } = useHydration()
 
 ```vue
 <script lang="ts" setup>
-import { useHydration } from '@vuetify/0'
+import { useHydration } from 'v0'
 
 const { isHydrated, hydrate } = useHydration()
 
@@ -105,7 +105,7 @@ const handleUserInteraction = () => {
 
 ```vue
 <script lang="ts" setup>
-import { useHydration } from '@vuetify/0'
+import { useHydration } from 'v0'
 
 const { isHydrated } = useHydration()
 

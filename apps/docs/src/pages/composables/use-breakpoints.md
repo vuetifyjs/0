@@ -7,25 +7,25 @@ The `useBreakpoints` composable provides responsive breakpoint detection for you
 ```ts
 // src/app.ts
 import { createApp } from 'vue'
-import { createBreakpointsPlugin } from '@vuetify/0'
+import { createBreakpoints } from 'v0'
 
 const app = createApp(App)
 
-app.use(createBreakpointsPlugin())
+app.use(createBreakpoints())
 ```
 
 ```vue
 <script lang="ts" setup>
-import { useBreakpoints } from '@vuetify/0'
+import { useBreakpoints } from 'v0'
 
-const { name, width, height, isMobile, xs, mdAndUp } = useBreakpoints()
+const { name, width, height, mobile, xs, mdAndUp } = useBreakpoints()
 </script>
 
 <template>
   <div>
     <div v-if="xs">Mobile view</div>
     <div v-if="mdAndUp">Desktop view</div>
-    <div v-if="isMobile">Mobile device</div>
+    <div v-if="mobile">Mobile device</div>
 
     <p>Current breakpoint: {{ name }}</p>
     <p>Window dimensions: {{ width }}x{{ height }}</p>
@@ -43,7 +43,7 @@ const { name, width, height, isMobile, xs, mdAndUp } = useBreakpoints()
 | `name` | `BreakpointName` | The current active breakpoint name |
 | `width` | `number` | Current window width |
 | `height` | `number` | Current window height |
-| `isMobile` | `boolean` | Whether the current viewport is considered mobile |
+| `mobile` | `boolean` | Whether the current viewport is considered mobile |
 
 ### Breakpoint Flags
 
@@ -93,9 +93,9 @@ The default breakpoint configuration is:
 You can customize the breakpoints when installing the plugin:
 
 ```ts
-import { createBreakpointsPlugin } from '@vuetify/0'
+import { createBreakpoints } from 'v0'
 
-app.use(createBreakpointsPlugin({
+app.use(createBreakpoints({
   breakpoints: {
     xs: 0,
     sm: 480,
@@ -113,12 +113,12 @@ By default, the mobile breakpoint is set to `md` (960px). You can customize this
 
 ```ts
 // Using a breakpoint name
-app.use(createBreakpointsPlugin({
+app.use(createBreakpoints({
   mobileBreakpoint: 'lg'
 }))
 
 // Using a custom pixel value
-app.use(createBreakpointsPlugin({
+app.use(createBreakpoints({
   mobileBreakpoint: 800
 }))
 ```
@@ -129,7 +129,7 @@ app.use(createBreakpointsPlugin({
 
 ```vue
 <script lang="ts" setup>
-import { useBreakpoints } from '@vuetify/0'
+import { useBreakpoints } from 'v0'
 
 const { xs, sm, lgAndUp, smAndUp } = useBreakpoints()
 </script>
@@ -157,15 +157,15 @@ const { xs, sm, lgAndUp, smAndUp } = useBreakpoints()
 
 ```vue
 <script lang="ts" setup>
-import { useBreakpoints } from '@vuetify/0'
+import { useBreakpoints } from 'v0'
 
-const { xs, sm, md, isMobile } = useBreakpoints()
+const { xs, sm, md, mobile } = useBreakpoints()
 </script>
 
 <template>
   <div>
     <!-- Mobile navigation -->
-    <nav v-if="isMobile" class="mobile-nav">
+    <nav v-if="mobile" class="mobile-nav">
       <button @click="toggleMenu">☰</button>
     </nav>
 
@@ -189,7 +189,7 @@ const { xs, sm, md, isMobile } = useBreakpoints()
 ```vue
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useBreakpoints } from '@vuetify/0'
+import { useBreakpoints } from 'v0'
 
 const { xs, sm, md, lg, xl } = useBreakpoints()
 
@@ -230,7 +230,7 @@ export interface BreakpointsContext {
   name: BreakpointName
   width: number
   height: number
-  isMobile: boolean
+  mobile: boolean
   xs: boolean
   sm: boolean
   md: boolean

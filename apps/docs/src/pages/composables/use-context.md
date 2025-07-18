@@ -5,7 +5,7 @@ The `useContext` composable provides a way to create and consume context through
 ## Usage
 
 ```ts
-import { useContext } from '@vuetify/0'
+import { useContext } from 'v0'
 
 const [useMyContext, provideMyContext] = useContext<MyContextType>('my-namespace')
 ```
@@ -30,6 +30,15 @@ const [useMyContext, provideMyContext] = useContext<MyContextType>('my-namespace
 ### Basic Context Usage
 
 ```ts
+// composables/useUser.ts
+import { ref } from 'vue'
+import { useContext } from 'v0'
+import type { UserContext } from '@/types'
+
+const [useUserContext, provideUserContext] = useContext<UserContext>('app:user')
+
+export { useUserContext, provideUserContext }
+
 // types.ts
 export interface UserContext {
   currentUser: Ref<User | null>
@@ -39,65 +48,58 @@ export interface UserContext {
 ```
 
 ```ts
-// composables/useUser.ts
+// providers/UserProvider.vue
+<script lang="ts" setup>
 import { ref } from 'vue'
-import { useContext } from '@vuetify/0'
-import type { UserContext } from '@/types'
+import { provideUserContext } from '@/composables/useUser'
 
-const [useUserContext, provideUserContext] = useContext<UserContext>('app:user')
+const currentUser = ref<User | null>(null)
 
-export function createUserContext(): UserContext {
-  const currentUser = ref<User | null>(null)
-
-  const login = async (credentials: LoginCredentials) => {
-    // Login logic
-    currentUser.value = await authService.login(credentials)
-  }
-
-  const logout = async () => {
-    // Logout logic
-    await authService.logout()
-    currentUser.value = null
-  }
-
-  return {
-    currentUser,
-    login,
-    logout,
-  }
+const login = async (credentials: LoginCredentials) => {
+  // Login logic
+  currentUser.value = await authService.login(credentials)
 }
 
-export function useUser(): UserContext {
-  return useUserContext()
+const logout = async () => {
+  // Logout logic
+  await authService.logout()
+  currentUser.value = null
 }
 
-export { provideUserContext }
+provideUserContext({
+  currentUser,
+  login,
+  logout,
+})
+</script>
+
+<template>
+  <slot />
+</template>
 ```
 
 ### Providing Context in App
 
-```ts
-// main.ts
-import { createApp } from 'vue'
-import { createUserContext, provideUserContext } from '@/composables/useUser'
+```vue
+// App.vue
+<script lang="ts" setup>
+import UserProvider from '@/providers/UserProvider.vue'
+</script>
 
-const app = createApp(App)
-
-app.runWithContext(() => {
-  const userContext = createUserContext()
-  provideUserContext(userContext, app)
-})
-
-app.mount('#app')
+<template>
+  <UserProvider>
+    <router-view />
+  </UserProvider>
+</template>
 ```
 
 ### Consuming Context in Components
 
 ```vue
 <script lang="ts" setup>
-import { useUser } from '@/composables/useUser'
+import { useUserContext } from '@/composables/useUser'
 
-const { currentUser, login, logout } = useUser()
+const { currentUser, login, logout } = useUserContext()
 
 const handleLogin = async () => {
   await login({ username: 'john', password: 'secret' })
@@ -117,41 +119,11 @@ const handleLogin = async () => {
 </template>
 ```
 
-### Plugin Pattern
-
-```ts
-// plugins/userPlugin.ts
-import type { App } from 'vue'
-import { createUserContext, provideUserContext } from '@/composables/useUser'
-
-export function createUserPlugin() {
-  return {
-    install(app: App) {
-      app.runWithContext(() => {
-        const userContext = createUserContext()
-        provideUserContext(userContext, app)
-      })
-    }
-  }
-}
-```
-
-```ts
-// main.ts
-import { createApp } from 'vue'
-import { createUserPlugin } from '@/plugins/userPlugin'
-
-const app = createApp(App)
-
-app.use(createUserPlugin())
-app.mount('#app')
-```
-
 ### Nested Context Providers
 
 ```vue
 <script lang="ts" setup>
-import { useContext } from '@vuetify/0'
+import { useContext } from 'v0'
 
 // Create theme context
 interface ThemeContext {
@@ -186,7 +158,7 @@ provideThemeContext(themeContext)
 
 ```ts
 // Safe context consumption with error handling
-import { useContext } from '@vuetify/0'
+import { useContext } from 'v0'
 
 const [useMyContext, provideMyContext] = useContext<MyContextType>('my-context')
 
@@ -205,8 +177,10 @@ export function useSafeContext(): MyContextType | null {
 The composable is fully typed with TypeScript:
 
 ```ts
-export function useContext<T>(key: InjectionKey<T> | string): [
+export function useContext<T>(
+  key: InjectionKey<T> | string,
+): readonly [
   () => T,
-  (value: T, app?: App) => void
+  (value: T, app?: App) => void,
 ]
 ```

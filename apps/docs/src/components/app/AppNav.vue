@@ -9,8 +9,13 @@
 <template>
   <Atom
     :as
-    class="bg-4 bg-[#212121] text-[#e0e0e0] flex flex-col h-[100vh] fixed w-[220px] "
+    class="bg-4 app-nav text-[#e0e0e0] flex flex-col h-[100vh] fixed w-[220px] "
   >
     <slot />
   </Atom>
 </template>
+
+<style lang="sass">
+  .app-nav
+    background-color: var(--v0-surfaceVariant)
+</style>

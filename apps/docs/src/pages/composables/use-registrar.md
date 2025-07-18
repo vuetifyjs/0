@@ -29,11 +29,11 @@ useSingle (single selection)
 
 ```vue
 <script lang="ts" setup>
-import { useRegistrar } from '@vuetify/0'
+import { useRegistrar } from 'v0'
 
 const [useItemRegistry, provideItemRegistry, registry] = useRegistrar('items')
 
-provideItemRegistry(registry)
+provideItemRegistry()
 const itemRegistry = useItemRegistry()
 const item1 = itemRegistry.register({ name: 'Item 1' })
 const item2 = itemRegistry.register({ name: 'Item 2' })
@@ -125,20 +125,23 @@ The `useRegistrar` composable is designed to be composed by other composables:
 
 ```typescript
 // useGroup extends useRegistrar
-export function useGroup<T extends GroupContext>(namespace: string, options?: GroupOptions) {
+export function useGroup<
+  T extends GroupTicket,
+  U extends GroupContext,
+> (namespace: string, options?: GroupOptions) {
   const [
     useRegistrarContext,
     provideRegistrarContext,
     registrar,
-  ] = useRegistrar<GroupTicket, T>(namespace)
+  ] = useRegistrar<T, U>(namespace)
 
   // Use registrar's functions with enhanced functionality
-  function register(item?: Partial<GroupTicket>, id?: ID): Reactive<GroupTicket> {
-    const groupItem: Partial<GroupTicket> = {
+  function register(registrant: Partial<T>, id: ID = genId()): Reactive<T> {
+    const groupItem: Partial<T> = {
       disabled: false,
-      value: item?.value ?? registrar.registeredItems.size,
-      valueIsIndex: item?.value == null,
-      ...item,
+      value: registrant?.value ?? registrar.registeredItems.size,
+      valueIsIndex: registrant?.value == null,
+      ...registrant,
     }
 
     const ticket = registrar.register(groupItem, id)
@@ -163,9 +166,19 @@ export function useGroup<T extends GroupContext>(namespace: string, options?: Gr
     register,
     unregister,
     // ... other group-specific methods
-  } as T
+  } as U
 
-  return [useRegistrarContext, provideRegistrarContext, context] as const
+  return [
+    useRegistrarContext,
+    function (
+      model?: Ref<unknown | unknown[]>,
+      _context: U = context,
+      app?: App,
+    ) {
+      // ...
+    },
+    context,
+  ] as const
 }
 ```
 
@@ -178,5 +191,4 @@ export function useGroup<T extends GroupContext>(namespace: string, options?: Gr
 5. **Maintainability**: Registration bugs only need to be fixed in one place
 6. **Type Safety**: Full TypeScript support with generic context types
 7. **Performance**: Efficient reactive state management and reindexing
-
 ````

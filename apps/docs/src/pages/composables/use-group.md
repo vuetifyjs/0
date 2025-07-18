@@ -7,16 +7,16 @@ The `useGroup` composable provides a powerful way to manage collections of items
 
 ```vue
 <script lang="ts" setup>
-import { useGroup } from '@vuetify/0'
+import { useGroup } from 'v0'
 import { ref } from 'vue'
 
-const [useTabGroup, provideTabGroup, tabGroup] = useGroup('tabs', {
+const [useTabGroup, provideTabGroup] = useGroup('tabs', {
   mandatory: true,
   multiple: false
 })
 
 const selectedTab = ref('home')
-provideTabGroup(selectedTab, tabGroup)
+provideTabGroup(selectedTab)
 
 const group = useTabGroup()
 const homeTab = group.register({ value: 'home', disabled: false })
@@ -37,7 +37,7 @@ const aboutTab = group.register({ value: 'about', disabled: false })
 
 ## API Reference
 
-### `useGroup<T>(namespace, options?)`
+### `useGroup<T, U>(namespace, options?)`
 
 Creates a group management system with registration and selection capabilities.
 
@@ -46,6 +46,7 @@ Creates a group management system with registration and selection capabilities.
 | Parameter | Description |
 |-----------|-------------|
 | `T` | Type extending `GroupContext` for the context |
+| `U` | Type extending `GroupContext` for the context |
 
 **Parameters:**
 
@@ -126,7 +127,7 @@ When a model is provided, the group automatically synchronizes between the model
 
 ```vue
 <script setup>
-import { useGroup } from '@vuetify/0'
+import { useGroup } from 'v0'
 import { ref } from 'vue'
 
 const selectedValues = ref(['home', 'about'])
@@ -170,8 +171,8 @@ group.register({ value: 'contact' })
 The composable is fully typed and supports generic constraints:
 
 ```typescript
-import { useGroup } from '@vuetify/0'
-import type { GroupContext, GroupTicket } from '@vuetify/0'
+import { useGroup } from 'v0'
+import type { GroupContext, GroupTicket } from 'v0'
 
 interface CustomGroupTicket extends GroupTicket {
   label: string
@@ -183,7 +184,7 @@ interface CustomGroupContext extends GroupContext {
 }
 
 export function useCustomGroup() {
-  const [useGroup, provideGroup, group] = useGroup<CustomGroupContext>('custom-group')
+  const [useGroup, provideGroup, group] = useGroup<CustomGroupTicket, CustomGroupContext>('custom-group')
 
   const context: CustomGroupContext = {
     ...group,
@@ -202,15 +203,15 @@ export function useCustomGroup() {
 
 ```typescript
 // useGroup extends useRegistrar's capabilities
-const [useRegistrarContext, provideRegistrarContext, registrar] = useRegistrar<GroupTicket, T>(namespace)
+const [useRegistrarContext, provideRegistrarContext, registrar] = useRegistrar<T, U>(namespace)
 
 // Enhances registration with group-specific features
-function register(item?: Partial<GroupTicket>, id?: ID): Reactive<GroupTicket> {
-  const groupItem: Partial<GroupTicket> = {
+function register(registrant: Partial<T>, id: ID = genId()): Reactive<T> {
+  const groupItem: Partial<T> = {
     disabled: false,
-    value: item?.value ?? registrar.registeredItems.size,
-    valueIsIndex: item?.value == null,
-    ...item,
+    value: registrant?.value ?? registrar.registeredItems.size,
+    valueIsIndex: registrant?.value == null,
+    ...registrant,
   }
 
   const ticket = registrar.register(groupItem, id)
@@ -224,5 +225,4 @@ function register(item?: Partial<GroupTicket>, id?: ID): Reactive<GroupTicket> {
   return ticket
 }
 ```
-
 ````

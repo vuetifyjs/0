@@ -5,17 +5,44 @@
       name: 'Composables',
       to: '/composables',
       children: [
-        { name: 'useBreakpoints', to: '/composables/use-breakpoints' },
-        { name: 'useContext', to: '/composables/use-context' },
-        { name: 'useFilter', to: '/composables/use-filter' },
-        { name: 'useGroup', to: '/composables/use-group' },
-        { name: 'useHydration', to: '/composables/use-hydration' },
-        { name: 'useKeyboard', to: '/composables/use-keyboard' },
-        { name: 'useMarkdown', to: '/composables/use-markdown' },
-        { name: 'useRegistrar', to: '/composables/use-registrar' },
-        { name: 'useSingle', to: '/composables/use-single' },
-        { name: 'useStep', to: '/composables/use-step' },
-        { name: 'useTheme', to: '/composables/use-theme' },
+        {
+          name: 'Foundation',
+          children: [
+            { name: 'useContext', to: '/composables/use-context' },
+            { name: 'useRegistrar', to: '/composables/use-registrar' },
+            { name: 'useTokens', to: '/composables/use-tokens' },
+          ],
+        },
+        {
+          name: 'Input',
+          children: [
+            { name: 'useKeydown', to: '/composables/use-keydown' },
+          ],
+        },
+        {
+          name: 'Plugins',
+          children: [
+            { name: 'useBreakpoints', to: '/composables/use-breakpoints' },
+            { name: 'useHydration', to: '/composables/use-hydration' },
+            { name: 'useMarkdown', to: '/composables/use-markdown' },
+            { name: 'useTheme', to: '/composables/use-theme' },
+          ],
+        },
+        {
+          name: 'Selection',
+          children: [
+            { name: 'useFilter', to: '/composables/use-filter' },
+            { name: 'useGroup', to: '/composables/use-group' },
+            { name: 'useSingle', to: '/composables/use-single' },
+            { name: 'useStep', to: '/composables/use-step' },
+          ],
+        },
+        {
+          name: 'Utilities',
+          children: [
+            { name: 'toReactive', to: '/composables/to-reactive' },
+          ],
+        },
       ],
     },
   ]
