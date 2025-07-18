@@ -1,8 +1,4 @@
----
-title: toReactive
----
-
-# `toReactive`
+# toReactive
 
 The `toReactive` composable is a utility that converts a `ref` of an object, `Map`, or `Set` into a reactive object. This is particularly useful when you want to work with a reactive version of a `ref` that contains a complex object, without losing reactivity.
 

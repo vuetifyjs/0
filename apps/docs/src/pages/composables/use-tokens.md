@@ -1,8 +1,4 @@
----
-title: useTokens
----
-
-# `useTokens`
+# useTokens
 
 The `useTokens` composable is a powerful utility for managing design tokens within your application. It allows you to define, resolve, and utilize a hierarchical collection of design tokens, supporting aliases to prevent repetition and maintain consistency across your UI. This composable is particularly useful in large-scale applications where maintaining a consistent design system is crucial.
 

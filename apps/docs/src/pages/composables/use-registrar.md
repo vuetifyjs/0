@@ -1,4 +1,3 @@
-````markdown
 # useRegistrar
 
 The `useRegistrar` composable provides a foundation for building registration-based systems in Vue applications. It's built on top of `useContext` and manages collections of registered items with automatic indexing, lifecycle management, and type-safe registration callbacks.
@@ -191,4 +190,3 @@ export function useGroup<
 5. **Maintainability**: Registration bugs only need to be fixed in one place
 6. **Type Safety**: Full TypeScript support with generic context types
 7. **Performance**: Efficient reactive state management and reindexing
-````

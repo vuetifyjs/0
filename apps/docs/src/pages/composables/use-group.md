@@ -1,4 +1,3 @@
-````markdown
 # useGroup
 
 The `useGroup` composable provides a powerful way to manage collections of items with selection capabilities. It's built on top of `useRegistrar` and handles group selection logic, including single/multiple selection modes, mandatory selection, and item management.
@@ -225,4 +224,3 @@ function register(registrant: Partial<T>, id: ID = genId()): Reactive<T> {
   return ticket
 }
 ```
-````
