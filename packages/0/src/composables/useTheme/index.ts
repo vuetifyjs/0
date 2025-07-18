@@ -18,7 +18,7 @@ import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
 import type { App, Reactive, Ref } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
-import type { TokenCollection, TokenContext } from '#v0/composables/useTokens'
+import type { TokenCollection, TokenContext, TokenTicket } from '#v0/composables/useTokens'
 
 export type Colors = {
   [key: string]: string
@@ -118,13 +118,14 @@ export function useTheme (): ThemeContext {
 export function createThemePlugin<
   T extends ThemeTicket = ThemeTicket,
   U extends ThemeContext = ThemeContext,
+  R extends TokenTicket = TokenTicket,
   F extends TokenContext = TokenContext,
 > (options: ThemePluginOptions = {}) {
   return {
     install (app: App) {
       const { adapter = new Vuetify0ThemeAdapter() } = options
       const [, provideThemeContext, themeContext] = createTheme<T, U>('v0:theme')
-      const [, provideThemeTokenContext, tokensContext] = createTokens<F>('v0:theme:tokens', {
+      const [, provideThemeTokenContext, tokensContext] = createTokens<R, F>('v0:theme:tokens', {
         palette: options.palette ?? {},
         ...options.themes,
       })

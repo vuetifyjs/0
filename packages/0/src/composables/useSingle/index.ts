@@ -20,6 +20,17 @@ export type SingleContext = GroupContext & {
   select: (id: ID) => void
 }
 
+/**
+ *  Creates a single registrar for managing single selections within a specific namespace.
+ * This function provides a way to register, unregister, and manage single selections,
+ * allowing for dynamic single selection management in applications.
+ *
+ * @param namespace The namespace for the single context.
+ * @param options  Optional configuration for the single behavior.
+ * @template T The type of the single tickets managed by the registrar.
+ * @template U The type of the single context.
+ * @returns  A tuple containing the inject function, provide function, and the single context.
+ */
 export function useSingle<
   T extends SingleTicket,
   U extends SingleContext,

@@ -3,12 +3,12 @@ import { useRegistrar } from '../useRegistrar'
 
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
+import { genId } from '#v0/utils/helpers'
 
 // Types
 import type { App, ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
 import type { RegistrarContext, RegistrarTicket } from '../useRegistrar'
 import type { ID } from '#v0/types'
-import { genId } from '#v0/utils/helpers'
 
 export type GroupTicket = RegistrarTicket & {
   disabled: boolean
@@ -34,6 +34,17 @@ export type GroupOptions = {
   returnObject?: boolean
 }
 
+/**
+ *  Creates a group registrar for managing group tickets within a specific namespace.
+ * This function provides a way to register, unregister, and manage group selections,
+ * allowing for dynamic group management in applications.
+ *
+ * @param namespace The namespace for the group context.
+ * @param options  Optional configuration for the group behavior.
+ * @template T The type of the group tickets managed by the registrar.
+ * @template U The type of the group context.
+ * @returns  A tuple containing the inject function, provide function, and the group context.
+ */
 export function useGroup<
   T extends GroupTicket,
   U extends GroupContext,

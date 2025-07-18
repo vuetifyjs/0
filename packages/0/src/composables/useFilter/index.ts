@@ -63,6 +63,16 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
   return isRef(value) ? value : (typeof value === 'function' ? toRef(value as () => T) : toRef(() => value as T))
 }
 
+/**
+ * Filters a collection of items based on a query and optional configuration.
+ * It allows for custom filtering logic, key-based filtering, and different modes of filtering.
+ *
+ * @param query Filter query to match against items.
+ * @param items Collection of items to filter.
+ * @param options Optional configuration for the filter behavior.
+ * @template T The type of the items being filtered.
+ * @returns A computed reference to the filtered items based on the query and options.
+ */
 export function useFilter<T extends FilterItem> (
   query: FilterQuery,
   items: MaybeRef<T[]>,

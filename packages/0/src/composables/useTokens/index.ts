@@ -33,6 +33,10 @@ interface FlattenedToken {
 /**
  * Flattens a nested collection of tokens into a flat array of tokens.
  * Each token is represented by an object containing its ID and value.
+ *
+ * @param tokens The collection of tokens to flatten.
+ * @param prefix An optional prefix to prepend to each token ID.
+ * @returns An array of flattened tokens, each with an ID and value.
  */
 function flattenTokens (tokens: TokenCollection, prefix = ''): FlattenedToken[] {
   const flattened: FlattenedToken[] = []
@@ -57,7 +61,10 @@ function flattenTokens (tokens: TokenCollection, prefix = ''): FlattenedToken[] 
  * This function replaces aliases in the tokens with their actual values,
  * handling circular references and invalid formats gracefully.
  *
- * Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references
+ * @see Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references
+ * @param tokens The collection of tokens to resolve.
+ * @returns A new collection of tokens with resolved aliases.
+ * @throws Will log warnings for circular references or invalid alias formats.
  */
 function resolveAliases (tokens: Record<string, TokenValue>): Record<string, string> {
   const resolved: Record<string, string> = {}
@@ -103,10 +110,16 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
  *  Creates a token registrar for managing tokens within a specific namespace.
  *  This function provides a way to register, unregister, and resolve tokens,
  *  allowing for dynamic token management in applications.
+ *
+ * @param namespace The namespace for the token registrar context.
+ * @param tokens An optional collection of tokens to initialize the registrar with.
+ * @template T The type of the tokens managed by the registrar.
+ * @template U The type of the token context.
+ * @returns A tuple containing the inject function, provide function, and the token context.
  */
 export function createTokens<
-  T extends TokenTicket,
-  U extends TokenContext,
+  T extends TokenTicket = TokenTicket,
+  U extends TokenContext = TokenContext,
 > (
   namespace: string,
   tokens: TokenCollection = {},

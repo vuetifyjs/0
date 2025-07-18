@@ -5,16 +5,14 @@ import { useSingle } from '../useSingle'
 import { toRef } from 'vue'
 
 // Types
-import type { SingleContext, SingleItem, SingleOptions, SingleTicket } from '../useSingle'
+import type { SingleContext, SingleOptions, SingleTicket } from '../useSingle'
 import type { App, Ref } from 'vue'
 
-export interface StepItem extends SingleItem {}
+export type StepTicket = SingleTicket
 
-export interface StepTicket extends SingleTicket {}
+export type StepOptions = SingleOptions
 
-export interface StepOptions extends SingleOptions {}
-
-export interface StepContext extends SingleContext {
+export type StepContext = SingleContext & {
   selectedIndex: Ref<number>
   first: () => void
   last: () => void
@@ -23,46 +21,57 @@ export interface StepContext extends SingleContext {
   step: (count: number) => void
 }
 
-export function useStep<T extends StepContext> (
+/**
+ * Creates a step registrar for managing step selections within a specific namespace.
+ *
+ * @param namespace The namespace for the step context.
+ * @param options Optional configuration for the step behavior.
+ * @template T The type of the step tickets managed by the registrar.
+ * @returns A tuple containing the inject function, provide function, and the step context.
+ */
+export function useStep<
+  T extends StepTicket,
+  U extends StepContext,
+> (
   namespace: string,
   options?: StepOptions,
 ) {
   const [
     useGroupContext,
     provideGroupContext,
-    group,
-  ] = useSingle<T>(namespace, options)
+    registrar,
+  ] = useSingle<T, U>(namespace, options)
 
-  const selectedIndex = toRef(() => group.selectedItem.value?.index ?? -1)
+  const selectedIndex = toRef(() => registrar.selectedItem.value?.index ?? -1)
 
   function getIdByIndex (index: number) {
-    for (const [id, item] of group.tickets) {
+    for (const [id, item] of registrar.tickets) {
       if (item.index === index) return id
     }
     return undefined
   }
 
   function first () {
-    if (group.tickets.size === 0) return
+    if (registrar.tickets.size === 0) return
 
     const firstId = getIdByIndex(0)
 
     if (firstId === undefined) return
 
-    group.selectedIds.clear()
-    group.selectedIds.add(firstId)
+    registrar.selectedIds.clear()
+    registrar.selectedIds.add(firstId)
   }
 
   function last () {
-    if (group.tickets.size === 0) return
+    if (registrar.tickets.size === 0) return
 
-    const lastIndex = group.tickets.size - 1
+    const lastIndex = registrar.tickets.size - 1
     const lastId = getIdByIndex(lastIndex)
 
     if (lastId === undefined) return
 
-    group.selectedIds.clear()
-    group.selectedIds.add(lastId)
+    registrar.selectedIds.clear()
+    registrar.selectedIds.add(lastId)
   }
 
   function next () {
@@ -70,7 +79,7 @@ export function useStep<T extends StepContext> (
   }
 
   function prev () {
-    step(group.tickets.size - 1)
+    step(registrar.tickets.size - 1)
   }
 
   function wrapped (length: number, index: number) {
@@ -78,7 +87,7 @@ export function useStep<T extends StepContext> (
   }
 
   function step (count = 1) {
-    const length = group.tickets.size
+    const length = registrar.tickets.size
     if (!length) return
 
     const direction = Math.sign(count || 1)
@@ -86,7 +95,7 @@ export function useStep<T extends StepContext> (
     let index = wrapped(length, selectedIndex.value + count)
     let id = getIdByIndex(index)
 
-    while (id !== undefined && group.tickets.get(id)?.disabled && hops < length) {
+    while (id !== undefined && registrar.tickets.get(id)?.disabled && hops < length) {
       index = wrapped(length, index + direction)
       id = getIdByIndex(index)
       hops++
@@ -94,25 +103,25 @@ export function useStep<T extends StepContext> (
 
     if (id === undefined || hops === length) return
 
-    group.selectedIds.clear()
-    group.selectedIds.add(id)
+    registrar.selectedIds.clear()
+    registrar.selectedIds.add(id)
   }
 
   const context = {
-    ...group,
+    ...registrar,
     selectedIndex,
     first,
     last,
     next,
     prev,
     step,
-  } as T
+  } as U
 
   return [
     useGroupContext,
     function (
       model?: Ref<unknown | unknown[]>,
-      _context: T = context,
+      _context: U = context,
       app?: App,
     ) {
       provideGroupContext(model, _context, app)

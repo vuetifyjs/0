@@ -58,7 +58,7 @@ describe('useContext', () => {
     const [injectContext] = useContext('missing-key')
 
     expect(() => injectContext()).toThrow(
-      'Context "missing-key" not found. Ensure it\'s provided by an ancestor component.',
+      'Context "missing-key" not found. Ensure it\'s provided by an ancestor.',
     )
   })
 
@@ -69,7 +69,7 @@ describe('useContext', () => {
     const [injectContext] = useContext(symbolKey as any)
 
     expect(() => injectContext()).toThrow(
-      'Context "Symbol(symbol-key)" not found. Ensure it\'s provided by an ancestor component.',
+      'Context "Symbol(symbol-key)" not found. Ensure it\'s provided by an ancestor.',
     )
   })
 
