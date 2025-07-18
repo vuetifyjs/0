@@ -37,10 +37,10 @@
       color: var(--v0-primary);
       text-decoration: underline;
       transition: color 0.2s;
-      opacity: 0.8;
+        opacity: 1;
 
       &:hover {
-        opacity: 1;
+        opacity: 0.8;
       }
     }
 
