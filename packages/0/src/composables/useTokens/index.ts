@@ -26,28 +26,39 @@ export type TokenContext = RegistrarContext & {
 }
 
 interface FlattenedToken {
-  path: string
+  id: string
   value: TokenValue
 }
 
+/**
+ * Flattens a nested collection of tokens into a flat array of tokens.
+ * Each token is represented by an object containing its ID and value.
+ */
 function flattenTokens (tokens: TokenCollection, prefix = ''): FlattenedToken[] {
   const flattened: FlattenedToken[] = []
 
   for (const [key, value] of Object.entries(tokens)) {
-    const path = prefix ? `${prefix}.${key}` : key
+    const id = prefix ? `${prefix}.${key}` : key
 
     if (typeof value === 'string') {
-      flattened.push({ path, value })
+      flattened.push({ id, value })
     } else if (value && typeof value === 'object' && '$value' in value) {
-      flattened.push({ path, value: value as TokenAlias })
+      flattened.push({ id, value: value as TokenAlias })
     } else if (value && typeof value === 'object') {
-      flattened.push(...flattenTokens(value as TokenCollection, path))
+      flattened.push(...flattenTokens(value as TokenCollection, id))
     }
   }
 
   return flattened
 }
 
+/**
+ * Resolves token aliases within a collection of tokens.
+ * This function replaces aliases in the tokens with their actual values,
+ * handling circular references and invalid formats gracefully.
+ *
+ * Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references
+ */
 function resolveAliases (tokens: Record<string, TokenValue>): Record<string, string> {
   const resolved: Record<string, string> = {}
   const resolving = new Set<string>()
@@ -88,46 +99,49 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
   return resolved
 }
 
-export function createTokens<T extends TokenContext> (namespace: string, tokens: TokenCollection = {}) {
+/**
+ *  Creates a token registrar for managing tokens within a specific namespace.
+ *  This function provides a way to register, unregister, and resolve tokens,
+ *  allowing for dynamic token management in applications.
+ */
+export function createTokens<
+  T extends TokenTicket,
+  U extends TokenContext,
+> (
+  namespace: string,
+  tokens: TokenCollection = {},
+) {
   const [
     useTokenContext,
     provideTokenContext,
     registrar,
-  ] = useRegistrar<TokenTicket, T>(namespace)
+  ] = useRegistrar<T, U>(namespace)
 
   const flatTokens = flattenTokens(tokens)
-  const tokenMap = new Map<string, TokenValue>()
+  const collection = new Map<string, TokenValue>()
 
-  for (const { path, value } of flatTokens) {
-    tokenMap.set(path, value)
+  for (const { id, value } of flatTokens) {
+    collection.set(id, value)
   }
 
-  const resolvedTokens = resolveAliases(
-    Object.fromEntries(tokenMap.entries()),
-  )
+  const resolvedTokens = resolveAliases(Object.fromEntries(collection.entries()))
 
-  for (const { path, value } of flatTokens) {
-    const resolvedValue = resolvedTokens[path] || (typeof value === 'string' ? value : value.$value)
+  for (const { id, value } of flatTokens) {
+    const resolvedValue = resolvedTokens[id] || (typeof value === 'string' ? value : value.$value)
 
-    registrar.register({
-      value: resolvedValue,
-    } as Partial<TokenTicket>, path)
+    registrar.register({ value: resolvedValue } as Partial<T>, id)
+  }
+
+  function clean (token: string): string {
+    return token.startsWith('{') && token.endsWith('}') ? token.slice(1, -1) : token
   }
 
   function resolve (token: string): string | undefined {
-    const cleanToken = token.startsWith('{') && token.endsWith('}')
-      ? token.slice(1, -1)
-      : token
-
-    return resolvedTokens[cleanToken]
+    return resolvedTokens[clean(token)]
   }
 
-  function resolveItem (token: string): TokenTicket | undefined {
-    const cleanToken = token.startsWith('{') && token.endsWith('}')
-      ? token.slice(1, -1)
-      : token
-
-    return registrar.registeredItems.get(cleanToken)
+  function resolveItem (token: string): T | undefined {
+    return registrar.registeredItems.get(clean(token))
   }
 
   const context = {
@@ -135,12 +149,12 @@ export function createTokens<T extends TokenContext> (namespace: string, tokens:
     resolve,
     resolveItem,
     resolved: resolvedTokens,
-  } as T
+  } as U
 
   return [
     useTokenContext,
     function (
-      _context: T = context,
+      _context: U = context,
       app?: App,
     ) {
       provideTokenContext(_context, app)
