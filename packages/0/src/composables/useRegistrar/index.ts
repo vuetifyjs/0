@@ -15,23 +15,33 @@ export interface RegistrarTicket {
 }
 
 export interface RegistrarContext {
-  registeredItems: Reactive<Map<ID, Reactive<any>>>
-  register: (item: any, id?: ID) => Reactive<any>
+  tickets: Reactive<Map<ID, Reactive<any>>>
+  register: (ticket: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
   unregister: (id: ID) => void
   reindex: () => void
 }
 
+/**
+ * Simple composable that provides a registrar for managing tickets.
+ * It allows for registering, unregistering, and reindexing tickets,
+ * enabling dynamic management of application state.
+ *
+ * @param namespace The namespace for the registrar context.
+ * @template T The type of the tickets managed by the registrar.
+ * @template U The type of the registrar context.
+ * @returns A tuple containing the inject function, provide function, and the registrar context.
+ */
 export function useRegistrar<
   T extends RegistrarTicket,
   U extends RegistrarContext,
 > (namespace: string) {
   const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
 
-  const registeredItems = reactive(new Map<ID, T>())
+  const tickets = reactive(new Map<ID, T>())
 
   function reindex () {
     let index = 0
-    for (const item of registeredItems.values()) {
+    for (const item of tickets.values()) {
       item.index = index++
     }
   }
@@ -39,22 +49,22 @@ export function useRegistrar<
   function register (registrant: Partial<T>, id: ID = genId()): Reactive<T> {
     const item = reactive({
       id,
-      index: registrant?.index ?? registeredItems.size,
+      index: registrant?.index ?? tickets.size,
       ...registrant,
     }) as Reactive<T>
 
-    registeredItems.set(item.id, item as any)
+    tickets.set(item.id, item as any)
 
     return item
   }
 
   function unregister (id: ID) {
-    registeredItems.delete(id)
+    tickets.delete(id)
     reindex()
   }
 
   const context = {
-    registeredItems,
+    tickets,
     register,
     unregister,
     reindex,
@@ -62,7 +72,7 @@ export function useRegistrar<
 
   return [
     useRegistrarContext,
-    function provideRegistrar (
+    function (
       _context: U = context,
       app?: App,
     ) {
