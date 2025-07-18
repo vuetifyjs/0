@@ -21,6 +21,8 @@ declare global {
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
+  const createLocale: typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']
+  const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
   const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
   const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
@@ -97,6 +99,7 @@ declare global {
   const useHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']
   const useId: typeof import('vue')['useId']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
+  const useLocale: typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']
   const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
   const useMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']
   const useModel: typeof import('vue')['useModel']
@@ -148,13 +151,16 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
+  export type { LocaleTicket, LocaleContext, LocalePluginOptions } from '../../packages/0/src/composables/useLocale/index'
+  import('../../packages/0/src/composables/useLocale/index')
+  // @ts-ignore
   export type { MarkdownAdapter, MarkdownContext, MarkdownOptions, MarkdownPlugin } from '../../packages/0/src/composables/useMarkdown/index'
   import('../../packages/0/src/composables/useMarkdown/index')
   // @ts-ignore
   export type { RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
   import('../../packages/0/src/composables/useRegistrar/index')
   // @ts-ignore
-  export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
+  export type { StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
   export type { Colors, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
@@ -186,6 +192,8 @@ declare module 'vue' {
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
+    readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
+    readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']>
     readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
@@ -260,6 +268,7 @@ declare module 'vue' {
     readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
+    readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']>
     readonly useMarkdownContext: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>

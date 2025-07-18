@@ -12,6 +12,22 @@ export function registerPlugins (app: App) {
   )
 
   app.use(
+    createLocalePlugin({
+      default: 'en',
+      messages: {
+        en: {
+          hello: 'Hello',
+          welcome: '{fr.hello}, {hello}, Welcome to our application',
+        },
+        fr: {
+          hello: 'Bonjour',
+          welcome: 'Bienvenue dans notre application',
+        },
+      },
+    }),
+  )
+
+  app.use(
     createMarkdownPlugin({
       //
     }),

@@ -24,6 +24,7 @@
           children: [
             { name: 'useBreakpoints', to: '/composables/use-breakpoints' },
             { name: 'useHydration', to: '/composables/use-hydration' },
+            { name: 'useLocale', to: '/composables/use-locale' },
             { name: 'useMarkdown', to: '/composables/use-markdown' },
             { name: 'useTheme', to: '/composables/use-theme' },
           ],
