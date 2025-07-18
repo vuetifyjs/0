@@ -27,6 +27,7 @@
 <template>
   <li>
     <Atom
+      v-if="to"
       :active-class
       :as
       class="font-semibold"
@@ -34,6 +35,10 @@
     >
       <slot />
     </Atom>
+
+    <div v-else class="font-semibold">
+      <slot />
+    </div>
 
     <ul
       v-if="children.length > 0"
