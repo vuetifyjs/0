@@ -23,7 +23,7 @@ export function useContext<T> (key: InjectionKey<T> | string) {
       throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)
     }
 
-    return contextValue
+    return contextValue as T
   }
 
   return [injectContext, provideContext] as const
