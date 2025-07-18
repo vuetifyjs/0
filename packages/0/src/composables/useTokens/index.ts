@@ -141,7 +141,7 @@ export function createTokens<
   }
 
   function resolveItem (token: string): T | undefined {
-    return registrar.registeredItems.get(clean(token))
+    return registrar.tickets.get(clean(token))
   }
 
   const context = {

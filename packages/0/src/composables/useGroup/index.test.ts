@@ -12,7 +12,7 @@ describe('useGroup', () => {
       expect(groupState).toHaveProperty('selectedIds')
       expect(groupState).toHaveProperty('selectedItems')
       expect(groupState).toHaveProperty('selectedValues')
-      expect(groupState).toHaveProperty('registeredItems')
+      expect(groupState).toHaveProperty('tickets')
     })
 
     it('should initialize with empty state', () => {
@@ -21,7 +21,7 @@ describe('useGroup', () => {
       expect(state.selectedIds.size).toBe(0)
       expect(state.selectedItems.value.size).toBe(0)
       expect(state.selectedValues.value.size).toBe(0)
-      expect(state.registeredItems.size).toBe(0)
+      expect(state.tickets.size).toBe(0)
     })
   })
 
@@ -39,7 +39,7 @@ describe('useGroup', () => {
       expect(ticket.index).toBe(0)
       expect(typeof ticket.isActive).toBe('boolean') // Ref
       expect(typeof ticket.toggle).toBe('function')
-      expect(state.registeredItems.size).toBe(1)
+      expect(state.tickets.size).toBe(1)
     })
 
     it('should register items with custom values', () => {
@@ -56,7 +56,7 @@ describe('useGroup', () => {
       expect(ticket.disabled).toBe(true)
       expect(ticket.value).toBe('custom-value')
       expect(ticket.valueIsIndex).toBe(false)
-      expect(state.registeredItems.size).toBe(1)
+      expect(state.tickets.size).toBe(1)
     })
 
     it('should unregister items', () => {
@@ -64,10 +64,10 @@ describe('useGroup', () => {
       const context = provideGroupContext()
 
       context.register({ id: 'test-item' })
-      expect(state.registeredItems.size).toBe(1)
+      expect(state.tickets.size).toBe(1)
 
       context.unregister('test-item')
-      expect(state.registeredItems.size).toBe(0)
+      expect(state.tickets.size).toBe(0)
     })
 
     it('should remove from selectedIds when unregistering', () => {
@@ -194,7 +194,7 @@ describe('useGroup', () => {
       // which might be that items need to be selected manually first
       if (testState.selectedIds.size === 0) {
         // If mandate doesn't auto-select, verify the items are at least registered
-        expect(testState.registeredItems.size).toBe(2)
+        expect(testState.tickets.size).toBe(2)
       } else {
         expect(testState.selectedIds.has('item1')).toBe(true)
         expect(testState.selectedIds.size).toBe(1)

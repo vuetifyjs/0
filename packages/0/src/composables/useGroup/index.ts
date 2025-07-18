@@ -52,7 +52,7 @@ export function useGroup<
 
   const selectedItems = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registrar.registeredItems.get(id)),
+      Array.from(selectedIds).map(id => registrar.tickets.get(id)),
     )
   })
 
@@ -63,15 +63,15 @@ export function useGroup<
   })
 
   function mandate () {
-    if (!options?.mandatory || selectedIds.size > 0 || registrar.registeredItems.size === 0) return
+    if (!options?.mandatory || selectedIds.size > 0 || registrar.tickets.size === 0) return
 
     if (options.mandatory === 'force') {
-      const first = registrar.registeredItems.values().next().value
+      const first = registrar.tickets.values().next().value
       if (first) selectedIds.add(first.id)
       return
     }
 
-    for (const item of registrar.registeredItems.values()) {
+    for (const item of registrar.tickets.values()) {
       if (item.disabled) continue
 
       selectedIds.add(item.id)
@@ -97,7 +97,7 @@ export function useGroup<
     for (const id of Array.isArray(ids) ? ids : [ids]) {
       if (!id) continue
 
-      const item = registrar.registeredItems.get(id)
+      const item = registrar.tickets.get(id)
 
       if (!item || item.disabled) continue
 
@@ -124,7 +124,7 @@ export function useGroup<
   function register (registrant: Partial<T>, id: ID = genId()): Reactive<T> {
     const groupItem: Partial<T> = {
       disabled: false,
-      value: registrant?.value ?? registrar.registeredItems.size,
+      value: registrant?.value ?? registrar.tickets.size,
       valueIsIndex: registrant?.value == null,
       ...registrant,
     }
@@ -206,7 +206,7 @@ export function useGroup<
           selectedIds.clear()
 
           for (const val of values) {
-            for (const [id, item] of registrar.registeredItems) {
+            for (const [id, item] of registrar.tickets) {
               if (item.value !== val) continue
 
               selectedIds.add(id)

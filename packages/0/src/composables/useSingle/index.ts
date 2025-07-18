@@ -34,7 +34,7 @@ export function useSingle<
   ] = useGroup<T, U>(namespace, options)
 
   const selectedId = computed(() => group.selectedIds.values().next().value)
-  const selectedItem = computed(() => selectedId.value ? group.registeredItems.get(selectedId.value) : undefined)
+  const selectedItem = computed(() => selectedId.value ? group.tickets.get(selectedId.value) : undefined)
   const selectedValue = computed(() => selectedItem.value ? selectedItem.value.value : undefined)
 
   function select (id: ID) {

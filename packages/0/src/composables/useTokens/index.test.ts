@@ -18,13 +18,13 @@ describe('createTokens', () => {
       expect(typeof provideTokensContext).toBe('function')
       expect(context).toHaveProperty('resolve')
       expect(context).toHaveProperty('resolveItem')
-      expect(context).toHaveProperty('registeredItems')
+      expect(context).toHaveProperty('tickets')
     })
 
     it('should initialize with empty tokens', () => {
       const [, _provideTokensContext, context] = createTokens('test')
 
-      expect(context.registeredItems.size).toBe(0)
+      expect(context.tickets.size).toBe(0)
     })
   })
 
@@ -37,7 +37,7 @@ describe('createTokens', () => {
 
       const context = createTokens('test', tokens)[2]
 
-      expect(context.registeredItems.size).toBe(2)
+      expect(context.tickets.size).toBe(2)
       expect(context.resolve('primary')).toBe('#007BFF')
       expect(context.resolve('secondary')).toBe('#6C757D')
     })
@@ -56,7 +56,7 @@ describe('createTokens', () => {
 
       const context = createTokens('test', tokens)[2]
 
-      expect(context.registeredItems.size).toBe(4)
+      expect(context.tickets.size).toBe(4)
       expect(context.resolve('colors.primary')).toBe('#007BFF')
       expect(context.resolve('colors.secondary')).toBe('#6C757D')
       expect(context.resolve('colors.red.100')).toBe('#FEF2F2')
@@ -77,7 +77,7 @@ describe('createTokens', () => {
 
       const context = createTokens('test', tokens)[2]
 
-      expect(context.registeredItems.size).toBe(4)
+      expect(context.tickets.size).toBe(4)
       expect(context.resolve('primary')).toBe('#007BFF')
       expect(context.resolve('accent')).toBe('#007BFF')
       expect(context.resolve('colors.red.100')).toBe('#FEF2F2')
@@ -250,9 +250,9 @@ describe('createTokens', () => {
 
       const context = createTokens('test', tokens)[2]
 
-      expect(context.registeredItems.size).toBe(2)
-      expect(context.registeredItems.has('primary')).toBe(true)
-      expect(context.registeredItems.has('colors.red.100')).toBe(true)
+      expect(context.tickets.size).toBe(2)
+      expect(context.tickets.has('primary')).toBe(true)
+      expect(context.tickets.has('colors.red.100')).toBe(true)
     })
 
     it('should use token path as registrar ID', () => {
@@ -264,7 +264,7 @@ describe('createTokens', () => {
 
       const context = createTokens('test', tokens)[2]
 
-      const item = context.registeredItems.get('colors.primary')
+      const item = context.tickets.get('colors.primary')
       expect(item).toBeDefined()
       expect(item?.id).toBe('colors.primary')
       expect(item?.value).toBe('#007BFF')
@@ -298,7 +298,7 @@ describe('createTokens', () => {
 
       const context = createTokens('test', tokens)[2]
 
-      expect(context.registeredItems.size).toBe(10)
+      expect(context.tickets.size).toBe(10)
 
       // Test direct values
       expect(context.resolve('base.white')).toBe('#FFFFFF')
@@ -458,7 +458,7 @@ describe('useTokens reactivity in components', () => {
         return {
           primaryItem,
           spacingItem,
-          registeredItems: context.registeredItems,
+          tickets: context.tickets,
         }
       },
       template: '<div></div>',
@@ -479,7 +479,7 @@ describe('useTokens reactivity in components', () => {
     expect(testComponent.vm.primaryItem?.value).toBe('#1976d2')
     expect(testComponent.vm.spacingItem?.id).toBe('spacing.medium')
     expect(testComponent.vm.spacingItem?.value).toBe('16px')
-    expect(testComponent.vm.registeredItems.size).toBe(4)
+    expect(testComponent.vm.tickets.size).toBe(4)
   })
 
   it('should handle context injection errors gracefully', () => {
@@ -519,8 +519,8 @@ describe('useTokens reactivity in components', () => {
         return {
           primaryColor: themeContext.resolve('primary'),
           smallSpacing: spacingContext.resolve('small'),
-          themeItemsCount: themeContext.registeredItems.size,
-          spacingItemsCount: spacingContext.registeredItems.size,
+          themeItemsCount: themeContext.tickets.size,
+          spacingItemsCount: spacingContext.tickets.size,
         }
       },
       template: '<div></div>',

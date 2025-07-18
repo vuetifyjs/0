@@ -11,7 +11,7 @@ describe('useStep', () => {
       expect(stepState).toHaveProperty('selectedIds')
       expect(stepState).toHaveProperty('selectedItems')
       expect(stepState).toHaveProperty('selectedValues')
-      expect(stepState).toHaveProperty('registeredItems')
+      expect(stepState).toHaveProperty('tickets')
       expect(stepState).toHaveProperty('selectedItem')
       expect(stepState).toHaveProperty('first')
       expect(stepState).toHaveProperty('last')
@@ -26,7 +26,7 @@ describe('useStep', () => {
       expect(state.selectedIds.size).toBe(0)
       expect(state.selectedItems.value.size).toBe(0)
       expect(state.selectedValues.value.size).toBe(0)
-      expect(state.registeredItems.size).toBe(0)
+      expect(state.tickets.size).toBe(0)
       expect(state.selectedItem.value).toBeUndefined()
     })
   })
@@ -45,7 +45,7 @@ describe('useStep', () => {
       expect(ticket.index).toBe(0)
       expect(typeof ticket.isActive).toBe('boolean')
       expect(typeof ticket.toggle).toBe('function')
-      expect(state.registeredItems.size).toBe(1)
+      expect(state.tickets.size).toBe(1)
     })
 
     it('should unregister items', () => {
@@ -53,10 +53,10 @@ describe('useStep', () => {
       const context = provideStepContext()
 
       context.register({ id: 'test-item' })
-      expect(state.registeredItems.size).toBe(1)
+      expect(state.tickets.size).toBe(1)
 
       context.unregister('test-item')
-      expect(state.registeredItems.size).toBe(0)
+      expect(state.tickets.size).toBe(0)
     })
   })
 

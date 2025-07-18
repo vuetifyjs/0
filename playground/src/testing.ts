@@ -27,7 +27,7 @@ interface RegistrarTicket {
 }
 
 interface RegistrarContext {
-  registeredItems: Map<string, Reactive<RegistrarTicket>>
+  tickets: Map<string, Reactive<RegistrarTicket>>
   register: (id: string, item: unknown) => void
   unregister: (id: string) => void
   reset: () => void
@@ -45,8 +45,8 @@ export function useRegistrar<T extends RegistrarContext> (namespace: string) {
   }
 
   const context = {
-    registeredItems: new Map<string, RegistrarTicket>(),
-    reset: () => context.registeredItems.clear(),
+    tickets: new Map<string, RegistrarTicket>(),
+    reset: () => context.tickets.clear(),
     register,
     unregister,
   } as T
@@ -74,7 +74,7 @@ interface GroupTicket extends RegistrarTicket {
 interface GroupContext extends RegistrarContext {
   selectedIds: Set<string>
   selectedItems: Map<string, GroupTicket>
-  registeredItems: Map<string, GroupTicket>
+  tickets: Map<string, GroupTicket>
   select: (id: string) => void
 }
 

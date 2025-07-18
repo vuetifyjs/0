@@ -36,14 +36,14 @@ export function useStep<T extends StepContext> (
   const selectedIndex = toRef(() => group.selectedItem.value?.index ?? -1)
 
   function getIdByIndex (index: number) {
-    for (const [id, item] of group.registeredItems) {
+    for (const [id, item] of group.tickets) {
       if (item.index === index) return id
     }
     return undefined
   }
 
   function first () {
-    if (group.registeredItems.size === 0) return
+    if (group.tickets.size === 0) return
 
     const firstId = getIdByIndex(0)
 
@@ -54,9 +54,9 @@ export function useStep<T extends StepContext> (
   }
 
   function last () {
-    if (group.registeredItems.size === 0) return
+    if (group.tickets.size === 0) return
 
-    const lastIndex = group.registeredItems.size - 1
+    const lastIndex = group.tickets.size - 1
     const lastId = getIdByIndex(lastIndex)
 
     if (lastId === undefined) return
@@ -70,7 +70,7 @@ export function useStep<T extends StepContext> (
   }
 
   function prev () {
-    step(group.registeredItems.size - 1)
+    step(group.tickets.size - 1)
   }
 
   function wrapped (length: number, index: number) {
@@ -78,7 +78,7 @@ export function useStep<T extends StepContext> (
   }
 
   function step (count = 1) {
-    const length = group.registeredItems.size
+    const length = group.tickets.size
     if (!length) return
 
     const direction = Math.sign(count || 1)
@@ -86,7 +86,7 @@ export function useStep<T extends StepContext> (
     let index = wrapped(length, selectedIndex.value + count)
     let id = getIdByIndex(index)
 
-    while (id !== undefined && group.registeredItems.get(id)?.disabled && hops < length) {
+    while (id !== undefined && group.tickets.get(id)?.disabled && hops < length) {
       index = wrapped(length, index + direction)
       id = getIdByIndex(index)
       hops++

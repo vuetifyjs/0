@@ -52,7 +52,7 @@ export function createTheme<
     single,
   ] = useSingle<T, U>(namespace)
 
-  const themeNames = computed(() => Array.from(single.registeredItems.keys()))
+  const themeNames = computed(() => Array.from(single.tickets.keys()))
 
   function cycle (themeArray: ID[] = themeNames.value) {
     const currentIndex = themeArray.indexOf(single.selectedId.value ?? '')
@@ -144,7 +144,7 @@ export function createThemePlugin<
 
       const resolvedColors = computed(() => {
         const resolved = {} as Record<string, Colors | undefined>
-        for (const [id, theme] of themeContext.registeredItems.entries()) {
+        for (const [id, theme] of themeContext.tickets.entries()) {
           if (theme.lazy && theme.id !== themeContext.selectedId.value) continue
 
           resolved[id as string] = themeContext.resolveTheme(id, tokensContext.resolved)

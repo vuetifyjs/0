@@ -11,7 +11,7 @@ describe('useSingle', () => {
       expect(groupState).toHaveProperty('selectedIds')
       expect(groupState).toHaveProperty('selectedItems')
       expect(groupState).toHaveProperty('selectedValues')
-      expect(groupState).toHaveProperty('registeredItems')
+      expect(groupState).toHaveProperty('tickets')
     })
 
     it('should initialize with empty state', () => {
@@ -20,7 +20,7 @@ describe('useSingle', () => {
       expect(state.selectedIds.size).toBe(0)
       expect(state.selectedItems.value.size).toBe(0)
       expect(state.selectedValues.value.size).toBe(0)
-      expect(state.registeredItems.size).toBe(0)
+      expect(state.tickets.size).toBe(0)
     })
   })
 
