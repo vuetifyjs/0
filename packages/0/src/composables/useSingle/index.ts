@@ -9,9 +9,9 @@ import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/us
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Ref } from 'vue'
 
-export interface SingleTicket extends GroupTicket {}
+export type SingleTicket = GroupTicket
 
-export interface SingleOptions extends Omit<GroupOptions, 'multiple'> {}
+export type SingleOptions = Omit<GroupOptions, 'multiple'>
 
 export type SingleContext = GroupContext & {
   selectedId: ComputedRef<ID | undefined>
@@ -20,7 +20,10 @@ export type SingleContext = GroupContext & {
   select: (id: ID) => void
 }
 
-export function useSingle<T extends SingleContext> (
+export function useSingle<
+  T extends SingleTicket,
+  U extends SingleContext,
+> (
   namespace: string,
   options?: SingleOptions,
 ) {
@@ -28,7 +31,7 @@ export function useSingle<T extends SingleContext> (
     useGroupContext,
     provideGroupContext,
     group,
-  ] = useGroup<T>(namespace, options)
+  ] = useGroup<T, U>(namespace, options)
 
   const selectedId = computed(() => group.selectedIds.values().next().value)
   const selectedItem = computed(() => selectedId.value ? group.registeredItems.get(selectedId.value) : undefined)
@@ -44,13 +47,13 @@ export function useSingle<T extends SingleContext> (
     selectedItem,
     selectedValue,
     select,
-  } as T
+  } as U
 
   return [
     useGroupContext,
     function (
       model?: Ref<unknown | unknown[]>,
-      _context: T = context,
+      _context: U = context,
       app?: App,
     ) {
       provideGroupContext(model, _context, app)

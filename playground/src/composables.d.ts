@@ -157,7 +157,7 @@ declare global {
   export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
-  export type { Colors, ThemeItem, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
   export type { TokenAlias, TokenValue, TokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'

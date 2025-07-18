@@ -2,7 +2,7 @@
 import type { Colors } from '..'
 
 export interface ThemeAdapterInterface {
-  update: (colors: Colors | undefined) => void
+  update: (colors: Record<string, Colors | undefined>) => void
 }
 
 export abstract class ThemeAdapter implements ThemeAdapterInterface {
@@ -12,13 +12,23 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     this.prefix = prefix
   }
 
-  generate (colors: Colors): string {
-    const vars = Object.entries(colors)
-      .map(([key, val]) => `  --${this.prefix}-${key}: ${val};`)
-      .join('\n')
+  generate (colors: Record<string, Colors | undefined>): string {
+    let css = ''
 
-    return `:root {\n${vars}\n}`
+    for (const theme in colors) {
+      const themeColors = colors[theme]
+
+      if (!themeColors) continue
+
+      const vars = Object.entries(themeColors)
+        .map(([key, val]) => `  --${this.prefix}-${key}: ${val};`)
+        .join('\n')
+
+      css += `.v-theme--${theme} {\n${vars}\n}\n`
+    }
+
+    return css
   }
 
-  abstract update (colors: Colors | undefined): void
+  abstract update (colors: Record<string, Colors | undefined>): void
 }

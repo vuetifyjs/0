@@ -23,10 +23,10 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
     this.stylesheetId = options.stylesheetId ?? this.stylesheetId
   }
 
-  update (colors: Colors | undefined): void {
+  update (colors: Record<string, Colors | undefined>): void {
     if (!IN_BROWSER) return
 
-    this.upsert(colors ? this.generate(colors) : '')
+    this.upsert(this.generate(colors))
   }
 
   upsert (styles: string): void {
