@@ -24,7 +24,7 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
         .map(([key, val]) => `  --${this.prefix}-${key}: ${val};`)
         .join('\n')
 
-      css += `.v-theme--${theme} {\n${vars}\n}\n`
+      css += `.${this.prefix}-theme--${theme} {\n${vars}\n}\n`
     }
 
     return css
