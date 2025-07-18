@@ -26,6 +26,7 @@
             { name: 'useHydration', to: '/composables/use-hydration' },
             { name: 'useLocale', to: '/composables/use-locale' },
             { name: 'useMarkdown', to: '/composables/use-markdown' },
+            { name: 'useStorage', to: '/composables/use-storage' },
             { name: 'useTheme', to: '/composables/use-theme' },
           ],
         },

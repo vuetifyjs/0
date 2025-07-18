@@ -32,7 +32,9 @@ declare module 'vue-router/auto-routes' {
     '/composables/use-registrar': RouteRecordInfo<'/composables/use-registrar', '/composables/use-registrar', Record<never, never>, Record<never, never>>,
     '/composables/use-single': RouteRecordInfo<'/composables/use-single', '/composables/use-single', Record<never, never>, Record<never, never>>,
     '/composables/use-step': RouteRecordInfo<'/composables/use-step', '/composables/use-step', Record<never, never>, Record<never, never>>,
+    '/composables/use-storage': RouteRecordInfo<'/composables/use-storage', '/composables/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/use-theme': RouteRecordInfo<'/composables/use-theme', '/composables/use-theme', Record<never, never>, Record<never, never>>,
     '/composables/use-tokens': RouteRecordInfo<'/composables/use-tokens', '/composables/use-tokens', Record<never, never>, Record<never, never>>,
+    '/composables/useStorage': RouteRecordInfo<'/composables/useStorage', '/composables/useStorage', Record<never, never>, Record<never, never>>,
   }
 }
