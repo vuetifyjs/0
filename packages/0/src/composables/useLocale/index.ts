@@ -27,6 +27,15 @@ export interface LocalePluginOptions<T extends TokenCollection = TokenCollection
   messages?: Record<ID, T>
 }
 
+/**
+ * Creates a locale registrar for managing locale translations and number formatting.
+ *
+ * @param namespace The namespace for the locale context.
+ * @param options
+ * @template T The type of the locale tickets managed by the registrar.
+ * @template U The type of the locale context.
+ * @returns An array containing the inject function, provide function, and the locale context.
+ */
 export function createLocale<
   T extends LocaleTicket,
   U extends LocaleContext,
@@ -94,10 +103,25 @@ export function createLocale<
   ] as const
 }
 
+/**
+ * Creates a locale registrar for managing locale translations and number formatting.
+ *
+ * @returns A tuple containing the inject function, provide function, and the locale context.
+ */
 export function useLocale (): LocaleContext {
   return useContext<LocaleContext>('v0:locale')[0]()
 }
 
+/**
+ * Creates a locale plugin for Vue applications to manage locale translations and number formatting.
+ *
+ * @param options
+ * @template T The type of the locale tickets managed by the registrar.
+ * @template U The type of the locale context.
+ * @template R The type of the token tickets managed by the registrar.
+ * @template F The type of the token context.
+ * @returns Vue install function for the plugin
+ */
 export function createLocalePlugin<
   T extends LocaleTicket = LocaleTicket,
   U extends LocaleContext = LocaleContext,
