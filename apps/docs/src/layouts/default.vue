@@ -47,6 +47,7 @@
         },
       ],
     },
+    { name: 'Components', to: '/components' },
   ]
 </script>
 

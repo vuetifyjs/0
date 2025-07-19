@@ -9,7 +9,7 @@ To use the `useStorage` composable, you first need to install the storage plugin
 ```typescript
 // main.ts
 import { createApp } from 'vue'
-import { createStoragePlugin } from '#v0/composables/useStorage'
+import { createStoragePlugin } from '@vuetify/0'
 
 const app = createApp(App)
 app.use(createStoragePlugin())
@@ -19,7 +19,7 @@ Once the plugin is installed, you can use the `useStorage` composable in your co
 
 ```vue
 <script setup lang="ts">
-import { useStorage } from '#v0/composables/useStorage'
+import { useStorage } from '@vuetify/0'
 import { ref } from 'vue'
 
 const storage = useStorage()
@@ -42,7 +42,7 @@ const username = storage.get('username', 'Guest')
 Creates a new storage plugin instance.
 
 - `options` (optional): An object with the following properties:
-  - `adapter`: The storage adapter to use. Defaults to `localStorage` in the browser and `memoryAdapter` on the server.
+  - `adapter`: The storage adapter to use. Defaults to `localStorage` in the browser and `MemoryAdapter` on the server.
   - `prefix`: A string to prefix all storage keys with. Defaults to `v0:`.
   - `serializer`: An object with `read` and `write` methods for serializing and deserializing stored values. Defaults to `JSON.parse` and `JSON.stringify`.
 

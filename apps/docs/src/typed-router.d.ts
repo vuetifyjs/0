@@ -19,6 +19,7 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
+    '/components': RouteRecordInfo<'/components', '/components', Record<never, never>, Record<never, never>>,
     '/composables/': RouteRecordInfo<'/composables/', '/composables', Record<never, never>, Record<never, never>>,
     '/composables/to-reactive': RouteRecordInfo<'/composables/to-reactive', '/composables/to-reactive', Record<never, never>, Record<never, never>>,
     '/composables/use-breakpoints': RouteRecordInfo<'/composables/use-breakpoints', '/composables/use-breakpoints', Record<never, never>, Record<never, never>>,
@@ -35,6 +36,5 @@ declare module 'vue-router/auto-routes' {
     '/composables/use-storage': RouteRecordInfo<'/composables/use-storage', '/composables/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/use-theme': RouteRecordInfo<'/composables/use-theme', '/composables/use-theme', Record<never, never>, Record<never, never>>,
     '/composables/use-tokens': RouteRecordInfo<'/composables/use-tokens', '/composables/use-tokens', Record<never, never>, Record<never, never>>,
-    '/composables/useStorage': RouteRecordInfo<'/composables/useStorage', '/composables/useStorage', Record<never, never>, Record<never, never>>,
   }
 }

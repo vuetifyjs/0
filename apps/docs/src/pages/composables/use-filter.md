@@ -5,7 +5,7 @@ The `useFilter` composable provides a powerful way to filter arrays of items bas
 ## Usage
 
 ```ts
-import { useFilter } from 'v0'
+import { useFilter } from '@vuetify/0'
 
 const items = ref(['apple', 'banana', 'cherry'])
 const query = ref('ban')
@@ -55,7 +55,7 @@ console.log(filteredItems.value) // ['banana']
 ```vue
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useFilter } from 'v0'
+import { useFilter } from '@vuetify/0'
 
 const searchQuery = ref('')
 const fruits = ref([
