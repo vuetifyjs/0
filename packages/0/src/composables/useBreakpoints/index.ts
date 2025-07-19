@@ -1,8 +1,9 @@
 // Composables
 import { useContext } from '#v0/composables/useContext'
+import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { onScopeDispose, shallowReactive } from 'vue'
+import { onScopeDispose, shallowReactive, getCurrentInstance, onMounted, watch } from 'vue'
 import { mergeDeep } from '#v0/utils/helpers'
 
 // Constants
@@ -41,6 +42,10 @@ export interface BreakpointsContext {
 export interface BreakpointsOptions {
   mobileBreakpoint?: BreakpointName | number
   breakpoints?: Partial<Record<BreakpointName, number>>
+}
+
+export interface BreakpointsPlugin {
+  install: (app: App) => void
 }
 
 export const [useBreakpointsContext, provideBreakpointsContext] = useContext<BreakpointsContext>('v0:breakpoints')
@@ -150,24 +155,42 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
     state.xxlAndDown = index <= 5
   }
 
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      const { isHydrated } = useHydration()
+
+      if (isHydrated.value) update()
+
+      watch(isHydrated, hydrated => {
+        if (hydrated) update()
+      }, { immediate: true })
+    })
+  }
+
+  if (IN_BROWSER) {
+    const listener = () => update()
+    window.addEventListener('resize', listener, { passive: true })
+    onScopeDispose(() => window.removeEventListener('resize', listener))
+  }
+
   return state
 }
 
-export function createBreakpointsPlugin (options: BreakpointsOptions = {}) {
+/**
+ * Creates a Vue plugin for managing responsive breakpoints.
+ * This plugin automatically sets up breakpoint tracking and updates
+ * the context when the window is resized, useful for responsive applications.
+ *
+ * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
+ * @returns A Vue plugin object with install method.
+ */
+export function createBreakpointsPlugin (options: BreakpointsOptions = {}): BreakpointsPlugin {
   return {
     install (app: App) {
-      const context = createBreakpoints(options)
-
       app.runWithContext(() => {
-        provideBreakpointsContext(context, app)
-      })
+        const context = createBreakpoints(options)
 
-      app.mixin({
-        mounted () {
-          const listener = () => context.update()
-          window.addEventListener('resize', listener, { passive: true })
-          onScopeDispose(() => window.removeEventListener('resize', listener))
-        },
+        provideBreakpointsContext(context, app)
       })
     },
   }
