@@ -3,16 +3,18 @@ import type { MaybeRef, UnwrapNestedRefs } from 'vue'
 import { isRef, reactive, unref } from 'vue'
 
 /**
- * Converts a ref of an object, Map, or Set to a reactive equivalent, unwrapping nested refs.
- * For Maps and Sets, provides proxy wrappers that maintain collection functionality while
- * ensuring nested refs are unwrapped when accessed.
+ * Converts an object to a reactive reference using Vue's reactivity system.
+ * This function creates a reactive version of the provided object,
+ * making its properties automatically track dependencies and trigger re-renders
+ * when they change.
  *
- * @see Inspired by https://vueuse.org/toReactive (with improvements for proxy consistency)
- * @param objectRef A ref or plain object, Map, or Set
+ * @param objectRef - A reference to an object that should be made reactive.
+ * @template Z The type of the object that extends object.
+ * @returns A reactive reference to the object.
  */
-export function toReactive<T extends object> (
-  objectRef: MaybeRef<T>,
-): UnwrapNestedRefs<T> {
+export function toReactive<Z extends object> (
+  objectRef: MaybeRef<Z>,
+): UnwrapNestedRefs<Z> {
   if (!isRef(objectRef))
     return reactive(objectRef)
 
@@ -83,7 +85,7 @@ export function toReactive<T extends object> (
         return Reflect.get(map, p)
       },
     })
-    return reactive(mapProxy) as UnwrapNestedRefs<T>
+    return reactive(mapProxy) as UnwrapNestedRefs<Z>
   }
 
   // Handle Set collections
@@ -142,7 +144,7 @@ export function toReactive<T extends object> (
         return Reflect.get(set, p)
       },
     })
-    return reactive(setProxy) as UnwrapNestedRefs<T>
+    return reactive(setProxy) as UnwrapNestedRefs<Z>
   }
 
   // Handle regular objects and arrays
@@ -177,5 +179,5 @@ export function toReactive<T extends object> (
     },
   })
 
-  return reactive(proxy) as UnwrapNestedRefs<T>
+  return reactive(proxy) as UnwrapNestedRefs<Z>
 }

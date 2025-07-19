@@ -16,8 +16,8 @@ export interface UseFilterOptions {
   mode?: FilterMode
 }
 
-export interface UseFilterResult<T extends FilterItem = FilterItem> {
-  items: ComputedRef<T[]>
+export interface UseFilterResult<Z extends FilterItem = FilterItem> {
+  items: ComputedRef<Z[]>
 }
 
 function defaultFilter (
@@ -64,20 +64,19 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
 }
 
 /**
- * Filters a collection of items based on a query and optional configuration.
- * It allows for custom filtering logic, key-based filtering, and different modes of filtering.
+ * Filters an array of items based on a given query and options.
  *
  * @param query Filter query to match against items.
  * @param items Collection of items to filter.
  * @param options Optional configuration for the filter behavior.
- * @template T The type of the items being filtered.
+ * @template Z The type of the items being filtered.
  * @returns A computed reference to the filtered items based on the query and options.
  */
-export function useFilter<T extends FilterItem> (
+export function useFilter<Z extends FilterItem> (
   query: FilterQuery,
-  items: MaybeRef<T[]>,
+  items: MaybeRef<Z[]>,
   options: UseFilterOptions = {},
-): UseFilterResult<T> {
+): UseFilterResult<Z> {
   const { customFilter, keys, mode = 'some' } = options
   const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys, mode))
 

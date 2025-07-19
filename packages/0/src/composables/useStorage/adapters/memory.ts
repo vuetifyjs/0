@@ -1,6 +1,11 @@
 // Types
 import type { StorageAdapter } from './adapter'
 
+/**
+ * In-memory storage adapter that implements the StorageAdapter interface.
+ * This adapter provides temporary storage that persists only for the current
+ * session and is useful for testing or when persistent storage is not available.
+ */
 export class MemoryAdapter implements StorageAdapter {
   private store = new Map<string, string>()
 

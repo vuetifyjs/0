@@ -8,6 +8,14 @@ export interface KeyHandler {
   stopPropagation?: boolean
 }
 
+/**
+ * Sets up global keyboard event listeners for specified key handlers.
+ * This composable automatically starts listening when mounted and cleans up
+ * when the scope is disposed.
+ *
+ * @param handlers A single handler or array of handlers to register for keydown events.
+ * @returns Object with methods to manually start and stop listening for keydown events.
+ */
 export function useKeydown (handlers: KeyHandler[] | KeyHandler) {
   const keyHandlers = Array.isArray(handlers) ? handlers : [handlers]
 

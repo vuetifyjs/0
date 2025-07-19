@@ -4,7 +4,7 @@ import { useContext } from '#v0/composables/useContext'
 import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
-import { computed, reactive, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { genId } from '#v0/utils/helpers'
 
 // Adapters
@@ -35,22 +35,22 @@ export type ThemeContext = SingleContext & {
   toggle: (themeArray: [ID, ID]) => void
 }
 
-export interface ThemePluginOptions<T extends TokenCollection = TokenCollection> {
+export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection> {
   adapter?: ThemeAdapter
   default?: ID
   palette?: TokenCollection
-  themes?: Record<ID, T>
+  themes?: Record<ID, Z>
 }
 
 export function createTheme<
-  T extends ThemeTicket,
-  U extends ThemeContext,
+  Z extends ThemeTicket,
+  E extends ThemeContext,
 > (namespace: string) {
   const [
     useThemeContext,
     provideThemeContext,
     single,
-  ] = useSingle<T, U>(namespace)
+  ] = useSingle<Z, E>(namespace)
 
   const themeNames = computed(() => Array.from(single.tickets.keys()))
 
@@ -65,7 +65,7 @@ export function createTheme<
     cycle(themeArray)
   }
 
-  function register (registrant: Partial<T>, id: ID = genId()): Reactive<T> {
+  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
     const item = single.register({
       lazy: registrant?.lazy ?? false,
       ...registrant,
@@ -94,13 +94,13 @@ export function createTheme<
     register,
     cycle,
     toggle,
-  } as U
+  } as E
 
   return [
     useThemeContext,
     function (
       model?: Ref<ID>,
-      _context: U = context,
+      _context: E = context,
       app?: App,
     ) {
       provideThemeContext(model, _context, app)
@@ -111,21 +111,26 @@ export function createTheme<
   ] as const
 }
 
+/**
+ * Simple hook to access the theme context.
+ *
+ * @returns The theme context containing current theme state and utilities.
+ */
 export function useTheme (): ThemeContext {
   return useContext<ThemeContext>('v0:theme')[0]()
 }
 
 export function createThemePlugin<
-  T extends ThemeTicket = ThemeTicket,
-  U extends ThemeContext = ThemeContext,
+  Z extends ThemeTicket = ThemeTicket,
+  E extends ThemeContext = ThemeContext,
   R extends TokenTicket = TokenTicket,
-  F extends TokenContext = TokenContext,
+  O extends TokenContext = TokenContext,
 > (options: ThemePluginOptions = {}) {
   return {
     install (app: App) {
       const { adapter = new Vuetify0ThemeAdapter() } = options
-      const [, provideThemeContext, themeContext] = createTheme<T, U>('v0:theme')
-      const [, provideThemeTokenContext, tokensContext] = createTokens<R, F>('v0:theme:tokens', {
+      const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme')
+      const [, provideThemeTokenContext, tokensContext] = createTokens<R, O>('v0:theme:tokens', {
         palette: options.palette ?? {},
         ...options.themes,
       })
@@ -135,7 +140,7 @@ export function createThemePlugin<
           themeContext.register({
             id,
             value: options.themes[id],
-          } as Partial<T>, id)
+          } as Partial<Z>, id)
 
           if (id === options.default && !themeContext.selectedId.value) {
             themeContext.select(id as ID)

@@ -30,7 +30,16 @@ export interface StorageOptions {
 
 export const [useStorageContext, provideStorageContext] = useContext<StorageContext>('v0:storage')
 
-export function createStorage<U extends StorageContext> (options: StorageOptions = {}) {
+/**
+ * Creates a reactive storage system with automatic persistence.
+ * This function provides a consistent interface for storing and retrieving
+ * reactive values that automatically sync with the underlying storage adapter.
+ *
+ * @param options Optional configuration for storage adapter, prefix, and serialization.
+ * @template E The type of the storage context.
+ * @returns A storage context object with get, set, remove, and clear methods.
+ */
+export function createStorage<E extends StorageContext> (options: StorageOptions = {}) {
   const {
     adapter = IN_BROWSER ? window.localStorage : new MemoryAdapter(),
     prefix = 'v0:',
@@ -97,13 +106,26 @@ export function createStorage<U extends StorageContext> (options: StorageOptions
     set,
     remove,
     clear,
-  } as U
+  } as E
 }
 
+/**
+ * Simple hook to access the storage context.
+ *
+ * @returns The storage context containing reactive storage methods.
+ */
 export function useStorage (): StorageContext {
   return useStorageContext()
 }
 
+/**
+ * Creates a Vue plugin for providing reactive storage capabilities.
+ * This plugin makes storage methods available throughout the application
+ * via the context system.
+ *
+ * @param options Optional configuration for the storage system.
+ * @returns A Vue plugin object with install method.
+ */
 export function createStoragePlugin (options: StorageOptions = {}) {
   return {
     install (app: App) {

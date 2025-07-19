@@ -27,13 +27,13 @@ export type SingleContext = GroupContext & {
  *
  * @param namespace The namespace for the single context.
  * @param options  Optional configuration for the single behavior.
- * @template T The type of the single tickets managed by the registrar.
- * @template U The type of the single context.
+ * @template Z The type of the single tickets managed by the registrar.
+ * @template E The type of the single context.
  * @returns  A tuple containing the inject function, provide function, and the single context.
  */
 export function useSingle<
-  T extends SingleTicket,
-  U extends SingleContext,
+  Z extends SingleTicket,
+  E extends SingleContext,
 > (
   namespace: string,
   options?: SingleOptions,
@@ -42,7 +42,7 @@ export function useSingle<
     useGroupContext,
     provideGroupContext,
     group,
-  ] = useGroup<T, U>(namespace, options)
+  ] = useGroup<Z, E>(namespace, options)
 
   const selectedId = computed(() => group.selectedIds.values().next().value)
   const selectedItem = computed(() => selectedId.value ? group.tickets.get(selectedId.value) : undefined)
@@ -58,13 +58,13 @@ export function useSingle<
     selectedItem,
     selectedValue,
     select,
-  } as U
+  } as E
 
   return [
     useGroupContext,
     function (
       model?: Ref<unknown | unknown[]>,
-      _context: U = context,
+      _context: E = context,
       app?: App,
     ) {
       provideGroupContext(model, _context, app)

@@ -27,17 +27,17 @@ export interface RegistrarContext {
  * enabling dynamic management of application state.
  *
  * @param namespace The namespace for the registrar context.
- * @template T The type of the tickets managed by the registrar.
- * @template U The type of the registrar context.
+ * @template Z The type of the tickets managed by the registrar.
+ * @template E The type of the registrar context.
  * @returns A tuple containing the inject function, provide function, and the registrar context.
  */
 export function useRegistrar<
-  T extends RegistrarTicket,
-  U extends RegistrarContext,
+  Z extends RegistrarTicket,
+  E extends RegistrarContext,
 > (namespace: string) {
-  const [useRegistrarContext, provideRegistrarContext] = useContext<U>(namespace)
+  const [useRegistrarContext, provideRegistrarContext] = useContext<E>(namespace)
 
-  const tickets = reactive(new Map<ID, T>())
+  const tickets = reactive(new Map<ID, Z>())
 
   function reindex () {
     let index = 0
@@ -46,12 +46,12 @@ export function useRegistrar<
     }
   }
 
-  function register (registrant: Partial<T>, id: ID = genId()): Reactive<T> {
+  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
     const item = reactive({
       id,
       index: registrant?.index ?? tickets.size,
       ...registrant,
-    }) as Reactive<T>
+    }) as Reactive<Z>
 
     tickets.set(item.id, item as any)
 
@@ -68,12 +68,12 @@ export function useRegistrar<
     register,
     unregister,
     reindex,
-  } as U
+  } as E
 
   return [
     useRegistrarContext,
     function (
-      _context: U = context,
+      _context: E = context,
       app?: App,
     ) {
       provideRegistrarContext(_context, app)

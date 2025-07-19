@@ -23,15 +23,18 @@ export type StepContext = SingleContext & {
 
 /**
  * Creates a step registrar for managing step selections within a specific namespace.
+ * This function provides a way to navigate through steps in sequence with utility methods
+ * for moving forward, backward, and jumping to specific steps.
  *
  * @param namespace The namespace for the step context.
  * @param options Optional configuration for the step behavior.
- * @template T The type of the step tickets managed by the registrar.
+ * @template Z The type of the step tickets managed by the registrar.
+ * @template E The type of the step context.
  * @returns A tuple containing the inject function, provide function, and the step context.
  */
 export function useStep<
-  T extends StepTicket,
-  U extends StepContext,
+  Z extends StepTicket,
+  E extends StepContext,
 > (
   namespace: string,
   options?: StepOptions,
@@ -40,7 +43,7 @@ export function useStep<
     useGroupContext,
     provideGroupContext,
     registrar,
-  ] = useSingle<T, U>(namespace, options)
+  ] = useSingle<Z, E>(namespace, options)
 
   const selectedIndex = toRef(() => registrar.selectedItem.value?.index ?? -1)
 
@@ -115,13 +118,13 @@ export function useStep<
     next,
     prev,
     step,
-  } as U
+  } as E
 
   return [
     useGroupContext,
     function (
       model?: Ref<unknown | unknown[]>,
-      _context: U = context,
+      _context: E = context,
       app?: App,
     ) {
       provideGroupContext(model, _context, app)

@@ -20,11 +20,11 @@ export type LocaleContext = SingleContext & {
   n: (value: number) => string
 }
 
-export interface LocalePluginOptions<T extends TokenCollection = TokenCollection> {
+export interface LocalePluginOptions<Z extends TokenCollection = TokenCollection> {
   adapter?: LocaleAdapter
   default?: ID
   fallback?: ID
-  messages?: Record<ID, T>
+  messages?: Record<ID, Z>
 }
 
 /**
@@ -32,13 +32,13 @@ export interface LocalePluginOptions<T extends TokenCollection = TokenCollection
  *
  * @param namespace The namespace for the locale context.
  * @param options
- * @template T The type of the locale tickets managed by the registrar.
- * @template U The type of the locale context.
+ * @template Z The type of the locale tickets managed by the registrar.
+ * @template E The type of the locale context.
  * @returns An array containing the inject function, provide function, and the locale context.
  */
 export function createLocale<
-  T extends LocaleTicket,
-  U extends LocaleContext,
+  Z extends LocaleTicket,
+  E extends LocaleContext,
 > (
   namespace: string,
   options: {
@@ -50,7 +50,7 @@ export function createLocale<
     useLocaleContext,
     provideLocaleContext,
     registrar,
-  ] = useSingle<T, U>(namespace)
+  ] = useSingle<Z, E>(namespace)
 
   function resolve (str: string, locale: ID): string {
     return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, linkedKey) => {
@@ -86,13 +86,13 @@ export function createLocale<
     ...registrar,
     t,
     n,
-  } as U
+  } as E
 
   return [
     useLocaleContext,
     function (
       model?: Ref<ID>,
-      _context: U = context,
+      _context: E = context,
       app?: App,
     ) {
       provideLocaleContext(model, _context, app)
@@ -104,9 +104,9 @@ export function createLocale<
 }
 
 /**
- * Creates a locale registrar for managing locale translations and number formatting.
+ * Simple hook to access the locale context.
  *
- * @returns A tuple containing the inject function, provide function, and the locale context.
+ * @returns The locale context containing translation and formatting functions.
  */
 export function useLocale (): LocaleContext {
   return useContext<LocaleContext>('v0:locale')[0]()
@@ -116,31 +116,31 @@ export function useLocale (): LocaleContext {
  * Creates a locale plugin for Vue applications to manage locale translations and number formatting.
  *
  * @param options
- * @template T The type of the locale tickets managed by the registrar.
- * @template U The type of the locale context.
+ * @template Z The type of the locale tickets managed by the registrar.
+ * @template E The type of the locale context.
  * @template R The type of the token tickets managed by the registrar.
- * @template F The type of the token context.
+ * @template O The type of the token context.
  * @returns Vue install function for the plugin
  */
 export function createLocalePlugin<
-  T extends LocaleTicket = LocaleTicket,
-  U extends LocaleContext = LocaleContext,
+  Z extends LocaleTicket = LocaleTicket,
+  E extends LocaleContext = LocaleContext,
   R extends TokenTicket = TokenTicket,
-  F extends TokenContext = TokenContext,
+  O extends TokenContext = TokenContext,
 > (options: LocalePluginOptions = {}) {
   return {
     install (app: App) {
       const adapter = options.adapter ?? new Vuetify0LocaleAdapter()
       const messages = options.messages ?? {}
-      const [, provideLocaleContext, localeContext] = createLocale<T, U>('v0:locale', { adapter, messages })
-      const [, provideLocaleTokenContext, tokensContext] = createTokens<R, F>('v0:locale:tokens', messages)
+      const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
+      const [, provideLocaleTokenContext, tokensContext] = createTokens<R, O>('v0:locale:tokens', messages)
 
       if (options.messages) {
         for (const id in options.messages) {
           localeContext.register({
             id,
             value: options.messages[id],
-          } as Partial<T>, id)
+          } as Partial<Z>, id)
 
           if (id === options.default && !localeContext.selectedId.value) {
             localeContext.select(id as ID)

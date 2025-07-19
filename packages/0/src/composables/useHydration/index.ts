@@ -18,6 +18,13 @@ export interface HydrationPlugin {
 
 export const [useHydrationContext, provideHydrationContext] = useContext<HydrationContext>('v0:hydration')
 
+/**
+ * Creates a hydration context for managing client-side hydration state.
+ * This function provides a way to track when the application has been fully
+ * hydrated on the client side, which is useful for SSR applications.
+ *
+ * @returns A hydration context object with reactive state and hydration control.
+ */
 export function createHydration (): HydrationContext {
   const isHydrated = shallowRef(false)
 
@@ -31,10 +38,22 @@ export function createHydration (): HydrationContext {
   }
 }
 
+/**
+ * Simple hook to access the hydration context.
+ *
+ * @returns The hydration context containing hydration state and controls.
+ */
 export function useHydration (): HydrationContext {
   return useHydrationContext()
 }
 
+/**
+ * Creates a Vue plugin for managing application hydration state.
+ * This plugin automatically detects when the root component is mounted
+ * and triggers the hydration process, useful for SSR applications.
+ *
+ * @returns A Vue plugin object with install method.
+ */
 export function createHydrationPlugin (): HydrationPlugin {
   return {
     install (app: App) {

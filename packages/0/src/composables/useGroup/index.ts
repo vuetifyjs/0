@@ -41,13 +41,13 @@ export type GroupOptions = {
  *
  * @param namespace The namespace for the group context.
  * @param options  Optional configuration for the group behavior.
- * @template T The type of the group tickets managed by the registrar.
- * @template U The type of the group context.
+ * @template Z The type of the group tickets managed by the registrar.
+ * @template E The type of the group context.
  * @returns  A tuple containing the inject function, provide function, and the group context.
  */
 export function useGroup<
-  T extends GroupTicket,
-  U extends GroupContext,
+  Z extends GroupTicket,
+  E extends GroupContext,
 > (
   namespace: string,
   options?: GroupOptions,
@@ -56,7 +56,7 @@ export function useGroup<
     useRegistrarContext,
     provideRegistrarContext,
     registrar,
-  ] = useRegistrar<T, U>(namespace)
+  ] = useRegistrar<Z, E>(namespace)
 
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
@@ -132,8 +132,8 @@ export function useGroup<
     }
   }
 
-  function register (registrant: Partial<T>, id: ID = genId()): Reactive<T> {
-    const groupItem: Partial<T> = {
+  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+    const groupItem: Partial<Z> = {
       disabled: false,
       value: registrant?.value ?? registrar.tickets.size,
       valueIsIndex: registrant?.value == null,
@@ -182,13 +182,13 @@ export function useGroup<
     reindex,
     mandate,
     select,
-  } as U
+  } as E
 
   return [
     useRegistrarContext,
     function (
       model?: Ref<unknown | unknown[]>,
-      _context: U = context,
+      _context: E = context,
       app?: App,
     ) {
       let isUpdatingModel = false

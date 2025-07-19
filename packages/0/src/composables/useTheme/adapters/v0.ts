@@ -13,6 +13,11 @@ export interface Vuetify0ThemeOptions {
   prefix?: string
 }
 
+/**
+ * Theme adapter implementation for Vuetify v0 design system.
+ * This adapter generates CSS custom properties and injects them into the DOM
+ * as a stylesheet, allowing themes to be applied globally.
+ */
 export class Vuetify0ThemeAdapter extends ThemeAdapter {
   cspNonce?: string
   stylesheetId = 'v0-theme-stylesheet'

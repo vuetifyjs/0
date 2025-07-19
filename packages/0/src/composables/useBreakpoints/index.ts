@@ -45,10 +45,20 @@ export interface BreakpointsOptions {
 
 export const [useBreakpointsContext, provideBreakpointsContext] = useContext<BreakpointsContext>('v0:breakpoints')
 
+/**
+ * Simple hook to access the breakpoints context.
+ *
+ * @returns The breakpoints context containing current breakpoint information.
+ */
 export function useBreakpoints (): BreakpointsContext {
   return useBreakpointsContext()
 }
 
+/**
+ * Creates default breakpoint configuration.
+ *
+ * @returns The default breakpoint configuration object.
+ */
 function createDefaultBreakpoints () {
   return {
     mobileBreakpoint: 'md',
@@ -63,6 +73,14 @@ function createDefaultBreakpoints () {
   } as const
 }
 
+/**
+ * Creates a reactive breakpoints system for managing responsive behavior.
+ * This function provides access to viewport dimensions, breakpoint names, and helper flags
+ * for determining the current screen size and implementing responsive logic.
+ *
+ * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
+ * @returns A breakpoints context object with reactive state and utility methods.
+ */
 export function createBreakpoints (options: BreakpointsOptions = {}) {
   const defaults = createDefaultBreakpoints()
   const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as any)

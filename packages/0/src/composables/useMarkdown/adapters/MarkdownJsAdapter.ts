@@ -8,6 +8,11 @@ export interface MarkdownJsOptions {
   dialect?: string
 }
 
+/**
+ * Markdown adapter implementation using the legacy markdown-js library.
+ * This adapter provides basic markdown parsing capabilities with
+ * support for different dialects.
+ */
 export class MarkdownJsAdapter implements MarkdownAdapter {
   private options: MarkdownJsOptions
 

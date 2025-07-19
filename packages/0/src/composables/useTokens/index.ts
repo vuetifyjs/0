@@ -113,13 +113,13 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
  *
  * @param namespace The namespace for the token registrar context.
  * @param tokens An optional collection of tokens to initialize the registrar with.
- * @template T The type of the tokens managed by the registrar.
- * @template U The type of the token context.
+ * @template Z The type of the tokens managed by the registrar.
+ * @template E The type of the token context.
  * @returns A tuple containing the inject function, provide function, and the token context.
  */
 export function createTokens<
-  T extends TokenTicket = TokenTicket,
-  U extends TokenContext = TokenContext,
+  Z extends TokenTicket = TokenTicket,
+  E extends TokenContext = TokenContext,
 > (
   namespace: string,
   tokens: TokenCollection = {},
@@ -128,7 +128,7 @@ export function createTokens<
     useTokenContext,
     provideTokenContext,
     registrar,
-  ] = useRegistrar<T, U>(namespace)
+  ] = useRegistrar<Z, E>(namespace)
 
   const flatTokens = flattenTokens(tokens)
   const collection = new Map<string, TokenValue>()
@@ -142,7 +142,7 @@ export function createTokens<
   for (const { id, value } of flatTokens) {
     const resolvedValue = resolvedTokens[id] || (typeof value === 'string' ? value : value.$value)
 
-    registrar.register({ value: resolvedValue } as Partial<T>, id)
+    registrar.register({ value: resolvedValue } as Partial<Z>, id)
   }
 
   function clean (token: string): string {
@@ -153,7 +153,7 @@ export function createTokens<
     return resolvedTokens[clean(token)]
   }
 
-  function resolveItem (token: string): T | undefined {
+  function resolveItem (token: string): Z | undefined {
     return registrar.tickets.get(clean(token))
   }
 
@@ -162,12 +162,12 @@ export function createTokens<
     resolve,
     resolveItem,
     resolved: resolvedTokens,
-  } as U
+  } as E
 
   return [
     useTokenContext,
     function (
-      _context: U = context,
+      _context: E = context,
       app?: App,
     ) {
       provideTokenContext(_context, app)
