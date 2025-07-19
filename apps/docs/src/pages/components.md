@@ -29,7 +29,7 @@ Vuetify 0 provides a collection of foundational components that serve as buildin
 All components follow these principles:
 
 - **Headless First**: Provide logic and accessibility without imposed styling
-- **Slot-Driven**: Maximum flexibility through comprehensive slot APIs  
+- **Slot-Driven**: Maximum flexibility through comprehensive slot APIs
 - **CSS Variables**: All styling configurable via CSS custom properties
 - **Renderless Option**: Can render without DOM elements for maximum flexibility
 - **Type Safety**: Full TypeScript support with proper generic constraints
@@ -47,7 +47,7 @@ import { Atom } from '@vuetify/0'
   <!-- Render as different elements -->
   <Atom as="button" @click="handleClick">Button</Atom>
   <Atom as="div" class="container">Container</Atom>
-  
+
   <!-- Renderless mode -->
   <Atom renderless #default="{ attrs }">
     <custom-element v-bind="attrs">Content</custom-element>
@@ -67,17 +67,17 @@ import { Avatar } from '@vuetify/0'
 <template>
   <Avatar.Root class="avatar">
     <!-- Multiple images with priority -->
-    <Avatar.Image 
+    <Avatar.Image
       :priority="1"
-      src="/high-res-avatar.jpg" 
-      alt="User Avatar" 
+      src="/high-res-avatar.jpg"
+      alt="User Avatar"
     />
-    <Avatar.Image 
+    <Avatar.Image
       :priority="2"
-      src="/low-res-avatar.jpg" 
-      alt="User Avatar Backup" 
+      src="/low-res-avatar.jpg"
+      alt="User Avatar Backup"
     />
-    
+
     <!-- Fallback when images fail -->
     <Avatar.Fallback>JD</Avatar.Fallback>
   </Avatar.Root>
@@ -103,7 +103,7 @@ const selected = ref([])
         Option 1
       </button>
     </Group.Item>
-    
+
     <Group.Item value="option2" #default="{ isActive, toggle }">
       <button @click="toggle" :class="{ active: isActive }">
         Option 2
@@ -130,7 +130,7 @@ const currentStep = ref('step1')
     <Step.Item value="step1" #default="{ isActive }">
       <div :class="{ active: isActive }">Step 1 Content</div>
     </Step.Item>
-    
+
     <Step.Item value="step2" #default="{ isActive }">
       <div :class="{ active: isActive }">Step 2 Content</div>
     </Step.Item>
@@ -152,7 +152,7 @@ import { Popover } from '@vuetify/0'
     <Popover.Anchor as="button">
       Click me
     </Popover.Anchor>
-    
+
     <Popover.Content position-area="bottom">
       <div class="popover-content">
         Popover content here

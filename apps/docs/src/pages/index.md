@@ -65,7 +65,7 @@ import { V0Paper } from '@vuetify/paper'
 
 Perfect for:
 - Design system foundations
-- Component library base layers  
+- Component library base layers
 - Headless UI implementations
 - Custom styling frameworks
 - Accessibility-first applications
