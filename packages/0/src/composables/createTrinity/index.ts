@@ -1,9 +1,9 @@
 // Types
-import type { App } from 'vue'
+import type { App, Ref } from 'vue'
 
-export type ContextTrinity<Z> = readonly [
+export type ContextTrinity<Z = unknown, E = unknown> = readonly [
   () => Z,
-  (context?: Z, app?: App) => Z,
+  (model?: Ref<E>, context?: Z, app?: App) => Z,
   Z,
 ]
 
@@ -15,16 +15,17 @@ export type ContextTrinity<Z> = readonly [
  * @param provideContext The underlying context provider function
  * @param context The context object
  * @template Z The context type
+ * @template E The model type
  * @returns A trinity containing [useContext, provideContext, context]
  */
-export function toTrinity<Z> (
+export function createTrinity<Z = unknown, E = unknown> (
   useContext: () => Z,
-  provideContext: (context: Z, app?: App) => Z,
+  provideContext: (model?: Ref<E>, _context?: Z, app?: App) => Z,
   context: Z,
-): ContextTrinity<Z> {
+): ContextTrinity<Z, E> {
   return [
     useContext,
-    (_context: Z = context, app?: App): Z => provideContext(_context, app),
+    (model?: Ref<E>, _context: Z = context, app?: App): Z => provideContext(model, _context, app),
     context,
   ] as const
 }

@@ -1,8 +1,7 @@
 // Utilities
 export * from './createPlugin'
+export * from './createTrinity'
 export * from './toReactive'
-export * from './toSingleton'
-export * from './toTrinity'
 
 // Core composables
 export * from './useContext'

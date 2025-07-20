@@ -1,4 +1,4 @@
-# toTrinity
+# createTrinity
 
 A standardized way to create context patterns, abstracting the common pattern of returning `[useContext, provideContext, context]` for context-based composables.
 
@@ -7,7 +7,7 @@ A standardized way to create context patterns, abstracting the common pattern of
 ### Basic Trinity Creation
 
 ```ts
-import { toTrinity } from '@vuetify/0'
+import { createTrinity } from '@vuetify/0'
 
 // Create your context functions
 const useMyContext = () => ({ value: 'hello' })
@@ -18,7 +18,7 @@ const provideMyContext = (context, app) => {
 const myContext = { value: 'hello' }
 
 // Create the trinity
-const [useContext, provideContext, context] = toTrinity(
+const [useContext, provideContext, context] = createTrinity(
   useMyContext,
   provideMyContext,
   myContext
@@ -41,7 +41,7 @@ const MyComponent = {
 ### With Custom Context Logic
 
 ```ts
-import { toTrinity } from '@vuetify/0'
+import { createTrinity } from '@vuetify/0'
 
 interface MyContext {
   data: string[]
@@ -65,7 +65,7 @@ const defaultContext: MyContext = {
   addItem: () => {}
 }
 
-export const [useMyContext, provideMyContext, myContext] = toTrinity(
+export const [useMyContext, provideMyContext, myContext] = createTrinity(
   useMyContext,
   provideMyContext,
   defaultContext
@@ -74,7 +74,7 @@ export const [useMyContext, provideMyContext, myContext] = toTrinity(
 
 ## When to Use
 
-Use `toTrinity` when you want to:
+Use `createTrinity` when you want to:
 
 - **Standardize context patterns** - Ensure consistent return structures across composables
 - **Simplify context creation** - Reduce boilerplate for context-based composables
@@ -83,14 +83,14 @@ Use `toTrinity` when you want to:
 
 ## Type Safety
 
-`toTrinity` is fully typed and will infer types from your input functions:
+`createTrinity` is fully typed and will infer types from your input functions:
 
 ```ts
 interface MyContext {
   value: string
 }
 
-const trinity = toTrinity(
+const trinity = createTrinity(
   (): MyContext => ({ value: 'test' }),
   (context?: MyContext) => context || { value: 'default' },
   { value: 'initial' }

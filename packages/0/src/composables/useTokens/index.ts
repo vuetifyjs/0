@@ -1,8 +1,12 @@
 // Composables
 import { useRegistrar } from '#v0/composables/useRegistrar'
-import { toTrinity } from '#v0/composables/toTrinity'
+import { createTrinity } from '#v0/composables/createTrinity'
+
+// Utilities
+import { computed } from 'vue'
 
 // Types
+import type { ComputedRef } from 'vue'
 import type { RegistrarTicket, RegistrarContext } from '#v0/composables/useRegistrar'
 
 export type TokenAlias = {
@@ -21,8 +25,7 @@ export type TokenTicket = RegistrarTicket & {
 
 export type TokenContext = RegistrarContext & {
   resolve: (token: string) => string | undefined
-  resolveItem: (token: string) => TokenTicket | undefined
-  resolved: Record<string, string>
+  resolved: ComputedRef<Record<string, string>>
 }
 
 interface FlattenedToken {
@@ -137,10 +140,10 @@ export function createTokens<
     collection.set(id, value)
   }
 
-  const resolvedTokens = resolveAliases(Object.fromEntries(collection.entries()))
+  const resolved = computed(() => resolveAliases(Object.fromEntries(collection.entries())))
 
   for (const { id, value } of flatTokens) {
-    const resolvedValue = resolvedTokens[id] || (typeof value === 'string' ? value : value.$value)
+    const resolvedValue = resolved.value[id] || (typeof value === 'string' ? value : value.$value)
 
     registrar.register({ value: resolvedValue } as Partial<Z>, id)
   }
@@ -150,19 +153,12 @@ export function createTokens<
   }
 
   function resolve (token: string): string | undefined {
-    return resolvedTokens[clean(token)]
+    return resolved.value[clean(token)]
   }
 
-  function resolveItem (token: string): Z | undefined {
-    return registrar.tickets.get(clean(token))
-  }
-
-  const context = {
+  return createTrinity<E>(useTokenContext, provideTokenContext, {
     ...registrar,
     resolve,
-    resolveItem,
-    resolved: resolvedTokens,
-  } as E
-
-  return toTrinity<E>(useTokenContext, provideTokenContext, context)
+    resolved,
+  } as E)
 }

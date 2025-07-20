@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { defineComponent, ref, nextTick, watch, computed } from 'vue'
+import { defineComponent, ref, nextTick, computed } from 'vue'
 import { createTokens } from './index'
 import type { TokenCollection } from './index'
 
@@ -194,8 +194,8 @@ describe('createTokens', () => {
 
       const context = createTokens('test', tokens)[2]
 
-      const primaryItem = context.resolveItem('primary')
-      const accentItem = context.resolveItem('accent')
+      const primaryItem = context.tickets.get('primary')
+      const accentItem = context.tickets.get('accent')
 
       expect(primaryItem).toBeDefined()
       expect(primaryItem?.id).toBe('primary')
@@ -206,24 +206,11 @@ describe('createTokens', () => {
       expect(accentItem?.value).toBe('#007BFF')
     })
 
-    it('should resolve token items with curly braces', () => {
-      const tokens: TokenCollection = {
-        primary: '#007BFF',
-      }
-
-      const context = createTokens('test', tokens)[2]
-
-      const item = context.resolveItem('{primary}')
-      expect(item).toBeDefined()
-      expect(item?.id).toBe('primary')
-      expect(item?.value).toBe('#007BFF')
-    })
-
     it('should return undefined for non-existent token items', () => {
       const context = createTokens('test', {})[2]
 
-      expect(context.resolveItem('nonexistent')).toBeUndefined()
-      expect(context.resolveItem('{nonexistent}')).toBeUndefined()
+      expect(context.tickets.get('nonexistent')).toBeUndefined()
+      expect(context.tickets.get('{nonexistent}')).toBeUndefined()
     })
   })
 
@@ -442,8 +429,8 @@ describe('useTokens reactivity in components', () => {
     const TestComponent = defineComponent({
       setup () {
         const context = useTokens()
-        const primaryItem = ref(context.resolveItem('colors.primary'))
-        const spacingItem = ref(context.resolveItem('spacing.medium'))
+        const primaryItem = ref(context.tickets.get('colors.primary'))
+        const spacingItem = ref(context.tickets.get('spacing.medium'))
 
         return {
           primaryItem,

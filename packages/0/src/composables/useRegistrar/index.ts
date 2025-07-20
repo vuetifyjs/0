@@ -1,6 +1,8 @@
+// Factories
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
 import { useContext } from '#v0/composables/useContext'
-import { toTrinity } from '#v0/composables/toTrinity'
 
 // Utilities
 import { reactive } from 'vue'
@@ -71,9 +73,9 @@ export function useRegistrar<
     reindex,
   } as E
 
-  return toTrinity<E>(
+  return createTrinity<E>(
     useRegistrarContext,
-    (_context: E = context, app?: App) => {
+    (_: unknown, _context: E = context, app?: App) => {
       provideRegistrarContext(_context, app)
       return _context
     },

@@ -1,9 +1,9 @@
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
 import { useContext } from '#v0/composables/useContext'
-import { createTokens } from '#v0/composables/useTokens'
 import { createPlugin } from '#v0/composables/createPlugin'
-import { toSingleton } from '../toSingleton'
+import { createTokens } from '#v0/composables/useTokens'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { computed, watch } from 'vue'
@@ -18,7 +18,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 // Types
 import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
-import type { App, Reactive, Ref } from 'vue'
+import type { App, ComputedRef, Reactive } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
 import type { TokenCollection, TokenContext, TokenTicket } from '#v0/composables/useTokens'
 
@@ -32,7 +32,7 @@ export type ThemeTicket = SingleTicket & {
 }
 
 export type ThemeContext = SingleContext & {
-  resolveTheme: (theme: ID, resolvedTokens: Record<string, string>) => Colors
+  colors: ComputedRef<Record<string, Colors | undefined>>
   cycle: (themeArray: ID[]) => void
   toggle: (themeArray: [ID, ID]) => void
 }
@@ -55,20 +55,28 @@ export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection>
 export function createTheme<
   Z extends ThemeTicket,
   E extends ThemeContext,
-> (namespace: string) {
-  const [
-    useThemeContext,
-    provideThemeContext,
-    single,
-  ] = useSingle<Z, E>(namespace)
+> (
+  namespace = 'v0:theme',
+  tokens: ComputedRef<Record<string, string>>,
+) {
+  const [useThemeContext, provideThemeContext, registrar] = useSingle<Z, E>(namespace)
 
-  const themeNames = computed(() => Array.from(single.tickets.keys()))
+  const themeNames = computed(() => Array.from(registrar.tickets.keys()))
+  const colors = computed(() => {
+    const resolved = {} as Record<string, Colors | undefined>
+    for (const [id, theme] of registrar.tickets.entries()) {
+      if (theme.lazy && theme.id !== registrar.selectedId.value) continue
+
+      resolved[id as string] = resolve(id, tokens.value)
+    }
+    return resolved
+  })
 
   function cycle (themeArray: ID[] = themeNames.value) {
-    const currentIndex = themeArray.indexOf(single.selectedId.value ?? '')
+    const currentIndex = themeArray.indexOf(registrar.selectedId.value ?? '')
     const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % themeArray.length
 
-    single.select(themeArray[nextIndex])
+    registrar.select(themeArray[nextIndex])
   }
 
   function toggle (themeArray: [ID, ID]) {
@@ -76,7 +84,7 @@ export function createTheme<
   }
 
   function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
-    const item = single.register({
+    const item = registrar.register({
       lazy: registrant?.lazy ?? false,
       ...registrant,
     }, id)
@@ -84,37 +92,27 @@ export function createTheme<
     return item
   }
 
-  function resolveTheme (theme: ID, resolvedTokens: Record<string, string>): Colors {
+  function resolve (theme: ID, tokens: Record<string, string>): Colors {
     const colors: Colors = {}
     const prefix = `${String(theme)}.`
 
-    for (const key in resolvedTokens) {
+    for (const key in tokens) {
       if (key.startsWith(prefix)) {
         const colorName = key.slice(prefix.length)
-        colors[colorName] = resolvedTokens[key]
+        colors[colorName] = tokens[key]
       }
     }
 
     return colors
   }
 
-  const context = {
-    ...single,
-    resolveTheme,
+  return createTrinity(useThemeContext, provideThemeContext, {
+    ...registrar,
+    colors,
     register,
     cycle,
     toggle,
-  } as E
-
-  return toSingleton(
-    useThemeContext,
-    (model?: Ref<ID>, _context: E = context, app?: App) => {
-      provideThemeContext(model, _context, app)
-
-      return _context
-    },
-    context,
-  )
+  } as E)
 }
 
 /**
@@ -143,12 +141,9 @@ export function createThemePlugin<
   R extends TokenTicket = TokenTicket,
   O extends TokenContext = TokenContext,
 > (options: ThemePluginOptions = {}) {
-  const { adapter = new Vuetify0ThemeAdapter() } = options
-  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme')
-  const [, provideThemeTokenContext, tokensContext] = createTokens<R, O>('v0:theme:tokens', {
-    palette: options.palette ?? {},
-    ...options.themes,
-  })
+  const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
+  const [, provideThemeTokenContext, tokensContext] = createTokens<R, O>('v0:theme:tokens', { palette, ...themes })
+  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', tokensContext.resolved)
 
   // Register themes if provided
   if (options.themes) {
@@ -164,17 +159,7 @@ export function createThemePlugin<
     }
   }
 
-  const resolvedColors = computed(() => {
-    const resolved = {} as Record<string, Colors | undefined>
-    for (const [id, theme] of themeContext.tickets.entries()) {
-      if (theme.lazy && theme.id !== themeContext.selectedId.value) continue
-
-      resolved[id as string] = themeContext.resolveTheme(id, tokensContext.resolved)
-    }
-    return resolved
-  })
-
-  function updateStyles (colors: Record<string, Colors | undefined>) {
+  function update (colors: Record<string, Colors | undefined>) {
     adapter.update(colors)
   }
 
@@ -182,13 +167,13 @@ export function createThemePlugin<
     namespace: 'v0:theme',
     provide: (app: App) => {
       provideThemeContext(undefined, themeContext, app)
-      provideThemeTokenContext(tokensContext, app)
+      provideThemeTokenContext(undefined, tokensContext, app)
     },
     setup: () => {
       if (IN_BROWSER) {
-        watch(resolvedColors, updateStyles, { immediate: true, deep: true })
+        watch(themeContext.colors, update, { immediate: true, deep: true })
       } else {
-        updateStyles(resolvedColors.value)
+        update(themeContext.colors.value)
       }
     },
   })

@@ -1,6 +1,6 @@
 // Composables
-import { useRegistrar } from '../useRegistrar'
-import { toSingleton } from '../toSingleton'
+import { useRegistrar } from '#v0/composables/useRegistrar'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
@@ -21,12 +21,14 @@ export type GroupTicket = RegistrarTicket & {
 
 export type GroupContext = RegistrarContext & {
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
+  selectedIndexes: ComputedRef<Set<number>>
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
   register: (item?: Partial<GroupTicket>, id?: ID) => Reactive<GroupTicket>
   mandate: () => void
   select: (ids: ID | ID[]) => void
   reset: () => void
+  lookup: (index: number) => ID | undefined
 }
 
 export type GroupOptions = {
@@ -53,11 +55,7 @@ export function useGroup<
   namespace: string,
   options?: GroupOptions,
 ) {
-  const [
-    useRegistrarContext,
-    provideRegistrarContext,
-    registrar,
-  ] = useRegistrar<Z, E>(namespace)
+  const [useRegistrarContext, provideRegistrarContext, registrar] = useRegistrar<Z, E>(namespace)
 
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
@@ -65,6 +63,12 @@ export function useGroup<
   const selectedItems = computed(() => {
     return new Set(
       Array.from(selectedIds).map(id => registrar.tickets.get(id)),
+    )
+  })
+
+  const selectedIndexes = computed(() => {
+    return new Set(
+      Array.from(selectedItems.value).map(item => item?.index),
     )
   })
 
@@ -143,6 +147,7 @@ export function useGroup<
 
     const ticket = registrar.register(groupItem, id)
 
+    // Reactivity was being lost unless done this way, revisit
     Object.assign(ticket, {
       isActive: toRef(() => selectedIds.has(ticket.id)),
       toggle: () => toggle(ticket.id),
@@ -166,6 +171,13 @@ export function useGroup<
     registrar.unregister(id)
   }
 
+  function lookup (index: number) {
+    for (const [id, item] of registrar.tickets) {
+      if (item.index === index) return id
+    }
+    return undefined
+  }
+
   if (getCurrentInstance()) {
     onMounted(() => {
       initialValue = undefined
@@ -175,6 +187,7 @@ export function useGroup<
   const context = {
     ...registrar,
     selectedItems,
+    selectedIndexes,
     selectedIds,
     selectedValues,
     register,
@@ -183,9 +196,10 @@ export function useGroup<
     reindex,
     mandate,
     select,
+    lookup,
   } as E
 
-  return toSingleton(
+  return createTrinity<E>(
     useRegistrarContext,
     (model?: Ref<unknown | unknown[]>, _context: E = context, app?: App): E => {
       let isUpdatingModel = false
@@ -233,7 +247,9 @@ export function useGroup<
         })
       }
 
-      return provideRegistrarContext(_context, app)
+      provideRegistrarContext(model, _context, app)
+
+      return _context
     },
     context,
   )

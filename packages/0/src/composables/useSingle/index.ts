@@ -1,6 +1,8 @@
+// Factories
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
 import { useGroup } from '#v0/composables/useGroup'
-import { toSingleton } from '../toSingleton'
 
 // Utilities
 import { computed } from 'vue'
@@ -8,7 +10,7 @@ import { computed } from 'vue'
 // Types
 import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, Ref } from 'vue'
+import type { ComputedRef } from 'vue'
 
 export type SingleTicket = GroupTicket
 
@@ -16,6 +18,7 @@ export type SingleOptions = Omit<GroupOptions, 'multiple'>
 
 export type SingleContext = GroupContext & {
   selectedId: ComputedRef<ID | undefined>
+  selectedIndex: ComputedRef<number>
   selectedItem: ComputedRef<SingleTicket | undefined>
   selectedValue: ComputedRef<unknown>
   select: (id: ID) => void
@@ -39,40 +42,28 @@ export function useSingle<
   E extends SingleContext,
 > (
   namespace: string,
-  options?: SingleOptions,
+  _options?: SingleOptions,
 ) {
   // Force multiple to false for single selection behavior
-  const groupOptions = { ...options, multiple: false }
+  const options = { ..._options, multiple: false }
 
-  const [
-    useGroupContext,
-    provideGroupContext,
-    group,
-  ] = useGroup<Z, E>(namespace, groupOptions)
+  const [useGroupContext, provideGroupContext, registrar] = useGroup<Z, E>(namespace, options)
 
-  const selectedId = computed(() => group.selectedIds.values().next().value)
-  const selectedItem = computed(() => selectedId.value ? group.tickets.get(selectedId.value) : undefined)
+  const selectedId = computed(() => registrar.selectedIds.values().next().value)
+  const selectedItem = computed(() => selectedId.value ? registrar.tickets.get(selectedId.value) : undefined)
+  const selectedIndex = computed(() => selectedItem.value ? selectedItem.value.index : -1)
   const selectedValue = computed(() => selectedItem.value ? selectedItem.value.value : undefined)
 
   function select (id: ID) {
-    group.select(id)
+    registrar.select(id)
   }
 
-  const context = {
-    ...group,
+  return createTrinity(useGroupContext, provideGroupContext, {
+    ...registrar,
     selectedId,
     selectedItem,
+    selectedIndex,
     selectedValue,
     select,
-  } as E
-
-  return toSingleton(
-    useGroupContext,
-    (model?: Ref<unknown | unknown[]>, _context: E = context, app?: App): E => {
-      provideGroupContext(model, _context, app)
-
-      return _context
-    },
-    context,
-  )
+  } as E)
 }

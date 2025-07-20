@@ -1,14 +1,14 @@
 import { describe, it, expect, vi } from 'vitest'
 import { ref } from 'vue'
-import { toSingleton } from '../index'
+import { createTrinity } from '../index'
 
-describe('toSingleton', () => {
+describe('createTrinity', () => {
   it('should create a singleton with use, provide, and context', () => {
     const mockContext = { value: 'test' }
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn((_model, context) => context)
 
-    const singleton = toSingleton(mockUseContext, mockProvideContext, mockContext)
+    const singleton = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
     expect(singleton).toHaveLength(3)
     expect(typeof singleton[0]).toBe('function') // useContext
@@ -21,7 +21,7 @@ describe('toSingleton', () => {
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn((_model, context) => context)
 
-    const [useContext] = toSingleton(mockUseContext, mockProvideContext, mockContext)
+    const [useContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
     const result = useContext()
 
@@ -36,7 +36,7 @@ describe('toSingleton', () => {
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn((_model, context) => context)
 
-    const [, provideContext] = toSingleton(mockUseContext, mockProvideContext, mockContext)
+    const [, provideContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
     // Call with default context and no model
     const result1 = provideContext()
@@ -56,7 +56,7 @@ describe('toSingleton', () => {
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn((_model, context) => context)
 
-    const [, provideContext] = toSingleton(mockUseContext, mockProvideContext, mockContext)
+    const [, provideContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
     provideContext(mockModel, undefined, mockApp)
 
@@ -74,7 +74,7 @@ describe('toSingleton', () => {
       return context
     })
 
-    const [, provideContext] = toSingleton(mockUseContext, mockProvideContext, mockContext)
+    const [, provideContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
     const result = provideContext(mockModel)
 
@@ -87,7 +87,7 @@ describe('toSingleton', () => {
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn((_model, context) => context)
 
-    const singleton = toSingleton(mockUseContext, mockProvideContext, mockContext)
+    const singleton = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
     // Should be read-only, but we can't directly test this in runtime
     // The type system ensures it's readonly

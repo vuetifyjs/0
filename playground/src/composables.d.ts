@@ -85,7 +85,6 @@ declare global {
   const toReactive: typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
-  const toSingleton: typeof import('../../packages/0/src/composables/toSingleton/index')['toSingleton']
   const toValue: typeof import('vue')['toValue']
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']

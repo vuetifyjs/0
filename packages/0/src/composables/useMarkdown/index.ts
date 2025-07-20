@@ -1,6 +1,8 @@
+// Factories
+import { createPlugin } from '#v0/composables/createPlugin'
+
 // Composables
-import { useContext } from '../useContext'
-import { createPlugin } from '../createPlugin'
+import { useContext } from '#v0/composables/useContext'
 
 // Adapters
 import { MarkedAdapter } from './adapters'
@@ -34,9 +36,7 @@ export const [useMarkdownContext, provideMarkdownContext] = useContext<MarkdownC
  * @param options Optional configuration including the markdown adapter to use.
  * @returns A render function that converts markdown strings to HTML.
  */
-export function createMarkdown (options: MarkdownOptions = {}) {
-  const { adapter = new MarkedAdapter() } = options
-
+export function createMarkdown (adapter: MarkdownAdapter) {
   return adapter.render
 }
 
@@ -57,7 +57,8 @@ export function useMarkdown () {
  * @returns A Vue plugin object with install method.
  */
 export function createMarkdownPlugin (options: MarkdownOptions = {}): MarkdownPlugin {
-  const render = createMarkdown(options)
+  const { adapter = new MarkedAdapter() } = options
+  const render = createMarkdown(adapter)
 
   return createPlugin({
     namespace: 'v0:markdown',

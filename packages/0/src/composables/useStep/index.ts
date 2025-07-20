@@ -1,20 +1,15 @@
 // Composables
-import { useSingle } from '../useSingle'
-import { toSingleton } from '../toSingleton'
-
-// Utilities
-import { toRef } from 'vue'
+import { useSingle } from '#v0/composables/useSingle'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Types
-import type { SingleContext, SingleOptions, SingleTicket } from '../useSingle'
-import type { App, Ref } from 'vue'
+import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 
 export type StepTicket = SingleTicket
 
 export type StepOptions = SingleOptions
 
 export type StepContext = SingleContext & {
-  selectedIndex: Ref<number>
   first: () => void
   last: () => void
   next: () => void
@@ -40,25 +35,12 @@ export function useStep<
   namespace: string,
   options?: StepOptions,
 ) {
-  const [
-    useGroupContext,
-    provideGroupContext,
-    registrar,
-  ] = useSingle<Z, E>(namespace, options)
-
-  const selectedIndex = toRef(() => registrar.selectedItem.value?.index ?? -1)
-
-  function getIdByIndex (index: number) {
-    for (const [id, item] of registrar.tickets) {
-      if (item.index === index) return id
-    }
-    return undefined
-  }
+  const [useGroupContext, provideGroupContext, registrar] = useSingle<Z, E>(namespace, options)
 
   function first () {
     if (registrar.tickets.size === 0) return
 
-    const firstId = getIdByIndex(0)
+    const firstId = registrar.lookup(0)
     if (firstId === undefined) return
 
     registrar.selectedIds.clear()
@@ -69,7 +51,7 @@ export function useStep<
     if (registrar.tickets.size === 0) return
 
     const lastIndex = registrar.tickets.size - 1
-    const lastId = getIdByIndex(lastIndex)
+    const lastId = registrar.lookup(lastIndex)
     if (lastId === undefined) return
 
     registrar.selectedIds.clear()
@@ -94,12 +76,12 @@ export function useStep<
 
     const direction = Math.sign(count || 1)
     let hops = 0
-    let index = wrapped(length, selectedIndex.value + count)
-    let id = getIdByIndex(index)
+    let index = wrapped(length, registrar.selectedIndex.value + count)
+    let id = registrar.lookup(index)
 
     while (id !== undefined && registrar.tickets.get(id)?.disabled && hops < length) {
       index = wrapped(length, index + direction)
-      id = getIdByIndex(index)
+      id = registrar.lookup(index)
       hops++
     }
 
@@ -109,23 +91,12 @@ export function useStep<
     registrar.selectedIds.add(id)
   }
 
-  const context = {
+  return createTrinity(useGroupContext, provideGroupContext, {
     ...registrar,
-    selectedIndex,
     first,
     last,
     next,
     prev,
     step,
-  } as E
-
-  return toSingleton(
-    useGroupContext,
-    (model?: Ref<unknown | unknown[]>, _context: E = context, app?: App): E => {
-      provideGroupContext(model, _context, app)
-
-      return _context
-    },
-    context,
-  )
+  } as E)
 }

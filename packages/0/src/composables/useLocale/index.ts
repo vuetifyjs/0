@@ -1,8 +1,11 @@
+// Factories
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
 import { useContext } from '#v0/composables/useContext'
 import { useSingle } from '#v0/composables/useSingle'
 import { createTokens } from '#v0/composables/useTokens'
-import { createPlugin } from '#v0/composables/createPlugin'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
@@ -12,8 +15,7 @@ import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
 import type { TokenCollection, TokenTicket, TokenContext } from '#v0/composables/useTokens'
 import type { LocaleAdapter } from './adapters'
-import type { App, Ref } from 'vue'
-import { toSingleton } from '../toSingleton'
+import type { App } from 'vue'
 
 export type LocaleTicket = SingleTicket
 
@@ -42,27 +44,21 @@ export function createLocale<
   Z extends LocaleTicket,
   E extends LocaleContext,
 > (
-  namespace: string,
-  options: {
-    adapter: LocaleAdapter
-    messages: Record<ID, TokenCollection>
-  },
+  namespace = 'v0:locale',
+  options: LocalePluginOptions = {},
 ) {
-  const [
-    useLocaleContext,
-    provideLocaleContext,
-    registrar,
-  ] = useSingle<Z, E>(namespace)
+  const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
+  const [useLocaleContext, provideLocaleContext, registrar] = useSingle<Z, E>(namespace)
 
-  function resolve (str: string, locale: ID): string {
+  function resolve (locale: ID, str: string): string {
     return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, linkedKey) => {
       const [linkedLocale, ...rest] = linkedKey.split('.')
       const keyPath = rest.join('.')
-      const targetLocale = options.messages[linkedLocale] ? linkedLocale : locale
-      const targetKey = options.messages[linkedLocale] ? keyPath : linkedKey
-      const resolved = options.messages[targetLocale]?.[targetKey]
+      const targetLocale = messages[linkedLocale] ? linkedLocale : locale
+      const targetKey = messages[linkedLocale] ? keyPath : linkedKey
+      const resolved = messages[targetLocale]?.[targetKey]
 
-      return typeof resolved === 'string' ? resolve(resolved, targetLocale) : match
+      return typeof resolved === 'string' ? resolve(targetLocale, resolved) : match
     })
   }
 
@@ -71,30 +67,24 @@ export function createLocale<
 
     if (!locale) return key
 
-    const message = options.messages[locale]?.[key]
+    const message = messages[locale]?.[key]
 
     // If the key exists in messages, resolve it with token references
     // Otherwise, use the key itself as a template string
-    const template = typeof message === 'string' ? resolve(message, locale) : key
+    const template = typeof message === 'string' ? resolve(locale, message) : key
 
-    return options.adapter.t(template, ...params)
+    return adapter.t(template, ...params)
   }
 
   function n (value: number, ...params: unknown[]): string {
-    return options.adapter.n(value, registrar.selectedId.value, ...params)
+    return adapter.n(value, registrar.selectedId.value, ...params)
   }
 
-  const context = {
+  return createTrinity<E>(useLocaleContext, provideLocaleContext, {
     ...registrar,
     t,
     n,
-  } as E
-
-  return toSingleton(
-    useLocaleContext,
-    (model?: Ref<ID>, _context: E = context, app?: App): E => provideLocaleContext(model, _context, app),
-    context,
-  )
+  } as E)
 }
 
 /**
@@ -123,10 +113,9 @@ export function createLocalePlugin<
   R extends TokenTicket = TokenTicket,
   O extends TokenContext = TokenContext,
 > (options: LocalePluginOptions = {}) {
-  const adapter = options.adapter ?? new Vuetify0LocaleAdapter()
-  const messages = options.messages ?? {}
-  const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
+  const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
   const [, provideLocaleTokenContext, tokensContext] = createTokens<R, O>('v0:locale:tokens', messages)
+  const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
 
   // Register locales if provided
   if (options.messages) {
@@ -146,7 +135,7 @@ export function createLocalePlugin<
     namespace: 'v0:locale',
     provide: (app: App) => {
       provideLocaleContext(undefined, localeContext, app)
-      provideLocaleTokenContext(tokensContext, app)
+      provideLocaleTokenContext(undefined, tokensContext, app)
     },
   })
 }
