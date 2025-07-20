@@ -1,6 +1,6 @@
 // Factories
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPlugin } from '#v0/factories/createPlugin'
+import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
 import { useContext } from '#v0/composables/useContext'

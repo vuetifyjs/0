@@ -1,5 +1,5 @@
 // Factories
-import { createPlugin } from '#v0/composables/createPlugin'
+import { createPlugin } from '#v0/factories/createPlugin'
 
 // Composables
 import { useContext } from '#v0/composables/useContext'

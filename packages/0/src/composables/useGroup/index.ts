@@ -1,6 +1,6 @@
 // Composables
 import { useRegistrar } from '#v0/composables/useRegistrar'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createTrinity } from '#v0/factories/createTrinity'
 
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'

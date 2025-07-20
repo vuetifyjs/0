@@ -1,9 +1,9 @@
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
 import { useContext } from '#v0/composables/useContext'
-import { createPlugin } from '#v0/composables/createPlugin'
+import { createPlugin } from '#v0/factories/createPlugin'
 import { createTokens } from '#v0/composables/useTokens'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createTrinity } from '#v0/factories/createTrinity'
 
 // Utilities
 import { computed, watch } from 'vue'

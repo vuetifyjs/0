@@ -1,6 +1,6 @@
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createTrinity } from '#v0/factories/createTrinity'
 
 // Types
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'

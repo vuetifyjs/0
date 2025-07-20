@@ -1,5 +1,5 @@
 // Factories
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
 import { useContext } from '#v0/composables/useContext'

@@ -1,6 +1,6 @@
 // Composables
 import { useContext } from '../useContext'
-import { createPlugin } from '../createPlugin'
+import { createPlugin } from '../../factories/createPlugin'
 
 // Utilities
 import { shallowReadonly, shallowRef } from 'vue'

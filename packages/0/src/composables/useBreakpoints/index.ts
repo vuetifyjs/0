@@ -1,7 +1,7 @@
 // Composables
 import { useContext } from '#v0/composables/useContext'
 import { useHydration } from '#v0/composables/useHydration'
-import { createPlugin } from '#v0/composables/createPlugin'
+import { createPlugin } from '#v0/factories/createPlugin'
 
 // Utilities
 import { onScopeDispose, shallowReactive, getCurrentInstance, onMounted, watch } from 'vue'
