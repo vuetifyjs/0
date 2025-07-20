@@ -1,5 +1,5 @@
 // Composables
-import { useContext } from '../useContext'
+import { createContext } from '../../factories/createContext'
 import { createPlugin } from '../../factories/createPlugin'
 
 // Utilities
@@ -17,7 +17,7 @@ export interface HydrationPlugin {
   install: (app: App) => void
 }
 
-export const [useHydrationContext, provideHydrationContext] = useContext<HydrationContext>('v0:hydration')
+export const [useHydrationContext, provideHydrationContext] = createContext<HydrationContext>('v0:hydration')
 
 /**
  * Creates a hydration context for managing client-side hydration state.

@@ -33,7 +33,7 @@ describe('useLocale', () => {
   })
 
   describe('basic functionality', () => {
-    it('should return useContext, provideContext, and context', () => {
+    it('should return createContext, provideContext, and context', () => {
       const adapter = new Vuetify0LocaleAdapter()
       const messages = { en: { hello: 'Hello' } }
       const result = createLocale('test', { adapter, messages })

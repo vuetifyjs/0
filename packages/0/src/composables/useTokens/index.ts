@@ -1,6 +1,8 @@
+// Factories
+import { createTrinity } from '#v0/factories/createTrinity'
+
 // Composables
 import { useRegistrar } from '#v0/composables/useRegistrar'
-import { createTrinity } from '#v0/factories/createTrinity'
 
 // Utilities
 import { computed } from 'vue'
@@ -41,7 +43,7 @@ interface FlattenedToken {
  * @param prefix An optional prefix to prepend to each token ID.
  * @returns An array of flattened tokens, each with an ID and value.
  */
-function flattenTokens (tokens: TokenCollection, prefix = ''): FlattenedToken[] {
+function flatten (tokens: TokenCollection, prefix = ''): FlattenedToken[] {
   const flattened: FlattenedToken[] = []
 
   for (const [key, value] of Object.entries(tokens)) {
@@ -52,7 +54,7 @@ function flattenTokens (tokens: TokenCollection, prefix = ''): FlattenedToken[] 
     } else if (value && typeof value === 'object' && '$value' in value) {
       flattened.push({ id, value: value as TokenAlias })
     } else if (value && typeof value === 'object') {
-      flattened.push(...flattenTokens(value as TokenCollection, id))
+      flattened.push(...flatten(value as TokenCollection, id))
     }
   }
 
@@ -127,22 +129,18 @@ export function createTokens<
   namespace: string,
   tokens: TokenCollection = {},
 ) {
-  const [
-    useTokenContext,
-    provideTokenContext,
-    registrar,
-  ] = useRegistrar<Z, E>(namespace)
+  const [useTokenContext, provideTokenContext, registrar] = useRegistrar<Z, E>(namespace)
 
-  const flatTokens = flattenTokens(tokens)
+  const flattened = flatten(tokens)
   const collection = new Map<string, TokenValue>()
 
-  for (const { id, value } of flatTokens) {
+  for (const { id, value } of flattened) {
     collection.set(id, value)
   }
 
   const resolved = computed(() => resolveAliases(Object.fromEntries(collection.entries())))
 
-  for (const { id, value } of flatTokens) {
+  for (const { id, value } of flattened) {
     const resolvedValue = resolved.value[id] || (typeof value === 'string' ? value : value.$value)
 
     registrar.register({ value: resolvedValue } as Partial<Z>, id)

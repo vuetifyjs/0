@@ -3,7 +3,7 @@ import { createPlugin } from '#v0/factories/createPlugin'
 import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
-import { useContext } from '#v0/composables/useContext'
+import { useContext } from '#v0/factories/createContext'
 import { useSingle } from '#v0/composables/useSingle'
 import { createTokens } from '#v0/composables/useTokens'
 
@@ -93,7 +93,7 @@ export function createLocale<
  * @returns The locale context containing translation and formatting functions.
  */
 export function useLocale (): LocaleContext {
-  return useContext<LocaleContext>('v0:locale')[0]()
+  return useContext<LocaleContext>('v0:locale')()
 }
 
 /**

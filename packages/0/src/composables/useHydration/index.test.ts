@@ -7,8 +7,8 @@ const { mockUseHydrationContext, mockProvideHydrationContext } = vi.hoisted(() =
   }
 })
 
-vi.mock('../useContext', () => ({
-  useContext: vi.fn(() => [
+vi.mock('../../factories/createContext', () => ({
+  createContext: vi.fn(() => [
     mockUseHydrationContext,
     mockProvideHydrationContext,
   ]),
@@ -89,6 +89,7 @@ describe('useHydration', () => {
       const mockApp = {
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
+        provide: vi.fn(),
       }
 
       plugin.install(mockApp as any)
@@ -102,6 +103,7 @@ describe('useHydration', () => {
       const mockApp = {
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
+        provide: vi.fn(),
       }
 
       plugin.install(mockApp as any)
@@ -114,6 +116,7 @@ describe('useHydration', () => {
       const mockApp = {
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
+        provide: vi.fn(),
       }
 
       plugin.install(mockApp as any)
@@ -130,6 +133,7 @@ describe('useHydration', () => {
       const mockApp = {
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
+        provide: vi.fn(),
       }
 
       plugin.install(mockApp as any)

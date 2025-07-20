@@ -1,8 +1,8 @@
+// Core composables
+export * from '../factories/createContext'
+
 // Utilities
 export * from '../transformers/toReactive'
-
-// Core composables
-export * from './useContext'
 export * from './useGroup'
 export * from './useHydration'
 export * from './useKeydown'

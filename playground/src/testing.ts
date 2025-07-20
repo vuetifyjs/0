@@ -2,7 +2,7 @@ import { inject, provide } from 'vue'
 
 import type { App, InjectionKey, Reactive } from 'vue'
 
-export function useContext<T> (key: InjectionKey<T> | string) {
+export function createContext<T> (key: InjectionKey<T> | string) {
   function provideContext (value: T, app?: App) {
     app ? app.provide(key, value) : provide(key, value)
   }
@@ -34,7 +34,7 @@ interface RegistrarContext {
 }
 
 export function useRegistrar<T extends RegistrarContext> (namespace: string) {
-  const [injectContext, provideContext] = useContext<T>(namespace)
+  const [injectContext, provideContext] = createContext<T>(namespace)
 
   function register (id: string, item: unknown) {
     //

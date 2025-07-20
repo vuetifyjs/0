@@ -1,5 +1,5 @@
 // Composables
-import { useContext } from '../useContext'
+import { createContext } from '../../factories/createContext'
 import { createPlugin } from '../../factories/createPlugin'
 
 // Utilities
@@ -31,7 +31,7 @@ export interface StorageOptions {
   }
 }
 
-export const [useStorageContext, provideStorageContext] = useContext<StorageContext>('v0:storage')
+export const [useStorageContext, provideStorageContext] = createContext<StorageContext>('v0:storage')
 
 /**
  * Creates a reactive storage system with automatic persistence.

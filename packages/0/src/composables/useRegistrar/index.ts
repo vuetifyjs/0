@@ -2,7 +2,7 @@
 import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
-import { useContext } from '#v0/composables/useContext'
+import { createContext } from '#v0/factories/createContext'
 
 // Utilities
 import { reactive } from 'vue'
@@ -38,7 +38,7 @@ export function useRegistrar<
   Z extends RegistrarTicket,
   E extends RegistrarContext,
 > (namespace: string) {
-  const [useRegistrarContext, provideRegistrarContext] = useContext<E>(namespace)
+  const [useRegistrarContext, provideRegistrarContext] = createContext<E>(namespace)
 
   const tickets = reactive(new Map<ID, Z>())
 

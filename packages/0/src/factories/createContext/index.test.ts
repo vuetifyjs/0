@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { provide, inject } from 'vue'
-import { useContext } from './index'
+import { createContext } from './index'
 
 vi.mock('vue', () => ({
   provide: vi.fn(),
@@ -10,20 +10,20 @@ vi.mock('vue', () => ({
 const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
-describe('useContext', () => {
+describe('createContext', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('should return inject and provide functions', () => {
-    const [injectContext, provideContext] = useContext('test')
+    const [injectContext, provideContext] = createContext('test')
 
     expect(typeof injectContext).toBe('function')
     expect(typeof provideContext).toBe('function')
   })
 
   it('should provide context value with string key', () => {
-    const [, provideContext] = useContext('test-key')
+    const [, provideContext] = createContext('test-key')
     const testValue = { data: 'test' }
 
     provideContext(testValue)
@@ -33,7 +33,7 @@ describe('useContext', () => {
 
   it('should provide context value with InjectionKey', () => {
     const injectionKey = Symbol('test-key') as any
-    const [, provideContext] = useContext(injectionKey)
+    const [, provideContext] = createContext(injectionKey)
     const testValue = { data: 'test' }
 
     provideContext(testValue)
@@ -45,7 +45,7 @@ describe('useContext', () => {
     const testValue = { data: 'test' }
     mockInject.mockReturnValue(testValue)
 
-    const [injectContext] = useContext('test-key')
+    const [injectContext] = createContext('test-key')
     const result = injectContext()
 
     expect(mockInject).toHaveBeenCalledWith('test-key')
@@ -55,7 +55,7 @@ describe('useContext', () => {
   it('should throw error when context is not found', () => {
     mockInject.mockReturnValue(undefined)
 
-    const [injectContext] = useContext('missing-key')
+    const [injectContext] = createContext('missing-key')
 
     expect(() => injectContext()).toThrow(
       'Context "missing-key" not found. Ensure it\'s provided by an ancestor.',
@@ -66,7 +66,7 @@ describe('useContext', () => {
     const symbolKey = Symbol('symbol-key')
     mockInject.mockReturnValue(undefined)
 
-    const [injectContext] = useContext(symbolKey as any)
+    const [injectContext] = createContext(symbolKey as any)
 
     expect(() => injectContext()).toThrow(
       'Context "Symbol(symbol-key)" not found. Ensure it\'s provided by an ancestor.',
@@ -79,7 +79,7 @@ describe('useContext', () => {
       value: number
     }
 
-    const [injectContext, provideContext] = useContext<TestContext>('typed-test')
+    const [injectContext, provideContext] = createContext<TestContext>('typed-test')
     const testValue: TestContext = { name: 'test', value: 42 }
 
     mockInject.mockReturnValue(testValue)
@@ -94,7 +94,7 @@ describe('useContext', () => {
   it('should handle null context value (only undefined throws)', () => {
     mockInject.mockReturnValue(null)
 
-    const [injectContext] = useContext('null-test')
+    const [injectContext] = createContext('null-test')
     const result = injectContext()
 
     expect(result).toBe(null)
@@ -105,7 +105,7 @@ describe('useContext', () => {
 
     for (const value of falsyValues) {
       mockInject.mockReturnValue(value)
-      const [injectContext] = useContext(`falsy-${value}`)
+      const [injectContext] = createContext(`falsy-${value}`)
 
       expect(injectContext()).toBe(value)
     }

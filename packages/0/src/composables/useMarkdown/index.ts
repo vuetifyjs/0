@@ -2,7 +2,7 @@
 import { createPlugin } from '#v0/factories/createPlugin'
 
 // Composables
-import { useContext } from '#v0/composables/useContext'
+import { createContext } from '#v0/factories/createContext'
 
 // Adapters
 import { MarkedAdapter } from './adapters'
@@ -26,7 +26,7 @@ export interface MarkdownPlugin {
   install: (app: App) => void
 }
 
-export const [useMarkdownContext, provideMarkdownContext] = useContext<MarkdownContext>('v0:markdown')
+export const [useMarkdownContext, provideMarkdownContext] = createContext<MarkdownContext>('v0:markdown')
 
 /**
  * Creates a markdown renderer using the specified adapter.

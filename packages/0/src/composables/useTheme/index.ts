@@ -1,9 +1,11 @@
+// Factories
+import { createPlugin } from '#v0/factories/createPlugin'
+import { createTrinity } from '#v0/factories/createTrinity'
+import { useContext } from '#v0/factories/createContext'
+
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
-import { useContext } from '#v0/composables/useContext'
-import { createPlugin } from '#v0/factories/createPlugin'
 import { createTokens } from '#v0/composables/useTokens'
-import { createTrinity } from '#v0/factories/createTrinity'
 
 // Utilities
 import { computed, watch } from 'vue'
@@ -121,7 +123,7 @@ export function createTheme<
  * @returns The theme context containing current theme state and utilities.
  */
 export function useTheme (): ThemeContext {
-  return useContext<ThemeContext>('v0:theme')[0]()
+  return useContext<ThemeContext>('v0:theme')()
 }
 
 /**

@@ -4,7 +4,7 @@ import { useGroup } from './index'
 
 describe('useGroup', () => {
   describe('basic functionality', () => {
-    it('should return useContext, provideContext, and state', () => {
+    it('should return createContext, provideContext, and state', () => {
       const [useCtx, provideCtx, groupState] = useGroup('test')
 
       expect(typeof useCtx).toBe('function')

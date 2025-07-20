@@ -92,7 +92,7 @@ declare global {
   const useAvatar: typeof import('../../packages/0/src/composables/useAvatar/index')['useAvatar']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
   const useColor: typeof import('../../packages/paper/src/composables/useColor/index')['useColor']
-  const useContext: typeof import('../../packages/0/src/composables/useContext/index')['useContext']
+  const createContext: typeof import('../../packages/0/src/factories/createContext/index')['createContext']
   const useContrast: typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
@@ -277,7 +277,7 @@ declare module 'vue' {
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
     readonly useColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['useColor']>
-    readonly useContext: UnwrapRef<typeof import('../../packages/0/src/composables/useContext/index')['useContext']>
+    readonly createContext: UnwrapRef<typeof import('../../packages/0/src/factories/createContext/index')['createContext']>
     readonly useContrast: UnwrapRef<typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>

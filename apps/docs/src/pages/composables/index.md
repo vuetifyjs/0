@@ -7,7 +7,7 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | Name | Description |
 | - | - |
 | [useBreakpoints](/composables/use-breakpoints) | Responsive breakpoint detection for different screen sizes |
-| [useContext](/composables/use-context) | Create reusable context to share state across components |
+| [createContext](/composables/use-context) | Create reusable context to share state across components |
 | [useFilter](/composables/use-filter) | Filter arrays based on search queries |
 | [useGroup](/composables/use-group) | Manage collections with selection capabilities |
 | [useHydration](/composables/use-hydration) | Manage SSR hydration process |

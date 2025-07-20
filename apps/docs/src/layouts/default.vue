@@ -8,7 +8,7 @@
         {
           name: 'Foundation',
           children: [
-            { name: 'useContext', to: '/composables/use-context' },
+            { name: 'createContext', to: '/composables/use-context' },
             { name: 'useRegistrar', to: '/composables/use-registrar' },
             { name: 'useTokens', to: '/composables/use-tokens' },
           ],

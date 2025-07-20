@@ -23,7 +23,7 @@ Core foundational components and composables:
 
 **Composables:**
 - `useBreakpoints` - Responsive breakpoint detection
-- `useContext` - Type-safe context management
+- `createContext` - Type-safe context management
 - `useFilter` - Collection filtering utilities
 - `useGroup` - Selection group management
 - `useHydration` - SSR hydration helpers

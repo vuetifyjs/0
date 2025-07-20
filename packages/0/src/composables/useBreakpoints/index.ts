@@ -1,7 +1,9 @@
-// Composables
-import { useContext } from '#v0/composables/useContext'
-import { useHydration } from '#v0/composables/useHydration'
+// Factories
+import { createContext } from '#v0/factories/createContext'
 import { createPlugin } from '#v0/factories/createPlugin'
+
+// Composables
+import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
 import { onScopeDispose, shallowReactive, getCurrentInstance, onMounted, watch } from 'vue'
@@ -49,7 +51,7 @@ export interface BreakpointsPlugin {
   install: (app: App) => void
 }
 
-export const [useBreakpointsContext, provideBreakpointsContext] = useContext<BreakpointsContext>('v0:breakpoints')
+export const [useBreakpointsContext, provideBreakpointsContext] = createContext<BreakpointsContext>('v0:breakpoints')
 
 /**
  * Simple hook to access the breakpoints context.

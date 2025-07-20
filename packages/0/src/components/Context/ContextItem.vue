@@ -1,6 +1,6 @@
 <script lang="ts">
   // Composables
-  import { useContext } from '#v0/composables/useContext'
+  import { createContext } from '#v0/factories/createContext'
 
   // Utilities
   import { toRef } from 'vue'
@@ -33,7 +33,7 @@
     contextValue = value
   } else if (contextKey) {
     // Inject from context
-    const [injectContext] = useContext<T>(contextKey)
+    const [injectContext] = createContext<T>(contextKey)
     contextValue = injectContext()
   } else {
     throw new Error('Context component requires either a "value" prop or a "contextKey" prop')

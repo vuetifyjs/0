@@ -11,19 +11,19 @@ describe('createTrinity', () => {
     const singleton = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
     expect(singleton).toHaveLength(3)
-    expect(typeof singleton[0]).toBe('function') // useContext
+    expect(typeof singleton[0]).toBe('function') // createContext
     expect(typeof singleton[1]).toBe('function') // provideContext wrapper
     expect(singleton[2]).toBe(mockContext) // context
   })
 
-  it('should call the original useContext function', () => {
+  it('should call the original createContext function', () => {
     const mockContext = { value: 'test' }
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn((_model, context) => context)
 
-    const [useContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
+    const [createContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
-    const result = useContext()
+    const result = createContext()
 
     expect(mockUseContext).toHaveBeenCalledOnce()
     expect(result).toBe(mockContext)

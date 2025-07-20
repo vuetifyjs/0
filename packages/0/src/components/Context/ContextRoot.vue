@@ -1,6 +1,6 @@
 <script lang="ts">
   // Composables
-  import { useContext } from '#v0/composables/useContext'
+  import { createContext } from '#v0/factories/createContext'
 
   // Types
   import type { InjectionKey } from 'vue'
@@ -22,7 +22,7 @@
 
   const { contextKey, value } = defineProps<ContextRootProps<T>>()
 
-  const [, provideContext] = useContext<T>(contextKey)
+  const [, provideContext] = createContext<T>(contextKey)
 
   provideContext(value)
 </script>
