@@ -58,7 +58,6 @@ export function useStep<
     if (registrar.tickets.size === 0) return
 
     const firstId = getIdByIndex(0)
-
     if (firstId === undefined) return
 
     registrar.selectedIds.clear()
@@ -70,7 +69,6 @@ export function useStep<
 
     const lastIndex = registrar.tickets.size - 1
     const lastId = getIdByIndex(lastIndex)
-
     if (lastId === undefined) return
 
     registrar.selectedIds.clear()
@@ -82,7 +80,7 @@ export function useStep<
   }
 
   function prev () {
-    step(registrar.tickets.size - 1)
+    step(-1)
   }
 
   function wrapped (length: number, index: number) {

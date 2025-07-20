@@ -1,5 +1,8 @@
 // Composables
 import { useContext } from '../useContext'
+import { createPlugin } from '../createPlugin'
+
+// Utilities
 import { ref, watch } from 'vue'
 
 // Adapters
@@ -120,20 +123,18 @@ export function useStorage (): StorageContext {
 
 /**
  * Creates a Vue plugin for providing reactive storage capabilities.
- * This plugin makes storage methods available throughout the application
- * via the context system.
+ * Uses the universal plugin factory to eliminate boilerplate code.
  *
  * @param options Optional configuration for the storage system.
  * @returns A Vue plugin object with install method.
  */
 export function createStoragePlugin (options: StorageOptions = {}) {
-  return {
-    install (app: App) {
-      const context = createStorage(options)
+  const context = createStorage(options)
 
-      app.runWithContext(() => {
-        provideStorageContext(context, app)
-      })
+  return createPlugin({
+    namespace: 'v0:storage',
+    provide: (app: App) => {
+      provideStorageContext(context, app)
     },
-  }
+  })
 }

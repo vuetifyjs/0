@@ -2,6 +2,7 @@
 import { useSingle } from '#v0/composables/useSingle'
 import { useContext } from '#v0/composables/useContext'
 import { createTokens } from '#v0/composables/useTokens'
+import { createPlugin } from '#v0/composables/createPlugin'
 
 // Utilities
 import { computed, watch } from 'vue'
@@ -42,6 +43,14 @@ export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection>
   themes?: Record<ID, Z>
 }
 
+/**
+ * Creates a theme registrar for managing theme selections and color resolution.
+ *
+ * @param namespace The namespace for the theme context.
+ * @template Z The type of theme tickets managed by the registrar.
+ * @template E The type of theme context.
+ * @returns A tuple containing inject, provide functions and the theme context.
+ */
 export function createTheme<
   Z extends ThemeTicket,
   E extends ThemeContext,
@@ -120,58 +129,70 @@ export function useTheme (): ThemeContext {
   return useContext<ThemeContext>('v0:theme')[0]()
 }
 
+/**
+ * Creates a Vue plugin for managing application themes and color systems.
+ * Uses the universal plugin factory to eliminate boilerplate code.
+ *
+ * @param options Configuration for themes, palette, and adapter.
+ * @template Z The type of theme tickets.
+ * @template E The type of theme context.
+ * @template R The type of token tickets.
+ * @template O The type of token context.
+ * @returns A Vue plugin object with install method.
+ */
 export function createThemePlugin<
   Z extends ThemeTicket = ThemeTicket,
   E extends ThemeContext = ThemeContext,
   R extends TokenTicket = TokenTicket,
   O extends TokenContext = TokenContext,
 > (options: ThemePluginOptions = {}) {
-  return {
-    install (app: App) {
-      const { adapter = new Vuetify0ThemeAdapter() } = options
-      const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme')
-      const [, provideThemeTokenContext, tokensContext] = createTokens<R, O>('v0:theme:tokens', {
-        palette: options.palette ?? {},
-        ...options.themes,
-      })
+  const { adapter = new Vuetify0ThemeAdapter() } = options
+  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme')
+  const [, provideThemeTokenContext, tokensContext] = createTokens<R, O>('v0:theme:tokens', {
+    palette: options.palette ?? {},
+    ...options.themes,
+  })
 
-      if (options.themes) {
-        for (const id in options.themes) {
-          themeContext.register({
-            id,
-            value: options.themes[id],
-          } as Partial<Z>, id)
+  // Register themes if provided
+  if (options.themes) {
+    for (const id in options.themes) {
+      themeContext.register({
+        id,
+        value: options.themes[id],
+      } as Partial<Z>, id)
 
-          if (id === options.default && !themeContext.selectedId.value) {
-            themeContext.select(id as ID)
-          }
-        }
+      if (id === options.default && !themeContext.selectedId.value) {
+        themeContext.select(id as ID)
       }
+    }
+  }
 
-      const resolvedColors = computed(() => {
-        const resolved = {} as Record<string, Colors | undefined>
-        for (const [id, theme] of themeContext.tickets.entries()) {
-          if (theme.lazy && theme.id !== themeContext.selectedId.value) continue
+  const resolvedColors = computed(() => {
+    const resolved = {} as Record<string, Colors | undefined>
+    for (const [id, theme] of themeContext.tickets.entries()) {
+      if (theme.lazy && theme.id !== themeContext.selectedId.value) continue
 
-          resolved[id as string] = themeContext.resolveTheme(id, tokensContext.resolved)
-        }
-        return resolved
-      })
+      resolved[id as string] = themeContext.resolveTheme(id, tokensContext.resolved)
+    }
+    return resolved
+  })
 
-      function updateStyles (colors: Record<string, Colors | undefined>) {
-        adapter.update(colors)
-      }
+  function updateStyles (colors: Record<string, Colors | undefined>) {
+    adapter.update(colors)
+  }
 
+  return createPlugin({
+    namespace: 'v0:theme',
+    provide: (app: App) => {
+      provideThemeContext(undefined, themeContext, app)
+      provideThemeTokenContext(tokensContext, app)
+    },
+    setup: () => {
       if (IN_BROWSER) {
         watch(resolvedColors, updateStyles, { immediate: true, deep: true })
       } else {
         updateStyles(resolvedColors.value)
       }
-
-      app.runWithContext(() => {
-        provideThemeContext(undefined, themeContext, app)
-        provideThemeTokenContext(tokensContext, app)
-      })
     },
-  }
+  })
 }

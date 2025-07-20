@@ -1,5 +1,6 @@
 // Composables
 import { useContext } from '../useContext'
+import { createPlugin } from '../createPlugin'
 
 // Utilities
 import { shallowReadonly, shallowRef } from 'vue'
@@ -49,20 +50,21 @@ export function useHydration (): HydrationContext {
 
 /**
  * Creates a Vue plugin for managing application hydration state.
+ * Uses the universal plugin factory to eliminate boilerplate code.
  * This plugin automatically detects when the root component is mounted
  * and triggers the hydration process, useful for SSR applications.
  *
  * @returns A Vue plugin object with install method.
  */
 export function createHydrationPlugin (): HydrationPlugin {
-  return {
-    install (app: App) {
-      const context = createHydration()
+  const context = createHydration()
 
-      app.runWithContext(() => {
-        provideHydrationContext(context, app)
-      })
-
+  return createPlugin({
+    namespace: 'v0:hydration',
+    provide: (app: App) => {
+      provideHydrationContext(context, app)
+    },
+    setup: (app: App) => {
       app.mixin({
         mounted () {
           if (this.$parent !== null) return
@@ -71,5 +73,5 @@ export function createHydrationPlugin (): HydrationPlugin {
         },
       })
     },
-  }
+  })
 }

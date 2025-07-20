@@ -21,15 +21,17 @@ export type SingleContext = GroupContext & {
 }
 
 /**
- *  Creates a single registrar for managing single selections within a specific namespace.
+ * Creates a single registrar for managing single selections within a specific namespace.
  * This function provides a way to register, unregister, and manage single selections,
  * allowing for dynamic single selection management in applications.
  *
+ * Built on top of useGroup with multiple=false to eliminate code duplication.
+ *
  * @param namespace The namespace for the single context.
- * @param options  Optional configuration for the single behavior.
+ * @param options Optional configuration for the single behavior.
  * @template Z The type of the single tickets managed by the registrar.
  * @template E The type of the single context.
- * @returns  A tuple containing the inject function, provide function, and the single context.
+ * @returns A tuple containing the inject function, provide function, and the single context.
  */
 export function useSingle<
   Z extends SingleTicket,
@@ -38,11 +40,14 @@ export function useSingle<
   namespace: string,
   options?: SingleOptions,
 ) {
+  // Force multiple to false for single selection behavior
+  const groupOptions = { ...options, multiple: false }
+
   const [
     useGroupContext,
     provideGroupContext,
     group,
-  ] = useGroup<Z, E>(namespace, options)
+  ] = useGroup<Z, E>(namespace, groupOptions)
 
   const selectedId = computed(() => group.selectedIds.values().next().value)
   const selectedItem = computed(() => selectedId.value ? group.tickets.get(selectedId.value) : undefined)

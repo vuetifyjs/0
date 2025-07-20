@@ -2,6 +2,7 @@
 import { useContext } from '#v0/composables/useContext'
 import { useSingle } from '#v0/composables/useSingle'
 import { createTokens } from '#v0/composables/useTokens'
+import { createPlugin } from '#v0/composables/createPlugin'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
@@ -31,7 +32,7 @@ export interface LocalePluginOptions<Z extends TokenCollection = TokenCollection
  * Creates a locale registrar for managing locale translations and number formatting.
  *
  * @param namespace The namespace for the locale context.
- * @param options
+ * @param options Configuration including adapter and messages.
  * @template Z The type of the locale tickets managed by the registrar.
  * @template E The type of the locale context.
  * @returns An array containing the inject function, provide function, and the locale context.
@@ -114,8 +115,9 @@ export function useLocale (): LocaleContext {
 
 /**
  * Creates a locale plugin for Vue applications to manage locale translations and number formatting.
+ * Uses the universal plugin factory to eliminate boilerplate code.
  *
- * @param options
+ * @param options Configuration for adapter, default locale, and messages.
  * @template Z The type of the locale tickets managed by the registrar.
  * @template E The type of the locale context.
  * @template R The type of the token tickets managed by the registrar.
@@ -128,30 +130,30 @@ export function createLocalePlugin<
   R extends TokenTicket = TokenTicket,
   O extends TokenContext = TokenContext,
 > (options: LocalePluginOptions = {}) {
-  return {
-    install (app: App) {
-      const adapter = options.adapter ?? new Vuetify0LocaleAdapter()
-      const messages = options.messages ?? {}
-      const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
-      const [, provideLocaleTokenContext, tokensContext] = createTokens<R, O>('v0:locale:tokens', messages)
+  const adapter = options.adapter ?? new Vuetify0LocaleAdapter()
+  const messages = options.messages ?? {}
+  const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
+  const [, provideLocaleTokenContext, tokensContext] = createTokens<R, O>('v0:locale:tokens', messages)
 
-      if (options.messages) {
-        for (const id in options.messages) {
-          localeContext.register({
-            id,
-            value: options.messages[id],
-          } as Partial<Z>, id)
+  // Register locales if provided
+  if (options.messages) {
+    for (const id in options.messages) {
+      localeContext.register({
+        id,
+        value: options.messages[id],
+      } as Partial<Z>, id)
 
-          if (id === options.default && !localeContext.selectedId.value) {
-            localeContext.select(id as ID)
-          }
-        }
+      if (id === options.default && !localeContext.selectedId.value) {
+        localeContext.select(id as ID)
       }
-
-      app.runWithContext(() => {
-        provideLocaleContext(undefined, localeContext, app)
-        provideLocaleTokenContext(tokensContext, app)
-      })
-    },
+    }
   }
+
+  return createPlugin({
+    namespace: 'v0:locale',
+    provide: (app: App) => {
+      provideLocaleContext(undefined, localeContext, app)
+      provideLocaleTokenContext(tokensContext, app)
+    },
+  })
 }

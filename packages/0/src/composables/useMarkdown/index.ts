@@ -1,5 +1,6 @@
 // Composables
 import { useContext } from '../useContext'
+import { createPlugin } from '../createPlugin'
 
 // Adapters
 import { MarkedAdapter } from './adapters'
@@ -50,20 +51,18 @@ export function useMarkdown () {
 
 /**
  * Creates a Vue plugin for providing markdown rendering capabilities.
- * This plugin makes the markdown render function available throughout
- * the application via the context system.
+ * Uses the universal plugin factory to eliminate boilerplate code.
  *
  * @param options Optional configuration for the markdown adapter.
  * @returns A Vue plugin object with install method.
  */
 export function createMarkdownPlugin (options: MarkdownOptions = {}): MarkdownPlugin {
-  return {
-    install (app: App) {
-      const render = createMarkdown(options)
+  const render = createMarkdown(options)
 
-      app.runWithContext(() => {
-        provideMarkdownContext({ render }, app)
-      })
+  return createPlugin({
+    namespace: 'v0:markdown',
+    provide: (app: App) => {
+      provideMarkdownContext({ render }, app)
     },
-  }
+  })
 }
