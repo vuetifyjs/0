@@ -1,20 +1,26 @@
 # Composables
 
-Composables are reusable pieces of logic that can be shared across components in your application. They allow you to encapsulate functionality and state management, making your code cleaner and more maintainable.
+Reusable pieces of logic that can be shared across components, providing encapsulated functionality and state management.
 
 ## Available Composables
 
 | Name | Description |
 | - | - |
-| [useBreakpoints](/composables/use-breakpoints) | Responsive breakpoint detection for creating adaptive layouts across different screen sizes. |
-| [useContext](/composables/use-context) | Create a reusable context to share state and methods across components. |
-| [useFilter](/composables/use-filter) | Filter items in a collection based on specified criteria. |
-| [useGroup](/composables/use-group) | Manage collections of items with selection capabilities, supporting single/multiple selection modes with mandatory selection and model binding. |
-| [useHydration](/composables/use-hydration) | Manage the hydration process of your application, optimizing initial renders. |
-| [useKeydown](/composables/use-keyboard) | Handle keyboard events and shortcuts with automatic cleanup and customizable behavior. |
-| [useLocale](/composables/use-locale) | Internationalization system for translating your application with support for multiple languages, variable interpolation, and custom adapters. |
-| [useMarkdown](/composables/use-markdown) | Render Markdown content in Vue applications with customizable adapters and plugin support. |
-| [useRegistrar](/composables/use-registrar) | Foundation for building registration-based systems with automatic indexing, lifecycle management, and type-safe registration callbacks. |
-| [useSingle](/composables/use-single) | Simplified single-selection wrapper around useGroup with convenient singular selection properties and streamlined API. |
-| [useStep](/composables/use-step) | Manage the state of a step in a multi-step process, such as a form or wizard. |
-| [useTheme](/composables/use-theme) | Manage application themes with dynamic switching and automatic CSS custom property generation. |
+| [useBreakpoints](/composables/use-breakpoints) | Responsive breakpoint detection for different screen sizes |
+| [useContext](/composables/use-context) | Create reusable context to share state across components |
+| [useFilter](/composables/use-filter) | Filter arrays based on search queries |
+| [useGroup](/composables/use-group) | Manage collections with selection capabilities |
+| [useHydration](/composables/use-hydration) | Manage SSR hydration process |
+| [useKeydown](/composables/use-keydown) | Handle keyboard events with automatic cleanup |
+| [useLocale](/composables/use-locale) | Internationalization system for multiple languages |
+| [useMarkdown](/composables/use-markdown) | Render Markdown content in Vue applications |
+| [useRegistrar](/composables/use-registrar) | Foundation for registration-based systems |
+| [useSingle](/composables/use-single) | Simplified single-selection wrapper around useGroup |
+| [useStep](/composables/use-step) | Manage multi-step processes like forms or wizards |
+| [useStorage](/composables/use-storage) | Reactive interface to browser storage APIs |
+| [useTheme](/composables/use-theme) | Application theme management with CSS custom properties |
+| [useTokens](/composables/use-tokens) | Design token management system |
+| [useTriad](/composables/use-triad) | Standardized context pattern utility |
+| [useSingleton](/composables/use-singleton) | Extended triad pattern with model binding |
+| [toReactive](/composables/to-reactive) | Convert refs to reactive objects
+| [useStorage](/composables/use-storage) | Persistent storage utilities for browser storage APIs with reactive state management. |

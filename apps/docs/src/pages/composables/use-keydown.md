@@ -1,33 +1,6 @@
 # useKeydown
 
-The `useKeydown` composable provides a simple and efficient way to handle keyboard events in your Vue applications. It allows you to register keyboard event handlers with automatic cleanup and supports multiple key combinations with customizable behavior.
-
-## Usage
-
-```vue
-<script lang="ts" setup>
-import { useKeydown } from 'v0'
-import { ref } from 'vue'
-
-const message = ref('')
-
-useKeydown({
-  key: 'Enter',
-  handler: () => {
-    message.value = 'Enter key pressed!'
-  }
-})
-</script>
-
-<template>
-  <div>
-    <p>{{ message }}</p>
-    <p>Press Enter to see the message</p>
-  </div>
-</template>
-```
-
-## API Reference
+A composable for handling keyboard events with automatic cleanup, supporting multiple key combinations and customizable behavior.
 
 ### `useKeydown(handlers)`
 

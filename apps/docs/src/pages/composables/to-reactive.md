@@ -1,33 +1,6 @@
 # toReactive
 
-The `toReactive` composable is a utility that converts a `ref` of an object, `Map`, or `Set` into a reactive object. This is particularly useful when you want to work with a reactive version of a `ref` that contains a complex object, without losing reactivity.
-
-## Usage
-
-The `toReactive` function takes a `ref` or a plain object and returns a reactive proxy.
-
-### With a plain object
-
-```typescript
-import { ref } from 'vue'
-import { toReactive } from 'v0'
-
-const obj = ref({ a: 1, b: ref(2) })
-const reactiveObj = toReactive(obj)
-
-console.log(reactiveObj.a) // 1
-console.log(reactiveObj.b) // 2
-
-obj.value.a = 10
-console.log(reactiveObj.a) // 10
-
-reactiveObj.b = 20
-console.log(obj.value.b) // 20
-```
-
-### With a Map
-
-```typescript
+A utility that converts a `ref` of an object, `Map`, or `Set` into a reactive object, maintaining reactivity for complex objects.
 import { ref } from 'vue'
 import { toReactive } from 'v0'
 

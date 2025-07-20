@@ -1,33 +1,6 @@
 # useMarkdown
 
-The `useMarkdown` composable provides a simple and flexible way to render Markdown content in your Vue applications. It uses a plugin-based architecture that allows you to customize the rendering behavior and supports different Markdown adapters.
-
-## Usage
-
-First, you need to install the `createMarkdownPlugin` in your application's entry point:
-
-```typescript
-// src/main.ts
-import { createApp } from 'vue'
-import { createMarkdownPlugin } from 'v0'
-import App from './App.vue'
-
-const app = createApp(App)
-
-app.use(createMarkdownPlugin())
-
-app.mount('#app')
-```
-
-Then, you can use the `useMarkdown` composable in your components to render Markdown content:
-
-```vue
-<script lang="ts" setup>
-import { useMarkdown } from 'v0'
-
-const render = useMarkdown()
-
-const markdownContent = `
+A composable for rendering Markdown content in Vue applications with a plugin-based architecture and customizable rendering behavior.
 # Hello, Markdown!
 
 This is a paragraph with some **bold** and *italic* text.

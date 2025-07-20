@@ -3,6 +3,7 @@ import { useSingle } from '#v0/composables/useSingle'
 import { useContext } from '#v0/composables/useContext'
 import { createTokens } from '#v0/composables/useTokens'
 import { createPlugin } from '#v0/composables/createPlugin'
+import { toSingleton } from '../toSingleton'
 
 // Utilities
 import { computed, watch } from 'vue'
@@ -105,19 +106,15 @@ export function createTheme<
     toggle,
   } as E
 
-  return [
+  return toSingleton(
     useThemeContext,
-    function (
-      model?: Ref<ID>,
-      _context: E = context,
-      app?: App,
-    ) {
+    (model?: Ref<ID>, _context: E = context, app?: App) => {
       provideThemeContext(model, _context, app)
 
       return _context
     },
     context,
-  ] as const
+  )
 }
 
 /**

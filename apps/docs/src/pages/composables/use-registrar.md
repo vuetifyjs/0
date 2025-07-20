@@ -1,33 +1,6 @@
 # useRegistrar
 
-The `useRegistrar` composable provides a foundation for building registration-based systems in Vue applications. It's built on top of `useContext` and manages collections of registered items with automatic indexing, lifecycle management, and type-safe registration callbacks.
-
-## Purpose
-
-`useRegistrar` is designed to be a foundational composable that handles the core registration logic needed by more complex composables. It provides:
-
-- Generic registration of items with automatic ID generation
-- Unregistration with automatic reindexing
-- Reactive state management
-- Context injection/provision
-- Type-safe extensibility through generics
-
-## Hierarchy
-
-```
-useContext (base context injection/provision)
-    ↓
-useRegistrar (registration/unregistration)
-    ↓
-useGroup (selection management)
-    ↓
-useSingle (single selection)
-```
-
-## Usage
-
-```vue
-<script lang="ts" setup>
+A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing and lifecycle management.
 import { useRegistrar } from 'v0'
 
 const [useItemRegistry, provideItemRegistry, registry] = useRegistrar('items')
@@ -125,18 +98,18 @@ The `useRegistrar` composable is designed to be composed by other composables:
 ```typescript
 // useGroup extends useRegistrar
 export function useGroup<
-  T extends GroupTicket,
+  Z extends GroupTicket,
   U extends GroupContext,
 > (namespace: string, options?: GroupOptions) {
   const [
     useRegistrarContext,
     provideRegistrarContext,
     registrar,
-  ] = useRegistrar<T, U>(namespace)
+  ] = useRegistrar<Z, U>(namespace)
 
   // Use registrar's functions with enhanced functionality
-  function register(registrant: Partial<T>, id: ID = genId()): Reactive<T> {
-    const groupItem: Partial<T> = {
+  function register(registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+    const groupItem: Partial<Z> = {
       disabled: false,
       value: registrant?.value ?? registrar.registeredItems.size,
       valueIsIndex: registrant?.value == null,

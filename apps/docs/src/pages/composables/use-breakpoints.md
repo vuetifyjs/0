@@ -1,33 +1,6 @@
 # useBreakpoints
 
-The `useBreakpoints` composable provides responsive breakpoint detection for your application. It allows you to create responsive layouts that adapt to different screen sizes and provides convenient boolean flags for common breakpoint scenarios.
-
-## Usage
-
-```ts
-// src/app.ts
-import { createApp } from 'vue'
-import { createBreakpoints } from 'v0'
-
-const app = createApp(App)
-
-app.use(createBreakpoints())
-```
-
-```vue
-<script lang="ts" setup>
-import { useBreakpoints } from 'v0'
-
-const { name, width, height, mobile, xs, mdAndUp } = useBreakpoints()
-</script>
-
-<template>
-  <div>
-    <div v-if="xs">Mobile view</div>
-    <div v-if="mdAndUp">Desktop view</div>
-    <div v-if="mobile">Mobile device</div>
-
-    <p>Current breakpoint: {{ name }}</p>
+A composable for responsive breakpoint detection, providing boolean flags for different screen sizes and viewport information for responsive layouts.
     <p>Window dimensions: {{ width }}x{{ height }}</p>
   </div>
 </template>

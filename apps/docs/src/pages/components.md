@@ -1,32 +1,21 @@
 # Components
 
-Vuetify 0 provides a collection of foundational components that serve as building blocks for more complex UI elements. These components are designed to be headless, accessible, and highly customizable through slots and CSS variables.
+A collection of foundational components designed to be headless, accessible, and highly customizable.
 
 ## Available Components
 
-### Core Components
-
 | Component | Description |
 | - | - |
-| [Atom](#atom) | Base element wrapper with renderless capabilities and dynamic element types |
-| [Avatar](#avatar) | Image/fallback avatar system with priority loading and automatic fallback |
-| [Context](#context) | Context injection/provision system for sharing state across components |
-| [Group](#group) | Selection grouping with multiple/single modes and model binding |
-| [Hydration](#hydration) | Client-side hydration utilities for SSR applications |
-| [Popover](#popover) | CSS anchor-positioned popup components with automatic positioning |
-| [Step](#step) | Step-based navigation system for wizards and multi-step forms |
-| [Theme](#theme) | Theme management and CSS variable injection system |
-
-### Layout Components
-
-| Component | Description |
-| - | - |
-| [Breakpoints](#breakpoints) | Responsive breakpoint utilities for adaptive layouts |
-| [Markdown](#markdown) | Markdown rendering interface with customizable adapters |
-
-## Component Architecture
-
-All components follow these principles:
+| Atom | Base element wrapper with dynamic element types |
+| Avatar | Image/fallback avatar system with priority loading |
+| Context | Context injection/provision for sharing state |
+| Group | Selection grouping with multiple/single modes |
+| Hydration | Client-side hydration utilities for SSR |
+| Popover | CSS anchor-positioned popup components |
+| Step | Step-based navigation for wizards and forms |
+| Theme | Theme management and CSS variable injection |
+| Breakpoints | Responsive breakpoint utilities |
+| Markdown | Markdown rendering interface |
 
 - **Headless First**: Provide logic and accessibility without imposed styling
 - **Slot-Driven**: Maximum flexibility through comprehensive slot APIs

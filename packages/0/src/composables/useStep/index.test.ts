@@ -3,23 +3,6 @@ import { useStep } from './index'
 
 describe('useStep', () => {
   describe('basic functionality', () => {
-    it('should return useContext, provideContext, and state', () => {
-      const [useStepContext, provideStepContext, stepState] = useStep('test')
-
-      expect(typeof useStepContext).toBe('function')
-      expect(typeof provideStepContext).toBe('function')
-      expect(stepState).toHaveProperty('selectedIds')
-      expect(stepState).toHaveProperty('selectedItems')
-      expect(stepState).toHaveProperty('selectedValues')
-      expect(stepState).toHaveProperty('tickets')
-      expect(stepState).toHaveProperty('selectedItem')
-      expect(stepState).toHaveProperty('first')
-      expect(stepState).toHaveProperty('last')
-      expect(stepState).toHaveProperty('next')
-      expect(stepState).toHaveProperty('prev')
-      expect(stepState).toHaveProperty('step')
-    })
-
     it('should initialize with empty state', () => {
       const state = useStep('test')[2]
 

@@ -1,33 +1,6 @@
 # useContext
 
-The `useContext` composable provides a way to create and consume context throughout your application. It's a foundational utility that enables sharing state and methods across components without prop drilling. This composable serves as the baseline for other context-dependent composables like [`useRegistrar`](./use-registrar.md).
-
-## Usage
-
-```ts
-import { useContext } from 'v0'
-
-const [useMyContext, provideMyContext] = useContext<MyContextType>('my-namespace')
-```
-
-## API Reference
-
-### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `key` | `InjectionKey<T> \| string` | Unique identifier for the context |
-
-### Returns
-
-| Return | Type | Description |
-|--------|------|-------------|
-| `[0]` | `() => T` | Function to consume the context (throws if not found) |
-| `[1]` | `(value: T, app?: App) => void` | Function to provide the context |
-
-## Examples
-
-### Basic Context Usage
+A foundational utility for creating and consuming context throughout your application, enabling sharing state and methods across components without prop drilling.
 
 ```ts
 // composables/useUser.ts

@@ -1,5 +1,6 @@
 // Composables
 import { useSingle } from '../useSingle'
+import { toSingleton } from '../toSingleton'
 
 // Utilities
 import { toRef } from 'vue'
@@ -118,17 +119,13 @@ export function useStep<
     step,
   } as E
 
-  return [
+  return toSingleton(
     useGroupContext,
-    function (
-      model?: Ref<unknown | unknown[]>,
-      _context: E = context,
-      app?: App,
-    ) {
+    (model?: Ref<unknown | unknown[]>, _context: E = context, app?: App): E => {
       provideGroupContext(model, _context, app)
 
       return _context
     },
     context,
-  ] as const
+  )
 }

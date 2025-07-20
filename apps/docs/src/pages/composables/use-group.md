@@ -1,33 +1,6 @@
 # useGroup
 
-The `useGroup` composable provides a powerful way to manage collections of items with selection capabilities. It's built on top of `useRegistrar` and handles group selection logic, including single/multiple selection modes, mandatory selection, and item management.
-
-## Usage
-
-```vue
-<script lang="ts" setup>
-import { useGroup } from 'v0'
-import { ref } from 'vue'
-
-const [useTabGroup, provideTabGroup] = useGroup('tabs', {
-  mandatory: true,
-  multiple: false
-})
-
-const selectedTab = ref('home')
-provideTabGroup(selectedTab)
-
-const group = useTabGroup()
-const homeTab = group.register({ value: 'home', disabled: false })
-const aboutTab = group.register({ value: 'about', disabled: false })
-</script>
-
-<template>
-  <div>
-    <button @click="homeTab.toggle()" :disabled="homeTab.disabled">
-      Home {{ homeTab.isActive ? '(active)' : '' }}
-    </button>
-    <button @click="aboutTab.toggle()" :disabled="aboutTab.disabled">
+A composable for managing collections of items with selection capabilities, including single/multiple selection modes and mandatory selection.
       About {{ aboutTab.isActive ? '(active)' : '' }}
     </button>
   </div>

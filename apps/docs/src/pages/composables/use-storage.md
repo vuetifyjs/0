@@ -1,33 +1,6 @@
 # useStorage
 
-The `useStorage` composable provides a reactive interface to the browser's storage APIs (`localStorage` and `sessionStorage`) with a fallback to in-memory storage. It allows you to easily synchronize data between your components and the browser's storage.
-
-## Usage
-
-To use the `useStorage` composable, you first need to install the storage plugin in your Vue application:
-
-```typescript
-// main.ts
-import { createApp } from 'vue'
-import { createStoragePlugin } from '@vuetify/0'
-
-const app = createApp(App)
-app.use(createStoragePlugin())
-```
-
-Once the plugin is installed, you can use the `useStorage` composable in your components:
-
-```vue
-<script setup lang="ts">
-import { useStorage } from '@vuetify/0'
-import { ref } from 'vue'
-
-const storage = useStorage()
-
-const username = storage.get('username', 'Guest')
-</script>
-
-<template>
+A reactive interface to browser storage APIs (`localStorage` and `sessionStorage`) with in-memory fallback, for synchronizing data between components and browser storage.
   <div>
     <p>Welcome, {{ username }}</p>
     <input v-model="username" />

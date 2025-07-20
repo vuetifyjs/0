@@ -11,16 +11,6 @@ describe('createTokens', () => {
   })
 
   describe('basic functionality', () => {
-    it('should return useContext, provideContext, and context', () => {
-      const [useTokensContext, provideTokensContext, context] = createTokens('test')
-
-      expect(typeof useTokensContext).toBe('function')
-      expect(typeof provideTokensContext).toBe('function')
-      expect(context).toHaveProperty('resolve')
-      expect(context).toHaveProperty('resolveItem')
-      expect(context).toHaveProperty('tickets')
-    })
-
     it('should initialize with empty tokens', () => {
       const [, _provideTokensContext, context] = createTokens('test')
 

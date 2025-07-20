@@ -1,6 +1,7 @@
 // Composables
 import { useContext } from '#v0/composables/useContext'
 import { useHydration } from '#v0/composables/useHydration'
+import { createPlugin } from '#v0/composables/createPlugin'
 
 // Utilities
 import { onScopeDispose, shallowReactive, getCurrentInstance, onMounted, watch } from 'vue'
@@ -185,13 +186,11 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
  * @returns A Vue plugin object with install method.
  */
 export function createBreakpointsPlugin (options: BreakpointsOptions = {}): BreakpointsPlugin {
-  return {
-    install (app: App) {
-      app.runWithContext(() => {
-        const context = createBreakpoints(options)
-
-        provideBreakpointsContext(context, app)
-      })
+  return createPlugin({
+    namespace: 'v0:breakpoints',
+    provide: (app: App) => {
+      const context = createBreakpoints(options)
+      provideBreakpointsContext(context, app)
     },
-  }
+  })
 }

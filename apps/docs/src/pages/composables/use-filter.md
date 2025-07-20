@@ -1,33 +1,6 @@
 # useFilter
 
-The `useFilter` composable provides a powerful way to filter arrays of items based on search queries. It supports both primitive values and complex objects with customizable filtering logic, making it ideal for creating searchable lists, tables, and data grids.
-
-## Usage
-
-```ts
-import { useFilter } from '@vuetify/0'
-
-const items = ref(['apple', 'banana', 'cherry'])
-const query = ref('ban')
-
-const { items: filteredItems } = useFilter(query, items)
-
-console.log(filteredItems.value) // ['banana']
-```
-
-## API Reference
-
-### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `query` | `FilterQuery` | Search query (string, number, boolean, or array) |
-| `items` | `MaybeRef<T[]>` | Array of items to filter |
-| `options` | `UseFilterOptions` | Configuration options |
-
-### Options
-
-| Option | Type | Default | Description |
+A composable for filtering arrays of items based on search queries, supporting both primitive values and complex objects with customizable filtering logic.
 |--------|------|---------|-------------|
 | `customFilter` | `FilterFunction` | `undefined` | Custom filtering function |
 | `keys` | `string[]` | `undefined` | Object keys to search in |
@@ -322,7 +295,7 @@ export interface UseFilterOptions {
   mode?: MaybeRef<FilterMode>
 }
 
-export interface UseFilterResult<T extends FilterItem = FilterItem> {
-  items: ComputedRef<T[]>
+export interface UseFilterResult<Z extends FilterItem = FilterItem> {
+  items: ComputedRef<Z[]>
 }
 ```

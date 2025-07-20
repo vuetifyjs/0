@@ -13,6 +13,7 @@ import type { ID } from '#v0/types'
 import type { TokenCollection, TokenTicket, TokenContext } from '#v0/composables/useTokens'
 import type { LocaleAdapter } from './adapters'
 import type { App, Ref } from 'vue'
+import { toSingleton } from '../toSingleton'
 
 export type LocaleTicket = SingleTicket
 
@@ -89,19 +90,11 @@ export function createLocale<
     n,
   } as E
 
-  return [
+  return toSingleton(
     useLocaleContext,
-    function (
-      model?: Ref<ID>,
-      _context: E = context,
-      app?: App,
-    ) {
-      provideLocaleContext(model, _context, app)
-
-      return _context
-    },
+    (model?: Ref<ID>, _context: E = context, app?: App): E => provideLocaleContext(model, _context, app),
     context,
-  ] as const
+  )
 }
 
 /**

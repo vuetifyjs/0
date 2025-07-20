@@ -8,22 +8,22 @@ import type { App, InjectionKey } from 'vue'
  * Simple composable that wraps Vue's `provide` and `inject` functions.
  *
  * @param key The key to provide or inject the context.
- * @template T The type of the context.
+ * @template Z The type of the context.
  * @returns A tuple containing the inject function and a provide function.
  */
-export function useContext<T> (key: InjectionKey<T> | string) {
-  function provideContext (value: T, app?: App) {
+export function useContext<Z> (key: InjectionKey<Z> | string) {
+  function provideContext (value: Z, app?: App) {
     app ? app.provide(key, value) : provide(key, value)
   }
 
-  function injectContext (): T {
-    const contextValue = inject<T>(key)
+  function injectContext (): Z {
+    const contextValue = inject<Z>(key)
 
     if (contextValue === undefined) {
       throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)
     }
 
-    return contextValue as T
+    return contextValue as Z
   }
 
   return [injectContext, provideContext] as const

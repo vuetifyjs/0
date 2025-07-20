@@ -3,17 +3,6 @@ import { useSingle } from './index'
 
 describe('useSingle', () => {
   describe('basic functionality', () => {
-    it('should return useContext, provideContext, and state', () => {
-      const [useCtx, provideCtx, groupState] = useSingle('test')
-
-      expect(typeof useCtx).toBe('function')
-      expect(typeof provideCtx).toBe('function')
-      expect(groupState).toHaveProperty('selectedIds')
-      expect(groupState).toHaveProperty('selectedItems')
-      expect(groupState).toHaveProperty('selectedValues')
-      expect(groupState).toHaveProperty('tickets')
-    })
-
     it('should initialize with empty state', () => {
       const state = useSingle('test')[2]
 

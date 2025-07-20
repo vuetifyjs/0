@@ -1,33 +1,6 @@
 # useHydration
 
-The `useHydration` composable manages the hydration process of your application. It allows you to control when and how components are hydrated, ensuring that the initial render is optimized for performance and user experience. This is particularly useful for SSR applications where you need to prevent hydration mismatches.
-
-## Usage
-
-```ts
-// src/app.ts
-import { createApp } from 'vue'
-import { createHydrationPlugin } from 'v0'
-
-const app = createApp(App)
-
-app.use(createHyditationPlugin())
-```
-
-```vue
-<script lang="ts" setup>
-import { useHydration } from 'v0'
-
-const { isHydrated } = useHydration()
-</script>
-
-<template>
-  <div v-if="isHydrated">
-    <!-- Your component content -->
-    <p>This content is only rendered after hydration</p>
-  </div>
-  <div v-else>
-    <!-- Optional loading state -->
+A composable for managing the hydration process in SSR applications, controlling when and how components are hydrated to optimize performance and prevent hydration mismatches.
     <p>Loading...</p>
   </div>
 </template>

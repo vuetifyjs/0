@@ -1,33 +1,6 @@
 # useLocale
 
-The `useLocale` composable provides internationalization (i18n) capabilities for your application. It allows you to define and manage translations, switch between locales, and apply translations with variable replacement. Built on top of `useSingle` and `useTokens`, it provides a powerful yet simple way to localize your application.
-
-## Setup
-
-**Important:** Before using `useLocale`, you must install the locale plugin in your application:
-
-```ts
-// main.ts
-import { createApp } from 'vue'
-import { createLocalePlugin } from 'v0'
-import App from './App.vue'
-
-const app = createApp(App)
-
-app.use(createLocalePlugin({
-  default: 'en',
-  messages: {
-    en: {
-      hello: 'Hello',
-      welcome: 'Welcome to our application, {0}',
-    },
-    fr: {
-      hello: 'Bonjour',
-      welcome: 'Bienvenue dans notre application, {0}',
-    },
-  },
-}))
-
+A composable for internationalization (i18n) - define and manage translations, switch between locales, and apply translations with variable replacement. Requires the locale plugin to be installed.
 app.mount('#app')
 ```
 

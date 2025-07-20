@@ -1,33 +1,6 @@
 # useStep
 
-The `useStep` composable manages navigation through a multi-step process, such as forms, wizards, or onboarding flows. It provides methods to navigate between steps, track the current step, and handle step completion while supporting features like disabled steps and circular navigation. Built on top of `useSingle`, it provides a single-selection interface for step management.
-
-## Usage
-
-```ts
-import { useStep } from 'v0'
-
-const [useStepContext, provideStepContext, stepContext] = useStep('wizard')
-```
-
-## API Reference
-
-### `useStep<T>(namespace, options?)`
-
-Creates a step management system built on top of `useSingle`.
-
-**Generic Parameters:**
-
-| Parameter | Description |
-|-----------|-------------|
-| `T` | Type extending `StepContext` for the context |
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `namespace` | `string` | Unique identifier for the step context |
-| `options` | `StepOptions` | Configuration options |
+A composable for managing navigation through multi-step processes like forms, wizards, or onboarding flows, with support for step tracking, completion, and navigation controls.
 
 ### Options
 

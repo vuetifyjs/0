@@ -1,33 +1,6 @@
 # useTokens
 
-The `useTokens` composable is a powerful utility for managing design tokens within your application. It allows you to define, resolve, and utilize a hierarchical collection of design tokens, supporting aliases to prevent repetition and maintain consistency across your UI. This composable is particularly useful in large-scale applications where maintaining a consistent design system is crucial.
-
-## Usage
-
-To use `useTokens`, you first need to create a token provider by calling `createTokens` with a namespace and a collection of tokens. This provider can then be used to supply and consume token data throughout your component tree.
-
-```typescript
-// styles/tokens.ts
-import { createTokens } from 'v0'
-
-export const {
-  useTokenContext,
-  provideTokenContext,
-} = createTokens('app', {
-  colors: {
-    primary: '#4CAF50',
-    secondary: '#8BC34A',
-    accent: '#FFC107',
-    background: '#FFFFFF',
-    surface: '#F5F5F5',
-  },
-  spacing: {
-    small: '8px',
-    medium: '16px',
-    large: '24px',
-  },
-  typography: {
-    fontFamily: 'Roboto, sans-serif',
+A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system.
     fontSize: '16px',
   },
 })

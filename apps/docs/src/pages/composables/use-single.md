@@ -1,33 +1,6 @@
 # useSingle
 
-The `useSingle` composable is a wrapper around `useGroup` that provides a simplified API for single-selection scenarios. It adds singular selection properties (`selectedId`, `selectedItem`, `selectedValue`) and a streamlined `select` function.
-
-## Usage
-
-```vue
-<script lang="ts" setup>
-import { useSingle } from 'v0'
-import { ref } from 'vue'
-
-const [useTabSingle, provideTabSingle] = useSingle('tabs', {
-  mandatory: true
-})
-
-const selectedTab = ref('home')
-provideTabSingle(selectedTab)
-
-const group = useTabSingle()
-const homeTab = group.register({ value: 'home', disabled: false })
-const aboutTab = group.register({ value: 'about', disabled: false })
-</script>
-
-<template>
-  <div>
-    <button @click="homeTab.toggle()" :disabled="homeTab.disabled">
-      Home {{ homeTab.isActive ? '(active)' : '' }}
-    </button>
-    <button @click="aboutTab.toggle()" :disabled="aboutTab.disabled">
-      About {{ aboutTab.isActive ? '(active)' : '' }}
+A wrapper around `useGroup` that provides a simplified API for single-selection scenarios with singular selection properties and streamlined selection methods.
     </button>
 
     <p>Selected: {{ tabSingle.selectedValue }}</p>
@@ -111,7 +84,7 @@ export interface SingleTicket extends GroupTicket {}
 
 ```typescript
 export function useSingle<
-  T extends SingleTicket,
+  Z extends SingleTicket,
   U extends SingleContext,
 > (
   namespace: string,

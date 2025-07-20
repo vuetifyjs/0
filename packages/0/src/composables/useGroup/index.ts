@@ -1,5 +1,6 @@
 // Composables
 import { useRegistrar } from '../useRegistrar'
+import { toSingleton } from '../toSingleton'
 
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
@@ -7,7 +8,7 @@ import { genId } from '#v0/utils/helpers'
 
 // Types
 import type { App, ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarTicket } from '../useRegistrar'
+import type { RegistrarContext, RegistrarTicket } from '#v0/composables/useRegistrar'
 import type { ID } from '#v0/types'
 
 export type GroupTicket = RegistrarTicket & {
@@ -184,13 +185,9 @@ export function useGroup<
     select,
   } as E
 
-  return [
+  return toSingleton(
     useRegistrarContext,
-    function (
-      model?: Ref<unknown | unknown[]>,
-      _context: E = context,
-      app?: App,
-    ) {
+    (model?: Ref<unknown | unknown[]>, _context: E = context, app?: App): E => {
       let isUpdatingModel = false
 
       if (model) {
@@ -236,10 +233,8 @@ export function useGroup<
         })
       }
 
-      provideRegistrarContext(_context, app)
-
-      return _context
+      return provideRegistrarContext(_context, app)
     },
     context,
-  ] as const
+  )
 }

@@ -1,5 +1,6 @@
 // Composables
 import { useRegistrar } from '../useRegistrar'
+import { toTriad } from '../toTriad'
 
 // Types
 import type { App } from 'vue'
@@ -164,16 +165,9 @@ export function createTokens<
     resolved: resolvedTokens,
   } as E
 
-  return [
+  return toTriad(
     useTokenContext,
-    function (
-      _context: E = context,
-      app?: App,
-    ) {
-      provideTokenContext(_context, app)
-
-      return _context
-    },
+    (_context: E = context, app?: App): E => provideTokenContext(_context, app),
     context,
-  ] as const
+  )
 }
