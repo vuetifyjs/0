@@ -9,7 +9,6 @@ export * from './components/Popover'
 export * from './components/Step'
 export * from './components/Theme'
 
-export * from './composables/toReactive'
 export * from './composables/useBreakpoints'
 export * from './composables/useContext'
 export * from './composables/useFilter'
@@ -22,6 +21,8 @@ export * from './composables/useRegistrar'
 export * from './composables/useStep'
 export * from './composables/useTheme'
 export * from './composables/useTokens'
-
 export * from './factories/createPlugin'
+
 export * from './factories/createTrinity'
+
+export * from './transformers/toReactive'

@@ -82,7 +82,7 @@ declare global {
   const toCamelCase: typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']
   const toKebabCase: typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']
   const toRaw: typeof import('vue')['toRaw']
-  const toReactive: typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']
+  const toReactive: typeof import('../../packages/0/src/transformers/toReactive/index')['toReactive']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
@@ -268,7 +268,7 @@ declare module 'vue' {
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
-    readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']>
+    readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/transformers/toReactive/index')['toReactive']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>

@@ -1,5 +1,5 @@
 // Utilities
-export * from './toReactive'
+export * from '../transformers/toReactive'
 
 // Core composables
 export * from './useContext'
