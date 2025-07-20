@@ -20,7 +20,7 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | [useStorage](/composables/use-storage) | Reactive interface to browser storage APIs |
 | [useTheme](/composables/use-theme) | Application theme management with CSS custom properties |
 | [useTokens](/composables/use-tokens) | Design token management system |
-| [useTriad](/composables/use-triad) | Standardized context pattern utility |
-| [useSingleton](/composables/use-singleton) | Extended triad pattern with model binding |
+| [useTrinity](/composables/use-trinity) | Standardized context pattern utility |
+| [useSingleton](/composables/use-singleton) | Extended trinity pattern with model binding |
 | [toReactive](/composables/to-reactive) | Convert refs to reactive objects
 | [useStorage](/composables/use-storage) | Persistent storage utilities for browser storage APIs with reactive state management. |

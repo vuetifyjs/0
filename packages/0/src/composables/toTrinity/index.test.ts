@@ -1,18 +1,18 @@
 import { describe, it, expect, vi } from 'vitest'
-import { toTriad } from '../index'
+import { toTrinity } from '../index'
 
-describe('toTriad', () => {
-  it('should create a triad with use, provide, and context', () => {
+describe('toTrinity', () => {
+  it('should create a trinity with use, provide, and context', () => {
     const mockContext = { value: 'test' }
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn(context => context)
 
-    const triad = toTriad(mockUseContext, mockProvideContext, mockContext)
+    const trinity = toTrinity(mockUseContext, mockProvideContext, mockContext)
 
-    expect(triad).toHaveLength(3)
-    expect(typeof triad[0]).toBe('function') // useContext
-    expect(typeof triad[1]).toBe('function') // provideContext wrapper
-    expect(triad[2]).toBe(mockContext) // context
+    expect(trinity).toHaveLength(3)
+    expect(typeof trinity[0]).toBe('function') // useContext
+    expect(typeof trinity[1]).toBe('function') // provideContext wrapper
+    expect(trinity[2]).toBe(mockContext) // context
   })
 
   it('should call the original useContext function', () => {
@@ -20,7 +20,7 @@ describe('toTriad', () => {
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn(context => context)
 
-    const [useContext] = toTriad(mockUseContext, mockProvideContext, mockContext)
+    const [useContext] = toTrinity(mockUseContext, mockProvideContext, mockContext)
 
     const result = useContext()
 
@@ -34,7 +34,7 @@ describe('toTriad', () => {
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn(context => context)
 
-    const [, provideContext] = toTriad(mockUseContext, mockProvideContext, mockContext)
+    const [, provideContext] = toTrinity(mockUseContext, mockProvideContext, mockContext)
 
     // Call with default context
     const result1 = provideContext()
@@ -53,7 +53,7 @@ describe('toTriad', () => {
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn(context => context)
 
-    const [, provideContext] = toTriad(mockUseContext, mockProvideContext, mockContext)
+    const [, provideContext] = toTrinity(mockUseContext, mockProvideContext, mockContext)
 
     provideContext(undefined, mockApp)
 
@@ -65,11 +65,11 @@ describe('toTriad', () => {
     const mockUseContext = vi.fn(() => mockContext)
     const mockProvideContext = vi.fn(context => context)
 
-    const triad = toTriad(mockUseContext, mockProvideContext, mockContext)
+    const trinity = toTrinity(mockUseContext, mockProvideContext, mockContext)
 
     // Should be read-only, but we can't directly test this in runtime
     // The type system ensures it's readonly
-    expect(Array.isArray(triad)).toBe(true)
-    expect(Object.isFrozen(triad)).toBe(false) // as const doesn't freeze, just makes readonly at type level
+    expect(Array.isArray(trinity)).toBe(true)
+    expect(Object.isFrozen(trinity)).toBe(false) // as const doesn't freeze, just makes readonly at type level
   })
 })

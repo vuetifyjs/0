@@ -1,6 +1,6 @@
 # useSingleton
 
-Extends the triad pattern with model binding support for single-value contexts, designed for managing a "singleton" - a single selected or active value that can be bound to a reactive model.
+Extends the trinity pattern with model binding support for single-value contexts, designed for managing a "singleton" - a single selected or active value that can be bound to a reactive model.
 
 ## Examples
 
@@ -139,9 +139,9 @@ Use `toSingleton` when you need:
 - **Form controls** - Single-value form inputs with context support
 - **Navigation state** - Current route/tab binding with models
 
-## Difference from createTriad
+## Difference from createTrinity
 
-| Feature | `createTriad` | `toSingleton` |
+| Feature | `createTrinity` | `toSingleton` |
 |---------|---------------|-------------------|
 | Model parameter | ❌ No | ✅ Yes |
 | Use case | Simple contexts | Model-bound contexts |
@@ -172,7 +172,7 @@ const singleton = toSingleton<Item, ItemContext>(
 
 ## Related
 
-- [`createTriad`](./use-triad.md) - Basic triad pattern without model binding
+- [`createTrinity`](./use-trinity.md) - Basic trinity pattern without model binding
 - [`useGroup`](./use-group.md) - Multi-selection with singleton support
 - [`useSingle`](./use-single.md) - Built using toSingleton
 - [`useTheme`](./use-theme.md) - Example singleton implementation

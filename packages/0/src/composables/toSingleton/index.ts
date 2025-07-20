@@ -9,7 +9,7 @@ export type ContextSingleton<Z, E> = readonly [
 
 /**
  * Converts individual composable parts to a standardized context singleton pattern.
- * This utility extends the triad pattern with model binding support for single-value contexts.
+ * This utility extends the trinity pattern with model binding support for single-value contexts.
  *
  * @param useContext The context hook function
  * @param provideContext The underlying context provider function with model support

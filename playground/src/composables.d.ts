@@ -25,6 +25,9 @@ declare global {
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
   const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
+  const createPlugin: typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']
+  const createStorage: typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']
+  const createStoragePlugin: typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']
   const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
   const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
   const createTokens: typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']
@@ -66,6 +69,7 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
   const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
+  const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
   const ref: typeof import('vue')['ref']
@@ -81,6 +85,7 @@ declare global {
   const toReactive: typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
+  const toSingleton: typeof import('../../packages/0/src/composables/toSingleton/index')['toSingleton']
   const toValue: typeof import('vue')['toValue']
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
@@ -105,9 +110,12 @@ declare global {
   const useModel: typeof import('vue')['useModel']
   const useRegistrar: typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
+  const useSingle: typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']
   const useSlots: typeof import('vue')['useSlots']
   const useSpacing: typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']
   const useStep: typeof import('../../packages/0/src/composables/useStep/index')['useStep']
+  const useStorage: typeof import('../../packages/0/src/composables/useStorage/index')['useStorage']
+  const useStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTheme: typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']
   const watch: typeof import('vue')['watch']
@@ -142,6 +150,12 @@ declare global {
   export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
+  export type { PluginOptions } from '../../packages/0/src/composables/createPlugin/index'
+  import('../../packages/0/src/composables/createPlugin/index')
+  // @ts-ignore
+  export type { ContextSingleton } from '../../packages/0/src/composables/toSingleton/index'
+  import('../../packages/0/src/composables/toSingleton/index')
+  // @ts-ignore
   export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
@@ -160,8 +174,14 @@ declare global {
   export type { RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
   import('../../packages/0/src/composables/useRegistrar/index')
   // @ts-ignore
+  export type { SingleTicket, SingleOptions, SingleContext } from '../../packages/0/src/composables/useSingle/index'
+  import('../../packages/0/src/composables/useSingle/index')
+  // @ts-ignore
   export type { StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
+  // @ts-ignore
+  export type { StorageContext, StorageOptions } from '../../packages/0/src/composables/useStorage/index'
+  import('../../packages/0/src/composables/useStorage/index')
   // @ts-ignore
   export type { Colors, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
@@ -196,6 +216,9 @@ declare module 'vue' {
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']>
     readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
+    readonly createPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']>
+    readonly createStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']>
+    readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
     readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
     readonly createTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']>
@@ -236,6 +259,7 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
     readonly provideMarkdownContext: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']>
+    readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
@@ -251,6 +275,7 @@ declare module 'vue' {
     readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
+    readonly toSingleton: UnwrapRef<typeof import('../../packages/0/src/composables/toSingleton/index')['toSingleton']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
@@ -274,9 +299,12 @@ declare module 'vue' {
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRegistrar: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
+    readonly useSingle: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
     readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['useStep']>
+    readonly useStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorage']>
+    readonly useStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>

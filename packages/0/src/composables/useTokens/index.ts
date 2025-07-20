@@ -1,10 +1,9 @@
 // Composables
-import { useRegistrar } from '../useRegistrar'
-import { toTriad } from '../toTriad'
+import { useRegistrar } from '#v0/composables/useRegistrar'
+import { toTrinity } from '#v0/composables/toTrinity'
 
 // Types
-import type { App } from 'vue'
-import type { RegistrarTicket, RegistrarContext } from '../useRegistrar'
+import type { RegistrarTicket, RegistrarContext } from '#v0/composables/useRegistrar'
 
 export type TokenAlias = {
   $value: string
@@ -165,9 +164,5 @@ export function createTokens<
     resolved: resolvedTokens,
   } as E
 
-  return toTriad(
-    useTokenContext,
-    (_context: E = context, app?: App): E => provideTokenContext(_context, app),
-    context,
-  )
+  return toTrinity<E>(useTokenContext, provideTokenContext, context)
 }

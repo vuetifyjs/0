@@ -1,6 +1,6 @@
 // Composables
-import { useContext } from '../useContext'
-import { toTriad } from '../toTriad'
+import { useContext } from '#v0/composables/useContext'
+import { toTrinity } from '#v0/composables/toTrinity'
 
 // Utilities
 import { reactive } from 'vue'
@@ -71,7 +71,7 @@ export function useRegistrar<
     reindex,
   } as E
 
-  return toTriad(
+  return toTrinity<E>(
     useRegistrarContext,
     (_context: E = context, app?: App) => {
       provideRegistrarContext(_context, app)

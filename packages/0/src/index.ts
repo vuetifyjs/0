@@ -10,6 +10,8 @@ export * from './components/Step'
 export * from './components/Theme'
 
 export * from './composables/toReactive'
+export * from './composables/toSingleton'
+export * from './composables/toTrinity'
 export * from './composables/useBreakpoints'
 export * from './composables/useContext'
 export * from './composables/useFilter'
