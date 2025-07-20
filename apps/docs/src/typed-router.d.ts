@@ -36,6 +36,5 @@ declare module 'vue-router/auto-routes' {
     '/composables/use-storage': RouteRecordInfo<'/composables/use-storage', '/composables/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/use-theme': RouteRecordInfo<'/composables/use-theme', '/composables/use-theme', Record<never, never>, Record<never, never>>,
     '/composables/use-tokens': RouteRecordInfo<'/composables/use-tokens', '/composables/use-tokens', Record<never, never>, Record<never, never>>,
-    '/composables/use-triad': RouteRecordInfo<'/composables/use-triad', '/composables/use-triad', Record<never, never>, Record<never, never>>,
   }
 }
