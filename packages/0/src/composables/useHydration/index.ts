@@ -59,7 +59,7 @@ export function useHydration (): HydrationContext {
 export function createHydrationPlugin (): HydrationPlugin {
   const context = createHydration()
 
-  return createPlugin({
+  return createPlugin<HydrationPlugin>({
     namespace: 'v0:hydration',
     provide: (app: App) => {
       provideHydrationContext(context, app)

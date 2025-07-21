@@ -9,6 +9,7 @@ import { MarkedAdapter } from './adapters'
 
 // Types
 import type { App } from 'vue'
+import type { PluginOptions } from '#v0/factories/createPlugin'
 
 export interface MarkdownAdapter {
   render: (content: string) => string
@@ -22,9 +23,7 @@ export interface MarkdownOptions {
   adapter?: MarkdownAdapter
 }
 
-export interface MarkdownPlugin {
-  install: (app: App) => void
-}
+export interface MarkdownPlugin extends PluginOptions {}
 
 export const [useMarkdownContext, provideMarkdownContext] = createContext<MarkdownContext>('v0:markdown')
 
@@ -60,7 +59,7 @@ export function createMarkdownPlugin (options: MarkdownOptions = {}): MarkdownPl
   const { adapter = new MarkedAdapter() } = options
   const render = createMarkdown(adapter)
 
-  return createPlugin({
+  return createPlugin<MarkdownPlugin>({
     namespace: 'v0:markdown',
     provide: (app: App) => {
       provideMarkdownContext({ render }, app)

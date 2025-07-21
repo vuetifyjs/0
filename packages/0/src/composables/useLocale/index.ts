@@ -16,6 +16,7 @@ import type { ID } from '#v0/types'
 import type { TokenCollection, TokenTicket, TokenContext } from '#v0/composables/useTokens'
 import type { LocaleAdapter } from './adapters'
 import type { App } from 'vue'
+import type { PluginOptions } from '#v0/factories/createPlugin'
 
 export type LocaleTicket = SingleTicket
 
@@ -30,6 +31,8 @@ export interface LocalePluginOptions<Z extends TokenCollection = TokenCollection
   fallback?: ID
   messages?: Record<ID, Z>
 }
+
+export interface LocalePlugin extends PluginOptions {}
 
 /**
  * Creates a locale registrar for managing locale translations and number formatting.
@@ -112,17 +115,17 @@ export function createLocalePlugin<
   E extends LocaleContext = LocaleContext,
   R extends TokenTicket = TokenTicket,
   O extends TokenContext = TokenContext,
-> (options: LocalePluginOptions = {}) {
-  const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
+> (_options: LocalePluginOptions = {}): LocalePlugin {
+  const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
   const [, provideLocaleTokenContext, tokensContext] = createTokens<R, O>('v0:locale:tokens', messages)
   const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
 
   // Register locales if provided
-  if (options.messages) {
-    for (const id in options.messages) {
+  if (messages) {
+    for (const id in messages) {
       localeContext.register({
         id,
-        value: options.messages[id],
+        value: messages[id],
       } as Partial<Z>, id)
 
       if (id === options.default && !localeContext.selectedId.value) {
@@ -131,7 +134,7 @@ export function createLocalePlugin<
     }
   }
 
-  return createPlugin({
+  return createPlugin<LocalePlugin>({
     namespace: 'v0:locale',
     provide: (app: App) => {
       provideLocaleContext(undefined, localeContext, app)

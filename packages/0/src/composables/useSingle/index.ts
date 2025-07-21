@@ -58,7 +58,7 @@ export function useSingle<
     registrar.select(id)
   }
 
-  return createTrinity(useGroupContext, provideGroupContext, {
+  return createTrinity<E>(useGroupContext, provideGroupContext, {
     ...registrar,
     selectedId,
     selectedItem,

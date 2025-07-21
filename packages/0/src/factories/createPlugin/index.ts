@@ -14,7 +14,7 @@ export interface PluginOptions {
  * @param options Configuration object with namespace, provide function, and optional setup function
  * @returns A Vue plugin object with install method
  */
-export function createPlugin (options: PluginOptions) {
+export function createPlugin<Z> (options: PluginOptions) {
   return {
     install (app: App) {
       app.runWithContext(() => {
@@ -23,5 +23,5 @@ export function createPlugin (options: PluginOptions) {
         if (options.setup) options.setup(app)
       })
     },
-  }
+  } as Z
 }

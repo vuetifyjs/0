@@ -23,6 +23,7 @@ import type { ID } from '#v0/types'
 import type { App, ComputedRef, Reactive } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
 import type { TokenCollection, TokenContext, TokenTicket } from '#v0/composables/useTokens'
+import type { PluginOptions } from '#v0/factories/createPlugin'
 
 export type Colors = {
   [key: string]: string
@@ -45,6 +46,8 @@ export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection>
   palette?: TokenCollection
   themes?: Record<ID, Z>
 }
+
+export interface ThemePlugin extends PluginOptions {}
 
 /**
  * Creates a theme registrar for managing theme selections and color resolution.
@@ -142,7 +145,7 @@ export function createThemePlugin<
   E extends ThemeContext = ThemeContext,
   R extends TokenTicket = TokenTicket,
   O extends TokenContext = TokenContext,
-> (options: ThemePluginOptions = {}) {
+> (options: ThemePluginOptions = {}): ThemePlugin {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
   const [, provideThemeTokenContext, tokensContext] = createTokens<R, O>('v0:theme:tokens', { palette, ...themes })
   const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', tokensContext.resolved)
@@ -165,7 +168,7 @@ export function createThemePlugin<
     adapter.update(colors)
   }
 
-  return createPlugin({
+  return createPlugin<ThemePlugin>({
     namespace: 'v0:theme',
     provide: (app: App) => {
       provideThemeContext(undefined, themeContext, app)

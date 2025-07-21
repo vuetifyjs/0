@@ -91,7 +91,7 @@ export function useStep<
     registrar.selectedIds.add(id)
   }
 
-  return createTrinity(useGroupContext, provideGroupContext, {
+  return createTrinity<E>(useGroupContext, provideGroupContext, {
     ...registrar,
     first,
     last,

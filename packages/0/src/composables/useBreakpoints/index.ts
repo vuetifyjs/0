@@ -14,6 +14,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { App } from 'vue'
+import type { PluginOptions } from '#v0/factories/createPlugin'
 
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 
@@ -47,9 +48,7 @@ export interface BreakpointsOptions {
   breakpoints?: Partial<Record<BreakpointName, number>>
 }
 
-export interface BreakpointsPlugin {
-  install: (app: App) => void
-}
+export interface BreakpointsPlugin extends PluginOptions {}
 
 export const [useBreakpointsContext, provideBreakpointsContext] = createContext<BreakpointsContext>('v0:breakpoints')
 
@@ -190,7 +189,7 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
 export function createBreakpointsPlugin (options: BreakpointsOptions = {}): BreakpointsPlugin {
   const context = createBreakpoints(options)
 
-  return createPlugin({
+  return createPlugin<BreakpointsPlugin>({
     namespace: 'v0:breakpoints',
     provide: (app: App) => {
       provideBreakpointsContext(context, app)

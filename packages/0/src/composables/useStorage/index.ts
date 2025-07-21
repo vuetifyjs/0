@@ -1,6 +1,6 @@
 // Composables
-import { createContext } from '../../factories/createContext'
-import { createPlugin } from '../../factories/createPlugin'
+import { createContext } from '#v0/factories/createContext'
+import { createPlugin } from '#v0/factories/createPlugin'
 
 // Utilities
 import { ref, watch } from 'vue'
@@ -14,6 +14,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 // Types
 import type { App, Ref } from 'vue'
 import type { StorageAdapter } from './adapters'
+import type { PluginOptions } from '#v0/factories/createPlugin'
 
 export interface StorageContext {
   get: <T>(key: string, defaultValue?: T) => Ref<T>
@@ -30,6 +31,8 @@ export interface StorageOptions {
     write: (value: any) => string
   }
 }
+
+export interface StoragePlugin extends PluginOptions {}
 
 export const [useStorageContext, provideStorageContext] = createContext<StorageContext>('v0:storage')
 
@@ -128,10 +131,10 @@ export function useStorage (): StorageContext {
  * @param options Optional configuration for the storage system.
  * @returns A Vue plugin object with install method.
  */
-export function createStoragePlugin (options: StorageOptions = {}) {
+export function createStoragePlugin (options: StorageOptions = {}): StoragePlugin {
   const context = createStorage(options)
 
-  return createPlugin({
+  return createPlugin<StoragePlugin>({
     namespace: 'v0:storage',
     provide: (app: App) => {
       provideStorageContext(context, app)
