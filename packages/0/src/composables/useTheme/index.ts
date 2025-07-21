@@ -23,7 +23,6 @@ import type { ID } from '#v0/types'
 import type { App, ComputedRef, Reactive } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
 import type { TokenCollection, TokenContext, TokenTicket } from '#v0/composables/useTokens'
-import type { PluginOptions } from '#v0/factories/createPlugin'
 
 export type Colors = {
   [key: string]: string
@@ -47,7 +46,9 @@ export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection>
   themes?: Record<ID, Z>
 }
 
-export interface ThemePlugin extends PluginOptions {}
+export interface ThemePlugin {
+  install: (app: App, ...options: any[]) => any
+}
 
 /**
  * Creates a theme registrar for managing theme selections and color resolution.

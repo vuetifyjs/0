@@ -29,7 +29,6 @@ declare module 'vue-router/auto-routes' {
     '/composables/use-hydration': RouteRecordInfo<'/composables/use-hydration', '/composables/use-hydration', Record<never, never>, Record<never, never>>,
     '/composables/use-keydown': RouteRecordInfo<'/composables/use-keydown', '/composables/use-keydown', Record<never, never>, Record<never, never>>,
     '/composables/use-locale': RouteRecordInfo<'/composables/use-locale', '/composables/use-locale', Record<never, never>, Record<never, never>>,
-    '/composables/use-markdown': RouteRecordInfo<'/composables/use-markdown', '/composables/use-markdown', Record<never, never>, Record<never, never>>,
     '/composables/use-registrar': RouteRecordInfo<'/composables/use-registrar', '/composables/use-registrar', Record<never, never>, Record<never, never>>,
     '/composables/use-single': RouteRecordInfo<'/composables/use-single', '/composables/use-single', Record<never, never>, Record<never, never>>,
     '/composables/use-step': RouteRecordInfo<'/composables/use-step', '/composables/use-step', Record<never, never>, Record<never, never>>,

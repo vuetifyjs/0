@@ -16,7 +16,6 @@ Core foundational components and composables:
 - `Context` - Context injection/provision system
 - `Group` - Selection grouping with multiple/single modes
 - `Hydration` - Client-side hydration utilities
-- `Markdown` - Markdown rendering interface
 - `Popover` - CSS anchor-positioned popup components
 - `Step` - Step-based navigation system
 - `Theme` - Theme management and CSS variable injection
@@ -29,7 +28,6 @@ Core foundational components and composables:
 - `useHydration` - SSR hydration helpers
 - `useKeydown` - Keyboard event handling
 - `useLocale` - Internationalization support
-- `useMarkdown` - Markdown processing interface
 - `useRegistrar` - Component registration system
 - `useStep` - Step navigation logic
 - `useTheme` - Theme switching and CSS variable management

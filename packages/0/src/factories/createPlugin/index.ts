@@ -7,6 +7,8 @@ export interface PluginOptions {
   setup?: (app: App) => void | Promise<void>
 }
 
+export type { Plugin } from 'vue'
+
 /**
  * Universal plugin factory that eliminates boilerplate code for Vue plugin creation.
  * This factory standardizes the plugin installation pattern across all composables.

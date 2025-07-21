@@ -16,7 +16,6 @@ import type { ID } from '#v0/types'
 import type { TokenCollection, TokenTicket, TokenContext } from '#v0/composables/useTokens'
 import type { LocaleAdapter } from './adapters'
 import type { App } from 'vue'
-import type { PluginOptions } from '#v0/factories/createPlugin'
 
 export type LocaleTicket = SingleTicket
 
@@ -32,7 +31,9 @@ export interface LocalePluginOptions<Z extends TokenCollection = TokenCollection
   messages?: Record<ID, Z>
 }
 
-export interface LocalePlugin extends PluginOptions {}
+export interface LocalePlugin {
+  install: (app: App, ...options: any[]) => any
+}
 
 /**
  * Creates a locale registrar for managing locale translations and number formatting.

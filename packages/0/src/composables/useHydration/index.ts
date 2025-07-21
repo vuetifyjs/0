@@ -3,7 +3,7 @@ import { createContext } from '../../factories/createContext'
 import { createPlugin } from '../../factories/createPlugin'
 
 // Utilities
-import { shallowReadonly, shallowRef } from 'vue'
+import { shallowRef, shallowReadonly } from 'vue'
 
 // Types
 import type { App, ShallowRef } from 'vue'
@@ -14,7 +14,7 @@ export interface HydrationContext {
 }
 
 export interface HydrationPlugin {
-  install: (app: App) => void
+  install: (app: App, ...options: any[]) => any
 }
 
 export const [useHydrationContext, provideHydrationContext] = createContext<HydrationContext>('v0:hydration')

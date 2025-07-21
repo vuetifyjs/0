@@ -18,6 +18,9 @@ declare global {
   const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
+  const createBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']
+  const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']
+  const createContext: typeof import('../../packages/0/src/factories/createContext/index')['createContext']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
@@ -67,6 +70,7 @@ declare global {
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
   const parseColor: typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']
   const provide: typeof import('vue')['provide']
+  const provideBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']
   const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
   const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
   const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']
@@ -91,8 +95,9 @@ declare global {
   const useAttrs: typeof import('vue')['useAttrs']
   const useAvatar: typeof import('../../packages/0/src/composables/useAvatar/index')['useAvatar']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
+  const useBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']
+  const useBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpointsContext']
   const useColor: typeof import('../../packages/paper/src/composables/useColor/index')['useColor']
-  const createContext: typeof import('../../packages/0/src/factories/createContext/index')['createContext']
   const useContrast: typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
@@ -149,8 +154,8 @@ declare global {
   export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
-  export type { PluginOptions } from '../../packages/0/src/factories/createPlugin/index'
-  import('../../packages/0/src/factories/createPlugin/index')
+  export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPlugin } from '../../packages/0/src/composables/useBreakpoints/index'
+  import('../../packages/0/src/composables/useBreakpoints/index')
   // @ts-ignore
   export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
@@ -161,11 +166,8 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { LocaleTicket, LocaleContext, LocalePluginOptions } from '../../packages/0/src/composables/useLocale/index'
+  export type { LocaleTicket, LocaleContext, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
-  // @ts-ignore
-  export type { MarkdownAdapter, MarkdownContext, MarkdownOptions, MarkdownPlugin } from '../../packages/0/src/composables/useMarkdown/index'
-  import('../../packages/0/src/composables/useMarkdown/index')
   // @ts-ignore
   export type { RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
   import('../../packages/0/src/composables/useRegistrar/index')
@@ -176,10 +178,10 @@ declare global {
   export type { StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
-  export type { StorageContext, StorageOptions } from '../../packages/0/src/composables/useStorage/index'
+  export type { StorageContext, StorageOptions, StoragePlugin } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
   // @ts-ignore
-  export type { Colors, ThemeTicket, ThemeContext, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeTicket, ThemeContext, ThemePluginOptions, ThemePlugin } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
   export type { TokenAlias, TokenValue, TokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
@@ -205,14 +207,13 @@ declare module 'vue' {
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']>
+    readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
     readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
-    readonly createMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']>
-    readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
-    readonly createPlugin: UnwrapRef<typeof import('../../packages/0/src/factories/createPlugin/index')['createPlugin']>
     readonly createStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']>
     readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
@@ -253,8 +254,8 @@ declare module 'vue' {
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly parseColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
+    readonly provideBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']>
     readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
-    readonly provideMarkdownContext: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']>
     readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
@@ -268,7 +269,6 @@ declare module 'vue' {
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
-    readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/transformers/toReactive/index')['toReactive']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
@@ -276,8 +276,9 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
+    readonly useBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']>
+    readonly useBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpointsContext']>
     readonly useColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['useColor']>
-    readonly createContext: UnwrapRef<typeof import('../../packages/0/src/factories/createContext/index')['createContext']>
     readonly useContrast: UnwrapRef<typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
@@ -289,8 +290,6 @@ declare module 'vue' {
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
-    readonly useMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']>
-    readonly useMarkdownContext: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRegistrar: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>

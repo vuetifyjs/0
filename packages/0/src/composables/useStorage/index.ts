@@ -14,7 +14,6 @@ import { IN_BROWSER } from '#v0/constants/globals'
 // Types
 import type { App, Ref } from 'vue'
 import type { StorageAdapter } from './adapters'
-import type { PluginOptions } from '#v0/factories/createPlugin'
 
 export interface StorageContext {
   get: <T>(key: string, defaultValue?: T) => Ref<T>
@@ -32,7 +31,9 @@ export interface StorageOptions {
   }
 }
 
-export interface StoragePlugin extends PluginOptions {}
+export interface StoragePlugin {
+  install: (app: App, ...options: any[]) => any
+}
 
 export const [useStorageContext, provideStorageContext] = createContext<StorageContext>('v0:storage')
 
