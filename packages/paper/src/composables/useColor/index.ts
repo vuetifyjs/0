@@ -3,7 +3,7 @@ import { useContrast } from '#paper/composables/useContrast'
 
 // Types
 import type { ThemeProvider } from '#paper/composables/useTheme'
-import { getCurrentInstanceName } from '#paper/utils/getCurrentInstanceName'
+import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { inject, shallowRef, toRef } from 'vue'
 
 export interface ColorProps {

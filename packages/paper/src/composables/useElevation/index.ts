@@ -1,4 +1,4 @@
-import { getCurrentInstanceName } from '#paper/utils/getCurrentInstanceName'
+import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { inject, provide, toRef, type InjectionKey } from 'vue'
 
 export interface ElevationConfig {

@@ -1,4 +1,4 @@
-import { toKebabCase } from '#paper/utils/helpers'
+import { toKebabCase } from '#paper/utilities/helpers'
 import { computed, provide, ref, watchEffect, type Ref } from 'vue'
 
 export interface Theme {

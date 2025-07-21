@@ -26,7 +26,7 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 // Mock helpers
-vi.mock('#v0/utils/helpers', () => ({
+vi.mock('#v0/utilities/helpers', () => ({
   mergeDeep: vi.fn((defaults, options) => ({
     ...defaults,
     ...options,

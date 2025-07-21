@@ -40,7 +40,7 @@ declare global {
   const defineComponent: typeof import('vue')['defineComponent']
   const effectScope: typeof import('vue')['effectScope']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
-  const getCurrentInstanceName: typeof import('../../packages/paper/src/utils/getCurrentInstanceName')['getCurrentInstanceName']
+  const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
   const hexToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']
@@ -83,8 +83,8 @@ declare global {
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
-  const toCamelCase: typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']
-  const toKebabCase: typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']
+  const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']
+  const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']
   const toRaw: typeof import('vue')['toRaw']
   const toReactive: typeof import('../../packages/0/src/transformers/toReactive/index')['toReactive']
   const toRef: typeof import('vue')['toRef']
@@ -225,7 +225,7 @@ declare module 'vue' {
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
-    readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utils/getCurrentInstanceName')['getCurrentInstanceName']>
+    readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hexToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']>
@@ -266,8 +266,8 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
-    readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']>
-    readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']>
+    readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
+    readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>

@@ -6,7 +6,7 @@ import { useRegistrar } from '#v0/composables/useRegistrar'
 
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
-import { genId } from '#v0/utils/helpers'
+import { genId } from '#v0/utilities/helpers'
 
 // Types
 import type { App, ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'

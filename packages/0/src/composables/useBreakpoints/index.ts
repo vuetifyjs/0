@@ -7,7 +7,7 @@ import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
 import { onScopeDispose, shallowReactive, getCurrentInstance, onMounted, watch } from 'vue'
-import { mergeDeep } from '#v0/utils/helpers'
+import { mergeDeep } from '#v0/utilities/helpers'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'

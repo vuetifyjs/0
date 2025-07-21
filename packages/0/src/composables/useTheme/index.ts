@@ -9,7 +9,7 @@ import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
 import { computed, watch } from 'vue'
-import { genId } from '#v0/utils/helpers'
+import { genId } from '#v0/utilities/helpers'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from './adapters/v0'

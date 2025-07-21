@@ -6,7 +6,7 @@ import { createContext } from '#v0/factories/createContext'
 
 // Utilities
 import { reactive } from 'vue'
-import { genId } from '#v0/utils/helpers'
+import { genId } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'

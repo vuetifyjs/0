@@ -27,10 +27,10 @@ export default defineConfig({
       ],
       dirs: [
         '../packages/paper/src/composables',
-        '../packages/paper/src/utils',
+        '../packages/paper/src/utilities',
         '../packages/0/src/composables',
         '../packages/0/src/constants',
-        '../packages/0/src/utils',
+        '../packages/0/src/utilities',
       ],
       dts: 'src/composables.d.ts',
       eslintrc: {
