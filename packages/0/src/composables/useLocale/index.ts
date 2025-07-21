@@ -5,7 +5,7 @@ import { createTrinity } from '#v0/factories/createTrinity'
 // Composables
 import { useContext } from '#v0/factories/createContext'
 import { useSingle } from '#v0/composables/useSingle'
-import { createTokens } from '#v0/composables/useTokens'
+import { useTokens } from '#v0/composables/useTokens'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
@@ -118,7 +118,7 @@ export function createLocalePlugin<
   O extends TokenContext = TokenContext,
 > (_options: LocalePluginOptions = {}): LocalePlugin {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
-  const [, provideLocaleTokenContext, tokensContext] = createTokens<R, O>('v0:locale:tokens', messages)
+  const [, provideLocaleTokenContext, tokensContext] = useTokens<R, O>('v0:locale:tokens', messages)
   const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
 
   // Register locales if provided

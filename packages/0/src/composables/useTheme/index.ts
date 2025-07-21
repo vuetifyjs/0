@@ -5,7 +5,7 @@ import { useContext } from '#v0/factories/createContext'
 
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
-import { createTokens } from '#v0/composables/useTokens'
+import { useTokens } from '#v0/composables/useTokens'
 
 // Utilities
 import { computed, watch } from 'vue'
@@ -148,7 +148,7 @@ export function createThemePlugin<
   O extends TokenContext = TokenContext,
 > (options: ThemePluginOptions = {}): ThemePlugin {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
-  const [, provideThemeTokenContext, tokensContext] = createTokens<R, O>('v0:theme:tokens', { palette, ...themes })
+  const [, provideThemeTokenContext, tokensContext] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })
   const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', tokensContext.resolved)
 
   // Register themes if provided

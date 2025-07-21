@@ -75,7 +75,7 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
   const resolved: Record<string, string> = {}
   const resolving = new Set<string>()
 
-  function resolveValue (key: string, value: TokenValue): string {
+  function resolve (key: string, value: TokenValue): string {
     const isTokenAlias = (v: any): v is TokenAlias => typeof v === 'object' && v !== null && '$value' in v
     const ref = isTokenAlias(value) ? value.$value : value
 
@@ -98,14 +98,14 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
     }
 
     resolving.add(aliasPath)
-    const result = resolveValue(aliasPath, tokens[aliasPath])
+    const result = resolve(aliasPath, tokens[aliasPath])
     resolving.delete(aliasPath)
 
     return result
   }
 
   for (const [key, value] of Object.entries(tokens)) {
-    resolved[key] = resolveValue(key, value)
+    resolved[key] = resolve(key, value)
   }
 
   return resolved
@@ -122,7 +122,7 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
  * @template E The type of the token context.
  * @returns A tuple containing the inject function, provide function, and the token context.
  */
-export function createTokens<
+export function useTokens<
   Z extends TokenTicket = TokenTicket,
   E extends TokenContext = TokenContext,
 > (
