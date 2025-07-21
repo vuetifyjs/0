@@ -1,4 +1,5 @@
 // Composables
+export * from './useBreakpoints'
 export * from './useGroup'
 export * from './useHydration'
 export * from './useKeydown'
