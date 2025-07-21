@@ -188,10 +188,11 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
  * @returns A Vue plugin object with install method.
  */
 export function createBreakpointsPlugin (options: BreakpointsOptions = {}): BreakpointsPlugin {
+  const context = createBreakpoints(options)
+
   return createPlugin({
     namespace: 'v0:breakpoints',
     provide: (app: App) => {
-      const context = createBreakpoints(options)
       provideBreakpointsContext(context, app)
     },
   })

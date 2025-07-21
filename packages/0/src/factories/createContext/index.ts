@@ -33,6 +33,8 @@ export function useContext<Z> (key: InjectionKey<Z> | string) {
 export function createContext<Z> (key: InjectionKey<Z> | string) {
   function provideContext (value: Z, app?: App) {
     app ? app.provide(key, value) : provide(key, value)
+
+    return value
   }
 
   return [useContext<Z>(key), provideContext] as const

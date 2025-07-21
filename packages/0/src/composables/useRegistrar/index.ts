@@ -19,6 +19,7 @@ export interface RegistrarTicket {
 
 export interface RegistrarContext {
   tickets: Reactive<Map<ID, Reactive<any>>>
+  lookup: (index: number) => ID | undefined
   register: (ticket: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
   unregister: (id: ID) => void
   reindex: () => void
@@ -38,9 +39,16 @@ export function useRegistrar<
   Z extends RegistrarTicket,
   E extends RegistrarContext,
 > (namespace: string) {
-  const [useRegistrarContext, provideRegistrarContext] = createContext<E>(namespace)
+  const [useRegistrarContext, _provideRegistrarContext] = createContext<E>(namespace)
 
   const tickets = reactive(new Map<ID, Z>())
+
+  function lookup (index: number) {
+    for (const [id, item] of tickets) {
+      if (item.index === index) return id
+    }
+    return undefined
+  }
 
   function reindex () {
     let index = 0
@@ -68,17 +76,15 @@ export function useRegistrar<
 
   const context = {
     tickets,
+    lookup,
     register,
     unregister,
     reindex,
   } as E
 
-  return createTrinity<E>(
-    useRegistrarContext,
-    (_: unknown, _context: E = context, app?: App) => {
-      provideRegistrarContext(_context, app)
-      return _context
-    },
-    context,
-  )
+  function provideRegistrarContext (_: unknown, _context: E = context, app?: App): E {
+    return _provideRegistrarContext(_context, app)
+  }
+
+  return createTrinity<E>(useRegistrarContext, provideRegistrarContext, context)
 }

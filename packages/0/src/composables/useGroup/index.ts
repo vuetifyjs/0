@@ -140,14 +140,14 @@ export function useGroup<
   }
 
   function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
-    const groupItem: Partial<Z> = {
+    const item: Partial<Z> = {
       disabled: false,
       value: registrant?.value ?? registrar.tickets.size,
       valueIsIndex: registrant?.value == null,
       ...registrant,
     }
 
-    const ticket = registrar.register(groupItem, id)
+    const ticket = registrar.register(item, id)
 
     // Reactivity was being lost unless done this way, revisit
     Object.assign(ticket, {
@@ -173,13 +173,6 @@ export function useGroup<
     registrar.unregister(id)
   }
 
-  function lookup (index: number) {
-    for (const [id, item] of registrar.tickets) {
-      if (item.index === index) return id
-    }
-    return undefined
-  }
-
   if (getCurrentInstance()) {
     onMounted(() => {
       initialValue = undefined
@@ -198,61 +191,58 @@ export function useGroup<
     reindex,
     mandate,
     select,
-    lookup,
   } as E
 
-  return createTrinity<E>(
-    useRegistrarContext,
-    (model?: Ref<unknown | unknown[]>, _context: E = context, app?: App): E => {
-      let isUpdatingModel = false
+  function provideGroupContext (model?: Ref<unknown | unknown[]>, _context: E = context, app?: App): E {
+    let isUpdatingModel = false
 
-      if (model) {
-        initialValue = toValue(model)
+    if (model) {
+      initialValue = toValue(model)
 
-        watch(selectedIds, () => {
-          if (isUpdatingModel) return
+      watch(selectedIds, () => {
+        if (isUpdatingModel) return
 
-          const returnObject = options?.returnObject
-          const target = returnObject ? selectedItems : selectedValues
+        const returnObject = options?.returnObject
+        const target = returnObject ? selectedItems : selectedValues
 
-          model.value = options?.multiple
-            ? Array.from(target.value)
-            : target.value.values().next().value
-        })
+        model.value = options?.multiple
+          ? Array.from(target.value)
+          : target.value.values().next().value
+      })
 
-        watch(model, async value => {
-          if (isUpdatingModel) return
+      watch(model, async value => {
+        if (isUpdatingModel) return
 
-          const values = new Set(Array.isArray(value) ? value : [value])
+        const values = new Set(Array.isArray(value) ? value : [value])
 
-          if ((selectedValues.value.symmetricDifference(values)).size === 0) return
+        if ((selectedValues.value.symmetricDifference(values)).size === 0) return
 
-          selectedIds.clear()
+        selectedIds.clear()
 
-          for (const val of values) {
-            for (const [id, item] of registrar.tickets) {
-              if (item.value !== val) continue
+        for (const val of values) {
+          for (const [id, item] of registrar.tickets) {
+            if (item.value !== val) continue
 
-              selectedIds.add(id)
+            selectedIds.add(id)
 
-              break
-            }
+            break
           }
-        })
+        }
+      })
 
-        watch([model, selectedIds], async () => {
-          isUpdatingModel = true
+      watch([model, selectedIds], async () => {
+        isUpdatingModel = true
 
-          await nextTick()
+        await nextTick()
 
-          isUpdatingModel = false
-        })
-      }
+        isUpdatingModel = false
+      })
+    }
 
-      provideRegistrarContext(model, _context, app)
+    provideRegistrarContext(model, _context, app)
 
-      return _context
-    },
-    context,
-  )
+    return _context
+  }
+
+  return createTrinity<E>(useRegistrarContext, provideGroupContext, context)
 }
