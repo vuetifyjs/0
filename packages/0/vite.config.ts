@@ -21,7 +21,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: fileURLToPath(new URL('src/index.ts', import.meta.url)),
-      name: 'VuetifyV0',
+      name: 'Vuetify0',
       fileName: () => `index.mjs`,
       formats: ['es'],
     },
