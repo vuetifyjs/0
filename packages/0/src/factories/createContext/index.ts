@@ -30,6 +30,7 @@ export function useContext<Z> (key: InjectionKey<Z> | string) {
  * @returns A tuple containing provide/inject
  *
  * @see https://vuejs.org/guide/components/provide-inject
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
  */
 export function createContext<Z> (key: InjectionKey<Z> | string) {
   function provideContext (value: Z, app?: App) {
