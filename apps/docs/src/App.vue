@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div id="app" class="grid grid-cols-[220px_1fr] v0-theme--slate">
+  <div class="grid grid-cols-[220px_1fr] v0-theme--slate">
     <div />
     <router-view />
   </div>

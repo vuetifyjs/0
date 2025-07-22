@@ -1,6 +1,11 @@
 <script setup lang="ts">
+  // Components
   import { Atom } from '@vuetify/0'
 
+  // Icons
+  import { Github } from 'lucide-vue-next'
+
+  // Types
   import type { AtomProps } from '@vuetify/0'
 
   const { as = 'header' } = defineProps<AtomProps>()
@@ -9,13 +14,15 @@
 <template>
   <Atom
     :as
-    class="bg-4 app-header text-[#e0e0e0] flex flex-col h-[100vh] fixed w-[220px] overflow-y-auto pb-4"
+    class="app-header flex items-center justify-end h-[48px] fixed top-0 left-[220px] right-0 px-3"
   >
-    <slot />
+    <a href="https://github.com/vuetifyjs/0" rel="noopener noreferrer" target="_blank">
+      <Github class="bg-gray-800 text-white pa-1 rounded opacity-90 hover:opacity-100" :size="26" />
+    </a>
   </Atom>
 </template>
 
 <style lang="sass">
-  .app-nav
-    background-color: var(--v0-surfaceVariant)
+  .app-header
+    background-color: var(--v0-surfaceTint)
 </style>

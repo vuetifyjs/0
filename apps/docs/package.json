@@ -19,6 +19,7 @@
   "dependencies": {
     "@vuetify/0": "workspace:*",
     "@vuetify/paper": "workspace:*",
+    "lucide-vue-next": "^0.525.0",
     "markdown-it-attrs": "^4.3.1",
     "unplugin-vue-components": "^28.7.0",
     "unplugin-vue-markdown": "^29.1.0",

@@ -18,6 +18,7 @@ export default function zero (app: App) {
           warning: '#f59e0b',
           background: '#f9fafb',
           surface: '#f3f4f6',
+          surfaceTint: '#ececec',
           surfaceVariant: '#212121',
         },
       },

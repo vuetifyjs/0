@@ -3,8 +3,7 @@
 </script>
 
 <template>
-  <AppNav />
-  <AppBar />
-  <AppMain />
-  <AppFooter />
+  <div class="pa-4 mt-[48px]">
+    <router-view />
+  </div>
 </template>
