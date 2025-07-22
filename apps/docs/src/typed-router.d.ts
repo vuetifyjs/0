@@ -43,6 +43,7 @@ declare module 'vue-router/auto-routes' {
     '/composables/selection/use-single': RouteRecordInfo<'/composables/selection/use-single', '/composables/selection/use-single', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-step': RouteRecordInfo<'/composables/selection/use-step', '/composables/selection/use-step', Record<never, never>, Record<never, never>>,
     '/composables/system/use-keydown': RouteRecordInfo<'/composables/system/use-keydown', '/composables/system/use-keydown', Record<never, never>, Record<never, never>>,
+    '/composables/system/use-logger': RouteRecordInfo<'/composables/system/use-logger', '/composables/system/use-logger', Record<never, never>, Record<never, never>>,
     '/guide/accessibility': RouteRecordInfo<'/guide/accessibility', '/guide/accessibility', Record<never, never>, Record<never, never>>,
     '/guide/components': RouteRecordInfo<'/guide/components', '/guide/components', Record<never, never>, Record<never, never>>,
     '/guide/composables': RouteRecordInfo<'/guide/composables', '/guide/composables', Record<never, never>, Record<never, never>>,

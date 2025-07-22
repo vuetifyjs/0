@@ -61,6 +61,7 @@
           name: 'System',
           children: [
             { name: 'useKeydown', to: '/composables/system/use-keydown' },
+            { name: 'useLogger', to: '/composables/system/use-logger' },
           ],
         },
         {
