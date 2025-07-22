@@ -28,6 +28,8 @@ export function useContext<Z> (key: InjectionKey<Z> | string) {
  * @param key The provided string or InjectionKey
  * @template Z The type values for the context.
  * @returns A tuple containing provide/inject
+ *
+ * @see https://vuejs.org/guide/components/provide-inject
  */
 export function createContext<Z> (key: InjectionKey<Z> | string) {
   function provideContext (value: Z, app?: App) {
