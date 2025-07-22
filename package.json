@@ -16,6 +16,8 @@
     "build:storybook": "pnpm --filter=storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:bench": "vitest run --reporter=verbose bench",
+    "bench": "vitest run --reporter=default bench",
     "coverage": "vitest run --coverage",
     "dev:docs": "pnpm --filter=docs dev",
     "build:docs": "pnpm --filter=docs build"

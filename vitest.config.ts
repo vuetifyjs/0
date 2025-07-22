@@ -4,5 +4,6 @@ export default defineConfig({
   test: {
     projects: ['packages/*'],
     globals: true,
+    include: ['**/*.{test,spec,bench}.?(c|m)[jt]s?(x)'],
   },
 })

@@ -18,5 +18,6 @@ export default defineConfig({
     projects: ['packages/*'],
     environment: 'happy-dom',
     globals: true,
+    include: ['**/*.{test,spec,bench}.?(c|m)[jt]s?(x)'],
   },
 })
