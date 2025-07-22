@@ -7,14 +7,13 @@ export interface PluginOptions {
   setup?: (app: App) => void | Promise<void>
 }
 
-export type { Plugin } from 'vue'
-
 /**
- * Universal plugin factory that eliminates boilerplate code for Vue plugin creation.
- * This factory standardizes the plugin installation pattern across all composables.
+ * A universal plugin factory to reduce boilerplate code for Vue plugin creation.
+ * @param options Configurable object with namespace and provide/setup methods.
+ * @returns A Vue plugin object with install method that runs app w/ context.
  *
- * @param options Configuration object with namespace, provide function, and optional setup function
- * @returns A Vue plugin object with install method
+ * @see https://vuejs.org/api/application.html#app-runwithcontext
+ * @see https://0.vuetifyjs.com/factories/create-plugin
  */
 export function createPlugin<Z> (options: PluginOptions) {
   return {
