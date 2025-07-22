@@ -1,6 +1,9 @@
+// Factories
+import { createContext } from './index'
+
+// Utilities
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { provide, inject } from 'vue'
-import { createContext } from './index'
 
 vi.mock('vue', () => ({
   provide: vi.fn(),

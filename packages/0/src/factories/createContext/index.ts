@@ -36,7 +36,7 @@ export function useContext<Z> (key: ContextKey<Z>) {
  */
 export function createContext<Z> (key: ContextKey<Z>) {
   function provideContext (context: Z, app?: App) {
-    app ? app.provide(key, context) : provide(key, context)
+    app?.provide(key, context) ?? provide(key, context)
 
     return context
   }
