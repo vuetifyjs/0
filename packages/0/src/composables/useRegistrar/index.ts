@@ -20,7 +20,7 @@ export interface RegistrarTicket {
 export interface RegistrarContext {
   tickets: Reactive<Map<ID, Reactive<any>>>
   lookup: (index: number) => ID | undefined
-  register: (ticket: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
+  register: (ticket?: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
   unregister: (id: ID) => void
   reindex: () => void
 }
@@ -42,18 +42,19 @@ export function useRegistrar<
   const [useRegistrarContext, _provideRegistrarContext] = createContext<E>(namespace)
 
   const tickets = reactive(new Map<ID, Z>())
+  const directory = reactive(new Map<number, ID>())
 
   function lookup (index: number) {
-    for (const [id, item] of tickets) {
-      if (item.index === index) return id
-    }
-    return undefined
+    return directory.get(index)
   }
 
   function reindex () {
+    directory.clear()
     let index = 0
     for (const item of tickets.values()) {
-      item.index = index++
+      item.index = index
+      directory.set(index, item.id)
+      index++
     }
   }
 
@@ -65,12 +66,18 @@ export function useRegistrar<
     }) as Reactive<Z>
 
     tickets.set(item.id, item as any)
+    directory.set(item.index, item.id)
 
     return item
   }
 
   function unregister (id: ID) {
-    tickets.delete(id)
+    const item = tickets.get(id)
+
+    if (!item) return
+
+    directory.delete(item.index)
+    tickets.delete(item.id)
     reindex()
   }
 
