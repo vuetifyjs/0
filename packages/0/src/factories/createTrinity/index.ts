@@ -1,24 +1,30 @@
 // Types
 import type { App, Ref } from 'vue'
 
-export type ContextTrinity<Z = unknown, E = unknown> = readonly [
+export type ContextTrinity<
+  Z = unknown,
+  E = unknown,
+> = readonly [
   () => Z,
   (model?: Ref<E>, context?: Z, app?: App) => Z,
   Z,
 ]
 
 /**
- * Converts individual composable parts to a standardized context trinity pattern.
- * This utility abstracts the common pattern of returning [createContext, provideContext, context].
+ * A tuple containing Vue's provide/inject and a context object
+ * @param createContext The function that creates the context
+ * @param provideContext The function that provides context
+ * @param context The underlying context object singleton
+ * @template Z The type parameter for the context value
+ * @template E The vmodel type for the context state.
+ * @returns [createContext,provideContext,context]
  *
- * @param createContext The context hook function
- * @param provideContext The underlying context provider function
- * @param context The context object
- * @template Z The context type
- * @template E The model type
- * @returns A trinity containing [createContext, provideContext, context]
+ * @see https://0.vuetifyjs.com/composables/foundation/create-trinity
  */
-export function createTrinity<Z = unknown, E = unknown> (
+export function createTrinity<
+  Z = unknown,
+  E = unknown,
+> (
   createContext: () => Z,
   provideContext: (model?: Ref<E>, _context?: Z, app?: App) => Z,
   context: Z,
