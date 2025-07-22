@@ -11,6 +11,8 @@ export type ContextKey<Z> = InjectionKey<Z> | string
  * @param key The provided string or InjectionKey
  * @template Z The type values for the context.
  * @returns A function that retrieves context
+ *
+ * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
  */
 export function useContext<Z> (key: ContextKey<Z>) {
   return function (): Z {
@@ -31,7 +33,7 @@ export function useContext<Z> (key: ContextKey<Z>) {
  * @template Z The type values for the context.
  * @returns A tuple containing provide/inject
  *
- * @see https://vuejs.org/guide/components/provide-inject
+ * @see https://vuejs.org/api/composition-api-dependency-injection.html#provide
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
  */
 export function createContext<Z> (key: ContextKey<Z>) {
