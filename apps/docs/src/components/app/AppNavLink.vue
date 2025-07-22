@@ -31,6 +31,7 @@
       :active-class
       :as
       class="font-semibold"
+      :class="to ? 'hover:underline' : ''"
       v-bind="props"
     >
       <slot />
@@ -48,7 +49,7 @@
         v-for="child in children"
         :key="child.name"
         :children="(child as any).children"
-        class="text-sm opacity-80"
+        class="text-sm opacity-70"
         :to="(child as any).to"
       >
         {{ child.name }}

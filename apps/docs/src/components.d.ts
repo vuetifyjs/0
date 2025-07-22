@@ -8,6 +8,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppBar: typeof import('./components/app/AppBar.vue')['default']
+    AppDivider: typeof import('./components/app/AppDivider.vue')['default']
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

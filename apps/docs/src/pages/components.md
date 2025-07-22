@@ -15,7 +15,6 @@ A collection of foundational components designed to be headless, accessible, and
 | Step | Step-based navigation for wizards and forms |
 | Theme | Theme management and CSS variable injection |
 | Breakpoints | Responsive breakpoint utilities |
-| Markdown | Markdown rendering interface |
 
 - **Headless First**: Provide logic and accessibility without imposed styling
 - **Slot-Driven**: Maximum flexibility through comprehensive slot APIs

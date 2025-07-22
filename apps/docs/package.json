@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/markdown-it-attrs": "^4.1.3",
     "@vitejs/plugin-vue": "^6.0.0",
     "unocss": "^66.3.2",
     "unplugin-vue": "catalog:",
@@ -18,6 +19,7 @@
   "dependencies": {
     "@vuetify/0": "workspace:*",
     "@vuetify/paper": "workspace:*",
+    "markdown-it-attrs": "^4.3.1",
     "unplugin-vue-components": "^28.7.0",
     "unplugin-vue-markdown": "^29.1.0",
     "unplugin-vue-router": "^0.14.0",

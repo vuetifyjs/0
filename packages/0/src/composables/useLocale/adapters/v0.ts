@@ -6,7 +6,7 @@ import type { LocaleAdapter } from './adapter'
 import type { ID } from '#v0/types'
 
 /**
- * Vuetify 0.x locale adapter implementation
+ * Vuetify0.x locale adapter implementation
  *
  * This adapter provides translation and number formatting
  * capabilities using the Intl API and supports both

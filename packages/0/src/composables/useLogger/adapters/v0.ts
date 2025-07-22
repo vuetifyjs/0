@@ -6,7 +6,7 @@ import type { LoggerAdapter } from './adapter'
 import type { LogLevel } from '../types'
 
 /**
- * Vuetify 0.x logger adapter implementation
+ * Vuetify0.x logger adapter implementation
  *
  * This adapter provides console-based logging with proper formatting,
  * color coding, timestamps, and log level filtering for development

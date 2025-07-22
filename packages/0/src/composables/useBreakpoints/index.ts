@@ -173,7 +173,10 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
   if (IN_BROWSER) {
     const listener = () => update()
     window.addEventListener('resize', listener, { passive: true })
-    onScopeDispose(() => window.removeEventListener('resize', listener))
+
+    if (getCurrentInstance()) {
+      onScopeDispose(() => window.removeEventListener('resize', listener))
+    }
   }
 
   return state

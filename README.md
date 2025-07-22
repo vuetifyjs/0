@@ -1,4 +1,4 @@
-# Vuetify 0
+# Vuetify0
 
 A foundational Vue 3 component library providing lightweight, headless building blocks for modern web applications. Built with TypeScript, this library offers unstyled, accessible components and composables that serve as the foundation for higher-order UI libraries.
 
