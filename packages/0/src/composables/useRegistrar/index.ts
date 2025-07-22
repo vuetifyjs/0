@@ -20,6 +20,7 @@ export interface RegistrarTicket {
 export interface RegistrarContext {
   tickets: Reactive<Map<ID, Reactive<any>>>
   lookup: (index: number) => ID | undefined
+  find: (id: ID) => Reactive<any> | undefined
   register: (ticket?: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
   unregister: (id: ID) => void
   reindex: () => void
@@ -36,13 +37,17 @@ export interface RegistrarContext {
  * @returns A tuple containing the inject function, provide function, and the registrar context.
  */
 export function useRegistrar<
-  Z extends RegistrarTicket,
-  E extends RegistrarContext,
+  Z extends RegistrarContext,
+  E extends RegistrarTicket,
 > (namespace: string) {
-  const [useRegistrarContext, _provideRegistrarContext] = createContext<E>(namespace)
+  const [useRegistrarContext, _provideRegistrarContext] = createContext<Z>(namespace)
 
-  const tickets = reactive(new Map<ID, Z>())
+  const tickets = reactive(new Map<ID, E>())
   const directory = reactive(new Map<number, ID>())
+
+  function find (id: ID) {
+    return tickets.get(id) as E | undefined
+  }
 
   function lookup (index: number) {
     return directory.get(index)
@@ -58,12 +63,12 @@ export function useRegistrar<
     }
   }
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+  function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
     const item = reactive({
       id,
       index: registrant?.index ?? tickets.size,
       ...registrant,
-    }) as Reactive<Z>
+    }) as Reactive<E>
 
     tickets.set(item.id, item as any)
     directory.set(item.index, item.id)
@@ -78,20 +83,22 @@ export function useRegistrar<
 
     directory.delete(item.index)
     tickets.delete(item.id)
+
     reindex()
   }
 
   const context = {
     tickets,
     lookup,
+    find,
     register,
     unregister,
     reindex,
-  } as E
+  } as Z
 
-  function provideRegistrarContext (_: unknown, _context: E = context, app?: App): E {
+  function provideRegistrarContext (_: unknown, _context: Z = context, app?: App): Z {
     return _provideRegistrarContext(_context, app)
   }
 
-  return createTrinity<E>(useRegistrarContext, provideRegistrarContext, context)
+  return createTrinity<Z>(useRegistrarContext, provideRegistrarContext, context)
 }

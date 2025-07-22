@@ -54,13 +54,13 @@ export interface ThemePlugin {
  * Creates a theme registrar for managing theme selections and color resolution.
  *
  * @param namespace The namespace for the theme context.
- * @template Z The type of theme tickets managed by the registrar.
- * @template E The type of theme context.
+ * @template Z The type of theme context.
+ * @template E The type of theme tickets managed by the registrar.
  * @returns A tuple containing inject, provide functions and the theme context.
  */
 export function createTheme<
-  Z extends ThemeTicket,
-  E extends ThemeContext,
+  Z extends ThemeContext,
+  E extends ThemeTicket,
 > (
   namespace = 'v0:theme',
   tokens: ComputedRef<Record<string, string>>,
@@ -89,7 +89,7 @@ export function createTheme<
     cycle(themeArray)
   }
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+  function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
     const item = registrar.register({
       lazy: registrant?.lazy ?? false,
       ...registrant,
@@ -112,13 +112,13 @@ export function createTheme<
     return colors
   }
 
-  return createTrinity(useThemeContext, provideThemeContext, {
+  return createTrinity<Z>(useThemeContext, provideThemeContext, {
     ...registrar,
     colors,
     register,
     cycle,
     toggle,
-  } as E)
+  } as Z)
 }
 
 /**
@@ -135,17 +135,17 @@ export function useTheme (): ThemeContext {
  * Uses the universal plugin factory to eliminate boilerplate code.
  *
  * @param options Configuration for themes, palette, and adapter.
- * @template Z The type of theme tickets.
- * @template E The type of theme context.
- * @template R The type of token tickets.
- * @template O The type of token context.
+ * @template Z The type of theme context.
+ * @template E The type of theme tickets.
+ * @template R The type of token context.
+ * @template O The type of token tickets.
  * @returns A Vue plugin object with install method.
  */
 export function createThemePlugin<
-  Z extends ThemeTicket = ThemeTicket,
-  E extends ThemeContext = ThemeContext,
-  R extends TokenTicket = TokenTicket,
-  O extends TokenContext = TokenContext,
+  Z extends ThemeContext = ThemeContext,
+  E extends ThemeTicket = ThemeTicket,
+  R extends TokenContext = TokenContext,
+  O extends TokenTicket = TokenTicket,
 > (options: ThemePluginOptions = {}): ThemePlugin {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
   const [, provideThemeTokenContext, tokensContext] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })
@@ -157,7 +157,7 @@ export function createThemePlugin<
       themeContext.register({
         id,
         value: options.themes[id],
-      } as Partial<Z>, id)
+      } as Partial<E>, id)
 
       if (id === options.default && !themeContext.selectedId.value) {
         themeContext.select(id as ID)

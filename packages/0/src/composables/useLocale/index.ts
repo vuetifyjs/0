@@ -40,13 +40,13 @@ export interface LocalePlugin {
  *
  * @param namespace The namespace for the locale context.
  * @param options Configuration including adapter and messages.
- * @template Z The type of the locale tickets managed by the registrar.
- * @template E The type of the locale context.
+ * @template Z The type of the locale context.
+ * @template E The type of the locale tickets managed by the registrar.
  * @returns An array containing the inject function, provide function, and the locale context.
  */
 export function createLocale<
-  Z extends LocaleTicket,
-  E extends LocaleContext,
+  Z extends LocaleContext,
+  E extends LocaleTicket,
 > (
   namespace = 'v0:locale',
   options: LocalePluginOptions = {},
@@ -84,11 +84,11 @@ export function createLocale<
     return adapter.n(value, registrar.selectedId.value, ...params)
   }
 
-  return createTrinity<E>(useLocaleContext, provideLocaleContext, {
+  return createTrinity<Z>(useLocaleContext, provideLocaleContext, {
     ...registrar,
     t,
     n,
-  } as E)
+  } as Z)
 }
 
 /**
@@ -105,17 +105,17 @@ export function useLocale (): LocaleContext {
  * Uses the universal plugin factory to eliminate boilerplate code.
  *
  * @param options Configuration for adapter, default locale, and messages.
- * @template Z The type of the locale tickets managed by the registrar.
- * @template E The type of the locale context.
- * @template R The type of the token tickets managed by the registrar.
- * @template O The type of the token context.
+ * @template Z The type of the locale context.
+ * @template E The type of the locale tickets managed by the registrar.
+ * @template R The type of the token context.
+ * @template O The type of the token tickets managed by the registrar.
  * @returns Vue install function for the plugin
  */
 export function createLocalePlugin<
-  Z extends LocaleTicket = LocaleTicket,
-  E extends LocaleContext = LocaleContext,
-  R extends TokenTicket = TokenTicket,
-  O extends TokenContext = TokenContext,
+  Z extends LocaleContext = LocaleContext,
+  E extends LocaleTicket = LocaleTicket,
+  R extends TokenContext = TokenContext,
+  O extends TokenTicket = TokenTicket,
 > (_options: LocalePluginOptions = {}): LocalePlugin {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
   const [, provideLocaleTokenContext, tokensContext] = useTokens<R, O>('v0:locale:tokens', messages)
@@ -127,7 +127,7 @@ export function createLocalePlugin<
       localeContext.register({
         id,
         value: messages[id],
-      } as Partial<Z>, id)
+      } as Partial<E>, id)
 
       if (id === options.default && !localeContext.selectedId.value) {
         localeContext.select(id as ID)

@@ -123,8 +123,8 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
  * @returns A tuple containing the inject function, provide function, and the token context.
  */
 export function useTokens<
-  Z extends TokenTicket = TokenTicket,
-  E extends TokenContext = TokenContext,
+  Z extends TokenContext,
+  E extends TokenTicket,
 > (
   namespace: string,
   tokens: TokenCollection = {},
@@ -143,7 +143,7 @@ export function useTokens<
   for (const { id, value } of flattened) {
     const resolvedValue = resolved.value[id] || (typeof value === 'string' ? value : value.$value)
 
-    registrar.register({ value: resolvedValue } as Partial<Z>, id)
+    registrar.register({ value: resolvedValue } as Partial<E>, id)
   }
 
   function clean (token: string): string {
@@ -154,9 +154,9 @@ export function useTokens<
     return resolved.value[clean(token)]
   }
 
-  return createTrinity<E>(useTokenContext, provideTokenContext, {
+  return createTrinity<Z>(useTokenContext, provideTokenContext, {
     ...registrar,
     resolve,
     resolved,
-  } as E)
+  } as Z)
 }

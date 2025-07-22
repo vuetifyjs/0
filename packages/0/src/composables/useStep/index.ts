@@ -29,8 +29,8 @@ export type StepContext = SingleContext & {
  * @returns A tuple containing the inject function, provide function, and the step context.
  */
 export function useStep<
-  Z extends StepTicket,
-  E extends StepContext,
+  Z extends StepContext,
+  E extends StepTicket,
 > (
   namespace: string,
   options?: StepOptions,
@@ -91,12 +91,12 @@ export function useStep<
     registrar.selectedIds.add(id)
   }
 
-  return createTrinity<E>(useGroupContext, provideGroupContext, {
+  return createTrinity<Z>(useGroupContext, provideGroupContext, {
     ...registrar,
     first,
     last,
     next,
     prev,
     step,
-  } as E)
+  } as Z)
 }

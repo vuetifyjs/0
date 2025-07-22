@@ -38,8 +38,8 @@ export type SingleContext = GroupContext & {
  * @returns A tuple containing the inject function, provide function, and the single context.
  */
 export function useSingle<
-  Z extends SingleTicket,
-  E extends SingleContext,
+  Z extends SingleContext,
+  E extends SingleTicket,
 > (
   namespace: string,
   _options?: SingleOptions,
@@ -58,12 +58,12 @@ export function useSingle<
     registrar.select(id)
   }
 
-  return createTrinity<E>(useGroupContext, provideGroupContext, {
+  return createTrinity<Z>(useGroupContext, provideGroupContext, {
     ...registrar,
     selectedId,
     selectedItem,
     selectedIndex,
     selectedValue,
     select,
-  } as E)
+  } as Z)
 }

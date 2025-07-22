@@ -18,6 +18,7 @@ export type GroupTicket = RegistrarTicket & {
   value: unknown
   valueIsIndex: boolean
   isActive: Readonly<ComputedGetter<boolean>>
+  /** Toggle self on and off */
   toggle: () => void
 }
 
@@ -48,11 +49,11 @@ export type GroupOptions = {
  * @param options  Optional configuration for the group behavior.
  * @template Z The type of the group tickets managed by the registrar.
  * @template E The type of the group context.
- * @returns  A tuple containing the inject function, provide function, and the group context.
+ * @returns A tuple containing the inject function, provide function, and the group context.
  */
 export function useGroup<
-  Z extends GroupTicket,
-  E extends GroupContext,
+  Z extends GroupContext,
+  E extends GroupTicket,
 > (
   namespace: string,
   options?: GroupOptions,
@@ -139,21 +140,17 @@ export function useGroup<
     }
   }
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
-    const item: Partial<Z> = {
+  function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
+    const item: Partial<E> = {
       disabled: false,
       value: registrant?.value ?? registrar.tickets.size,
       valueIsIndex: registrant?.value == null,
+      isActive: toRef(() => selectedIds.has(ticket.id)),
+      toggle: () => toggle(ticket.id),
       ...registrant,
     }
 
     const ticket = registrar.register(item, id)
-
-    // Reactivity was being lost unless done this way, revisit
-    Object.assign(ticket, {
-      isActive: toRef(() => selectedIds.has(ticket.id)),
-      toggle: () => toggle(ticket.id),
-    })
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
@@ -191,9 +188,13 @@ export function useGroup<
     reindex,
     mandate,
     select,
-  } as E
+  } as Z
 
-  function provideGroupContext (model?: Ref<unknown | unknown[]>, _context: E = context, app?: App): E {
+  function provideGroupContext (
+    model?: Ref<unknown | unknown[]>,
+    _context: Z = context,
+    app?: App,
+  ): Z {
     let isUpdatingModel = false
 
     if (model) {
@@ -244,5 +245,5 @@ export function useGroup<
     return _context
   }
 
-  return createTrinity<E>(useRegistrarContext, provideGroupContext, context)
+  return createTrinity<Z>(useRegistrarContext, provideGroupContext, context)
 }
