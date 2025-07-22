@@ -4,13 +4,15 @@ import { inject, provide } from 'vue'
 // Types
 import type { App, InjectionKey } from 'vue'
 
+export type ContextKey<Z> = InjectionKey<Z> | string
+
 /**
  * A simple wrapper for tapping into a v0 namespace
  * @param key The provided string or InjectionKey
  * @template Z The type values for the context.
  * @returns A function that retrieves context
  */
-export function useContext<Z> (key: InjectionKey<Z> | string) {
+export function useContext<Z> (key: ContextKey<Z>) {
   return function (): Z {
     const contextValue = inject<Z>(key)
 
@@ -32,7 +34,7 @@ export function useContext<Z> (key: InjectionKey<Z> | string) {
  * @see https://vuejs.org/guide/components/provide-inject
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
  */
-export function createContext<Z> (key: InjectionKey<Z> | string) {
+export function createContext<Z> (key: ContextKey<Z>) {
   function provideContext (value: Z, app?: App) {
     app ? app.provide(key, value) : provide(key, value)
 
