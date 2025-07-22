@@ -14,13 +14,13 @@ export type ContextKey<Z> = InjectionKey<Z> | string
  */
 export function useContext<Z> (key: ContextKey<Z>) {
   return function (): Z {
-    const contextValue = inject<Z>(key)
+    const context = inject<Z>(key)
 
-    if (contextValue === undefined) {
+    if (context === undefined) {
       throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)
     }
 
-    return contextValue
+    return context
   }
 }
 
@@ -35,10 +35,10 @@ export function useContext<Z> (key: ContextKey<Z>) {
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
  */
 export function createContext<Z> (key: ContextKey<Z>) {
-  function provideContext (value: Z, app?: App) {
-    app ? app.provide(key, value) : provide(key, value)
+  function provideContext (context: Z, app?: App) {
+    app ? app.provide(key, context) : provide(key, context)
 
-    return value
+    return context
   }
 
   return [useContext<Z>(key), provideContext] as const
