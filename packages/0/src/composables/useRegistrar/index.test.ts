@@ -3,9 +3,7 @@ import { useRegistrar } from './index'
 
 describe('useRegistrar', () => {
   it('should register and unregister items', () => {
-    const [, provideContext] = useRegistrar('test')
-
-    const context = provideContext()
+    const context = useRegistrar('test')[2]
 
     const ticket1 = context.register({ id: 'item1' })
     expect(ticket1.id).toBe('item1')
@@ -30,9 +28,7 @@ describe('useRegistrar', () => {
   })
 
   it('should auto-generate unique IDs', () => {
-    const [, provideContext] = useRegistrar('test')
-
-    const context = provideContext()
+    const context = useRegistrar('test')[2]
 
     const ticket1 = context.register()
     const ticket2 = context.register()
@@ -42,9 +38,7 @@ describe('useRegistrar', () => {
   })
 
   it('should maintain correct indices after reindexing', () => {
-    const [, provideContext] = useRegistrar('test')
-
-    const context = provideContext()
+    const context = useRegistrar('test')[2]
 
     const ticket1 = context.register({ id: 'item1' })
     const ticket2 = context.register({ id: 'item2' })
