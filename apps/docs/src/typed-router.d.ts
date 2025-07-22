@@ -19,7 +19,14 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
-    '/components': RouteRecordInfo<'/components', '/components', Record<never, never>, Record<never, never>>,
+    '/components/atom': RouteRecordInfo<'/components/atom', '/components/atom', Record<never, never>, Record<never, never>>,
+    '/components/avatar': RouteRecordInfo<'/components/avatar', '/components/avatar', Record<never, never>, Record<never, never>>,
+    '/components/breakpoints': RouteRecordInfo<'/components/breakpoints', '/components/breakpoints', Record<never, never>, Record<never, never>>,
+    '/components/context': RouteRecordInfo<'/components/context', '/components/context', Record<never, never>, Record<never, never>>,
+    '/components/hydration': RouteRecordInfo<'/components/hydration', '/components/hydration', Record<never, never>, Record<never, never>>,
+    '/components/popover': RouteRecordInfo<'/components/popover', '/components/popover', Record<never, never>, Record<never, never>>,
+    '/components/step': RouteRecordInfo<'/components/step', '/components/step', Record<never, never>, Record<never, never>>,
+    '/components/theme': RouteRecordInfo<'/components/theme', '/components/theme', Record<never, never>, Record<never, never>>,
     '/composables/': RouteRecordInfo<'/composables/', '/composables', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-context': RouteRecordInfo<'/composables/foundation/create-context', '/composables/foundation/create-context', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-plugin': RouteRecordInfo<'/composables/foundation/create-plugin', '/composables/foundation/create-plugin', Record<never, never>, Record<never, never>>,

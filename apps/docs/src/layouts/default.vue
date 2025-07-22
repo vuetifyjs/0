@@ -79,6 +79,16 @@
     {
       name: 'Components',
       to: '/components',
+      children: [
+        { name: 'Atom', to: '/components/atom' },
+        { name: 'Avatar', to: '/components/avatar' },
+        { name: 'Breakpoints', to: '/components/breakpoints' },
+        { name: 'Context', to: '/components/context' },
+        { name: 'Hydration', to: '/components/hydration' },
+        { name: 'Popover', to: '/components/popover' },
+        { name: 'Step', to: '/components/step' },
+        { name: 'Theme', to: '/components/theme' },
+      ],
     },
     { divider: true },
     {
