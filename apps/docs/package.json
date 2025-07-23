@@ -13,8 +13,7 @@
     "@vitejs/plugin-vue": "^6.0.0",
     "unocss": "^66.3.2",
     "unplugin-vue": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-md": "^0.21.5"
+    "vite": "catalog:"
   },
   "dependencies": {
     "@vuetify/0": "workspace:*",
