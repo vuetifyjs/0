@@ -7,6 +7,7 @@
 export {}
 declare global {
   const COMMON_ELEMENTS: typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']
+  const ConsolaLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['ConsolaLoggerAdapter']
   const DEFAULT_DARK: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
@@ -15,6 +16,7 @@ declare global {
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
   const SUPPORTS_MATCH_MEDIA: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']
+  const SUPPORTS_OBSERVER: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_OBSERVER']
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
   const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']
@@ -221,19 +223,18 @@ declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
     readonly COMMON_ELEMENTS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']>
+    readonly ConsolaLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['ConsolaLoggerAdapter']>
     readonly DEFAULT_DARK: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']>
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
-    readonly Log4jsLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Log4jsLoggerAdapter']>
     readonly PinoLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
     readonly SUPPORTS_MATCH_MEDIA: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']>
+    readonly SUPPORTS_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_OBSERVER']>
     readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
     readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
-    readonly WinstonLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['WinstonLoggerAdapter']>
-    readonly __DEV__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__DEV__']>
     readonly __LOGGER_ENABLED__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']>
     readonly compare: UnwrapRef<typeof import('../../packages/0/src/utilities/benchmark')['compare']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
@@ -294,7 +295,6 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']>
     readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
-    readonly provideLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['provideLoggerContext']>
     readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
@@ -331,7 +331,6 @@ declare module 'vue' {
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
-    readonly useLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLoggerContext']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
