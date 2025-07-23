@@ -11,11 +11,18 @@ declare global {
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']
+  const Log4jsLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['Log4jsLoggerAdapter']
+  const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
   const SUPPORTS_MATCH_MEDIA: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
+  const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']
   const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']
+  const WinstonLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['WinstonLoggerAdapter']
+  const __DEV__: typeof import('../../packages/0/src/constants/globals')['__DEV__']
+  const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']
+  const compare: typeof import('../../packages/0/src/utilities/benchmark')['compare']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']
@@ -26,6 +33,8 @@ declare global {
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
   const createLocale: typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
+  const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
+  const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']
   const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
   const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
   const createPlugin: typeof import('../../packages/0/src/factories/createPlugin/index')['createPlugin']
@@ -39,20 +48,26 @@ declare global {
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const effectScope: typeof import('vue')['effectScope']
+  const genId: typeof import('../../packages/0/src/utilities/helpers')['genId']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const guard: typeof import('../../packages/0/src/utilities/benchmark')['guard']
   const h: typeof import('vue')['h']
   const hexToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']
   const hexaToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']
   const inject: typeof import('vue')['inject']
   const installMarkdownPlugin: typeof import('../../packages/v0/src/composables/useMarkdown/index')['installMarkdownPlugin']
+  const isArray: typeof import('../../packages/0/src/utilities/helpers')['isArray']
+  const isNullOrUndefined: typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']
+  const isObject: typeof import('../../packages/0/src/utilities/helpers')['isObject']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
   const isSelfClosingTag: typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']
   const markRaw: typeof import('vue')['markRaw']
+  const mergeDeep: typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']
   const nextTick: typeof import('vue')['nextTick']
   const onActivated: typeof import('vue')['onActivated']
   const onBeforeMount: typeof import('vue')['onBeforeMount']
@@ -72,6 +87,7 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']
   const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
+  const provideLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['provideLoggerContext']
   const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
   const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']
   const reactive: typeof import('vue')['reactive']
@@ -80,6 +96,7 @@ declare global {
   const resolveComponent: typeof import('vue')['resolveComponent']
   const rgbToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['rgbToRgba']
   const rgbaToHexa: typeof import('../../packages/paper/src/composables/useColor/index')['rgbaToHexa']
+  const run: typeof import('../../packages/0/src/utilities/benchmark')['run']
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
@@ -109,6 +126,8 @@ declare global {
   const useId: typeof import('vue')['useId']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']
+  const useLogger: typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']
+  const useLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['useLoggerContext']
   const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
   const useMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']
   const useModel: typeof import('vue')['useModel']
@@ -122,6 +141,7 @@ declare global {
   const useStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTheme: typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']
+  const useTokens: typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -169,6 +189,9 @@ declare global {
   export type { LocaleTicket, LocaleContext, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
   // @ts-ignore
+  export type { LoggerContext, LoggerOptions, LoggerPlugin, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
+  import('../../packages/0/src/composables/useLogger/index')
+  // @ts-ignore
   export type { RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
   import('../../packages/0/src/composables/useRegistrar/index')
   // @ts-ignore
@@ -201,10 +224,17 @@ declare module 'vue' {
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
+    readonly Log4jsLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Log4jsLoggerAdapter']>
+    readonly PinoLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
     readonly SUPPORTS_MATCH_MEDIA: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']>
     readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
+    readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
+    readonly WinstonLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['WinstonLoggerAdapter']>
+    readonly __DEV__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__DEV__']>
+    readonly __LOGGER_ENABLED__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']>
+    readonly compare: UnwrapRef<typeof import('../../packages/0/src/utilities/benchmark')['compare']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']>
@@ -214,29 +244,36 @@ declare module 'vue' {
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
     readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
+    readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
+    readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
     readonly createStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']>
     readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
     readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
-    readonly createTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly genId: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['genId']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
+    readonly guard: UnwrapRef<typeof import('../../packages/0/src/utilities/benchmark')['guard']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hexToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']>
     readonly hexaToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
+    readonly isArray: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isArray']>
+    readonly isNullOrUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']>
+    readonly isObject: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isObject']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isSelfClosingTag: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
+    readonly mergeDeep: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -256,6 +293,7 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']>
     readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
+    readonly provideLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['provideLoggerContext']>
     readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
@@ -263,6 +301,7 @@ declare module 'vue' {
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly rgbToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['rgbToRgba']>
     readonly rgbaToHexa: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['rgbaToHexa']>
+    readonly run: UnwrapRef<typeof import('../../packages/0/src/utilities/benchmark')['run']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
@@ -290,6 +329,8 @@ declare module 'vue' {
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
+    readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
+    readonly useLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLoggerContext']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRegistrar: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
@@ -301,6 +342,7 @@ declare module 'vue' {
     readonly useStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
+    readonly useTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>

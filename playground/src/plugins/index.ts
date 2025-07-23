@@ -1,9 +1,10 @@
-import { createBreakpointsPlugin } from '@vuetify/0'
 import type { App } from 'vue'
 import { materialPalette, tailwindPalette } from './palettes'
 
 export function registerPlugins (app: App) {
   app.use(createHydrationPlugin())
+
+  app.use(createLoggerPlugin())
 
   app.use(
     createBreakpointsPlugin({
@@ -24,12 +25,6 @@ export function registerPlugins (app: App) {
           welcome: 'Bienvenue dans notre application',
         },
       },
-    }),
-  )
-
-  app.use(
-    createMarkdownPlugin({
-      //
     }),
   )
 
