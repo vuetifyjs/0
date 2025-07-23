@@ -17,7 +17,7 @@ export type ContextTrinity<
  * @param context The underlying context object singleton
  * @template Z The type parameter for the context value
  * @template E The vmodel type for the context state.
- * @returns [createContext,provideContext,context]
+ * @returns [createContext, provideContext, context]
  *
  * @see https://0.vuetifyjs.com/composables/foundation/create-trinity
  */
