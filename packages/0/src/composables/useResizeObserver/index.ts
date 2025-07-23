@@ -20,7 +20,7 @@ export interface ResizeObserverEntry {
   target: Element
 }
 
-export interface UseResizeObserverOptions {
+export interface ResizeObserverOptions {
   immediate?: boolean
   box?: 'content-box' | 'border-box'
 }
@@ -38,7 +38,7 @@ export interface UseResizeObserverOptions {
 export function useResizeObserver (
   target: Ref<Element | undefined>,
   callback: (entries: ResizeObserverEntry[]) => void,
-  options: UseResizeObserverOptions = {},
+  options: ResizeObserverOptions = {},
 ) {
   const { isHydrated } = useHydration()
   const observer = shallowRef<ResizeObserver>()

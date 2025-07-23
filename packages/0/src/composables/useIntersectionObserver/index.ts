@@ -20,7 +20,7 @@ export interface IntersectionObserverEntry {
   time: number
 }
 
-export interface UseIntersectionObserverOptions {
+export interface IntersectionObserverOptions {
   immediate?: boolean
   root?: Element | null
   rootMargin?: string
@@ -40,7 +40,7 @@ export interface UseIntersectionObserverOptions {
 export function useIntersectionObserver (
   target: Ref<Element | undefined>,
   callback: (entries: IntersectionObserverEntry[]) => void,
-  options: UseIntersectionObserverOptions = {},
+  options: IntersectionObserverOptions = {},
 ) {
   const { isHydrated } = useHydration()
   const observer = shallowRef<IntersectionObserver>()
@@ -180,7 +180,7 @@ export function useIntersectionObserver (
  */
 export function useElementIntersection (
   target: Ref<Element | undefined>,
-  options: UseIntersectionObserverOptions = {},
+  options: IntersectionObserverOptions = {},
 ) {
   const isIntersecting = shallowRef(false)
   const intersectionRatio = shallowRef(0)
