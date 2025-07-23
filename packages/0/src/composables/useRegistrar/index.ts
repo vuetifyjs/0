@@ -17,12 +17,15 @@ export interface RegistrarTicket {
 
 export interface RegistrarContext {
   tickets: Reactive<Map<ID, Reactive<any>>>
-  /** lookup ticket by index number */
+  /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
-  /** find ticket by id */
+  /** Find a ticket by id */
   find: (id: ID) => Reactive<any> | undefined
+  /** Register a new ticket */
   register: (ticket?: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
+  /** Unregister a ticket by id */
   unregister: (id: ID) => void
+  /** Reset the index directory and update all items */
   reindex: () => void
 }
 
