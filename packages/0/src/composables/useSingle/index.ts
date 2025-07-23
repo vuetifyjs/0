@@ -25,7 +25,7 @@ export type SingleContext = GroupContext & {
 }
 
 /**
- * Creates a single registrar for managing single selections within a specific namespace.
+ * Creates a single registry for managing single selections within a specific namespace.
  * This function provides a way to register, unregister, and manage single selections,
  * allowing for dynamic single selection management in applications.
  *
@@ -33,7 +33,7 @@ export type SingleContext = GroupContext & {
  *
  * @param namespace The namespace for the single context.
  * @param options Optional configuration for the single behavior.
- * @template Z The type of the single items managed by the registrar.
+ * @template Z The type of the single items managed by the registry.
  * @template E The type of the single context.
  * @returns A tuple containing the inject function, provide function, and the single context.
  */
@@ -47,19 +47,19 @@ export function useSingle<
   // Force multiple to false for single selection behavior
   const options = { ..._options, multiple: false }
 
-  const [useGroupContext, provideGroupContext, registrar] = useGroup<Z, E>(namespace, options)
+  const [useGroupContext, provideGroupContext, registry] = useGroup<Z, E>(namespace, options)
 
-  const selectedId = computed(() => registrar.selectedIds.values().next().value)
-  const selectedItem = computed(() => selectedId.value ? registrar.collection.get(selectedId.value) : undefined)
+  const selectedId = computed(() => registry.selectedIds.values().next().value)
+  const selectedItem = computed(() => selectedId.value ? registry.collection.get(selectedId.value) : undefined)
   const selectedIndex = computed(() => selectedItem.value ? selectedItem.value.index : -1)
   const selectedValue = computed(() => selectedItem.value ? selectedItem.value.value : undefined)
 
   function select (id: ID) {
-    registrar.select(id)
+    registry.select(id)
   }
 
   return createTrinity<Z>(useGroupContext, provideGroupContext, {
-    ...registrar,
+    ...registry,
     selectedId,
     selectedItem,
     selectedIndex,

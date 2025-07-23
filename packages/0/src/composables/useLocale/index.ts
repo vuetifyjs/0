@@ -36,12 +36,12 @@ export interface LocalePlugin {
 }
 
 /**
- * Creates a locale registrar for managing locale translations and number formatting.
+ * Creates a locale registry for managing locale translations and number formatting.
  *
  * @param namespace The namespace for the locale context.
  * @param options Configuration including adapter and messages.
  * @template Z The type of the locale context.
- * @template E The type of the locale items managed by the registrar.
+ * @template E The type of the locale items managed by the registry.
  * @returns An array containing the inject function, provide function, and the locale context.
  */
 export function createLocale<
@@ -52,7 +52,7 @@ export function createLocale<
   options: LocalePluginOptions = {},
 ) {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
-  const [useLocaleContext, provideLocaleContext, registrar] = useSingle<Z, E>(namespace)
+  const [useLocaleContext, provideLocaleContext, registry] = useSingle<Z, E>(namespace)
 
   function resolve (locale: ID, str: string): string {
     return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, linkedKey) => {
@@ -67,7 +67,7 @@ export function createLocale<
   }
 
   function t (key: string, ...params: unknown[]): string {
-    const locale = registrar.selectedId.value
+    const locale = registry.selectedId.value
 
     if (!locale) return key
 
@@ -81,11 +81,11 @@ export function createLocale<
   }
 
   function n (value: number, ...params: unknown[]): string {
-    return adapter.n(value, registrar.selectedId.value, ...params)
+    return adapter.n(value, registry.selectedId.value, ...params)
   }
 
   return createTrinity<Z>(useLocaleContext, provideLocaleContext, {
-    ...registrar,
+    ...registry,
     t,
     n,
   } as Z)
@@ -106,9 +106,9 @@ export function useLocale (): LocaleContext {
  *
  * @param options Configuration for adapter, default locale, and messages.
  * @template Z The type of the locale context.
- * @template E The type of the locale items managed by the registrar.
+ * @template E The type of the locale items managed by the registry.
  * @template R The type of the token context.
- * @template O The type of the token items managed by the registrar.
+ * @template O The type of the token items managed by the registry.
  * @returns Vue install function for the plugin
  */
 export function createLocalePlugin<

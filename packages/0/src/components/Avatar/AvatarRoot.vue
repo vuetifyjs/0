@@ -3,36 +3,36 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { useRegistrar } from '#v0/composables'
+  import { useRegistry } from '#v0/composables'
 
   // Utilities
   import { computed, toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '#v0/composables'
+  import type { RegistryContext, RegistryItem, RegistryTicket } from '#v0/composables'
   import type { ComputedGetter } from 'vue'
 
   export interface AvatarRootProps extends AtomProps {}
 
-  export interface AvatarItem extends RegistrarItem {
+  export interface AvatarItem extends RegistryItem {
     type: 'image' | 'fallback'
     priority: number
     status: 'idle' | 'loading' | 'loaded' | 'error'
   }
 
-  interface AvatarTicket extends RegistrarTicket {
+  interface AvatarTicket extends RegistryTicket {
     type: AvatarItem['type']
     priority: AvatarItem['priority']
     status: AvatarItem['status']
     isVisible: Readonly<ComputedGetter<boolean>>
   }
 
-  export interface AvatarContext extends RegistrarContext<AvatarTicket, AvatarItem> {
+  export interface AvatarContext extends RegistryContext<AvatarTicket, AvatarItem> {
     reset: () => void
   }
 
-  export const [useAvatarContext, provideAvatarContext, registrar] = useRegistrar<AvatarTicket, AvatarContext>('avatar')
+  export const [useAvatarContext, provideAvatarContext, registry] = useRegistry<AvatarTicket, AvatarContext>('avatar')
 </script>
 
 <script setup lang="ts">
@@ -41,13 +41,13 @@
   const { as = 'div', renderless } = defineProps<AvatarRootProps>()
 
   const imageItems = computed(() => (
-    Array.from(registrar.registeredItems.values())
+    Array.from(registry.registeredItems.values())
       .filter(item => item.type === 'image')
       .toSorted((a, b) => a.priority - b.priority)
   ))
 
   const fallbackItems = computed(() => (
-    Array.from(registrar.registeredItems.values())
+    Array.from(registry.registeredItems.values())
       .filter(item => item.type === 'fallback')
   ))
 
@@ -64,14 +64,14 @@
     return undefined
   })
 
-  const register: typeof registrar.register = createAvatarItem => {
-    const ticket = registrar.register(order => {
-      const avatarItem = registrar.intake(order, createAvatarItem)
+  const register: typeof registry.register = createAvatarItem => {
+    const ticket = registry.register(order => {
+      const avatarItem = registry.intake(order, createAvatarItem)
 
       return {
         ...avatarItem,
         type: avatarItem?.type ?? 'fallback',
-        priority: avatarItem?.priority ?? registrar.registeredItems.size,
+        priority: avatarItem?.priority ?? registry.registeredItems.size,
         status: avatarItem?.status ?? 'idle',
         isVisible: toRef(() => visibleItem.value?.id === order.id),
       }
@@ -81,7 +81,7 @@
   }
 
   function reset () {
-    for (const item of registrar.registeredItems.values()) {
+    for (const item of registry.registeredItems.values()) {
       if (item.type === 'image') {
         item.status = 'idle'
       }
@@ -89,7 +89,7 @@
   }
 
   provideAvatarContext({
-    ...registrar,
+    ...registry,
     register,
     reset,
   })

@@ -51,11 +51,11 @@ export interface ThemePlugin {
 }
 
 /**
- * Creates a theme registrar for managing theme selections and color resolution.
+ * Creates a theme registry for managing theme selections and color resolution.
  *
  * @param namespace The namespace for the theme context.
  * @template Z The type of theme context.
- * @template E The type of theme items managed by the registrar.
+ * @template E The type of theme items managed by the registry.
  * @returns A tuple containing inject, provide functions and the theme context.
  */
 export function createTheme<
@@ -65,13 +65,13 @@ export function createTheme<
   namespace = 'v0:theme',
   tokens: ComputedRef<Record<string, string>>,
 ) {
-  const [useThemeContext, provideThemeContext, registrar] = useSingle<Z, E>(namespace)
+  const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
 
-  const themeNames = computed(() => Array.from(registrar.collection.keys()))
+  const themeNames = computed(() => Array.from(registry.collection.keys()))
   const colors = computed(() => {
     const resolved = {} as Record<string, Colors | undefined>
-    for (const [id, theme] of registrar.collection.entries()) {
-      if (theme.lazy && theme.id !== registrar.selectedId.value) continue
+    for (const [id, theme] of registry.collection.entries()) {
+      if (theme.lazy && theme.id !== registry.selectedId.value) continue
 
       resolved[id as string] = resolve(id, tokens.value)
     }
@@ -79,10 +79,10 @@ export function createTheme<
   })
 
   function cycle (themeArray: ID[] = themeNames.value) {
-    const currentIndex = themeArray.indexOf(registrar.selectedId.value ?? '')
+    const currentIndex = themeArray.indexOf(registry.selectedId.value ?? '')
     const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % themeArray.length
 
-    registrar.select(themeArray[nextIndex])
+    registry.select(themeArray[nextIndex])
   }
 
   function toggle (themeArray: [ID, ID]) {
@@ -90,7 +90,7 @@ export function createTheme<
   }
 
   function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
-    const item = registrar.register({
+    const item = registry.register({
       lazy: registrant?.lazy ?? false,
       ...registrant,
     }, id)
@@ -113,7 +113,7 @@ export function createTheme<
   }
 
   return createTrinity<Z>(useThemeContext, provideThemeContext, {
-    ...registrar,
+    ...registry,
     colors,
     register,
     cycle,

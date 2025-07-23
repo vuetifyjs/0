@@ -132,6 +132,7 @@ declare global {
   const useMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']
   const useModel: typeof import('vue')['useModel']
   const useRegistrar: typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']
+  const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
   const useSingle: typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']
   const useSlots: typeof import('vue')['useSlots']
@@ -192,8 +193,8 @@ declare global {
   export type { LoggerContext, LoggerOptions, LoggerPlugin, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
   import('../../packages/0/src/composables/useLogger/index')
   // @ts-ignore
-  export type { RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
-  import('../../packages/0/src/composables/useRegistrar/index')
+  export type { RegistryTicket, RegistryContext } from '../../packages/0/src/composables/useRegistry/index'
+  import('../../packages/0/src/composables/useRegistry/index')
   // @ts-ignore
   export type { SingleTicket, SingleOptions, SingleContext } from '../../packages/0/src/composables/useSingle/index'
   import('../../packages/0/src/composables/useSingle/index')
@@ -332,7 +333,7 @@ declare module 'vue' {
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLoggerContext']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
-    readonly useRegistrar: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']>
+    readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
     readonly useSingle: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>

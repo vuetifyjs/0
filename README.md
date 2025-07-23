@@ -28,7 +28,7 @@ Core foundational components and composables:
 - `useHydration` - SSR hydration helpers
 - `useKeydown` - Keyboard event handling
 - `useLocale` - Internationalization support
-- `useRegistrar` - Component registration system
+- `useRegistry` - Component registration system
 - `useStep` - Step navigation logic
 - `useTheme` - Theme switching and CSS variable management
 - `useTokens` - Design token system

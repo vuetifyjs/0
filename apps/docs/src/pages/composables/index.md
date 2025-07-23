@@ -14,7 +14,7 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | [useKeydown](/composables/use-keydown) | Handle keyboard events with automatic cleanup |
 | [useLocale](/composables/use-locale) | Internationalization system for multiple languages |
 | [useMarkdown](/composables/use-markdown) | Render Markdown content in Vue applications |
-| [useRegistrar](/composables/use-registrar) | Foundation for registration-based systems |
+| [useRegistry](/composables/use-registry) | Foundation for registration-based systems |
 | [useSingle](/composables/use-single) | Simplified single-selection wrapper around useGroup |
 | [useStep](/composables/use-step) | Manage multi-step processes like forms or wizards |
 | [useStorage](/composables/use-storage) | Reactive interface to browser storage APIs |

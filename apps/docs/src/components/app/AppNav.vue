@@ -45,7 +45,7 @@
         {
           name: 'Registration',
           children: [
-            { name: 'useRegistrar', to: '/composables/registration/use-registrar' },
+            { name: 'useRegistry', to: '/composables/registration/use-registry' },
             { name: 'useTokens', to: '/composables/registration/use-tokens' },
           ],
         },

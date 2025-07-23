@@ -2,14 +2,14 @@
 import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
-import { useRegistrar } from '#v0/composables/useRegistrar'
+import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { computed } from 'vue'
 
 // Types
 import type { ComputedRef } from 'vue'
-import type { RegistrarTicket, RegistrarContext } from '#v0/composables/useRegistrar'
+import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
 
 export type TokenAlias = {
   $value: string
@@ -21,11 +21,11 @@ export type TokenCollection = {
   [key: string]: TokenValue | TokenCollection
 }
 
-export type TokenTicket = RegistrarTicket & {
+export type TokenTicket = RegistryTicket & {
   value: string
 }
 
-export type TokenContext = RegistrarContext & {
+export type TokenContext = RegistryContext & {
   resolve: (token: string) => string | undefined
   resolved: ComputedRef<Record<string, string>>
 }
@@ -107,8 +107,8 @@ function dereference (tokens: Record<string, TokenValue>): Record<string, string
 }
 
 /**
- * Creates a token registrar for managing data structures / aliases
- * @param namespace The namespace for the token registrar context
+ * Creates a token registry for managing data structures / aliases
+ * @param namespace The namespace for the token registry context
  * @param tokens An optional collection of tokens to initialize
  * @template Z The available methods for the token's context.
  * @template E The structure of the registry token items.
@@ -124,7 +124,7 @@ export function useTokens<
   namespace: string,
   tokens: TokenCollection = {},
 ) {
-  const [useTokenContext, provideTokenContext, registrar] = useRegistrar<Z, E>(namespace)
+  const [useTokenContext, provideTokenContext, registry] = useRegistry<Z, E>(namespace)
 
   const flattened = flatten(tokens)
   const collection = new Map<string, TokenValue>()
@@ -138,7 +138,7 @@ export function useTokens<
   for (const { id, value } of flattened) {
     const resolvedValue = resolved.value[id] || (typeof value === 'string' ? value : value.$value)
 
-    registrar.register({ value: resolvedValue } as Partial<E>, id)
+    registry.register({ value: resolvedValue } as Partial<E>, id)
   }
 
   function clean (token: string): string {
@@ -150,7 +150,7 @@ export function useTokens<
   }
 
   return createTrinity<Z>(useTokenContext, provideTokenContext, {
-    ...registrar,
+    ...registry,
     resolve,
     resolved,
   } as Z)

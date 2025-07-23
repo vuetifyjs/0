@@ -1,13 +1,13 @@
 // Composables
-import { useRegistrar } from './index'
+import { useRegistry } from './index'
 
 // Utitilities
 import { describe, it, expect } from 'vitest'
 import { run, compare } from '#v0/utilities/benchmark'
 
-describe('useRegistrar benchmarks', () => {
+describe('useRegistry benchmarks', () => {
   it('should benchmark registration operations', async () => {
-    const context = useRegistrar('benchmark-test')[2]
+    const context = useRegistry('benchmark-test')[2]
 
     const result = await run('register 1000 items', () => {
       for (let i = 0; i < 1000; i++) {
@@ -23,7 +23,7 @@ describe('useRegistrar benchmarks', () => {
   })
 
   it('should benchmark lookup operations', async () => {
-    const context = useRegistrar('benchmark-test')[2]
+    const context = useRegistry('benchmark-test')[2]
 
     // Pre-populate with items
     for (let i = 0; i < 1000; i++) {
@@ -44,7 +44,7 @@ describe('useRegistrar benchmarks', () => {
   })
 
   it('should benchmark unregistration operations', async () => {
-    const context = useRegistrar('benchmark-test')[2]
+    const context = useRegistry('benchmark-test')[2]
 
     // Pre-populate with items
     const items: { id: string, index: number }[] = []
@@ -67,7 +67,7 @@ describe('useRegistrar benchmarks', () => {
   })
 
   it('should benchmark reindexing operations', async () => {
-    const context = useRegistrar('benchmark-test')[2]
+    const context = useRegistry('benchmark-test')[2]
 
     // Pre-populate with items
     for (let i = 0; i < 1000; i++) {
@@ -86,7 +86,7 @@ describe('useRegistrar benchmarks', () => {
   })
 
   it('should compare different operation types', async () => {
-    const context = useRegistrar('benchmark-test')[2]
+    const context = useRegistry('benchmark-test')[2]
 
     // Pre-populate for lookup and unregister tests
     const items: { id: string, index: number }[] = []
@@ -97,7 +97,7 @@ describe('useRegistrar benchmarks', () => {
 
     const results = await compare({
       'register 100 items': () => {
-        const ctx = useRegistrar('register-test')[2]
+        const ctx = useRegistry('register-test')[2]
         for (let i = 0; i < 100; i++) {
           ctx.register({ id: `item-${i}` })
         }
@@ -127,7 +127,7 @@ describe('useRegistrar benchmarks', () => {
     console.log('Registration performance by collection size:')
 
     for (const size of sizes) {
-      const context = useRegistrar(`benchmark-size-${size}`)[2]
+      const context = useRegistry(`benchmark-size-${size}`)[2]
 
       const result = await run(`register ${size} items`, () => {
         for (let i = 0; i < size; i++) {

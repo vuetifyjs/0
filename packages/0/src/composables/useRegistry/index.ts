@@ -10,19 +10,19 @@ import { genId } from '#v0/utilities/helpers'
 import type { ID } from '#v0/types'
 import type { App, Reactive } from 'vue'
 
-export interface RegistrarTicket {
+export interface RegistryTicket {
   id: ID
   index: number
 }
 
-export interface RegistrarContext {
+export interface RegistryContext {
   collection: Reactive<Map<ID, Reactive<any>>>
   /** lookup an item by index number */
   lookup: (index: number) => ID | undefined
   /** Find an item by id */
   find: (id: ID) => Reactive<any> | undefined
   /** Register a new item */
-  register: (item?: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
+  register: (item?: Partial<RegistryTicket>, id?: ID) => Reactive<any>
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all items */
@@ -36,11 +36,11 @@ export interface RegistrarContext {
  * @template E The structure of the collection.
  * @returns A trinity of registry methods.
  */
-export function useRegistrar<
-  Z extends RegistrarContext,
-  E extends RegistrarTicket,
+export function useRegistry<
+  Z extends RegistryContext,
+  E extends RegistryTicket,
 > (namespace: string) {
-  const [useRegistrarContext, _provideRegistrarContext] = createContext<Z>(namespace)
+  const [useRegistryContext, _provideRegistryContext] = createContext<Z>(namespace)
 
   const collection = reactive(new Map<ID, E>())
   const directory = reactive(new Map<number, ID>())
@@ -96,9 +96,9 @@ export function useRegistrar<
     reindex,
   } as Z
 
-  function provideRegistrarContext (_: unknown, _context: Z = context, app?: App): Z {
-    return _provideRegistrarContext(_context, app)
+  function provideRegistryContext (_: unknown, _context: Z = context, app?: App): Z {
+    return _provideRegistryContext(_context, app)
   }
 
-  return createTrinity<Z>(useRegistrarContext, provideRegistrarContext, context)
+  return createTrinity<Z>(useRegistryContext, provideRegistryContext, context)
 }

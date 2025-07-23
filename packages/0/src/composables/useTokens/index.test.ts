@@ -219,8 +219,8 @@ describe('useTokens', () => {
     })
   })
 
-  describe('registrar integration', () => {
-    it('should register tokens with the registrar', () => {
+  describe('registry integration', () => {
+    it('should register tokens with the registry', () => {
       const tokens: TokenCollection = {
         primary: '#007BFF',
         colors: {
@@ -237,7 +237,7 @@ describe('useTokens', () => {
       expect(context.collection.has('colors.red.100')).toBe(true)
     })
 
-    it('should use token path as registrar ID', () => {
+    it('should use token path as registry ID', () => {
       const tokens: TokenCollection = {
         colors: {
           primary: '#007BFF',

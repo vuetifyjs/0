@@ -20,20 +20,20 @@ export function createContext<T> (key: InjectionKey<T> | string) {
   return [injectContext, provideContext] as const
 }
 
-interface RegistrarTicket {
+interface RegistryTicket {
   id: string
   index: number
   value: unknown
 }
 
-interface RegistrarContext {
-  collection: Map<string, Reactive<RegistrarTicket>>
+interface RegistryContext {
+  collection: Map<string, Reactive<RegistryTicket>>
   register: (id: string, item: unknown) => void
   unregister: (id: string) => void
   reset: () => void
 }
 
-export function useRegistrar<T extends RegistrarContext> (namespace: string) {
+export function useRegistry<T extends RegistryContext> (namespace: string) {
   const [injectContext, provideContext] = createContext<T>(namespace)
 
   function register (id: string, item: unknown) {
@@ -45,7 +45,7 @@ export function useRegistrar<T extends RegistrarContext> (namespace: string) {
   }
 
   const context = {
-    collection: new Map<string, RegistrarTicket>(),
+    collection: new Map<string, RegistryTicket>(),
     reset: () => context.collection.clear(),
     register,
     unregister,
@@ -65,13 +65,13 @@ export function useRegistrar<T extends RegistrarContext> (namespace: string) {
   ]
 }
 
-interface GroupTicket extends RegistrarTicket {
+interface GroupTicket extends RegistryTicket {
   disabled: boolean
   valueIsIndex: boolean
   toggle: () => void
 }
 
-interface GroupContext extends RegistrarContext {
+interface GroupContext extends RegistryContext {
   selectedIds: Set<string>
   selectedItems: Map<string, GroupTicket>
   collection: Map<string, GroupTicket>
@@ -82,5 +82,5 @@ export function useGroup<T extends GroupContext> (
   namespace: string,
   options?: any,
 ) {
-  const [injectRegistrar, provideRegistrar, registrar] = useRegistrar<T>(namespace)
+  const [injectRegistry, provideRegistry, registry] = useRegistry<T>(namespace)
 }

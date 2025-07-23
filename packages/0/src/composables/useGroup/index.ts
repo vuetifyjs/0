@@ -2,7 +2,7 @@
 import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
-import { useRegistrar } from '#v0/composables/useRegistrar'
+import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
@@ -10,10 +10,10 @@ import { genId } from '#v0/utilities/helpers'
 
 // Types
 import type { App, ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarTicket } from '#v0/composables/useRegistrar'
+import type { RegistryContext, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 
-export type GroupTicket = RegistrarTicket & {
+export type GroupTicket = RegistryTicket & {
   disabled: boolean
   value: unknown
   valueIsIndex: boolean
@@ -22,7 +22,7 @@ export type GroupTicket = RegistrarTicket & {
   toggle: () => void
 }
 
-export type GroupContext = RegistrarContext & {
+export type GroupContext = RegistryContext & {
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
   selectedIndexes: ComputedRef<Set<number>>
   selectedIds: Reactive<Set<ID>>
@@ -46,13 +46,13 @@ export type GroupOptions = {
 }
 
 /**
- * Creates a group registrar for managing group items within a specific namespace.
+ * Creates a group registry for managing group items within a specific namespace.
  * This function provides a way to register, unregister, and manage group selections,
  * allowing for dynamic group management in applications.
  *
  * @param namespace The namespace for the group context.
  * @param options  Optional configuration for the group behavior.
- * @template Z The type of the group items managed by the registrar.
+ * @template Z The type of the group items managed by the registry.
  * @template E The type of the group context.
  * @returns A tuple containing the inject function, provide function, and the group context.
  *
@@ -65,7 +65,7 @@ export function useGroup<
   namespace: string,
   options?: GroupOptions,
 ) {
-  const [useRegistrarContext, provideRegistrarContext, registrar] = useRegistrar<Z, E>(namespace)
+  const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
 
   const catalog = reactive(new Map<unknown, ID>())
   const selectedIds = reactive(new Set<ID>())
@@ -73,7 +73,7 @@ export function useGroup<
 
   const selectedItems = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registrar.collection.get(id)),
+      Array.from(selectedIds).map(id => registry.collection.get(id)),
     )
   })
 
@@ -94,17 +94,17 @@ export function useGroup<
   }
 
   function mandate () {
-    if (!options?.mandatory || selectedIds.size > 0 || registrar.collection.size === 0) return
+    if (!options?.mandatory || selectedIds.size > 0 || registry.collection.size === 0) return
 
     if (options.mandatory === 'force') {
-      const first = registrar.collection.values().next().value
+      const first = registry.collection.values().next().value
 
       if (first) selectedIds.add(first.id)
 
       return
     }
 
-    for (const item of registrar.collection.values()) {
+    for (const item of registry.collection.values()) {
       if (item.disabled) continue
       selectedIds.add(item.id)
 
@@ -113,7 +113,7 @@ export function useGroup<
   }
 
   function reindex () {
-    registrar.reindex()
+    registry.reindex()
   }
 
   function reset () {
@@ -130,7 +130,7 @@ export function useGroup<
     for (const id of Array.isArray(ids) ? ids : [ids]) {
       if (!id) continue
 
-      const item = registrar.collection.get(id)
+      const item = registry.collection.get(id)
 
       if (!item || item.disabled) continue
 
@@ -157,14 +157,14 @@ export function useGroup<
   function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
     const item: Partial<E> = {
       disabled: false,
-      value: registrant?.value ?? registrar.collection.size,
+      value: registrant?.value ?? registry.collection.size,
       valueIsIndex: registrant?.value == null,
       isActive: toRef(() => selectedIds.has(ticket.id)),
       toggle: () => toggle(ticket.id),
       ...registrant,
     }
 
-    const ticket = registrar.register(item, id)
+    const ticket = registry.register(item, id)
 
     catalog.set(ticket.value, ticket.id)
 
@@ -183,7 +183,7 @@ export function useGroup<
 
   function unregister (id: ID) {
     selectedIds.delete(id)
-    registrar.unregister(id)
+    registry.unregister(id)
   }
 
   if (getCurrentInstance()) {
@@ -193,7 +193,7 @@ export function useGroup<
   }
 
   const context = {
-    ...registrar,
+    ...registry,
     selectedItems,
     selectedIndexes,
     selectedIds,
@@ -255,8 +255,8 @@ export function useGroup<
       })
     }
 
-    return provideRegistrarContext(model, _context, app)
+    return provideRegistryContext(model, _context, app)
   }
 
-  return createTrinity<Z>(useRegistrarContext, provideGroupContext, context)
+  return createTrinity<Z>(useRegistryContext, provideGroupContext, context)
 }
