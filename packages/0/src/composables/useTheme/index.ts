@@ -55,7 +55,7 @@ export interface ThemePlugin {
  *
  * @param namespace The namespace for the theme context.
  * @template Z The type of theme context.
- * @template E The type of theme tickets managed by the registrar.
+ * @template E The type of theme items managed by the registrar.
  * @returns A tuple containing inject, provide functions and the theme context.
  */
 export function createTheme<
@@ -67,10 +67,10 @@ export function createTheme<
 ) {
   const [useThemeContext, provideThemeContext, registrar] = useSingle<Z, E>(namespace)
 
-  const themeNames = computed(() => Array.from(registrar.tickets.keys()))
+  const themeNames = computed(() => Array.from(registrar.collection.keys()))
   const colors = computed(() => {
     const resolved = {} as Record<string, Colors | undefined>
-    for (const [id, theme] of registrar.tickets.entries()) {
+    for (const [id, theme] of registrar.collection.entries()) {
       if (theme.lazy && theme.id !== registrar.selectedId.value) continue
 
       resolved[id as string] = resolve(id, tokens.value)
@@ -136,9 +136,9 @@ export function useTheme (): ThemeContext {
  *
  * @param options Configuration for themes, palette, and adapter.
  * @template Z The type of theme context.
- * @template E The type of theme tickets.
+ * @template E The type of theme items.
  * @template R The type of token context.
- * @template O The type of token tickets.
+ * @template O The type of token items.
  * @returns A Vue plugin object with install method.
  */
 export function createThemePlugin<

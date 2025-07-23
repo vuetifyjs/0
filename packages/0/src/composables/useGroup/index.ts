@@ -45,13 +45,13 @@ export type GroupOptions = {
 }
 
 /**
- * Creates a group registrar for managing group tickets within a specific namespace.
+ * Creates a group registrar for managing group items within a specific namespace.
  * This function provides a way to register, unregister, and manage group selections,
  * allowing for dynamic group management in applications.
  *
  * @param namespace The namespace for the group context.
  * @param options  Optional configuration for the group behavior.
- * @template Z The type of the group tickets managed by the registrar.
+ * @template Z The type of the group items managed by the registrar.
  * @template E The type of the group context.
  * @returns A tuple containing the inject function, provide function, and the group context.
  *
@@ -72,7 +72,7 @@ export function useGroup<
 
   const selectedItems = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registrar.tickets.get(id)),
+      Array.from(selectedIds).map(id => registrar.collection.get(id)),
     )
   })
 
@@ -93,15 +93,15 @@ export function useGroup<
   }
 
   function mandate () {
-    if (!options?.mandatory || selectedIds.size > 0 || registrar.tickets.size === 0) return
+    if (!options?.mandatory || selectedIds.size > 0 || registrar.collection.size === 0) return
 
     if (options.mandatory === 'force') {
-      const first = registrar.tickets.values().next().value
+      const first = registrar.collection.values().next().value
       if (first) selectedIds.add(first.id)
       return
     }
 
-    for (const item of registrar.tickets.values()) {
+    for (const item of registrar.collection.values()) {
       if (item.disabled) continue
       selectedIds.add(item.id)
 
@@ -127,7 +127,7 @@ export function useGroup<
     for (const id of Array.isArray(ids) ? ids : [ids]) {
       if (!id) continue
 
-      const item = registrar.tickets.get(id)
+      const item = registrar.collection.get(id)
 
       if (!item || item.disabled) continue
 
@@ -154,7 +154,7 @@ export function useGroup<
   function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
     const item: Partial<E> = {
       disabled: false,
-      value: registrant?.value ?? registrar.tickets.size,
+      value: registrant?.value ?? registrar.collection.size,
       valueIsIndex: registrant?.value == null,
       isActive: toRef(() => selectedIds.has(ticket.id)),
       toggle: () => toggle(ticket.id),

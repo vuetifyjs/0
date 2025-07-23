@@ -24,7 +24,7 @@ export type StepContext = SingleContext & {
  *
  * @param namespace The namespace for the step context.
  * @param options Optional configuration for the step behavior.
- * @template Z The type of the step tickets managed by the registrar.
+ * @template Z The type of the step items managed by the registrar.
  * @template E The type of the step context.
  * @returns A tuple containing the inject function, provide function, and the step context.
  */
@@ -38,7 +38,7 @@ export function useStep<
   const [useGroupContext, provideGroupContext, registrar] = useSingle<Z, E>(namespace, options)
 
   function first () {
-    if (registrar.tickets.size === 0) return
+    if (registrar.collection.size === 0) return
 
     const firstId = registrar.lookup(0)
     if (firstId === undefined) return
@@ -48,9 +48,9 @@ export function useStep<
   }
 
   function last () {
-    if (registrar.tickets.size === 0) return
+    if (registrar.collection.size === 0) return
 
-    const lastIndex = registrar.tickets.size - 1
+    const lastIndex = registrar.collection.size - 1
     const lastId = registrar.lookup(lastIndex)
     if (lastId === undefined) return
 
@@ -71,7 +71,7 @@ export function useStep<
   }
 
   function step (count = 1) {
-    const length = registrar.tickets.size
+    const length = registrar.collection.size
     if (!length) return
 
     const direction = Math.sign(count || 1)
@@ -79,7 +79,7 @@ export function useStep<
     let index = wrapped(length, registrar.selectedIndex.value + count)
     let id = registrar.lookup(index)
 
-    while (id !== undefined && registrar.tickets.get(id)?.disabled && hops < length) {
+    while (id !== undefined && registrar.collection.get(id)?.disabled && hops < length) {
       index = wrapped(length, index + direction)
       id = registrar.lookup(index)
       hops++

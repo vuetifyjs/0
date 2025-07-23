@@ -41,7 +41,7 @@ export interface LocalePlugin {
  * @param namespace The namespace for the locale context.
  * @param options Configuration including adapter and messages.
  * @template Z The type of the locale context.
- * @template E The type of the locale tickets managed by the registrar.
+ * @template E The type of the locale items managed by the registrar.
  * @returns An array containing the inject function, provide function, and the locale context.
  */
 export function createLocale<
@@ -106,9 +106,9 @@ export function useLocale (): LocaleContext {
  *
  * @param options Configuration for adapter, default locale, and messages.
  * @template Z The type of the locale context.
- * @template E The type of the locale tickets managed by the registrar.
+ * @template E The type of the locale items managed by the registrar.
  * @template R The type of the token context.
- * @template O The type of the token tickets managed by the registrar.
+ * @template O The type of the token items managed by the registrar.
  * @returns Vue install function for the plugin
  */
 export function createLocalePlugin<

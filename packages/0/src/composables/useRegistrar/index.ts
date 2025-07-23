@@ -16,14 +16,14 @@ export interface RegistrarTicket {
 }
 
 export interface RegistrarContext {
-  tickets: Reactive<Map<ID, Reactive<any>>>
-  /** lookup a ticket by index number */
+  collection: Reactive<Map<ID, Reactive<any>>>
+  /** lookup an item by index number */
   lookup: (index: number) => ID | undefined
-  /** Find a ticket by id */
+  /** Find an item by id */
   find: (id: ID) => Reactive<any> | undefined
-  /** Register a new ticket */
-  register: (ticket?: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
-  /** Unregister a ticket by id */
+  /** Register a new item */
+  register: (item?: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
+  /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all items */
   reindex: () => void
@@ -33,7 +33,7 @@ export interface RegistrarContext {
  * A composable for managing a collection of info.
  * @param namespace The key to scope the context
  * @template Z The registry context interface.
- * @template E The structure of the tickets.
+ * @template E The structure of the collection.
  * @returns A trinity of registry methods.
  */
 export function useRegistrar<
@@ -42,11 +42,11 @@ export function useRegistrar<
 > (namespace: string) {
   const [useRegistrarContext, _provideRegistrarContext] = createContext<Z>(namespace)
 
-  const tickets = reactive(new Map<ID, E>())
+  const collection = reactive(new Map<ID, E>())
   const directory = reactive(new Map<number, ID>())
 
   function find (id: ID) {
-    return tickets.get(id) as E | undefined
+    return collection.get(id) as E | undefined
   }
 
   function lookup (index: number) {
@@ -56,7 +56,7 @@ export function useRegistrar<
   function reindex () {
     directory.clear()
     let index = 0
-    for (const item of tickets.values()) {
+    for (const item of collection.values()) {
       item.index = index
       directory.set(index, item.id)
       index++
@@ -66,29 +66,29 @@ export function useRegistrar<
   function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
     const item = reactive({
       id,
-      index: registrant?.index ?? tickets.size,
+      index: registrant?.index ?? collection.size,
       ...registrant,
     }) as Reactive<E>
 
-    tickets.set(item.id, item as any)
+    collection.set(item.id, item as any)
     directory.set(item.index, item.id)
 
     return item
   }
 
   function unregister (id: ID) {
-    const item = tickets.get(id)
+    const item = collection.get(id)
 
     if (!item) return
 
     directory.delete(item.index)
-    tickets.delete(item.id)
+    collection.delete(item.id)
 
     reindex()
   }
 
   const context = {
-    tickets,
+    collection,
     lookup,
     find,
     register,

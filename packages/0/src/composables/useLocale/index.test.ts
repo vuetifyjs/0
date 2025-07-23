@@ -55,7 +55,7 @@ describe('useLocale', () => {
       const state = createLocale('test', { adapter, messages })[2]
 
       expect(state.selectedId.value).toBeUndefined()
-      expect(state.tickets.size).toBe(0)
+      expect(state.collection.size).toBe(0)
     })
   })
 

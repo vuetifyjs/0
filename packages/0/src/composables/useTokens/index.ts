@@ -111,7 +111,7 @@ function dereference (tokens: Record<string, TokenValue>): Record<string, string
  * @param namespace The namespace for the token registrar context
  * @param tokens An optional collection of tokens to initialize
  * @template Z The available methods for the token's context.
- * @template E The structure of the registry token tickets.
+ * @template E The structure of the registry token items.
  * @returns A trinity of provide/inject methods & context
  *
  * @see Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references

@@ -9,7 +9,7 @@ describe('useSingle', () => {
       expect(state.selectedIds.size).toBe(0)
       expect(state.selectedItems.value.size).toBe(0)
       expect(state.selectedValues.value.size).toBe(0)
-      expect(state.tickets.size).toBe(0)
+      expect(state.collection.size).toBe(0)
     })
   })
 

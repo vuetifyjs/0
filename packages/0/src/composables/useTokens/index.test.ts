@@ -19,7 +19,7 @@ describe('useTokens', () => {
     it('should initialize with empty tokens', () => {
       const [, _provideTokensContext, context] = useTokens('test')
 
-      expect(context.tickets.size).toBe(0)
+      expect(context.collection.size).toBe(0)
     })
   })
 
@@ -32,7 +32,7 @@ describe('useTokens', () => {
 
       const context = useTokens('test', tokens)[2]
 
-      expect(context.tickets.size).toBe(2)
+      expect(context.collection.size).toBe(2)
       expect(context.resolve('primary')).toBe('#007BFF')
       expect(context.resolve('secondary')).toBe('#6C757D')
     })
@@ -51,7 +51,7 @@ describe('useTokens', () => {
 
       const context = useTokens('test', tokens)[2]
 
-      expect(context.tickets.size).toBe(4)
+      expect(context.collection.size).toBe(4)
       expect(context.resolve('colors.primary')).toBe('#007BFF')
       expect(context.resolve('colors.secondary')).toBe('#6C757D')
       expect(context.resolve('colors.red.100')).toBe('#FEF2F2')
@@ -72,7 +72,7 @@ describe('useTokens', () => {
 
       const context = useTokens('test', tokens)[2]
 
-      expect(context.tickets.size).toBe(4)
+      expect(context.collection.size).toBe(4)
       expect(context.resolve('primary')).toBe('#007BFF')
       expect(context.resolve('accent')).toBe('#007BFF')
       expect(context.resolve('colors.red.100')).toBe('#FEF2F2')
@@ -199,8 +199,8 @@ describe('useTokens', () => {
 
       const context = useTokens('test', tokens)[2]
 
-      const primaryItem = context.tickets.get('primary')
-      const accentItem = context.tickets.get('accent')
+      const primaryItem = context.collection.get('primary')
+      const accentItem = context.collection.get('accent')
 
       expect(primaryItem).toBeDefined()
       expect(primaryItem?.id).toBe('primary')
@@ -214,8 +214,8 @@ describe('useTokens', () => {
     it('should return undefined for non-existent token items', () => {
       const context = useTokens('test', {})[2]
 
-      expect(context.tickets.get('nonexistent')).toBeUndefined()
-      expect(context.tickets.get('{nonexistent}')).toBeUndefined()
+      expect(context.collection.get('nonexistent')).toBeUndefined()
+      expect(context.collection.get('{nonexistent}')).toBeUndefined()
     })
   })
 
@@ -232,9 +232,9 @@ describe('useTokens', () => {
 
       const context = useTokens('test', tokens)[2]
 
-      expect(context.tickets.size).toBe(2)
-      expect(context.tickets.has('primary')).toBe(true)
-      expect(context.tickets.has('colors.red.100')).toBe(true)
+      expect(context.collection.size).toBe(2)
+      expect(context.collection.has('primary')).toBe(true)
+      expect(context.collection.has('colors.red.100')).toBe(true)
     })
 
     it('should use token path as registrar ID', () => {
@@ -246,7 +246,7 @@ describe('useTokens', () => {
 
       const context = useTokens('test', tokens)[2]
 
-      const item = context.tickets.get('colors.primary')
+      const item = context.collection.get('colors.primary')
       expect(item).toBeDefined()
       expect(item?.id).toBe('colors.primary')
       expect(item?.value).toBe('#007BFF')
@@ -280,7 +280,7 @@ describe('useTokens', () => {
 
       const context = useTokens('test', tokens)[2]
 
-      expect(context.tickets.size).toBe(10)
+      expect(context.collection.size).toBe(10)
 
       // Test direct values
       expect(context.resolve('base.white')).toBe('#FFFFFF')
@@ -434,13 +434,13 @@ describe('useTokens reactivity in components', () => {
     const TestComponent = defineComponent({
       setup () {
         const context = _useTokens()
-        const primaryItem = ref(context.tickets.get('colors.primary'))
-        const spacingItem = ref(context.tickets.get('spacing.medium'))
+        const primaryItem = ref(context.collection.get('colors.primary'))
+        const spacingItem = ref(context.collection.get('spacing.medium'))
 
         return {
           primaryItem,
           spacingItem,
-          tickets: context.tickets,
+          collection: context.collection,
         }
       },
       template: '<div></div>',
@@ -461,7 +461,7 @@ describe('useTokens reactivity in components', () => {
     expect(testComponent.vm.primaryItem?.value).toBe('#1976d2')
     expect(testComponent.vm.spacingItem?.id).toBe('spacing.medium')
     expect(testComponent.vm.spacingItem?.value).toBe('16px')
-    expect(testComponent.vm.tickets.size).toBe(4)
+    expect(testComponent.vm.collection.size).toBe(4)
   })
 
   it('should handle context injection errors gracefully', () => {
@@ -501,8 +501,8 @@ describe('useTokens reactivity in components', () => {
         return {
           primaryColor: themeContext.resolve('primary'),
           smallSpacing: spacingContext.resolve('small'),
-          themeItemsCount: themeContext.tickets.size,
-          spacingItemsCount: spacingContext.tickets.size,
+          themeItemsCount: themeContext.collection.size,
+          spacingItemsCount: spacingContext.collection.size,
         }
       },
       template: '<div></div>',

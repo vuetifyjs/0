@@ -15,7 +15,7 @@ describe('useGroup', () => {
       expect(context).toHaveProperty('selectedIds')
       expect(context).toHaveProperty('selectedItems')
       expect(context).toHaveProperty('selectedValues')
-      expect(context).toHaveProperty('tickets')
+      expect(context).toHaveProperty('collection')
     })
 
     it('should initialize with empty context', () => {
@@ -24,7 +24,7 @@ describe('useGroup', () => {
       expect(context.selectedIds.size).toBe(0)
       expect(context.selectedItems.value.size).toBe(0)
       expect(context.selectedValues.value.size).toBe(0)
-      expect(context.tickets.size).toBe(0)
+      expect(context.collection.size).toBe(0)
     })
   })
 
@@ -41,7 +41,7 @@ describe('useGroup', () => {
       expect(ticket.index).toBe(0)
       expect(typeof ticket.isActive).toBe('boolean') // Ref
       expect(typeof ticket.toggle).toBe('function')
-      expect(context.tickets.size).toBe(1)
+      expect(context.collection.size).toBe(1)
     })
 
     it('should register items with custom values', () => {
@@ -57,17 +57,17 @@ describe('useGroup', () => {
       expect(ticket.disabled).toBe(true)
       expect(ticket.value).toBe('custom-value')
       expect(ticket.valueIsIndex).toBe(false)
-      expect(context.tickets.size).toBe(1)
+      expect(context.collection.size).toBe(1)
     })
 
     it('should unregister items', () => {
       const context = useGroup('test')[2]
 
       context.register({ id: 'test-item' })
-      expect(context.tickets.size).toBe(1)
+      expect(context.collection.size).toBe(1)
 
       context.unregister('test-item')
-      expect(context.tickets.size).toBe(0)
+      expect(context.collection.size).toBe(0)
     })
 
     it('should remove from selectedIds when unregistering', () => {
@@ -181,7 +181,7 @@ describe('useGroup', () => {
       context.mandate()
 
       if (context.selectedIds.size === 0) {
-        expect(context.tickets.size).toBe(2)
+        expect(context.collection.size).toBe(2)
       } else {
         expect(context.selectedIds.has('item1')).toBe(true)
         expect(context.selectedIds.size).toBe(1)
