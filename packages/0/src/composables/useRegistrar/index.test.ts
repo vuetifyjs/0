@@ -1,5 +1,8 @@
-import { describe, it, expect } from 'vitest'
+// Composables
 import { useRegistrar } from './index'
+
+// Utilities
+import { describe, it, expect } from 'vitest'
 
 describe('useRegistrar', () => {
   it('should register and unregister items', () => {

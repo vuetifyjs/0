@@ -1,8 +1,6 @@
 // Factories
-import { createTrinity } from '#v0/factories/createTrinity'
-
-// Composables
 import { createContext } from '#v0/factories/createContext'
+import { createTrinity } from '#v0/factories/createTrinity'
 
 // Utilities
 import { reactive } from 'vue'
@@ -19,7 +17,9 @@ export interface RegistrarTicket {
 
 export interface RegistrarContext {
   tickets: Reactive<Map<ID, Reactive<any>>>
+  /** lookup ticket by index number */
   lookup: (index: number) => ID | undefined
+  /** find ticket by id */
   find: (id: ID) => Reactive<any> | undefined
   register: (ticket?: Partial<RegistrarTicket>, id?: ID) => Reactive<any>
   unregister: (id: ID) => void
@@ -27,14 +27,11 @@ export interface RegistrarContext {
 }
 
 /**
- * Simple composable that provides a registrar for managing tickets.
- * It allows for registering, unregistering, and reindexing tickets,
- * enabling dynamic management of application state.
- *
- * @param namespace The namespace for the registrar context.
- * @template Z The type of the tickets managed by the registrar.
- * @template E The type of the registrar context.
- * @returns A tuple containing the inject function, provide function, and the registrar context.
+ * A composable for managing a collection of info.
+ * @param namespace The key to scope the context
+ * @template Z The registry context interface.
+ * @template E The structure of the tickets.
+ * @returns A trinity of registry methods.
  */
 export function useRegistrar<
   Z extends RegistrarContext,

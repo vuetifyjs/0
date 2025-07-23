@@ -1,10 +1,9 @@
-/**
- * Benchmark tests for useRegistrar composable
- */
+// Composables
+import { useRegistrar } from './index'
 
+// Utitilities
 import { describe, it, expect } from 'vitest'
 import { run, compare } from '#v0/utilities/benchmark'
-import { useRegistrar } from './index'
 
 describe('useRegistrar benchmarks', () => {
   it('should benchmark registration operations', async () => {
