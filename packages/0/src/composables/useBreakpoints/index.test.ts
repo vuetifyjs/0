@@ -155,6 +155,8 @@ describe('useBreakpoints', () => {
     })
 
     it('should register resize listener in browser environment', () => {
+      mockGetCurrentInstance.mockReturnValue({} as any)
+
       createBreakpoints()
 
       expect(mockWindow.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
@@ -342,6 +344,8 @@ describe('useBreakpoints', () => {
     })
 
     it('should clean up resize listener on scope dispose', () => {
+      mockGetCurrentInstance.mockReturnValue({} as any)
+
       createBreakpoints()
 
       expect(mockOnScopeDispose).toHaveBeenCalledWith(expect.any(Function))
