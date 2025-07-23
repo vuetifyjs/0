@@ -3,6 +3,7 @@ import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
+import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { computed } from 'vue'
@@ -61,52 +62,6 @@ function flatten (tokens: TokenCollection, prefix = ''): FlattenedToken[] {
 }
 
 /**
- * Resolves token aliases within a collection of tokens
- * @param tokens The collection of tokens to resolve.
- * @returns A new collection of dereferenced tokens
- */
-function dereference (tokens: Record<string, TokenValue>): Record<string, string> {
-  const resolved: Record<string, string> = {}
-  const resolving = new Set<string>()
-
-  function isTokenAlias (value: any): value is TokenAlias {
-    return typeof value === 'object' && value !== null && '$value' in value
-  }
-
-  function resolve (key: string, value: TokenValue): string {
-    const reference = isTokenAlias(value) ? value.$value : value
-
-    if (typeof reference !== 'string' || !reference.startsWith('{') || !reference.endsWith('}')) {
-      if (isTokenAlias(value)) console.warn(`Invalid alias format for "${key}": ${reference}`)
-      return reference
-    }
-
-    const alias = reference.slice(1, -1)
-    if (resolving.has(alias)) {
-      console.warn(`Circular reference detected for "${key}": ${alias}`)
-      return reference
-    }
-
-    if (!(alias in tokens)) {
-      console.warn(`Alias not found for "${key}": ${alias}`)
-      return reference
-    }
-
-    resolving.add(alias)
-    const result = resolve(alias, tokens[alias])
-    resolving.delete(alias)
-
-    return result
-  }
-
-  for (const [key, value] of Object.entries(tokens)) {
-    resolved[key] = resolve(key, value)
-  }
-
-  return resolved
-}
-
-/**
  * Creates a token registry for managing data structures / aliases
  * @param namespace The namespace for the token registry context
  * @param tokens An optional collection of tokens to initialize
@@ -124,6 +79,8 @@ export function useTokens<
   namespace: string,
   tokens: TokenCollection = {},
 ) {
+  const logger = useLogger()
+
   const [useTokenContext, provideTokenContext, registry] = useRegistry<Z, E>(namespace)
 
   const flattened = flatten(tokens)
@@ -147,6 +104,52 @@ export function useTokens<
 
   function resolve (token: string): string | undefined {
     return resolved.value[clean(token)]
+  }
+
+  /**
+ * Resolves token aliases within a collection of tokens
+ * @param tokens The collection of tokens to resolve.
+ * @returns A new collection of dereferenced tokens
+ */
+  function dereference (tokens: Record<string, TokenValue>): Record<string, string> {
+    const resolved: Record<string, string> = {}
+    const resolving = new Set<string>()
+
+    function isTokenAlias (value: any): value is TokenAlias {
+      return typeof value === 'object' && value !== null && '$value' in value
+    }
+
+    function resolve (key: string, value: TokenValue): string {
+      const reference = isTokenAlias(value) ? value.$value : value
+
+      if (typeof reference !== 'string' || !reference.startsWith('{') || !reference.endsWith('}')) {
+        if (isTokenAlias(value)) logger.warn(`Invalid alias format for "${key}": ${reference}`)
+        return reference
+      }
+
+      const alias = reference.slice(1, -1)
+      if (resolving.has(alias)) {
+        logger.warn(`Circular reference detected for "${key}": ${alias}`)
+        return reference
+      }
+
+      if (!(alias in tokens)) {
+        logger.warn(`Alias not found for "${key}": ${alias}`)
+        return reference
+      }
+
+      resolving.add(alias)
+      const result = resolve(alias, tokens[alias])
+      resolving.delete(alias)
+
+      return result
+    }
+
+    for (const [key, value] of Object.entries(tokens)) {
+      resolved[key] = resolve(key, value)
+    }
+
+    return resolved
   }
 
   return createTrinity<Z>(useTokenContext, provideTokenContext, {

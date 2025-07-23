@@ -3,7 +3,7 @@ import { createContext } from '#v0/factories/createContext'
 import { createPlugin } from '#v0/factories/createPlugin'
 
 // Utilities
-import { ref } from 'vue'
+import { getCurrentInstance, shallowRef } from 'vue'
 
 // Adapters
 import { Vuetify0LoggerAdapter } from './adapters'
@@ -19,10 +19,9 @@ import type { LogLevel } from './types'
 export type { LoggerAdapter } from './adapters'
 
 export {
-  Log4jsLoggerAdapter,
+  ConsolaLoggerAdapter,
   PinoLoggerAdapter,
   Vuetify0LoggerAdapter,
-  WinstonLoggerAdapter,
 } from './adapters'
 
 export type { LogLevel } from './types'
@@ -46,14 +45,13 @@ export interface LoggerOptions {
   level?: LogLevel
   prefix?: string
   enabled?: boolean
-  stripInProduction?: boolean
 }
 
 export interface LoggerPlugin {
   install: (app: App, ...options: any[]) => any
 }
 
-export const [useLoggerContext, provideLoggerContext] = createContext<LoggerContext>('v0:logger')
+const [useLoggerContext, provideLoggerContext] = createContext<LoggerContext>('v0:logger')
 
 /**
  * Creates a logger context for managing application logging.
@@ -68,14 +66,13 @@ export function createLogger (options: LoggerOptions = {}): LoggerContext {
     adapter = new Vuetify0LoggerAdapter({ prefix: options.prefix }),
     level: initialLevel = 'info',
     enabled: initialEnabled = __LOGGER_ENABLED__,
-    stripInProduction = true,
   } = options
 
-  const currentLevel = ref(initialLevel)
-  const isEnabled = ref(initialEnabled)
+  const currentLevel = shallowRef(initialLevel)
+  const isEnabled = shallowRef(initialEnabled)
 
   // In production with stripInProduction=true, return no-op functions
-  if (!__DEV__ && stripInProduction) {
+  if (!__DEV__) {
     const noop = () => {}
     return {
       debug: noop,
@@ -105,33 +102,37 @@ export function createLogger (options: LoggerOptions = {}): LoggerContext {
     return levels[level] ?? 2
   }
 
-  function should (level: LogLevel): boolean {
+  function can (level: LogLevel): boolean {
     if (!isEnabled.value) return false
     return value(level) >= value(currentLevel.value)
   }
 
+  function format (message: string): string {
+    return message
+  }
+
   function debug (message: string, ...args: unknown[]) {
-    if (should('debug')) adapter.debug(message, ...args)
+    if (can('debug')) adapter.debug(format(message), ...args)
   }
 
   function info (message: string, ...args: unknown[]) {
-    if (should('info')) adapter.info(message, ...args)
+    if (can('info')) adapter.info(format(message), ...args)
   }
 
   function warn (message: string, ...args: unknown[]) {
-    if (should('warn')) adapter.warn(message, ...args)
+    if (can('warn')) adapter.warn(format(message), ...args)
   }
 
   function error (message: string, ...args: unknown[]) {
-    if (should('error')) adapter.error(message, ...args)
+    if (can('error')) adapter.error(format(message), ...args)
   }
 
   function trace (message: string, ...args: unknown[]) {
-    if (should('trace')) adapter.trace?.(message, ...args)
+    if (can('trace')) adapter.trace?.(format(message), ...args)
   }
 
   function fatal (message: string, ...args: unknown[]) {
-    if (should('fatal')) adapter.fatal?.(message, ...args)
+    if (can('fatal')) adapter.fatal?.(format(message), ...args)
   }
 
   function level (newLevel: LogLevel) {
@@ -169,29 +170,40 @@ export function createLogger (options: LoggerOptions = {}): LoggerContext {
   }
 }
 
-/**
- * Simple hook to access the logger context.
- *
- * @returns The logger context containing logging methods and controls.
- */
-export function useLogger (): LoggerContext {
-  return useLoggerContext()
+function createFallbackLogger (namespace = 'v0:logger'): LoggerContext {
+  function format (message: string, type: string): string {
+    return `[${namespace} ${type}] ${message}`
+  }
+
+  return {
+    debug: (message: string, ...args: unknown[]) => console.log(format(message, 'debug'), ...args),
+    info: (message: string, ...args: unknown[]) => console.log(format(message, 'info'), ...args),
+    warn: (message: string, ...args: unknown[]) => console.log(format(message, 'warn'), ...args),
+    error: (message: string, ...args: unknown[]) => console.log(format(message, 'error'), ...args),
+    trace: (message: string, ...args: unknown[]) => console.log(format(message, 'trace'), ...args),
+    fatal: (message: string, ...args: unknown[]) => console.log(format(message, 'fatal'), ...args),
+    level: () => {},
+    current: () => 'info' as LogLevel,
+    enabled: () => true,
+    enable: () => {},
+    disable: () => {},
+  }
 }
 
-/**
- * Creates a Vue plugin for providing application logging capabilities.
- * Uses the universal plugin factory to eliminate boilerplate code.
- * This plugin automatically provides the logger context and can add
- * development helpers when in development mode.
- *
- * @param options Configuration for the logger system.
- * @returns A Vue plugin object with install method.
- */
+export function useLogger (namespace?: string): LoggerContext {
+  if (getCurrentInstance()) {
+    try {
+      return useLoggerContext(namespace)
+    } catch (error) {
+      if (__DEV__ && IN_BROWSER && namespace) console.warn(error)
+    }
+  }
+
+  return createFallbackLogger(namespace)
+}
+
 export function createLoggerPlugin (options: LoggerOptions = {}): LoggerPlugin {
-  const context = createLogger({
-    stripInProduction: true,
-    ...options,
-  })
+  const context = createLogger(options)
 
   return createPlugin<LoggerPlugin>({
     namespace: 'v0:logger',
@@ -200,7 +212,6 @@ export function createLoggerPlugin (options: LoggerOptions = {}): LoggerPlugin {
     },
     setup: (_app: App) => {
       if (__DEV__ && IN_BROWSER) {
-        // Add global logger for debugging
         ;(window as any).__v0Logger__ = context
       }
     },

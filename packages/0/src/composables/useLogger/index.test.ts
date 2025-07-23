@@ -95,8 +95,7 @@ describe('useLogger', () => {
       adapter.info('test message')
 
       const call = vi.mocked(console.info).mock.calls[0]
-      expect(call[0]).toContain('[test]')
-      expect(call[0]).toContain('[INFO]')
+      expect(call[0]).toContain('[test info]')
       expect(call[0]).toContain('test message')
     })
 
@@ -143,7 +142,7 @@ describe('useLogger', () => {
       adapter.info('test message')
 
       const call = vi.mocked(console.info).mock.calls[0]
-      expect(call[0]).toContain('[custom]')
+      expect(call[0]).toContain('[custom info]')
       expect(call[0]).toContain('test message')
     })
   })

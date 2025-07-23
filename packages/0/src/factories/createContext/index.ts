@@ -11,12 +11,13 @@ export type ContextKey<Z> = InjectionKey<Z> | string
  * @param key The provided string or InjectionKey
  * @template Z The type values for the context.
  * @returns A function that retrieves context
+ * @throws Error if namespace is not found.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
  */
 export function useContext<Z> (key: ContextKey<Z>) {
-  return function (): Z {
-    const context = inject<Z>(key)
+  return function (namespace?: string): Z {
+    const context = inject<Z>(namespace || key, undefined as Z)
 
     if (context === undefined) {
       throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)

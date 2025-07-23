@@ -53,10 +53,9 @@ export class Vuetify0LoggerAdapter implements LoggerAdapter {
 
   private format (level: LogLevel, message: string, ...args: unknown[]): [string, ...unknown[]] {
     const timestamp = this.timestamps ? this.timestamp() : ''
-    const levelTag = `[${level.toUpperCase()}]`
-    const prefixTag = `[${this.prefix}]`
+    const prefixTag = `[${this.prefix} ${level.toLowerCase()}]`
 
-    const formattedMessage = [timestamp, prefixTag, levelTag, message]
+    const formattedMessage = [timestamp, prefixTag, message]
       .filter(Boolean)
       .join(' ')
 

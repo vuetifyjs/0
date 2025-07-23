@@ -12,12 +12,12 @@ import type { TokenCollection } from './index'
 describe('useTokens', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
   })
 
   describe('basic functionality', () => {
     it('should initialize with empty tokens', () => {
-      const [, _provideTokensContext, context] = useTokens('test')
+      const context = useTokens('test')[2]
 
       expect(context.collection.size).toBe(0)
     })
@@ -129,7 +129,7 @@ describe('useTokens', () => {
       const context = useTokens('test', tokens)[2]
 
       expect(context.resolve('primary')).toBe('{missing}')
-      expect(console.warn).toHaveBeenCalledWith('Alias not found for "primary": missing')
+      expect(console.log).toHaveBeenCalledWith('[v0:logger warn] Alias not found for "primary": missing')
     })
 
     it('should handle circular references gracefully', () => {
@@ -142,7 +142,7 @@ describe('useTokens', () => {
 
       expect(context.resolve('a')).toBe('{b}')
       expect(context.resolve('b')).toBe('{a}')
-      expect(console.warn).toHaveBeenCalledWith('Circular reference detected for "a": b')
+      expect(console.log).toHaveBeenCalledWith('[v0:logger warn] Circular reference detected for "a": b')
     })
 
     it('should handle invalid alias format', () => {
@@ -153,7 +153,7 @@ describe('useTokens', () => {
       const context = useTokens('test', tokens)[2]
 
       expect(context.resolve('primary')).toBe('invalid-format')
-      expect(console.warn).toHaveBeenCalledWith('Invalid alias format for "primary": invalid-format')
+      expect(console.log).toHaveBeenCalledWith('[v0:logger warn] Invalid alias format for "primary": invalid-format')
     })
   })
 

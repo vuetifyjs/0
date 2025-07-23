@@ -51,7 +51,7 @@ describe('createContext', () => {
     const [injectContext] = createContext('test-key')
     const result = injectContext()
 
-    expect(mockInject).toHaveBeenCalledWith('test-key')
+    expect(mockInject).toHaveBeenCalledWith('test-key', undefined)
     expect(result).toBe(testValue)
   })
 
