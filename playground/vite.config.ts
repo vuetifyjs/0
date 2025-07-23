@@ -39,7 +39,7 @@ export default defineConfig({
       vueTemplate: true,
     }),
   ],
-  define: { 'process.env': {} },
+  define: { 'process.env': {}, '__DEV__': process.env.NODE_ENV !== 'production' },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
