@@ -11,7 +11,7 @@ export default defineConfig({
   plugins: [
     Vue({ isProduction: true }),
   ],
-  define: { 'process.env': {} },
+  define: { __DEV__: 'process.env.NODE_ENV !== \'production\'' },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),

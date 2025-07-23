@@ -3,7 +3,6 @@
  */
 
 import { useLogger } from '#v0/composables/useLogger'
-import { __DEV__ } from '#v0/constants/globals'
 
 interface BenchmarkResult {
   readonly name: string

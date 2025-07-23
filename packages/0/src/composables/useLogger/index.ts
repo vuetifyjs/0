@@ -9,7 +9,7 @@ import { getCurrentInstance, shallowRef } from 'vue'
 import { Vuetify0LoggerAdapter } from './adapters'
 
 // Globals
-import { __DEV__, __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
+import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { App } from 'vue'
@@ -70,24 +70,6 @@ export function createLogger (options: LoggerOptions = {}): LoggerContext {
 
   const currentLevel = shallowRef(initialLevel)
   const isEnabled = shallowRef(initialEnabled)
-
-  // In production with stripInProduction=true, return no-op functions
-  if (!__DEV__) {
-    const noop = () => {}
-    return {
-      debug: noop,
-      info: noop,
-      warn: noop,
-      error: noop,
-      trace: noop,
-      fatal: noop,
-      level: noop,
-      current: () => 'silent' as LogLevel,
-      enabled: () => false,
-      enable: noop,
-      disable: noop,
-    }
-  }
 
   function value (level: LogLevel): number {
     const levels: Record<LogLevel, number> = {
