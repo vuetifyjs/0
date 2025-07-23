@@ -27,6 +27,7 @@ export type GroupContext = RegistrarContext & {
   selectedIndexes: ComputedRef<Set<number>>
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
+  /** Register a new item */
   register: (item?: Partial<GroupTicket>, id?: ID) => Reactive<GroupTicket>
   /** Select the first available value */
   mandate: () => void
@@ -97,7 +98,9 @@ export function useGroup<
 
     if (options.mandatory === 'force') {
       const first = registrar.collection.values().next().value
+
       if (first) selectedIds.add(first.id)
+
       return
     }
 
