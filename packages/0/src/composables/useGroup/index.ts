@@ -28,10 +28,14 @@ export type GroupContext = RegistrarContext & {
   selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
   register: (item?: Partial<GroupTicket>, id?: ID) => Reactive<GroupTicket>
+  /** Select the first available value */
   mandate: () => void
+  /** Select item(s) by ID(s) */
   select: (ids: ID | ID[]) => void
+  /** Clear all selected IDs, reindex, and mandate a value */
   reset: () => void
-  lookup: (index: number) => ID | undefined
+  /** Browse for an ID by value */
+  browse: (value: unknown) => ID | undefined
 }
 
 export type GroupOptions = {
@@ -41,7 +45,7 @@ export type GroupOptions = {
 }
 
 /**
- *  Creates a group registrar for managing group tickets within a specific namespace.
+ * Creates a group registrar for managing group tickets within a specific namespace.
  * This function provides a way to register, unregister, and manage group selections,
  * allowing for dynamic group management in applications.
  *
@@ -50,6 +54,8 @@ export type GroupOptions = {
  * @template Z The type of the group tickets managed by the registrar.
  * @template E The type of the group context.
  * @returns A tuple containing the inject function, provide function, and the group context.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-group
  */
 export function useGroup<
   Z extends GroupContext,
@@ -60,6 +66,7 @@ export function useGroup<
 ) {
   const [useRegistrarContext, provideRegistrarContext, registrar] = useRegistrar<Z, E>(namespace)
 
+  const catalog = reactive(new Map<unknown, ID>())
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
 
@@ -81,6 +88,10 @@ export function useGroup<
     )
   })
 
+  function browse (value: unknown): ID | undefined {
+    return catalog.get(value)
+  }
+
   function mandate () {
     if (!options?.mandatory || selectedIds.size > 0 || registrar.tickets.size === 0) return
 
@@ -92,8 +103,8 @@ export function useGroup<
 
     for (const item of registrar.tickets.values()) {
       if (item.disabled) continue
-
       selectedIds.add(item.id)
+
       break
     }
   }
@@ -152,6 +163,8 @@ export function useGroup<
 
     const ticket = registrar.register(item, id)
 
+    catalog.set(ticket.value, ticket.id)
+
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
         ? initialValue.includes(ticket.value)
@@ -188,6 +201,7 @@ export function useGroup<
     reindex,
     mandate,
     select,
+    browse,
   } as Z
 
   function provideGroupContext (
@@ -220,14 +234,12 @@ export function useGroup<
 
         selectedIds.clear()
 
-        for (const val of values) {
-          for (const [id, item] of registrar.tickets) {
-            if (item.value !== val) continue
+        for (const value of values) {
+          const id = browse(value)
 
-            selectedIds.add(id)
+          if (!id) continue
 
-            break
-          }
+          selectedIds.add(id)
         }
       })
 
@@ -240,9 +252,7 @@ export function useGroup<
       })
     }
 
-    provideRegistrarContext(model, _context, app)
-
-    return _context
+    return provideRegistrarContext(model, _context, app)
   }
 
   return createTrinity<Z>(useRegistrarContext, provideGroupContext, context)

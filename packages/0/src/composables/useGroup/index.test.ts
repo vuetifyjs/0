@@ -414,5 +414,14 @@ describe('useGroup', () => {
 
       expect(context.selectedIds.size).toBe(0)
     })
+
+    it('should return ID for registered value and undefined for non-existent value', () => {
+      const group = useGroup('test-group')[2]
+
+      const ticket = group.register({ value: 'test-value' })
+
+      expect(group.browse('test-value')).toBe(ticket.id)
+      expect(group.browse('non-existent')).toBeUndefined()
+    })
   })
 })
