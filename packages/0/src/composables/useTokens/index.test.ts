@@ -1,7 +1,12 @@
+// Composables
+import { useTokens } from './index'
+
+// Utilities
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, ref, nextTick, computed } from 'vue'
-import { useTokens } from './index'
+
+// Types
 import type { TokenCollection } from './index'
 
 describe('useTokens', () => {

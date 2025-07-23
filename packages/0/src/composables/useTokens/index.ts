@@ -37,8 +37,7 @@ interface FlattenedToken {
 
 /**
  * Flattens a nested collection of tokens into a flat array of tokens.
- * Each token is represented by an object containing its ID and value.
- *
+ * Each token is represented by an object containing its ID & value.
  * @param tokens The collection of tokens to flatten.
  * @param prefix An optional prefix to prepend to each token ID.
  * @returns An array of flattened tokens, each with an ID and value.
@@ -62,44 +61,40 @@ function flatten (tokens: TokenCollection, prefix = ''): FlattenedToken[] {
 }
 
 /**
- * Resolves token aliases within a collection of tokens.
- * This function replaces aliases in the tokens with their actual values,
- * handling circular references and invalid formats gracefully.
- *
- * @see Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references
+ * Resolves token aliases within a collection of tokens
  * @param tokens The collection of tokens to resolve.
- * @returns A new collection of tokens with resolved aliases.
- * @throws Will log warnings for circular references or invalid alias formats.
+ * @returns A new collection of dereferenced tokens
  */
-function resolveAliases (tokens: Record<string, TokenValue>): Record<string, string> {
+function dereference (tokens: Record<string, TokenValue>): Record<string, string> {
   const resolved: Record<string, string> = {}
   const resolving = new Set<string>()
 
+  function isTokenAlias (value: any): value is TokenAlias {
+    return typeof value === 'object' && value !== null && '$value' in value
+  }
+
   function resolve (key: string, value: TokenValue): string {
-    const isTokenAlias = (v: any): v is TokenAlias => typeof v === 'object' && v !== null && '$value' in v
-    const ref = isTokenAlias(value) ? value.$value : value
+    const reference = isTokenAlias(value) ? value.$value : value
 
-    if (typeof ref !== 'string' || !ref.startsWith('{') || !ref.endsWith('}')) {
-      if (isTokenAlias(value)) {
-        console.warn(`Invalid alias format for "${key}": ${ref}`)
-      }
-      return ref
+    if (typeof reference !== 'string' || !reference.startsWith('{') || !reference.endsWith('}')) {
+      if (isTokenAlias(value)) console.warn(`Invalid alias format for "${key}": ${reference}`)
+      return reference
     }
 
-    const aliasPath = ref.slice(1, -1)
-    if (resolving.has(aliasPath)) {
-      console.warn(`Circular reference detected for "${key}": ${aliasPath}`)
-      return ref
+    const alias = reference.slice(1, -1)
+    if (resolving.has(alias)) {
+      console.warn(`Circular reference detected for "${key}": ${alias}`)
+      return reference
     }
 
-    if (!(aliasPath in tokens)) {
-      console.warn(`Alias not found for "${key}": ${aliasPath}`)
-      return ref
+    if (!(alias in tokens)) {
+      console.warn(`Alias not found for "${key}": ${alias}`)
+      return reference
     }
 
-    resolving.add(aliasPath)
-    const result = resolve(aliasPath, tokens[aliasPath])
-    resolving.delete(aliasPath)
+    resolving.add(alias)
+    const result = resolve(alias, tokens[alias])
+    resolving.delete(alias)
 
     return result
   }
@@ -112,15 +107,15 @@ function resolveAliases (tokens: Record<string, TokenValue>): Record<string, str
 }
 
 /**
- *  Creates a token registrar for managing tokens within a specific namespace.
- *  This function provides a way to register, unregister, and resolve tokens,
- *  allowing for dynamic token management in applications.
+ * Creates a token registrar for managing data structures / aliases
+ * @param namespace The namespace for the token registrar context
+ * @param tokens An optional collection of tokens to initialize
+ * @template Z The available methods for the token's context.
+ * @template E The structure of the registry token tickets.
+ * @returns A trinity of provide/inject methods & context
  *
- * @param namespace The namespace for the token registrar context.
- * @param tokens An optional collection of tokens to initialize the registrar with.
- * @template Z The type of the tokens managed by the registrar.
- * @template E The type of the token context.
- * @returns A tuple containing the inject function, provide function, and the token context.
+ * @see Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references
+ * @see https://0.vuetifyjs.com/composables/registration/use-tokens
  */
 export function useTokens<
   Z extends TokenContext,
@@ -138,7 +133,7 @@ export function useTokens<
     collection.set(id, value)
   }
 
-  const resolved = computed(() => resolveAliases(Object.fromEntries(collection.entries())))
+  const resolved = computed(() => dereference(Object.fromEntries(collection.entries())))
 
   for (const { id, value } of flattened) {
     const resolvedValue = resolved.value[id] || (typeof value === 'string' ? value : value.$value)
