@@ -2,15 +2,25 @@
   // Components
   import { Atom } from '@vuetify/0'
 
+  // Composables
+  import { useBorder } from '#paper/composables/useBorder'
+  import { useColor } from '#paper/composables/useColor'
+  import { useDimensions } from '#paper/composables/useDimensions'
+  import { useElevation } from '#paper/composables/useElevation'
+  import { useRounded } from '#paper/composables/useRounded'
+  import { useSpacing } from '#paper/composables/useSpacing'
+
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { AtomProps } from '@vuetify/0'
-  import { useBorder, type BorderProps } from '#paper/composables/useBorder'
-  import { useColor, type ColorProps } from '#paper/composables/useColor'
-  import { useDimensions, type DimensionProps } from '#paper/composables/useDimensions'
-  import { useElevation, type ElevationProps } from '#paper/composables/useElevation'
-  import { useRounded, type RoundedProps } from '#paper/composables/useRounded'
-  import { useSpacing } from '#paper/composables/useSpacing'
-  import { toRef } from 'vue'
+  import type { BorderProps } from '#paper/composables/useBorder'
+  import type { ColorProps } from '#paper/composables/useColor'
+  import type { DimensionProps } from '#paper/composables/useDimensions'
+  import type { ElevationProps } from '#paper/composables/useElevation'
+  import type { RoundedProps } from '#paper/composables/useRounded'
+  import type { SpacingProps } from '#paper/composables/useSpacing'
 
   interface V0PaperPropsBase {
     fontSize?: string
@@ -27,7 +37,8 @@
     ColorProps,
     BorderProps,
     ElevationProps,
-    RoundedProps {}
+    RoundedProps,
+    SpacingProps {}
 </script>
 
 <script setup lang="ts">
