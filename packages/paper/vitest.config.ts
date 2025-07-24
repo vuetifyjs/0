@@ -14,6 +14,7 @@ export default defineConfig({
     },
   },
   plugins: [Vue()],
+  define: { __DEV__: 'process.env.NODE_ENV !== \'production\'' },
   test: {
     projects: ['packages/*'],
     environment: 'happy-dom',
