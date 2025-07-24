@@ -35,6 +35,7 @@ export default defineConfig({
     Components({
       dirs: ['src/components'],
       extensions: ['vue'],
+      include: [/\.vue$/, /\.md$/],
       dts: './src/components.d.ts',
     }),
     UnocssVitePlugin(),
