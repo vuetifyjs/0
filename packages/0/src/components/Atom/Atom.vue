@@ -56,6 +56,7 @@
   >
     <slot v-if="!isSelfClosing" v-bind="slotProps" />
   </component>
+
   <component
     :is="as"
     v-else
