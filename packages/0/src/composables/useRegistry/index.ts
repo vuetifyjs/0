@@ -17,15 +17,15 @@ export interface RegistryTicket {
 
 export interface RegistryContext {
   collection: Reactive<Map<ID, Reactive<any>>>
-  /** lookup an item by index number */
+  /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
-  /** Find an item by id */
+  /** Find a ticket by id */
   find: (id: ID) => Reactive<any> | undefined
   /** Register a new item */
   register: (item?: Partial<RegistryTicket>, id?: ID) => Reactive<any>
   /** Unregister an item by id */
   unregister: (id: ID) => void
-  /** Reset the index directory and update all items */
+  /** Reset the index directory and update all tickets */
   reindex: () => void
 }
 
@@ -70,7 +70,7 @@ export function useRegistry<
       ...registrant,
     }) as Reactive<E>
 
-    collection.set(item.id, item as any)
+    collection.set(item.id, item as Reactive<any>)
     directory.set(item.index, item.id)
 
     return item
