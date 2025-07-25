@@ -37,7 +37,7 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugin/use-locale': RouteRecordInfo<'/composables/plugin/use-locale', '/composables/plugin/use-locale', Record<never, never>, Record<never, never>>,
     '/composables/plugin/use-storage': RouteRecordInfo<'/composables/plugin/use-storage', '/composables/plugin/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/plugin/use-theme': RouteRecordInfo<'/composables/plugin/use-theme', '/composables/plugin/use-theme', Record<never, never>, Record<never, never>>,
-    '/composables/registration/use-registrar': RouteRecordInfo<'/composables/registration/use-registrar', '/composables/registration/use-registrar', Record<never, never>, Record<never, never>>,
+    '/composables/registration/use-registry': RouteRecordInfo<'/composables/registration/use-registry', '/composables/registration/use-registry', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-tokens': RouteRecordInfo<'/composables/registration/use-tokens', '/composables/registration/use-tokens', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-filter': RouteRecordInfo<'/composables/selection/use-filter', '/composables/selection/use-filter', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-group': RouteRecordInfo<'/composables/selection/use-group', '/composables/selection/use-group', Record<never, never>, Record<never, never>>,
