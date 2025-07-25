@@ -38,31 +38,6 @@ export type TokenContext = RegistryContext & {
 }
 
 /**
- * Flattens a nested collection of tokens into a flat array of tokens.
- * Each token is represented by an object containing its ID & value.
- * @param tokens The collection of tokens to flatten.
- * @param prefix An optional prefix to prepend to each token ID.
- * @returns An array of flattened tokens, each with an ID and value.
- */
-function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
-  const flattened: FlatTokenCollection[] = []
-
-  for (const [key, value] of Object.entries(tokens)) {
-    const id = prefix ? `${prefix}.${key}` : key
-
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-      flattened.push({ id, value: String(value) })
-    } else if (value && typeof value === 'object' && '$value' in value) {
-      flattened.push({ id, value: value as TokenAlias })
-    } else if (value && typeof value === 'object') {
-      flattened.push(...flatten(value, id))
-    }
-  }
-
-  return flattened
-}
-
-/**
  * Creates a token registry for managing data structures / aliases
  * @param namespace The namespace for the token registry context
  * @param tokens An optional collection of tokens to initialize
@@ -81,6 +56,7 @@ export function useTokens<
   tokens: TokenCollection = {},
 ) {
   const logger = useLogger()
+  const cache = new Map<string, string | undefined>()
 
   const [useTokenContext, provideTokenContext, registry] = useRegistry<Z, E>(namespace)
 
@@ -88,12 +64,8 @@ export function useTokens<
     registry.register({ value } as Partial<E>, id)
   }
 
-  function clean (token: string): string {
-    return isAlias(token) ? token.slice(1, -1) : token
-  }
-
   function isAlias (token: unknown): token is string {
-    return isString(token) && token.startsWith('{') && token.endsWith('}')
+    return isString(token) && token.length > 2 && token[0] === '{' && token.at(-1) === '}'
   }
 
   function isTokenAlias (value: unknown): value is TokenAlias {
@@ -101,22 +73,65 @@ export function useTokens<
   }
 
   function resolve (token: string): string | undefined {
-    const reference = isTokenAlias(token) ? token.$value : token
+    const cached = cache.get(token)
 
-    const found = registry.collection.get(clean(reference)) as E | undefined
+    if (cached !== undefined) return cached
+
+    const reference = isTokenAlias(token) ? token.$value : token
+    const cleaned = isAlias(reference) ? reference.slice(1, -1) : reference
+
+    const found = registry.collection.get(cleaned) as E | undefined
 
     if (found?.value === undefined) {
       logger.warn(`Alias not found for "${reference}"`)
+      cache.set(token, undefined)
       return undefined
     }
 
-    if (isTokenAlias(found.value)) return resolve(found.value.$value)
-    else if (isAlias(found.value)) return resolve(found.value)
-    return String(found.value)
+    let result: string | undefined
+
+    if (isTokenAlias(found.value)) result = resolve(found.value.$value)
+    else if (isAlias(found.value)) result = resolve(found.value)
+    else result = String(found.value)
+
+    cache.set(token, result)
+
+    return result
   }
 
   return createTrinity<Z>(useTokenContext, provideTokenContext, {
     ...registry,
     resolve,
   } as Z)
+}
+
+/**
+ * Flattens a nested collection of tokens into a flat array of tokens.
+ * Each token is represented by an object containing its ID & value.
+ * @param tokens The collection of tokens to flatten.
+ * @param prefix An optional prefix to prepend to each token ID.
+ * @returns An array of flattened tokens, each with an ID and value.
+ */
+function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
+  const flattened: FlatTokenCollection[] = []
+  const stack: Array<{ tokens: TokenCollection, prefix: string }> = [{ tokens, prefix }]
+
+  while (stack.length > 0) {
+    const { tokens: currentTokens, prefix: currentPrefix } = stack.pop()!
+
+    for (const key in currentTokens) {
+      const value = currentTokens[key]
+      const id = currentPrefix ? `${currentPrefix}.${key}` : key
+
+      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        flattened.push({ id, value: String(value) })
+      } else if (value && typeof value === 'object' && '$value' in value) {
+        flattened.push({ id, value: value as TokenAlias })
+      } else if (value && typeof value === 'object') {
+        stack.push({ tokens: value, prefix: id })
+      }
+    }
+  }
+
+  return flattened
 }
