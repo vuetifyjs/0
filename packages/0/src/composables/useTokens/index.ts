@@ -5,9 +5,11 @@ import { createTrinity } from '#v0/factories/createTrinity'
 import { useRegistry } from '#v0/composables/useRegistry'
 import { useLogger } from '#v0/composables/useLogger'
 
+// Utilities
+import { isObject, isString } from '#v0/utilities'
+
 // Types
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
-import { isObject, isString } from '#v0/utilities'
 
 export type TokenAlias = {
   $value: string
@@ -100,12 +102,16 @@ export function useTokens<
 
     const found = registry.collection.get(clean(reference)) as E | undefined
 
-    if (isTokenAlias(found?.value)) return resolve(found.value.$value)
-    if (isAlias(found?.value)) return resolve(found.value)
+    if (found?.value === undefined) {
+      logger.warn(`Alias not found for "${token}"`)
 
-    if (found?.value === undefined) logger.warn(`Alias not found for "${token}"`)
+      return undefined
+    }
 
-    return found?.value
+    if (isTokenAlias(found.value)) return resolve(found.value.$value)
+    else if (isAlias(found.value)) return resolve(found.value)
+
+    return found.value
   }
 
   return createTrinity<Z>(useTokenContext, provideTokenContext, {
