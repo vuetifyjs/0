@@ -8,7 +8,7 @@ import { useSingle } from '#v0/composables/useSingle'
 import { useTokens } from '#v0/composables/useTokens'
 
 // Utilities
-import { computed, watch } from 'vue'
+import { computed, toValue, watch } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Adapters
@@ -63,7 +63,7 @@ export function createTheme<
   E extends ThemeTicket,
 > (
   namespace = 'v0:theme',
-  tokens: ComputedRef<Record<string, string>>,
+  context: TokenContext,
 ) {
   const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
 
@@ -73,7 +73,7 @@ export function createTheme<
     for (const [id, theme] of registry.collection.entries()) {
       if (theme.lazy && theme.id !== registry.selectedId.value) continue
 
-      resolved[id as string] = resolve(id, tokens.value)
+      resolved[String(id)] = resolve(theme.value)
     }
     return resolved
   })
@@ -89,6 +89,14 @@ export function createTheme<
     cycle(themeArray)
   }
 
+  function resolve (theme: Colors): Colors {
+    const resolved: Colors = {}
+    for (const [key, value] of Object.entries(theme)) {
+      resolved[key] = toValue(context.resolve(value) ?? value)
+    }
+    return resolved
+  }
+
   function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
     const item = registry.register({
       lazy: registrant?.lazy ?? false,
@@ -96,20 +104,6 @@ export function createTheme<
     }, id)
 
     return item
-  }
-
-  function resolve (theme: ID, tokens: Record<string, string>): Colors {
-    const colors: Colors = {}
-    const prefix = `${String(theme)}.`
-
-    for (const key in tokens) {
-      if (key.startsWith(prefix)) {
-        const colorName = key.slice(prefix.length)
-        colors[colorName] = tokens[key]
-      }
-    }
-
-    return colors
   }
 
   return createTrinity<Z>(useThemeContext, provideThemeContext, {
@@ -149,7 +143,7 @@ export function createThemePlugin<
 > (options: ThemePluginOptions = {}): ThemePlugin {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
   const [, provideThemeTokenContext, tokensContext] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })
-  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', tokensContext.resolved)
+  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', tokensContext)
 
   // Register themes if provided
   if (options.themes) {

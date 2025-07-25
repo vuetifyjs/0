@@ -5,12 +5,9 @@ import { createTrinity } from '#v0/factories/createTrinity'
 import { useRegistry } from '#v0/composables/useRegistry'
 import { useLogger } from '#v0/composables/useLogger'
 
-// Utilities
-import { computed } from 'vue'
-
 // Types
-import type { ComputedRef } from 'vue'
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
+import { isObject, isString } from '#v0/utilities'
 
 export type TokenAlias = {
   $value: string
@@ -22,18 +19,17 @@ export type TokenCollection = {
   [key: string]: TokenValue | TokenCollection
 }
 
+export type FlatTokenCollection = {
+  id: string
+  value: TokenValue
+}
+
 export type TokenTicket = RegistryTicket & {
   value: string
 }
 
 export type TokenContext = RegistryContext & {
   resolve: (token: string) => string | undefined
-  resolved: ComputedRef<Record<string, string>>
-}
-
-interface FlattenedToken {
-  id: string
-  value: TokenValue
 }
 
 /**
@@ -43,8 +39,8 @@ interface FlattenedToken {
  * @param prefix An optional prefix to prepend to each token ID.
  * @returns An array of flattened tokens, each with an ID and value.
  */
-function flatten (tokens: TokenCollection, prefix = ''): FlattenedToken[] {
-  const flattened: FlattenedToken[] = []
+function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
+  const flattened: FlatTokenCollection[] = []
 
   for (const [key, value] of Object.entries(tokens)) {
     const id = prefix ? `${prefix}.${key}` : key
@@ -83,78 +79,37 @@ export function useTokens<
 
   const [useTokenContext, provideTokenContext, registry] = useRegistry<Z, E>(namespace)
 
-  const flattened = flatten(tokens)
-  const collection = new Map<string, TokenValue>()
-
-  for (const { id, value } of flattened) {
-    collection.set(id, value)
-  }
-
-  const resolved = computed(() => dereference(Object.fromEntries(collection.entries())))
-
-  for (const { id, value } of flattened) {
-    const resolvedValue = resolved.value[id] || (typeof value === 'string' ? value : value.$value)
-
-    registry.register({ value: resolvedValue } as Partial<E>, id)
+  for (const { id, value } of flatten(tokens)) {
+    registry.register({ value } as Partial<E>, id)
   }
 
   function clean (token: string): string {
-    return token.startsWith('{') && token.endsWith('}') ? token.slice(1, -1) : token
+    return isAlias(token) ? token.slice(1, -1) : token
+  }
+
+  function isAlias (token: unknown): token is string {
+    return isString(token) && token.startsWith('{') && token.endsWith('}')
+  }
+
+  function isTokenAlias (value: unknown): value is TokenAlias {
+    return isObject(value) && '$value' in value
   }
 
   function resolve (token: string): string | undefined {
-    return resolved.value[clean(token)]
-  }
+    const reference = isTokenAlias(token) ? token.$value : token
 
-  /**
- * Resolves token aliases within a collection of tokens
- * @param tokens The collection of tokens to resolve.
- * @returns A new collection of dereferenced tokens
- */
-  function dereference (tokens: Record<string, TokenValue>): Record<string, string> {
-    const resolved: Record<string, string> = {}
-    const resolving = new Set<string>()
+    const found = registry.collection.get(clean(reference)) as E | undefined
 
-    function isTokenAlias (value: any): value is TokenAlias {
-      return typeof value === 'object' && value !== null && '$value' in value
-    }
+    if (isTokenAlias(found?.value)) return resolve(found.value.$value)
+    if (isAlias(found?.value)) return resolve(found.value)
 
-    function resolve (key: string, value: TokenValue): string {
-      const reference = isTokenAlias(value) ? value.$value : value
+    if (found?.value === undefined) logger.warn(`Alias not found for "${token}"`)
 
-      if (typeof reference !== 'string' || !reference.startsWith('{') || !reference.endsWith('}')) {
-        if (isTokenAlias(value)) logger.warn(`Invalid alias format for "${key}": ${reference}`)
-        return reference
-      }
-
-      const alias = reference.slice(1, -1)
-      if (resolving.has(alias)) {
-        logger.warn(`Circular reference detected for "${key}": ${alias}`)
-        return reference
-      }
-
-      if (!(alias in tokens)) {
-        logger.warn(`Alias not found for "${key}": ${alias}`)
-        return reference
-      }
-
-      resolving.add(alias)
-      const result = resolve(alias, tokens[alias])
-      resolving.delete(alias)
-
-      return result
-    }
-
-    for (const [key, value] of Object.entries(tokens)) {
-      resolved[key] = resolve(key, value)
-    }
-
-    return resolved
+    return found?.value
   }
 
   return createTrinity<Z>(useTokenContext, provideTokenContext, {
     ...registry,
     resolve,
-    resolved,
   } as Z)
 }
