@@ -11,13 +11,16 @@ import { isObject, isString } from '#v0/utilities'
 // Types
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
 
-export type TokenAlias = {
+export interface TokenAlias {
+  [key: string]: any
   $value: string
+  $type?: string
+  $description?: string
 }
 
-export type TokenValue = string | TokenAlias
+export type TokenValue = string | number | boolean | TokenAlias
 
-export type TokenCollection = {
+export interface TokenCollection {
   [key: string]: TokenValue | TokenCollection
 }
 
@@ -27,11 +30,11 @@ export type FlatTokenCollection = {
 }
 
 export type TokenTicket = RegistryTicket & {
-  value: string
+  value: TokenValue
 }
 
 export type TokenContext = RegistryContext & {
-  resolve: (token: string) => string | undefined
+  resolve: (token: string) => string | number | boolean | undefined
 }
 
 /**
@@ -47,12 +50,12 @@ function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
   for (const [key, value] of Object.entries(tokens)) {
     const id = prefix ? `${prefix}.${key}` : key
 
-    if (typeof value === 'string') {
-      flattened.push({ id, value })
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      flattened.push({ id, value: String(value) })
     } else if (value && typeof value === 'object' && '$value' in value) {
       flattened.push({ id, value: value as TokenAlias })
     } else if (value && typeof value === 'object') {
-      flattened.push(...flatten(value as TokenCollection, id))
+      flattened.push(...flatten(value, id))
     }
   }
 
@@ -103,15 +106,13 @@ export function useTokens<
     const found = registry.collection.get(clean(reference)) as E | undefined
 
     if (found?.value === undefined) {
-      logger.warn(`Alias not found for "${token}"`)
-
+      logger.warn(`Alias not found for "${reference}"`)
       return undefined
     }
 
     if (isTokenAlias(found.value)) return resolve(found.value.$value)
     else if (isAlias(found.value)) return resolve(found.value)
-
-    return found.value
+    return String(found.value)
   }
 
   return createTrinity<Z>(useTokenContext, provideTokenContext, {
