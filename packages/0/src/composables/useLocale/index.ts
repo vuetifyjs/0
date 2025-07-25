@@ -11,18 +11,23 @@ import { useTokens } from '#v0/composables/useTokens'
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
 // Types
-import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
+import type { BaseSingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
 import type { TokenCollection, TokenTicket, TokenContext } from '#v0/composables/useTokens'
 import type { LocaleAdapter } from './adapters'
-import type { App } from 'vue'
+import type { App, Reactive } from 'vue'
+import type { RegistryContext } from '#v0/composables/useRegistry'
 
 export type LocaleTicket = SingleTicket
 
-export type LocaleContext = SingleContext & {
+export type BaseLocaleContext = BaseSingleContext & {
   t: (key: string, ...params: unknown[]) => string
   n: (value: number) => string
+  register: (item?: Partial<LocaleTicket>, id?: ID) => Reactive<LocaleTicket>
+  selectedItem: Reactive<LocaleTicket | undefined>
 }
+
+export type LocaleContext = RegistryContext<LocaleTicket> & BaseLocaleContext
 
 export interface LocaleOptions extends LocalePluginOptions {}
 
@@ -47,8 +52,8 @@ export interface LocalePlugin {
  * @returns An array containing the inject function, provide function, and the locale context.
  */
 export function createLocale<
-  Z extends LocaleContext,
-  E extends LocaleTicket,
+  Z extends LocaleTicket = LocaleTicket,
+  E extends LocaleContext = LocaleContext,
 > (
   namespace = 'v0:locale',
   options: LocaleOptions = {},
@@ -57,10 +62,7 @@ export function createLocale<
   const [useLocaleContext, provideLocaleContext, registry] = useSingle<Z, E>(namespace)
 
   for (const id in messages) {
-    registry.register({
-      id,
-      value: messages[id],
-    } as Partial<E>, id)
+    registry.register({ value: messages[id] }, id)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -97,11 +99,11 @@ export function createLocale<
     })
   }
 
-  return createTrinity<Z>(useLocaleContext, provideLocaleContext, {
+  return createTrinity<E>(useLocaleContext, provideLocaleContext, {
     ...registry,
     t,
     n,
-  } as Z)
+  } as E)
 }
 
 /**
@@ -125,10 +127,10 @@ export function useLocale (): LocaleContext {
  * @returns Vue install function for the plugin
  */
 export function createLocalePlugin<
-  Z extends LocaleContext = LocaleContext,
-  E extends LocaleTicket = LocaleTicket,
-  R extends TokenContext = TokenContext,
-  O extends TokenTicket = TokenTicket,
+  Z extends LocaleTicket = LocaleTicket,
+  E extends LocaleContext = LocaleContext,
+  R extends TokenTicket = TokenTicket,
+  O extends TokenContext = TokenContext,
 > (options: LocalePluginOptions = {}): LocalePlugin {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
   const [, provideLocaleTokenContext, tokensContext] = useTokens<R, O>('v0:locale:tokens', messages)

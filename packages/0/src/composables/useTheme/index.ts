@@ -18,10 +18,11 @@ import { Vuetify0ThemeAdapter } from './adapters/v0'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
+import type { BaseSingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Reactive } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
+import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { TokenCollection, TokenContext, TokenTicket } from '#v0/composables/useTokens'
 
 export type Colors = {
@@ -34,14 +35,18 @@ export type ThemeColors = {
 
 export type ThemeTicket = SingleTicket & {
   lazy: boolean
-  value: ThemeColors
+  value: Colors
 }
 
-export type ThemeContext = SingleContext & {
+export type BaseThemeContext = BaseSingleContext & {
   colors: ComputedRef<Record<string, Colors>>
   cycle: (themes: ID[]) => void
   toggle: (themes: [ID, ID]) => void
+  register: (item?: Partial<ThemeTicket>, id?: ID) => Reactive<ThemeTicket>
+  selectedItem: Reactive<ThemeTicket | undefined>
 }
+
+export type ThemeContext = RegistryContext<ThemeTicket> & BaseThemeContext
 
 export interface ThemeOptions {
   default?: ID
@@ -69,8 +74,8 @@ export interface ThemePlugin {
  * @returns A tuple containing inject, provide functions and the theme context.
  */
 export function createTheme<
-  Z extends ThemeContext,
-  E extends ThemeTicket,
+  Z extends ThemeTicket = ThemeTicket,
+  E extends ThemeContext = ThemeContext,
 > (
   namespace = 'v0:theme',
   options: ThemeOptions,
@@ -79,10 +84,7 @@ export function createTheme<
   const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
 
   for (const id in themes) {
-    registry.register({
-      id,
-      value: themes[id],
-    } as Partial<E>, id)
+    registry.register({ value: themes[id] }, id)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -119,22 +121,22 @@ export function createTheme<
     return resolved
   }
 
-  function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
+  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
     const item = registry.register({
       lazy: registrant?.lazy ?? false,
       ...registrant,
-    }, id)
+    }, id) as Reactive<Z>
 
     return item
   }
 
-  return createTrinity<Z>(useThemeContext, provideThemeContext, {
+  return createTrinity<E>(useThemeContext, provideThemeContext, {
     ...registry,
     colors,
     register,
     cycle,
     toggle,
-  } as Z)
+  } as E)
 }
 
 /**
@@ -158,10 +160,10 @@ export function useTheme (): ThemeContext {
  * @returns A Vue plugin object with install method.
  */
 export function createThemePlugin<
-  Z extends ThemeContext = ThemeContext,
-  E extends ThemeTicket = ThemeTicket,
-  R extends TokenContext = TokenContext,
-  O extends TokenTicket = TokenTicket,
+  Z extends ThemeTicket = ThemeTicket,
+  E extends ThemeContext = ThemeContext,
+  R extends TokenTicket = TokenTicket,
+  O extends TokenContext = TokenContext,
 > (options: ThemePluginOptions = {}): ThemePlugin {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
   const [, provideThemeTokenContext, tokens] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })

@@ -22,7 +22,7 @@ export type GroupTicket = RegistryTicket & {
   toggle: () => void
 }
 
-export type GroupContext = RegistryContext & {
+export type BaseGroupContext = {
   selectedItems: ComputedRef<Set<GroupTicket | undefined>>
   selectedIndexes: ComputedRef<Set<number>>
   selectedIds: Reactive<Set<ID>>
@@ -38,6 +38,8 @@ export type GroupContext = RegistryContext & {
   /** Browse for an ID by value */
   browse: (value: unknown) => ID | undefined
 }
+
+export type GroupContext = RegistryContext<GroupTicket> & BaseGroupContext
 
 export type GroupOptions = {
   mandatory?: boolean | 'force'
@@ -59,8 +61,8 @@ export type GroupOptions = {
  * @see https://0.vuetifyjs.com/composables/selection/use-group
  */
 export function useGroup<
-  Z extends GroupContext,
-  E extends GroupTicket,
+  Z extends GroupTicket = GroupTicket,
+  E extends GroupContext = GroupContext,
 > (
   namespace: string,
   options?: GroupOptions,
@@ -154,8 +156,8 @@ export function useGroup<
     }
   }
 
-  function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
-    const item: Partial<E> = {
+  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+    const item: Partial<Z> = {
       disabled: false,
       value: registrant?.value ?? registry.collection.size,
       valueIsIndex: registrant?.value == null,
@@ -178,7 +180,7 @@ export function useGroup<
 
     if (options?.mandatory === 'force') mandate()
 
-    return ticket
+    return ticket as Reactive<Z>
   }
 
   function unregister (id: ID) {
@@ -205,13 +207,13 @@ export function useGroup<
     mandate,
     select,
     browse,
-  } as Z
+  } as unknown as E
 
   function provideGroupContext (
     model?: Ref<unknown | unknown[]>,
-    _context: Z = context,
+    _context: E = context,
     app?: App,
-  ): Z {
+  ): E {
     let isUpdatingModel = false
 
     if (model) {
@@ -258,5 +260,5 @@ export function useGroup<
     return provideRegistryContext(model, _context, app)
   }
 
-  return createTrinity<Z>(useRegistryContext, provideGroupContext, context)
+  return createTrinity<E>(useRegistryContext, provideGroupContext, context)
 }

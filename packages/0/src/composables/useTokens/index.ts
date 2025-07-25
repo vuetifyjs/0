@@ -33,8 +33,8 @@ export type TokenTicket = RegistryTicket & {
   value: TokenValue
 }
 
-export type TokenContext = RegistryContext & {
-  resolve: (token: string) => string | number | boolean | undefined
+export type TokenContext = RegistryContext<TokenTicket> & {
+  resolve: (token: string) => string | undefined
 }
 
 /**
@@ -49,8 +49,8 @@ export type TokenContext = RegistryContext & {
  * @see https://0.vuetifyjs.com/composables/registration/use-tokens
  */
 export function useTokens<
-  Z extends TokenContext,
-  E extends TokenTicket,
+  Z extends TokenTicket = TokenTicket,
+  E extends TokenContext = TokenContext,
 > (
   namespace: string,
   tokens: TokenCollection = {},
@@ -61,7 +61,7 @@ export function useTokens<
   const [useTokenContext, provideTokenContext, registry] = useRegistry<Z, E>(namespace)
 
   for (const { id, value } of flatten(tokens)) {
-    registry.register({ value } as Partial<E>, id)
+    registry.register({ value }, id)
   }
 
   function isAlias (token: unknown): token is string {
@@ -80,7 +80,7 @@ export function useTokens<
     const reference = isTokenAlias(token) ? token.$value : token
     const cleaned = isAlias(reference) ? reference.slice(1, -1) : reference
 
-    const found = registry.collection.get(cleaned) as E | undefined
+    const found = registry.collection.get(cleaned)
 
     if (found?.value === undefined) {
       logger.warn(`Alias not found for "${reference}"`)
@@ -99,10 +99,10 @@ export function useTokens<
     return result
   }
 
-  return createTrinity<Z>(useTokenContext, provideTokenContext, {
+  return createTrinity<E>(useTokenContext, provideTokenContext, {
     ...registry,
     resolve,
-  } as Z)
+  } as E)
 }
 
 /**

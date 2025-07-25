@@ -187,13 +187,13 @@ declare global {
   export type { SpacingProps } from '../../packages/paper/src/composables/useSpacing/index'
   import('../../packages/paper/src/composables/useSpacing/index')
   // @ts-ignore
-  export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
+  export type { Theme, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
   export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPlugin } from '../../packages/0/src/composables/useBreakpoints/index'
   import('../../packages/0/src/composables/useBreakpoints/index')
   // @ts-ignore
-  export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
+  export type { GroupTicket, BaseGroupContext, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
   export type { HydrationContext, HydrationPlugin } from '../../packages/0/src/composables/useHydration/index'
@@ -202,7 +202,7 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { LocaleTicket, LocaleContext, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
+  export type { LocaleTicket, BaseLocaleContext, LocaleContext, LocaleOptions, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
   // @ts-ignore
   export type { LoggerContext, LoggerOptions, LoggerPlugin, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
@@ -211,16 +211,16 @@ declare global {
   export type { RegistryTicket, RegistryContext } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
   // @ts-ignore
-  export type { SingleTicket, SingleOptions, SingleContext } from '../../packages/0/src/composables/useSingle/index'
+  export type { SingleTicket, SingleOptions, BaseSingleContext, SingleContext } from '../../packages/0/src/composables/useSingle/index'
   import('../../packages/0/src/composables/useSingle/index')
   // @ts-ignore
-  export type { StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
+  export type { StepTicket, BaseStepContext, StepContext, StepOptions } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
   export type { StorageContext, StorageOptions, StoragePlugin } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
   // @ts-ignore
-  export type { Colors, ThemeTicket, ThemeContext, ThemePluginOptions, ThemePlugin } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeColors, ThemeTicket, BaseThemeContext, ThemeContext, ThemeOptions, ThemePluginOptions, ThemePlugin } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
   export type { TokenAlias, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
