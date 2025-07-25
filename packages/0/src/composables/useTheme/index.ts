@@ -113,10 +113,15 @@ export function createTheme<
     cycle(themes)
   }
 
+  function isTokenReference (value: string): boolean {
+    if (value.length > 2 && value[0] === '{' && value.at(-1) === '}') return true
+    return tokens.collection.has(value)
+  }
+
   function resolve (theme: Colors): Colors {
     const resolved: Colors = {}
     for (const [key, value] of Object.entries(theme)) {
-      resolved[key] = toValue(tokens.resolve(value) ?? value)
+      resolved[key] = isTokenReference(value) ? toValue(tokens.resolve(value) ?? value) : toValue(value)
     }
     return resolved
   }

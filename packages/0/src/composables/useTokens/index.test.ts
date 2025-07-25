@@ -466,4 +466,12 @@ describe('useTokens reactivity in components', () => {
     expect(testComponent.vm.themeItemsCount).toBe(2)
     expect(testComponent.vm.spacingItemsCount).toBe(2)
   })
+
+  it('should return the original value for direct values without warning', () => {
+    const tokens: TokenCollection = { primary: '#007BFF' }
+    const context = useTokens('test', tokens)[2]
+
+    expect(context.resolve('primary')).toBe('#007BFF')
+    expect(context.resolve('#ff0000')).toBe(undefined)
+  })
 })
