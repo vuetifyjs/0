@@ -28,15 +28,19 @@ export type Colors = {
   [key: string]: string
 }
 
+export type ThemeColors = {
+  [key: string]: Colors | string
+}
+
 export type ThemeTicket = SingleTicket & {
   lazy: boolean
-  value: TokenCollection
+  value: ThemeColors
 }
 
 export type ThemeContext = SingleContext & {
-  colors: ComputedRef<Record<string, Colors | undefined>>
-  cycle: (themeArray: ID[]) => void
-  toggle: (themeArray: [ID, ID]) => void
+  colors: ComputedRef<Record<string, Colors>>
+  cycle: (themes: ID[]) => void
+  toggle: (themes: [ID, ID]) => void
 }
 
 export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection> {
@@ -67,9 +71,9 @@ export function createTheme<
 ) {
   const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
 
-  const themeNames = computed(() => Array.from(registry.collection.keys()))
+  const names = computed(() => Array.from(registry.collection.keys()))
   const colors = computed(() => {
-    const resolved = {} as Record<string, Colors | undefined>
+    const resolved = {} as Record<string, Colors>
     for (const [id, theme] of registry.collection.entries()) {
       if (theme.lazy && theme.id !== registry.selectedId.value) continue
 
@@ -78,15 +82,15 @@ export function createTheme<
     return resolved
   })
 
-  function cycle (themeArray: ID[] = themeNames.value) {
-    const currentIndex = themeArray.indexOf(registry.selectedId.value ?? '')
-    const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % themeArray.length
+  function cycle (themes: ID[] = names.value) {
+    const current = themes.indexOf(registry.selectedId.value ?? '')
+    const next = current === -1 ? 0 : (current + 1) % themes.length
 
-    registry.select(themeArray[nextIndex])
+    registry.select(themes[next])
   }
 
-  function toggle (themeArray: [ID, ID]) {
-    cycle(themeArray)
+  function toggle (themes: [ID, ID]) {
+    cycle(themes)
   }
 
   function resolve (theme: Colors): Colors {
@@ -159,7 +163,7 @@ export function createThemePlugin<
     }
   }
 
-  function update (colors: Record<string, Colors | undefined>) {
+  function update (colors: Record<string, Colors>) {
     adapter.update(colors)
   }
 
