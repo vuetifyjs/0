@@ -43,6 +43,12 @@ export type ThemeContext = SingleContext & {
   toggle: (themes: [ID, ID]) => void
 }
 
+export interface ThemeOptions {
+  default?: ID
+  tokens: TokenContext
+  themes?: Record<ID, TokenCollection>
+}
+
 export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection> {
   adapter?: ThemeAdapter
   default?: ID
@@ -67,9 +73,21 @@ export function createTheme<
   E extends ThemeTicket,
 > (
   namespace = 'v0:theme',
-  context: TokenContext,
+  options: ThemeOptions,
 ) {
+  const { tokens, themes = {} } = options
   const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
+
+  for (const id in themes) {
+    registry.register({
+      id,
+      value: themes[id],
+    } as Partial<E>, id)
+
+    if (id === options.default && !registry.selectedId.value) {
+      registry.select(id as ID)
+    }
+  }
 
   const names = computed(() => Array.from(registry.collection.keys()))
   const colors = computed(() => {
@@ -96,7 +114,7 @@ export function createTheme<
   function resolve (theme: Colors): Colors {
     const resolved: Colors = {}
     for (const [key, value] of Object.entries(theme)) {
-      resolved[key] = toValue(context.resolve(value) ?? value)
+      resolved[key] = toValue(tokens.resolve(value) ?? value)
     }
     return resolved
   }
@@ -146,22 +164,8 @@ export function createThemePlugin<
   O extends TokenTicket = TokenTicket,
 > (options: ThemePluginOptions = {}): ThemePlugin {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
-  const [, provideThemeTokenContext, tokensContext] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })
-  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', tokensContext)
-
-  // Register themes if provided
-  if (options.themes) {
-    for (const id in options.themes) {
-      themeContext.register({
-        id,
-        value: options.themes[id],
-      } as Partial<E>, id)
-
-      if (id === options.default && !themeContext.selectedId.value) {
-        themeContext.select(id as ID)
-      }
-    }
-  }
+  const [, provideThemeTokenContext, tokens] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })
+  const [, provideThemeContext, theme] = createTheme<Z, E>('v0:theme', { themes, tokens })
 
   function update (colors: Record<string, Colors>) {
     adapter.update(colors)
@@ -170,14 +174,14 @@ export function createThemePlugin<
   return createPlugin<ThemePlugin>({
     namespace: 'v0:theme',
     provide: (app: App) => {
-      provideThemeContext(undefined, themeContext, app)
-      provideThemeTokenContext(undefined, tokensContext, app)
+      provideThemeContext(undefined, theme, app)
+      provideThemeTokenContext(undefined, tokens, app)
     },
     setup: () => {
       if (IN_BROWSER) {
-        watch(themeContext.colors, update, { immediate: true, deep: true })
+        watch(theme.colors, update, { immediate: true, deep: true })
       } else {
-        update(themeContext.colors.value)
+        update(theme.colors.value)
       }
     },
   })

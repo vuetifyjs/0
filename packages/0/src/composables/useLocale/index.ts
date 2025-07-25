@@ -24,6 +24,8 @@ export type LocaleContext = SingleContext & {
   n: (value: number) => string
 }
 
+export interface LocaleOptions extends LocalePluginOptions {}
+
 export interface LocalePluginOptions<Z extends TokenCollection = TokenCollection> {
   adapter?: LocaleAdapter
   default?: ID
@@ -49,21 +51,20 @@ export function createLocale<
   E extends LocaleTicket,
 > (
   namespace = 'v0:locale',
-  options: LocalePluginOptions = {},
+  options: LocaleOptions = {},
 ) {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
   const [useLocaleContext, provideLocaleContext, registry] = useSingle<Z, E>(namespace)
 
-  function resolve (locale: ID, str: string): string {
-    return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, linkedKey) => {
-      const [linkedLocale, ...rest] = linkedKey.split('.')
-      const keyPath = rest.join('.')
-      const targetLocale = messages[linkedLocale] ? linkedLocale : locale
-      const targetKey = messages[linkedLocale] ? keyPath : linkedKey
-      const resolved = messages[targetLocale]?.[targetKey]
+  for (const id in messages) {
+    registry.register({
+      id,
+      value: messages[id],
+    } as Partial<E>, id)
 
-      return typeof resolved === 'string' ? resolve(targetLocale, resolved) : match
-    })
+    if (id === options.default && !registry.selectedId.value) {
+      registry.select(id as ID)
+    }
   }
 
   function t (key: string, ...params: unknown[]): string {
@@ -82,6 +83,18 @@ export function createLocale<
 
   function n (value: number, ...params: unknown[]): string {
     return adapter.n(value, registry.selectedId.value, ...params)
+  }
+
+  function resolve (locale: ID, str: string): string {
+    return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, linkedKey) => {
+      const [linkedLocale, ...rest] = linkedKey.split('.')
+      const keyPath = rest.join('.')
+      const targetLocale = messages[linkedLocale] ? linkedLocale : locale
+      const targetKey = messages[linkedLocale] ? keyPath : linkedKey
+      const resolved = messages[targetLocale]?.[targetKey]
+
+      return typeof resolved === 'string' ? resolve(targetLocale, resolved) : match
+    })
   }
 
   return createTrinity<Z>(useLocaleContext, provideLocaleContext, {
@@ -116,24 +129,10 @@ export function createLocalePlugin<
   E extends LocaleTicket = LocaleTicket,
   R extends TokenContext = TokenContext,
   O extends TokenTicket = TokenTicket,
-> (_options: LocalePluginOptions = {}): LocalePlugin {
-  const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
+> (options: LocalePluginOptions = {}): LocalePlugin {
+  const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
   const [, provideLocaleTokenContext, tokensContext] = useTokens<R, O>('v0:locale:tokens', messages)
   const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
-
-  // Register locales if provided
-  if (messages) {
-    for (const id in messages) {
-      localeContext.register({
-        id,
-        value: messages[id],
-      } as Partial<E>, id)
-
-      if (id === options.default && !localeContext.selectedId.value) {
-        localeContext.select(id as ID)
-      }
-    }
-  }
 
   return createPlugin<LocalePlugin>({
     namespace: 'v0:locale',
