@@ -4,6 +4,9 @@ import { createTrinity } from '#v0/factories/createTrinity'
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
+// Transformers
+import { toArray } from '#v0/transformers'
+
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
 import { genId } from '#v0/utilities/helpers'
@@ -73,6 +76,9 @@ export function useGroup<
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
 
+  const mandatory = options?.mandatory ?? false
+  const multiple = options?.multiple ?? false
+
   const selectedItems = computed(() => {
     return new Set(
       Array.from(selectedIds).map(id => registry.collection.get(id)),
@@ -96,9 +102,9 @@ export function useGroup<
   }
 
   function mandate () {
-    if (!options?.mandatory || selectedIds.size > 0 || registry.collection.size === 0) return
+    if (!mandatory || selectedIds.size > 0 || registry.collection.size === 0) return
 
-    if (options.mandatory === 'force') {
+    if (mandatory === 'force') {
       const first = registry.collection.values().next().value
 
       if (first) selectedIds.add(first.id)
@@ -129,28 +135,25 @@ export function useGroup<
   }
 
   function toggle (ids: ID | ID[]) {
-    for (const id of Array.isArray(ids) ? ids : [ids]) {
-      if (!id) continue
-
+    for (const id of toArray<ID>(ids)) {
       const item = registry.collection.get(id)
 
       if (!item || item.disabled) continue
 
       const hasId = selectedIds.has(id)
 
-      if (hasId && options?.mandatory) {
-        // For single selection, can't deselect if it's the only one
-        if (!options?.multiple) continue
-        // For multiple selection, can't deselect if it's the last one
-        if (selectedIds.size === 1) continue
-      }
-
       if (hasId) {
+        if (mandatory) {
+          // For single selection, can't deselect if it's the only one
+          if (!multiple) continue
+          // For multiple selection, can't deselect if it's the last one
+          if (selectedIds.size === 1) continue
+        }
         selectedIds.delete(id)
       } else {
-        // For single selection, clear others first
-        if (!options?.multiple) selectedIds.clear()
-
+        if (!multiple && selectedIds.size > 0) {
+          selectedIds.delete(registry.lookup(0) as ID)
+        }
         selectedIds.add(id)
       }
     }
@@ -178,7 +181,7 @@ export function useGroup<
       if (shouldSelect) selectedIds.add(ticket.id)
     }
 
-    if (options?.mandatory === 'force') mandate()
+    if (mandatory === 'force') mandate()
 
     return ticket as Reactive<Z>
   }
