@@ -1,6 +1,10 @@
 // Types
 import type { DeepPartial } from '#v0/types'
 
+export function isString (item: unknown): item is string {
+  return typeof item === 'string'
+}
+
 export function isObject (item: unknown): item is Record<string, unknown> {
   return typeof item === 'object' && item !== null && !Array.isArray(item)
 }

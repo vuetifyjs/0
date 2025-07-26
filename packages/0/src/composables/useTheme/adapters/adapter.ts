@@ -2,7 +2,7 @@
 import type { Colors } from '..'
 
 export interface ThemeAdapterInterface {
-  update: (colors: Record<string, Colors | undefined>) => void
+  update: (colors: Record<string, Colors>) => void
 }
 
 export abstract class ThemeAdapter implements ThemeAdapterInterface {
@@ -12,7 +12,7 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     this.prefix = prefix
   }
 
-  generate (colors: Record<string, Colors | undefined>): string {
+  generate (colors: Record<string, Colors>): string {
     let css = ''
 
     for (const theme in colors) {
@@ -30,5 +30,5 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     return css
   }
 
-  abstract update (colors: Record<string, Colors | undefined>): void
+  abstract update (colors: Record<string, Colors>): void
 }

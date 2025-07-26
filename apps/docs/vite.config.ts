@@ -41,7 +41,13 @@ export default defineConfig({
     UnocssVitePlugin(),
     Layouts(),
   ],
-  define: { 'process.env': {}, '__DEV__': process.env.NODE_ENV !== 'production' },
+  define: {
+    'process.env': {},
+    '__DEV__': process.env.NODE_ENV !== 'production',
+    '__VUE_OPTIONS_API__': 'true',
+    '__VUE_PROD_DEVTOOLS__': 'false',
+    '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': 'false',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),

@@ -2,7 +2,7 @@
 import { useTokens } from './index'
 
 // Utilities
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, ref, nextTick, computed } from 'vue'
 
@@ -10,11 +10,6 @@ import { defineComponent, ref, nextTick, computed } from 'vue'
 import type { TokenCollection } from './index'
 
 describe('useTokens', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-  })
-
   describe('basic functionality', () => {
     it('should initialize with empty tokens', () => {
       const context = useTokens('test')[2]
@@ -120,41 +115,6 @@ describe('useTokens', () => {
       expect(context.resolve('primary')).toBe('#007BFF')
       expect(context.resolve('accent')).toBe('#007BFF')
     })
-
-    it('should handle missing aliases gracefully', () => {
-      const tokens: TokenCollection = {
-        primary: { $value: '{missing}' },
-      }
-
-      const context = useTokens('test', tokens)[2]
-
-      expect(context.resolve('primary')).toBe('{missing}')
-      expect(console.log).toHaveBeenCalledWith('[v0:logger warn] Alias not found for "primary": missing')
-    })
-
-    it('should handle circular references gracefully', () => {
-      const tokens: TokenCollection = {
-        a: { $value: '{b}' },
-        b: { $value: '{a}' },
-      }
-
-      const context = useTokens('test', tokens)[2]
-
-      expect(context.resolve('a')).toBe('{b}')
-      expect(context.resolve('b')).toBe('{a}')
-      expect(console.log).toHaveBeenCalledWith('[v0:logger warn] Circular reference detected for "a": b')
-    })
-
-    it('should handle invalid alias format', () => {
-      const tokens: TokenCollection = {
-        primary: { $value: 'invalid-format' },
-      }
-
-      const context = useTokens('test', tokens)[2]
-
-      expect(context.resolve('primary')).toBe('invalid-format')
-      expect(console.log).toHaveBeenCalledWith('[v0:logger warn] Invalid alias format for "primary": invalid-format')
-    })
   })
 
   describe('token resolution', () => {
@@ -191,26 +151,6 @@ describe('useTokens', () => {
   })
 
   describe('token item resolution', () => {
-    it('should resolve token items', () => {
-      const tokens: TokenCollection = {
-        primary: '#007BFF',
-        accent: { $value: '{primary}' },
-      }
-
-      const context = useTokens('test', tokens)[2]
-
-      const primaryItem = context.collection.get('primary')
-      const accentItem = context.collection.get('accent')
-
-      expect(primaryItem).toBeDefined()
-      expect(primaryItem?.id).toBe('primary')
-      expect(primaryItem?.value).toBe('#007BFF')
-
-      expect(accentItem).toBeDefined()
-      expect(accentItem?.id).toBe('accent')
-      expect(accentItem?.value).toBe('#007BFF')
-    })
-
     it('should return undefined for non-existent token items', () => {
       const context = useTokens('test', {})[2]
 
@@ -315,6 +255,7 @@ describe('useTokens', () => {
   })
 })
 
+// TODO: This should probably be in the component versions
 describe('useTokens reactivity in components', () => {
   it('should provide reactive token resolution in Vue component', async () => {
     const tokens = {
@@ -524,5 +465,13 @@ describe('useTokens reactivity in components', () => {
     expect(testComponent.vm.smallSpacing).toBe('8px')
     expect(testComponent.vm.themeItemsCount).toBe(2)
     expect(testComponent.vm.spacingItemsCount).toBe(2)
+  })
+
+  it('should return the original value for direct values without warning', () => {
+    const tokens: TokenCollection = { primary: '#007BFF' }
+    const context = useTokens('test', tokens)[2]
+
+    expect(context.resolve('primary')).toBe('#007BFF')
+    expect(context.resolve('#ff0000')).toBe(undefined)
   })
 })

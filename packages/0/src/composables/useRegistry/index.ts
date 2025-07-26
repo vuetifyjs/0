@@ -15,14 +15,14 @@ export interface RegistryTicket {
   index: number
 }
 
-export interface RegistryContext {
-  collection: Reactive<Map<ID, Reactive<any>>>
+export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
+  collection: Map<ID, Z>
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
   /** Find a ticket by id */
-  find: (id: ID) => Reactive<any> | undefined
+  find: (id: ID) => Z | undefined
   /** Register a new item */
-  register: (item?: Partial<RegistryTicket>, id?: ID) => Reactive<any>
+  register: (item?: Partial<Z>, id?: ID) => Z
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
@@ -37,16 +37,16 @@ export interface RegistryContext {
  * @returns A trinity of registry methods.
  */
 export function useRegistry<
-  Z extends RegistryContext,
-  E extends RegistryTicket,
+  Z extends RegistryTicket = RegistryTicket,
+  E extends RegistryContext = RegistryContext,
 > (namespace: string) {
-  const [useRegistryContext, _provideRegistryContext] = createContext<Z>(namespace)
+  const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
 
-  const collection = reactive(new Map<ID, E>())
-  const directory = reactive(new Map<number, ID>())
+  const collection = reactive(new Map<ID, Z>())
+  const directory = new Map<number, ID>()
 
   function find (id: ID) {
-    return collection.get(id) as E | undefined
+    return collection.get(id)
   }
 
   function lookup (index: number) {
@@ -63,14 +63,14 @@ export function useRegistry<
     }
   }
 
-  function register (registrant: Partial<E>, id: ID = genId()): Reactive<E> {
+  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
     const item = reactive({
       id,
       index: registrant?.index ?? collection.size,
       ...registrant,
-    }) as Reactive<E>
+    }) as Reactive<Z>
 
-    collection.set(item.id, item as Reactive<any>)
+    collection.set(item.id, item as any)
     directory.set(item.index, item.id)
 
     return item
@@ -94,11 +94,11 @@ export function useRegistry<
     register,
     unregister,
     reindex,
-  } as Z
+  } as unknown as E
 
-  function provideRegistryContext (_: unknown, _context: Z = context, app?: App): Z {
+  function provideRegistryContext (_: unknown, _context: E = context, app?: App): E {
     return _provideRegistryContext(_context, app)
   }
 
-  return createTrinity<Z>(useRegistryContext, provideRegistryContext, context)
+  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
 }

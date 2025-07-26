@@ -67,6 +67,10 @@
       margin-bottom: 1rem;
     }
 
+    li {
+      margin-bottom: 0.5rem;
+    }
+
     pre {
       font-size: 0.875rem;
       line-height: 1.5rem;

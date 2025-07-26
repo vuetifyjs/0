@@ -8,21 +8,25 @@ import { useGroup } from '#v0/composables/useGroup'
 import { computed } from 'vue'
 
 // Types
-import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
+import type { BaseGroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
+import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
-import type { ComputedRef } from 'vue'
+import type { ComputedRef, Reactive } from 'vue'
 
-export type SingleTicket = GroupTicket
+export type SingleTicket = GroupTicket & {}
 
 export type SingleOptions = Omit<GroupOptions, 'multiple'>
 
-export type SingleContext = GroupContext & {
+export type BaseSingleContext = BaseGroupContext & {
   selectedId: ComputedRef<ID | undefined>
   selectedIndex: ComputedRef<number>
   selectedItem: ComputedRef<SingleTicket | undefined>
   selectedValue: ComputedRef<unknown>
   select: (id: ID) => void
+  register: (item?: Partial<SingleTicket>, id?: ID) => Reactive<SingleTicket>
 }
+
+export type SingleContext = RegistryContext<SingleTicket> & BaseSingleContext
 
 /**
  * Creates a single registry for managing single selections within a specific namespace.
@@ -38,8 +42,8 @@ export type SingleContext = GroupContext & {
  * @returns A tuple containing the inject function, provide function, and the single context.
  */
 export function useSingle<
-  Z extends SingleContext,
-  E extends SingleTicket,
+  Z extends SingleTicket = SingleTicket,
+  E extends SingleContext = SingleContext,
 > (
   namespace: string,
   _options?: SingleOptions,
@@ -58,12 +62,12 @@ export function useSingle<
     registry.select(id)
   }
 
-  return createTrinity<Z>(useGroupContext, provideGroupContext, {
+  return createTrinity<E>(useGroupContext, provideGroupContext, {
     ...registry,
     selectedId,
     selectedItem,
     selectedIndex,
     selectedValue,
     select,
-  } as Z)
+  } as E)
 }

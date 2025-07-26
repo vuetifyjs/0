@@ -3,19 +3,26 @@ import { useSingle } from '#v0/composables/useSingle'
 import { createTrinity } from '#v0/factories/createTrinity'
 
 // Types
-import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
+import type { BaseSingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
+import type { RegistryContext } from '#v0/composables/useRegistry'
+import type { Reactive } from 'vue'
+import type { ID } from '#v0/types'
 
 export type StepTicket = SingleTicket
 
-export type StepOptions = SingleOptions
-
-export type StepContext = SingleContext & {
+export type BaseStepContext = BaseSingleContext & {
   first: () => void
   last: () => void
   next: () => void
   prev: () => void
   step: (count: number) => void
+  register: (item?: Partial<StepTicket>, id?: ID) => Reactive<StepTicket>
+  selectedItem: Reactive<StepTicket | undefined>
 }
+
+export type StepContext = RegistryContext<StepTicket> & BaseStepContext
+
+export type StepOptions = SingleOptions
 
 /**
  * Creates a step registry for managing step selections within a specific namespace.
@@ -29,8 +36,8 @@ export type StepContext = SingleContext & {
  * @returns A tuple containing the inject function, provide function, and the step context.
  */
 export function useStep<
-  Z extends StepContext,
-  E extends StepTicket,
+  Z extends StepTicket = StepTicket,
+  E extends StepContext = StepContext,
 > (
   namespace: string,
   options?: StepOptions,
@@ -91,12 +98,12 @@ export function useStep<
     registry.selectedIds.add(id)
   }
 
-  return createTrinity<Z>(useGroupContext, provideGroupContext, {
+  return createTrinity<E>(useGroupContext, provideGroupContext, {
     ...registry,
     first,
     last,
     next,
     prev,
     step,
-  } as Z)
+  } as E)
 }
