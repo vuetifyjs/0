@@ -1,7 +1,8 @@
-import { createBreakpointsPlugin, createHydrationPlugin, createThemePlugin } from '@vuetify/0'
+import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createThemePlugin } from '@vuetify/0'
 import type { App } from 'vue'
 
 export default function zero (app: App) {
+  app.use(createLoggerPlugin())
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin())
   app.use(
