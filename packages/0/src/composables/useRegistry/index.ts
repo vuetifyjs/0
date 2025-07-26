@@ -43,7 +43,7 @@ export function useRegistry<
   const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
 
   const collection = reactive(new Map<ID, Z>())
-  const directory = reactive(new Map<number, ID>())
+  const directory = new Map<number, ID>()
 
   function find (id: ID) {
     return collection.get(id)
