@@ -69,7 +69,7 @@ export function useGroup<
 ) {
   const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
 
-  const catalog = reactive(new Map<unknown, ID>())
+  const catalog = new Map<unknown, ID>()
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
 
