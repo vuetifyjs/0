@@ -151,7 +151,12 @@ export function useGroup<
         }
         selectedIds.delete(id)
       } else {
-        if (!multiple && selectedIds.size > 0) selectedIds.clear()
+        if (!multiple && selectedIds.size === 1) {
+          selectedIds.delete(registry.lookup(0) as ID)
+        } else {
+          // If somehow multiple is false and there are already selected IDs,
+          selectedIds.clear()
+        }
         selectedIds.add(id)
       }
     }
