@@ -20,6 +20,7 @@
     "@vuetify/paper": "workspace:*",
     "lucide-vue-next": "^0.525.0",
     "markdown-it-attrs": "^4.3.1",
+    "mermaid": "^10.4.0",
     "unplugin-vue-components": "^28.7.0",
     "unplugin-vue-markdown": "^29.1.0",
     "unplugin-vue-router": "^0.14.0",
