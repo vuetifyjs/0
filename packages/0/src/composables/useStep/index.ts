@@ -1,6 +1,8 @@
+// Factories
+import { createTrinity } from '#v0/factories/createTrinity'
+
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
-import { createTrinity } from '#v0/factories/createTrinity'
 
 // Types
 import type { BaseSingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
