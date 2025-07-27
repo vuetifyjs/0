@@ -54,7 +54,7 @@ export function useRegistry<
     return collection.get(id)
   }
 
-  function browse (value: unknown): ID | undefined {
+  function browse (value: unknown) {
     return catalog.get(value)
   }
 
