@@ -1,6 +1,9 @@
 <script setup lang="ts">
-  import { onMounted } from 'vue'
+  // Plugins
   import mermaid from 'mermaid'
+
+  // Utilities
+  import { onMounted } from 'vue'
 
   mermaid.initialize({
     startOnLoad: true,
@@ -20,15 +23,7 @@
 </script>
 
 <template>
-  <div class="mermaid-container">
-    <div ref="container" class="mermaid" v-html="props.code" />
+  <div class="flex justify-center w-full">
+    <div class="mermaid" v-html="props.code" />
   </div>
 </template>
-
-<style scoped>
-.mermaid-container{
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-</style>
