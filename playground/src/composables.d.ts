@@ -208,7 +208,7 @@ declare global {
   export type { LoggerContext, LoggerOptions, LoggerPlugin, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
   import('../../packages/0/src/composables/useLogger/index')
   // @ts-ignore
-  export type { RegistryTicket, RegistryContext } from '../../packages/0/src/composables/useRegistry/index'
+  export type { RegistryTicket, RegistryContext, RegistryOptions } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
   // @ts-ignore
   export type { SingleTicket, BaseSingleContext, SingleContext, SingleOptions } from '../../packages/0/src/composables/useSingle/index'

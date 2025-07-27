@@ -29,11 +29,9 @@ export type FlatTokenCollection = {
   value: TokenValue
 }
 
-export type TokenTicket = RegistryTicket & {
-  value: TokenValue
-}
+export type TokenTicket = RegistryTicket
 
-export type TokenContext = RegistryContext<TokenTicket> & {
+export type TokenContext<Z extends TokenTicket = TokenTicket> = RegistryContext<Z> & {
   resolve: (token: string) => string | undefined
 }
 
@@ -58,7 +56,7 @@ export function useTokens<
   const logger = useLogger()
   const cache = new Map<string, string | undefined>()
 
-  const [useTokenContext, provideTokenContext, registry] = useRegistry<Z, E>(namespace)
+  const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
 
   for (const { id, value } of flatten(tokens)) {
     registry.register({ value }, id)
@@ -99,7 +97,7 @@ export function useTokens<
     return result
   }
 
-  return createTrinity<E>(useTokenContext, provideTokenContext, {
+  return createTrinity<E>(useRegistryContext, provideRegistryContext, {
     ...registry,
     resolve,
   } as unknown as E)
