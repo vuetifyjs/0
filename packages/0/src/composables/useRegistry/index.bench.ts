@@ -78,9 +78,35 @@ describe('useRegistry benchmarks', () => {
     console.log(`Reindexing: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
   })
 
+  it('should benchmark browse operations', async () => {
+    const context = createContext('benchmark-test')
+    const items = create(1000, context)
+
+    const result = await bench('browse 1000 items', () => {
+      for (const item of items) {
+        context.browse(item.value)
+      }
+    })
+
+    console.log(`Browse: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+  })
+
+  it('should benchmark find operations', async () => {
+    const context = createContext('benchmark-test')
+    const items = create(1000, context)
+
+    const result = await bench('find 1000 items', () => {
+      for (const item of items) {
+        context.find(item.id)
+      }
+    })
+
+    console.log(`Find: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+  })
+
   it('should compare different operation types', async () => {
     const context = createContext('benchmark-test')
-    create(100, context)
+    const items = create(100, context)
 
     const results = await compare({
       'register 100 items': () => {
@@ -92,12 +118,22 @@ describe('useRegistry benchmarks', () => {
           context.lookup(i)
         }
       },
+      'browse 100 items': () => {
+        for (const item of items) {
+          context.browse(item.value)
+        }
+      },
+      'find 100 items': () => {
+        for (const item of items) {
+          context.find(item.id)
+        }
+      },
       'reindex 100 items': () => {
         context.reindex()
       },
     })
 
-    expect(results).toHaveLength(3)
+    expect(results).toHaveLength(5)
     expect(results[0].ops).toBeGreaterThanOrEqual(results[1].ops)
 
     console.log('Operation comparison (fastest to slowest):')
