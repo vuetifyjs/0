@@ -35,10 +35,9 @@ export type ThemeColors = {
 
 export type ThemeTicket = SingleTicket & {
   lazy: boolean
-  value: Colors
 }
 
-export type BaseThemeContext = BaseSingleContext & {
+export type BaseThemeContext<Z extends ThemeTicket = ThemeTicket> = BaseSingleContext<Z> & {
   colors: ComputedRef<Record<string, Colors>>
   cycle: (themes: ID[]) => void
   toggle: (themes: [ID, ID]) => void
@@ -98,7 +97,7 @@ export function createTheme<
     for (const [id, theme] of registry.collection.entries()) {
       if (theme.lazy && theme.id !== registry.selectedId.value) continue
 
-      resolved[String(id)] = resolve(theme.value)
+      resolved[String(id)] = resolve(theme.value as Colors)
     }
     return resolved
   })
@@ -127,13 +126,17 @@ export function createTheme<
     return resolved
   }
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
-    const item = registry.register({
-      lazy: registrant?.lazy ?? false,
-      ...registrant,
-    }, id) as Reactive<Z>
+  function register (registrant: Partial<Z>, _id: ID = genId()): Reactive<Z> {
+    const id = registrant?.id ?? _id
 
-    return item
+    const item: Partial<Z> = {
+      lazy: false,
+      ...registrant,
+      id,
+    }
+    const ticket = registry.register(item, id) as unknown as Reactive<Z>
+
+    return ticket
   }
 
   return createTrinity<E>(useThemeContext, provideThemeContext, {
@@ -142,7 +145,7 @@ export function createTheme<
     register,
     cycle,
     toggle,
-  } as E)
+  } as unknown as E)
 }
 
 /**
