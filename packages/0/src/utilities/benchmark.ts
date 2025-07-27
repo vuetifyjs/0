@@ -1,7 +1,3 @@
-/**
- * Simple performance benchmarking utility for V0 framework.
- */
-
 import { useLogger } from '#v0/composables/useLogger'
 
 interface BenchmarkResult {
