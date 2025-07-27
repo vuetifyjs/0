@@ -211,7 +211,7 @@ declare global {
   export type { RegistryTicket, RegistryContext } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
   // @ts-ignore
-  export type { SingleTicket, SingleOptions, BaseSingleContext, SingleContext } from '../../packages/0/src/composables/useSingle/index'
+  export type { SingleTicket, BaseSingleContext, SingleContext, SingleOptions } from '../../packages/0/src/composables/useSingle/index'
   import('../../packages/0/src/composables/useSingle/index')
   // @ts-ignore
   export type { StepTicket, BaseStepContext, StepContext, StepOptions } from '../../packages/0/src/composables/useStep/index'
