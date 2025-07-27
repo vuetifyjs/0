@@ -7,8 +7,6 @@ describe('useSingle', () => {
       const state = useSingle('test')[2]
 
       expect(state.selectedIds.size).toBe(0)
-      expect(state.selectedItems.value.size).toBe(0)
-      expect(state.selectedValues.value.size).toBe(0)
       expect(state.collection.size).toBe(0)
     })
   })

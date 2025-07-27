@@ -22,6 +22,7 @@ export default vuetify({
       prefer: 'type-imports',
       disallowTypeAnnotations: false,
     }],
+    'unicorn/no-array-callback-reference': 'off',
   },
 },
 {

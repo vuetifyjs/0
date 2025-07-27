@@ -2,31 +2,31 @@
 import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
-import { useGroup } from '#v0/composables/useGroup'
+import { useSelection } from '#v0/composables/useSelection'
 
 // Utilities
-import { computed } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, toValue, watch } from 'vue'
+import { genId } from '#v0/utilities'
 
 // Types
-import type { BaseGroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
-import type { ComputedRef, Reactive } from 'vue'
+import type { App, ComputedRef, Reactive, Ref } from 'vue'
+import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 
-export type SingleTicket = GroupTicket & {}
+export type SingleTicket = SelectionTicket
 
-export type SingleOptions = Omit<GroupOptions, 'multiple'>
-
-export type BaseSingleContext = BaseGroupContext & {
+export type BaseSingleContext<Z extends SingleTicket = SingleTicket> = SelectionContext<Z> & {
   selectedId: ComputedRef<ID | undefined>
   selectedIndex: ComputedRef<number>
-  selectedItem: ComputedRef<SingleTicket | undefined>
+  selectedItem: ComputedRef<Z | undefined>
   selectedValue: ComputedRef<unknown>
   select: (id: ID) => void
-  register: (item?: Partial<SingleTicket>, id?: ID) => Reactive<SingleTicket>
 }
 
 export type SingleContext = RegistryContext<SingleTicket> & BaseSingleContext
+
+export type SingleOptions = SelectionOptions
 
 /**
  * Creates a single registry for managing single selections within a specific namespace.
@@ -46,28 +46,115 @@ export function useSingle<
   E extends SingleContext = SingleContext,
 > (
   namespace: string,
-  _options?: SingleOptions,
+  options?: SingleOptions,
 ) {
-  // Force multiple to false for single selection behavior
-  const options = { ..._options, multiple: false }
+  const [useRegistryContext, provideRegistryContext, registry] = useSelection<Z, E>(namespace)
 
-  const [useGroupContext, provideGroupContext, registry] = useGroup<Z, E>(namespace, options)
+  const mandatory = options?.mandatory ?? false
+  const returnObject = options?.returnObject ?? false
+
+  let initialValue: unknown | unknown[] = null
 
   const selectedId = computed(() => registry.selectedIds.values().next().value)
-  const selectedItem = computed(() => selectedId.value ? registry.collection.get(selectedId.value) : undefined)
+  const selectedItem = computed(() => selectedId.value ? registry.find(selectedId.value) : undefined)
   const selectedIndex = computed(() => selectedItem.value ? selectedItem.value.index : -1)
   const selectedValue = computed(() => selectedItem.value ? selectedItem.value.value : undefined)
 
-  function select (id: ID) {
-    registry.select(id)
+  function mandate () {
+    if (!mandatory || registry.selectedIds.size === 0) return
+
+    registry.select(registry.lookup(0) as ID)
   }
 
-  return createTrinity<E>(useGroupContext, provideGroupContext, {
+  function select (id: ID) {
+    const item = registry.find(id)
+
+    if (!item || item.disabled) return
+
+    if (registry.selectedIds.has(id)) {
+      registry.selectedIds.delete(id)
+    } else {
+      registry.selectedIds.delete(registry.lookup(0) as ID)
+      registry.selectedIds.add(id)
+    }
+  }
+
+  function register (registrant: Partial<Z>, _id: ID = genId()): Reactive<Z> {
+    const id = registrant?.id ?? _id
+
+    const item: Partial<Z> = {
+      ...registrant,
+      id,
+      toggle: () => select(id),
+    }
+
+    const ticket = registry.register(item, id) as Reactive<Z>
+
+    if (initialValue != null && initialValue === ticket.value) {
+      select(ticket.id)
+    }
+
+    if (mandatory === 'force') mandate()
+
+    return ticket
+  }
+
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      initialValue = undefined
+    })
+  }
+
+  const context = {
     ...registry,
     selectedId,
     selectedItem,
     selectedIndex,
     selectedValue,
     select,
-  } as E)
+    mandate,
+    register,
+  } as unknown as E
+
+  function provideSingleContext (
+    model?: Ref<unknown>,
+    _context: E = context,
+    app?: App,
+  ) {
+    let isUpdatingModel = false
+
+    if (model) {
+      initialValue = toValue(model)
+
+      watch(selectedId, id => {
+        if (isUpdatingModel) return
+
+        const target = returnObject ? selectedItem : selectedValue
+
+        model.value = id ? target.value : null
+      })
+
+      watch(model, async value => {
+        if (isUpdatingModel) return
+
+        const id = registry.browse(value)
+
+        if (!id || selectedId.value === id) return
+
+        select(id)
+      })
+
+      watch([model, selectedId], async () => {
+        isUpdatingModel = true
+
+        await nextTick()
+
+        isUpdatingModel = false
+      })
+    }
+
+    return provideRegistryContext(model, _context, app)
+  }
+
+  return createTrinity<E>(useRegistryContext, provideSingleContext, context)
 }

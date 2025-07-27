@@ -98,7 +98,7 @@ describe('useGroup', () => {
       expect(ticket1.isActive).toBe(false)
     })
 
-    it('should handle multiple selection array', () => {
+    it('should handle multiple selection array', async () => {
       const context = useGroup('test', { multiple: true })[2]
 
       context.register({ id: 'item1' })
@@ -106,6 +106,8 @@ describe('useGroup', () => {
       context.register({ id: 'item3' })
 
       context.select(['item1', 'item3'])
+
+      console.log(context.selectedIds)
 
       expect(context.selectedIds.has('item1')).toBe(true)
       expect(context.selectedIds.has('item3')).toBe(true)
@@ -180,12 +182,7 @@ describe('useGroup', () => {
 
       context.mandate()
 
-      if (context.selectedIds.size === 0) {
-        expect(context.collection.size).toBe(2)
-      } else {
-        expect(context.selectedIds.has('item1')).toBe(true)
-        expect(context.selectedIds.size).toBe(1)
-      }
+      expect(context.selectedIds.has('item1')).toBe(true)
     })
 
     it('should auto-select first item with mandatory: "force"', () => {
@@ -193,10 +190,8 @@ describe('useGroup', () => {
 
       context.register({ id: 'item1', disabled: true })
       context.register({ id: 'item2' })
-      context.mandate()
 
-      expect(context.selectedIds.has('item1')).toBe(true)
-      expect(context.selectedIds.size).toBe(1)
+      expect(context.selectedIds.has('item2')).toBe(true)
     })
 
     it('should prevent deselection in single selection mandatory mode', () => {

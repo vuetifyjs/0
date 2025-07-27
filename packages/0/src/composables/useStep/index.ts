@@ -7,19 +7,15 @@ import { useSingle } from '#v0/composables/useSingle'
 // Types
 import type { BaseSingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 import type { RegistryContext } from '#v0/composables/useRegistry'
-import type { Reactive } from 'vue'
-import type { ID } from '#v0/types'
 
 export type StepTicket = SingleTicket
 
-export type BaseStepContext = BaseSingleContext & {
+export type BaseStepContext<Z extends StepTicket = StepTicket> = BaseSingleContext<Z> & {
   first: () => void
   last: () => void
   next: () => void
   prev: () => void
   step: (count: number) => void
-  register: (item?: Partial<StepTicket>, id?: ID) => Reactive<StepTicket>
-  selectedItem: Reactive<StepTicket | undefined>
 }
 
 export type StepContext = RegistryContext<StepTicket> & BaseStepContext
@@ -49,22 +45,21 @@ export function useStep<
   function first () {
     if (registry.collection.size === 0) return
 
-    const firstId = registry.lookup(0)
-    if (firstId === undefined) return
+    const first = registry.lookup(0)
+    if (first === undefined) return
 
     registry.selectedIds.clear()
-    registry.selectedIds.add(firstId)
+    registry.select(first)
   }
 
   function last () {
     if (registry.collection.size === 0) return
 
-    const lastIndex = registry.collection.size - 1
-    const lastId = registry.lookup(lastIndex)
-    if (lastId === undefined) return
+    const last = registry.lookup(registry.collection.size - 1)
+    if (last === undefined) return
 
     registry.selectedIds.clear()
-    registry.selectedIds.add(lastId)
+    registry.selectedIds.add(last)
   }
 
   function next () {
@@ -88,7 +83,7 @@ export function useStep<
     let index = wrapped(length, registry.selectedIndex.value + count)
     let id = registry.lookup(index)
 
-    while (id !== undefined && registry.collection.get(id)?.disabled && hops < length) {
+    while (id !== undefined && registry.find(id)?.disabled && hops < length) {
       index = wrapped(length, index + direction)
       id = registry.lookup(index)
       hops++
@@ -97,7 +92,7 @@ export function useStep<
     if (id === undefined || hops === length) return
 
     registry.selectedIds.clear()
-    registry.selectedIds.add(id)
+    registry.select(id)
   }
 
   return createTrinity<E>(useGroupContext, provideGroupContext, {

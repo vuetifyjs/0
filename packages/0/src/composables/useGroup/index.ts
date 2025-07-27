@@ -2,48 +2,33 @@
 import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
-import { useRegistry } from '#v0/composables/useRegistry'
+import { useSelection } from '#v0/composables/useSelection'
 
 // Transformers
 import { toArray } from '#v0/transformers'
 
 // Utilities
-import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, toValue, watch } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Types
-import type { App, ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistryContext, RegistryTicket } from '#v0/composables/useRegistry'
+import type { App, ComputedRef, Reactive, Ref } from 'vue'
+import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
+import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 
-export type GroupTicket = RegistryTicket & {
-  disabled: boolean
-  isActive: Readonly<ComputedGetter<boolean>>
-  /** Toggle self on and off */
-  toggle: () => void
-}
+export type GroupTicket = SelectionTicket
 
-export type BaseGroupContext = {
-  selectedItems: ComputedRef<Set<GroupTicket | undefined>>
+export type BaseGroupContext<Z extends GroupTicket = GroupTicket> = SelectionContext<Z> & {
+  selectedItems: ComputedRef<Set<Z | undefined>>
   selectedIndexes: ComputedRef<Set<number>>
-  selectedIds: Reactive<Set<ID>>
   selectedValues: ComputedRef<Set<unknown>>
-  /** Register a new item */
-  register: (item?: Partial<GroupTicket>, id?: ID) => Reactive<GroupTicket>
-  /** Select the first available value */
-  mandate: () => void
-  /** Select item(s) by ID(s) */
-  select: (ids: ID | ID[]) => void
-  /** Clear all selected IDs, reindex, and mandate a value */
-  reset: () => void
 }
 
 export type GroupContext = RegistryContext<GroupTicket> & BaseGroupContext
 
-export type GroupOptions = {
-  mandatory?: boolean | 'force'
+export type GroupOptions = SelectionOptions & {
   multiple?: boolean
-  returnObject?: boolean
 }
 
 /**
@@ -66,23 +51,23 @@ export function useGroup<
   namespace: string,
   options?: GroupOptions,
 ) {
-  const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
-
-  const selectedIds = reactive(new Set<ID>())
-  let initialValue: unknown | unknown[] = null
+  const [useRegistryContext, provideRegistryContext, registry] = useSelection<Z, E>(namespace)
 
   const mandatory = options?.mandatory ?? false
   const multiple = options?.multiple ?? false
+  const returnObject = options?.returnObject ?? false
 
-  const selectedItems = computed(() => {
-    return new Set(
-      Array.from(selectedIds).map(id => registry.collection.get(id)),
-    )
-  })
+  let initialValue: unknown | unknown[] = null
 
   const selectedIndexes = computed(() => {
     return new Set(
-      Array.from(selectedItems.value).map(item => item?.index),
+      Array.from(registry.selectedIds).map(id => registry.find(id)?.index),
+    )
+  })
+
+  const selectedItems = computed(() => {
+    return new Set(
+      Array.from(registry.selectedIds).map(id => registry.find(id)),
     )
   })
 
@@ -93,92 +78,67 @@ export function useGroup<
   })
 
   function mandate () {
-    if (!mandatory || selectedIds.size > 0 || registry.collection.size === 0) return
-
-    if (mandatory === 'force') {
-      const first = registry.collection.values().next().value
-
-      if (first) selectedIds.add(first.id)
-
-      return
-    }
-
+    if (!mandatory || registry.selectedIds.size > 0 || registry.collection.size === 0) return
     for (const item of registry.collection.values()) {
       if (item.disabled) continue
-      selectedIds.add(item.id)
-
+      select(item.id)
       break
     }
   }
 
-  function reindex () {
-    registry.reindex()
-  }
-
   function reset () {
-    selectedIds.clear()
-    reindex()
+    registry.reset()
     mandate()
   }
 
   function select (ids: ID | ID[]) {
-    toggle(ids)
-  }
-
-  function toggle (ids: ID | ID[]) {
     for (const id of toArray<ID>(ids)) {
-      const item = registry.collection.get(id)
+      const item = registry.find(id)
 
       if (!item || item.disabled) continue
 
-      const hasId = selectedIds.has(id)
+      const hasId = registry.selectedIds.has(id)
 
       if (hasId) {
         if (mandatory) {
           // For single selection, can't deselect if it's the only one
           if (!multiple) continue
           // For multiple selection, can't deselect if it's the last one
-          if (selectedIds.size === 1) continue
+          if (registry.selectedIds.size === 1) continue
         }
-        selectedIds.delete(id)
+        registry.selectedIds.delete(id)
       } else {
-        if (!multiple && selectedIds.size === 1) {
-          selectedIds.delete(registry.lookup(0) as ID)
-        } else {
-          // If somehow multiple is false and there are already selected IDs,
-          selectedIds.clear()
+        if (!multiple) {
+          // Clear all selections first in single selection mode
+          registry.selectedIds.clear()
         }
-        selectedIds.add(id)
+        registry.selectedIds.add(id)
       }
     }
   }
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+  function register (registrant: Partial<Z>, _id: ID = genId()): Reactive<Z> {
+    const id = registrant?.id ?? _id
+
     const item: Partial<Z> = {
-      disabled: false,
-      isActive: toRef(() => selectedIds.has(ticket.id)),
-      toggle: () => toggle(ticket.id),
       ...registrant,
+      id,
+      toggle: () => select(id),
     }
 
-    const ticket = registry.register(item, id)
+    const ticket = registry.register(item, id) as Reactive<Z>
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
         ? initialValue.includes(ticket.value)
         : initialValue === ticket.value
 
-      if (shouldSelect) selectedIds.add(ticket.id)
+      if (shouldSelect) select(ticket.id)
     }
 
     if (mandatory === 'force') mandate()
 
-    return ticket as Reactive<Z>
-  }
-
-  function unregister (id: ID) {
-    selectedIds.delete(id)
-    registry.unregister(id)
+    return ticket
   }
 
   if (getCurrentInstance()) {
@@ -191,14 +151,11 @@ export function useGroup<
     ...registry,
     selectedItems,
     selectedIndexes,
-    selectedIds,
     selectedValues,
     register,
-    unregister,
-    reset,
-    reindex,
     mandate,
     select,
+    reset,
   } as unknown as E
 
   function provideGroupContext (
@@ -211,13 +168,12 @@ export function useGroup<
     if (model) {
       initialValue = toValue(model)
 
-      watch(selectedIds, () => {
+      watch(registry.selectedIds, () => {
         if (isUpdatingModel) return
 
-        const returnObject = options?.returnObject
         const target = returnObject ? selectedItems : selectedValues
 
-        model.value = options?.multiple
+        model.value = multiple
           ? Array.from(target.value)
           : target.value.values().next().value
       })
@@ -229,18 +185,18 @@ export function useGroup<
 
         if ((selectedValues.value.symmetricDifference(values)).size === 0) return
 
-        selectedIds.clear()
+        registry.selectedIds.clear()
 
         for (const value of values) {
           const id = registry.browse(value)
 
           if (!id) continue
 
-          selectedIds.add(id)
+          registry.selectedIds.add(id)
         }
       })
 
-      watch([model, selectedIds], async () => {
+      watch([model, registry.selectedIds], async () => {
         isUpdatingModel = true
 
         await nextTick()

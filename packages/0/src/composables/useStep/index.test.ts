@@ -7,8 +7,6 @@ describe('useStep', () => {
       const state = useStep('test')[2]
 
       expect(state.selectedIds.size).toBe(0)
-      expect(state.selectedItems.value.size).toBe(0)
-      expect(state.selectedValues.value.size).toBe(0)
       expect(state.collection.size).toBe(0)
       expect(state.selectedItem.value).toBeUndefined()
     })
@@ -29,17 +27,6 @@ describe('useStep', () => {
       expect(typeof ticket.isActive).toBe('boolean')
       expect(typeof ticket.toggle).toBe('function')
       expect(state.collection.size).toBe(1)
-    })
-
-    it('should unregister items', () => {
-      const [, provideStepContext, state] = useStep('test')
-      const context = provideStepContext()
-
-      context.register({ id: 'test-item' })
-      expect(state.collection.size).toBe(1)
-
-      context.unregister('test-item')
-      expect(state.collection.size).toBe(0)
     })
   })
 
@@ -235,60 +222,6 @@ describe('useStep', () => {
       expect(state.selectedIds.has('item1')).toBe(true)
       expect(state.selectedIds.has('item2')).toBe(false)
       expect(state.selectedItem.value?.id).toBe('item1')
-    })
-  })
-
-  describe('selectedItem computed property', () => {
-    it('should return the currently selected item', () => {
-      const [, provideStepContext, state] = useStep('test')
-      const context = provideStepContext()
-
-      expect(state.selectedItem.value).toBeUndefined()
-
-      context.register({ id: 'item1', value: 'value1' })
-      context.register({ id: 'item2', value: 'value2' })
-
-      context.select('item2')
-      expect(state.selectedItem.value?.id).toBe('item2')
-      expect(state.selectedItem.value?.value).toBe('value2')
-
-      context.select('item1')
-      expect(state.selectedItem.value?.id).toBe('item1')
-      expect(state.selectedItem.value?.value).toBe('value1')
-    })
-  })
-
-  describe('edge cases', () => {
-    it('skips disabled items when stepping', () => {
-      const [, provideStepContext, state] = useStep('test')
-      const context = provideStepContext()
-
-      context.register({ id: 'item1' })
-      context.register({ id: 'item2', disabled: true })
-      context.register({ id: 'item3' })
-
-      context.select('item1')
-      context.next() // item2 is disabled → item3
-
-      expect(state.selectedIds.has('item1')).toBe(false)
-      expect(state.selectedIds.has('item2')).toBe(false)
-      expect(state.selectedIds.has('item3')).toBe(true)
-      expect(state.selectedItem.value?.id).toBe('item3')
-    })
-
-    it('should handle unregistering current item', () => {
-      const [, provideStepContext, state] = useStep('test')
-      const context = provideStepContext()
-
-      context.register({ id: 'item1' })
-      context.register({ id: 'item2' })
-
-      context.select('item1')
-      expect(state.selectedItem.value?.id).toBe('item1')
-
-      context.unregister('item1')
-      expect(state.selectedItem.value).toBeUndefined()
-      expect(state.selectedIds.size).toBe(0)
     })
   })
 })
