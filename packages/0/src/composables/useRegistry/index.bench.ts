@@ -157,4 +157,24 @@ describe('useRegistry benchmarks', () => {
       console.log(`Size ${size}: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
     }
   })
+
+  it('should benchmark shallow reactivity registration operations', async () => {
+    const context = useRegistry('shallow-test')[2]
+
+    const result = await bench('register 1000 items (shallow)', () => {
+      create(1000, context)
+    })
+
+    console.log(`Shallow Registration: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+  })
+
+  it('should benchmark deep reactivity registration operations', async () => {
+    const context = useRegistry('deep-test', { deep: true })[2]
+
+    const result = await bench('register 1000 items (deep)', () => {
+      create(1000, context)
+    })
+
+    console.log(`Deep Registration: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+  })
 })

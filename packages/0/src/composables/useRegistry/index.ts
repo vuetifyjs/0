@@ -3,7 +3,7 @@ import { createContext } from '#v0/factories/createContext'
 import { createTrinity } from '#v0/factories/createTrinity'
 
 // Utilities
-import { reactive } from 'vue'
+import { reactive, shallowReactive } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Types
@@ -32,6 +32,11 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   reindex: () => void
 }
 
+export interface RegistryOptions {
+  /** Use reactive instead of shallowReactive */
+  deep?: boolean
+}
+
 /**
  * A composable for managing a collection of info.
  * @param namespace The key to scope the context
@@ -42,10 +47,14 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
   E extends RegistryContext = RegistryContext,
-> (namespace: string) {
+> (
+  namespace: string,
+  options?: RegistryOptions,
+) {
   const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
 
-  const collection = reactive(new Map<ID, Z>())
+  const reactivity = options?.deep ? reactive : shallowReactive
+  const collection = reactivity(new Map<ID, Z>())
   const catalog = new Map<unknown, ID>()
   const directory = new Map<number, ID>()
 
