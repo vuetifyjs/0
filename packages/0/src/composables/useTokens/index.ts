@@ -102,7 +102,7 @@ export function useTokens<
   return createTrinity<E>(useTokenContext, provideTokenContext, {
     ...registry,
     resolve,
-  } as E)
+  } as unknown as E)
 }
 
 /**

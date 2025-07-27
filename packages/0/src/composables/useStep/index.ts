@@ -102,5 +102,5 @@ export function useStep<
     next,
     prev,
     step,
-  } as E)
+  } as unknown as E)
 }

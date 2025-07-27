@@ -126,7 +126,7 @@ export function useGroup<
       toggle: () => select(id),
     }
 
-    const ticket = registry.register(item, id) as Reactive<Z>
+    const ticket = registry.register(item, id) as unknown as Reactive<Z>
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)

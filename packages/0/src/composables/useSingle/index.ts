@@ -88,7 +88,7 @@ export function useSingle<
       toggle: () => select(id),
     }
 
-    const ticket = registry.register(item, id) as Reactive<Z>
+    const ticket = registry.register(item, id) as unknown as Reactive<Z>
 
     if (initialValue != null && initialValue === ticket.value) {
       select(ticket.id)
