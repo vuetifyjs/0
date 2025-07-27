@@ -91,7 +91,7 @@ export function useRegistry<
 
   function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
     const size = collection.size
-    const item = reactivity({
+    const item = reactive({
       id,
       index: registrant?.index ?? size,
       value: registrant?.value ?? size,
