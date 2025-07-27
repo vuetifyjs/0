@@ -14,7 +14,6 @@ export interface RegistryTicket {
   id: ID
   index: number
   value: unknown
-  valueIsIndex: boolean
 }
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
@@ -78,7 +77,6 @@ export function useRegistry<
       id,
       index: registrant?.index ?? size,
       value: registrant?.value ?? size,
-      valueIsIndex: registrant?.value == null,
       ...registrant,
     }) as Reactive<Z>
 

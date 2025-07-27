@@ -16,6 +16,7 @@ import type { ID } from '#v0/types'
 export type SelectionTicket = RegistryTicket & {
   disabled: boolean
   isActive: Readonly<ComputedGetter<boolean>>
+  valueIsIndex: boolean
   /** Toggle self on and off */
   toggle: () => void
 }
@@ -48,6 +49,7 @@ export function useSelection<
     const item: Partial<Z> = {
       disabled: false,
       isActive: toRef(() => selectedIds.has(ticket.id)),
+      valueIsIndex: registrant?.value == null,
       toggle: () => {
         if (selectedIds.has(ticket.id)) selectedIds.delete(ticket.id)
         else selectedIds.add(ticket.id)
