@@ -66,7 +66,8 @@ export interface ThemePlugin {
 }
 
 /**
- * Creates a theme registry for managing theme selections and color resolution.
+ * Creates a theme registry for managing theme selections with dynamic color resolution.
+ * Supports token-based color systems and lazy theme loading for optimal performance.
  *
  * @param namespace The namespace for the theme context.
  * @template Z The type of theme context.
@@ -154,8 +155,9 @@ export function useTheme (): ThemeContext {
 }
 
 /**
- * Creates a Vue plugin for managing application themes and color systems.
- * Uses the universal plugin factory to eliminate boilerplate code.
+ * Creates a Vue plugin for theme management with automatic color system updates.
+ * Integrates with token system for dynamic color resolution and provides reactive
+ * theme switching capabilities throughout the application.
  *
  * @param options Configuration for themes, palette, and adapter.
  * @template Z The type of theme context.

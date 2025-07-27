@@ -43,7 +43,8 @@ export interface LocalePlugin {
 }
 
 /**
- * Creates a locale registry for managing locale translations and number formatting.
+ * Creates a locale registry for managing internationalization with translations and number formatting.
+ * Supports message resolution with token references and locale-specific number formatting.
  *
  * @param namespace The namespace for the locale context.
  * @param options Configuration including adapter and messages.
@@ -116,8 +117,8 @@ export function useLocale (): LocaleContext {
 }
 
 /**
- * Creates a locale plugin for Vue applications to manage locale translations and number formatting.
- * Uses the universal plugin factory to eliminate boilerplate code.
+ * Creates a Vue plugin for internationalization with locale management and translation support.
+ * Integrates with token system for message resolution and provides app-wide locale context.
  *
  * @param options Configuration for adapter, default locale, and messages.
  * @template Z The type of the locale context.

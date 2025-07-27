@@ -32,6 +32,16 @@ export type SelectionOptions = RegistryOptions & {
   returnObject?: boolean
 }
 
+/**
+ * Creates a selection registry for managing selectable items within a specific namespace.
+ * This function provides a base selection system with registration, toggling, and state management
+ * for building more complex selection patterns.
+ *
+ * @param namespace The namespace for the selection context.
+ * @template Z The type of the selection items managed by the registry.
+ * @template E The type of the selection context.
+ * @returns A tuple containing the inject function, provide function, and the selection context.
+ */
 export function useSelection<
   Z extends SelectionTicket = SelectionTicket,
   E extends SelectionContext = SelectionContext,
@@ -56,6 +66,22 @@ export function useSelection<
     return ticket as unknown as Reactive<Z>
   }
 
+  function reindex () {
+    registry.directory.clear()
+    registry.catalog.clear()
+    let index = 0
+    for (const item of registry.collection.values()) {
+      item.index = index
+
+      if (item.valueIsIndex) item.value = index
+
+      registry.directory.set(index, item.id)
+      registry.catalog.set(item.value, item.id)
+
+      index++
+    }
+  }
+
   function unregister (id: ID) {
     selectedIds.delete(id)
     registry.unregister(id)
@@ -63,7 +89,7 @@ export function useSelection<
 
   function reset () {
     selectedIds.clear()
-    registry.reindex()
+    reindex()
   }
 
   return createTrinity<E>(useRegistryContext, provideRegistryContext, {
@@ -72,5 +98,6 @@ export function useSelection<
     register,
     unregister,
     reset,
+    reindex,
   } as unknown as E)
 }

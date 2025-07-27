@@ -63,7 +63,9 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
 }
 
 /**
- * Filters an array of items based on a given query and options.
+ * Creates a reactive filter for arrays based on query matching with configurable search modes.
+ * Supports 'some' (any field matches), 'every' (all fields match), 'union' (any query matches),
+ * and 'intersection' (all queries match) filtering strategies.
  *
  * @param query Filter query to match against items.
  * @param items Collection of items to filter.

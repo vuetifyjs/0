@@ -23,9 +23,9 @@ export type StepContext = RegistryContext<StepTicket> & BaseStepContext
 export type StepOptions = SingleOptions
 
 /**
- * Creates a step registry for managing step selections within a specific namespace.
- * This function provides a way to navigate through steps in sequence with utility methods
- * for moving forward, backward, and jumping to specific steps.
+ * Creates a step registry for managing step navigation within a specific namespace.
+ * This function provides sequential navigation through steps with utility methods
+ * for moving forward, backward, jumping to specific positions, and wrapping around disabled items.
  *
  * @param namespace The namespace for the step context.
  * @param options Optional configuration for the step behavior.

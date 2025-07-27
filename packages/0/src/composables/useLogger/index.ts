@@ -54,9 +54,9 @@ export interface LoggerPlugin {
 const [useLoggerContext, provideLoggerContext] = createContext<LoggerContext>('v0:logger')
 
 /**
- * Creates a logger context for managing application logging.
- * This function provides a consistent logging interface that can be
- * configured with different adapters and optimized for production builds.
+ * Creates a logger context for application logging with configurable adapters and levels.
+ * This function provides a consistent logging interface that can be configured with
+ * different adapters and optimized for production builds with conditional compilation.
  *
  * @param options Configuration for the logger adapter, level, and behavior.
  * @returns A logger context object with logging methods and controls.

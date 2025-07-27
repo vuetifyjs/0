@@ -32,12 +32,12 @@ export type GroupOptions = SelectionOptions & {
 }
 
 /**
- * Creates a group registry for managing group items within a specific namespace.
- * This function provides a way to register, unregister, and manage group selections,
- * allowing for dynamic group management in applications.
+ * Creates a group registry for managing multi-selection within a specific namespace.
+ * This function provides a way to register, unregister, and manage group selections
+ * with support for mandatory selection and multiple selection modes.
  *
  * @param namespace The namespace for the group context.
- * @param options  Optional configuration for the group behavior.
+ * @param options Optional configuration for the group behavior.
  * @template Z The type of the group items managed by the registry.
  * @template E The type of the group context.
  * @returns A tuple containing the inject function, provide function, and the group context.

@@ -9,9 +9,9 @@ export interface KeyHandler {
 }
 
 /**
- * Sets up global keyboard event listeners for specified key handlers.
- * This composable automatically starts listening when mounted and cleans up
- * when the scope is disposed.
+ * Sets up global keyboard event listeners for specified key handlers with automatic cleanup.
+ * This composable automatically starts listening when mounted and cleans up when the scope
+ * is disposed, providing a clean way to handle global keyboard interactions.
  *
  * @param handlers A single handler or array of handlers to register for keydown events.
  * @returns Object with methods to manually start and stop listening for keydown events.

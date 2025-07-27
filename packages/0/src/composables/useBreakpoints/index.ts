@@ -82,9 +82,9 @@ function createDefaultBreakpoints () {
 }
 
 /**
- * Creates a reactive breakpoints system for managing responsive behavior.
- * This function provides access to viewport dimensions, breakpoint names, and helper flags
- * for determining the current screen size and implementing responsive logic.
+ * Creates a reactive breakpoints system for responsive behavior management.
+ * This function provides access to viewport dimensions, breakpoint detection, and helper flags
+ * for determining current screen size and implementing responsive logic.
  *
  * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
  * @returns A breakpoints context object with reactive state and utility methods.
@@ -183,9 +183,9 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
 }
 
 /**
- * Creates a Vue plugin for managing responsive breakpoints.
- * This plugin automatically sets up breakpoint tracking and updates
- * the context when the window is resized, useful for responsive applications.
+ * Creates a Vue plugin for managing responsive breakpoints with automatic updates.
+ * This plugin sets up breakpoint tracking and updates the context when the window
+ * is resized, providing reactive breakpoint state throughout the application.
  *
  * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
  * @returns A Vue plugin object with install method.

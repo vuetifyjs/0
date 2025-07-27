@@ -36,7 +36,9 @@ export type TokenContext<Z extends TokenTicket = TokenTicket> = RegistryContext<
 }
 
 /**
- * Creates a token registry for managing data structures / aliases
+ * Creates a token registry for managing design token collections with alias resolution.
+ * Supports nested token structures and cross-references following design token specification patterns.
+ *
  * @param namespace The namespace for the token registry context
  * @param tokens An optional collection of tokens to initialize
  * @template Z The available methods for the token's context.

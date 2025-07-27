@@ -17,7 +17,12 @@ export interface RegistryTicket {
 }
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
+  /** The reactive collection of items */
   collection: Map<ID, Z>
+  /** A catalog of all values in the collection */
+  catalog: Map<unknown, ID>
+  /** A directory of all indexes in the collection */
+  directory: Map<number, ID>
   /** Browse for an ID by value */
   browse: (value: unknown) => ID | undefined
   /** lookup a ticket by index number */
@@ -38,11 +43,15 @@ export interface RegistryOptions {
 }
 
 /**
- * A composable for managing a collection of info.
- * @param namespace The key to scope the context
- * @template Z The registry context interface.
- * @template E The structure of the collection.
- * @returns A trinity of registry methods.
+ * Creates a registry for managing collections of items with registration and lookup capabilities.
+ * This function provides the foundation for item management systems with ID-based, value-based,
+ * and index-based access patterns.
+ *
+ * @param namespace The namespace for the registry context.
+ * @param options Optional configuration for reactivity behavior.
+ * @template Z The type of items managed by the registry.
+ * @template E The type of the registry context.
+ * @returns A tuple containing the inject function, provide function, and the registry context.
  */
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,

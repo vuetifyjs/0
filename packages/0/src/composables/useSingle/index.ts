@@ -29,11 +29,11 @@ export type SingleContext = RegistryContext<SingleTicket> & BaseSingleContext
 export type SingleOptions = SelectionOptions
 
 /**
- * Creates a single registry for managing single selections within a specific namespace.
+ * Creates a single-selection registry for managing selections within a specific namespace.
  * This function provides a way to register, unregister, and manage single selections,
  * allowing for dynamic single selection management in applications.
  *
- * Built on top of useGroup with multiple=false to eliminate code duplication.
+ * Built on top of useSelection with single-selection constraints.
  *
  * @param namespace The namespace for the single context.
  * @param options Optional configuration for the single behavior.
@@ -61,9 +61,10 @@ export function useSingle<
   const selectedValue = computed(() => selectedItem.value ? selectedItem.value.value : undefined)
 
   function mandate () {
-    if (!mandatory || registry.selectedIds.size === 0) return
+    if (!mandatory || registry.selectedIds.size > 0 || registry.collection.size === 0) return
 
-    registry.select(registry.lookup(0) as ID)
+    const firstId = registry.lookup(0)
+    if (firstId) select(firstId)
   }
 
   function select (id: ID) {
@@ -72,9 +73,11 @@ export function useSingle<
     if (!item || item.disabled) return
 
     if (registry.selectedIds.has(id)) {
-      registry.selectedIds.delete(id)
+      if (!mandatory || registry.selectedIds.size > 1) {
+        registry.selectedIds.delete(id)
+      }
     } else {
-      registry.selectedIds.delete(registry.lookup(0) as ID)
+      registry.selectedIds.clear()
       registry.selectedIds.add(id)
     }
   }
