@@ -119,6 +119,8 @@ export function useRegistry<
 
   const context = {
     collection,
+    catalog,
+    directory,
     browse,
     lookup,
     find,

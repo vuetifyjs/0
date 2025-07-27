@@ -20,7 +20,7 @@ import type { RegistryContext } from '#v0/composables/useRegistry'
 
 export type LocaleTicket = SingleTicket
 
-export type BaseLocaleContext = BaseSingleContext & {
+export type BaseLocaleContext<Z extends LocaleTicket = LocaleTicket> = BaseSingleContext<Z> & {
   t: (key: string, ...params: unknown[]) => string
   n: (value: number) => string
   register: (item?: Partial<LocaleTicket>, id?: ID) => Reactive<LocaleTicket>
