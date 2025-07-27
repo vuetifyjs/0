@@ -13,10 +13,14 @@ import type { App, Reactive } from 'vue'
 export interface RegistryTicket {
   id: ID
   index: number
+  value: unknown
+  valueIsIndex: boolean
 }
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   collection: Map<ID, Z>
+  /** Browse for an ID by value */
+  browse: (value: unknown) => ID | undefined
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
   /** Find a ticket by id */
@@ -43,10 +47,15 @@ export function useRegistry<
   const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
 
   const collection = reactive(new Map<ID, Z>())
+  const catalog = new Map<unknown, ID>()
   const directory = new Map<number, ID>()
 
   function find (id: ID) {
     return collection.get(id)
+  }
+
+  function browse (value: unknown): ID | undefined {
+    return catalog.get(value)
   }
 
   function lookup (index: number) {
@@ -64,13 +73,17 @@ export function useRegistry<
   }
 
   function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+    const size = collection.size
     const item = reactive({
       id,
-      index: registrant?.index ?? collection.size,
+      index: registrant?.index ?? size,
+      value: registrant?.value ?? size,
+      valueIsIndex: registrant?.value == null,
       ...registrant,
     }) as Reactive<Z>
 
     collection.set(item.id, item as any)
+    catalog.set(item.value, item.id)
     directory.set(item.index, item.id)
 
     return item
@@ -81,14 +94,16 @@ export function useRegistry<
 
     if (!item) return
 
-    directory.delete(item.index)
     collection.delete(item.id)
+    catalog.delete(item.value)
+    directory.delete(item.index)
 
     reindex()
   }
 
   const context = {
     collection,
+    browse,
     lookup,
     find,
     register,

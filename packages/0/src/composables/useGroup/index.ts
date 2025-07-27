@@ -18,8 +18,6 @@ import type { ID } from '#v0/types'
 
 export type GroupTicket = RegistryTicket & {
   disabled: boolean
-  value: unknown
-  valueIsIndex: boolean
   isActive: Readonly<ComputedGetter<boolean>>
   /** Toggle self on and off */
   toggle: () => void
@@ -38,8 +36,6 @@ export type BaseGroupContext = {
   select: (ids: ID | ID[]) => void
   /** Clear all selected IDs, reindex, and mandate a value */
   reset: () => void
-  /** Browse for an ID by value */
-  browse: (value: unknown) => ID | undefined
 }
 
 export type GroupContext = RegistryContext<GroupTicket> & BaseGroupContext
@@ -72,7 +68,6 @@ export function useGroup<
 ) {
   const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
 
-  const catalog = new Map<unknown, ID>()
   const selectedIds = reactive(new Set<ID>())
   let initialValue: unknown | unknown[] = null
 
@@ -96,10 +91,6 @@ export function useGroup<
       Array.from(selectedItems.value).map(item => item?.value),
     )
   })
-
-  function browse (value: unknown): ID | undefined {
-    return catalog.get(value)
-  }
 
   function mandate () {
     if (!mandatory || selectedIds.size > 0 || registry.collection.size === 0) return
@@ -165,16 +156,12 @@ export function useGroup<
   function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
     const item: Partial<Z> = {
       disabled: false,
-      value: registrant?.value ?? registry.collection.size,
-      valueIsIndex: registrant?.value == null,
       isActive: toRef(() => selectedIds.has(ticket.id)),
       toggle: () => toggle(ticket.id),
       ...registrant,
     }
 
     const ticket = registry.register(item, id)
-
-    catalog.set(ticket.value, ticket.id)
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
@@ -212,7 +199,6 @@ export function useGroup<
     reindex,
     mandate,
     select,
-    browse,
   } as unknown as E
 
   function provideGroupContext (
@@ -246,7 +232,7 @@ export function useGroup<
         selectedIds.clear()
 
         for (const value of values) {
-          const id = browse(value)
+          const id = registry.browse(value)
 
           if (!id) continue
 
