@@ -83,8 +83,17 @@ export function useSelection<
   }
 
   function unregister (id: ID) {
+    const item = registry.find(id)
+
+    if (!item) return
+
     selectedIds.delete(id)
-    registry.unregister(id)
+
+    registry.collection.delete(item.id)
+    registry.catalog.delete(item.value)
+    registry.directory.delete(item.index)
+
+    reindex()
   }
 
   function reset () {
