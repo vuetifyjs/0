@@ -9,6 +9,7 @@ import { genId } from '#v0/utilities/helpers'
 // Types
 import type { ID } from '#v0/types'
 import type { App, Reactive } from 'vue'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export interface RegistryTicket {
   id: ID
@@ -59,7 +60,7 @@ export function useRegistry<
 > (
   namespace: string,
   options?: RegistryOptions,
-) {
+): ContextTrinity<E> {
   const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
 
   const reactivity = options?.deep ? reactive : shallowReactive

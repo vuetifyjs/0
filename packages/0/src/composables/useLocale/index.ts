@@ -17,6 +17,7 @@ import type { TokenCollection, TokenTicket, TokenContext } from '#v0/composables
 import type { LocaleAdapter } from './adapters'
 import type { App, Reactive } from 'vue'
 import type { RegistryContext } from '#v0/composables/useRegistry'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export type LocaleTicket = SingleTicket
 
@@ -58,7 +59,7 @@ export function createLocale<
 > (
   namespace = 'v0:locale',
   options: LocaleOptions = {},
-) {
+): ContextTrinity<E> {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
   const [useLocaleContext, provideLocaleContext, registry] = useSingle<Z, E>(namespace)
 

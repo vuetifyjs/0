@@ -13,6 +13,7 @@ import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Reactive, Ref } from 'vue'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export type SingleTicket = SelectionTicket
 
@@ -47,7 +48,7 @@ export function useSingle<
 > (
   namespace: string,
   options?: SingleOptions,
-) {
+): ContextTrinity<E> {
   const [useRegistryContext, provideRegistryContext, registry] = useSelection<Z, E>(namespace)
 
   const mandatory = options?.mandatory ?? false

@@ -16,6 +16,7 @@ import type { App, ComputedRef, Reactive, Ref } from 'vue'
 import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export type GroupTicket = SelectionTicket
 
@@ -50,7 +51,7 @@ export function useGroup<
 > (
   namespace: string,
   options?: GroupOptions,
-) {
+): ContextTrinity<E> {
   const [useRegistryContext, provideRegistryContext, registry] = useSelection<Z, E>(namespace)
 
   const mandatory = options?.mandatory ?? false

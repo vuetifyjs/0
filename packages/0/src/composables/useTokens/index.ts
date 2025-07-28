@@ -10,6 +10,7 @@ import { isObject, isString } from '#v0/utilities'
 
 // Types
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export interface TokenAlias {
   [key: string]: any
@@ -54,7 +55,7 @@ export function useTokens<
 > (
   namespace: string,
   tokens: TokenCollection = {},
-) {
+): ContextTrinity<E> {
   const logger = useLogger()
   const cache = new Map<string, string | undefined>()
 

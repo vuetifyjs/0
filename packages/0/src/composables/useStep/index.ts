@@ -7,6 +7,7 @@ import { useSingle } from '#v0/composables/useSingle'
 // Types
 import type { BaseSingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 import type { RegistryContext } from '#v0/composables/useRegistry'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export type StepTicket = SingleTicket
 
@@ -39,7 +40,7 @@ export function useStep<
 > (
   namespace: string,
   options?: StepOptions,
-) {
+): ContextTrinity<E> {
   const [useGroupContext, provideGroupContext, registry] = useSingle<Z, E>(namespace, options)
 
   function first () {

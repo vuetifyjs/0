@@ -24,6 +24,7 @@ import type { App, ComputedRef, Reactive } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
 import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { TokenCollection, TokenContext, TokenTicket } from '#v0/composables/useTokens'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export type Colors = {
   [key: string]: string
@@ -79,7 +80,7 @@ export function createTheme<
 > (
   namespace = 'v0:theme',
   options: ThemeOptions,
-) {
+): ContextTrinity<E> {
   const { tokens, themes = {} } = options
   const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
 

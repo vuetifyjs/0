@@ -12,6 +12,7 @@ import { genId } from '#v0/utilities/helpers'
 import type { Reactive, Ref } from 'vue'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export type SelectionTicket = RegistryTicket & {
   disabled: boolean
@@ -45,7 +46,7 @@ export type SelectionOptions = RegistryOptions & {
 export function useSelection<
   Z extends SelectionTicket = SelectionTicket,
   E extends SelectionContext = SelectionContext,
-> (namespace: string) {
+> (namespace: string): ContextTrinity<E> {
   const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
   const selectedIds = shallowReactive(new Set<ID>())
 
