@@ -42,8 +42,8 @@ export type TokenContext<Z extends TokenTicket = TokenTicket> = RegistryContext<
  *
  * @param namespace The namespace for the token registry context
  * @param tokens An optional collection of tokens to initialize
- * @template Z The available methods for the token's context.
- * @template E The structure of the registry token items.
+ * @template Z The structure of the registry token items.
+ * @template E The available methods for the token's context.
  * @returns A trinity of provide/inject methods & context
  *
  * @see Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references
