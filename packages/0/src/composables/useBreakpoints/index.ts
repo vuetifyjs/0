@@ -198,5 +198,12 @@ export function createBreakpointsPlugin (options: BreakpointsOptions = {}): Brea
     provide: (app: App) => {
       provideBreakpointsContext(context, app)
     },
+    setup: (app: App) => {
+      app.mixin({
+        mounted () {
+          context.update()
+        },
+      })
+    },
   })
 }
