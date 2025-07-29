@@ -1,4 +1,7 @@
+// Vuetify0
 import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createThemePlugin } from '@vuetify/0'
+
+// Types
 import type { App } from 'vue'
 
 export default function zero (app: App) {
@@ -18,9 +21,10 @@ export default function zero (app: App) {
           success: '#22c55e',
           warning: '#f59e0b',
           background: '#f9fafb',
-          surface: '#f3f4f6',
+          surface: '#FFFFFF',
           surfaceTint: '#ececec',
           surfaceVariant: '#212121',
+          divider: '#eeeeee',
         },
       },
     }),

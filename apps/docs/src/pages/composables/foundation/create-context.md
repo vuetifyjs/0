@@ -75,7 +75,7 @@ export function useMyContext () {
 
 Now, in your components, access the context by importing the `useMyContext` composable:
 
-```vue
+```html
 <script setup lang="ts">
   import { useMyContext } from '@/composables/my-context'
 

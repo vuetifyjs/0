@@ -71,20 +71,20 @@
       margin-bottom: 0.5rem;
     }
 
-    pre {
-      font-size: 0.875rem;
-      line-height: 1.5rem;
+    pre[class*="language-"] {
       background-color: #f6f8fa;
       padding: 0.5rem;
       overflow-x: auto;
-      border: 1px solid #d1d5db;
       display: flex;
+      border-radius: 6px;
       margin-bottom: 1rem;
+      border: thin solid var(--v0-divider);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
+      border-radius: 6px;
       margin-bottom: 1rem;
     }
 
@@ -92,13 +92,6 @@
       padding: 0.25rem 0.5rem;
       border: 1px solid #d1d5db;
       text-align: left;
-    }
-
-    code.language-ts {
-      font-size: 0.875rem;
-      line-height: 1.5rem;
-      padding: 0.2rem 0.4rem;
-      border-radius: 6px;
     }
   }
 </style>

@@ -8,6 +8,7 @@ import Attrs from 'markdown-it-attrs'
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
 import UnocssVitePlugin from 'unocss/vite'
+import Prism from 'markdown-it-prism'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -30,6 +31,7 @@ export default defineConfig({
       },
       markdownItSetup (md) {
         md.use(Attrs)
+        md.use(Prism)
       },
     }),
     Components({

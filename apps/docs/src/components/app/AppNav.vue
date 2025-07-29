@@ -110,11 +110,11 @@
 <template>
   <Atom
     :as
-    class="bg-4 app-nav text-[#e0e0e0] flex flex-col h-[100vh] fixed w-[220px] overflow-y-auto pb-4"
+    class="bg-4 app-nav flex flex-col h-[100vh] fixed w-[220px] overflow-y-auto pb-4"
   >
     <img
       alt="Vuetify0 Logo"
-      src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.png"
+      src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png"
     >
 
     <ul class="flex gap-2 flex-col">
@@ -138,5 +138,6 @@
 
 <style lang="sass">
   .app-nav
-    background-color: var(--v0-surfaceVariant)
+    background-color: var(--v0-surface)
+    border-right: thin solid var(--v0-divider)
 </style>

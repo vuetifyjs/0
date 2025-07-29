@@ -24,5 +24,6 @@
 
 <style lang="sass">
   .app-header
-    background-color: var(--v0-surfaceTint)
+    background-color: var(--v0-surface)
+    border-bottom: thin solid var(--v0-divider)
 </style>
