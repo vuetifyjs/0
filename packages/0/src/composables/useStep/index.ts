@@ -41,7 +41,7 @@ export function useStep<
   namespace: string,
   options?: StepOptions,
 ): ContextTrinity<E> {
-  const [useGroupContext, provideGroupContext, registry] = useSingle<Z, E>(namespace, options)
+  const [useStepContext, provideStepContext, registry] = useSingle<Z, E>(namespace, options)
 
   function first () {
     if (registry.collection.size === 0) return
@@ -96,7 +96,7 @@ export function useStep<
     registry.select(id)
   }
 
-  return createTrinity<E>(useGroupContext, provideGroupContext, {
+  return createTrinity<E>(useStepContext, provideStepContext, {
     ...registry,
     first,
     last,
