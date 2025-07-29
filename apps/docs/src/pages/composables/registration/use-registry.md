@@ -31,7 +31,8 @@ A foundational composable for building registration-based systems, managing coll
     catalog: Map<unknown, ID>
     directory: Map<number, ID>
     browse: (value: unknown) => ID | undefined
-    lookup: (id: ID) => Z | undefined
+    lookup: (index: number) => ID | undefined
+    find: (id: ID) => Z | undefined
     register: (item?: Partial<Z>, id?: ID) => Z
     unregister: (id: ID) => void
     reindex: () => void
@@ -58,6 +59,7 @@ A foundational composable for building registration-based systems, managing coll
 The `useRegistry` composable provides a powerful interface for managing collections of items in a registration-based system. It allows you to register, unregister, and look up items efficiently, while maintaining an index for quick access.
 
 ```ts
+// src/composables/my-registry.ts
 import { useRegistry } from '@vuetify/0'
 
 export const [useMyRegistry, provideMyRegistry] = useRegistry('my-namespace')
