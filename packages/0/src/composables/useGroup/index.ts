@@ -28,7 +28,8 @@ export type BaseGroupContext<Z extends GroupTicket = GroupTicket> = SelectionCon
 
 export type GroupContext = RegistryContext<GroupTicket> & BaseGroupContext
 
-export type GroupOptions = SelectionOptions & {
+export type GroupOptions = Omit<SelectionOptions, 'mandatory'> & {
+  mandatory?: boolean | 'force' | 'eager'
   multiple?: boolean
 }
 
@@ -137,7 +138,8 @@ export function useGroup<
       if (shouldSelect) select(ticket.id)
     }
 
-    if (mandatory === 'force') mandate()
+    if (mandatory === 'eager') ticket.toggle()
+    else if (mandatory === 'force') mandate()
 
     return ticket
   }

@@ -133,6 +133,7 @@ declare global {
   const useId: typeof import('vue')['useId']
   const useIntersectionObserver: typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useIntersectionObserver']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
+  const useLayout: typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']
   const useLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['useLoggerContext']
@@ -201,6 +202,9 @@ declare global {
   // @ts-ignore
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
+  // @ts-ignore
+  export type { LayoutLocation, LayoutTicket, BaseLayoutContext, LayoutContext } from '../../packages/0/src/composables/useLayout/index'
+  import('../../packages/0/src/composables/useLayout/index')
   // @ts-ignore
   export type { LocaleTicket, BaseLocaleContext, LocaleContext, LocaleOptions, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
@@ -348,6 +352,7 @@ declare module 'vue' {
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
+    readonly useLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
