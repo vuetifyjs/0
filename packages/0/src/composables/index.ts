@@ -1,5 +1,6 @@
 // Composables
 export * from './useBreakpoints'
+export * from './useEventListener'
 export * from './useGroup'
 export * from './useHydration'
 export * from './useKeydown'
