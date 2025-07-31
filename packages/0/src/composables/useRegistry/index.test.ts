@@ -61,4 +61,13 @@ describe('useRegistry', () => {
     expect(context.collection.has('item3')).toBe(true)
     expect(context.collection.has('item4')).toBe(true)
   })
+
+  it('should register an array of items', () => {
+    const context = useRegistry('test')[2]
+    context.registerMany([{ id: 'item1' }, { id: 'item2' }, { id: 'item3', value: 'Vuetify' }])
+
+    expect(context.lookup(0)).toEqual('item1')
+    expect(context.lookup(1)).toEqual('item2')
+    expect(context.find('item3')).toEqual({ id: 'item3', index: 2, value: 'Vuetify' })
+  })
 })
