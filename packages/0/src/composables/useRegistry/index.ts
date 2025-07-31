@@ -109,10 +109,8 @@ export function useRegistry<
     return ticket
   }
 
-  function registerMany (registrants: Partial<Z>[]) {
-    for (const registrant of registrants) {
-      register(registrant)
-    }
+  function registerMany (registrants: Partial<Z>[]): Reactive<Z>[] {
+    return registrants.map(registrant => register(registrant))
   }
 
   function unregister (id: ID) {
