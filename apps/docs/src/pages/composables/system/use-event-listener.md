@@ -62,7 +62,7 @@ Convenience function for attaching event listeners to the document object.
 ```html
 <script setup>
 import { useEventListener, useWindowEventListener, useDocumentEventListener } from '@vuetify/0'
-import { ref } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 
 // Track window dimensions for responsive design
 const windowSize = ref({ width: 0, height: 0 })
@@ -82,7 +82,7 @@ useDocumentEventListener('keydown', (e) => {
 })
 
 // Interactive card with hover effects
-const card = useTemplateRef<HTMLDivElement>()
+const card = useTemplateRef('card')
 const isHovered = ref(false)
 
 useEventListener(card, 'mouseenter', () => {
@@ -142,9 +142,10 @@ useWindowEventListener('scroll', () => {
 
 ### Multiple Events for Form Validation
 
-```typescript
+```html
+<script setup>
 // Listen to multiple input events for real-time validation
-const inputElement = ref<HTMLInputElement>()
+const inputElement = useTemplateRef('inputElement')
 const validationErrors = ref<string[]>([])
 
 useEventListener(inputElement, ['input', 'blur', 'focus'], (evt) => {
@@ -156,11 +157,17 @@ useEventListener(inputElement, ['input', 'blur', 'focus'], (evt) => {
     finalizeValidation(evt.target.value)
   }
 })
+</script>
+
+<template>
+  <input ref="inputElement" type="text" placeholder="Enter text..." />
+</template>
 ```
 
 ### Multiple Handlers for Analytics
 
-```typescript
+```html
+<script setup>
 // Track user interactions with multiple handlers
 const trackClick = (evt) => {
   analytics.track('button_click', { target: evt.target.id })
@@ -171,15 +178,21 @@ const updateUI = (evt) => {
   buttonClickCount.value++
 }
 
-const button = ref<HTMLButtonElement>()
+const button = useTemplateRef('button')
 useEventListener(button, 'click', [trackClick, updateUI])
+</script>
+
+<template>
+  <button ref="button">Click me</button>
+</template>
 ```
 
 ### Performance-Optimized Event Options
 
-```typescript
+```html
+<script setup>
 // Optimized scroll handling for infinite scroll
-const scrollContainer = ref<HTMLDivElement>()
+const scrollContainer = useTemplateRef('scrollContainer')
 
 useEventListener(scrollContainer, 'scroll', (evt) => {
   const { scrollTop, scrollHeight, clientHeight } = evt.target
@@ -187,21 +200,36 @@ useEventListener(scrollContainer, 'scroll', (evt) => {
     loadMoreItems()
   }
 }, { passive: true, capture: false })
+</script>
+
+<template>
+  <div ref="scrollContainer" class="scroll-container">
+    <!-- Scrollable content -->
+  </div>
+</template>
 ```
 
 ### Dynamic Event Switching
 
-```typescript
+```html
+<script setup>
 // Switch between touch and mouse events based on device
 const isTouchDevice = ref('ontouchstart' in window)
 const eventType = computed(() => 
   isTouchDevice.value ? 'touchstart' : 'mousedown'
 )
 
-const element = ref<HTMLElement>()
+const element = useTemplateRef('element')
 useEventListener(element, eventType, (evt) => {
   handleInteraction(evt)
 })
+</script>
+
+<template>
+  <div ref="element" class="interactive-element">
+    Touch or click me
+  </div>
+</template>
 ```
 
 ### Conditional Cleanup
@@ -229,8 +257,10 @@ watch(isModalOpen, (open) => {
 
 The composable provides full TypeScript support with proper event typing:
 
-```typescript
+```html
+<script setup lang="ts">
 import { useEventListener, useWindowEventListener } from '@vuetify/0'
+import { useTemplateRef, ref } from 'vue'
 import type { CleanupFunction } from '@vuetify/0'
 
 // Custom event handler with proper typing
@@ -239,7 +269,7 @@ interface CustomFormData {
   password: string
 }
 
-const form = ref<HTMLFormElement>()
+const form = useTemplateRef('form')
 const formData = ref<CustomFormData>({ email: '', password: '' })
 
 // Form submission with typed event
@@ -253,6 +283,15 @@ useEventListener(form, 'submit', (evt: SubmitEvent) => {
     password: data.get('password') as string
   }
 })
+</script>
+
+<template>
+  <form ref="form">
+    <input name="email" type="email" placeholder="Email" />
+    <input name="password" type="password" placeholder="Password" />
+    <button type="submit">Submit</button>
+  </form>
+</template>
 
 // Media query change events with proper typing
 const mediaQuery = window.matchMedia('(max-width: 768px)')
@@ -263,7 +302,7 @@ useEventListener(mediaQuery, 'change', (evt: MediaQueryListEvent) => {
 })
 
 // File input with drag and drop typing
-const dropZone = ref<HTMLDivElement>()
+const dropZone = useTemplateRef('dropZone')
 const files = ref<File[]>([])
 
 useEventListener(dropZone, 'drop', (evt: DragEvent) => {
@@ -271,6 +310,13 @@ useEventListener(dropZone, 'drop', (evt: DragEvent) => {
   const droppedFiles = Array.from(evt.dataTransfer?.files || [])
   files.value = droppedFiles.filter(file => file.type.startsWith('image/'))
 })
+</script>
+
+<template>
+  <div ref="dropZone" class="drop-zone">
+    Drop images here
+  </div>
+</template>
 ```
 
 ## SSR Considerations
