@@ -29,9 +29,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
   /** Find a ticket by id */
-  find: (id: ID) => Z | undefined
+  find: (id: ID) => Reactive<Z> | undefined
   /** Register a new item */
-  register: (item?: Partial<Z>, id?: ID) => Z
+  register: (item?: Partial<Z>, id?: ID) => Reactive<Z>
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
@@ -68,8 +68,8 @@ export function useRegistry<
   const catalog = new Map<unknown, ID>()
   const directory = new Map<number, ID>()
 
-  function find (id: ID) {
-    return collection.get(id)
+  function find (id: ID): Reactive<Z> | undefined {
+    return collection.get(id) as Reactive<Z> | undefined
   }
 
   function browse (value: unknown) {
