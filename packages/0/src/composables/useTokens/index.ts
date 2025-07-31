@@ -30,9 +30,9 @@ export type FlatTokenCollection = {
   value: TokenValue
 }
 
-export type TokenTicket = RegistryTicket
+export interface TokenTicket extends RegistryTicket {}
 
-export type TokenContext<Z extends TokenTicket = TokenTicket> = RegistryContext<Z> & {
+export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
   resolve: (token: string) => string | undefined
 }
 
@@ -51,7 +51,7 @@ export type TokenContext<Z extends TokenTicket = TokenTicket> = RegistryContext<
  */
 export function useTokens<
   Z extends TokenTicket = TokenTicket,
-  E extends TokenContext = TokenContext,
+  E extends TokenContext<Z> = TokenContext<Z>,
 > (
   namespace: string,
   tokens: TokenCollection = {},
@@ -62,7 +62,7 @@ export function useTokens<
   const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
 
   for (const { id, value } of flatten(tokens)) {
-    registry.register({ value }, id)
+    registry.register({ value } as Partial<Z>, id)
   }
 
   function isAlias (token: unknown): token is string {
@@ -100,10 +100,12 @@ export function useTokens<
     return result
   }
 
-  return createTrinity<E>(useRegistryContext, provideRegistryContext, {
+  const context: E = {
     ...registry,
     resolve,
-  } as unknown as E)
+  }
+
+  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
 }
 
 /**

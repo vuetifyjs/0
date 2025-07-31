@@ -17,7 +17,7 @@ export interface RegistryTicket {
   value: unknown
 }
 
-export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
+export interface RegistryContext<Z extends RegistryTicket> {
   /** The reactive collection of items */
   collection: Map<ID, Z>
   /** A catalog of all values in the collection */
@@ -56,7 +56,7 @@ export interface RegistryOptions {
  */
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
-  E extends RegistryContext = RegistryContext,
+  E extends RegistryContext<Z> = RegistryContext<Z>,
 > (
   namespace: string,
   options?: RegistryOptions,
@@ -92,18 +92,19 @@ export function useRegistry<
 
   function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
     const size = collection.size
-    const item = reactive({
+    const item: Partial<Z> = {
       id,
       index: registrant?.index ?? size,
       value: registrant?.value ?? size,
       ...registrant,
-    }) as Reactive<Z>
+    }
+    const ticket = reactive(item) as Reactive<Z>
 
-    collection.set(item.id, item as any)
-    catalog.set(item.value, item.id)
-    directory.set(item.index, item.id)
+    collection.set(ticket.id, ticket as any)
+    catalog.set(ticket.value, ticket.id)
+    directory.set(ticket.index, ticket.id)
 
-    return item
+    return ticket
   }
 
   function unregister (id: ID) {

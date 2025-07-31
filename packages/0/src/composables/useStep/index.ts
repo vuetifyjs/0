@@ -5,13 +5,12 @@ import { createTrinity } from '#v0/factories/createTrinity'
 import { useSingle } from '#v0/composables/useSingle'
 
 // Types
-import type { BaseSingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
-import type { RegistryContext } from '#v0/composables/useRegistry'
+import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 
-export type StepTicket = SingleTicket
+export interface StepTicket extends SingleTicket {}
 
-export type BaseStepContext<Z extends StepTicket = StepTicket> = BaseSingleContext<Z> & {
+export type StepContext<Z extends StepTicket> = SingleContext<Z> & {
   first: () => void
   last: () => void
   next: () => void
@@ -19,9 +18,7 @@ export type BaseStepContext<Z extends StepTicket = StepTicket> = BaseSingleConte
   step: (count: number) => void
 }
 
-export type StepContext = RegistryContext<StepTicket> & BaseStepContext
-
-export type StepOptions = SingleOptions
+export interface StepOptions extends SingleOptions {}
 
 /**
  * Creates a step registry for managing step navigation within a specific namespace.
@@ -36,7 +33,7 @@ export type StepOptions = SingleOptions
  */
 export function useStep<
   Z extends StepTicket = StepTicket,
-  E extends StepContext = StepContext,
+  E extends StepContext<Z> = StepContext<Z>,
 > (
   namespace: string,
   options?: StepOptions,
@@ -96,12 +93,14 @@ export function useStep<
     registry.select(id)
   }
 
-  return createTrinity<E>(useStepContext, provideStepContext, {
+  const context: E = {
     ...registry,
     first,
     last,
     next,
     prev,
     step,
-  } as unknown as E)
+  }
+
+  return createTrinity<E>(useStepContext, provideStepContext, context)
 }

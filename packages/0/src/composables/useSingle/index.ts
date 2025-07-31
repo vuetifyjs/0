@@ -9,15 +9,14 @@ import { computed, getCurrentInstance, nextTick, onMounted, toValue, watch } fro
 import { genId } from '#v0/utilities'
 
 // Types
-import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Reactive, Ref } from 'vue'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 
-export type SingleTicket = SelectionTicket
+export interface SingleTicket extends SelectionTicket {}
 
-export type BaseSingleContext<Z extends SingleTicket = SingleTicket> = SelectionContext<Z> & {
+export interface SingleContext<Z extends SingleTicket> extends SelectionContext<Z> {
   selectedId: ComputedRef<ID | undefined>
   selectedIndex: ComputedRef<number>
   selectedItem: ComputedRef<Z | undefined>
@@ -25,9 +24,7 @@ export type BaseSingleContext<Z extends SingleTicket = SingleTicket> = Selection
   select: (id: ID) => void
 }
 
-export type SingleContext = RegistryContext<SingleTicket> & BaseSingleContext
-
-export type SingleOptions = SelectionOptions
+export interface SingleOptions extends SelectionOptions {}
 
 /**
  * Creates a single-selection registry for managing selections within a specific namespace.
@@ -44,7 +41,7 @@ export type SingleOptions = SelectionOptions
  */
 export function useSingle<
   Z extends SingleTicket = SingleTicket,
-  E extends SingleContext = SingleContext,
+  E extends SingleContext<Z> = SingleContext<Z>,
 > (
   namespace: string,
   options?: SingleOptions,
@@ -92,7 +89,7 @@ export function useSingle<
       toggle: () => select(id),
     }
 
-    const ticket = registry.register(item, id) as unknown as Reactive<Z>
+    const ticket = registry.register(item, id) as Reactive<Z>
 
     if (initialValue != null && initialValue === ticket.value) {
       select(ticket.id)
@@ -118,7 +115,7 @@ export function useSingle<
     select,
     mandate,
     register,
-  } as unknown as E
+  } as E
 
   function provideSingleContext (
     model?: Ref<unknown>,

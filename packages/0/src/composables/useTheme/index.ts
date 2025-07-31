@@ -8,7 +8,7 @@ import { useSingle } from '#v0/composables/useSingle'
 import { useTokens } from '#v0/composables/useTokens'
 
 // Utilities
-import { computed, toValue, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Adapters
@@ -18,11 +18,10 @@ import { Vuetify0ThemeAdapter } from './adapters/v0'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { BaseSingleContext, SingleTicket } from '#v0/composables/useSingle'
+import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Reactive } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
-import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { TokenCollection, TokenContext, TokenTicket } from '#v0/composables/useTokens'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 
@@ -38,21 +37,13 @@ export type ThemeTicket = SingleTicket & {
   lazy: boolean
 }
 
-export type BaseThemeContext<Z extends ThemeTicket = ThemeTicket> = BaseSingleContext<Z> & {
+export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
   colors: ComputedRef<Record<string, Colors>>
   cycle: (themes: ID[]) => void
   toggle: (themes: [ID, ID]) => void
-  register: (item?: Partial<ThemeTicket>, id?: ID) => Reactive<ThemeTicket>
-  selectedItem: Reactive<ThemeTicket | undefined>
 }
 
-export type ThemeContext = RegistryContext<ThemeTicket> & BaseThemeContext
-
-export interface ThemeOptions {
-  default?: ID
-  tokens: TokenContext
-  themes?: Record<ID, TokenCollection>
-}
+export interface ThemeOptions extends ThemePluginOptions {}
 
 export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection> {
   adapter?: ThemeAdapter
@@ -70,22 +61,23 @@ export interface ThemePlugin {
  * Supports token-based color systems and lazy theme loading for optimal performance.
  *
  * @param namespace The namespace for the theme context.
+ * @param options Configuration including adapter and themes.
  * @template Z The type of theme context.
  * @template E The type of theme items managed by the registry.
  * @returns A tuple containing inject, provide functions and the theme context.
  */
 export function createTheme<
   Z extends ThemeTicket = ThemeTicket,
-  E extends ThemeContext = ThemeContext,
+  E extends ThemeContext<Z> = ThemeContext<Z>,
 > (
   namespace = 'v0:theme',
-  options: ThemeOptions,
+  options: ThemeOptions = {},
 ): ContextTrinity<E> {
-  const { tokens, themes = {} } = options
+  const { themes = {}, palette = {} } = options
   const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
 
   for (const id in themes) {
-    registry.register({ value: themes[id] }, id)
+    registry.register({ value: themes[id] } as Partial<Z>, id)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -98,7 +90,7 @@ export function createTheme<
     for (const [id, theme] of registry.collection.entries()) {
       if (theme.lazy && theme.id !== registry.selectedId.value) continue
 
-      resolved[String(id)] = resolve(theme.value as Colors)
+      resolved[String(id)] = resolve(id, theme.value as Colors)
     }
     return resolved
   })
@@ -114,17 +106,37 @@ export function createTheme<
     cycle(themes)
   }
 
-  function isTokenReference (value: string): boolean {
-    if (value.length > 2 && value[0] === '{' && value.at(-1) === '}') return true
-    return tokens.collection.has(value)
-  }
-
-  function resolve (theme: Colors): Colors {
+  function resolve (themeId: ID, colors: Colors): Colors {
     const resolved: Colors = {}
-    for (const [key, value] of Object.entries(theme)) {
-      resolved[key] = isTokenReference(value) ? toValue(tokens.resolve(value) ?? value) : toValue(value)
+    for (const [key, value] of Object.entries(colors)) {
+      resolved[key] = resolveTokenReference(themeId, value)
     }
     return resolved
+  }
+
+  function resolveTokenReference (themeId: ID, value: string): string {
+    // Handle token references like {primary} or {colors.surface}
+    return value.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, tokenKey) => {
+      // Check palette first
+      if (palette[tokenKey]) {
+        return typeof palette[tokenKey] === 'string' ? palette[tokenKey] : match
+      }
+
+      // Check if it's a reference to another theme color
+      const [targetTheme, ...colorPath] = tokenKey.split('.')
+      const colorKey = colorPath.join('.')
+
+      if (targetTheme && colorKey) {
+        const targetColors = themes[targetTheme] as Colors
+        const resolved = targetColors?.[colorKey]
+        return typeof resolved === 'string' ? resolveTokenReference(targetTheme, resolved) : match
+      }
+
+      // Check current theme for the key
+      const currentColors = themes[themeId] as Colors
+      const resolved = currentColors?.[tokenKey]
+      return typeof resolved === 'string' ? resolveTokenReference(themeId, resolved) : match
+    })
   }
 
   function register (registrant: Partial<Z>, _id: ID = genId()): Reactive<Z> {
@@ -135,18 +147,18 @@ export function createTheme<
       ...registrant,
       id,
     }
-    const ticket = registry.register(item, id) as unknown as Reactive<Z>
-
-    return ticket
+    return registry.register(item, id) as Reactive<Z>
   }
 
-  return createTrinity<E>(useThemeContext, provideThemeContext, {
+  const context: E = {
     ...registry,
     colors,
     register,
     cycle,
     toggle,
-  } as unknown as E)
+  }
+
+  return createTrinity<E>(useThemeContext, provideThemeContext, context)
 }
 
 /**
@@ -154,8 +166,8 @@ export function createTheme<
  *
  * @returns The theme context containing current theme state and utilities.
  */
-export function useTheme (): ThemeContext {
-  return useContext<ThemeContext>('v0:theme')()
+export function useTheme (): ThemeContext<ThemeTicket> {
+  return useContext<ThemeContext<ThemeTicket>>('v0:theme')()
 }
 
 /**
@@ -172,13 +184,13 @@ export function useTheme (): ThemeContext {
  */
 export function createThemePlugin<
   Z extends ThemeTicket = ThemeTicket,
-  E extends ThemeContext = ThemeContext,
+  E extends ThemeContext<Z> = ThemeContext<Z>,
   R extends TokenTicket = TokenTicket,
-  O extends TokenContext = TokenContext,
+  O extends TokenContext<R> = TokenContext<R>,
 > (options: ThemePluginOptions = {}): ThemePlugin {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
-  const [, provideThemeTokenContext, tokens] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })
-  const [, provideThemeContext, theme] = createTheme<Z, E>('v0:theme', { themes, tokens })
+  const [, provideThemeTokenContext, tokensContext] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })
+  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', { themes, palette })
 
   function update (colors: Record<string, Colors>) {
     adapter.update(colors)
@@ -187,14 +199,14 @@ export function createThemePlugin<
   return createPlugin<ThemePlugin>({
     namespace: 'v0:theme',
     provide: (app: App) => {
-      provideThemeContext(undefined, theme, app)
-      provideThemeTokenContext(undefined, tokens, app)
+      provideThemeContext(undefined, themeContext, app)
+      provideThemeTokenContext(undefined, tokensContext, app)
     },
     setup: () => {
       if (IN_BROWSER) {
-        watch(theme.colors, update, { immediate: true, deep: true })
+        watch(themeContext.colors, update, { immediate: true, deep: true })
       } else {
-        update(theme.colors.value)
+        update(themeContext.colors.value)
       }
     },
   })

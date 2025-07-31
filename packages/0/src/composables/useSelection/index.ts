@@ -14,7 +14,7 @@ import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/compo
 import type { ID } from '#v0/types'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 
-export type SelectionTicket = RegistryTicket & {
+export interface SelectionTicket extends RegistryTicket {
   disabled: boolean
   isActive: Readonly<Ref<boolean, boolean>>
   valueIsIndex: boolean
@@ -22,13 +22,13 @@ export type SelectionTicket = RegistryTicket & {
   toggle: () => void
 }
 
-export type SelectionContext<Z extends SelectionTicket = SelectionTicket> = RegistryContext<Z> & {
+export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
   selectedIds: Reactive<Set<ID>>
   /** Clear all selected IDs and reindexes */
   reset: () => void
 }
 
-export type SelectionOptions = RegistryOptions & {
+export interface SelectionOptions extends RegistryOptions {
   mandatory?: boolean | 'force'
   returnObject?: boolean
 }
@@ -45,7 +45,7 @@ export type SelectionOptions = RegistryOptions & {
  */
 export function useSelection<
   Z extends SelectionTicket = SelectionTicket,
-  E extends SelectionContext = SelectionContext,
+  E extends SelectionContext<Z> = SelectionContext<Z>,
 > (namespace: string): ContextTrinity<E> {
   const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
   const selectedIds = shallowReactive(new Set<ID>())
@@ -62,9 +62,9 @@ export function useSelection<
       ...registrant,
     }
 
-    const ticket = registry.register(item, id)
+    const ticket = registry.register(item, id) as Reactive<Z>
 
-    return ticket as unknown as Reactive<Z>
+    return ticket
   }
 
   function reindex () {
@@ -102,12 +102,14 @@ export function useSelection<
     reindex()
   }
 
-  return createTrinity<E>(useRegistryContext, provideRegistryContext, {
+  const context: E = {
     ...registry,
     selectedIds,
     register,
     unregister,
     reset,
     reindex,
-  } as unknown as E)
+  }
+
+  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
 }

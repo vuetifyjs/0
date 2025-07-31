@@ -4,31 +4,28 @@ import { createTrinity } from '#v0/factories/createTrinity'
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
 
-// Transformers
-import { toArray } from '#v0/transformers'
-
 // Utilities
 import { computed, getCurrentInstance, nextTick, onMounted, toValue, watch } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
+// Transformers
+import { toArray } from '#v0/transformers'
+
 // Types
 import type { App, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 
-export type GroupTicket = SelectionTicket
+export interface GroupTicket extends SelectionTicket {}
 
-export type BaseGroupContext<Z extends GroupTicket = GroupTicket> = SelectionContext<Z> & {
+export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z> {
   selectedItems: ComputedRef<Set<Z | undefined>>
   selectedIndexes: ComputedRef<Set<number>>
   selectedValues: ComputedRef<Set<unknown>>
 }
 
-export type GroupContext = RegistryContext<GroupTicket> & BaseGroupContext
-
-export type GroupOptions = SelectionOptions & {
+export interface GroupOptions extends SelectionOptions {
   multiple?: boolean
 }
 
@@ -47,7 +44,7 @@ export type GroupOptions = SelectionOptions & {
  */
 export function useGroup<
   Z extends GroupTicket = GroupTicket,
-  E extends GroupContext = GroupContext,
+  E extends GroupContext<Z> = GroupContext<Z>,
 > (
   namespace: string,
   options?: GroupOptions,
@@ -127,7 +124,7 @@ export function useGroup<
       toggle: () => select(id),
     }
 
-    const ticket = registry.register(item, id) as unknown as Reactive<Z>
+    const ticket = registry.register(item, id) as Reactive<Z>
 
     if (initialValue != null) {
       const shouldSelect = Array.isArray(initialValue)
@@ -157,7 +154,7 @@ export function useGroup<
     mandate,
     select,
     reset,
-  } as unknown as E
+  } as E
 
   function provideGroupContext (
     model?: Ref<unknown | unknown[]>,
