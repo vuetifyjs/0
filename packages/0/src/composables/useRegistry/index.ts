@@ -33,7 +33,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** Register a new item */
   register: (item?: Partial<Z>, id?: ID) => Reactive<Z>
   /** Register an array of items */
-  registerMany: (items: Partial<Z>[]) => Reactive<Z>
+  registerMany: (items: Partial<Z>[]) => Reactive<Z>[]
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */

@@ -64,10 +64,10 @@ describe('useRegistry', () => {
 
   it('should register an array of items', () => {
     const context = useRegistry('test')[2]
-    context.registerMany([{ id: 'item1' }, { id: 'item2' }, { id: 'item3', value: 'Vuetify' }])
+    const registeredItems = context.registerMany([{ id: 'item1' }, { id: 'item2' }, { id: 'item3', value: 'Vuetify' }])
 
-    expect(context.lookup(0)).toEqual('item1')
-    expect(context.lookup(1)).toEqual('item2')
-    expect(context.find('item3')).toEqual({ id: 'item3', index: 2, value: 'Vuetify' })
+    expect(registeredItems[0]).toEqual({ id: 'item1', index: 0, value: 0 })
+    expect(registeredItems[1]).toEqual({ id: 'item2', index: 1, value: 1 })
+    expect(registeredItems[2]).toEqual({ id: 'item3', index: 2, value: 'Vuetify' })
   })
 })
