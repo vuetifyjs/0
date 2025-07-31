@@ -17,7 +17,7 @@ export interface RegistryTicket {
   value: unknown
 }
 
-export interface RegistryContext<Z extends RegistryTicket> {
+export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** The reactive collection of items */
   collection: Map<ID, Z>
   /** A catalog of all values in the collection */

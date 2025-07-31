@@ -40,7 +40,7 @@
     "@vue/test-utils": "catalog:",
     "markdown": "^0.5.0",
     "markdown-it": "^14.1.0",
-    "marked": "^16.0.0",
+    "marked": "^16.1.1",
     "micromark": "^4.0.2",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
