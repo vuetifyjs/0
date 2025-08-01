@@ -1,6 +1,6 @@
 // Factories
 import { createTrinity } from '#v0/factories/createTrinity'
-import { createContext, useContext } from '#v0/factories/createContext'
+import { createContext } from '#v0/factories/createContext'
 
 // Composables
 import { useSelection } from '#v0/composables/useSelection'

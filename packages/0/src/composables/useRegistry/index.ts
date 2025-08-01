@@ -15,6 +15,7 @@ export interface RegistryTicket {
   id: ID
   index: number
   value: unknown
+  valueIsIndex: boolean
 }
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
@@ -92,11 +93,17 @@ export function useRegistry<
   function reindex () {
     directory.clear()
     catalog.clear()
+
     let index = 0
+
     for (const item of collection.values()) {
       item.index = index
+
+      if (item.valueIsIndex) item.value = index
+
       directory.set(index, item.id)
       catalog.set(item.value, item.id)
+
       index++
     }
   }
@@ -109,6 +116,7 @@ export function useRegistry<
       id,
       index: registrant.index ?? size,
       value: registrant.value ?? size,
+      valueIsIndex: registrant.value == null,
     }
     const ticket = reactive(item) as Reactive<Z>
 

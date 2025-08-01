@@ -13,7 +13,6 @@ import type { ID } from '#v0/types'
 export interface SelectionTicket extends RegistryTicket {
   disabled: boolean
   isActive: Readonly<Ref<boolean, boolean>>
-  valueIsIndex: boolean
   /** Toggle self on and off */
   toggle: () => void
 }
@@ -51,12 +50,11 @@ export function useSelection<
 
     if (!item || item.disabled) return
 
-    if (selectedIds.has(id)) {
+    if (registry.has(id)) {
       if (!mandatory || selectedIds.size > 1) {
         selectedIds.delete(id)
       }
     } else {
-      selectedIds.clear()
       selectedIds.add(id)
     }
   }
@@ -65,7 +63,6 @@ export function useSelection<
     const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       disabled: false,
-      valueIsIndex: registrant.value == null,
       ...registrant,
       id,
       isActive: toRef(() => selectedIds.has(id)),
@@ -75,34 +72,14 @@ export function useSelection<
     return registry.register(item) as Reactive<Z>
   }
 
-  function reindex () {
-    registry.directory.clear()
-    registry.catalog.clear()
-    let index = 0
-
-    for (const item of registry.collection.values()) {
-      item.index = index
-      if (item.valueIsIndex) item.value = index
-      registry.directory.set(index, item.id)
-      registry.catalog.set(item.value, item.id)
-      index++
-    }
-  }
-
   function unregister (id: ID) {
-    const item = registry.find(id)
-    if (!item) return
-
     selectedIds.delete(id)
-    registry.collection.delete(item.id)
-    registry.catalog.delete(item.value)
-    registry.directory.delete(item.index)
-    reindex()
+    registry.unregister(id)
   }
 
   function reset () {
-    selectedIds.clear()
-    reindex()
+    registry.collection.clear()
+    registry.reindex()
   }
 
   const context = {
@@ -111,7 +88,6 @@ export function useSelection<
     register,
     unregister,
     reset,
-    reindex,
     select,
   } as unknown as E
 
