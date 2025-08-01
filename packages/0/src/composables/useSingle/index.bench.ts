@@ -1,13 +1,13 @@
 // Composables
-import { useSingle } from './index'
+import { createSingleContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
 import { run, compare } from '#v0/utilities/benchmark'
 
-describe('useSingle benchmarks', () => {
+describe('createSingleContext benchmarks', () => {
   it('should benchmark registration operations', async () => {
-    const context = useSingle('benchmark-test')[2]
+    const context = createSingleContext('benchmark-test')[2]
 
     const result = await run('register 1000 single items', () => {
       for (let i = 0; i < 1000; i++) {
@@ -23,7 +23,7 @@ describe('useSingle benchmarks', () => {
   })
 
   it('should benchmark selection operations', async () => {
-    const context = useSingle('benchmark-test')[2]
+    const context = createSingleContext('benchmark-test')[2]
 
     // Pre-populate with items
     const ids: (string | number)[] = []
@@ -46,7 +46,7 @@ describe('useSingle benchmarks', () => {
   })
 
   it('should benchmark browse operations', async () => {
-    const context = useSingle('benchmark-test')[2]
+    const context = createSingleContext('benchmark-test')[2]
 
     // Pre-populate with items
     for (let i = 0; i < 1000; i++) {
@@ -67,7 +67,7 @@ describe('useSingle benchmarks', () => {
   })
 
   it('should benchmark single selection operations', async () => {
-    const context = useSingle('benchmark-test-single', {})[2]
+    const context = createSingleContext('benchmark-test-single', {})[2]
 
     // Pre-populate with items
     const ids: (string | number)[] = []
@@ -90,7 +90,7 @@ describe('useSingle benchmarks', () => {
   })
 
   it('should benchmark reset operations', async () => {
-    const context = useSingle('benchmark-test')[2]
+    const context = createSingleContext('benchmark-test')[2]
 
     // Pre-populate with items and selection
     for (let i = 0; i < 1000; i++) {
@@ -110,7 +110,7 @@ describe('useSingle benchmarks', () => {
   })
 
   it('should benchmark mandate operations', async () => {
-    const context = useSingle('benchmark-test-mandatory', { mandatory: true })[2]
+    const context = createSingleContext('benchmark-test-mandatory', { mandatory: true })[2]
 
     // Pre-populate with items
     for (let i = 0; i < 1000; i++) {
@@ -130,7 +130,7 @@ describe('useSingle benchmarks', () => {
   })
 
   it('should compare different single operation types', async () => {
-    const context = useSingle('benchmark-test')[2]
+    const context = createSingleContext('benchmark-test')[2]
 
     // Pre-populate for operations
     const items: any[] = []
@@ -141,7 +141,7 @@ describe('useSingle benchmarks', () => {
 
     const results = await compare({
       'register 100 single items': () => {
-        const ctx = useSingle('register-test')[2]
+        const ctx = createSingleContext('register-test')[2]
         for (let i = 0; i < 100; i++) {
           ctx.register({ value: `item-${i}`, disabled: false })
         }
@@ -175,7 +175,7 @@ describe('useSingle benchmarks', () => {
     console.log('Single registration performance by collection size:')
 
     for (const size of sizes) {
-      const context = useSingle(`benchmark-size-${size}`)[2]
+      const context = createSingleContext(`benchmark-size-${size}`)[2]
 
       const result = await run(`register ${size} single items`, () => {
         for (let i = 0; i < size; i++) {
@@ -200,7 +200,7 @@ describe('useSingle benchmarks', () => {
     console.log('Single registration performance by configuration:')
 
     for (const config of configs) {
-      const context = useSingle(`benchmark-config-${config.name}`, config.options)[2]
+      const context = createSingleContext(`benchmark-config-${config.name}`, config.options)[2]
 
       const result = await run(`register 500 items (${config.name})`, () => {
         for (let i = 0; i < 500; i++) {

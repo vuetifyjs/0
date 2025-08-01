@@ -1,14 +1,14 @@
 // Composables
-import { useGroup } from './index'
+import { createGroupContext } from './index'
 
 // Utilities
 import { describe, it, expect, vi } from 'vitest'
 import { ref, nextTick } from 'vue'
 
-describe('useGroup', () => {
+describe('createGroupContext', () => {
   describe('basic functionality', () => {
     it('should return createContext, provideContext, and context', () => {
-      const [useContext, provideContext, context] = useGroup('test')
+      const [useContext, provideContext, context] = createGroupContext('test')
 
       expect(typeof useContext).toBe('function')
       expect(typeof provideContext).toBe('function')
@@ -19,7 +19,7 @@ describe('useGroup', () => {
     })
 
     it('should initialize with empty context', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       expect(context.selectedIds.size).toBe(0)
       expect(context.selectedItems.value.size).toBe(0)
@@ -30,7 +30,7 @@ describe('useGroup', () => {
 
   describe('item registration', () => {
     it('should register items with default values', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       const ticket = context.register()
 
@@ -45,7 +45,7 @@ describe('useGroup', () => {
     })
 
     it('should register items with custom values', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       const ticket = context.register({
         id: 'custom-id',
@@ -61,7 +61,7 @@ describe('useGroup', () => {
     })
 
     it('should unregister items', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       context.register({ id: 'test-item' })
       expect(context.collection.size).toBe(1)
@@ -71,7 +71,7 @@ describe('useGroup', () => {
     })
 
     it('should remove from selectedIds when unregistering', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       context.register({ id: 'test-item' })
       context.select('test-item')
@@ -84,7 +84,7 @@ describe('useGroup', () => {
 
   describe('selection behavior', () => {
     it('should select and deselect items', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       const ticket1 = context.register({ id: 'item1' })
       context.register({ id: 'item2' })
@@ -99,7 +99,7 @@ describe('useGroup', () => {
     })
 
     it('should handle multiple selection array', async () => {
-      const context = useGroup('test', { multiple: true })[2]
+      const context = createGroupContext('test', { multiple: true })[2]
 
       context.register({ id: 'item1' })
       context.register({ id: 'item2' })
@@ -115,7 +115,7 @@ describe('useGroup', () => {
     })
 
     it('should skip disabled items during selection', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       context.register({ id: 'item1', disabled: true })
       context.register({ id: 'item2' })
@@ -128,7 +128,7 @@ describe('useGroup', () => {
     })
 
     it('should toggle items via ticket.toggle()', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       const ticket = context.register({ id: 'item1' })
 
@@ -142,7 +142,7 @@ describe('useGroup', () => {
 
   describe('single selection mode (default)', () => {
     it('should clear previous selection when selecting new item', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       context.register({ id: 'item1' })
       context.register({ id: 'item2' })
@@ -159,7 +159,7 @@ describe('useGroup', () => {
 
   describe('multiple selection mode', () => {
     it('should allow multiple selections', () => {
-      const context = useGroup('test-multiple', { multiple: true })[2]
+      const context = createGroupContext('test-multiple', { multiple: true })[2]
 
       context.register({ id: 'item1' })
       context.register({ id: 'item2' })
@@ -175,7 +175,7 @@ describe('useGroup', () => {
 
   describe('mandatory mode', () => {
     it('should auto-select first non-disabled item with mandatory: true', () => {
-      const context = useGroup('test-mandatory', { mandatory: true })[2]
+      const context = createGroupContext('test-mandatory', { mandatory: true })[2]
 
       context.register({ id: 'item1' })
       context.register({ id: 'item2' })
@@ -186,7 +186,7 @@ describe('useGroup', () => {
     })
 
     it('should auto-select first item with mandatory: "force"', () => {
-      const context = useGroup('test-force', { mandatory: 'force' })[2]
+      const context = createGroupContext('test-force', { mandatory: 'force' })[2]
 
       context.register({ id: 'item1', disabled: true })
       context.register({ id: 'item2' })
@@ -195,7 +195,7 @@ describe('useGroup', () => {
     })
 
     it('should prevent deselection in single selection mandatory mode', () => {
-      const context = useGroup('test-mandatory-single', { mandatory: true })[2]
+      const context = createGroupContext('test-mandatory-single', { mandatory: true })[2]
 
       context.register({ id: 'item1' })
       context.select('item1')
@@ -207,7 +207,7 @@ describe('useGroup', () => {
     })
 
     it('should prevent deselection of last item in multiple selection mandatory mode', () => {
-      const context = useGroup('test-mandatory-multiple', {
+      const context = createGroupContext('test-mandatory-multiple', {
         mandatory: true,
         multiple: true,
       })[2]
@@ -232,7 +232,7 @@ describe('useGroup', () => {
 
   describe('computed values', () => {
     it('should compute selectedItems correctly', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       context.register({ id: 'item1', value: 'value1' })
       context.register({ id: 'item2', value: 'value2' })
@@ -246,7 +246,7 @@ describe('useGroup', () => {
     })
 
     it('should compute selectedValues correctly', () => {
-      const context = useGroup('test', { multiple: true })[2]
+      const context = createGroupContext('test', { multiple: true })[2]
 
       context.register({ id: 'item1', value: 'value1' })
       context.register({ id: 'item2', value: 'value2' })
@@ -263,7 +263,7 @@ describe('useGroup', () => {
 
   describe('reset functionality', () => {
     it('should clear all selections and reindex', () => {
-      const context = useGroup('test', { multiple: true })[2]
+      const context = createGroupContext('test', { multiple: true })[2]
 
       context.register({ id: 'item1' })
       context.register({ id: 'item2' })
@@ -279,7 +279,7 @@ describe('useGroup', () => {
     it('should sync with single model value', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const model = ref('value1')
-      const [, provideContext] = useGroup('test-model')
+      const [, provideContext] = createGroupContext('test-model')
       const context = provideContext(model)
 
       context.register({ id: 'item1', value: 'value1' })
@@ -307,7 +307,7 @@ describe('useGroup', () => {
     it('should sync with multiple model values', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const model = ref(['value1', 'value2'])
-      const [, provideContext] = useGroup('test-model-multiple', { multiple: true })
+      const [, provideContext] = createGroupContext('test-model-multiple', { multiple: true })
       const context = provideContext(model)
 
       context.register({ id: 'item1', value: 'value1' })
@@ -339,7 +339,7 @@ describe('useGroup', () => {
     it('should return objects when returnObject is true', async () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const model = ref(null)
-      const [, provideContext] = useGroup('test-return-object', { returnObject: true })
+      const [, provideContext] = createGroupContext('test-return-object', { returnObject: true })
       const context = provideContext(model)
 
       context.register({ id: 'item1', value: 'value1' })
@@ -361,7 +361,7 @@ describe('useGroup', () => {
 
   describe('edge cases', () => {
     it('should handle selecting non-existent items', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       context.register({ id: 'item1' })
       context.select('non-existent')
@@ -370,7 +370,7 @@ describe('useGroup', () => {
     })
 
     it('should handle empty arrays in select', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       context.register({ id: 'item1' })
       context.select([])
@@ -379,7 +379,7 @@ describe('useGroup', () => {
     })
 
     it('should handle null/undefined values in select', () => {
-      const context = useGroup('test')[2]
+      const context = createGroupContext('test')[2]
 
       context.register({ id: 'item1' })
       context.select([null, undefined, 'item1'] as any)
@@ -389,7 +389,7 @@ describe('useGroup', () => {
     })
 
     it('should not mandate when items already selected', () => {
-      const context = useGroup('test-no-mandate', { mandatory: true })[2]
+      const context = createGroupContext('test-no-mandate', { mandatory: true })[2]
 
       context.register({ id: 'item1' })
       context.register({ id: 'item2' })
@@ -403,7 +403,7 @@ describe('useGroup', () => {
     })
 
     it('should not mandate when no items registered', () => {
-      const context = useGroup('test-no-items', { mandatory: true })[2]
+      const context = createGroupContext('test-no-items', { mandatory: true })[2]
 
       context.mandate()
 
@@ -411,7 +411,7 @@ describe('useGroup', () => {
     })
 
     it('should return ID for registered value and undefined for non-existent value', () => {
-      const group = useGroup('test-group')[2]
+      const group = createGroupContext('test-group')[2]
 
       const ticket = group.register({ value: 'test-value' })
 

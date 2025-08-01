@@ -1,5 +1,5 @@
 // Composables
-import { useRegistry } from './index'
+import { createRegistryContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
@@ -8,11 +8,11 @@ import { run, compare } from '#v0/utilities/benchmark'
 // Types
 import type { RegistryTicket } from './index'
 
-describe('useRegistry benchmarks', () => {
-  type Context = ReturnType<typeof useRegistry>[2]
+describe('createRegistryContext benchmarks', () => {
+  type Context = ReturnType<typeof createRegistryContext>[2]
 
   function createContext (name: string) {
-    return useRegistry(name)[2]
+    return createRegistryContext(name)[2]
   }
 
   function create (count: number, context: Context, idPrefix = 'item') {
@@ -159,7 +159,7 @@ describe('useRegistry benchmarks', () => {
   })
 
   it('should benchmark shallow reactivity registration operations', async () => {
-    const context = useRegistry('shallow-test')[2]
+    const context = createRegistryContext('shallow-test')[2]
 
     const result = await bench('register 1000 items (shallow)', () => {
       create(1000, context)
@@ -169,7 +169,7 @@ describe('useRegistry benchmarks', () => {
   })
 
   it('should benchmark deep reactivity registration operations', async () => {
-    const context = useRegistry('deep-test', { deep: true })[2]
+    const context = createRegistryContext('deep-test', { deep: true })[2]
 
     const result = await bench('register 1000 items (deep)', () => {
       create(1000, context)

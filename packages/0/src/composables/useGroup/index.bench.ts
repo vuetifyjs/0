@@ -1,13 +1,13 @@
 // Composables
-import { useGroup } from './index'
+import { createGroupContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
 import { run, compare } from '#v0/utilities/benchmark'
 
-describe('useGroup benchmarks', () => {
+describe('createGroupContext benchmarks', () => {
   it('should benchmark registration operations', async () => {
-    const context = useGroup('benchmark-test')[2]
+    const context = createGroupContext('benchmark-test')[2]
 
     const result = await run('register 1000 group items', () => {
       for (let i = 0; i < 1000; i++) {
@@ -23,7 +23,7 @@ describe('useGroup benchmarks', () => {
   })
 
   it('should benchmark selection operations', async () => {
-    const context = useGroup('benchmark-test')[2]
+    const context = createGroupContext('benchmark-test')[2]
 
     // Pre-populate with items
     const ids: (string | number)[] = []
@@ -46,7 +46,7 @@ describe('useGroup benchmarks', () => {
   })
 
   it('should benchmark browse operations', async () => {
-    const context = useGroup('benchmark-test')[2]
+    const context = createGroupContext('benchmark-test')[2]
 
     // Pre-populate with items
     for (let i = 0; i < 1000; i++) {
@@ -67,7 +67,7 @@ describe('useGroup benchmarks', () => {
   })
 
   it('should benchmark multiple selection operations', async () => {
-    const context = useGroup('benchmark-test-multiple', { multiple: true })[2]
+    const context = createGroupContext('benchmark-test-multiple', { multiple: true })[2]
 
     // Pre-populate with items
     const ids: (string | number)[] = []
@@ -88,7 +88,7 @@ describe('useGroup benchmarks', () => {
   })
 
   it('should benchmark reset operations', async () => {
-    const context = useGroup('benchmark-test')[2]
+    const context = createGroupContext('benchmark-test')[2]
 
     // Pre-populate with items and selections
     for (let i = 0; i < 1000; i++) {
@@ -108,7 +108,7 @@ describe('useGroup benchmarks', () => {
   })
 
   it('should benchmark mandate operations', async () => {
-    const context = useGroup('benchmark-test-mandatory', { mandatory: true })[2]
+    const context = createGroupContext('benchmark-test-mandatory', { mandatory: true })[2]
 
     // Pre-populate with items
     for (let i = 0; i < 1000; i++) {
@@ -128,7 +128,7 @@ describe('useGroup benchmarks', () => {
   })
 
   it('should compare different group operation types', async () => {
-    const context = useGroup('benchmark-test')[2]
+    const context = createGroupContext('benchmark-test')[2]
 
     // Pre-populate for operations
     const items: any[] = []
@@ -139,7 +139,7 @@ describe('useGroup benchmarks', () => {
 
     const results = await compare({
       'register 100 group items': () => {
-        const ctx = useGroup('register-test')[2]
+        const ctx = createGroupContext('register-test')[2]
         for (let i = 0; i < 100; i++) {
           ctx.register({ value: `item-${i}`, disabled: false })
         }
@@ -173,7 +173,7 @@ describe('useGroup benchmarks', () => {
     console.log('Group registration performance by collection size:')
 
     for (const size of sizes) {
-      const context = useGroup(`benchmark-size-${size}`)[2]
+      const context = createGroupContext(`benchmark-size-${size}`)[2]
 
       const result = await run(`register ${size} group items`, () => {
         for (let i = 0; i < size; i++) {
@@ -199,7 +199,7 @@ describe('useGroup benchmarks', () => {
     console.log('Group registration performance by configuration:')
 
     for (const config of configs) {
-      const context = useGroup(`benchmark-config-${config.name}`, config.options)[2]
+      const context = createGroupContext(`benchmark-config-${config.name}`, config.options)[2]
 
       const result = await run(`register 500 items (${config.name})`, () => {
         for (let i = 0; i < 500; i++) {

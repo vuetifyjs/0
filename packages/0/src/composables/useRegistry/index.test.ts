@@ -1,12 +1,12 @@
 // Composables
-import { useRegistry } from './index'
+import { createRegistryContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
 
-describe('useRegistry', () => {
+describe('createRegistryContext', () => {
   it('should register and unregister items', () => {
-    const context = useRegistry('test')[2]
+    const context = createRegistryContext('test')[2]
 
     const ticket1 = context.register({ id: 'item1' })
     expect(ticket1.id).toBe('item1')
@@ -31,7 +31,7 @@ describe('useRegistry', () => {
   })
 
   it('should auto-generate unique IDs', () => {
-    const context = useRegistry('test')[2]
+    const context = createRegistryContext('test')[2]
 
     const ticket1 = context.register()
     const ticket2 = context.register()
@@ -41,7 +41,7 @@ describe('useRegistry', () => {
   })
 
   it('should maintain correct indices after reindexing', () => {
-    const context = useRegistry('test')[2]
+    const context = createRegistryContext('test')[2]
 
     const ticket1 = context.register({ id: 'item1' })
     const ticket2 = context.register({ id: 'item2' })
@@ -63,7 +63,7 @@ describe('useRegistry', () => {
   })
 
   it('should register an array of items', () => {
-    const context = useRegistry('test')[2]
+    const context = createRegistryContext('test')[2]
     const registeredItems = context.registerMany([{ id: 'item1' }, { id: 'item2' }, { id: 'item3', value: 'Vuetify' }])
 
     expect(registeredItems[0]).toEqual({ id: 'item1', index: 0, value: 0 })

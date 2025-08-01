@@ -1,11 +1,12 @@
 // Factories
 import { createTrinity } from '#v0/factories/createTrinity'
+import { createContext, useContext } from '#v0/factories/createContext'
 
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
 
 // Utilities
-import { computed, getCurrentInstance, nextTick, onMounted, toValue, watch } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, ref, toValue, watch } from 'vue'
 import { genId } from '#v0/utilities'
 
 // Types
@@ -22,36 +23,31 @@ export interface SingleContext<Z extends SingleTicket> extends SelectionContext<
   selectedItem: ComputedRef<Z | undefined>
   selectedValue: ComputedRef<unknown>
   select: (id: ID) => void
+  mandate: () => void
 }
 
 export interface SingleOptions extends SelectionOptions {}
 
 /**
- * Creates a single-selection registry for managing selections within a specific namespace.
- * This function provides a way to register, unregister, and manage single selections,
- * allowing for dynamic single selection management in applications.
+ * Creates a single selection context for managing collections where only one item can be selected.
+ * This function extends the selection functionality with single-selection constraints.
  *
- * Built on top of useSelection with single-selection constraints.
- *
- * @param namespace The namespace for the single context.
- * @param options Optional configuration for the single behavior.
- * @template Z The type of the single items managed by the registry.
- * @template E The type of the single context.
- * @returns A tuple containing the inject function, provide function, and the single context.
+ * @param options Optional configuration for single selection behavior.
+ * @param namespace Optional namespace for context sharing.
+ * @template Z The type of items managed by the single selection.
+ * @template E The type of the single selection context.
+ * @returns The single selection context object.
  */
 export function useSingle<
   Z extends SingleTicket = SingleTicket,
   E extends SingleContext<Z> = SingleContext<Z>,
 > (
-  namespace: string,
+  model?: Ref<unknown>,
   options?: SingleOptions,
-): ContextTrinity<E> {
-  const [useRegistryContext, provideRegistryContext, registry] = useSelection<Z, E>(namespace)
-
+): E {
+  const registry = useSelection<Z, E>(options)
   const mandatory = options?.mandatory ?? false
-  const returnObject = options?.returnObject ?? false
-
-  let initialValue: unknown | unknown[] = null
+  let initialValue: unknown = toValue(model)
 
   const selectedId = computed(() => registry.selectedIds.values().next().value)
   const selectedItem = computed(() => selectedId.value ? registry.find(selectedId.value) : undefined)
@@ -62,22 +58,7 @@ export function useSingle<
     if (!mandatory || registry.selectedIds.size > 0 || registry.collection.size === 0) return
 
     const firstId = registry.lookup(0)
-    if (firstId) select(firstId)
-  }
-
-  function select (id: ID) {
-    const item = registry.find(id)
-
-    if (!item || item.disabled) return
-
-    if (registry.selectedIds.has(id)) {
-      if (!mandatory || registry.selectedIds.size > 1) {
-        registry.selectedIds.delete(id)
-      }
-    } else {
-      registry.selectedIds.clear()
-      registry.selectedIds.add(id)
-    }
+    if (firstId) registry.select(firstId)
   }
 
   function register (registrant: Partial<Z> = {}): Reactive<Z> {
@@ -85,13 +66,13 @@ export function useSingle<
     const item: Partial<Z> = {
       ...registrant,
       id,
-      toggle: () => select(id),
+      toggle: () => registry.select(id),
     }
 
     const ticket = registry.register(item) as Reactive<Z>
 
     if (initialValue != null && initialValue === ticket.value) {
-      select(id)
+      registry.select(id)
     }
 
     if (mandatory === 'force') mandate()
@@ -111,40 +92,63 @@ export function useSingle<
     selectedItem,
     selectedIndex,
     selectedValue,
-    select,
     mandate,
     register,
-  } as E
+  } as unknown as E
+
+  return context
+}
+
+/**
+ * Creates a single selection context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the single selection context.
+ * @param options Optional configuration for single selection behavior.
+ * @template Z The type of items managed by the single selection.
+ * @template E The type of the single selection context.
+ * @returns A tuple containing the inject function, provide function, and the single selection context.
+ */
+export function createSingleContext<
+  Z extends SingleTicket = SingleTicket,
+  E extends SingleContext<Z> = SingleContext<Z>,
+> (
+  namespace = 'v0:single',
+  options?: SingleOptions,
+): ContextTrinity<E> {
+  const [useSingleContext, _provideSingleContext] = createContext<E>(namespace)
+
+  const model = ref(undefined) as Ref<unknown>
+  const context = useSingle<Z, E>(model, options)
 
   function provideSingleContext (
     model?: Ref<unknown>,
     _context: E = context,
     app?: App,
-  ) {
+  ): E {
     let isUpdatingModel = false
 
     if (model) {
-      initialValue = toValue(model)
-
-      watch(selectedId, id => {
+      const returnObject = options?.returnObject ?? false
+      watch(_context.selectedId, id => {
         if (isUpdatingModel) return
 
-        const target = returnObject ? selectedItem : selectedValue
+        const target = returnObject ? _context.selectedItem : _context.selectedValue
 
         model.value = id ? target.value : null
       })
 
-      watch(model, async value => {
+      watch(model, value => {
         if (isUpdatingModel) return
 
-        const id = registry.browse(value)
+        const id = _context.browse(value)
 
-        if (!id || selectedId.value === id) return
+        if (!id || _context.selectedId.value === id) return
 
-        select(id)
+        _context.select(id)
       })
 
-      watch([model, selectedId], async () => {
+      watch([model, _context.selectedId], async () => {
         isUpdatingModel = true
 
         await nextTick()
@@ -153,8 +157,8 @@ export function useSingle<
       })
     }
 
-    return provideRegistryContext(model, _context, app)
+    return _provideSingleContext(_context, app)
   }
 
-  return createTrinity<E>(useRegistryContext, provideSingleContext, context)
+  return createTrinity<E>(useSingleContext, provideSingleContext, context)
 }

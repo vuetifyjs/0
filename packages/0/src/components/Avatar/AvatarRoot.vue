@@ -3,7 +3,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { useRegistry } from '#v0/composables'
+  import { createRegistryContext } from '#v0/composables'
 
   // Utilities
   import { computed, toRef } from 'vue'
@@ -32,7 +32,7 @@
     reset: () => void
   }
 
-  export const [useAvatarContext, provideAvatarContext, registry] = useRegistry<AvatarTicket, AvatarContext>('avatar')
+  export const [useAvatarContext, provideAvatarContext, registry] = createRegistryContext<AvatarTicket, AvatarContext>('avatar')
 </script>
 
 <script setup lang="ts">

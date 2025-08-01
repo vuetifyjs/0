@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useStep } from './index'
+import { createStepContext } from './index'
 
-describe('useStep', () => {
+describe('createStepContext', () => {
   describe('basic functionality', () => {
     it('should initialize with empty state', () => {
-      const state = useStep('test')[2]
+      const state = createStepContext('test')[2]
 
       expect(state.selectedIds.size).toBe(0)
       expect(state.collection.size).toBe(0)
@@ -14,7 +14,7 @@ describe('useStep', () => {
 
   describe('item registration', () => {
     it('should register items with step functionality', () => {
-      const [, provideStepContext, state] = useStep('test')
+      const [, provideStepContext, state] = createStepContext('test')
       const context = provideStepContext()
 
       const ticket = context.register()
@@ -35,7 +35,7 @@ describe('useStep', () => {
     let state: any
 
     beforeEach(() => {
-      const result = useStep('test')
+      const result = createStepContext('test')
       const [, provideStep] = result
       state = result[2]
       context = provideStep()

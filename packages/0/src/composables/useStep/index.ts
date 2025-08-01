@@ -1,8 +1,9 @@
 // Factories
 import { createTrinity } from '#v0/factories/createTrinity'
+import { useContext } from '#v0/factories/createContext'
 
 // Composables
-import { useSingle } from '#v0/composables/useSingle'
+import { createSingleContext } from '#v0/composables/useSingle'
 
 // Types
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
@@ -20,25 +21,14 @@ export type StepContext<Z extends StepTicket> = SingleContext<Z> & {
 
 export interface StepOptions extends SingleOptions {}
 
-/**
- * Creates a step registry for managing step navigation within a specific namespace.
- * This function provides sequential navigation through steps with utility methods
- * for moving forward, backward, jumping to specific positions, and wrapping around disabled items.
- *
- * @param namespace The namespace for the step context.
- * @param options Optional configuration for the step behavior.
- * @template Z The type of the step items managed by the registry.
- * @template E The type of the step context.
- * @returns A tuple containing the inject function, provide function, and the step context.
- */
-export function useStep<
+export function createStepContext<
   Z extends StepTicket = StepTicket,
   E extends StepContext<Z> = StepContext<Z>,
 > (
-  namespace: string,
+  namespace = 'v0:step',
   options?: StepOptions,
 ): ContextTrinity<E> {
-  const [useStepContext, provideStepContext, registry] = useSingle<Z, E>(namespace, options)
+  const [useStepContext, provideStepContext, registry] = createSingleContext<Z, E>(namespace, options)
 
   function first () {
     if (registry.collection.size === 0) return
@@ -93,14 +83,18 @@ export function useStep<
     registry.select(id)
   }
 
-  const context: E = {
+  const context = {
     ...registry,
     first,
     last,
     next,
     prev,
     step,
-  }
+  } as unknown as E
 
   return createTrinity<E>(useStepContext, provideStepContext, context)
+}
+
+export function useStep (namespace = 'v0:step'): StepContext<StepTicket> {
+  return useContext<StepContext<StepTicket>>(namespace)()
 }

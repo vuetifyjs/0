@@ -1,5 +1,6 @@
 // Factories
 import { createTrinity } from '#v0/factories/createTrinity'
+import { createContext } from '#v0/factories/createContext'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
@@ -11,6 +12,7 @@ import { isObject, isString } from '#v0/utilities'
 // Types
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { App } from 'vue'
 
 export interface TokenAlias {
   [key: string]: any
@@ -38,28 +40,21 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
 
 /**
  * Creates a token registry for managing design token collections with alias resolution.
- * Supports nested token structures and cross-references following design token specification patterns.
+ * Returns the token context directly for simple usage.
  *
- * @param namespace The namespace for the token registry context
  * @param tokens An optional collection of tokens to initialize
  * @template Z The structure of the registry token items.
  * @template E The available methods for the token's context.
- * @returns A trinity of provide/inject methods & context
- *
- * @see Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references
- * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ * @returns The token context object.
  */
 export function useTokens<
   Z extends TokenTicket = TokenTicket,
   E extends TokenContext<Z> = TokenContext<Z>,
-> (
-  namespace: string,
-  tokens: TokenCollection = {},
-): ContextTrinity<E> {
+> (tokens: TokenCollection = {}): E {
   const logger = useLogger()
   const cache = new Map<string, string | undefined>()
 
-  const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
+  const registry = useRegistry<Z, E>()
 
   for (const { id, value } of flatten(tokens)) {
     registry.register({ value, id } as Partial<Z>)
@@ -105,7 +100,35 @@ export function useTokens<
     resolve,
   }
 
-  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
+  return context
+}
+
+/**
+ * Creates a token registry context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the token registry context
+ * @param tokens An optional collection of tokens to initialize
+ * @template Z The structure of the registry token items.
+ * @template E The available methods for the token's context.
+ * @returns A tuple containing the inject function, provide function, and the token context.
+ */
+export function createTokensContext<
+  Z extends TokenTicket = TokenTicket,
+  E extends TokenContext<Z> = TokenContext<Z>,
+> (
+  namespace: string,
+  tokens: TokenCollection = {},
+): ContextTrinity<E> {
+  const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
+
+  const context = useTokens<Z, E>(tokens)
+
+  function provideTokensContext (_: unknown, _context: E = context, app?: App): E {
+    return _provideTokensContext(_context, app)
+  }
+
+  return createTrinity<E>(useTokensContext, provideTokensContext, context)
 }
 
 /**
