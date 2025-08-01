@@ -24,6 +24,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   catalog: Map<unknown, ID>
   /** A directory of all indexes in the collection */
   directory: Map<number, ID>
+  /** Clear the entire registry */
+  clear: () => void
   /** Check if an item exists by id */
   has: (id: ID) => boolean
   /** Browse for an ID by value */
@@ -81,6 +83,12 @@ export function useRegistry<
     return collection.has(id)
   }
 
+  function clear () {
+    collection.clear()
+    catalog.clear()
+    directory.clear()
+  }
+
   function reindex () {
     directory.clear()
     catalog.clear()
@@ -128,6 +136,7 @@ export function useRegistry<
     catalog,
     directory,
     has,
+    clear,
     browse,
     lookup,
     find,

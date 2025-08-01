@@ -105,5 +105,20 @@ describe('useRegistry', () => {
       expect(registry.lookup(2)).toBeUndefined()
       expect(registry.find('item-1')?.index).toBe(0)
     })
+
+    it('should clear the entire registry', () => {
+      const registry = useRegistry()
+      registry.register()
+
+      expect(registry.collection.size).toBe(1)
+      expect(registry.catalog.size).toBe(1)
+      expect(registry.directory.size).toBe(1)
+
+      registry.clear()
+
+      expect(registry.collection.size).toBe(0)
+      expect(registry.catalog.size).toBe(0)
+      expect(registry.directory.size).toBe(0)
+    })
   })
 })
