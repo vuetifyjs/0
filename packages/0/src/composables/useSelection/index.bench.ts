@@ -1,5 +1,5 @@
 // Composables
-import { useSelection } from './index'
+import { createSelectionContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
@@ -8,17 +8,19 @@ import { run, compare } from '#v0/utilities/benchmark'
 // Types
 import type { SelectionTicket } from './index'
 
-describe('useSelection benchmarks', () => {
-  type Context = ReturnType<typeof useSelection>[2]
+describe('createSelectionContext benchmarks', () => {
+  type Context = ReturnType<typeof createSelectionContext>[2]
 
   function createContext (name: string) {
-    return useSelection(name)[2]
+    return createSelectionContext(name)[2]
   }
 
   function create (count: number, context: Context, idPrefix = 'item') {
     const tickets: SelectionTicket[] = []
     for (let i = 0; i < count; i++) {
-      tickets.push(context.register({ id: `${idPrefix}-${i}` }))
+      const ticket = context.register({ id: `${idPrefix}-${i}` })
+
+      tickets.push(ticket as unknown as SelectionTicket)
     }
     return tickets
   }
@@ -136,9 +138,9 @@ describe('useSelection benchmarks', () => {
   })
 
   it('should benchmark selection vs registry performance', async () => {
-    const selectionContext = useSelection('selection-perf')[2]
-    const { useRegistry } = await import('#v0/composables/useRegistry')
-    const registryContext = useRegistry('registry-perf')[2]
+    const selectionContext = createSelectionContext('selection-perf')[2]
+    const { createRegistryContext } = await import('#v0/composables/useRegistry')
+    const registryContext = createRegistryContext('registry-perf')[2]
 
     const selectionResult = await bench('selection register 1000 items', () => {
       for (let i = 0; i < 1000; i++) {

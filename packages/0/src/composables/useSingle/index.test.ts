@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { useSingle } from './index'
+import { createSingleContext } from './index'
 
-describe('useSingle', () => {
+describe('createSingleContext', () => {
   describe('basic functionality', () => {
     it('should initialize with empty state', () => {
-      const state = useSingle('test')[2]
+      const state = createSingleContext('test')[2]
 
       expect(state.selectedIds.size).toBe(0)
       expect(state.collection.size).toBe(0)
@@ -13,7 +13,7 @@ describe('useSingle', () => {
 
   describe('selection behavior', () => {
     it('should provide singular selectedId, selectedItem, and selectedValue', () => {
-      const [, provideCtx, context] = useSingle('test')
+      const [, provideCtx, context] = createSingleContext('test')
       const groupContext = provideCtx()
 
       expect(context.selectedId.value).toBeUndefined()

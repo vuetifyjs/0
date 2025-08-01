@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest'
 
 describe('useSelection', () => {
   it('should add selection properties to registered items', () => {
-    const context = useSelection('test')[2]
+    const context = useSelection()
 
     const ticket = context.register({ id: 'item1' })
 
@@ -18,7 +18,7 @@ describe('useSelection', () => {
   })
 
   it('should toggle selection state correctly', () => {
-    const context = useSelection('test')[2]
+    const context = useSelection()
 
     const ticket1 = context.register({ id: 'item1' })
     const ticket2 = context.register({ id: 'item2' })
@@ -47,7 +47,7 @@ describe('useSelection', () => {
   })
 
   it('should clean up selectedIds when unregistering items', () => {
-    const context = useSelection('test')[2]
+    const context = useSelection()
 
     const ticket1 = context.register({ id: 'item1' })
     const ticket2 = context.register({ id: 'item2' })
@@ -63,7 +63,7 @@ describe('useSelection', () => {
   })
 
   it('should reset selection state and reindex', () => {
-    const context = useSelection('test')[2]
+    const context = useSelection()
 
     const ticket1 = context.register({ id: 'item1' })
     const ticket2 = context.register({ id: 'item2' })
@@ -84,7 +84,7 @@ describe('useSelection', () => {
   })
 
   it('should handle disabled state in registration', () => {
-    const context = useSelection('test')[2]
+    const context = useSelection()
 
     const ticket1 = context.register({ id: 'item1', disabled: true })
     const ticket2 = context.register({ id: 'item2', disabled: false })
@@ -94,7 +94,7 @@ describe('useSelection', () => {
   })
 
   it('should handle valueIsIndex property correctly', () => {
-    const context = useSelection('test')[2]
+    const context = useSelection()
 
     const ticket1 = context.register({ id: 'item1' })
     const ticket2 = context.register({ id: 'item2', value: 'custom' })
@@ -104,7 +104,7 @@ describe('useSelection', () => {
   })
 
   it('should maintain reactive isActive state', () => {
-    const context = useSelection('test')[2]
+    const context = useSelection()
 
     const ticket = context.register({ id: 'item1' })
 

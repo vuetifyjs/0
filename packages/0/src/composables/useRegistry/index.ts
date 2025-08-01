@@ -24,6 +24,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   catalog: Map<unknown, ID>
   /** A directory of all indexes in the collection */
   directory: Map<number, ID>
+  /** Check if an item exists by id */
+  has: (id: ID) => boolean
   /** Browse for an ID by value */
   browse: (value: unknown) => ID | undefined
   /** lookup a ticket by index number */
@@ -54,17 +56,12 @@ export interface RegistryOptions {
  * @param options Optional configuration for reactivity behavior.
  * @template Z The type of items managed by the registry.
  * @template E The type of the registry context.
- * @returns A tuple containing the inject function, provide function, and the registry context.
+ * @returns The registry context object.
  */
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
   E extends RegistryContext<Z> = RegistryContext<Z>,
-> (
-  namespace: string,
-  options?: RegistryOptions,
-): ContextTrinity<E> {
-  const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
-
+> (options?: RegistryOptions): E {
   const reactivity = options?.deep ? reactive : shallowReactive
   const collection = reactivity(new Map<ID, Z>())
   const catalog = new Map<unknown, ID>()
@@ -80,6 +77,10 @@ export function useRegistry<
 
   function lookup (index: number) {
     return directory.get(index)
+  }
+
+  function has (id: ID) {
+    return collection.has(id)
   }
 
   function reindex () {
@@ -132,6 +133,7 @@ export function useRegistry<
     collection,
     catalog,
     directory,
+    has,
     browse,
     lookup,
     find,
@@ -140,6 +142,30 @@ export function useRegistry<
     unregister,
     reindex,
   } as unknown as E
+
+  return context
+}
+
+/**
+ * Creates a registry context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the registry context.
+ * @param options Optional configuration for reactivity behavior.
+ * @template Z The type of items managed by the registry.
+ * @template E The type of the registry context.
+ * @returns A tuple containing the inject function, provide function, and the registry context.
+ */
+export function createRegistryContext<
+  Z extends RegistryTicket = RegistryTicket,
+  E extends RegistryContext<Z> = RegistryContext<Z>,
+> (
+  namespace: string,
+  options?: RegistryOptions,
+): ContextTrinity<E> {
+  const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
+
+  const context = useRegistry<Z, E>(options)
 
   function provideRegistryContext (_: unknown, _context: E = context, app?: App): E {
     return _provideRegistryContext(_context, app)

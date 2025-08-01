@@ -1,11 +1,12 @@
 // Factories
 import { createTrinity } from '#v0/factories/createTrinity'
+import { createContext, useContext } from '#v0/factories/createContext'
 
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
 
 // Utilities
-import { computed, getCurrentInstance, nextTick, onMounted, toValue, watch } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, ref, toValue, watch } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Transformers
@@ -23,39 +24,22 @@ export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z>
   selectedItems: ComputedRef<Set<Z | undefined>>
   selectedIndexes: ComputedRef<Set<number>>
   selectedValues: ComputedRef<Set<unknown>>
+  select: (ids: ID | ID[]) => void
+  mandate: () => void
 }
 
-export interface GroupOptions extends SelectionOptions {
-  multiple?: boolean
-}
+export interface GroupOptions extends SelectionOptions {}
 
-/**
- * Creates a group registry for managing multi-selection within a specific namespace.
- * This function provides a way to register, unregister, and manage group selections
- * with support for mandatory selection and multiple selection modes.
- *
- * @param namespace The namespace for the group context.
- * @param options Optional configuration for the group behavior.
- * @template Z The type of the group items managed by the registry.
- * @template E The type of the group context.
- * @returns A tuple containing the inject function, provide function, and the group context.
- *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
- */
 export function useGroup<
   Z extends GroupTicket = GroupTicket,
   E extends GroupContext<Z> = GroupContext<Z>,
 > (
-  namespace: string,
+  model?: Ref<unknown[]>,
   options?: GroupOptions,
-): ContextTrinity<E> {
-  const [useRegistryContext, provideRegistryContext, registry] = useSelection<Z, E>(namespace)
-
+): E {
+  const registry = useSelection<Z, E>(options)
   const mandatory = options?.mandatory ?? false
-  const multiple = options?.multiple ?? false
-  const returnObject = options?.returnObject ?? false
-
-  let initialValue: unknown | unknown[] = null
+  let initialValue: unknown | unknown[] = toValue(model)
 
   const selectedIndexes = computed(() => {
     return new Set(
@@ -90,26 +74,20 @@ export function useGroup<
   }
 
   function select (ids: ID | ID[]) {
-    for (const id of toArray<ID>(ids)) {
+    for (const id of toArray(ids)) {
       const item = registry.find(id)
-
       if (!item || item.disabled) continue
 
       const hasId = registry.selectedIds.has(id)
 
       if (hasId) {
-        if (mandatory) {
-          // For single selection, can't deselect if it's the only one
-          if (!multiple) continue
-          // For multiple selection, can't deselect if it's the last one
-          if (registry.selectedIds.size === 1) continue
+        if (mandatory && registry.selectedIds.size === 1) {
+          continue
         }
+
         registry.selectedIds.delete(id)
       } else {
-        if (!multiple) {
-          // Clear all selections first in single selection mode
-          registry.selectedIds.clear()
-        }
+        registry.selectedIds.clear()
         registry.selectedIds.add(id)
       }
     }
@@ -130,7 +108,7 @@ export function useGroup<
         ? initialValue.includes(ticket.value)
         : initialValue === ticket.value
 
-      if (shouldSelect) select(ticket.id)
+      if (shouldSelect) select(id)
     }
 
     if (mandatory === 'force') mandate()
@@ -153,7 +131,22 @@ export function useGroup<
     mandate,
     select,
     reset,
-  } as E
+  } as unknown as E
+
+  return context
+}
+
+export function createGroupContext<
+  Z extends GroupTicket = GroupTicket,
+  E extends GroupContext<Z> = GroupContext<Z>,
+> (
+  namespace = 'v0:group',
+  options?: GroupOptions,
+): ContextTrinity<E> {
+  const [useGroupContext, _provideGroupContext] = createContext<E>(namespace)
+
+  const model = ref([]) as Ref<unknown[]>
+  const context = useGroup<Z, E>(model, options)
 
   function provideGroupContext (
     model?: Ref<unknown | unknown[]>,
@@ -163,37 +156,35 @@ export function useGroup<
     let isUpdatingModel = false
 
     if (model) {
-      initialValue = toValue(model)
+      const returnObject = options?.returnObject ?? false
 
-      watch(registry.selectedIds, () => {
+      watch(_context.selectedIds, () => {
         if (isUpdatingModel) return
 
-        const target = returnObject ? selectedItems : selectedValues
+        const target = returnObject ? _context.selectedItems : _context.selectedValues
 
-        model.value = multiple
-          ? Array.from(target.value)
-          : target.value.values().next().value
+        model.value = Array.from(target.value)
       })
 
       watch(model, async value => {
         if (isUpdatingModel) return
 
-        const values = new Set(Array.isArray(value) ? value : [value])
+        const values = new Set(toArray(value))
 
-        if ((selectedValues.value.symmetricDifference(values)).size === 0) return
+        if ((_context.selectedValues.value.symmetricDifference(values)).size === 0) return
 
-        registry.selectedIds.clear()
+        _context.selectedIds.clear()
 
         for (const value of values) {
-          const id = registry.browse(value)
+          const id = _context.browse(value)
 
           if (!id) continue
 
-          registry.selectedIds.add(id)
+          _context.selectedIds.add(id)
         }
       })
 
-      watch([model, registry.selectedIds], async () => {
+      watch([model, _context.selectedIds], async () => {
         isUpdatingModel = true
 
         await nextTick()
@@ -202,8 +193,8 @@ export function useGroup<
       })
     }
 
-    return provideRegistryContext(model, _context, app)
+    return _provideGroupContext(_context, app)
   }
 
-  return createTrinity<E>(useRegistryContext, provideGroupContext, context)
+  return createTrinity<E>(useGroupContext, provideGroupContext, context)
 }

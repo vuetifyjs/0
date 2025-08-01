@@ -1,6 +1,3 @@
-// Factories
-import { createTrinity } from '#v0/factories/createTrinity'
-
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
@@ -12,7 +9,6 @@ import { genId } from '#v0/utilities/helpers'
 import type { Reactive, Ref } from 'vue'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export interface SelectionTicket extends RegistryTicket {
   disabled: boolean
@@ -34,21 +30,36 @@ export interface SelectionOptions extends RegistryOptions {
 }
 
 /**
- * Creates a selection registry for managing selectable items within a specific namespace.
- * This function provides a base selection system with registration, toggling, and state management
- * for building more complex selection patterns.
+ * Creates a selection context for managing collections of selectable items.
+ * This function extends the registry functionality with selection state management.
  *
- * @param namespace The namespace for the selection context.
- * @template Z The type of the selection items managed by the registry.
+ * @param options Optional configuration for selection behavior.
+ * @template Z The type of items managed by the selection.
  * @template E The type of the selection context.
- * @returns A tuple containing the inject function, provide function, and the selection context.
+ * @returns The selection context object.
  */
 export function useSelection<
   Z extends SelectionTicket = SelectionTicket,
   E extends SelectionContext<Z> = SelectionContext<Z>,
-> (namespace: string): ContextTrinity<E> {
-  const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
+> (options?: SelectionOptions): E {
+  const registry = useRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
+  const mandatory = options?.mandatory ?? false
+
+  function select (id: ID) {
+    const item = registry.find(id)
+
+    if (!item || item.disabled) return
+
+    if (selectedIds.has(id)) {
+      if (!mandatory || selectedIds.size > 1) {
+        selectedIds.delete(id)
+      }
+    } else {
+      selectedIds.clear()
+      selectedIds.add(id)
+    }
+  }
 
   function register (registrant: Partial<Z> = {}): Reactive<Z> {
     const id = registrant.id ?? genId()
@@ -58,15 +69,10 @@ export function useSelection<
       ...registrant,
       id,
       isActive: toRef(() => selectedIds.has(id)),
-      toggle: () => {
-        if (selectedIds.has(id)) selectedIds.delete(id)
-        else selectedIds.add(id)
-      },
+      toggle: () => select(id),
     }
 
-    const ticket = registry.register(item) as Reactive<Z>
-
-    return ticket
+    return registry.register(item) as Reactive<Z>
   }
 
   function reindex () {
@@ -76,9 +82,7 @@ export function useSelection<
 
     for (const item of registry.collection.values()) {
       item.index = index
-
       if (item.valueIsIndex) item.value = index
-
       registry.directory.set(index, item.id)
       registry.catalog.set(item.value, item.id)
       index++
@@ -87,15 +91,12 @@ export function useSelection<
 
   function unregister (id: ID) {
     const item = registry.find(id)
-
     if (!item) return
 
     selectedIds.delete(id)
-
     registry.collection.delete(item.id)
     registry.catalog.delete(item.value)
     registry.directory.delete(item.index)
-
     reindex()
   }
 
@@ -104,14 +105,15 @@ export function useSelection<
     reindex()
   }
 
-  const context: E = {
+  const context = {
     ...registry,
     selectedIds,
     register,
     unregister,
     reset,
     reindex,
-  }
+    select,
+  } as unknown as E
 
-  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
+  return context
 }

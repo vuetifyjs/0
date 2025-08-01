@@ -1,13 +1,13 @@
 // Composables
-import { useStep } from './index'
+import { createStepContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
 import { run, compare } from '#v0/utilities/benchmark'
 
-describe('useStep benchmarks', () => {
+describe('createStepContext benchmarks', () => {
   it('should benchmark registration operations', async () => {
-    const context = useStep('benchmark-test')[2]
+    const context = createStepContext('benchmark-test')[2]
 
     const result = await run('register 1000 step items', () => {
       for (let i = 0; i < 1000; i++) {
@@ -23,7 +23,7 @@ describe('useStep benchmarks', () => {
   })
 
   it('should benchmark selection operations', async () => {
-    const context = useStep('benchmark-test')[2]
+    const context = createStepContext('benchmark-test')[2]
 
     // Pre-populate with items
     const ids: (string | number)[] = []
@@ -46,7 +46,7 @@ describe('useStep benchmarks', () => {
   })
 
   it('should benchmark browse operations', async () => {
-    const context = useStep('benchmark-test')[2]
+    const context = createStepContext('benchmark-test')[2]
 
     // Pre-populate with items
     for (let i = 0; i < 1000; i++) {
@@ -67,7 +67,7 @@ describe('useStep benchmarks', () => {
   })
 
   it('should benchmark step navigation operations', async () => {
-    const context = useStep('benchmark-test-step', {})[2]
+    const context = createStepContext('benchmark-test-step', {})[2]
 
     // Pre-populate with items
     for (let i = 0; i < 100; i++) {
@@ -91,7 +91,7 @@ describe('useStep benchmarks', () => {
   })
 
   it('should benchmark reset operations', async () => {
-    const context = useStep('benchmark-test')[2]
+    const context = createStepContext('benchmark-test')[2]
 
     // Pre-populate with items and selection
     for (let i = 0; i < 1000; i++) {
@@ -111,7 +111,7 @@ describe('useStep benchmarks', () => {
   })
 
   it('should benchmark mandate operations', async () => {
-    const context = useStep('benchmark-test-mandatory', { mandatory: true })[2]
+    const context = createStepContext('benchmark-test-mandatory', { mandatory: true })[2]
 
     // Pre-populate with items
     for (let i = 0; i < 1000; i++) {
@@ -131,7 +131,7 @@ describe('useStep benchmarks', () => {
   })
 
   it('should compare different step operation types', async () => {
-    const context = useStep('benchmark-test')[2]
+    const context = createStepContext('benchmark-test')[2]
 
     // Pre-populate for operations
     const items: any[] = []
@@ -142,7 +142,7 @@ describe('useStep benchmarks', () => {
 
     const results = await compare({
       'register 100 step items': () => {
-        const ctx = useStep('register-test')[2]
+        const ctx = createStepContext('register-test')[2]
         for (let i = 0; i < 100; i++) {
           ctx.register({ value: `item-${i}`, disabled: false })
         }
@@ -197,7 +197,7 @@ describe('useStep benchmarks', () => {
     console.log('Step registration performance by collection size:')
 
     for (const size of sizes) {
-      const context = useStep(`benchmark-size-${size}`)[2]
+      const context = createStepContext(`benchmark-size-${size}`)[2]
 
       const result = await run(`register ${size} step items`, () => {
         for (let i = 0; i < size; i++) {
@@ -222,7 +222,7 @@ describe('useStep benchmarks', () => {
     console.log('Step registration performance by configuration:')
 
     for (const config of configs) {
-      const context = useStep(`benchmark-config-${config.name}`, config.options)[2]
+      const context = createStepContext(`benchmark-config-${config.name}`, config.options)[2]
 
       const result = await run(`register 500 items (${config.name})`, () => {
         for (let i = 0; i < 500; i++) {
@@ -237,7 +237,7 @@ describe('useStep benchmarks', () => {
   })
 
   it('should benchmark step navigation with disabled items', async () => {
-    const context = useStep('benchmark-disabled')[2]
+    const context = createStepContext('benchmark-disabled')[2]
 
     // Pre-populate with items, some disabled
     for (let i = 0; i < 100; i++) {
@@ -261,11 +261,11 @@ describe('useStep benchmarks', () => {
   })
 
   it('should benchmark step vs single performance comparison', async () => {
-    const { useSingle } = await import('#v0/composables/useSingle')
+    const { createSingleContext } = await import('#v0/composables/useSingle')
 
     const results = await compare({
-      'useStep selection': () => {
-        const ctx = useStep('step-overhead')[2]
+      'createStepContext selection': () => {
+        const ctx = createStepContext('step-overhead')[2]
         const ids: (string | number)[] = []
 
         // Register items
@@ -279,8 +279,8 @@ describe('useStep benchmarks', () => {
           ctx.select(id)
         }
       },
-      'useSingle selection': () => {
-        const ctx = useSingle('single-overhead')[2]
+      'createSingleContext selection': () => {
+        const ctx = createSingleContext('single-overhead')[2]
         const ids: (string | number)[] = []
 
         // Register items
@@ -294,8 +294,8 @@ describe('useStep benchmarks', () => {
           ctx.select(id)
         }
       },
-      'useStep navigation': () => {
-        const ctx = useStep('step-nav-overhead')[2]
+      'createStepContext navigation': () => {
+        const ctx = createStepContext('step-nav-overhead')[2]
 
         // Register items
         for (let i = 0; i < 100; i++) {
@@ -314,14 +314,14 @@ describe('useStep benchmarks', () => {
 
     expect(results).toHaveLength(3)
 
-    console.log('useStep vs useSingle performance comparison:')
+    console.log('createStepContext vs createSingleContext performance comparison:')
     for (const [index, result] of results.entries()) {
       console.log(`${index + 1}. ${result.name}: ${result.ops} ops/sec`)
     }
 
-    const stepPerf = results.find(r => r.name.includes('useStep selection'))!
-    const singlePerf = results.find(r => r.name.includes('useSingle'))!
+    const stepPerf = results.find(r => r.name.includes('createStepContext selection'))!
+    const singlePerf = results.find(r => r.name.includes('createSingleContext'))!
     const overhead = ((singlePerf.ops - stepPerf.ops) / singlePerf.ops * 100).toFixed(2)
-    console.log(`Performance difference: ${overhead}% ${overhead.startsWith('-') ? 'faster' : 'slower'} than useSingle`)
+    console.log(`Performance difference: ${overhead}% ${overhead.startsWith('-') ? 'faster' : 'slower'} than createSingleContext`)
   })
 })

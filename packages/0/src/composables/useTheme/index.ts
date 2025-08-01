@@ -4,8 +4,8 @@ import { createTrinity } from '#v0/factories/createTrinity'
 import { useContext } from '#v0/factories/createContext'
 
 // Composables
-import { useSingle } from '#v0/composables/useSingle'
-import { useTokens } from '#v0/composables/useTokens'
+import { createSingleContext } from '#v0/composables/useSingle'
+import { createTokensContext } from '#v0/composables/useTokens'
 
 // Utilities
 import { computed, watch } from 'vue'
@@ -74,7 +74,7 @@ export function createTheme<
   options: ThemeOptions = {},
 ): ContextTrinity<E> {
   const { themes = {}, palette = {} } = options
-  const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
+  const [useThemeContext, provideThemeContext, registry] = createSingleContext<Z, E>(namespace)
 
   for (const id in themes) {
     registry.register({ value: themes[id], id } as Partial<Z>)
@@ -188,7 +188,7 @@ export function createThemePlugin<
   O extends TokenContext<R> = TokenContext<R>,
 > (options: ThemePluginOptions = {}): ThemePlugin {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
-  const [, provideThemeTokenContext, tokensContext] = useTokens<R, O>('v0:theme:tokens', { palette, ...themes })
+  const [, provideThemeTokenContext, tokensContext] = createTokensContext<R, O>('v0:theme:tokens', { palette, ...themes })
   const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', { themes, palette })
 
   function update (colors: Record<string, Colors>) {
