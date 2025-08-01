@@ -5,7 +5,8 @@ import { createTrinity } from '#v0/factories/createTrinity'
 import { useGroup } from '#v0/composables/useGroup'
 
 // Utilities
-import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, type Reactive } from 'vue'
+import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, type Reactive, onUnmounted, onMounted } from 'vue'
+import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
 import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
@@ -52,6 +53,22 @@ export function useLayout<
   const sizes = shallowReactive(new Map<ID, number>())
   const height = shallowRef(0)
   const width = shallowRef(0)
+
+  if (IN_BROWSER) {
+    function resize () {
+      height.value = window.innerHeight
+      width.value = window.innerWidth
+    }
+
+    onMounted(() => {
+      resize()
+      window.addEventListener('resize', resize)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', resize)
+    })
+  }
 
   const bounds = {
     top: computed(() => sum('top')),
