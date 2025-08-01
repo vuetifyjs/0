@@ -110,9 +110,20 @@ export function useLayout<
     return ticket
   }
 
+  function unregister (id: ID) {
+    const item = registry.find(id)
+
+    if (!item) return
+
+    sizes.delete(id)
+
+    registry.unregister(id)
+  }
+
   const context = {
     ...registry,
     register,
+    unregister,
     bounds,
     main,
     sizes,
