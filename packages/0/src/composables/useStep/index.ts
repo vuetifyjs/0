@@ -1,11 +1,12 @@
 // Factories
 import { createTrinity } from '#v0/factories/createTrinity'
-import { useContext } from '#v0/factories/createContext'
+import { createContext, useContext } from '#v0/factories/createContext'
 
 // Composables
-import { createSingleContext } from '#v0/composables/useSingle'
+import { useSingle } from '#v0/composables/useSingle'
 
 // Types
+import type { App, Ref } from 'vue'
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 
@@ -21,14 +22,28 @@ export type StepContext<Z extends StepTicket> = SingleContext<Z> & {
 
 export interface StepOptions extends SingleOptions {}
 
-export function createStepContext<
+/**
+ * Creates a step selection context for managing collections where users can navigate through items sequentially.
+ * This function extends the single selection functionality with stepping navigation.
+ *
+ * @param model Optional reactive model reference for two-way binding.
+ * @param options Optional configuration for step behavior.
+ * @param namespace Optional namespace for context sharing.
+ * @template Z The type of items managed by the step selection.
+ * @template E The type of the step selection context.
+ * @returns The step selection context object.
+ */
+export function useStep<
   Z extends StepTicket = StepTicket,
   E extends StepContext<Z> = StepContext<Z>,
 > (
-  namespace = 'v0:step',
+  model?: Ref<unknown>,
   options?: StepOptions,
-): ContextTrinity<E> {
-  const [useStepContext, provideStepContext, registry] = createSingleContext<Z, E>(namespace, options)
+  namespace?: string,
+): E {
+  if (namespace) return useContext<E>(namespace)()
+
+  const registry = useSingle<Z, E>(model, options)
 
   function first () {
     if (registry.collection.size === 0) return
@@ -92,9 +107,33 @@ export function createStepContext<
     step,
   } as unknown as E
 
-  return createTrinity<E>(useStepContext, provideStepContext, context)
+  return context
 }
 
-export function useStep (namespace = 'v0:step'): StepContext<StepTicket> {
-  return useContext<StepContext<StepTicket>>(namespace)()
+/**
+ * Creates a step selection context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the step selection context.
+ * @param options Optional configuration for step selection behavior.
+ * @template Z The type of items managed by the step selection.
+ * @template E The type of the step selection context.
+ * @returns A tuple containing the inject function, provide function, and the step selection context.
+ */
+export function createStepContext<
+  Z extends StepTicket = StepTicket,
+  E extends StepContext<Z> = StepContext<Z>,
+> (
+  namespace = 'v0:step',
+  options?: StepOptions,
+): ContextTrinity<E> {
+  const [useStepContext, _provideStepContext] = createContext<E>(namespace)
+
+  const context = useStep<Z, E>(undefined, options, namespace)
+
+  function provideStepContext (_model?: Ref<unknown>, _context: E = context, app?: App): E {
+    return _provideStepContext(_context, app)
+  }
+
+  return createTrinity<E>(useStepContext, provideStepContext, context)
 }
