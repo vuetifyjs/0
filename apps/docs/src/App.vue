@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-  //
+  import { provideAppContext } from '@/composables/useApp'
+  import { shallowRef } from 'vue'
+
+  provideAppContext({
+    nav: shallowRef(false),
+  })
 </script>
 
 <template>

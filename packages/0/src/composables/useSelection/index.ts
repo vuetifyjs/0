@@ -14,7 +14,7 @@ import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/compo
 import type { ID } from '#v0/types'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 
-export type SelectionTicket = RegistryTicket & {
+export interface SelectionTicket extends RegistryTicket {
   disabled: boolean
   isActive: Readonly<Ref<boolean, boolean>>
   valueIsIndex: boolean
@@ -22,13 +22,13 @@ export type SelectionTicket = RegistryTicket & {
   toggle: () => void
 }
 
-export type SelectionContext<Z extends SelectionTicket = SelectionTicket> = RegistryContext<Z> & {
+export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
   selectedIds: Reactive<Set<ID>>
   /** Clear all selected IDs and reindexes */
   reset: () => void
 }
 
-export type SelectionOptions = RegistryOptions & {
+export interface SelectionOptions extends RegistryOptions {
   mandatory?: boolean | 'force'
   returnObject?: boolean
 }
@@ -45,32 +45,35 @@ export type SelectionOptions = RegistryOptions & {
  */
 export function useSelection<
   Z extends SelectionTicket = SelectionTicket,
-  E extends SelectionContext = SelectionContext,
+  E extends SelectionContext<Z> = SelectionContext<Z>,
 > (namespace: string): ContextTrinity<E> {
   const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
   const selectedIds = shallowReactive(new Set<ID>())
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+  function register (registrant: Partial<Z> = {}): Reactive<Z> {
+    const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       disabled: false,
-      isActive: toRef(() => selectedIds.has(ticket.id)),
-      valueIsIndex: registrant?.value == null,
-      toggle: () => {
-        if (selectedIds.has(ticket.id)) selectedIds.delete(ticket.id)
-        else selectedIds.add(ticket.id)
-      },
+      valueIsIndex: registrant.value == null,
       ...registrant,
+      id,
+      isActive: toRef(() => selectedIds.has(id)),
+      toggle: () => {
+        if (selectedIds.has(id)) selectedIds.delete(id)
+        else selectedIds.add(id)
+      },
     }
 
-    const ticket = registry.register(item, id)
+    const ticket = registry.register(item) as Reactive<Z>
 
-    return ticket as unknown as Reactive<Z>
+    return ticket
   }
 
   function reindex () {
     registry.directory.clear()
     registry.catalog.clear()
     let index = 0
+
     for (const item of registry.collection.values()) {
       item.index = index
 
@@ -78,7 +81,6 @@ export function useSelection<
 
       registry.directory.set(index, item.id)
       registry.catalog.set(item.value, item.id)
-
       index++
     }
   }
@@ -102,12 +104,14 @@ export function useSelection<
     reindex()
   }
 
-  return createTrinity<E>(useRegistryContext, provideRegistryContext, {
+  const context: E = {
     ...registry,
     selectedIds,
     register,
     unregister,
     reset,
     reindex,
-  } as unknown as E)
+  }
+
+  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
 }

@@ -29,9 +29,11 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
   /** Find a ticket by id */
-  find: (id: ID) => Z | undefined
+  find: (id: ID) => Reactive<Z> | undefined
   /** Register a new item */
-  register: (item?: Partial<Z>, id?: ID) => Z
+  register: (item?: Partial<Z>) => Reactive<Z>
+  /** Register an array of items */
+  registerMany: (items: Partial<Z>[]) => Reactive<Z>[]
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
@@ -56,7 +58,7 @@ export interface RegistryOptions {
  */
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
-  E extends RegistryContext = RegistryContext,
+  E extends RegistryContext<Z> = RegistryContext<Z>,
 > (
   namespace: string,
   options?: RegistryOptions,
@@ -68,8 +70,8 @@ export function useRegistry<
   const catalog = new Map<unknown, ID>()
   const directory = new Map<number, ID>()
 
-  function find (id: ID) {
-    return collection.get(id)
+  function find (id: ID): Reactive<Z> | undefined {
+    return collection.get(id) as Reactive<Z> | undefined
   }
 
   function browse (value: unknown) {
@@ -82,28 +84,36 @@ export function useRegistry<
 
   function reindex () {
     directory.clear()
+    catalog.clear()
     let index = 0
     for (const item of collection.values()) {
       item.index = index
       directory.set(index, item.id)
+      catalog.set(item.value, item.id)
       index++
     }
   }
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+  function register (registrant: Partial<Z> = {}): Reactive<Z> {
     const size = collection.size
-    const item = reactive({
-      id,
-      index: registrant?.index ?? size,
-      value: registrant?.value ?? size,
+    const id = registrant.id ?? genId()
+    const item: Partial<Z> = {
       ...registrant,
-    }) as Reactive<Z>
+      id,
+      index: registrant.index ?? size,
+      value: registrant.value ?? size,
+    }
+    const ticket = reactive(item) as Reactive<Z>
 
-    collection.set(item.id, item as any)
-    catalog.set(item.value, item.id)
-    directory.set(item.index, item.id)
+    collection.set(ticket.id, ticket as any)
+    catalog.set(ticket.value, ticket.id)
+    directory.set(ticket.index, ticket.id)
 
-    return item
+    return ticket
+  }
+
+  function registerMany (registrants: Partial<Z>[]): Reactive<Z>[] {
+    return registrants.map(register)
   }
 
   function unregister (id: ID) {
@@ -126,6 +136,7 @@ export function useRegistry<
     lookup,
     find,
     register,
+    registerMany,
     unregister,
     reindex,
   } as unknown as E

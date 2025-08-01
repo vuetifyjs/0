@@ -33,7 +33,7 @@ A foundational composable for building registration-based systems, managing coll
     browse: (value: unknown) => ID | undefined
     lookup: (index: number) => ID | undefined
     find: (id: ID) => Z | undefined
-    register: (item?: Partial<Z>, id?: ID) => Z
+    register: (item?: Partial<Z>, id?: ID) => Reactive<Z>
     unregister: (id: ID) => void
     reindex: () => void
   }
