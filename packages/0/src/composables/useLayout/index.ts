@@ -88,6 +88,7 @@ export function useLayout<
     }
 
     const ticket = registry.register(item) as Reactive<Z>
+    sizes.set(ticket.id, ticket.size)
 
     return ticket
   }
