@@ -10,19 +10,18 @@ import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, type
 // Types
 import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
-import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 import { genId } from '#v0/utilities'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
-export type LayoutTicket = GroupTicket & {
+export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
   size: number
 }
 
-export type BaseLayoutContext<Z extends LayoutTicket = LayoutTicket> = GroupContext<Z> & {
+export interface BaseLayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   bounds: {
     top: ComputedRef<number>
     bottom: ComputedRef<number>
@@ -38,17 +37,16 @@ export type BaseLayoutContext<Z extends LayoutTicket = LayoutTicket> = GroupCont
   sizes: Map<ID, number>
   height: Ref<number>
   width: Ref<number>
-  register: (registrant: Partial<Z>, id?: ID) => Z
 }
 
-export type LayoutContext = RegistryContext<LayoutTicket> & BaseLayoutContext
+export type LayoutContext<Z extends LayoutTicket> = BaseLayoutContext<Z>
 
 export function useLayout<
   Z extends LayoutTicket = LayoutTicket,
-  E extends LayoutContext = LayoutContext,
+  E extends BaseLayoutContext<Z> = LayoutContext<Z>,
 > (namespace: string): ContextTrinity<E> {
   const [useLayoutContext, provideLayoutContext, registry] = useGroup<Z, E>(namespace, {
-    mandatory: 'eager',
+    mandatory: 'force',
   })
 
   const sizes = shallowReactive(new Map<ID, number>())
