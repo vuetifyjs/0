@@ -34,8 +34,6 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   find: (id: ID) => Reactive<Z> | undefined
   /** Register a new item */
   register: (item?: Partial<Z>) => Reactive<Z>
-  /** Register an array of items */
-  registerMany: (items: Partial<Z>[]) => Reactive<Z>[]
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
@@ -113,10 +111,6 @@ export function useRegistry<
     return ticket
   }
 
-  function registerMany (registrants: Partial<Z>[]): Reactive<Z>[] {
-    return registrants.map(register)
-  }
-
   function unregister (id: ID) {
     const item = collection.get(id)
 
@@ -138,7 +132,6 @@ export function useRegistry<
     lookup,
     find,
     register,
-    registerMany,
     unregister,
     reindex,
   } as unknown as E
