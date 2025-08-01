@@ -5,13 +5,14 @@ import { createTrinity } from '#v0/factories/createTrinity'
 import { useGroup } from '#v0/composables/useGroup'
 
 // Utilities
-import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref } from 'vue'
+import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, type Reactive } from 'vue'
 
 // Types
-import type { BaseGroupContext, GroupTicket } from '#v0/composables/useGroup'
+import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 import type { RegistryContext } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
+import { genId } from '#v0/utilities'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
@@ -21,7 +22,7 @@ export type LayoutTicket = GroupTicket & {
   size: number
 }
 
-export type BaseLayoutContext<Z extends LayoutTicket = LayoutTicket> = BaseGroupContext<Z> & {
+export type BaseLayoutContext<Z extends LayoutTicket = LayoutTicket> = GroupContext<Z> & {
   bounds: {
     top: ComputedRef<number>
     bottom: ComputedRef<number>
@@ -78,15 +79,24 @@ export function useLayout<
     return total
   }
 
-  // function register (registrant: Partial<Z>, id?: ID): Z {
-  //   const ticket = registry.register(registrant, id) as unknown as Z
+  function register (registrant: Partial<Z>): Reactive<Z> {
+    const id = registrant.id ?? genId()
+    const item: Partial<Z> = {
+      position: registrant.position,
+      size: registrant.size,
+      order: registrant.order ?? 0,
+      ...registrant,
+      id,
+    }
 
-  //   return ticket
-  // }
+    const ticket = registry.register(item) as Reactive<Z>
+
+    return ticket
+  }
 
   const context = {
     ...registry,
-    // register,
+    register,
     bounds,
     main,
     sizes,
