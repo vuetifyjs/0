@@ -62,7 +62,7 @@ export function useTokens<
   const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
 
   for (const { id, value } of flatten(tokens)) {
-    registry.register({ value } as Partial<Z>, id)
+    registry.register({ value, id } as Partial<Z>)
   }
 
   function isAlias (token: unknown): token is string {

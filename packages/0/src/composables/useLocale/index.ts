@@ -59,7 +59,7 @@ export function createLocale<
   const [useLocaleContext, provideLocaleContext, registry] = useSingle<Z, E>(namespace)
 
   for (const id in messages) {
-    registry.register({ value: messages[id] } as Partial<Z>, id)
+    registry.register({ value: messages[id], id } as Partial<Z>)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)

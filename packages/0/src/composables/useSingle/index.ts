@@ -80,19 +80,18 @@ export function useSingle<
     }
   }
 
-  function register (registrant: Partial<Z>, _id: ID = genId()): Reactive<Z> {
-    const id = registrant?.id ?? _id
-
+  function register (registrant: Partial<Z> = {}): Reactive<Z> {
+    const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       ...registrant,
       id,
       toggle: () => select(id),
     }
 
-    const ticket = registry.register(item, id) as Reactive<Z>
+    const ticket = registry.register(item) as Reactive<Z>
 
     if (initialValue != null && initialValue === ticket.value) {
-      select(ticket.id)
+      select(id)
     }
 
     if (mandatory === 'force') mandate()

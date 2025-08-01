@@ -31,7 +31,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** Find a ticket by id */
   find: (id: ID) => Reactive<Z> | undefined
   /** Register a new item */
-  register: (item?: Partial<Z>, id?: ID) => Reactive<Z>
+  register: (item?: Partial<Z>) => Reactive<Z>
   /** Register an array of items */
   registerMany: (items: Partial<Z>[]) => Reactive<Z>[]
   /** Unregister an item by id */
@@ -84,21 +84,24 @@ export function useRegistry<
 
   function reindex () {
     directory.clear()
+    catalog.clear()
     let index = 0
     for (const item of collection.values()) {
       item.index = index
       directory.set(index, item.id)
+      catalog.set(item.value, item.id)
       index++
     }
   }
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+  function register (registrant: Partial<Z> = {}): Reactive<Z> {
     const size = collection.size
+    const id = registrant.id ?? genId()
     const item: Partial<Z> = {
-      id,
-      index: registrant?.index ?? size,
-      value: registrant?.value ?? size,
       ...registrant,
+      id,
+      index: registrant.index ?? size,
+      value: registrant.value ?? size,
     }
     const ticket = reactive(item) as Reactive<Z>
 

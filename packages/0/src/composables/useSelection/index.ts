@@ -50,19 +50,21 @@ export function useSelection<
   const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
   const selectedIds = shallowReactive(new Set<ID>())
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
+  function register (registrant: Partial<Z> = {}): Reactive<Z> {
+    const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       disabled: false,
-      isActive: toRef(() => selectedIds.has(ticket.id)),
-      valueIsIndex: registrant?.value == null,
-      toggle: () => {
-        if (selectedIds.has(ticket.id)) selectedIds.delete(ticket.id)
-        else selectedIds.add(ticket.id)
-      },
+      valueIsIndex: registrant.value == null,
       ...registrant,
+      id,
+      isActive: toRef(() => selectedIds.has(id)),
+      toggle: () => {
+        if (selectedIds.has(id)) selectedIds.delete(id)
+        else selectedIds.add(id)
+      },
     }
 
-    const ticket = registry.register(item, id) as Reactive<Z>
+    const ticket = registry.register(item) as Reactive<Z>
 
     return ticket
   }
@@ -71,6 +73,7 @@ export function useSelection<
     registry.directory.clear()
     registry.catalog.clear()
     let index = 0
+
     for (const item of registry.collection.values()) {
       item.index = index
 
@@ -78,7 +81,6 @@ export function useSelection<
 
       registry.directory.set(index, item.id)
       registry.catalog.set(item.value, item.id)
-
       index++
     }
   }

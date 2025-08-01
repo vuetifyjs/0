@@ -77,7 +77,7 @@ export function createTheme<
   const [useThemeContext, provideThemeContext, registry] = useSingle<Z, E>(namespace)
 
   for (const id in themes) {
-    registry.register({ value: themes[id] } as Partial<Z>, id)
+    registry.register({ value: themes[id], id } as Partial<Z>)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -139,15 +139,14 @@ export function createTheme<
     })
   }
 
-  function register (registrant: Partial<Z>, _id: ID = genId()): Reactive<Z> {
-    const id = registrant?.id ?? _id
-
+  function register (registrant: Partial<Z> = {}): Reactive<Z> {
+    const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       lazy: false,
       ...registrant,
       id,
     }
-    return registry.register(item, id) as Reactive<Z>
+    return registry.register(item) as Reactive<Z>
   }
 
   const context: E = {
