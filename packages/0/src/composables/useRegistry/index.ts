@@ -36,7 +36,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** Find a ticket by id */
   find: (id: ID) => Reactive<Z> | undefined
   /** Register a new item */
-  register: (item?: Partial<Z>) => Reactive<Z>
+  register: (item?: Partial<Z> | Partial<Z>[]) => Reactive<Z> | Reactive<Z>[]
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
@@ -108,23 +108,33 @@ export function useRegistry<
     }
   }
 
-  function register (registrant: Partial<Z> = {}): Reactive<Z> {
-    const size = collection.size
-    const id = registrant.id ?? genId()
-    const item: Partial<Z> = {
-      ...registrant,
-      id,
-      index: registrant.index ?? size,
-      value: registrant.value ?? size,
-      valueIsIndex: registrant.value == null,
-    }
-    const ticket = reactive(item) as Reactive<Z>
+  function register (registrant: Partial<Z> | Partial<Z>[] = {}): Reactive<Z> | Reactive<Z>[] {
+    const isArray = Array.isArray(registrant)
+    const registrantItems = isArray ? registrant : [registrant]
 
-    collection.set(ticket.id, ticket as any)
-    catalog.set(ticket.value, ticket.id)
-    directory.set(ticket.index, ticket.id)
+    if (isArray && registrantItems.length === 0) return []
 
-    return ticket
+    const registeredItems = registrantItems.map(registrant => {
+      const size = collection.size
+      const id = registrant.id ?? genId()
+      const item: Partial<Z> = {
+        ...registrant,
+        id,
+        index: registrant.index ?? size,
+        value: registrant.value ?? size,
+        valueIsIndex: registrant.value == null,
+      }
+
+      const ticket = reactive(item) as Reactive<Z>
+
+      collection.set(ticket.id, ticket as any)
+      catalog.set(ticket.value, ticket.id)
+      directory.set(ticket.index, ticket.id)
+
+      return ticket
+    }) as Reactive<Z>[]
+
+    return isArray ? registeredItems as Reactive<Z>[] : registeredItems[0] as Reactive<Z>
   }
 
   function unregister (id: ID) {
