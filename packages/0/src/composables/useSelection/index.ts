@@ -59,17 +59,25 @@ export function useSelection<
     }
   }
 
-  function register (registrant: Partial<Z> = {}): Reactive<Z> {
-    const id = registrant.id ?? genId()
-    const item: Partial<Z> = {
-      disabled: false,
-      ...registrant,
-      id,
-      isActive: toRef(() => selectedIds.has(id)),
-      toggle: () => select(id),
-    }
+  function register (registrant: Partial<Z> | Partial<Z>[]): Reactive<Z> | Reactive<Z>[] {
+    const isArray = Array.isArray(registrant)
+    const registrantItems = isArray ? registrant : [registrant]
 
-    return registry.register(item) as Reactive<Z>
+    const items = registrantItems.map(registrant => {
+      const id = registrant.id ?? genId()
+      const item: Partial<Z> = {
+        disabled: false,
+        ...registrant,
+        id,
+        isActive: toRef(() => selectedIds.has(id)),
+        toggle: () => select(id),
+      }
+
+      return item
+    })
+
+    const registeredItems = registry.register(isArray ? items : items[0])
+    return registeredItems
   }
 
   function unregister (id: ID) {
