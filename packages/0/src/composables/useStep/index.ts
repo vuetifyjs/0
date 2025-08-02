@@ -1,12 +1,8 @@
-// Factories
-import { createTrinity } from '#v0/factories/createTrinity'
-import { createContext, useContext } from '#v0/factories/createContext'
-
 // Composables
-import { useSingle } from '#v0/composables/useSingle'
+import { createSingleContext, useSingle } from '#v0/composables/useSingle'
 
 // Types
-import type { App, Ref } from 'vue'
+import type { Ref } from 'vue'
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 
@@ -39,10 +35,7 @@ export function useStep<
 > (
   model?: Ref<unknown>,
   options?: StepOptions,
-  namespace?: string,
 ): E {
-  if (namespace) return useContext<E>(namespace)()
-
   const registry = useSingle<Z, E>(model, options)
 
   function first () {
@@ -127,13 +120,5 @@ export function createStepContext<
   namespace = 'v0:step',
   options?: StepOptions,
 ): ContextTrinity<E> {
-  const [useStepContext, _provideStepContext] = createContext<E>(namespace)
-
-  const context = useStep<Z, E>(undefined, options, namespace)
-
-  function provideStepContext (_model?: Ref<unknown>, _context: E = context, app?: App): E {
-    return _provideStepContext(_context, app)
-  }
-
-  return createTrinity<E>(useStepContext, provideStepContext, context)
+  return createSingleContext<Z, E>(namespace, options)
 }
