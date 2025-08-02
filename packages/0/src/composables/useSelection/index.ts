@@ -19,7 +19,7 @@ export interface SelectionTicket extends RegistryTicket {
 
 export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
   selectedIds: Reactive<Set<ID>>
-  selectedItems: ComputedRef<Set<Z | undefined>>
+  selectedItems: ComputedRef<Set<Z>>
   /** Clear all selected IDs and reindexes */
   reset: () => void
 }
