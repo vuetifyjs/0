@@ -50,7 +50,7 @@ export function useSelection<
 
     if (!item || item.disabled) return
 
-    if (registry.has(id)) {
+    if (selectedIds.has(id)) {
       if (!mandatory || selectedIds.size > 1) {
         selectedIds.delete(id)
       }
