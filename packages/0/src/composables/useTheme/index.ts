@@ -1,10 +1,10 @@
 // Factories
 import { createPlugin } from '#v0/factories/createPlugin'
 import { createTrinity } from '#v0/factories/createTrinity'
-import { useContext } from '#v0/factories/createContext'
+import { createContext, useContext } from '#v0/factories/createContext'
 
 // Composables
-import { createSingleContext } from '#v0/composables/useSingle'
+import { useSingle } from '#v0/composables/useSingle'
 import { createTokensContext } from '#v0/composables/useTokens'
 
 // Utilities
@@ -74,7 +74,8 @@ export function createTheme<
   options: ThemeOptions = {},
 ): ContextTrinity<E> {
   const { themes = {}, palette = {} } = options
-  const [useThemeContext, provideThemeContext, registry] = createSingleContext<Z, E>(namespace)
+  const [useThemeContext, provideThemeContext] = createContext<E>(namespace)
+  const registry = useSingle<Z, E>()
 
   for (const id in themes) {
     registry.register({ value: themes[id], id } as Partial<Z>)
@@ -198,8 +199,8 @@ export function createThemePlugin<
   return createPlugin<ThemePlugin>({
     namespace: 'v0:theme',
     provide: (app: App) => {
-      provideThemeContext(undefined, themeContext, app)
-      provideThemeTokenContext(undefined, tokensContext, app)
+      // provideThemeContext(undefined, themeContext, app)
+      // provideThemeTokenContext(undefined, tokensContext, app)
     },
     setup: () => {
       if (IN_BROWSER) {

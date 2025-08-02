@@ -1,22 +1,17 @@
-// Factories
-import { createTrinity } from '#v0/factories/createTrinity'
-import { createContext } from '#v0/factories/createContext'
-
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
 
 // Utilities
-import { computed, getCurrentInstance, nextTick, onMounted, ref, toValue, watch } from 'vue'
+import { computed } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Transformers
 import { toArray } from '#v0/transformers'
 
 // Types
-import type { App, ComputedRef, Reactive, Ref } from 'vue'
+import type { ComputedRef, Reactive } from 'vue'
 import type { ID } from '#v0/types'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export interface GroupTicket extends SelectionTicket {}
 
@@ -33,13 +28,9 @@ export interface GroupOptions extends SelectionOptions {}
 export function useGroup<
   Z extends GroupTicket = GroupTicket,
   E extends GroupContext<Z> = GroupContext<Z>,
-> (
-  model?: Ref<unknown[]>,
-  options?: GroupOptions,
-): E {
+> (options?: GroupOptions): E {
   const registry = useSelection<Z, E>(options)
   const mandatory = options?.mandatory ?? false
-  let initialValue: unknown | unknown[] = toValue(model)
 
   const selectedIndexes = computed(() => {
     return new Set(
@@ -103,26 +94,12 @@ export function useGroup<
 
     const ticket = registry.register(item) as Reactive<Z>
 
-    if (initialValue != null) {
-      const shouldSelect = Array.isArray(initialValue)
-        ? initialValue.includes(ticket.value)
-        : initialValue === ticket.value
-
-      if (shouldSelect) select(id)
-    }
-
     if (mandatory === 'force') mandate()
 
     return ticket
   }
 
-  if (getCurrentInstance()) {
-    onMounted(() => {
-      initialValue = undefined
-    })
-  }
-
-  const context = {
+  const context: E = {
     ...registry,
     selectedItems,
     selectedIndexes,
@@ -131,70 +108,7 @@ export function useGroup<
     mandate,
     select,
     reset,
-  } as unknown as E
-
-  return context
-}
-
-export function createGroupContext<
-  Z extends GroupTicket = GroupTicket,
-  E extends GroupContext<Z> = GroupContext<Z>,
-> (
-  namespace = 'v0:group',
-  options?: GroupOptions,
-): ContextTrinity<E> {
-  const [useGroupContext, _provideGroupContext] = createContext<E>(namespace)
-
-  const model = ref([]) as Ref<unknown[]>
-  const context = useGroup<Z, E>(model, options)
-
-  function provideGroupContext (
-    model?: Ref<unknown | unknown[]>,
-    _context: E = context,
-    app?: App,
-  ): E {
-    let isUpdatingModel = false
-
-    if (model) {
-      const returnObject = options?.returnObject ?? false
-
-      watch(_context.selectedIds, () => {
-        if (isUpdatingModel) return
-
-        const target = returnObject ? _context.selectedItems : _context.selectedValues
-
-        model.value = Array.from(target.value)
-      })
-
-      watch(model, async value => {
-        if (isUpdatingModel) return
-
-        const values = new Set(toArray(value))
-
-        if ((_context.selectedValues.value.symmetricDifference(values)).size === 0) return
-
-        _context.selectedIds.clear()
-
-        for (const value of values) {
-          const id = _context.browse(value)
-
-          if (!id) continue
-
-          _context.selectedIds.add(id)
-        }
-      })
-
-      watch([model, _context.selectedIds], async () => {
-        isUpdatingModel = true
-
-        await nextTick()
-
-        isUpdatingModel = false
-      })
-    }
-
-    return _provideGroupContext(_context, app)
   }
 
-  return createTrinity<E>(useGroupContext, provideGroupContext, context)
+  return context
 }
