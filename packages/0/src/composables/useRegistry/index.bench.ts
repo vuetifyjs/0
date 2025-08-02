@@ -20,11 +20,11 @@ describe('useRegistry benchmarks', () => {
 
   describe('registration', () => {
     it('should benchmark registration operations', async () => {
-      const context = useRegistry()
+      const registry = useRegistry()
 
       const result = await bench('register 1000 items', () => {
         for (const item of enroll(1000)) {
-          context.register({ id: `item-${item}`, value: `value-${item}` })
+          registry.register({ id: `item-${item}`, value: `value-${item}` })
         }
       })
 
@@ -32,15 +32,15 @@ describe('useRegistry benchmarks', () => {
     })
 
     it('should benchmark unregistration operations', async () => {
-      const context = useRegistry()
+      const registry = useRegistry()
 
       for (const item of enroll(1000)) {
-        context.register({ id: `item-${item}`, value: `value-${item}` })
+        registry.register({ id: `item-${item}`, value: `value-${item}` })
       }
 
       const result = await bench('unregister 1000 items', () => {
         for (const item of enroll(1000)) {
-          context.unregister(`item-${item}`)
+          registry.unregister(`item-${item}`)
         }
       })
 
@@ -50,15 +50,15 @@ describe('useRegistry benchmarks', () => {
 
   describe('lookup operations', () => {
     it('should benchmark find by id', async () => {
-      const context = useRegistry()
+      const registry = useRegistry()
 
       for (const item of enroll(1000)) {
-        context.register({ id: `item-${item}`, value: `value-${item}` })
+        registry.register({ id: `item-${item}`, value: `value-${item}` })
       }
 
       const result = await bench('find 1000 items by id', () => {
         for (const item of enroll(1000)) {
-          context.find(`item-${item}`)
+          registry.find(`item-${item}`)
         }
       })
 
@@ -66,15 +66,15 @@ describe('useRegistry benchmarks', () => {
     })
 
     it('should benchmark lookup by index', async () => {
-      const context = useRegistry()
+      const registry = useRegistry()
 
       for (const item of enroll(1000)) {
-        context.register({ id: `item-${item}`, value: `value-${item}` })
+        registry.register({ id: `item-${item}`, value: `value-${item}` })
       }
 
       const result = await bench('lookup 1000 items by index', () => {
         for (const index of enroll(1000)) {
-          context.lookup(index)
+          registry.lookup(index)
         }
       })
 
@@ -82,19 +82,45 @@ describe('useRegistry benchmarks', () => {
     })
 
     it('should benchmark browsing by value', async () => {
-      const context = useRegistry()
+      const registry = useRegistry()
 
       for (const item of enroll(1000)) {
-        context.register({ id: `item-${item}`, value: `value-${item}` })
+        registry.register({ id: `item-${item}`, value: `value-${item}` })
       }
 
       const result = await bench('browse 1000 items by value', () => {
         for (const item of enroll(1000)) {
-          context.browse(`value-${item}`)
+          registry.browse(`value-${item}`)
         }
       })
 
       console.log(`Browse by value: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+    })
+  })
+
+  describe('reactivity', () => {
+    it('should benchmark shallow reactivity registration operations', async () => {
+      const registry = useRegistry()
+
+      const result = await bench('register 1000 items (shallow)', () => {
+        for (const item of enroll(1000)) {
+          registry.register({ id: `item-${item}`, value: `value-${item}` })
+        }
+      })
+
+      console.log(`Shallow Registration: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+    })
+
+    it('should benchmark deep reactivity registration operations', async () => {
+      const registry = useRegistry({ deep: true })
+
+      const result = await bench('register 1000 items (deep)', () => {
+        for (const item of enroll(1000)) {
+          registry.register({ id: `item-${item}`, value: { value: `value-${item}` } })
+        }
+      })
+
+      console.log(`Deep Registration: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
     })
   })
 })
