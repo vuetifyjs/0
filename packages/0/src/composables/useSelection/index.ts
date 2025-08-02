@@ -2,11 +2,11 @@
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
-import { shallowReactive, toRef } from 'vue'
+import { computed, shallowReactive, toRef } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Types
-import type { Reactive, Ref } from 'vue'
+import type { ComputedRef, Reactive, Ref } from 'vue'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 
@@ -19,6 +19,7 @@ export interface SelectionTicket extends RegistryTicket {
 
 export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
   selectedIds: Reactive<Set<ID>>
+  selectedItems: ComputedRef<Set<Z | undefined>>
   /** Clear all selected IDs and reindexes */
   reset: () => void
 }
@@ -44,6 +45,12 @@ export function useSelection<
   const registry = useRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
   const mandatory = options?.mandatory ?? false
+
+  const selectedItems = computed(() => {
+    return new Set(
+      Array.from(selectedIds).map(id => registry.find(id)),
+    )
+  })
 
   function select (id: ID) {
     const item = registry.find(id)
@@ -85,6 +92,7 @@ export function useSelection<
   const context = {
     ...registry,
     selectedIds,
+    selectedItems,
     register,
     unregister,
     reset,

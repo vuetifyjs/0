@@ -16,7 +16,6 @@ import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/co
 export interface GroupTicket extends SelectionTicket {}
 
 export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z> {
-  selectedItems: ComputedRef<Set<Z | undefined>>
   selectedIndexes: ComputedRef<Set<number>>
   selectedValues: ComputedRef<Set<unknown>>
   select: (ids: ID | ID[]) => void
@@ -38,15 +37,9 @@ export function useGroup<
     )
   })
 
-  const selectedItems = computed(() => {
-    return new Set(
-      Array.from(registry.selectedIds).map(id => registry.find(id)),
-    )
-  })
-
   const selectedValues = computed(() => {
     return new Set(
-      Array.from(selectedItems.value).map(item => item?.value),
+      Array.from(registry.selectedItems.value).map(item => item?.value),
     )
   })
 
@@ -101,7 +94,6 @@ export function useGroup<
 
   const context: E = {
     ...registry,
-    selectedItems,
     selectedIndexes,
     selectedValues,
     register,
