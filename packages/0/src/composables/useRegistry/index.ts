@@ -36,11 +36,17 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
   reindex: () => void
+  /** Listen for registry events */
+  on: (event: string, cb: Function) => void
+  /** Stop listening for registry events */
+  off: (event: string, cb: Function) => void
 }
 
 export interface RegistryOptions {
   /** Use reactive instead of shallowReactive */
   deep?: boolean
+  /** Enable event emission for registry operations */
+  events?: boolean
 }
 
 /**
@@ -62,6 +68,24 @@ export function useRegistry<
   const collection = reactivity(new Map<ID, Z>())
   const catalog = new Map<unknown, ID>()
   const directory = new Map<number, ID>()
+
+  const listeners = new Map<string, Set<Function>>()
+
+  function emit (event: string, data: any) {
+    if (!options?.events) return
+    const cbs = listeners.get(event)
+    if (!cbs) return
+    for (const cb of cbs) cb(data)
+  }
+
+  function on (event: string, cb: Function) {
+    if (!listeners.has(event)) listeners.set(event, new Set())
+    listeners.get(event)!.add(cb)
+  }
+
+  function off (event: string, cb: Function) {
+    listeners.get(event)?.delete(cb)
+  }
 
   function find (id: ID): Reactive<Z> | undefined {
     return collection.get(id) as Reactive<Z> | undefined
@@ -119,6 +143,8 @@ export function useRegistry<
     catalog.set(ticket.value, ticket.id)
     directory.set(ticket.index, ticket.id)
 
+    emit('register', ticket)
+
     return ticket
   }
 
@@ -132,12 +158,16 @@ export function useRegistry<
     directory.delete(item.index)
 
     reindex()
+
+    emit('unregister', item)
   }
 
   const context = {
     collection,
     catalog,
     directory,
+    on,
+    off,
     has,
     clear,
     browse,
