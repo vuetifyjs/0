@@ -1,10 +1,8 @@
 // Composables
-import { createSingleContext, useSingle } from '#v0/composables/useSingle'
+import { useSingle } from '#v0/composables/useSingle'
 
 // Types
-import type { Ref } from 'vue'
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export interface StepTicket extends SingleTicket {}
 
@@ -32,11 +30,8 @@ export interface StepOptions extends SingleOptions {}
 export function useStep<
   Z extends StepTicket = StepTicket,
   E extends StepContext<Z> = StepContext<Z>,
-> (
-  model?: Ref<unknown>,
-  options?: StepOptions,
-): E {
-  const registry = useSingle<Z, E>(model, options)
+> (options?: StepOptions): E {
+  const registry = useSingle<Z, E>(options)
 
   function first () {
     if (registry.collection.size === 0) return
@@ -101,24 +96,4 @@ export function useStep<
   } as unknown as E
 
   return context
-}
-
-/**
- * Creates a step selection context with full injection/provision control.
- * Returns the complete trinity for advanced usage scenarios.
- *
- * @param namespace The namespace for the step selection context.
- * @param options Optional configuration for step selection behavior.
- * @template Z The type of items managed by the step selection.
- * @template E The type of the step selection context.
- * @returns A tuple containing the inject function, provide function, and the step selection context.
- */
-export function createStepContext<
-  Z extends StepTicket = StepTicket,
-  E extends StepContext<Z> = StepContext<Z>,
-> (
-  namespace = 'v0:step',
-  options?: StepOptions,
-): ContextTrinity<E> {
-  return createSingleContext<Z, E>(namespace, options)
 }
