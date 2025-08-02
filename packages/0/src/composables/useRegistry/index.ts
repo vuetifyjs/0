@@ -15,6 +15,7 @@ export interface RegistryTicket {
   id: ID
   index: number
   value: unknown
+  valueIsIndex: boolean
 }
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
@@ -24,6 +25,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   catalog: Map<unknown, ID>
   /** A directory of all indexes in the collection */
   directory: Map<number, ID>
+  /** Clear the entire registry */
+  clear: () => void
   /** Check if an item exists by id */
   has: (id: ID) => boolean
   /** Browse for an ID by value */
@@ -34,8 +37,6 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   find: (id: ID) => Reactive<Z> | undefined
   /** Register a new item */
   register: (item?: Partial<Z>) => Reactive<Z>
-  /** Register an array of items */
-  registerMany: (items: Partial<Z>[]) => Reactive<Z>[]
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
@@ -83,14 +84,26 @@ export function useRegistry<
     return collection.has(id)
   }
 
+  function clear () {
+    collection.clear()
+    catalog.clear()
+    directory.clear()
+  }
+
   function reindex () {
     directory.clear()
     catalog.clear()
+
     let index = 0
+
     for (const item of collection.values()) {
       item.index = index
+
+      if (item.valueIsIndex) item.value = index
+
       directory.set(index, item.id)
       catalog.set(item.value, item.id)
+
       index++
     }
   }
@@ -103,6 +116,7 @@ export function useRegistry<
       id,
       index: registrant.index ?? size,
       value: registrant.value ?? size,
+      valueIsIndex: registrant.value == null,
     }
     const ticket = reactive(item) as Reactive<Z>
 
@@ -111,10 +125,6 @@ export function useRegistry<
     directory.set(ticket.index, ticket.id)
 
     return ticket
-  }
-
-  function registerMany (registrants: Partial<Z>[]): Reactive<Z>[] {
-    return registrants.map(register)
   }
 
   function unregister (id: ID) {
@@ -134,11 +144,11 @@ export function useRegistry<
     catalog,
     directory,
     has,
+    clear,
     browse,
     lookup,
     find,
     register,
-    registerMany,
     unregister,
     reindex,
   } as unknown as E
