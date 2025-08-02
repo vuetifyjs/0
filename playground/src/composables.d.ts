@@ -147,6 +147,7 @@ declare global {
   const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
   const useMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']
   const useModel: typeof import('vue')['useModel']
+  const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']
   const useRegistrar: typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']
   const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
   const useResizeObserver: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']
@@ -362,6 +363,7 @@ declare module 'vue' {
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
     readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
     readonly useResizeObserver: UnwrapRef<typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>

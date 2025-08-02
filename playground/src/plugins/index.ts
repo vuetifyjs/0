@@ -4,7 +4,7 @@ import { materialPalette, tailwindPalette } from './palettes'
 export function registerPlugins (app: App) {
   app.use(createHydrationPlugin())
 
-  // app.use(createLoggerPlugin())
+  app.use(createLoggerPlugin())
 
   app.use(
     createBreakpointsPlugin({
