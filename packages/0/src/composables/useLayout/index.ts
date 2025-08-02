@@ -1,6 +1,3 @@
-// Factories
-import { createTrinity } from '#v0/factories/createTrinity'
-
 // Composables
 import { useGroup } from '#v0/composables/useGroup'
 
@@ -10,7 +7,6 @@ import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
 import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
 import type { ID } from '#v0/types'
 import { genId } from '#v0/utilities'
 
@@ -45,9 +41,9 @@ export type LayoutContext<Z extends LayoutTicket> = BaseLayoutContext<Z>
 export function useLayout<
   Z extends LayoutTicket = LayoutTicket,
   E extends BaseLayoutContext<Z> = LayoutContext<Z>,
-> (namespace: string): ContextTrinity<E> {
-  const [useLayoutContext, provideLayoutContext, registry] = useGroup<Z, E>(namespace, {
-    mandatory: 'force',
+> (): E {
+  const registry = useGroup<Z, E>({
+    mandatory: true,
   })
 
   const sizes = shallowReactive(new Map<ID, number>())
@@ -120,7 +116,7 @@ export function useLayout<
     registry.unregister(id)
   }
 
-  const context = {
+  return {
     ...registry,
     register,
     unregister,
@@ -130,6 +126,4 @@ export function useLayout<
     height,
     width,
   } as unknown as E
-
-  return createTrinity<E>(useLayoutContext, provideLayoutContext, context)
 }

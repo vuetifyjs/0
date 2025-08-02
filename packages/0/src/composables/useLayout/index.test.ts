@@ -44,7 +44,7 @@ describe('useLayout', () => {
   const mockOnMounted = vi.mocked(onMounted)
 
   it('registers components', () => {
-    const context = useLayout('layout')[2]
+    const context = useLayout()
     context.register({ id: 'Component1', position: 'top', size: 32 })
     context.register({ id: 'Component2', position: 'bottom', size: 64 })
     expect(context.collection.has('Component1')).toEqual(true)
@@ -52,7 +52,7 @@ describe('useLayout', () => {
   })
 
   it('calculates bound', () => {
-    const context = useLayout('layout')[2]
+    const context = useLayout()
     context.register({ id: 'Component1', position: 'top', size: 32 })
     context.register({ id: 'Component2', position: 'bottom', size: 128 })
     context.register({ id: 'Component3', position: 'left', size: 64 })
@@ -63,7 +63,7 @@ describe('useLayout', () => {
   })
 
   it('registers height and width in browser', () => {
-    const context = useLayout('layout')[2]
+    const context = useLayout()
 
     mockGetCurrentInstance.mockReturnValue({} as any)
     const mountedCallback = mockOnMounted.mock.calls[0][0]
@@ -77,7 +77,7 @@ describe('useLayout', () => {
   })
 
   it('correctly calculates main', () => {
-    const context = useLayout('layout')[2]
+    const context = useLayout()
 
     mockGetCurrentInstance.mockReturnValue({} as any)
     const mountedCallback = mockOnMounted.mock.calls[0][0]
