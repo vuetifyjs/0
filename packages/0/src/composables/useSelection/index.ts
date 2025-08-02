@@ -18,10 +18,14 @@ export interface SelectionTicket extends RegistryTicket {
 }
 
 export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
+  returnObject: boolean
+  selectedIndexes: ComputedRef<Set<number>>
   selectedIds: Reactive<Set<ID>>
   selectedItems: ComputedRef<Set<Z>>
+  selectedValues: ComputedRef<Set<unknown>>
   /** Clear all selected IDs and reindexes */
   reset: () => void
+  mandate: () => void
 }
 
 export interface SelectionOptions extends RegistryOptions {
@@ -45,12 +49,32 @@ export function useSelection<
   const registry = useRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
   const mandatory = options?.mandatory ?? false
+  const returnObject = options?.returnObject ?? false
+
+  const selectedIndexes = computed(() => {
+    return new Set(
+      Array.from(selectedIds).map(id => registry.find(id)?.index),
+    )
+  })
 
   const selectedItems = computed(() => {
     return new Set(
       Array.from(selectedIds).map(id => registry.find(id)),
     )
   })
+
+  const selectedValues = computed(() => {
+    return new Set(
+      Array.from(selectedItems.value).map(item => item?.value),
+    )
+  })
+
+  function mandate () {
+    if (!mandatory || registry.selectedIds.size > 0 || registry.collection.size === 0) return
+
+    const first = registry.lookup(0)
+    if (first) select(first)
+  }
 
   function select (id: ID) {
     const item = registry.find(id)
@@ -76,7 +100,11 @@ export function useSelection<
       toggle: () => select(id),
     }
 
-    return registry.register(item) as Reactive<Z>
+    const ticket = registry.register(item) as Reactive<Z>
+
+    if (mandatory === 'force') mandate()
+
+    return ticket
   }
 
   function unregister (id: ID) {
@@ -87,15 +115,20 @@ export function useSelection<
   function reset () {
     registry.collection.clear()
     registry.reindex()
+    registry.mandate()
   }
 
   const context = {
     ...registry,
+    returnObject,
+    selectedIndexes,
     selectedIds,
     selectedItems,
+    selectedValues,
     register,
     unregister,
     reset,
+    mandate,
     select,
   } as unknown as E
 

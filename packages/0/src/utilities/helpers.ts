@@ -1,6 +1,10 @@
 // Types
 import type { DeepPartial } from '#v0/types'
 
+export function isFunction (item: unknown): item is Function {
+  return typeof item === 'function'
+}
+
 export function isString (item: unknown): item is string {
   return typeof item === 'string'
 }
