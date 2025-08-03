@@ -217,7 +217,7 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-
+  export type { LayoutLocation, LayoutTicket, LayoutContext } from '../../packages/0/src/composables/useLayout/index'
   import('../../packages/0/src/composables/useLayout/index')
   // @ts-ignore
   export type { LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'

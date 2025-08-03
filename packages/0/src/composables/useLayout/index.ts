@@ -3,10 +3,12 @@ import { useGroup } from '#v0/composables/useGroup'
 
 // Utilities
 import { computed, shallowReactive, shallowRef, onUnmounted, onMounted, getCurrentInstance } from 'vue'
-import type { ComputedRef, Ref } from 'vue'
+
+// Globals
 import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
+import type { ComputedRef, ShallowReactive, ShallowRef } from 'vue'
 import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
 
@@ -31,9 +33,9 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
     width: ComputedRef<number>
     height: ComputedRef<number>
   }
-  sizes: Map<ID, number>
-  height: Ref<number>
-  width: Ref<number>
+  sizes: ShallowReactive<Map<ID, number>>
+  height: ShallowRef<number>
+  width: ShallowRef<number>
 }
 
 export function useLayout<
@@ -45,22 +47,6 @@ export function useLayout<
   const sizes = shallowReactive(new Map<ID, number>())
   const height = shallowRef(0)
   const width = shallowRef(0)
-
-  if (IN_BROWSER && getCurrentInstance()) {
-    function resize () {
-      height.value = window.innerHeight
-      width.value = window.innerWidth
-    }
-
-    onMounted(() => {
-      resize()
-      window.addEventListener('resize', resize)
-    })
-
-    onUnmounted(() => {
-      window.removeEventListener('resize', resize)
-    })
-  }
 
   const bounds = {
     top: computed(() => sum('top')),
@@ -95,9 +81,26 @@ export function useLayout<
     }
 
     const ticket = registry.register(item)
+
     sizes.set(ticket.id, ticket.size)
 
     return ticket
+  }
+
+  if (IN_BROWSER && getCurrentInstance()) {
+    function resize () {
+      height.value = window.innerHeight
+      width.value = window.innerWidth
+    }
+
+    onMounted(() => {
+      resize()
+      window.addEventListener('resize', resize)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', resize)
+    })
   }
 
   registry.on('unregister', (item: Z) => {
@@ -112,5 +115,5 @@ export function useLayout<
     sizes,
     height,
     width,
-  } as unknown as E
+  } as E
 }
