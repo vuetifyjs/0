@@ -87,13 +87,11 @@ export function useLayout<
   }
 
   function register (registrant: Partial<Z>): Z {
-    const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       position: registrant.position,
       size: registrant.size,
       order: registrant.order ?? 0,
       ...registrant,
-      id,
     }
 
     const ticket = registry.register(item)
