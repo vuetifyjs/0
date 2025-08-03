@@ -81,8 +81,8 @@ export function useRegistry<
     listeners.get(event)?.delete(cb)
   }
 
-  function find (id: ID): Z | undefined {
-    return collection.get(id) as Z | undefined
+  function find (id: ID) {
+    return collection.get(id)
   }
 
   function browse (value: unknown) {
