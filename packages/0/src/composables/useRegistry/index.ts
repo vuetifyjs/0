@@ -54,7 +54,6 @@ export interface RegistryOptions {
  * This function provides the foundation for item management systems with ID-based, value-based,
  * and index-based access patterns.
  *
- * @param namespace The namespace for the registry context.
  * @param options Optional configuration for reactivity behavior.
  * @template Z The type of items managed by the registry.
  * @template E The type of the registry context.
@@ -162,7 +161,7 @@ export function useRegistry<
     emit('unregister', item)
   }
 
-  const context = {
+  return {
     collection,
     catalog,
     directory,
@@ -176,7 +175,5 @@ export function useRegistry<
     register,
     unregister,
     reindex,
-  } as unknown as E
-
-  return context
+  } as E
 }
