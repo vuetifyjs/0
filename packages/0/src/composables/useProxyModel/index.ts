@@ -2,7 +2,7 @@
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { computed, watch, ref, nextTick, toRef } from 'vue'
+import { computed, watch, ref, toRef, toValue } from 'vue'
 import { isFunction, isArray } from '#v0/utilities'
 
 // Transformers
@@ -10,6 +10,7 @@ import { toArray } from '#v0/transformers'
 
 // Types
 import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+import type { ID } from '#v0/types'
 
 export function useProxyModel<Z extends SelectionTicket> (
   selection: SelectionContext<Z>,
@@ -20,7 +21,6 @@ export function useProxyModel<Z extends SelectionTicket> (
   const logger = useLogger()
   const internal = ref<Z[] | Z>(_model)
   const isModelArray = toRef(() => isArray(internal.value))
-  let isUpdatingModel = false
 
   function transformIn (val: Z[] | Z): Z[] {
     if (isFunction(_transformIn)) return _transformIn(val)
@@ -46,9 +46,7 @@ export function useProxyModel<Z extends SelectionTicket> (
     },
   })
 
-  watch(selection.selectedIds, val => {
-    if (isUpdatingModel) return
-
+  const watcher = watch(selection.selectedIds, val => {
     if (val.size === 0) {
       model.value = []
       return
@@ -60,24 +58,26 @@ export function useProxyModel<Z extends SelectionTicket> (
   })
 
   watch(model, val => {
-    if (isUpdatingModel) return
-
-    selection.selectedIds.clear()
+    const currentIds = new Set(toValue(selection.selectedIds))
+    const targetIds = new Set<ID>()
 
     for (const value of toArray(val)) {
       const id = selection.browse(value)
-
-      if (id) selection.selectedIds.add(id)
+      if (id) targetIds.add(id)
       else logger.warn('Unable to find id for value', value)
     }
-  })
 
-  watch([model, selection.selectedItems], async () => {
-    isUpdatingModel = true
+    watcher.pause()
 
-    await nextTick()
+    for (const id of currentIds.difference(targetIds)) {
+      selection.selectedIds.delete(id)
+    }
 
-    isUpdatingModel = false
+    for (const id of targetIds.difference(currentIds)) {
+      selection.selectedIds.add(id)
+    }
+
+    watcher.resume()
   })
 
   return model
