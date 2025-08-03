@@ -3,7 +3,7 @@ import { createTokensContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
-import { run, compare } from '#v0/utilities/benchmark'
+import { run } from '#v0/utilities/benchmark'
 
 // Types
 import type { TokenCollection } from './index'
@@ -130,45 +130,6 @@ describe('createTokensContext benchmarks', () => {
     expect(result.ops).toBeGreaterThan(0)
 
     console.log(`Format Resolution: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
-  })
-
-  it('should compare different token operation types', async () => {
-    const simpleTokens: TokenCollection = {}
-    const aliasTokens: TokenCollection = { base: '#007BFF' }
-
-    for (let i = 0; i < 100; i++) {
-      simpleTokens[`token-${i}`] = `#${i.toString(16).padStart(6, '0')}`
-      aliasTokens[`alias-${i}`] = { $value: '{base}' }
-    }
-
-    const simpleContext = createTokensContext('benchmark-simple', simpleTokens)[2]
-    const aliasContext = createTokensContext('benchmark-alias-comp', aliasTokens)[2]
-
-    const results = await compare({
-      'register 100 simple tokens': () => {
-        createTokensContext('simple-test', simpleTokens)
-      },
-      'register 100 alias tokens': () => {
-        createTokensContext('alias-test', aliasTokens)
-      },
-      'resolve 100 simple tokens': () => {
-        for (let i = 0; i < 100; i++) {
-          simpleContext.resolve(`token-${i}`)
-        }
-      },
-      'resolve 100 alias tokens': () => {
-        for (let i = 0; i < 100; i++) {
-          aliasContext.resolve(`alias-${i}`)
-        }
-      },
-    })
-
-    expect(results).toHaveLength(4)
-
-    console.log('Token operation comparison (fastest to slowest):')
-    for (const [index, result] of results.entries()) {
-      console.log(`${index + 1}. ${result.name}: ${result.ops} ops/sec`)
-    }
   })
 
   it('should benchmark different token collection sizes', async () => {
