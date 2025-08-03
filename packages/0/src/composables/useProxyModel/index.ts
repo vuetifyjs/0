@@ -22,12 +22,12 @@ import type { ID } from '#v0/types'
  */
 export function useProxyModel<Z extends SelectionTicket> (
   registry: SelectionContext<Z>,
-  _model: Z[] | Z = [],
+  initial: Z[] | Z = [],
   _transformIn?: (val: Z[] | Z) => Z[],
   _transformOut?: (val: Z[]) => Z[] | Z,
 ) {
   const logger = useLogger()
-  const internal = ref<Z[] | Z>(_model)
+  const internal = ref<Z[] | Z>(initial)
   const isModelArray = toRef(() => isArray(internal.value))
 
   function transformIn (val: Z[] | Z): Z[] {
