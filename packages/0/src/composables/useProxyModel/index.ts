@@ -2,7 +2,7 @@
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { computed, watch, ref, toRef, toValue } from 'vue'
+import { computed, watch, ref, toValue, toRaw, shallowRef } from 'vue'
 import { isFunction, isArray } from '#v0/utilities'
 
 // Transformers
@@ -11,6 +11,11 @@ import { toArray } from '#v0/transformers'
 // Types
 import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
 import type { ID } from '#v0/types'
+
+export interface ProxyModelOptions {
+  /** Whether to use deep reactivity for the model */
+  deep?: boolean
+}
 
 /**
  * Creates a proxy model for two-way binding with a selection context.
@@ -22,39 +27,40 @@ import type { ID } from '#v0/types'
  */
 export function useProxyModel<Z extends SelectionTicket> (
   registry: SelectionContext<Z>,
-  initial: Z[] | Z = [],
+  initial?: Z | Z[],
+  options?: ProxyModelOptions,
   _transformIn?: (val: Z[] | Z) => Z[],
-  _transformOut?: (val: Z[]) => Z[] | Z,
+  _transformOut?: (val: Z[]) => Z | Z[],
 ) {
   const logger = useLogger()
-  const internal = ref<Z[] | Z>(initial)
-  const isModelArray = toRef(() => isArray(internal.value))
+  const reactivity = options?.deep ? ref : shallowRef
+  const internal = reactivity<Z[]>(initial ? toArray<Z>(initial) : [])
+  const isModelArray = isArray(initial)
 
-  function transformIn (val: Z[] | Z): Z[] {
+  function transformIn (val: Z | Z[]): Z[] {
     if (isFunction(_transformIn)) return _transformIn(val)
 
     return toArray(val)
   }
 
-  function transformOut (val: Z[]): Z[] | (Z | undefined) {
+  function transformOut (val: Z[]): Z | Z[] | undefined {
     if (isFunction(_transformOut)) return _transformOut(val)
 
-    if (isModelArray.value) return val
-    if (val.length === 0) return undefined
-    if (val.length === 1) return val[0]
-    return val
+    return isModelArray ? val : val[0]
   }
 
   const model = computed({
     get () {
-      return transformIn(internal.value)
+      return transformOut(internal.value as Z[])
     },
-    set (val) {
-      internal.value = transformOut(val)
+    set (val: Z[]) {
+      internal.value = transformIn(val)
     },
   })
 
-  const watcher = watch(registry.selectedIds, val => {
+  const watcher = watch(registry.selectedIds, (val, oldVal) => {
+    if (toRaw(val).symmetricDifference(toRaw(oldVal)).size === 0) return
+
     if (val.size === 0) {
       model.value = []
       return
@@ -75,12 +81,19 @@ export function useProxyModel<Z extends SelectionTicket> (
 
     watcher.pause()
 
-    for (const id of currentIds.difference(targetIds)) {
-      registry.selectedIds.delete(id)
-    }
+    if (isModelArray) {
+      for (const id of currentIds.difference(targetIds)) {
+        registry.selectedIds.delete(id)
+      }
 
-    for (const id of targetIds.difference(currentIds)) {
-      registry.selectedIds.add(id)
+      for (const id of targetIds.difference(currentIds)) {
+        registry.selectedIds.add(id)
+      }
+    } else {
+      const next = targetIds.values().next().value as ID
+      const last = currentIds.values().next().value as ID
+      registry.selectedIds.delete(last)
+      registry.selectedIds.add(next)
     }
 
     watcher.resume()
