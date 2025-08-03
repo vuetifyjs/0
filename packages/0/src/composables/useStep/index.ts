@@ -6,7 +6,7 @@ import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables
 
 export interface StepTicket extends SingleTicket {}
 
-export type StepContext<Z extends StepTicket> = SingleContext<Z> & {
+export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
   first: () => void
   last: () => void
   next: () => void
@@ -20,9 +20,7 @@ export interface StepOptions extends SingleOptions {}
  * Creates a step selection context for managing collections where users can navigate through items sequentially.
  * This function extends the single selection functionality with stepping navigation.
  *
- * @param model Optional reactive model reference for two-way binding.
  * @param options Optional configuration for step behavior.
- * @param namespace Optional namespace for context sharing.
  * @template Z The type of items managed by the step selection.
  * @template E The type of the step selection context.
  * @returns The step selection context object.
@@ -86,14 +84,12 @@ export function useStep<
     registry.select(id)
   }
 
-  const context = {
+  return {
     ...registry,
     first,
     last,
     next,
     prev,
     step,
-  } as unknown as E
-
-  return context
+  } as E
 }

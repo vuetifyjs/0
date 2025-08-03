@@ -71,8 +71,12 @@ declare global {
   const inject: typeof import('vue')['inject']
   const installMarkdownPlugin: typeof import('../../packages/v0/src/composables/useMarkdown/index')['installMarkdownPlugin']
   const isArray: typeof import('../../packages/0/src/utilities/helpers')['isArray']
+  const isBoolean: typeof import('../../packages/0/src/utilities/helpers')['isBoolean']
+  const isFunction: typeof import('../../packages/0/src/utilities/helpers')['isFunction']
   const isNullOrUndefined: typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']
+  const isNumber: typeof import('../../packages/0/src/utilities/helpers')['isNumber']
   const isObject: typeof import('../../packages/0/src/utilities/helpers')['isObject']
+  const isPrimitive: typeof import('../../packages/0/src/utilities/helpers')['isPrimitive']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
@@ -148,6 +152,7 @@ declare global {
   const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
   const useMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']
   const useModel: typeof import('vue')['useModel']
+  const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']
   const useRegistrar: typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']
   const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
   const useResizeObserver: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']
@@ -278,8 +283,6 @@ declare module 'vue' {
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
-    readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']>
-    readonly createStepContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['createStepContext']>
     readonly createStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']>
     readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
@@ -299,8 +302,12 @@ declare module 'vue' {
     readonly hexaToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly isArray: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isArray']>
+    readonly isBoolean: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isBoolean']>
+    readonly isFunction: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isFunction']>
     readonly isNullOrUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']>
+    readonly isNumber: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNumber']>
     readonly isObject: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isObject']>
+    readonly isPrimitive: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isPrimitive']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
@@ -369,6 +376,7 @@ declare module 'vue' {
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
     readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
     readonly useResizeObserver: UnwrapRef<typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>

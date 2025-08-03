@@ -1,8 +1,20 @@
 // Types
 import type { DeepPartial } from '#v0/types'
 
+export function isFunction (item: unknown): item is Function {
+  return typeof item === 'function'
+}
+
 export function isString (item: unknown): item is string {
   return typeof item === 'string'
+}
+
+export function isNumber (item: unknown): item is number {
+  return typeof item === 'number'
+}
+
+export function isBoolean (item: unknown): item is boolean {
+  return typeof item === 'boolean'
 }
 
 export function isObject (item: unknown): item is Record<string, unknown> {
@@ -15,6 +27,14 @@ export function isArray (item: unknown): item is unknown[] {
 
 export function isNullOrUndefined (item: unknown): item is null {
   return item == null
+}
+
+export function isPrimitive (item: unknown): item is string | number | boolean {
+  return (
+    typeof item === 'string' ||
+    typeof item === 'number' ||
+    typeof item === 'boolean'
+  )
 }
 
 export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<T>[]): T {

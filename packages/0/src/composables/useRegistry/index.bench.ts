@@ -97,30 +97,4 @@ describe('useRegistry benchmarks', () => {
       console.log(`Browse by value: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
     })
   })
-
-  describe('reactivity', () => {
-    it('should benchmark shallow reactivity registration operations', async () => {
-      const registry = useRegistry()
-
-      const result = await bench('register 1000 items (shallow)', () => {
-        for (const item of enroll(1000)) {
-          registry.register({ id: `item-${item}`, value: `value-${item}` })
-        }
-      })
-
-      console.log(`Shallow Registration: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
-    })
-
-    it('should benchmark deep reactivity registration operations', async () => {
-      const registry = useRegistry({ deep: true })
-
-      const result = await bench('register 1000 items (deep)', () => {
-        for (const item of enroll(1000)) {
-          registry.register({ id: `item-${item}`, value: { value: `value-${item}` } })
-        }
-      })
-
-      console.log(`Deep Registration: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
-    })
-  })
 })

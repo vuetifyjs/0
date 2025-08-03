@@ -1,10 +1,8 @@
 // Utilities
-import { reactive, shallowReactive } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'
-import type { Reactive } from 'vue'
 
 export interface RegistryTicket {
   id: ID
@@ -29,18 +27,22 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
   /** Find a ticket by id */
-  find: (id: ID) => Reactive<Z> | undefined
+  find: (id: ID) => Z | undefined
   /** Register a new item */
-  register: (item?: Partial<Z>) => Reactive<Z>
+  register: (item?: Partial<Z>) => Z
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
   reindex: () => void
+  /** Listen for registry events */
+  on: (event: string, cb: Function) => void
+  /** Stop listening for registry events */
+  off: (event: string, cb: Function) => void
 }
 
 export interface RegistryOptions {
-  /** Use reactive instead of shallowReactive */
-  deep?: boolean
+  /** Enable event emission for registry operations */
+  events?: boolean
 }
 
 /**
@@ -48,7 +50,6 @@ export interface RegistryOptions {
  * This function provides the foundation for item management systems with ID-based, value-based,
  * and index-based access patterns.
  *
- * @param namespace The namespace for the registry context.
  * @param options Optional configuration for reactivity behavior.
  * @template Z The type of items managed by the registry.
  * @template E The type of the registry context.
@@ -58,13 +59,30 @@ export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
   E extends RegistryContext<Z> = RegistryContext<Z>,
 > (options?: RegistryOptions): E {
-  const reactivity = options?.deep ? reactive : shallowReactive
-  const collection = reactivity(new Map<ID, Z>())
+  const collection = new Map<ID, Z>()
   const catalog = new Map<unknown, ID>()
   const directory = new Map<number, ID>()
 
-  function find (id: ID): Reactive<Z> | undefined {
-    return collection.get(id) as Reactive<Z> | undefined
+  const listeners = new Map<string, Set<Function>>()
+
+  function emit (event: string, data: any) {
+    if (!options?.events) return
+    const cbs = listeners.get(event)
+    if (!cbs) return
+    for (const cb of cbs) cb(data)
+  }
+
+  function on (event: string, cb: Function) {
+    if (!listeners.has(event)) listeners.set(event, new Set())
+    listeners.get(event)!.add(cb)
+  }
+
+  function off (event: string, cb: Function) {
+    listeners.get(event)?.delete(cb)
+  }
+
+  function find (id: ID): Z | undefined {
+    return collection.get(id) as Z | undefined
   }
 
   function browse (value: unknown) {
@@ -103,23 +121,24 @@ export function useRegistry<
     }
   }
 
-  function register (registrant: Partial<Z> = {}): Reactive<Z> {
+  function register (registrant: Partial<Z> = {}): Z {
     const size = collection.size
     const id = registrant.id ?? genId()
-    const item: Partial<Z> = {
+    const item = {
       ...registrant,
       id,
       index: registrant.index ?? size,
       value: registrant.value ?? size,
       valueIsIndex: registrant.value == null,
-    }
-    const ticket = reactive(item) as Reactive<Z>
+    } as Z
 
-    collection.set(ticket.id, ticket as any)
-    catalog.set(ticket.value, ticket.id)
-    directory.set(ticket.index, ticket.id)
+    collection.set(item.id, item)
+    catalog.set(item.value, item.id)
+    directory.set(item.index, item.id)
 
-    return ticket
+    emit('register', item)
+
+    return item
   }
 
   function unregister (id: ID) {
@@ -132,12 +151,16 @@ export function useRegistry<
     directory.delete(item.index)
 
     reindex()
+
+    emit('unregister', item)
   }
 
-  const context = {
+  return {
     collection,
     catalog,
     directory,
+    on,
+    off,
     has,
     clear,
     browse,
@@ -146,7 +169,5 @@ export function useRegistry<
     register,
     unregister,
     reindex,
-  } as unknown as E
-
-  return context
+  } as E
 }
