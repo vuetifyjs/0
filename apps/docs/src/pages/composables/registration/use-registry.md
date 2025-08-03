@@ -29,11 +29,11 @@ A foundational composable for building registration-based systems, managing coll
 
   interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
     collection: Map<ID, Z>
-    catalog: Map<unknown, ID>
+    catalog: Map<unknown, ID | ID[]>
     directory: Map<number, ID>
     clear: () => void
     has: (id: ID) => boolean
-    browse: (value: unknown) => ID | undefined
+    browse: (value: unknown) => ID | ID[] | undefined
     lookup: (index: number) => ID | undefined
     find: (id: ID) => Z | undefined
     register: (item?: Partial<Z>) => Z
@@ -50,11 +50,11 @@ A foundational composable for building registration-based systems, managing coll
 - **Details**
 
   - `collection`: A map of registered items by their unique ID.
-  - `catalog`: A map of item values to their unique IDs.
+  - `catalog`: A map of item values to their unique IDs. When multiple items share the same value, the catalog intelligently stores an array of IDs; when reduced to a single item, it converts back to a primitive ID.
   - `directory`: A map of item indices to their unique IDs.
   - `clear()`: Removes all items from the registry, clearing the collection, catalog, and directory.
   - `has(id: ID)`: Returns `true` if an item with the given ID exists in the registry, `false` otherwise.
-  - `browse(value: unknown)`: Returns the ID of the first item matching the value, or `undefined` if not found.
+  - `browse(value: unknown)`: Returns the ID(s) associated with the given value. Returns a single ID if only one item has that value, an array of IDs if multiple items share the value, or `undefined` if not found.
   - `lookup(index: number)`: Returns the ID of the item at the given index, or `undefined` if not found.
   - `find(id: ID)`: Returns the registered item for the given ID, or `undefined` if not found.
   - `register(item?: Partial<Z>)`: Registers a new item. Returns the registered item; otherwise known as a **ticket**.
@@ -215,16 +215,41 @@ const ticket1 = registry.register() // { id: 'generated-id', index: 0, value: 0,
 const ticket2 = registry.register({ value: 'custom' }) // { id: 'generated-id', index: 1, value: 'custom', valueIsIndex: false }
 ```
 
+### Duplicate Value Handling
+
+The catalog intelligently handles duplicate values by automatically converting between single IDs and arrays:
+
+```ts
+const registry = useRegistry()
+
+registry.register({ id: 'item1', value: 'value' })
+
+console.log(registery.browse('value')) // 'item1'
+
+registry.register({ id: 'item2', value: 'value' })
+
+console.log(registery.browse('value')) // ['item1', 'item2']
+
+registry.unregister('item1')
+
+console.log(registery.browse('value')) // 'item2'
+```
+
 ## Performance
 
 The `useRegistry` composable is designed to be efficient, leveraging Vue's reactivity system to minimize overhead. It uses maps for fast lookups and maintains an index for quick access to registered items. The composable also supports deep reactivity for complex objects, ensuring that changes are tracked efficiently.
 
 The primary way that you will access information in the registry is to search for it by **ID** using the `find` method. If you don't know the ID what you're looking for, you can use one of the following methods to locate it:
 
-- `browse(value: unknown)`: Searches for the first item that matches the given value and returns its ID.
+- `browse(value: unknown)`: Searches for item(s) that match the given value and returns their ID(s). Returns a single ID, array of IDs, or `undefined`.
 - `lookup(index: number)`: Returns the ID of the item at the specified index.
 
-In addition to the collection Map, the registry maintains a `catalog` Map that maps item values to their IDs, and a `directory` Map that maps item indices to their IDs. This allows for efficient lookups and indexing of registered items.
+In addition to the collection Map, the registry maintains a `catalog` Map that maps item values to their IDs (or arrays of IDs for duplicate values), and a `directory` Map that maps item indices to their IDs. This allows for efficient lookups and indexing of registered items.
+
+The catalog automatically handles duplicate values by:
+- Storing a single ID when only one item has a particular value
+- Converting to an array when multiple items share the same value
+- Converting back to a single ID when reduced to one item
 
 ### Benchmarks
 
