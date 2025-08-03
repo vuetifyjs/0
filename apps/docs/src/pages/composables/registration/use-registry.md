@@ -37,7 +37,7 @@ A foundational composable for building registration-based systems, managing coll
     lookup: (index: number) => ID | undefined
     find: (id: ID) => Z | undefined
     register: (item?: Partial<Z>) => Z
-    unregister: (id: ID) => void
+    unregister: (ids: ID | ID[]) => void
     reindex: () => void
     on: (event: string, cb: Function) => void
     off: (event: string, cb: Function) => void
@@ -58,7 +58,7 @@ A foundational composable for building registration-based systems, managing coll
   - `lookup(index: number)`: Returns the ID of the item at the given index, or `undefined` if not found.
   - `find(id: ID)`: Returns the registered item for the given ID, or `undefined` if not found.
   - `register(item?: Partial<Z>)`: Registers a new item. Returns the registered item; otherwise known as a **ticket**.
-  - `unregister(id: ID)`: Unregisters an item by its ID and reindexes the remaining items.
+  - `unregister(ids: ID | ID[])`: Unregisters one or more items by their ID(s). Accepts either a single ID or an array of IDs for efficient batch removal. After processing all items, reindexes the remaining items.
   - `reindex()`: Rebuilds the index of items based on their current state.
   - `on(event: string, cb: Function)`: Listens for registry events (requires `events: true` option).
   - `off(event: string, cb: Function)`: Stops listening for registry events.
@@ -166,12 +166,19 @@ The registry provides several utility methods for managing the collection:
 const registry = useRegistry()
 
 // Register some items
-registry.register({ id: 'item1', value: 'value1' })
-registry.register({ id: 'item2', value: 'value2' })
+const ticket1 = registry.register({ id: 'item1', value: 'value1' })
+const ticket2 = registry.register({ id: 'item2', value: 'value2' })
+const ticket3 = registry.register({ id: 'item3', value: 'value3' })
 
 // Check if items exist
 console.log(registry.has('item1')) // true
 console.log(registry.has('item3')) // false
+
+// Unregister a single item
+registry.unregister('item1')
+
+// Unregister multiple items efficiently (reindex only runs once)
+registry.unregister(['item2', 'item3'])
 
 // Clear all items
 registry.clear()
@@ -250,6 +257,10 @@ The catalog automatically handles duplicate values by:
 - Storing a single ID when only one item has a particular value
 - Converting to an array when multiple items share the same value
 - Converting back to a single ID when reduced to one item
+
+### Batch Operations
+
+For improved performance when removing multiple items, the `unregister` method accepts both single IDs and arrays of IDs. When multiple items are unregistered at once, the expensive reindexing operation is performed only once at the end, rather than after each individual removal.
 
 ### Benchmarks
 

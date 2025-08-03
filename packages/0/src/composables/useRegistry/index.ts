@@ -6,6 +6,7 @@ import { genId, isArray } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'
+import { toArray } from '#v0/transformers'
 
 export interface RegistryTicket {
   id: ID
@@ -162,31 +163,33 @@ export function useRegistry<
     return item
   }
 
-  function unregister (id: ID) {
-    const item = collection.get(id)
+  function unregister (ids: ID | ID[]) {
+    for (const id of toArray(ids)) {
+      const item = collection.get(id)
 
-    if (!item) return
+      if (!item) continue
 
-    collection.delete(item.id)
-    directory.delete(item.index)
+      collection.delete(item.id)
+      directory.delete(item.index)
 
-    let exists = catalog.get(item.value)
+      let exists = catalog.get(item.value)
 
-    if (isArray(exists)) {
-      exists = exists.filter(i => i !== item.id)
+      if (isArray(exists)) {
+        exists = exists.filter(i => i !== item.id)
 
-      if (exists.length === 1) {
-        catalog.set(item.value, exists[0])
-      } else if (exists.length === 0) {
+        if (exists.length === 1) {
+          catalog.set(item.value, exists[0])
+        } else if (exists.length === 0) {
+          catalog.delete(item.value)
+        }
+      } else {
         catalog.delete(item.value)
       }
-    } else {
-      catalog.delete(item.value)
+
+      emit('unregister', item)
     }
 
     reindex()
-
-    emit('unregister', item)
   }
 
   return {
