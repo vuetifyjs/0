@@ -81,7 +81,7 @@ export function useSelection<
     }
   }
 
-  function register (registrant: Partial<Z> = {}): Reactive<Z> {
+  function register (registrant: Partial<Z> = {}): Z {
     const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       disabled: false,
@@ -91,7 +91,7 @@ export function useSelection<
       toggle: () => select(id),
     }
 
-    const ticket = registry.register(item) as Reactive<Z>
+    const ticket = registry.register(item) as Z
 
     if (mandatory === 'force') mandate()
 

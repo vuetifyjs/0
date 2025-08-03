@@ -140,14 +140,14 @@ export function createTheme<
     })
   }
 
-  function register (registrant: Partial<Z> = {}): Reactive<Z> {
+  function register (registrant: Partial<Z> = {}): Z {
     const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       lazy: false,
       ...registrant,
       id,
     }
-    return registry.register(item) as Reactive<Z>
+    return registry.register(item) as Z
   }
 
   const context: E = {
