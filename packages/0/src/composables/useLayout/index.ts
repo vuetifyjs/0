@@ -2,13 +2,13 @@
 import { useGroup } from '#v0/composables/useGroup'
 
 // Utilities
-import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, onUnmounted, onMounted, getCurrentInstance } from 'vue'
+import { computed, shallowReactive, shallowRef, onUnmounted, onMounted, getCurrentInstance } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
 import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
-import { genId } from '#v0/utilities'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
