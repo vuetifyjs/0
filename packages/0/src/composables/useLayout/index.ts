@@ -2,7 +2,7 @@
 import { useGroup } from '#v0/composables/useGroup'
 
 // Utilities
-import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, type Reactive, onUnmounted, onMounted, getCurrentInstance } from 'vue'
+import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, onUnmounted, onMounted, getCurrentInstance } from 'vue'
 import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
@@ -86,7 +86,7 @@ export function useLayout<
     return total
   }
 
-  function register (registrant: Partial<Z>): Reactive<Z> {
+  function register (registrant: Partial<Z>): Z {
     const id = registrant.id ?? genId()
     const item: Partial<Z> = {
       position: registrant.position,
@@ -96,7 +96,7 @@ export function useLayout<
       id,
     }
 
-    const ticket = registry.register(item) as Reactive<Z>
+    const ticket = registry.register(item)
     sizes.set(ticket.id, ticket.size)
 
     return ticket
