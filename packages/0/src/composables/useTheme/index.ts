@@ -9,7 +9,7 @@ import { createTokensContext } from '#v0/composables/useTokens'
 
 // Utilities
 import { computed, watch } from 'vue'
-import { genId } from '#v0/utilities/helpers'
+import { genId, isString } from '#v0/utilities/helpers'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from './adapters/v0'
@@ -20,7 +20,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 // Types
 import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, Reactive } from 'vue'
+import type { App, ComputedRef } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
 import type { TokenCollection, TokenContext, TokenTicket } from '#v0/composables/useTokens'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
@@ -120,7 +120,7 @@ export function createTheme<
     return value.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, tokenKey) => {
       // Check palette first
       if (palette[tokenKey]) {
-        return typeof palette[tokenKey] === 'string' ? palette[tokenKey] : match
+        return isString(palette[tokenKey]) ? palette[tokenKey] : match
       }
 
       // Check if it's a reference to another theme color
@@ -130,13 +130,13 @@ export function createTheme<
       if (targetTheme && colorKey) {
         const targetColors = themes[targetTheme] as Colors
         const resolved = targetColors?.[colorKey]
-        return typeof resolved === 'string' ? resolveTokenReference(targetTheme, resolved) : match
+        return isString(resolved) ? resolveTokenReference(targetTheme, resolved) : match
       }
 
       // Check current theme for the key
       const currentColors = themes[themeId] as Colors
       const resolved = currentColors?.[tokenKey]
-      return typeof resolved === 'string' ? resolveTokenReference(themeId, resolved) : match
+      return isString(resolved) ? resolveTokenReference(themeId, resolved) : match
     })
   }
 
@@ -150,15 +150,13 @@ export function createTheme<
     return registry.register(item) as Z
   }
 
-  const context: E = {
+  return createTrinity<E>(useThemeContext, provideThemeContext, {
     ...registry,
     colors,
     register,
     cycle,
     toggle,
-  }
-
-  return createTrinity<E>(useThemeContext, provideThemeContext, context)
+  } as E)
 }
 
 /**
@@ -199,8 +197,8 @@ export function createThemePlugin<
   return createPlugin<ThemePlugin>({
     namespace: 'v0:theme',
     provide: (app: App) => {
-      // provideThemeContext(undefined, themeContext, app)
-      // provideThemeTokenContext(undefined, tokensContext, app)
+      provideThemeContext(themeContext, app)
+      provideThemeTokenContext(tokensContext, app)
     },
     setup: () => {
       if (IN_BROWSER) {
