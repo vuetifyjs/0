@@ -12,8 +12,16 @@ import { toArray } from '#v0/transformers'
 import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
 import type { ID } from '#v0/types'
 
+/**
+ * Creates a proxy model for two-way binding with a selection context.
+ *
+ * @param registry SelectionContext | GroupContext | SingleContext | StepContext
+ * @template Z The type of items managed by the selection.
+ * @template E The type of the selection context.
+ * @returns The proxy model for two-way binding with the selection context.
+ */
 export function useProxyModel<Z extends SelectionTicket> (
-  selection: SelectionContext<Z>,
+  registry: SelectionContext<Z>,
   _model: Z[] | Z = [],
   _transformIn?: (val: Z[] | Z) => Z[],
   _transformOut?: (val: Z[]) => Z[] | Z,
@@ -46,21 +54,21 @@ export function useProxyModel<Z extends SelectionTicket> (
     },
   })
 
-  const watcher = watch(selection.selectedIds, val => {
+  const watcher = watch(registry.selectedIds, val => {
     if (val.size === 0) {
       model.value = []
       return
     }
 
-    model.value = Array.from(selection.selectedValues.value) as Z[]
+    model.value = Array.from(registry.selectedValues.value) as Z[]
   })
 
   watch(model, val => {
-    const currentIds = new Set(toValue(selection.selectedIds))
+    const currentIds = new Set(toValue(registry.selectedIds))
     const targetIds = new Set<ID>()
 
     for (const value of toArray(val)) {
-      const id = selection.browse(value)
+      const id = registry.browse(value)
       if (id) targetIds.add(id)
       else logger.warn('Unable to find id for value', value)
     }
@@ -68,11 +76,11 @@ export function useProxyModel<Z extends SelectionTicket> (
     watcher.pause()
 
     for (const id of currentIds.difference(targetIds)) {
-      selection.selectedIds.delete(id)
+      registry.selectedIds.delete(id)
     }
 
     for (const id of targetIds.difference(currentIds)) {
-      selection.selectedIds.add(id)
+      registry.selectedIds.add(id)
     }
 
     watcher.resume()

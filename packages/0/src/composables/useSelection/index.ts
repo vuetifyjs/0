@@ -18,12 +18,12 @@ export interface SelectionTicket extends RegistryTicket {
 }
 
 export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
-  selectedIndexes: ComputedRef<Set<number>>
   selectedIds: Reactive<Set<ID>>
   selectedItems: ComputedRef<Set<Z>>
   selectedValues: ComputedRef<Set<unknown>>
   /** Clear all selected IDs and reindexes */
   reset: () => void
+  select: (id: ID) => void
   mandate: () => void
 }
 
@@ -51,12 +51,6 @@ export function useSelection<
   const selectedItems = computed(() => {
     return new Set(
       Array.from(selectedIds).map(id => registry.find(id)),
-    )
-  })
-
-  const selectedIndexes = computed(() => {
-    return new Set(
-      Array.from(selectedItems.value).map(item => item?.index),
     )
   })
 
@@ -115,9 +109,8 @@ export function useSelection<
     registry.mandate()
   }
 
-  const context = {
+  return {
     ...registry,
-    selectedIndexes,
     selectedIds,
     selectedItems,
     selectedValues,
@@ -126,7 +119,5 @@ export function useSelection<
     reset,
     mandate,
     select,
-  } as unknown as E
-
-  return context
+  } as E
 }

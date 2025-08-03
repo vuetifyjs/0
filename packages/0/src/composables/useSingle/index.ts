@@ -25,7 +25,6 @@ export interface SingleOptions extends SelectionOptions {}
  * This function extends the selection functionality with single-selection constraints.
  *
  * @param options Optional configuration for single selection behavior.
- * @param namespace Optional namespace for context sharing.
  * @template Z The type of items managed by the single selection.
  * @template E The type of the single selection context.
  * @returns The single selection context object.
@@ -38,16 +37,14 @@ export function useSingle<
 
   const selectedId = computed(() => registry.selectedIds.values().next().value)
   const selectedItem = computed(() => registry.selectedItems.value.values().next().value)
-  const selectedIndex = computed(() => registry.selectedIndexes.value.values().next().value ?? -1)
-  const selectedValue = computed(() => registry.selectedValues.value.values().next().value)
+  const selectedIndex = computed(() => selectedItem.value?.index ?? -1)
+  const selectedValue = computed(() => selectedItem.value?.value)
 
-  const context: E = {
+  return {
     ...registry,
     selectedId,
     selectedItem,
     selectedIndex,
     selectedValue,
-  }
-
-  return context
+  } as E
 }
