@@ -2,7 +2,7 @@
 import { useGroup } from '#v0/composables/useGroup'
 
 // Utilities
-import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, type Reactive, onUnmounted, onMounted } from 'vue'
+import { computed, shallowReactive, shallowRef, type ComputedRef, type Ref, type Reactive, onUnmounted, onMounted, getCurrentInstance } from 'vue'
 import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
@@ -18,7 +18,7 @@ export interface LayoutTicket extends GroupTicket {
   size: number
 }
 
-export interface BaseLayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
+export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   bounds: {
     top: ComputedRef<number>
     bottom: ComputedRef<number>
@@ -36,21 +36,17 @@ export interface BaseLayoutContext<Z extends LayoutTicket> extends GroupContext<
   width: Ref<number>
 }
 
-export type LayoutContext<Z extends LayoutTicket> = BaseLayoutContext<Z>
-
 export function useLayout<
   Z extends LayoutTicket = LayoutTicket,
-  E extends BaseLayoutContext<Z> = LayoutContext<Z>,
+  E extends LayoutContext<Z> = LayoutContext<Z>,
 > (): E {
-  const registry = useGroup<Z, E>({
-    mandatory: true,
-  })
+  const registry = useGroup<Z, E>()
 
   const sizes = shallowReactive(new Map<ID, number>())
   const height = shallowRef(0)
   const width = shallowRef(0)
 
-  if (IN_BROWSER) {
+  if (IN_BROWSER && getCurrentInstance()) {
     function resize () {
       height.value = window.innerHeight
       width.value = window.innerWidth
