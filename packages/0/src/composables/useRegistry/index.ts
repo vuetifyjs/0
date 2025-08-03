@@ -64,7 +64,7 @@ export function useRegistry<
   E extends RegistryContext<Z> = RegistryContext<Z>,
 > (options?: RegistryOptions): E {
   const reactivity = options?.deep ? reactive : shallowReactive
-  const collection = reactivity(new Map<ID, Z>())
+  const collection = shallowReactive(new Map<ID, Z>())
   const catalog = new Map<unknown, ID>()
   const directory = new Map<number, ID>()
 
@@ -136,7 +136,7 @@ export function useRegistry<
       value: registrant.value ?? size,
       valueIsIndex: registrant.value == null,
     }
-    const ticket = reactive(item) as Reactive<Z>
+    const ticket = reactivity(item) as Reactive<Z>
 
     collection.set(ticket.id, ticket as any)
     catalog.set(ticket.value, ticket.id)

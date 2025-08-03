@@ -71,9 +71,12 @@ declare global {
   const inject: typeof import('vue')['inject']
   const installMarkdownPlugin: typeof import('../../packages/v0/src/composables/useMarkdown/index')['installMarkdownPlugin']
   const isArray: typeof import('../../packages/0/src/utilities/helpers')['isArray']
+  const isBoolean: typeof import('../../packages/0/src/utilities/helpers')['isBoolean']
   const isFunction: typeof import('../../packages/0/src/utilities/helpers')['isFunction']
   const isNullOrUndefined: typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']
+  const isNumber: typeof import('../../packages/0/src/utilities/helpers')['isNumber']
   const isObject: typeof import('../../packages/0/src/utilities/helpers')['isObject']
+  const isPrimitive: typeof import('../../packages/0/src/utilities/helpers')['isPrimitive']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
@@ -295,9 +298,12 @@ declare module 'vue' {
     readonly hexaToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly isArray: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isArray']>
+    readonly isBoolean: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isBoolean']>
     readonly isFunction: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isFunction']>
     readonly isNullOrUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']>
+    readonly isNumber: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNumber']>
     readonly isObject: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isObject']>
+    readonly isPrimitive: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isPrimitive']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
