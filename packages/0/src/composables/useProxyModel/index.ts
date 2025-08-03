@@ -52,9 +52,7 @@ export function useProxyModel<Z extends SelectionTicket> (
       return
     }
 
-    const target = selection.returnObject ? selection.selectedItems : selection.selectedValues
-
-    model.value = Array.from(target.value) as Z[]
+    model.value = Array.from(selection.selectedValues.value) as Z[]
   })
 
   watch(model, val => {

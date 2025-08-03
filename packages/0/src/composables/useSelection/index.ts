@@ -18,7 +18,6 @@ export interface SelectionTicket extends RegistryTicket {
 }
 
 export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
-  returnObject: boolean
   selectedIndexes: ComputedRef<Set<number>>
   selectedIds: Reactive<Set<ID>>
   selectedItems: ComputedRef<Set<Z>>
@@ -30,7 +29,6 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
 
 export interface SelectionOptions extends RegistryOptions {
   mandatory?: boolean | 'force'
-  returnObject?: boolean
 }
 
 /**
@@ -49,7 +47,6 @@ export function useSelection<
   const registry = useRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
   const mandatory = options?.mandatory ?? false
-  const returnObject = options?.returnObject ?? false
 
   const selectedIndexes = computed(() => {
     return new Set(
@@ -120,7 +117,6 @@ export function useSelection<
 
   const context = {
     ...registry,
-    returnObject,
     selectedIndexes,
     selectedIds,
     selectedItems,
