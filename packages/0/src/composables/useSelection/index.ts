@@ -48,15 +48,15 @@ export function useSelection<
   const selectedIds = shallowReactive(new Set<ID>())
   const mandatory = options?.mandatory ?? false
 
-  const selectedIndexes = computed(() => {
-    return new Set(
-      Array.from(selectedIds).map(id => registry.find(id)?.index),
-    )
-  })
-
   const selectedItems = computed(() => {
     return new Set(
       Array.from(selectedIds).map(id => registry.find(id)),
+    )
+  })
+
+  const selectedIndexes = computed(() => {
+    return new Set(
+      Array.from(selectedItems.value).map(item => item?.index),
     )
   })
 
