@@ -15,18 +15,15 @@ The **createTrinity** factory function is a type-safe utility for generating a 3
 
 - **Type**
   ```ts
-  type ContextTrinity<
-   Z = unknown,
-   E = unknown,
-  > = readonly [
+  type ContextTrinity<Z = unknown> = readonly [
     () => Z,
-    (model?: Ref<E>, context?: Z, app?: App) => Z,
+    (context: Z, app?: App) => Z,
     Z,
   ]
 
   function createTrinity<Z> (
     useContext: () => Z,
-    provideContext: (model?: Ref<unknown | unknown[]>, context: Z, app?: App) => Z,
+    provideContext: (context: Z, app?: App) => Z,
     context: Z
   ): ContextTrinity<Z>
   ```
@@ -57,69 +54,6 @@ export function useUserContext () {
 
   return createTrinity<UserContext>(useContext, provideContext, user)
 }
-```
-
-This pattern also supports the use of a `Ref` model that can be used to manage reactive state. The `model` parameter in the `provideContext` function allows you to pass a `Ref` that will be updated whenever the context changes.
-
-```ts
-// src/composables/user-context.ts
-import { createContext, createTrinity } from '@vuetify/0'
-
-interface User {
-  id: string
-  name: string
-}
-
-interface UserContext {
-  user: User
-}
-
-function useUserContext () {
-  const [useContext, _provideContext] = createContext<UserContext>('user')
-
-  const user = ref<User>({ id: '123', name: 'John Doe' })
-
-  function provideContext (model?: Ref<User>, _context?: UserContext, app?: App): UserContext {
-    if (model) {
-      watch(model, value => {
-        user.value = value
-      })
-    }
-
-    return _provideContext(user, _context, app)
-  }
-
-  const context: UserContext = {  user }
-
-  return createTrinity<UserContext>(useContext, provideContext, user)
-}
-
-export const [useUserContext, provideUserContext] = useUserContext()
-```
-
-Now, the `useUserContext` composable can respond to changes in the `user` model, allowing for reactive updates across components that consume this context.
-
-
-```html
-<!-- src/App.vue -->
-<script lang="ts" setup>
-  import { provideUserContext } from '@/composables/user-context'
-
-  const user = ref<Partial<User>>({})
-
-  provideUserContext(user)
-</script>
-```
-
-And in subsequent components, you can use the `useUserContext` composable to access the user context:
-
-```html
-<!-- src/components/UserProfile.vue -->
-<script lang="ts" setup>
-  import { useUserContext } from '@/composables/user-context'
-
-  const { user } = useUserContext()
-</script>
 ```
 
 ## Example

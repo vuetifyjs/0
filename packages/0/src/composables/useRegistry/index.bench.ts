@@ -96,5 +96,51 @@ describe('useRegistry benchmarks', () => {
 
       console.log(`Browse by value: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
     })
+
+    it('should benchmark has operations', async () => {
+      const registry = useRegistry()
+
+      for (const item of enroll(1000)) {
+        registry.register({ id: `item-${item}`, value: `value-${item}` })
+      }
+
+      const result = await bench('check has 1000 items', () => {
+        for (const item of enroll(1000)) {
+          registry.has(`item-${item}`)
+        }
+      })
+
+      console.log(`Has operations: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+    })
+  })
+
+  describe('management operations', () => {
+    it('should benchmark clear operations', async () => {
+      const result = await bench('clear registry with 1000 items', () => {
+        const registry = useRegistry()
+
+        for (const item of enroll(1000)) {
+          registry.register({ id: `item-${item}`, value: `value-${item}` })
+        }
+
+        registry.clear()
+      })
+
+      console.log(`Clear operations: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+    })
+
+    it('should benchmark reindex operations', async () => {
+      const registry = useRegistry()
+
+      for (const item of enroll(1000)) {
+        registry.register({ id: `item-${item}`, value: `value-${item}` })
+      }
+
+      const result = await bench('reindex 1000 items', () => {
+        registry.reindex()
+      })
+
+      console.log(`Reindex operations: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+    })
   })
 })

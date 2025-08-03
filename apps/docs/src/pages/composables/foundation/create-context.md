@@ -48,7 +48,6 @@ It's easy to create a global context that can be used throughout your applicatio
 ```ts
 // src/composables/my-context.ts
 
-import { shallowReactive } from 'vue'
 import { createContext } from '@vuetify/0'
 
 interface MyContext {
@@ -59,7 +58,7 @@ interface MyContext {
 export function useMyContext () {
   const [useContext, provideContext] = createContext<MyContext>('namespace')
 
-  const collection = shallowReactive(new Map<string, string>())
+  const collection = new Map<string, string>()
 
   function find (id: string): string | undefined {
     return collection.get(id)

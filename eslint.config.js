@@ -18,10 +18,7 @@ export default vuetify({
 {
   files: ['**/*.ts'],
   rules: {
-    '@typescript-eslint/consistent-type-imports': ['error', {
-      prefer: 'type-imports',
-      disallowTypeAnnotations: false,
-    }],
+    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'unicorn/no-array-callback-reference': 'off',
   },
 },

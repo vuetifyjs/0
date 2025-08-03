@@ -97,13 +97,11 @@ export function createLocale<
     })
   }
 
-  const context: E = {
+  return createTrinity<E>(useLocaleContext, provideLocaleContext, {
     ...registry,
     t,
     n,
-  }
-
-  return createTrinity<E>(useLocaleContext, provideLocaleContext, context)
+  } as E)
 }
 
 /**
@@ -139,8 +137,8 @@ export function createLocalePlugin<
   return createPlugin<LocalePlugin>({
     namespace: 'v0:locale',
     provide: (app: App) => {
-      // provideLocaleContext(undefined, localeContext, app)
-      // provideLocaleTokenContext(undefined, tokensContext, app)
+      provideLocaleContext(localeContext, app)
+      provideLocaleTokenContext(tokensContext, app)
     },
   })
 }

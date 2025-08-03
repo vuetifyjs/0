@@ -120,13 +120,9 @@ export function createTokensContext<
   namespace: string,
   tokens: TokenCollection = {},
 ): ContextTrinity<E> {
-  const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
+  const [useTokensContext, provideTokensContext] = createContext<E>(namespace)
 
   const context = useTokens<Z, E>(tokens)
-
-  function provideTokensContext (_: unknown, _context: E = context, app?: App): E {
-    return _provideTokensContext(_context, app)
-  }
 
   return createTrinity<E>(useTokensContext, provideTokensContext, context)
 }
