@@ -226,6 +226,9 @@ declare global {
   export type { LoggerContext, LoggerOptions, LoggerPlugin, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
   import('../../packages/0/src/composables/useLogger/index')
   // @ts-ignore
+  export type { ProxyModelOptions } from '../../packages/0/src/composables/useProxyModel/index'
+  import('../../packages/0/src/composables/useProxyModel/index')
+  // @ts-ignore
   export type { RegistryTicket, RegistryContext, RegistryOptions } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
   // @ts-ignore

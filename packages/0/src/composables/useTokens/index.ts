@@ -12,7 +12,6 @@ import { isObject, isPrimitive, isString } from '#v0/utilities'
 // Types
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
-import type { App } from 'vue'
 
 export interface TokenAlias {
   [key: string]: any
@@ -95,12 +94,10 @@ export function useTokens<
     return result
   }
 
-  const context: E = {
+  return {
     ...registry,
     resolve,
-  }
-
-  return context
+  } as E
 }
 
 /**

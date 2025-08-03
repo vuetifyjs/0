@@ -1,5 +1,8 @@
+// Composables
+import { useLogger } from '#v0/composables/useLogger'
+
 // Utilities
-import { genId } from '#v0/utilities/helpers'
+import { genId, isArray } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'
@@ -15,7 +18,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** The reactive collection of items */
   collection: Map<ID, Z>
   /** A catalog of all values in the collection */
-  catalog: Map<unknown, ID>
+  catalog: Map<unknown, ID | ID[]>
   /** A directory of all indexes in the collection */
   directory: Map<number, ID>
   /** Clear the entire registry */
@@ -59,8 +62,10 @@ export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
   E extends RegistryContext<Z> = RegistryContext<Z>,
 > (options?: RegistryOptions): E {
+  const logger = useLogger()
+
   const collection = new Map<ID, Z>()
-  const catalog = new Map<unknown, ID>()
+  const catalog = new Map<unknown, ID | ID[]>()
   const directory = new Map<number, ID>()
 
   const listeners = new Map<string, Set<Function>>()
@@ -81,8 +86,8 @@ export function useRegistry<
     listeners.get(event)?.delete(cb)
   }
 
-  function find (id: ID): Z | undefined {
-    return collection.get(id) as Z | undefined
+  function find (id: ID) {
+    return collection.get(id)
   }
 
   function browse (value: unknown) {
@@ -133,8 +138,19 @@ export function useRegistry<
     } as Z
 
     collection.set(item.id, item)
-    catalog.set(item.value, item.id)
     directory.set(item.index, item.id)
+
+    const exists = catalog.get(item.value)
+
+    if (exists) {
+      if (isArray(exists)) {
+        exists.push(item.id)
+      } else {
+        catalog.set(item.value, [exists, item.id])
+      }
+    } else {
+      catalog.set(item.value, item.id)
+    }
 
     emit('register', item)
 
@@ -147,8 +163,21 @@ export function useRegistry<
     if (!item) return
 
     collection.delete(item.id)
-    catalog.delete(item.value)
     directory.delete(item.index)
+
+    let exists = catalog.get(item.value)
+
+    if (isArray(exists)) {
+      exists = exists.filter(i => i !== item.id)
+
+      if (exists.length === 1) {
+        catalog.set(item.value, exists[0])
+      } else if (exists.length === 0) {
+        catalog.delete(item.value)
+      }
+    } else {
+      catalog.delete(item.value)
+    }
 
     reindex()
 
