@@ -1,10 +1,8 @@
 // Utilities
-import { reactive, shallowReactive } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'
-import type { Reactive } from 'vue'
 
 export interface RegistryTicket {
   id: ID
@@ -29,9 +27,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
   /** Find a ticket by id */
-  find: (id: ID) => Reactive<Z> | undefined
+  find: (id: ID) => Z | undefined
   /** Register a new item */
-  register: (item?: Partial<Z>) => Reactive<Z>
+  register: (item?: Partial<Z>) => Z
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
@@ -43,8 +41,6 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
 }
 
 export interface RegistryOptions {
-  /** Use reactive instead of shallowReactive */
-  deep?: boolean
   /** Enable event emission for registry operations */
   events?: boolean
 }
@@ -63,8 +59,7 @@ export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
   E extends RegistryContext<Z> = RegistryContext<Z>,
 > (options?: RegistryOptions): E {
-  const reactivity = options?.deep ? reactive : shallowReactive
-  const collection = shallowReactive(new Map<ID, Z>())
+  const collection = new Map<ID, Z>()
   const catalog = new Map<unknown, ID>()
   const directory = new Map<number, ID>()
 
@@ -86,8 +81,8 @@ export function useRegistry<
     listeners.get(event)?.delete(cb)
   }
 
-  function find (id: ID): Reactive<Z> | undefined {
-    return collection.get(id) as Reactive<Z> | undefined
+  function find (id: ID): Z | undefined {
+    return collection.get(id) as Z | undefined
   }
 
   function browse (value: unknown) {
@@ -126,25 +121,24 @@ export function useRegistry<
     }
   }
 
-  function register (registrant: Partial<Z> = {}): Reactive<Z> {
+  function register (registrant: Partial<Z> = {}): Z {
     const size = collection.size
     const id = registrant.id ?? genId()
-    const item: Partial<Z> = {
+    const item = {
       ...registrant,
       id,
       index: registrant.index ?? size,
       value: registrant.value ?? size,
       valueIsIndex: registrant.value == null,
-    }
-    const ticket = reactivity(item) as Reactive<Z>
+    } as Z
 
-    collection.set(ticket.id, ticket as any)
-    catalog.set(ticket.value, ticket.id)
-    directory.set(ticket.index, ticket.id)
+    collection.set(item.id, item)
+    catalog.set(item.value, item.id)
+    directory.set(item.index, item.id)
 
-    emit('register', ticket)
+    emit('register', item)
 
-    return ticket
+    return item
   }
 
   function unregister (id: ID) {
