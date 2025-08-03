@@ -1,30 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useLayout } from './index.ts'
-import { getCurrentInstance, onMounted } from 'vue'
+import { mount } from '@vue/test-utils'
+import { defineComponent } from 'vue'
 
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
-  return {
-    ...actual,
-    getCurrentInstance: vi.fn(),
-    onMounted: vi.fn(),
-    watch: vi.fn(),
-    onScopeDispose: vi.fn(),
-  }
-})
-
-// Mock globals
-vi.mock('#v0/constants/globals', () => ({
-  IN_BROWSER: true,
-}))
-
-describe('useLayout', () => {
+describe('useLayout inside component', () => {
   let originalWindow: any
   let mockWindow: any
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    // Mock window object
     originalWindow = global.window
     mockWindow = {
       innerWidth: 1024,
@@ -37,12 +20,47 @@ describe('useLayout', () => {
 
   afterEach(() => {
     global.window! = originalWindow
-    vi.restoreAllMocks()
   })
 
-  const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
-  const mockOnMounted = vi.mocked(onMounted)
+  it('registers height and width in browser', () => {
+    const testComponent = defineComponent({
+      setup () {
+        const context = useLayout()
+        return { context }
+      },
+      template: '<div></div>',
+    })
 
+    const mountedComponent = mount(testComponent)
+    mountedComponent.vm.context.register({ id: 'Component1', position: 'top', size: 32 })
+    mountedComponent.vm.context.register({ id: 'Component2', position: 'left', size: 128 })
+
+    expect(mountedComponent.vm.context.width.value).toEqual(1024)
+    expect(mountedComponent.vm.context.height.value).toEqual(768)
+  })
+
+  it('correctly calculates main', () => {
+    const testComponent = defineComponent({
+      setup () {
+        const context = useLayout()
+        return { context }
+      },
+      template: '<div></div>',
+    })
+
+    const mountedComponent = mount(testComponent)
+
+    mountedComponent.vm.context.register({ id: 'Component1', position: 'top', size: 32 })
+    mountedComponent.vm.context.register({ id: 'Component2', position: 'left', size: 128 })
+
+    expect(mountedComponent.vm.context.main.x.value).toEqual(128)
+    expect(mountedComponent.vm.context.main.y.value).toEqual(32)
+    expect(mountedComponent.vm.context.main.width.value).toEqual(896)
+    expect(mountedComponent.vm.context.main.height.value).toEqual(736)
+  })
+})
+
+describe('useLayout outside component', () => {
   it('registers components', () => {
     const context = useLayout()
     context.register({ id: 'Component1', position: 'top', size: 32 })
@@ -60,35 +78,5 @@ describe('useLayout', () => {
     expect(context.bounds.top.value).toEqual(32)
     expect(context.bounds.bottom.value).toEqual(128)
     expect(context.bounds.left.value).toEqual(64)
-  })
-
-  it('registers height and width in browser', () => {
-    const context = useLayout()
-
-    mockGetCurrentInstance.mockReturnValue({} as any)
-    const mountedCallback = mockOnMounted.mock.calls[0][0]
-    mountedCallback()
-
-    context.register({ id: 'Component1', position: 'top', size: 32 })
-    context.register({ id: 'Component2', position: 'left', size: 128 })
-
-    expect(context.width.value).toEqual(1024)
-    expect(context.height.value).toEqual(768)
-  })
-
-  it('correctly calculates main', () => {
-    const context = useLayout()
-
-    mockGetCurrentInstance.mockReturnValue({} as any)
-    const mountedCallback = mockOnMounted.mock.calls[0][0]
-    mountedCallback()
-
-    context.register({ id: 'Component1', position: 'top', size: 32 })
-    context.register({ id: 'Component2', position: 'left', size: 128 })
-
-    expect(context.main.x.value).toEqual(128)
-    expect(context.main.y.value).toEqual(32)
-    expect(context.main.width.value).toEqual(896)
-    expect(context.main.height.value).toEqual(736)
   })
 })
