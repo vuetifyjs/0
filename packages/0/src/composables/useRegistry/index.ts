@@ -129,6 +129,11 @@ export function useRegistry<
   function register (registrant: Partial<Z> = {}): Z {
     const size = collection.size
     const id = registrant.id ?? genId()
+
+    if (collection.has(id)) {
+      logger.warn(`Item with id "${id}" already exists in the registry.`)
+    }
+
     const item = {
       ...registrant,
       id,
