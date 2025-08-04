@@ -28,6 +28,8 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
 }
 
 export interface SelectionOptions extends RegistryOptions {
+  /** When true, newly registered items are automatically selected if not disabled */
+  enroll?: boolean
   mandatory?: boolean | 'force'
 }
 
@@ -46,6 +48,7 @@ export function useSelection<
 > (options?: SelectionOptions): E {
   const registry = useRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
+  const enroll = options?.enroll ?? false
   const mandatory = options?.mandatory ?? false
 
   const selectedItems = computed(() => {
@@ -93,6 +96,7 @@ export function useSelection<
 
     const ticket = registry.register(item) as Z
 
+    if (enroll && !item.disabled) selectedIds.add(ticket.id)
     if (mandatory === 'force') mandate()
 
     return ticket
