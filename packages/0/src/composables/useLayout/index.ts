@@ -44,9 +44,13 @@ export function useLayout<
   Z extends LayoutTicket = LayoutTicket,
   E extends LayoutContext<Z> = LayoutContext<Z>,
 > (_options: LayoutOptions = {}): E {
-  const { enroll = true, ...options } = _options
+  const {
+    enroll = true,
+    events = true,
+    ...options
+  } = _options
 
-  const registry = useGroup<Z, E>({ enroll, ...options })
+  const registry = useGroup<Z, E>({ enroll, events, ...options })
 
   const sizes = shallowReactive(new Map<ID, number>())
   const height = shallowRef(0)
