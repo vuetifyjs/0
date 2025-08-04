@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { useBreakpoints } from '@vuetify/0'
+  import { useBreakpoints } from '@vuetify/v0'
 
   const breakpoints = useBreakpoints()
 </script>

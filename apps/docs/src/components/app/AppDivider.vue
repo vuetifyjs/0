@@ -1,7 +1,7 @@
 <script setup lang="ts">
-  import { Atom } from '@vuetify/0'
+  import { Atom } from '@vuetify/v0'
 
-  import type { AtomProps } from '@vuetify/0'
+  import type { AtomProps } from '@vuetify/v0'
 
   export interface AppDividerProps extends AtomProps {
     orientation?: 'horizontal' | 'vertical'

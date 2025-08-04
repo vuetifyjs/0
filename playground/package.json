@@ -18,6 +18,6 @@
   "dependencies": {
     "vue": "catalog:",
     "@vuetify/paper": "workspace:*",
-    "@vuetify/0": "workspace:*"
+    "@vuetify/v0": "workspace:*"
   }
 }

@@ -1,10 +1,10 @@
 <script lang="ts" setup>
   // Components
-  import { Atom } from '@vuetify/0'
+  import { Atom } from '@vuetify/v0'
   import { RouterLink } from 'vue-router'
 
   // Types
-  import type { AtomProps } from '@vuetify/0'
+  import type { AtomProps } from '@vuetify/v0'
   import type { RouterLinkProps } from 'vue-router'
 
   export interface NavItem {

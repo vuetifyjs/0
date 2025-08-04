@@ -73,12 +73,12 @@ importers:
 
   apps/docs:
     dependencies:
-      '@vuetify/0':
-        specifier: workspace:*
-        version: link:../../packages/0
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
+      '@vuetify/v0':
+        specifier: workspace:*
+        version: link:../../packages/0
       lucide-vue-next:
         specifier: ^0.534.0
         version: 0.534.0(vue@3.5.17(typescript@5.8.3))
@@ -134,12 +134,12 @@ importers:
 
   apps/storybook:
     dependencies:
-      '@vuetify/0':
-        specifier: workspace:*
-        version: link:../../packages/0
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
+      '@vuetify/v0':
+        specifier: workspace:*
+        version: link:../../packages/0
     devDependencies:
       '@storybook/vue3-vite':
         specifier: ^9.0.13
@@ -192,7 +192,7 @@ importers:
 
   packages/paper:
     dependencies:
-      '@vuetify/0':
+      '@vuetify/v0':
         specifier: workspace:*
         version: link:../0
       vue:
@@ -214,12 +214,12 @@ importers:
 
   playground:
     dependencies:
-      '@vuetify/0':
-        specifier: workspace:*
-        version: link:../packages/0
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../packages/paper
+      '@vuetify/v0':
+        specifier: workspace:*
+        version: link:../packages/0
       vue:
         specifier: 'catalog:'
         version: 3.5.17(typescript@5.8.3)
@@ -3642,8 +3642,8 @@ packages:
   vue-component-type-helpers@2.2.10:
     resolution: {integrity: sha512-iDUO7uQK+Sab2tYuiP9D1oLujCWlhHELHMgV/cB13cuGbG4qwkLHvtfWb6FzvxrIOPDnU0oHsz2MlQjhYDeaHA==}
 
-  vue-component-type-helpers@3.0.4:
-    resolution: {integrity: sha512-WtR3kPk8vqKYfCK/HGyT47lK/T3FaVyWxaCNuosaHYE8h9/k0lYRZ/PI/+T/z2wP+uuNKmL6z30rOcBboOu/YA==}
+  vue-component-type-helpers@3.0.5:
+    resolution: {integrity: sha512-uoNZaJ+a1/zppa/Vgmi8zIOP2PHXDN2rT8NyF+zQRK6ZG94lNB9prcV0GdLJbY9i9lrD47JOVIH92SaiA7oJ1A==}
 
   vue-docgen-api@4.79.2:
     resolution: {integrity: sha512-n9ENAcs+40awPZMsas7STqjkZiVlIjxIKgiJr5rSohDP0/JCrD9VtlzNojafsA1MChm/hz2h3PDtUedx3lbgfA==}
@@ -4174,7 +4174,7 @@ snapshots:
       storybook: 9.0.13(@testing-library/dom@10.4.0)
       type-fest: 2.19.0
       vue: 3.5.17(typescript@5.8.3)
-      vue-component-type-helpers: 3.0.4
+      vue-component-type-helpers: 3.0.5
 
   '@stylistic/eslint-plugin@4.4.1(eslint@9.32.0(jiti@2.4.2))(typescript@5.8.3)':
     dependencies:
@@ -7514,7 +7514,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.10: {}
 
-  vue-component-type-helpers@3.0.4: {}
+  vue-component-type-helpers@3.0.5: {}
 
   vue-docgen-api@4.79.2(vue@3.5.17(typescript@5.8.3)):
     dependencies:

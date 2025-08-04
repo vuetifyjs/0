@@ -48,7 +48,7 @@ It's easy to create a global context that can be used throughout your applicatio
 ```ts
 // src/composables/my-context.ts
 
-import { createContext } from '@vuetify/0'
+import { createContext } from '@vuetify/v0'
 
 interface MyContext {
   collection: Map<string, string>
