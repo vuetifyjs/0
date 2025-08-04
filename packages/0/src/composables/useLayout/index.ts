@@ -65,7 +65,7 @@ export function useLayout<
   function sum (position: LayoutLocation): number {
     let total = 0
     for (const item of registry.collection.values()) {
-      if (item.position === position) {
+      if (item.position === position && item.isActive.value) {
         total += sizes.get(item.id) ?? item.value ?? 0
       }
     }
