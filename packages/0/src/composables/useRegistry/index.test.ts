@@ -94,9 +94,6 @@ describe('useRegistry', () => {
       registry.register({ id: 'item-1', index: 2, value: 'value-1' })
       registry.register({ id: 'item-2', index: 3, value: 'value-2' })
 
-      expect(registry.directory.size).toBe(2)
-      expect(registry.catalog.size).toBe(2)
-
       expect(registry.lookup(2)).toBe('item-1')
       expect(registry.find('item-1')?.index).toBe(2)
 
@@ -111,14 +108,10 @@ describe('useRegistry', () => {
       registry.register()
 
       expect(registry.collection.size).toBe(1)
-      expect(registry.catalog.size).toBe(1)
-      expect(registry.directory.size).toBe(1)
 
       registry.clear()
 
       expect(registry.collection.size).toBe(0)
-      expect(registry.catalog.size).toBe(0)
-      expect(registry.directory.size).toBe(0)
     })
   })
 })

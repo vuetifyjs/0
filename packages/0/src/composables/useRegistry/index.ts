@@ -113,9 +113,11 @@ export function useRegistry<
     let index = 0
 
     for (const item of collection.values()) {
-      item.index = index
+      if (item.index !== index) {
+        item.index = index
 
-      if (item.valueIsIndex) item.value = index
+        if (item.valueIsIndex) item.value = index
+      }
 
       directory.set(index, item.id)
       catalog.set(item.value, item.id)
