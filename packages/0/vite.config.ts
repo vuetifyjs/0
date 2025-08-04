@@ -30,6 +30,7 @@ export default defineConfig({
       fileName: () => `index.mjs`,
       formats: ['es'],
     },
+    minify: false,
     rollupOptions: {
       external: ['vue'],
     },
