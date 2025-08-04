@@ -42,7 +42,7 @@ export function useLayout<
   Z extends LayoutTicket = LayoutTicket,
   E extends LayoutContext<Z> = LayoutContext<Z>,
 > (): E {
-  const registry = useGroup<Z, E>()
+  const registry = useGroup<Z, E>({ enroll: true })
 
   const sizes = shallowReactive(new Map<ID, number>())
   const height = shallowRef(0)
