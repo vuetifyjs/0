@@ -1,5 +1,5 @@
 // Vuetify0
-import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createThemePlugin } from '@vuetify/0'
+import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createThemePlugin } from '@vuetify/v0'
 
 // Types
 import type { App } from 'vue'

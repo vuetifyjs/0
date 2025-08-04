@@ -6,7 +6,7 @@ A foundational Vue 3 component library providing lightweight, headless building 
 
 This monorepo contains two primary packages:
 
-### `@vuetify/0`
+### `@vuetify/v0`
 Core foundational components and composables:
 
 **Components:**
@@ -77,14 +77,14 @@ Components in vuetify0 should be:
 ### Installation
 
 ```bash
-pnpm add @vuetify/0 @vuetify/paper
+pnpm add @vuetify/v0 @vuetify/paper
 ```
 
 ### Basic Setup
 
 ```vue
 <script setup>
-import { Avatar, createThemePlugin } from '@vuetify/0'
+import { Avatar, createThemePlugin } from '@vuetify/v0'
 import { V0Paper } from '@vuetify/paper'
 
 // Install theme plugin

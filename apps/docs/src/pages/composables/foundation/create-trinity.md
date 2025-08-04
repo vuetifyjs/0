@@ -36,7 +36,7 @@ The **createTrinity** factory function is a type-safe utility for generating a 3
 The trinity pattern is the marrying of provide and inject with a context object. It provides a clean and type safe way to create a sharable singleton state.
 
 ```ts
-import { createContext, createTrinity } from '@vuetify/0'
+import { createContext, createTrinity } from '@vuetify/v0'
 
 interface User {
   id: string
@@ -62,7 +62,7 @@ The following is an example of how to create a context for authentication in a V
 
 ```ts
 // state/auth.ts
-import { createContext, createTrinity } from '@vuetify/0'
+import { createContext, createTrinity } from '@vuetify/v0'
 import { ref, toRef } from 'vue'
 
 import type { ComputedGetter, Readonly, Ref } from 'vue'

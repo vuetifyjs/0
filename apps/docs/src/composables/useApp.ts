@@ -1,4 +1,4 @@
-import { createContext } from '@vuetify/0'
+import { createContext } from '@vuetify/v0'
 import type { ShallowRef } from 'vue'
 
 export const [useAppContext, provideAppContext] = createContext<{

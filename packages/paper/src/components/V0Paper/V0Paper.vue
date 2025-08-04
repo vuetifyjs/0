@@ -1,6 +1,6 @@
 <script lang="ts">
   // Components
-  import { Atom } from '@vuetify/0'
+  import { Atom } from '@vuetify/v0'
 
   // Composables
   import { useBorder } from '#paper/composables/useBorder'
@@ -14,7 +14,7 @@
   import { toRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '@vuetify/0'
+  import type { AtomProps } from '@vuetify/v0'
   import type { BorderProps } from '#paper/composables/useBorder'
   import type { ColorProps } from '#paper/composables/useColor'
   import type { DimensionProps } from '#paper/composables/useDimensions'

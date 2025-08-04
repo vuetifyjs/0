@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { Avatar } from '@vuetify/0'
+import { Avatar } from '@vuetify/v0'
 
 const meta: Meta<typeof Avatar.Root> = {
   title: 'Components/Avatar',

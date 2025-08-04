@@ -73,8 +73,8 @@ The `useRegistry` composable provides a powerful interface for managing collecti
 
 ```ts
 // src/composables/my-registry.ts
-import { useRegistry } from '@vuetify/0'
-import { createContext } from '@vuetify/0'
+import { useRegistry } from '@vuetify/v0'
+import { createContext } from '@vuetify/v0'
 
 // Simple usage
 export const useMyRegistry = () => useRegistry()
@@ -190,8 +190,8 @@ console.log(registry.collection.size) // 0
 The `useRegistry` composable works seamlessly with the factory functions for creating context providers:
 
 ```ts
-import { useRegistry } from '@vuetify/0'
-import { createContext, createTrinity } from '@vuetify/0'
+import { useRegistry } from '@vuetify/v0'
+import { createContext, createTrinity } from '@vuetify/v0'
 
 // Simple context approach
 const [useMyContext, provideMyContext] = createContext('my-registry')
@@ -286,8 +286,8 @@ The following example demonstrates creating a registry for reusable icon svg pat
 ```ts
 // src/composables/icons.ts
 
-import { useRegistry } from '@vuetify/0'
-import { createContext } from '@vuetify/0'
+import { useRegistry } from '@vuetify/v0'
+import { createContext } from '@vuetify/v0'
 
 const [useIconContext, provideIconContext] = createContext('icons')
 

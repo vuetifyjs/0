@@ -17,7 +17,7 @@
     "vite": "catalog:"
   },
   "dependencies": {
-    "@vuetify/0": "workspace:*",
+    "@vuetify/v0": "workspace:*",
     "@vuetify/paper": "workspace:*",
     "lucide-vue-next": "^0.534.0",
     "markdown-it-attrs": "^4.3.1",

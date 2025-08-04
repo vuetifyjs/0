@@ -33,7 +33,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['vue', '@vuetify/0'],
+      external: ['vue', '@vuetify/v0'],
     },
     copyPublicDir: false,
   },

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  import { Atom, useBreakpoints } from '@vuetify/0'
+  import { Atom, useBreakpoints } from '@vuetify/v0'
 
   import { useAppContext } from '@/composables/useApp'
 
-  import type { AtomProps } from '@vuetify/0'
+  import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
 
