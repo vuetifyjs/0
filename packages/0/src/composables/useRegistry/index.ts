@@ -168,7 +168,7 @@ export function useRegistry<
     let exists = browse(item.value)
 
     if (isArray(exists)) {
-      exists = exists.filter(i => i !== item.id)
+      exists = exists.filter(value => value !== item.id)
       if (exists.length === 1) catalog.set(item.value, exists[0])
       else if (exists.length === 0) catalog.delete(item.value)
     } else catalog.delete(item.value)
