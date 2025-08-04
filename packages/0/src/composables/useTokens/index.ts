@@ -12,6 +12,7 @@ import { isObject, isPrimitive, isString } from '#v0/utilities'
 // Types
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { App } from 'vue'
 
 export interface TokenAlias {
   [key: string]: any
@@ -41,7 +42,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
  * Creates a token registry for managing design token collections with alias resolution.
  * Returns the token context directly for simple usage.
  *
- * @param tokens An optional collection of tokens to initialize
+ * @param tokens A collection of tokens to initialize with
  * @template Z The structure of the registry token items.
  * @template E The available methods for the token's context.
  * @returns The token context object.
@@ -51,9 +52,9 @@ export function useTokens<
   E extends TokenContext<Z> = TokenContext<Z>,
 > (tokens: TokenCollection = {}): E {
   const logger = useLogger()
-  const cache = new Map<string, string | undefined>()
-
   const registry = useRegistry<Z, E>()
+
+  const cache = new Map<string, string | undefined>()
 
   for (const { id, value } of flatten(tokens)) {
     registry.register({ value, id } as Partial<Z>)
@@ -75,7 +76,7 @@ export function useTokens<
     const reference = isTokenAlias(token) ? token.$value : token
     const cleaned = isAlias(reference) ? reference.slice(1, -1) : reference
 
-    const found = registry.collection.get(cleaned)
+    const found = registry.find(cleaned)
 
     if (found?.value === undefined) {
       logger.warn(`Alias not found for "${reference}"`)
@@ -117,9 +118,13 @@ export function createTokensContext<
   namespace: string,
   tokens: TokenCollection = {},
 ): ContextTrinity<E> {
-  const [useTokensContext, provideTokensContext] = createContext<E>(namespace)
+  const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
 
   const context = useTokens<Z, E>(tokens)
+
+  function provideTokensContext (_context: E = context, app?: App): E {
+    return _provideTokensContext(_context, app)
+  }
 
   return createTrinity<E>(useTokensContext, provideTokensContext, context)
 }

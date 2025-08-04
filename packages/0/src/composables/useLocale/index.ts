@@ -56,7 +56,7 @@ export function createLocale<
   options: LocaleOptions = {},
 ): ContextTrinity<E> {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
-  const [useLocaleContext, provideLocaleContext] = createContext<E>(namespace)
+  const [useLocaleContext, _provideLocaleContext] = createContext<E>(namespace)
   const registry = useSingle<Z, E>()
 
   for (const id in messages) {
@@ -97,11 +97,17 @@ export function createLocale<
     })
   }
 
-  return createTrinity<E>(useLocaleContext, provideLocaleContext, {
+  const context = {
     ...registry,
     t,
     n,
-  } as E)
+  } as E
+
+  function provideLocaleContext (_context: E = context, app?: App): E {
+    return _provideLocaleContext(_context, app)
+  }
+
+  return createTrinity<E>(useLocaleContext, provideLocaleContext, context)
 }
 
 /**

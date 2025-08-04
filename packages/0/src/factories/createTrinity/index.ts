@@ -3,7 +3,7 @@ import type { App } from 'vue'
 
 export type ContextTrinity<Z = unknown> = readonly [
   () => Z,
-  (context: Z, app?: App) => Z,
+  (context?: Z, app?: App) => Z,
   Z,
 ]
 
@@ -20,7 +20,7 @@ export type ContextTrinity<Z = unknown> = readonly [
  */
 export function createTrinity<Z = unknown> (
   createContext: () => Z,
-  provideContext: (_context: Z, app?: App) => Z,
+  provideContext: (_context?: Z, app?: App) => Z,
   context: Z,
 ): ContextTrinity<Z> {
   return [

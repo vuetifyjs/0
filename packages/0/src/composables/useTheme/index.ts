@@ -74,7 +74,7 @@ export function createTheme<
   options: ThemeOptions = {},
 ): ContextTrinity<E> {
   const { themes = {}, palette = {} } = options
-  const [useThemeContext, provideThemeContext] = createContext<E>(namespace)
+  const [useThemeContext, _provideThemeContext] = createContext<E>(namespace)
   const registry = useSingle<Z, E>()
 
   for (const id in themes) {
@@ -150,13 +150,19 @@ export function createTheme<
     return registry.register(item) as Z
   }
 
-  return createTrinity<E>(useThemeContext, provideThemeContext, {
+  const context = {
     ...registry,
     colors,
     register,
     cycle,
     toggle,
-  } as E)
+  } as E
+
+  function provideThemeContext (_context: E = context, app?: App): E {
+    return _provideThemeContext(_context, app)
+  }
+
+  return createTrinity<E>(useThemeContext, provideThemeContext, context)
 }
 
 /**
