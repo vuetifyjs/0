@@ -1,34 +1,42 @@
 // Types
 import type { DeepPartial } from '#v0/types'
 
+/* #__NO_SIDE_EFFECTS__ */
 export function isFunction (item: unknown): item is Function {
   return typeof item === 'function'
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function isString (item: unknown): item is string {
   return typeof item === 'string'
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function isNumber (item: unknown): item is number {
   return typeof item === 'number'
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function isBoolean (item: unknown): item is boolean {
   return typeof item === 'boolean'
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function isObject (item: unknown): item is Record<string, unknown> {
   return typeof item === 'object' && item !== null && !Array.isArray(item)
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function isArray (item: unknown): item is unknown[] {
   return Array.isArray(item)
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function isNullOrUndefined (item: unknown): item is null {
   return item == null
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function isPrimitive (item: unknown): item is string | number | boolean {
   return (
     typeof item === 'string' ||
@@ -37,6 +45,7 @@ export function isPrimitive (item: unknown): item is string | number | boolean {
   )
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<T>[]): T {
   if (sources.length === 0) return target
 
@@ -68,6 +77,7 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
   return mergeDeep(target, ...sources)
 }
 
+/* #__NO_SIDE_EFFECTS__ */
 export function genId (): string {
   return Math.random().toString(36).slice(2, 9)
 }
