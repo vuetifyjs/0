@@ -38,6 +38,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   on: (event: string, cb: Function) => void
   /** Stop listening for registry events */
   off: (event: string, cb: Function) => void
+  /** Emit an event with data */
+  emit: (event: string, data: any) => void
 }
 
 export interface RegistryOptions {
@@ -146,7 +148,7 @@ export function useRegistry<
 
     if (exists) {
       if (isArray(exists)) exists.push(item.id)
-      else catalog.set(item.value, [item.id, exists])
+      else catalog.set(item.value, [exists, item.id])
     } else catalog.set(item.value, item.id)
 
     emit('register', item)
@@ -179,6 +181,7 @@ export function useRegistry<
 
   return {
     collection,
+    emit,
     on,
     off,
     has,
