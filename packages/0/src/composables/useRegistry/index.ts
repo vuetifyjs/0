@@ -16,12 +16,8 @@ export interface RegistryTicket {
 }
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
-  /** The reactive collection of items */
+  /** The collection of tickets */
   collection: Map<ID, Z>
-  /** A catalog of all values in the collection */
-  catalog: Map<unknown, ID | ID[]>
-  /** A directory of all indexes in the collection */
-  directory: Map<number, ID>
   /** Clear the entire registry */
   clear: () => void
   /** Check if an item exists by id */
@@ -131,7 +127,7 @@ export function useRegistry<
     const size = collection.size
     const id = registrant.id ?? genId()
 
-    if (collection.has(id)) {
+    if (has(id)) {
       logger.warn(`Item with id "${id}" already exists in the registry.`)
     }
 
@@ -149,14 +145,9 @@ export function useRegistry<
     const exists = catalog.get(item.value)
 
     if (exists) {
-      if (isArray(exists)) {
-        exists.push(item.id)
-      } else {
-        catalog.set(item.value, [exists, item.id])
-      }
-    } else {
-      catalog.set(item.value, item.id)
-    }
+      if (isArray(exists)) exists.push(item.id)
+      else catalog.set(item.value, [item.id, exists])
+    } else catalog.set(item.value, item.id)
 
     emit('register', item)
 
@@ -176,15 +167,9 @@ export function useRegistry<
 
       if (isArray(exists)) {
         exists = exists.filter(i => i !== item.id)
-
-        if (exists.length === 1) {
-          catalog.set(item.value, exists[0])
-        } else if (exists.length === 0) {
-          catalog.delete(item.value)
-        }
-      } else {
-        catalog.delete(item.value)
-      }
+        if (exists.length === 1) catalog.set(item.value, exists[0])
+        else if (exists.length === 0) catalog.delete(item.value)
+      } else catalog.delete(item.value)
 
       emit('unregister', item)
     }
@@ -194,8 +179,6 @@ export function useRegistry<
 
   return {
     collection,
-    catalog,
-    directory,
     on,
     off,
     has,
