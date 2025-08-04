@@ -9,7 +9,7 @@ import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
 import type { ComputedRef, ShallowReactive, ShallowRef } from 'vue'
-import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
+import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
@@ -38,11 +38,15 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   width: ShallowRef<number>
 }
 
+export interface LayoutOptions extends GroupOptions {}
+
 export function useLayout<
   Z extends LayoutTicket = LayoutTicket,
   E extends LayoutContext<Z> = LayoutContext<Z>,
-> (): E {
-  const registry = useGroup<Z, E>({ enroll: true })
+> (_options: LayoutOptions = {}): E {
+  const { enroll = true, ...options } = _options
+
+  const registry = useGroup<Z, E>({ enroll, ...options })
 
   const sizes = shallowReactive(new Map<ID, number>())
   const height = shallowRef(0)
