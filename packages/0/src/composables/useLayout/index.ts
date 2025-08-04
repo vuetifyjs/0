@@ -16,13 +16,23 @@ import type { ComputedRef, ShallowReactive, ShallowRef, App } from 'vue'
 import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
 
+export interface BaseLayoutTicket extends GroupTicket {
+  order: number
+}
+
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
-export interface LayoutTicket extends GroupTicket {
-  order: number
-  position: LayoutLocation
-  value: number
+export interface HorizontalTicket extends BaseLayoutTicket {
+  position: 'left' | 'right'
+  width: number
 }
+
+export interface VerticalTicket extends BaseLayoutTicket {
+  position: 'top' | 'bottom'
+  height: number
+}
+
+export type LayoutTicket = VerticalTicket | HorizontalTicket
 
 export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   bounds: {
@@ -79,26 +89,31 @@ export function createLayout<
     height: computed(() => height.value - bounds.top.value - bounds.bottom.value),
   }
 
+  function isHorizontal (ticket: LayoutTicket): ticket is HorizontalTicket {
+    return ticket.position === 'left' || ticket.position === 'right'
+  }
+
   function sum (position: LayoutLocation): number {
     let total = 0
     for (const item of registry.collection.values()) {
       if (item.position === position && item.isActive.value) {
-        total += sizes.get(item.id) ?? item.value ?? 0
+        const value = isHorizontal(item) ? item.width : item.height
+        total += sizes.get(item.id) ?? value ?? 0
       }
     }
     return total
   }
 
-  function register (registrant: Partial<Z>): Z {
-    const item: Partial<Z> = {
-      position: registrant.position,
-      order: registrant.order ?? 0,
+  function register (registrant: LayoutTicket): Z {
+    const item: LayoutTicket = {
       ...registrant,
+      order: registrant.order ?? 0,
     }
 
-    const ticket = registry.register(item)
+    const ticket = registry.register(item as Z)
 
-    sizes.set(ticket.id, ticket.value)
+    const value = isHorizontal(ticket) ? ticket.width : ticket.height
+    sizes.set(ticket.id, value)
 
     return ticket
   }
