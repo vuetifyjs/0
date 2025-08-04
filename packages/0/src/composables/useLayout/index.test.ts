@@ -32,8 +32,8 @@ describe('useLayout inside component', () => {
     })
 
     const mountedComponent = mount(testComponent)
-    mountedComponent.vm.context.register({ id: 'Component1', position: 'top', size: 32 })
-    mountedComponent.vm.context.register({ id: 'Component2', position: 'left', size: 128 })
+    mountedComponent.vm.context.register({ id: 'Component1', position: 'top', value: 32 })
+    mountedComponent.vm.context.register({ id: 'Component2', position: 'left', value: 128 })
 
     expect(mountedComponent.vm.context.width.value).toEqual(1024)
     expect(mountedComponent.vm.context.height.value).toEqual(768)
@@ -50,8 +50,8 @@ describe('useLayout inside component', () => {
 
     const mountedComponent = mount(testComponent)
 
-    mountedComponent.vm.context.register({ id: 'Component1', position: 'top', size: 32 })
-    mountedComponent.vm.context.register({ id: 'Component2', position: 'left', size: 128 })
+    mountedComponent.vm.context.register({ id: 'Component1', position: 'top', value: 32 })
+    mountedComponent.vm.context.register({ id: 'Component2', position: 'left', value: 128 })
 
     expect(mountedComponent.vm.context.main.x.value).toEqual(128)
     expect(mountedComponent.vm.context.main.y.value).toEqual(32)
@@ -63,17 +63,17 @@ describe('useLayout inside component', () => {
 describe('useLayout outside component', () => {
   it('registers components', () => {
     const context = useLayout()
-    context.register({ id: 'Component1', position: 'top', size: 32 })
-    context.register({ id: 'Component2', position: 'bottom', size: 64 })
+    context.register({ id: 'Component1', position: 'top', value: 32 })
+    context.register({ id: 'Component2', position: 'bottom', value: 64 })
     expect(context.collection.has('Component1')).toEqual(true)
     expect(context.collection.has('Component2')).toEqual(true)
   })
 
   it('calculates bound', () => {
     const context = useLayout()
-    context.register({ id: 'Component1', position: 'top', size: 32 })
-    context.register({ id: 'Component2', position: 'bottom', size: 128 })
-    context.register({ id: 'Component3', position: 'left', size: 64 })
+    context.register({ id: 'Component1', position: 'top', value: 32 })
+    context.register({ id: 'Component2', position: 'bottom', value: 128 })
+    context.register({ id: 'Component3', position: 'left', value: 64 })
 
     expect(context.bounds.top.value).toEqual(32)
     expect(context.bounds.bottom.value).toEqual(128)

@@ -17,7 +17,7 @@ export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
-  size: number
+  value: number
 }
 
 export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
@@ -66,7 +66,7 @@ export function useLayout<
     let total = 0
     for (const item of registry.collection.values()) {
       if (item.position === position) {
-        total += sizes.get(item.id) ?? item.size ?? 0
+        total += sizes.get(item.id) ?? item.value ?? 0
       }
     }
     return total
@@ -75,14 +75,13 @@ export function useLayout<
   function register (registrant: Partial<Z>): Z {
     const item: Partial<Z> = {
       position: registrant.position,
-      size: registrant.size,
       order: registrant.order ?? 0,
       ...registrant,
     }
 
     const ticket = registry.register(item)
 
-    sizes.set(ticket.id, ticket.size)
+    sizes.set(ticket.id, ticket.value)
 
     return ticket
   }
