@@ -6,7 +6,6 @@ import { genId, isArray } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'
-import { toArray } from '#v0/transformers'
 
 export interface RegistryTicket {
   id: ID
@@ -144,7 +143,7 @@ export function useRegistry<
     collection.set(item.id, item)
     directory.set(item.index, item.id)
 
-    const exists = catalog.get(item.value)
+    const exists = browse(item.value)
 
     if (exists) {
       if (isArray(exists)) exists.push(item.id)
@@ -164,7 +163,7 @@ export function useRegistry<
     collection.delete(item.id)
     directory.delete(item.index)
 
-    let exists = catalog.get(item.value)
+    let exists = browse(item.value)
 
     if (isArray(exists)) {
       exists = exists.filter(i => i !== item.id)
