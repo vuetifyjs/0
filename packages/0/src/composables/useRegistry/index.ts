@@ -156,25 +156,23 @@ export function useRegistry<
     return item
   }
 
-  function unregister (ids: ID | ID[]) {
-    for (const id of toArray(ids)) {
-      const item = collection.get(id)
+  function unregister (id: ID) {
+    const item = collection.get(id)
 
-      if (!item) continue
+    if (!item) return
 
-      collection.delete(item.id)
-      directory.delete(item.index)
+    collection.delete(item.id)
+    directory.delete(item.index)
 
-      let exists = catalog.get(item.value)
+    let exists = catalog.get(item.value)
 
-      if (isArray(exists)) {
-        exists = exists.filter(i => i !== item.id)
-        if (exists.length === 1) catalog.set(item.value, exists[0])
-        else if (exists.length === 0) catalog.delete(item.value)
-      } else catalog.delete(item.value)
+    if (isArray(exists)) {
+      exists = exists.filter(i => i !== item.id)
+      if (exists.length === 1) catalog.set(item.value, exists[0])
+      else if (exists.length === 0) catalog.delete(item.value)
+    } else catalog.delete(item.value)
 
-      emit('unregister', item)
-    }
+    emit('unregister', item)
 
     reindex()
   }
