@@ -25,11 +25,13 @@ export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 export interface HorizontalTicket extends BaseLayoutTicket {
   position: 'left' | 'right'
   width: number
+  height: never
 }
 
 export interface VerticalTicket extends BaseLayoutTicket {
   position: 'top' | 'bottom'
   height: number
+  width?: never
 }
 
 export type LayoutTicket = VerticalTicket | HorizontalTicket
@@ -160,7 +162,7 @@ export function createLayout<
  * @returns A Vue plugin object with install method.
  */
 
-export const [useLayout, provideLayout] = createContext('v0:layout')
+export const [useLayout, provideLayout] = createContext<LayoutContext<LayoutTicket>>('v0:layout')
 
 export function createLayoutPlugin (options: LayoutOptions = {}): LayoutPlugin {
   const layout = createLayout(options)
