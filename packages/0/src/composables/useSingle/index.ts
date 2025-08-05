@@ -42,7 +42,7 @@ export function useSingle<
   const selectedValue = computed(() => selectedItem.value?.value)
 
   function select (id: ID) {
-    const item = registry.find(id)
+    const item = registry.get(id)
 
     if (!item || item.disabled) return
 

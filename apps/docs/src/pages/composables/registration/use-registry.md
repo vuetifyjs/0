@@ -354,7 +354,7 @@ Now in subsequent components, you use the `useIconContext` composable to access 
 
   const icon = computed(() => {
     const iconId = iconRegistry.browse(props.name) || props.name
-    return iconRegistry.find(iconId)
+    return iconRegistry.get(iconId)
   })
 </script>
 

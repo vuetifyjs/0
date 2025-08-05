@@ -82,7 +82,7 @@ Now, in your components, access the context by importing the `useMyContext` comp
 
   context.collection.set('1', 'Item 1')
 
-  const item = context.find('1')
+  const item = context.get('1')
 
   console.log(item) // 'Item 1'
 </script>
