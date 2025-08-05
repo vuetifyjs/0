@@ -72,7 +72,7 @@ export function useStep<
     let index = wrapped(length, registry.selectedIndex.value + count)
     let id = registry.lookup(index)
 
-    while (id !== undefined && registry.find(id)?.disabled && hops < length) {
+    while (id !== undefined && registry.get(id)?.disabled && hops < length) {
       index = wrapped(length, index + direction)
       id = registry.lookup(index)
       hops++

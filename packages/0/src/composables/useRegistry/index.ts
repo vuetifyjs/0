@@ -25,8 +25,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   browse: (value: unknown) => ID | undefined
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
-  /** Find a ticket by id */
-  find: (id: ID) => Z | undefined
+  /** Get a ticket by id */
+  get: (id: ID) => Z | undefined
   /** Register a new item */
   register: (item?: Partial<Z>) => Z
   /** Unregister an item by id */
@@ -84,7 +84,7 @@ export function useRegistry<
     listeners.get(event)?.delete(cb)
   }
 
-  function find (id: ID) {
+  function get (id: ID) {
     return collection.get(id)
   }
 
@@ -187,7 +187,7 @@ export function useRegistry<
     clear,
     browse,
     lookup,
-    find,
+    get,
     register,
     unregister,
     reindex,

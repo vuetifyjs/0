@@ -53,7 +53,7 @@ export function useSelection<
 
   const selectedItems = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registry.find(id)),
+      Array.from(selectedIds).map(id => registry.get(id)),
     )
   })
 
@@ -71,7 +71,7 @@ export function useSelection<
   }
 
   function select (id: ID) {
-    const item = registry.find(id)
+    const item = registry.get(id)
 
     if (!item || item.disabled) return
 

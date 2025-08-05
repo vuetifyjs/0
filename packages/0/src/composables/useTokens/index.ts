@@ -76,7 +76,7 @@ export function useTokens<
     const reference = isTokenAlias(token) ? token.$value : token
     const cleaned = isAlias(reference) ? reference.slice(1, -1) : reference
 
-    const found = registry.find(cleaned)
+    const found = registry.get(cleaned)
 
     if (found?.value === undefined) {
       logger.warn(`Alias not found for "${reference}"`)
