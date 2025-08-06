@@ -53,7 +53,7 @@ describe('useRegistry', () => {
       const registry = useRegistry()
       registry.register({ id: 'find-me' })
 
-      const found = registry.find('find-me')
+      const found = registry.get('find-me')
 
       expect(found).toBeDefined()
       expect(found?.id).toBe('find-me')
@@ -95,12 +95,12 @@ describe('useRegistry', () => {
       registry.register({ id: 'item-2', index: 3, value: 'value-2' })
 
       expect(registry.lookup(2)).toBe('item-1')
-      expect(registry.find('item-1')?.index).toBe(2)
+      expect(registry.get('item-1')?.index).toBe(2)
 
       registry.reindex()
 
       expect(registry.lookup(2)).toBeUndefined()
-      expect(registry.find('item-1')?.index).toBe(0)
+      expect(registry.get('item-1')?.index).toBe(0)
     })
 
     it('should clear the entire registry', () => {
