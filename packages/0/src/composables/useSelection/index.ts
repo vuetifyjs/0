@@ -64,7 +64,7 @@ export function useSelection<
   })
 
   function mandate () {
-    if (!mandatory || registry.selectedIds.size > 0 || registry.collection.size === 0) return
+    if (!mandatory || registry.selectedIds.size > 0 || registry.size === 0) return
 
     const first = registry.lookup(0)
     if (first) select(first)

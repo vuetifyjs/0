@@ -43,6 +43,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   off: (event: string, cb: Function) => void
   /** Emit an event with data */
   emit: (event: string, data: any) => void
+  /** The size of the registry */
+  size: number
 }
 
 export interface RegistryOptions {
@@ -190,7 +192,7 @@ export function useRegistry<
     reindex()
   }
 
-  return {
+  return new Proxy({
     collection,
     emit,
     on,
@@ -205,5 +207,11 @@ export function useRegistry<
     register,
     unregister,
     reindex,
-  } as E
+  }, {
+    get (target, prop) {
+      if (prop === 'size') return collection.size
+
+      return target[prop as keyof typeof target]
+    },
+  }) as E
 }
