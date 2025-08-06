@@ -8,13 +8,13 @@ A collection of foundational components designed to be headless, accessible, and
 | - | - |
 | Atom | Base element wrapper with dynamic element types |
 | Avatar | Image/fallback avatar system with priority loading |
+| Breakpoints | Responsive breakpoint utilities |
 | Context | Context injection/provision for sharing state |
 | Group | Selection grouping with multiple/single modes |
 | Hydration | Client-side hydration utilities for SSR |
 | Popover | CSS anchor-positioned popup components |
 | Step | Step-based navigation for wizards and forms |
 | Theme | Theme management and CSS variable injection |
-| Breakpoints | Responsive breakpoint utilities |
 
 - **Headless First**: Provide logic and accessibility without imposed styling
 - **Slot-Driven**: Maximum flexibility through comprehensive slot APIs
@@ -72,6 +72,47 @@ import { Avatar } from '@vuetify/v0'
 </template>
 ```
 
+## Breakpoints
+
+Responsive utilities for adaptive layouts.
+
+```html
+<script setup>
+import { Breakpoints } from '@vuetify/v0'
+</script>
+
+<template>
+  <Breakpoints.Root>
+    <Breakpoints.Item #default="{ mobile, tablet, desktop }">
+      <div v-if="mobile">Mobile Layout</div>
+      <div v-else-if="tablet">Tablet Layout</div>
+      <div v-else>Desktop Layout</div>
+    </Breakpoints.Item>
+  </Breakpoints.Root>
+</template>
+```
+
+## Context
+
+Provide and inject context for sharing state across component trees.
+
+```html
+<script setup>
+import { Context } from '@vuetify/v0'
+
+const contextValue = { user: 'John', theme: 'dark' }
+</script>
+
+<template>
+  <Context.Root :value="contextValue" context-key="app-context">
+    <Context.Item context-key="app-context" #default="{ value }">
+      <p>User: {{ value.user }}</p>
+      <p>Theme: {{ value.theme }}</p>
+    </Context.Item>
+  </Context.Root>
+</template>
+```
+
 ## Group
 
 Selection management for collections of items with single/multiple selection modes.
@@ -101,28 +142,24 @@ const selected = ref([])
 </template>
 ```
 
-## Step
+## Hydration
 
-Step-based navigation for wizards and multi-step processes.
+SSR hydration management.
 
 ```html
 <script setup>
-import { Step } from '@vuetify/v0'
-import { ref } from 'vue'
-
-const currentStep = ref('step1')
+import { Hydration } from '@vuetify/v0'
 </script>
 
 <template>
-  <Step.Root v-model="currentStep" namespace="wizard">
-    <Step.Item value="step1" #default="{ isActive }">
-      <div :class="{ active: isActive }">Step 1 Content</div>
-    </Step.Item>
-
-    <Step.Item value="step2" #default="{ isActive }">
-      <div :class="{ active: isActive }">Step 2 Content</div>
-    </Step.Item>
-  </Step.Root>
+  <Hydration #default="{ isHydrated }">
+    <div v-if="isHydrated">
+      Client-side content
+    </div>
+    <div v-else>
+      Server-side content
+    </div>
+  </Hydration>
 </template>
 ```
 
@@ -150,44 +187,28 @@ import { Popover } from '@vuetify/v0'
 </template>
 ```
 
-## Context
+## Step
 
-Provide and inject context for sharing state across component trees.
-
-```html
-<script setup>
-import { Context } from '@vuetify/v0'
-
-const contextValue = { user: 'John', theme: 'dark' }
-</script>
-
-<template>
-  <Context.Root :value="contextValue" context-key="app-context">
-    <Context.Item context-key="app-context" #default="{ value }">
-      <p>User: {{ value.user }}</p>
-      <p>Theme: {{ value.theme }}</p>
-    </Context.Item>
-  </Context.Root>
-</template>
-```
-
-## Breakpoints
-
-Responsive utilities for adaptive layouts.
+Step-based navigation for wizards and multi-step processes.
 
 ```html
 <script setup>
-import { Breakpoints } from '@vuetify/v0'
+import { Step } from '@vuetify/v0'
+import { ref } from 'vue'
+
+const currentStep = ref('step1')
 </script>
 
 <template>
-  <Breakpoints.Root>
-    <Breakpoints.Item #default="{ mobile, tablet, desktop }">
-      <div v-if="mobile">Mobile Layout</div>
-      <div v-else-if="tablet">Tablet Layout</div>
-      <div v-else>Desktop Layout</div>
-    </Breakpoints.Item>
-  </Breakpoints.Root>
+  <Step.Root v-model="currentStep" namespace="wizard">
+    <Step.Item value="step1" #default="{ isActive }">
+      <div :class="{ active: isActive }">Step 1 Content</div>
+    </Step.Item>
+
+    <Step.Item value="step2" #default="{ isActive }">
+      <div :class="{ active: isActive }">Step 2 Content</div>
+    </Step.Item>
+  </Step.Root>
 </template>
 ```
 
@@ -208,27 +229,6 @@ import { Theme } from '@vuetify/v0'
       <p>Current: {{ theme }}</p>
     </Theme.Item>
   </Theme.Root>
-</template>
-```
-
-## Hydration
-
-SSR hydration management.
-
-```html
-<script setup>
-import { Hydration } from '@vuetify/v0'
-</script>
-
-<template>
-  <Hydration #default="{ isHydrated }">
-    <div v-if="isHydrated">
-      Client-side content
-    </div>
-    <div v-else>
-      Server-side content
-    </div>
-  </Hydration>
 </template>
 ```
 
