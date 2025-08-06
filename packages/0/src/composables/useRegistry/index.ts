@@ -29,6 +29,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   lookup: (index: number) => ID | undefined
   /** Get a ticket by id */
   get: (id: ID) => Z | undefined
+  /** Get all registered tickets */
+  values: () => Z[]
   /** Register a new item */
   register: (item?: Partial<Z>) => Z
   /** Unregister an item by id */
@@ -106,6 +108,10 @@ export function useRegistry<
     return Array.from(collection.keys())
   }
 
+  function values () {
+    return Array.from(collection.values())
+  }
+
   function clear () {
     collection.clear()
     catalog.clear()
@@ -118,7 +124,7 @@ export function useRegistry<
 
     let index = 0
 
-    for (const item of collection.values()) {
+    for (const item of values()) {
       if (item.index !== index) {
         item.index = index
 
@@ -193,6 +199,7 @@ export function useRegistry<
     keys,
     clear,
     browse,
+    values,
     lookup,
     get,
     register,

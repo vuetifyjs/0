@@ -88,10 +88,10 @@ export function createTheme<
   const names = computed(() => registry.keys())
   const colors = computed(() => {
     const resolved = {} as Record<string, Colors>
-    for (const [id, theme] of registry.collection.entries()) {
+    for (const theme of registry.values()) {
       if (theme.lazy && theme.id !== registry.selectedId.value) continue
 
-      resolved[String(id)] = resolve(id, theme.value as Colors)
+      resolved[String(theme.id)] = resolve(theme.id, theme.value as Colors)
     }
     return resolved
   })
