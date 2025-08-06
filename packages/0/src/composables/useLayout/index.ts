@@ -100,7 +100,7 @@ export function createLayout<
 
   function sum (position: LayoutLocation): number {
     let total = 0
-    for (const item of registry.collection.values()) {
+    for (const item of registry.values()) {
       if (item.position === position && item.isActive.value) {
         const value = isHorizontal(item) ? item.width : item.height
         total += sizes.get(item.id) ?? value ?? 0
