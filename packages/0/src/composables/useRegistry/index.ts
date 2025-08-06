@@ -21,6 +21,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   clear: () => void
   /** Check if an item exists by id */
   has: (id: ID) => boolean
+  /** Returns an array of registered IDs */
+  keys: () => ID[]
   /** Browse for an ID by value */
   browse: (value: unknown) => ID | undefined
   /** lookup a ticket by index number */
@@ -98,6 +100,10 @@ export function useRegistry<
 
   function has (id: ID) {
     return collection.has(id)
+  }
+
+  function keys () {
+    return Array.from(collection.keys())
   }
 
   function clear () {
@@ -184,6 +190,7 @@ export function useRegistry<
     on,
     off,
     has,
+    keys,
     clear,
     browse,
     lookup,

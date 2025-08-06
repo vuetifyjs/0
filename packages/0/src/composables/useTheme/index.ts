@@ -85,7 +85,7 @@ export function createTheme<
     }
   }
 
-  const names = computed(() => Array.from(registry.collection.keys()))
+  const names = computed(() => registry.keys())
   const colors = computed(() => {
     const resolved = {} as Record<string, Colors>
     for (const [id, theme] of registry.collection.entries()) {
