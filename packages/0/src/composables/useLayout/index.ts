@@ -12,7 +12,7 @@ import { computed, shallowReactive, shallowRef, onUnmounted, onMounted, getCurre
 import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
-import type { ComputedRef, ShallowReactive, ShallowRef, App } from 'vue'
+import type { Ref, ComputedRef, ShallowReactive, ShallowRef, App } from 'vue'
 import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
 
@@ -55,7 +55,9 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   resize: () => void
 }
 
-export interface LayoutOptions extends GroupOptions {}
+export interface LayoutOptions extends GroupOptions {
+  el?: Ref<HTMLElement | null>
+}
 
 export interface LayoutPlugin {
   install: (app: App, ...options: any[]) => any
@@ -68,6 +70,7 @@ export function createLayout<
   const {
     enroll = true,
     events = true,
+    el = null,
     ...options
   } = _options
 
@@ -121,18 +124,36 @@ export function createLayout<
   }
 
   function resize () {
-    height.value = window.innerHeight
+    if (el?.value) {
+      const rect = el.value.getBoundingClientRect()
+      width.value = rect.width
+      height.value = rect.height
+      return
+    }
     width.value = window.innerWidth
+    height.value = window.innerHeight
   }
+
+  let observer: ResizeObserver | null = null
 
   if (IN_BROWSER && getCurrentInstance()) {
     onMounted(() => {
+      if (el?.value) {
+        observer = new ResizeObserver(resize)
+        observer.observe(el.value)
+      } else {
+        window.addEventListener('resize', resize)
+      }
       resize()
-      window.addEventListener('resize', resize)
     })
 
     onUnmounted(() => {
-      window.removeEventListener('resize', resize)
+      if (observer && el?.value) {
+        observer.unobserve(el.value)
+        observer.disconnect()
+      } else {
+        window.removeEventListener('resize', resize)
+      }
     })
   }
 
