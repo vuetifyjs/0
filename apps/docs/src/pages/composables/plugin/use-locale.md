@@ -75,8 +75,8 @@ The `useLocale` composable provides a simple hook to access the locale context, 
     <h1>{{ t("hello") }}</h1>
     <p>{{ t("welcome", "John Doe") }}</p>
     <p>Price: {{ n(12345.67) }}</p>
-    <button @click="changeLocale("en")">English</button>
-    <button @click="changeLocale("es")">Español</button>
+    <button @click="changeLocale('en')">English</button>
+    <button @click="changeLocale('es')">Español</button>
   </div>
 </template>
 
