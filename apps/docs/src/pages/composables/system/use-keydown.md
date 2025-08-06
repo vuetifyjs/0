@@ -174,7 +174,7 @@ const { startListening, stopListening } = useKeydown(handlers)
   import { useKeydown } from '@vuetify/v0/composables/useKeydown'
 
   const { startListening, stopListening } = useKeydown({
-    key: ' ',
+    key: 'Space',
     handler: () => {
       console.log('Spacebar pressed!')
     },
