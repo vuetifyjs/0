@@ -13,7 +13,7 @@
 <template>
   <Atom
     :as
-    class="border-none bg-gray-200 opacity-10"
+    class="border-none bg-black opacity-10"
     :class="[orientation === 'horizontal' ? 'w-full h-px my-2' : 'w-px h-full mx-2']"
   />
 </template>
