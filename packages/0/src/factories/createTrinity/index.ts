@@ -1,12 +1,9 @@
 // Types
-import type { App, Ref } from 'vue'
+import type { App } from 'vue'
 
-export type ContextTrinity<
-  Z = unknown,
-  E = unknown,
-> = readonly [
+export type ContextTrinity<Z = unknown> = readonly [
   () => Z,
-  (model?: Ref<E>, context?: Z, app?: App) => Z,
+  (context?: Z, app?: App) => Z,
   Z,
 ]
 
@@ -21,17 +18,14 @@ export type ContextTrinity<
  *
  * @see https://0.vuetifyjs.com/composables/foundation/create-trinity
  */
-export function createTrinity<
-  Z = unknown,
-  E = unknown,
-> (
+export function createTrinity<Z = unknown> (
   createContext: () => Z,
-  provideContext: (model?: Ref<E>, _context?: Z, app?: App) => Z,
+  provideContext: (_context?: Z, app?: App) => Z,
   context: Z,
-): ContextTrinity<Z, E> {
+): ContextTrinity<Z> {
   return [
     createContext,
-    (model?: Ref<E>, _context: Z = context, app?: App): Z => provideContext(model, _context, app),
+    (_context: Z = context, app?: App): Z => provideContext(_context, app),
     context,
   ] as const
 }

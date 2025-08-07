@@ -1,7 +1,9 @@
 <script setup lang="ts">
-  import { Atom, useBreakpoints } from '@vuetify/0'
+  import { Atom, useBreakpoints } from '@vuetify/v0'
 
-  import type { AtomProps } from '@vuetify/0'
+  import { useAppContext } from '@/composables/useApp'
+
+  import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
 
@@ -108,13 +110,17 @@
   ]
 
   const breakpoints = useBreakpoints()
+  const app = useAppContext()
 </script>
 
 <template>
   <Atom
     :as
-    class="bg-4 app-nav flex flex-col h-[100vh] fixed w-[220px] overflow-y-auto pb-4 transition-transform duration-200 ease-in-out top-0"
-    :class="breakpoints.isMobile ? 'translate-x-[-100%]' : 'translate-x-0'"
+    class="bg-4 app-nav flex flex-col h-[100vh] fixed w-[220px] overflow-y-auto pb-4 transition-transform duration-200 ease-in-out top-[24px]"
+    :class="[
+      breakpoints.isMobile && !app.nav.value ? 'translate-x-[-100%]' : 'translate-x-0',
+      breakpoints.isMobile && 'mt-12'
+    ]"
   >
     <img
       alt="Vuetify0 Logo"
@@ -131,7 +137,7 @@
           v-else
           :children="nav.children"
           class="px-4"
-          :to="nav.to"
+          :to="nav.to || ''"
         >
           {{ nav.name }}
         </AppNavLink>

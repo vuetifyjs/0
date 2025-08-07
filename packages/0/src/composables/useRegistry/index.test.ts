@@ -5,60 +5,113 @@ import { useRegistry } from './index'
 import { describe, it, expect } from 'vitest'
 
 describe('useRegistry', () => {
-  it('should register and unregister items', () => {
-    const context = useRegistry('test')[2]
+  describe('registration', () => {
+    it('should register an item with nothing', () => {
+      const registry = useRegistry()
+      const ticket = registry.register()
 
-    const ticket1 = context.register({ id: 'item1' })
-    expect(ticket1.id).toBe('item1')
-    expect(ticket1.index).toBe(0)
-    expect(context.collection.size).toBe(1)
+      expect(ticket).toBeDefined()
+      expect(ticket.id).toBeDefined()
+      expect(ticket.index).toBe(0)
+      expect(registry.collection.size).toBe(1)
+    })
 
-    const ticket2 = context.register()
-    expect(ticket2.index).toBe(1)
-    expect(context.collection.size).toBe(2)
+    it('should register an item with a custom id', () => {
+      const registry = useRegistry()
+      const ticket = registry.register({ id: 'test-id' })
 
-    const ticket3 = context.register({ id: 'item3' })
-    expect(ticket3.id).toBe('item3')
-    expect(ticket3.index).toBe(2)
-    expect(context.collection.size).toBe(3)
+      expect(ticket).toBeDefined()
+      expect(ticket.id).toBe('test-id')
+      expect(ticket.index).toBe(0)
+      expect(registry.collection.size).toBe(1)
+    })
 
-    context.unregister('item1')
-    expect(context.collection.size).toBe(2)
-    expect(context.collection.has('item1')).toBe(false)
+    it('should register an item with a custom value', () => {
+      const registry = useRegistry()
+      const ticket = registry.register({ value: 'test-value' })
 
-    expect(context.collection.has(ticket2.id)).toBe(true)
-    expect(context.collection.has('item3')).toBe(true)
+      expect(ticket).toBeDefined()
+      expect(ticket.value).toBe('test-value')
+      expect(ticket.index).toBe(0)
+      expect(registry.collection.size).toBe(1)
+    })
+
+    it('should unregister an item by id', () => {
+      const registry = useRegistry()
+      const ticket = registry.register()
+
+      expect(registry.collection.size).toBe(1)
+
+      registry.unregister(ticket.id)
+
+      expect(registry.collection.size).toBe(0)
+    })
   })
 
-  it('should auto-generate unique IDs', () => {
-    const context = useRegistry('test')[2]
+  describe('collection management', () => {
+    it('should find an item by id', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'find-me' })
 
-    const ticket1 = context.register()
-    const ticket2 = context.register()
+      const found = registry.get('find-me')
 
-    expect(ticket1.id).not.toBe(ticket2.id)
-    expect(context.collection.size).toBe(2)
-  })
+      expect(found).toBeDefined()
+      expect(found?.id).toBe('find-me')
+    })
 
-  it('should maintain correct indices after reindexing', () => {
-    const context = useRegistry('test')[2]
+    it('should lookup an items ID by index', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'lookup-me', index: 1 })
 
-    const ticket1 = context.register({ id: 'item1' })
-    const ticket2 = context.register({ id: 'item2' })
-    const ticket3 = context.register({ id: 'item3' })
+      const found = registry.lookup(1)
 
-    expect(ticket1.index).toBe(0)
-    expect(ticket2.index).toBe(1)
-    expect(ticket3.index).toBe(2)
+      expect(found).toBeDefined()
+      expect(found).toBe('lookup-me')
+    })
 
-    context.unregister('item2')
+    it('should browse an items ID by value', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'browse-me', value: 'test-value' })
 
-    const ticket4 = context.register({ id: 'item4' })
-    expect(ticket4.index).toBe(2)
+      const found = registry.browse('test-value')
 
-    expect(context.collection.has('item1')).toBe(true)
-    expect(context.collection.has('item2')).toBe(false)
-    expect(context.collection.has('item3')).toBe(true)
-    expect(context.collection.has('item4')).toBe(true)
+      expect(found).toBeDefined()
+      expect(found).toBe('browse-me')
+    })
+
+    it('should return if an item exists in the collection', () => {
+      const registry = useRegistry()
+
+      expect(registry.has('exists-me')).toBe(false)
+
+      registry.register({ id: 'exists-me' })
+
+      expect(registry.has('exists-me')).toBe(true)
+    })
+
+    it('should reset a directory and catalog', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'item-1', index: 2, value: 'value-1' })
+      registry.register({ id: 'item-2', index: 3, value: 'value-2' })
+
+      expect(registry.lookup(2)).toBe('item-1')
+      expect(registry.get('item-1')?.index).toBe(2)
+
+      registry.reindex()
+
+      expect(registry.lookup(2)).toBeUndefined()
+      expect(registry.get('item-1')?.index).toBe(0)
+    })
+
+    it('should clear the entire registry', () => {
+      const registry = useRegistry()
+      registry.register()
+
+      expect(registry.collection.size).toBe(1)
+
+      registry.clear()
+
+      expect(registry.collection.size).toBe(0)
+    })
   })
 })

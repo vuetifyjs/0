@@ -1,46 +1,57 @@
-// Factories
-import { createContext } from '#v0/factories/createContext'
-import { createTrinity } from '#v0/factories/createTrinity'
+// Composables
+import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { reactive, shallowReactive } from 'vue'
-import { genId } from '#v0/utilities/helpers'
+import { genId, isArray } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'
-import type { App, Reactive } from 'vue'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export interface RegistryTicket {
   id: ID
   index: number
   value: unknown
+  valueIsIndex: boolean
 }
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
-  /** The reactive collection of items */
+  /** The collection of tickets */
   collection: Map<ID, Z>
-  /** A catalog of all values in the collection */
-  catalog: Map<unknown, ID>
-  /** A directory of all indexes in the collection */
-  directory: Map<number, ID>
+  /** Clear the entire registry */
+  clear: () => void
+  /** Check if an item exists by id */
+  has: (id: ID) => boolean
+  /** Returns an array of registered IDs */
+  keys: () => ID[]
   /** Browse for an ID by value */
-  browse: (value: unknown) => ID | undefined
+  browse: (value: unknown) => ID | ID[] | undefined
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
-  /** Find a ticket by id */
-  find: (id: ID) => Z | undefined
+  /** Get a ticket by id */
+  get: (id: ID) => Z | undefined
+  /** Get all registered tickets */
+  values: () => Z[]
+  /** Get all entries as [id, ticket] pairs */
+  entries: () => [ID, Z][]
   /** Register a new item */
-  register: (item?: Partial<Z>, id?: ID) => Z
+  register: (item?: Partial<Z>) => Z
   /** Unregister an item by id */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
   reindex: () => void
+  /** Listen for registry events */
+  on: (event: string, cb: Function) => void
+  /** Stop listening for registry events */
+  off: (event: string, cb: Function) => void
+  /** Emit an event with data */
+  emit: (event: string, data: any) => void
+  /** The size of the registry */
+  size: number
 }
 
 export interface RegistryOptions {
-  /** Use reactive instead of shallowReactive */
-  deep?: boolean
+  /** Enable event emission for registry operations */
+  events?: boolean
 }
 
 /**
@@ -48,27 +59,40 @@ export interface RegistryOptions {
  * This function provides the foundation for item management systems with ID-based, value-based,
  * and index-based access patterns.
  *
- * @param namespace The namespace for the registry context.
  * @param options Optional configuration for reactivity behavior.
  * @template Z The type of items managed by the registry.
  * @template E The type of the registry context.
- * @returns A tuple containing the inject function, provide function, and the registry context.
+ * @returns The registry context object.
  */
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
-  E extends RegistryContext = RegistryContext,
-> (
-  namespace: string,
-  options?: RegistryOptions,
-): ContextTrinity<E> {
-  const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
+  E extends RegistryContext<Z> = RegistryContext<Z>,
+> (options?: RegistryOptions): E {
+  const logger = useLogger()
 
-  const reactivity = options?.deep ? reactive : shallowReactive
-  const collection = reactivity(new Map<ID, Z>())
-  const catalog = new Map<unknown, ID>()
+  const collection = new Map<ID, Z>()
+  const catalog = new Map<unknown, ID | ID[]>()
   const directory = new Map<number, ID>()
+  const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
+  const listeners = new Map<string, Set<Function>>()
 
-  function find (id: ID) {
+  function emit (event: string, data: any) {
+    if (!options?.events) return
+    const cbs = listeners.get(event)
+    if (!cbs) return
+    for (const cb of cbs) cb(data)
+  }
+
+  function on (event: string, cb: Function) {
+    if (!listeners.has(event)) listeners.set(event, new Set())
+    listeners.get(event)!.add(cb)
+  }
+
+  function off (event: string, cb: Function) {
+    listeners.get(event)?.delete(cb)
+  }
+
+  function get (id: ID) {
     return collection.get(id)
   }
 
@@ -80,28 +104,108 @@ export function useRegistry<
     return directory.get(index)
   }
 
-  function reindex () {
-    directory.clear()
-    let index = 0
-    for (const item of collection.values()) {
-      item.index = index
-      directory.set(index, item.id)
-      index++
-    }
+  function has (id: ID) {
+    return collection.has(id)
   }
 
-  function register (registrant: Partial<Z>, id: ID = genId()): Reactive<Z> {
-    const size = collection.size
-    const item = reactive({
-      id,
-      index: registrant?.index ?? size,
-      value: registrant?.value ?? size,
-      ...registrant,
-    }) as Reactive<Z>
+  function keys () {
+    const cached = cache.get('keys')
+    if (cached != undefined) return cached as ID[]
 
-    collection.set(item.id, item as any)
-    catalog.set(item.value, item.id)
+    const keys = Array.from(collection.keys())
+
+    cache.set('keys', keys)
+
+    return keys
+  }
+
+  function values () {
+    const cached = cache.get('values')
+    if (cached != undefined) return cached as Z[]
+
+    const values = Array.from(collection.values())
+
+    cache.set('values', values)
+
+    return values
+  }
+
+  function entries () {
+    const cached = cache.get('entries')
+    if (cached != undefined) return cached as [ID, Z][]
+
+    const entries = Array.from(collection.entries())
+
+    cache.set('entries', entries)
+
+    return entries
+  }
+
+  function clear () {
+    if (collection.size > 0) collection.clear()
+    if (catalog.size > 0) catalog.clear()
+    if (directory.size > 0) directory.clear()
+    invalidate()
+  }
+
+  function invalidate () {
+    if (cache.size === 0) return
+
+    cache.clear()
+  }
+
+  function reindex () {
+    if (catalog.size > 0) catalog.clear()
+    if (directory.size > 0) directory.clear()
+
+    let index = 0
+
+    for (const item of values()) {
+      if (item.index !== index) {
+        item.index = index
+
+        if (item.valueIsIndex) item.value = index
+      }
+
+      directory.set(index, item.id)
+      catalog.set(item.value, item.id)
+
+      index++
+    }
+
+    invalidate()
+  }
+
+  function register (registrant: Partial<Z> = {}): Z {
+    const size = collection.size
+    const id = registrant.id ?? genId()
+
+    if (has(id)) {
+      logger.warn(`Item with id "${id}" already exists in the registry. Skipping registration.`)
+
+      return get(id) as Z
+    }
+
+    const item = {
+      ...registrant,
+      id,
+      index: registrant.index ?? size,
+      value: registrant.value ?? size,
+      valueIsIndex: registrant.value == null,
+    } as Z
+
+    collection.set(item.id, item)
     directory.set(item.index, item.id)
+
+    const exists = browse(item.value)
+
+    if (exists) {
+      if (isArray(exists)) exists.push(item.id)
+      else catalog.set(item.value, [exists, item.id])
+    } else catalog.set(item.value, item.id)
+
+    invalidate()
+    emit('register', item)
 
     return item
   }
@@ -112,27 +216,43 @@ export function useRegistry<
     if (!item) return
 
     collection.delete(item.id)
-    catalog.delete(item.value)
     directory.delete(item.index)
+
+    let exists = browse(item.value)
+
+    if (isArray(exists)) {
+      exists = exists.filter(value => value !== item.id)
+      if (exists.length === 1) catalog.set(item.value, exists[0])
+      else if (exists.length === 0) catalog.delete(item.value)
+    } else catalog.delete(item.value)
+
+    invalidate()
+    emit('unregister', item)
 
     reindex()
   }
 
-  const context = {
+  return new Proxy({
     collection,
-    catalog,
-    directory,
+    emit,
+    on,
+    off,
+    has,
+    keys,
+    clear,
     browse,
+    entries,
+    values,
     lookup,
-    find,
+    get,
     register,
     unregister,
     reindex,
-  } as unknown as E
+  }, {
+    get (target, prop) {
+      if (prop === 'size') return collection.size
 
-  function provideRegistryContext (_: unknown, _context: E = context, app?: App): E {
-    return _provideRegistryContext(_context, app)
-  }
-
-  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
+      return target[prop as keyof typeof target]
+    },
+  }) as E
 }

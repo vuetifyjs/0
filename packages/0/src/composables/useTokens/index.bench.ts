@@ -1,14 +1,14 @@
 // Composables
-import { useTokens } from './index'
+import { createTokensContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
-import { run, compare } from '#v0/utilities/benchmark'
+import { run } from '#v0/utilities/benchmark'
 
 // Types
 import type { TokenCollection } from './index'
 
-describe('useTokens benchmarks', () => {
+describe('createTokensContext benchmarks', () => {
   it('should benchmark token flattening operations', async () => {
     const tokens: TokenCollection = {}
 
@@ -18,7 +18,7 @@ describe('useTokens benchmarks', () => {
     }
 
     const result = await run('flatten 1000 simple tokens', () => {
-      useTokens('benchmark-flat', tokens)
+      createTokensContext('benchmark-flat', tokens)
     }, 10)
 
     expect(result.name).toBe('flatten 1000 simple tokens')
@@ -47,7 +47,7 @@ describe('useTokens benchmarks', () => {
     }
 
     const result = await run('flatten 300 nested tokens', () => {
-      useTokens('benchmark-nested', tokens)
+      createTokensContext('benchmark-nested', tokens)
     }, 10)
 
     expect(result.name).toBe('flatten 300 nested tokens')
@@ -67,7 +67,7 @@ describe('useTokens benchmarks', () => {
       tokens[`alias-${i}`] = { $value: '{base}' }
     }
 
-    const context = useTokens('benchmark-aliases', tokens)[2]
+    const context = createTokensContext('benchmark-aliases', tokens)[2]
 
     const result = await run('resolve 500 simple aliases', () => {
       for (let i = 0; i < 500; i++) {
@@ -93,7 +93,7 @@ describe('useTokens benchmarks', () => {
       tokens[`level${i}`] = { $value: `{level${i - 1}}` }
     }
 
-    const context = useTokens('benchmark-chained', tokens)[2]
+    const context = createTokensContext('benchmark-chained', tokens)[2]
 
     const result = await run('resolve 10-level chained alias', () => {
       for (let i = 0; i < 100; i++) {
@@ -114,7 +114,7 @@ describe('useTokens benchmarks', () => {
       secondary: { $value: '{primary}' },
     }
 
-    const context = useTokens('benchmark-formats', tokens)[2]
+    const context = createTokensContext('benchmark-formats', tokens)[2]
 
     const result = await run('resolve tokens with different formats', () => {
       for (let i = 0; i < 1000; i++) {
@@ -132,45 +132,6 @@ describe('useTokens benchmarks', () => {
     console.log(`Format Resolution: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
   })
 
-  it('should compare different token operation types', async () => {
-    const simpleTokens: TokenCollection = {}
-    const aliasTokens: TokenCollection = { base: '#007BFF' }
-
-    for (let i = 0; i < 100; i++) {
-      simpleTokens[`token-${i}`] = `#${i.toString(16).padStart(6, '0')}`
-      aliasTokens[`alias-${i}`] = { $value: '{base}' }
-    }
-
-    const simpleContext = useTokens('benchmark-simple', simpleTokens)[2]
-    const aliasContext = useTokens('benchmark-alias-comp', aliasTokens)[2]
-
-    const results = await compare({
-      'register 100 simple tokens': () => {
-        useTokens('simple-test', simpleTokens)
-      },
-      'register 100 alias tokens': () => {
-        useTokens('alias-test', aliasTokens)
-      },
-      'resolve 100 simple tokens': () => {
-        for (let i = 0; i < 100; i++) {
-          simpleContext.resolve(`token-${i}`)
-        }
-      },
-      'resolve 100 alias tokens': () => {
-        for (let i = 0; i < 100; i++) {
-          aliasContext.resolve(`alias-${i}`)
-        }
-      },
-    })
-
-    expect(results).toHaveLength(4)
-
-    console.log('Token operation comparison (fastest to slowest):')
-    for (const [index, result] of results.entries()) {
-      console.log(`${index + 1}. ${result.name}: ${result.ops} ops/sec`)
-    }
-  })
-
   it('should benchmark different token collection sizes', async () => {
     const sizes = [10, 100, 500, 1000]
 
@@ -184,7 +145,7 @@ describe('useTokens benchmarks', () => {
       }
 
       const result = await run(`register ${size} tokens`, () => {
-        useTokens(`benchmark-size-${size}`, tokens)
+        createTokensContext(`benchmark-size-${size}`, tokens)
       }, 5)
 
       console.log(`Size ${size}: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
@@ -200,7 +161,7 @@ describe('useTokens benchmarks', () => {
       tokens[`token-${i}`] = `value-${i}`
     }
 
-    const context = useTokens('benchmark-access', tokens)[2]
+    const context = createTokensContext('benchmark-access', tokens)[2]
 
     const result = await run('collection get operations', () => {
       for (let i = 0; i < 1000; i++) {
@@ -224,7 +185,7 @@ describe('useTokens benchmarks', () => {
     }
 
     const result = await run('validate 1000 mixed tokens', () => {
-      useTokens('benchmark-validation', invalidTokens)
+      createTokensContext('benchmark-validation', invalidTokens)
     }, 5)
 
     console.log(`Token Validation: ${result.ops} ops/sec`)

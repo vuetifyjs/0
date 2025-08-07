@@ -1,16 +1,18 @@
 // Factories
 import { createTrinity } from '#v0/factories/createTrinity'
+import { createContext } from '#v0/factories/createContext'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { isObject, isString } from '#v0/utilities'
+import { isObject, isPrimitive, isString } from '#v0/utilities'
 
 // Types
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { App } from 'vue'
 
 export interface TokenAlias {
   [key: string]: any
@@ -30,39 +32,32 @@ export type FlatTokenCollection = {
   value: TokenValue
 }
 
-export type TokenTicket = RegistryTicket
+export interface TokenTicket extends RegistryTicket {}
 
-export type TokenContext<Z extends TokenTicket = TokenTicket> = RegistryContext<Z> & {
+export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
   resolve: (token: string) => string | undefined
 }
 
 /**
  * Creates a token registry for managing design token collections with alias resolution.
- * Supports nested token structures and cross-references following design token specification patterns.
+ * Returns the token context directly for simple usage.
  *
- * @param namespace The namespace for the token registry context
- * @param tokens An optional collection of tokens to initialize
+ * @param tokens A collection of tokens to initialize with
  * @template Z The structure of the registry token items.
  * @template E The available methods for the token's context.
- * @returns A trinity of provide/inject methods & context
- *
- * @see Inspired by https://www.designtokens.org/tr/drafts/format/#aliases-references
- * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ * @returns The token context object.
  */
 export function useTokens<
   Z extends TokenTicket = TokenTicket,
-  E extends TokenContext = TokenContext,
-> (
-  namespace: string,
-  tokens: TokenCollection = {},
-): ContextTrinity<E> {
+  E extends TokenContext<Z> = TokenContext<Z>,
+> (tokens: TokenCollection = {}): E {
   const logger = useLogger()
+  const registry = useRegistry<Z, E>()
+
   const cache = new Map<string, string | undefined>()
 
-  const [useRegistryContext, provideRegistryContext, registry] = useRegistry<Z, E>(namespace)
-
   for (const { id, value } of flatten(tokens)) {
-    registry.register({ value }, id)
+    registry.register({ value, id } as Partial<Z>)
   }
 
   function isAlias (token: unknown): token is string {
@@ -81,7 +76,7 @@ export function useTokens<
     const reference = isTokenAlias(token) ? token.$value : token
     const cleaned = isAlias(reference) ? reference.slice(1, -1) : reference
 
-    const found = registry.collection.get(cleaned)
+    const found = registry.get(cleaned)
 
     if (found?.value === undefined) {
       logger.warn(`Alias not found for "${reference}"`)
@@ -100,10 +95,38 @@ export function useTokens<
     return result
   }
 
-  return createTrinity<E>(useRegistryContext, provideRegistryContext, {
+  return {
     ...registry,
     resolve,
-  } as unknown as E)
+  } as E
+}
+
+/**
+ * Creates a token registry context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the token registry context
+ * @param tokens An optional collection of tokens to initialize
+ * @template Z The structure of the registry token items.
+ * @template E The available methods for the token's context.
+ * @returns A tuple containing the inject function, provide function, and the token context.
+ */
+export function createTokensContext<
+  Z extends TokenTicket = TokenTicket,
+  E extends TokenContext<Z> = TokenContext<Z>,
+> (
+  namespace: string,
+  tokens: TokenCollection = {},
+): ContextTrinity<E> {
+  const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
+
+  const context = useTokens<Z, E>(tokens)
+
+  function provideTokensContext (_context: E = context, app?: App): E {
+    return _provideTokensContext(_context, app)
+  }
+
+  return createTrinity<E>(useTokensContext, provideTokensContext, context)
 }
 
 /**
@@ -124,11 +147,11 @@ function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
       const value = currentTokens[key]
       const id = currentPrefix ? `${currentPrefix}.${key}` : key
 
-      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      if (isPrimitive(value)) {
         flattened.push({ id, value: String(value) })
-      } else if (value && typeof value === 'object' && '$value' in value) {
+      } else if (isObject(value) && '$value' in value) {
         flattened.push({ id, value: value as TokenAlias })
-      } else if (value && typeof value === 'object') {
+      } else if (isObject(value)) {
         stack.push({ tokens: value, prefix: id })
       }
     }

@@ -3,15 +3,15 @@
   "version": "0.0.0",
   "description": "Vuetify Paper",
   "license": "MIT",
-  "main": "dist/index.mjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
-    "build:watch": "vite build --watch"
+    "build": "tsdown",
+    "build:watch": "tsdown --watch"
   },
   "peerDependencies": {
     "vue": ">=3.3.0"
@@ -23,26 +23,26 @@
         "import": "./src/index.ts"
       },
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.mjs"
+      "import": "./dist/index.mjs"
     }
   },
   "publishConfig": {
     "exports": {
       ".": {
         "types": "./dist/index.d.ts",
-        "import": "./dist/index.mjs",
-        "require": "./dist/index.mjs"
+        "import": "./dist/index.mjs"
       }
     }
   },
   "dependencies": {
-    "@vuetify/0": "workspace:*"
+    "@vuetify/v0": "workspace:*"
   },
   "devDependencies": {
     "@vue/test-utils": "catalog:",
+    "rollup-plugin-sass": "^1.15.3",
+    "sass": "^1.90.0",
+    "tsdown": "^0.13.3",
     "typescript": "catalog:",
-    "unplugin-vue": "catalog:",
-    "vite": "catalog:"
+    "unplugin-vue": "catalog:"
   }
 }

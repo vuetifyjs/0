@@ -1,213 +1,56 @@
-// Factories
-import { createTrinity } from '#v0/factories/createTrinity'
-
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
+
+// Utilities
+import { computed } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/transformers'
 
-// Utilities
-import { computed, getCurrentInstance, nextTick, onMounted, toValue, watch } from 'vue'
-import { genId } from '#v0/utilities/helpers'
-
 // Types
-import type { App, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistryContext } from '#v0/composables/useRegistry'
+import type { ComputedRef } from 'vue'
 import type { ID } from '#v0/types'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
 
-export type GroupTicket = SelectionTicket
+export interface GroupTicket extends SelectionTicket {}
 
-export type BaseGroupContext<Z extends GroupTicket = GroupTicket> = SelectionContext<Z> & {
-  selectedItems: ComputedRef<Set<Z | undefined>>
+export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z> {
   selectedIndexes: ComputedRef<Set<number>>
-  selectedValues: ComputedRef<Set<unknown>>
+  select: (ids: ID | ID[]) => void
 }
 
-export type GroupContext = RegistryContext<GroupTicket> & BaseGroupContext
-
-export type GroupOptions = SelectionOptions & {
-  multiple?: boolean
-}
+export interface GroupOptions extends SelectionOptions {}
 
 /**
- * Creates a group registry for managing multi-selection within a specific namespace.
- * This function provides a way to register, unregister, and manage group selections
- * with support for mandatory selection and multiple selection modes.
+ * Creates a group selection context for managing collections of items where multiple selections can be made.
+ * This function extends the selection functionality with group selection capabilities.
  *
- * @param namespace The namespace for the group context.
- * @param options Optional configuration for the group behavior.
- * @template Z The type of the group items managed by the registry.
- * @template E The type of the group context.
- * @returns A tuple containing the inject function, provide function, and the group context.
- *
- * @see https://0.vuetifyjs.com/composables/selection/use-group
+ * @param options Optional configuration for group selection behavior.
+ * @template Z The type of items managed by the group selection.
+ * @template E The type of the group selection context.
+ * @returns The group selection context object.
  */
 export function useGroup<
   Z extends GroupTicket = GroupTicket,
-  E extends GroupContext = GroupContext,
-> (
-  namespace: string,
-  options?: GroupOptions,
-): ContextTrinity<E> {
-  const [useRegistryContext, provideRegistryContext, registry] = useSelection<Z, E>(namespace)
-
-  const mandatory = options?.mandatory ?? false
-  const multiple = options?.multiple ?? false
-  const returnObject = options?.returnObject ?? false
-
-  let initialValue: unknown | unknown[] = null
+  E extends GroupContext<Z> = GroupContext<Z>,
+> (options?: GroupOptions): E {
+  const registry = useSelection<Z, E>(options)
 
   const selectedIndexes = computed(() => {
     return new Set(
-      Array.from(registry.selectedIds).map(id => registry.find(id)?.index),
+      Array.from(registry.selectedItems.value).map(item => item?.index),
     )
   })
-
-  const selectedItems = computed(() => {
-    return new Set(
-      Array.from(registry.selectedIds).map(id => registry.find(id)),
-    )
-  })
-
-  const selectedValues = computed(() => {
-    return new Set(
-      Array.from(selectedItems.value).map(item => item?.value),
-    )
-  })
-
-  function mandate () {
-    if (!mandatory || registry.selectedIds.size > 0 || registry.collection.size === 0) return
-    for (const item of registry.collection.values()) {
-      if (item.disabled) continue
-      select(item.id)
-      break
-    }
-  }
-
-  function reset () {
-    registry.reset()
-    mandate()
-  }
 
   function select (ids: ID | ID[]) {
-    for (const id of toArray<ID>(ids)) {
-      const item = registry.find(id)
-
-      if (!item || item.disabled) continue
-
-      const hasId = registry.selectedIds.has(id)
-
-      if (hasId) {
-        if (mandatory) {
-          // For single selection, can't deselect if it's the only one
-          if (!multiple) continue
-          // For multiple selection, can't deselect if it's the last one
-          if (registry.selectedIds.size === 1) continue
-        }
-        registry.selectedIds.delete(id)
-      } else {
-        if (!multiple) {
-          // Clear all selections first in single selection mode
-          registry.selectedIds.clear()
-        }
-        registry.selectedIds.add(id)
-      }
+    for (const id of toArray(ids)) {
+      registry.select(id)
     }
   }
 
-  function register (registrant: Partial<Z>, _id: ID = genId()): Reactive<Z> {
-    const id = registrant?.id ?? _id
-
-    const item: Partial<Z> = {
-      ...registrant,
-      id,
-      toggle: () => select(id),
-    }
-
-    const ticket = registry.register(item, id) as unknown as Reactive<Z>
-
-    if (initialValue != null) {
-      const shouldSelect = Array.isArray(initialValue)
-        ? initialValue.includes(ticket.value)
-        : initialValue === ticket.value
-
-      if (shouldSelect) select(ticket.id)
-    }
-
-    if (mandatory === 'force') mandate()
-
-    return ticket
-  }
-
-  if (getCurrentInstance()) {
-    onMounted(() => {
-      initialValue = undefined
-    })
-  }
-
-  const context = {
+  return {
     ...registry,
-    selectedItems,
-    selectedIndexes,
-    selectedValues,
-    register,
-    mandate,
     select,
-    reset,
-  } as unknown as E
-
-  function provideGroupContext (
-    model?: Ref<unknown | unknown[]>,
-    _context: E = context,
-    app?: App,
-  ): E {
-    let isUpdatingModel = false
-
-    if (model) {
-      initialValue = toValue(model)
-
-      watch(registry.selectedIds, () => {
-        if (isUpdatingModel) return
-
-        const target = returnObject ? selectedItems : selectedValues
-
-        model.value = multiple
-          ? Array.from(target.value)
-          : target.value.values().next().value
-      })
-
-      watch(model, async value => {
-        if (isUpdatingModel) return
-
-        const values = new Set(Array.isArray(value) ? value : [value])
-
-        if ((selectedValues.value.symmetricDifference(values)).size === 0) return
-
-        registry.selectedIds.clear()
-
-        for (const value of values) {
-          const id = registry.browse(value)
-
-          if (!id) continue
-
-          registry.selectedIds.add(id)
-        }
-      })
-
-      watch([model, registry.selectedIds], async () => {
-        isUpdatingModel = true
-
-        await nextTick()
-
-        isUpdatingModel = false
-      })
-    }
-
-    return provideRegistryContext(model, _context, app)
-  }
-
-  return createTrinity<E>(useRegistryContext, provideGroupContext, context)
+    selectedIndexes,
+  } as E
 }

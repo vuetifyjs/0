@@ -1,17 +1,12 @@
-// Factories
-import { createTrinity } from '#v0/factories/createTrinity'
-
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
 
 // Types
-import type { BaseSingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
-import type { RegistryContext } from '#v0/composables/useRegistry'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 
-export type StepTicket = SingleTicket
+export interface StepTicket extends SingleTicket {}
 
-export type BaseStepContext<Z extends StepTicket = StepTicket> = BaseSingleContext<Z> & {
+export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
   first: () => void
   last: () => void
   next: () => void
@@ -19,32 +14,25 @@ export type BaseStepContext<Z extends StepTicket = StepTicket> = BaseSingleConte
   step: (count: number) => void
 }
 
-export type StepContext = RegistryContext<StepTicket> & BaseStepContext
-
-export type StepOptions = SingleOptions
+export interface StepOptions extends SingleOptions {}
 
 /**
- * Creates a step registry for managing step navigation within a specific namespace.
- * This function provides sequential navigation through steps with utility methods
- * for moving forward, backward, jumping to specific positions, and wrapping around disabled items.
+ * Creates a step selection context for managing collections where users can navigate through items sequentially.
+ * This function extends the single selection functionality with stepping navigation.
  *
- * @param namespace The namespace for the step context.
- * @param options Optional configuration for the step behavior.
- * @template Z The type of the step items managed by the registry.
- * @template E The type of the step context.
- * @returns A tuple containing the inject function, provide function, and the step context.
+ * @param options Optional configuration for step behavior.
+ * @template Z The type of items managed by the step selection.
+ * @template E The type of the step selection context.
+ * @returns The step selection context object.
  */
 export function useStep<
   Z extends StepTicket = StepTicket,
-  E extends StepContext = StepContext,
-> (
-  namespace: string,
-  options?: StepOptions,
-): ContextTrinity<E> {
-  const [useStepContext, provideStepContext, registry] = useSingle<Z, E>(namespace, options)
+  E extends StepContext<Z> = StepContext<Z>,
+> (options?: StepOptions): E {
+  const registry = useSingle<Z, E>(options)
 
   function first () {
-    if (registry.collection.size === 0) return
+    if (registry.size === 0) return
 
     const first = registry.lookup(0)
     if (first === undefined) return
@@ -54,9 +42,9 @@ export function useStep<
   }
 
   function last () {
-    if (registry.collection.size === 0) return
+    if (registry.size === 0) return
 
-    const last = registry.lookup(registry.collection.size - 1)
+    const last = registry.lookup(registry.size - 1)
     if (last === undefined) return
 
     registry.selectedIds.clear()
@@ -76,7 +64,7 @@ export function useStep<
   }
 
   function step (count = 1) {
-    const length = registry.collection.size
+    const length = registry.size
     if (!length) return
 
     const direction = Math.sign(count || 1)
@@ -84,7 +72,7 @@ export function useStep<
     let index = wrapped(length, registry.selectedIndex.value + count)
     let id = registry.lookup(index)
 
-    while (id !== undefined && registry.find(id)?.disabled && hops < length) {
+    while (id !== undefined && registry.get(id)?.disabled && hops < length) {
       index = wrapped(length, index + direction)
       id = registry.lookup(index)
       hops++
@@ -96,12 +84,12 @@ export function useStep<
     registry.select(id)
   }
 
-  return createTrinity<E>(useStepContext, provideStepContext, {
+  return {
     ...registry,
     first,
     last,
     next,
     prev,
     step,
-  } as unknown as E)
+  } as E
 }

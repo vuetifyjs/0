@@ -27,6 +27,7 @@
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "target": "esnext",
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": ["src/**/__tests__/*"]

@@ -12,7 +12,6 @@ declare global {
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']
-  const Log4jsLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['Log4jsLoggerAdapter']
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
   const SUPPORTS_INTERSECTION_OBSERVER: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_INTERSECTION_OBSERVER']
@@ -22,16 +21,11 @@ declare global {
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
   const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']
-  const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']
-  const WinstonLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['WinstonLoggerAdapter']
-  const __DEV__: typeof import('../../packages/0/src/constants/globals')['__DEV__']
   const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']
-  const compare: typeof import('../../packages/0/src/utilities/benchmark')['compare']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']
-  const createContext: typeof import('../../packages/0/src/factories/createContext/index')['createContext']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
@@ -39,14 +33,11 @@ declare global {
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']
-  const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
-  const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
-  const createPlugin: typeof import('../../packages/0/src/factories/createPlugin/index')['createPlugin']
   const createStorage: typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']
   const createStoragePlugin: typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']
   const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
   const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
-  const createTokens: typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']
+  const createTokensContext: typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']
   const customRef: typeof import('vue')['customRef']
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
@@ -56,15 +47,17 @@ declare global {
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
-  const guard: typeof import('../../packages/0/src/utilities/benchmark')['guard']
   const h: typeof import('vue')['h']
   const hexToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']
   const hexaToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']
   const inject: typeof import('vue')['inject']
-  const installMarkdownPlugin: typeof import('../../packages/v0/src/composables/useMarkdown/index')['installMarkdownPlugin']
   const isArray: typeof import('../../packages/0/src/utilities/helpers')['isArray']
+  const isBoolean: typeof import('../../packages/0/src/utilities/helpers')['isBoolean']
+  const isFunction: typeof import('../../packages/0/src/utilities/helpers')['isFunction']
   const isNullOrUndefined: typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']
+  const isNumber: typeof import('../../packages/0/src/utilities/helpers')['isNumber']
   const isObject: typeof import('../../packages/0/src/utilities/helpers')['isObject']
+  const isPrimitive: typeof import('../../packages/0/src/utilities/helpers')['isPrimitive']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
@@ -92,8 +85,6 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']
   const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
-  const provideLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['provideLoggerContext']
-  const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
   const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
@@ -108,14 +99,12 @@ declare global {
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']
   const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']
   const toRaw: typeof import('vue')['toRaw']
-  const toReactive: typeof import('../../packages/0/src/transformers/toReactive/index')['toReactive']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAttrs: typeof import('vue')['useAttrs']
-  const useAvatar: typeof import('../../packages/0/src/composables/useAvatar/index')['useAvatar']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
   const useBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']
   const useBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpointsContext']
@@ -135,16 +124,15 @@ declare global {
   const useId: typeof import('vue')['useId']
   const useIntersectionObserver: typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useIntersectionObserver']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
+  const useLayout: typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']
-  const useLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['useLoggerContext']
-  const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
-  const useMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']
   const useModel: typeof import('vue')['useModel']
-  const useRegistrar: typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']
+  const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']
   const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
   const useResizeObserver: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
+  const useSelection: typeof import('../../packages/0/src/composables/useSelection/index')['useSelection']
   const useSingle: typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']
   const useSlots: typeof import('vue')['useSlots']
   const useSpacing: typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']
@@ -199,7 +187,7 @@ declare global {
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
   import('../../packages/0/src/composables/useEventListener/index')
   // @ts-ignore
-  export type { GroupTicket, BaseGroupContext, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
+  export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
   export type { HydrationContext, HydrationPlugin } from '../../packages/0/src/composables/useHydration/index'
@@ -208,25 +196,34 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { LocaleTicket, BaseLocaleContext, LocaleContext, LocaleOptions, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
+  export type { LayoutLocation, LayoutTicket, LayoutContext, LayoutOptions } from '../../packages/0/src/composables/useLayout/index'
+  import('../../packages/0/src/composables/useLayout/index')
+  // @ts-ignore
+  export type { LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
   // @ts-ignore
   export type { LoggerContext, LoggerOptions, LoggerPlugin, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
   import('../../packages/0/src/composables/useLogger/index')
   // @ts-ignore
+  export type { ProxyModelOptions } from '../../packages/0/src/composables/useProxyModel/index'
+  import('../../packages/0/src/composables/useProxyModel/index')
+  // @ts-ignore
   export type { RegistryTicket, RegistryContext, RegistryOptions } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
   // @ts-ignore
-  export type { SingleTicket, BaseSingleContext, SingleContext, SingleOptions } from '../../packages/0/src/composables/useSingle/index'
+  export type { SelectionTicket, SelectionContext, SelectionOptions } from '../../packages/0/src/composables/useSelection/index'
+  import('../../packages/0/src/composables/useSelection/index')
+  // @ts-ignore
+  export type { SingleTicket, SingleContext, SingleOptions } from '../../packages/0/src/composables/useSingle/index'
   import('../../packages/0/src/composables/useSingle/index')
   // @ts-ignore
-  export type { StepTicket, BaseStepContext, StepContext, StepOptions } from '../../packages/0/src/composables/useStep/index'
+  export type { StepTicket, StepContext, StepOptions } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
   export type { StorageContext, StorageOptions, StoragePlugin } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
   // @ts-ignore
-  export type { Colors, ThemeColors, ThemeTicket, BaseThemeContext, ThemeContext, ThemeOptions, ThemePluginOptions, ThemePlugin } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeColors, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions, ThemePlugin } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
   export type { TokenAlias, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
@@ -257,7 +254,6 @@ declare module 'vue' {
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
     readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
     readonly __LOGGER_ENABLED__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']>
-    readonly compare: UnwrapRef<typeof import('../../packages/0/src/utilities/benchmark')['compare']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']>
@@ -273,6 +269,7 @@ declare module 'vue' {
     readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
     readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
+    readonly createTokensContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
@@ -282,14 +279,17 @@ declare module 'vue' {
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
-    readonly guard: UnwrapRef<typeof import('../../packages/0/src/utilities/benchmark')['guard']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hexToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']>
     readonly hexaToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
     readonly isArray: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isArray']>
+    readonly isBoolean: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isBoolean']>
+    readonly isFunction: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isFunction']>
     readonly isNullOrUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']>
+    readonly isNumber: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNumber']>
     readonly isObject: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isObject']>
+    readonly isPrimitive: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isPrimitive']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
@@ -356,12 +356,15 @@ declare module 'vue' {
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
+    readonly useLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
     readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
     readonly useResizeObserver: UnwrapRef<typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
+    readonly useSelection: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['useSelection']>
     readonly useSingle: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>

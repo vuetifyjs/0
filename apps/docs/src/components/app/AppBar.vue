@@ -1,30 +1,53 @@
 <script setup lang="ts">
   // Components
-  import { Atom } from '@vuetify/0'
+  import { Atom, useBreakpoints } from '@vuetify/v0'
 
   // Composables
-  import { useBreakpoints } from '@vuetify/0'
-
-  // Icons
-  import { Github } from 'lucide-vue-next'
+  import { useAppContext } from '@/composables/useApp'
 
   // Types
-  import type { AtomProps } from '@vuetify/0'
+  import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'header' } = defineProps<AtomProps>()
 
   const breakpoints = useBreakpoints()
+  const app = useAppContext()
 </script>
 
 <template>
   <Atom
     :as
-    class="app-header flex items-center justify-end h-[48px] fixed left-0 top-0 right-0 px-3 transition-margin duration-200 ease-in-out"
-    :class="!breakpoints.isMobile && 'ml-[220px]'"
+    class="app-header flex items-center justify-between h-[48px] fixed left-[220px] top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
+    :class="breakpoints.isMobile && 'left-0'"
   >
-    <a href="https://github.com/vuetifyjs/0" rel="noopener noreferrer" target="_blank">
-      <Github class="bg-gray-800 text-white pa-1 rounded opacity-90 hover:opacity-100" :size="26" />
-    </a>
+    <AppIcon
+      v-if="breakpoints.isMobile"
+      class="pa-1 cursor-pointer"
+      :icon="app.nav.value ? 'close' : 'menu'"
+      @click="app.nav.value = !app.nav.value"
+    />
+
+    <span v-else />
+
+    <div class="flex align-center items-center gap-3">
+      <a
+        class="bg-[#5661ea] text-white pa-1 inline-flex rounded"
+        href="https://discord.gg/vK6T89eNP7"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <AppIcon icon="discord" />
+      </a>
+
+      <a
+        class="bg-gray-800 text-white pa-1 inline-flex rounded"
+        href="https://github.com/vuetifyjs/0"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <AppIcon icon="github" />
+      </a>
+    </div>
   </Atom>
 </template>
 

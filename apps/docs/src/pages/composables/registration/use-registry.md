@@ -24,35 +24,48 @@ A foundational composable for building registration-based systems, managing coll
     id: ID
     index: number
     value: unknown
+    valueIsIndex: boolean
   }
 
   interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
     collection: Map<ID, Z>
-    catalog: Map<unknown, ID>
+    catalog: Map<unknown, ID | ID[]>
     directory: Map<number, ID>
-    browse: (value: unknown) => ID | undefined
+    clear: () => void
+    has: (id: ID) => boolean
+    browse: (value: unknown) => ID | ID[] | undefined
     lookup: (index: number) => ID | undefined
     find: (id: ID) => Z | undefined
-    register: (item?: Partial<Z>, id?: ID) => Z
-    unregister: (id: ID) => void
+    register: (item?: Partial<Z>) => Z
+    unregister: (ids: ID | ID[]) => void
     reindex: () => void
+    on: (event: string, cb: Function) => void
+    off: (event: string, cb: Function) => void
+  }
+
+  interface RegistryOptions {
+    events?: boolean
   }
   ```
 - **Details**
 
   - `collection`: A map of registered items by their unique ID.
-  - `catalog`: A map of item values to their unique IDs.
+  - `catalog`: A map of item values to their unique IDs. When multiple items share the same value, the catalog intelligently stores an array of IDs; when reduced to a single item, it converts back to a primitive ID.
   - `directory`: A map of item indices to their unique IDs.
-  - `browse(value: unknown)`: Returns the ID of the first item matching the value, or `undefined` if not found.
+  - `clear()`: Removes all items from the registry, clearing the collection, catalog, and directory.
+  - `has(id: ID)`: Returns `true` if an item with the given ID exists in the registry, `false` otherwise.
+  - `browse(value: unknown)`: Returns the ID(s) associated with the given value. Returns a single ID if only one item has that value, an array of IDs if multiple items share the value, or `undefined` if not found.
   - `lookup(index: number)`: Returns the ID of the item at the given index, or `undefined` if not found.
   - `find(id: ID)`: Returns the registered item for the given ID, or `undefined` if not found.
-  - `register(item?: Partial<Z>, id?: ID)`: Registers a new item, optionally with a specific ID. Returns the registered item; otherwise known as a **ticket**.
-  - `unregister(id: ID)`: Unregisters an item by its ID.
+  - `register(item?: Partial<Z>)`: Registers a new item. Returns the registered item; otherwise known as a **ticket**.
+  - `unregister(ids: ID | ID[])`: Unregisters one or more items by their ID(s). Accepts either a single ID or an array of IDs for efficient batch removal. After processing all items, reindexes the remaining items.
   - `reindex()`: Rebuilds the index of items based on their current state.
+  - `on(event: string, cb: Function)`: Listens for registry events (requires `events: true` option).
+  - `off(event: string, cb: Function)`: Stops listening for registry events.
 
 - **Options**
 
-  - `deep`: If `true`, the registered item will be wrapped in [reactive](https://vuejs.org/api/reactivity-core.html#reactive) instead of [shallowReactive](https://vuejs.org/api/reactivity-advanced.html#shallowreactive). Defaults to `false`.
+  - `events`: If `true`, enables event emission for registry operations like `register` and `unregister`. Defaults to `false`.
 
 ## Usage
 
@@ -60,18 +73,173 @@ The `useRegistry` composable provides a powerful interface for managing collecti
 
 ```ts
 // src/composables/my-registry.ts
-import { useRegistry } from '@vuetify/0'
+import { useRegistry } from '@vuetify/v0'
+import { createContext } from '@vuetify/v0'
 
-export const [useMyRegistry, provideMyRegistry] = useRegistry('my-namespace')
+// Simple usage
+export const useMyRegistry = () => useRegistry()
+
+// Or with context injection
+export const [useMyRegistryContext, provideMyRegistryContext] = createContext('my-registry')
+
+// With events enabled
+export const useMyRegistryWithEvents = () => useRegistry({ events: true })
 ```
 
 ```html
 <!-- src/App.vue -->
 <script lang="ts" setup>
-  import { provideMyRegistry } from './composables/my-registry'
+  import { provideMyRegistryContext, useMyRegistry } from './composables/my-registry'
 
-  provideMyRegistry()
+  // Simple usage without context
+  const registry = useMyRegistry()
+
+  // Or with context
+  const registryContext = useMyRegistry()
+  provideMyRegistryContext(registryContext)
 </script>
+```
+
+## Registry Tickets
+
+Each registered item returns a **ticket** that contains metadata about the registration:
+
+```ts
+interface RegistryTicket {
+  id: ID                    // Unique identifier for the item
+  index: number            // Position in the registry (0-based)
+  value: unknown           // The actual value stored
+  valueIsIndex: boolean    // Whether value was auto-assigned from index
+}
+```
+
+The `valueIsIndex` property indicates whether the item's value was automatically assigned based on its index position. This is useful for understanding the registration behavior:
+
+```ts
+const registry = useRegistry()
+
+// Auto-assigned value
+const ticket1 = registry.register()
+console.log(ticket1.valueIsIndex) // true
+console.log(ticket1.value === ticket1.index) // true
+
+// Explicit value
+const ticket2 = registry.register({ value: 'custom-value' })
+console.log(ticket2.valueIsIndex) // false
+console.log(ticket2.value) // 'custom-value'
+```
+
+## Advanced Features
+
+### Event System
+
+When the `events` option is enabled, the registry emits events for registration and unregistration operations:
+
+```ts
+const registry = useRegistry({ events: true })
+
+// Listen for registration events
+registry.on('register', (ticket) => {
+  console.log('Item registered:', ticket)
+})
+
+// Listen for unregistration events
+registry.on('unregister', (ticket) => {
+  console.log('Item unregistered:', ticket)
+})
+
+// Register an item (triggers 'register' event)
+const ticket = registry.register({ value: 'example' })
+
+// Unregister the item (triggers 'unregister' event)
+registry.unregister(ticket.id)
+
+// Stop listening to events
+registry.off('register', callback)
+```
+
+### Registry Management
+
+The registry provides several utility methods for managing the collection:
+
+```ts
+const registry = useRegistry()
+
+// Register some items
+const ticket1 = registry.register({ id: 'item1', value: 'value1' })
+const ticket2 = registry.register({ id: 'item2', value: 'value2' })
+const ticket3 = registry.register({ id: 'item3', value: 'value3' })
+
+// Check if items exist
+console.log(registry.has('item1')) // true
+console.log(registry.has('item3')) // false
+
+// Unregister a single item
+registry.unregister('item1')
+
+// Unregister multiple items efficiently (reindex only runs once)
+registry.unregister(['item2', 'item3'])
+
+// Clear all items
+registry.clear()
+console.log(registry.size) // 0
+```
+
+### Integration with Context Factories
+
+The `useRegistry` composable works seamlessly with the factory functions for creating context providers:
+
+```ts
+import { useRegistry } from '@vuetify/v0'
+import { createContext, createTrinity } from '@vuetify/v0'
+
+// Simple context approach
+const [useMyContext, provideMyContext] = createContext('my-registry')
+
+export function setupRegistry() {
+  const registry = useRegistry({ events: true })
+  provideMyContext(registry)
+  return registry
+}
+
+// Trinity approach (advanced)
+export function createRegistryTrinity() {
+  const [useContext, provideContext] = createContext('my-registry')
+  const registry = useRegistry({ events: true })
+
+  return createTrinity(useContext, provideContext, registry)
+}
+```
+
+### Automatic Value Assignment
+
+When registering items without explicit values, the registry automatically assigns the current collection size as both the value and index. The `valueIsIndex` property tracks this behavior:
+
+```ts
+const registry = useRegistry()
+
+const ticket1 = registry.register() // { id: 'generated-id', index: 0, value: 0, valueIsIndex: true }
+const ticket2 = registry.register({ value: 'custom' }) // { id: 'generated-id', index: 1, value: 'custom', valueIsIndex: false }
+```
+
+### Duplicate Value Handling
+
+The catalog intelligently handles duplicate values by automatically converting between single IDs and arrays:
+
+```ts
+const registry = useRegistry()
+
+registry.register({ id: 'item1', value: 'value' })
+
+console.log(registery.browse('value')) // 'item1'
+
+registry.register({ id: 'item2', value: 'value' })
+
+console.log(registery.browse('value')) // ['item1', 'item2']
+
+registry.unregister('item1')
+
+console.log(registery.browse('value')) // 'item2'
 ```
 
 ## Performance
@@ -80,10 +248,19 @@ The `useRegistry` composable is designed to be efficient, leveraging Vue's react
 
 The primary way that you will access information in the registry is to search for it by **ID** using the `find` method. If you don't know the ID what you're looking for, you can use one of the following methods to locate it:
 
-- `browse(value: unknown)`: Searches for the first item that matches the given value and returns its ID.
+- `browse(value: unknown)`: Searches for item(s) that match the given value and returns their ID(s). Returns a single ID, array of IDs, or `undefined`.
 - `lookup(index: number)`: Returns the ID of the item at the specified index.
 
-In addition to the collection Map, the registry maintains a `catalog` Map that maps item values to their IDs, and a `directory` Map that maps item indices to their IDs. This allows for efficient lookups and indexing of registered items.
+In addition to the collection Map, the registry maintains a `catalog` Map that maps item values to their IDs (or arrays of IDs for duplicate values), and a `directory` Map that maps item indices to their IDs. This allows for efficient lookups and indexing of registered items.
+
+The catalog automatically handles duplicate values by:
+- Storing a single ID when only one item has a particular value
+- Converting to an array when multiple items share the same value
+- Converting back to a single ID when reduced to one item
+
+### Batch Operations
+
+For improved performance when removing multiple items, the `unregister` method accepts both single IDs and arrays of IDs. When multiple items are unregistered at once, the expensive reindexing operation is performed only once at the end, rather than after each individual removal.
 
 ### Benchmarks
 
@@ -91,64 +268,57 @@ The following table shows performance metrics for various `useRegistry` operatio
 
 | Operation | Performance | Average Time |
 |-----------|-------------|--------------|
-| Registration | 726 ops/sec | 1.38ms |
-| Unregistration | 7,495 ops/sec | 0.13ms |
-| Lookup | 34,766 ops/sec | 0.03ms |
-| Reindexing | 3,697 ops/sec | 0.27ms |
-| Browse | 19,278 ops/sec | 0.05ms |
-| Find | 8,584 ops/sec | 0.12ms |
+| Registration | 2,736 ops/sec | 0.38ms |
+| Unregistration | 17,355 ops/sec | 0.06ms |
+| Find (by ID) | 15,639 ops/sec | 0.07ms |
+| Lookup (by index) | 24,288 ops/sec | 0.04ms |
+| Browse (by value) | 17,374 ops/sec | 0.06ms |
+| Has (existence check) | 16,625 ops/sec | 0.06ms |
+| Clear | 4,152 ops/sec | 0.24ms |
+| Reindex | 38,500 ops/sec | 0.03ms |
 
-#### Batch Operations (100 items)
-
-| Operation | Performance |
-|-----------|-------------|
-| Lookup | 445,286 ops/sec |
-| Browse | 166,574 ops/sec |
-| Find | 101,778 ops/sec |
-| Reindex | 36,591 ops/sec |
-| Register | 10,125 ops/sec |
-
-#### Registration Performance by Collection Size
-
-| Collection Size | Performance | Average Time |
-|-----------------|-------------|--------------|
-| 10 items | 124,701 ops/sec | 0.01ms |
-| 100 items | 12,927 ops/sec | 0.08ms |
-| 1,000 items | 1,446 ops/sec | 0.69ms |
-| 5,000 items | 202 ops/sec | 4.96ms |
-
-#### Registration Mode Comparison
-
-| Mode | Performance | Average Time |
-|------|-------------|--------------|
-| Shallow Registration | 746 ops/sec | 1.34ms |
-| Deep Registration | 1,072 ops/sec | 0.93ms |
+*Performance metrics based on benchmark tests with 1,000 items and will vary based on collection size.*
 
 ## Example
 
-The following example demonstrates creating a registry for reusable icon svg paths:
+The following example demonstrates creating a registry for reusable icon svg paths with event handling:
 
 ```ts
 // src/composables/icons.ts
 
-import { useRegistry } from '@vuetify/0'
+import { useRegistry } from '@vuetify/v0'
+import { createContext } from '@vuetify/v0'
 
-const [useIconContext, _provideIconContext, registry] = useRegistry('icons')
+const [useIconContext, provideIconContext] = createContext('icons')
 
 export { useIconContext }
 
-export function provideIconContext () {
+export function createIconRegistry () {
+  const registry = useRegistry({ events: true })
+
   const icons = {
     collapse: 'M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z',
     complete: 'M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z',
     menu: 'M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z',
   }
 
+  // Listen for new icon registrations
+  registry.on('register', (ticket) => {
+    console.log(`Icon "${ticket.id}" registered with value: ${ticket.value}`)
+  })
+
+  // Register initial icons
   for (const [id, value] of Object.entries(icons)) {
     registry.register({ id, value })
   }
 
-  _provideIconContext()
+  return registry
+}
+
+export function setupIconContext () {
+  const iconRegistry = createIconRegistry()
+  provideIconContext(iconRegistry)
+  return iconRegistry
 }
 ```
 
@@ -159,9 +329,9 @@ Provide the icon context in your main application file, typically `App.vue`:
 <!-- src/App.vue -->
 
 <script lang="ts" setup>
-  import { provideIconContext } from './composables/icons'
+  import { setupIconContext } from './composables/icons'
 
-  provideIconContext()
+  setupIconContext()
 </script>
 ```
 
@@ -180,9 +350,12 @@ Now in subsequent components, you use the `useIconContext` composable to access 
 
   const props = defineProps<IconProps>()
 
-  const icons = useIconContext()
+  const iconRegistry = useIconContext()
 
-  const icon = computed(() => icons.find(props.name))
+  const icon = computed(() => {
+    const iconId = iconRegistry.browse(props.name) || props.name
+    return iconRegistry.get(iconId)
+  })
 </script>
 
 <template>
@@ -193,7 +366,7 @@ Now in subsequent components, you use the `useIconContext` composable to access 
     role="img"
     aria-hidden="true"
   >
-    <path :d="icon" />
+    <path :d="icon.value" />
   </svg>
 </template>
 ```
@@ -203,7 +376,9 @@ Below is a mermaid diagram illustrating the above example:
 <Mermaid code="
 graph TD
     A[icons.ts] --> B(App.vue)
-    B(App.vue) --> |provideIconContext| C{v0 Global Context}
+    B --> |setupIconContext| C{Registry with Events}
     C --> |useIconContext| D(Icon.vue)
     C --> |useIconContext| E(AnotherComponent.vue)
+    C --> F[Event Listeners]
+    F --> |register events| G[Console Logs]
 " />
