@@ -35,7 +35,7 @@ There are no specific events emitted by the `Atom` component.
 
 ### Basic Usage
 
-```vue
+```html
 <template>
   <Atom>
     <div>This is a basic Atom component.</div>
@@ -43,13 +43,13 @@ There are no specific events emitted by the `Atom` component.
 </template>
 
 <script setup lang="ts">
-import { Atom } from '@vuetify/0/components/Atom';
+  import { Atom } from '@vuetify/0/components/Atom'
 </script>
 ```
 
 ### Rendering as a different HTML element
 
-```vue
+```html
 <template>
   <Atom as="span">
     <span>This Atom component renders as a span.</span>
@@ -57,13 +57,13 @@ import { Atom } from '@vuetify/0/components/Atom';
 </template>
 
 <script setup lang="ts">
-import { Atom } from '@vuetify/0/components/Atom';
+  import { Atom } from '@vuetify/0/components/Atom'
 </script>
 ```
 
 ### Renderless Atom
 
-```vue
+```html
 <template>
   <Atom renderless>
     <template #default="{ someInternalProp }">
@@ -73,13 +73,13 @@ import { Atom } from '@vuetify/0/components/Atom';
 </template>
 
 <script setup lang="ts">
-import { Atom } from '@vuetify/0/components/Atom';
+  import { Atom } from '@vuetify/0/components/Atom'
 </script>
 ```
 
 ### Atom with custom content via slot
 
-```vue
+```html
 <template>
   <Atom>
     <template #default="{ message }">
@@ -89,7 +89,6 @@ import { Atom } from '@vuetify/0/components/Atom';
 </template>
 
 <script setup lang="ts">
-import { Atom } from '@vuetify/0/components/Atom';
+  import { Atom } from '@vuetify/0/components/Atom'
 </script>
 ```
-
