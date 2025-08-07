@@ -16,25 +16,13 @@ import type { Ref, ComputedRef, ShallowReactive, ShallowRef, App } from 'vue'
 import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
 
-export interface BaseLayoutTicket extends GroupTicket {
-  order: number
-}
-
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
-export interface HorizontalTicket extends BaseLayoutTicket {
-  position: 'left' | 'right'
-  width: number
-  height: never
+export interface LayoutTicket extends GroupTicket {
+  order: number
+  position: LayoutLocation
+  value: number
 }
-
-export interface VerticalTicket extends BaseLayoutTicket {
-  position: 'top' | 'bottom'
-  height: number
-  width?: never
-}
-
-export type LayoutTicket = VerticalTicket | HorizontalTicket
 
 export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   bounds: {
@@ -94,16 +82,11 @@ export function createLayout<
     height: computed(() => height.value - bounds.top.value - bounds.bottom.value),
   }
 
-  function isHorizontal (ticket: LayoutTicket): ticket is HorizontalTicket {
-    return ticket.position === 'left' || ticket.position === 'right'
-  }
-
   function sum (position: LayoutLocation): number {
     let total = 0
     for (const item of registry.values()) {
       if (item.position === position && item.isActive.value) {
-        const value = isHorizontal(item) ? item.width : item.height
-        total += sizes.get(item.id) ?? value ?? 0
+        total += sizes.get(item.id) ?? item.value ?? 0
       }
     }
     return total
@@ -117,8 +100,7 @@ export function createLayout<
 
     const ticket = registry.register(item as Z)
 
-    const value = isHorizontal(ticket) ? ticket.width : ticket.height
-    sizes.set(ticket.id, value)
+    sizes.set(ticket.id, ticket.value)
 
     return ticket
   }
