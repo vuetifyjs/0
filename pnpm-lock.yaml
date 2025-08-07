@@ -79,9 +79,6 @@ importers:
       '@vuetify/v0':
         specifier: workspace:*
         version: link:../../packages/0
-      lucide-vue-next:
-        specifier: ^0.534.0
-        version: 0.534.0(vue@3.5.17(typescript@5.8.3))
       markdown-it-attrs:
         specifier: ^4.3.1
         version: 4.3.1(markdown-it@14.1.0)
@@ -2614,11 +2611,6 @@ packages:
   lru-cache@8.0.5:
     resolution: {integrity: sha512-MhWWlVnuab1RG5/zMRRcVGXZLCXrZTgfwMikgzCegsPnG62yDQo5JnqKkrK4jO5iKqDAZGItAqN5CtKBCBWRUA==}
     engines: {node: '>=16.14'}
-
-  lucide-vue-next@0.534.0:
-    resolution: {integrity: sha512-tdJSP1bp6R7KPX2PEENxcF2M0GwDYR6W/ghKmQ8ScOchptOOOi2MIk6d3sp5wovs1nE7XzDIpbxmAUi6VGSJ2A==}
-    peerDependencies:
-      vue: '>=3.0.1'
 
   lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
@@ -6316,10 +6308,6 @@ snapshots:
   lru-cache@10.4.3: {}
 
   lru-cache@8.0.5: {}
-
-  lucide-vue-next@0.534.0(vue@3.5.17(typescript@5.8.3)):
-    dependencies:
-      vue: 3.5.17(typescript@5.8.3)
 
   lz-string@1.5.0: {}
 
