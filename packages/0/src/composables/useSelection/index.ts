@@ -108,7 +108,7 @@ export function useSelection<
   }
 
   function reset () {
-    registry.collection.clear()
+    registry.clear()
     registry.reindex()
     registry.mandate()
   }

@@ -121,8 +121,8 @@ export function useRegistry<
   }
 
   function reindex () {
-    directory.clear()
-    catalog.clear()
+    if (directory.size > 0) directory.clear()
+    if (catalog.size > 0) catalog.clear()
 
     let index = 0
 
