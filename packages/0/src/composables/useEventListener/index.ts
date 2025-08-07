@@ -6,7 +6,7 @@ import { toArray } from '#v0/transformers'
 import type { MaybeArray } from '#v0/types'
 import type { MaybeRef, MaybeRefOrGetter } from 'vue'
 export type CleanupFunction = () => void
-export type EventHandler<E = Event> = (evt: E) => void
+export type EventHandler<E = Event> = (event: E) => void
 
 /**
  * Attaches event listeners to the window object with automatic cleanup.
@@ -22,7 +22,7 @@ export type EventHandler<E = Event> = (evt: E) => void
 export function useEventListener<E extends keyof WindowEventMap> (
   target: Window,
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: Window, ev: WindowEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: Window, event: WindowEventMap[E]) => any>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction
 
@@ -40,7 +40,7 @@ export function useEventListener<E extends keyof WindowEventMap> (
 export function useEventListener<E extends keyof DocumentEventMap> (
   target: Document,
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: Document, ev: DocumentEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: Document, event: DocumentEventMap[E]) => any>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction
 
@@ -58,7 +58,7 @@ export function useEventListener<E extends keyof DocumentEventMap> (
 export function useEventListener<E extends keyof HTMLElementEventMap> (
   target: MaybeRefOrGetter<HTMLElement | null | undefined>,
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: HTMLElement, ev: HTMLElementEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: HTMLElement, event: HTMLElementEventMap[E]) => any>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction
 
@@ -114,9 +114,9 @@ export function useEventListener (
       const eventList = toArray(events)
       const listenerList = toArray(listeners)
 
-      for (const evt of eventList) {
+      for (const event of eventList) {
         for (const listenerFn of listenerList) {
-          cleanups.push(register(el, evt, listenerFn, opts))
+          cleanups.push(register(el, event, listenerFn, opts))
         }
       }
     },
@@ -145,7 +145,7 @@ export function useEventListener (
  */
 export function useWindowEventListener<E extends keyof WindowEventMap> (
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: Window, ev: WindowEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: Window, event: WindowEventMap[E]) => any>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction {
   return useEventListener(window, event, listener, options)
@@ -163,7 +163,7 @@ export function useWindowEventListener<E extends keyof WindowEventMap> (
  */
 export function useDocumentEventListener<E extends keyof DocumentEventMap> (
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: Document, ev: DocumentEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: Document, event: DocumentEventMap[E]) => any>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction {
   return useEventListener(document, event, listener, options)
