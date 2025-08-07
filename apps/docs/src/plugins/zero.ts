@@ -1,5 +1,5 @@
 // Vuetify0
-import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createThemePlugin } from '@vuetify/v0'
+import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createThemePlugin, createLayoutPlugin } from '@vuetify/v0'
 
 // Plugins
 import { createIconPlugin } from './icons'
@@ -12,6 +12,7 @@ export default function zero (app: App) {
   app.use(createLoggerPlugin())
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin())
+  app.use(createLayoutPlugin())
   app.use(
     createThemePlugin({
       default: 'slate',
