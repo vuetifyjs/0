@@ -109,39 +109,42 @@ export function useRegistry<
   }
 
   function keys () {
-    if (cache.has('keys')) return cache.get('keys') as ID[]
+    const cached = cache.get('keys')
+    if (cached != undefined) return cached as ID[]
 
-    const array = Array.from(collection.keys())
+    const keys = Array.from(collection.keys())
 
-    cache.set('keys', array)
+    cache.set('keys', keys)
 
-    return array
+    return keys
   }
 
   function values () {
-    if (cache.has('values')) return cache.get('values') as Z[]
+    const cached = cache.get('values')
+    if (cached != undefined) return cached as Z[]
 
-    const array = Array.from(collection.values())
+    const values = Array.from(collection.values())
 
-    cache.set('values', array)
+    cache.set('values', values)
 
-    return array
+    return values
   }
 
   function entries () {
-    if (cache.has('entries')) return cache.get('entries') as [ID, Z][]
+    const cached = cache.get('entries')
+    if (cached != undefined) return cached as [ID, Z][]
 
-    const array = Array.from(collection.entries())
+    const entries = Array.from(collection.entries())
 
-    cache.set('entries', array)
+    cache.set('entries', entries)
 
-    return array
+    return entries
   }
 
   function clear () {
-    collection.clear()
-    catalog.clear()
-    directory.clear()
+    if (collection.size > 0) collection.clear()
+    if (catalog.size > 0) catalog.clear()
+    if (directory.size > 0) directory.clear()
     invalidate()
   }
 
@@ -152,8 +155,8 @@ export function useRegistry<
   }
 
   function reindex () {
-    if (directory.size > 0) directory.clear()
     if (catalog.size > 0) catalog.clear()
+    if (directory.size > 0) directory.clear()
 
     let index = 0
 
