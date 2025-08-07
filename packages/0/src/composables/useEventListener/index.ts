@@ -88,7 +88,7 @@ export function useEventListener (
 ): CleanupFunction {
   const cleanups: CleanupFunction[] = []
 
-  const cleanup = () => {
+  function cleanup () {
     for (const fn of cleanups) {
       fn()
     }
@@ -123,7 +123,7 @@ export function useEventListener (
     { immediate: true, flush: 'post' },
   )
 
-  const stop = () => {
+  function stop () {
     stopWatcher()
     cleanup()
   }
