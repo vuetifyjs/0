@@ -76,4 +76,6 @@
   </Atom>
 </template>
 
-<style></style>
+<style lang="scss">
+@use './index.scss';
+</style>

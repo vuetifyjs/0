@@ -6,12 +6,11 @@ import Vue from 'unplugin-vue/rolldown'
 
 export default defineConfig({
   plugins: [
+    Vue({ isProduction: true }),
     sass({
       api: 'modern',
       output: 'dist/index.css',
-      include: ['src/**/*.scss'],
     }),
-    Vue({ isProduction: true }),
   ],
   dts: {
     tsconfig: './tsconfig.app.json',
