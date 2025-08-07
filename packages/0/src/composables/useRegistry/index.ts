@@ -31,6 +31,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   get: (id: ID) => Z | undefined
   /** Get all registered tickets */
   values: () => Z[]
+  /** Get all entries as [id, ticket] pairs */
+  entries: () => [ID, Z][]
   /** Register a new item */
   register: (item?: Partial<Z>) => Z
   /** Unregister an item by id */
@@ -71,7 +73,7 @@ export function useRegistry<
   const collection = new Map<ID, Z>()
   const catalog = new Map<unknown, ID | ID[]>()
   const directory = new Map<number, ID>()
-
+  const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<Function>>()
 
   function emit (event: string, data: any) {
@@ -107,17 +109,46 @@ export function useRegistry<
   }
 
   function keys () {
-    return Array.from(collection.keys())
+    if (cache.has('keys')) return cache.get('keys') as ID[]
+
+    const array = Array.from(collection.keys())
+
+    cache.set('keys', array)
+
+    return array
   }
 
   function values () {
-    return Array.from(collection.values())
+    if (cache.has('values')) return cache.get('values') as Z[]
+
+    const array = Array.from(collection.values())
+
+    cache.set('values', array)
+
+    return array
+  }
+
+  function entries () {
+    if (cache.has('entries')) return cache.get('entries') as [ID, Z][]
+
+    const array = Array.from(collection.entries())
+
+    cache.set('entries', array)
+
+    return array
   }
 
   function clear () {
     collection.clear()
     catalog.clear()
     directory.clear()
+    invalidate()
+  }
+
+  function invalidate () {
+    if (cache.size === 0) return
+
+    cache.clear()
   }
 
   function reindex () {
@@ -138,6 +169,8 @@ export function useRegistry<
 
       index++
     }
+
+    invalidate()
   }
 
   function register (registrant: Partial<Z> = {}): Z {
@@ -166,6 +199,7 @@ export function useRegistry<
       else catalog.set(item.value, [exists, item.id])
     } else catalog.set(item.value, item.id)
 
+    invalidate()
     emit('register', item)
 
     return item
@@ -187,6 +221,7 @@ export function useRegistry<
       else if (exists.length === 0) catalog.delete(item.value)
     } else catalog.delete(item.value)
 
+    invalidate()
     emit('unregister', item)
 
     reindex()
@@ -201,6 +236,7 @@ export function useRegistry<
     keys,
     clear,
     browse,
+    entries,
     values,
     lookup,
     get,
