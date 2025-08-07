@@ -19,7 +19,6 @@
   "dependencies": {
     "@vuetify/v0": "workspace:*",
     "@vuetify/paper": "workspace:*",
-    "lucide-vue-next": "^0.534.0",
     "markdown-it-attrs": "^4.3.1",
     "markdown-it-prism": "^3.0.0",
     "mermaid": "^11.9.0",

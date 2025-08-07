@@ -3,6 +3,7 @@
 </script>
 
 <template>
+  <AppBanner />
   <AppNav />
   <AppBar />
   <AppMain />
