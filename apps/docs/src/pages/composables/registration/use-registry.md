@@ -13,7 +13,7 @@ performance: 0
 
 # useRegistry
 
-A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing, and lifecycle management.
+The `useRegistry` composable creates a registry for managing collections of items with registration and lookup capabilities. This function provides the foundation for item management systems with ID-based, value-based, and index-based access patterns.
 
 ## API
 
@@ -35,12 +35,14 @@ A foundational composable for building registration-based systems, managing coll
     has: (id: ID) => boolean
     browse: (value: unknown) => ID | ID[] | undefined
     lookup: (index: number) => ID | undefined
+    get: (id: ID) => Z | undefined
     find: (id: ID) => Z | undefined
     register: (item?: Partial<Z>) => Z
     unregister: (ids: ID | ID[]) => void
     reindex: () => void
     on: (event: string, cb: Function) => void
     off: (event: string, cb: Function) => void
+    emit: (event: string, data: any) => void
   }
 
   interface RegistryOptions {
@@ -56,12 +58,14 @@ A foundational composable for building registration-based systems, managing coll
   - `has(id: ID)`: Returns `true` if an item with the given ID exists in the registry, `false` otherwise.
   - `browse(value: unknown)`: Returns the ID(s) associated with the given value. Returns a single ID if only one item has that value, an array of IDs if multiple items share the value, or `undefined` if not found.
   - `lookup(index: number)`: Returns the ID of the item at the given index, or `undefined` if not found.
+  - `get(id: ID)`: Retrieves the `RegistryTicket` object by its `id`.
   - `find(id: ID)`: Returns the registered item for the given ID, or `undefined` if not found.
   - `register(item?: Partial<Z>)`: Registers a new item. Returns the registered item; otherwise known as a **ticket**.
   - `unregister(ids: ID | ID[])`: Unregisters one or more items by their ID(s). Accepts either a single ID or an array of IDs for efficient batch removal. After processing all items, reindexes the remaining items.
   - `reindex()`: Rebuilds the index of items based on their current state.
   - `on(event: string, cb: Function)`: Listens for registry events (requires `events: true` option).
   - `off(event: string, cb: Function)`: Stops listening for registry events.
+  - `emit(event: string, data: any)`: Emits a custom event with associated data.
 
 - **Options**
 
@@ -260,7 +264,7 @@ The catalog automatically handles duplicate values by:
 
 ### Batch Operations
 
-For improved performance when removing multiple items, the `unregister` method accepts both single IDs and arrays of IDs. When multiple items are unregistered at once, the expensive reindexing operation is performed only once at the end, rather than after each individual removal.
+For improved performance when removing multiple items, the `unregister` method accepts both single IDs and arrays of IDs. When multiple items are unregistered at once, the expensive re-indexing operation is performed only once at the end, rather than after each individual removal.
 
 ### Benchmarks
 
@@ -279,7 +283,7 @@ The following table shows performance metrics for various `useRegistry` operatio
 
 *Performance metrics based on benchmark tests with 1,000 items and will vary based on collection size.*
 
-## Example
+## Examples
 
 The following example demonstrates creating a registry for reusable icon svg paths with event handling:
 
@@ -382,3 +386,86 @@ graph TD
     C --> F[Event Listeners]
     F --> |register events| G[Console Logs]
 " />
+
+### Basic Usage
+
+```html
+<template>
+  <div>
+    <h3>Registered Items:</h3>
+    <ul>
+      <li v-for="item in Array.from(registry.collection.values())" :key="item.id">
+        ID: {{ item.id }}, Index: {{ item.index }}, Value: {{ item.value }}
+      </li>
+    </ul>
+    <button @click="addItem">Add Item</button>
+    <button @click="removeItem">Remove Last Item</button>
+    <button @click="clearRegistry">Clear Registry</button>
+  </div>
+</template>
+
+<script setup lang="ts">
+  import { useRegistry } from '@vuetify/v0/composables/useRegistry'
+  import { ref } from 'vue'
+
+  const registry = useRegistry({ events: true })
+  let counter = 0
+
+  const addItem = () => {
+    const newItem = {
+      id: `item-${counter}`,
+      value: `value-${counter}`,
+    }
+    registry.register(newItem)
+    counter++
+  }
+
+  const removeItem = () => {
+    if (registry.collection.size > 0) {
+      const lastItemId = Array.from(registry.collection.keys()).pop()
+      if (lastItemId) {
+        registry.unregister(lastItemId)
+      }
+    }
+  }
+
+  const clearRegistry = () => {
+    registry.clear()
+    counter = 0
+  }
+
+  registry.on("register", (item) => {
+    console.log("Item registered:", item)
+  })
+
+  registry.on("unregister", (item) => {
+    console.log("Item unregistered:", item)
+  })
+</script>
+```
+
+### Looking up items
+
+```html
+<template>
+  <div>
+    <button @click="registerItems">Register Sample Items</button>
+    <p>Item with ID 'my-custom-id': {{ registry.get('my-custom-id')?.value || 'Not found' }}</p>
+    <p>Item with value 'value-1': {{ registry.browse('value-1') || 'Not found' }}</p>
+    <p>Item at index 0: {{ registry.lookup(0) || 'Not found' }}</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+  import { useRegistry } from '@vuetify/v0/composables/useRegistry'
+
+  const registry = useRegistry()
+
+  const registerItems = () => {
+    registry.clear()
+    registry.register({ id: 'my-custom-id', value: 'custom-value' })
+    registry.register({ value: 'value-1' })
+    registry.register({ value: 'another-value' })
+  }
+</script>
+```

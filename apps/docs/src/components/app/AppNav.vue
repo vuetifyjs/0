@@ -40,36 +40,8 @@
           name: 'Foundation',
           children: [
             { name: 'createContext', to: '/composables/foundation/create-context' },
-            { name: 'createTrinity', to: '/composables/foundation/create-trinity' },
             { name: 'createPlugin', to: '/composables/foundation/create-plugin' },
-          ],
-        },
-        {
-          name: 'Registration',
-          children: [
-            { name: 'useRegistry', to: '/composables/registration/use-registry' },
-            { name: 'useTokens', to: '/composables/registration/use-tokens' },
-          ],
-        },
-        {
-          name: 'Selection',
-          children: [
-            { name: 'useFilter', to: '/composables/selection/use-filter' },
-            { name: 'useGroup', to: '/composables/selection/use-group' },
-            { name: 'useSingle', to: '/composables/selection/use-single' },
-            { name: 'useStep', to: '/composables/selection/use-step' },
-          ],
-        },
-        {
-          name: 'Forms',
-          children: [
-          ],
-        },
-        {
-          name: 'System',
-          children: [
-            { name: 'useKeydown', to: '/composables/system/use-keydown' },
-            { name: 'useLogger', to: '/composables/system/use-logger' },
+            { name: 'createTrinity', to: '/composables/foundation/create-trinity' },
           ],
         },
         {
@@ -82,6 +54,33 @@
             { name: 'useTheme', to: '/composables/plugin/use-theme' },
           ],
         },
+        {
+          name: 'Registration',
+          children: [
+            { name: 'useRegistry', to: '/composables/registration/use-registry' },
+            { name: 'useProxyModel', to: '/composables/registration/use-proxy-model' },
+            { name: 'useTokens', to: '/composables/registration/use-tokens' },
+          ],
+        },
+        {
+          name: 'Selection',
+          children: [
+            { name: 'useFilter', to: '/composables/selection/use-filter' },
+            { name: 'useGroup', to: '/composables/selection/use-group' },
+            { name: 'useSelection', to: '/composables/selection/use-selection' },
+            { name: 'useSingle', to: '/composables/selection/use-single' },
+            { name: 'useStep', to: '/composables/selection/use-step' },
+          ],
+        },
+        {
+          name: 'System',
+          children: [
+            { name: 'useKeydown', to: '/composables/system/use-keydown' },
+            { name: 'useLayout', to: '/composables/system/use-layout' },
+            { name: 'useLogger', to: '/composables/system/use-logger' },
+          ],
+        },
+        
       ],
     },
     { divider: true },
