@@ -182,7 +182,7 @@ registry.unregister(['item2', 'item3'])
 
 // Clear all items
 registry.clear()
-console.log(registry.collection.size) // 0
+console.log(registry.size) // 0
 ```
 
 ### Integration with Context Factories

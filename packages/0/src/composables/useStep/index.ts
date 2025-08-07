@@ -32,7 +32,7 @@ export function useStep<
   const registry = useSingle<Z, E>(options)
 
   function first () {
-    if (registry.collection.size === 0) return
+    if (registry.size === 0) return
 
     const first = registry.lookup(0)
     if (first === undefined) return
@@ -42,9 +42,9 @@ export function useStep<
   }
 
   function last () {
-    if (registry.collection.size === 0) return
+    if (registry.size === 0) return
 
-    const last = registry.lookup(registry.collection.size - 1)
+    const last = registry.lookup(registry.size - 1)
     if (last === undefined) return
 
     registry.selectedIds.clear()
@@ -64,7 +64,7 @@ export function useStep<
   }
 
   function step (count = 1) {
-    const length = registry.collection.size
+    const length = registry.size
     if (!length) return
 
     const direction = Math.sign(count || 1)

@@ -49,20 +49,20 @@ describe('useRegistry benchmarks', () => {
   })
 
   describe('lookup operations', () => {
-    it('should benchmark find by id', async () => {
+    it('should benchmark get by id', async () => {
       const registry = useRegistry()
 
       for (const item of enroll(1000)) {
         registry.register({ id: `item-${item}`, value: `value-${item}` })
       }
 
-      const result = await bench('find 1000 items by id', () => {
+      const result = await bench('get 1000 items by id', () => {
         for (const item of enroll(1000)) {
-          registry.find(`item-${item}`)
+          registry.get(`item-${item}`)
         }
       })
 
-      console.log(`Find by ID: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
+      console.log(`Get by ID: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
     })
 
     it('should benchmark lookup by index', async () => {

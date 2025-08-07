@@ -24,13 +24,15 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** Returns an array of registered IDs */
   keys: () => ID[]
   /** Browse for an ID by value */
-  browse: (value: unknown) => ID | undefined
+  browse: (value: unknown) => ID | ID[] | undefined
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
   /** Get a ticket by id */
   get: (id: ID) => Z | undefined
   /** Get all registered tickets */
   values: () => Z[]
+  /** Get all entries as [id, ticket] pairs */
+  entries: () => [ID, Z][]
   /** Register a new item */
   register: (item?: Partial<Z>) => Z
   /** Unregister an item by id */
@@ -43,6 +45,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   off: (event: string, cb: Function) => void
   /** Emit an event with data */
   emit: (event: string, data: any) => void
+  /** The size of the registry */
+  size: number
 }
 
 export interface RegistryOptions {
@@ -69,7 +73,7 @@ export function useRegistry<
   const collection = new Map<ID, Z>()
   const catalog = new Map<unknown, ID | ID[]>()
   const directory = new Map<number, ID>()
-
+  const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<Function>>()
 
   function emit (event: string, data: any) {
@@ -105,22 +109,54 @@ export function useRegistry<
   }
 
   function keys () {
-    return Array.from(collection.keys())
+    const cached = cache.get('keys')
+    if (cached != undefined) return cached as ID[]
+
+    const keys = Array.from(collection.keys())
+
+    cache.set('keys', keys)
+
+    return keys
   }
 
   function values () {
-    return Array.from(collection.values())
+    const cached = cache.get('values')
+    if (cached != undefined) return cached as Z[]
+
+    const values = Array.from(collection.values())
+
+    cache.set('values', values)
+
+    return values
+  }
+
+  function entries () {
+    const cached = cache.get('entries')
+    if (cached != undefined) return cached as [ID, Z][]
+
+    const entries = Array.from(collection.entries())
+
+    cache.set('entries', entries)
+
+    return entries
   }
 
   function clear () {
-    collection.clear()
-    catalog.clear()
-    directory.clear()
+    if (collection.size > 0) collection.clear()
+    if (catalog.size > 0) catalog.clear()
+    if (directory.size > 0) directory.clear()
+    invalidate()
+  }
+
+  function invalidate () {
+    if (cache.size === 0) return
+
+    cache.clear()
   }
 
   function reindex () {
-    directory.clear()
-    catalog.clear()
+    if (catalog.size > 0) catalog.clear()
+    if (directory.size > 0) directory.clear()
 
     let index = 0
 
@@ -136,6 +172,8 @@ export function useRegistry<
 
       index++
     }
+
+    invalidate()
   }
 
   function register (registrant: Partial<Z> = {}): Z {
@@ -143,7 +181,9 @@ export function useRegistry<
     const id = registrant.id ?? genId()
 
     if (has(id)) {
-      logger.warn(`Item with id "${id}" already exists in the registry.`)
+      logger.warn(`Item with id "${id}" already exists in the registry. Skipping registration.`)
+
+      return get(id) as Z
     }
 
     const item = {
@@ -164,6 +204,7 @@ export function useRegistry<
       else catalog.set(item.value, [exists, item.id])
     } else catalog.set(item.value, item.id)
 
+    invalidate()
     emit('register', item)
 
     return item
@@ -185,12 +226,13 @@ export function useRegistry<
       else if (exists.length === 0) catalog.delete(item.value)
     } else catalog.delete(item.value)
 
+    invalidate()
     emit('unregister', item)
 
     reindex()
   }
 
-  return {
+  return new Proxy({
     collection,
     emit,
     on,
@@ -199,11 +241,18 @@ export function useRegistry<
     keys,
     clear,
     browse,
+    entries,
     values,
     lookup,
     get,
     register,
     unregister,
     reindex,
-  } as E
+  }, {
+    get (target, prop) {
+      if (prop === 'size') return collection.size
+
+      return target[prop as keyof typeof target]
+    },
+  }) as E
 }

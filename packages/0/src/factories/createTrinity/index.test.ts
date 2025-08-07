@@ -1,12 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
-import { ref } from 'vue'
 import { createTrinity } from '../index'
 
 describe('createTrinity', () => {
   it('should create a singleton with use, provide, and context', () => {
     const mockContext = { value: 'test' }
     const mockUseContext = vi.fn(() => mockContext)
-    const mockProvideContext = vi.fn((_model, context) => context)
+    const mockProvideContext = vi.fn(context => context)
 
     const singleton = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
@@ -19,7 +18,7 @@ describe('createTrinity', () => {
   it('should call the original createContext function', () => {
     const mockContext = { value: 'test' }
     const mockUseContext = vi.fn(() => mockContext)
-    const mockProvideContext = vi.fn((_model, context) => context)
+    const mockProvideContext = vi.fn(context => context)
 
     const [createContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
@@ -29,63 +28,42 @@ describe('createTrinity', () => {
     expect(result).toBe(mockContext)
   })
 
-  it('should wrap provideContext with model and default context handling', () => {
+  it('should wrap provideContext with default context handling', () => {
     const mockContext = { value: 'test' }
     const customContext = { value: 'custom' }
-    const mockModel = ref('model-value')
     const mockUseContext = vi.fn(() => mockContext)
-    const mockProvideContext = vi.fn((_model, context) => context)
+    const mockProvideContext = vi.fn(context => context)
 
     const [, provideContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
-    // Call with default context and no model
+    // Call with default context
     const result1 = provideContext()
-    expect(mockProvideContext).toHaveBeenCalledWith(undefined, mockContext, undefined)
+    expect(mockProvideContext).toHaveBeenCalledWith(mockContext, undefined)
     expect(result1).toBe(mockContext)
 
-    // Call with model and custom context
-    const result2 = provideContext(mockModel, customContext)
-    expect(mockProvideContext).toHaveBeenCalledWith(mockModel, customContext, undefined)
+    // Call with custom context
+    const result2 = provideContext(customContext)
+    expect(mockProvideContext).toHaveBeenCalledWith(customContext, undefined)
     expect(result2).toBe(customContext)
   })
 
   it('should pass app parameter to provideContext', () => {
     const mockContext = { value: 'test' }
     const mockApp = { version: '3.0.0' } as any
-    const mockModel = ref('model-value')
     const mockUseContext = vi.fn(() => mockContext)
-    const mockProvideContext = vi.fn((_model, context) => context)
+    const mockProvideContext = vi.fn(context => context)
 
     const [, provideContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
-    provideContext(mockModel, undefined, mockApp)
+    provideContext(undefined, mockApp)
 
-    expect(mockProvideContext).toHaveBeenCalledWith(mockModel, mockContext, mockApp)
-  })
-
-  it('should handle model parameter correctly', () => {
-    const mockContext = { value: 'test', selectedValue: null }
-    const mockModel = ref('selected-item')
-    const mockUseContext = vi.fn(() => mockContext)
-    const mockProvideContext = vi.fn((model, context) => {
-      if (model) {
-        return { ...context, selectedValue: model.value }
-      }
-      return context
-    })
-
-    const [, provideContext] = createTrinity(mockUseContext, mockProvideContext, mockContext)
-
-    const result = provideContext(mockModel)
-
-    expect(mockProvideContext).toHaveBeenCalledWith(mockModel, mockContext, undefined)
-    expect(result).toEqual({ value: 'test', selectedValue: 'selected-item' })
+    expect(mockProvideContext).toHaveBeenCalledWith(mockContext, mockApp)
   })
 
   it('should return readonly tuple', () => {
     const mockContext = { value: 'test' }
     const mockUseContext = vi.fn(() => mockContext)
-    const mockProvideContext = vi.fn((_model, context) => context)
+    const mockProvideContext = vi.fn(context => context)
 
     const singleton = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
