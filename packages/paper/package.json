@@ -10,8 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
-    "build:watch": "vite build --watch"
+    "build": "tsdown",
+    "build:watch": "tsdown --watch"
   },
   "peerDependencies": {
     "vue": ">=3.3.0"
@@ -41,8 +41,10 @@
   },
   "devDependencies": {
     "@vue/test-utils": "catalog:",
+    "rollup-plugin-sass": "^1.15.3",
+    "sass": "^1.90.0",
+    "tsdown": "^0.13.3",
     "typescript": "catalog:",
-    "unplugin-vue": "catalog:",
-    "vite": "catalog:"
+    "unplugin-vue": "catalog:"
   }
 }

@@ -10,8 +10,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
-    "build:watch": "vite build --watch"
+    "build": "tsdown",
+    "build:watch": "tsdown --watch"
   },
   "exports": {
     ".": {
@@ -42,9 +42,9 @@
     "markdown-it": "^14.1.0",
     "marked": "^16.1.1",
     "micromark": "^4.0.2",
+    "tsdown": "^0.13.3",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
-    "vite": "catalog:",
     "vue": "catalog:"
   }
 }
