@@ -24,7 +24,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** Returns an array of registered IDs */
   keys: () => ID[]
   /** Browse for an ID by value */
-  browse: (value: unknown) => ID | undefined
+  browse: (value: unknown) => ID | ID[] | undefined
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
   /** Get a ticket by id */
