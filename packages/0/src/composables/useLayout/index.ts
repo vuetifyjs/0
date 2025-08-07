@@ -41,6 +41,7 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   height: ShallowRef<number>
   width: ShallowRef<number>
   resize: () => void
+  register: (item?: Partial<Z>) => Z
 }
 
 export interface LayoutOptions extends GroupOptions {
@@ -49,6 +50,12 @@ export interface LayoutOptions extends GroupOptions {
 
 export interface LayoutPlugin {
   install: (app: App, ...options: any[]) => any
+}
+
+export const [useLayoutContext, provideLayout] = createContext<LayoutContext<LayoutTicket>>('v0:layout')
+
+export function useLayout (): LayoutContext<LayoutTicket> {
+  return useLayoutContext()
 }
 
 export function createLayout<
@@ -92,13 +99,14 @@ export function createLayout<
     return total
   }
 
-  function register (registrant: LayoutTicket): Z {
-    const item: LayoutTicket = {
+  function register (registrant: Partial<Z>): Z {
+    const item: Partial<Z> = {
       ...registrant,
       order: registrant.order ?? 0,
+      value: registrant.value,
     }
 
-    const ticket = registry.register(item as Z)
+    const ticket = registry.register(item)
 
     sizes.set(ticket.id, ticket.value)
 
@@ -164,8 +172,6 @@ export function createLayout<
  * allowing events to be called.
  * @returns A Vue plugin object with install method.
  */
-
-export const [useLayout, provideLayout] = createContext<LayoutContext<LayoutTicket>>('v0:layout')
 
 export function createLayoutPlugin (options: LayoutOptions = {}): LayoutPlugin {
   const layout = createLayout(options)
