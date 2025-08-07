@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "description": "Vuetify0",
   "license": "MIT",
-  "main": "dist/index.mjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "files": [
     "dist"
   ],
@@ -20,8 +20,7 @@
         "import": "./src/index.ts"
       },
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.mjs"
+      "import": "./dist/index.mjs"
     }
   },
   "publishConfig": {
