@@ -181,7 +181,9 @@ export function useRegistry<
     const id = registrant.id ?? genId()
 
     if (has(id)) {
-      logger.warn(`Item with id "${id}" already exists in the registry.`)
+      logger.warn(`Item with id "${id}" already exists in the registry. Skipping registration.`)
+
+      return get(id) as Z
     }
 
     const item = {
