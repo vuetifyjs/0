@@ -18,7 +18,7 @@
 <template>
   <Atom
     :as
-    class="app-header flex items-center justify-between h-[48px] fixed left-[220px] top-0 right-0 px-3 transition-margin duration-200 ease-in-out"
+    class="app-header flex items-center justify-between h-[48px] fixed left-[220px] top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
     :class="breakpoints.isMobile && 'left-0'"
   >
     <Menu

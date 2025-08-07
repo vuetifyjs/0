@@ -115,7 +115,7 @@
 <template>
   <Atom
     :as
-    class="bg-4 app-nav flex flex-col h-[100vh] fixed w-[220px] overflow-y-auto pb-4 transition-transform duration-200 ease-in-out top-0"
+    class="bg-4 app-nav flex flex-col h-[100vh] fixed w-[220px] overflow-y-auto pb-4 transition-transform duration-200 ease-in-out top-[24px]"
     :class="[
       breakpoints.isMobile && !app.nav.value ? 'translate-x-[-100%]' : 'translate-x-0',
       breakpoints.isMobile && 'mt-12'
