@@ -20,6 +20,7 @@ export default vuetify({
   rules: {
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'unicorn/no-array-callback-reference': 'off',
+    'func-style': ['error', 'declaration'],
   },
 },
 {
