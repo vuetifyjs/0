@@ -26,7 +26,7 @@ A collection of foundational components designed to be headless, accessible, and
 
 The foundational component that all other components build upon. Provides dynamic element rendering and renderless capabilities.
 
-```html
+```vue
 <script setup>
 import { Atom } from '@vuetify/v0'
 </script>
@@ -47,7 +47,7 @@ import { Atom } from '@vuetify/v0'
 
 Multi-source avatar component with automatic fallback priority and loading states.
 
-```html
+```vue
 <script setup>
 import { Avatar } from '@vuetify/v0'
 </script>
@@ -76,7 +76,7 @@ import { Avatar } from '@vuetify/v0'
 
 Selection management for collections of items with single/multiple selection modes.
 
-```html
+```vue
 <script setup>
 import { Group } from '@vuetify/v0'
 import { ref } from 'vue'
@@ -105,7 +105,7 @@ const selected = ref([])
 
 Step-based navigation for wizards and multi-step processes.
 
-```html
+```vue
 <script setup>
 import { Step } from '@vuetify/v0'
 import { ref } from 'vue'
@@ -130,7 +130,7 @@ const currentStep = ref('step1')
 
 CSS anchor-positioned popover system with automatic positioning.
 
-```html
+```vue
 <script setup>
 import { Popover } from '@vuetify/v0'
 </script>
@@ -154,7 +154,7 @@ import { Popover } from '@vuetify/v0'
 
 Provide and inject context for sharing state across component trees.
 
-```html
+```vue
 <script setup>
 import { Context } from '@vuetify/v0'
 
@@ -175,7 +175,7 @@ const contextValue = { user: 'John', theme: 'dark' }
 
 Responsive utilities for adaptive layouts.
 
-```html
+```vue
 <script setup>
 import { Breakpoints } from '@vuetify/v0'
 </script>
@@ -195,7 +195,7 @@ import { Breakpoints } from '@vuetify/v0'
 
 Theme management with CSS variable injection.
 
-```html
+```vue
 <script setup>
 import { Theme } from '@vuetify/v0'
 </script>
@@ -215,7 +215,7 @@ import { Theme } from '@vuetify/v0'
 
 SSR hydration management.
 
-```html
+```vue
 <script setup>
 import { Hydration } from '@vuetify/v0'
 </script>
@@ -236,7 +236,7 @@ import { Hydration } from '@vuetify/v0'
 
 Components can be composed together for complex functionality:
 
-```html
+```vue
 <script setup>
 import { Group, Step, Theme } from '@vuetify/v0'
 </script>

@@ -80,11 +80,11 @@ export function useLayout<
     return total
   }
 
-  function register (registrant: Partial<Z>): Z {
+  function register (registration: Partial<Z>): Z {
     const item: Partial<Z> = {
-      position: registrant.position,
-      order: registrant.order ?? 0,
-      ...registrant,
+      position: registration.position,
+      order: registration.order ?? 0,
+      ...registration,
     }
 
     const ticket = registry.register(item)

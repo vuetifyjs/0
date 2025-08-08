@@ -8,7 +8,26 @@ import Attrs from 'markdown-it-attrs'
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
 import UnocssVitePlugin from 'unocss/vite'
-import Prism from 'markdown-it-prism'
+import { fromHighlighter } from '@shikijs/markdown-it/core'
+import { createHighlighterCore } from 'shiki/core'
+import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+import type { HighlighterGeneric } from 'shiki/types'
+
+const highlighter = await createHighlighterCore({
+  themes: [
+    import('@shikijs/themes/github-light-default'),
+    import('@shikijs/themes/github-dark-default'),
+  ],
+  langs: [
+    import('@shikijs/langs/javascript'),
+    import('@shikijs/langs/typescript'),
+    import('@shikijs/langs/bash'),
+    import('@shikijs/langs/vue'),
+    import('@shikijs/langs/html'),
+    import('@shikijs/langs/markdown'),
+  ],
+  engine: createOnigurumaEngine(() => import('shiki/wasm')),
+})
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -31,7 +50,13 @@ export default defineConfig({
       },
       markdownItSetup (md) {
         md.use(Attrs)
-        md.use(Prism)
+        md.use(
+          fromHighlighter(highlighter as HighlighterGeneric<any, any>, {
+            themes: {
+              light: 'github-light-default',
+              dark: 'github-dark-default',
+            },
+          }))
       },
     }),
     Components({

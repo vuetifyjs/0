@@ -16,7 +16,12 @@ export interface GroupTicket extends SelectionTicket {}
 
 export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z> {
   selectedIndexes: ComputedRef<Set<number>>
+  /** Select one or more Tickets by ID */
   select: (ids: ID | ID[]) => void
+  /** Unselect one or more Tickets by ID */
+  unselect: (ids: ID | ID[]) => void
+  /** Toggle one or more Tickets ON and OFF by ID */
+  toggle: (ids: ID | ID[]) => void
 }
 
 export interface GroupOptions extends SelectionOptions {}
@@ -48,9 +53,23 @@ export function useGroup<
     }
   }
 
+  function unselect (ids: ID | ID[]) {
+    for (const id of toArray(ids)) {
+      registry.unselect(id)
+    }
+  }
+
+  function toggle (ids: ID | ID[]) {
+    for (const id of toArray(ids)) {
+      registry.toggle(id)
+    }
+  }
+
   return {
     ...registry,
     select,
+    unselect,
+    toggle,
     selectedIndexes,
   } as E
 }

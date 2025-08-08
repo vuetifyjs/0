@@ -8,9 +8,13 @@ import { genId, isArray } from '#v0/utilities/helpers'
 import type { ID } from '#v0/types'
 
 export interface RegistryTicket {
+  /** The unique identifier. Is randomly generated if not provided. */
   id: ID
+  /** The index of the ticket. It's not recommended to manually set this. */
   index: number
+  /** The value associated with the ticket. If not provided, it defaults to the index. */
   value: unknown
+  /** Whether the value is derived from index. It's not recommended to manually set this. */
   valueIsIndex: boolean
 }
 
@@ -45,6 +49,10 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   off: (event: string, cb: Function) => void
   /** Emit an event with data */
   emit: (event: string, data: any) => void
+  /** Clears the registry and listeners */
+  dispose: () => void
+  /** Onboard multiple new items */
+  onboard: (registrations: Partial<Z>[]) => Z[]
   /** The size of the registry */
   size: number
 }
@@ -59,7 +67,7 @@ export interface RegistryOptions {
  * This function provides the foundation for item management systems with ID-based, value-based,
  * and index-based access patterns.
  *
- * @param options Optional configuration for reactivity behavior.
+ * @param options Optional configuration for enabling events.
  * @template Z The type of items managed by the registry.
  * @template E The type of the registry context.
  * @returns The registry context object.
@@ -92,6 +100,11 @@ export function useRegistry<
     listeners.get(event)?.delete(cb)
   }
 
+  function dispose () {
+    if (listeners.size > 0) listeners.clear()
+    clear()
+  }
+
   function get (id: ID) {
     return collection.get(id)
   }
@@ -106,6 +119,32 @@ export function useRegistry<
 
   function has (id: ID) {
     return collection.has(id)
+  }
+
+  function assign (value: unknown, id: ID) {
+    const bucket = catalog.get(value)
+    if (bucket) {
+      if (isArray(bucket)) {
+        if (!bucket.includes(id)) bucket.push(id)
+      } else if (bucket !== id) {
+        catalog.set(value, [bucket, id])
+      }
+    } else {
+      catalog.set(value, id)
+    }
+  }
+
+  function unassign (value: unknown, id: ID) {
+    const bucket = catalog.get(value)
+    if (!bucket) return
+    if (isArray(bucket)) {
+      const next = bucket.filter(v => v !== id)
+      if (next.length === 0) catalog.delete(value)
+      else if (next.length === 1) catalog.set(value, next[0])
+      else catalog.set(value, next)
+    } else if (bucket === id) {
+      catalog.delete(value)
+    }
   }
 
   function keys () {
@@ -168,7 +207,7 @@ export function useRegistry<
       }
 
       directory.set(index, item.id)
-      catalog.set(item.value, item.id)
+      assign(item.value, item.id)
 
       index++
     }
@@ -176,9 +215,9 @@ export function useRegistry<
     invalidate()
   }
 
-  function register (registrant: Partial<Z> = {}): Z {
+  function register (registration: Partial<Z> = {}): Z {
     const size = collection.size
-    const id = registrant.id ?? genId()
+    const id = registration.id ?? genId()
 
     if (has(id)) {
       logger.warn(`Item with id "${id}" already exists in the registry. Skipping registration.`)
@@ -187,23 +226,17 @@ export function useRegistry<
     }
 
     const item = {
-      ...registrant,
+      ...registration,
       id,
-      index: registrant.index ?? size,
-      value: registrant.value ?? size,
-      valueIsIndex: registrant.value == null,
+      index: registration.index ?? size,
+      value: registration.value ?? size,
+      valueIsIndex: registration.valueIsIndex ?? registration.value == null,
     } as Z
 
     collection.set(item.id, item)
     directory.set(item.index, item.id)
 
-    const exists = browse(item.value)
-
-    if (exists) {
-      if (isArray(exists)) exists.push(item.id)
-      else catalog.set(item.value, [exists, item.id])
-    } else catalog.set(item.value, item.id)
-
+    assign(item.value, item.id)
     invalidate()
     emit('register', item)
 
@@ -217,26 +250,18 @@ export function useRegistry<
 
     collection.delete(item.id)
     directory.delete(item.index)
+    unassign(item.value, item.id)
 
-    let exists = browse(item.value)
-
-    if (isArray(exists)) {
-      exists = exists.filter(value => value !== item.id)
-      if (exists.length === 1) catalog.set(item.value, exists[0])
-      else if (exists.length === 0) catalog.delete(item.value)
-    } else catalog.delete(item.value)
-
-    invalidate()
     emit('unregister', item)
-
     reindex()
   }
 
-  return new Proxy({
+  return {
     collection,
     emit,
     on,
     off,
+    dispose,
     has,
     keys,
     clear,
@@ -248,11 +273,11 @@ export function useRegistry<
     register,
     unregister,
     reindex,
-  }, {
-    get (target, prop) {
-      if (prop === 'size') return collection.size
-
-      return target[prop as keyof typeof target]
+    onboard (registrations: Partial<Z>[]) {
+      return registrations.map(registration => this.register(registration))
     },
-  }) as E
+    get size () {
+      return collection.size
+    },
+  } as E
 }
