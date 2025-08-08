@@ -59,7 +59,7 @@ export interface RegistryOptions {
  * This function provides the foundation for item management systems with ID-based, value-based,
  * and index-based access patterns.
  *
- * @param options Optional configuration for reactivity behavior.
+ * @param options Optional configuration for enabling events.
  * @template Z The type of items managed by the registry.
  * @template E The type of the registry context.
  * @returns The registry context object.
