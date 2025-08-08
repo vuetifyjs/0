@@ -18,10 +18,15 @@ import type { ID } from '#v0/types'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
+export type ExposedElement = {
+  element: HTMLElement | null
+}
+
 export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
   value: number
+  element?: Ref<ExposedElement | null>
 }
 
 export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
@@ -90,6 +95,7 @@ export function createLayout<
   }
 
   function sum (position: LayoutLocation): number {
+    debugger
     let total = 0
     for (const item of registry.values()) {
       if (item.position === position && item.isActive.value) {
@@ -100,14 +106,14 @@ export function createLayout<
   }
 
   function register (registrant: Partial<Z>): Z {
+    const value = registrant.value ?? registrant.element?.value?.element?.offsetHeight ?? 0
     const item: Partial<Z> = {
       ...registrant,
       order: registrant.order ?? 0,
-      value: registrant.value,
+      value,
     }
 
     const ticket = registry.register(item)
-
     sizes.set(ticket.id, ticket.value)
 
     return ticket
