@@ -1,5 +1,6 @@
 import type { App } from 'vue'
 import { materialPalette, tailwindPalette } from './palettes'
+import { createLayoutPlugin } from '@vuetify/v0'
 
 export function registerPlugins (app: App) {
   app.use(createHydrationPlugin())
@@ -11,6 +12,8 @@ export function registerPlugins (app: App) {
       //
     }),
   )
+
+  app.use(createLayoutPlugin({ enroll: true }))
 
   app.use(
     createLocalePlugin({

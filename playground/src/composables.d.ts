@@ -37,6 +37,8 @@ declare global {
   const createGroupContext: typeof import('../../packages/0/src/composables/useGroup/index')['createGroupContext']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
+  const createLayout: typeof import('../../packages/0/src/composables/useLayout/index')['createLayout']
+  const createLayoutPlugin: typeof import('../../packages/0/src/composables/useLayout/index')['createLayoutPlugin']
   const createLocale: typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
@@ -104,6 +106,7 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']
   const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
+  const provideLayout: typeof import('../../packages/0/src/composables/useLayout/index')['provideLayout']
   const provideLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['provideLoggerContext']
   const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
   const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']
@@ -217,7 +220,7 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { LayoutLocation, LayoutTicket, LayoutContext, LayoutOptions } from '../../packages/0/src/composables/useLayout/index'
+  export type { BaseLayoutTicket, LayoutLocation, HorizontalTicket, VerticalTicket, LayoutTicket, LayoutContext, LayoutOptions, LayoutPlugin } from '../../packages/0/src/composables/useLayout/index'
   import('../../packages/0/src/composables/useLayout/index')
   // @ts-ignore
   export type { LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
@@ -282,6 +285,8 @@ declare module 'vue' {
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
+    readonly createLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['createLayout']>
+    readonly createLayoutPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['createLayoutPlugin']>
     readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
@@ -338,6 +343,7 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']>
     readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
+    readonly provideLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['provideLayout']>
     readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>

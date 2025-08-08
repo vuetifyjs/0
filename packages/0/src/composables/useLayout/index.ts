@@ -1,3 +1,7 @@
+// Factories
+import { createPlugin } from '#v0/factories/createPlugin'
+import { createContext } from '#v0/factories/createContext'
+
 // Composables
 import { useGroup } from '#v0/composables/useGroup'
 
@@ -8,16 +12,21 @@ import { computed, shallowReactive, shallowRef, onUnmounted, onMounted, getCurre
 import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
-import type { ComputedRef, ShallowReactive, ShallowRef } from 'vue'
+import type { Ref, ComputedRef, ShallowReactive, ShallowRef, App } from 'vue'
 import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
+export type ExposedElement = {
+  element: HTMLElement | null
+}
+
 export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
   value: number
+  element?: Ref<ExposedElement | null>
 }
 
 export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
@@ -36,17 +45,32 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   sizes: ShallowReactive<Map<ID, number>>
   height: ShallowRef<number>
   width: ShallowRef<number>
+  resize: () => void
+  register: (item?: Partial<Z>) => Z
 }
 
-export interface LayoutOptions extends GroupOptions {}
+export interface LayoutOptions extends GroupOptions {
+  el?: Ref<HTMLElement | null>
+}
 
-export function useLayout<
+export interface LayoutPlugin {
+  install: (app: App, ...options: any[]) => any
+}
+
+export const [useLayoutContext, provideLayout] = createContext<LayoutContext<LayoutTicket>>('v0:layout')
+
+export function useLayout (): LayoutContext<LayoutTicket> {
+  return useLayoutContext()
+}
+
+export function createLayout<
   Z extends LayoutTicket = LayoutTicket,
   E extends LayoutContext<Z> = LayoutContext<Z>,
 > (_options: LayoutOptions = {}): E {
   const {
     enroll = true,
     events = true,
+    el = null,
     ...options
   } = _options
 
@@ -71,6 +95,7 @@ export function useLayout<
   }
 
   function sum (position: LayoutLocation): number {
+    debugger
     let total = 0
     for (const item of registry.values()) {
       if (item.position === position && item.isActive.value) {
@@ -81,32 +106,50 @@ export function useLayout<
   }
 
   function register (registrant: Partial<Z>): Z {
+    const value = registrant.value ?? registrant.element?.value?.element?.offsetHeight ?? 0
     const item: Partial<Z> = {
-      position: registrant.position,
-      order: registrant.order ?? 0,
       ...registrant,
+      order: registrant.order ?? 0,
+      value,
     }
 
     const ticket = registry.register(item)
-
     sizes.set(ticket.id, ticket.value)
 
     return ticket
   }
 
-  if (IN_BROWSER && getCurrentInstance()) {
-    function resize () {
-      height.value = window.innerHeight
-      width.value = window.innerWidth
+  function resize () {
+    if (el?.value) {
+      const rect = el.value.getBoundingClientRect()
+      width.value = rect.width
+      height.value = rect.height
+      return
     }
+    width.value = window.innerWidth
+    height.value = window.innerHeight
+  }
 
+  let observer: ResizeObserver | null = null
+
+  if (IN_BROWSER && getCurrentInstance()) {
     onMounted(() => {
+      if (el?.value) {
+        observer = new ResizeObserver(resize)
+        observer.observe(el.value)
+      } else {
+        window.addEventListener('resize', resize)
+      }
       resize()
-      window.addEventListener('resize', resize)
     })
 
     onUnmounted(() => {
-      window.removeEventListener('resize', resize)
+      if (observer && el?.value) {
+        observer.unobserve(el.value)
+        observer.disconnect()
+      } else {
+        window.removeEventListener('resize', resize)
+      }
     })
   }
 
@@ -122,5 +165,33 @@ export function useLayout<
     sizes,
     height,
     width,
+    resize,
   } as E
+}
+
+/**
+ * Creates a Vue plugin for managing responsive layout with automatic updates.
+ * This plugin sets up layout tracking and updates the context when the window
+ * is resized, providing reactive layout state throughout the application.
+ *
+ * @param options Optional configuration for toggling layout items on automatically and
+ * allowing events to be called.
+ * @returns A Vue plugin object with install method.
+ */
+
+export function createLayoutPlugin (options: LayoutOptions = {}): LayoutPlugin {
+  const layout = createLayout(options)
+
+  return createPlugin<LayoutPlugin>({ namespace: 'v0:layout',
+    provide: (app: App) => {
+      provideLayout(layout, app)
+    },
+    setup: (app: App) => {
+      app.mixin({
+        mounted () {
+          layout.resize()
+        },
+      })
+    },
+  })
 }

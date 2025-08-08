@@ -1,13 +1,20 @@
 <script lang="ts" setup>
-  import { useBreakpoints } from '@vuetify/v0'
+  import { computed } from 'vue'
+  import { useBreakpoints, useLayout } from '@vuetify/v0'
 
   const breakpoints = useBreakpoints()
+  const layout = useLayout()
+  debugger
+  const marginTop = computed(() => layout.main.y.value)
 </script>
 
 <template>
   <div
-    class="pa-4 mt-[72px] transition-margin duration-200 ease-in-out"
-    :class="breakpoints.isMobile ? 'ml-0' : 'ml-[220px]'"
+    :class="[
+      breakpoints.isMobile ? 'ml-0' : 'ml-[220px]',
+      `pa-4 transition-margin duration-200 ease-in-out`
+    ]"
+    :style="`margin-top: ${marginTop}px`"
   >
     <router-view />
   </div>

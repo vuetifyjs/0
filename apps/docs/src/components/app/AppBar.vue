@@ -1,6 +1,7 @@
 <script setup lang="ts">
+  import { onMounted, useTemplateRef } from 'vue'
   // Components
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayout } from '@vuetify/v0'
 
   // Composables
   import { useAppContext } from '@/composables/useApp'
@@ -12,10 +13,17 @@
 
   const breakpoints = useBreakpoints()
   const app = useAppContext()
+
+  const layout = useLayout()
+  const appBar = useTemplateRef('appBar')
+  onMounted(() => {
+    layout.register({ position: 'top', element: appBar })
+  })
 </script>
 
 <template>
   <Atom
+    ref="appBar"
     :as
     class="app-header flex items-center justify-between h-[48px] fixed left-[220px] top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
     :class="breakpoints.isMobile && 'left-0'"
