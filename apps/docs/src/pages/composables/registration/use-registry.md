@@ -181,7 +181,10 @@ console.log(registry.size) // 3
 
 - **Details**
   Returns an array of all registered IDs in the order they were indexed.
+<<<<<<< HEAD
   Performance Note: The result is cached for efficiency, meaning repeated calls to keys() reuse a stored array instead of reconstructing it every time. If the registry changes (items are registered or unregistered), the cache is refreshed automatically.
+=======
+>>>>>>> b0c5946 (Update use-registry.md)
 
 - **Example**
   ```ts
@@ -201,6 +204,7 @@ console.log(registry.size) // 3
   ```
 
 - **Details**
+<<<<<<< HEAD
   Searches the registry for item(s) whose value matches the provided value argument.
 
   If exactly one item matches, browse returns that item’s ID directly.
@@ -208,12 +212,16 @@ console.log(registry.size) // 3
   If no match is found, it returns undefined.
 
   This allows both quick single lookups and detection of duplicates. For consistency, if you expect possible duplicates, always handle both single-ID and array return types in your code.
+=======
+  Searches for item(s) by their value and returns the corresponding ID(s), or undefined if none match.
+>>>>>>> b0c5946 (Update use-registry.md)
 
 - **Example**
   ```ts
   const registry = useRegistry()
   registry.register({ id: '1', value: 'Red' })
   registry.register({ id: '2', value: 'Blue' })
+<<<<<<< HEAD
   registry.register({ id: '3', value: 'Red' }) // Duplicate value
 
   console.log(registry.browse('Red'))  
@@ -224,6 +232,11 @@ console.log(registry.size) // 3
 
   console.log(registry.browse('Green')) 
   // undefined  <-- No matches
+=======
+
+  console.log(registry.browse('Red')) // '1'
+  console.log(registry.browse('Green')) // undefined
+>>>>>>> b0c5946 (Update use-registry.md)
   ```
 
 ### `lookup`
@@ -256,7 +269,10 @@ console.log(registry.size) // 3
 
 - **Details**
   Returns an array of all registered items.
+<<<<<<< HEAD
   Performance Note: The result is cached internally to avoid reconstructing the list on every call. The cache is automatically invalidated and rebuilt whenever the registry changes, so you always get the latest data without unnecessary overhead.
+=======
+>>>>>>> b0c5946 (Update use-registry.md)
 
 - **Example**
   ```ts
@@ -277,7 +293,10 @@ console.log(registry.size) // 3
 
 - **Details**
   Returns all registry entries as [id, item] pairs.
+<<<<<<< HEAD
   Performance Note: Like keys() and values(), the results of entries() are cached for performance. The cache is refreshed whenever the registry is modified, so calls remain fast and up-to-date.
+=======
+>>>>>>> b0c5946 (Update use-registry.md)
 
 - **Example**
   ```ts
