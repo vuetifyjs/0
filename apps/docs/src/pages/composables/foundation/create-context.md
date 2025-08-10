@@ -92,11 +92,11 @@ Here is a mermaid diagram illustrating the relationship between `createContext`,
 
 <Mermaid code="
 graph TD
-    A(createApp) --> B(useMyContext)
-    B --> C{provideContext}
-    C --> D(Component 1)
-    C --> E(Component 2)
-    C --> F(Component 3)
+  A(createApp) --> B(useMyContext)
+  B --> C{provideContext}
+  C --> D(Component 1)
+  C --> E(Component 2)
+  C --> F(Component 3)
 " />
 
 This diagram shows how `createContext` is used to create a context that can be injected into components, allowing for shared state and methods without the need for prop drilling. The context can be provided at a higher level in the component tree and consumed by any child component that needs access to it.

@@ -118,6 +118,7 @@ declare global {
   const useElementSize: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useElementSize']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']
+  const useForm: typeof import('../../packages/0/src/composables/useForm/index')['useForm']
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']
   const useHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']
@@ -186,6 +187,9 @@ declare global {
   // @ts-ignore
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
   import('../../packages/0/src/composables/useEventListener/index')
+  // @ts-ignore
+  export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions } from '../../packages/0/src/composables/useForm/index'
+  import('../../packages/0/src/composables/useForm/index')
   // @ts-ignore
   export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
@@ -350,6 +354,7 @@ declare module 'vue' {
     readonly useElementSize: UnwrapRef<typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useElementSize']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
     readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
+    readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>

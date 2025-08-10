@@ -29,6 +29,7 @@ declare module 'vue-router/auto-routes' {
     '/components/step': RouteRecordInfo<'/components/step', '/components/step', Record<never, never>, Record<never, never>>,
     '/components/theme': RouteRecordInfo<'/components/theme', '/components/theme', Record<never, never>, Record<never, never>>,
     '/composables/': RouteRecordInfo<'/composables/', '/composables', Record<never, never>, Record<never, never>>,
+    '/composables/forms/use-form': RouteRecordInfo<'/composables/forms/use-form', '/composables/forms/use-form', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-context': RouteRecordInfo<'/composables/foundation/create-context', '/composables/foundation/create-context', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-plugin': RouteRecordInfo<'/composables/foundation/create-plugin', '/composables/foundation/create-plugin', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-trinity': RouteRecordInfo<'/composables/foundation/create-trinity', '/composables/foundation/create-trinity', Record<never, never>, Record<never, never>>,

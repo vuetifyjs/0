@@ -63,6 +63,7 @@
         {
           name: 'Forms',
           children: [
+            { name: 'useForm', to: '/composables/forms/use-form' },
           ],
         },
         {

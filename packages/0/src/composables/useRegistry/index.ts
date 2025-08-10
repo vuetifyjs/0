@@ -191,7 +191,7 @@ export function useRegistry<
       id,
       index: registrant.index ?? size,
       value: registrant.value ?? size,
-      valueIsIndex: registrant.value == null,
+      valueIsIndex: registrant.valueIsIndex ?? registrant.value == null,
     } as Z
 
     collection.set(item.id, item)
