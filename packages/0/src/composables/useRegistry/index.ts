@@ -8,9 +8,13 @@ import { genId, isArray } from '#v0/utilities/helpers'
 import type { ID } from '#v0/types'
 
 export interface RegistryTicket {
+  /** The unique identifier. Is randomly generated if not provided. */
   id: ID
+  /** The index of the ticket. It's not recommended to manually set this. */
   index: number
+  /** The value associated with the ticket. If not provided, it defaults to the index. */
   value: unknown
+  /** Whether the value is derived from index. It's not recommended to manually set this. */
   valueIsIndex: boolean
 }
 
