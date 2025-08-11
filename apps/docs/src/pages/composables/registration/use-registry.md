@@ -69,23 +69,23 @@ console.log(registry.size) // 3
   ```
 - **Details**
 
-- `collection`: A [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that holds registered items, indexed by their unique IDs.
-- `clear()`: Clears the entire registry, removing all registered items.
-- `has(id: ID)`: Checks if an item with the given ID exists in the registry.
-- `keys()`: Returns an array of all registered IDs.
-- `browse(value: unknown)`: Searches for an ID by its value. Returns a single ID if found, or an array of IDs if multiple items match.
-- `lookup(index: number)`: Looks up an ID by its index number.
-- `get(id: ID)`: Retrieves a ticket by its ID, returning `undefined` if not found.
-- `values()`: Returns an array of all registered tickets.
-- `entries()`: Returns an array of entries, each being a tuple of [ID, ticket].
-- `register(item?: Partial<Z>)`: Registers a new item, returning the created ticket. If `item` is provided, it will be merged with the default ticket structure.
-- `unregister(id: ID)`: Unregisters an item by its ID, removing it from the registry.
-- `reindex()`: Rebuilds the index of registered items, useful if the order of items has changed.
-- `on(event: string, cb: Function)`: Registers an event listener for a specific event.
-- `off(event: string, cb: Function)`: Unregisters an event listener for a specific event.
-- `emit(event: string, data: any)`: Emits an event with the provided data, triggering all registered listeners for that event.
-- `dispose()`: Resets the collection and clears all listeners. Useful to call during onScopeDispose to clean up resources.
-- `size`: Returns the number of registered items in the registry.
+  - `collection`: A [JavaScript Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that holds registered items, indexed by their unique IDs.
+  - `clear()`: Clears the entire registry, removing all registered items.
+  - `has(id: ID)`: Checks if an item with the given ID exists in the registry.
+  - `keys()`: Returns an array of all registered IDs.
+  - `browse(value: unknown)`: Searches for an ID by its value. Returns a single ID if found, or an array of IDs if multiple items match.
+  - `lookup(index: number)`: Looks up an ID by its index number.
+  - `get(id: ID)`: Retrieves a ticket by its ID, returning `undefined` if not found.
+  - `values()`: Returns an array of all registered tickets.
+  - `entries()`: Returns an array of entries, each being a tuple of [ID, ticket].
+  - `register(item?: Partial<Z>)`: Registers a new item, returning the created ticket. If `item` is provided, it will be merged with the default ticket structure.
+  - `unregister(id: ID)`: Unregisters an item by its ID, removing it from the registry.
+  - `reindex()`: Rebuilds the index of registered items, useful if the order of items has changed.
+  - `on(event: string, cb: Function)`: Registers an event listener for a specific event.
+  - `off(event: string, cb: Function)`: Unregisters an event listener for a specific event.
+  - `emit(event: string, data: any)`: Emits an event with the provided data, triggering all registered listeners for that event.
+  - `dispose()`: Resets the collection and clears all listeners. Useful to call during onScopeDispose to clean up resources.
+  - `size`: Returns the number of registered items in the registry.
 
 - **Options**
 
@@ -403,6 +403,26 @@ console.log(registry.size) // 3
 
   registry.emit('custom', { foo: 'bar' })
   // Output: Custom event data: { foo: 'bar' }
+  ```
+
+### `dispose`
+- **Type**
+  ```ts
+  function dispose(): void
+  ```
+
+- **Details**
+  Resets the registry and clears all event listeners. This is useful for cleaning up resources when the registry is no longer needed, such as when a component is destroyed or a scope ends.
+
+- **Example**
+  ```ts
+  import { onScopeDispose } from 'vue'
+
+  const registry = useRegistry()
+
+  onScopeDispose(() => {
+    registry.dispose()
+  })
   ```
 
 ### `size`
