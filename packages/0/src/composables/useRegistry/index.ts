@@ -244,9 +244,8 @@ export function useRegistry<
 
     collection.delete(item.id)
     directory.delete(item.index)
-
     unassign(item.value, item.id)
-    invalidate()
+
     emit('unregister', item)
     reindex()
   }
