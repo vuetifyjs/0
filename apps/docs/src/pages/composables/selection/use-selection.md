@@ -35,12 +35,13 @@ console.log(selection.selectedItems) // ['item1', 'item2']
 - **Type**
 
   ```ts
-  interface RegistryTicket {
+  interface SelectionTicket {
     id: ID
     index: number
     value: unknown
-    valueIsIndex: boolean
+    selected: boolean
   }
+
   interface SelectionContext<Z extends SelectionTicket = SelectionTicket> {
     collection: Map<ID, Z>
     clear: () => void
@@ -60,16 +61,16 @@ console.log(selection.selectedItems) // ['item1', 'item2']
   ```
 - **Details**
 
-- `collection`: A Map that holds selected items, indexed by their unique IDs.
-- `clear()`: Clears all selected items, resetting the selection state.
-- `has(id: ID)`: Checks if an item with the given ID is currently selected.
-- `keys()`: Returns an array of all selected item IDs.
-- `select(id: ID)`: Marks an item as selected and adds it to the collection.
-- `deselect(id: ID)`: Removes an item from the selection.
-- `get(id: ID)`: Retrieves a selected item by its ID.
-- `values()`: Returns an array of all selected items.
-- `entries()`: Returns an array of entries, each being a tuple of [ID, selected item].
-- `size`: The total number of selected items.
+  - `collection`: A Map that holds selected items, indexed by their unique IDs.
+  - `clear()`: Clears all selected items, resetting the selection state.
+  - `has(id: ID)`: Checks if an item with the given ID is currently selected.
+  - `keys()`: Returns an array of all selected item IDs.
+  - `select(id: ID)`: Marks an item as selected and adds it to the collection.
+  - `deselect(id: ID)`: Removes an item from the selection.
+  - `get(id: ID)`: Retrieves a selected item by its ID.
+  - `values()`: Returns an array of all selected items.
+  - `entries()`: Returns an array of entries, each being a tuple of [ID, selected item].
+  - `size`: The total number of selected items.
 
 ### `select`
 
