@@ -85,8 +85,8 @@ export function useForm<
     return validate(registry.keys())
   }
 
-  async function validate (id?: ID | ID[]): Promise<boolean> {
-    const validating = id == null ? registry.keys() : toArray(id)
+  async function validate (id: ID | ID[]): Promise<boolean> {
+    const validating = toArray(id)
 
     if (validatesOn('submit')) {
       const results = await Promise.all(
