@@ -39,21 +39,16 @@ export function useStep<
   function first () {
     if (registry.size === 0) return
 
-    const first = registry.lookup(0)
-    if (first === undefined) return
-
     registry.selectedIds.clear()
-    registry.select(first)
+    registry.select(registry.lookup(0)!)
   }
 
   function last () {
-    if (registry.size === 0) return
-
-    const last = registry.lookup(registry.size - 1)
-    if (last === undefined) return
+    const size = registry.size
+    if (size === 0) return
 
     registry.selectedIds.clear()
-    registry.selectedIds.add(last)
+    registry.select(registry.lookup(size - 1)!)
   }
 
   function next () {
