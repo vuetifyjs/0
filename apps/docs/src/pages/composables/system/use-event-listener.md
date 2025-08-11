@@ -59,7 +59,7 @@ Convenience function for attaching event listeners to the document object.
 
 ## Basic Usage
 
-```html
+```vue
 <script setup>
 import { useEventListener, useWindowEventListener, useDocumentEventListener } from '@vuetify/0'
 import { ref, useTemplateRef } from 'vue'
@@ -142,7 +142,7 @@ useWindowEventListener('scroll', () => {
 
 ### Multiple Events for Form Validation
 
-```html
+```vue
 <script setup>
 // Listen to multiple input events for real-time validation
 const inputElement = useTemplateRef('inputElement')
@@ -166,7 +166,7 @@ useEventListener(inputElement, ['input', 'blur', 'focus'], (evt) => {
 
 ### Multiple Handlers for Analytics
 
-```html
+```vue
 <script setup>
 // Track user interactions with multiple handlers
 const trackClick = (evt) => {
@@ -189,7 +189,7 @@ useEventListener(button, 'click', [trackClick, updateUI])
 
 ### Performance-Optimized Event Options
 
-```html
+```vue
 <script setup>
 // Optimized scroll handling for infinite scroll
 const scrollContainer = useTemplateRef('scrollContainer')
@@ -211,7 +211,7 @@ useEventListener(scrollContainer, 'scroll', (evt) => {
 
 ### Dynamic Event Switching
 
-```html
+```vue
 <script setup>
 // Switch between touch and mouse events based on device
 const isTouchDevice = ref('ontouchstart' in window)
@@ -257,7 +257,7 @@ watch(isModalOpen, (open) => {
 
 The composable provides full TypeScript support with proper event typing:
 
-```html
+```vue
 <script setup lang="ts">
 import { useEventListener, useWindowEventListener } from '@vuetify/0'
 import { useTemplateRef, ref } from 'vue'

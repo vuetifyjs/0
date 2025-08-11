@@ -104,7 +104,7 @@ Each registered field returns a `FormTicket` with:
 
 ## Basic Example
 
-```html
+```vue
 <script setup>
 import { useForm } from '@vuetify/v0'
 
