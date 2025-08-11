@@ -33,6 +33,7 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
   unselect: (id: ID) => void
   /** Toggles a ticket ON and OFF by ID */
   toggle: (id: ID) => void
+  /** Mandates selected ID based on "mandatory" Option */
   mandate: () => void
 }
 

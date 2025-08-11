@@ -7,10 +7,15 @@ import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables
 export interface StepTicket extends SingleTicket {}
 
 export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
+  /** Select the first Ticket in the collection */
   first: () => void
+  /** Select the last Ticket in the collection */
   last: () => void
+  /** Select the next Ticket based on current index */
   next: () => void
+  /** Select the previous Ticket based on current index */
   prev: () => void
+  /** Step through the collection by a given count */
   step: (count: number) => void
 }
 
