@@ -59,6 +59,7 @@ console.log(registry.size) // 3
     on: (event: string, cb: Function) => void
     off: (event: string, cb: Function) => void
     emit: (event: string, data: any) => void
+    dispose: () => void
     size: number
   }
 
@@ -68,22 +69,23 @@ console.log(registry.size) // 3
   ```
 - **Details**
 
-- `collection`: A [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that holds registered items, indexed by their unique IDs.
-- `clear()`: Clears the entire registry, removing all registered items.
-- `has(id: ID)`: Checks if an item with the given ID exists in the registry.
-- `keys()`: Returns an array of all registered IDs.
-- `browse(value: unknown)`: Searches for an ID by its value. Returns a single ID if found, or an array of IDs if multiple items match.
-- `lookup(index: number)`: Looks up an ID by its index number.
-- `get(id: ID)`: Retrieves a ticket by its ID, returning `undefined` if not found.
-- `values()`: Returns an array of all registered tickets.
-- `entries()`: Returns an array of entries, each being a tuple of [ID, ticket].
-- `register(item?: Partial<Z>)`: Registers a new item, returning the created ticket. If `item` is provided, it will be merged with the default ticket structure.
-- `unregister(id: ID)`: Unregisters an item by its ID, removing it from the registry.
-- `reindex()`: Rebuilds the index of registered items, useful if the order of items has changed.
-- `on(event: string, cb: Function)`: Registers an event listener for a specific event.
-- `off(event: string, cb: Function)`: Unregisters an event listener for a specific event.
-- `emit(event: string, data: any)`: Emits an event with the provided data, triggering all registered listeners for that event.
-- `size`: Returns the number of registered items in the registry.
+  - `collection`: A [JavaScript Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) that holds registered items, indexed by their unique IDs.
+  - `clear()`: Clears the entire registry, removing all registered items.
+  - `has(id: ID)`: Checks if an item with the given ID exists in the registry.
+  - `keys()`: Returns an array of all registered IDs.
+  - `browse(value: unknown)`: Searches for an ID by its value. Returns a single ID if found, or an array of IDs if multiple items match.
+  - `lookup(index: number)`: Looks up an ID by its index number.
+  - `get(id: ID)`: Retrieves a ticket by its ID, returning `undefined` if not found.
+  - `values()`: Returns an array of all registered tickets.
+  - `entries()`: Returns an array of entries, each being a tuple of [ID, ticket].
+  - `register(item?: Partial<Z>)`: Registers a new item, returning the created ticket. If `item` is provided, it will be merged with the default ticket structure.
+  - `unregister(id: ID)`: Unregisters an item by its ID, removing it from the registry.
+  - `reindex()`: Rebuilds the index of registered items, useful if the order of items has changed.
+  - `on(event: string, cb: Function)`: Registers an event listener for a specific event.
+  - `off(event: string, cb: Function)`: Unregisters an event listener for a specific event.
+  - `emit(event: string, data: any)`: Emits an event with the provided data, triggering all registered listeners for that event.
+  - `dispose()`: Resets the collection and clears all listeners. Useful to call during onScopeDispose to clean up resources.
+  - `size`: Returns the number of registered items in the registry.
 
 - **Options**
 
@@ -171,7 +173,7 @@ console.log(registry.size) // 3
   console.log(registry.has('x')) // true
   console.log(registry.has('y')) // false
   ```
-  
+
 ### `keys`
 
 - **Type**
@@ -181,10 +183,7 @@ console.log(registry.size) // 3
 
 - **Details**
   Returns an array of all registered IDs in the order they were indexed.
-<<<<<<< HEAD
   Performance Note: The result is cached for efficiency, meaning repeated calls to keys() reuse a stored array instead of reconstructing it every time. If the registry changes (items are registered or unregistered), the cache is refreshed automatically.
-=======
->>>>>>> b0c5946 (Update use-registry.md)
 
 - **Example**
   ```ts
@@ -192,10 +191,10 @@ console.log(registry.size) // 3
   registry.register({ id: 'cat', value: 'Cat' })
   registry.register({ id: 'dog', value: 'Dog' })
 
-  console.log(registry.keys()) 
+  console.log(registry.keys())
   // ['cat', 'dog']
   ```
-  
+
 ### `browse`
 
 - **Type**
@@ -204,7 +203,6 @@ console.log(registry.size) // 3
   ```
 
 - **Details**
-<<<<<<< HEAD
   Searches the registry for item(s) whose value matches the provided value argument.
 
   If exactly one item matches, browse returns that item’s ID directly.
@@ -212,31 +210,22 @@ console.log(registry.size) // 3
   If no match is found, it returns undefined.
 
   This allows both quick single lookups and detection of duplicates. For consistency, if you expect possible duplicates, always handle both single-ID and array return types in your code.
-=======
-  Searches for item(s) by their value and returns the corresponding ID(s), or undefined if none match.
->>>>>>> b0c5946 (Update use-registry.md)
 
 - **Example**
   ```ts
   const registry = useRegistry()
   registry.register({ id: '1', value: 'Red' })
   registry.register({ id: '2', value: 'Blue' })
-<<<<<<< HEAD
   registry.register({ id: '3', value: 'Red' }) // Duplicate value
 
-  console.log(registry.browse('Red'))  
+  console.log(registry.browse('Red'))
   // ['1', '3']  <-- Multiple matches return array
 
-  console.log(registry.browse('Blue')) 
+  console.log(registry.browse('Blue'))
   // '2'  <-- Single match returns ID
 
-  console.log(registry.browse('Green')) 
+  console.log(registry.browse('Green'))
   // undefined  <-- No matches
-=======
-
-  console.log(registry.browse('Red')) // '1'
-  console.log(registry.browse('Green')) // undefined
->>>>>>> b0c5946 (Update use-registry.md)
   ```
 
 ### `lookup`
@@ -269,10 +258,7 @@ console.log(registry.size) // 3
 
 - **Details**
   Returns an array of all registered items.
-<<<<<<< HEAD
   Performance Note: The result is cached internally to avoid reconstructing the list on every call. The cache is automatically invalidated and rebuilt whenever the registry changes, so you always get the latest data without unnecessary overhead.
-=======
->>>>>>> b0c5946 (Update use-registry.md)
 
 - **Example**
   ```ts
@@ -293,10 +279,7 @@ console.log(registry.size) // 3
 
 - **Details**
   Returns all registry entries as [id, item] pairs.
-<<<<<<< HEAD
   Performance Note: Like keys() and values(), the results of entries() are cached for performance. The cache is refreshed whenever the registry is modified, so calls remain fast and up-to-date.
-=======
->>>>>>> b0c5946 (Update use-registry.md)
 
 - **Example**
   ```ts
@@ -310,7 +293,7 @@ console.log(registry.size) // 3
   // car Car
   // bus Bus
   ```
-  
+
 ### `unregister`
 
 - **Type**
@@ -330,7 +313,7 @@ console.log(registry.size) // 3
 
   console.log(registry.has('x')) // false
   ```
-    
+
 ### `reindex`
 
 - **Type**
@@ -355,7 +338,7 @@ console.log(registry.size) // 3
   console.log(registry.lookup(0)) // 'second'
   console.log(registry.lookup(1)) // 'first'
   ```
-  
+
 ### `on`
 
 - **Type**
@@ -377,7 +360,7 @@ console.log(registry.size) // 3
   registry.register({ id: '1', value: 'New Item' })
   // Output: Registered: { id: '1', value: 'New Item' }
   ```
-  
+
 ### `off`
 
 - **Type**
@@ -421,7 +404,27 @@ console.log(registry.size) // 3
   registry.emit('custom', { foo: 'bar' })
   // Output: Custom event data: { foo: 'bar' }
   ```
-  
+
+### `dispose`
+- **Type**
+  ```ts
+  function dispose(): void
+  ```
+
+- **Details**
+  Resets the registry and clears all event listeners. This is useful for cleaning up resources when the registry is no longer needed, such as when a component is destroyed or a scope ends.
+
+- **Example**
+  ```ts
+  import { onScopeDispose } from 'vue'
+
+  const registry = useRegistry()
+
+  onScopeDispose(() => {
+    registry.dispose()
+  })
+  ```
+
 ### `size`
 
 - **Type**
@@ -440,4 +443,3 @@ console.log(registry.size) // 3
 
   console.log(registry.size) // 2
   ```
-
