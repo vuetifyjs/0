@@ -17,8 +17,8 @@
     "vite": "catalog:"
   },
   "dependencies": {
-    "@vuetify/v0": "workspace:*",
     "@vuetify/paper": "workspace:*",
+    "@vuetify/v0": "workspace:*",
     "markdown-it-attrs": "^4.3.1",
     "markdown-it-prism": "^3.0.0",
     "mermaid": "^11.9.0",
