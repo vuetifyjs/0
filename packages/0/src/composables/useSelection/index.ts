@@ -13,6 +13,10 @@ import type { ID } from '#v0/types'
 export interface SelectionTicket extends RegistryTicket {
   disabled: boolean
   isActive: Readonly<Ref<boolean, boolean>>
+  /** Select self */
+  select: () => void
+  /** Unselect self */
+  unselect: () => void
   /** Toggle self on and off */
   toggle: () => void
 }
@@ -23,7 +27,12 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
   selectedValues: ComputedRef<Set<unknown>>
   /** Clear all selected IDs and reindexes */
   reset: () => void
+  /** Select a ticket by ID (Toggle ON) */
   select: (id: ID) => void
+  /** Unselect a ticket by ID (Toggle OFF) */
+  unselect: (id: ID) => void
+  /** Toggles a ticket ON and OFF by ID */
+  toggle: (id: ID) => void
   mandate: () => void
 }
 
@@ -66,22 +75,25 @@ export function useSelection<
   function mandate () {
     if (!mandatory || registry.selectedIds.size > 0 || registry.size === 0) return
 
-    const first = registry.lookup(0)
-    if (first) select(first)
+    select(registry.lookup(0)!)
   }
 
   function select (id: ID) {
     const item = registry.get(id)
-
     if (!item || item.disabled) return
 
-    if (selectedIds.has(id)) {
-      if (!mandatory || selectedIds.size > 1) {
-        selectedIds.delete(id)
-      }
-    } else {
-      selectedIds.add(id)
-    }
+    selectedIds.add(id)
+  }
+
+  function unselect (id: ID) {
+    if (mandatory && selectedIds.size === 1) return
+
+    selectedIds.delete(id)
+  }
+
+  function toggle (id: ID) {
+    if (selectedIds.has(id)) unselect(id)
+    else select(id)
   }
 
   function register (registrant: Partial<Z> = {}): Z {
@@ -91,7 +103,9 @@ export function useSelection<
       ...registrant,
       id,
       isActive: toRef(() => selectedIds.has(id)),
-      toggle: () => select(id),
+      select: () => select(id),
+      unselect: () => unselect(id),
+      toggle: () => toggle(id),
     }
 
     const ticket = registry.register(item) as Z
@@ -123,5 +137,6 @@ export function useSelection<
     reset,
     mandate,
     select,
+    unselect,
   } as E
 }

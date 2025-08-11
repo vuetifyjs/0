@@ -48,9 +48,23 @@ export function useGroup<
     }
   }
 
+  function unselect (ids: ID | ID[]) {
+    for (const id of toArray(ids)) {
+      registry.unselect(id)
+    }
+  }
+
+  function toggle (ids: ID | ID[]) {
+    for (const id of toArray(ids)) {
+      registry.toggle(id)
+    }
+  }
+
   return {
     ...registry,
     select,
+    unselect,
+    toggle,
     selectedIndexes,
   } as E
 }
