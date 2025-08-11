@@ -108,6 +108,32 @@ export function useRegistry<
     return collection.has(id)
   }
 
+  function assign (value: unknown, id: ID) {
+    const bucket = catalog.get(value)
+    if (bucket) {
+      if (isArray(bucket)) {
+        if (!bucket.includes(id)) bucket.push(id)
+      } else if (bucket !== id) {
+        catalog.set(value, [bucket, id])
+      }
+    } else {
+      catalog.set(value, id)
+    }
+  }
+
+  function unassign (value: unknown, id: ID) {
+    const bucket = catalog.get(value)
+    if (!bucket) return
+    if (isArray(bucket)) {
+      const next = bucket.filter(v => v !== id)
+      if (next.length === 0) catalog.delete(value)
+      else if (next.length === 1) catalog.set(value, next[0])
+      else catalog.set(value, next)
+    } else if (bucket === id) {
+      catalog.delete(value)
+    }
+  }
+
   function keys () {
     const cached = cache.get('keys')
     if (cached != undefined) return cached as ID[]
@@ -168,7 +194,7 @@ export function useRegistry<
       }
 
       directory.set(index, item.id)
-      catalog.set(item.value, item.id)
+      assign(item.value, item.id)
 
       index++
     }
@@ -197,13 +223,7 @@ export function useRegistry<
     collection.set(item.id, item)
     directory.set(item.index, item.id)
 
-    const exists = browse(item.value)
-
-    if (exists) {
-      if (isArray(exists)) exists.push(item.id)
-      else catalog.set(item.value, [exists, item.id])
-    } else catalog.set(item.value, item.id)
-
+    assign(item.value, item.id)
     invalidate()
     emit('register', item)
 
@@ -218,17 +238,9 @@ export function useRegistry<
     collection.delete(item.id)
     directory.delete(item.index)
 
-    let exists = browse(item.value)
-
-    if (isArray(exists)) {
-      exists = exists.filter(value => value !== item.id)
-      if (exists.length === 1) catalog.set(item.value, exists[0])
-      else if (exists.length === 0) catalog.delete(item.value)
-    } else catalog.delete(item.value)
-
+    unassign(item.value, item.id)
     invalidate()
     emit('unregister', item)
-
     reindex()
   }
 
