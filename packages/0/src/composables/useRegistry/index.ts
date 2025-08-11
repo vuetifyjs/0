@@ -45,6 +45,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   off: (event: string, cb: Function) => void
   /** Emit an event with data */
   emit: (event: string, data: any) => void
+  /** Clears the registry and listeners */
+  dispose: () => void
   /** The size of the registry */
   size: number
 }
@@ -90,6 +92,11 @@ export function useRegistry<
 
   function off (event: string, cb: Function) {
     listeners.get(event)?.delete(cb)
+  }
+
+  function dispose () {
+    if (listeners.size > 0) listeners.clear()
+    clear()
   }
 
   function get (id: ID) {
@@ -249,6 +256,7 @@ export function useRegistry<
     emit,
     on,
     off,
+    dispose,
     has,
     keys,
     clear,

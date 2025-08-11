@@ -59,6 +59,7 @@ console.log(registry.size) // 3
     on: (event: string, cb: Function) => void
     off: (event: string, cb: Function) => void
     emit: (event: string, data: any) => void
+    dispose: () => void
     size: number
   }
 
@@ -83,6 +84,7 @@ console.log(registry.size) // 3
 - `on(event: string, cb: Function)`: Registers an event listener for a specific event.
 - `off(event: string, cb: Function)`: Unregisters an event listener for a specific event.
 - `emit(event: string, data: any)`: Emits an event with the provided data, triggering all registered listeners for that event.
+- `dispose()`: Resets the collection and clears all listeners. Useful to call during onScopeDispose to clean up resources.
 - `size`: Returns the number of registered items in the registry.
 
 - **Options**
@@ -171,7 +173,7 @@ console.log(registry.size) // 3
   console.log(registry.has('x')) // true
   console.log(registry.has('y')) // false
   ```
-  
+
 ### `keys`
 
 - **Type**
@@ -189,10 +191,10 @@ console.log(registry.size) // 3
   registry.register({ id: 'cat', value: 'Cat' })
   registry.register({ id: 'dog', value: 'Dog' })
 
-  console.log(registry.keys()) 
+  console.log(registry.keys())
   // ['cat', 'dog']
   ```
-  
+
 ### `browse`
 
 - **Type**
@@ -216,13 +218,13 @@ console.log(registry.size) // 3
   registry.register({ id: '2', value: 'Blue' })
   registry.register({ id: '3', value: 'Red' }) // Duplicate value
 
-  console.log(registry.browse('Red'))  
+  console.log(registry.browse('Red'))
   // ['1', '3']  <-- Multiple matches return array
 
-  console.log(registry.browse('Blue')) 
+  console.log(registry.browse('Blue'))
   // '2'  <-- Single match returns ID
 
-  console.log(registry.browse('Green')) 
+  console.log(registry.browse('Green'))
   // undefined  <-- No matches
   ```
 
@@ -291,7 +293,7 @@ console.log(registry.size) // 3
   // car Car
   // bus Bus
   ```
-  
+
 ### `unregister`
 
 - **Type**
@@ -311,7 +313,7 @@ console.log(registry.size) // 3
 
   console.log(registry.has('x')) // false
   ```
-    
+
 ### `reindex`
 
 - **Type**
@@ -336,7 +338,7 @@ console.log(registry.size) // 3
   console.log(registry.lookup(0)) // 'second'
   console.log(registry.lookup(1)) // 'first'
   ```
-  
+
 ### `on`
 
 - **Type**
@@ -358,7 +360,7 @@ console.log(registry.size) // 3
   registry.register({ id: '1', value: 'New Item' })
   // Output: Registered: { id: '1', value: 'New Item' }
   ```
-  
+
 ### `off`
 
 - **Type**
@@ -402,7 +404,7 @@ console.log(registry.size) // 3
   registry.emit('custom', { foo: 'bar' })
   // Output: Custom event data: { foo: 'bar' }
   ```
-  
+
 ### `size`
 
 - **Type**
@@ -421,4 +423,3 @@ console.log(registry.size) // 3
 
   console.log(registry.size) // 2
   ```
-
