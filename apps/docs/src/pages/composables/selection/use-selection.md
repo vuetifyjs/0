@@ -30,6 +30,7 @@ const item2 = selection.select('item2')
 console.log(selection.selectedItems) // ['item1', 'item2']
 ```
 
+
 ## API
 
 - **Type**
