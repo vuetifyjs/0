@@ -79,6 +79,13 @@
       margin-bottom: 0.5rem;
     }
 
+    pre.shiki {
+      border: thin solid var(--v0-divider);
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+    }
+
     pre[class*="language-"] {
       background-color: #f6f8fa;
       padding: 0.5rem;
