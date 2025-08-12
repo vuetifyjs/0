@@ -12,7 +12,6 @@ declare global {
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']
-  const Log4jsLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['Log4jsLoggerAdapter']
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
   const SUPPORTS_INTERSECTION_OBSERVER: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_INTERSECTION_OBSERVER']
@@ -22,38 +21,22 @@ declare global {
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
   const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']
-  const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']
-  const WinstonLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['WinstonLoggerAdapter']
-  const __DEV__: typeof import('../../packages/0/src/constants/globals')['__DEV__']
   const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']
-  const compare: typeof import('../../packages/0/src/utilities/benchmark')['compare']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']
-  const createContext: typeof import('../../packages/0/src/factories/createContext/index')['createContext']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
-  const createGroup: typeof import('../../packages/0/src/composables/useGroup/index')['createGroup']
-  const createGroupContext: typeof import('../../packages/0/src/composables/useGroup/index')['createGroupContext']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
   const createLocale: typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']
-  const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
-  const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
-  const createPlugin: typeof import('../../packages/0/src/factories/createPlugin/index')['createPlugin']
-  const createRegistryContext: typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']
-  const createSingle: typeof import('../../packages/0/src/composables/useSingle/index')['createSingle']
-  const createSingleContext: typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']
-  const createStep: typeof import('../../packages/0/src/composables/useStep/index')['createStep']
-  const createStepContext: typeof import('../../packages/0/src/composables/useStep/index')['createStepContext']
   const createStorage: typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']
   const createStoragePlugin: typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']
   const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
   const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
-  const createTokens: typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']
   const createTokensContext: typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']
   const customRef: typeof import('vue')['customRef']
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']
@@ -64,12 +47,10 @@ declare global {
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
-  const guard: typeof import('../../packages/0/src/utilities/benchmark')['guard']
   const h: typeof import('vue')['h']
   const hexToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']
   const hexaToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']
   const inject: typeof import('vue')['inject']
-  const installMarkdownPlugin: typeof import('../../packages/v0/src/composables/useMarkdown/index')['installMarkdownPlugin']
   const isArray: typeof import('../../packages/0/src/utilities/helpers')['isArray']
   const isBoolean: typeof import('../../packages/0/src/utilities/helpers')['isBoolean']
   const isFunction: typeof import('../../packages/0/src/utilities/helpers')['isFunction']
@@ -104,8 +85,6 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']
   const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
-  const provideLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['provideLoggerContext']
-  const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
   const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
@@ -120,14 +99,12 @@ declare global {
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']
   const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']
   const toRaw: typeof import('vue')['toRaw']
-  const toReactive: typeof import('../../packages/0/src/transformers/toReactive/index')['toReactive']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAttrs: typeof import('vue')['useAttrs']
-  const useAvatar: typeof import('../../packages/0/src/composables/useAvatar/index')['useAvatar']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
   const useBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']
   const useBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpointsContext']
@@ -136,9 +113,12 @@ declare global {
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']
+  const useDocumentEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']
   const useElementIntersection: typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useElementIntersection']
   const useElementSize: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useElementSize']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
+  const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']
+  const useForm: typeof import('../../packages/0/src/composables/useForm/index')['useForm']
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']
   const useHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']
@@ -148,12 +128,8 @@ declare global {
   const useLayout: typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']
-  const useLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['useLoggerContext']
-  const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
-  const useMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']
   const useModel: typeof import('vue')['useModel']
   const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']
-  const useRegistrar: typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']
   const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
   const useResizeObserver: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
@@ -167,6 +143,7 @@ declare global {
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTheme: typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']
   const useTokens: typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']
+  const useWindowEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -207,6 +184,12 @@ declare global {
   // @ts-ignore
   export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPlugin } from '../../packages/0/src/composables/useBreakpoints/index'
   import('../../packages/0/src/composables/useBreakpoints/index')
+  // @ts-ignore
+  export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
+  import('../../packages/0/src/composables/useEventListener/index')
+  // @ts-ignore
+  export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions } from '../../packages/0/src/composables/useForm/index'
+  import('../../packages/0/src/composables/useForm/index')
   // @ts-ignore
   export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
@@ -366,9 +349,12 @@ declare module 'vue' {
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
+    readonly useDocumentEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']>
     readonly useElementIntersection: UnwrapRef<typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useElementIntersection']>
     readonly useElementSize: UnwrapRef<typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useElementSize']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
+    readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
+    readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>
@@ -393,6 +379,7 @@ declare module 'vue' {
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
     readonly useTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']>
+    readonly useWindowEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>
