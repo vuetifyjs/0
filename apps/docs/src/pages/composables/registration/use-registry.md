@@ -60,7 +60,6 @@ console.log(registry.size) // 3
     off: (event: string, cb: Function) => void
     emit: (event: string, data: any) => void
     dispose: () => void
-    dispose: () => void
     size: number
   }
 
