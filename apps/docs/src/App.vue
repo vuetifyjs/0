@@ -57,6 +57,10 @@
 
     code {
       font-family: 'Courier New', Courier, monospace;
+    }
+
+    /* Exclude shiki */
+    code:not([class*="language-"]) {
       background-color: #f6f8fa;
       padding: 0.2rem 0.4rem;
     }
