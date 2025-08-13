@@ -17,17 +17,19 @@ A composable for managing the selection of items in a collection with automatic 
 
 ## Usage
 
-The `useSelection` composable provides a powerful interface for managing the selection of items from a collection. It allows you to register, unregister, and select items efficiently, while maintaining an index for quick access.
+useSelection extends the functionality of useRegistry to manage selection states for a collection of items.It is reactive, supports both single and multi-select patterns, and provides helper properties for working with selected IDs, values, and items.
 
 ```ts
 import { useSelection } from '@vuetify/v0'
 
 const selection = useSelection()
 
-const item1 = selection.select('item1')
-const item2 = selection.select('item2')
+selection.select({ id: 'apple', value: 'Apple' })
+selection.select({ id: 'banana', value: 'Banana' })
 
-console.log(selection.selectedItems) // ['item1', 'item2']
+console.log(selection.selectedIds) // ['apple', 'banana']
+console.log(selection.selectedValues) // ['Apple', 'Banana']
+console.log(selection.has('apple')) // true
 ```
 
 
@@ -36,223 +38,180 @@ console.log(selection.selectedItems) // ['item1', 'item2']
 - **Type**
 
   ```ts
-  interface SelectionTicket {
-    id: ID
-    index: number
-    value: unknown
-    selected: boolean
+  export interface SelectionTicket extends RegistryTicket {
+    disabled: boolean
+    isActive: Readonly<Ref<boolean, boolean>>
+    select: () => void
+    unselect: () => void
+    toggle: () => void
   }
 
-  interface SelectionContext<Z extends SelectionTicket = SelectionTicket> {
-    collection: Map<ID, Z>
-    clear: () => void
-    has: (id: ID) => boolean
-    keys: () => ID[]
-    select: (id: ID) => Z
-    deselect: (id: ID) => void
-    get: (id: ID) => Z | undefined
-    values: () => Z[]
-    entries: () => [ID, Z][]
-    size: number
+  export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
+    selectedIds: Reactive<Set<ID>>
+    selectedItems: ComputedRef<Set<Z>>
+    selectedValues: ComputedRef<Set<unknown>>
+    reset: () => void
+    select: (id: ID) => void
+    unselect: (id: ID) => void
+    toggle: (id: ID) => void
+    mandate: () => void
   }
 
-  interface SelectionOptions {
-    events?: boolean
+  export interface SelectionOptions extends RegistryOptions {
+    enroll?: boolean
+    mandatory?: boolean | 'force'
   }
   ```
 - **Details**
 
-  - `collection`: A Map that holds selected items, indexed by their unique IDs.
-  - `clear()`: Clears all selected items, resetting the selection state.
-  - `has(id: ID)`: Checks if an item with the given ID is currently selected.
-  - `keys()`: Returns an array of all selected item IDs.
-  - `select(id: ID)`: Marks an item as selected and adds it to the collection.
-  - `deselect(id: ID)`: Removes an item from the selection.
-  - `get(id: ID)`: Retrieves a selected item by its ID.
-  - `values()`: Returns an array of all selected items.
-  - `entries()`: Returns an array of entries, each being a tuple of [ID, selected item].
-  - `size`: The total number of selected items.
+  - `selectedIds`: Reactive set of all currently selected IDs.
+  - `selectedItems`: Computed set of all selected items (full objects).
+  - `selectedValues`: Computed set of the value fields from all selected items.
+  - `reset()`: Clears all selected IDs and reindexes the registry.
+  - `select(id)`: Marks the given ID as selected.
+  - `unselect(id)`: Marks the given ID as unselected.
+  - `toggle(id)`: Switches the given ID between selected and unselected.
+  - `mandate()`: Enforces selection rules when mandatory mode is active.
+
+- **Options**
+
+  - `enroll`: If `true`, new items are auto-selected when registered (unless disabled).
+  - `mandatory `: If `true` or `force`, at least one item must always remain selected.
+
+### `selectedIds`
+
+- **Type**
+  ```ts
+  ID[]
+  ```
+
+- **Details**
+  An array of IDs for all currently selected items.
+  Automatically updates when selection changes.
+
+- **Example**
+  ```ts
+  selection.select('apple')
+  console.log(selection.selectedIds) // ['apple']
+  ```
+
+### `selectedItems`
+
+- **Type**
+  ```ts
+  Z[]
+  ```
+
+- **Details**
+  An array containing the full item objects for all selected items.
+
+- **Example**
+  ```ts
+  selection.select({ id: 'apple', value: 'Apple' })
+  console.log(selection.selectedItems)
+  // [{ id: 'apple', value: 'Apple', selected: true }]
+  ```
+
+### `selectedValues`
+
+- **Type**
+  ```ts
+  unknown[]
+  ```
+
+- **Details**
+  An array of only the value fields from each selected item.
+
+- **Example**
+  ```ts
+  selection.select({ id: 'apple', value: 'Apple' })
+  console.log(selection.selectedValues) // ['Apple']
+  ```
+
+### `reset`
+
+- **Type**
+  ```ts
+  function reset(): void
+  ```
+
+- **Details**
+  Clears all selections and resets the selection state.
+
+- **Example**
+  ```ts
+  selection.select('apple')
+  selection.reset()
+  console.log(selection.selectedIds) // []
+  ```
 
 ### `select`
 
 - **Type**
   ```ts
-  function select (id: ID): Z
+  function select(idOrItem: ID | Partial<Z>): void
   ```
 
 - **Details**
-  Marks an item as selected and adds it to the selection collection. Returns the selected item.
+  Selects the given ID or item. Adds it to the registry if it doesn’t already exist.
 
 - **Example**
   ```ts
-  const selection = useSelection()
-
-  const ticket = selection.select('item1')
-
-  console.log(ticket) // { id: 'item1', index: 0, value: 'Item 1', selected: true }
+  selection.select('apple')
+  console.log(selection.has('apple')) // true
   ```
 
-### `deselect`
+### `unselect`
 
 - **Type**
   ```ts
-  function deselect (id: ID): void
+  function unselect(id: ID): void
   ```
 
 - **Details**
-  Removes an item from the selection collection by its ID.
+  Removes the given ID from the selection list.
 
 - **Example**
   ```ts
-  const selection = useSelection()
-
-  selection.select('item1')
-  selection.deselect('item1')
-
-  console.log(selection.has('item1')) // false
+  selection.select('apple')
+  selection.unselect('apple')
+  console.log(selection.has('apple')) // false
   ```
 
-### `clear`
+### `toggle`
 
 - **Type**
   ```ts
-  function clear(): void
+  function toggle(id: ID): void
   ```
 
 - **Details**
-  Clears all selected items, resetting the selection state.
+  Toggles the selection state of the given ID:
+    - If selected, it becomes unselected.
+    - If unselected, it becomes selected.
 
 - **Example**
   ```ts
-  const selection = useSelection()
-
-  selection.select('item1')
-  selection.select('item2')
-
-  console.log(selection.size) // 2
-
-  selection.clear()
-
-  console.log(selection.size) // 0
+  selection.toggle('apple') // selects apple
+  selection.toggle('apple') // unselects apple
   ```
 
-### `has`
+### `mandate`
 
 - **Type**
   ```ts
-  function has(id: ID): boolean
+  function mandate(id: ID): void
   ```
 
 - **Details**
-  Checks whether an item with the given ID is selected.
+  Selects only the given ID, clearing all other selections.
+  Useful for single-select scenarios.
 
 - **Example**
   ```ts
-  const selection = useSelection()
-
-  selection.select('item1')
-
-  console.log(selection.has('item1')) // true
-  console.log(selection.has('item2')) // false
+  selection.select('apple')
+  selection.select('banana')
+  selection.mandate('cherry')
+  console.log(selection.selectedIds) // ['cherry']
   ```
-
-### `keys`
-
-- **Type**
-  ```ts
-  function keys(): ID[]
-  ```
-
-- **Details**
-  Returns an array of IDs of all selected items.
-
-- **Example**
-  ```ts
-  const selection = useSelection()
-
-  selection.select('item1')
-  selection.select('item2')
-
-  console.log(selection.keys()) // ['item1', 'item2']
-  ```
-
-### `values`
-
-- **Type**
-  ```ts
-  function values(): Z[]
-  ```
-
-- **Details**
-  Returns an array of all selected items.
-
-- **Example**
-  ```ts
-  const selection = useSelection()
-
-  selection.select('item1')
-  selection.select('item2')
-
-  console.log(selection.values()) // [{ id: 'item1', value: 'Item 1' }, { id: 'item2', value: 'Item 2' }]
-  ```
-
-### `entries`
-
-- **Type**
-  ```ts
-  function entries(): [ID, Z][]
-  ```
-
-- **Details**
-  Returns all selected items as [id, item] pairs.
-
-- **Example**
-  ```ts
-  const selection = useSelection()
-
-  selection.select('item1')
-  selection.select('item2')
-
-  for (const [id, item] of selection.entries()) {
-    console.log(id, item.value)
-  }
-  ```
-
-### `get`
-
-- **Type**
-  ```ts
-  function get(id: ID): Z | undefined
-  ```
-
-- **Details**
-  Retrieves a selected item by its ID.
-
-- **Example**
-  ```ts
-  const selection = useSelection()
-
-  selection.select('item1')
-
-  const item = selection.get('item1')
-  console.log(item) // { id: 'item1', value: 'Item 1', selected: true }
-  ```
-
-### `size`
-
-- **Type**
-  ```ts
-  number
-  ```
-
-- **Details**
-  Returns the number of selected items in the collection.
-
-- **Example**
-  ```ts
-  const selection = useSelection()
-
-  selection.select('item1')
-
-  console.log(selection.size) // 1
-  ```
+  
