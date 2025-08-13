@@ -30,7 +30,7 @@ console.log(tokens.resolve('foo')) // bar
     $description?: string
   }
 
-  type TokenValue = unknown | TokenAlias
+  type TokenValue = string | number | boolean | TokenAlias
 
   interface TokenCollection {
     [key: string]: TokenValue | TokenCollection

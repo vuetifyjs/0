@@ -10,7 +10,7 @@ import { useLogger } from '#v0/composables/useLogger'
 import { isObject, isString } from '#v0/utilities'
 
 // Types
-import type { RegistryTicket, RegistryContext, RegistryOptions } from '#v0/composables/useRegistry'
+import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/factories/createTrinity'
 import type { App } from 'vue'
 
@@ -21,7 +21,7 @@ export interface TokenAlias {
   $description?: string
 }
 
-export type TokenValue = unknown | TokenAlias
+export type TokenValue = string | number | boolean | TokenAlias
 
 export interface TokenCollection {
   [key: string]: TokenValue | TokenCollection
@@ -38,8 +38,6 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
   resolve: <R = unknown>(token: string) => R | undefined
 }
 
-export interface TokenOptions extends RegistryOptions {}
-
 /**
  * Creates a token registry for managing design token collections with alias resolution.
  * Returns the token context directly for simple usage.
@@ -52,12 +50,9 @@ export interface TokenOptions extends RegistryOptions {}
 export function useTokens<
   Z extends TokenTicket = TokenTicket,
   E extends TokenContext<Z> = TokenContext<Z>,
-> (
-  tokens: TokenCollection = {},
-  options?: TokenOptions,
-): E {
+> (tokens: TokenCollection = {}): E {
   const logger = useLogger()
-  const registry = useRegistry<Z, E>(options)
+  const registry = useRegistry<Z, E>()
 
   const cache = new Map<string, any>()
 
@@ -156,8 +151,6 @@ function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
         flattened.push({ id, value: value as TokenAlias })
       } else if (isObject(value)) {
         stack.push({ tokens: value, prefix: id })
-      } else {
-        flattened.push({ id, value })
       }
     }
   }
