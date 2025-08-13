@@ -61,8 +61,8 @@ export function useTokens<
 
   const cache = new Map<string, any>()
 
-  for (const { id, value } of flatten(tokens)) {
-    registry.register({ value, id } as Partial<Z>)
+  for (const token of flatten(tokens)) {
+    registry.register(token as Partial<Z>)
   }
 
   function isAlias (token: unknown): token is string {
