@@ -35,7 +35,7 @@ export type FlatTokenCollection = {
 export interface TokenTicket extends RegistryTicket {}
 
 export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
-  resolve: <R = unknown>(token: string) => R | undefined
+  resolve: (token: string) => string | undefined
 }
 
 /**
@@ -54,7 +54,7 @@ export function useTokens<
   const logger = useLogger()
   const registry = useRegistry<Z, E>()
 
-  const cache = new Map<string, any>()
+  const cache = new Map<string, string | undefined>()
 
   for (const token of flatten(tokens)) {
     registry.register(token as Partial<Z>)
@@ -68,7 +68,7 @@ export function useTokens<
     return isObject(value) && '$value' in value
   }
 
-  function resolve<R = unknown> (token: string): R | undefined {
+  function resolve (token: string): string | undefined {
     const cached = cache.get(token)
 
     if (cached !== undefined) return cached
@@ -84,11 +84,11 @@ export function useTokens<
       return undefined
     }
 
-    let result: R | undefined
+    let result: string | undefined
 
     if (isTokenAlias(found.value)) result = resolve(found.value.$value)
     else if (isAlias(found.value)) result = resolve(found.value)
-    else result = found.value as R
+    else result = String(found.value)
 
     cache.set(token, result)
 
