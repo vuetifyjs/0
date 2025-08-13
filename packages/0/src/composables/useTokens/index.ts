@@ -7,7 +7,7 @@ import { useRegistry } from '#v0/composables/useRegistry'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { isObject, isPrimitive, isString } from '#v0/utilities'
+import { isObject, isString } from '#v0/utilities'
 
 // Types
 import type { RegistryTicket, RegistryContext, RegistryOptions } from '#v0/composables/useRegistry'
@@ -152,9 +152,7 @@ function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
       const value = currentTokens[key]
       const id = currentPrefix ? `${currentPrefix}.${key}` : key
 
-      if (isPrimitive(value)) {
-        flattened.push({ id, value: String(value) })
-      } else if (isObject(value) && '$value' in value) {
+      if (isObject(value) && '$value' in value) {
         flattened.push({ id, value: value as TokenAlias })
       } else if (isObject(value)) {
         stack.push({ tokens: value, prefix: id })
