@@ -314,6 +314,30 @@ console.log(registry.size) // 3
   console.log(registry.has('x')) // false
   ```
 
+  ### `onboard`
+
+  - **Type**
+    ```ts
+    function onboard(registrations: Partial<Z>[]): Z[]
+    ```
+
+  - **Details**
+    Registers multiple items in a single call. `onboard` simply calls `register` for each object in the input array, in order, and returns an array of the resulting tickets. It preserves registration order and will apply the same rules as `register` for id generation, index assignment, value defaults, caching and event emission (if `events` is enabled).
+
+  - **Example**
+    ```ts
+    const registry = useRegistry()
+
+    const tickets = registry.onboard([
+      { id: 'a', value: 'Apple' },
+      { value: 'Banana' }, // id generated automatically
+      { id: 'a', value: 'Duplicate' } // duplicate id -> returns existing ticket
+    ])
+
+    console.log(tickets.length) // 3
+    console.log(registry.size) // 2 (third reused existing)
+    ```
+
 ### `reindex`
 
 - **Type**
