@@ -111,15 +111,15 @@ export function createLayout<
     bounds[position].value = total
   }
 
-  function register (registrantion: Partial<Z>): Z {
-    const valueToCheck = ['top', 'bottom'].includes(registrantion.position!) ? 'offsetHeight' : 'offsetWidth'
+  function register (registrant: Partial<Z>): Z {
+    const valueToCheck = ['top', 'bottom'].includes(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
     const value = computed(() => {
-      return registrantion.element?.value?.element?.[valueToCheck] ?? registrantion.value
+      return registrant.element?.value?.element?.[valueToCheck] ?? registrant.value
     })
 
     const item: Partial<Z> = {
-      ...registrantion,
-      order: registrantion.order ?? 0,
+      ...registrant,
+      order: registrant.order ?? 0,
       value: value.value,
     }
     const ticket = registry.register(item)
