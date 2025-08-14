@@ -17,7 +17,7 @@ A composable for managing the selection of items in a collection with automatic 
 
 ## Usage
 
-useSelection extends the functionality of useRegistry to manage selection states for a collection of items.It is reactive, supports both single and multi-select patterns, and provides helper properties for working with selected IDs, values, and items.
+useSelection extends the functionality of useRegistry to manage selection states for a collection of items. It is reactive, supports both single and multi-select patterns, and provides helper properties for working with selected IDs, values, and items.
 
 ```ts
 import { useSelection } from '@vuetify/v0'
@@ -200,18 +200,24 @@ console.log(selection.has('apple')) // true
 
 - **Type**
   ```ts
-  function mandate(id: ID): void
+  function mandate(): void
   ```
 
 - **Details**
-  Selects only the given ID, clearing all other selections.
-  Useful for single-select scenarios.
+  Enforces the mandatory selection rule when mandatory mode is active.
+  If no items are currently selected, it will automatically select the first available (non-disabled) item in the registry.
+  If at least one item is already selected, it does nothing.
+  This function does not take an id and is typically used internally to ensure that the selection state always meets the mandatory rule.
 
 - **Example**
   ```ts
-  selection.select('apple')
-  selection.select('banana')
-  selection.mandate('cherry')
-  console.log(selection.selectedIds) // ['cherry']
+  // Suppose mandatory mode is enabled
+  selection.unselect('apple')
+  selection.unselect('banana')
+
+  // Now no items are selected, so mandate() will pick one automatically
+  selection.mandate()
+
+  console.log(selection.selectedIds) // e.g., ['apple'] if apple was the first available
   ```
   
