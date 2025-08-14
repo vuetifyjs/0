@@ -41,7 +41,6 @@
     "markdown-it": "^14.1.0",
     "marked": "^16.1.1",
     "micromark": "^4.0.2",
-    "tinybench": "^4.1.0",
     "tsdown": "^0.13.3",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
