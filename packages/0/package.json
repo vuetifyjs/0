@@ -3,15 +3,15 @@
   "version": "0.0.0",
   "description": "Vuetify0",
   "license": "MIT",
-  "main": "dist/index.mjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
-    "build:watch": "vite build --watch"
+    "build": "tsdown",
+    "build:watch": "tsdown --watch"
   },
   "exports": {
     ".": {
@@ -20,8 +20,7 @@
         "import": "./src/index.ts"
       },
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.mjs"
+      "import": "./dist/index.mjs"
     }
   },
   "publishConfig": {
@@ -42,9 +41,9 @@
     "markdown-it": "^14.1.0",
     "marked": "^16.1.1",
     "micromark": "^4.0.2",
+    "tsdown": "^0.13.3",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
-    "vite": "catalog:",
     "vue": "catalog:"
   }
 }

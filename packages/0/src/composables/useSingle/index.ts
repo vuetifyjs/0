@@ -34,30 +34,11 @@ export function useSingle<
   E extends SingleContext<Z> = SingleContext<Z>,
 > (options?: SingleOptions): E {
   const registry = useSelection<Z, E>(options)
-  const mandatory = options?.mandatory ?? false
 
   const selectedId = computed(() => registry.selectedIds.values().next().value)
   const selectedItem = computed(() => registry.selectedItems.value.values().next().value)
   const selectedIndex = computed(() => selectedItem.value?.index ?? -1)
   const selectedValue = computed(() => selectedItem.value?.value)
-
-  function select (id: ID) {
-    const item = registry.get(id)
-
-    if (!item || item.disabled) return
-
-    if (registry.selectedIds.has(id)) {
-      if (!mandatory || registry.selectedIds.size > 1) {
-        registry.selectedIds.delete(id)
-      }
-    } else {
-      const first = registry.selectedIds.values().next().value
-      if (first) {
-        registry.selectedIds.delete(first)
-      }
-      registry.selectedIds.add(id)
-    }
-  }
 
   return {
     ...registry,
@@ -65,6 +46,5 @@ export function useSingle<
     selectedItem,
     selectedIndex,
     selectedValue,
-    select,
   } as E
 }

@@ -28,7 +28,9 @@ function defaultFilter (
 ): boolean {
   const queries = Array.isArray(query) ? query.map(q => String(q).toLowerCase()) : [String(query).toLowerCase()]
 
-  const match = (value: any, q: string) => String(value).toLowerCase().includes(q)
+  function match (value: any, q: string) {
+    return String(value).toLowerCase().includes(q)
+  }
 
   const values =
       typeof item === 'object' && item !== null

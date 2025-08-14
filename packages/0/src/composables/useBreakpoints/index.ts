@@ -171,7 +171,9 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
   }
 
   if (IN_BROWSER) {
-    const listener = () => update()
+    function listener () {
+      update()
+    }
     window.addEventListener('resize', listener, { passive: true })
 
     if (getCurrentInstance()) {
