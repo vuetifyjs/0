@@ -32,7 +32,6 @@ console.log(selection.selectedValues) // ['Apple', 'Banana']
 console.log(selection.has('apple')) // true
 ```
 
-
 ## API
 
 - **Type**
@@ -220,4 +219,3 @@ console.log(selection.has('apple')) // true
 
   console.log(selection.selectedIds) // e.g., ['apple'] if apple was the first available
   ```
-  
