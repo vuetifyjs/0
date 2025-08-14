@@ -6,7 +6,17 @@ import { createContext } from '#v0/factories/createContext'
 import { useGroup } from '#v0/composables/useGroup'
 
 // Utilities
-import { computed, shallowReactive, shallowRef, onUnmounted, onMounted, getCurrentInstance, ref, watch } from 'vue'
+import {
+  computed,
+  shallowReactive,
+  shallowRef,
+  onUnmounted,
+  onMounted,
+  getCurrentInstance,
+  ref,
+  unref,
+  watchEffect,
+} from 'vue'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals.ts'
@@ -18,15 +28,11 @@ import type { ID } from '#v0/types'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
-export type ExposedElement = {
-  element: HTMLElement | null
-}
-
 export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
   value: number
-  element?: Ref<ExposedElement | null>
+  element?: ShallowRef<HTMLElement | null>
 }
 
 export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
@@ -76,7 +82,7 @@ export function createLayout<
 
   const registry = useGroup<Z, E>({ enroll, events, ...options })
 
-  const sizes = shallowReactive(new Map<ID, number>())
+  const sizes = shallowReactive(new Map<ID, Ref<number> | number>())
   const height = shallowRef(0)
   const width = shallowRef(0)
 
@@ -94,18 +100,17 @@ export function createLayout<
     height: computed(() => height.value - bounds.top.value - bounds.bottom.value),
   }
 
-  watch(sizes, () => {
+  watchEffect(() => {
     for (const position of ['top', 'bottom', 'left', 'right']) {
       sum(position as LayoutLocation)
     }
   })
 
   function sum (position: LayoutLocation): void {
-    debugger
     let total = 0
     for (const item of registry.values()) {
       if (item.position === position && item.isActive.value) {
-        total += sizes.get(item.id) ?? item.value ?? 0
+        total += unref(sizes.get(item.id)) ?? unref(item.value) ?? 0
       }
     }
     bounds[position].value = total
@@ -113,14 +118,15 @@ export function createLayout<
 
   function register (registrant: Partial<Z>): Z {
     const valueToCheck = ['top', 'bottom'].includes(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
-    const value = computed(() => {
-      return registrant.element?.value?.element?.[valueToCheck] ?? registrant.value
-    })
+    debugger
+    const value = computed(() => registrant.element?.value?.[valueToCheck] ?? registrant.value,
+    )
 
     const item: Partial<Z> = {
       ...registrant,
+      position: registrant.position,
       order: registrant.order ?? 0,
-      value: value.value,
+      value,
     }
     const ticket = registry.register(item)
     sizes.set(ticket.id, ticket.value)
