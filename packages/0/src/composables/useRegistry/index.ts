@@ -254,7 +254,7 @@ export function useRegistry<
     reindex()
   }
 
-  return new Proxy({
+  return {
     collection,
     emit,
     on,
@@ -271,11 +271,8 @@ export function useRegistry<
     register,
     unregister,
     reindex,
-  }, {
-    get (target, prop) {
-      if (prop === 'size') return collection.size
-
-      return target[prop as keyof typeof target]
+    get size () {
+      return collection.size
     },
-  }) as E
+  } as E
 }
