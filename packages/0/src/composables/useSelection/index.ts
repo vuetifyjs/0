@@ -97,11 +97,11 @@ export function useSelection<
     else select(id)
   }
 
-  function register (registrant: Partial<Z> = {}): Z {
-    const id = registrant.id ?? genId()
+  function register (registration: Partial<Z> = {}): Z {
+    const id = registration.id ?? genId()
     const item: Partial<Z> = {
       disabled: false,
-      ...registrant,
+      ...registration,
       id,
       isActive: toRef(() => selectedIds.has(id)),
       select: () => select(id),

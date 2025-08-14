@@ -76,7 +76,7 @@ console.log(email.errors.value) // []
 
 - **Details**
 
-- `register(registrant: Partial<Z>)`: Registers a new form field with validation rules and reactive state
+- `register(registration: Partial<Z>)`: Registers a new form field with validation rules and reactive state
 - `validate(id?: ID | ID[])`: Validates specific fields
 - `submit()`: Validates all inputs
 - `reset()`: Resets all form fields to their initial values

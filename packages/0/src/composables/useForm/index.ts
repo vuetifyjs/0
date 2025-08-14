@@ -99,13 +99,13 @@ export function useForm<
     return tickets.every(ticket => ticket.isValid.value === true)
   }
 
-  function register (registrant: Partial<Z>): Z {
-    const model = shallowRef(registrant.value == null ? '' : toValue(registrant.value))
-    const rules = registrant.rules || []
+  function register (registration: Partial<Z>): Z {
+    const model = shallowRef(registration.value == null ? '' : toValue(registration.value))
+    const rules = registration.rules || []
     const errors = shallowRef<string[]>([])
     const isValidating = shallowRef(false)
     const initialValue = model.value
-    const triggers = registrant.validateOn || validateOn
+    const triggers = registration.validateOn || validateOn
 
     const isPristine = shallowRef(true)
     const isValid = shallowRef<boolean | null>(null)
@@ -142,10 +142,10 @@ export function useForm<
     }
 
     const item: Partial<Z> = {
-      ...registrant,
+      ...registration,
       rules,
       errors,
-      disabled: registrant.disabled || false,
+      disabled: registration.disabled || false,
       validateOn: triggers,
       isValidating,
       isPristine,

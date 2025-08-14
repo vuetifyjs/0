@@ -213,9 +213,9 @@ export function useRegistry<
     invalidate()
   }
 
-  function register (registrant: Partial<Z> = {}): Z {
+  function register (registration: Partial<Z> = {}): Z {
     const size = collection.size
-    const id = registrant.id ?? genId()
+    const id = registration.id ?? genId()
 
     if (has(id)) {
       logger.warn(`Item with id "${id}" already exists in the registry. Skipping registration.`)
@@ -224,11 +224,11 @@ export function useRegistry<
     }
 
     const item = {
-      ...registrant,
+      ...registration,
       id,
-      index: registrant.index ?? size,
-      value: registrant.value ?? size,
-      valueIsIndex: registrant.valueIsIndex ?? registrant.value == null,
+      index: registration.index ?? size,
+      value: registration.value ?? size,
+      valueIsIndex: registration.valueIsIndex ?? registration.value == null,
     } as Z
 
     collection.set(item.id, item)
