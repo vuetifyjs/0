@@ -42,6 +42,7 @@ declare module 'vue-router/auto-routes' {
     '/composables/registration/use-tokens': RouteRecordInfo<'/composables/registration/use-tokens', '/composables/registration/use-tokens', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-filter': RouteRecordInfo<'/composables/selection/use-filter', '/composables/selection/use-filter', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-group': RouteRecordInfo<'/composables/selection/use-group', '/composables/selection/use-group', Record<never, never>, Record<never, never>>,
+    '/composables/selection/use-selection': RouteRecordInfo<'/composables/selection/use-selection', '/composables/selection/use-selection', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-single': RouteRecordInfo<'/composables/selection/use-single', '/composables/selection/use-single', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-step': RouteRecordInfo<'/composables/selection/use-step', '/composables/selection/use-step', Record<never, never>, Record<never, never>>,
     '/composables/system/use-event-listener': RouteRecordInfo<'/composables/system/use-event-listener', '/composables/system/use-event-listener', Record<never, never>, Record<never, never>>,
