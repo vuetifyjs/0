@@ -16,9 +16,7 @@
 
   const layout = useLayout()
   const appBar = useTemplateRef('appBar')
-  onMounted(() => {
-    layout.register({ position: 'top', element: appBar })
-  })
+  layout.register({ position: 'top', element: appBar, value: 1 })
 </script>
 
 <template>

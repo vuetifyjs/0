@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-  import { useTemplateRef, onMounted } from 'vue'
+  import { useTemplateRef } from 'vue'
   // Components
   import { Atom, useBreakpoints, useLayout } from '@vuetify/v0'
 
@@ -12,9 +12,8 @@
 
   const banner = useTemplateRef('banner')
   const layout = useLayout()
-  onMounted(() => {
-    layout.register({ position: 'top', element: banner })
-  })
+
+  layout.register({ position: 'top', element: banner, value: 1 })
 
 </script>
 
