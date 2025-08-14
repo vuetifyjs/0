@@ -26,6 +26,7 @@ describe('useRegistry benchmarks', () => {
         for (const item of enroll(1000)) {
           registry.register({ id: `item-${item}`, value: `value-${item}` })
         }
+        registry.clear()
       })
 
       console.log(`Registration: ${result.ops} ops/sec (${result.duration.toFixed(2)}ms avg)`)
