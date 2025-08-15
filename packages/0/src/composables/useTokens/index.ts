@@ -56,9 +56,7 @@ export function useTokens<
 
   const cache = new Map<string, string | undefined>()
 
-  for (const token of flatten(tokens)) {
-    registry.register(token as Partial<Z>)
-  }
+  registry.onboard(flatten(tokens) as Partial<Z>[])
 
   function isAlias (token: unknown): token is string {
     return isString(token) && token.length > 2 && token[0] === '{' && token.at(-1) === '}'
