@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useLayout } from './index.ts'
+import { createLayout } from './index.ts'
 import { mount } from '@vue/test-utils'
 import { defineComponent } from 'vue'
 
@@ -25,7 +25,7 @@ describe('useLayout inside component', () => {
   it('registers height and width in browser', () => {
     const testComponent = defineComponent({
       setup () {
-        const context = useLayout()
+        const context = createLayout()
         return { context }
       },
       template: '<div></div>',
@@ -42,7 +42,7 @@ describe('useLayout inside component', () => {
   it('correctly calculates main', () => {
     const testComponent = defineComponent({
       setup () {
-        const context = useLayout()
+        const context = createLayout()
         return { context }
       },
       template: '<div></div>',
@@ -62,7 +62,7 @@ describe('useLayout inside component', () => {
 
 describe('useLayout outside component', () => {
   it('registers components', () => {
-    const context = useLayout()
+    const context = createLayout()
     context.register({ id: 'Component1', position: 'top', value: 32 })
     context.register({ id: 'Component2', position: 'bottom', value: 64 })
     expect(context.collection.has('Component1')).toEqual(true)
@@ -70,7 +70,7 @@ describe('useLayout outside component', () => {
   })
 
   it('calculates bound', () => {
-    const context = useLayout()
+    const context = createLayout()
     context.register({ id: 'Component1', position: 'top', value: 32 })
     context.register({ id: 'Component2', position: 'bottom', value: 128 })
     context.register({ id: 'Component3', position: 'left', value: 64 })

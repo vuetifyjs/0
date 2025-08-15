@@ -3,9 +3,11 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { genId, isArray } from '#v0/utilities/helpers'
+import { shallowReactive } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
+import type { ShallowReactive } from 'vue'
 
 export interface RegistryTicket {
   /** The unique identifier. Is randomly generated if not provided. */
@@ -20,7 +22,7 @@ export interface RegistryTicket {
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** The collection of tickets */
-  collection: Map<ID, Z>
+  collection: ShallowReactive<Map<ID, Z>>
   /** Clear the entire registry */
   clear: () => void
   /** Check if an item exists by id */
@@ -78,7 +80,7 @@ export function useRegistry<
 > (options?: RegistryOptions): E {
   const logger = useLogger()
 
-  const collection = new Map<ID, Z>()
+  const collection = shallowReactive(new Map<ID, Z>())
   const catalog = new Map<unknown, ID | ID[]>()
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
