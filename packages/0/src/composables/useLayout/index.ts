@@ -183,7 +183,7 @@ export function createLayout<
   } as E
 }
 
-export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContext: LayoutContext<LayoutTicket>) {
+export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContext: LayoutContext<LayoutTicket> | null) {
   const layout = layoutContext ?? useLayout()
 
   layout.register({ ...options })
@@ -197,20 +197,14 @@ export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContex
     y: computed(() => {
       if (options.position === 'top') return 0
       if (options.position === 'bottom') return layout.main.height.value - (options.value ?? 0)
-      return layout.main.y.value
+      return layout.bounds.top.value
     }),
-    height: computed(() => {
-      if (['top', 'bottom'].includes(options.position!)) return options.value ?? 0
-      return '100%'
-    }),
-    width: computed(() => {
-      if (['left', 'right'].includes(options.position!)) return options.value ?? 0
-      return '100%'
-    }),
+    height: computed(() => ['top', 'bottom'].includes(options.position!) ? `${options.value}px` : '100%'),
+    width: computed(() => ['left', 'right'].includes(options.position!) ? `${options.value}px` : '100%'),
   }
 
   const styles = computed(() => {
-    return `position: absolute; x: ${position.x.value}px; y: ${position.y.value}px; width: ${position.width.value}px; height: ${position.height.value}px`
+    return `position: absolute; left: ${position.x.value}px; top: ${position.y.value}px; width: ${position.width.value}; height: ${position.height.value}`
   })
 
   return {
