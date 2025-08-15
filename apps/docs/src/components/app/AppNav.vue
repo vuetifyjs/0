@@ -126,6 +126,8 @@
   >
     <img
       alt="Vuetify0 Logo"
+      decoding="async"
+      fetchpriority="high"
       src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png"
     >
 
