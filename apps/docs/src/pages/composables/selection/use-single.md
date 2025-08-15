@@ -74,6 +74,8 @@ console.log(single.selectedId) // 'banana' (replaces apple)
 
 - **Example**
   ```ts
+  const single = useSingle()
+  single.register({ id: 'apple' })
   single.select('apple')
   console.log(single.selectedId) // 'apple'
   ```
@@ -90,6 +92,9 @@ console.log(single.selectedId) // 'banana' (replaces apple)
 
 - **Example**
   ```ts
+  const single = useSingle()
+  single.register({ id: 'apple', value: 'Apple' })
+  single.register({ id: 'banana', value: 'Banana' })
   single.select('apple')
   console.log(single.selectedIndex) // 0 (if apple is first in collection)
 
@@ -105,9 +110,18 @@ console.log(single.selectedId) // 'banana' (replaces apple)
 
 - **Example**
   ```ts
-  single.select({ id: 'apple', value: 'Apple' })
+  const single = useSingle()
+  single.register({ id: 'apple', value: 'Apple', category: 'fruit' })
+  single.register({ id: 'banana', value: 'Banana', category: 'fruit' })
+  single.select('apple')
   console.log(single.selectedItem)
-  // { id: 'apple', value: 'Apple', selected: true, ... }
+  // {
+  //   id: 'apple',
+  //   value: 'Apple',
+  //   category: 'fruit',
+  //   selected: true,
+  //   ...
+  // }
   ```
 
 ### `selectedValue`
@@ -122,6 +136,9 @@ console.log(single.selectedId) // 'banana' (replaces apple)
 
 - **Example**
   ```ts
-  single.select({ id: 'apple', value: 'Apple' })
-  console.log(single.selectedValue) // 'Apple'
+  const single = useSingle()
+  single.register({ id: 'apple', value: 'Apple' })
+  single.register({ id: 'banana', value: 'Banana' })
+  single.select('banana')
+  console.log(single.selectedValue) // 'Banana'
   ```
