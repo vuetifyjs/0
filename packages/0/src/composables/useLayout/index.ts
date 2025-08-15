@@ -118,7 +118,6 @@ export function createLayout<
 
   function register (registrant: Partial<Z>): Z {
     const valueToCheck = ['top', 'bottom'].includes(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
-    debugger
     const value = computed(() => registrant.element?.value?.[valueToCheck] ?? registrant.value,
     )
 
@@ -182,6 +181,30 @@ export function createLayout<
     width,
     resize,
   } as E
+}
+
+export function useLayoutItem (options: Partial<LayoutTicket> = {}) {
+  const layout = useLayout()
+
+  layout.register({ ...options })
+
+  const position = {
+    x: computed(() => {
+      if (options.position === 'left') return 0
+      if (options.position === 'right') return layout.main.width.value - (options.value ?? 0)
+      return layout.main.x.value
+    }),
+    y: computed(() => {
+      if (options.position === 'top') return 0
+      if (options.position === 'bottom') return layout.main.height.value - (options.value ?? 0)
+      return layout.main.y.value
+    }),
+  }
+
+  return {
+    position,
+    layout,
+  }
 }
 
 /**
