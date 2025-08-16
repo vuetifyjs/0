@@ -84,6 +84,7 @@
       border-radius: 6px;
       margin-bottom: 1rem;
       padding: 0.5rem;
+      overflow-x: auto;
     }
 
     pre[class*="language-"] {
