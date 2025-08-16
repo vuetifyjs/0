@@ -186,28 +186,30 @@ export function createLayout<
 export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContext: LayoutContext<LayoutTicket> | null) {
   const layout = layoutContext ?? useLayout()
 
-  layout.register({ ...options })
+  const ticket = layout.register({ ...options })
+  const value = ticket.value
 
   const position = {
     x: computed(() => {
-      if (options.position === 'left') return 0
-      if (options.position === 'right') return layout.main.width.value - (options.value ?? 0)
-      return layout.main.x.value
+      if (ticket.position === 'left') return 0
+      if (ticket.position === 'right') return layout.main.width.value - (unref(value) ?? 0)
+      return 0
     }),
     y: computed(() => {
-      if (options.position === 'top') return 0
-      if (options.position === 'bottom') return layout.main.height.value - (options.value ?? 0)
+      if (ticket.position === 'top') return 0
+      if (ticket.position === 'bottom') return layout.main.height.value - (unref(value) ?? 0)
       return layout.bounds.top.value
     }),
-    height: computed(() => ['top', 'bottom'].includes(options.position!) ? `${options.value}px` : '100%'),
-    width: computed(() => ['left', 'right'].includes(options.position!) ? `${options.value}px` : '100%'),
+    height: computed(() => ['top', 'bottom'].includes(ticket.position) ? unref(value) : layout.height.value),
+    width: computed(() => ['left', 'right'].includes(ticket.position) ? unref(value) : layout.width.value),
   }
 
   const styles = computed(() => {
-    return `position: absolute; left: ${position.x.value}px; top: ${position.y.value}px; width: ${position.width.value}; height: ${position.height.value}`
+    return `position: fixed; left: ${position.x.value}px; top: ${position.y.value}px; width: ${position.width.value}px; height: ${position.height.value}px`
   })
 
   return {
+    ticket,
     position,
     styles,
     layout,
