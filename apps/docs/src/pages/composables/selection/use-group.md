@@ -17,7 +17,7 @@ The `useGroup` composable is designed to manage a group of related components, a
 
 ## Usage
 
-The `useGroup` composable manages a group of selectable items, letting you work with both their IDs and their position indexes.  
+The `useGroup` composable manages a group of selectable items, letting you work with both their IDs and their position indexes.
 It supports selecting, unselecting, toggling, and reading the indexes of selected items.
 
 ```ts
@@ -92,7 +92,7 @@ console.log(group.selectedIndexes.value) // []
 
 - **Type**
   ```ts
-  function select(idOrItem: ID | ID[] | Z | Z[]): void
+  function select(id: ID | ID[] | Z | Z[]): void
   ```
 
 - **Details**
@@ -115,7 +115,7 @@ console.log(group.selectedIndexes.value) // []
 
 - **Type**
   ```ts
-  function unselect(idOrItem: ID | ID[] | Z | Z[]): void
+  function unselect(id: ID | ID[] | Z | Z[]): void
   ```
 
 - **Details**
@@ -137,7 +137,7 @@ console.log(group.selectedIndexes.value) // []
 
 - **Type**
   ```ts
-  function toggle(idOrItem: ID | ID[] | Z | Z[]): void
+  function toggle(id: ID | ID[] | Z | Z[]): void
   ```
 
 - **Details**

@@ -148,7 +148,7 @@ console.log(selection.has('apple')) // true
 
 - **Type**
   ```ts
-  function select(idOrItem: ID | Partial<Z>): void
+  function select(id: ID | Partial<Z>): void
   ```
 
 - **Details**
