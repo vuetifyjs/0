@@ -204,7 +204,7 @@ export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContex
   const ticket = layout.register({ ...options })
   const value = ticket.value
 
-  const position = {
+  const rect = {
     x: computed(() => {
       if (ticket.position === 'left') return layout.leftOffset.value
       if (ticket.position === 'right') return layout.leftOffset.value + layout.main.width.value
@@ -229,14 +229,9 @@ export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContex
     }),
   }
 
-  const styles = computed(() => {
-    return `position: fixed; left: ${position.x.value}px; top: ${position.y.value}px; width: ${position.width.value}px; height: ${position.height.value}px`
-  })
-
   return {
     ticket,
-    position,
-    styles,
+    rect,
     layout,
   }
 }
