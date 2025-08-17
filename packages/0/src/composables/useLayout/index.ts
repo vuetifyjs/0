@@ -51,6 +51,10 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   sizes: ShallowReactive<Map<ID, number>>
   height: ShallowRef<number>
   width: ShallowRef<number>
+  leftOffset: ShallowRef<number>
+  rightOffset: ShallowRef<number>
+  topOffset: ShallowRef<number>
+  bottomOffset: ShallowRef<number>
   resize: () => void
   register: (item?: Partial<Z>) => Z
 }
@@ -85,6 +89,10 @@ export function createLayout<
   const sizes = shallowReactive(new Map<ID, Ref<number> | number>())
   const height = shallowRef(0)
   const width = shallowRef(0)
+  const leftOffset = shallowRef(0)
+  const rightOffset = shallowRef(0)
+  const topOffset = shallowRef(0)
+  const bottomOffset = shallowRef(0)
 
   const bounds = {
     top: ref(0),
@@ -94,10 +102,10 @@ export function createLayout<
   }
 
   const main = {
-    x: computed(() => bounds.left.value),
-    y: computed(() => bounds.top.value),
-    width: computed(() => width.value - bounds.left.value - bounds.right.value),
-    height: computed(() => height.value - bounds.top.value - bounds.bottom.value),
+    x: computed(() => bounds.left.value + leftOffset.value),
+    y: computed(() => bounds.top.value + topOffset.value),
+    width: computed(() => width.value - bounds.left.value - bounds.right.value - leftOffset.value - rightOffset.value),
+    height: computed(() => height.value - bounds.top.value - bounds.bottom.value - topOffset.value - bottomOffset.value),
   }
 
   watchEffect(() => {
@@ -138,7 +146,10 @@ export function createLayout<
       const rect = el.value.getBoundingClientRect()
       width.value = rect.width
       height.value = rect.height
-      return
+      leftOffset.value = rect.left
+      rightOffset.value = window.innerWidth - rect.right
+      topOffset.value = rect.top
+      bottomOffset.value = window.innerHeight - rect.bottom
     }
     width.value = window.innerWidth
     height.value = window.innerHeight
@@ -180,6 +191,10 @@ export function createLayout<
     height,
     width,
     resize,
+    leftOffset,
+    rightOffset,
+    topOffset,
+    bottomOffset,
   } as E
 }
 
@@ -191,17 +206,27 @@ export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContex
 
   const position = {
     x: computed(() => {
-      if (ticket.position === 'left') return 0
+      if (ticket.position === 'left') return layout.leftOffset.value
       if (ticket.position === 'right') return layout.main.width.value - (unref(value) ?? 0)
-      return 0
+      return layout.leftOffset.value
     }),
     y: computed(() => {
-      if (ticket.position === 'top') return 0
+      if (ticket.position === 'top') return layout.topOffset.value
       if (ticket.position === 'bottom') return layout.main.height.value - (unref(value) ?? 0)
-      return layout.bounds.top.value
+      return layout.bounds.top.value + layout.topOffset.value
     }),
-    height: computed(() => ['top', 'bottom'].includes(ticket.position) ? unref(value) : layout.height.value),
-    width: computed(() => ['left', 'right'].includes(ticket.position) ? unref(value) : layout.width.value),
+    height: computed(() => {
+      if (['top', 'bottom'].includes(ticket.position)) {
+        return unref(value)
+      }
+      return layout.height.value - layout.bounds.top.value - layout.bounds.bottom.value - layout.topOffset.value - layout.bottomOffset.value
+    }),
+    width: computed(() => {
+      if (['left', 'right'].includes(ticket.position)) {
+        return unref(value)
+      }
+      return layout.width.value - layout.leftOffset.value - layout.rightOffset.value
+    }),
   }
 
   const styles = computed(() => {
