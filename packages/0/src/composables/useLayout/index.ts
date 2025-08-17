@@ -207,12 +207,12 @@ export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContex
   const position = {
     x: computed(() => {
       if (ticket.position === 'left') return layout.leftOffset.value
-      if (ticket.position === 'right') return layout.main.width.value - (unref(value) ?? 0)
+      if (ticket.position === 'right') return layout.leftOffset.value + layout.main.width.value
       return layout.leftOffset.value
     }),
     y: computed(() => {
       if (ticket.position === 'top') return layout.topOffset.value
-      if (ticket.position === 'bottom') return layout.main.height.value - (unref(value) ?? 0)
+      if (ticket.position === 'bottom') return layout.topOffset.value + layout.main.height.value
       return layout.bounds.top.value + layout.topOffset.value
     }),
     height: computed(() => {
