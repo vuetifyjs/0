@@ -51,10 +51,10 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   sizes: ShallowReactive<Map<ID, number>>
   height: ShallowRef<number>
   width: ShallowRef<number>
-  leftOffset: ShallowRef<number>
-  rightOffset: ShallowRef<number>
-  topOffset: ShallowRef<number>
-  bottomOffset: ShallowRef<number>
+  left: ShallowRef<number>
+  right: ShallowRef<number>
+  top: ShallowRef<number>
+  bottom: ShallowRef<number>
   resize: () => void
   register: (item?: Partial<Z>) => Z
 }
@@ -89,10 +89,10 @@ export function createLayout<
   const sizes = shallowReactive(new Map<ID, Ref<number> | number>())
   const height = shallowRef(0)
   const width = shallowRef(0)
-  const leftOffset = shallowRef(0)
-  const rightOffset = shallowRef(0)
-  const topOffset = shallowRef(0)
-  const bottomOffset = shallowRef(0)
+  const left = shallowRef(0)
+  const right = shallowRef(0)
+  const top = shallowRef(0)
+  const bottom = shallowRef(0)
 
   const bounds = {
     top: ref(0),
@@ -102,10 +102,10 @@ export function createLayout<
   }
 
   const main = {
-    x: computed(() => bounds.left.value + leftOffset.value),
-    y: computed(() => bounds.top.value + topOffset.value),
-    width: computed(() => width.value - bounds.left.value - bounds.right.value - leftOffset.value - rightOffset.value),
-    height: computed(() => height.value - bounds.top.value - bounds.bottom.value - topOffset.value - bottomOffset.value),
+    x: computed(() => bounds.left.value + left.value),
+    y: computed(() => bounds.top.value + top.value),
+    width: computed(() => right.value - left.value - bounds.left.value - bounds.right.value),
+    height: computed(() => bottom.value - top.value - bounds.top.value - bounds.bottom.value),
   }
 
   watchEffect(() => {
@@ -146,10 +146,10 @@ export function createLayout<
       const rect = el.value.getBoundingClientRect()
       width.value = rect.width
       height.value = rect.height
-      leftOffset.value = rect.left
-      rightOffset.value = window.innerWidth - rect.right
-      topOffset.value = rect.top
-      bottomOffset.value = window.innerHeight - rect.bottom
+      left.value = rect.left
+      right.value = rect.right
+      top.value = rect.top
+      bottom.value = rect.bottom
     }
     width.value = window.innerWidth
     height.value = window.innerHeight
@@ -191,10 +191,10 @@ export function createLayout<
     height,
     width,
     resize,
-    leftOffset,
-    rightOffset,
-    topOffset,
-    bottomOffset,
+    left,
+    right,
+    top,
+    bottom,
   } as E
 }
 
@@ -206,26 +206,26 @@ export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContex
 
   const rect = {
     x: computed(() => {
-      if (ticket.position === 'left') return layout.leftOffset.value
-      if (ticket.position === 'right') return layout.leftOffset.value + layout.main.width.value
-      return layout.leftOffset.value
+      if (ticket.position === 'left') return layout.left.value
+      if (ticket.position === 'right') return layout.left.value + layout.main.width.value + layout.bounds.left.value
+      return layout.left.value
     }),
     y: computed(() => {
-      if (ticket.position === 'top') return layout.topOffset.value
-      if (ticket.position === 'bottom') return layout.topOffset.value + layout.main.height.value
-      return layout.bounds.top.value + layout.topOffset.value
+      if (ticket.position === 'top') return layout.top.value
+      if (ticket.position === 'bottom') return layout.top.value + layout.main.height.value + layout.bounds.top.value
+      return layout.bounds.top.value + layout.top.value
     }),
     height: computed(() => {
       if (['top', 'bottom'].includes(ticket.position)) {
         return unref(value)
       }
-      return layout.height.value - layout.bounds.top.value - layout.bounds.bottom.value - layout.topOffset.value - layout.bottomOffset.value
+      return layout.bottom.value - layout.top.value - layout.bounds.top.value - layout.bounds.bottom.value
     }),
     width: computed(() => {
       if (['left', 'right'].includes(ticket.position)) {
         return unref(value)
       }
-      return layout.width.value - layout.leftOffset.value - layout.rightOffset.value
+      return layout.right.value - layout.left.value
     }),
   }
 
