@@ -139,5 +139,6 @@ export function useSelection<
     mandate,
     select,
     unselect,
+    toggle,
   } as E
 }
