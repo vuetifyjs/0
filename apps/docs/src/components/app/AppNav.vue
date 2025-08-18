@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useTheme } from '@vuetify/v0'
   import { useAppContext } from '@/composables/useApp'
   import { useRoute } from 'vue-router'
-  import { watch } from 'vue'
+  import { toRef, watch } from 'vue'
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
@@ -114,6 +114,13 @@
   const breakpoints = useBreakpoints()
   const app = useAppContext()
   const route = useRoute()
+  const theme = useTheme()
+
+  const src = toRef(() => {
+    return theme.selectedId.value === 'dark'
+      ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.png'
+      : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png'
+  })
 
   watch(route, () => {
     if (app.nav.value && breakpoints.isMobile) {
@@ -135,7 +142,7 @@
       alt="Vuetify0 Logo"
       decoding="async"
       fetchpriority="high"
-      src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png"
+      :src
     >
 
     <ul class="flex gap-2 flex-col">

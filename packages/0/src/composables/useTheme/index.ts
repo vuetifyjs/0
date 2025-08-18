@@ -47,7 +47,7 @@ export type ThemeTicket = SingleTicket & {
 
 export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
   colors: ComputedRef<Record<string, Colors>>
-  cycle: (themes: ID[]) => void
+  cycle: (themes?: ID[]) => void
 }
 
 export interface ThemeOptions extends ThemePluginOptions {}

@@ -118,6 +118,7 @@ declare global {
   const useElementSize: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useElementSize']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']
+  const useFilter: typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']
   const useForm: typeof import('../../packages/0/src/composables/useForm/index')['useForm']
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']
@@ -188,6 +189,9 @@ declare global {
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
   import('../../packages/0/src/composables/useEventListener/index')
   // @ts-ignore
+  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, UseFilterOptions, UseFilterResult } from '../../packages/0/src/composables/useFilter/index'
+  import('../../packages/0/src/composables/useFilter/index')
+  // @ts-ignore
   export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions } from '../../packages/0/src/composables/useForm/index'
   import('../../packages/0/src/composables/useForm/index')
   // @ts-ignore
@@ -227,7 +231,7 @@ declare global {
   export type { StorageContext, StorageOptions, StoragePlugin } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
   // @ts-ignore
-  export type { Colors, ThemeColors, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions, ThemePlugin } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeColors, ThemeRecord, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions, ThemePlugin } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
   export type { TokenAlias, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
@@ -354,6 +358,7 @@ declare module 'vue' {
     readonly useElementSize: UnwrapRef<typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useElementSize']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
     readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
+    readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>

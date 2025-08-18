@@ -1,9 +1,12 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useTheme } from '@vuetify/v0'
 
   // Composables
   import { useAppContext } from '@/composables/useApp'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -12,6 +15,9 @@
 
   const breakpoints = useBreakpoints()
   const app = useAppContext()
+  const theme = useTheme()
+
+  const icon = toRef(() => theme.selectedItem.value?.dark ? 'dark' : 'light')
 </script>
 
 <template>
@@ -47,6 +53,13 @@
       >
         <AppIcon icon="github" />
       </a>
+
+      <button
+        class="pa-1 inline-flex rounded cursor-pointer bg-surface-tint"
+        @click="theme.cycle(['light', 'dark'])"
+      >
+        <AppIcon :icon />
+      </button>
     </div>
   </Atom>
 </template>
