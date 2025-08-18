@@ -14,9 +14,9 @@ export default function zero (app: App) {
   app.use(createBreakpointsPlugin())
   app.use(
     createThemePlugin({
-      default: 'slate',
+      default: 'light',
       themes: {
-        slate: {
+        light: {
           dark: false,
           colors: {
             primary: '#3b82f6',
@@ -34,8 +34,8 @@ export default function zero (app: App) {
             pre: '#fafafa',
           },
         },
-        expressive: {
-          dark: false,
+        dark: {
+          dark: true,
           colors: {
             primary: '#675496',
             secondary: '#5d5d72',

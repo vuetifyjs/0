@@ -1,20 +1,23 @@
 <script lang="ts" setup>
   import { provideAppContext } from '@/composables/useApp'
   import { shallowRef } from 'vue'
+  import { useTheme } from '@vuetify/v0'
 
   provideAppContext({
     nav: shallowRef(false),
   })
+
+  const theme = useTheme()
 </script>
 
 <template>
-  <div class="v0-theme--slate">
+  <div :class="`v0-theme--${theme.selectedId.value}`">
     <router-view />
   </div>
 </template>
 
 <style>
-  #app {
+  #app > div {
     background-color: var(--v0-background);
   }
 
@@ -73,22 +76,13 @@
       margin-bottom: 0.5rem;
     }
 
-    pre.shiki {
+    .shiki, .skiki span {
+      background-color: var(--v0-pre) !important;
       border: thin solid var(--v0-divider);
       border-radius: 6px;
       margin-bottom: 1rem;
       padding: 0.5rem;
       overflow-x: auto;
-    }
-
-    pre[class*="language-"] {
-      background-color: #f6f8fa;
-      padding: 0.5rem;
-      overflow-x: auto;
-      display: flex;
-      border-radius: 6px;
-      margin-bottom: 1rem;
-      border: thin solid var(--v0-divider);
     }
 
     table {
