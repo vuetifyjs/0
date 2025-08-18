@@ -1,6 +1,6 @@
 {
   "name": "rewrite",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -40,5 +40,8 @@
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.5"
   },
-  "packageManager": "pnpm@10.14.0"
+  "packageManager": "pnpm@10.14.0",
+  "dependencies": {
+    "bumpp": "^10.2.3"
+  }
 }
