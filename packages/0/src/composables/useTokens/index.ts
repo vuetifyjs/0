@@ -68,9 +68,7 @@ export function useTokens<
   }
 
   function isTokenAlias (value: unknown): value is TokenAlias {
-    if (!isObject(value)) return false
-
-    return isString(value.$value) && isAlias(value.$value)
+    return isObject(value) && '$value' in value
   }
 
   function resolve (token: string | TokenAlias): unknown | undefined {
