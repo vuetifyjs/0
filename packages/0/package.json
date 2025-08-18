@@ -9,6 +9,11 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuetifyjs/0.git",
+    "directory": "packages/0"
+  },
   "scripts": {
     "build": "tsdown",
     "build:watch": "tsdown --watch"
