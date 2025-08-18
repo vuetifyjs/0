@@ -126,8 +126,7 @@ export function createLayout<
 
   function register (registrant: Partial<Z>): Z {
     const valueToCheck = ['top', 'bottom'].includes(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
-    const value = computed(() => registrant.element?.value?.[valueToCheck] ?? registrant.value,
-    )
+    const value = computed(() => registrant.element?.value?.[valueToCheck] ?? registrant.value)
 
     const item: Partial<Z> = {
       ...registrant,
@@ -153,6 +152,8 @@ export function createLayout<
     }
     width.value = window.innerWidth
     height.value = window.innerHeight
+    right.value = window.innerWidth
+    bottom.value = window.innerHeight
   }
 
   let observer: ResizeObserver | null = null
@@ -198,7 +199,7 @@ export function createLayout<
   } as E
 }
 
-export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContext?: LayoutContext<LayoutTicket> | null) {
+export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} as T, layoutContext?: LayoutContext<LayoutTicket> | null) {
   const layout = layoutContext ?? useLayout()
 
   const ticket = layout.register({ ...options })
@@ -232,7 +233,6 @@ export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContex
   return {
     ticket,
     rect,
-    layout,
   }
 }
 
