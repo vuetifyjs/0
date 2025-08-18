@@ -1,7 +1,6 @@
 <script setup lang="ts">
-  import { onMounted, useTemplateRef } from 'vue'
-  // Components
-  import { Atom, useBreakpoints, useLayout } from '@vuetify/v0'
+ // Components
+  import { Atom, useBreakpoints, useLayoutItem, useAtomRef } from '@vuetify/v0'
 
   // Composables
   import { useAppContext } from '@/composables/useApp'
@@ -14,9 +13,13 @@
   const breakpoints = useBreakpoints()
   const app = useAppContext()
 
-  const layout = useLayout()
-  const appBar = useTemplateRef('appBar')
-  layout.register({ position: 'top', element: appBar, value: 1 })
+  const appBar = useAtomRef('appBar')
+  useLayoutItem({
+    id: 'appBar',
+    position: 'top',
+    element: appBar,
+    value: 48,
+  })
 </script>
 
 <template>
