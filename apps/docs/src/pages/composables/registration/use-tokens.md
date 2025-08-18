@@ -23,23 +23,27 @@ console.log(tokens.resolve('foo')) // bar
 
 * **Type**
   ```ts
-  interface TokenAlias {
-    [key: string]: any
-    $value: string
+  interface TokenAlias<T = unknown> {
+    [key: string]: unknown
+    $value: T
     $type?: string
     $description?: string
+    $extensions?: Record<string, unknown>
+    $deprecated?: boolean | string
   }
 
-  type TokenValue = string | number | boolean | TokenAlias
+  type TokenPrimitive = string | number | boolean
+
+  type TokenValue = TokenPrimitive | TokenAlias
 
   interface TokenCollection {
     [key: string]: TokenValue | TokenCollection
   }
 
-  export interface TokenTicket extends RegistryTicket {}
+  interface TokenTicket extends RegistryTicket {}
 
   interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
-    resolve: (token: string) => string | undefined
+    resolve: (token: string | TokenAlias) => unknown | undefined
   }
 
   function useTokens<
