@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/paper",
-  "version": "0.0.2-beta.2",
+  "version": "0.0.2-beta.3",
   "description": "Vuetify Paper",
   "license": "MIT",
   "main": "./dist/index.mjs",
