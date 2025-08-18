@@ -20,7 +20,8 @@
     "bench": "vitest --reporter=default bench",
     "coverage": "vitest run --coverage",
     "dev:docs": "pnpm --filter=docs dev",
-    "build:docs": "pnpm --filter=docs build"
+    "build:docs": "pnpm --filter=docs build",
+    "release": "bumpp -r"
   },
   "engines": {
     "node": ">=20.19 || >=22",
