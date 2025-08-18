@@ -13,7 +13,13 @@
 <template>
   <Atom
     :as
-    class="border-none bg-black opacity-10"
+    class="app-divider border-none"
     :class="[orientation === 'horizontal' ? 'w-full h-px my-2' : 'w-px h-full mx-2']"
   />
 </template>
+
+<style scoped>
+  .app-divider {
+    background-color: var(--v0-divider);
+  }
+</style>

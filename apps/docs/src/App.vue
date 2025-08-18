@@ -19,6 +19,12 @@
 <style>
   #app > div {
     background-color: var(--v0-background);
+    color: var(--v0-text);
+  }
+
+  .bg-surface-tint {
+    background-color: var(--v0-surfaceTint);
+    color: var(--v0-text);
   }
 
   .markdown-body {
