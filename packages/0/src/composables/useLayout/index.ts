@@ -198,7 +198,7 @@ export function createLayout<
   } as E
 }
 
-export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContext: LayoutContext<LayoutTicket> | null) {
+export function useLayoutItem (options: Partial<LayoutTicket> = {}, layoutContext?: LayoutContext<LayoutTicket> | null) {
   const layout = layoutContext ?? useLayout()
 
   const ticket = layout.register({ ...options })
