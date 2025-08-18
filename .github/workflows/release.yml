@@ -36,7 +36,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Ensure npm 11.5.1 or later is installed
+      - name: Update NPM
+        run: npm install -g npm@latest
+
       - name: Publish to NPM
         run: pnpm -r publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
