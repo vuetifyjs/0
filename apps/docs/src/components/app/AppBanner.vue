@@ -1,6 +1,7 @@
 <script setup lang="ts">
   // Components
   import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { inject } from 'vue'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -8,6 +9,8 @@
   const { as = 'header' } = defineProps<AtomProps>()
 
   const breakpoints = useBreakpoints()
+
+  const frontmatter = inject('frontmatter')
 </script>
 
 <template>
@@ -16,9 +19,9 @@
     class="app-banner flex items-center justify-center h-[24px] fixed left-0 top-0 right-0 px-3 text-xs gap-2"
   >
     <AppIcon icon="alert" :size="14" />
-
     <div>
       You are viewing Pre-Alpha documentation. <span v-if="!breakpoints.isMobile">Some features may not work as expected.</span>
+      Btw, frontmatter: {{ frontmatter }}
     </div>
   </Atom>
 </template>

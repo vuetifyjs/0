@@ -1,6 +1,6 @@
 <script lang="ts" setup>
   import { provideAppContext } from '@/composables/useApp'
-  import { shallowRef } from 'vue'
+  import { shallowRef, ref, computed, provide } from 'vue'
   import { useTheme } from '@vuetify/v0'
 
   provideAppContext({
@@ -8,11 +8,19 @@
   })
 
   const theme = useTheme()
+
+  const current = ref()
+  const frontmatter = computed(() => {
+    return current.value?.frontmatter ?? {}
+  })
+  provide('frontmatter', frontmatter)
 </script>
 
 <template>
   <div :class="`v0-theme--${theme.selectedId.value}`">
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <component :is="Component" ref="current" />
+    </router-view>
   </div>
 </template>
 
