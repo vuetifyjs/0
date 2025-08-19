@@ -2,7 +2,7 @@
 import { createPlugin, createTokensContext } from '@vuetify/v0'
 
 // Icons
-import { mdiAlert, mdiCog } from '@mdi/js'
+import { mdiAlert, mdiBug, mdiClose, mdiCog, mdiLanguageMarkdown, mdiMenu, mdiPencil } from '@mdi/js'
 
 // Types
 import type { App } from 'vue'
@@ -60,6 +60,11 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
   },
   'cog': mdiCog,
   'alert': mdiAlert,
+  'pencil': mdiPencil,
+  'bug': mdiBug,
+  'markdown': mdiLanguageMarkdown,
+  'close': mdiClose,
+  'menu': mdiMenu,
 })
 
 export function createIconPlugin () {
