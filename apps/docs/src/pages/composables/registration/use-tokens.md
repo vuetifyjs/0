@@ -13,7 +13,7 @@ const tokens = useTokens({
   color: {
     primary: '#3b82f6',
     secondary: '#64748b',
-    brand: { $value: 'color.primary', $type: 'color' }, // alias to another token
+    info: '{primary}'
   },
   radius: {
     sm: '4px',
@@ -22,25 +22,9 @@ const tokens = useTokens({
 })
 
 tokens.resolve('color.primary') // '#3b82f6'
-tokens.resolve('color.brand')   // '#3b82f6' (alias resolved)
-tokens.resolve('radius.md')     // '8px'
+tokens.resolve('color.info') // '#3b82f6' (alias resolved)
+tokens.resolve('radius.md') // '8px'
 ```
-
-## Arbitrary values (objects)
-
-Tokens can hold any $value type, including objects. This is useful when a token represents a composite concept—icons, shadows, typography scales, elevation specs, motion curves, etc.
-
-```ts
-const t = useTokens({
-  icon: {
-    close: { $value: { name: 'close', set: 'mdi', filled: false }, $type: 'icon' },
-  },
-})
-
-t.resolve('icon.close')
-// -> { name: 'close', set: 'mdi', filled: false }
-```
-
 
 ## API
 
@@ -63,11 +47,6 @@ t.resolve('icon.close')
 
   interface TokenCollection {
     [key: string]: TokenValue | TokenCollection
-  }
-
-  type FlatTokenCollection = {
-    id: string
-    value: TokenValue
   }
 
   interface TokenTicket extends RegistryTicket {}
@@ -103,7 +82,7 @@ t.resolve('icon.close')
 
 * **Example**
   ```ts
-  const tokenContext = useTokens({
+  const tokens = useTokens({
     color: {
       primary: '#3b82f6',
       secondary: '#64748b',
@@ -111,8 +90,8 @@ t.resolve('icon.close')
     },
   })
 
-  const primary = tokenContext.resolve('color.primary'); // '#007bff'
-  const secondary = tokenContext.resolve('color.secondary'); // '#007bff'
+  const primary = tokens.resolve('color.primary'); // '#007bff'
+  const secondary = tokens.resolve('color.secondary'); // '#007bff'
   ```
 
 * **Example**
@@ -168,147 +147,6 @@ t.resolve('icon.close')
 
   // In any descendant component
   const tokens = useTokensContext()
-  const baseFontSize = tokens.resolve('fontSize.base')
-  ```
 
-### `flatten`
-
-* **Type**
-  ```ts
-  function flatten (
-    tokens: TokenCollection,
-    prefix = ''
-  ): FlatTokenCollection[]
-
-  /** Items in the returned array */
-  type FlatTokenValue = string | number | boolean | TokenAlias | TokenCollection
-
-  interface FlatTokenCollection {
-    /** Fully-qualified token id, e.g. "color.primary" */
-    id: string
-    /**
-    * The leaf value:
-    * - primitive (string | number | boolean), or
-    * - TokenAlias (object with $value …), or
-    * - a small object containing only $-meta keys when the node has group-level metadata
-    */
-    value: FlatTokenValue
-  }
-  ```
-* **Details**
-  * Uses an explicit stack for depth-first traversal (iterative; avoids recursion limits).
-  * Order: depth-first (LIFO) per object-key enumeration order (stable for string keys in modern JS).
-  * Resolution: this function is structural—it does not resolve aliases. Use your TokenContext.resolve(id) when you need the final value.
-
-* **Description**
-  Flattens a nested TokenCollection into a linear array of { id, value }.
-  It preserves:
-    * Primitive leaves (e.g., '4px', #3b82f6)
-    * Alias objects (objects that include a $value key)
-    * Group metadata (objects whose keys start with $, such as $type, $description, etc.) This variant is designed for iteration-friendly consumers (docs renderers, validators, preview UIs) that prefer an array over a map.
-
-* **Parameters**
-  * tokens: TokenCollection — The nested token tree to flatten.
-  * prefix = '' — Optional path prefix to prepend to each generated id.
-    * When provided (non-empty), root-level meta will be emitted as an item for that prefix.
-
-* **Returns**
-  * FlatTokenCollection[] — An array where each item represents one flattened entry:
-    * id: dot-path (or prefixed) identifier (e.g., "color.primary", "theme/spacing/sm" if you use a custom prefix/format externally).
-    * value: the corresponding leaf primitive, an alias object, or a $-meta object for group metadata.
-
-* **Example**
-1) Basic primitives and aliases
-  ```ts
-  const tree = {
-    color: {
-      brand:   { $value: '#3b82f6', $type: 'color' },
-      primary: { $value: 'color.brand' }, // alias
-    },
-    spacing: { sm: '4px', md: '8px' },
-  }
-
-  flatten(tree)
-  /*
-  [
-    { id: 'color.brand',   value: { $value: '#3b82f6', $type: 'color' } },
-    { id: 'color.primary', value: { $value: 'color.brand' } },
-    { id: 'spacing.sm',    value: '4px' },
-    { id: 'spacing.md',    value: '8px' }
-  ]
-  */
-  ```
-
-2) Group metadata ($type, $description, …)
-  ```ts
-  const tokens = {
-    color: {
-      $type: 'color-group',
-      primary: '#3b82f6',
-    }
-  }
-
-  // No root prefix → group meta for "color" will be emitted
-  // ONLY when currentPrefix is truthy during traversal.
-  // In this tree, "color" becomes currentPrefix → meta is emitted:
-  flatten(tokens)
-  /*
-  [
-    { id: 'color',        value: { $type: 'color-group' } },
-    { id: 'color.primary', value: '#3b82f6' }
-  ]
-  */
-  ```
-
-3) Meta at the root (emitted only if you pass a prefix)
-  ```ts
-  const tokens = {
-    $type: 'theme',
-    spacing: { sm: '4px' }
-  }
-
-  flatten(tokens, 'theme')
-  /*
-  [
-    { id: 'theme',          value: { $type: 'theme' } },
-    { id: 'theme.spacing.sm', value: '4px' }
-  ]
-  */
-  ```
-
-4) Alias whose $value is an object (expand inner children)
-  ```ts
-  const tokens = {
-    icon: {
-      // alias object; its $value is an OBJECT with nested fields
-      close: {
-        $value: {
-          path: 'M0 0 L10 10',            // primitive inner child
-          meta: { $value: 'icon.meta' },  // alias inner child
-          set:  {                         // nested collection inner child
-            svg: { $value: '<svg …>' }
-          }
-        }
-      },
-      meta: { $value: 'icons.common' }
-    }
-  }
-
-  flatten(tokens)
-  /*
-  [
-    { id: 'icon.close',           value: { $value: { path: 'M0 0 L10 10', meta: { $value: 'icon.meta' }, set: { svg: { $value: '<svg …>' } } } } },
-
-    // inner children expanded:
-    { id: 'icon.close.path',      value: 'M0 0 L10 10' },               
-    // primitive inner
-    { id: 'icon.close.meta',      value: { $value: 'icon.meta' } },     
-    // alias inner
-    { id: 'icon.close.set',       value: { svg: { $value: '<svg …>' } } }, 
-    // queued as nested collection
-    { id: 'icon.close.set.svg',   value: { $value: '<svg …>' } },       
-    // from nested collection
-    { id: 'icon.meta',            value: { $value: 'icons.common' } }
-  ]
-  */
+  console.log(tokens.resolve('fontSize.base')) // '16px'
   ```
