@@ -20,6 +20,7 @@
     "vite": "catalog:"
   },
   "dependencies": {
+    "@mdi/js": "^7.4.47",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "markdown-it-attrs": "^4.3.1",
