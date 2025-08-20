@@ -2,7 +2,6 @@
   import { useBreakpoints, useLayout } from '@vuetify/v0'
 
   const breakpoints = useBreakpoints()
-
   const layout = useLayout()
 
 </script>
@@ -10,7 +9,6 @@
 <template>
   <AppBar />
   <div
-    ref="mainContainer"
     class="pa-4 fixed transition-all duration-100 ease-in-out"
     :style="{
       top: layout.main.y.value + 'px',
