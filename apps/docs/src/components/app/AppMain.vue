@@ -5,7 +5,6 @@
 
   const layout = useLayout()
 
-  console.log(layout)
 </script>
 
 <template>
