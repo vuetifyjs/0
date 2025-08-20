@@ -150,6 +150,7 @@ export function createLayout<
       top.value = rect.top
       bottom.value = rect.bottom
     }
+    debugger
     width.value = window.innerWidth
     height.value = window.innerHeight
     right.value = window.innerWidth
@@ -177,6 +178,8 @@ export function createLayout<
         window.removeEventListener('resize', resize)
       }
     })
+  } else if (window.innerWidth) {
+    window.addEventListener('resize', resize)
   }
 
   registry.on('unregister', (item: Z) => {
@@ -205,15 +208,24 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
   const ticket = layout.register({ ...options })
   const value = ticket.value
 
+  const cumulativeElementsOffset = computed(() => {
+    return layout.values().reduce((prev, current) => {
+      if (current.position !== ticket.position || current.index >= ticket.index) {
+        return prev
+      }
+      return prev + unref(current.value)
+    }, 0)
+  })
+
   const rect = {
     x: computed(() => {
-      if (ticket.position === 'left') return layout.left.value
-      if (ticket.position === 'right') return layout.left.value + layout.main.width.value + layout.bounds.left.value
+      if (ticket.position === 'left') return layout.left.value + cumulativeElementsOffset.value
+      if (ticket.position === 'right') return layout.left.value + layout.main.width.value + layout.bounds.left.value + cumulativeElementsOffset.value
       return layout.left.value
     }),
     y: computed(() => {
-      if (ticket.position === 'top') return layout.top.value
-      if (ticket.position === 'bottom') return layout.top.value + layout.main.height.value + layout.bounds.top.value
+      if (ticket.position === 'top') return layout.top.value + cumulativeElementsOffset.value
+      if (ticket.position === 'bottom') return layout.top.value + layout.main.height.value + layout.bounds.top.value + cumulativeElementsOffset.value
       return layout.bounds.top.value + layout.top.value
     }),
     height: computed(() => {
