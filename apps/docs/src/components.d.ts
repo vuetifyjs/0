@@ -15,6 +15,7 @@ declare module 'vue' {
     AppFooter: typeof import('./components/app/AppFooter.vue')['default']
     AppIcon: typeof import('./components/app/AppIcon.vue')['default']
     AppMain: typeof import('./components/app/AppMain.vue')['default']
+    AppMainContainer: typeof import('./components/app/AppMainContainer.vue')['default']
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
     AppPageFeatures: typeof import('./components/app/AppPageFeatures.vue')['default']

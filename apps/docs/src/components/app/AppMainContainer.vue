@@ -1,15 +1,16 @@
 <script lang="ts" setup>
-  import { useBreakpoints, useLayout } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+  import { useBreakpoints, createLayout, useLayout, provideLayout } from '@vuetify/v0'
 
   const breakpoints = useBreakpoints()
 
   const layout = useLayout()
-
-  console.log(layout)
+  const mainContainer = useTemplateRef('mainContainer')
+  const mainLayout = createLayout({ el: mainContainer })
+  provideLayout(mainLayout)
 </script>
 
 <template>
-  <AppBar />
   <div
     ref="mainContainer"
     class="pa-4 fixed transition-all duration-100 ease-in-out"
@@ -19,6 +20,6 @@
       left: breakpoints.isMobile ? '0px' : layout.main.x.value + 'px',
     }"
   >
-    <router-view />
+    <AppMain />
   </div>
 </template>

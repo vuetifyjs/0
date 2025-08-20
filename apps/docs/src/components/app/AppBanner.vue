@@ -10,7 +10,6 @@
   const breakpoints = useBreakpoints()
   const bannerRef = useAtomRef('bannerRef')
   const banner = useLayoutItem({ position: 'top', element: bannerRef, value: 24 })
-  console.log(banner.rect)
 </script>
 
 <template>
