@@ -173,9 +173,8 @@ export function createLayout<
       if (observer && el?.value) {
         observer.unobserve(el.value)
         observer.disconnect()
-      } else {
-        window.removeEventListener('resize', resize)
       }
+      window.removeEventListener('resize', resize)
     })
   } else if (window.innerWidth) {
     window.addEventListener('resize', resize)
