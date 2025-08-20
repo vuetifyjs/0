@@ -1,6 +1,12 @@
+<script setup>
+  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
+</script>
+
 # Composables
 
 Reusable pieces of logic that can be shared across components, providing encapsulated functionality and state management.
+
+<DocsPageFeatures />
 
 ## Available Composables
 

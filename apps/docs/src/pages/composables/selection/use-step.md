@@ -9,11 +9,14 @@ performance: 0
 
 <script setup>
   import Mermaid from '@/components/Mermaid.vue'
+  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
 </script>
 
 # useStep
 
 A composable for managing navigation through multi-step processes like forms, wizards, or onboarding flows, with support for step tracking, completion, and navigation controls.
+
+<DocsPageFeatures />
 
 ## Usage
 

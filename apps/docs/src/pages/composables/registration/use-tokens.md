@@ -1,6 +1,12 @@
+<script setup>
+  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
+</script>
+
 # useTokens
 
 A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system. Inspired by [Design Tokens](https://www.designtokens.org/tr/drafts/format/#design-token).
+
+<DocsPageFeatures />
 
 ## Usage
 

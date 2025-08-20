@@ -1,6 +1,12 @@
+<script setup>
+  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
+</script>
+
 # useEventListener
 
 A composable for handling DOM events with automatic cleanup. Register using addEventListener on mounted, and removeEventListener automatically on unmounted.
+
+<DocsPageFeatures />
 
 ### `useEventListener(target, event, listener, options?)`
 

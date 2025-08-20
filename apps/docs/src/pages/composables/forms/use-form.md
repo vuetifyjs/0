@@ -9,11 +9,14 @@ performance: 0
 
 <script setup>
   import Mermaid from '@/components/Mermaid.vue'
+  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
 </script>
 
 # useForm
 
 A composable for building reactive forms with validation, field registration, and submission handling. Built on top of the registry system for managing form fields.
+
+<DocsPageFeatures />
 
 ## Usage
 

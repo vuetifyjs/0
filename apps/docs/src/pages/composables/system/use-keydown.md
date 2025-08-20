@@ -1,6 +1,12 @@
+<script setup>
+  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
+</script>
+
 # useKeydown
 
 A composable for handling keyboard events with automatic cleanup, supporting multiple key combinations and customizable behavior.
+
+<DocsPageFeatures />
 
 ### `useKeydown(handlers)`
 
