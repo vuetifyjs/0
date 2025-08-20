@@ -13,21 +13,26 @@
   const breakpoints = useBreakpoints()
   const app = useAppContext()
 
-  const appBar = useAtomRef('appBar')
-  useLayoutItem({
+  const appBarRef = useAtomRef('appBarRef')
+  const appBar = useLayoutItem({
     id: 'appBar',
     position: 'top',
-    element: appBar,
+    element: appBarRef,
     value: 48,
   })
 </script>
 
 <template>
   <Atom
-    ref="appBar"
+    ref="appBarRef"
     :as
-    class="app-header flex items-center justify-between h-[48px] fixed left-[220px] top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
-    :class="breakpoints.isMobile && 'left-0'"
+    class="app-header flex items-center justify-between fixed px-3 transition-all duration-200 ease-in-out"
+    :style="{
+      left: breakpoints.isMobile ? '0px' : appBar.rect.x.value + 'px',
+      top: appBar.rect.y.value + 'px',
+      height: appBar.rect.height.value + 'px',
+      width: appBar.rect.width.value + 'px',
+    }"
   >
     <AppIcon
       v-if="breakpoints.isMobile"

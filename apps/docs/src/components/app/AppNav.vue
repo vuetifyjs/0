@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useAtomRef, useBreakpoints, useLayoutItem } from '@vuetify/v0'
   import { useAppContext } from '@/composables/useApp'
   import { useRoute } from 'vue-router'
   import { watch } from 'vue'
@@ -120,16 +120,25 @@
       app.nav.value = false
     }
   })
+
+  const navBarRef = useAtomRef('navBarRef')
+  const navBar = useLayoutItem({
+    id: 'navBar',
+    position: 'left',
+    element: navBarRef,
+    value: 220,
+  })
 </script>
 
 <template>
   <Atom
+    ref="navBarRef"
     :as
-    class="bg-4 app-nav flex flex-col fixed w-[220px] overflow-y-auto pb-4 transition-transform duration-200 ease-in-out"
+    class="bg-4 app-nav flex flex-col pb-4 fixed overflow-y-auto transition-transform duration-200 ease-in-out"
     :class="[
       breakpoints.isMobile && !app.nav.value ? 'translate-x-[-100%]' : 'translate-x-0',
-      breakpoints.isMobile ? 'top-[72px] bottom-[24px]' : 'top-[24px] bottom-0'
     ]"
+    :style="`height: ${navBar.rect.height.value}px; width: ${navBar.rect.width.value}px; left: ${navBar.rect.x.value}px; top: ${navBar.rect.y.value}px`"
   >
     <img
       alt="Vuetify0 Logo"

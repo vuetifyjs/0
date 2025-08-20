@@ -7,11 +7,12 @@
 
 <template>
   <div
-    :class="[
-      breakpoints.isMobile ? 'ml-0' : 'ml-[220px]',
-      `pa-4 transition-margin duration-200 ease-in-out`
-    ]"
-    :style="`margin-top: ${layout.main.y.value}px`"
+    class="pa-4 fixed transition-all duration-100 ease-in-out"
+    :style="{
+      top: layout.main.y.value + 'px',
+      width: layout.main.width.value + 'px',
+      left: breakpoints.isMobile ? '0px' : layout.main.x.value + 'px',
+    }"
   >
     <router-view />
   </div>
