@@ -150,7 +150,6 @@ export function createLayout<
       top.value = rect.top
       bottom.value = rect.bottom
     }
-    debugger
     width.value = window.innerWidth
     height.value = window.innerHeight
     right.value = window.innerWidth
