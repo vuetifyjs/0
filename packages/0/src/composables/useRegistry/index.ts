@@ -53,6 +53,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   emit: (event: string, data: any) => void
   /** Clears the registry and listeners */
   dispose: () => void
+  /** Onboard multiple new items */
+  onboard: (registrations: Partial<Z>[]) => Z[]
   /** The size of the registry */
   size: number
 }
@@ -273,6 +275,9 @@ export function useRegistry<
     register,
     unregister,
     reindex,
+    onboard (registrations: Partial<Z>[]) {
+      return registrations.map(registration => this.register(registration))
+    },
     get size () {
       return collection.size
     },

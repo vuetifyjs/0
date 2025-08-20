@@ -3,6 +3,7 @@
   import { useIconContext } from '@/plugins/icons'
 
   // Utilities
+  import { toArray } from '@vuetify/v0'
   import { toRef } from 'vue'
 
   export interface AppIconProps {
@@ -17,7 +18,17 @@
 
   const icons = useIconContext()
 
-  const icon = toRef(() => icons.resolve(props.icon))
+  const icon = toRef(() => {
+    const array: [string, number][] = []
+
+    for (const i of toArray(icons.resolve(props.icon))) {
+      const [path, opacity = 1] = toArray(i)
+
+      array.push([path as string, opacity as number])
+    }
+
+    return array
+  })
 </script>
 
 <template>
@@ -26,13 +37,16 @@
       class="inline-block align-middle"
       fill="none"
       :height="size"
-      viewBox="0 0 16 16"
+      viewBox="0 0 24 24"
       :width="size"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        :d="icon"
+        v-for="([d, opacity], i) in icon"
+        :key="i"
+        :d="d"
         fill="currentColor"
+        :opacity="opacity"
         stroke="none"
         stroke-width="0"
       />

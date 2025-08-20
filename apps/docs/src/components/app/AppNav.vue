@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { Atom, useBreakpoints } from '@vuetify/v0'
-
   import { useAppContext } from '@/composables/useApp'
-
+  import { useRoute } from 'vue-router'
+  import { watch } from 'vue'
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
@@ -113,6 +113,13 @@
 
   const breakpoints = useBreakpoints()
   const app = useAppContext()
+  const route = useRoute()
+
+  watch(route, () => {
+    if (app.nav.value && breakpoints.isMobile) {
+      app.nav.value = false
+    }
+  })
 </script>
 
 <template>
@@ -126,6 +133,8 @@
   >
     <img
       alt="Vuetify0 Logo"
+      decoding="async"
+      fetchpriority="high"
       src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png"
     >
 

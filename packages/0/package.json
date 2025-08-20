@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.0.0",
+  "version": "0.0.2-beta.3",
   "description": "Vuetify0",
   "license": "MIT",
   "main": "./dist/index.mjs",
@@ -9,6 +9,11 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vuetifyjs/0.git",
+    "directory": "packages/0"
+  },
   "scripts": {
     "build": "tsdown",
     "build:watch": "tsdown --watch"

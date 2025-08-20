@@ -9,7 +9,7 @@ import { createTokensContext } from '#v0/composables/useTokens'
 
 // Utilities
 import { computed, watch } from 'vue'
-import { genId, isString } from '#v0/utilities/helpers'
+import { isString } from '#v0/utilities/helpers'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from './adapters/v0'
@@ -33,19 +33,26 @@ export type ThemeColors = {
   [key: string]: Colors | string
 }
 
+export type ThemeRecord = {
+  [key: string]: any
+  dark?: boolean
+  lazy?: boolean
+  colors: ThemeColors
+}
+
 export type ThemeTicket = SingleTicket & {
   lazy: boolean
+  dark: boolean
 }
 
 export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
   colors: ComputedRef<Record<string, Colors>>
   cycle: (themes: ID[]) => void
-  toggle: (themes: [ID, ID]) => void
 }
 
 export interface ThemeOptions extends ThemePluginOptions {}
 
-export interface ThemePluginOptions<Z extends TokenCollection = TokenCollection> {
+export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
   adapter?: ThemeAdapter
   default?: ID
   palette?: TokenCollection
@@ -78,7 +85,12 @@ export function createTheme<
   const registry = useSingle<Z, E>()
 
   for (const id in themes) {
-    registry.register({ value: themes[id], id } as Partial<Z>)
+    register({
+      id,
+      value: themes[id].colors,
+      dark: themes[id].dark ?? false,
+      lazy: themes[id].lazy ?? false,
+    } as Partial<Z>)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -101,10 +113,6 @@ export function createTheme<
     const next = current === -1 ? 0 : (current + 1) % themes.length
 
     registry.select(themes[next])
-  }
-
-  function toggle (themes: [ID, ID]) {
-    cycle(themes)
   }
 
   function resolve (themeId: ID, colors: Colors): Colors {
@@ -141,12 +149,12 @@ export function createTheme<
   }
 
   function register (registration: Partial<Z> = {}): Z {
-    const id = registration.id ?? genId()
     const item: Partial<Z> = {
       lazy: false,
+      dark: false,
       ...registration,
-      id,
     }
+
     return registry.register(item) as Z
   }
 
@@ -155,7 +163,6 @@ export function createTheme<
     colors,
     register,
     cycle,
-    toggle,
   } as E
 
   function provideThemeContext (_context: E = context, app?: App): E {
@@ -191,10 +198,10 @@ export function createThemePlugin<
   E extends ThemeContext<Z> = ThemeContext<Z>,
   R extends TokenTicket = TokenTicket,
   O extends TokenContext<R> = TokenContext<R>,
-> (options: ThemePluginOptions = {}): ThemePlugin {
-  const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {} } = options
+> (_options: ThemePluginOptions = {}): ThemePlugin {
+  const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {}, ...options } = _options
   const [, provideThemeTokenContext, tokensContext] = createTokensContext<R, O>('v0:theme:tokens', { palette, ...themes })
-  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', { themes, palette })
+  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', { ...options, themes, palette })
 
   function update (colors: Record<string, Colors>) {
     adapter.update(colors)

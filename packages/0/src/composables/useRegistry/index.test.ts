@@ -46,6 +46,23 @@ describe('useRegistry', () => {
 
       expect(registry.collection.size).toBe(0)
     })
+
+    it('should onboard multiple items at once', () => {
+      const registry = useRegistry()
+      const tickets = registry.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      expect(tickets.length).toBe(2)
+      expect(registry.collection.size).toBe(2)
+
+      const item1 = registry.get('item-1')
+      const item2 = registry.get('item-2')
+
+      expect(item1?.value).toBe('value-1')
+      expect(item2?.value).toBe('value-2')
+    })
   })
 
   describe('collection management', () => {

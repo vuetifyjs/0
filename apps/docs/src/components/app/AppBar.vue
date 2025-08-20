@@ -40,21 +40,33 @@
 
     <div class="flex align-center items-center gap-3">
       <a
-        class="bg-[#5661ea] text-white pa-1 inline-flex rounded"
+        class="bg-[#5661ea] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://discord.gg/vK6T89eNP7"
         rel="noopener noreferrer"
         target="_blank"
+        title="Discord Community"
       >
         <AppIcon icon="discord" />
       </a>
 
       <a
-        class="bg-gray-800 text-white pa-1 inline-flex rounded"
+        class="bg-gray-800 text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://github.com/vuetifyjs/0"
         rel="noopener noreferrer"
         target="_blank"
+        title="GitHub Repository"
       >
         <AppIcon icon="github" />
+      </a>
+
+      <a
+        class="bg-[#1867c0] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        href="https://vuetifyjs.com"
+        rel="noopener noreferrer"
+        target="_blank"
+        title="Vuetify Documentation"
+      >
+        <AppIcon icon="vuetify" />
       </a>
     </div>
   </Atom>

@@ -10,11 +10,20 @@ The `useTokens` composable allows you to define a collection of design tokens, w
 import { useTokens } from '@vuetify/v0'
 
 const tokens = useTokens({
-  foo: 'bar',
-  fizz: 'buzz',
+  color: {
+    primary: '#3b82f6',
+    secondary: '#64748b',
+    info: '{primary}'
+  },
+  radius: {
+    sm: '4px',
+    md: '8px',
+  },
 })
 
-console.log(tokens.resolve('foo')) // bar
+tokens.resolve('color.primary') // '#3b82f6'
+tokens.resolve('color.info') // '#3b82f6' (alias resolved)
+tokens.resolve('radius.md') // '8px'
 ```
 
 ## API
@@ -23,23 +32,27 @@ console.log(tokens.resolve('foo')) // bar
 
 * **Type**
   ```ts
-  interface TokenAlias {
-    [key: string]: any
-    $value: string
+  interface TokenAlias<T = unknown> {
+    [key: string]: unknown
+    $value: T
     $type?: string
     $description?: string
+    $extensions?: Record<string, unknown>
+    $deprecated?: boolean | string
   }
 
-  type TokenValue = string | number | boolean | TokenAlias
+  type TokenPrimitive = string | number | boolean
+
+  type TokenValue = TokenPrimitive | TokenAlias
 
   interface TokenCollection {
     [key: string]: TokenValue | TokenCollection
   }
 
-  export interface TokenTicket extends RegistryTicket {}
+  interface TokenTicket extends RegistryTicket {}
 
   interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
-    resolve: (token: string) => string | undefined
+    resolve: (token: string | TokenAlias) => unknown | undefined
   }
 
   function useTokens<
@@ -69,7 +82,7 @@ console.log(tokens.resolve('foo')) // bar
 
 * **Example**
   ```ts
-  const tokenContext = useTokens({
+  const tokens = useTokens({
     color: {
       primary: '#3b82f6',
       secondary: '#64748b',
@@ -77,8 +90,8 @@ console.log(tokens.resolve('foo')) // bar
     },
   })
 
-  const primary = tokenContext.resolve('color.primary'); // '#007bff'
-  const secondary = tokenContext.resolve('color.secondary'); // '#007bff'
+  const primary = tokens.resolve('color.primary'); // '#007bff'
+  const secondary = tokens.resolve('color.secondary'); // '#007bff'
   ```
 
 * **Example**
@@ -134,5 +147,6 @@ console.log(tokens.resolve('foo')) // bar
 
   // In any descendant component
   const tokens = useTokensContext()
-  const baseFontSize = tokens.resolve('fontSize.base')
+
+  console.log(tokens.resolve('fontSize.base')) // '16px'
   ```
