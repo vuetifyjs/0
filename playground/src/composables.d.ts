@@ -107,6 +107,7 @@ declare global {
   const toValue: typeof import('vue')['toValue']
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
+  const useAtomRef: typeof import('../../packages/0/src/composables/useAtomRef/index')['useAtomRef']
   const useAttrs: typeof import('vue')['useAttrs']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
   const useBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']
@@ -348,6 +349,7 @@ declare module 'vue' {
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
+    readonly useAtomRef: UnwrapRef<typeof import('../../packages/0/src/composables/useAtomRef/index')['useAtomRef']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
     readonly useBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']>
