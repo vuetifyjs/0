@@ -1,6 +1,12 @@
+<script setup>
+  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
+</script>
+
 # Components
 
 A collection of foundational components designed to be headless, accessible, and highly customizable.
+
+<DocsPageFeatures />
 
 ## Available Components
 

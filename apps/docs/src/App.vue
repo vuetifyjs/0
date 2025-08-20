@@ -21,6 +21,10 @@
     background-color: var(--v0-background);
   }
 
+  .border {
+    border-color: var(--v0-divider);
+  }
+
   .markdown-body {
     h1 {
       font-size: 2.25rem;

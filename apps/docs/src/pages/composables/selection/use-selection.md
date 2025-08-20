@@ -9,11 +9,14 @@ performance: 0
 
 <script setup>
   import Mermaid from '@/components/Mermaid.vue'
+  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
 </script>
 
 # useSelection
 
 A composable for managing the selection of items in a collection with automatic indexing and lifecycle management.
+
+<DocsPageFeatures />
 
 ## Usage
 
