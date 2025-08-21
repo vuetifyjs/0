@@ -23,7 +23,8 @@
 </script>
 
 <template>
-  <div class="flex justify-center w-full mb-4">
-    <div class="mermaid" v-html="props.code" />
-  </div>
+  <div
+    class="mermaid flex justify-center w-full mb-4"
+    v-html="props.code"
+  />
 </template>
