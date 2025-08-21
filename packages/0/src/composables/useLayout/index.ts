@@ -223,7 +223,7 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
 
       for (const current of layout.values()) {
         if (!posList.includes(current.position)) continue
-        if (current.index >= ticket.index && ticket.position !== findOpposite(current.position)) break
+        if (current.index >= ticket.index && (ticket.position !== findOpposite(current.position))) break
 
         offset += unref(current.value)
       }
@@ -244,7 +244,7 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
       return layout.left.value + cumulativeXOffset.value
     }),
     y: computed(() => {
-      if (ticket.position === 'top') return layout.top.value
+      if (ticket.position === 'top') return layout.top.value + cumulativeYOffset.value
       if (ticket.position === 'bottom') return layout.main.height.value + layout.top.value + cumulativeYOffset.value
       return layout.top.value + cumulativeYOffset.value
     }),
