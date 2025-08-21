@@ -46,12 +46,10 @@
 
     a {
       color: var(--v0-primary);
-      text-decoration: underline;
       transition: color 0.2s;
-        opacity: 1;
 
       &:hover {
-        opacity: 0.8;
+        text-decoration: underline;
       }
     }
 

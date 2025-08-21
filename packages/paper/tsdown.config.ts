@@ -22,6 +22,7 @@ export default defineConfig({
     __VUE_PROD_DEVTOOLS__: 'false',
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
   },
+  name: 'vuetify/paper',
   alias: {
     '#v0': fileURLToPath(new URL('../0/src/', import.meta.url)),
     '#paper': fileURLToPath(new URL('src/', import.meta.url)),

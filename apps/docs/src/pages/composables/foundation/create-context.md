@@ -3,26 +3,42 @@ meta:
   title: createContext
   description: A foundational utility for creating and consuming context throughout your application, enabling sharing state and methods across components without prop drilling.
   keywords: createContext, context, composable, Vue, state management
-category: Factory
-performance: 0
+features:
+  category: Factory
+  label: 'E: createContext'
+  github: /factories/createContext/
 ---
-
-<script setup>
-  import Mermaid from '@/components/Mermaid.vue'
-  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
-</script>
 
 # createContext
 
-The **createContext** factory function is at the heart of all functionality in Vuetify0. It is a small wrapper around the Vue 3 [provide](https://vuejs.org/api/composition-api.html#provide) and [inject](https://vuejs.org/api/composition-api.html#inject) APIs, allowing you to create a context that can be shared across components.
+The `createContext` factory function is at the heart of all functionality in Vuetify0. It is a small wrapper around the Vue 3 [provide](https://vuejs.org/api/composition-api.html#provide) and [inject](https://vuejs.org/api/composition-api.html#inject) APIs, allowing you to create a context that can be shared across components.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
+
+## Usage
+
+```ts
+import { shallowRef } from 'vue'
+import { createContext } from '@vuetify/v0'
+import type { ShallowRef } from 'vue'
+
+interface MyContext {
+  isDisabled: ShallowRef<boolean>
+}
+
+const [useContext, provideContext] = createContext<MyContext>('namespace')
+
+provideContext({ isDisabled: shallowRef(false) })
+
+export { useContext }
+```
 
 ## API
 
 ### `createContext`
 
 - **Type**
+
   ```ts
   type ContextKey<Z> = InjectionKey<Z> | string
 
@@ -31,6 +47,7 @@ The **createContext** factory function is at the heart of all functionality in V
     (context: Z, app?: App) => Z,
   ]
   ```
+
 - **Details**
 
   **Z** represents the context interface, which defines the structure of the context object that will be created and consumed. **namespace** is a string that scopes the context, allowing multiple contexts to coexist without conflict.
@@ -38,11 +55,14 @@ The **createContext** factory function is at the heart of all functionality in V
 ### `useContext`
 
 - **Type**
+
   ```ts
-  function useContext<Z> (namespace?: ContextKey<Z>): Z
+  function useContext<Z> (key: ContextKey<Z>): (namespace?: string) => Z
   ```
+
 - **Details**
-  A type-safe helper function for injecting a given namespace. Returns an inject function that when invoked will return the context object of type **Z**. If the context is not found, it will throw an error.
+
+  A type-safe helper creator: pass a key once and it returns a zero‑arg (optionally override namespace) function that injects and returns the context object of type **Z**. If the context is not found it throws: `Error('Context "<key>" not found. Ensure it\'s provided by an ancestor.')`.
 
 ## Example
 
@@ -55,35 +75,43 @@ import { createContext } from '@vuetify/v0'
 
 interface MyContext {
   collection: Map<string, string>
-  find: (id: string) => string | undefined
+  get: (id: string) => string | undefined
 }
 
-export function useMyContext () {
-  const [useContext, provideContext] = createContext<MyContext>('namespace')
+const [useContext, provideContext] = createContext<MyContext>('namespace')
 
-  const collection = new Map<string, string>()
+export function createMyContext () {
+  const collection = new Map<string, string>([
+    ['1', 'Item 1'],
+    ['2', 'Item 2']
+  ])
 
-  function find (id: string): string | undefined {
+  function get (id: string): string | undefined {
     return collection.get(id)
   }
 
-  const context = { collection, find }
-
-  provideContext(context)
-
-  return useContext()
+  provideContext({ collection, get })
 }
+
+export { useContext }
 ```
 
-Now, in your components, access the context by importing the `useMyContext` composable:
+```vue
+<!-- src/App.vue -->
+<script setup lang="ts">
+  import { createMyContext } from '@/composables/my-context'
+
+  createMyContext()
+</script>
+```
+
+Now, in your components, access the context by importing the exported `useContext` composable:
 
 ```vue
 <script setup lang="ts">
-  import { useMyContext } from '@/composables/my-context'
+  import { useContext } from '@/composables/my-context'
 
-  const context = useMyContext()
-
-  context.collection.set('1', 'Item 1')
+  const context = useContext()
 
   const item = context.get('1')
 
@@ -91,15 +119,13 @@ Now, in your components, access the context by importing the `useMyContext` comp
 </script>
 ```
 
-Here is a mermaid diagram illustrating the relationship between `createContext`, `useRegistrar`, and other composables:
+The following is a mermaid diagram that visualizes the flow of creating and using a context in a Vue application:
 
 <Mermaid code="
 graph TD
-  A(createApp) --> B(useMyContext)
+  A(createApp) --> B(createMyContext)
   B --> C{provideContext}
-  C --> D(Component 1)
-  C --> E(Component 2)
-  C --> F(Component 3)
+  C --> D(Component 1: useContext)
+  C --> E(Component 2: useContext)
+  C --> F(Component 3: useContext)
 " />
-
-This diagram shows how `createContext` is used to create a context that can be injected into components, allowing for shared state and methods without the need for prop drilling. The context can be provided at a higher level in the component tree and consumed by any child component that needs access to it.

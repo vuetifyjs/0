@@ -16,6 +16,8 @@
       left: breakpoints.isMobile ? '0px' : layout.main.x.value + 'px',
     }"
   >
-    <router-view />
+    <div class="max-w-[688px] mx-auto">
+      <router-view />
+    </div>
   </div>
 </template>

@@ -2,6 +2,21 @@
   import { toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
+  const props = defineProps<{
+    frontmatter?: {
+      meta: {
+        description: string
+        keywords: string
+        title: string
+      }
+      features: {
+        github: string
+        label: string
+        performance?: number
+      }
+    }
+  }>()
+
   const route = useRoute()
 
   const contribute = toRef(() => {
@@ -10,18 +25,29 @@
     return `https://github.com/vuetifyjs/0/edit/master/apps/docs/src/pages/${link}.md`
   })
 
-  // const label = computed(() => {
-  //   if (!frontmatter.value?.features?.label) return false
+  const github = toRef(() => {
+    if (!props.frontmatter) return false
 
-  //   const original = encodeURIComponent(frontmatter.value.features.label)
+    return `https://github.com/vuetifyjs/0/tree/master/packages/0/src${props.frontmatter.features.github}`
+  })
 
-  //   return `https://github.com/vuetifyjs/vuetify/labels/${original}`
-  // })
+  const label = toRef(() => {
+    if (!props.frontmatter) return false
+
+    const original = encodeURIComponent(props.frontmatter.features.label)
+
+    return `https://github.com/vuetifyjs/0/labels/${original}`
+  })
 </script>
 
 <template>
   <div class="my-2 inline-flex gap-2 flex-wrap">
-    <a class="text-[none]!" :href="contribute" rel="noopener noreferrer" target="_blank">
+    <a
+      class="text-[none]!"
+      :href="contribute"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
       <AppChip
         color="text-blue-800"
         icon="pencil"
@@ -35,18 +61,32 @@
       text="Report a Bug"
     /> -->
 
-    <!-- <AppChip
-      color="text-yellow-600"
-      icon="alert"
-      text="Open issues"
-    /> -->
+    <a
+      v-if="label"
+      class="text-[none]!"
+      :href="label"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <AppChip
+        color="text-yellow-600"
+        icon="alert"
+        text="Open issues"
+      />
+    </a>
 
-    <!-- <a class="text-[none]!" :href="contribute" rel="noopener noreferrer" target="_blank">
+    <a
+      v-if="github"
+      class="text-[none]!"
+      :href="github"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
       <AppChip
         icon="github"
         text="View on GitHub"
       />
-    </a> -->
+    </a>
 
     <!-- <AppChip
       color="text-gray-500"
