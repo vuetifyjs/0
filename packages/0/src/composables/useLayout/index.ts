@@ -220,7 +220,6 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
 
     return computed(() => {
       let offset = 0
-
       for (const current of layout.values()) {
         if (!posList.includes(current.position)) continue
         if (current.index >= ticket.index && (ticket.position !== findOpposite(current.position))) break
@@ -233,19 +232,21 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
   }
 
   const cumulativeXOffset = makeCumulativeOffset('left')
+  const cumulativeRightOffset = makeCumulativeOffset('right')
   const cumulativeYOffset = makeCumulativeOffset('top')
+  const cumulativeBottomOffset = makeCumulativeOffset('bottom')
   const cumulativeHeightOffset = makeCumulativeOffset(['top', 'bottom'])
   const cumulativeWidthOffset = makeCumulativeOffset(['left', 'right'])
 
   const rect = {
     x: computed(() => {
       if (ticket.position === 'left') return layout.left.value + cumulativeXOffset.value
-      if (ticket.position === 'right') return layout.left.value + layout.main.width.value + cumulativeXOffset.value
+      if (ticket.position === 'right') return layout.left.value + layout.main.width.value + cumulativeXOffset.value + cumulativeRightOffset.value
       return layout.left.value + cumulativeXOffset.value
     }),
     y: computed(() => {
       if (ticket.position === 'top') return layout.top.value + cumulativeYOffset.value
-      if (ticket.position === 'bottom') return layout.main.height.value + layout.top.value + cumulativeYOffset.value
+      if (ticket.position === 'bottom') return layout.main.height.value + layout.top.value + cumulativeYOffset.value + cumulativeBottomOffset.value
       return layout.top.value + cumulativeYOffset.value
     }),
     height: computed(() => {
