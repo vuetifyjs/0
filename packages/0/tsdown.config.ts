@@ -17,6 +17,8 @@ export default defineConfig({
     __VUE_PROD_DEVTOOLS__: 'false',
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
   },
+  entry: ['./src/*/index.ts', './src/index.ts'],
+  name: 'vuetify/v0',
   alias: {
     '@': fileURLToPath(new URL('src', import.meta.url)),
     '#v0': fileURLToPath(new URL('../0/src/', import.meta.url)),
