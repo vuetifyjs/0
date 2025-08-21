@@ -211,14 +211,10 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
 
     function findOpposite (position: string) {
       switch (position) {
-        case 'top': { return 'bottom'
-        }
-        case 'bottom': { return 'top'
-        }
-        case 'left': { return 'right'
-        }
-        case 'right': { return 'left'
-        }
+        case 'top': { return 'bottom' }
+        case 'bottom': { return 'top' }
+        case 'left': { return 'right' }
+        case 'right': { return 'left' }
       }
     }
 
