@@ -30,7 +30,7 @@
     "./components": {
       "development": {
         "types": "./src/components/index.ts",
-        "import": "./src/components/index.mjs"
+        "import": "./src/components/index.ts"
       },
       "types": "./dist/components/index.d.mts",
       "import": "./dist/components/index.mjs"
@@ -38,7 +38,7 @@
     "./composables": {
       "development": {
         "types": "./src/composables/index.ts",
-        "import": "./src/composables/index.mjs"
+        "import": "./src/composables/index.ts"
       },
       "types": "./dist/composables/index.d.mts",
       "import": "./dist/composables/index.mjs"
@@ -46,7 +46,7 @@
     "./factories": {
       "development": {
         "types": "./src/factories/index.ts",
-        "import": "./src/factories/index.mjs"
+        "import": "./src/factories/index.ts"
       },
       "types": "./dist/factories/index.d.mts",
       "import": "./dist/factories/index.mjs"
@@ -54,7 +54,7 @@
     "./transformers": {
       "development": {
         "types": "./src/transformers/index.ts",
-        "import": "./src/transformers/index.mjs"
+        "import": "./src/transformers/index.ts"
       },
       "types": "./dist/transformers/index.d.mts",
       "import": "./dist/transformers/index.mjs"
@@ -62,7 +62,7 @@
     "./types": {
       "development": {
         "types": "./src/types/index.ts",
-        "import": "./src/types/index.mjs"
+        "import": "./src/types/index.ts"
       },
       "types": "./dist/types/index.d.mts",
       "import": "./dist/types/index.mjs"
@@ -70,7 +70,7 @@
     "./utilities": {
       "development": {
         "types": "./src/utilities/index.ts",
-        "import": "./src/utilities/index.mjs"
+        "import": "./src/utilities/index.ts"
       },
       "types": "./dist/utilities/index.d.mts",
       "import": "./dist/utilities/index.mjs"
@@ -109,14 +109,28 @@
     }
   },
   "peerDependencies": {
-    "vue": ">=3.3.0"
-  },
-  "devDependencies": {
-    "@vue/test-utils": "catalog:",
     "markdown": "^0.5.0",
     "markdown-it": "^14.1.0",
     "marked": "^16.1.1",
     "micromark": "^4.0.2",
+    "vue": ">=3.3.0"
+  },
+  "peerDependenciesMeta": {
+    "markdown": {
+      "optional": true
+    },
+    "markdown-it": {
+      "optional": true
+    },
+    "marked": {
+      "optional": true
+    },
+    "micromark": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@vue/test-utils": "catalog:",
     "tsdown": "^0.13.3",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",

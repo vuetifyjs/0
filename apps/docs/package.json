@@ -13,22 +13,21 @@
     "@shikijs/markdown-it": "^3.9.2",
     "@shikijs/themes": "^3.9.2",
     "@types/markdown-it-attrs": "^4.1.3",
-    "@vitejs/plugin-vue": "^6.0.1",
+    "markdown-it-attrs": "^4.3.1",
     "shiki": "^3.9.2",
-    "unocss": "^66.3.3",
+    "unocss": "catalog:",
     "unplugin-vue": "catalog:",
-    "vite": "catalog:"
+    "unplugin-vue-components": "catalog:",
+    "unplugin-vue-markdown": "^29.1.0",
+    "unplugin-vue-router": "^0.14.0",
+    "vite": "catalog:",
+    "vite-plugin-vue-layouts-next": "^1.0.0"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
-    "markdown-it-attrs": "^4.3.1",
     "mermaid": "^11.9.0",
-    "unplugin-vue-components": "^28.8.0",
-    "unplugin-vue-markdown": "^29.1.0",
-    "unplugin-vue-router": "^0.14.0",
-    "vite-plugin-vue-layouts-next": "^1.0.0",
     "vue": "catalog:",
     "vue-router": "^4.5.1"
   }

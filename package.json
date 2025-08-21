@@ -21,7 +21,8 @@
     "coverage": "vitest run --coverage",
     "dev:docs": "pnpm --filter=docs dev",
     "build:docs": "pnpm --filter=docs build",
-    "release": "bumpp -r"
+    "release": "bumpp -r",
+    "knip": "knip"
   },
   "engines": {
     "node": ">=20.19 || >=22",
@@ -38,6 +39,7 @@
     "eslint-plugin-storybook": "^9.1.1",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "happy-dom": "^18.0.1",
+    "knip": "^5.63.0",
     "typescript": "catalog:",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.5"

@@ -9,15 +9,15 @@
   "devDependencies": {
     "sass-embedded": "1.89.2",
     "typescript": "catalog:",
-    "unocss": "^66.3.2",
+    "unocss": "catalog:",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue": "catalog:",
-    "unplugin-vue-components": "^28.7.0",
+    "unplugin-vue-components": "catalog:",
     "vite": "catalog:"
   },
   "dependencies": {
-    "vue": "catalog:",
     "@vuetify/paper": "workspace:*",
-    "@vuetify/v0": "workspace:*"
+    "@vuetify/v0": "workspace:*",
+    "vue": "catalog:"
   }
 }

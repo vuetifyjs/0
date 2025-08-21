@@ -43,7 +43,6 @@
     "@vuetify/v0": "workspace:*"
   },
   "devDependencies": {
-    "@vue/test-utils": "catalog:",
     "rollup-plugin-sass": "^1.15.3",
     "sass": "^1.90.0",
     "tsdown": "^0.13.3",
