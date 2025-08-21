@@ -17,12 +17,13 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:bench": "vitest --reporter=verbose bench --run",
+    "test:knip": "knip",
+    "test:sherif": "sherif",
     "bench": "vitest --reporter=default bench",
     "coverage": "vitest run --coverage",
     "dev:docs": "pnpm --filter=docs dev",
     "build:docs": "pnpm --filter=docs build",
-    "release": "bumpp -r",
-    "knip": "knip"
+    "release": "bumpp -r"
   },
   "engines": {
     "node": ">=20.19 || >=22",
@@ -40,6 +41,7 @@
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "happy-dom": "^18.0.1",
     "knip": "^5.63.0",
+    "sherif": "^1.6.1",
     "typescript": "catalog:",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.5"
