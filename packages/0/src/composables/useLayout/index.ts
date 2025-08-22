@@ -223,7 +223,6 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
       for (const current of layout.values()) {
         if (!posList.includes(current.position)) continue
         if (current.index >= ticket.index && (ticket.position !== findOpposite(current.position))) break
-
         offset += unref(current.value)
       }
 
@@ -238,30 +237,31 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
   const cumulativeHeightOffset = makeCumulativeOffset(['top', 'bottom'])
   const cumulativeWidthOffset = makeCumulativeOffset(['left', 'right'])
 
-  const rect = {
-    x: computed(() => {
-      if (ticket.position === 'left') return layout.left.value + cumulativeXOffset.value
-      if (ticket.position === 'right') return layout.left.value + layout.main.width.value + cumulativeXOffset.value + cumulativeRightOffset.value
-      return layout.left.value + cumulativeXOffset.value
-    }),
-    y: computed(() => {
-      if (ticket.position === 'top') return layout.top.value + cumulativeYOffset.value
-      if (ticket.position === 'bottom') return layout.main.height.value + layout.top.value + cumulativeYOffset.value + cumulativeBottomOffset.value
-      return layout.top.value + cumulativeYOffset.value
-    }),
-    height: computed(() => {
-      if (['top', 'bottom'].includes(ticket.position)) {
-        return unref(value)
-      }
-      return layout.bottom.value - layout.top.value - cumulativeHeightOffset.value
-    }),
-    width: computed(() => {
-      if (['left', 'right'].includes(ticket.position)) {
-        return unref(value)
-      }
-      return layout.right.value - layout.left.value - cumulativeWidthOffset.value
-    }),
-  }
+  const height = computed(() => {
+    if (['top', 'bottom'].includes(ticket.position)) {
+      return unref(value)
+    }
+    return layout.bottom.value - layout.top.value - cumulativeHeightOffset.value
+  })
+  const width = computed(() => {
+    if (['left', 'right'].includes(ticket.position)) {
+      return unref(value)
+    }
+    return layout.right.value - layout.left.value - cumulativeWidthOffset.value
+  })
+  const x = computed(() => {
+    if (ticket.position === 'left') return layout.left.value + cumulativeXOffset.value
+    if (ticket.position === 'right') return layout.right.value - width.value - cumulativeRightOffset.value
+    return layout.left.value + cumulativeXOffset.value
+  })
+  const y = computed(() => {
+    if (ticket.position === 'top') return layout.top.value + cumulativeYOffset.value
+    if (ticket.position === 'bottom') return layout.bottom.value - height.value - cumulativeBottomOffset.value
+    return layout.top.value + cumulativeYOffset.value
+  },
+  )
+
+  const rect = { x, y, width, height }
 
   return {
     ticket,
