@@ -255,17 +255,13 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
   })
   const x = computed(() => {
     if (ticket.position === 'left') return layout.left.value + cumulativeXOffset.value
-    if (ticket.position === 'right') return layout.right.value - width.value - cumulativeRightOffset.value
     return layout.right.value - width.value - cumulativeRightOffset.value
   })
   const y = computed(() => {
     if (ticket.position === 'top') return layout.top.value + cumulativeYOffset.value
-    if (ticket.position === 'bottom') return layout.bottom.value - height.value - cumulativeBottomOffset.value
     return layout.bottom.value - height.value - cumulativeBottomOffset.value
   },
   )
-
-  console.log(layout.bounds.bottom.value - layout.bounds.top.value)
 
   const rect = { x, y, width, height }
 
