@@ -225,6 +225,7 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
       let offset = 0
       for (const current of layout.values()) {
         if (!posList.includes(current.position)) continue
+        if (!current.isActive.value) continue
         if (current.index >= ticket.index && (ticket.position !== findOpposite(current.position))) break
 
         offset += unref(current.value)

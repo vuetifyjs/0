@@ -28,7 +28,7 @@
     :as
     class="app-header flex items-center justify-between fixed px-3 transition-all duration-200 ease-in-out"
     :style="{
-      left: breakpoints.isMobile ? '0px' : appBar.rect.x.value + 'px',
+      left: appBar.rect.x.value + 'px',
       top: appBar.rect.y.value + 'px',
       height: appBar.rect.height.value + 'px',
       width: appBar.rect.width.value + 'px',

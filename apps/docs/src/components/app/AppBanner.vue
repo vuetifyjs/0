@@ -9,7 +9,11 @@
   const { as = 'header' } = defineProps<AtomProps>()
   const breakpoints = useBreakpoints()
   const bannerRef = useAtomRef('bannerRef')
-  const banner = useLayoutItem({ position: 'top', element: bannerRef, value: 24 })
+  const banner = useLayoutItem({
+    id: 'banner',
+    position: 'top',
+    element: bannerRef,
+    value: 24 })
 </script>
 
 <template>

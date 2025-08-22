@@ -2,7 +2,7 @@
   import { Atom, useAtomRef, useBreakpoints, useLayoutItem } from '@vuetify/v0'
   import { useAppContext } from '@/composables/useApp'
   import { useRoute } from 'vue-router'
-  import { watch } from 'vue'
+  import { watch, watchEffect } from 'vue'
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
@@ -128,6 +128,19 @@
     element: navBarRef,
     value: 220,
   })
+
+  watchEffect(() => {
+    if (!breakpoints.isMobile) {
+      navBar.ticket.select()
+    }
+    if (app.nav.value) {
+      navBar.ticket.select()
+    }
+    if (breakpoints.isMobile && !app.nav.value) {
+      navBar.ticket.unselect()
+    }
+  })
+
 </script>
 
 <template>
@@ -138,7 +151,12 @@
     :class="[
       breakpoints.isMobile && !app.nav.value ? 'translate-x-[-100%]' : 'translate-x-0',
     ]"
-    :style="`height: ${navBar.rect.height.value}px; width: ${navBar.rect.width.value}px; left: ${navBar.rect.x.value}px; top: ${navBar.rect.y.value}px`"
+    :style="{
+      height: navBar.rect.height.value + 'px',
+      width: navBar.rect.width.value + 'px',
+      left: navBar.rect.x.value + 'px',
+      top: navBar.rect.y.value + 'px',
+    }"
   >
     <img
       alt="Vuetify0 Logo"

@@ -5,6 +5,7 @@
 <template>
   <AppBanner />
   <AppNav />
-  <AppMainContainer />
+  <AppBar />
+  <AppMain />
   <AppFooter />
 </template>
