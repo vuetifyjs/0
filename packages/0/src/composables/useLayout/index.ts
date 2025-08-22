@@ -8,7 +8,6 @@ import { useGroup } from '#v0/composables/useGroup'
 // Utilities
 import {
   computed,
-  shallowReactive,
   shallowRef,
   onUnmounted,
   onMounted,
@@ -84,7 +83,6 @@ export function createLayout<
 
   const registry = useGroup<Z, E>({ enroll, events, ...options })
 
-  const sizes = shallowReactive(new Map<ID, Ref<number> | number>())
   const height = shallowRef(0)
   const width = shallowRef(0)
   const left = shallowRef(0)
@@ -110,7 +108,7 @@ export function createLayout<
     let total = 0
     for (const item of registry.values()) {
       if (item.position === position && item.isActive.value) {
-        total += unref(sizes.get(item.id)) ?? unref(item.value) ?? 0
+        total += unref(item.value) ?? 0
       }
     }
     return total
@@ -126,10 +124,8 @@ export function createLayout<
       order: registrant.order ?? 0,
       value,
     }
-    const ticket = registry.register(item)
-    sizes.set(ticket.id, ticket.value)
 
-    return ticket
+    return registry.register(item)
   }
 
   function resize () {
@@ -175,16 +171,11 @@ export function createLayout<
     window.addEventListener('resize', resize)
   }
 
-  registry.on('unregister', (item: Z) => {
-    sizes.delete(item.id)
-  })
-
   return {
     ...registry,
     register,
     bounds,
     main,
-    sizes,
     height,
     width,
     resize,
