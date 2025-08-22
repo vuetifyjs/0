@@ -13,9 +13,7 @@ import {
   onUnmounted,
   onMounted,
   getCurrentInstance,
-  ref,
   unref,
-  watchEffect,
 } from 'vue'
 
 // Globals
@@ -94,13 +92,6 @@ export function createLayout<
   const top = shallowRef(0)
   const bottom = shallowRef(0)
 
-  const bounds = {
-    top: ref(0),
-    bottom: ref(0),
-    left: ref(0),
-    right: ref(0),
-  }
-
   const main = {
     x: computed(() => bounds.left.value + left.value),
     y: computed(() => bounds.top.value + top.value),
@@ -108,20 +99,21 @@ export function createLayout<
     height: computed(() => bottom.value - top.value - bounds.top.value - bounds.bottom.value),
   }
 
-  watchEffect(() => {
-    for (const position of ['top', 'bottom', 'left', 'right']) {
-      sum(position as LayoutLocation)
-    }
-  })
+  const bounds = {
+    top: computed(() => sum('top')),
+    bottom: computed(() => sum('bottom')),
+    left: computed(() => sum('left')),
+    right: computed(() => sum('right')),
+  }
 
-  function sum (position: LayoutLocation): void {
+  function sum (position: LayoutLocation): number {
     let total = 0
     for (const item of registry.values()) {
       if (item.position === position && item.isActive.value) {
         total += unref(sizes.get(item.id)) ?? unref(item.value) ?? 0
       }
     }
-    bounds[position].value = total
+    return total
   }
 
   function register (registrant: Partial<Z>): Z {
