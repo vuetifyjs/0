@@ -201,15 +201,15 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
   const ticket = layout.register({ ...options })
   const value = ticket.value
 
+  const opposites = {
+    top: 'bottom',
+    bottom: 'top',
+    left: 'right',
+    right: 'left',
+  }
+
   function makeCumulativeOffset (positions: string[] | string) {
     const posList = Array.isArray(positions) ? positions : [positions]
-
-    const opposites = {
-      top: 'bottom',
-      bottom: 'top',
-      left: 'right',
-      right: 'left',
-    }
 
     return computed(() => {
       let offset = 0
