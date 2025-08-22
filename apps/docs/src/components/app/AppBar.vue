@@ -26,7 +26,7 @@
   <Atom
     ref="appBarRef"
     :as
-    class="app-header flex items-center justify-between fixed px-3 transition-all duration-200 ease-in-out"
+    class="app-header flex items-center justify-between fixed px-3"
     :style="{
       left: appBar.rect.x.value + 'px',
       top: appBar.rect.y.value + 'px',
