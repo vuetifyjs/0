@@ -143,17 +143,20 @@ export function createLayout<
   function resize () {
     if (el?.value) {
       const rect = el.value.getBoundingClientRect()
+      left.value = rect.left
+      top.value = rect.top
+      right.value = rect.left + rect.width
+      bottom.value = rect.top + rect.height
       width.value = rect.width
       height.value = rect.height
-      left.value = rect.left
-      right.value = rect.right
-      top.value = rect.top
-      bottom.value = rect.bottom
+    } else {
+      width.value = window.innerWidth
+      height.value = window.innerHeight
+      left.value = 0
+      top.value = 0
+      right.value = window.innerWidth
+      bottom.value = window.innerHeight
     }
-    width.value = window.innerWidth
-    height.value = window.innerHeight
-    right.value = window.innerWidth
-    bottom.value = window.innerHeight
   }
 
   let observer: ResizeObserver | null = null
@@ -223,9 +226,9 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
       for (const current of layout.values()) {
         if (!posList.includes(current.position)) continue
         if (current.index >= ticket.index && (ticket.position !== findOpposite(current.position))) break
+
         offset += unref(current.value)
       }
-
       return offset
     })
   }
@@ -252,14 +255,16 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
   const x = computed(() => {
     if (ticket.position === 'left') return layout.left.value + cumulativeXOffset.value
     if (ticket.position === 'right') return layout.right.value - width.value - cumulativeRightOffset.value
-    return layout.left.value + cumulativeXOffset.value
+    return layout.right.value - width.value - cumulativeRightOffset.value
   })
   const y = computed(() => {
     if (ticket.position === 'top') return layout.top.value + cumulativeYOffset.value
     if (ticket.position === 'bottom') return layout.bottom.value - height.value - cumulativeBottomOffset.value
-    return layout.top.value + cumulativeYOffset.value
+    return layout.bottom.value - height.value - cumulativeBottomOffset.value
   },
   )
+
+  console.log(layout.bounds.bottom.value - layout.bounds.top.value)
 
   const rect = { x, y, width, height }
 
