@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useAtomRef, useLayoutItem } from '@vuetify/v0'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -8,13 +8,21 @@
   const { as = 'footer' } = defineProps<AtomProps>()
 
   const breakpoints = useBreakpoints()
+  const footerRef = useAtomRef('footerRef')
+  const footer = useLayoutItem({
+    id: 'footer',
+    position: 'bottom',
+    element: footerRef,
+    value: 24,
+  })
 </script>
 
 <template>
   <Atom
+    ref="footerRef"
     :as
-    class="app-footer flex items-center justify-end h-[24px] fixed bottom-0 left-[220px] right-0 px-3 text-xs"
-    :class="breakpoints.isMobile && 'left-0'"
+    :class="`app-footer flex items-center justify-end fixed px-3 text-xs ${breakpoints.isMobile && 'left-0'}`"
+    :style="`left: ${footer.rect.x.value}px; top:${footer.rect.y.value}px; height:${footer.rect.height.value}px; width:${footer.rect.width.value}px;`"
   >
     &copy; 2016-2025 Vuetify, LLC
   </Atom>

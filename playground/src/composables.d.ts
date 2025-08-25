@@ -29,6 +29,8 @@ declare global {
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
+  const createLayout: typeof import('../../packages/0/src/composables/useLayout/index')['createLayout']
+  const createLayoutPlugin: typeof import('../../packages/0/src/composables/useLayout/index')['createLayoutPlugin']
   const createLocale: typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
@@ -85,6 +87,7 @@ declare global {
   const provide: typeof import('vue')['provide']
   const provideBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']
   const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
+  const provideLayout: typeof import('../../packages/0/src/composables/useLayout/index')['provideLayout']
   const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
@@ -104,6 +107,7 @@ declare global {
   const toValue: typeof import('vue')['toValue']
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
+  const useAtomRef: typeof import('../../packages/0/src/composables/useAtomRef/index')['useAtomRef']
   const useAttrs: typeof import('vue')['useAttrs']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
   const useBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']
@@ -127,6 +131,8 @@ declare global {
   const useIntersectionObserver: typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useIntersectionObserver']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
   const useLayout: typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']
+  const useLayoutContext: typeof import('../../packages/0/src/composables/useLayout/index')['useLayoutContext']
+  const useLayoutItem: typeof import('../../packages/0/src/composables/useLayout/index')['useLayoutItem']
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']
   const useModel: typeof import('vue')['useModel']
@@ -204,7 +210,7 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { LayoutLocation, LayoutTicket, LayoutContext, LayoutOptions } from '../../packages/0/src/composables/useLayout/index'
+  export type { LayoutLocation, LayoutTicket, LayoutContext, LayoutOptions, LayoutPlugin } from '../../packages/0/src/composables/useLayout/index'
   import('../../packages/0/src/composables/useLayout/index')
   // @ts-ignore
   export type { LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
@@ -269,6 +275,8 @@ declare module 'vue' {
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
+    readonly createLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['createLayout']>
+    readonly createLayoutPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['createLayoutPlugin']>
     readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
@@ -325,6 +333,7 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']>
     readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
+    readonly provideLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['provideLayout']>
     readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
@@ -344,6 +353,7 @@ declare module 'vue' {
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
+    readonly useAtomRef: UnwrapRef<typeof import('../../packages/0/src/composables/useAtomRef/index')['useAtomRef']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
     readonly useBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']>
@@ -367,6 +377,8 @@ declare module 'vue' {
     readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']>
+    readonly useLayoutContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['useLayoutContext']>
+    readonly useLayoutItem: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['useLayoutItem']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>

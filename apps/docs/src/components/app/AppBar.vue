@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  // Components
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+ // Components
+  import { Atom, useBreakpoints, useLayoutItem, useAtomRef } from '@vuetify/v0'
 
   // Composables
   import { useAppContext } from '@/composables/useApp'
@@ -12,13 +12,27 @@
 
   const breakpoints = useBreakpoints()
   const app = useAppContext()
+
+  const appBarRef = useAtomRef('appBarRef')
+  const appBar = useLayoutItem({
+    id: 'appBar',
+    position: 'top',
+    element: appBarRef,
+    value: 48,
+  })
 </script>
 
 <template>
   <Atom
+    ref="appBarRef"
     :as
-    class="app-header flex items-center justify-between h-[48px] fixed left-[220px] top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
-    :class="breakpoints.isMobile && 'left-0'"
+    class="app-header flex items-center justify-between fixed px-3"
+    :style="{
+      left: appBar.rect.x.value + 'px',
+      top: appBar.rect.y.value + 'px',
+      height: appBar.rect.height.value + 'px',
+      width: appBar.rect.width.value + 'px',
+    }"
   >
     <AppIcon
       v-if="breakpoints.isMobile"
