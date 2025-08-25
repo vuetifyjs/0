@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/paper",
-  "version": "0.0.2-beta.3",
+  "version": "0.0.2-beta.4",
   "description": "Vuetify Paper",
   "license": "MIT",
   "main": "./dist/index.mjs",
@@ -43,7 +43,6 @@
     "@vuetify/v0": "workspace:*"
   },
   "devDependencies": {
-    "@vue/test-utils": "catalog:",
     "rollup-plugin-sass": "^1.15.3",
     "sass": "^1.90.0",
     "tsdown": "^0.13.3",

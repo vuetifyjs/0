@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/storybook",
-  "version": "0.0.2-beta.3",
+  "version": "0.0.2-beta.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
   "devDependencies": {
     "@storybook/vue3-vite": "^9.0.13",
     "storybook": "^9.0.13",
-    "unocss": "^66.3.2",
+    "unocss": "catalog:",
     "unplugin-vue": "catalog:",
     "vite": "catalog:",
     "vue": "catalog:"
