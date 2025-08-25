@@ -130,10 +130,7 @@
   })
 
   watchEffect(() => {
-    if (!breakpoints.isMobile) {
-      navBar.ticket.select()
-    }
-    if (app.nav.value) {
+    if (app.nav.value || !breakpoints.isMobile) {
       navBar.ticket.select()
     }
     if (breakpoints.isMobile && !app.nav.value) {
