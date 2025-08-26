@@ -18,6 +18,7 @@ declare module 'vue' {
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
     DocsBackmatter: typeof import('./components/docs/DocsBackmatter.vue')['default']
+    DocsBackToTop: typeof import('./components/docs/DocsBackToTop.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
     DocsPageFeatures: typeof import('./components/docs/DocsPageFeatures.vue')['default']
     Mermaid: typeof import('./components/Mermaid.vue')['default']
