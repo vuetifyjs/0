@@ -1,11 +1,5 @@
 <script lang="ts" setup>
-  import { provideAppContext } from '@/composables/useApp'
-  import { shallowRef } from 'vue'
   import { useTheme } from '@vuetify/v0'
-
-  provideAppContext({
-    nav: shallowRef(false),
-  })
 
   const theme = useTheme()
 </script>

@@ -3,15 +3,15 @@
   import { Atom, useBreakpoints } from '@vuetify/v0'
 
   // Composables
-  import { useAppContext } from '@/composables/useApp'
+  import { useAppStore } from '@/stores/app'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'header' } = defineProps<AtomProps>()
 
+  const app = useAppStore()
   const breakpoints = useBreakpoints()
-  const app = useAppContext()
 </script>
 
 <template>
@@ -23,8 +23,8 @@
     <AppIcon
       v-if="breakpoints.isMobile"
       class="pa-1 cursor-pointer"
-      :icon="app.nav.value ? 'close' : 'menu'"
-      @click="app.nav.value = !app.nav.value"
+      :icon="app.drawer ? 'close' : 'menu'"
+      @click="app.drawer = !app.drawer"
     />
 
     <span v-else />
