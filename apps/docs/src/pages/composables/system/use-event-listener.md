@@ -1,7 +1,3 @@
-<script setup>
-  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
-</script>
-
 # useEventListener
 
 A composable for handling DOM events with automatic cleanup. Register using addEventListener on mounted, and removeEventListener automatically on unmounted.
@@ -101,8 +97,8 @@ useEventListener(card, 'mouseleave', () => {
 </script>
 
 <template>
-  <div 
-    ref="card" 
+  <div
+    ref="card"
     :class="{ 'hovered': isHovered }"
     class="interactive-card"
   >
@@ -221,7 +217,7 @@ useEventListener(scrollContainer, 'scroll', (evt) => {
 <script setup>
 // Switch between touch and mouse events based on device
 const isTouchDevice = ref('ontouchstart' in window)
-const eventType = computed(() => 
+const eventType = computed(() =>
   isTouchDevice.value ? 'touchstart' : 'mousedown'
 )
 
@@ -283,7 +279,7 @@ useEventListener(form, 'submit', (evt: SubmitEvent) => {
   evt.preventDefault()
   const form = evt.currentTarget as HTMLFormElement
   const data = new FormData(form)
-  
+
   formData.value = {
     email: data.get('email') as string,
     password: data.get('password') as string
