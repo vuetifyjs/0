@@ -1,0 +1,68 @@
+<script lang="ts" setup>
+  import { computed } from 'vue'
+  import { useAppStore } from '@/stores/app'
+  import { useRoute } from 'vue-router'
+
+  const app = useAppStore()
+  const route = useRoute()
+
+  const routes = computed(() => {
+    const pages = []
+
+    for (const nav of app.nav) {
+      if (!nav.children && !nav.to) continue
+
+      pages.push(...genRoutes(nav))
+    }
+
+    return pages
+  })
+  const path = computed(() => `/${route.path.split('/').slice(1).join('/')}`)
+  const index = computed(() => routes.value.indexOf(path.value))
+  const prev = computed(() => index.value > -1 ? routes.value[index.value - 1] : false)
+  const next = computed(() => index.value === -1 ? false : routes.value[index.value + 1])
+
+  function genRoutes (nav: any) {
+    if (nav.children) {
+      return nav.children.flatMap((child: any) => genRoutes(child))
+    }
+
+    return nav.to ? [nav.to] : []
+  }
+</script>
+
+<template>
+  <nav aria-label="Document navigation" class="flex gap-2">
+    <RouterLink
+      v-if="prev"
+      class="grow cursor-pointer capitalize border rounded-lg pa-2"
+      :to="prev"
+    >
+      <div class="inline-flex align-center text-xs text-gray-500">
+        <AppIcon icon="left" />
+
+        Previous page
+      </div>
+
+      <div class="font-medium ps-1">
+        {{ prev.split('/').pop().replace(/-/g, ' ') }}
+      </div>
+    </RouterLink>
+
+    <RouterLink
+      v-if="next"
+      class="grow cursor-pointer capitalize border rounded-lg pa-2 text-end"
+      :to="next"
+    >
+      <div class="inline-flex align-center text-xs text-gray-500">
+        Next page
+
+        <AppIcon icon="right" />
+      </div>
+
+      <div class="font-medium pe-1">
+        {{ next.split('/').pop().replace(/-/g, ' ') }}
+      </div>
+    </RouterLink>
+  </nav>
+</template>

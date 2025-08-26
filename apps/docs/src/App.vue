@@ -13,6 +13,11 @@
 <style>
   #app > div {
     background-color: var(--v0-background);
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--v0-divider);
+    }
   }
 
   .border {
