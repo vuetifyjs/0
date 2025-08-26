@@ -19,7 +19,7 @@ import {
 import { IN_BROWSER } from '#v0/constants/globals.ts'
 
 // Types
-import type { Ref, ComputedRef, ShallowReactive, ShallowRef, App } from 'vue'
+import type { ComputedRef, ShallowReactive, ShallowRef, App } from 'vue'
 import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
 
@@ -34,10 +34,10 @@ export interface LayoutTicket extends GroupTicket {
 
 export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   bounds: {
-    top: Ref<number>
-    bottom: Ref<number>
-    left: Ref<number>
-    right: Ref<number>
+    top: ComputedRef<number>
+    bottom: ComputedRef<number>
+    left: ComputedRef<number>
+    right: ComputedRef<number>
   }
   main: {
     x: ComputedRef<number>
@@ -57,7 +57,7 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
 }
 
 export interface LayoutOptions extends GroupOptions {
-  el?: Ref<HTMLElement | null>
+  el?: ShallowRef<HTMLElement | null>
 }
 
 export interface LayoutPlugin {
