@@ -33,6 +33,7 @@ declare global {
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']
+  const createRegistryContext: typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']
   const createStorage: typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']
   const createStoragePlugin: typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']
   const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
@@ -114,8 +115,8 @@ declare global {
   const useCssVars: typeof import('vue')['useCssVars']
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']
   const useDocumentEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']
-  const useElementIntersection: typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useElementIntersection']
-  const useElementSize: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useElementSize']
+  const useElementIntersection: typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useElementIntersection']
+  const useElementSize: typeof import('../../packages/0/src/composables/useResizeObserver/index')['useElementSize']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']
   const useFilter: typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']
@@ -124,15 +125,16 @@ declare global {
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']
   const useHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']
   const useId: typeof import('vue')['useId']
-  const useIntersectionObserver: typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useIntersectionObserver']
+  const useIntersectionObserver: typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
   const useLayout: typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']
   const useModel: typeof import('vue')['useModel']
+  const useMutationObserver: typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']
   const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']
   const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
-  const useResizeObserver: typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']
+  const useResizeObserver: typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
   const useSelection: typeof import('../../packages/0/src/composables/useSelection/index')['useSelection']
   const useSingle: typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']
@@ -168,12 +170,6 @@ declare global {
   export type { ElevationConfig, ElevationOptions, ElevationProps } from '../../packages/paper/src/composables/useElevation/index'
   import('../../packages/paper/src/composables/useElevation/index')
   // @ts-ignore
-  export type { IntersectionObserverEntry, IntersectionObserverOptions } from '../../packages/paper/src/composables/useIntersectionObserver/index'
-  import('../../packages/paper/src/composables/useIntersectionObserver/index')
-  // @ts-ignore
-  export type { ResizeObserverEntry, ResizeObserverOptions } from '../../packages/paper/src/composables/useResizeObserver/index'
-  import('../../packages/paper/src/composables/useResizeObserver/index')
-  // @ts-ignore
   export type { RoundedProps } from '../../packages/paper/src/composables/useRounded/index'
   import('../../packages/paper/src/composables/useRounded/index')
   // @ts-ignore
@@ -201,6 +197,9 @@ declare global {
   export type { HydrationContext, HydrationPlugin } from '../../packages/0/src/composables/useHydration/index'
   import('../../packages/0/src/composables/useHydration/index')
   // @ts-ignore
+  export type { IntersectionObserverEntry, IntersectionObserverOptions } from '../../packages/0/src/composables/useIntersectionObserver/index'
+  import('../../packages/0/src/composables/useIntersectionObserver/index')
+  // @ts-ignore
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
@@ -213,11 +212,17 @@ declare global {
   export type { LoggerContext, LoggerOptions, LoggerPlugin, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
   import('../../packages/0/src/composables/useLogger/index')
   // @ts-ignore
+  export type { MutationObserverRecord, UseMutationObserverOptions } from '../../packages/0/src/composables/useMutationObserver/index'
+  import('../../packages/0/src/composables/useMutationObserver/index')
+  // @ts-ignore
   export type { ProxyModelOptions } from '../../packages/0/src/composables/useProxyModel/index'
   import('../../packages/0/src/composables/useProxyModel/index')
   // @ts-ignore
   export type { RegistryTicket, RegistryContext, RegistryOptions } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
+  // @ts-ignore
+  export type { ResizeObserverEntry, ResizeObserverOptions } from '../../packages/0/src/composables/useResizeObserver/index'
+  import('../../packages/0/src/composables/useResizeObserver/index')
   // @ts-ignore
   export type { SelectionTicket, SelectionContext, SelectionOptions } from '../../packages/0/src/composables/useSelection/index'
   import('../../packages/0/src/composables/useSelection/index')
@@ -273,6 +278,7 @@ declare module 'vue' {
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
+    readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']>
     readonly createStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']>
     readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
@@ -354,8 +360,8 @@ declare module 'vue' {
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
     readonly useDocumentEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']>
-    readonly useElementIntersection: UnwrapRef<typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useElementIntersection']>
-    readonly useElementSize: UnwrapRef<typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useElementSize']>
+    readonly useElementIntersection: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useElementIntersection']>
+    readonly useElementSize: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useElementSize']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
     readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
     readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
@@ -364,15 +370,16 @@ declare module 'vue' {
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
-    readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/paper/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
+    readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
     readonly useLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useMutationObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']>
     readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
     readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
-    readonly useResizeObserver: UnwrapRef<typeof import('../../packages/paper/src/composables/useResizeObserver/index')['useResizeObserver']>
+    readonly useResizeObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
     readonly useSelection: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['useSelection']>
     readonly useSingle: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']>
