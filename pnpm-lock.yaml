@@ -119,6 +119,9 @@ importers:
       '@types/markdown-it-attrs':
         specifier: ^4.1.3
         version: 4.1.3
+      '@unocss/reset':
+        specifier: ^66.4.2
+        version: 66.4.2
       markdown-it-attrs:
         specifier: ^4.3.1
         version: 4.3.1(markdown-it@14.1.0)
