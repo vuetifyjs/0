@@ -47,10 +47,6 @@ export interface LoggerOptions {
   enabled?: boolean
 }
 
-export interface LoggerPlugin {
-  install: (app: App, ...options: any[]) => any
-}
-
 const [useLoggerContext, provideLoggerContext] = createContext<LoggerContext>('v0:logger')
 
 /**
@@ -184,10 +180,10 @@ export function useLogger (namespace?: string): LoggerContext {
   return createFallbackLogger(namespace)
 }
 
-export function createLoggerPlugin (options: LoggerOptions = {}): LoggerPlugin {
+export function createLoggerPlugin (options: LoggerOptions = {}) {
   const context = createLogger(options)
 
-  return createPlugin<LoggerPlugin>({
+  return createPlugin({
     namespace: 'v0:logger',
     provide: (app: App) => {
       provideLoggerContext(context, app)

@@ -47,10 +47,6 @@ export interface BreakpointsOptions {
   breakpoints?: Partial<Record<BreakpointName, number>>
 }
 
-export interface BreakpointsPlugin {
-  install: (app: App, ...options: any[]) => any
-}
-
 export const [useBreakpointsContext, provideBreakpointsContext] = createContext<BreakpointsContext>('v0:breakpoints')
 
 /**
@@ -192,10 +188,10 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
  * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
  * @returns A Vue plugin object with install method.
  */
-export function createBreakpointsPlugin (options: BreakpointsOptions = {}): BreakpointsPlugin {
+export function createBreakpointsPlugin (options: BreakpointsOptions = {}) {
   const context = createBreakpoints(options)
 
-  return createPlugin<BreakpointsPlugin>({
+  return createPlugin({
     namespace: 'v0:breakpoints',
     provide: (app: App) => {
       provideBreakpointsContext(context, app)

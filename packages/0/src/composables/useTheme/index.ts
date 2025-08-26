@@ -59,10 +59,6 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
   themes?: Record<ID, Z>
 }
 
-export interface ThemePlugin {
-  install: (app: App, ...options: any[]) => any
-}
-
 /**
  * Creates a theme registry for managing theme selections with dynamic color resolution.
  * Supports token-based color systems and lazy theme loading for optimal performance.
@@ -198,7 +194,7 @@ export function createThemePlugin<
   E extends ThemeContext<Z> = ThemeContext<Z>,
   R extends TokenTicket = TokenTicket,
   O extends TokenContext<R> = TokenContext<R>,
-> (_options: ThemePluginOptions = {}): ThemePlugin {
+> (_options: ThemePluginOptions = {}) {
   const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {}, ...options } = _options
   const [, provideThemeTokenContext, tokensContext] = createTokensContext<R, O>('v0:theme:tokens', { palette, ...themes })
   const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', { ...options, themes, palette })
@@ -207,7 +203,7 @@ export function createThemePlugin<
     adapter.update(colors)
   }
 
-  return createPlugin<ThemePlugin>({
+  return createPlugin({
     namespace: 'v0:theme',
     provide: (app: App) => {
       provideThemeContext(themeContext, app)
