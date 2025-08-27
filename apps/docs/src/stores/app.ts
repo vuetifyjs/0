@@ -8,6 +8,7 @@ export const useAppStore = defineStore('app', {
         name: 'Introduction',
         children: [
           { name: 'Welcome', to: '/introduction/welcome' },
+          { name: 'Getting Started', to: '/introduction/getting-started' },
           { name: 'Frequently Asked', to: '/introduction/frequently-asked' },
           { name: 'Contributing', to: '/introduction/contributing' },
         ],
@@ -15,8 +16,9 @@ export const useAppStore = defineStore('app', {
       { divider: true },
       {
         name: 'Guide',
+        to: '/guide',
         children: [
-          { name: 'Installation', to: '/guide/installation' },
+          { name: 'Features', to: '/guide/features' },
           { name: 'Structure', to: '/guide/structure' },
           { name: 'Framework core', to: '/guide/framework-core' },
           { name: 'Composables', to: '/guide/composables' },

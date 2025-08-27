@@ -70,10 +70,14 @@
     ul, ol {
       list-style-type: disc;
       padding-left: 1.5rem;
+    }
+
+    ul:not(:last-child),
+    ol:not(:last-child) {
       margin-bottom: 1rem;
     }
 
-    li {
+    li:not(:last-child) {
       margin-bottom: 0.5rem;
     }
 
