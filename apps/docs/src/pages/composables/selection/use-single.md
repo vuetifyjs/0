@@ -7,11 +7,6 @@ category: Selection
 performance: 0
 ---
 
-<script setup>
-  import Mermaid from '@/components/Mermaid.vue'
-  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
-</script>
-
 # useSingle
 
 A wrapper around `useGroup` that provides a simplified API for single-selection scenarios with singular selection properties and streamlined selection methods.

@@ -3,31 +3,41 @@
   import { Atom, useBreakpoints } from '@vuetify/v0'
 
   // Composables
-  import { useAppContext } from '@/composables/useApp'
+  import { useAppStore } from '@/stores/app'
+  import { useAuthStore } from '@vuetify/one'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'header' } = defineProps<AtomProps>()
 
+  const app = useAppStore()
+  const auth = useAuthStore()
   const breakpoints = useBreakpoints()
-  const app = useAppContext()
 </script>
 
 <template>
   <Atom
     :as
-    class="app-header flex items-center justify-between h-[48px] fixed left-[220px] top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
+    class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
     :class="breakpoints.isMobile && 'left-0'"
   >
-    <AppIcon
-      v-if="breakpoints.isMobile"
-      class="pa-1 cursor-pointer"
-      :icon="app.nav.value ? 'close' : 'menu'"
-      @click="app.nav.value = !app.nav.value"
-    />
+    <div class="flex items-center gap-1">
+      <img
+        alt="Vuetify0 Logo"
+        decoding="async"
+        fetchpriority="high"
+        src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png"
+        width="128"
+      >
 
-    <span v-else />
+      <AppIcon
+        v-if="breakpoints.isMobile"
+        class="pa-1 cursor-pointer"
+        :icon="app.drawer ? 'close' : 'menu'"
+        @click="app.drawer = !app.drawer"
+      />
+    </div>
 
     <div class="flex align-center items-center gap-3">
       <a
@@ -59,6 +69,16 @@
       >
         <AppIcon icon="vuetify" />
       </a>
+
+      <img
+        v-if="auth.user?.picture"
+        alt="Vuetify One Avatar"
+        class="rounded-full"
+        height="28"
+        :src="auth.user.picture"
+        title="Vuetify One Avatar"
+        width="28"
+      >
     </div>
   </Atom>
 </template>

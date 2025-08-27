@@ -34,10 +34,6 @@ export interface LocalePluginOptions<Z extends TokenCollection = TokenCollection
   messages?: Record<ID, Z>
 }
 
-export interface LocalePlugin {
-  install: (app: App, ...options: any[]) => any
-}
-
 /**
  * Creates a locale registry for managing internationalization with translations and number formatting.
  * Supports message resolution with token references and locale-specific number formatting.
@@ -135,12 +131,12 @@ export function createLocalePlugin<
   E extends LocaleContext<Z> = LocaleContext<Z>,
   R extends TokenTicket = TokenTicket,
   O extends TokenContext<R> = TokenContext<R>,
-> (options: LocalePluginOptions = {}): LocalePlugin {
+> (options: LocalePluginOptions = {}) {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
   const [, provideLocaleTokenContext, tokensContext] = createTokensContext<R, O>('v0:locale:tokens', messages)
   const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { adapter, messages })
 
-  return createPlugin<LocalePlugin>({
+  return createPlugin({
     namespace: 'v0:locale',
     provide: (app: App) => {
       provideLocaleContext(localeContext, app)

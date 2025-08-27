@@ -1,7 +1,3 @@
-<script setup>
-  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
-</script>
-
 # Components
 
 A collection of foundational components designed to be headless, accessible, and highly customizable.
@@ -35,7 +31,7 @@ The foundational component that all other components build upon. Provides dynami
 ```vue
 <script setup>
 import { Atom } from '@vuetify/v0'
-</script>
+</#>
 
 <template>
   <!-- Render as different elements -->

@@ -26,15 +26,19 @@
   })
 
   const github = toRef(() => {
-    if (!props.frontmatter) return false
+    const github = props.frontmatter?.features?.github
 
-    return `https://github.com/vuetifyjs/0/tree/master/packages/0/src${props.frontmatter.features.github}`
+    if (!github) return false
+
+    return `https://github.com/vuetifyjs/0/tree/master/packages/0/src${github}`
   })
 
   const label = toRef(() => {
-    if (!props.frontmatter) return false
+    const label = props.frontmatter?.features?.label
 
-    const original = encodeURIComponent(props.frontmatter.features.label)
+    if (!label) return false
+
+    const original = encodeURIComponent(label)
 
     return `https://github.com/vuetifyjs/0/labels/${original}`
   })

@@ -26,9 +26,11 @@
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
+    "@vuetify/one": "^2.3.1",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "mermaid": "^11.9.0",
+    "pinia": "^3.0.3",
     "vue": "catalog:",
     "vue-router": "^4.5.1"
   }

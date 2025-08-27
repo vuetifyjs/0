@@ -3,10 +3,10 @@
   import { useTheme } from '#v0/composables/useTheme'
 
   // Types
-  import type { ThemeContext } from '#v0/composables/useTheme'
+  import type { ThemeContext, ThemeTicket } from '#v0/composables/useTheme'
 
   export interface ThemeSlots {
-    default: (scope: ThemeContext) => any
+    default: (scope: ThemeContext<ThemeTicket>) => any
   }
 </script>
 

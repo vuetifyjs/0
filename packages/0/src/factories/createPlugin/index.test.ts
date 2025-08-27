@@ -9,10 +9,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { App } from 'vue'
 import type { PluginOptions } from './index'
 
-interface TestPlugin {
-  install: (app: App) => void
-}
-
 describe('createPlugin', () => {
   let mockApp: App
   let mockRunWithContext: ReturnType<typeof vi.fn>
@@ -35,7 +31,7 @@ describe('createPlugin', () => {
       provide: mockProvide,
     }
 
-    const plugin = createPlugin<TestPlugin>(options)
+    const plugin = createPlugin(options)
 
     expect(plugin).toHaveProperty('install')
     expect(typeof plugin.install).toBe('function')
@@ -47,7 +43,7 @@ describe('createPlugin', () => {
       provide: mockProvide,
     }
 
-    const plugin = createPlugin<TestPlugin>(options)
+    const plugin = createPlugin(options)
     plugin.install(mockApp)
 
     expect(mockRunWithContext).toHaveBeenCalledOnce()
@@ -60,7 +56,7 @@ describe('createPlugin', () => {
       provide: mockProvide,
     }
 
-    const plugin = createPlugin<TestPlugin>(options)
+    const plugin = createPlugin(options)
     plugin.install(mockApp)
 
     expect(mockProvide).toHaveBeenCalledOnce()
@@ -74,7 +70,7 @@ describe('createPlugin', () => {
       setup: mockSetup,
     }
 
-    const plugin = createPlugin<TestPlugin>(options)
+    const plugin = createPlugin(options)
     plugin.install(mockApp)
 
     expect(mockSetup).toHaveBeenCalledOnce()
@@ -87,7 +83,7 @@ describe('createPlugin', () => {
       provide: mockProvide,
     }
 
-    const plugin = createPlugin<TestPlugin>(options)
+    const plugin = createPlugin(options)
     plugin.install(mockApp)
 
     expect(mockSetup).not.toHaveBeenCalled()
@@ -101,7 +97,7 @@ describe('createPlugin', () => {
       setup: asyncSetup,
     }
 
-    const plugin = createPlugin<TestPlugin>(options)
+    const plugin = createPlugin(options)
     plugin.install(mockApp)
 
     expect(asyncSetup).toHaveBeenCalledOnce()
@@ -117,7 +113,7 @@ describe('createPlugin', () => {
         provide: mockProvide,
       }
 
-      const plugin = createPlugin<TestPlugin>(options)
+      const plugin = createPlugin(options)
 
       expect(plugin).toHaveProperty('install')
       expect(typeof plugin.install).toBe('function')
@@ -141,7 +137,7 @@ describe('createPlugin', () => {
       setup: orderTrackingSetup,
     }
 
-    const plugin = createPlugin<TestPlugin>(options)
+    const plugin = createPlugin(options)
     plugin.install(mockApp)
 
     expect(executionOrder).toEqual(['provide', 'setup'])
@@ -176,7 +172,7 @@ describe('createPlugin', () => {
       setup: realSetup,
     }
 
-    const plugin = createPlugin<TestPlugin>(options)
+    const plugin = createPlugin(options)
 
     expect(() => {
       plugin.install(realApp)

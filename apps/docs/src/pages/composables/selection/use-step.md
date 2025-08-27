@@ -7,11 +7,6 @@ category: Navigation
 performance: 0
 ---
 
-<script setup>
-  import Mermaid from '@/components/Mermaid.vue'
-  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
-</script>
-
 # useStep
 
 A composable for managing navigation through multi-step processes like forms, wizards, or onboarding flows, with support for step tracking, completion, and navigation controls.
@@ -20,7 +15,7 @@ A composable for managing navigation through multi-step processes like forms, wi
 
 ## Usage
 
-The `useStep` composable manages a list of steps and allows navigation between them in a controlled way.  
+The `useStep` composable manages a list of steps and allows navigation between them in a controlled way.
 You register each step (with an `id` and value) in the order they should be navigated, then use the navigation methods to move
 
 ```ts

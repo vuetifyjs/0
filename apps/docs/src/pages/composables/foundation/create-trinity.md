@@ -7,10 +7,6 @@ category: Factory
 performance: 0
 ---
 
-<script setup>
-  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
-</script>
-
 # createTrinity
 
 The **createTrinity** factory function is a type-safe utility for generating a 3-item tuple —called a **trinity**—which contains a context consumer, a provider, and the underlying context object.

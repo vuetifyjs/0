@@ -7,11 +7,6 @@ category: Registration
 performance: 0
 ---
 
-<script setup>
-  import Mermaid from '@/components/Mermaid.vue'
-  import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
-</script>
-
 # useRegistry
 
 A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing, and lifecycle management.
