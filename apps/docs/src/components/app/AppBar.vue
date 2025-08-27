@@ -38,6 +38,7 @@
   >
     <div class="flex items-center gap-1">
       <img
+        v-if="!breakpoints.isMobile"
         alt="Vuetify0 Logo"
         decoding="async"
         fetchpriority="high"
@@ -46,7 +47,7 @@
       >
 
       <AppIcon
-        v-if="breakpoints.isMobile"
+        v-else
         class="pa-1 cursor-pointer"
         :icon="app.drawer ? 'close' : 'menu'"
         @click="app.drawer = !app.drawer"
