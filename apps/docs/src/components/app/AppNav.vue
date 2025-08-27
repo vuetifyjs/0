@@ -21,19 +21,12 @@
 <template>
   <Atom
     :as
-    class="bg-4 app-nav flex flex-col fixed w-[220px] overflow-y-auto pb-4 transition-transform duration-200 ease-in-out"
+    class="bg-4 app-nav flex flex-col fixed top-[72px] w-[220px] overflow-y-auto py-4 transition-transform duration-200 ease-in-out"
     :class="[
       breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
       breakpoints.isMobile ? 'top-[72px] bottom-[24px]' : 'top-[24px] bottom-0'
     ]"
   >
-    <img
-      alt="Vuetify0 Logo"
-      decoding="async"
-      fetchpriority="high"
-      src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png"
-    >
-
     <ul class="flex gap-2 flex-col">
       <template v-for="(nav, i) in app.nav" :key="i">
         <div v-if="nav.divider" class="px-4">
