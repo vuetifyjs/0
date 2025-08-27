@@ -46,5 +46,8 @@
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.5"
   },
+  "patchedDependencies": {
+    "vite-plugin-vuetify@2.1.2": "patches/vite-plugin-vuetify@2.1.2.patch"
+  },
   "packageManager": "pnpm@10.14.0"
 }

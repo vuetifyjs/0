@@ -3,9 +3,11 @@
 </script>
 
 <template>
-  <AppBanner />
-  <AppNav />
-  <AppBar />
-  <AppMain />
-  <AppFooter />
+  <v-layout>
+    <!-- <AppBanner /> -->
+    <AppNav />
+    <AppBar />
+    <AppMain />
+    <AppFooter />
+  </v-layout>
 </template>

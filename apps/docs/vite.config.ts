@@ -4,6 +4,7 @@ import VueRouter from 'unplugin-vue-router/vite'
 import Markdown from 'unplugin-vue-markdown/vite'
 import Components from 'unplugin-vue-components/vite'
 import Attrs from 'markdown-it-attrs'
+import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
@@ -41,6 +42,7 @@ export default defineConfig({
     }),
     Vue({
       include: [/\.vue$/, /\.md$/],
+      template: { transformAssetUrls },
     }),
     Markdown({
       markdownItOptions: {
@@ -66,6 +68,9 @@ export default defineConfig({
     }),
     UnocssVitePlugin(),
     Layouts(),
+    Vuetify({
+      autoImport: true,
+    }),
   ],
   define: {
     'process.env': {},
@@ -73,6 +78,9 @@ export default defineConfig({
     '__VUE_OPTIONS_API__': 'true',
     '__VUE_PROD_DEVTOOLS__': 'false',
     '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': 'false',
+  },
+  optimizeDeps: {
+    exclude: ['vuetify'],
   },
   resolve: {
     alias: {
