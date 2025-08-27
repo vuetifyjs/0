@@ -6,8 +6,8 @@ export const useAppStore = defineStore('app', {
     nav: [
       {
         name: 'Introduction',
+        to: '/',
         children: [
-          { name: 'Welcome', to: '/introduction/welcome' },
           { name: 'Getting Started', to: '/introduction/getting-started' },
           { name: 'Frequently Asked', to: '/introduction/frequently-asked' },
           { name: 'Contributing', to: '/introduction/contributing' },
