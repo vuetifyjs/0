@@ -61,7 +61,6 @@ declare module 'vue-router/auto-routes' {
     '/introduction/contributing': RouteRecordInfo<'/introduction/contributing', '/introduction/contributing', Record<never, never>, Record<never, never>>,
     '/introduction/frequently-asked': RouteRecordInfo<'/introduction/frequently-asked', '/introduction/frequently-asked', Record<never, never>, Record<never, never>>,
     '/introduction/getting-started': RouteRecordInfo<'/introduction/getting-started', '/introduction/getting-started', Record<never, never>, Record<never, never>>,
-    '/introduction/welcome': RouteRecordInfo<'/introduction/welcome', '/introduction/welcome', Record<never, never>, Record<never, never>>,
     '/utilities/to-reactive': RouteRecordInfo<'/utilities/to-reactive', '/utilities/to-reactive', Record<never, never>, Record<never, never>>,
   }
 }

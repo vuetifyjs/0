@@ -52,13 +52,6 @@
       top: navBar.rect.y.value + 'px',
     }"
   >
-    <img
-      alt="Vuetify0 Logo"
-      decoding="async"
-      fetchpriority="high"
-      src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png"
-    >
-
     <ul class="flex gap-2 flex-col">
       <template v-for="(nav, i) in app.nav" :key="i">
         <div v-if="nav.divider" class="px-4">

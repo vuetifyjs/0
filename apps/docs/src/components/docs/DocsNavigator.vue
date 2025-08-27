@@ -7,7 +7,7 @@
   const route = useRoute()
 
   const routes = computed(() => {
-    const pages = []
+    const pages = ['/']
 
     for (const nav of app.nav) {
       if (!nav.children && !nav.to) continue
@@ -32,9 +32,14 @@
 </script>
 
 <template>
-  <nav aria-label="Document navigation" class="flex gap-2">
+  <hr class="my-4">
+
+  <nav
+    aria-label="Document navigation"
+    class="flex gap-2"
+  >
     <RouterLink
-      v-if="prev"
+      v-if="prev && prev !== '/'"
       class="flex-1 basis-0 cursor-pointer capitalize border rounded-lg pa-2"
       :to="prev"
     >
@@ -45,12 +50,14 @@
       </div>
 
       <div class="font-medium ps-1">
-        {{ prev.split('/').pop().replace(/-/g, ' ') }}
+        {{ prev.split('/').pop()!.replace(/-/g, ' ') }}
       </div>
     </RouterLink>
 
+    <span v-else class="flex-1 basis-0" />
+
     <RouterLink
-      v-if="next"
+      v-if="next && next !== '/'"
       class="flex-1 basis-0 cursor-pointer capitalize border rounded-lg pa-2 text-end"
       :to="next"
     >
@@ -61,8 +68,10 @@
       </div>
 
       <div class="font-medium pe-1">
-        {{ next.split('/').pop().replace(/-/g, ' ') }}
+        {{ next.split('/').pop()!.replace(/-/g, ' ') }}
       </div>
     </RouterLink>
+
+    <span v-else class="flex-1 basis-0" />
   </nav>
 </template>
