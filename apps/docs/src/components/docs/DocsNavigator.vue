@@ -35,7 +35,7 @@
   <nav aria-label="Document navigation" class="flex gap-2">
     <RouterLink
       v-if="prev"
-      class="grow cursor-pointer capitalize border rounded-lg pa-2"
+      class="flex-1 basis-0 cursor-pointer capitalize border rounded-lg pa-2"
       :to="prev"
     >
       <div class="inline-flex align-center text-xs text-gray-500">
@@ -51,7 +51,7 @@
 
     <RouterLink
       v-if="next"
-      class="grow cursor-pointer capitalize border rounded-lg pa-2 text-end"
+      class="flex-1 basis-0 cursor-pointer capitalize border rounded-lg pa-2 text-end"
       :to="next"
     >
       <div class="inline-flex align-center text-xs text-gray-500">
