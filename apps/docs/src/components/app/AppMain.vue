@@ -7,7 +7,7 @@
 
 <template>
   <div
-    class="pa-4 fixed transition-all duration-100 ease-in-out"
+    class="pa-4 fixed"
     :style="{
       top: layout.main.y.value + 'px',
       width: layout.main.width.value + 'px',

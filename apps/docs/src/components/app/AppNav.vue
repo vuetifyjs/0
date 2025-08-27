@@ -26,10 +26,10 @@
   })
 
   watchEffect(() => {
-    if (app.nav.value || !breakpoints.isMobile) {
+    if (app.drawer || !breakpoints.isMobile) {
       navBar.ticket.select()
     }
-    if (breakpoints.isMobile && !app.nav.value) {
+    if (breakpoints.isMobile && !app.drawer) {
       navBar.ticket.unselect()
     }
   })
@@ -42,7 +42,7 @@
     :as
     class="bg-4 z-1000 app-nav flex flex-col pb-4 fixed overflow-y-auto transition-transform duration-200 ease-in-out"
     :class="[
-      breakpoints.isMobile && !app.nav.value ? 'translate-x-[-100%]' : 'translate-x-0',
+      breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
       breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
     ]"
     :style="{

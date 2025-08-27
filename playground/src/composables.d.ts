@@ -185,7 +185,7 @@ declare global {
   export type { Theme, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
-  export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPlugin } from '../../packages/0/src/composables/useBreakpoints/index'
+  export type { BreakpointName, BreakpointsContext, BreakpointsOptions } from '../../packages/0/src/composables/useBreakpoints/index'
   import('../../packages/0/src/composables/useBreakpoints/index')
   // @ts-ignore
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
@@ -200,7 +200,7 @@ declare global {
   export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
-  export type { HydrationContext, HydrationPlugin } from '../../packages/0/src/composables/useHydration/index'
+  export type { HydrationContext } from '../../packages/0/src/composables/useHydration/index'
   import('../../packages/0/src/composables/useHydration/index')
   // @ts-ignore
   export type { IntersectionObserverEntry, IntersectionObserverOptions } from '../../packages/0/src/composables/useIntersectionObserver/index'
@@ -212,10 +212,10 @@ declare global {
   export type { LayoutLocation, LayoutTicket, LayoutContext, LayoutOptions, LayoutPlugin } from '../../packages/0/src/composables/useLayout/index'
   import('../../packages/0/src/composables/useLayout/index')
   // @ts-ignore
-  export type { LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions, LocalePlugin } from '../../packages/0/src/composables/useLocale/index'
+  export type { LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
   // @ts-ignore
-  export type { LoggerContext, LoggerOptions, LoggerPlugin, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
+  export type { LoggerContext, LoggerOptions, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
   import('../../packages/0/src/composables/useLogger/index')
   // @ts-ignore
   export type { MutationObserverRecord, UseMutationObserverOptions } from '../../packages/0/src/composables/useMutationObserver/index'
@@ -239,10 +239,10 @@ declare global {
   export type { StepTicket, StepContext, StepOptions } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
-  export type { StorageContext, StorageOptions, StoragePlugin } from '../../packages/0/src/composables/useStorage/index'
+  export type { StorageContext, StorageOptions } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
   // @ts-ignore
-  export type { Colors, ThemeColors, ThemeRecord, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions, ThemePlugin } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeColors, ThemeRecord, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
   export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
