@@ -4,6 +4,7 @@
 
   // Composables
   import { useAppStore } from '@/stores/app'
+  import { useAuthStore } from '@vuetify/one'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -11,6 +12,7 @@
   const { as = 'header' } = defineProps<AtomProps>()
 
   const app = useAppStore()
+  const auth = useAuthStore()
   const breakpoints = useBreakpoints()
 </script>
 
@@ -59,6 +61,16 @@
       >
         <AppIcon icon="vuetify" />
       </a>
+
+      <img
+        v-if="auth.user?.picture"
+        alt="Vuetify One Avatar"
+        class="rounded-full"
+        height="28"
+        :src="auth.user.picture"
+        title="Vuetify One Avatar"
+        width="28"
+      >
     </div>
   </Atom>
 </template>
