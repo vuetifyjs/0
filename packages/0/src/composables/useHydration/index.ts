@@ -12,11 +12,6 @@ export interface HydrationContext {
   isHydrated: Readonly<ShallowRef<boolean>>
   hydrate: () => void
 }
-
-export interface HydrationPlugin {
-  install: (app: App, ...options: any[]) => any
-}
-
 export const [useHydrationContext, provideHydrationContext] = createContext<HydrationContext>('v0:hydration')
 
 /**
@@ -55,10 +50,10 @@ export function useHydration (): HydrationContext {
  *
  * @returns A Vue plugin object with install method.
  */
-export function createHydrationPlugin (): HydrationPlugin {
+export function createHydrationPlugin () {
   const context = createHydration()
 
-  return createPlugin<HydrationPlugin>({
+  return createPlugin({
     namespace: 'v0:hydration',
     provide: (app: App) => {
       provideHydrationContext(context, app)

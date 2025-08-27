@@ -31,10 +31,6 @@ export interface StorageOptions {
   }
 }
 
-export interface StoragePlugin {
-  install: (app: App, ...options: any[]) => any
-}
-
 export const [useStorageContext, provideStorageContext] = createContext<StorageContext>('v0:storage')
 
 /**
@@ -132,10 +128,10 @@ export function useStorage (): StorageContext {
  * @param options Optional configuration for the storage system.
  * @returns A Vue plugin object with install method.
  */
-export function createStoragePlugin (options: StorageOptions = {}): StoragePlugin {
+export function createStoragePlugin (options: StorageOptions = {}) {
   const context = createStorage(options)
 
-  return createPlugin<StoragePlugin>({
+  return createPlugin({
     namespace: 'v0:storage',
     provide: (app: App) => {
       provideStorageContext(context, app)

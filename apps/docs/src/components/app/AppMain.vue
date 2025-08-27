@@ -14,6 +14,14 @@
       left: layout.main.x.value + 'px',
     }"
   >
-    <router-view />
+    <div class="max-w-[688px] mx-auto pb-4">
+      <router-view />
+
+      <DocsBackToTop />
+
+      <hr class="my-4">
+
+      <DocsBackmatter />
+    </div>
   </div>
 </template>

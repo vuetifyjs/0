@@ -3,16 +3,16 @@
   import { createTheme } from '#v0/composables/useTheme'
 
   // Types
-  import type { ThemeContext, ThemeItem } from '#v0/composables/useTheme'
+  import type { ThemeContext, ThemeTicket } from '#v0/composables/useTheme'
   import type { ID } from '#v0/types'
 
   export interface ThemeRootProps {
     namespace?: string
-    themes?: ThemeItem[]
+    themes?: ThemeTicket[]
   }
 
   export interface ThemeRootSlots {
-    default: (scope: ThemeContext) => any
+    default: (scope: ThemeContext<ThemeTicket>) => any
   }
 </script>
 
@@ -25,9 +25,9 @@
 
   const model = defineModel<ID>({ default: 'default' })
 
-  const [provideThemeContext] = createTheme<ThemeContext>(namespace)
+  const [provideThemeContext] = createTheme(namespace)
 
-  const themeContext = provideThemeContext(model)
+  const themeContext = provideThemeContext()
 
   // Register themes from props
   for (const theme of themes) {

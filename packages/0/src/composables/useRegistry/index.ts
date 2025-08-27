@@ -7,7 +7,9 @@ import { shallowReactive } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
-import type { ShallowReactive } from 'vue'
+import { createContext, createTrinity } from '#v0/factories'
+import type { ContextTrinity } from '#v0/factories'
+import type { App } from 'vue'
 
 export interface RegistryTicket {
   /** The unique identifier. Is randomly generated if not provided. */
@@ -22,7 +24,7 @@ export interface RegistryTicket {
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /** The collection of tickets */
-  collection: ShallowReactive<Map<ID, Z>>
+  collection: Map<ID, Z>
   /** Clear the entire registry */
   clear: () => void
   /** Check if an item exists by id */
@@ -282,4 +284,32 @@ export function useRegistry<
       return collection.size
     },
   } as E
+}
+
+/**
+ * Creates a registry context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the registry context.
+ * @param options Optional configuration for reactivity behavior.
+ * @template Z The type of tickets managed by the registry.
+ * @template E The type of the registry context.
+ * @returns A tuple containing the inject function, provide function, and the registry context.
+ */
+export function createRegistryContext<
+  Z extends RegistryTicket = RegistryTicket,
+  E extends RegistryContext<Z> = RegistryContext<Z>,
+> (
+  namespace: string,
+  options?: RegistryOptions,
+): ContextTrinity<E> {
+  const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
+
+  const context = useRegistry<Z, E>(options)
+
+  function provideRegistryContext (_context: E = context, app?: App): E {
+    return _provideRegistryContext(_context, app)
+  }
+
+  return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
 }
