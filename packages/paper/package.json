@@ -46,7 +46,7 @@
   "devDependencies": {
     "rollup-plugin-sass": "^1.15.3",
     "sass": "^1.90.0",
-    "tsdown": "^0.14.2",
+    "tsdown": "catalog:",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:"
   }
