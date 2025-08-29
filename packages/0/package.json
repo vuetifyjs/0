@@ -16,8 +16,9 @@
     "directory": "packages/0"
   },
   "scripts": {
-    "build": "tsdown",
-    "build:watch": "tsdown --watch"
+    "build": "pnpm build:bundler && pnpm build:browser",
+    "build:bundler": "tsdown --config build/tsdown.bundler.config.ts",
+    "build:browser": "tsdown --config build/tsdown.browser.config.ts"
   },
   "exports": {
     ".": {
@@ -60,6 +61,14 @@
       "types": "./dist/transformers/index.d.mts",
       "import": "./dist/transformers/index.mjs"
     },
+    "./constants": {
+      "development": {
+        "types": "./src/constants/index.ts",
+        "import": "./src/constants/index.ts"
+      },
+      "types": "./dist/constants/index.d.mts",
+      "import": "./dist/constants/index.mjs"
+    },
     "./types": {
       "development": {
         "types": "./src/types/index.ts",
@@ -99,6 +108,10 @@
         "types": "./dist/transformers/index.d.mts",
         "import": "./dist/transformers/index.mjs"
       },
+      "./constants": {
+        "types": "./dist/constants/index.d.mts",
+        "import": "./dist/constants/index.mjs"
+      },
       "./types": {
         "types": "./dist/types/index.d.mts",
         "import": "./dist/types/index.mjs"
@@ -132,7 +145,7 @@
   },
   "devDependencies": {
     "@vue/test-utils": "catalog:",
-    "tsdown": "^0.13.3",
+    "tsdown": "catalog:",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
     "vue": "catalog:"

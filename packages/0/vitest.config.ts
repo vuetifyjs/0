@@ -14,7 +14,11 @@ export default defineConfig({
     },
   },
   plugins: [Vue()],
-  define: { __DEV__: 'process.env.NODE_ENV !== \'production\'' },
+  define: {
+    __DEV__: 'process.env.NODE_ENV !== \'production\'',
+    __VITE_LOGGER_ENABLED__: 'process.env.VITE_LOGGER_ENABLED',
+    __VERSION__: '"0.0.1"',
+  },
   test: {
     projects: ['packages/*'],
     environment: 'happy-dom',

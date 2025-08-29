@@ -5,4 +5,6 @@ export const SUPPORTS_OBSERVER = IN_BROWSER && 'ResizeObserver' in window
 export const SUPPORTS_INTERSECTION_OBSERVER = IN_BROWSER && 'IntersectionObserver' in window
 export const SUPPORTS_MUTATION_OBSERVER = IN_BROWSER && 'MutationObserver' in window
 
-export const __LOGGER_ENABLED__ = __DEV__ || process.env.VITE_LOGGER_ENABLED === 'true'
+export const version = __VERSION__
+
+export const __LOGGER_ENABLED__ = __DEV__ || __VITE_LOGGER_ENABLED__ === 'true'

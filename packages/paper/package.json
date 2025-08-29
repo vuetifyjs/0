@@ -16,8 +16,9 @@
     "directory": "packages/paper"
   },
   "scripts": {
-    "build": "tsdown",
-    "build:watch": "tsdown --watch"
+    "build": "pnpm build:bundler && pnpm build:browser",
+    "build:bundler": "tsdown --config build/tsdown.bundler.config.ts",
+    "build:browser": "tsdown --config build/tsdown.browser.config.ts"
   },
   "peerDependencies": {
     "vue": ">=3.3.0"
@@ -46,7 +47,7 @@
   "devDependencies": {
     "rollup-plugin-sass": "^1.15.3",
     "sass": "^1.90.0",
-    "tsdown": "^0.13.3",
+    "tsdown": "catalog:",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:"
   }
