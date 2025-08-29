@@ -1,14 +1,14 @@
 <script setup lang="ts">
-
+  import { useTemplateRef } from 'vue'
   // Components
-  import { Atom, useAtomRef, useBreakpoints, useLayoutItem } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayoutItem } from '@vuetify/v0'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'header' } = defineProps<AtomProps>()
   const breakpoints = useBreakpoints()
-  const bannerRef = useAtomRef('bannerRef')
+  const bannerRef = useTemplateRef<HTMLElement>('bannerRef')
   const banner = useLayoutItem({
     id: 'banner',
     position: 'top',

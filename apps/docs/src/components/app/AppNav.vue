@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { Atom, useAtomRef, useBreakpoints, useLayoutItem } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayoutItem } from '@vuetify/v0'
   import { useAppStore } from '@/stores/app'
   import { useRoute } from 'vue-router'
-  import { watch, watchEffect } from 'vue'
+  import { watch, watchEffect, useTemplateRef } from 'vue'
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
@@ -17,7 +17,7 @@
     }
   })
 
-  const navBarRef = useAtomRef('navBarRef')
+  const navBarRef = useTemplateRef<HTMLElement>('navBarRef')
   const navBar = useLayoutItem({
     id: 'navBar',
     position: 'left',

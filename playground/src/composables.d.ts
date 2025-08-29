@@ -359,7 +359,6 @@ declare module 'vue' {
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
-    readonly useAtomRef: UnwrapRef<typeof import('../../packages/0/src/composables/useAtomRef/index')['useAtomRef']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
     readonly useBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']>

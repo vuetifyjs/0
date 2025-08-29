@@ -1,6 +1,7 @@
 <script setup lang="ts">
+  import { useTemplateRef } from 'vue'
   // Components
-  import { Atom, useBreakpoints, useAtomRef, useLayoutItem } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayoutItem } from '@vuetify/v0'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -8,7 +9,7 @@
   const { as = 'footer' } = defineProps<AtomProps>()
 
   const breakpoints = useBreakpoints()
-  const footerRef = useAtomRef('footerRef')
+  const footerRef = useTemplateRef<HTMLElement>('footerRef')
   const footer = useLayoutItem({
     id: 'footer',
     position: 'bottom',

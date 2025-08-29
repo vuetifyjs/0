@@ -1,6 +1,7 @@
 <script setup lang="ts">
- // Components
-  import { Atom, useBreakpoints, useLayoutItem, useAtomRef } from '@vuetify/v0'
+  import { useTemplateRef } from 'vue'
+  // Components
+  import { Atom, useBreakpoints, useLayoutItem } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'
@@ -15,7 +16,7 @@
   const auth = useAuthStore()
   const breakpoints = useBreakpoints()
 
-  const appBarRef = useAtomRef('appBarRef')
+  const appBarRef = useTemplateRef<HTMLElement>('appBarRef')
   const appBar = useLayoutItem({
     id: 'appBar',
     position: 'top',
