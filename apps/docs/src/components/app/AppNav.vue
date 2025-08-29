@@ -26,10 +26,10 @@
   })
 
   watchEffect(() => {
-    if (app.drawer || !breakpoints.isMobile) {
+    if (!breakpoints.isMobile) {
       navBar.ticket.select()
     }
-    if (breakpoints.isMobile && !app.drawer) {
+    if (breakpoints.isMobile) {
       navBar.ticket.unselect()
     }
   })
