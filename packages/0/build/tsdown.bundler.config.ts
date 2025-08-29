@@ -1,6 +1,6 @@
 import { defineConfig } from 'tsdown/config'
 import { fileURLToPath } from 'node:url'
-import pkg from './package.json' with { type: 'json' }
+import pkg from '../package.json' with { type: 'json' }
 
 import Vue from 'unplugin-vue/rolldown'
 
@@ -23,7 +23,7 @@ export default defineConfig({
   entry: ['./src/*/index.ts', './src/index.ts'],
   name: 'vuetify/v0',
   alias: {
-    '@': fileURLToPath(new URL('src', import.meta.url)),
-    '#v0': fileURLToPath(new URL('../0/src/', import.meta.url)),
+    '@': fileURLToPath(new URL('../src', import.meta.url)),
+    '#v0': fileURLToPath(new URL('../../0/src', import.meta.url)),
   },
 })
