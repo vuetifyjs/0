@@ -60,6 +60,14 @@
       "types": "./dist/transformers/index.d.mts",
       "import": "./dist/transformers/index.mjs"
     },
+    "./constants": {
+      "development": {
+        "types": "./src/constants/index.ts",
+        "import": "./src/constants/index.ts"
+      },
+      "types": "./dist/constants/index.d.mts",
+      "import": "./dist/constants/index.mjs"
+    },
     "./types": {
       "development": {
         "types": "./src/types/index.ts",
@@ -98,6 +106,10 @@
       "./transformers": {
         "types": "./dist/transformers/index.d.mts",
         "import": "./dist/transformers/index.mjs"
+      },
+      "./constants": {
+        "types": "./dist/constants/index.d.mts",
+        "import": "./dist/constants/index.mjs"
       },
       "./types": {
         "types": "./dist/types/index.d.mts",
