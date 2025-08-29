@@ -1,5 +1,6 @@
 import { defineConfig } from 'tsdown/config'
 import { fileURLToPath } from 'node:url'
+import pkg from './package.json' with { type: 'json' }
 
 import Vue from 'unplugin-vue/rolldown'
 
@@ -16,6 +17,7 @@ export default defineConfig({
     __VUE_OPTIONS_API__: 'true',
     __VUE_PROD_DEVTOOLS__: 'false',
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+    __VERSION__: JSON.stringify(pkg.version),
   },
   entry: ['./src/*/index.ts', './src/index.ts'],
   name: 'vuetify/v0',
