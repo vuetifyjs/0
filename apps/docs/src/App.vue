@@ -25,6 +25,15 @@
   }
 
   .markdown-body {
+    .v0-link {
+      color: var(--v0-primary);
+      transition: color 0.2s;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
     h1 {
       font-size: 2.25rem;
       line-height: 2.5rem;
@@ -41,15 +50,6 @@
       font-size: 1.5rem;
       line-height: 2rem;
       margin-bottom: 0.5rem;
-    }
-
-    a {
-      color: var(--v0-primary);
-      transition: color 0.2s;
-
-      &:hover {
-        text-decoration: underline;
-      }
     }
 
     blockquote {
