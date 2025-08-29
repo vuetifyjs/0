@@ -1,6 +1,12 @@
-# Vuetify0
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://vuetifyjs.b-cdn.net/docs/images/logos/v0-logo-dark.png">
+  <img alt="Vuetify One Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/v0-logo-light.png" height="150">
+</picture>
+</div>
 
-A foundational Vue 3 component library providing lightweight, headless building blocks for modern web applications. Built with TypeScript, this library offers unstyled, accessible components and composables that serve as the foundation for higher-order UI libraries.
+
+A Vue 3 monorepo providing unstyled components, composables, and utilities as low-level primitives for building modern web applications and design systems.
 
 ## 📦 Packages
 
@@ -11,7 +17,6 @@ Core foundational components and composables:
 
 **Components:**
 - `Atom` - Base element wrapper with renderless capabilities
-- `Avatar` - Image/fallback avatar system with priority loading
 - `Breakpoints` - Responsive breakpoint utilities
 - `Context` - Context injection/provision system
 - `Group` - Selection grouping with multiple/single modes
