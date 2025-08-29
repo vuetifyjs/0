@@ -1,10 +1,13 @@
 import type { App } from 'vue'
 import { materialPalette, tailwindPalette } from './palettes'
+import { createLayoutPlugin } from '@vuetify/v0'
 
 export function registerPlugins (app: App) {
   app.use(createHydrationPlugin())
 
   app.use(createLoggerPlugin())
+
+  app.use(createLayoutPlugin())
 
   app.use(
     createBreakpointsPlugin({

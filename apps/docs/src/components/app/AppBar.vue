@@ -1,6 +1,7 @@
 <script setup lang="ts">
+  import { useTemplateRef } from 'vue'
   // Components
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayoutItem } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'
@@ -14,13 +15,27 @@
   const app = useAppStore()
   const auth = useAuthStore()
   const breakpoints = useBreakpoints()
+
+  const appBarRef = useTemplateRef<HTMLElement>('appBarRef')
+  const appBar = useLayoutItem({
+    id: 'appBar',
+    position: 'top',
+    element: appBarRef,
+    value: 48,
+  })
 </script>
 
 <template>
   <Atom
+    ref="appBarRef"
     :as
-    class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
-    :class="breakpoints.isMobile && 'left-0'"
+    class="app-header flex items-center justify-between fixed px-3"
+    :style="{
+      left: appBar.rect.x.value + 'px',
+      top: appBar.rect.y.value + 'px',
+      height: appBar.rect.height.value + 'px',
+      width: appBar.rect.width.value + 'px',
+    }"
   >
     <div class="flex items-center gap-1">
       <img

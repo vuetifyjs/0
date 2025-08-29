@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayoutItem } from '@vuetify/v0'
   import { useAppStore } from '@/stores/app'
   import { useRoute } from 'vue-router'
-  import { watch } from 'vue'
+  import { watch, watchEffect, useTemplateRef } from 'vue'
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
@@ -16,16 +16,41 @@
       app.drawer = false
     }
   })
+
+  const navBarRef = useTemplateRef<HTMLElement>('navBarRef')
+  const navBar = useLayoutItem({
+    id: 'navBar',
+    position: 'left',
+    element: navBarRef,
+    value: 220,
+  })
+
+  watchEffect(() => {
+    if (!breakpoints.isMobile) {
+      navBar.ticket.select()
+    }
+    if (breakpoints.isMobile) {
+      navBar.ticket.unselect()
+    }
+  })
+
 </script>
 
 <template>
   <Atom
+    ref="navBarRef"
     :as
-    class="bg-4 app-nav flex flex-col fixed top-[72px] w-[220px] overflow-y-auto py-4 transition-transform duration-200 ease-in-out"
+    class="bg-4 z-1000 app-nav flex flex-col pb-4 fixed overflow-y-auto transition-transform duration-200 ease-in-out"
     :class="[
       breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
-      breakpoints.isMobile ? 'top-[72px] bottom-[24px]' : 'top-[24px] bottom-0'
+      breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
     ]"
+    :style="{
+      height: navBar.rect.height.value + 'px',
+      width: navBar.rect.width.value + 'px',
+      left: navBar.rect.x.value + 'px',
+      top: navBar.rect.y.value + 'px',
+    }"
   >
     <ul class="flex gap-2 flex-col">
       <template v-for="(nav, i) in app.nav" :key="i">
