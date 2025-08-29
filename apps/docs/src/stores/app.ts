@@ -1,4 +1,8 @@
 import { defineStore } from 'pinia'
+import type { operations } from '@octokit/openapi-types'
+
+type ListCommitsResponse = operations['repos/list-commits']['responses']['200']['content']['application/json']
+type Commit = ListCommitsResponse[number]
 
 export const useAppStore = defineStore('app', {
   state: () => ({
@@ -108,5 +112,9 @@ export const useAppStore = defineStore('app', {
       //   ],
       // },
     ],
+    stats: {
+      commit: null as Commit | null,
+      tag: null,
+    },
   }),
 })

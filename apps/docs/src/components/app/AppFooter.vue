@@ -13,9 +13,11 @@
 <template>
   <Atom
     :as
-    class="app-footer flex items-center justify-end h-[24px] fixed bottom-0 left-[220px] right-0 px-3 text-xs"
+    class="app-footer flex items-center justify-between h-[24px] fixed bottom-0 left-[220px] right-0 px-3 text-xs bg-surface border-t"
     :class="breakpoints.isMobile && 'left-0'"
   >
+    <DocsLastCommit />
+
     &copy; 2016-2025 Vuetify, LLC
   </Atom>
 </template>
