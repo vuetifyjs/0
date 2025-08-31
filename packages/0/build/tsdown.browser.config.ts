@@ -16,7 +16,7 @@ export default defineConfig({
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
     __VERSION__: JSON.stringify(pkg.version),
   },
-  entry: ['./src/*/index.ts', './src/index.ts'],
+  entry: ['./src/index.ts'],
   name: 'vuetify/v0',
   alias: {
     '@': fileURLToPath(new URL('../src', import.meta.url)),
