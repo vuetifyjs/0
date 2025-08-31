@@ -57,6 +57,10 @@ export interface LayoutOptions extends GroupOptions {
   el?: ShallowRef<HTMLElement | null>
 }
 
+function isVertical (position: LayoutLocation) {
+  return ['top', 'bottom'].includes(position)
+}
+
 export const [useLayoutContext, provideLayout] = createContext<LayoutContext<LayoutTicket>>('v0:layout')
 
 export function useLayout (): LayoutContext<LayoutTicket> {
@@ -108,7 +112,7 @@ export function createLayout<
   }
 
   function register (registrant: Partial<Z>): Z {
-    const valueToCheck = ['top', 'bottom'].includes(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
+    const valueToCheck = isVertical(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
     const value = computed(() => registrant.element?.value?.[valueToCheck] ?? registrant.value)
 
     return registry.register({
@@ -214,33 +218,18 @@ export function useLayoutItem<Z extends Partial<LayoutTicket>> (
 
   const cumulative = makeCumulativeOffsets(ticket)
 
-  const height = computed(() => {
-    if (['top', 'bottom'].includes(ticket.position)) {
-      return unref(value)
-    }
-    return layout.bottom.value - layout.top.value - cumulative.value.height
-  })
-
-  const width = computed(() => {
-    if (['left', 'right'].includes(ticket.position)) {
-      return unref(value)
-    }
-    return layout.right.value - layout.left.value - cumulative.value.width
-  })
-
-  const x = computed(() => {
-    if (ticket.position === 'left') {
-      return layout.left.value + cumulative.value.left
-    }
-    return layout.right.value - width.value - cumulative.value.right
-  })
-
-  const y = computed(() => {
-    if (ticket.position === 'top') {
-      return layout.top.value + cumulative.value.top
-    }
-    return layout.bottom.value - height.value - cumulative.value.bottom
-  })
+  const height = computed(() => isVertical(ticket.position) ? unref(value) : cumulative.value.height)
+  const width = computed(() => isVertical(ticket.position) ? cumulative.value.width : unref(value))
+  const x = computed(() => (
+    ticket.position === 'left'
+      ? layout.left.value + cumulative.value.left
+      : layout.right.value - width.value - cumulative.value.right
+  ))
+  const y = computed(() => (
+    ticket.position === 'top'
+      ? layout.top.value + cumulative.value.top
+      : layout.bottom.value - height.value - cumulative.value.bottom
+  ))
 
   const rect = { x, y, width, height }
 
