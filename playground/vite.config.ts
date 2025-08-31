@@ -42,6 +42,8 @@ export default defineConfig({
   define: {
     'process.env': {},
     '__DEV__': process.env.NODE_ENV !== 'production',
+    '__VITE_LOGGER_ENABLED__': process.env.VITE_LOGGER_ENABLED,
+    '__VERSION__': '"0.0.1"',
     '__VUE_OPTIONS_API__': 'true',
     '__VUE_PROD_DEVTOOLS__': 'false',
     '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': 'false',
