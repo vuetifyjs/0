@@ -3,9 +3,10 @@
   "version": "0.0.2-beta.4",
   "description": "Vuetify0",
   "license": "MIT",
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],
@@ -15,8 +16,9 @@
     "directory": "packages/0"
   },
   "scripts": {
-    "build": "tsdown",
-    "build:watch": "tsdown --watch"
+    "build": "pnpm build:bundler && pnpm build:browser",
+    "build:bundler": "tsdown --config build/tsdown.bundler.config.ts",
+    "build:browser": "tsdown --config build/tsdown.browser.config.ts"
   },
   "exports": {
     ".": {
@@ -24,87 +26,111 @@
         "types": "./src/index.ts",
         "import": "./src/index.ts"
       },
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./browser": {
+      "development": {
+        "types": "./src/index.ts",
+        "import": "./src/index.ts"
+      },
+      "types": "./dist/index.d.ts",
+      "import": "./dist/browser/index.js"
     },
     "./components": {
       "development": {
         "types": "./src/components/index.ts",
         "import": "./src/components/index.ts"
       },
-      "types": "./dist/components/index.d.mts",
-      "import": "./dist/components/index.mjs"
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js"
     },
     "./composables": {
       "development": {
         "types": "./src/composables/index.ts",
         "import": "./src/composables/index.ts"
       },
-      "types": "./dist/composables/index.d.mts",
-      "import": "./dist/composables/index.mjs"
+      "types": "./dist/composables/index.d.ts",
+      "import": "./dist/composables/index.js"
     },
     "./factories": {
       "development": {
         "types": "./src/factories/index.ts",
         "import": "./src/factories/index.ts"
       },
-      "types": "./dist/factories/index.d.mts",
-      "import": "./dist/factories/index.mjs"
+      "types": "./dist/factories/index.d.ts",
+      "import": "./dist/factories/index.js"
     },
     "./transformers": {
       "development": {
         "types": "./src/transformers/index.ts",
         "import": "./src/transformers/index.ts"
       },
-      "types": "./dist/transformers/index.d.mts",
-      "import": "./dist/transformers/index.mjs"
+      "types": "./dist/transformers/index.d.ts",
+      "import": "./dist/transformers/index.js"
+    },
+    "./constants": {
+      "development": {
+        "types": "./src/constants/index.ts",
+        "import": "./src/constants/index.ts"
+      },
+      "types": "./dist/constants/index.d.ts",
+      "import": "./dist/constants/index.js"
     },
     "./types": {
       "development": {
         "types": "./src/types/index.ts",
         "import": "./src/types/index.ts"
       },
-      "types": "./dist/types/index.d.mts",
-      "import": "./dist/types/index.mjs"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
     },
     "./utilities": {
       "development": {
         "types": "./src/utilities/index.ts",
         "import": "./src/utilities/index.ts"
       },
-      "types": "./dist/utilities/index.d.mts",
-      "import": "./dist/utilities/index.mjs"
+      "types": "./dist/utilities/index.d.ts",
+      "import": "./dist/utilities/index.js"
     }
   },
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/index.d.mts",
-        "import": "./dist/index.mjs"
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./browser": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/browser/index.js"
       },
       "./components": {
-        "types": "./dist/components/index.d.mts",
-        "import": "./dist/components/index.mjs"
+        "types": "./dist/components/index.d.ts",
+        "import": "./dist/components/index.js"
       },
       "./composables": {
-        "types": "./dist/composables/index.d.mts",
-        "import": "./dist/composables/index.mjs"
+        "types": "./dist/composables/index.d.ts",
+        "import": "./dist/composables/index.js"
       },
       "./factories": {
-        "types": "./dist/factories/index.d.mts",
-        "import": "./dist/factories/index.mjs"
+        "types": "./dist/factories/index.d.ts",
+        "import": "./dist/factories/index.js"
       },
       "./transformers": {
-        "types": "./dist/transformers/index.d.mts",
-        "import": "./dist/transformers/index.mjs"
+        "types": "./dist/transformers/index.d.ts",
+        "import": "./dist/transformers/index.js"
+      },
+      "./constants": {
+        "types": "./dist/constants/index.d.ts",
+        "import": "./dist/constants/index.js"
       },
       "./types": {
-        "types": "./dist/types/index.d.mts",
-        "import": "./dist/types/index.mjs"
+        "types": "./dist/types/index.d.ts",
+        "import": "./dist/types/index.js"
       },
       "./utilities": {
-        "types": "./dist/utilities/index.d.mts",
-        "import": "./dist/utilities/index.mjs"
+        "types": "./dist/utilities/index.d.ts",
+        "import": "./dist/utilities/index.js"
       }
     }
   },
@@ -131,7 +157,7 @@
   },
   "devDependencies": {
     "@vue/test-utils": "catalog:",
-    "tsdown": "^0.13.3",
+    "tsdown": "catalog:",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
     "vue": "catalog:"

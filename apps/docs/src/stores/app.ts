@@ -1,4 +1,8 @@
 import { defineStore } from 'pinia'
+import type { operations } from '@octokit/openapi-types'
+
+type ListCommitsResponse = operations['repos/list-commits']['responses']['200']['content']['application/json']
+type Commit = ListCommitsResponse[number]
 
 export const useAppStore = defineStore('app', {
   state: () => ({
@@ -17,17 +21,17 @@ export const useAppStore = defineStore('app', {
       {
         name: 'Guide',
         to: '/guide',
-        children: [
-          { name: 'Features', to: '/guide/features' },
-          { name: 'Structure', to: '/guide/structure' },
-          { name: 'Framework core', to: '/guide/framework-core' },
-          { name: 'Composables', to: '/guide/composables' },
-          { name: 'Components', to: '/guide/components' },
-          { name: 'Utilities', to: '/guide/utilities' },
-          { name: 'Plugins', to: '/guide/plugins' },
-          { name: 'Theming', to: '/guide/theming' },
-          { name: 'Accessibility', to: '/guide/accessibility' },
-        ],
+        // children: [
+        //   { name: 'Features', to: '/guide/features' },
+        //   { name: 'Structure', to: '/guide/structure' },
+        //   { name: 'Framework core', to: '/guide/framework-core' },
+        //   { name: 'Composables', to: '/guide/composables' },
+        //   { name: 'Components', to: '/guide/components' },
+        //   { name: 'Utilities', to: '/guide/utilities' },
+        //   { name: 'Plugins', to: '/guide/plugins' },
+        //   { name: 'Theming', to: '/guide/theming' },
+        //   { name: 'Accessibility', to: '/guide/accessibility' },
+        // ],
       },
       { divider: true },
       {
@@ -85,28 +89,32 @@ export const useAppStore = defineStore('app', {
           },
         ],
       },
-      { divider: true },
-      {
-        name: 'Components',
-        to: '/components',
-        children: [
-          { name: 'Atom', to: '/components/atom' },
-          { name: 'Avatar', to: '/components/avatar' },
-          { name: 'Breakpoints', to: '/components/breakpoints' },
-          { name: 'Context', to: '/components/context' },
-          { name: 'Hydration', to: '/components/hydration' },
-          { name: 'Popover', to: '/components/popover' },
-          { name: 'Step', to: '/components/step' },
-          { name: 'Theme', to: '/components/theme' },
-        ],
-      },
-      { divider: true },
-      {
-        name: 'Utilities',
-        children: [
-          { name: 'toReactive', to: '/utilities/to-reactive' },
-        ],
-      },
+      // { divider: true },
+      // {
+      //   name: 'Components',
+      //   to: '/components',
+      //   children: [
+      //     { name: 'Atom', to: '/components/atom' },
+      //     { name: 'Avatar', to: '/components/avatar' },
+      //     { name: 'Breakpoints', to: '/components/breakpoints' },
+      //     { name: 'Context', to: '/components/context' },
+      //     { name: 'Hydration', to: '/components/hydration' },
+      //     { name: 'Popover', to: '/components/popover' },
+      //     { name: 'Step', to: '/components/step' },
+      //     { name: 'Theme', to: '/components/theme' },
+      //   ],
+      // },
+      // { divider: true },
+      // {
+      //   name: 'Utilities',
+      //   children: [
+      //     { name: 'toReactive', to: '/utilities/to-reactive' },
+      //   ],
+      // },
     ],
+    stats: {
+      commit: null as Commit | null,
+      tag: null,
+    },
   }),
 })

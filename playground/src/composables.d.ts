@@ -153,6 +153,7 @@ declare global {
   const useTheme: typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']
   const useTokens: typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']
   const useWindowEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']
+  const version: typeof import('../../packages/0/src/constants/globals')['version']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -403,6 +404,7 @@ declare module 'vue' {
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
     readonly useTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']>
     readonly useWindowEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']>
+    readonly version: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['version']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>

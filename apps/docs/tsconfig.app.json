@@ -31,7 +31,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "build/markdown.ts"
   ],
   "exclude": [
     "src/**/__tests__/*"

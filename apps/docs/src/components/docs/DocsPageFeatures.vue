@@ -47,7 +47,6 @@
 <template>
   <div class="my-2 inline-flex gap-2 flex-wrap">
     <a
-      class="text-[none]!"
       :href="contribute"
       rel="noopener noreferrer"
       target="_blank"
@@ -67,7 +66,6 @@
 
     <a
       v-if="label"
-      class="text-[none]!"
       :href="label"
       rel="noopener noreferrer"
       target="_blank"
@@ -81,7 +79,6 @@
 
     <a
       v-if="github"
-      class="text-[none]!"
       :href="github"
       rel="noopener noreferrer"
       target="_blank"
