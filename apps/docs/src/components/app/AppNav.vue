@@ -17,20 +17,19 @@
     }
   })
 
-  const navBarRef = useTemplateRef<HTMLElement>('navBarRef')
-  const navBar = useLayoutItem({
-    id: 'navBar',
+  const element = useTemplateRef<HTMLElement>('nav')
+  const item = useLayoutItem({
+    id: 'nav',
     position: 'left',
-    element: navBarRef,
+    element,
     value: 220,
   })
 
   watchEffect(() => {
-    if (!breakpoints.isMobile) {
-      navBar.ticket.select()
-    }
     if (breakpoints.isMobile) {
-      navBar.ticket.unselect()
+      item.ticket.unselect()
+    } else {
+      item.ticket.select()
     }
   })
 
@@ -38,18 +37,17 @@
 
 <template>
   <Atom
-    ref="navBarRef"
+    ref="nav"
     :as
     class="bg-4 z-1000 app-nav flex flex-col pb-4 fixed overflow-y-auto transition-transform duration-200 ease-in-out"
     :class="[
       breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
-      breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
     ]"
     :style="{
-      height: navBar.rect.height.value + 'px',
-      width: navBar.rect.width.value + 'px',
-      left: navBar.rect.x.value + 'px',
-      top: navBar.rect.y.value + 'px',
+      height: item.rect.height.value + 'px',
+      width: item.rect.width.value + 'px',
+      left: item.rect.x.value + 'px',
+      top: item.rect.y.value + 'px',
     }"
   >
     <ul class="flex gap-2 flex-col">

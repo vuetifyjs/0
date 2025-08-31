@@ -3,7 +3,6 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { genId, isArray } from '#v0/utilities/helpers'
-import { shallowReactive } from 'vue'
 
 // Types
 import type { ID } from '#v0/types'
@@ -82,7 +81,7 @@ export function useRegistry<
 > (options?: RegistryOptions): E {
   const logger = useLogger()
 
-  const collection = shallowReactive(new Map<ID, Z>())
+  const collection = new Map<ID, Z>()
   const catalog = new Map<unknown, ID | ID[]>()
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()

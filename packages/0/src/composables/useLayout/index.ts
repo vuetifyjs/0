@@ -116,14 +116,12 @@ export function createLayout<
     const valueToCheck = ['top', 'bottom'].includes(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
     const value = computed(() => registrant.element?.value?.[valueToCheck] ?? registrant.value)
 
-    const item: Partial<Z> = {
+    return registry.register({
       ...registrant,
       position: registrant.position,
       order: registrant.order ?? 0,
       value,
-    }
-
-    return registry.register(item)
+    })
   }
 
   function resize () {
@@ -172,11 +170,11 @@ export function createLayout<
   return {
     ...registry,
     register,
+    resize,
     bounds,
     main,
     height,
     width,
-    resize,
     left,
     right,
     top,
@@ -184,10 +182,13 @@ export function createLayout<
   } as E
 }
 
-export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} as T, layoutContext?: LayoutContext<LayoutTicket> | null) {
-  const layout = layoutContext ?? useLayout()
+export function useLayoutItem<Z extends Partial<LayoutTicket>> (
+  options: Z = {} as Z,
+  context?: LayoutContext<LayoutTicket> | null,
+) {
+  const layout = context ?? useLayout()
 
-  const ticket = layout.register({ ...options })
+  const ticket = layout.register(options)
   const value = ticket.value
 
   const opposites = {
@@ -267,7 +268,8 @@ export function useLayoutItem<T extends Partial<LayoutTicket>> (options: T = {} 
 export function createLayoutPlugin (options: LayoutOptions = {}): LayoutPlugin {
   const layout = createLayout(options)
 
-  return createPlugin<LayoutPlugin>({ namespace: 'v0:layout',
+  return createPlugin<LayoutPlugin>({
+    namespace: 'v0:layout',
     provide: (app: App) => {
       provideLayout(layout, app)
     },
