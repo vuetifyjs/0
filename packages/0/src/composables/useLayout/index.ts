@@ -218,8 +218,8 @@ export function useLayoutItem<Z extends Partial<LayoutTicket>> (
 
   const cumulative = makeCumulativeOffsets(ticket)
 
-  const height = computed(() => isVertical(ticket.position) ? unref(value) : cumulative.value.height)
-  const width = computed(() => isVertical(ticket.position) ? cumulative.value.width : unref(value))
+  const height = computed(() => isVertical(ticket.position) ? unref(value) : layout.bottom.value - layout.top.value - cumulative.value.height)
+  const width = computed(() => isVertical(ticket.position) ? layout.right.value - layout.left.value - cumulative.value.width : unref(value))
   const x = computed(() => (
     ticket.position === 'left'
       ? layout.left.value + cumulative.value.left
