@@ -1,239 +1,75 @@
 // Composables
-import { useRegistrar } from '../useRegistrar'
+import { useSelection } from '#v0/composables/useSelection'
 
 // Utilities
-import { computed, getCurrentInstance, nextTick, onMounted, reactive, toRef, toValue, watch } from 'vue'
+import { computed } from 'vue'
+
+// Transformers
+import { toArray } from '#v0/transformers'
 
 // Types
-import type { ComputedGetter, ComputedRef, Reactive, Ref } from 'vue'
-import type { RegistrarContext, RegistrarItem, RegistrarTicket } from '../useRegistrar'
+import type { ComputedRef } from 'vue'
 import type { ID } from '#v0/types'
+import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 
-export interface GroupItem extends RegistrarItem {
-  disabled: boolean
-  value: unknown
-}
+export interface GroupTicket extends SelectionTicket {}
 
-export interface GroupTicket extends RegistrarTicket {
-  disabled: boolean
-  value: unknown
-  valueIsIndex: boolean
-  isActive: Readonly<ComputedGetter<boolean>>
-  toggle: () => void
-}
-
-export interface GroupContext extends RegistrarContext<GroupTicket, GroupItem> {
-  selectedItems: ComputedRef<Set<GroupTicket | undefined>>
-  selectedIds: Reactive<Set<ID>>
-  selectedValues: ComputedRef<Set<unknown>>
-  mandate: () => void
+export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z> {
+  selectedIndexes: ComputedRef<Set<number>>
+  /** Select one or more Tickets by ID */
   select: (ids: ID | ID[]) => void
-  reset: () => void
+  /** Unselect one or more Tickets by ID */
+  unselect: (ids: ID | ID[]) => void
+  /** Toggle one or more Tickets ON and OFF by ID */
+  toggle: (ids: ID | ID[]) => void
 }
 
-export type GroupOptions = {
-  mandatory?: boolean | 'force'
-  multiple?: boolean
-  returnObject?: boolean
-}
+export interface GroupOptions extends SelectionOptions {}
 
-export function useGroup<T extends GroupContext> (
-  namespace: string,
-  options?: GroupOptions,
-) {
-  const [
-    useGroupContext,
-    provideGroupContext,
-    registrar,
-  ] = useRegistrar<GroupTicket, T>(namespace)
+/**
+ * Creates a group selection context for managing collections of items where multiple selections can be made.
+ * This function extends the selection functionality with group selection capabilities.
+ *
+ * @param options Optional configuration for group selection behavior.
+ * @template Z The type of items managed by the group selection.
+ * @template E The type of the group selection context.
+ * @returns The group selection context object.
+ */
+export function useGroup<
+  Z extends GroupTicket = GroupTicket,
+  E extends GroupContext<Z> = GroupContext<Z>,
+> (options?: GroupOptions): E {
+  const registry = useSelection<Z, E>(options)
 
-  const selectedIds = reactive(new Set<ID>())
-  let initialValue: unknown | unknown[] = null
-
-  const selectedItems = computed(() => {
+  const selectedIndexes = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registrar.registeredItems.get(id)),
+      Array.from(registry.selectedItems.value).map(item => item?.index),
     )
   })
-
-  const selectedValues = computed(() => {
-    return new Set(
-      Array.from(selectedItems.value).map(item => item?.value),
-    )
-  })
-
-  function mandate () {
-    if (!options?.mandatory || selectedIds.size > 0 || registrar.registeredItems.size === 0) return
-
-    if (options.mandatory === 'force') {
-      const first = registrar.registeredItems.values().next().value
-      if (first) selectedIds.add(first.id)
-      return
-    }
-
-    for (const item of registrar.registeredItems.values()) {
-      if (item.disabled) continue
-
-      selectedIds.add(item.id)
-      break
-    }
-  }
-
-  function reindex () {
-    let index = 0
-    for (const item of registrar.registeredItems.values()) {
-      item.index = index++
-
-      if (item.valueIsIndex) {
-        item.value = item.index
-      }
-    }
-  }
-
-  function reset () {
-    selectedIds.clear()
-    reindex()
-    mandate()
-  }
 
   function select (ids: ID | ID[]) {
-    toggle(ids)
+    for (const id of toArray(ids)) {
+      registry.select(id)
+    }
+  }
+
+  function unselect (ids: ID | ID[]) {
+    for (const id of toArray(ids)) {
+      registry.unselect(id)
+    }
   }
 
   function toggle (ids: ID | ID[]) {
-    for (const id of Array.isArray(ids) ? ids : [ids]) {
-      if (!id) continue
-
-      const item = registrar.registeredItems.get(id)
-
-      if (!item || item.disabled) continue
-
-      const hasId = selectedIds.has(id)
-
-      if (hasId && options?.mandatory) {
-        // For single selection, can't deselect if it's the only one
-        if (!options?.multiple) continue
-        // For multiple selection, can't deselect if it's the last one
-        if (selectedIds.size === 1) continue
-      }
-
-      if (hasId) {
-        selectedIds.delete(id)
-      } else {
-        // For single selection, clear others first
-        if (!options?.multiple) selectedIds.clear()
-
-        selectedIds.add(id)
-      }
+    for (const id of toArray(ids)) {
+      registry.toggle(id)
     }
   }
 
-  const register: typeof registrar.register = registration => {
-    const ticket = registrar.register(registrant => {
-      const item = registrar.intake(registrant, registration)
-
-      return {
-        disabled: item?.disabled ?? false,
-        value: item?.value ?? registrant.index,
-        valueIsIndex: item?.value == null,
-        isActive: toRef(() => selectedIds.has(registrant.id)),
-        toggle: () => toggle(registrant.id),
-        ...item,
-      }
-    })
-
-    if (initialValue != null) {
-      const shouldSelect = Array.isArray(initialValue)
-        ? initialValue.includes(ticket.value)
-        : initialValue === ticket.value
-
-      if (shouldSelect) selectedIds.add(ticket.id)
-    }
-
-    if (options?.mandatory === 'force') mandate()
-
-    return ticket
-  }
-
-  function unregister (id: ID) {
-    selectedIds.delete(id)
-    registrar.unregister(id)
-  }
-
-  if (getCurrentInstance()) {
-    onMounted(() => {
-      initialValue = undefined
-    })
-  }
-
-  const context = {
-    ...registrar,
-    selectedItems,
-    selectedIds,
-    selectedValues,
-    register,
-    unregister,
-    reset,
-    reindex,
-    mandate,
+  return {
+    ...registry,
     select,
-  } as T
-
-  return [
-    useGroupContext,
-    function (
-      model?: Ref<unknown | unknown[]>,
-      _context: T = context,
-    ) {
-      let isUpdatingModel = false
-
-      if (model) {
-        initialValue = toValue(model)
-
-        watch(selectedIds, () => {
-          if (isUpdatingModel) return
-
-          const returnObject = options?.returnObject
-          const target = returnObject ? selectedItems : selectedValues
-
-          model.value = options?.multiple
-            ? Array.from(target.value)
-            : target.value.values().next().value
-        })
-
-        watch(model, async value => {
-          if (isUpdatingModel) return
-
-          const values = new Set(Array.isArray(value) ? value : [value])
-
-          if ((selectedValues.value.symmetricDifference(values)).size === 0) return
-
-          selectedIds.clear()
-
-          for (const val of values) {
-            for (const [id, item] of registrar.registeredItems) {
-              if (item.value !== val) continue
-
-              selectedIds.add(id)
-
-              break
-            }
-          }
-        })
-
-        watch([model, selectedIds], async () => {
-          isUpdatingModel = true
-
-          await nextTick()
-
-          isUpdatingModel = false
-        })
-      }
-
-      provideGroupContext(_context)
-
-      return _context
-    },
-    context,
-  ] as const
+    unselect,
+    toggle,
+    selectedIndexes,
+  } as E
 }

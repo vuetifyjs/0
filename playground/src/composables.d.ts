@@ -7,36 +7,66 @@
 export {}
 declare global {
   const COMMON_ELEMENTS: typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']
+  const ConsolaLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['ConsolaLoggerAdapter']
   const DEFAULT_DARK: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']
   const EffectScope: typeof import('vue')['EffectScope']
+  const IN_BROWSER: typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']
+  const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']
+  const SUPPORTS_INTERSECTION_OBSERVER: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_INTERSECTION_OBSERVER']
+  const SUPPORTS_MATCH_MEDIA: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']
+  const SUPPORTS_MUTATION_OBSERVER: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MUTATION_OBSERVER']
+  const SUPPORTS_OBSERVER: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_OBSERVER']
+  const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']
+  const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']
+  const __LOGGER_ENABLED__: typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
+  const createBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']
+  const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
-  const createMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']
-  const createMarkdownPlugin: typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']
-  const createTheme: typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']
+  const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
+  const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
+  const createLocale: typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']
+  const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
+  const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
+  const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']
+  const createRegistryContext: typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']
+  const createStorage: typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']
+  const createStoragePlugin: typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']
+  const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
+  const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
+  const createTokensContext: typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']
   const customRef: typeof import('vue')['customRef']
   const defaultElevationGenerator: typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const effectScope: typeof import('vue')['effectScope']
+  const genId: typeof import('../../packages/0/src/utilities/helpers')['genId']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
-  const getCurrentInstanceName: typeof import('../../packages/paper/src/utils/getCurrentInstanceName')['getCurrentInstanceName']
+  const getCurrentInstanceName: typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
   const hexToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']
   const hexaToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']
   const inject: typeof import('vue')['inject']
-  const installMarkdownPlugin: typeof import('../../packages/v0/src/composables/useMarkdown/index')['installMarkdownPlugin']
+  const isArray: typeof import('../../packages/0/src/utilities/helpers')['isArray']
+  const isBoolean: typeof import('../../packages/0/src/utilities/helpers')['isBoolean']
+  const isFunction: typeof import('../../packages/0/src/utilities/helpers')['isFunction']
+  const isNullOrUndefined: typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']
+  const isNumber: typeof import('../../packages/0/src/utilities/helpers')['isNumber']
+  const isObject: typeof import('../../packages/0/src/utilities/helpers')['isObject']
+  const isPrimitive: typeof import('../../packages/0/src/utilities/helpers')['isPrimitive']
   const isProxy: typeof import('vue')['isProxy']
   const isReactive: typeof import('vue')['isReactive']
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
   const isSelfClosingTag: typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']
+  const isString: typeof import('../../packages/0/src/utilities/helpers')['isString']
   const markRaw: typeof import('vue')['markRaw']
+  const mergeDeep: typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']
   const nextTick: typeof import('vue')['nextTick']
   const onActivated: typeof import('vue')['onActivated']
   const onBeforeMount: typeof import('vue')['onBeforeMount']
@@ -54,18 +84,21 @@ declare global {
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
   const parseColor: typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']
   const provide: typeof import('vue')['provide']
-  const provideMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']
+  const provideBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']
+  const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
+  const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']
   const reactive: typeof import('vue')['reactive']
   const readonly: typeof import('vue')['readonly']
   const ref: typeof import('vue')['ref']
   const resolveComponent: typeof import('vue')['resolveComponent']
   const rgbToRgba: typeof import('../../packages/paper/src/composables/useColor/index')['rgbToRgba']
   const rgbaToHexa: typeof import('../../packages/paper/src/composables/useColor/index')['rgbaToHexa']
+  const run: typeof import('../../packages/0/src/utilities/benchmark')['run']
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
-  const toCamelCase: typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']
-  const toKebabCase: typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']
+  const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']
+  const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']
   const toRaw: typeof import('vue')['toRaw']
   const toRef: typeof import('vue')['toRef']
   const toRefs: typeof import('vue')['toRefs']
@@ -73,27 +106,48 @@ declare global {
   const triggerRef: typeof import('vue')['triggerRef']
   const unref: typeof import('vue')['unref']
   const useAttrs: typeof import('vue')['useAttrs']
-  const useAvatar: typeof import('../../packages/0/src/composables/useAvatar/index')['useAvatar']
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']
+  const useBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']
+  const useBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpointsContext']
   const useColor: typeof import('../../packages/paper/src/composables/useColor/index')['useColor']
-  const useContext: typeof import('../../packages/0/src/composables/useContext/index')['useContext']
   const useContrast: typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']
   const useCssModule: typeof import('vue')['useCssModule']
   const useCssVars: typeof import('vue')['useCssVars']
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']
+  const useDocumentEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']
+  const useElementIntersection: typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useElementIntersection']
+  const useElementSize: typeof import('../../packages/0/src/composables/useResizeObserver/index')['useElementSize']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
+  const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']
+  const useFilter: typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']
+  const useForm: typeof import('../../packages/0/src/composables/useForm/index')['useForm']
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
+  const useHydration: typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']
+  const useHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']
   const useId: typeof import('vue')['useId']
+  const useIntersectionObserver: typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']
   const useKeydown: typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']
-  const useMarkdown: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']
-  const useMarkdownContext: typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']
+  const useLayout: typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']
+  const useLocale: typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']
+  const useLogger: typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']
   const useModel: typeof import('vue')['useModel']
-  const useRegistrar: typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']
+  const useMutationObserver: typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']
+  const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']
+  const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
+  const useResizeObserver: typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
+  const useSelection: typeof import('../../packages/0/src/composables/useSelection/index')['useSelection']
+  const useSingle: typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']
   const useSlots: typeof import('vue')['useSlots']
   const useSpacing: typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']
   const useStep: typeof import('../../packages/0/src/composables/useStep/index')['useStep']
+  const useStorage: typeof import('../../packages/0/src/composables/useStorage/index')['useStorage']
+  const useStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
+  const useTheme: typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']
+  const useTokens: typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']
+  const useWindowEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']
+  const version: typeof import('../../packages/0/src/constants/globals')['version']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']
@@ -123,23 +177,71 @@ declare global {
   export type { SpacingProps } from '../../packages/paper/src/composables/useSpacing/index'
   import('../../packages/paper/src/composables/useSpacing/index')
   // @ts-ignore
-  export type { Theme, ThemeOptions, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
+  export type { Theme, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
-  export type { GroupItem, GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
+  export type { BreakpointName, BreakpointsContext, BreakpointsOptions } from '../../packages/0/src/composables/useBreakpoints/index'
+  import('../../packages/0/src/composables/useBreakpoints/index')
+  // @ts-ignore
+  export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
+  import('../../packages/0/src/composables/useEventListener/index')
+  // @ts-ignore
+  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, UseFilterOptions, UseFilterResult } from '../../packages/0/src/composables/useFilter/index'
+  import('../../packages/0/src/composables/useFilter/index')
+  // @ts-ignore
+  export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions } from '../../packages/0/src/composables/useForm/index'
+  import('../../packages/0/src/composables/useForm/index')
+  // @ts-ignore
+  export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
+  // @ts-ignore
+  export type { HydrationContext } from '../../packages/0/src/composables/useHydration/index'
+  import('../../packages/0/src/composables/useHydration/index')
+  // @ts-ignore
+  export type { IntersectionObserverEntry, IntersectionObserverOptions } from '../../packages/0/src/composables/useIntersectionObserver/index'
+  import('../../packages/0/src/composables/useIntersectionObserver/index')
   // @ts-ignore
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { MarkdownAdapter, MarkdownContext, MarkdownOptions, MarkdownPlugin } from '../../packages/0/src/composables/useMarkdown/index'
-  import('../../packages/0/src/composables/useMarkdown/index')
+  export type { LayoutLocation, LayoutTicket, LayoutContext, LayoutOptions } from '../../packages/0/src/composables/useLayout/index'
+  import('../../packages/0/src/composables/useLayout/index')
   // @ts-ignore
-  export type { RegistrarItem, RegistrarTicket, RegistrarContext } from '../../packages/0/src/composables/useRegistrar/index'
-  import('../../packages/0/src/composables/useRegistrar/index')
+  export type { LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions } from '../../packages/0/src/composables/useLocale/index'
+  import('../../packages/0/src/composables/useLocale/index')
   // @ts-ignore
-  export type { StepItem, StepTicket, StepOptions, StepContext } from '../../packages/0/src/composables/useStep/index'
+  export type { LoggerContext, LoggerOptions, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
+  import('../../packages/0/src/composables/useLogger/index')
+  // @ts-ignore
+  export type { MutationObserverRecord, UseMutationObserverOptions } from '../../packages/0/src/composables/useMutationObserver/index'
+  import('../../packages/0/src/composables/useMutationObserver/index')
+  // @ts-ignore
+  export type { ProxyModelOptions } from '../../packages/0/src/composables/useProxyModel/index'
+  import('../../packages/0/src/composables/useProxyModel/index')
+  // @ts-ignore
+  export type { RegistryTicket, RegistryContext, RegistryOptions } from '../../packages/0/src/composables/useRegistry/index'
+  import('../../packages/0/src/composables/useRegistry/index')
+  // @ts-ignore
+  export type { ResizeObserverEntry, ResizeObserverOptions } from '../../packages/0/src/composables/useResizeObserver/index'
+  import('../../packages/0/src/composables/useResizeObserver/index')
+  // @ts-ignore
+  export type { SelectionTicket, SelectionContext, SelectionOptions } from '../../packages/0/src/composables/useSelection/index'
+  import('../../packages/0/src/composables/useSelection/index')
+  // @ts-ignore
+  export type { SingleTicket, SingleContext, SingleOptions } from '../../packages/0/src/composables/useSingle/index'
+  import('../../packages/0/src/composables/useSingle/index')
+  // @ts-ignore
+  export type { StepTicket, StepContext, StepOptions } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
+  // @ts-ignore
+  export type { StorageContext, StorageOptions } from '../../packages/0/src/composables/useStorage/index'
+  import('../../packages/0/src/composables/useStorage/index')
+  // @ts-ignore
+  export type { Colors, ThemeColors, ThemeRecord, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
+  import('../../packages/0/src/composables/useTheme/index')
+  // @ts-ignore
+  export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
+  import('../../packages/0/src/composables/useTokens/index')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
   import('../../packages/0/src/constants/htmlElements')
@@ -151,35 +253,66 @@ declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
     readonly COMMON_ELEMENTS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['COMMON_ELEMENTS']>
+    readonly ConsolaLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['ConsolaLoggerAdapter']>
     readonly DEFAULT_DARK: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_DARK']>
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
+    readonly PinoLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
+    readonly SUPPORTS_INTERSECTION_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_INTERSECTION_OBSERVER']>
+    readonly SUPPORTS_MATCH_MEDIA: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']>
+    readonly SUPPORTS_MUTATION_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MUTATION_OBSERVER']>
+    readonly SUPPORTS_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_OBSERVER']>
+    readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
+    readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
+    readonly __LOGGER_ENABLED__: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['__LOGGER_ENABLED__']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']>
+    readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
-    readonly createMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdown']>
-    readonly createMarkdownPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['createMarkdownPlugin']>
-    readonly createTheme: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['createTheme']>
+    readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
+    readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
+    readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
+    readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
+    readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
+    readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
+    readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']>
+    readonly createStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']>
+    readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
+    readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
+    readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
+    readonly createTokensContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
     readonly defaultElevationGenerator: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['defaultElevationGenerator']>
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
+    readonly genId: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['genId']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
-    readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utils/getCurrentInstanceName')['getCurrentInstanceName']>
+    readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hexToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexToRgba']>
     readonly hexaToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['hexaToRgba']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
+    readonly isArray: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isArray']>
+    readonly isBoolean: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isBoolean']>
+    readonly isFunction: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isFunction']>
+    readonly isNullOrUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']>
+    readonly isNumber: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNumber']>
+    readonly isObject: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isObject']>
+    readonly isPrimitive: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isPrimitive']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
     readonly isReactive: UnwrapRef<typeof import('vue')['isReactive']>
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isSelfClosingTag: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']>
+    readonly isString: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isString']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
+    readonly mergeDeep: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -197,18 +330,21 @@ declare module 'vue' {
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly parseColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
-    readonly provideMarkdownContext: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['provideMarkdownContext']>
+    readonly provideBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['provideBreakpointsContext']>
+    readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
+    readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
     readonly rgbToRgba: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['rgbToRgba']>
     readonly rgbaToHexa: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['rgbaToHexa']>
+    readonly run: UnwrapRef<typeof import('../../packages/0/src/utilities/benchmark')['run']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
-    readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toCamelCase']>
-    readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utils/helpers')['toKebabCase']>
+    readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
+    readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
@@ -217,25 +353,47 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
+    readonly useBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']>
+    readonly useBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpointsContext']>
     readonly useColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['useColor']>
-    readonly useContext: UnwrapRef<typeof import('../../packages/0/src/composables/useContext/index')['useContext']>
     readonly useContrast: UnwrapRef<typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
+    readonly useDocumentEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']>
+    readonly useElementIntersection: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useElementIntersection']>
+    readonly useElementSize: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useElementSize']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
+    readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
+    readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
+    readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
+    readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
+    readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
-    readonly useMarkdown: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdown']>
-    readonly useMarkdownContext: UnwrapRef<typeof import('../../packages/0/src/composables/useMarkdown/index')['useMarkdownContext']>
+    readonly useLayout: UnwrapRef<typeof import('../../packages/0/src/composables/useLayout/index')['useLayout']>
+    readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
+    readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
-    readonly useRegistrar: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistrar/index')['useRegistrar']>
+    readonly useMutationObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']>
+    readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
+    readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
+    readonly useResizeObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
+    readonly useSelection: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['useSelection']>
+    readonly useSingle: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
     readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['useStep']>
+    readonly useStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorage']>
+    readonly useStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
+    readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
+    readonly useTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']>
+    readonly useWindowEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']>
+    readonly version: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['version']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>

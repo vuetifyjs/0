@@ -1,4 +1,4 @@
-import { getCurrentInstanceName } from '#paper/utils/getCurrentInstanceName'
+import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { toRef } from 'vue'
 
 export interface SpacingProps {

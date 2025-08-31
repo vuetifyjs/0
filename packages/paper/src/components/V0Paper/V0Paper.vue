@@ -1,16 +1,26 @@
 <script lang="ts">
   // Components
-  import { Atom } from '@vuetify/0'
+  import { Atom } from '@vuetify/v0'
+
+  // Composables
+  import { useBorder } from '#paper/composables/useBorder'
+  import { useColor } from '#paper/composables/useColor'
+  import { useDimensions } from '#paper/composables/useDimensions'
+  import { useElevation } from '#paper/composables/useElevation'
+  import { useRounded } from '#paper/composables/useRounded'
+  import { useSpacing } from '#paper/composables/useSpacing'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '@vuetify/0'
-  import { useBorder, type BorderProps } from '#paper/composables/useBorder'
-  import { useColor, type ColorProps } from '#paper/composables/useColor'
-  import { useDimensions, type DimensionProps } from '#paper/composables/useDimensions'
-  import { useElevation, type ElevationProps } from '#paper/composables/useElevation'
-  import { useRounded, type RoundedProps } from '#paper/composables/useRounded'
-  import { useSpacing } from '#paper/composables/useSpacing'
-  import { toRef } from 'vue'
+  import type { AtomProps } from '@vuetify/v0'
+  import type { BorderProps } from '#paper/composables/useBorder'
+  import type { ColorProps } from '#paper/composables/useColor'
+  import type { DimensionProps } from '#paper/composables/useDimensions'
+  import type { ElevationProps } from '#paper/composables/useElevation'
+  import type { RoundedProps } from '#paper/composables/useRounded'
+  import type { SpacingProps } from '#paper/composables/useSpacing'
 
   interface V0PaperPropsBase {
     fontSize?: string
@@ -27,7 +37,8 @@
     ColorProps,
     BorderProps,
     ElevationProps,
-    RoundedProps {}
+    RoundedProps,
+    SpacingProps {}
 </script>
 
 <script setup lang="ts">
@@ -66,45 +77,5 @@
 </template>
 
 <style lang="scss">
-  $v0-paper-bg-color: var(--v0-paper-bg-color, transparent) !default;
-  $v0-paper-border-color: var(--v0-paper-border-color, transparent) !default;
-  $v0-paper-border-radius: var(--v0-paper-border-radius, 0) !default;
-  $v0-paper-border-style: var(--v0-paper-border-style, solid) !default;
-  $v0-paper-border-width: var(--v0-paper-border-width, 1) !default;
-  $v0-paper-color: var(--v0-paper-color, inherit) !default;
-  $v0-paper-elevation: var(--v0-paper-elevation) !default;
-  $v0-paper-font-size: var(--v0-paper-font-size, inherit) !default;
-  $v0-paper-font-weight: var(--v0-paper-font-weight, inherit) !default;
-  $v0-paper-gradient: var(--v0-paper-gradient) !default;
-  $v0-paper-height: var(--v0-paper-height, auto) !default;
-  $v0-paper-margin: var(--v0-paper-margin, 0) !default;
-  $v0-paper-max-height: var(--v0-paper-max-height, auto) !default;
-  $v0-paper-max-width: var(--v0-paper-max-width, auto) !default;
-  $v0-paper-min-height: var(--v0-paper-min-height, auto) !default;
-  $v0-paper-min-width: var(--v0-paper-min-width, auto) !default;
-  $v0-paper-opacity: var(--v0-paper-opacity, 1) !default;
-  $v0-paper-padding: var(--v0-paper-padding, 0) !default;
-  $v0-paper-width: var(--v0-paper-width, auto) !default;
-
-  .v0-paper {
-    background-color: #{$v0-paper-bg-color};
-    background-image: #{$v0-paper-gradient};
-    border-color: #{$v0-paper-border-color};
-    border-radius: #{$v0-paper-border-radius};
-    border-style: #{$v0-paper-border-style};
-    border-width: #{$v0-paper-border-width};
-    box-shadow: #{$v0-paper-elevation};
-    color: #{$v0-paper-color};
-    font-size: #{$v0-paper-font-size};
-    font-weight: #{$v0-paper-font-weight};
-    height: #{$v0-paper-height};
-    margin: #{$v0-paper-margin};
-    max-height: #{$v0-paper-max-height};
-    max-width: #{$v0-paper-max-width};
-    min-height: #{$v0-paper-min-height};
-    min-width: #{$v0-paper-min-width};
-    opacity: #{$v0-paper-opacity};
-    padding: #{$v0-paper-padding};
-    width: #{$v0-paper-width};
-  }
+@use './index.scss';
 </style>

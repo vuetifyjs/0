@@ -1,8 +1,9 @@
 import { fileURLToPath, URL } from 'node:url'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import VueRouter from 'unplugin-vue-router/vite'
-import Markdown from 'unplugin-vue-markdown/vite'
 import Components from 'unplugin-vue-components/vite'
+import Markdown from './build/markdown'
+import pkg from './package.json' with { type: 'json' }
 
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
@@ -21,7 +22,7 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
-    Markdown({}),
+    await Markdown(),
     Components({
       dirs: ['src/components'],
       extensions: ['vue'],
@@ -30,11 +31,19 @@ export default defineConfig({
     UnocssVitePlugin(),
     Layouts(),
   ],
-  define: { 'process.env': {} },
+  define: {
+    'process.env': {},
+    '__DEV__': process.env.NODE_ENV !== 'production',
+    '__VERSION__': JSON.stringify(pkg.version),
+    '__VITE_LOGGER_ENABLED__': process.env.VITE_LOGGER_ENABLED,
+    '__VUE_OPTIONS_API__': 'true',
+    '__VUE_PROD_DEVTOOLS__': 'false',
+    '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': 'false',
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
-      '@vuetify/0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
+      '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       // internal
       '#v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),

@@ -1,11 +1,11 @@
 {
   "name": "rewrite",
-  "version": "0.0.0",
+  "version": "0.0.2-beta.4",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter=playground dev",
-    "build": "pnpm --filter=0 --filter=paper build",
+    "build": "pnpm --filter=v0 --filter=paper build",
     "preview": "vite preview",
     "type-check": "vue-tsc -b --incremental",
     "type-check:watch": "vue-tsc -b --incremental --watch",
@@ -16,9 +16,14 @@
     "build:storybook": "pnpm --filter=storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:bench": "vitest --reporter=verbose bench --run",
+    "test:knip": "knip",
+    "test:sherif": "sherif",
+    "bench": "vitest --reporter=default bench",
     "coverage": "vitest run --coverage",
     "dev:docs": "pnpm --filter=docs dev",
-    "build:docs": "pnpm --filter=docs build"
+    "build:docs": "pnpm --filter=docs build",
+    "release": "bumpp -r"
   },
   "engines": {
     "node": ">=20.19 || >=22",
@@ -26,18 +31,20 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "catalog:",
-    "@types/node": "^24.0.4",
+    "@types/node": "^24.2.1",
     "@vitest/coverage-v8": "3.2.4",
-    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "catalog:",
-    "eslint": "^9.29.0",
+    "bumpp": "^10.2.3",
+    "eslint": "^9.33.0",
     "eslint-config-vuetify": "4.1.0-0",
-    "eslint-plugin-storybook": "^9.0.13",
+    "eslint-plugin-storybook": "^9.1.1",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "happy-dom": "^18.0.1",
+    "knip": "^5.63.0",
+    "sherif": "^1.6.1",
     "typescript": "catalog:",
     "vitest": "^3.2.4",
-    "vue-tsc": "^2.2.10"
+    "vue-tsc": "^3.0.5"
   },
-  "packageManager": "pnpm@10.12.4"
+  "packageManager": "pnpm@10.14.0"
 }

@@ -1,71 +1,174 @@
-# vuetify0
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-dark.png">
+  <img alt="Vuetify One Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-light.png" height="150">
+</picture>
+</div>
 
-A rewrite of the baseline Vuetify components.
 
-## Components
+A Vue 3 monorepo providing unstyled components, composables, and utilities as low-level primitives for building modern web applications and design systems.
 
-Tentative components include:
+## 📦 Packages
 
-- Avatar
-- Button
-- Chip
-- Divider
-- Field
-- Grid
-- Group
-- Icon
-- Input
-- Layout
-- List
-- Overlay (Popup)
-- Progress
-- Sheet
-- Skeleton
-- Slider
-- TextInput
-- Typography
+This monorepo contains two primary packages:
 
-### What type of component belongs in vuetify0?
+### `@vuetify/v0`
+Core foundational components and composables:
 
-vuetify0 is meant to be the baseline building blocks used to build higher order components, including those in the Vuetify library. It is not meant to be a complete set of components, but rather a set of foundational components that can be used to create more complex UI elements.
+**Components:**
+- `Atom` - Base element wrapper with renderless capabilities
+- `Breakpoints` - Responsive breakpoint utilities
+- `Context` - Context injection/provision system
+- `Group` - Selection grouping with multiple/single modes
+- `Hydration` - Client-side hydration utilities
+- `Popover` - CSS anchor-positioned popup components
+- `Step` - Step-based navigation system
+- `Theme` - Theme management and CSS variable injection
 
-Some things to consider when determining if a piece of functionality should be included in vuetify0:
+**Composables:**
+- `useBreakpoints` - Responsive breakpoint detection
+- `createContext` - Type-safe context management
+- `useFilter` - Collection filtering utilities
+- `useGroup` - Selection group management
+- `useHydration` - SSR hydration helpers
+- `useKeydown` - Keyboard event handling
+- `useLocale` - Internationalization support
+- `useRegistry` - Component registration system
+- `useStep` - Step navigation logic
+- `useTheme` - Theme switching and CSS variable management
+- `useTokens` - Design token system
+- `toReactive` - Utility for reactive object conversion
 
-- Is not composed by more than one layer. e.g. a button is composed of a sheet, typography, and icon;
-- Does not contain any complex logic such as filtering, provide / inject, or multiple child components;
-- Does not require any global singleton state such as useDisplay or useTheme from Vuetify;
-- All SCSS files for components should have variables that reference CSS variables. e.g. $v0-button-color: var(--v0-button-color);
-- Does not utilize any CSS utility classes from Vuetify or other libraries. e.g. v-btn, v-sheet, v-icon, etc.
-- Does not require the global instantiation of anything beyond what's absolutely necessary
-- (Maybe?) CAN have external dependencies but only through an interface that is not coupled to the component itself. e.g. a markdown component that has an interface that allows you to pass the content to your markdown renderer of your choice.
-- Is primarily expected to be configured using props or CSS variables
-- A heavy focus on slots to maximize flexibility and customization
-- TODO...
+### `@vuetify/paper`
+Styling and layout primitives:
 
-## Customize configuration
+**Components:**
+- `V0Paper` - Base layout component with comprehensive styling props
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+**Composables:**
+- `useBorder` - Border styling utilities
+- `useColor` - Color system management
+- `useContrast` - Color contrast calculations
+- `useDimensions` - Size and spacing utilities
+- `useElevation` - Shadow and elevation effects
+- `useRounded` - Border radius utilities
+- `useSpacing` - Margin and padding utilities
 
-## Project Setup
+## 🏗️ Architecture
 
-```sh
+### Design Principles
+
+- **Headless First**: Components provide logic and accessibility without imposed styling
+- **Slot-Driven**: Maximum flexibility through comprehensive slot APIs
+- **CSS Variables**: All styling configurable via CSS custom properties
+- **TypeScript Native**: Full type safety with excellent DX
+- **Minimal Dependencies**: Lightweight with only essential dependencies
+- **Framework Agnostic**: Core logic usable beyond Vue with adapters
+
+### Component Guidelines
+
+Components in vuetify0 should be:
+
+- **Single-layer**: Not composed of multiple component layers
+- **Logic-focused**: Minimal styling, maximum behavioral functionality
+- **Prop-driven**: Configurable primarily through props and CSS variables
+- **Slot-heavy**: Extensive slot usage for customization
+- **CSS Variable-based**: All styling via `--v0-*` custom properties
+- **Framework-minimal**: No global state dependencies
+- **Interface-based**: External dependencies through clean interfaces
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+pnpm add @vuetify/v0 @vuetify/paper
+```
+
+### Basic Setup
+
+```vue
+<script setup>
+import { Avatar, createThemePlugin } from '@vuetify/v0'
+import { V0Paper } from '@vuetify/paper'
+
+// Install theme plugin
+app.use(createThemePlugin({
+  default: 'light',
+  themes: {
+    light: {
+      primary: '#1976d2',
+      background: '#ffffff'
+    }
+  }
+}))
+</script>
+
+<template>
+  <V0Paper class="p-4">
+    <Avatar.Root>
+      <Avatar.Image src="/avatar.jpg" alt="User" />
+      <Avatar.Fallback>JD</Avatar.Fallback>
+    </Avatar.Root>
+  </V0Paper>
+</template>
+```
+
+## 🛠️ Development
+
+### Project Setup
+
+```bash
 pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+### Development Server
 
-```sh
-pnpm dev
+```bash
+pnpm dev          # Start playground
+pnpm dev:docs     # Start documentation
+pnpm storybook    # Start Storybook
 ```
 
-### Type-Check, Compile and Minify for Production
+### Building
 
-```sh
-pnpm build
+```bash
+pnpm build        # Build packages
+pnpm build:docs   # Build documentation
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Testing & Quality
 
-```sh
-pnpm lint
+```bash
+pnpm test         # Run tests
+pnpm test:ui      # Run tests with UI
+pnpm coverage     # Generate coverage report
+pnpm lint         # Lint codebase
+pnpm type-check   # Type checking
 ```
+
+## 📚 Resources
+
+- **Playground**: Interactive component testing environment
+- **Storybook**: Component documentation and examples
+- **Documentation**: Comprehensive guides and API references
+
+## 🎯 Use Cases
+
+Perfect for:
+- Design system foundations
+- Component library base layers
+- Headless UI implementations
+- Custom styling frameworks
+- Accessibility-first applications
+
+## ⚡ Performance
+
+- **Bundle Size**: Minimal footprint with tree-shaking
+- **Runtime**: Optimized Vue 3 composition patterns
+- **SSR**: Full server-side rendering support
+- **Hydration**: Seamless client-side hydration
+
+---
+
+Built with ❤️ for the Vue ecosystem. Part of the Vuetify family.

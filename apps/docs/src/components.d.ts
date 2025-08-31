@@ -8,8 +8,21 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppBanner: typeof import('./components/app/AppBanner.vue')['default']
+    AppBar: typeof import('./components/app/AppBar.vue')['default']
+    AppChip: typeof import('./components/app/AppChip.vue')['default']
+    AppDivider: typeof import('./components/app/AppDivider.vue')['default']
+    AppFooter: typeof import('./components/app/AppFooter.vue')['default']
+    AppIcon: typeof import('./components/app/AppIcon.vue')['default']
+    AppMain: typeof import('./components/app/AppMain.vue')['default']
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
+    DocsBackmatter: typeof import('./components/docs/DocsBackmatter.vue')['default']
+    DocsBackToTop: typeof import('./components/docs/DocsBackToTop.vue')['default']
+    DocsLastCommit: typeof import('./components/docs/DocsLastCommit.vue')['default']
+    DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
+    DocsPageFeatures: typeof import('./components/docs/DocsPageFeatures.vue')['default']
+    Mermaid: typeof import('./components/Mermaid.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

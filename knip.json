@@ -1,0 +1,123 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    ".": {
+      "ignore": [
+        "**/dist/**",
+        "**/node_modules/**",
+        "**/.nuxt/**",
+        "**/.output/**"
+      ]
+    },
+    "apps/docs": {
+      "entry": [
+        "src/components.d.ts",
+        "src/main.ts"
+      ],
+      "project": [
+        "src/**/*.{js,ts,vue,md}"
+      ],
+      "ignore": [
+        "src/typed-router.d.ts",
+        "src/layouts/default.vue"
+      ],
+      "paths": {
+        "@/*": [
+          "src/*"
+        ],
+        "@vuetify/v0": [
+          "../../packages/0/src"
+        ],
+        "@vuetify/paper": [
+          "../../packages/paper/src"
+        ],
+        "#v0": [
+          "../../packages/0/src"
+        ],
+        "#paper": [
+          "../../packages/paper/src"
+        ]
+      }
+    },
+    "apps/storybook": {
+      "entry": [
+        "stories/**/*.{js,ts,vue}"
+      ],
+      "project": [
+        "**/*.{js,ts,vue}"
+      ]
+    },
+    "packages/0": {
+      "project": [
+        "src/**/*.{ts,vue}",
+        "!src/**/*.test.ts",
+        "!src/**/*.spec.ts"
+      ],
+      "paths": {
+        "#v0/*": [
+          "src/*"
+        ]
+      }
+    },
+    "packages/paper": {
+      "project": [
+        "src/**/*.{ts,vue}",
+        "!src/**/*.test.ts",
+        "!src/**/*.spec.ts"
+      ],
+      "ignoreDependencies": [
+        "sass"
+      ]
+    },
+    "playground": {
+      "entry": [
+        "src/main.ts"
+      ],
+      "project": [
+        "**/*.{js,ts,vue}",
+        "src/composables.d.ts",
+        "src/components.d.ts"
+      ],
+      "ignore": [
+        "src/Playground.template.vue"
+      ],
+      "paths": {
+        "@/*": [
+          "src/*"
+        ],
+        "@vuetify/v0": [
+          "../packages/0/src"
+        ],
+        "@vuetify/paper": [
+          "../packages/paper/src"
+        ],
+        "#v0": [
+          "../packages/0/src"
+        ],
+        "#paper": [
+          "../packages/paper/src"
+        ]
+      }
+    }
+  },
+  "ignore": [
+    "**/*.d.ts",
+    "**/dist/**",
+    "**/node_modules/**",
+    "**/.nuxt/**",
+    "**/.output/**",
+    "pnpm-lock.yaml"
+  ],
+  "ignoreDependencies": [
+    "@vuetify/paper",
+    "@vuetify/v0"
+  ],
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "ignoreBinaries": [
+    "http-server",
+    "vite"
+  ]
+}

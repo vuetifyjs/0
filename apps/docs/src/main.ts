@@ -1,6 +1,11 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { router } from './plugins/router'
+import { registerPlugins } from './plugins'
+import '@unocss/reset/tailwind-compat.css'
 import 'virtual:uno.css'
 
-createApp(App).use(router).mount('#app')
+const app = createApp(App)
+
+registerPlugins(app)
+
+app.mount('#app')

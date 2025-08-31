@@ -1,8 +1,9 @@
 // Composables
-import { useContext } from '../useContext'
+import { createContext } from '../../factories/createContext'
+import { createPlugin } from '../../factories/createPlugin'
 
 // Utilities
-import { onMounted, shallowReadonly, shallowRef } from 'vue'
+import { shallowRef, shallowReadonly } from 'vue'
 
 // Types
 import type { App, ShallowRef } from 'vue'
@@ -11,9 +12,15 @@ export interface HydrationContext {
   isHydrated: Readonly<ShallowRef<boolean>>
   hydrate: () => void
 }
+export const [useHydrationContext, provideHydrationContext] = createContext<HydrationContext>('v0:hydration')
 
-const [useHydrationContext, provideHydrationContext] = useContext<HydrationContext>('v0:hydration')
-
+/**
+ * Creates a hydration context for tracking client-side hydration state in SSR applications.
+ * This function provides a way to determine when the application has been fully hydrated
+ * on the client side, which is essential for SSR/SSG compatibility.
+ *
+ * @returns A hydration context object with reactive state and hydration control.
+ */
 export function createHydration (): HydrationContext {
   const isHydrated = shallowRef(false)
 
@@ -21,24 +28,44 @@ export function createHydration (): HydrationContext {
     isHydrated.value = true
   }
 
-  onMounted(() => {
-    hydrate()
-  })
-
   return {
     isHydrated: shallowReadonly(isHydrated),
     hydrate,
   }
 }
 
+/**
+ * Simple hook to access the hydration context.
+ *
+ * @returns The hydration context containing hydration state and controls.
+ */
 export function useHydration (): HydrationContext {
   return useHydrationContext()
 }
 
-export function installHydrationPlugin (app: App) {
+/**
+ * Creates a Vue plugin for hydration state management in SSR/SSG applications.
+ * This plugin automatically detects when the root component is mounted and
+ * triggers the hydration process, ensuring proper client-side hydration timing.
+ *
+ * @returns A Vue plugin object with install method.
+ */
+export function createHydrationPlugin () {
   const context = createHydration()
 
-  app.runWithContext(() => {
-    provideHydrationContext(context)
+  return createPlugin({
+    namespace: 'v0:hydration',
+    provide: (app: App) => {
+      provideHydrationContext(context, app)
+    },
+    setup: (app: App) => {
+      app.mixin({
+        mounted () {
+          if (this.$parent !== null) return
+
+          context.hydrate()
+        },
+      })
+    },
   })
 }

@@ -3,14 +3,14 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { onUnmounted } from 'vue'
+  import { onUnmounted, toRef } from 'vue'
 
   // Types
   import { useAvatarContext } from './AvatarRoot.vue'
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface AvatarImageProps extends AtomProps {
-    size?: string
+    src?: string
     priority?: number
   }
 
@@ -26,7 +26,7 @@
     inheritAttrs: false,
   })
 
-  const { as = 'img', priority = 0 } = defineProps<AvatarImageProps>()
+  const { as = 'img', renderless, priority = 0, ...props } = defineProps<AvatarImageProps>()
 
   const emit = defineEmits<AvatarImageEmits>()
 
@@ -52,21 +52,25 @@
     context.unregister(ticket.id)
   })
 
+  const bindableProps = toRef(() => ({
+    onError,
+    onLoad,
+    role: 'img',
+    ...props,
+  }))
+
+  type BindableProps = typeof bindableProps.value
+
+  defineSlots<{ default: (props: BindableProps) => any }>()
 </script>
 
 <template>
   <Atom
     v-show="ticket.isVisible"
-    v-slot="slotProps"
     :as
-    :props="{
-      role: 'img',
-      onError,
-      onLoad,
-      ...$attrs
-    }"
     :renderless
+    v-bind="bindableProps"
   >
-    <slot v-bind="slotProps" />
+    <slot v-bind="bindableProps" />
   </Atom>
 </template>

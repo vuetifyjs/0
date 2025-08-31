@@ -16,8 +16,8 @@ export interface UseFilterOptions {
   mode?: FilterMode
 }
 
-export interface UseFilterResult<T extends FilterItem = FilterItem> {
-  items: ComputedRef<T[]>
+export interface UseFilterResult<Z extends FilterItem = FilterItem> {
+  items: ComputedRef<Z[]>
 }
 
 function defaultFilter (
@@ -28,8 +28,9 @@ function defaultFilter (
 ): boolean {
   const queries = Array.isArray(query) ? query.map(q => String(q).toLowerCase()) : [String(query).toLowerCase()]
 
-  const match = (value: any, q: string) =>
-    String(value).toLowerCase().includes(q)
+  function match (value: any, q: string) {
+    return String(value).toLowerCase().includes(q)
+  }
 
   const values =
       typeof item === 'object' && item !== null
@@ -63,11 +64,22 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
   return isRef(value) ? value : (typeof value === 'function' ? toRef(value as () => T) : toRef(() => value as T))
 }
 
-export function useFilter<T extends FilterItem> (
+/**
+ * Creates a reactive filter for arrays based on query matching with configurable search modes.
+ * Supports 'some' (any field matches), 'every' (all fields match), 'union' (any query matches),
+ * and 'intersection' (all queries match) filtering strategies.
+ *
+ * @param query Filter query to match against items.
+ * @param items Collection of items to filter.
+ * @param options Optional configuration for the filter behavior.
+ * @template Z The type of the items being filtered.
+ * @returns A computed reference to the filtered items based on the query and options.
+ */
+export function useFilter<Z extends FilterItem> (
   query: FilterQuery,
-  items: MaybeRef<T[]>,
+  items: MaybeRef<Z[]>,
   options: UseFilterOptions = {},
-): UseFilterResult<T> {
+): UseFilterResult<Z> {
   const { customFilter, keys, mode = 'some' } = options
   const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys, mode))
 
