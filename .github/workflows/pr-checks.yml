@@ -21,21 +21,14 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install
-      - name: Upload node_modules
-        uses: actions/upload-artifact@v4
-        with:
-          name: node_modules
-          path: '**/node_modules'
+
   lint:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
-        with:
-          name: node_modules
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
       - name: Set node
@@ -43,6 +36,8 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
       - name: Run linter
         run: pnpm lint
 
@@ -52,10 +47,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
-        with:
-          name: node_modules
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
       - name: Set node
@@ -63,6 +55,8 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
       - name: Run type checking
         run: pnpm typecheck
 
@@ -72,10 +66,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
-        with:
-          name: node_modules
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
       - name: Set node
@@ -83,6 +74,8 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
       - name: Run tests
         run: pnpm test --run
 
@@ -92,10 +85,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
-        with:
-          name: node_modules
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
       - name: Set node
@@ -103,6 +93,8 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
       - name: Run knip check
         run: pnpm test:knip
       - name: Run sherif check
@@ -114,10 +106,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
-        with:
-          name: node_modules
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
       - name: Set node
@@ -125,5 +114,7 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+      - name: Install dependencies
+        run: pnpm install
       - name: Build packages
         run: pnpm build
