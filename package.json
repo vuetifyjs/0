@@ -5,11 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter=playground dev",
-    "build": "pnpm --filter=v0 --filter=paper build",
+    "build": "pnpm --filter=\"./packages/*\" build",
     "preview": "vite preview",
-    "type-check": "vue-tsc -b --incremental",
-    "type-check:watch": "vue-tsc -b --incremental --watch",
-    "type-check:clean": "vue-tsc -b --clean && vue-tsc -b --incremental",
+    "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "storybook": "pnpm --filter=storybook dev",
