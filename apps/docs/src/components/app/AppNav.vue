@@ -32,7 +32,6 @@
       item.ticket.select()
     }
   })
-
 </script>
 
 <template>
