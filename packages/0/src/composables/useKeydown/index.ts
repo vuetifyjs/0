@@ -10,7 +10,7 @@ export interface KeyHandler {
 }
 
 export interface UseKeydownOptions {
-  autoStart?: boolean
+  immediate?: boolean
 }
 
 let globalListener: ((event: KeyboardEvent) => void) | null = null
@@ -52,7 +52,7 @@ function stopGlobalListener () {
  */
 
 export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKeydownOptions = {}) {
-  const { autoStart = true } = options
+  const { immediate = true } = options
   const keyHandlers = Array.isArray(handlers) ? handlers : [handlers]
   const handlerIds = ref<ID[]>([])
   const isListening = ref(false)
@@ -89,7 +89,7 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKey
     }
   }
 
-  if (getCurrentScope() && autoStart) {
+  if (getCurrentScope() && immediate) {
     onMounted(startListening)
   }
 
