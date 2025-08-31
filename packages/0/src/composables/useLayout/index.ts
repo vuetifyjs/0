@@ -51,15 +51,10 @@ export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
   top: ShallowRef<number>
   bottom: ShallowRef<number>
   resize: () => void
-  register: (item?: Partial<Z>) => Z
 }
 
 export interface LayoutOptions extends GroupOptions {
   el?: ShallowRef<HTMLElement | null>
-}
-
-export interface LayoutPlugin {
-  install: (app: App, ...options: any[]) => any
 }
 
 export const [useLayoutContext, provideLayout] = createContext<LayoutContext<LayoutTicket>>('v0:layout')
@@ -265,10 +260,10 @@ export function useLayoutItem<Z extends Partial<LayoutTicket>> (
  * @returns A Vue plugin object with install method.
  */
 
-export function createLayoutPlugin (options: LayoutOptions = {}): LayoutPlugin {
+export function createLayoutPlugin (options: LayoutOptions = {}) {
   const layout = createLayout(options)
 
-  return createPlugin<LayoutPlugin>({
+  return createPlugin({
     namespace: 'v0:layout',
     provide: (app: App) => {
       provideLayout(layout, app)
