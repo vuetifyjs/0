@@ -19,7 +19,7 @@
     "build": "pnpm build:bundler && pnpm build:browser",
     "build:bundler": "tsdown --config build/tsdown.bundler.config.ts",
     "build:browser": "tsdown --config build/tsdown.browser.config.ts",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit --incremental"
   },
   "peerDependencies": {
     "vue": ">=3.3.0"
