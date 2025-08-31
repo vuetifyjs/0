@@ -3,6 +3,7 @@ import Layouts from 'vite-plugin-vue-layouts-next'
 import VueRouter from 'unplugin-vue-router/vite'
 import Components from 'unplugin-vue-components/vite'
 import Markdown from './build/markdown'
+import pkg from './package.json' with { type: 'json' }
 
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
@@ -33,6 +34,7 @@ export default defineConfig({
   define: {
     'process.env': {},
     '__DEV__': process.env.NODE_ENV !== 'production',
+    '__VERSION__': JSON.stringify(pkg.version),
     '__VITE_LOGGER_ENABLED__': process.env.VITE_LOGGER_ENABLED,
     '__VUE_OPTIONS_API__': 'true',
     '__VUE_PROD_DEVTOOLS__': 'false',
