@@ -232,9 +232,7 @@ export function useRegistry<
   }
 
   function invalidate () {
-    if (cache.size === 0) return
-
-    cache.clear()
+    if (cache.size > 0) cache.clear()
   }
 
   function reindex () {
