@@ -29,7 +29,8 @@ export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
-  value: number | ComputedRef<number>
+  value: number
+  size: ComputedRef<number>
   element?: ShallowRef<HTMLElement | null>
   cumulative: ComputedRef<{
     top: number
@@ -144,51 +145,59 @@ export function createLayout<
 
   function register (registrant: Partial<Z>): Z {
     const valueProp = isVertical(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
-    const dynamicValue = computed(() => registrant.element?.value?.[valueProp] ?? (registrant.value as any) ?? 0)
+    const size = computed(() => registrant.element?.value?.[valueProp] ?? registrant.value ?? 0)
+
     const ticket = registry.register({
       ...registrant,
       position: registrant.position!,
       order: registrant.order ?? 0,
-      value: dynamicValue,
+      size,
     }) as Z
+
     const cumulative = computed(() => {
       const offsets = { left: 0, right: 0, top: 0, bottom: 0 }
       for (const current of registry.values()) {
         if (!current.isActive.value) continue
         if (current.index >= ticket.index && (ticket.position !== opposites[current.position])) break
-        offsets[current.position] += unref(current.value as any)
+        offsets[current.position] += unref(current.value)
       }
+
       return {
         ...offsets,
         height: offsets.top + offsets.bottom,
         width: offsets.left + offsets.right,
       }
     })
-    const heightComputed = computed(() => isVertical(ticket.position) ? unref(ticket.value as any) : bottom.value - top.value - cumulative.value.height)
-    const widthComputed = computed(() => isVertical(ticket.position) ? right.value - left.value - cumulative.value.width : unref(ticket.value as any))
+    const height = computed(() => isVertical(ticket.position) ? unref(ticket.value) : bottom.value - top.value - cumulative.value.height)
+    const width = computed(() => isVertical(ticket.position) ? right.value - left.value - cumulative.value.width : unref(ticket.value))
     const x = computed(() => (
       ticket.position === 'left'
         ? left.value + cumulative.value.left
-        : (ticket.position === 'right'
-            ? right.value - widthComputed.value - cumulative.value.right
-            : left.value + cumulative.value.left)
+        : (
+            ticket.position === 'right'
+              ? right.value - width.value - cumulative.value.right
+              : left.value + cumulative.value.left
+          )
     ))
     const y = computed(() => (
       ticket.position === 'top'
         ? top.value + cumulative.value.top
-        : (ticket.position === 'bottom'
-            ? bottom.value - heightComputed.value - cumulative.value.bottom
-            : top.value + cumulative.value.top)
+        : (
+            ticket.position === 'bottom'
+              ? bottom.value - height.value - cumulative.value.bottom
+              : top.value + cumulative.value.top
+          )
     ))
-    const rect = { x, y, width: widthComputed, height: heightComputed }
+
     Object.assign(ticket, {
       cumulative,
       x,
       y,
-      width: widthComputed,
-      height: heightComputed,
-      rect,
+      width,
+      height,
+      rect: { x, y, width, height },
     })
+
     return ticket
   }
 
