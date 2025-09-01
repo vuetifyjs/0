@@ -1,6 +1,7 @@
 // Factories
 import { createPlugin } from '#v0/factories/createPlugin'
-import { createContext } from '#v0/factories/createContext'
+import { createContext, useContext } from '#v0/factories/createContext'
+import { createTrinity } from '#v0/factories/createTrinity'
 
 // Composables
 import { useGroup } from '#v0/composables/useGroup'
@@ -21,14 +22,33 @@ import { IN_BROWSER } from '#v0/constants/globals.ts'
 // Types
 import type { ComputedRef, ShallowRef, App } from 'vue'
 import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
+import type { ContextTrinity } from '#v0/factories'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
 export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
-  value: number
+  value: number | ComputedRef<number>
   element?: ShallowRef<HTMLElement | null>
+  cumulative: ComputedRef<{
+    top: number
+    bottom: number
+    left: number
+    right: number
+    height: number
+    width: number
+  }>
+  x: ComputedRef<number>
+  y: ComputedRef<number>
+  width: ComputedRef<number>
+  height: ComputedRef<number>
+  rect: {
+    x: ComputedRef<number>
+    y: ComputedRef<number>
+    width: ComputedRef<number>
+    height: ComputedRef<number>
+  }
 }
 
 export interface LayoutContext<Z extends LayoutTicket> extends GroupContext<Z> {
@@ -61,16 +81,19 @@ function isVertical (position: LayoutLocation) {
   return ['top', 'bottom'].includes(position)
 }
 
-export const [useLayoutContext, provideLayout] = createContext<LayoutContext<LayoutTicket>>('v0:layout')
-
-export function useLayout (): LayoutContext<LayoutTicket> {
-  return useLayoutContext()
-}
-
+/**
+ * Creates a layout registry for managing layout selections
+ *
+ * @param _options
+ * @returns
+ */
 export function createLayout<
   Z extends LayoutTicket = LayoutTicket,
   E extends LayoutContext<Z> = LayoutContext<Z>,
-> (_options: LayoutOptions = {}): E {
+> (
+  namespace = 'v0:layout',
+  _options: LayoutOptions = {},
+): ContextTrinity<E> {
   const {
     enroll = true,
     events = true,
@@ -78,6 +101,7 @@ export function createLayout<
     ...options
   } = _options
 
+  const [useLayoutContext, _provideLayoutContext] = createContext<E>(namespace)
   const registry = useGroup<Z, E>({ enroll, events, ...options })
 
   const height = shallowRef(0)
@@ -111,16 +135,61 @@ export function createLayout<
     return total
   }
 
-  function register (registrant: Partial<Z>): Z {
-    const valueToCheck = isVertical(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
-    const value = computed(() => registrant.element?.value?.[valueToCheck] ?? registrant.value)
+  const opposites: Record<LayoutLocation, LayoutLocation> = {
+    top: 'bottom',
+    bottom: 'top',
+    left: 'right',
+    right: 'left',
+  }
 
-    return registry.register({
+  function register (registrant: Partial<Z>): Z {
+    const valueProp = isVertical(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
+    const dynamicValue = computed(() => registrant.element?.value?.[valueProp] ?? (registrant.value as any) ?? 0)
+    const ticket = registry.register({
       ...registrant,
-      position: registrant.position,
+      position: registrant.position!,
       order: registrant.order ?? 0,
-      value,
+      value: dynamicValue,
+    }) as Z
+    const cumulative = computed(() => {
+      const offsets = { left: 0, right: 0, top: 0, bottom: 0 }
+      for (const current of registry.values()) {
+        if (!current.isActive.value) continue
+        if (current.index >= ticket.index && (ticket.position !== opposites[current.position])) break
+        offsets[current.position] += unref(current.value as any)
+      }
+      return {
+        ...offsets,
+        height: offsets.top + offsets.bottom,
+        width: offsets.left + offsets.right,
+      }
     })
+    const heightComputed = computed(() => isVertical(ticket.position) ? unref(ticket.value as any) : bottom.value - top.value - cumulative.value.height)
+    const widthComputed = computed(() => isVertical(ticket.position) ? right.value - left.value - cumulative.value.width : unref(ticket.value as any))
+    const x = computed(() => (
+      ticket.position === 'left'
+        ? left.value + cumulative.value.left
+        : (ticket.position === 'right'
+            ? right.value - widthComputed.value - cumulative.value.right
+            : left.value + cumulative.value.left)
+    ))
+    const y = computed(() => (
+      ticket.position === 'top'
+        ? top.value + cumulative.value.top
+        : (ticket.position === 'bottom'
+            ? bottom.value - heightComputed.value - cumulative.value.bottom
+            : top.value + cumulative.value.top)
+    ))
+    const rect = { x, y, width: widthComputed, height: heightComputed }
+    Object.assign(ticket, {
+      cumulative,
+      x,
+      y,
+      width: widthComputed,
+      height: heightComputed,
+      rect,
+    })
+    return ticket
   }
 
   function resize () {
@@ -166,7 +235,7 @@ export function createLayout<
     window.addEventListener('resize', resize)
   }
 
-  return {
+  const context = {
     ...registry,
     register,
     resize,
@@ -179,64 +248,21 @@ export function createLayout<
     top,
     bottom,
   } as E
+
+  function provideLayoutContext (_context: E = context, app?: App): E {
+    return _provideLayoutContext(_context, app)
+  }
+
+  return createTrinity<E>(useLayoutContext, provideLayoutContext, context)
 }
 
-export function useLayoutItem<Z extends Partial<LayoutTicket>> (
-  options: Z = {} as Z,
-  context?: LayoutContext<LayoutTicket> | null,
-) {
-  const layout = context ?? useLayout()
-
-  const ticket = layout.register(options)
-  const value = ticket.value
-
-  const opposites = {
-    top: 'bottom',
-    bottom: 'top',
-    left: 'right',
-    right: 'left',
-  }
-
-  function makeCumulativeOffsets (ticket: LayoutTicket) {
-    return computed(() => {
-      const offsets = { left: 0, right: 0, top: 0, bottom: 0 }
-
-      for (const current of layout.values()) {
-        if (!current.isActive.value) continue
-        if (current.index >= ticket.index && (ticket.position !== opposites[current.position])) break
-
-        offsets[current.position] += unref(current.value)
-      }
-
-      return {
-        ...offsets,
-        height: offsets.top + offsets.bottom,
-        width: offsets.left + offsets.right,
-      }
-    })
-  }
-
-  const cumulative = makeCumulativeOffsets(ticket)
-
-  const height = computed(() => isVertical(ticket.position) ? unref(value) : layout.bottom.value - layout.top.value - cumulative.value.height)
-  const width = computed(() => isVertical(ticket.position) ? layout.right.value - layout.left.value - cumulative.value.width : unref(value))
-  const x = computed(() => (
-    ticket.position === 'left'
-      ? layout.left.value + cumulative.value.left
-      : layout.right.value - width.value - cumulative.value.right
-  ))
-  const y = computed(() => (
-    ticket.position === 'top'
-      ? layout.top.value + cumulative.value.top
-      : layout.bottom.value - height.value - cumulative.value.bottom
-  ))
-
-  const rect = { x, y, width, height }
-
-  return {
-    ticket,
-    rect,
-  }
+/**
+ * Simple hook to access the layout context.
+ *
+ * @returns The layout context containing current layout state and utilities.
+ */
+export function useLayout (): LayoutContext<LayoutTicket> {
+  return useContext<LayoutContext<LayoutTicket>>('v0:layout')()
 }
 
 /**
@@ -249,18 +275,21 @@ export function useLayoutItem<Z extends Partial<LayoutTicket>> (
  * @returns A Vue plugin object with install method.
  */
 
-export function createLayoutPlugin (options: LayoutOptions = {}) {
-  const layout = createLayout(options)
+export function createLayoutPlugin<
+  Z extends LayoutTicket = LayoutTicket,
+  E extends LayoutContext<Z> = LayoutContext<Z>,
+> (options: LayoutOptions = {}) {
+  const [, provideLayoutContext, layoutContext] = createLayout<Z, E>('v0:layout', options)
 
   return createPlugin({
     namespace: 'v0:layout',
     provide: (app: App) => {
-      provideLayout(layout, app)
+      provideLayoutContext(layoutContext, app)
     },
     setup: (app: App) => {
       app.mixin({
         mounted () {
-          layout.resize()
+          layoutContext.resize()
         },
       })
     },

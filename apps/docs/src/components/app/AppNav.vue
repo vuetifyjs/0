@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { Atom, useBreakpoints, useLayoutItem } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayout } from '@vuetify/v0'
   import { useAppStore } from '@/stores/app'
   import { useRoute } from 'vue-router'
   import { watch, watchEffect, useTemplateRef } from 'vue'
@@ -18,7 +18,8 @@
   })
 
   const element = useTemplateRef<HTMLElement>('nav')
-  const item = useLayoutItem({
+  const layout = useLayout()
+  const item = layout.register({
     id: 'nav',
     position: 'left',
     element,
@@ -27,9 +28,9 @@
 
   watchEffect(() => {
     if (breakpoints.isMobile) {
-      item.ticket.unselect()
+      item.unselect()
     } else {
-      item.ticket.select()
+      item.select()
     }
   })
 </script>

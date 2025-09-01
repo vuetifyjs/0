@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useBreakpoints, useLayoutItem } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayout } from '@vuetify/v0'
 
   // Utilities
   import { useTemplateRef } from 'vue'
@@ -12,7 +12,8 @@
 
   const breakpoints = useBreakpoints()
   const element = useTemplateRef<HTMLElement>('banner')
-  const item = useLayoutItem({
+  const layout = useLayout()
+  const item = layout.register({
     id: 'banner',
     position: 'top',
     element,
