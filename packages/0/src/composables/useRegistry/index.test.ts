@@ -130,5 +130,22 @@ describe('useRegistry', () => {
 
       expect(registry.collection.size).toBe(0)
     })
+
+    it('should update an existing item', () => {
+      const registry = useRegistry()
+      const ticket = registry.register({ id: 'update-me', value: 'initial' })
+
+      expect(ticket.value).toBe('initial')
+
+      let updated = registry.upsert('update-me', { value: 'updated' })
+
+      expect(updated.valueIsIndex).toBe(false)
+      expect(updated.value).toBe('updated')
+
+      updated = registry.upsert('update-me', { value: undefined })
+
+      expect(updated.valueIsIndex).toBe(true)
+      expect(updated.value).toBe(updated.index)
+    })
   })
 })

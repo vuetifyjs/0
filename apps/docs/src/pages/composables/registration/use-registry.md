@@ -49,6 +49,7 @@ console.log(registry.size) // 3
     browse: (value: unknown) => ID | ID[] | undefined
     lookup: (index: number) => ID | undefined
     get: (id: ID) => Z | undefined
+    upsert: (id: ID, patch?: Partial<Z>) => Z
     values: () => Z[]
     entries: () => [ID, Z][]
     register: (item?: Partial<Z>) => Z
@@ -74,6 +75,7 @@ console.log(registry.size) // 3
   - `browse(value: unknown)`: Searches for an ID by its value. Returns a single ID if found, or an array of IDs if multiple items match.
   - `lookup(index: number)`: Looks up an ID by its index number.
   - `get(id: ID)`: Retrieves a ticket by its ID, returning `undefined` if not found.
+  - `upsert(id: ID, patch?: Partial<Z>)`: Creates or updates a ticket by its ID. If the ID does not exist, it creates a new ticket; if it does exist, it updates the existing ticket with the provided patch.
   - `values()`: Returns an array of all registered tickets.
   - `entries()`: Returns an array of entries, each being a tuple of [ID, ticket].
   - `register(item?: Partial<Z>)`: Registers a new item, returning the created ticket. If `item` is provided, it will be merged with the default ticket structure.
@@ -97,7 +99,11 @@ console.log(registry.size) // 3
   ```
 
 - **Details**
-  Registers a new item in the registry. If an item is provided, it will be merged with the default ticket structure. Returns the created ticket.
+  Registers a new item. Behavior rules:
+  - If `value` is omitted, the ticket's `value` is set to its (possibly provided) `index` and `valueIsIndex` is `true`.
+  - If `value` is provided (even `null`), `valueIsIndex` is `false`.
+  - The `index` assigned at registration is immutable via `upsert` (only `reindex()` can change ordering indices globally).
+  Returns the created ticket.
 
 - **Example**
   ```ts
@@ -126,6 +132,33 @@ console.log(registry.size) // 3
 
   const found = registry.get('foo')
   const notfound = registry.get('bar')
+  ```
+
+### `upsert`
+
+- **Type**
+  ```ts
+  function upsert (id: ID, patch?: Partial<Z>): Z
+  ```
+
+- **Details**
+  Creates a ticket when the `id` does not exist (following the same rules as `register`), otherwise updates the existing ticket. Special handling only applies to `value`:
+  - Supplying a new `value` sets `valueIsIndex` to `false`.
+  - Supplying `value: undefined` resets `value` to the ticket's immutable `index` and sets `valueIsIndex` to `true`.
+  - Omitting `value` leaves both `value` and `valueIsIndex` unchanged.
+  - The `index` of an existing ticket is never changed by `upsert`.
+
+- **Example**
+  ```ts
+  const registry = useRegistry()
+
+  registry.register({ id: 1 })
+  registry.upsert(1, { value: 'custom' })
+  registry.upsert(1, { value: undefined })
+
+  console.log(registry.get(1)) // { id: 1, index: 0, value: 0, valueIsIndex: true }
+
+  registry.upsert(2, { value: 'new' }) // creates new ticket
   ```
 
 ### `clear`
