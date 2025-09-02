@@ -86,6 +86,7 @@ describe('useLayout inside component', () => {
     })
     const mountedComponent = mount(testComponent)
     expect(mountedComponent.vm.item.size.value).toEqual(50)
+    expect(mountedComponent.vm.context.main.y.value).toEqual(50)
   })
 })
 
