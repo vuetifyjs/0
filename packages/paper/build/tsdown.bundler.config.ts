@@ -14,7 +14,6 @@ export default defineConfig({
     }),
   ],
   dts: {
-    tsconfig: './tsconfig.app.json',
     vue: true,
   },
   define: {

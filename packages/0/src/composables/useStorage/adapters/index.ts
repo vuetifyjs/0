@@ -9,4 +9,4 @@ export interface StorageAdapter {
 }
 
 export * from './adapter'
-export * from './memory.ts' // has to have extension for some reason
+export * from './memory'
