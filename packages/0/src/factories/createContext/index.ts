@@ -14,6 +14,7 @@ export type ContextKey<Z> = InjectionKey<Z> | string
  * @throws Error if namespace is not found.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
  */
 export function useContext<Z> (key: ContextKey<Z>) {
   return function (namespace?: string): Z {
