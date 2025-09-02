@@ -24,5 +24,5 @@
 
 <style lang="sass">
   .app-footer
-    background-color: var(--v0-surfaceTint)
+    background-color: var(--v0-surface-tint)
 </style>
