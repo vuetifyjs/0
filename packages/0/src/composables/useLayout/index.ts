@@ -126,11 +126,12 @@ export function createLayout<
     right: computed(() => sum('right')),
   }
 
-  function sum (position: LayoutLocation): number {
+  function sum (position: LayoutLocation) {
     let total = 0
     for (const item of registry.values()) {
       if (item.position === position && item.isActive.value) {
-        total += unref(item.value) ?? 0
+        const value = item.size ?? item.value
+        total += unref(value) ?? 0
       }
     }
     return total
@@ -145,7 +146,16 @@ export function createLayout<
 
   function register (registrant: Partial<Z>): Z {
     const valueProp = isVertical(registrant.position!) ? 'offsetHeight' : 'offsetWidth'
-    const size = computed(() => registrant.element?.value?.[valueProp] ?? registrant.value ?? 0)
+    const size = computed(() => {
+      const el = registrant.element?.value
+
+      if (el && 'element' in el) {
+        const inner = unref(el.element)
+        return (inner as HTMLElement)?.[valueProp] ?? registrant.value ?? 0
+      }
+
+      return registrant.element?.value?.[valueProp] ?? registrant.value
+    })
 
     const ticket = registry.register({
       ...registrant,
@@ -159,7 +169,7 @@ export function createLayout<
       for (const current of registry.values()) {
         if (!current.isActive.value) continue
         if (current.index >= ticket.index && (ticket.position !== opposites[current.position])) break
-        offsets[current.position] += unref(current.value)
+        offsets[current.position] += unref(current.size) ?? unref(current.value)
       }
 
       return {
@@ -168,8 +178,8 @@ export function createLayout<
         width: offsets.left + offsets.right,
       }
     })
-    const height = computed(() => isVertical(ticket.position) ? unref(ticket.value) : bottom.value - top.value - cumulative.value.height)
-    const width = computed(() => isVertical(ticket.position) ? right.value - left.value - cumulative.value.width : unref(ticket.value))
+    const height = computed(() => isVertical(ticket.position) ? unref(ticket.size ?? ticket.value) : bottom.value - top.value - cumulative.value.height)
+    const width = computed(() => isVertical(ticket.position) ? right.value - left.value - cumulative.value.width : unref(ticket.size ?? ticket.value))
     const x = computed(() => (
       ticket.position === 'left'
         ? left.value + cumulative.value.left

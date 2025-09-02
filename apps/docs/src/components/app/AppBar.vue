@@ -23,19 +23,18 @@
     id: 'bar',
     position: 'top',
     element,
-    value: 48,
   })
+
 </script>
 
 <template>
   <Atom
     ref="bar"
     :as
-    class="app-header flex items-center justify-between fixed px-3"
+    class="app-header flex items-center justify-between fixed px-3 h-[48px]"
     :style="{
       left: item.rect.x.value + 'px',
       top: item.rect.y.value + 'px',
-      height: item.rect.height.value + 'px',
       width: item.rect.width.value + 'px',
     }"
   >
