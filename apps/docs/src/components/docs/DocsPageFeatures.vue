@@ -73,7 +73,7 @@
 </script>
 
 <template>
-  <div class="my-2 inline-flex gap-2 flex-wrap">
+  <div class="my-2 inline-flex gap-2 flex-wrap mb-8">
     <a
       :href="edit"
       rel="noopener noreferrer"
