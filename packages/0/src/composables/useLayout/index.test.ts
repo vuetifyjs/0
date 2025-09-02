@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { createLayout } from './index.ts'
 import { mount } from '@vue/test-utils'
-import { defineComponent } from 'vue'
+import { defineComponent, useTemplateRef } from 'vue'
 
 describe('useLayout inside component', () => {
   let originalWindow: any
@@ -57,6 +57,35 @@ describe('useLayout inside component', () => {
     expect(mountedComponent.vm.context.main.y.value).toEqual(32)
     expect(mountedComponent.vm.context.main.width.value).toEqual(896)
     expect(mountedComponent.vm.context.main.height.value).toEqual(736)
+  })
+
+  it('correctly calculates size from component', async () => {
+    const testComponent = defineComponent({
+      setup () {
+        const context = createLayout()[2]
+        const element = useTemplateRef<HTMLElement>('element')
+
+        const item = context.register({
+          id: 'testdiv',
+          position: 'top',
+          element,
+        })
+
+        return { item, context }
+      },
+      template: '<div id="testdiv" ref="element" style="height: 50px"></div> <div style="height: 60px"></div>',
+    })
+
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      get () {
+        if (this.id === 'testdiv') {
+          return 50
+        }
+      },
+    })
+    const mountedComponent = mount(testComponent)
+    expect(mountedComponent.vm.item.size.value).toEqual(50)
   })
 })
 
