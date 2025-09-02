@@ -9,8 +9,10 @@ import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
 import UnocssVitePlugin from 'unocss/vite'
 
-// https://vitejs.dev/config/
 export default defineConfig({
+  ssr: {
+    noExternal: ['@vuetify/one'],
+  },
   experimental: {
     enableNativePlugin: true,
   },
