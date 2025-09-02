@@ -36,12 +36,35 @@ export default async function MarkdownPlugin () {
             light: 'github-light-default',
             dark: 'github-dark-default',
           },
-        }))
-      md.renderer.rules.link_open = function (tokens, idx, options, _env, self) {
-        const token = tokens[idx]
-        const classIndex = token.attrIndex('class')
-        if (classIndex < 0) token.attrPush(['class', 'v0-link'])
-        else if (token.attrs && !/\bv0-link\b/.test(token.attrs[classIndex][1])) token.attrs[classIndex][1] += ' v0-link'
+        }),
+      )
+      md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+        const t = tokens[idx]
+        const ci = t.attrIndex('class')
+        if (ci < 0) t.attrPush(['class', 'v0-link'])
+        else if (t.attrs && !/\bv0-link\b/.test(t.attrs[ci][1])) t.attrs[ci][1] += ' v0-link'
+        const href = t.attrGet('href') || ''
+        if (/^https?:\/\//i.test(href)) {
+          t.attrSet('data-sfx', '↗')
+        } else if (/#/.test(href)) {
+          t.attrSet('data-pfx', '#')
+        } else {
+          t.attrSet('data-sfx', '→')
+        }
+        let html = self.renderToken(tokens, idx, options)
+        const pfx = t.attrGet('data-pfx')
+        if (pfx) html += pfx
+        return html
+      }
+      md.renderer.rules.link_close = (tokens, idx, options, env, self) => {
+        for (let i = idx - 1; i >= 0; i--) {
+          const open = tokens[i]
+          if (open.type === 'link_open') {
+            const sfx = open.attrGet && open.attrGet('data-sfx')
+            const close = self.renderToken(tokens, idx, options)
+            return (sfx || '') + close
+          }
+        }
         return self.renderToken(tokens, idx, options)
       }
     },
