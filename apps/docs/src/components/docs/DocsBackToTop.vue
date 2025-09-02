@@ -36,7 +36,7 @@
     class="text-end text-sm text-blue-500 mt-16 underline cursor-pointer"
     @click="scrollToTop"
   >
-    <div class="inline-flex align-center gap-1">
+    <div class="inline-flex align-center">
       Back to Top
 
       <AppIcon icon="up" />
