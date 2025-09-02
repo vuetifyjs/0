@@ -16,6 +16,7 @@ export interface Plugin {
  * @param options Configurable object with namespace and provide/setup methods
  * @returns A Vue plugin object with install method that runs app w/ context
  *
+ * @see https://vuejs.org/guide/reusability/plugins
  * @see https://vuejs.org/api/application.html#app-runwithcontext
  * @see https://0.vuetifyjs.com/factories/create-plugin
  */
