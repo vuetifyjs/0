@@ -38,8 +38,7 @@ describe('useForm validateOn functionality', () => {
     const form = useForm({ validateOn: 'change' })
     const mockRule = vi.fn().mockResolvedValue('Error message')
 
-    // @ts-ignore
-    const _field = form.register({
+    form.register({
       id: 'test',
       rules: [mockRule],
       value: 'test-value',
