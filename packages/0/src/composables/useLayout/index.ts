@@ -159,12 +159,7 @@ export function createLayout<
         }
       }
 
-      const direct = unref(registrant.element)
-      if (direct instanceof HTMLElement) {
-        return direct[valueProp as keyof HTMLElement] ?? registrant.value ?? 0
-      }
-
-      return registrant.value ?? 0
+      return registrant.element?.value?.[valueProp] ?? registrant.value
     })
 
     const ticket = registry.register({
