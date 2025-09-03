@@ -149,11 +149,13 @@ export function createLayout<
     const size = computed(() => {
       const el = registrant.element?.value
 
+      // Check if template ref was exposed by the child under the key element defineExpose({element})
       if (el && 'element' in el) {
         const inner = unref(el.element)
         return (inner as HTMLElement)?.[valueProp] ?? registrant.value ?? 0
       }
 
+      // return regular template ref or value
       return registrant.element?.value?.[valueProp] ?? registrant.value
     })
 
