@@ -1,3 +1,6 @@
+// Factories
+import { createContext, createTrinity } from '#v0/factories'
+
 // Composables
 import { useLogger } from '#v0/composables/useLogger'
 
@@ -6,7 +9,6 @@ import { genId, isArray } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'
-import { createContext, createTrinity } from '#v0/factories'
 import type { ContextTrinity } from '#v0/factories'
 import type { App } from 'vue'
 
@@ -76,6 +78,8 @@ export interface RegistryOptions {
  * @template Z The type of items managed by the registry.
  * @template E The type of the registry context.
  * @returns The registry context object.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-registry
  */
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
