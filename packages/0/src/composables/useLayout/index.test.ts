@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { createLayout } from './index.ts'
 import { mount } from '@vue/test-utils'
-import { defineComponent, useTemplateRef, nextTick } from 'vue'
-import { Atom } from '@/components/Atom'
+import { defineComponent, useTemplateRef } from 'vue'
+import { Atom } from '../../components/Atom'
+import type { ShallowRef } from 'vue'
 
 describe('useLayout inside component', () => {
   let originalWindow: any
@@ -92,10 +93,9 @@ describe('useLayout inside component', () => {
 
   it('correctly calculates size from child Atom component', async () => {
     const testComponent = defineComponent({
-      components: { Atom },
       setup () {
         const layout = createLayout()[2]
-        const element = useTemplateRef<HTMLElement>('element')
+        const element = useTemplateRef('element') as ShallowRef<HTMLElement | null>
 
         const item = layout.register({
           id: 'testdiv',
@@ -116,7 +116,11 @@ describe('useLayout inside component', () => {
         }
       },
     })
-    const mountedComponent = mount(testComponent)
+    const mountedComponent = mount(testComponent, {
+      global: {
+        components: { Atom },
+      },
+    })
     expect(mountedComponent.vm.item.size.value).toEqual(50)
     expect(mountedComponent.vm.layout.main.y.value).toEqual(50)
   })
