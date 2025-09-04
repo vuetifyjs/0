@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.0.2-beta.4",
+  "version": "0.0.2",
   "description": "Vuetify0",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -18,7 +18,8 @@
   "scripts": {
     "build": "pnpm build:bundler && pnpm build:browser",
     "build:bundler": "tsdown --config build/tsdown.bundler.config.ts",
-    "build:browser": "tsdown --config build/tsdown.browser.config.ts"
+    "build:browser": "tsdown --config build/tsdown.browser.config.ts",
+    "typecheck": "vue-tsc --noEmit --incremental"
   },
   "exports": {
     ".": {

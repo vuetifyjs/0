@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-  import { toRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
+  import octokit from '@/plugins/octokit'
 
   const props = defineProps<{
     frontmatter?: {
@@ -17,20 +18,20 @@
     }
   }>()
 
+  const base = 'https://github.com/vuetifyjs/0'
+  const copied = shallowRef(false)
+
   const route = useRoute()
 
-  const contribute = toRef(() => {
-    const link = route.path.split('/').slice(1).filter(Boolean).join('/')
-
-    return `https://github.com/vuetifyjs/0/edit/master/apps/docs/src/pages/${link}.md`
-  })
+  const link = toRef(() => route.path.split('/').slice(1).filter(Boolean).join('/'))
+  const edit = toRef(() => `${base}/edit/master/apps/docs/src/pages/${link.value}.md`)
 
   const github = toRef(() => {
     const github = props.frontmatter?.features?.github
 
     if (!github) return false
 
-    return `https://github.com/vuetifyjs/0/tree/master/packages/0/src${github}`
+    return `${base}/tree/master/packages/0/src${github}`
   })
 
   const label = toRef(() => {
@@ -40,14 +41,41 @@
 
     const original = encodeURIComponent(label)
 
-    return `https://github.com/vuetifyjs/0/labels/${original}`
+    return `${base}/labels/${original}`
   })
+
+  async function onClickCopy () {
+    let raw = ''
+
+    function replace (element: string, value: string) {
+      const regexp = new RegExp(`<${element}[\\s\\S]*?>([\\s\\S]*?\\/>\n\n)?`, 'g')
+
+      return value.replace(regexp, '')
+    }
+
+    try {
+      copied.value = true
+
+      const { data: { content } } = await octokit.request('GET /repos/vuetifyjs/0/contents/apps/docs/src/pages/{link}.md', {
+        link: link.value,
+      })
+
+      raw = atob(content)
+      raw = replace('DocsPageFeatures', raw)
+
+      navigator.clipboard.writeText(raw)
+    } catch (error) {
+      navigator.clipboard.writeText(String(error))
+    } finally {
+      setTimeout(() => (copied.value = false), 2000)
+    }
+  }
 </script>
 
 <template>
-  <div class="my-2 inline-flex gap-2 flex-wrap">
+  <div class="my-2 inline-flex gap-2 flex-wrap mb-8">
     <a
-      :href="contribute"
+      :href="edit"
       rel="noopener noreferrer"
       target="_blank"
     >
@@ -58,11 +86,17 @@
       />
     </a>
 
-    <!-- <AppChip
-      color="text-red-400"
-      icon="bug"
-      text="Report a Bug"
-    /> -->
+    <a
+      href="https://issues.vuetifyjs.com/"
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <AppChip
+        color="text-red-400"
+        icon="bug"
+        text="Report a Bug"
+      />
+    </a>
 
     <a
       v-if="label"
@@ -89,10 +123,11 @@
       />
     </a>
 
-    <!-- <AppChip
-      color="text-gray-500"
-      icon="markdown"
-      text="Copy Page as Markdown"
-    /> -->
+    <AppChip
+      :color="copied ? 'text-green-700' : 'text-gray-500'"
+      :icon="copied ? 'success' : 'markdown'"
+      :text="copied ? 'Copied' : 'Copy Page as Markdown'"
+      @click="onClickCopy"
+    />
   </div>
 </template>

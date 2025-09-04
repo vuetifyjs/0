@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/storybook",
-  "version": "0.0.2-beta.4",
+  "version": "0.0.2",
   "private": true,
   "type": "module",
   "scripts": {

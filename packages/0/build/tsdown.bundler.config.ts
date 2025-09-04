@@ -9,7 +9,6 @@ export default defineConfig({
     Vue({ isProduction: true }),
   ],
   dts: {
-    tsconfig: './tsconfig.app.json',
     vue: true,
   },
   define: {

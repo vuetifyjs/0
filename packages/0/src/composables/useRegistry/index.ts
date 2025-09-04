@@ -1,3 +1,6 @@
+// Factories
+import { createContext, createTrinity } from '#v0/factories'
+
 // Composables
 import { useLogger } from '#v0/composables/useLogger'
 
@@ -6,7 +9,6 @@ import { genId, isArray } from '#v0/utilities/helpers'
 
 // Types
 import type { ID } from '#v0/types'
-import { createContext, createTrinity } from '#v0/factories'
 import type { ContextTrinity } from '#v0/factories'
 import type { App } from 'vue'
 
@@ -26,7 +28,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   collection: Map<ID, Z>
   /** Clear the entire registry */
   clear: () => void
-  /** Check if an item exists by id */
+  /** Check if an item exists by ID */
   has: (id: ID) => boolean
   /** Returns an array of registered IDs */
   keys: () => ID[]
@@ -34,15 +36,17 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   browse: (value: unknown) => ID | ID[] | undefined
   /** lookup a ticket by index number */
   lookup: (index: number) => ID | undefined
-  /** Get a ticket by id */
+  /** Get a ticket by ID */
   get: (id: ID) => Z | undefined
+  /** Update or insert an item by ID */
+  upsert: (id: ID, item?: Partial<Z>) => Z
   /** Get all registered tickets */
   values: () => Z[]
-  /** Get all entries as [id, ticket] pairs */
+  /** Get all entries as [ID, ticket] pairs */
   entries: () => [ID, Z][]
   /** Register a new item */
   register: (item?: Partial<Z>) => Z
-  /** Unregister an item by id */
+  /** Unregister an item by ID */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
   reindex: () => void
@@ -74,6 +78,8 @@ export interface RegistryOptions {
  * @template Z The type of items managed by the registry.
  * @template E The type of the registry context.
  * @returns The registry context object.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-registry
  */
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
@@ -110,6 +116,45 @@ export function useRegistry<
 
   function get (id: ID) {
     return collection.get(id)
+  }
+
+  function upsert (id: ID, patch: Partial<Z> = {}) {
+    const existing = get(id)
+
+    if (!existing) return register({ ...patch, id })
+
+    const hasValue = Object.prototype.hasOwnProperty.call(patch, 'value')
+    let value = existing.value
+    let valueIsIndex = existing.valueIsIndex
+
+    if (hasValue) {
+      if (patch.value === undefined) {
+        value = existing.index
+        valueIsIndex = true
+      } else {
+        value = patch.value
+        valueIsIndex = false
+      }
+
+      if (!Object.is(value, existing.value)) {
+        unassign(existing.value, id)
+        assign(value, id)
+      }
+    }
+
+    const updated: Z = {
+      ...existing,
+      ...patch,
+      id,
+      index: existing.index,
+      value,
+      valueIsIndex,
+    }
+
+    collection.set(id, updated)
+    invalidate()
+
+    return updated
   }
 
   function browse (value: unknown) {
@@ -191,9 +236,7 @@ export function useRegistry<
   }
 
   function invalidate () {
-    if (cache.size === 0) return
-
-    cache.clear()
+    if (cache.size > 0) cache.clear()
   }
 
   function reindex () {
@@ -228,12 +271,16 @@ export function useRegistry<
       return get(id) as Z
     }
 
+    const index = registration.index ?? size
+    const value = registration.value === undefined ? index : registration.value
+    const valueIsIndex = registration.value === undefined
+
     const item = {
       ...registration,
       id,
-      index: registration.index ?? size,
-      value: registration.value ?? size,
-      valueIsIndex: registration.valueIsIndex ?? registration.value == null,
+      index,
+      value,
+      valueIsIndex,
     } as Z
 
     collection.set(item.id, item)
@@ -273,6 +320,7 @@ export function useRegistry<
     values,
     lookup,
     get,
+    upsert,
     register,
     unregister,
     reindex,

@@ -95,12 +95,12 @@ export function useEventListener (
     cleanups.length = 0
   }
 
-  const register = (
+  function register (
     el: EventTarget,
     event: string,
     listener: EventHandler,
     options?: boolean | AddEventListenerOptions,
-  ) => {
+  ) {
     el.addEventListener(event, listener, options)
     return () => el.removeEventListener(event, listener, options)
   }
