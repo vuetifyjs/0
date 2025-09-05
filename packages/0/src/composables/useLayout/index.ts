@@ -26,12 +26,16 @@ import type { ContextTrinity } from '#v0/factories'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
 
+export type ElementSource =
+  | ShallowRef<HTMLElement | null>
+  | ShallowRef<Record<string, ShallowRef<HTMLElement | null>> | null>
+
 export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
   value: number
   size: ComputedRef<number>
-  element?: ShallowRef<HTMLElement | null>
+  element?: ElementSource
   cumulative: ComputedRef<{
     top: number
     bottom: number
@@ -149,8 +153,7 @@ export function createLayout<
     const size = computed(() => {
       const el = registrant.element?.value
 
-      // Check is ref is wrapped by defineExpose, pull first available HTMLElement
-      if (el && typeof el === 'object') {
+      if (el && typeof el === 'object' && !(el instanceof HTMLElement)) {
         for (const key in el) {
           const candidate = unref((el as any)[key])
           if (candidate instanceof HTMLElement) {
@@ -159,7 +162,7 @@ export function createLayout<
         }
       }
 
-      return registrant.element?.value?.[valueProp] ?? registrant.value
+      return (el as HTMLElement | null)?.[valueProp as keyof HTMLElement] ?? registrant.value
     })
 
     const ticket = registry.register({
@@ -235,7 +238,7 @@ export function createLayout<
     }
   }
 
-  let observer: ResizeObserver | null = null
+  let observer: ResizeObserver | undefined
 
   if (IN_BROWSER && getCurrentInstance()) {
     onMounted(() => {
