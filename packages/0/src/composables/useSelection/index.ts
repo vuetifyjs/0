@@ -12,7 +12,7 @@ import type { ID } from '#v0/types'
 
 export interface SelectionTicket extends RegistryTicket {
   disabled: boolean
-  isActive: Readonly<Ref<boolean, boolean>>
+  isSelected: Readonly<Ref<boolean, boolean>>
   /** Select self */
   select: () => void
   /** Unselect self */
@@ -103,7 +103,7 @@ export function useSelection<
       disabled: false,
       ...registration,
       id,
-      isActive: toRef(() => selectedIds.has(id)),
+      isSelected: toRef(() => selectedIds.has(id)),
       select: () => select(id),
       unselect: () => unselect(id),
       toggle: () => toggle(id),

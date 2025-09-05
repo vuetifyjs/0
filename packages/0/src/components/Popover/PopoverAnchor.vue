@@ -33,7 +33,7 @@
 <template>
   <Atom
     :as
-    :data-popover-open="context.isActive.value ? '' : undefined"
+    :data-popover-open="context.isSelected.value ? '' : undefined"
     :popovertarget
     :style
     :type="as === 'button' ? 'button' : undefined"

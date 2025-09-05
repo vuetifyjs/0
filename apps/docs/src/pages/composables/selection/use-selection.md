@@ -37,7 +37,7 @@ console.log(selection.has('apple')) // true
   ```ts
   export interface SelectionTicket extends RegistryTicket {
     disabled: boolean
-    isActive: Readonly<Ref<boolean, boolean>>
+    isSelected: Readonly<Ref<boolean, boolean>>
     select: () => void
     unselect: () => void
     toggle: () => void
