@@ -129,7 +129,7 @@ export function createLayout<
   function sum (position: LayoutLocation) {
     let total = 0
     for (const item of registry.values()) {
-      if (item.position === position && item.isActive.value) {
+      if (item.position === position && item.isSelected.value) {
         const value = item.size ?? item.value
         total += unref(value) ?? 0
       }
@@ -172,7 +172,7 @@ export function createLayout<
     const cumulative = computed(() => {
       const offsets = { left: 0, right: 0, top: 0, bottom: 0 }
       for (const current of registry.values()) {
-        if (!current.isActive.value) continue
+        if (!current.isSelected.value) continue
         if (current.index >= ticket.index && (ticket.position !== opposites[current.position])) break
         offsets[current.position] += unref(current.size) ?? unref(current.value)
       }
