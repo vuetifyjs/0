@@ -17,7 +17,7 @@ import {
 } from 'vue'
 
 // Globals
-import { IN_BROWSER } from '#v0/constants/globals.ts'
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { ComputedRef, ShallowRef, App } from 'vue'
