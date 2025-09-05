@@ -3,15 +3,17 @@ meta:
   title: createTrinity
   description: A factory function for creating a 3 item tuple that contains a context consumer, a provider, and the actual context object, allowing for easy state management and sharing across components.
   keywords: createTrinity, context, composable, Vue, state management
-category: Factory
-performance: 0
+features:
+  category: Factory
+  label: 'E: createTrinity'
+  github: /factories/createTrinity/
 ---
 
 # createTrinity
 
 The **createTrinity** factory function is a type-safe utility for generating a 3-item tuple —called a **trinity**—which contains a context consumer, a provider, and the underlying context object.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## API
 
