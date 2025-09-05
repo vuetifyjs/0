@@ -33,6 +33,8 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
   unselect: (id: ID) => void
   /** Toggles a ticket ON and OFF by ID */
   toggle: (id: ID) => void
+  /** Check if a ticket is selected by ID */
+  selected: (id: ID) => boolean
   /** Mandates selected ID based on "mandatory" Option */
   mandate: () => void
 }
@@ -97,6 +99,10 @@ export function useSelection<
     else select(id)
   }
 
+  function selected (id: ID) {
+    return selectedIds.has(id)
+  }
+
   function register (registration: Partial<Z> = {}): Z {
     const id = registration.id ?? genId()
     const item: Partial<Z> = {
@@ -140,5 +146,6 @@ export function useSelection<
     select,
     unselect,
     toggle,
+    selected,
   } as E
 }

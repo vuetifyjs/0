@@ -51,6 +51,7 @@ console.log(selection.has('apple')) // true
     select: (id: ID) => void
     unselect: (id: ID) => void
     toggle: (id: ID) => void
+    selected: (id: ID) => boolean
     mandate: () => void
   }
 
@@ -68,6 +69,7 @@ console.log(selection.has('apple')) // true
   - `select(id)`: Marks the given ID as selected.
   - `unselect(id)`: Marks the given ID as unselected.
   - `toggle(id)`: Switches the given ID between selected and unselected.
+  - `selected(id)`: Checks if the given ID is currently selected.
   - `mandate()`: Enforces selection rules when mandatory mode is active.
 
 - **Options**
@@ -191,6 +193,23 @@ console.log(selection.has('apple')) // true
   ```ts
   selection.toggle('apple') // selects apple
   selection.toggle('apple') // unselects apple
+  ```
+
+### `selected`
+
+- **Type**
+  ```ts
+  function selected(id: ID): boolean
+  ```
+
+- **Details**
+  Returns whether the provided ID is currently in the selected set.
+
+- **Example**
+  ```ts
+  selection.select('apple')
+  console.log(selection.selected('apple')) // true
+  console.log(selection.selected('banana')) // false
   ```
 
 ### `mandate`
