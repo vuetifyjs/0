@@ -36,3 +36,5 @@ coverage
 *storybook.log
 storybook-static
 /playground/src/Playground.vue
+
+.vite-ssg-temp
