@@ -4,7 +4,6 @@
 
   // Types
   import type { ThemeContext, ThemeTicket } from '#v0/composables/useTheme'
-  import type { ID } from '#v0/types'
 
   export interface ThemeRootProps {
     namespace?: string
@@ -22,8 +21,6 @@
   defineSlots<ThemeRootSlots>()
 
   const { namespace = 'v0:theme', themes = [] } = defineProps<ThemeRootProps>()
-
-  const model = defineModel<ID>({ default: 'default' })
 
   const [provideThemeContext] = createTheme(namespace)
 
