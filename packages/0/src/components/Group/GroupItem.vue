@@ -40,7 +40,7 @@
     throw new Error(`Failed to get group context at namespace "${namespace}"`)
   }
 
-  const { isActive, toggle, index } = group.register({
+  const { isSelected, toggle, index } = group.register({
     id,
     value,
     disabled,
@@ -54,7 +54,7 @@
 <template>
   <slot
     :index
-    :is-active
+    :is-selected
     :toggle
   />
 </template>

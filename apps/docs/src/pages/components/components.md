@@ -88,14 +88,14 @@ const selected = ref([])
 
 <template>
   <Group.Root v-model="selected" :multiple="true">
-    <Group.Item value="option1" #default="{ isActive, toggle }">
-      <button @click="toggle" :class="{ active: isActive }">
+    <Group.Item value="option1" #default="{ isSelected, toggle }">
+      <button @click="toggle" :class="{ active: isSelected }">
         Option 1
       </button>
     </Group.Item>
 
-    <Group.Item value="option2" #default="{ isActive, toggle }">
-      <button @click="toggle" :class="{ active: isActive }">
+    <Group.Item value="option2" #default="{ isSelected, toggle }">
+      <button @click="toggle" :class="{ active: isSelected }">
         Option 2
       </button>
     </Group.Item>
@@ -117,12 +117,12 @@ const currentStep = ref('step1')
 
 <template>
   <Step.Root v-model="currentStep" namespace="wizard">
-    <Step.Item value="step1" #default="{ isActive }">
-      <div :class="{ active: isActive }">Step 1 Content</div>
+    <Step.Item value="step1" #default="{ isSelected }">
+      <div :class="{ active: isSelected }">Step 1 Content</div>
     </Step.Item>
 
-    <Step.Item value="step2" #default="{ isActive }">
-      <div :class="{ active: isActive }">Step 2 Content</div>
+    <Step.Item value="step2" #default="{ isSelected }">
+      <div :class="{ active: isSelected }">Step 2 Content</div>
     </Step.Item>
   </Step.Root>
 </template>

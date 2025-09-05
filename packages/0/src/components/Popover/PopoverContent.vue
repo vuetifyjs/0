@@ -43,13 +43,13 @@
   }))
 
   onMounted(() => {
-    if (context.isActive.value) {
+    if (context.isSelected.value) {
       ref.value?.element?.showPopover()
     }
   })
 
   function onBeforeToggle (e: ToggleEvent) {
-    context.isActive.value = e.newState === 'open'
+    context.isSelected.value = e.newState === 'open'
 
     emit('beforetoggle', e)
   }

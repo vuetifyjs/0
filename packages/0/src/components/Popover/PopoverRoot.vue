@@ -12,7 +12,7 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface PopoverContext {
-    isActive: ShallowRef<boolean>
+    isSelected: ShallowRef<boolean>
     id: string
     toggle: () => void
   }
@@ -29,17 +29,17 @@
 
   const { as = null, ...props } = defineProps<PopoverRootProps>()
 
-  const isActive = defineModel<boolean>({ default: false })
+  const isSelected = defineModel<boolean>({ default: false })
 
   const id = toRef(() => props.id ?? useId())
 
   function toggle () {
-    isActive.value = !isActive.value
+    isSelected.value = !isSelected.value
   }
 
   const bindableProps = toRef(() => ({
     id,
-    isActive,
+    isSelected,
     toggle,
   }))
 
@@ -48,7 +48,7 @@
   defineSlots<{ default: (props: BindableProps) => any }>()
 
   providePopoverContext({
-    isActive,
+    isSelected,
     toggle,
     id: id.value,
   })

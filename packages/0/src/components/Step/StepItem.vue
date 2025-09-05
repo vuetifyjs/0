@@ -41,7 +41,7 @@
     throw new Error(`Failed to get step context at namespace "${namespace}"`)
   }
 
-  const { index, isActive, toggle } = step.register({
+  const { index, isSelected, toggle } = step.register({
     id,
     value,
     disabled,
