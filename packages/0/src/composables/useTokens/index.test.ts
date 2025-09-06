@@ -1,5 +1,5 @@
 // Composables
-import { createTokensContext } from './index'
+import { createTokensContext, useTokens } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
@@ -72,6 +72,25 @@ describe('createTokensContext', () => {
       expect(context.resolve('accent')).toBe('#007BFF')
       expect(context.resolve('colors.red.100')).toBe('#FEF2F2')
       expect(context.resolve('colors.red.200')).toBe('#FEF2F2')
+    })
+
+    it('should respect depth option (depth=0 stops flattening)', () => {
+      const tokens: TokenCollection = {
+        dark: true,
+        rtl: { value: true, variation: 'toggle' },
+        complex: { inner: { leaf: '#FFFFFF' } },
+      }
+
+      const context = useTokens(tokens, { depth: 0 })
+
+      // With depth=0, nested objects remain as values at their base ids
+      expect(context.collection.size).toBe(3)
+      expect(context.collection.has('dark')).toBe(true)
+      expect(context.collection.has('rtl')).toBe(true)
+      expect(context.collection.has('complex')).toBe(true)
+
+      expect(context.resolve('rtl')).toEqual({ value: true, variation: 'toggle' })
+      expect(context.resolve('complex')).toEqual({ inner: { leaf: '#FFFFFF' } })
     })
   })
 

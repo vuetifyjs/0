@@ -42,6 +42,11 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
   resolve: (token: string | TokenAlias) => unknown | undefined
 }
 
+export interface TokenOptions {
+  depth?: number
+  prefix?: string
+}
+
 /**
  * Creates a token registry for managing design token collections with alias resolution.
  * Returns the token context directly for simple usage.
@@ -50,18 +55,23 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
  * @template Z The structure of the registry token items.
  * @template E The available methods for the token's context.
  * @returns The token context object.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-tokens
  * @see https://www.designtokens.org/tr/drafts/format/
  */
 export function useTokens<
   Z extends TokenTicket = TokenTicket,
   E extends TokenContext<Z> = TokenContext<Z>,
-> (tokens: TokenCollection = {}): E {
+> (
+  tokens: TokenCollection = {},
+  options: TokenOptions = {},
+): E {
   const logger = useLogger()
   const registry = useRegistry<Z, E>()
 
   const cache = new Map<string, unknown | undefined>()
 
-  registry.onboard(flatten(tokens) as Partial<Z>[])
+  registry.onboard(flatten(tokens, options.prefix, options.depth) as Partial<Z>[])
 
   function isAlias (token: unknown): token is string {
     return isString(token) && token.length > 2 && token[0] === '{' && token.at(-1) === '}'
@@ -185,12 +195,12 @@ export function createTokensContext<
  * @param prefix An optional prefix to prepend to each token ID.
  * @returns An array of flattened tokens, each with an ID and value.
  */
-function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
+function flatten (tokens: TokenCollection, prefix = '', depth = Infinity): FlatTokenCollection[] {
   const flattened: FlatTokenCollection[] = []
-  const stack: Array<{ tokens: TokenCollection, prefix: string }> = [{ tokens, prefix }]
+  const stack: { tokens: TokenCollection, prefix: string, depth: number }[] = [{ tokens, prefix, depth }]
 
   while (stack.length > 0) {
-    const { tokens: currentTokens, prefix: currentPrefix } = stack.pop()!
+    const { tokens: currentTokens, prefix: currentPrefix, depth: currentDepth } = stack.pop()!
 
     const meta: Record<string, unknown> = {}
     for (const k in currentTokens) {
@@ -216,7 +226,7 @@ function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
         flattened.push({ id, value: value as TokenAlias })
 
         const inner = value.$value
-        if (isObject(inner)) {
+        if (isObject(inner) && currentDepth > 0) {
           for (const innerKey in inner) {
             if (innerKey.startsWith('$')) continue
 
@@ -227,14 +237,19 @@ function flatten (tokens: TokenCollection, prefix = ''): FlatTokenCollection[] {
             } else if ('$value' in child) {
               flattened.push({ id: childId, value: child as TokenAlias })
             } else {
-              stack.push({ tokens: child as TokenCollection, prefix: childId })
+              stack.push({ tokens: child as TokenCollection, prefix: childId, depth: currentDepth - 1 })
             }
           }
         }
         continue
       }
 
-      stack.push({ tokens: value as TokenCollection, prefix: id })
+      if (currentDepth <= 0) {
+        flattened.push({ id, value: value as unknown as TokenValue })
+        continue
+      }
+
+      stack.push({ tokens: value as TokenCollection, prefix: id, depth: currentDepth - 1 })
     }
   }
 

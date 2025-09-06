@@ -11,6 +11,7 @@ The `useTokens` composable allows you to define a collection of design tokens, w
 ```ts
 import { useTokens } from '@vuetify/v0'
 
+// Default behavior (depth = Infinity): fully flatten nested objects
 const tokens = useTokens({
   color: {
     primary: '#3b82f6',
@@ -26,6 +27,14 @@ const tokens = useTokens({
 tokens.resolve('color.primary') // '#3b82f6'
 tokens.resolve('color.info') // '#3b82f6' (alias resolved)
 tokens.resolve('radius.md') // '8px'
+
+const features = useTokens({
+  dark: true,
+  rtl: { value: true, variation: 'toggle' },
+}, { depth: 0 })
+
+// With depth: 0, nested objects are kept as-is at their base id
+features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
 ## API
@@ -57,10 +66,18 @@ tokens.resolve('radius.md') // '8px'
     resolve: (token: string | TokenAlias) => unknown | undefined
   }
 
+  interface TokenOptions {
+    depth?: number
+    prefix?: string
+  }
+
   function useTokens<
     Z extends TokenTicket = TokenTicket,
     E extends TokenContext<Z> = TokenContext<Z>,
-  > (tokens: TokenCollection): TokenContext<Z>
+  > (
+    tokens: TokenCollection,
+    options?: TokenOptions,
+  ): TokenContext<Z>
   ```
 
 * **Details**
@@ -69,6 +86,7 @@ tokens.resolve('radius.md') // '8px'
 * **Description**
   * Creates a token registry context initialized with an optional nested collection of tokens.
   * Flattens nested token collections into a flat list of token entries for registration.
+  * The `depth` option lets you control how deep flattening goes (default: Infinity). Set `depth: 0` to keep nested objects intact at their base id.
   * Supports tokens defined as primitive values or as aliases referencing other tokens.
   * Provides a resolve method to recursively resolve tokens and aliases into their final string value.
   * Utilizes caching for efficient resolution of repeated token lookups.
@@ -76,6 +94,9 @@ tokens.resolve('radius.md') // '8px'
 
 * **Parameters**
   * tokens (optional): A nested collection of tokens to initialize the registry.
+  * options (optional):
+    * depth?: number — how deep to flatten nested objects (default: Infinity)
+    * prefix?: string — a prefix to preprend to all generated ids
 
 * **Returns**
   * A token context object containing:
