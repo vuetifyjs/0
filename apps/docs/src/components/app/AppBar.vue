@@ -17,7 +17,7 @@
   const app = useAppStore()
   const auth = useAuthStore()
   const breakpoints = useBreakpoints()
-  const element = useTemplateRef<HTMLElement>('bar')
+  const element = useTemplateRef('bar')
   const layout = useLayout()
   const item = layout.register({
     id: 'bar',

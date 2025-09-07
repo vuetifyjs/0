@@ -11,7 +11,7 @@
   const { as = 'footer' } = defineProps<AtomProps>()
 
   const breakpoints = useBreakpoints()
-  const element = useTemplateRef<HTMLElement>('footer')
+  const element = useTemplateRef('footer')
   const layout = useLayout()
   const item = layout.register({
     id: 'footer',

@@ -23,19 +23,16 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import type { ComputedRef, ShallowRef, App } from 'vue'
 import type { GroupContext, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
 import type { ContextTrinity } from '#v0/factories'
+import type { DOMElement } from '#v0/types'
 
 export type LayoutLocation = 'top' | 'bottom' | 'left' | 'right'
-
-export type ElementSource =
-  | ShallowRef<HTMLElement | null>
-  | ShallowRef<Record<string, ShallowRef<HTMLElement | null>> | null>
 
 export interface LayoutTicket extends GroupTicket {
   order: number
   position: LayoutLocation
   value: number
   size: ComputedRef<number>
-  element?: ElementSource
+  element?: ShallowRef<DOMElement | null>
   cumulative: ComputedRef<{
     top: number
     bottom: number

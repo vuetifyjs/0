@@ -17,7 +17,7 @@
     }
   })
 
-  const element = useTemplateRef<HTMLElement>('nav')
+  const element = useTemplateRef('nav')
   const layout = useLayout()
   const item = layout.register({
     id: 'nav',

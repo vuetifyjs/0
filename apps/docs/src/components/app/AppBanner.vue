@@ -11,7 +11,7 @@
   const { as = 'header' } = defineProps<AtomProps>()
 
   const breakpoints = useBreakpoints()
-  const element = useTemplateRef<HTMLElement>('banner')
+  const element = useTemplateRef('banner')
   const layout = useLayout()
   const item = layout.register({
     id: 'banner',
