@@ -39,7 +39,7 @@
   <Atom
     ref="nav"
     :as
-    class="bg-4 z-1000 app-nav flex flex-col pb-4 fixed overflow-y-auto transition-transform duration-200 ease-in-out"
+    class="bg-4 z-1000 app-nav flex flex-col py-4 fixed overflow-y-auto transition-transform duration-200 ease-in-out"
     :class="[
       breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
     ]"
