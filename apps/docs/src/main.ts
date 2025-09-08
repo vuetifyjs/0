@@ -20,7 +20,7 @@ export const createApp = ViteSSG(
       pinia.state.value = initialState.pinia || {}
 
     if (!import.meta.env.SSR) {
-    // Workaround for https://github.com/vitejs/vite/issues/11804
+      // Workaround for https://github.com/vitejs/vite/issues/11804
       router.onError((err, to) => {
         if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
           if (localStorage.getItem('vuetify:dynamic-reload')) {
