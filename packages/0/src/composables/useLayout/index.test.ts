@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createLayout } from './index.ts'
+import { createLayout } from './index'
 import { mount } from '@vue/test-utils'
 import { defineComponent, useTemplateRef } from 'vue'
 import { Atom } from '../../components/Atom'
