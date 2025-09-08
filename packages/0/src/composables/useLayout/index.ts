@@ -171,9 +171,9 @@ export function createLayout<
 
     const cumulative = computed(() => {
       const offsets = { left: 0, right: 0, top: 0, bottom: 0 }
-      for (const current of registry.values()) {
+      for (const current of registry.values().sort((a, b) => a.order - b.order)) {
         if (!current.isSelected.value) continue
-        if (current.index >= ticket.index && (ticket.position !== opposites[current.position])) break
+        if (current.index >= ticket.index && (ticket.position !== opposites[current.position]) && current.order >= ticket.order) break
         offsets[current.position] += unref(current.size) ?? unref(current.value)
       }
 
