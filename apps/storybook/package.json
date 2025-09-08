@@ -13,8 +13,8 @@
     "@vuetify/v0": "workspace:*"
   },
   "devDependencies": {
-    "@storybook/vue3-vite": "^9.0.13",
-    "storybook": "^9.0.13",
+    "@storybook/vue3-vite": "catalog:",
+    "storybook": "catalog:",
     "unocss": "catalog:",
     "unplugin-vue": "catalog:",
     "vite": "catalog:",
