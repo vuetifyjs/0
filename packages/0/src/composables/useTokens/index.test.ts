@@ -74,16 +74,15 @@ describe('createTokensContext', () => {
       expect(context.resolve('colors.red.200')).toBe('#FEF2F2')
     })
 
-    it('should respect depth option (depth=0 stops flattening)', () => {
+    it('should merge tokens at 0 depth when using flat', () => {
       const tokens: TokenCollection = {
         dark: true,
         rtl: { value: true, variation: 'toggle' },
         complex: { inner: { leaf: '#FFFFFF' } },
       }
 
-      const context = useTokens(tokens, { depth: 0 })
+      const context = useTokens(tokens, { flat: true })
 
-      // With depth=0, nested objects remain as values at their base ids
       expect(context.collection.size).toBe(3)
       expect(context.collection.has('dark')).toBe(true)
       expect(context.collection.has('rtl')).toBe(true)

@@ -43,7 +43,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
 }
 
 export interface TokenOptions {
-  depth?: number
+  flat?: boolean
   prefix?: string
 }
 
@@ -71,7 +71,7 @@ export function useTokens<
 
   const cache = new Map<string, unknown | undefined>()
 
-  registry.onboard(flatten(tokens, options.prefix, options.depth) as Partial<Z>[])
+  registry.onboard(flatten(tokens, options.prefix, !!options.flat) as Partial<Z>[])
 
   function isAlias (token: unknown): token is string {
     return isString(token) && token.length > 2 && token[0] === '{' && token.at(-1) === '}'
@@ -195,12 +195,12 @@ export function createTokensContext<
  * @param prefix An optional prefix to prepend to each token ID.
  * @returns An array of flattened tokens, each with an ID and value.
  */
-function flatten (tokens: TokenCollection, prefix = '', depth = Infinity): FlatTokenCollection[] {
+function flatten (tokens: TokenCollection, prefix = '', flat = false): FlatTokenCollection[] {
   const flattened: FlatTokenCollection[] = []
-  const stack: { tokens: TokenCollection, prefix: string, depth: number }[] = [{ tokens, prefix, depth }]
+  const stack: { tokens: TokenCollection, prefix: string, flat: boolean }[] = [{ tokens, prefix, flat }]
 
   while (stack.length > 0) {
-    const { tokens: currentTokens, prefix: currentPrefix, depth: currentDepth } = stack.pop()!
+    const { tokens: currentTokens, prefix: currentPrefix, flat } = stack.pop()!
 
     const meta: Record<string, unknown> = {}
     for (const k in currentTokens) {
@@ -226,7 +226,7 @@ function flatten (tokens: TokenCollection, prefix = '', depth = Infinity): FlatT
         flattened.push({ id, value: value as TokenAlias })
 
         const inner = value.$value
-        if (isObject(inner) && currentDepth > 0) {
+        if (isObject(inner) && !flat) {
           for (const innerKey in inner) {
             if (innerKey.startsWith('$')) continue
 
@@ -237,19 +237,19 @@ function flatten (tokens: TokenCollection, prefix = '', depth = Infinity): FlatT
             } else if ('$value' in child) {
               flattened.push({ id: childId, value: child as TokenAlias })
             } else {
-              stack.push({ tokens: child as TokenCollection, prefix: childId, depth: currentDepth - 1 })
+              stack.push({ tokens: child as TokenCollection, prefix: childId, flat })
             }
           }
         }
         continue
       }
 
-      if (currentDepth <= 0) {
+      if (flat) {
         flattened.push({ id, value: value as unknown as TokenValue })
         continue
       }
 
-      stack.push({ tokens: value as TokenCollection, prefix: id, depth: currentDepth - 1 })
+      stack.push({ tokens: value as TokenCollection, prefix: id, flat })
     }
   }
 
