@@ -6,7 +6,7 @@ packages:
 autoInstallPeers: true
 
 catalog:
-  "@mdi/js": ^7.4.47
+  "@mdi/js": npm:mdi-js-es@7.4.47
   "@octokit/core": ^7.0.3
   "@octokit/openapi-types": "^25.1.0"
   "@shikijs/langs": "^3.12.2"
