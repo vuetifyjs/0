@@ -174,7 +174,7 @@ export function createTheme<
  * @returns The theme context containing current theme state and utilities.
  */
 export function useTheme (): ThemeContext<ThemeTicket> {
-  return useContext<ThemeContext<ThemeTicket>>('v0:theme')()
+  return useContext<ThemeContext<ThemeTicket>>('v0:theme')
 }
 
 /**

@@ -112,7 +112,7 @@ export function createLocale<
  * @returns The locale context containing translation and formatting functions.
  */
 export function useLocale (): LocaleContext<LocaleTicket> {
-  return useContext<LocaleContext<LocaleTicket>>('v0:locale')()
+  return useContext<LocaleContext<LocaleTicket>>('v0:locale')
 }
 
 /**

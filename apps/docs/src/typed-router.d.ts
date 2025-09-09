@@ -63,4 +63,204 @@ declare module 'vue-router/auto-routes' {
     '/introduction/getting-started': RouteRecordInfo<'/introduction/getting-started', '/introduction/getting-started', Record<never, never>, Record<never, never>>,
     '/utilities/to-reactive': RouteRecordInfo<'/utilities/to-reactive', '/utilities/to-reactive', Record<never, never>, Record<never, never>>,
   }
+
+  /**
+   * Route file to route info map by unplugin-vue-router.
+   * Used by the volar plugin to automatically type useRoute()
+   *
+   * Each key is a file path relative to the project root with 2 properties:
+   * - routes: union of route names of the possible routes when in this page (passed to useRoute<...>())
+   * - views: names of nested views (can be passed to <RouterView name="...">)
+   *
+   * @internal
+   */
+  export interface _RouteFileInfoMap {
+    'src/pages/index.md': {
+      routes: '/'
+      views: never
+    }
+    'src/pages/components/atom.md': {
+      routes: '/components/atom'
+      views: never
+    }
+    'src/pages/components/avatar.md': {
+      routes: '/components/avatar'
+      views: never
+    }
+    'src/pages/components/breakpoints.md': {
+      routes: '/components/breakpoints'
+      views: never
+    }
+    'src/pages/components/components.md': {
+      routes: '/components/components'
+      views: never
+    }
+    'src/pages/components/context.md': {
+      routes: '/components/context'
+      views: never
+    }
+    'src/pages/components/hydration.md': {
+      routes: '/components/hydration'
+      views: never
+    }
+    'src/pages/components/popover.md': {
+      routes: '/components/popover'
+      views: never
+    }
+    'src/pages/components/step.md': {
+      routes: '/components/step'
+      views: never
+    }
+    'src/pages/components/theme.md': {
+      routes: '/components/theme'
+      views: never
+    }
+    'src/pages/composables/index.md': {
+      routes: '/composables/'
+      views: never
+    }
+    'src/pages/composables/forms/use-form.md': {
+      routes: '/composables/forms/use-form'
+      views: never
+    }
+    'src/pages/composables/foundation/create-context.md': {
+      routes: '/composables/foundation/create-context'
+      views: never
+    }
+    'src/pages/composables/foundation/create-plugin.md': {
+      routes: '/composables/foundation/create-plugin'
+      views: never
+    }
+    'src/pages/composables/foundation/create-trinity.md': {
+      routes: '/composables/foundation/create-trinity'
+      views: never
+    }
+    'src/pages/composables/plugin/use-breakpoints.md': {
+      routes: '/composables/plugin/use-breakpoints'
+      views: never
+    }
+    'src/pages/composables/plugin/use-hydration.md': {
+      routes: '/composables/plugin/use-hydration'
+      views: never
+    }
+    'src/pages/composables/plugin/use-locale.md': {
+      routes: '/composables/plugin/use-locale'
+      views: never
+    }
+    'src/pages/composables/plugin/use-storage.md': {
+      routes: '/composables/plugin/use-storage'
+      views: never
+    }
+    'src/pages/composables/plugin/use-theme.md': {
+      routes: '/composables/plugin/use-theme'
+      views: never
+    }
+    'src/pages/composables/registration/use-registry.md': {
+      routes: '/composables/registration/use-registry'
+      views: never
+    }
+    'src/pages/composables/registration/use-tokens.md': {
+      routes: '/composables/registration/use-tokens'
+      views: never
+    }
+    'src/pages/composables/selection/use-filter.md': {
+      routes: '/composables/selection/use-filter'
+      views: never
+    }
+    'src/pages/composables/selection/use-group.md': {
+      routes: '/composables/selection/use-group'
+      views: never
+    }
+    'src/pages/composables/selection/use-selection.md': {
+      routes: '/composables/selection/use-selection'
+      views: never
+    }
+    'src/pages/composables/selection/use-single.md': {
+      routes: '/composables/selection/use-single'
+      views: never
+    }
+    'src/pages/composables/selection/use-step.md': {
+      routes: '/composables/selection/use-step'
+      views: never
+    }
+    'src/pages/composables/system/use-event-listener.md': {
+      routes: '/composables/system/use-event-listener'
+      views: never
+    }
+    'src/pages/composables/system/use-keydown.md': {
+      routes: '/composables/system/use-keydown'
+      views: never
+    }
+    'src/pages/composables/system/use-logger.md': {
+      routes: '/composables/system/use-logger'
+      views: never
+    }
+    'src/pages/guide/index.md': {
+      routes: '/guide/'
+      views: never
+    }
+    'src/pages/guide/accessibility.md': {
+      routes: '/guide/accessibility'
+      views: never
+    }
+    'src/pages/guide/components.md': {
+      routes: '/guide/components'
+      views: never
+    }
+    'src/pages/guide/composables.md': {
+      routes: '/guide/composables'
+      views: never
+    }
+    'src/pages/guide/features.md': {
+      routes: '/guide/features'
+      views: never
+    }
+    'src/pages/guide/framework-core.md': {
+      routes: '/guide/framework-core'
+      views: never
+    }
+    'src/pages/guide/plugins.md': {
+      routes: '/guide/plugins'
+      views: never
+    }
+    'src/pages/guide/structure.md': {
+      routes: '/guide/structure'
+      views: never
+    }
+    'src/pages/guide/theming.md': {
+      routes: '/guide/theming'
+      views: never
+    }
+    'src/pages/guide/utilities.md': {
+      routes: '/guide/utilities'
+      views: never
+    }
+    'src/pages/introduction/contributing.md': {
+      routes: '/introduction/contributing'
+      views: never
+    }
+    'src/pages/introduction/frequently-asked.md': {
+      routes: '/introduction/frequently-asked'
+      views: never
+    }
+    'src/pages/introduction/getting-started.md': {
+      routes: '/introduction/getting-started'
+      views: never
+    }
+    'src/pages/utilities/to-reactive.md': {
+      routes: '/utilities/to-reactive'
+      views: never
+    }
+  }
+
+  /**
+   * Get a union of possible route names in a certain route component file.
+   * Used by the volar plugin to automatically type useRoute()
+   *
+   * @internal
+   */
+  export type _RouteNamesForFilePath<FilePath extends string> =
+    _RouteFileInfoMap extends Record<FilePath, infer Info>
+      ? Info['routes']
+      : keyof RouteNamedMap
 }

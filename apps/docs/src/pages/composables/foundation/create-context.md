@@ -42,31 +42,31 @@ export { useContext }
   ```ts
   type ContextKey<Z> = InjectionKey<Z> | string
 
-  function createContext<Z> (namespace: ContextKey<Z>): [
-    () => Z,
+  function createContext<Z> (key: ContextKey<Z>): [
+    (namespace?: string) => Z,
     (context: Z, app?: App) => Z,
   ]
   ```
 
 - **Details**
 
-  **Z** represents the context interface, which defines the structure of the context object that will be created and consumed. **namespace** is a string that scopes the context, allowing multiple contexts to coexist without conflict.
+  **Z** represents the context interface, which defines the structure of the context object that will be created and consumed. **namespace** is an optional string that overrides the default provided key.
 
 ### `useContext`
 
 - **Type**
 
   ```ts
-  function useContext<Z> (key: ContextKey<Z>): (namespace?: string) => Z
+  function useContext<Z> (key: ContextKey<Z>) => Z
   ```
 
 - **Details**
 
-  A type-safe helper creator: pass a key once and it returns a zero‑arg (optionally override namespace) function that injects and returns the context object of type **Z**. If the context is not found it throws: `Error('Context "<key>" not found. Ensure it\'s provided by an ancestor.')`.
+  A simple wrapper function for injecting context that always fallsback to `undefined` if not found. It throws an error if the context is not found, ensuring that the consumer is aware of the missing context.
 
 ## Example
 
-It's easy to create a global context that can be used throughout your application. Here's a simple example of how to create and use a context:
+Create a global context that can be used throughout your application. Here's a simple example of how to put together and use a context:
 
 ```ts
 // src/composables/my-context.ts
@@ -118,6 +118,17 @@ Now, in your components, access the context by importing the exported `useContex
   console.log(item) // 'Item 1'
 </script>
 ```
+
+### `provideContext`
+
+- **Type**
+
+  ```ts
+  function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App): Z
+  ```
+
+- **Details**
+  A simple wrapper function for providing context that always uses the provided key. It returns the provided context for convenience.
 
 The following is a mermaid diagram that visualizes the flow of creating and using a context in a Vue application:
 
