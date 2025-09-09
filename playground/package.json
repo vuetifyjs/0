@@ -7,10 +7,10 @@
     "dev": "vite dev"
   },
   "devDependencies": {
-    "sass-embedded": "1.89.2",
+    "sass-embedded": "catalog:",
     "typescript": "catalog:",
     "unocss": "catalog:",
-    "unplugin-auto-import": "^19.3.0",
+    "unplugin-auto-import": "catalog:",
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
     "vite": "catalog:"

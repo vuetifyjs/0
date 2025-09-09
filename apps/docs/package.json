@@ -5,35 +5,36 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 8000",
-    "build": "vite build",
+    "build": "vite-ssg build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@octokit/openapi-types": "^25.1.0",
-    "@shikijs/langs": "^3.9.2",
-    "@shikijs/markdown-it": "^3.9.2",
-    "@shikijs/themes": "^3.9.2",
-    "@types/markdown-it-attrs": "^4.1.3",
-    "@unocss/reset": "^66.4.2",
-    "markdown-it-attrs": "^4.3.1",
-    "shiki": "^3.9.2",
+    "@octokit/openapi-types": "catalog:",
+    "@shikijs/langs": "catalog:",
+    "@shikijs/markdown-it": "catalog:",
+    "@shikijs/themes": "catalog:",
+    "@types/markdown-it-attrs": "catalog:",
+    "@unocss/reset": "catalog:",
+    "markdown-it-attrs": "catalog:",
+    "shiki": "catalog:",
     "unocss": "catalog:",
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
-    "unplugin-vue-markdown": "^29.1.0",
-    "unplugin-vue-router": "^0.14.0",
+    "unplugin-vue-markdown": "catalog:",
+    "unplugin-vue-router": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-vue-layouts-next": "^1.0.0"
+    "vite-plugin-vue-layouts-next": "catalog:",
+    "vite-ssg": "catalog:",
+    "vue-router": "catalog:"
   },
   "dependencies": {
-    "@mdi/js": "^7.4.47",
-    "@octokit/core": "^7.0.3",
-    "@vuetify/one": "^2.3.1",
+    "@mdi/js": "catalog:",
+    "@octokit/core": "catalog:",
+    "@vuetify/one": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
-    "mermaid": "^11.9.0",
-    "pinia": "^3.0.3",
-    "vue": "catalog:",
-    "vue-router": "^4.5.1"
+    "mermaid": "catalog:",
+    "pinia": "catalog:",
+    "vue": "catalog:"
   }
 }

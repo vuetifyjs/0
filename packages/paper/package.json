@@ -58,8 +58,8 @@
     "@vuetify/v0": "workspace:*"
   },
   "devDependencies": {
-    "rollup-plugin-sass": "^1.15.3",
-    "sass": "^1.90.0",
+    "rollup-plugin-sass": "catalog:",
+    "sass": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:"

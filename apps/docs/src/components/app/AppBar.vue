@@ -15,7 +15,11 @@
   const { as = 'header' } = defineProps<AtomProps>()
 
   const app = useAppStore()
-  const auth = useAuthStore()
+
+  let auth: ReturnType<typeof useAuthStore> | null = null
+  if (!import.meta.env.SSR) {
+    auth = useAuthStore()
+  }
   const breakpoints = useBreakpoints()
   const element = useTemplateRef('bar')
   const layout = useLayout()
@@ -86,15 +90,17 @@
         <AppIcon icon="vuetify" />
       </a>
 
-      <img
-        v-if="auth.user?.picture"
-        alt="Vuetify One Avatar"
-        class="rounded-full"
-        height="28"
-        :src="auth.user.picture"
-        title="Vuetify One Avatar"
-        width="28"
-      >
+      <client-only>
+        <img
+          v-if="auth!.user?.picture"
+          alt="Vuetify One Avatar"
+          class="rounded-full"
+          height="28"
+          :src="auth!.user.picture"
+          title="Vuetify One Avatar"
+          width="28"
+        >
+      </client-only>
     </div>
   </Atom>
 </template>

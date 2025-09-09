@@ -29,20 +29,20 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "catalog:",
-    "@types/node": "^24.2.1",
-    "@vitest/coverage-v8": "3.2.4",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "@vue/tsconfig": "catalog:",
-    "bumpp": "^10.2.3",
-    "eslint": "^9.33.0",
-    "eslint-config-vuetify": "4.1.0-0",
-    "eslint-plugin-storybook": "^9.1.1",
-    "eslint-plugin-vuejs-accessibility": "^2.4.1",
-    "happy-dom": "^18.0.1",
-    "knip": "^5.63.0",
-    "sherif": "^1.6.1",
+    "bumpp": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-vuetify": "catalog:",
+    "eslint-plugin-storybook": "catalog:",
+    "eslint-plugin-vuejs-accessibility": "catalog:",
+    "happy-dom": "catalog:",
+    "knip": "catalog:",
+    "sherif": "catalog:",
     "typescript": "catalog:",
-    "vitest": "^3.2.4",
-    "vue-tsc": "^3.0.5"
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
   },
-  "packageManager": "pnpm@10.14.0"
+  "packageManager": "pnpm@10.15.1"
 }
