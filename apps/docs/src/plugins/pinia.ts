@@ -1,7 +1,21 @@
 import { createPinia } from 'pinia'
-import { one } from '@vuetify/one'
+import type { PiniaPluginContext } from 'pinia'
 
 const pinia = createPinia()
+
+function one (id: string[], url: string) {
+  return function (context: PiniaPluginContext) {
+    const store = context.store
+
+    store.url = url
+
+    if (store.$id !== 'site') {
+      return
+    }
+
+    store.id = id
+  }
+}
 
 pinia.use(
   one(

@@ -4,7 +4,7 @@
 
   // Composables
   import { useAppStore } from '@/stores/app'
-  import { useAuthStore } from '@vuetify/one'
+  import { useAuthStore } from '@vuetify/one/stores/auth'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
