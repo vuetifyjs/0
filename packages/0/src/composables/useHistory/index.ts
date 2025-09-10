@@ -1,6 +1,5 @@
 import { ref, computed } from 'vue'
-
-import type { Ref } from 'vue'
+import type { ComputedRef } from 'vue'
 
 export interface HistoryOptions {
   size?: number
@@ -8,11 +7,12 @@ export interface HistoryOptions {
 }
 
 export interface HistoryContext {
-  buffer: Ref<unknown[]>
+  buffer: ComputedRef<unknown[]>
   size: number
   deep: boolean
-  push: (item: unknown) => void
-  values: () => unknown[]
+  push: (...items: unknown[]) => void
+  undo: () => void
+  redo: () => void
 }
 
 export function useHistory (_options: HistoryOptions = {}): HistoryContext {
@@ -21,20 +21,34 @@ export function useHistory (_options: HistoryOptions = {}): HistoryContext {
     deep = true,
   } = _options
 
-  const buffer = ref<unknown[]>([])
-  const isFull = computed(() => buffer.value.length === size)
   let pointer = 0
+  const ring = ref<unknown[]>([])
+  let lastValue: unknown
+  const buffer = computed(() => ring.value.slice(pointer).concat(ring.value.slice(0, pointer)))
+  const isFull = computed(() => buffer.value.length === size)
 
-  function push (item: unknown) {
-    if (!isFull) {
-      buffer.value.push(item)
+  function push (...items: unknown[]) {
+    for (const item of items) {
+      lastValue = item
+      if (!isFull.value) {
+        ring.value.push(item)
+      }
+      ring.value[pointer] = item
+      pointer = (pointer + 1) % size
     }
-    buffer.value[pointer] = item
-    pointer = (pointer + 1) % size
   }
 
-  function values () {
-    return buffer.value.slice(pointer).concat(buffer.value.slice(0, pointer))
+  function redo () {
+    push(lastValue)
+  }
+
+  function undo () {
+    pointer = (pointer - 1 + size) % size
+    lastValue = ring.value[pointer]
+    if (isFull.value) {
+      ring.value.pop()
+    }
+    ring.value.splice(pointer, 1)
   }
 
   return {
@@ -42,6 +56,7 @@ export function useHistory (_options: HistoryOptions = {}): HistoryContext {
     size,
     deep,
     push,
-    values,
+    undo,
+    redo,
   }
 }
