@@ -50,6 +50,13 @@ export default defineConfig([{
   },
   entry: ['./src/*/index.ts', './src/index.ts'],
   name: 'vuetify/v0',
+  exports: {
+    devExports: 'development',
+    customExports (pkg, ctx) {
+      pkg['./browser'] = ctx.isPublish ? './dist/browser/index.js' : { ...pkg['.'], default: './dist/browser/index.js' }
+      return pkg
+    },
+  },
   alias: {
     '@': at,
     '#v0': v0,
