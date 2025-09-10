@@ -16,9 +16,7 @@
     "directory": "packages/0"
   },
   "scripts": {
-    "build": "pnpm build:bundler && pnpm build:browser",
-    "build:bundler": "tsdown --config build/tsdown.bundler.config.ts",
-    "build:browser": "tsdown --config build/tsdown.browser.config.ts",
+    "build": "tsdown",
     "typecheck": "vue-tsc --noEmit --incremental"
   },
   "exports": {
@@ -97,42 +95,18 @@
   },
   "publishConfig": {
     "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js"
-      },
+      ".": "./dist/index.js",
       "./browser": {
         "types": "./dist/index.d.ts",
         "import": "./dist/browser/index.js"
       },
-      "./components": {
-        "types": "./dist/components/index.d.ts",
-        "import": "./dist/components/index.js"
-      },
-      "./composables": {
-        "types": "./dist/composables/index.d.ts",
-        "import": "./dist/composables/index.js"
-      },
-      "./factories": {
-        "types": "./dist/factories/index.d.ts",
-        "import": "./dist/factories/index.js"
-      },
-      "./transformers": {
-        "types": "./dist/transformers/index.d.ts",
-        "import": "./dist/transformers/index.js"
-      },
-      "./constants": {
-        "types": "./dist/constants/index.d.ts",
-        "import": "./dist/constants/index.js"
-      },
-      "./types": {
-        "types": "./dist/types/index.d.ts",
-        "import": "./dist/types/index.js"
-      },
-      "./utilities": {
-        "types": "./dist/utilities/index.d.ts",
-        "import": "./dist/utilities/index.js"
-      }
+      "./components": "./dist/components/index.js",
+      "./composables": "./dist/composables/index.js",
+      "./factories": "./dist/factories/index.js",
+      "./transformers": "./dist/transformers/index.js",
+      "./constants": "./dist/constants/index.js",
+      "./types": "./dist/types/index.js",
+      "./utilities": "./dist/utilities/index.js"
     }
   },
   "peerDependencies": {
