@@ -1,7 +1,6 @@
 <script lang="ts" setup>
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
-  import octokit from '@/plugins/octokit'
 
   const props = defineProps<{
     frontmatter?: {
@@ -56,9 +55,9 @@
     try {
       copied.value = true
 
-      const { data: { content } } = await octokit.request('GET /repos/vuetifyjs/0/contents/apps/docs/src/pages/{link}.md', {
+      const { data: { content } } = await import('@/plugins/octokit').then(m => m.default || m).then(m => m.request('GET /repos/vuetifyjs/0/contents/apps/docs/src/pages/{link}.md', {
         link: link.value,
-      })
+      }))
 
       raw = atob(content)
       raw = replace('DocsPageFeatures', raw)
