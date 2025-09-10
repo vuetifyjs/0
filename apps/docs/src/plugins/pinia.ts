@@ -3,7 +3,7 @@ import type { PiniaPluginContext } from 'pinia'
 
 const pinia = createPinia()
 
-export function one (id: string[], url: string) {
+function one (id: string[], url: string) {
   return function (context: PiniaPluginContext) {
     const store = context.store
 
