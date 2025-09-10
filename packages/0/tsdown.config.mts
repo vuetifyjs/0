@@ -1,6 +1,6 @@
 import { defineConfig } from 'tsdown/config'
 import { fileURLToPath } from 'node:url'
-import pkg from '../package.json' with { type: 'json' }
+import pkg from './package.json' with { type: 'json' }
 
 import Vue from 'unplugin-vue/rolldown'
 

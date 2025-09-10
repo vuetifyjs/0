@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown/config'
 import { fileURLToPath } from 'node:url'
 import sass from 'rollup-plugin-sass'
-import pkg from '../package.json' with { type: 'json' }
+import pkg from './package.json' with { type: 'json' }
 
 import Vue from 'unplugin-vue/rolldown'
 
