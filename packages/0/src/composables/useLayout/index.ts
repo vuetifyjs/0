@@ -286,7 +286,7 @@ export function createLayout<
  * @returns The layout context containing current layout state and utilities.
  */
 export function useLayout (): LayoutContext<LayoutTicket> {
-  return useContext<LayoutContext<LayoutTicket>>('v0:layout')()
+  return useContext<LayoutContext<LayoutTicket>>('v0:layout')
 }
 
 /**
