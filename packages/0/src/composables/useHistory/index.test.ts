@@ -41,12 +41,9 @@ describe('useHistory', () => {
         value: i,
       })
     }
-    console.log(history.history)
     history.undo()
     expect(history.history[3]!.value).toEqual(3)
-    console.log(history.history)
     history.redo()
-    console.log(history.history)
     expect(history.history[4]!.value).toEqual(4)
   })
 })
