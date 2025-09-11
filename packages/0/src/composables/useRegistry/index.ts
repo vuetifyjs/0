@@ -188,7 +188,7 @@ export function useRegistry<
     if (isArray(bucket)) {
       const next = bucket.filter(v => v !== id)
       if (next.length === 0) catalog.delete(value)
-      else if (next.length === 1) catalog.set(value, next[0])
+      else if (next.length === 1) catalog.set(value, next[0]!)
       else catalog.set(value, next)
     } else if (bucket === id) {
       catalog.delete(value)

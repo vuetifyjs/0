@@ -3,9 +3,9 @@
   "version": "0.0.2",
   "description": "Vuetify Paper",
   "license": "MIT",
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "files": [
     "dist"
@@ -16,9 +16,7 @@
     "directory": "packages/paper"
   },
   "scripts": {
-    "build": "pnpm build:bundler && pnpm build:browser",
-    "build:bundler": "tsdown --config build/tsdown.bundler.config.ts",
-    "build:browser": "tsdown --config build/tsdown.browser.config.ts",
+    "build": "tsdown",
     "typecheck": "vue-tsc --noEmit --incremental"
   },
   "peerDependencies": {
@@ -44,10 +42,7 @@
   },
   "publishConfig": {
     "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js"
-      },
+      ".": "./dist/index.js",
       "./browser": {
         "types": "./dist/index.d.ts",
         "import": "./dist/browser/index.js"
