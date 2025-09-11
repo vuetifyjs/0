@@ -38,7 +38,7 @@ export function useHistory<Z extends HistoryTicket = HistoryTicket,
 
     const id = registry.lookup(0)
     const itemToRemove = registry.get(id!)
-    if (firstOutValues.length > size) {
+    if (firstOutValues.length === size) {
       firstOutValues.shift()
     }
     firstOutValues.push(itemToRemove as Partial<Z>)
