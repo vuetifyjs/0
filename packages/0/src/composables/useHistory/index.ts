@@ -87,7 +87,5 @@ export function useHistory<Z extends HistoryTicket = HistoryTicket,
     push,
     undo,
     redo,
-    removedValues,
-    firstOutValues,
   } as E
 }
