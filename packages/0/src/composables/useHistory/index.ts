@@ -1,62 +1,99 @@
-import { ref, computed } from 'vue'
-import type { ComputedRef } from 'vue'
+import { useRegistry } from '#v0'
+import type { RegistryContext, RegistryTicket } from '#v0'
+
+import { watch, unref, ref } from 'vue'
+import type { MaybeRef, Ref } from 'vue'
 
 export interface HistoryOptions {
   size?: number
   deep?: boolean
 }
 
-export interface HistoryContext {
-  buffer: ComputedRef<unknown[]>
+export interface HistoryContext<Z extends HistoryTicket> extends RegistryContext<Z> {
+  buffer: HistoryTicket[]
   size: number
   deep: boolean
   push: (...items: unknown[]) => void
   undo: () => void
   redo: () => void
+  canUndo: Ref<boolean>
 }
 
-export function useHistory (_options: HistoryOptions = {}): HistoryContext {
+export interface HistoryTicket extends RegistryTicket {
+  id: string
+  index: number
+  value: unknown
+}
+
+export function useHistory<Z extends HistoryTicket = HistoryTicket,
+  E extends HistoryContext<Z> = HistoryContext<Z>>
+(userRef: MaybeRef, _options: HistoryOptions = {}) {
   const {
     size = 10,
     deep = true,
   } = _options
 
-  let pointer = 0
-  const ring = ref<unknown[]>([])
-  let lastValue: unknown
-  const buffer = computed(() => ring.value.slice(pointer).concat(ring.value.slice(0, pointer)))
-  const isFull = computed(() => buffer.value.length === size)
+  const registry = useRegistry<Z, E>()
+  let removed: Partial<Z>
+  let recentlyRemoved = false
 
-  function push (...items: unknown[]) {
-    for (const item of items) {
-      lastValue = item
-      if (!isFull.value) {
-        ring.value.push(item)
-      }
-      ring.value[pointer] = item
-      pointer = (pointer + 1) % size
+  const canUndo = ref(false)
+  const canRedo = ref(false)
+
+  const removedValues: Partial<Z>[] = []
+
+  watch(userRef, () => updateRef(userRef))
+
+  function push (item: Partial<Z>) {
+    if (registry.size < size) {
+      canUndo.value = true
+      return registry.register({ ...item })
     }
+
+    const id = registry.lookup(0)
+    registry.unregister(id!)
+
+    registry.register({ ...item })
+    registry.reindex()
+
+    canUndo.value = true
   }
 
   function redo () {
-    push(lastValue)
+    userRef.value = removedValues.pop()?.value
+    canRedo.value = false
   }
 
   function undo () {
-    pointer = (pointer - 1 + size) % size
-    lastValue = ring.value[pointer]
-    if (isFull.value) {
-      ring.value.pop()
-    }
-    ring.value.splice(pointer, 1)
+    const id = registry.lookup(registry.size - 1)
+    if (!id) return
+
+    removed = registry.get(id!) as Partial<Z>
+    removedValues.push(removed)
+
+    registry.unregister(id!)
+
+    const newLastId = registry.lookup(-1)
+    userRef.value = registry.get(newLastId!)?.value
+
+    recentlyRemoved = true
+    canRedo.value = true
+  }
+
+  function updateRef (ref: MaybeRef) {
+    if (recentlyRemoved) recentlyRemoved = false
+    else push({ value: unref(ref.value) } as Partial<Z>)
   }
 
   return {
-    buffer,
-    size,
+    ...registry,
+    get buffer () {
+      return registry.values()
+    },
     deep,
     push,
     undo,
     redo,
-  }
+    canUndo,
+  } as E
 }

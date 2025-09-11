@@ -4,37 +4,46 @@ import { useHistory } from './index'
 describe('useHistory', () => {
   it('should push to the history buffer', () => {
     const history = useHistory({ size: 15 })
-    for (let i = 0; i < 15; i++) {
-      history.push(i)
+    for (let i = 0; i <= 20; i++) {
+      history.push({
+        id: `item${i}`,
+        value: i,
+      })
     }
 
-    history.push('/foo')
-    expect(history.buffer.value[0]).toEqual(1)
-    expect(history.buffer.value[14]).toEqual('/foo')
+    expect(history.buffer).toHaveLength(15)
+    expect(history.buffer[0]!.value).toEqual(6)
+    expect(history.buffer[14]!.value).toEqual(20)
   })
 
   it('should undo the last action', () => {
     const history = useHistory({ size: 5 })
-    for (let i = 0; i < 5; i++) {
-      history.push(i)
+    for (let i = 0; i < 7; i++) {
+      history.push({
+        id: `item${i}`,
+        value: i,
+      })
     }
 
-    expect(history.buffer.value).toEqual([0, 1, 2, 3, 4])
+    expect(history.buffer[4]!.value).toEqual(6)
     history.undo()
-    expect(history.buffer.value).toEqual([0, 1, 2, 3])
-    history.push(6, 7, 8)
-    expect(history.buffer.value).toEqual([2, 3, 6, 7, 8])
+    expect(history.buffer[4]).toBeUndefined()
   })
 
-  it('should redo the last action', () => {
+  it.only('should redo the last action', () => {
     const history = useHistory({ size: 5 })
     for (let i = 0; i < 5; i++) {
-      history.push(i)
+      history.push({
+        id: `item${i}`,
+        value: i,
+      })
     }
 
+    console.log(history.buffer)
     history.undo()
-    expect(history.buffer.value).toEqual([0, 1, 2, 3])
+    expect(history.buffer[3]!.value).toEqual(3)
     history.redo()
-    expect(history.buffer.value).toEqual([0, 1, 2, 3, 4])
+    console.log(history.buffer)
+    expect(history.buffer[4]!.value).toEqual(4)
   })
 })

@@ -162,6 +162,7 @@ export function useRegistry<
   }
 
   function lookup (index: number) {
+    if (index === -1) return directory.get(collection.size - 1)
     return directory.get(index)
   }
 
