@@ -1,22 +1,16 @@
 import { useRegistry } from '#v0'
 import type { RegistryContext, RegistryTicket } from '#v0'
 
-import { watch, unref, ref } from 'vue'
-import type { MaybeRef, Ref } from 'vue'
-
 export interface HistoryOptions {
   size?: number
-  deep?: boolean
 }
 
 export interface HistoryContext<Z extends HistoryTicket> extends RegistryContext<Z> {
-  buffer: HistoryTicket[]
+  history: HistoryTicket[]
   size: number
-  deep: boolean
   push: (...items: unknown[]) => void
   undo: () => void
   redo: () => void
-  canUndo: Ref<boolean>
 }
 
 export interface HistoryTicket extends RegistryTicket {
@@ -27,73 +21,73 @@ export interface HistoryTicket extends RegistryTicket {
 
 export function useHistory<Z extends HistoryTicket = HistoryTicket,
   E extends HistoryContext<Z> = HistoryContext<Z>>
-(userRef: MaybeRef, _options: HistoryOptions = {}) {
+(_options: HistoryOptions = {}) {
   const {
     size = 10,
-    deep = true,
   } = _options
 
   const registry = useRegistry<Z, E>()
-  let removed: Partial<Z>
-  let recentlyRemoved = false
-
-  const canUndo = ref(false)
-  const canRedo = ref(false)
 
   const removedValues: Partial<Z>[] = []
-
-  watch(userRef, () => updateRef(userRef))
+  const firstOutValues: Partial<Z>[] = []
 
   function push (item: Partial<Z>) {
     if (registry.size < size) {
-      canUndo.value = true
       return registry.register({ ...item })
     }
 
     const id = registry.lookup(0)
+    const itemToRemove = registry.get(id!)
+    if (removedValues.length > size) {
+      firstOutValues.shift()
+    }
+    firstOutValues.push(itemToRemove as Partial<Z>)
+
     registry.unregister(id!)
 
     registry.register({ ...item })
     registry.reindex()
-
-    canUndo.value = true
   }
 
   function redo () {
-    userRef.value = removedValues.pop()?.value
-    canRedo.value = false
+    if (removedValues.length === 0) return
+
+    registry.register(removedValues.pop() as Partial<Z>)
+    registry.reindex()
   }
 
   function undo () {
     const id = registry.lookup(registry.size - 1)
     if (!id) return
 
-    removed = registry.get(id!) as Partial<Z>
-    removedValues.push(removed)
+    const removed = registry.get(id!)
+    removedValues.push(removed as Partial<Z>)
 
     registry.unregister(id!)
 
-    const newLastId = registry.lookup(-1)
-    userRef.value = registry.get(newLastId!)?.value
-
-    recentlyRemoved = true
-    canRedo.value = true
+    restore()
   }
 
-  function updateRef (ref: MaybeRef) {
-    if (recentlyRemoved) recentlyRemoved = false
-    else push({ value: unref(ref.value) } as Partial<Z>)
+  function restore () {
+    const value = firstOutValues.pop()
+
+    const fullArray = value ? [value, ...registry.values()] : [...registry.values()]
+    registry.clear()
+    for (const item of fullArray) {
+      registry.register(item)
+    }
+    registry.reindex()
   }
 
   return {
     ...registry,
-    get buffer () {
+    get history () {
       return registry.values()
     },
-    deep,
     push,
     undo,
     redo,
-    canUndo,
+    removedValues,
+    firstOutValues,
   } as E
 }

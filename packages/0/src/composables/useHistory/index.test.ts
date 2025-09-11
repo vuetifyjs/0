@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { useHistory } from './index'
+import { useHistory } from '#v0'
 
 describe('useHistory', () => {
   it('should push to the history buffer', () => {
@@ -11,9 +11,9 @@ describe('useHistory', () => {
       })
     }
 
-    expect(history.buffer).toHaveLength(15)
-    expect(history.buffer[0]!.value).toEqual(6)
-    expect(history.buffer[14]!.value).toEqual(20)
+    expect(history.history).toHaveLength(15)
+    expect(history.history[0]!.value).toEqual(6)
+    expect(history.history[14]!.value).toEqual(20)
   })
 
   it('should undo the last action', () => {
@@ -25,12 +25,15 @@ describe('useHistory', () => {
       })
     }
 
-    expect(history.buffer[4]!.value).toEqual(6)
+    expect(history.history[4]!.value).toEqual(6)
     history.undo()
-    expect(history.buffer[4]).toBeUndefined()
+
+    expect(history.history[0].value).toEqual(1)
+    history.undo()
+    expect(history.history[0].value).toEqual(0)
   })
 
-  it.only('should redo the last action', () => {
+  it('should redo the last action', () => {
     const history = useHistory({ size: 5 })
     for (let i = 0; i < 5; i++) {
       history.push({
@@ -38,12 +41,12 @@ describe('useHistory', () => {
         value: i,
       })
     }
-
-    console.log(history.buffer)
+    console.log(history.history)
     history.undo()
-    expect(history.buffer[3]!.value).toEqual(3)
+    expect(history.history[3]!.value).toEqual(3)
+    console.log(history.history)
     history.redo()
-    console.log(history.buffer)
-    expect(history.buffer[4]!.value).toEqual(4)
+    console.log(history.history)
+    expect(history.history[4]!.value).toEqual(4)
   })
 })
