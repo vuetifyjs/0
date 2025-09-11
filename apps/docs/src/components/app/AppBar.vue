@@ -1,6 +1,9 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useLayout } from '@vuetify/v0'
+
+  // Utilities
+  import { useTemplateRef } from 'vue'
 
   // Composables
   import { useAppStore } from '@/stores/app'
@@ -18,13 +21,26 @@
     auth = useAuthStore()
   }
   const breakpoints = useBreakpoints()
+  const element = useTemplateRef('bar')
+  const layout = useLayout()
+  const item = layout.register({
+    id: 'bar',
+    position: 'top',
+    element,
+  })
+
 </script>
 
 <template>
   <Atom
+    ref="bar"
     :as
-    class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
-    :class="breakpoints.isMobile && 'left-0'"
+    class="app-header flex items-center justify-between fixed px-3 h-[48px]"
+    :style="{
+      left: item.rect.x.value + 'px',
+      top: item.rect.y.value + 'px',
+      width: item.rect.width.value + 'px',
+    }"
   >
     <div class="flex items-center gap-1">
       <img
