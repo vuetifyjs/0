@@ -8,7 +8,7 @@ export interface HistoryOptions {
 export interface HistoryContext<Z extends HistoryTicket> extends RegistryContext<Z> {
   history: HistoryTicket[]
   size: number
-  push: (...items: unknown[]) => void
+  register: (item?: Partial<Z>) => Z
   undo: () => void
   redo: () => void
 }
@@ -31,7 +31,7 @@ export function useHistory<Z extends HistoryTicket = HistoryTicket,
   const removedValues: Partial<Z>[] = []
   const firstOutValues: Partial<Z>[] = []
 
-  function push (item: Partial<Z>) {
+  function register (item: Partial<Z>) {
     if (registry.size < size) {
       return registry.register({ ...item })
     }
@@ -45,8 +45,10 @@ export function useHistory<Z extends HistoryTicket = HistoryTicket,
 
     registry.unregister(id!)
 
-    registry.register({ ...item })
+    const ticket = registry.register({ ...item })
     registry.reindex()
+
+    return ticket
   }
 
   function redo () {
@@ -84,7 +86,7 @@ export function useHistory<Z extends HistoryTicket = HistoryTicket,
     get history () {
       return registry.values()
     },
-    push,
+    register,
     undo,
     redo,
   } as E
