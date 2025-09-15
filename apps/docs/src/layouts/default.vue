@@ -4,8 +4,8 @@
 
 <template>
   <AppBanner />
-  <AppNav />
   <AppBar />
+  <AppNav />
   <AppMain />
   <AppFooter />
 </template>

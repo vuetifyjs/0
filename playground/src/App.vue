@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="m-4">
+  <div>
     <Playground />
   </div>
 </template>
