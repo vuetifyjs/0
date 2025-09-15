@@ -1,10 +1,6 @@
 import { useRegistry } from '#v0'
 import type { RegistryContext, RegistryTicket } from '#v0'
 
-export interface HistoryOptions {
-  size?: number
-}
-
 export interface HistoryContext<Z extends HistoryTicket> extends RegistryContext<Z> {
   history: HistoryTicket[]
   size: number
@@ -20,12 +16,7 @@ export interface HistoryTicket extends RegistryTicket {
 }
 
 export function useHistory<Z extends HistoryTicket = HistoryTicket,
-  E extends HistoryContext<Z> = HistoryContext<Z>>
-(_options: HistoryOptions = {}) {
-  const {
-    size = 10,
-  } = _options
-
+  E extends HistoryContext<Z> = HistoryContext<Z>> (size = 10) {
   const registry = useRegistry<Z, E>()
 
   const removedValues: Partial<Z>[] = []
@@ -75,9 +66,7 @@ export function useHistory<Z extends HistoryTicket = HistoryTicket,
 
     const fullArray = value ? [value, ...registry.values()] : [...registry.values()]
     registry.clear()
-    for (const item of fullArray) {
-      registry.register(item)
-    }
+    registry.onboard(fullArray)
     registry.reindex()
   }
 
