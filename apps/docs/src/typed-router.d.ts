@@ -33,11 +33,12 @@ declare module 'vue-router/auto-routes' {
     '/composables/foundation/create-context': RouteRecordInfo<'/composables/foundation/create-context', '/composables/foundation/create-context', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-plugin': RouteRecordInfo<'/composables/foundation/create-plugin', '/composables/foundation/create-plugin', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-trinity': RouteRecordInfo<'/composables/foundation/create-trinity', '/composables/foundation/create-trinity', Record<never, never>, Record<never, never>>,
-    '/composables/plugin/use-breakpoints': RouteRecordInfo<'/composables/plugin/use-breakpoints', '/composables/plugin/use-breakpoints', Record<never, never>, Record<never, never>>,
-    '/composables/plugin/use-hydration': RouteRecordInfo<'/composables/plugin/use-hydration', '/composables/plugin/use-hydration', Record<never, never>, Record<never, never>>,
-    '/composables/plugin/use-locale': RouteRecordInfo<'/composables/plugin/use-locale', '/composables/plugin/use-locale', Record<never, never>, Record<never, never>>,
-    '/composables/plugin/use-storage': RouteRecordInfo<'/composables/plugin/use-storage', '/composables/plugin/use-storage', Record<never, never>, Record<never, never>>,
-    '/composables/plugin/use-theme': RouteRecordInfo<'/composables/plugin/use-theme', '/composables/plugin/use-theme', Record<never, never>, Record<never, never>>,
+    '/composables/plugins/use-breakpoints': RouteRecordInfo<'/composables/plugins/use-breakpoints', '/composables/plugins/use-breakpoints', Record<never, never>, Record<never, never>>,
+    '/composables/plugins/use-features': RouteRecordInfo<'/composables/plugins/use-features', '/composables/plugins/use-features', Record<never, never>, Record<never, never>>,
+    '/composables/plugins/use-hydration': RouteRecordInfo<'/composables/plugins/use-hydration', '/composables/plugins/use-hydration', Record<never, never>, Record<never, never>>,
+    '/composables/plugins/use-locale': RouteRecordInfo<'/composables/plugins/use-locale', '/composables/plugins/use-locale', Record<never, never>, Record<never, never>>,
+    '/composables/plugins/use-storage': RouteRecordInfo<'/composables/plugins/use-storage', '/composables/plugins/use-storage', Record<never, never>, Record<never, never>>,
+    '/composables/plugins/use-theme': RouteRecordInfo<'/composables/plugins/use-theme', '/composables/plugins/use-theme', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-registry': RouteRecordInfo<'/composables/registration/use-registry', '/composables/registration/use-registry', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-tokens': RouteRecordInfo<'/composables/registration/use-tokens', '/composables/registration/use-tokens', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-filter': RouteRecordInfo<'/composables/selection/use-filter', '/composables/selection/use-filter', Record<never, never>, Record<never, never>>,
@@ -135,24 +136,28 @@ declare module 'vue-router/auto-routes' {
       routes: '/composables/foundation/create-trinity'
       views: never
     }
-    'src/pages/composables/plugin/use-breakpoints.md': {
-      routes: '/composables/plugin/use-breakpoints'
+    'src/pages/composables/plugins/use-breakpoints.md': {
+      routes: '/composables/plugins/use-breakpoints'
       views: never
     }
-    'src/pages/composables/plugin/use-hydration.md': {
-      routes: '/composables/plugin/use-hydration'
+    'src/pages/composables/plugins/use-features.md': {
+      routes: '/composables/plugins/use-features'
       views: never
     }
-    'src/pages/composables/plugin/use-locale.md': {
-      routes: '/composables/plugin/use-locale'
+    'src/pages/composables/plugins/use-hydration.md': {
+      routes: '/composables/plugins/use-hydration'
       views: never
     }
-    'src/pages/composables/plugin/use-storage.md': {
-      routes: '/composables/plugin/use-storage'
+    'src/pages/composables/plugins/use-locale.md': {
+      routes: '/composables/plugins/use-locale'
       views: never
     }
-    'src/pages/composables/plugin/use-theme.md': {
-      routes: '/composables/plugin/use-theme'
+    'src/pages/composables/plugins/use-storage.md': {
+      routes: '/composables/plugins/use-storage'
+      views: never
+    }
+    'src/pages/composables/plugins/use-theme.md': {
+      routes: '/composables/plugins/use-theme'
       views: never
     }
     'src/pages/composables/registration/use-registry.md': {

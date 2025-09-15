@@ -80,11 +80,11 @@ export const useAppStore = defineStore('app', {
           {
             name: 'Plugins',
             children: [
-              { name: 'useBreakpoints', to: '/composables/plugin/use-breakpoints' },
-              { name: 'useHydration', to: '/composables/plugin/use-hydration' },
-              { name: 'useLocale', to: '/composables/plugin/use-locale' },
-              { name: 'useStorage', to: '/composables/plugin/use-storage' },
-              { name: 'useTheme', to: '/composables/plugin/use-theme' },
+              { name: 'useBreakpoints', to: '/composables/plugins/use-breakpoints' },
+              { name: 'useHydration', to: '/composables/plugins/use-hydration' },
+              { name: 'useLocale', to: '/composables/plugins/use-locale' },
+              { name: 'useStorage', to: '/composables/plugins/use-storage' },
+              { name: 'useTheme', to: '/composables/plugins/use-theme' },
             ],
           },
         ],
