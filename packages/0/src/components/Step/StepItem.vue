@@ -55,7 +55,7 @@
 <template>
   <slot
     :index
-    :is-active
+    :is-selected
     :toggle
   />
 </template>
