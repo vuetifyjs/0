@@ -2,6 +2,14 @@ import type { App } from 'vue'
 import { materialPalette, tailwindPalette } from './palettes'
 
 export function registerPlugins (app: App) {
+  app.use(
+    createFeaturesPlugin({
+      features: {
+        dev: true,
+      },
+    }),
+  )
+
   app.use(createHydrationPlugin())
 
   app.use(createLoggerPlugin())

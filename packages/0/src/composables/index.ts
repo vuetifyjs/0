@@ -1,6 +1,7 @@
 // Composables
 export * from './useBreakpoints'
 export * from './useEventListener'
+export * from './useFeatures'
 export * from './useFilter'
 export * from './useForm'
 export * from './useGroup'

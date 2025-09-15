@@ -27,6 +27,8 @@ declare global {
   const createBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
+  const createFeatures: typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']
+  const createFeaturesPlugin: typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
   const createLocale: typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']
@@ -119,6 +121,7 @@ declare global {
   const useElementSize: typeof import('../../packages/0/src/composables/useResizeObserver/index')['useElementSize']
   const useElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']
+  const useFeatures: typeof import('../../packages/0/src/composables/useFeatures/index')['useFeatures']
   const useFilter: typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']
   const useForm: typeof import('../../packages/0/src/composables/useForm/index')['useForm']
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']
@@ -186,6 +189,9 @@ declare global {
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
   import('../../packages/0/src/composables/useEventListener/index')
   // @ts-ignore
+  export type { FeatureTicket, FeatureContext, FeatureOptions, FeaturePluginOptions } from '../../packages/0/src/composables/useFeatures/index'
+  import('../../packages/0/src/composables/useFeatures/index')
+  // @ts-ignore
   export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, UseFilterOptions, UseFilterResult } from '../../packages/0/src/composables/useFilter/index'
   import('../../packages/0/src/composables/useFilter/index')
   // @ts-ignore
@@ -240,7 +246,7 @@ declare global {
   export type { Colors, ThemeColors, ThemeRecord, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
-  export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext } from '../../packages/0/src/composables/useTokens/index'
+  export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions } from '../../packages/0/src/composables/useTokens/index'
   import('../../packages/0/src/composables/useTokens/index')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
@@ -273,6 +279,8 @@ declare module 'vue' {
     readonly createBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']>
     readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
+    readonly createFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']>
+    readonly createFeaturesPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
     readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
@@ -365,6 +373,7 @@ declare module 'vue' {
     readonly useElementSize: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useElementSize']>
     readonly useElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['useElevation']>
     readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
+    readonly useFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['useFeatures']>
     readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
