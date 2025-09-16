@@ -37,6 +37,7 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-features': RouteRecordInfo<'/composables/plugins/use-features', '/composables/plugins/use-features', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-hydration': RouteRecordInfo<'/composables/plugins/use-hydration', '/composables/plugins/use-hydration', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-locale': RouteRecordInfo<'/composables/plugins/use-locale', '/composables/plugins/use-locale', Record<never, never>, Record<never, never>>,
+    '/composables/plugins/use-logger': RouteRecordInfo<'/composables/plugins/use-logger', '/composables/plugins/use-logger', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-storage': RouteRecordInfo<'/composables/plugins/use-storage', '/composables/plugins/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-theme': RouteRecordInfo<'/composables/plugins/use-theme', '/composables/plugins/use-theme', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-registry': RouteRecordInfo<'/composables/registration/use-registry', '/composables/registration/use-registry', Record<never, never>, Record<never, never>>,
@@ -48,7 +49,6 @@ declare module 'vue-router/auto-routes' {
     '/composables/selection/use-step': RouteRecordInfo<'/composables/selection/use-step', '/composables/selection/use-step', Record<never, never>, Record<never, never>>,
     '/composables/system/use-event-listener': RouteRecordInfo<'/composables/system/use-event-listener', '/composables/system/use-event-listener', Record<never, never>, Record<never, never>>,
     '/composables/system/use-keydown': RouteRecordInfo<'/composables/system/use-keydown', '/composables/system/use-keydown', Record<never, never>, Record<never, never>>,
-    '/composables/system/use-logger': RouteRecordInfo<'/composables/system/use-logger', '/composables/system/use-logger', Record<never, never>, Record<never, never>>,
     '/guide/': RouteRecordInfo<'/guide/', '/guide', Record<never, never>, Record<never, never>>,
     '/guide/accessibility': RouteRecordInfo<'/guide/accessibility', '/guide/accessibility', Record<never, never>, Record<never, never>>,
     '/guide/components': RouteRecordInfo<'/guide/components', '/guide/components', Record<never, never>, Record<never, never>>,
@@ -152,6 +152,10 @@ declare module 'vue-router/auto-routes' {
       routes: '/composables/plugins/use-locale'
       views: never
     }
+    'src/pages/composables/plugins/use-logger.md': {
+      routes: '/composables/plugins/use-logger'
+      views: never
+    }
     'src/pages/composables/plugins/use-storage.md': {
       routes: '/composables/plugins/use-storage'
       views: never
@@ -194,10 +198,6 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/composables/system/use-keydown.md': {
       routes: '/composables/system/use-keydown'
-      views: never
-    }
-    'src/pages/composables/system/use-logger.md': {
-      routes: '/composables/system/use-logger'
       views: never
     }
     'src/pages/guide/index.md': {
