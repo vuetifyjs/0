@@ -74,9 +74,14 @@ export function useProxyModel<Z extends SelectionTicket> (
     const targetIds = new Set<ID>()
 
     for (const value of toArray(val)) {
-      const id = registry.browse(value)
-      if (id) targetIds.add(id)
-      else logger.warn('Unable to find id for value', value)
+      const ids = registry.browse(value)
+      if (isArray(ids)) {
+        for (const single of ids) targetIds.add(single)
+      } else if (ids) {
+        targetIds.add(ids)
+      } else {
+        logger.warn('Unable to find id for value', value)
+      }
     }
 
     watcher.pause()
