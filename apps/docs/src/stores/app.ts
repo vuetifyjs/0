@@ -74,7 +74,6 @@ export const useAppStore = defineStore('app', {
             children: [
               { name: 'useEventListener', to: '/composables/system/use-event-listener' },
               { name: 'useKeydown', to: '/composables/system/use-keydown' },
-              { name: 'useLogger', to: '/composables/system/use-logger' },
             ],
           },
           {
@@ -84,6 +83,7 @@ export const useAppStore = defineStore('app', {
               { name: 'useHydration', to: '/composables/plugins/use-hydration' },
               { name: 'useFeatures', to: '/composables/plugins/use-features' },
               { name: 'useLocale', to: '/composables/plugins/use-locale' },
+              { name: 'useLogger', to: '/composables/plugins/use-logger' },
               { name: 'useStorage', to: '/composables/plugins/use-storage' },
               { name: 'useTheme', to: '/composables/plugins/use-theme' },
             ],

@@ -95,8 +95,8 @@ describe('useLogger', () => {
       adapter.info('test message')
 
       const call = vi.mocked(console.info).mock.calls[0]
-      expect(call[0]).toContain('[test info]')
-      expect(call[0]).toContain('test message')
+      expect(call?.[0]).toContain('[test info]')
+      expect(call?.[0]).toContain('test message')
     })
 
     it('should handle additional arguments', () => {
@@ -106,8 +106,8 @@ describe('useLogger', () => {
       adapter.error('error message', data)
 
       const call = vi.mocked(console.error).mock.calls[0]
-      expect(call[0]).toContain('error message')
-      expect(call[2]).toEqual(data)
+      expect(call?.[0]).toContain('error message')
+      expect(call?.[2]).toEqual(data)
     })
 
     it('should support different log levels', () => {
@@ -133,7 +133,7 @@ describe('useLogger', () => {
       adapter.info('test message')
 
       const call = vi.mocked(console.info).mock.calls[0]
-      expect(call[0]).not.toMatch(/\d{2}:\d{2}:\d{2}/)
+      expect(call?.[0]).not.toMatch(/\d{2}:\d{2}:\d{2}/)
     })
 
     it('should allow custom prefix', () => {
@@ -142,8 +142,8 @@ describe('useLogger', () => {
       adapter.info('test message')
 
       const call = vi.mocked(console.info).mock.calls[0]
-      expect(call[0]).toContain('[custom info]')
-      expect(call[0]).toContain('test message')
+      expect(call?.[0]).toContain('[custom info]')
+      expect(call?.[0]).toContain('test message')
     })
   })
 
