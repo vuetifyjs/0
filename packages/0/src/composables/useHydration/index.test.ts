@@ -123,7 +123,7 @@ describe('useHydration', () => {
 
       expect(mockApp.mixin).toHaveBeenCalledOnce()
 
-      const mixinOptions = mockApp.mixin.mock.calls[0][0]
+      const mixinOptions = mockApp.mixin.mock.calls[0]![0]
       expect(mixinOptions).toHaveProperty('mounted')
       expect(typeof mixinOptions.mounted).toBe('function')
     })
@@ -138,7 +138,7 @@ describe('useHydration', () => {
 
       plugin.install(mockApp as any)
 
-      const mixinOptions = mockApp.mixin.mock.calls[0][0]
+      const mixinOptions = mockApp.mixin.mock.calls[0]![0]
       const mountedCallback = mixinOptions.mounted
 
       const rootComponent = { $parent: null }
