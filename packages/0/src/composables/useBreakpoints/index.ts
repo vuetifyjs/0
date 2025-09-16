@@ -125,8 +125,8 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
 
     let current: BreakpointName = 'xs'
     for (let i = sorted.length - 1; i >= 0; i--) {
-      if (state.width >= sorted[i][1]) {
-        current = sorted[i][0]
+      if (state.width >= sorted[i]![1]) {
+        current = sorted[i]![0]
         break
       }
     }
