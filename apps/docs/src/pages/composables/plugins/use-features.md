@@ -32,7 +32,7 @@ app.use(
       'analytics': true,
       'debug_mode': false,
       'notifications': false,
-      'search': { value: true, variation: 'v2' },
+      'search': { $value: true, $variation: 'v2' },
     },
   })
 )
@@ -139,7 +139,7 @@ Optionally register features at runtime:
   app.use(
     createFeaturesPlugin({
       features: {
-        'new_ui': { value: true, variation: 'A' },
+        'new_ui': { $value: true, $variation: 'A' },
         'old_ui': false,
       },
     })
