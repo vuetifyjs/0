@@ -22,7 +22,7 @@ describe('useFilter', () => {
       keys: ['color'],
     })
     expect(filtered.value).toHaveLength(1)
-    expect(filtered.value[0].name).toBe('banana')
+    expect(filtered.value[0]?.name).toBe('banana')
   })
 
   it('mode: every (all keys must match query)', () => {
@@ -50,7 +50,7 @@ describe('useFilter', () => {
       mode: 'intersection',
     })
     expect(filtered.value).toHaveLength(1)
-    expect(filtered.value[0].color).toBe('red')
+    expect(filtered.value[0]?.color).toBe('red')
   })
 
   it('returns all items if query is empty', () => {
@@ -71,7 +71,7 @@ describe('useFilter', () => {
 
     searchTerm.value = 'banana'
     expect(filtered.value).toHaveLength(1)
-    expect(filtered.value[0].name).toBe('banana')
+    expect(filtered.value[0]?.name).toBe('banana')
   })
 
   it('works with array getter functions for query', () => {

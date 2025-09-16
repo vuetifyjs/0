@@ -42,11 +42,11 @@ function defaultFilter (
   const stringValues = values.map(v => String(v).toLowerCase())
 
   if (mode === 'some') {
-    return stringValues.some(val => match(val, queries[0]))
+    return stringValues.some(val => match(val, queries[0]!))
   }
 
   if (mode === 'every') {
-    return stringValues.every(val => match(val, queries[0]))
+    return stringValues.every(val => match(val, queries[0]!))
   }
 
   if (mode === 'union') {
@@ -92,7 +92,7 @@ export function useFilter<Z extends FilterItem> (
 
     if (queries.length === 0) return itemsRef.value
 
-    const queryParam = queries.length === 1 ? queries[0] : queries
+    const queryParam = queries.length === 1 ? queries[0]! : queries
     return itemsRef.value.filter(item =>
       filterFunction(queryParam, item),
     )
