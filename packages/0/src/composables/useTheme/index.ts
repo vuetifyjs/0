@@ -114,7 +114,7 @@ export function createTheme<
   function resolve (colors: Colors): Colors {
     const resolved: Colors = {}
     for (const [key, value] of Object.entries(colors)) {
-      resolved[key] = tokens.resolve(value) as string
+      resolved[key] = tokens.isAlias(value) ? tokens.resolve(value) as string : value
     }
 
     return resolved

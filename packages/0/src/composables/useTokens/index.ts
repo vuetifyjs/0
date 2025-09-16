@@ -39,6 +39,7 @@ export type FlatTokenCollection = {
 export interface TokenTicket extends RegistryTicket {}
 
 export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
+  isAlias: (token: unknown) => token is string
   resolve: (token: string | TokenAlias) => unknown | undefined
 }
 
@@ -157,6 +158,7 @@ export function useTokens<
   return {
     ...registry,
     resolve,
+    isAlias,
   } as E
 }
 
