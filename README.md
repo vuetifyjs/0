@@ -19,21 +19,23 @@ Core foundational components and composables:
 - `Atom` - Base element wrapper with renderless capabilities
 - `Breakpoints` - Responsive breakpoint utilities
 - `Context` - Context injection/provision system
-- `Group` - Selection grouping with multiple/single modes
 - `Hydration` - Client-side hydration utilities
 - `Popover` - CSS anchor-positioned popup components
-- `Step` - Step-based navigation system
 - `Theme` - Theme management and CSS variable injection
 
 **Composables:**
-- `useBreakpoints` - Responsive breakpoint detection
 - `createContext` - Type-safe context management
+- `createTrinity` - Context trio creation utility
+- `createPlugin` - Plugin creation helper
+- `useBreakpoints` - Responsive breakpoint detection
 - `useFilter` - Collection filtering utilities
 - `useGroup` - Selection group management
 - `useHydration` - SSR hydration helpers
 - `useKeydown` - Keyboard event handling
 - `useLocale` - Internationalization support
 - `useRegistry` - Component registration system
+- `useSelection` - Baseline selection logic
+- `useSingle` - Single-selection logic
 - `useStep` - Step navigation logic
 - `useTheme` - Theme switching and CSS variable management
 - `useTokens` - Design token system

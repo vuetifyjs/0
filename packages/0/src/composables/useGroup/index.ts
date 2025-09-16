@@ -1,3 +1,7 @@
+// Factories
+import { createContext } from '#v0/factories/createContext'
+import { createTrinity } from '#v0/factories/createTrinity'
+
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
 
@@ -5,12 +9,13 @@ import { useSelection } from '#v0/composables/useSelection'
 import { computed } from 'vue'
 
 // Transformers
-import { toArray } from '#v0/transformers'
+import { toArray } from '#v0/transformers/toArray'
 
 // Types
 import type { ComputedRef } from 'vue'
 import type { ID } from '#v0/types'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 
 export interface GroupTicket extends SelectionTicket {}
 
@@ -72,4 +77,31 @@ export function useGroup<
     toggle,
     selectedIndexes,
   } as E
+}
+
+/**
+ * Creates a group selection registry context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the group selection registry context
+ * @param options Optional configuration for group selection behavior.
+ * @template Z The structure of the registry group selection items.
+ * @template E The available methods for the group's context.
+ * @returns A tuple containing the inject function, provide function, and the group selection context.
+ */
+export function createGroupContext<
+  Z extends GroupTicket = GroupTicket,
+  E extends GroupContext<Z> = GroupContext<Z>,
+> (
+  namespace: string,
+  options?: GroupOptions,
+): ContextTrinity<E> {
+  const [useGroupContext, _provideGroupContext] = createContext<E>(namespace)
+  const context = useGroup<Z, E>(options)
+
+  function provideGroupContext (_context: E = context, app?: any): E {
+    return _provideGroupContext(_context, app)
+  }
+
+  return createTrinity<E>(useGroupContext, provideGroupContext, context)
 }

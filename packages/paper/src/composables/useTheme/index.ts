@@ -140,7 +140,7 @@ export function createTheme (options: ThemeOptions) {
       return ''
     }
 
-    const currentTheme = theme.value.themes[theme.value.current]
+    const currentTheme = theme.value.themes[theme.value.current]!
     let cssVariables = ':root {\n'
 
     for (const [key, value] of Object.entries(currentTheme.colors)) {
@@ -192,7 +192,7 @@ export function createTheme (options: ThemeOptions) {
       return
     }
 
-    theme.value.themes[theme.value.current].colors[key] = value
+    theme.value.themes[theme.value.current]!.colors[key] = value
   }
 
   const providing: ThemeProvider = {

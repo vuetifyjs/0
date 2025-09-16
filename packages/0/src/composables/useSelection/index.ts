@@ -6,9 +6,11 @@ import { computed, shallowReactive, toRef } from 'vue'
 import { genId } from '#v0/utilities/helpers'
 
 // Types
-import type { ComputedRef, Reactive, Ref } from 'vue'
+import type { App, ComputedRef, Reactive, Ref } from 'vue'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
+import { createContext, createTrinity } from '#v0/factories'
+import type { ContextTrinity } from '#v0/factories'
 
 export interface SelectionTicket extends RegistryTicket {
   disabled: boolean
@@ -148,4 +150,31 @@ export function useSelection<
     toggle,
     selected,
   } as E
+}
+
+/**
+ * Creates a selection registry context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the selection registry context
+ * @param options Optional configuration for selection behavior.
+ * @template Z The structure of the registry selection items.
+ * @template E The available methods for the selection's context.
+ * @returns A tuple containing the inject function, provide function, and the selection context.
+ */
+export function createSelectionContext<
+  Z extends SelectionTicket = SelectionTicket,
+  E extends SelectionContext<Z> = SelectionContext<Z>,
+> (
+  namespace: string,
+  options?: SelectionOptions,
+): ContextTrinity<E> {
+  const [useSelectionContext, _provideSelectionContext] = createContext<E>(namespace)
+  const context = useSelection<Z, E>(options)
+
+  function provideSelectionContext (_context: E = context, app?: App): E {
+    return _provideSelectionContext(_context, app)
+  }
+
+  return createTrinity<E>(useSelectionContext, provideSelectionContext, context)
 }

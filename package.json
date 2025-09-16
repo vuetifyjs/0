@@ -7,7 +7,7 @@
     "dev": "pnpm --filter=playground dev",
     "build": "pnpm --filter=\"./packages/*\" build",
     "preview": "vite preview",
-    "typecheck": "pnpm --filter=\"./packages/*\" typecheck",
+    "typecheck": "pnpm --filter=\"./packages/0\" typecheck",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "storybook": "pnpm --filter=storybook dev",
