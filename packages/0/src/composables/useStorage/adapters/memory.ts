@@ -26,6 +26,6 @@ export class MemoryAdapter implements StorageAdapter {
   }
 
   key (index: number) {
-    return Array.from(this.store.keys())[index]
+    return String(Array.from(this.store.keys())[index] ?? '')
   }
 }
