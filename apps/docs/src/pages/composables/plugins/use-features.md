@@ -157,3 +157,4 @@ Optionally register features at runtime:
     features.variation('non_existent', 'fallback') // 'fallback'
     features.variation('non_existent') // null
   </script>
+  ```
