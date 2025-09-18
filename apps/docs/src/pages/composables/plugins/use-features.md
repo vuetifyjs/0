@@ -29,10 +29,10 @@ const app = createApp(App)
 app.use(
   createFeaturesPlugin({
     features: {
-      'analytics': true,
-      'debug_mode': false,
-      'notifications': false,
-      'search': { $value: true, $variation: 'v2' },
+      analytics: true,
+      debug_mode: false,
+      notifications: false,
+      search: { $value: true, $variation: 'v2' },
     },
   })
 )
