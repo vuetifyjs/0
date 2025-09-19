@@ -43,7 +43,6 @@ yarn add @vuetify/v0
 - **`useHydration`** - SSR hydration helpers
 - **`useIntersectionObserver`** - Intersection observer utilities
 - **`useKeydown`** - Keyboard event handling
-- **`useLayout`** - Layout management utilities
 - **`useLocale`** - Internationalization support
 - **`useLogger`** - Development logging utilities
 - **`useMutationObserver`** - DOM mutation observation
@@ -127,8 +126,8 @@ const currentStep = ref(0)
   <!-- Group selection -->
   <Group v-model="selectedItems" multiple>
     <template #default="{ select, isSelected }">
-      <button 
-        v-for="item in items" 
+      <button
+        v-for="item in items"
         :key="item.id"
         @click="select(item.id)"
         :class="{ active: isSelected(item.id) }"
@@ -198,23 +197,23 @@ const handleSubmit = async () => {
     <button @click="setTheme(theme === 'light' ? 'dark' : 'light')">
       Toggle Theme ({{ theme }})
     </button>
-    
+
     <form @submit.prevent="handleSubmit">
-      <input 
-        v-model="email" 
-        type="email" 
+      <input
+        v-model="email"
+        type="email"
         placeholder="Email"
         :style="{ borderColor: colors.primary }"
       />
       <div v-if="errors.email" class="error">{{ errors.email[0] }}</div>
-      
-      <input 
-        v-model="password" 
-        type="password" 
+
+      <input
+        v-model="password"
+        type="password"
         placeholder="Password"
       />
       <div v-if="errors.password" class="error">{{ errors.password[0] }}</div>
-      
+
       <button type="submit">Submit</button>
     </form>
   </div>

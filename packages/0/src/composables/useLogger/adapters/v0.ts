@@ -66,7 +66,8 @@ export class Vuetify0LoggerAdapter implements LoggerAdapter {
     if (!IN_BROWSER) return new Date().toISOString()
 
     const now = new Date()
-    return now.toTimeString().split(' ')[0]
+
+    return now.toTimeString().split(' ')[0] ?? ''
   }
 
   private style (level: LogLevel): string {

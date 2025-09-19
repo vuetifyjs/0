@@ -63,6 +63,7 @@ features.resolve('rtl') // { value: true, variation: 'toggle' }
   interface TokenTicket extends RegistryTicket {}
 
   interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
+    isAlias: (token: unknown) => token is string
     resolve: (token: string | TokenAlias) => unknown | undefined
   }
 
@@ -89,6 +90,7 @@ features.resolve('rtl') // { value: true, variation: 'toggle' }
   * The `flat` option keeps nested objects intact at their base id.
   * Supports tokens defined as primitive values or as aliases referencing other tokens.
   * Provides a resolve method to recursively resolve tokens and aliases into their final string value.
+  * Exposes an isAlias method to detect whether a string is an alias (e.g. "{color.primary}").
   * Utilizes caching for efficient resolution of repeated token lookups.
   * Integrates with a generic registry system (useRegistry) for management of tokens by ID.
 

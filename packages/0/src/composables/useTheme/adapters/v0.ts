@@ -6,6 +6,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { Colors } from '../index'
+import type { ID } from '#v0/types'
 
 export interface Vuetify0ThemeOptions {
   cspNonce?: string
@@ -28,7 +29,7 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
     this.stylesheetId = options.stylesheetId ?? this.stylesheetId
   }
 
-  update (colors: Record<string, Colors | undefined>): void {
+  update (colors: Record<ID, Colors>): void {
     if (!IN_BROWSER) return
 
     this.upsert(this.generate(colors))

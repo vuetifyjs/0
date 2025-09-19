@@ -1,7 +1,12 @@
+// Factories
+import { createContext } from '#v0/factories/createContext'
+import { createTrinity } from '#v0/factories/createTrinity'
+
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
 
 // Types
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 
 export interface StepTicket extends SingleTicket {}
@@ -92,4 +97,31 @@ export function useStep<
     prev,
     step,
   } as E
+}
+
+/**
+ * Creates a step selection registry context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the step selection registry context
+ * @param options Optional configuration for step selection behavior.
+ * @template Z The structure of the registry step selection items.
+ * @template E The available methods for the step's context.
+ * @returns A tuple containing the inject function, provide function, and the step selection context.
+ */
+export function createStepContext<
+  Z extends StepTicket = StepTicket,
+  E extends StepContext<Z> = StepContext<Z>,
+> (
+  namespace: string,
+  options?: StepOptions,
+): ContextTrinity<E> {
+  const [useStepContext, _provideStepContext] = createContext<E>(namespace)
+  const context = useStep<Z, E>(options)
+
+  function provideStepContext (_context: E = context, app?: any): E {
+    return _provideStepContext(_context, app)
+  }
+
+  return createTrinity<E>(useStepContext, provideStepContext, context)
 }

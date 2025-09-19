@@ -1,3 +1,7 @@
+// Factories
+import { createContext } from '#v0/factories/createContext'
+import { createTrinity } from '#v0/factories/createTrinity'
+
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
 
@@ -5,6 +9,7 @@ import { useSelection } from '#v0/composables/useSelection'
 import { computed } from 'vue'
 
 // Types
+import type { ContextTrinity } from '#v0/factories/createTrinity'
 import type { ID } from '#v0/types'
 import type { ComputedRef } from 'vue'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
@@ -70,4 +75,31 @@ export function useSingle<
     unselect,
     toggle,
   } as E
+}
+
+/**
+ * Creates a single selection registry context with full injection/provision control.
+ * Returns the complete trinity for advanced usage scenarios.
+ *
+ * @param namespace The namespace for the single selection registry context
+ * @param options Optional configuration for single selection behavior.
+ * @template Z The structure of the registry single selection items.
+ * @template E The available methods for the single's context.
+ * @returns A tuple containing the inject function, provide function, and the single selection context.
+ */
+export function createSingleContext<
+  Z extends SingleTicket = SingleTicket,
+  E extends SingleContext<Z> = SingleContext<Z>,
+> (
+  namespace: string,
+  options?: SingleOptions,
+): ContextTrinity<E> {
+  const [useSingleContext, _provideSingleContext] = createContext<E>(namespace)
+  const context = useSingle<Z, E>(options)
+
+  function provideSingleContext (_context: E = context, app?: any): E {
+    return _provideSingleContext(_context, app)
+  }
+
+  return createTrinity<E>(useSingleContext, provideSingleContext, context)
 }

@@ -143,7 +143,7 @@ describe.skip('useBreakpoints', () => {
       createBreakpoints()
 
       expect(mockOnMounted).toHaveBeenCalledOnce()
-      expect(typeof mockOnMounted.mock.calls[0][0]).toBe('function')
+      expect(typeof mockOnMounted.mock.calls[0]![0]).toBe('function')
     })
 
     it('should not register onMounted callback when not in component context', () => {
@@ -175,7 +175,7 @@ describe.skip('useBreakpoints', () => {
       expect(mockOnMounted).toHaveBeenCalledOnce()
 
       // Execute the onMounted callback
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(mockWatch).toHaveBeenCalledWith(
@@ -197,7 +197,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.width).toBe(1200)
@@ -214,7 +214,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('xs')
@@ -233,7 +233,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('sm')
@@ -254,7 +254,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('md')
@@ -272,7 +272,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('lg')
@@ -291,7 +291,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('xl')
@@ -310,7 +310,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('xxl')
@@ -329,7 +329,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger initial update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('xs')
@@ -351,7 +351,7 @@ describe.skip('useBreakpoints', () => {
       expect(mockOnScopeDispose).toHaveBeenCalledWith(expect.any(Function))
 
       // Execute the dispose callback
-      const disposeCallback = mockOnScopeDispose.mock.calls[0][0]
+      const disposeCallback = mockOnScopeDispose.mock.calls[0]![0]
       disposeCallback()
 
       expect(mockWindow.removeEventListener).toHaveBeenCalledWith('resize', expect.any(Function))
@@ -376,7 +376,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.width).toBe(1000)
@@ -424,7 +424,7 @@ describe.skip('useBreakpoints', () => {
       plugin.install(mockApp as any)
 
       expect(mockApp.runWithContext).toHaveBeenCalledOnce()
-      expect(typeof mockApp.runWithContext.mock.calls[0][0]).toBe('function')
+      expect(typeof mockApp.runWithContext.mock.calls[0]![0]).toBe('function')
     })
 
     it('should work with empty options', () => {
@@ -465,7 +465,7 @@ describe.skip('useBreakpoints', () => {
       })
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.isMobile).toBe(true) // 1200 < 1280 (lg breakpoint)
@@ -480,7 +480,7 @@ describe.skip('useBreakpoints', () => {
       })
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.isMobile).toBe(true) // 1000 < 1200
@@ -495,7 +495,7 @@ describe.skip('useBreakpoints', () => {
       })
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.isMobile).toBe(false) // 1000 >= 960 (md breakpoint)
@@ -511,7 +511,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('xs')
@@ -527,7 +527,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('xxl')
@@ -542,7 +542,7 @@ describe.skip('useBreakpoints', () => {
       const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0][0]
+      const mountedCallback = mockOnMounted.mock.calls[0]![0]
       mountedCallback()
 
       expect(context.name).toBe('md')
