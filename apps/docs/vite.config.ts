@@ -1,3 +1,5 @@
+/// <reference types="vite-ssg/node" />
+
 import { fileURLToPath, URL } from 'node:url'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import VueRouter from 'unplugin-vue-router/vite'
@@ -55,6 +57,18 @@ export default defineConfig({
   server: {
     fs: {
       allow: ['../packages/*', '.'],
+    },
+  },
+  ssgOptions: {
+    beastiesOptions: {
+      logLevel: 'info',
+      reduceInlineStyles: false,
+      // additionalStylesheets: [path.resolve('src/critical.css')],
+      preloadFonts: true,
+      inlineFonts: true,
+      // preloadFonts: false,
+      noscriptFallback: true,
+      allowRules: ['app-nav'],
     },
   },
 })

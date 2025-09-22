@@ -1,7 +1,15 @@
 <script lang="ts" setup>
-  import { useTheme } from '@vuetify/v0'
+  import { createHydration, useTheme, provideHydrationContext } from '@vuetify/v0'
+  import { onMounted } from 'vue'
 
   const theme = useTheme()
+
+  const hydrationContext = createHydration()
+  provideHydrationContext(hydrationContext)
+
+  onMounted(() => {
+    hydrationContext.hydrate()
+  })
 </script>
 
 <template>

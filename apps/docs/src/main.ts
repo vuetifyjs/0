@@ -40,4 +40,14 @@ export const createApp = ViteSSG(
       })
     }
   },
+  {
+    hydration: !import.meta.env.DEV,
+    transformState (state) {
+      if (import.meta.env.DEV || import.meta.env.SSR) {
+        return JSON.stringify({})
+      }
+
+      return state
+    },
+  },
 )

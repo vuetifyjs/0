@@ -15,6 +15,7 @@
     "@shikijs/themes": "catalog:",
     "@types/markdown-it-attrs": "catalog:",
     "@unocss/reset": "catalog:",
+    "beasties": "catalog:",
     "markdown-it-attrs": "catalog:",
     "shiki": "catalog:",
     "unocss": "catalog:",

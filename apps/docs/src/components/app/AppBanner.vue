@@ -18,7 +18,10 @@
     <AppIcon icon="alert" :size="14" />
 
     <div>
-      You are viewing Pre-Alpha documentation. <span v-if="!breakpoints.isMobile">Some features may not work as expected.</span>
+      You are viewing Pre-Alpha documentation.
+      <ClientOnly>
+        <span v-if="!breakpoints.isMobile">Some features may not work as expected.</span>
+      </ClientOnly>
     </div>
   </Atom>
 </template>

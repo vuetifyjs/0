@@ -21,6 +21,7 @@ catalog:
   "@vue/test-utils": ^2.4.6
   "@vue/tsconfig": ^0.8.1
   "@vuetify/one": ^2.3.1
+  beasties: ^0.3.4
   bumpp: ^10.2.3
   eslint: ^9.35.0
   eslint-config-vuetify: 4.1.0-0

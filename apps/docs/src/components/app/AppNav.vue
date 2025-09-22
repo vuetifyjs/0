@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useHydrationContext } from '@vuetify/v0'
   import { useAppStore } from '@/stores/app'
   import { useRoute } from 'vue-router'
-  import { watch } from 'vue'
+  import { computed, onMounted, watch } from 'vue'
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
@@ -10,9 +10,13 @@
   const app = useAppStore()
   const breakpoints = useBreakpoints()
   const route = useRoute()
+  const { isHydrated } = useHydrationContext()
 
-  watch(route, () => {
-    if (app.drawer && breakpoints.isMobile) {
+  const inert = computed(() => isHydrated.value && breakpoints.isMobile && !app.drawer)
+
+  watch(() => [route, isHydrated.value] as const, ([_, h]) => {
+    console.log(h)
+    if (h && app.drawer && breakpoints.isMobile) {
       app.drawer = false
     }
   })
@@ -21,11 +25,12 @@
 <template>
   <Atom
     :as
-    class="bg-4 app-nav flex flex-col fixed top-[72px] w-[220px] overflow-y-auto py-4 transition-transform duration-200 ease-in-out"
+    class="bg-4 app-nav"
     :class="[
-      breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
-      breakpoints.isMobile ? 'top-[72px] bottom-[24px]' : 'top-[24px] bottom-0'
+      // `app-nav-${breakpoints.breakpoints.md}`,
+      { 'drawer': isHydrated && breakpoints.isMobile && app.drawer },
     ]"
+    :inert
   >
     <ul class="flex gap-2 flex-col">
       <template v-for="(nav, i) in app.nav" :key="i">
@@ -46,8 +51,24 @@
   </Atom>
 </template>
 
+<style scoped>
+  /* beasties:include */
+  .app-nav {
+    background-color: var(--v0-surface);
+    border-right: thin solid var(--v0-divider);
+    @apply flex flex-col fixed top-[72px] bottom-[24px] translate-x-[-100%] w-[220px] overflow-y-auto py-4 transition-transform duration-200 ease-in-out;
+  }
+  html:not(.mobile) .app-nav {
+    @apply top-[72px] bottom-0 translate-x-0;
+  }
+  html.mobile .app-nav.drawer {
+    @apply translate-x-0;
+  }
+  /* beasties:include end */
+</style>
+<!--
 <style lang="sass">
   .app-nav
-    background-color: var(--v0-surface)
-    border-right: thin solid var(--v0-divider)
-</style>
+    background-color: var(&#45;&#45;v0-surface)
+    border-right: thin solid var(&#45;&#45;v0-divider)
+</style>-->

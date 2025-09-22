@@ -12,6 +12,69 @@
       imagesizes="100vw"
     />
     <link rel="icon" type="image/png" href="/0.png">
+      <script>
+        const theme = window.matchMedia('(prefers-color-scheme: dark)')
+        if (theme.matches) {
+          document.documentElement.classList.add('dark')
+        }
+        theme.addEventListener('change', (e) => {
+          if (e.matches) {
+            document.documentElement.classList.add('dark')
+          } else {
+            document.documentElement.classList.remove('dark')
+          }
+        })
+        const mobile = window.matchMedia('(max-width: 960px)')
+        if (mobile.matches) {
+          document.documentElement.classList.add('mobile')
+        }
+        mobile.addEventListener('change', (e) => {
+          if (e.matches) {
+            document.documentElement.classList.add('mobile')
+          } else {
+            document.documentElement.classList.remove('mobile')
+          }
+        })
+        document.addEventListener('DOMContentLoaded', (e) => {
+            document.documentElement.classList.add('loaded')
+        }, { once: true })
+      </script>
+      <style>
+          /* beasties:include */
+          .app-nav {
+              background-color: var(--v0-surface);
+              border-right: thin solid var(--v0-divider);
+              @apply flex flex-col fixed w-[220px] top-[72px] bottom-[24px] translate-x-[-100%] overflow-y-auto py-4;
+          }
+          html.loaded .app-nav {
+                @apply transition-transform duration-200 ease-in-out;
+          }
+          html:not(.loaded) .app-nav {
+                @apply duration-0;
+          }
+          html:not(.mobile) .app-nav {
+              @apply w-[220px] top-[72px] bottom-0 translate-x-0;
+          }
+          html.mobile .app-nav:not(.drawer) {
+              @apply translate-x-[-100%];
+          }
+          html.mobile .app-nav.drawer {
+              @apply translate-x-0;
+          }
+          main {
+              @apply ms-0 pa-4 pb-6 mt-[72px] transition-margin duration-200 ease-in-out;
+          }
+          html:not(.mobile) main {
+              @apply ms-[220px];
+          }
+          footer {
+              @apply flex items-center justify-between fixed left-0 bottom-0 right-0 h-[24px] ms-0 px-3 text-xs bg-surface border-t;
+          }
+          html:not(.mobile) footer {
+              @apply left-[220px];
+          }
+          /* beasties:include end */
+      </style>
   </head>
   <body>
     <div id="app"></div>

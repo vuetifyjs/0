@@ -1,8 +1,27 @@
-import { presetWind3, defineConfig } from 'unocss'
+import { transformerDirectives, presetWind3, defineConfig, toEscapedSelector } from 'unocss'
 
 export default defineConfig({
+  /* safelist: ['app-nav-960'],
+  shortcuts: {
+    'app-nav': 'flex flex-col fixed top-[72px] bottom-[24px] translate-x-0 w-[220px] overflow-y-auto py-4 transition-transform duration-200 ease-in-out',
+  },
+  rules: [
+    [/^app-nav-(\d+)$/, ([, w]) => {
+      return `@media (max-width: ${w}px) {
+  .app-nav-${w} {
+    @apply top-[72px] bottom-[24px] translate-x-[-100%];
+  }
+  .app-nav-${w}.drawer {
+    @apply  translate-x-0;
+  }
+}`
+    }],
+  ], */
   presets: [
     presetWind3(),
+  ],
+  transformers: [
+    transformerDirectives(),
   ],
   theme: {
     colors: {
