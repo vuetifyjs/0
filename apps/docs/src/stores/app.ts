@@ -67,21 +67,25 @@ export const useAppStore = defineStore('app', {
             name: 'Forms',
             children: [
               { name: 'useForm', to: '/composables/forms/use-form' },
+              { name: 'useProxyModel', to: '/composables/forms/use-proxy-model' },
             ],
           },
           {
             name: 'System',
             children: [
               { name: 'useEventListener', to: '/composables/system/use-event-listener' },
+              { name: 'useIntersectionObserver', to: '/composables/system/use-intersection-observer' },
               { name: 'useKeydown', to: '/composables/system/use-keydown' },
+              { name: 'useMutationObserver', to: '/composables/system/use-mutation-observer' },
+              { name: 'useResizeObserver', to: '/composables/system/use-resize-observer' },
             ],
           },
           {
             name: 'Plugins',
             children: [
               { name: 'useBreakpoints', to: '/composables/plugins/use-breakpoints' },
-              { name: 'useHydration', to: '/composables/plugins/use-hydration' },
               { name: 'useFeatures', to: '/composables/plugins/use-features' },
+              { name: 'useHydration', to: '/composables/plugins/use-hydration' },
               { name: 'useLocale', to: '/composables/plugins/use-locale' },
               { name: 'useLogger', to: '/composables/plugins/use-logger' },
               { name: 'usePermissions', to: '/composables/plugins/use-permissions' },

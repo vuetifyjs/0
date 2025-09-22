@@ -30,6 +30,7 @@ declare module 'vue-router/auto-routes' {
     '/components/theme': RouteRecordInfo<'/components/theme', '/components/theme', Record<never, never>, Record<never, never>>,
     '/composables/': RouteRecordInfo<'/composables/', '/composables', Record<never, never>, Record<never, never>>,
     '/composables/forms/use-form': RouteRecordInfo<'/composables/forms/use-form', '/composables/forms/use-form', Record<never, never>, Record<never, never>>,
+    '/composables/forms/use-proxy-model': RouteRecordInfo<'/composables/forms/use-proxy-model', '/composables/forms/use-proxy-model', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-context': RouteRecordInfo<'/composables/foundation/create-context', '/composables/foundation/create-context', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-plugin': RouteRecordInfo<'/composables/foundation/create-plugin', '/composables/foundation/create-plugin', Record<never, never>, Record<never, never>>,
     '/composables/foundation/create-trinity': RouteRecordInfo<'/composables/foundation/create-trinity', '/composables/foundation/create-trinity', Record<never, never>, Record<never, never>>,
@@ -49,11 +50,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/selection/use-single': RouteRecordInfo<'/composables/selection/use-single', '/composables/selection/use-single', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-step': RouteRecordInfo<'/composables/selection/use-step', '/composables/selection/use-step', Record<never, never>, Record<never, never>>,
     '/composables/system/use-event-listener': RouteRecordInfo<'/composables/system/use-event-listener', '/composables/system/use-event-listener', Record<never, never>, Record<never, never>>,
+    '/composables/system/use-intersection-observer': RouteRecordInfo<'/composables/system/use-intersection-observer', '/composables/system/use-intersection-observer', Record<never, never>, Record<never, never>>,
     '/composables/system/use-keydown': RouteRecordInfo<'/composables/system/use-keydown', '/composables/system/use-keydown', Record<never, never>, Record<never, never>>,
+    '/composables/system/use-mutation-observer': RouteRecordInfo<'/composables/system/use-mutation-observer', '/composables/system/use-mutation-observer', Record<never, never>, Record<never, never>>,
+    '/composables/system/use-resize-observer': RouteRecordInfo<'/composables/system/use-resize-observer', '/composables/system/use-resize-observer', Record<never, never>, Record<never, never>>,
     '/guide/': RouteRecordInfo<'/guide/', '/guide', Record<never, never>, Record<never, never>>,
     '/guide/accessibility': RouteRecordInfo<'/guide/accessibility', '/guide/accessibility', Record<never, never>, Record<never, never>>,
     '/guide/components': RouteRecordInfo<'/guide/components', '/guide/components', Record<never, never>, Record<never, never>>,
-    '/guide/composables': RouteRecordInfo<'/guide/composables', '/guide/composables', Record<never, never>, Record<never, never>>,
     '/guide/features': RouteRecordInfo<'/guide/features', '/guide/features', Record<never, never>, Record<never, never>>,
     '/guide/framework-core': RouteRecordInfo<'/guide/framework-core', '/guide/framework-core', Record<never, never>, Record<never, never>>,
     '/guide/plugins': RouteRecordInfo<'/guide/plugins', '/guide/plugins', Record<never, never>, Record<never, never>>,
@@ -123,6 +126,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/composables/forms/use-form.md': {
       routes: '/composables/forms/use-form'
+      views: never
+    }
+    'src/pages/composables/forms/use-proxy-model.md': {
+      routes: '/composables/forms/use-proxy-model'
       views: never
     }
     'src/pages/composables/foundation/create-context.md': {
@@ -201,8 +208,20 @@ declare module 'vue-router/auto-routes' {
       routes: '/composables/system/use-event-listener'
       views: never
     }
+    'src/pages/composables/system/use-intersection-observer.md': {
+      routes: '/composables/system/use-intersection-observer'
+      views: never
+    }
     'src/pages/composables/system/use-keydown.md': {
       routes: '/composables/system/use-keydown'
+      views: never
+    }
+    'src/pages/composables/system/use-mutation-observer.md': {
+      routes: '/composables/system/use-mutation-observer'
+      views: never
+    }
+    'src/pages/composables/system/use-resize-observer.md': {
+      routes: '/composables/system/use-resize-observer'
       views: never
     }
     'src/pages/guide/index.md': {
@@ -215,10 +234,6 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/guide/components.md': {
       routes: '/guide/components'
-      views: never
-    }
-    'src/pages/guide/composables.md': {
-      routes: '/guide/composables'
       views: never
     }
     'src/pages/guide/features.md': {
