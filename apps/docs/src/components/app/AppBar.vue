@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useFeatures, usePermissions } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'
@@ -18,6 +18,14 @@
     auth = useAuthStore()
   }
   const breakpoints = useBreakpoints()
+  const permissions = usePermissions()
+  const features = useFeatures()
+
+  const devmode = features.get('devmode')!
+
+  function onClickDevmode () {
+    devmode.toggle()
+  }
 </script>
 
 <template>
@@ -44,6 +52,16 @@
     </div>
 
     <div class="flex align-center items-center gap-3">
+      <!-- update when latest @vuetify/one is released -->
+      <button
+        v-if="permissions.can((auth?.user as any)?.role, 'use', 'devmode')"
+        class="text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        :class="devmode.isSelected.value ? 'bg-red' : 'bg-gray-400'"
+        @click="onClickDevmode"
+      >
+        <AppIcon icon="dev" />
+      </button>
+
       <a
         class="bg-[#5661ea] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://discord.gg/vK6T89eNP7"

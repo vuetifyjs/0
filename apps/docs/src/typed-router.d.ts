@@ -38,6 +38,7 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-hydration': RouteRecordInfo<'/composables/plugins/use-hydration', '/composables/plugins/use-hydration', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-locale': RouteRecordInfo<'/composables/plugins/use-locale', '/composables/plugins/use-locale', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-logger': RouteRecordInfo<'/composables/plugins/use-logger', '/composables/plugins/use-logger', Record<never, never>, Record<never, never>>,
+    '/composables/plugins/use-permissions': RouteRecordInfo<'/composables/plugins/use-permissions', '/composables/plugins/use-permissions', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-storage': RouteRecordInfo<'/composables/plugins/use-storage', '/composables/plugins/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-theme': RouteRecordInfo<'/composables/plugins/use-theme', '/composables/plugins/use-theme', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-registry': RouteRecordInfo<'/composables/registration/use-registry', '/composables/registration/use-registry', Record<never, never>, Record<never, never>>,
@@ -154,6 +155,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/composables/plugins/use-logger.md': {
       routes: '/composables/plugins/use-logger'
+      views: never
+    }
+    'src/pages/composables/plugins/use-permissions.md': {
+      routes: '/composables/plugins/use-permissions'
       views: never
     }
     'src/pages/composables/plugins/use-storage.md': {

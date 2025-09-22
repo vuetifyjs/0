@@ -16,12 +16,14 @@ import {
   mdiOpenInNew,
   mdiPencil,
   mdiTagOutline,
+  mdiDevTo,
 } from '@mdi/js'
 
 // Types
 import type { App } from 'vue'
 
 export const [useIconContext, provideIconContext, context] = createTokensContext('v0:icons', {
+  'dev': mdiDevTo,
   'cog': mdiCog,
   'alert': mdiAlert,
   'pencil': mdiPencil,

@@ -36,6 +36,7 @@ declare global {
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']
+  const createPermissions: typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']
   const createRegistryContext: typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']
   const createSelectionContext: typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']
   const createSingleContext: typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']
@@ -223,6 +224,9 @@ declare global {
   export type { MutationObserverRecord, UseMutationObserverOptions } from '../../packages/0/src/composables/useMutationObserver/index'
   import('../../packages/0/src/composables/useMutationObserver/index')
   // @ts-ignore
+  export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionPluginOptions } from '../../packages/0/src/composables/usePermissions/index'
+  import('../../packages/0/src/composables/usePermissions/index')
+  // @ts-ignore
   export type { ProxyModelOptions } from '../../packages/0/src/composables/useProxyModel/index'
   import('../../packages/0/src/composables/useProxyModel/index')
   // @ts-ignore
@@ -289,6 +293,7 @@ declare module 'vue' {
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
+    readonly createPermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']>
     readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']>
     readonly createSelectionContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']>
     readonly createSingleContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']>

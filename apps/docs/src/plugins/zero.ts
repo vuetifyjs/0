@@ -1,5 +1,5 @@
 // Vuetify0
-import { createBreakpointsPlugin, createHydrationPlugin, createLoggerPlugin, createThemePlugin } from '@vuetify/v0'
+import { createBreakpointsPlugin, createFeaturesPlugin, createHydrationPlugin, createLoggerPlugin, createPermissionsPlugin, createThemePlugin } from '@vuetify/v0'
 
 // Plugins
 import { createIconPlugin } from './icons'
@@ -12,6 +12,23 @@ export default function zero (app: App) {
   app.use(createLoggerPlugin())
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin())
+  app.use(
+    createFeaturesPlugin({
+      features: {
+        devmode: {
+          $value: false,
+          $description: 'Enables development mode with additional logging and warnings',
+        },
+      },
+    }),
+  )
+  app.use(
+    createPermissionsPlugin({
+      permissions: {
+        super: [['use', 'devmode']],
+      },
+    }),
+  )
   app.use(
     createThemePlugin({
       default: 'light',

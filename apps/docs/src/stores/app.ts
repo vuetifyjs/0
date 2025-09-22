@@ -84,6 +84,7 @@ export const useAppStore = defineStore('app', {
               { name: 'useFeatures', to: '/composables/plugins/use-features' },
               { name: 'useLocale', to: '/composables/plugins/use-locale' },
               { name: 'useLogger', to: '/composables/plugins/use-logger' },
+              { name: 'usePermissions', to: '/composables/plugins/use-permissions' },
               { name: 'useStorage', to: '/composables/plugins/use-storage' },
               { name: 'useTheme', to: '/composables/plugins/use-theme' },
             ],
