@@ -19,7 +19,7 @@ export interface TimelineOptions {
 
 export function useTimeline<Z extends TimelineTicket = TimelineTicket,
   E extends TimelineContext<Z> = TimelineContext<Z>> (_options: TimelineOptions) {
-  const { size = 10, ...options } = _options
+  const { size = 10 } = _options
   const registry = useRegistry<Z, E>()
 
   const removedValues: Partial<Z>[] = []
