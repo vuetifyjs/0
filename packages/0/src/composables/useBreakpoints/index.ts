@@ -6,39 +6,39 @@ import { createPlugin } from '#v0/factories/createPlugin'
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { onScopeDispose, shallowReactive, getCurrentInstance, onMounted, watch } from 'vue'
+import { onScopeDispose, shallowRef, readonly, getCurrentInstance, onMounted, watch } from 'vue'
 import { mergeDeep } from '#v0/utilities/helpers'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { App } from 'vue'
+import type { App, Ref } from 'vue'
 
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 
 export interface BreakpointsContext {
   breakpoints: Readonly<Record<BreakpointName, number>>
-  name: BreakpointName
-  width: number
-  height: number
-  isMobile: boolean
-  xs: boolean
-  sm: boolean
-  md: boolean
-  lg: boolean
-  xl: boolean
-  xxl: boolean
-  smAndUp: boolean
-  mdAndUp: boolean
-  lgAndUp: boolean
-  xlAndUp: boolean
-  xxlAndUp: boolean
-  smAndDown: boolean
-  mdAndDown: boolean
-  lgAndDown: boolean
-  xlAndDown: boolean
-  xxlAndDown: boolean
+  name: Readonly<Ref<BreakpointName>>
+  width: Readonly<Ref<number>>
+  height: Readonly<Ref<number>>
+  isMobile: Readonly<Ref<boolean>>
+  xs: Readonly<Ref<boolean>>
+  sm: Readonly<Ref<boolean>>
+  md: Readonly<Ref<boolean>>
+  lg: Readonly<Ref<boolean>>
+  xl: Readonly<Ref<boolean>>
+  xxl: Readonly<Ref<boolean>>
+  smAndUp: Readonly<Ref<boolean>>
+  mdAndUp: Readonly<Ref<boolean>>
+  lgAndUp: Readonly<Ref<boolean>>
+  xlAndUp: Readonly<Ref<boolean>>
+  xxlAndUp: Readonly<Ref<boolean>>
+  smAndDown: Readonly<Ref<boolean>>
+  mdAndDown: Readonly<Ref<boolean>>
+  lgAndDown: Readonly<Ref<boolean>>
+  xlAndDown: Readonly<Ref<boolean>>
+  xxlAndDown: Readonly<Ref<boolean>>
   update: () => void
 }
 
@@ -92,66 +92,63 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
   const names = sorted.map(([n]) => n)
   const mb = typeof mobileBreakpoint === 'number' ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md
 
-  const state = shallowReactive({
-    breakpoints,
-    name: 'xs' as BreakpointName,
-    width: 0,
-    height: 0,
-    isMobile: true,
-    xs: true,
-    sm: false,
-    md: false,
-    lg: false,
-    xl: false,
-    xxl: false,
-    smAndUp: false,
-    mdAndUp: false,
-    lgAndUp: false,
-    xlAndUp: false,
-    xxlAndUp: false,
-    smAndDown: true,
-    mdAndDown: true,
-    lgAndDown: true,
-    xlAndDown: true,
-    xxlAndDown: true,
-    update,
-  })
+  // Create individual refs instead of reactive object
+  const name = shallowRef<BreakpointName>('xs')
+  const width = shallowRef(0)
+  const height = shallowRef(0)
+  const isMobile = shallowRef(true)
+  const xs = shallowRef(true)
+  const sm = shallowRef(false)
+  const md = shallowRef(false)
+  const lg = shallowRef(false)
+  const xl = shallowRef(false)
+  const xxl = shallowRef(false)
+  const smAndUp = shallowRef(false)
+  const mdAndUp = shallowRef(false)
+  const lgAndUp = shallowRef(false)
+  const xlAndUp = shallowRef(false)
+  const xxlAndUp = shallowRef(false)
+  const smAndDown = shallowRef(true)
+  const mdAndDown = shallowRef(true)
+  const lgAndDown = shallowRef(true)
+  const xlAndDown = shallowRef(true)
+  const xxlAndDown = shallowRef(true)
 
   function update () {
     if (!IN_BROWSER) return
 
-    state.width = window.innerWidth
-    state.height = window.innerHeight
+    width.value = window.innerWidth
+    height.value = window.innerHeight
 
     let current: BreakpointName = 'xs'
     for (let i = sorted.length - 1; i >= 0; i--) {
-      if (state.width >= sorted[i]![1]) {
+      if (width.value >= sorted[i]![1]) {
         current = sorted[i]![0]
         break
       }
     }
 
-    state.name = current
+    name.value = current
 
     const index = names.indexOf(current)
 
-    state.isMobile = state.width < mb!
-    state.xs = index === 0
-    state.sm = index === 1
-    state.md = index === 2
-    state.lg = index === 3
-    state.xl = index === 4
-    state.xxl = index === 5
-    state.smAndUp = index >= 1
-    state.mdAndUp = index >= 2
-    state.lgAndUp = index >= 3
-    state.xlAndUp = index >= 4
-    state.xxlAndUp = index >= 5
-    state.smAndDown = index <= 1
-    state.mdAndDown = index <= 2
-    state.lgAndDown = index <= 3
-    state.xlAndDown = index <= 4
-    state.xxlAndDown = index <= 5
+    isMobile.value = width.value < mb!
+    xs.value = index === 0
+    sm.value = index === 1
+    md.value = index === 2
+    lg.value = index === 3
+    xl.value = index === 4
+    xxl.value = index === 5
+    smAndUp.value = index >= 1
+    mdAndUp.value = index >= 2
+    lgAndUp.value = index >= 3
+    xlAndUp.value = index >= 4
+    xxlAndUp.value = index >= 5
+    smAndDown.value = index <= 1
+    mdAndDown.value = index <= 2
+    lgAndDown.value = index <= 3
+    xlAndDown.value = index <= 4
+    xxlAndDown.value = index <= 5
   }
 
   if (getCurrentInstance()) {
@@ -177,7 +174,30 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
     }
   }
 
-  return state
+  return {
+    breakpoints,
+    name: readonly(name),
+    width: readonly(width),
+    height: readonly(height),
+    isMobile: readonly(isMobile),
+    xs: readonly(xs),
+    sm: readonly(sm),
+    md: readonly(md),
+    lg: readonly(lg),
+    xl: readonly(xl),
+    xxl: readonly(xxl),
+    smAndUp: readonly(smAndUp),
+    mdAndUp: readonly(mdAndUp),
+    lgAndUp: readonly(lgAndUp),
+    xlAndUp: readonly(xlAndUp),
+    xxlAndUp: readonly(xxlAndUp),
+    smAndDown: readonly(smAndDown),
+    mdAndDown: readonly(mdAndDown),
+    lgAndDown: readonly(lgAndDown),
+    xlAndDown: readonly(xlAndDown),
+    xxlAndDown: readonly(xxlAndDown),
+    update,
+  }
 }
 
 /**

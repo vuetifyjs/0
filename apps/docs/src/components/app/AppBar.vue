@@ -32,7 +32,7 @@
   <Atom
     :as
     class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 transition-margin duration-200 ease-in-out"
-    :class="breakpoints.isMobile && 'left-0'"
+    :class="breakpoints.isMobile.value && 'left-0'"
   >
     <div class="flex items-center gap-1">
       <img
@@ -44,7 +44,7 @@
       >
 
       <AppIcon
-        v-if="breakpoints.isMobile"
+        v-if="breakpoints.isMobile.value"
         class="pa-1 cursor-pointer"
         :icon="app.drawer ? 'close' : 'menu'"
         @click="app.drawer = !app.drawer"

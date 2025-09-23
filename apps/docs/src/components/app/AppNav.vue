@@ -23,8 +23,8 @@
     :as
     class="bg-4 app-nav flex flex-col fixed top-[72px] w-[220px] overflow-y-auto py-4 transition-transform duration-200 ease-in-out"
     :class="[
-      breakpoints.isMobile && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
-      breakpoints.isMobile ? 'top-[72px] bottom-[24px]' : 'top-[24px] bottom-0'
+      breakpoints.isMobile.value && !app.drawer ? 'translate-x-[-100%]' : 'translate-x-0',
+      breakpoints.isMobile.value ? 'top-[72px] bottom-[24px]' : 'top-[24px] bottom-0'
     ]"
   >
     <ul class="flex gap-2 flex-col">
