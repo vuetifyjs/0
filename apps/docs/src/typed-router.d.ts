@@ -43,6 +43,7 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-storage': RouteRecordInfo<'/composables/plugins/use-storage', '/composables/plugins/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-theme': RouteRecordInfo<'/composables/plugins/use-theme', '/composables/plugins/use-theme', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-registry': RouteRecordInfo<'/composables/registration/use-registry', '/composables/registration/use-registry', Record<never, never>, Record<never, never>>,
+    '/composables/registration/use-timeline': RouteRecordInfo<'/composables/registration/use-timeline', '/composables/registration/use-timeline', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-tokens': RouteRecordInfo<'/composables/registration/use-tokens', '/composables/registration/use-tokens', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-filter': RouteRecordInfo<'/composables/selection/use-filter', '/composables/selection/use-filter', Record<never, never>, Record<never, never>>,
     '/composables/selection/use-group': RouteRecordInfo<'/composables/selection/use-group', '/composables/selection/use-group', Record<never, never>, Record<never, never>>,
@@ -178,6 +179,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/composables/registration/use-registry.md': {
       routes: '/composables/registration/use-registry'
+      views: never
+    }
+    'src/pages/composables/registration/use-timeline.md': {
+      routes: '/composables/registration/use-timeline'
       views: never
     }
     'src/pages/composables/registration/use-tokens.md': {

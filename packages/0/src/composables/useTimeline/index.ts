@@ -1,0 +1,90 @@
+// Composables
+import { useRegistry } from '#v0/composables/useRegistry'
+
+// Types
+import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
+
+export interface TimelineContext<Z extends TimelineTicket> extends RegistryContext<Z> {
+  /* Unapplies the last registered ticket */
+  undo: () => void
+  /* Reapplies the last undone ticket */
+  redo: () => void
+}
+
+export interface TimelineTicket extends RegistryTicket {}
+
+export interface TimelineOptions extends RegistryOptions {
+  size?: number
+}
+
+/**
+ * Creates a registry with timeline capabilities (undo/redo)
+ *
+ * @param _options Optional configuration for timeline
+ * @template Z The type of ticket to be stored in the timeline
+ * @template E The type of the timeline context
+ * @returns The timeline context object
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-timeline
+ */
+export function useTimeline<
+  Z extends TimelineTicket = TimelineTicket,
+  E extends TimelineContext<Z> = TimelineContext<Z>,
+> (_options: TimelineOptions = {}) {
+  const { size = 10, ...options } = _options
+  const registry = useRegistry<Z, E>(options)
+
+  const undoTimeline: Z[] = []
+  const redoTimeline: Z[] = []
+
+  function register (item: Partial<Z>) {
+    if (registry.size < size) return registry.register({ ...item })
+
+    const id = registry.lookup(0)!
+    const removing = registry.get(id)!
+
+    if (redoTimeline.length === size) redoTimeline.shift()
+    redoTimeline.push(removing)
+
+    registry.unregister(id)
+
+    const ticket = registry.register({ ...item })
+    registry.reindex()
+
+    return ticket
+  }
+
+  function redo () {
+    if (undoTimeline.length === 0) return
+
+    registry.register(undoTimeline.pop())
+    registry.reindex()
+  }
+
+  function undo () {
+    const id = registry.lookup(registry.size - 1)
+    if (!id) return
+
+    undoTimeline.push(registry.get(id)!)
+
+    registry.unregister(id!)
+
+    restore()
+  }
+
+  function restore () {
+    const value = redoTimeline.pop()
+    const restored = value ? [value, ...registry.values()] : [...registry.values()]
+
+    registry.clear()
+    registry.onboard(restored)
+    registry.reindex()
+  }
+
+  return {
+    ...registry,
+    register,
+    undo,
+    redo,
+  } as E
+}
