@@ -2,9 +2,7 @@ import { useRegistry } from '#v0'
 import type { RegistryContext, RegistryTicket } from '#v0'
 
 export interface TimelineContext<Z extends TimelineTicket> extends RegistryContext<Z> {
-  timeline: TimelineTicket[]
   size: number
-  register: (item?: Partial<Z>) => Z
   undo: () => void
   redo: () => void
 }
@@ -15,8 +13,13 @@ export interface TimelineTicket extends RegistryTicket {
   value: unknown
 }
 
+export interface TimelineOptions {
+  size?: number
+}
+
 export function useTimeline<Z extends TimelineTicket = TimelineTicket,
-  E extends TimelineContext<Z> = TimelineContext<Z>> (size = 10) {
+  E extends TimelineContext<Z> = TimelineContext<Z>> (_options: TimelineOptions) {
+  const { size = 10, ...options } = _options
   const registry = useRegistry<Z, E>()
 
   const removedValues: Partial<Z>[] = []
@@ -72,9 +75,6 @@ export function useTimeline<Z extends TimelineTicket = TimelineTicket,
 
   return {
     ...registry,
-    get timeline () {
-      return registry.values()
-    },
     register,
     undo,
     redo,

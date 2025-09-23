@@ -3,7 +3,7 @@ import { useTimeline } from './index'
 
 describe('useTimeline', () => {
   it('should register to the timeline buffer', () => {
-    const timeline = useTimeline(15)
+    const timeline = useTimeline({ size: 15 })
     for (let i = 0; i <= 20; i++) {
       timeline.register({
         id: `item${i}`,
@@ -11,13 +11,13 @@ describe('useTimeline', () => {
       })
     }
 
-    expect(timeline.timeline).toHaveLength(15)
-    expect(timeline.timeline[0]!.value).toEqual(6)
-    expect(timeline.timeline[14]!.value).toEqual(20)
+    expect(timeline.values()).toHaveLength(15)
+    expect(timeline.values()[0]!.value).toEqual(6)
+    expect(timeline.values()[14]!.value).toEqual(20)
   })
 
   it('should undo the last action', () => {
-    const timeline = useTimeline(5)
+    const timeline = useTimeline({ size: 5 })
     for (let i = 0; i < 7; i++) {
       timeline.register({
         id: `item${i}`,
@@ -25,16 +25,16 @@ describe('useTimeline', () => {
       })
     }
 
-    expect(timeline.timeline[4]!.value).toEqual(6)
+    expect(timeline.values()[4]!.value).toEqual(6)
     timeline.undo()
 
-    expect(timeline.timeline[0]!.value).toEqual(1)
+    expect(timeline.values()[0]!.value).toEqual(1)
     timeline.undo()
-    expect(timeline.timeline[0]!.value).toEqual(0)
+    expect(timeline.values()[0]!.value).toEqual(0)
   })
 
   it('should redo the last action', () => {
-    const timeline = useTimeline(5)
+    const timeline = useTimeline({ size: 5 })
     for (let i = 0; i < 5; i++) {
       timeline.register({
         id: `item${i}`,
@@ -42,8 +42,8 @@ describe('useTimeline', () => {
       })
     }
     timeline.undo()
-    expect(timeline.timeline[3]!.value).toEqual(3)
+    expect(timeline.values()[3]!.value).toEqual(3)
     timeline.redo()
-    expect(timeline.timeline[4]!.value).toEqual(4)
+    expect(timeline.values()[4]!.value).toEqual(4)
   })
 })
