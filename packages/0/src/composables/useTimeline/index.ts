@@ -1,43 +1,52 @@
-import { useRegistry } from '#v0'
-import type { RegistryContext, RegistryTicket } from '#v0'
+// Composables
+import { useRegistry } from '#v0/composables/useRegistry'
+
+// Types
+import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 
 export interface TimelineContext<Z extends TimelineTicket> extends RegistryContext<Z> {
-  size: number
+  /* Unapplies the last registered ticket */
   undo: () => void
+  /* Reapplies the last undone ticket */
   redo: () => void
 }
 
-export interface TimelineTicket extends RegistryTicket {
-  id: string
-  index: number
-  value: unknown
-}
+export interface TimelineTicket extends RegistryTicket {}
 
-export interface TimelineOptions {
+export interface TimelineOptions extends RegistryOptions {
   size?: number
 }
 
-export function useTimeline<Z extends TimelineTicket = TimelineTicket,
-  E extends TimelineContext<Z> = TimelineContext<Z>> (_options: TimelineOptions) {
+/**
+ * Creates a registry with timeline capabilities (undo/redo)
+ *
+ * @param _options Optional configuration for timeline
+ * @template Z The type of ticket to be stored in the timeline
+ * @template E The type of the timeline context
+ * @returns The timeline context object
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-timeline
+ */
+export function useTimeline<
+  Z extends TimelineTicket = TimelineTicket,
+  E extends TimelineContext<Z> = TimelineContext<Z>,
+> (_options: TimelineOptions = {}) {
   const { size = 10, ...options } = _options
   const registry = useRegistry<Z, E>(options)
 
-  const removedValues: Partial<Z>[] = []
-  const firstOutValues: Partial<Z>[] = []
+  const undoTimeline: Z[] = []
+  const redoTimeline: Z[] = []
 
   function register (item: Partial<Z>) {
-    if (registry.size < size) {
-      return registry.register({ ...item })
-    }
+    if (registry.size < size) return registry.register({ ...item })
 
-    const id = registry.lookup(0)
-    const itemToRemove = registry.get(id!)
-    if (firstOutValues.length === size) {
-      firstOutValues.shift()
-    }
-    firstOutValues.push(itemToRemove as Partial<Z>)
+    const id = registry.lookup(0)!
+    const removing = registry.get(id)!
 
-    registry.unregister(id!)
+    if (redoTimeline.length === size) redoTimeline.shift()
+    redoTimeline.push(removing)
+
+    registry.unregister(id)
 
     const ticket = registry.register({ ...item })
     registry.reindex()
@@ -46,9 +55,9 @@ export function useTimeline<Z extends TimelineTicket = TimelineTicket,
   }
 
   function redo () {
-    if (removedValues.length === 0) return
+    if (undoTimeline.length === 0) return
 
-    registry.register(removedValues.pop() as Partial<Z>)
+    registry.register(undoTimeline.pop())
     registry.reindex()
   }
 
@@ -56,8 +65,7 @@ export function useTimeline<Z extends TimelineTicket = TimelineTicket,
     const id = registry.lookup(registry.size - 1)
     if (!id) return
 
-    const removed = registry.get(id!)
-    removedValues.push(removed as Partial<Z>)
+    undoTimeline.push(registry.get(id)!)
 
     registry.unregister(id!)
 
@@ -65,11 +73,11 @@ export function useTimeline<Z extends TimelineTicket = TimelineTicket,
   }
 
   function restore () {
-    const value = firstOutValues.pop()
+    const value = redoTimeline.pop()
+    const restored = value ? [value, ...registry.values()] : [...registry.values()]
 
-    const fullArray = value ? [value, ...registry.values()] : [...registry.values()]
     registry.clear()
-    registry.onboard(fullArray)
+    registry.onboard(restored)
     registry.reindex()
   }
 

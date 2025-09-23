@@ -50,6 +50,7 @@ export const useAppStore = defineStore('app', {
             name: 'Registration',
             children: [
               { name: 'useRegistry', to: '/composables/registration/use-registry' },
+              { name: 'useTimeline', to: '/composables/registration/use-timeline' },
               { name: 'useTokens', to: '/composables/registration/use-tokens' },
             ],
           },
