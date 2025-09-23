@@ -27,7 +27,6 @@ describe('useTimeline', () => {
 
     expect(timeline.values()[4]!.value).toEqual(6)
     timeline.undo()
-
     expect(timeline.values()[0]!.value).toEqual(1)
     timeline.undo()
     expect(timeline.values()[0]!.value).toEqual(0)
@@ -41,6 +40,7 @@ describe('useTimeline', () => {
         value: i,
       })
     }
+
     timeline.undo()
     expect(timeline.values()[3]!.value).toEqual(3)
     timeline.redo()
