@@ -6,7 +6,7 @@ import { computed, watch, ref, toValue, toRaw, shallowRef } from 'vue'
 import { isFunction, isArray } from '#v0/utilities'
 
 // Transformers
-import { toArray } from '#v0/transformers'
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
@@ -24,6 +24,8 @@ export interface ProxyModelOptions {
  * @template Z The type of items managed by the selection.
  * @template E The type of the selection context.
  * @returns The proxy model for two-way binding with the selection context.
+ *
+ * @see https://0.vuetifyjs.com/composables/pluginforms/use-proxy-model
  */
 export function useProxyModel<Z extends SelectionTicket> (
   registry: SelectionContext<Z>,

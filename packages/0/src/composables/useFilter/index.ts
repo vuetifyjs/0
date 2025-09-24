@@ -74,6 +74,8 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
  * @param options Optional configuration for the filter behavior.
  * @template Z The type of the items being filtered.
  * @returns A computed reference to the filtered items based on the query and options.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-filter
  */
 export function useFilter<Z extends FilterItem> (
   query: FilterQuery,

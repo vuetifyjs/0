@@ -1,6 +1,6 @@
 <script lang="ts">
   // Composables
-  import { createBreakpoints, provideBreakpointsContext } from '#v0/composables/useBreakpoints'
+  import { createBreakpoints } from '#v0/composables/useBreakpoints'
 
   // Types
   import type { BreakpointsContext, BreakpointsOptions } from '#v0/composables/useBreakpoints'
@@ -19,11 +19,11 @@
 
   const props = defineProps<BreakpointsRootProps>()
 
-  const breakpointsContext = createBreakpoints(props)
+  const [, provideBreakpointsContext, context] = createBreakpoints('v0:breakpoints', props)
 
-  provideBreakpointsContext(breakpointsContext)
+  provideBreakpointsContext(context)
 </script>
 
 <template>
-  <slot v-bind="breakpointsContext" />
+  <slot v-bind="context" />
 </template>

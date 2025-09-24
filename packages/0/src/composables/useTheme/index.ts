@@ -1,7 +1,7 @@
 // Factories
-import { createPlugin } from '#v0/factories/createPlugin'
-import { createTrinity } from '#v0/factories/createTrinity'
-import { createContext, useContext } from '#v0/factories/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
+import { createContext, useContext } from '../createContext'
 
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
@@ -22,7 +22,7 @@ import type { ID } from '#v0/types'
 import type { App, ComputedRef } from 'vue'
 import type { ThemeAdapter } from './adapters/adapter'
 import type { TokenCollection } from '#v0/composables/useTokens'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export type Colors = {
   [key: string]: string

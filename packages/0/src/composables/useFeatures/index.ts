@@ -1,5 +1,7 @@
 // Factories
-import { createContext, createPlugin, createTrinity, useContext } from '#v0/factories'
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useGroup } from '#v0/composables/useGroup'
@@ -9,7 +11,7 @@ import { useTokens } from '#v0/composables/useTokens'
 import { isBoolean, isObject } from '#v0/utilities'
 
 // Types
-import type { ContextTrinity } from '#v0/factories'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
@@ -31,6 +33,7 @@ export interface FeaturePluginOptions {
 }
 
 /**
+ * Creates a feature management context with support for variations and group selection.
  *
  * @param namespace The namespace for the feature context
  * @param options Configure initial features to register

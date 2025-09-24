@@ -1,12 +1,12 @@
 // Factories
-import { createContext } from '#v0/factories/createContext'
-import { createTrinity } from '#v0/factories/createTrinity'
+import { createContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
 
 // Types
-import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 
 export interface StepTicket extends SingleTicket {}
@@ -34,6 +34,8 @@ export interface StepOptions extends SingleOptions {}
  * @template Z The type of items managed by the step selection.
  * @template E The type of the step selection context.
  * @returns The step selection context object.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-step
  */
 export function useStep<
   Z extends StepTicket = StepTicket,
@@ -108,6 +110,8 @@ export function useStep<
  * @template Z The structure of the registry step selection items.
  * @template E The available methods for the step's context.
  * @returns A tuple containing the inject function, provide function, and the step selection context.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-step
  */
 export function createStepContext<
   Z extends StepTicket = StepTicket,

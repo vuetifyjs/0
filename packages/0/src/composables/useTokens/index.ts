@@ -1,6 +1,6 @@
 // Factories
-import { createTrinity } from '#v0/factories/createTrinity'
-import { createContext } from '#v0/factories/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+import { createContext } from '#v0/composables/createContext'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
@@ -11,7 +11,7 @@ import { isObject, isString } from '#v0/utilities'
 
 // Types
 import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App } from 'vue'
 
 export interface TokenAlias<T = unknown> {
@@ -57,8 +57,8 @@ export interface TokenOptions {
  * @template E The available methods for the token's context.
  * @returns The token context object.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-tokens
  * @see https://www.designtokens.org/tr/drafts/format/
+ * @see https://0.vuetifyjs.com/composables/registration/use-tokens
  */
 export function useTokens<
   Z extends TokenTicket = TokenTicket,
@@ -171,6 +171,8 @@ export function useTokens<
  * @template Z The structure of the registry token items.
  * @template E The available methods for the token's context.
  * @returns A tuple containing the inject function, provide function, and the token context.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-tokens
  */
 export function createTokensContext<
   Z extends TokenTicket = TokenTicket,

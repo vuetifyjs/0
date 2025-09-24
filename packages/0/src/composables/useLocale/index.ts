@@ -1,9 +1,9 @@
 // Factories
-import { createPlugin } from '#v0/factories/createPlugin'
-import { createTrinity } from '#v0/factories/createTrinity'
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
+import { createContext, useContext } from '#v0/composables/createContext'
 
 // Composables
-import { createContext, useContext } from '#v0/factories/createContext'
 import { useSingle } from '#v0/composables/useSingle'
 import { createTokensContext } from '#v0/composables/useTokens'
 
@@ -16,7 +16,7 @@ import type { ID } from '#v0/types'
 import type { TokenCollection, TokenTicket, TokenContext } from '#v0/composables/useTokens'
 import type { LocaleAdapter } from './adapters'
 import type { App } from 'vue'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export type LocaleTicket = SingleTicket
 
@@ -43,6 +43,8 @@ export interface LocalePluginOptions<Z extends TokenCollection = TokenCollection
  * @template Z The type of the locale context.
  * @template E The type of the locale items managed by the registry.
  * @returns An array containing the inject function, provide function, and the locale context.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
 export function createLocale<
   Z extends LocaleTicket = LocaleTicket,
@@ -110,6 +112,8 @@ export function createLocale<
  * Simple hook to access the locale context.
  *
  * @returns The locale context containing translation and formatting functions.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
 export function useLocale (): LocaleContext<LocaleTicket> {
   return useContext<LocaleContext<LocaleTicket>>('v0:locale')
@@ -125,6 +129,8 @@ export function useLocale (): LocaleContext<LocaleTicket> {
  * @template R The type of the token context.
  * @template O The type of the token items managed by the registry.
  * @returns Vue install function for the plugin
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
 export function createLocalePlugin<
   Z extends LocaleTicket = LocaleTicket,

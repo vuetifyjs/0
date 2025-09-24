@@ -37,6 +37,7 @@ declare global {
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']
   const createPermissions: typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']
+  const createPermissionsPlugin: typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']
   const createRegistryContext: typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']
   const createSelectionContext: typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']
   const createSingleContext: typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']
@@ -141,6 +142,7 @@ declare global {
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']
   const useModel: typeof import('vue')['useModel']
   const useMutationObserver: typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']
+  const usePermissions: typeof import('../../packages/0/src/composables/usePermissions/index')['usePermissions']
   const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']
   const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
   const useResizeObserver: typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']
@@ -154,6 +156,7 @@ declare global {
   const useStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
   const useTheme: typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']
+  const useTimeline: typeof import('../../packages/0/src/composables/useTimeline/index')['useTimeline']
   const useTokens: typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']
   const useWindowEventListener: typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']
   const version: typeof import('../../packages/0/src/constants/globals')['version']
@@ -207,9 +210,6 @@ declare global {
   export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
-  export type { HistoryOptions, HistoryContext, HistoryTicket } from '../../packages/0/src/composables/useTimeline/index'
-  import('../../packages/0/src/composables/useTimeline/index')
-  // @ts-ignore
   export type { HydrationContext } from '../../packages/0/src/composables/useHydration/index'
   import('../../packages/0/src/composables/useHydration/index')
   // @ts-ignore
@@ -255,6 +255,9 @@ declare global {
   export type { Colors, ThemeColors, ThemeRecord, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
+  export type { TimelineContext, TimelineTicket, TimelineOptions } from '../../packages/0/src/composables/useTimeline/index'
+  import('../../packages/0/src/composables/useTimeline/index')
+  // @ts-ignore
   export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions } from '../../packages/0/src/composables/useTokens/index'
   import('../../packages/0/src/composables/useTokens/index')
   // @ts-ignore
@@ -298,6 +301,7 @@ declare module 'vue' {
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
     readonly createPermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']>
+    readonly createPermissionsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']>
     readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']>
     readonly createSelectionContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']>
     readonly createSingleContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']>
@@ -391,7 +395,6 @@ declare module 'vue' {
     readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
-    readonly useHistory: UnwrapRef<typeof import('../../packages/0/src/composables/useTimeline/index')['useHistory']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
@@ -401,6 +404,7 @@ declare module 'vue' {
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useMutationObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']>
+    readonly usePermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['usePermissions']>
     readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
     readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
     readonly useResizeObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']>
@@ -414,6 +418,7 @@ declare module 'vue' {
     readonly useStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
+    readonly useTimeline: UnwrapRef<typeof import('../../packages/0/src/composables/useTimeline/index')['useTimeline']>
     readonly useTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']>
     readonly useWindowEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']>
     readonly version: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['version']>

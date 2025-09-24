@@ -1,6 +1,6 @@
 <script lang="ts">
   // Composables
-  import { createContext } from '#v0/factories/createContext'
+  import { createContext } from '#v0/composables/createContext'
 
   // Types
   import type { InjectionKey } from 'vue'

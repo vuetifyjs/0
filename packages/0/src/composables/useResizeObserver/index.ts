@@ -28,12 +28,13 @@ export interface ResizeObserverOptions {
 /**
  * Composable for observing element resize events
  *
- * @param target - Element ref to observe
- * @param callback - Callback fired on resize
- * @param options - Observer options
+ * @param target Element ref to observe
+ * @param callback Callback fired on resize
+ * @param options Observer options
  * @returns Observer controls
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
+ * @see https://0.vuetifyjs.com/composables/system/use-resize-observer
  */
 export function useResizeObserver (
   target: Ref<Element | undefined>,
@@ -152,8 +153,10 @@ export function useResizeObserver (
 /**
  * Convenience composable for tracking element dimensions
  *
- * @param target - Element ref to observe
+ * @param target Element ref to observe
  * @returns Reactive width and height
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-element-size
  */
 export function useElementSize (target: Ref<Element | undefined>) {
   const width = shallowRef(0)

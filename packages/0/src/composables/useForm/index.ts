@@ -5,7 +5,7 @@ import { useRegistry } from '#v0/composables/useRegistry'
 import { computed, shallowRef, toValue } from 'vue'
 
 // Transformers
-import { toArray } from '#v0/transformers'
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
@@ -43,6 +43,16 @@ export interface FormOptions extends RegistryOptions {
   validateOn?: 'submit' | 'change' | string
 }
 
+/**
+ * Creates a form management context for handling form fields, validation, and submission.
+ *
+ * @param options Optional configuration for the form behavior.
+ * @template Z The type of items managed by the form.
+ * @template E The type of the form context.
+ * @returns The form context object.
+ *
+ * @see https://0.vuetifyjs.com/composables/forms/use-form
+ */
 export function useForm<
   Z extends FormTicket = FormTicket,
   E extends FormContext<Z> = FormContext<Z>,

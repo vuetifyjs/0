@@ -15,6 +15,8 @@ export interface KeyHandler {
  *
  * @param handlers A single handler or array of handlers to register for keydown events.
  * @returns Object with methods to manually start and stop listening for keydown events.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-keydown
  */
 export function useKeydown (handlers: KeyHandler[] | KeyHandler) {
   const keyHandlers = Array.isArray(handlers) ? handlers : [handlers]

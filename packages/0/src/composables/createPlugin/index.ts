@@ -13,6 +13,7 @@ export interface Plugin {
 
 /**
  * A universal plugin factory to reduce boilerplate code for Vue plugin creation
+ *
  * @param options Configurable object with namespace and provide/setup methods
  * @returns A Vue plugin object with install method that runs app w/ context
  *

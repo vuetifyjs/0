@@ -36,6 +36,7 @@ export interface IntersectionObserverOptions {
  * @returns Observer controls and intersection state
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver
+ * @see https://0.vuetifyjs.com/composables/system/use-intersection-observer
  */
 export function useIntersectionObserver (
   target: Ref<Element | undefined>,
@@ -177,6 +178,8 @@ export function useIntersectionObserver (
  * @param target - Element ref to observe
  * @param options - Observer options
  * @returns Reactive intersection state
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-intersection-observer
  */
 export function useElementIntersection (
   target: Ref<Element | undefined>,

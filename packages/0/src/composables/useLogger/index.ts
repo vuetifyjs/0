@@ -1,6 +1,6 @@
 // Composables
-import { createContext } from '#v0/factories/createContext'
-import { createPlugin } from '#v0/factories/createPlugin'
+import { createContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
 
 // Utilities
 import { getCurrentInstance, shallowRef } from 'vue'

@@ -1,6 +1,8 @@
 // Utilities
 import { onScopeDispose, watch, toValue, unref } from 'vue'
-import { toArray } from '#v0/transformers'
+
+// Transformers
+import { toArray } from '#v0/composables'
 
 // Types
 import type { MaybeArray } from '#v0/types'
@@ -18,6 +20,8 @@ export type EventHandler<E = Event> = (event: E) => void
  * @param listener Event handler function(s) with proper window event typing.
  * @param options Optional event listener configuration.
  * @returns Function to manually remove all attached listeners.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
 export function useEventListener<E extends keyof WindowEventMap> (
   target: Window,
@@ -36,6 +40,8 @@ export function useEventListener<E extends keyof WindowEventMap> (
  * @param listener Event handler function(s) with proper document event typing.
  * @param options Optional event listener configuration.
  * @returns Function to manually remove all attached listeners.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
 export function useEventListener<E extends keyof DocumentEventMap> (
   target: Document,
@@ -54,6 +60,8 @@ export function useEventListener<E extends keyof DocumentEventMap> (
  * @param listener Event handler function(s) with proper HTML element event typing.
  * @param options Optional event listener configuration.
  * @returns Function to manually remove all attached listeners.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
 export function useEventListener<E extends keyof HTMLElementEventMap> (
   target: MaybeRefOrGetter<HTMLElement | null | undefined>,
@@ -72,6 +80,8 @@ export function useEventListener<E extends keyof HTMLElementEventMap> (
  * @param listener Event handler function(s) with customizable event typing.
  * @param options Optional event listener configuration.
  * @returns Function to manually remove all attached listeners.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
 export function useEventListener<EventType = Event> (
   target: MaybeRefOrGetter<EventTarget | null | undefined>,
@@ -80,6 +90,17 @@ export function useEventListener<EventType = Event> (
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction
 
+/**
+ * Attaches event listeners to a target with automatic cleanup.
+ *
+ * @param target EventTarget or reactive reference to target.
+ * @param event Event name(s) to listen for as string identifiers.
+ * @param listener Event handler function(s) with customizable event typing.
+ * @param options Optional event listener configuration.
+ * @returns Function to manually remove all attached listeners.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
+ */
 export function useEventListener (
   target: MaybeRefOrGetter<EventTarget | null | undefined>,
   event: MaybeRefOrGetter<MaybeArray<string>>,
@@ -142,6 +163,8 @@ export function useEventListener (
  * @param listener Event handler function(s) with proper window event typing.
  * @param options Optional event listener configuration.
  * @returns Function to manually remove all attached listeners.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
 export function useWindowEventListener<E extends keyof WindowEventMap> (
   event: MaybeRefOrGetter<MaybeArray<E>>,
@@ -160,6 +183,8 @@ export function useWindowEventListener<E extends keyof WindowEventMap> (
  * @param listener Event handler function(s) with proper document event typing.
  * @param options Optional event listener configuration.
  * @returns Function to manually remove all attached listeners.
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
 export function useDocumentEventListener<E extends keyof DocumentEventMap> (
   event: MaybeRefOrGetter<MaybeArray<E>>,

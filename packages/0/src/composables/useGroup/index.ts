@@ -1,6 +1,6 @@
 // Factories
-import { createContext } from '#v0/factories/createContext'
-import { createTrinity } from '#v0/factories/createTrinity'
+import { createContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
@@ -9,13 +9,13 @@ import { useSelection } from '#v0/composables/useSelection'
 import { computed } from 'vue'
 
 // Transformers
-import { toArray } from '#v0/transformers/toArray'
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ComputedRef } from 'vue'
 import type { ID } from '#v0/types'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
-import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export interface GroupTicket extends SelectionTicket {}
 

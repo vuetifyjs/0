@@ -1,16 +1,19 @@
+// Factories
+import { createContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { computed, shallowReactive, toRef } from 'vue'
-import { genId } from '#v0/utilities/helpers'
+import { genId } from '#v0/utilities'
 
 // Types
 import type { App, ComputedRef, Reactive, Ref } from 'vue'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
-import { createContext, createTrinity } from '#v0/factories'
-import type { ContextTrinity } from '#v0/factories'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export interface SelectionTicket extends RegistryTicket {
   disabled: boolean
@@ -55,6 +58,8 @@ export interface SelectionOptions extends RegistryOptions {
  * @template Z The type of items managed by the selection.
  * @template E The type of the selection context.
  * @returns The selection context object.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-selection
  */
 export function useSelection<
   Z extends SelectionTicket = SelectionTicket,
@@ -161,6 +166,8 @@ export function useSelection<
  * @template Z The structure of the registry selection items.
  * @template E The available methods for the selection's context.
  * @returns A tuple containing the inject function, provide function, and the selection context.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-selection
  */
 export function createSelectionContext<
   Z extends SelectionTicket = SelectionTicket,

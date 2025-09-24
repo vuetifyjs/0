@@ -42,6 +42,7 @@ export interface UseMutationObserverOptions {
  * @returns Observer controls
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+ * @see https://0.vuetifyjs.com/composables/system/use-mutation-observer
  */
 export function useMutationObserver (
   target: Ref<Element | undefined>,

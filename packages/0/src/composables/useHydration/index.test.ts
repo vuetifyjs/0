@@ -7,7 +7,7 @@ const { mockUseHydrationContext, mockProvideHydrationContext } = vi.hoisted(() =
   }
 })
 
-vi.mock('../../factories/createContext', () => ({
+vi.mock('#v0/composables/createContext', () => ({
   createContext: vi.fn(() => [
     mockUseHydrationContext,
     mockProvideHydrationContext,

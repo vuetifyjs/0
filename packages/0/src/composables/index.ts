@@ -1,4 +1,9 @@
 // Composables
+export * from './createContext'
+export * from './createPlugin'
+export * from './createTrinity'
+export * from './toArray'
+export * from './toReactive'
 export * from './useBreakpoints'
 export * from './useEventListener'
 export * from './useFeatures'

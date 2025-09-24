@@ -3,7 +3,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { createContext } from '#v0/factories/createContext'
+  import { createContext } from '#v0/composables/createContext'
 
   // Utilities
   import { toRef, useId, type ShallowRef } from 'vue'

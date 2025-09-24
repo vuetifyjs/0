@@ -1,18 +1,20 @@
 // Factories
-import { createContext, createPlugin, createTrinity, useContext } from '#v0/factories'
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useTokens } from '#v0/composables/useTokens'
 
 // Adapters
-import { Vuetify0PermissionAdapter } from './adapters/v0'
+import { Vuetify0PermissionAdapter } from '#v0/composables/usePermissions/adapters/v0'
 
-// Utilities
-import { toArray } from '#v0/transformers'
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { TokenContext, TokenTicket } from '#v0/composables/useTokens'
-import type { PermissionAdapter } from './adapters/adapter'
+import type { PermissionAdapter } from '#v0/composables/usePermissions/adapters/adapter'
 import type { App } from 'vue'
 import type { ID } from '#v0/types'
 
@@ -32,6 +34,7 @@ export interface PermissionPluginOptions {
 }
 
 /**
+ * Creates a permissions management context with role-based access control.
  *
  * @param namespace The namespace for the permissions context
  * @param options Configure initial permissions and adapter

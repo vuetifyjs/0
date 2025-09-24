@@ -1,61 +1,54 @@
 // Factories
-import { createContext } from '#v0/factories/createContext'
-import { createPlugin } from '#v0/factories/createPlugin'
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
 import { onScopeDispose, shallowRef, readonly, getCurrentInstance, onMounted, watch } from 'vue'
-import { mergeDeep } from '#v0/utilities/helpers'
+import { mergeDeep } from '#v0/utilities'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { App, Ref } from 'vue'
+import type { App, ShallowRef } from 'vue'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 
 export interface BreakpointsContext {
   breakpoints: Readonly<Record<BreakpointName, number>>
-  name: Readonly<Ref<BreakpointName>>
-  width: Readonly<Ref<number>>
-  height: Readonly<Ref<number>>
-  isMobile: Readonly<Ref<boolean>>
-  xs: Readonly<Ref<boolean>>
-  sm: Readonly<Ref<boolean>>
-  md: Readonly<Ref<boolean>>
-  lg: Readonly<Ref<boolean>>
-  xl: Readonly<Ref<boolean>>
-  xxl: Readonly<Ref<boolean>>
-  smAndUp: Readonly<Ref<boolean>>
-  mdAndUp: Readonly<Ref<boolean>>
-  lgAndUp: Readonly<Ref<boolean>>
-  xlAndUp: Readonly<Ref<boolean>>
-  xxlAndUp: Readonly<Ref<boolean>>
-  smAndDown: Readonly<Ref<boolean>>
-  mdAndDown: Readonly<Ref<boolean>>
-  lgAndDown: Readonly<Ref<boolean>>
-  xlAndDown: Readonly<Ref<boolean>>
-  xxlAndDown: Readonly<Ref<boolean>>
+  name: Readonly<ShallowRef<BreakpointName>>
+  width: Readonly<ShallowRef<number>>
+  height: Readonly<ShallowRef<number>>
+  isMobile: Readonly<ShallowRef<boolean>>
+  xs: Readonly<ShallowRef<boolean>>
+  sm: Readonly<ShallowRef<boolean>>
+  md: Readonly<ShallowRef<boolean>>
+  lg: Readonly<ShallowRef<boolean>>
+  xl: Readonly<ShallowRef<boolean>>
+  xxl: Readonly<ShallowRef<boolean>>
+  smAndUp: Readonly<ShallowRef<boolean>>
+  mdAndUp: Readonly<ShallowRef<boolean>>
+  lgAndUp: Readonly<ShallowRef<boolean>>
+  xlAndUp: Readonly<ShallowRef<boolean>>
+  xxlAndUp: Readonly<ShallowRef<boolean>>
+  smAndDown: Readonly<ShallowRef<boolean>>
+  mdAndDown: Readonly<ShallowRef<boolean>>
+  lgAndDown: Readonly<ShallowRef<boolean>>
+  xlAndDown: Readonly<ShallowRef<boolean>>
+  xxlAndDown: Readonly<ShallowRef<boolean>>
   update: () => void
 }
 
-export interface BreakpointsOptions {
+export interface BreakpointsOptions extends BreakpointsPluginOptions {}
+
+export interface BreakpointsPluginOptions {
   mobileBreakpoint?: BreakpointName | number
   breakpoints?: Partial<Record<BreakpointName, number>>
-}
-
-export const [useBreakpointsContext, provideBreakpointsContext] = createContext<BreakpointsContext>('v0:breakpoints')
-
-/**
- * Simple hook to access the breakpoints context.
- *
- * @returns The breakpoints context containing current breakpoint information.
- */
-export function useBreakpoints (): BreakpointsContext {
-  return useBreakpointsContext()
 }
 
 /**
@@ -84,15 +77,22 @@ function createDefaultBreakpoints () {
  *
  * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
  * @returns A breakpoints context object with reactive state and utility methods.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
  */
-export function createBreakpoints (options: BreakpointsOptions = {}) {
+export function createBreakpoints<
+  E extends BreakpointsContext = BreakpointsContext,
+> (
+  namespace = 'v0:breakpoints',
+  options: BreakpointsOptions = {},
+): ContextTrinity<E> {
+  const [useBreakpointsContext, _provideBreakpointsContext] = createContext<E>(namespace)
   const defaults = createDefaultBreakpoints()
   const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as any)
   const sorted = Object.entries(breakpoints!).sort((a, b) => a[1] - b[1]) as [BreakpointName, number][]
   const names = sorted.map(([n]) => n)
   const mb = typeof mobileBreakpoint === 'number' ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md
 
-  // Create individual refs instead of reactive object
   const name = shallowRef<BreakpointName>('xs')
   const width = shallowRef(0)
   const height = shallowRef(0)
@@ -174,7 +174,7 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
     }
   }
 
-  return {
+  const context = {
     breakpoints,
     name: readonly(name),
     width: readonly(width),
@@ -197,7 +197,24 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
     xlAndDown: readonly(xlAndDown),
     xxlAndDown: readonly(xxlAndDown),
     update,
+  } as E
+
+  function provideBreakpointsContext (_context: E = context, app?: App): E {
+    return _provideBreakpointsContext(_context, app)
   }
+
+  return createTrinity<E>(useBreakpointsContext, provideBreakpointsContext, context)
+}
+
+/**
+ * Simple hook to access the breakpoints context.
+ *
+ * @returns The breakpoints context containing current breakpoint information.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ */
+export function useBreakpoints (): BreakpointsContext {
+  return useContext<BreakpointsContext>('v0:breakpoints')
 }
 
 /**
@@ -207,9 +224,13 @@ export function createBreakpoints (options: BreakpointsOptions = {}) {
  *
  * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
  * @returns A Vue plugin object with install method.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
  */
-export function createBreakpointsPlugin (options: BreakpointsOptions = {}) {
-  const context = createBreakpoints(options)
+export function createBreakpointsPlugin<
+  E extends BreakpointsContext = BreakpointsContext,
+> (options: BreakpointsPluginOptions = {}) {
+  const [, provideBreakpointsContext, context] = createBreakpoints<E>('v0:breakpoints', options)
 
   return createPlugin({
     namespace: 'v0:breakpoints',

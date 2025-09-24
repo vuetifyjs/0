@@ -9,6 +9,7 @@ export type ContextTrinity<Z = unknown> = readonly [
 
 /**
  * A tuple containing Vue's provide/inject and a context object
+ *
  * @param createContext The function that creates the context
  * @param provideContext The function that provides context
  * @param context The underlying context object singleton

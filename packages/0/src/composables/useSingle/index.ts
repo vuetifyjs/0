@@ -1,6 +1,6 @@
 // Factories
-import { createContext } from '#v0/factories/createContext'
-import { createTrinity } from '#v0/factories/createTrinity'
+import { createContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useSelection } from '#v0/composables/useSelection'
@@ -9,7 +9,7 @@ import { useSelection } from '#v0/composables/useSelection'
 import { computed } from 'vue'
 
 // Types
-import type { ContextTrinity } from '#v0/factories/createTrinity'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { ComputedRef } from 'vue'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
@@ -33,6 +33,8 @@ export interface SingleOptions extends SelectionOptions {}
  * @template Z The type of items managed by the single selection.
  * @template E The type of the single selection context.
  * @returns The single selection context object.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-single
  */
 export function useSingle<
   Z extends SingleTicket = SingleTicket,
@@ -86,6 +88,8 @@ export function useSingle<
  * @template Z The structure of the registry single selection items.
  * @template E The available methods for the single's context.
  * @returns A tuple containing the inject function, provide function, and the single selection context.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-single
  */
 export function createSingleContext<
   Z extends SingleTicket = SingleTicket,

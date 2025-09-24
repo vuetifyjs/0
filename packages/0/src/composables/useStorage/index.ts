@@ -1,6 +1,6 @@
-// Composables
-import { createContext } from '#v0/factories/createContext'
-import { createPlugin } from '#v0/factories/createPlugin'
+// Factories
+import { createContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
 
 // Utilities
 import { ref, watch } from 'vue'
@@ -41,6 +41,8 @@ export const [useStorageContext, provideStorageContext] = createContext<StorageC
  * @param options Optional configuration for storage adapter, prefix, and serialization.
  * @template E The type of the storage context.
  * @returns A storage context object with get, set, remove, and clear methods.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-storage
  */
 export function createStorage<E extends StorageContext> (options: StorageOptions = {}) {
   const {
@@ -116,6 +118,8 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
  * Simple hook to access the storage context.
  *
  * @returns The storage context containing reactive storage methods.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-storage
  */
 export function useStorage (): StorageContext {
   return useStorageContext()
@@ -127,6 +131,8 @@ export function useStorage (): StorageContext {
  *
  * @param options Optional configuration for the storage system.
  * @returns A Vue plugin object with install method.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-storage
  */
 export function createStoragePlugin (options: StorageOptions = {}) {
   const context = createStorage(options)
