@@ -49,13 +49,13 @@ export interface TokenOptions {
 }
 
 /**
- * Creates a token registry for managing design token collections with alias resolution.
- * Returns the token context directly for simple usage.
+ * Creates a new token instance.
  *
- * @param tokens A collection of tokens to initialize with
- * @template Z The structure of the registry token items.
- * @template E The available methods for the token's context.
- * @returns The token context object.
+ * @param tokens The tokens to use.
+ * @param options The options for the token instance.
+ * @template Z The type of the token ticket.
+ * @template E The type of the token context.
+ * @returns A new token instance.
  *
  * @see https://www.designtokens.org/tr/drafts/format/
  * @see https://0.vuetifyjs.com/composables/registration/use-tokens
@@ -163,14 +163,13 @@ export function useTokens<
 }
 
 /**
- * Creates a token registry context with full injection/provision control.
- * Returns the complete trinity for advanced usage scenarios.
+ * Creates a new token context.
  *
- * @param namespace The namespace for the token registry context
- * @param tokens An optional collection of tokens to initialize
- * @template Z The structure of the registry token items.
- * @template E The available methods for the token's context.
- * @returns A tuple containing the inject function, provide function, and the token context.
+ * @param namespace The namespace for the token context.
+ * @param tokens The tokens to use.
+ * @template Z The type of the token ticket.
+ * @template E The type of the token context.
+ * @returns A new token context.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-tokens
  */

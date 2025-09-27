@@ -51,13 +51,12 @@ export interface SelectionOptions extends RegistryOptions {
 }
 
 /**
- * Creates a selection context for managing collections of selectable items.
- * This function extends the registry functionality with selection state management.
+ * Creates a new selection instance.
  *
- * @param options Optional configuration for selection behavior.
- * @template Z The type of items managed by the selection.
+ * @param options The options for the selection instance.
+ * @template Z The type of the selection ticket.
  * @template E The type of the selection context.
- * @returns The selection context object.
+ * @returns A new selection instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
  */
@@ -158,14 +157,13 @@ export function useSelection<
 }
 
 /**
- * Creates a selection registry context with full injection/provision control.
- * Returns the complete trinity for advanced usage scenarios.
+ * Creates a new selection context.
  *
- * @param namespace The namespace for the selection registry context
- * @param options Optional configuration for selection behavior.
- * @template Z The structure of the registry selection items.
- * @template E The available methods for the selection's context.
- * @returns A tuple containing the inject function, provide function, and the selection context.
+ * @param namespace The namespace for the selection context.
+ * @param options The options for the selection context.
+ * @template Z The type of the selection ticket.
+ * @template E The type of the selection context.
+ * @returns A new selection context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
  */

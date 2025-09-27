@@ -26,12 +26,13 @@ export interface ResizeObserverOptions {
 }
 
 /**
- * Composable for observing element resize events
+ * A composable that uses the Resize Observer API to detect when an element's
+ * size changes.
  *
- * @param target Element ref to observe
- * @param callback Callback fired on resize
- * @param options Observer options
- * @returns Observer controls
+ * @param target The element to observe.
+ * @param callback The callback to execute when the element's size changes.
+ * @param options The options for the Resize Observer.
+ * @returns An object with methods to control the observer.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
  * @see https://0.vuetifyjs.com/composables/system/use-resize-observer
@@ -151,10 +152,11 @@ export function useResizeObserver (
 }
 
 /**
- * Convenience composable for tracking element dimensions
+ * A convenience composable that uses the Resize Observer API to track an
+ * element's size.
  *
- * @param target Element ref to observe
- * @returns Reactive width and height
+ * @param target The element to observe.
+ * @returns An object with the element's width and height.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-element-size
  */

@@ -34,13 +34,11 @@ export interface StorageOptions {
 export const [useStorageContext, provideStorageContext] = createContext<StorageContext>('v0:storage')
 
 /**
- * Creates a reactive storage system with automatic persistence and cross-adapter support.
- * This function provides a consistent interface for storing and retrieving reactive values
- * that automatically sync with the underlying storage adapter (localStorage, memory, etc.).
+ * Creates a new storage instance.
  *
- * @param options Optional configuration for storage adapter, prefix, and serialization.
+ * @param options The options for the storage instance.
  * @template E The type of the storage context.
- * @returns A storage context object with get, set, remove, and clear methods.
+ * @returns A new storage instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-storage
  */
@@ -115,22 +113,21 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
 }
 
 /**
- * Simple hook to access the storage context.
+ * Returns the current storage instance.
  *
- * @returns The storage context containing reactive storage methods.
+ * @returns The current storage instance.
  *
- * @see https://0.vuetifyjs.com/composables/plugins/use-storage
+ * @see https://0.vuetifyjs.com/composables/use-storage
  */
 export function useStorage (): StorageContext {
   return useStorageContext()
 }
 
 /**
- * Creates a Vue plugin for reactive storage capabilities with automatic persistence.
- * Provides app-wide access to reactive storage that syncs with the configured adapter.
+ * Creates a new storage plugin.
  *
- * @param options Optional configuration for the storage system.
- * @returns A Vue plugin object with install method.
+ * @param options The options for the storage plugin.
+ * @returns A new storage plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-storage
  */

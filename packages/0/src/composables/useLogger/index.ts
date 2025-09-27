@@ -50,12 +50,12 @@ export interface LoggerOptions {
 const [useLoggerContext, provideLoggerContext] = createContext<LoggerContext>('v0:logger')
 
 /**
- * Creates a logger context for application logging with configurable adapters and levels.
- * This function provides a consistent logging interface that can be configured with
- * different adapters and optimized for production builds with conditional compilation.
+ * Creates a new logger instance.
  *
- * @param options Configuration for the logger adapter, level, and behavior.
- * @returns A logger context object with logging methods and controls.
+ * @param options The options for the logger instance.
+ * @returns A new logger instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-logger
  */
 export function createLogger (options: LoggerOptions = {}): LoggerContext {
   const {
@@ -168,6 +168,14 @@ function createFallbackLogger (namespace = 'v0:logger'): LoggerContext {
   }
 }
 
+/**
+ * Uses an existing or creates a new logger instance.
+ *
+ * @param namespace The namespace for the logger context.
+ * @returns The logger instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-logger
+ */
 export function useLogger (namespace?: string): LoggerContext {
   if (getCurrentInstance()) {
     try {
@@ -180,6 +188,14 @@ export function useLogger (namespace?: string): LoggerContext {
   return createFallbackLogger(namespace)
 }
 
+/**
+ * Creates a new logger plugin.
+ *
+ * @param options The options for the logger plugin.
+ * @returns A new logger plugin.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-logger
+ */
 export function createLoggerPlugin (options: LoggerOptions = {}) {
   const context = createLogger(options)
 

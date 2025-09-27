@@ -28,12 +28,13 @@ export interface IntersectionObserverOptions {
 }
 
 /**
- * Composable for observing element intersection with viewport or ancestor
+ * A composable that uses the Intersection Observer API to detect when an element
+ * is visible in the viewport.
  *
- * @param target - Element ref to observe
- * @param callback - Callback fired on intersection change
- * @param options - Observer options
- * @returns Observer controls and intersection state
+ * @param target The element to observe.
+ * @param callback The callback to execute when the element's intersection changes.
+ * @param options The options for the Intersection Observer.
+ * @returns An object with methods to control the observer.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver
  * @see https://0.vuetifyjs.com/composables/system/use-intersection-observer
@@ -173,11 +174,12 @@ export function useIntersectionObserver (
 }
 
 /**
- * Convenience composable for simple intersection detection
+ * A convenience composable that uses the Intersection Observer API to detect
+ * when an element is visible in the viewport.
  *
- * @param target - Element ref to observe
- * @param options - Observer options
- * @returns Reactive intersection state
+ * @param target The element to observe.
+ * @param options The options for the Intersection Observer.
+ * @returns An object with the intersection state.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-intersection-observer
  */

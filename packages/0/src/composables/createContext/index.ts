@@ -7,12 +7,12 @@ import type { App, InjectionKey } from 'vue'
 export type ContextKey<Z> = InjectionKey<Z> | string
 
 /**
- * A simple wrapper for tapping into a v0 namespace
+ * Injects a context provided by an ancestor component.
  *
- * @param key The provided string or InjectionKey
- * @template Z The type values for the context.
- * @returns The injected context
- * @throws Error if namespace is not found.
+ * @param key The key of the context to inject.
+ * @template Z The type of the context.
+ * @returns The injected context.
+ * @throws An error if the context is not found.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
@@ -28,12 +28,13 @@ export function useContext<Z> (key: ContextKey<Z>) {
 }
 
 /**
- * A simple wrapper for providing Vue context.
+ * Provides a context to all descendant components.
  *
- * @param key The provided string or InjectionKey
- * @param context The context value to provide
- * @param app Optional Vue app instance for global provide
- * @returns The provided context
+ * @param key The key of the context to provide.
+ * @param context The context to provide.
+ * @param app The Vue app instance to provide the context to.
+ * @template Z The type of the context.
+ * @returns The provided context.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#provide
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
@@ -45,19 +46,20 @@ export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
 }
 
 /**
- * A simple wrapper for Vues provide & inject systems
+ * Creates a new context for providing and injecting data.
  *
- * @param key The provided string or InjectionKey
- * @template Z The type values for the context.
- * @returns A tuple containing provide/inject
+ * @param _key The key of the context to create.
+ * @template Z The type of the context.
+ * @returns A tuple containing the `useContext` and `provideContext` functions.
  *
- * @see https://vuejs.org/api/composition-api-dependency-injection.html#provide
+ * @see https://vuejs.org/api/composition-api-dependency-injection.html
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
  */
 export function createContext<Z> (_key: ContextKey<Z>) {
   function _provideContext (context: Z, app?: App) {
     return provideContext<Z>(_key, context, app)
   }
+
   function _useContext (key = _key) {
     return useContext<Z>(key)
   }

@@ -11,15 +11,14 @@ export type CleanupFunction = () => void
 export type EventHandler<E = Event> = (event: E) => void
 
 /**
- * Attaches event listeners to the window object with automatic cleanup.
- * This overload provides type-safe event handling for window-specific events
- * with proper event map typing and automatic listener removal on scope disposal.
+ * Attaches an event listener to the window.
  *
- * @param target Window object to attach listeners to.
- * @param event Event name(s) to listen for from WindowEventMap.
- * @param listener Event handler function(s) with proper window event typing.
- * @param options Optional event listener configuration.
- * @returns Function to manually remove all attached listeners.
+ * @param target The window object.
+ * @param event The event to listen for.
+ * @param listener The event listener.
+ * @param options The event listener options.
+ * @template E The event type.
+ * @returns A function to remove the event listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
@@ -31,15 +30,14 @@ export function useEventListener<E extends keyof WindowEventMap> (
 ): CleanupFunction
 
 /**
- * Attaches event listeners to the document object with automatic cleanup.
- * This overload provides type-safe event handling for document-specific events
- * with proper event map typing and automatic listener removal on scope disposal.
+ * Attaches an event listener to the document.
  *
- * @param target Document object to attach listeners to.
- * @param event Event name(s) to listen for from DocumentEventMap.
- * @param listener Event handler function(s) with proper document event typing.
- * @param options Optional event listener configuration.
- * @returns Function to manually remove all attached listeners.
+ * @param target The document object.
+ * @param event The event to listen for.
+ * @param listener The event listener.
+ * @param options The event listener options.
+ * @template E The event type.
+ * @returns A function to remove the event listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
@@ -51,15 +49,14 @@ export function useEventListener<E extends keyof DocumentEventMap> (
 ): CleanupFunction
 
 /**
- * Attaches event listeners to HTML elements with automatic cleanup.
- * This overload provides type-safe event handling for HTML element events
- * with reactive target support and automatic listener removal on scope disposal.
+ * Attaches an event listener to an HTML element.
  *
- * @param target HTML element or reactive reference to element.
- * @param event Event name(s) to listen for from HTMLElementEventMap.
- * @param listener Event handler function(s) with proper HTML element event typing.
- * @param options Optional event listener configuration.
- * @returns Function to manually remove all attached listeners.
+ * @param target The HTML element.
+ * @param event The event to listen for.
+ * @param listener The event listener.
+ * @param options The event listener options.
+ * @template E The event type.
+ * @returns A function to remove the event listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
@@ -71,15 +68,14 @@ export function useEventListener<E extends keyof HTMLElementEventMap> (
 ): CleanupFunction
 
 /**
- * Attaches event listeners to any EventTarget with automatic cleanup.
- * This overload provides flexible event handling for any EventTarget implementation
- * with reactive target support and automatic listener removal on scope disposal.
+ * Attaches an event listener to an event target.
  *
- * @param target EventTarget or reactive reference to target.
- * @param event Event name(s) to listen for as string identifiers.
- * @param listener Event handler function(s) with customizable event typing.
- * @param options Optional event listener configuration.
- * @returns Function to manually remove all attached listeners.
+ * @param target The event target.
+ * @param event The event to listen for.
+ * @param listener The event listener.
+ * @param options The event listener options.
+ * @template EventType The event type.
+ * @returns A function to remove the event listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
@@ -91,13 +87,13 @@ export function useEventListener<EventType = Event> (
 ): CleanupFunction
 
 /**
- * Attaches event listeners to a target with automatic cleanup.
+ * Attaches an event listener to a target.
  *
- * @param target EventTarget or reactive reference to target.
- * @param event Event name(s) to listen for as string identifiers.
- * @param listener Event handler function(s) with customizable event typing.
- * @param options Optional event listener configuration.
- * @returns Function to manually remove all attached listeners.
+ * @param target The target to attach the event listener to.
+ * @param event The event to listen for.
+ * @param listener The event listener.
+ * @param options The event listener options.
+ * @returns A function to remove the event listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
@@ -155,14 +151,13 @@ export function useEventListener (
 }
 
 /**
- * Convenience function for attaching event listeners to the window object.
- * This function provides a simplified API by pre-binding the window target,
- * making it easier to handle window-specific events with automatic cleanup.
+ * Attaches an event listener to the window.
  *
- * @param event Event name(s) to listen for from WindowEventMap.
- * @param listener Event handler function(s) with proper window event typing.
- * @param options Optional event listener configuration.
- * @returns Function to manually remove all attached listeners.
+ * @param event The event to listen for.
+ * @param listener The event listener.
+ * @param options The event listener options.
+ * @template E The event type.
+ * @returns A function to remove the event listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */
@@ -175,14 +170,13 @@ export function useWindowEventListener<E extends keyof WindowEventMap> (
 }
 
 /**
- * Convenience function for attaching event listeners to the document object.
- * This function provides a simplified API by pre-binding the document target,
- * making it easier to handle document-specific events with automatic cleanup.
+ * Attaches an event listener to the document.
  *
- * @param event Event name(s) to listen for from DocumentEventMap.
- * @param listener Event handler function(s) with proper document event typing.
- * @param options Optional event listener configuration.
- * @returns Function to manually remove all attached listeners.
+ * @param event The event to listen for.
+ * @param listener The event listener.
+ * @param options The event listener options.
+ * @template E The event type.
+ * @returns A function to remove the event listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-event-listener
  */

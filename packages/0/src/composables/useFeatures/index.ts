@@ -33,13 +33,13 @@ export interface FeaturePluginOptions {
 }
 
 /**
- * Creates a feature management context with support for variations and group selection.
+ * Creates a new features instance.
  *
- * @param namespace The namespace for the feature context
- * @param options Configure initial features to register
- * @template Z The type of feature ticket
- * @template E The type of feature context
- * @returns A context trinity for the features context
+ * @param namespace The namespace to use for the features instance.
+ * @param options The options for the features instance.
+ * @template Z The type of the feature ticket.
+ * @template E The type of the feature context.
+ * @returns A new features instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-features
  */
@@ -102,9 +102,10 @@ export function createFeatures<
 }
 
 /**
- * Simple hook to access the theme context.
+ * Returns the current features instance.
  *
- * @returns The features context containing current theme state and utilities.
+ * @template Z The type of the feature ticket.
+ * @returns The current features instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-features
  */
@@ -113,12 +114,12 @@ export function useFeatures<Z extends FeatureTicket = FeatureTicket> (): Feature
 }
 
 /**
- * Creates a Vue plugin for feature management with variation support.
+ * Creates a new features plugin.
  *
- * @param options Configuration for initial features to register.
- * @template Z The type of feature ticket.
- * @template E The type of feature context.
- * @returns A Vue plugin object with install method.
+ * @param options The options for the features plugin.
+ * @template Z The type of the feature ticket.
+ * @template E The type of the feature context.
+ * @returns A new features plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-features
  */

@@ -26,13 +26,12 @@ export interface SingleContext<Z extends SingleTicket> extends SelectionContext<
 export interface SingleOptions extends SelectionOptions {}
 
 /**
- * Creates a single selection context for managing collections where only one item can be selected.
- * This function extends the selection functionality with single-selection constraints.
+ * Creates a new single selection instance.
  *
- * @param options Optional configuration for single selection behavior.
- * @template Z The type of items managed by the single selection.
+ * @param options The options for the single selection instance.
+ * @template Z The type of the single selection ticket.
  * @template E The type of the single selection context.
- * @returns The single selection context object.
+ * @returns A new single selection instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
  */
@@ -80,14 +79,13 @@ export function useSingle<
 }
 
 /**
- * Creates a single selection registry context with full injection/provision control.
- * Returns the complete trinity for advanced usage scenarios.
+ * Creates a new single selection context.
  *
- * @param namespace The namespace for the single selection registry context
- * @param options Optional configuration for single selection behavior.
- * @template Z The structure of the registry single selection items.
- * @template E The available methods for the single's context.
- * @returns A tuple containing the inject function, provide function, and the single selection context.
+ * @param namespace The namespace for the single selection context.
+ * @param options The options for the single selection context.
+ * @template Z The type of the single selection ticket.
+ * @template E The type of the single selection context.
+ * @returns A new single selection context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
  */

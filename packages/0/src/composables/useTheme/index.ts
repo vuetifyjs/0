@@ -59,14 +59,13 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
 }
 
 /**
- * Creates a theme registry for managing theme selections with dynamic color resolution.
- * Supports token-based color systems and lazy theme loading for optimal performance.
+ * Creates a new theme instance.
  *
- * @param namespace The namespace for the theme context.
- * @param options Configuration including adapter and themes.
- * @template Z The type of theme context.
- * @template E The type of theme items managed by the registry.
- * @returns A tuple containing inject, provide functions and the theme context.
+ * @param namespace The namespace for the theme instance.
+ * @param options The options for the theme instance.
+ * @template Z The type of the theme ticket.
+ * @template E The type of the theme context.
+ * @returns A new theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
  */
@@ -145,9 +144,9 @@ export function createTheme<
 }
 
 /**
- * Simple hook to access the theme context.
+ * Returns the current theme instance.
  *
- * @returns The theme context containing current theme state and utilities.
+ * @returns The current theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
  */
@@ -156,14 +155,12 @@ export function useTheme (): ThemeContext<ThemeTicket> {
 }
 
 /**
- * Creates a Vue plugin for theme management with automatic color system updates.
- * Integrates with token system for dynamic color resolution and provides reactive
- * theme switching capabilities throughout the application.
+ * Creates a new theme plugin.
  *
- * @param options Configuration for themes, palette, and adapter.
- * @template Z The type of theme context.
- * @template E The type of theme items.
- * @returns A Vue plugin object with install method.
+ * @param _options The options for the theme plugin.
+ * @template Z The type of the theme ticket.
+ * @template E The type of the theme context.
+ * @returns A new theme plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
  */

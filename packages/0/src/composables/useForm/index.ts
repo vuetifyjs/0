@@ -44,12 +44,12 @@ export interface FormOptions extends RegistryOptions {
 }
 
 /**
- * Creates a form management context for handling form fields, validation, and submission.
+ * Creates a new form instance.
  *
- * @param options Optional configuration for the form behavior.
- * @template Z The type of items managed by the form.
+ * @param options The options for the form instance.
+ * @template Z The type of the form ticket.
  * @template E The type of the form context.
- * @returns The form context object.
+ * @returns A new form instance.
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-form
  */

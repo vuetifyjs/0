@@ -8,14 +8,13 @@ export type ContextTrinity<Z = unknown> = readonly [
 ]
 
 /**
- * A tuple containing Vue's provide/inject and a context object
+ * Creates a new trinity for providing and injecting data.
  *
- * @param createContext The function that creates the context
- * @param provideContext The function that provides context
- * @param context The underlying context object singleton
- * @template Z The type parameter for the context value
- * @template E The vmodel type for the context state.
- * @returns [createContext, provideContext, context]
+ * @param createContext The function that creates the context.
+ * @param provideContext The function that provides the context.
+ * @param context The context to provide.
+ * @template Z The type of the context.
+ * @returns A new trinity.
  *
  * @see https://0.vuetifyjs.com/composables/foundation/create-trinity
  */

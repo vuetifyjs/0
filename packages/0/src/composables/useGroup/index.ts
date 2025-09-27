@@ -32,13 +32,14 @@ export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z>
 export interface GroupOptions extends SelectionOptions {}
 
 /**
- * Creates a group selection context for managing collections of items where multiple selections can be made.
- * This function extends the selection functionality with group selection capabilities.
+ * Creates a new group instance.
  *
- * @param options Optional configuration for group selection behavior.
- * @template Z The type of items managed by the group selection.
- * @template E The type of the group selection context.
- * @returns The group selection context object.
+ * @param options The options for the group instance.
+ * @template Z The type of the group ticket.
+ * @template E The type of the group context.
+ * @returns A new group instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-group
  */
 export function useGroup<
   Z extends GroupTicket = GroupTicket,
@@ -80,14 +81,15 @@ export function useGroup<
 }
 
 /**
- * Creates a group selection registry context with full injection/provision control.
- * Returns the complete trinity for advanced usage scenarios.
+ * Creates a new group context.
  *
- * @param namespace The namespace for the group selection registry context
- * @param options Optional configuration for group selection behavior.
- * @template Z The structure of the registry group selection items.
- * @template E The available methods for the group's context.
- * @returns A tuple containing the inject function, provide function, and the group selection context.
+ * @param namespace The namespace for the group context.
+ * @param options The options for the group context.
+ * @template Z The type of the group ticket.
+ * @template E The type of the group context.
+ * @returns A new group context.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-group
  */
 export function createGroupContext<
   Z extends GroupTicket = GroupTicket,

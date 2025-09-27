@@ -18,14 +18,17 @@ export interface ProxyModelOptions {
 }
 
 /**
- * Creates a proxy model for two-way binding with a selection context.
+ * Creates a proxy model that can be used to bind to a selection.
  *
- * @param registry SelectionContext | GroupContext | SingleContext | StepContext
- * @template Z The type of items managed by the selection.
- * @template E The type of the selection context.
- * @returns The proxy model for two-way binding with the selection context.
+ * @param registry The selection registry to bind to.
+ * @param initial The initial value of the model.
+ * @param options The options for the proxy model.
+ * @param _transformIn A function to transform the value before setting it.
+ * @param _transformOut A function to transform the value before getting it.
+ * @template Z The type of the selection ticket.
+ * @returns A proxy model that can be used to bind to a selection.
  *
- * @see https://0.vuetifyjs.com/composables/pluginforms/use-proxy-model
+ * @see https://0.vuetifyjs.com/composables/forms/use-proxy-model
  */
 export function useProxyModel<Z extends SelectionTicket> (
   registry: SelectionContext<Z>,

@@ -35,14 +35,13 @@ export interface LocalePluginOptions<Z extends TokenCollection = TokenCollection
 }
 
 /**
- * Creates a locale registry for managing internationalization with translations and number formatting.
- * Supports message resolution with token references and locale-specific number formatting.
+ * Creates a new locale instance.
  *
- * @param namespace The namespace for the locale context.
- * @param options Configuration including adapter and messages.
- * @template Z The type of the locale context.
- * @template E The type of the locale items managed by the registry.
- * @returns An array containing the inject function, provide function, and the locale context.
+ * @param namespace The namespace for the locale instance.
+ * @param options The options for the locale instance.
+ * @template Z The type of the locale ticket.
+ * @template E The type of the locale context.
+ * @returns A new locale instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
@@ -109,9 +108,9 @@ export function createLocale<
 }
 
 /**
- * Simple hook to access the locale context.
+ * Returns the current locale instance.
  *
- * @returns The locale context containing translation and formatting functions.
+ * @returns The current locale instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
@@ -120,15 +119,14 @@ export function useLocale (): LocaleContext<LocaleTicket> {
 }
 
 /**
- * Creates a Vue plugin for internationalization with locale management and translation support.
- * Integrates with token system for message resolution and provides app-wide locale context.
+ * Creates a new locale plugin.
  *
- * @param options Configuration for adapter, default locale, and messages.
- * @template Z The type of the locale context.
- * @template E The type of the locale items managed by the registry.
- * @template R The type of the token context.
- * @template O The type of the token items managed by the registry.
- * @returns Vue install function for the plugin
+ * @param options The options for the locale plugin.
+ * @template Z The type of the locale ticket.
+ * @template E The type of the locale context.
+ * @template R The type of the token ticket.
+ * @template O The type of the token context.
+ * @returns A new locale plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */

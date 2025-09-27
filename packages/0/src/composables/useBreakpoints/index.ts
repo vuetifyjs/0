@@ -71,12 +71,12 @@ function createDefaultBreakpoints () {
 }
 
 /**
- * Creates a reactive breakpoints system for responsive behavior management.
- * This function provides access to viewport dimensions, breakpoint detection, and helper flags
- * for determining current screen size and implementing responsive logic.
+ * Creates a new breakpoints instance.
  *
- * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
- * @returns A breakpoints context object with reactive state and utility methods.
+ * @param namespace The namespace to use for the breakpoints instance.
+ * @param options The options for the breakpoints instance.
+ * @template E The type of the breakpoints context.
+ * @returns A new breakpoints instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
  */
@@ -207,9 +207,9 @@ export function createBreakpoints<
 }
 
 /**
- * Simple hook to access the breakpoints context.
+ * Returns the current breakpoints instance.
  *
- * @returns The breakpoints context containing current breakpoint information.
+ * @returns The current breakpoints instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
  */
@@ -218,12 +218,11 @@ export function useBreakpoints (): BreakpointsContext {
 }
 
 /**
- * Creates a Vue plugin for managing responsive breakpoints with automatic updates.
- * This plugin sets up breakpoint tracking and updates the context when the window
- * is resized, providing reactive breakpoint state throughout the application.
+ * Creates a new breakpoints plugin.
  *
- * @param options Optional configuration for breakpoint thresholds and mobile breakpoint.
- * @returns A Vue plugin object with install method.
+ * @param options The options for the breakpoints plugin.
+ * @template E The type of the breakpoints context.
+ * @returns A new breakpoints plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
  */

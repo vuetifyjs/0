@@ -34,12 +34,12 @@ export interface UseMutationObserverOptions {
 }
 
 /**
- * Composable for observing DOM mutations
+ * A composable that uses the Mutation Observer API to detect changes in the DOM.
  *
- * @param target - Element ref to observe
- * @param callback - Callback fired on mutation
- * @param options - Observer options
- * @returns Observer controls
+ * @param target The element to observe.
+ * @param callback The callback to execute when a mutation is observed.
+ * @param options The options for the Mutation Observer.
+ * @returns An object with methods to control the observer.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
  * @see https://0.vuetifyjs.com/composables/system/use-mutation-observer

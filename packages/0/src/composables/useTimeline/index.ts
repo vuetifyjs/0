@@ -18,12 +18,12 @@ export interface TimelineOptions extends RegistryOptions {
 }
 
 /**
- * Creates a registry with timeline capabilities (undo/redo)
+ * Creates a new timeline instance.
  *
- * @param _options Optional configuration for timeline
- * @template Z The type of ticket to be stored in the timeline
- * @template E The type of the timeline context
- * @returns The timeline context object
+ * @param _options The options for the timeline instance.
+ * @template Z The type of the timeline ticket.
+ * @template E The type of the timeline context.
+ * @returns A new timeline instance.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-timeline
  */

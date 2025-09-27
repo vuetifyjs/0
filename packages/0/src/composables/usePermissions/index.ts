@@ -34,13 +34,13 @@ export interface PermissionPluginOptions {
 }
 
 /**
- * Creates a permissions management context with role-based access control.
+ * Creates a new permissions instance.
  *
- * @param namespace The namespace for the permissions context
- * @param options Configure initial permissions and adapter
- * @template Z The type of permission ticket
- * @template E The type of permission context
- * @returns A context trinity for the permissions context
+ * @param namespace The namespace for the permissions instance.
+ * @param options The options for the permissions instance.
+ * @template Z The type of the permission ticket.
+ * @template E The type of the permission context.
+ * @returns A new permissions instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-permissions
  */
@@ -87,10 +87,10 @@ export function createPermissions<
 }
 
 /**
- * Simple hook to access the permissions context
+ * Returns the current permissions instance.
  *
- * @returns The permissions context
- * @template Z The type of permission ticket
+ * @template Z The type of the permission ticket.
+ * @returns The current permissions instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
  */
@@ -99,12 +99,12 @@ export function usePermissions<Z extends PermissionTicket = PermissionTicket> ()
 }
 
 /**
- * Factory function to create a permissions plugin
+ * Creates a new permissions plugin.
  *
- * @param options Configuration options for the permissions plugin
- * @template Z The type of permission ticket
- * @template E The type of permission context
- * @returns A Vue plugin object for permissions management
+ * @param options The options for the permissions plugin.
+ * @template Z The type of the permission ticket.
+ * @template E The type of the permission context.
+ * @returns A new permissions plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
  */

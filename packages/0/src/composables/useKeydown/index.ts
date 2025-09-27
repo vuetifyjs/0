@@ -9,12 +9,10 @@ export interface KeyHandler {
 }
 
 /**
- * Sets up global keyboard event listeners for specified key handlers with automatic cleanup.
- * This composable automatically starts listening when mounted and cleans up when the scope
- * is disposed, providing a clean way to handle global keyboard interactions.
+ * A composable that adds a keydown event listener to the document.
  *
- * @param handlers A single handler or array of handlers to register for keydown events.
- * @returns Object with methods to manually start and stop listening for keydown events.
+ * @param handlers The key handlers to add.
+ * @returns An object with methods to start and stop listening.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-keydown
  */

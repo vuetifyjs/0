@@ -27,13 +27,12 @@ export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
 export interface StepOptions extends SingleOptions {}
 
 /**
- * Creates a step selection context for managing collections where users can navigate through items sequentially.
- * This function extends the single selection functionality with stepping navigation.
+ * Creates a new step instance.
  *
- * @param options Optional configuration for step behavior.
- * @template Z The type of items managed by the step selection.
- * @template E The type of the step selection context.
- * @returns The step selection context object.
+ * @param options The options for the step instance.
+ * @template Z The type of the step ticket.
+ * @template E The type of the step context.
+ * @returns A new step instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
  */
@@ -102,14 +101,13 @@ export function useStep<
 }
 
 /**
- * Creates a step selection registry context with full injection/provision control.
- * Returns the complete trinity for advanced usage scenarios.
+ * Creates a new step context.
  *
- * @param namespace The namespace for the step selection registry context
- * @param options Optional configuration for step selection behavior.
- * @template Z The structure of the registry step selection items.
- * @template E The available methods for the step's context.
- * @returns A tuple containing the inject function, provide function, and the step selection context.
+ * @param namespace The namespace for the step context.
+ * @param options The options for the step context.
+ * @template Z The type of the step ticket.
+ * @template E The type of the step context.
+ * @returns A new step context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
  */

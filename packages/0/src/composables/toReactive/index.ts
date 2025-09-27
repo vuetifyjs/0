@@ -5,16 +5,13 @@ import { isRef, reactive, unref } from 'vue'
 import type { MaybeRef, UnwrapNestedRefs } from 'vue'
 
 /**
- * Converts an object to a reactive reference using Vue's reactivity system.
- * This function creates a reactive version of the provided object,
- * making its properties automatically track dependencies and trigger re-renders
- * when they change.
+ * Converts a `MaybeRef` to a `UnwrapNestedRefs`.
  *
- * @param objectRef - A reference to an object that should be made reactive.
- * @template Z The type of the object that extends object.
- * @returns A reactive reference to the object.
+ * @param objectRef The object to convert.
+ * @template Z The type of the object.
+ * @returns The converted object.
  *
- * @see https://0.vuetifyjs.com/composables/transformers/to-reactive
+ * @see https://vuejs.org/api/reactivity-utilities.html#toreactive
  */
 export function toReactive<Z extends object> (
   objectRef: MaybeRef<Z>,

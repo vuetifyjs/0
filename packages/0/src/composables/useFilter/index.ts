@@ -65,15 +65,13 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
 }
 
 /**
- * Creates a reactive filter for arrays based on query matching with configurable search modes.
- * Supports 'some' (any field matches), 'every' (all fields match), 'union' (any query matches),
- * and 'intersection' (all queries match) filtering strategies.
+ * Filters an array of items based on a query.
  *
- * @param query Filter query to match against items.
- * @param items Collection of items to filter.
- * @param options Optional configuration for the filter behavior.
- * @template Z The type of the items being filtered.
- * @returns A computed reference to the filtered items based on the query and options.
+ * @param query The query to filter by.
+ * @param items The items to filter.
+ * @param options The filter options.
+ * @template Z The type of the items.
+ * @returns The filtered items.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-filter
  */

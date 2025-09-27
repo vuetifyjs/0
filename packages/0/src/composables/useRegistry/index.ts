@@ -71,14 +71,12 @@ export interface RegistryOptions {
 }
 
 /**
- * Creates a registry for managing collections of items with registration and lookup capabilities.
- * This function provides the foundation for item management systems with ID-based, value-based,
- * and index-based access patterns.
+ * Creates a new registry instance.
  *
- * @param options Optional configuration for enabling events.
- * @template Z The type of items managed by the registry.
+ * @param options The options for the registry instance.
+ * @template Z The type of the registry ticket.
  * @template E The type of the registry context.
- * @returns The registry context object.
+ * @returns A new registry instance.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-registry
  */
@@ -335,14 +333,13 @@ export function useRegistry<
 }
 
 /**
- * Creates a registry context with full injection/provision control.
- * Returns the complete trinity for advanced usage scenarios.
+ * Creates a new registry context.
  *
  * @param namespace The namespace for the registry context.
- * @param options Optional configuration for reactivity behavior.
- * @template Z The type of tickets managed by the registry.
+ * @param options The options for the registry context.
+ * @template Z The type of the registry ticket.
  * @template E The type of the registry context.
- * @returns A tuple containing the inject function, provide function, and the registry context.
+ * @returns A new registry context.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-registry
  */
