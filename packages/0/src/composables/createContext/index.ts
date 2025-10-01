@@ -16,6 +16,11 @@ export type ContextKey<Z> = InjectionKey<Z> | string
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
+ *
+ * @example
+ * ```ts
+ * const myContext = useContext<MyContext>('my-context')
+ * ```
  */
 export function useContext<Z> (key: ContextKey<Z>) {
   const context = inject<Z>(key, undefined as Z)
@@ -38,6 +43,11 @@ export function useContext<Z> (key: ContextKey<Z>) {
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#provide
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
+ *
+ * @example
+ * ```ts
+ * provideContext<MyContext>('my-context', myContext)
+ * ```
  */
 export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
   app?.provide(key, context) ?? provide(key, context)
@@ -48,12 +58,17 @@ export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
 /**
  * Creates a new context for providing and injecting data.
  *
- * @param _key The key of the context to create.
+ * @param key The key of the context to create.
  * @template Z The type of the context.
  * @returns A tuple containing the `useContext` and `provideContext` functions.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
+ *
+ * @example
+ * ```ts
+ * const [provideMyContext, useMyContext] = createContext<MyContext>('my-context')
+ * ```
  */
 export function createContext<Z> (_key: ContextKey<Z>) {
   function _provideContext (context: Z, app?: App) {
