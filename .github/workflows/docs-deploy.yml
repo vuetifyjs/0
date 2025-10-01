@@ -1,0 +1,26 @@
+name: Docs Deploy
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+    permissions:
+      contents: read
+      packages: write
+      deployments: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: vuetifyjs/setup-action@master
+      - run: pnpm run build:docs
+        env:
+          VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
+      - uses: vuetifyjs/coolify-action@master
+        with:
+          imageName: v0-docs
+          dockerfilePath: ./apps/docs/Dockerfile
+          token: ${{ secrets.GITHUB_TOKEN  }}
+          coolifyWebhook: ${{ secrets.COOLIFY_WEBHOOK }}
+          coolifySecret: ${{ secrets.COOLIFY_TOKEN }}
