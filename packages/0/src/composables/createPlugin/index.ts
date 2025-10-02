@@ -19,6 +19,22 @@ export interface Plugin {
  *
  * @see https://vuejs.org/guide/reusability/plugins.html
  * @see https://0.vuetifyjs.com/composables/foundation/create-plugin
+ *
+ * @example
+ * ```ts
+ * export const [useContext, provideContext] = createContext<MyContext>('my-plugin')
+ *
+ * const context = {}
+ *
+ * export const MyPlugin = createPlugin({
+ *   namespace: 'my-plugin',
+ *   provide: (app) => {
+ *     provideContext(context, app)
+ *   },
+ *   setup: (app) => {
+ *     // Optional setup logic
+ *   },
+ * })
  */
 export function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions) {
   return {
