@@ -8,7 +8,7 @@ export type ContextTrinity<Z = unknown> = readonly [
 ]
 
 /**
- * Creates a new trinity for providing and injecting data.
+ * A reusable function for a context composable and its provider.
  *
  * @param createContext The function that creates the context.
  * @param provideContext The function that provides the context.
@@ -17,6 +17,25 @@ export type ContextTrinity<Z = unknown> = readonly [
  * @returns A new trinity.
  *
  * @see https://0.vuetifyjs.com/composables/foundation/create-trinity
+ *
+ * @example
+ * ```ts
+ * interface MyContext {
+ *   foo: string
+ *   bar: number
+ * }
+ *
+ * export function createMyFeature<E extends MyContext = MyContext>() {
+ *   const [useContext, _provideContext] = createContext<E>('my-context')
+ *
+ *   const context = { foo: 'hello', bar: 42 }
+ *
+ *   function provideContext (_context: E = context, app?: App): E {
+ *     return _provideContext(_context, app)
+ *   }
+ *
+ *   return createTrinity<E>(useContext, provideContext, context)
+ * }
  */
 export function createTrinity<Z = unknown> (
   createContext: () => Z,
