@@ -26,7 +26,26 @@ export interface TimelineOptions extends RegistryOptions {
  * @returns A new timeline instance.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-timeline
- */
+ *
+ * @example
+ * ```ts
+ * import { useTimeline } from './useTimeline'
+ *
+ * const timeline = useTimeline({ size: 3 } )
+ *
+ * timeline.onboard([{ id: 'one' },{ id: 'two' },{ id: 'three' }])
+ *
+ * timeline.values() // [ { id: 'one' }, { id: 'two' }, { id: 'three' } ]
+ *
+ * timeline.undo()
+ *
+ * timeline.values() // [ { id: 'one' }, { id: 'two' } ]
+ *
+ * timeline.redo()
+ *
+ * timeline.values()// [ { id: 'one' }, { id: 'two' }, { id: 'three' } ]
+ * ```
+ **/
 export function useTimeline<
   Z extends TimelineTicket = TimelineTicket,
   E extends TimelineContext<Z> = TimelineContext<Z>,
