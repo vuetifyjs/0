@@ -41,6 +41,14 @@ export const [useStorageContext, provideStorageContext] = createContext<StorageC
  * @returns A new storage instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-storage
+ * @example
+ * const storage = createStorage()
+ *
+ * storage.set('username', 'MyUsername')
+ *
+ * storage.get('username') // MyUsername
+ *
+ * storage.clear()
  */
 export function createStorage<E extends StorageContext> (options: StorageOptions = {}) {
   const {
@@ -130,6 +138,11 @@ export function useStorage (): StorageContext {
  * @returns A new storage plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-storage
+ * @example
+ * ```ts
+ * //plugins.ts
+ * app.use(createStoragePlugin())
+ * ```
  */
 export function createStoragePlugin (options: StorageOptions = {}) {
   const context = createStorage(options)
