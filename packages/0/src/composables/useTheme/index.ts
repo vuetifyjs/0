@@ -68,7 +68,26 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
  * @returns A new theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ * @example
+ * const theme = createTheme({
+ *   default: 'light',
+ *   themes: {
+ *     light: {
+ *       dark: false,
+ *       colors: {
+ *         primary: '#3b82f6',
+ *       },
+ *     },
+ *     dark: {
+ *       dark: true,
+ *       colors: {
+ *         primary: '#675496',
+ *       },
+ *     },
+ *   },
+ * })
  */
+
 export function createTheme<
   Z extends ThemeTicket = ThemeTicket,
   E extends ThemeContext<Z> = ThemeContext<Z>,
@@ -149,6 +168,10 @@ export function createTheme<
  * @returns The current theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ * @example
+ * ```ts
+ * const theme = useTheme()
+ * ```
  */
 export function useTheme (): ThemeContext<ThemeTicket> {
   return useContext<ThemeContext<ThemeTicket>>('v0:theme')
@@ -163,6 +186,27 @@ export function useTheme (): ThemeContext<ThemeTicket> {
  * @returns A new theme plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ * @example
+ * //plugins.ts
+ * app.use(
+ *   createThemePlugin({
+ *     default: 'light',
+ *     themes: {
+ *       light: {
+ *         dark: false,
+ *         colors: {
+ *           primary: '#3b82f6',
+ *         },
+ *       },
+ *       dark: {
+ *         dark: true,
+ *         colors: {
+ *           primary: '#675496',
+ *         },
+ *       },
+ *     },
+ *   })
+ * )
  */
 export function createThemePlugin<
   Z extends ThemeTicket = ThemeTicket,
