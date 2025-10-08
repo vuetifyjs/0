@@ -29,20 +29,15 @@ export interface TimelineOptions extends RegistryOptions {
  *
  * @example
  * ```ts
- * import { useTimeline } from './useTimeline'
- *
  * const timeline = useTimeline({ size: 3 } )
  *
  * timeline.onboard([{ id: 'one' },{ id: 'two' },{ id: 'three' }])
- *
  * timeline.values() // [ { id: 'one' }, { id: 'two' }, { id: 'three' } ]
  *
  * timeline.undo()
- *
  * timeline.values() // [ { id: 'one' }, { id: 'two' } ]
  *
  * timeline.redo()
- *
  * timeline.values()// [ { id: 'one' }, { id: 'two' }, { id: 'three' } ]
  * ```
  **/
