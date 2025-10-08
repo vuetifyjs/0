@@ -42,6 +42,18 @@ export interface FeaturePluginOptions {
  * @returns A new features instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-features
+ * @example
+ * ```ts
+ * const [useFeatures, provideFeaturesContext, features] = createFeatures('demo:features', {
+ *   features: {
+ *     'dark-mode': true,
+ *     'theme-color': { $variation: 'blue' },
+ *   },
+ * })
+ *
+ * console.log(features.variation('theme-color')) // 'blue'
+ * features.register({ id: 'beta-ui', value: true })
+ * ```
  */
 export function createFeatures<
   Z extends FeatureTicket = FeatureTicket,

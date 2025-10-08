@@ -21,6 +21,10 @@ export const [useHydrationContext, provideHydrationContext] = createContext<Hydr
  * @returns A new hydration instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-hydration
+ * @example
+ * const hydration = createHydration()
+ *
+ * console.log(hydration.isHydrated.value) // false
  */
 export function createHydration (): HydrationContext {
   const isHydrated = shallowRef(false)

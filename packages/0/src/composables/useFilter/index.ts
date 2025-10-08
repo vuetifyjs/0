@@ -77,9 +77,6 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
  *
  * @example
  * ```ts
- * import { ref } from 'vue'
- * import { useFilter } from './useFilter'
- *
  * const items = [
  *   { name: 'John Doe', age: 30 },
  *   { name: 'Jane Doe', age: 25 },
@@ -87,7 +84,6 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
  * ]
  *
  * const query = ref('doe' )
- *
  * const { items: filteredItems } = useFilter(query, items, { keys: ['name'] })
  *
  * console.log(filteredItems.value)

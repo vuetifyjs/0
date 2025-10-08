@@ -38,6 +38,15 @@ export interface IntersectionObserverOptions {
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver
  * @see https://0.vuetifyjs.com/composables/system/use-intersection-observer
+ * @example
+ * ```ts
+ * const { isIntersecting, pause, resume } = useIntersectionObserver(
+ *   target,
+ *   (entries) => {
+ *     console.log('Intersection entries:', entries)
+ *   },
+ *   { immediate: true, threshold: 0.5 }
+ *  ```
  */
 export function useIntersectionObserver (
   target: Ref<Element | undefined>,
@@ -182,6 +191,11 @@ export function useIntersectionObserver (
  * @returns An object with the intersection state.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-intersection-observer
+ * @examples
+ * ```ts
+ * const myElement = ref<HTMLElement>()
+ * const { isIntersecting, intersectionRatio } = useElementIntersection(myElement)
+ * ```
  */
 export function useElementIntersection (
   target: Ref<Element | undefined>,

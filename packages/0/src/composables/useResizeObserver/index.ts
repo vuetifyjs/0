@@ -36,7 +36,25 @@ export interface ResizeObserverOptions {
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
  * @see https://0.vuetifyjs.com/composables/system/use-resize-observer
- */
+ *
+ * @example
+ * ```ts
+ * const elementRef = ref(null);
+ * const width = ref(0);
+ * const height = ref(0);
+ *
+ * useResizeObserver(
+ *   elementRef,
+ *   (entries) => {
+ *     const entry = entries[0];
+ *     width.value = entry.contentRect.width;
+ *     height.value = entry.contentRect.height;
+ *   },
+ *   { immediate: true }
+ * );
+ * ```
+ **/
+
 export function useResizeObserver (
   target: Ref<Element | undefined>,
   callback: (entries: ResizeObserverEntry[]) => void,
@@ -159,6 +177,11 @@ export function useResizeObserver (
  * @returns An object with the element's width and height.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-element-size
+ * @examples
+ * ```ts
+ * const myBox = ref<HTMLElement>()
+ * const { width, height } = useElementSize(myBox)
+ * ```
  */
 export function useElementSize (target: Ref<Element | undefined>) {
   const width = shallowRef(0)

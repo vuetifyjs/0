@@ -52,6 +52,19 @@ export interface FormOptions extends RegistryOptions {
  * @returns A new form instance.
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-form
+ * @example
+ * const form = useForm()
+ *
+ * const username = form.register({
+ *   id: 'username',
+ *   value: '',
+ *   rules: [(v) => v.length > 0 || 'Username is required'],
+ * })
+ *
+ * await form.submit()
+ * console.log(username.errors.value) // ['Username is required']
+ *
+ * form.reset()
  */
 export function useForm<
   Z extends FormTicket = FormTicket,

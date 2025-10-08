@@ -79,6 +79,10 @@ function createDefaultBreakpoints () {
  * @returns A new breakpoints instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ * @example
+ * ```ts
+ * const [useBreakpoints, provideBreakpointsContext, breakpoints] = createBreakpoints()
+ * ```
  */
 export function createBreakpoints<
   E extends BreakpointsContext = BreakpointsContext,
@@ -212,6 +216,19 @@ export function createBreakpoints<
  * @returns The current breakpoints instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ * @example
+ * ```ts
+ * <script setup lang="ts">
+ * const { isMobile, mdAndUp } = useBreakpoints()
+ * </script>
+ *
+ * <template>
+ *   <div class="pa-4">
+ *     <p v-if="isMobile">Mobile layout active</p>
+ *     <p v-else-if="mdAndUp">Medium and up layout active</p>
+ *   </div>
+ * </template>
+ * ```
  */
 export function useBreakpoints (): BreakpointsContext {
   return useContext<BreakpointsContext>('v0:breakpoints')
@@ -225,6 +242,10 @@ export function useBreakpoints (): BreakpointsContext {
  * @returns A new breakpoints plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ * @example
+ * ```ts
+ *   app.use(createBreakpointsPlugin())
+ *  ```
  */
 export function createBreakpointsPlugin<
   E extends BreakpointsContext = BreakpointsContext,

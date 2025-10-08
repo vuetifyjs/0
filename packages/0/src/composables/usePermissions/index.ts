@@ -43,6 +43,19 @@ export interface PermissionPluginOptions {
  * @returns A new permissions instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-permissions
+ * @example
+ * ```ts
+ * const { can } = createPermissions('v0:permissions', {
+ *   permissions: {
+ *     admin: [['read', 'users']],
+ *     editor: [['edit', 'posts']],
+ *   }
+ * })
+ *
+ * console.log(can('admin', 'read', 'users')) // true
+ * console.log(can('editor', 'delete', 'posts')) // false
+ * ```
+ *
  */
 export function createPermissions<
   Z extends PermissionTicket = PermissionTicket,
@@ -93,6 +106,12 @@ export function createPermissions<
  * @returns The current permissions instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
+ * @example
+ * ```ts
+ * const { can } = usePermissions()
+ *
+ * console.log(can('admin', 'read', 'users'))
+ * ```
  */
 export function usePermissions<Z extends PermissionTicket = PermissionTicket> (): PermissionContext<Z> {
   return useContext<PermissionContext<Z>>('v0:permissions')
@@ -107,6 +126,16 @@ export function usePermissions<Z extends PermissionTicket = PermissionTicket> ()
  * @returns A new permissions plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
+ * @example
+ * ```ts
+ *   app.use(
+ *     createPermissionsPlugin({
+ *       permissions: {
+ *         admin: [['read', 'users']],
+ *       },
+ *     }),
+ *   )
+ * ```
  */
 export function createPermissionsPlugin<
   Z extends PermissionTicket = PermissionTicket,
