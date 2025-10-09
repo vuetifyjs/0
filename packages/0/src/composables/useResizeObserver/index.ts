@@ -39,21 +39,24 @@ export interface ResizeObserverOptions {
  *
  * @example
  * ```ts
- * const elementRef = ref(null);
- * const width = ref(0);
- * const height = ref(0);
+ * import { ref } from 'vue'
+ * import { useResizeObserver } from '@vuetify/v0'
+ *
+ * const el = ref(null)
+ * const width = ref(0)
+ * const height = ref(0)
  *
  * useResizeObserver(
- *   elementRef,
+ *   el,
  *   (entries) => {
- *     const entry = entries[0];
- *     width.value = entry.contentRect.width;
- *     height.value = entry.contentRect.height;
+ *     const entry = entries[0]
+ *     width.value = entry.contentRect.width
+ *     height.value = entry.contentRect.height
  *   },
  *   { immediate: true }
- * );
+ * )
  * ```
- **/
+ */
 
 export function useResizeObserver (
   target: Ref<Element | undefined>,
@@ -176,11 +179,15 @@ export function useResizeObserver (
  * @param target The element to observe.
  * @returns An object with the element's width and height.
  *
- * @see https://0.vuetifyjs.com/composables/system/use-element-size
- * @examples
+ * @see https://0.vuetifyjs.com/composables/system/use-resize-observer#use-element-size
+ *
+ * @example
  * ```ts
- * const myBox = ref<HTMLElement>()
- * const { width, height } = useElementSize(myBox)
+ * import { ref } from 'vue'
+ * import { useElementSize } from '@vuetify/v0'
+ *
+ * const box = ref<HTMLElement>()
+ * const { width, height } = useElementSize(box)
  * ```
  */
 export function useElementSize (target: Ref<Element | undefined>) {

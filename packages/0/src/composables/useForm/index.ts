@@ -52,7 +52,11 @@ export interface FormOptions extends RegistryOptions {
  * @returns A new form instance.
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-form
+ *
  * @example
+ * ```ts
+ * import { useForm } from '@vuetify/v0'
+ *
  * const form = useForm()
  *
  * const username = form.register({
@@ -65,6 +69,7 @@ export interface FormOptions extends RegistryOptions {
  * console.log(username.errors.value) // ['Username is required']
  *
  * form.reset()
+ * ```
  */
 export function useForm<
   Z extends FormTicket = FormTicket,

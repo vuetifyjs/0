@@ -42,17 +42,17 @@ export interface FeaturePluginOptions {
  * @returns A new features instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-features
+ *
  * @example
  * ```ts
- * const [useFeatures, provideFeaturesContext, features] = createFeatures('demo:features', {
+ * import { createFeatures } from '@vuetify/v0'
+ *
+ * const [useFeatures, provideFeaturesContext] = createFeatures('v0:features', {
  *   features: {
  *     'dark-mode': true,
  *     'theme-color': { $variation: 'blue' },
  *   },
  * })
- *
- * console.log(features.variation('theme-color')) // 'blue'
- * features.register({ id: 'beta-ui', value: true })
  * ```
  */
 export function createFeatures<
@@ -120,6 +120,22 @@ export function createFeatures<
  * @returns The current features instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-features
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useFeatures } from '@vuetify/v0'
+ *
+ *   const features = useFeatures()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Features: {{ features.get('dark-mode') }}</p>
+ *     <p>Theme Color: {{ features.variation('theme-color') }}</p>
+ *   </div>
+ * </template>
+ * ```
  */
 export function useFeatures<Z extends FeatureTicket = FeatureTicket> (): FeatureContext<Z> {
   return useContext<FeatureContext<Z>>('v0:features')
@@ -134,6 +150,26 @@ export function useFeatures<Z extends FeatureTicket = FeatureTicket> (): Feature
  * @returns A new features plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-features
+ *
+ * @example
+ * ```ts
+ * import { createApp } from 'vue'
+ * import { createFeaturesPlugin } from '@vuetify/v0'
+ * import App from './App.vue'
+ *
+ * const app = createApp(App)
+ *
+ * app.use(
+ *   createFeaturesPlugin({
+ *     features: {
+ *       'dark-mode': true,
+ *       'theme-color': { $variation: 'blue' },
+ *     },
+ *   })
+ * )
+ *
+ * app.mount('#app')
+ * ```
  */
 export function createFeaturesPlugin<
   Z extends FeatureTicket = FeatureTicket,

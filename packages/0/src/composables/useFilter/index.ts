@@ -77,17 +77,19 @@ function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
  *
  * @example
  * ```ts
- * const items = [
+ * import { ref } from 'vue'
+ * import { useFilter } from '@vuetify/v0'
+ *
+ * const items = ref([
  *   { name: 'John Doe', age: 30 },
  *   { name: 'Jane Doe', age: 25 },
  *   { name: 'Peter Jones', age: 40 },
- * ]
+ * ])
  *
  * const query = ref('doe' )
- * const { items: filteredItems } = useFilter(query, items, { keys: ['name'] })
+ * const { items: filtered } = useFilter(query, items, { keys: ['name'] })
  *
- * console.log(filteredItems.value)
- * // Output: [ { name: 'John Doe', age: 30 }, { name: 'Jane Doe', age: 25 } ]
+ * console.log(filtered.value) // [ { name: 'John Doe', age: 30 }, { name: 'Jane Doe', age: 25 } ]
  * ```
  */
 export function useFilter<Z extends FilterItem> (

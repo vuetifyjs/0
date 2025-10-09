@@ -29,18 +29,21 @@ export interface TimelineOptions extends RegistryOptions {
  *
  * @example
  * ```ts
- * const timeline = useTimeline({ size: 3 } )
+ * import { useTimeline } from '@vuetify/v0'
  *
- * timeline.onboard([{ id: 'one' },{ id: 'two' },{ id: 'three' }])
- * timeline.values() // [ { id: 'one' }, { id: 'two' }, { id: 'three' } ]
+ * const timeline = useTimeline({ size: 3 })
+ *
+ * timeline.onboard([{ id: 'one' }, { id: 'two' }, { id: 'three' }])
+ *
+ * console.log(timeline.values()) // [{ id: 'one' }, { id: 'two' }, { id: 'three' }]
  *
  * timeline.undo()
- * timeline.values() // [ { id: 'one' }, { id: 'two' } ]
+ * console.log(timeline.values()) // [{ id: 'one' }, { id: 'two' }]
  *
  * timeline.redo()
- * timeline.values()// [ { id: 'one' }, { id: 'two' }, { id: 'three' } ]
+ * console.log(timeline.values()) // [{ id: 'one' }, { id: 'two' }, { id: 'three' }]
  * ```
- **/
+ */
 export function useTimeline<
   Z extends TimelineTicket = TimelineTicket,
   E extends TimelineContext<Z> = TimelineContext<Z>,

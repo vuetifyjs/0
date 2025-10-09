@@ -15,7 +15,11 @@ export interface KeyHandler {
  * @returns An object with methods to start and stop listening.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-keydown
+ *
  * @example
+ * ```ts
+ * import { useKeydown } from '@vuetify/v0'
+ *
  * const { startListening, stopListening } = useKeydown([
  *   { key: 'Enter', handler: () => console.log('Enter pressed') },
  *   { key: 'Escape', handler: () => console.log('Escape pressed'), preventDefault: true },
@@ -23,6 +27,7 @@ export interface KeyHandler {
  *
  * startListening()
  * stopListening()
+ * ```
  */
 export function useKeydown (handlers: KeyHandler[] | KeyHandler) {
   const keyHandlers = Array.isArray(handlers) ? handlers : [handlers]
