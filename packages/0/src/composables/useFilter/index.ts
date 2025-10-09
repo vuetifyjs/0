@@ -2,7 +2,7 @@
 import { computed, isRef, toRef, toValue } from 'vue'
 
 // Types
-import type { ComputedRef, Ref, MaybeRefOrGetter, MaybeRef } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, MaybeRef } from 'vue'
 
 export type Primitive = string | number | boolean
 export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>
@@ -60,10 +60,6 @@ function defaultFilter (
   return false
 }
 
-function toRefOrGetter<T> (value: MaybeRefOrGetter<T>): Ref<T> {
-  return isRef(value) ? value : (typeof value === 'function' ? toRef(value as () => T) : toRef(() => value as T))
-}
-
 /**
  * Filters an array of items based on a query.
  *
@@ -84,7 +80,7 @@ export function useFilter<Z extends FilterItem> (
   const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys, mode))
 
   const itemsRef = isRef(items) ? items : toRef(() => items)
-  const queryRef = toRefOrGetter(query)
+  const queryRef = toRef(query)
 
   const filteredItems = computed(() => {
     const q = toValue(queryRef)
