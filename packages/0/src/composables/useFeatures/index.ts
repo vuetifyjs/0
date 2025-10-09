@@ -75,7 +75,7 @@ export function createFeatures<
 
     if (!ticket) return fallback
 
-    return isObject(ticket.value) ? ticket.value.$variation ?? fallback : fallback
+    return isObject(ticket.value) ? ticket.value.$variation ?? fallback : ticket.value ?? fallback
   }
 
   function register (registration: Partial<Z> = {}): Z {
