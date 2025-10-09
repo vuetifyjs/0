@@ -61,7 +61,7 @@ function defaultFilter (
 }
 
 /**
- * Filters an array of items based on a query.
+ * A reusable function for filtering an array of items.
  *
  * @param query The query to filter by.
  * @param items The items to filter.
@@ -70,6 +70,23 @@ function defaultFilter (
  * @returns The filtered items.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-filter
+ *
+ * @example
+ * ```ts
+ * import { ref } from 'vue'
+ * import { useFilter } from '@vuetify/v0'
+ *
+ * const items = ref([
+ *   { name: 'John Doe', age: 30 },
+ *   { name: 'Jane Doe', age: 25 },
+ *   { name: 'Peter Jones', age: 40 },
+ * ])
+ *
+ * const query = ref('doe')
+ * const { items: filtered } = useFilter(query, items, { keys: ['name'] })
+ *
+ * console.log(filtered.value) // [ { name: 'John Doe', age: 30 }, { name: 'Jane Doe', age: 25 } ]
+ * ```
  */
 export function useFilter<Z extends FilterItem> (
   query: FilterQuery,

@@ -41,6 +41,21 @@ export const [useStorageContext, provideStorageContext] = createContext<StorageC
  * @returns A new storage instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-storage
+ *
+ * @example
+ * ```ts
+ * import { createStorage } from '@vuetify/v0'
+ *
+ * const storage = createStorage()
+ *
+ * storage.set('username', 'MyUsername')
+ *
+ * const username = storage.get('username')
+ *
+ * console.log(username.value) // MyUsername
+ *
+ * storage.clear()
+ * ```
  */
 export function createStorage<E extends StorageContext> (options: StorageOptions = {}) {
   const {
@@ -118,6 +133,22 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
  * @returns The current storage instance.
  *
  * @see https://0.vuetifyjs.com/composables/use-storage
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useStorage } from '@vuetify/v0'
+ *
+ *   const storage = useStorage()
+ *   const username = storage.get('username', 'Guest')
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Username: {{ username }}</p>
+ *   </div>
+ * </template>
+ * ```
  */
 export function useStorage (): StorageContext {
   return useStorageContext()
@@ -130,6 +161,19 @@ export function useStorage (): StorageContext {
  * @returns A new storage plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-storage
+ *
+ * @example
+ * ```ts
+ * import { createApp } from 'vue'
+ * import { createStoragePlugin } from '@vuetify/v0'
+ * import App from './App.vue'
+ *
+ * const app = createApp(App)
+ *
+ * app.use(createStoragePlugin())
+ *
+ * app.mount('#app')
+ * ```
  */
 export function createStoragePlugin (options: StorageOptions = {}) {
   const context = createStorage(options)

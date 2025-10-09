@@ -79,6 +79,23 @@ function createDefaultBreakpoints () {
  * @returns A new breakpoints instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ *
+ * @example
+ * ```ts
+ * import { createBreakpoints } from '@vuetify/v0'
+ *
+ * export const [useBreakpoints, provideBreakpoints] = createBreakpoints('v0:breakpoints', {
+ *   mobileBreakpoint: 'sm',
+ *   breakpoints: {
+ *     xs: 0,
+ *     sm: 680,
+ *     md: 1024,
+ *     lg: 1280,
+ *     xl: 1920,
+ *     xxl: 2560,
+ *   },
+ * })
+ * ```
  */
 export function createBreakpoints<
   E extends BreakpointsContext = BreakpointsContext,
@@ -212,6 +229,22 @@ export function createBreakpoints<
  * @returns The current breakpoints instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useBreakpoints } from '@vuetify/v0'
+ *
+ *   const { isMobile, mdAndUp } = useBreakpoints()
+ * </script>
+ *
+ * <template>
+ *   <div class="pa-4">
+ *     <p v-if="isMobile.value">Mobile layout active</p>
+ *     <p v-else-if="mdAndUp.value">Medium and up layout active</p>
+ *   </div>
+ * </template>
+ * ```
  */
 export function useBreakpoints (): BreakpointsContext {
   return useContext<BreakpointsContext>('v0:breakpoints')
@@ -225,6 +258,31 @@ export function useBreakpoints (): BreakpointsContext {
  * @returns A new breakpoints plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ *
+ * @example
+ * ```ts
+ * import { createApp } from 'vue'
+ * import { createBreakpointsPlugin } from '@vuetify/v0'
+ * import App from './App.vue'
+ *
+ * const app = createApp(App)
+ *
+ * app.use(
+ *   createBreakpointsPlugin({
+ *     mobileBreakpoint: 'sm',
+ *     breakpoints: {
+ *       xs: 0,
+ *       sm: 680,
+ *       md: 1024,
+ *       lg: 1280,
+ *       xl: 1920,
+ *       xxl: 2560,
+ *     },
+ *   })
+ * )
+ *
+ * app.mount('#app')
+ * ```
  */
 export function createBreakpointsPlugin<
   E extends BreakpointsContext = BreakpointsContext,

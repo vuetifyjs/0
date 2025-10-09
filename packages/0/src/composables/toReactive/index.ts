@@ -12,6 +12,17 @@ import type { MaybeRef, UnwrapNestedRefs } from 'vue'
  * @returns The converted object.
  *
  * @see https://vuejs.org/api/reactivity-utilities.html#toreactive
+ *
+ * @example
+ * ```ts
+ * import { ref } from 'vue'
+ * import { toReactive } from '@vuetify/v0'
+ *
+ * const state = ref({ name: 'John', age: 30 })
+ * const rstate = toReactive(state)
+ *
+ * console.log(rstate.name) // John
+ * ```
  */
 export function toReactive<Z extends object> (
   objectRef: MaybeRef<Z>,

@@ -68,7 +68,31 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
  * @returns A new theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ *
+ * @example
+ * ```ts
+ * import { createTheme } from '@vuetify/v0'
+ *
+ * export const [useTheme, provideTheme] = createTheme('v0:theme', {
+ *   default: 'light',
+ *   themes: {
+ *     light: {
+ *       dark: false,
+ *       colors: {
+ *         primary: '#3b82f6',
+ *       },
+ *     },
+ *     dark: {
+ *       dark: true,
+ *       colors: {
+ *         primary: '#675496',
+ *       },
+ *     },
+ *   },
+ * })
+ * ```
  */
+
 export function createTheme<
   Z extends ThemeTicket = ThemeTicket,
   E extends ThemeContext<Z> = ThemeContext<Z>,
@@ -149,6 +173,21 @@ export function createTheme<
  * @returns The current theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useTheme } from '@vuetify/v0'
+ *
+ *   const theme = useTheme()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Current theme: {{ theme.selected.value }}</p>
+ *   </div>
+ * </template>
+ * ```
  */
 export function useTheme (): ThemeContext<ThemeTicket> {
   return useContext<ThemeContext<ThemeTicket>>('v0:theme')
@@ -163,6 +202,37 @@ export function useTheme (): ThemeContext<ThemeTicket> {
  * @returns A new theme plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ *
+ * @example
+ * ```ts
+ * import { createApp } from 'vue'
+ * import { createThemePlugin } from '@vuetify/v0'
+ * import App from './App.vue'
+ *
+ * const app = createApp(App)
+ *
+ * app.use(
+ *   createThemePlugin({
+ *     default: 'light',
+ *     themes: {
+ *       light: {
+ *         dark: false,
+ *         colors: {
+ *           primary: '#3b82f6',
+ *         },
+ *       },
+ *       dark: {
+ *         dark: true,
+ *         colors: {
+ *           primary: '#675496',
+ *         },
+ *       },
+ *     },
+ *   })
+ * )
+ *
+ * app.mount('#app')
+ * ```
  */
 export function createThemePlugin<
   Z extends ThemeTicket = ThemeTicket,

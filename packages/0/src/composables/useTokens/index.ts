@@ -59,6 +59,21 @@ export interface TokenOptions {
  *
  * @see https://www.designtokens.org/tr/drafts/format/
  * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ *
+ * @example
+ * ```ts
+ * import { useTokens } from '@vuetify/v0'
+ *
+ * const tokens = useTokens({
+ *   colors: {
+ *     primary: '#3b82f6',
+ *     secondary: '{colors.primary}', // Alias reference
+ *   },
+ * })
+ *
+ * console.log(tokens.resolve('{colors.primary}')) // '#3b82f6'
+ * console.log(tokens.resolve('{colors.secondary}')) // '#3b82f6'
+ * ```
  */
 export function useTokens<
   Z extends TokenTicket = TokenTicket,
@@ -172,6 +187,29 @@ export function useTokens<
  * @returns A new token context.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ *
+ * @example
+ * ```ts
+ * import { createTokensContext } from '@vuetify/v0'
+ *
+ * const myTokens = {
+ *   spacing: {
+ *     sm: '8px',
+ *     md: '16px',
+ *     lg: '24px',
+ *   },
+ * }
+ *
+ * export const [useDesignTokens, provideDesignTokens, designTokens] = createTokensContext('design-tokens', myTokens)
+ *
+ * // In a parent component:
+ * provideDesignTokens()
+ *
+ * // In a child component:
+ * const tokens = useDesignTokens()
+ *
+ * console.log(tokens.resolve('{spacing.md}')) // '16px'
+ * ```
  */
 export function createTokensContext<
   Z extends TokenTicket = TokenTicket,

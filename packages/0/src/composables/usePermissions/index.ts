@@ -43,6 +43,18 @@ export interface PermissionPluginOptions {
  * @returns A new permissions instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-permissions
+ *
+ * @example
+ * ```ts
+ * import { createPermissions } from '@vuetify/v0'
+ *
+ * const [usePermissions, providePermissions] = createPermissions('v0:permissions', {
+ *   permissions: {
+ *     admin: [['read', 'users']],
+ *     editor: [['edit', 'posts']],
+ *   },
+ * })
+ * ```
  */
 export function createPermissions<
   Z extends PermissionTicket = PermissionTicket,
@@ -93,6 +105,21 @@ export function createPermissions<
  * @returns The current permissions instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { usePermissions } from '@vuetify/v0'
+ *
+ *   const { can } = usePermissions()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p v-if="can('admin', 'read', 'users')">Admin access</p>
+ *   </div>
+ * </template>
+ * ```
  */
 export function usePermissions<Z extends PermissionTicket = PermissionTicket> (): PermissionContext<Z> {
   return useContext<PermissionContext<Z>>('v0:permissions')
@@ -107,6 +134,26 @@ export function usePermissions<Z extends PermissionTicket = PermissionTicket> ()
  * @returns A new permissions plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
+ *
+ * @example
+ * ```ts
+ * import { createApp } from 'vue'
+ * import { createPermissionsPlugin } from '@vuetify/v0'
+ * import App from './App.vue'
+ *
+ * const app = createApp(App)
+ *
+ * app.use(
+ *   createPermissionsPlugin({
+ *     permissions: {
+ *       admin: [['read', 'users']],
+ *       editor: [['edit', 'posts']],
+ *     },
+ *   })
+ * )
+ *
+ * app.mount('#app')
+ * ```
  */
 export function createPermissionsPlugin<
   Z extends PermissionTicket = PermissionTicket,

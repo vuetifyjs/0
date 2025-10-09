@@ -34,6 +34,22 @@ export interface SingleOptions extends SelectionOptions {}
  * @returns A new single selection instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
+ *
+ * @example
+ * ```ts
+ * import { useSingle } from '@vuetify/v0'
+ *
+ * const single = useSingle()
+ *
+ * single.onboard([
+ *   { id: 'option-1', value: 'Option 1' },
+ *   { id: 'option-2', value: 'Option 2' },
+ * ])
+ *
+ * single.select('option-1')
+ *
+ * console.log(single.selectedId.value) // 'option-1'
+ * ```
  */
 export function useSingle<
   Z extends SingleTicket = SingleTicket,
@@ -88,6 +104,20 @@ export function useSingle<
  * @returns A new single selection context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
+ *
+ * @example
+ * ```ts
+ * import { createSingleContext } from '@vuetify/v0'
+ *
+ * export const [useTabs, provideTabs, tabs] = createSingleContext('tabs', { mandatory: true })
+ *
+ * // In a parent component:
+ * provideTabs()
+ *
+ * // In a child component:
+ * const tabs = useTabs()
+ * tabs.select('tab-1')
+ * ```
  */
 export function createSingleContext<
   Z extends SingleTicket = SingleTicket,

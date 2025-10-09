@@ -29,6 +29,19 @@ export interface ProxyModelOptions {
  * @returns A proxy model that can be used to bind to a selection.
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-proxy-model
+ *
+ * @example
+ * ```ts
+ * import { useSelection, useProxyModel } from '@vuetify/v0'
+ *
+ * const registry = useSelection()
+ * registry.onboard([
+ *   { id: 'item-1', value: 'Item 1' },
+ *   { id: 'item-2', value: 'Item 2' },
+ * ])
+ *
+ * const model = useProxyModel(registry, registry.get('item-1'))
+ * ```
  */
 export function useProxyModel<Z extends SelectionTicket> (
   registry: SelectionContext<Z>,
