@@ -35,6 +35,24 @@ export interface StepOptions extends SingleOptions {}
  * @returns A new step instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
+ *
+ * @example
+ * ```ts
+ * import { useStep } from '@vuetify/v0'
+ *
+ * const stepper = useStep()
+ *
+ * stepper.onboard([
+ *   { id: 'step-1', value: 'Account Info' },
+ *   { id: 'step-2', value: 'Payment' },
+ *   { id: 'step-3', value: 'Confirmation' },
+ * ])
+ *
+ * stepper.first()
+ * stepper.next() // Move to step-2
+ *
+ * console.log(stepper.selectedIndex.value) // 1
+ * ```
  */
 export function useStep<
   Z extends StepTicket = StepTicket,
@@ -110,6 +128,20 @@ export function useStep<
  * @returns A new step context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
+ *
+ * @example
+ * ```ts
+ * import { createStepContext } from '@vuetify/v0'
+ *
+ * export const [useWizard, provideWizard, wizard] = createStepContext('wizard')
+ *
+ * // In a parent component:
+ * provideWizard()
+ *
+ * // In a child component:
+ * const wizard = useWizard()
+ * wizard.next() // Progress to next step
+ * ```
  */
 export function createStepContext<
   Z extends StepTicket = StepTicket,

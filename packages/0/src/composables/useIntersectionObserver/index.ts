@@ -196,7 +196,7 @@ export function useIntersectionObserver (
  *
  * @see https://0.vuetifyjs.com/composables/system/use-intersection-observer
  *
- * @examples
+ * @example
  * ```ts
  * import { ref } from 'vue'
  * import { useElementIntersection } from '@vuetify/v0'

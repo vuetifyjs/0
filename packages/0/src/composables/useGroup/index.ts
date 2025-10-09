@@ -40,6 +40,23 @@ export interface GroupOptions extends SelectionOptions {}
  * @returns A new group instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-group
+ *
+ * @example
+ * ```ts
+ * import { useGroup } from '@vuetify/v0'
+ *
+ * const group = useGroup()
+ *
+ * group.onboard([
+ *   { id: 'item-1', value: 'Item 1' },
+ *   { id: 'item-2', value: 'Item 2' },
+ *   { id: 'item-3', value: 'Item 3' },
+ * ])
+ *
+ * group.select(['item-1', 'item-2'])
+ *
+ * console.log(group.selectedIds) // Set { 'item-1', 'item-2' }
+ * ```
  */
 export function useGroup<
   Z extends GroupTicket = GroupTicket,
@@ -90,6 +107,19 @@ export function useGroup<
  * @returns A new group context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-group
+ *
+ * @example
+ * ```ts
+ * import { createGroupContext } from '@vuetify/v0'
+ *
+ * export const [useMyGroup, provideMyGroup, myGroup] = createGroupContext('my-group')
+ *
+ * // In a parent component:
+ * provideMyGroup()
+ *
+ * // In a child component:
+ * const group = useMyGroup()
+ * ```
  */
 export function createGroupContext<
   Z extends GroupTicket = GroupTicket,

@@ -59,6 +59,24 @@ export interface SelectionOptions extends RegistryOptions {
  * @returns A new selection instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ *
+ * @example
+ * ```ts
+ * import { useSelection } from '@vuetify/v0'
+ *
+ * const selection = useSelection({ mandatory: true })
+ *
+ * selection.onboard([
+ *   { id: 'item-1', value: 'Item 1' },
+ *   { id: 'item-2', value: 'Item 2', disabled: true },
+ *   { id: 'item-3', value: 'Item 3' },
+ * ])
+ *
+ * selection.select('item-1')
+ * selection.select('item-3')
+ *
+ * console.log(selection.selectedIds) // Set { 'item-1', 'item-3' }
+ * ```
  */
 export function useSelection<
   Z extends SelectionTicket = SelectionTicket,
@@ -166,6 +184,20 @@ export function useSelection<
  * @returns A new selection context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ *
+ * @example
+ * ```ts
+ * import { createSelectionContext } from '@vuetify/v0'
+ *
+ * export const [useCheckboxes, provideCheckboxes, checkboxes] = createSelectionContext('checkboxes')
+ *
+ * // In a parent component:
+ * provideCheckboxes()
+ *
+ * // In a child component:
+ * const checkboxes = useCheckboxes()
+ * checkboxes.select('checkbox-1')
+ * ```
  */
 export function createSelectionContext<
   Z extends SelectionTicket = SelectionTicket,

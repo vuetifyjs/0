@@ -8,7 +8,7 @@ export type ContextTrinity<Z = unknown> = readonly [
 ]
 
 /**
- * A reusable function for a context composable and its provider.
+ * Creates a new trinity for a context composable and its provider.
  *
  * @param createContext The function that creates the context.
  * @param provideContext The function that provides the context.

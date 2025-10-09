@@ -51,6 +51,7 @@ export const [useStorageContext, provideStorageContext] = createContext<StorageC
  * storage.set('username', 'MyUsername')
  *
  * const username = storage.get('username')
+ *
  * console.log(username.value) // MyUsername
  *
  * storage.clear()

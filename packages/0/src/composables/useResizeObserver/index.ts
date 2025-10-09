@@ -57,7 +57,6 @@ export interface ResizeObserverOptions {
  * )
  * ```
  */
-
 export function useResizeObserver (
   target: Ref<Element | undefined>,
   callback: (entries: ResizeObserverEntry[]) => void,

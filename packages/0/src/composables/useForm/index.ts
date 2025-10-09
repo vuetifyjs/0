@@ -66,6 +66,7 @@ export interface FormOptions extends RegistryOptions {
  * })
  *
  * await form.submit()
+ *
  * console.log(username.errors.value) // ['Username is required']
  *
  * form.reset()

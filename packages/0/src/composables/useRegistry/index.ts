@@ -79,6 +79,19 @@ export interface RegistryOptions {
  * @returns A new registry instance.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-registry
+ *
+ * @example
+ * ```ts
+ * import { useRegistry } from '@vuetify/v0'
+ *
+ * const registry = useRegistry()
+ *
+ * const item1 = registry.register({ id: 'user-1', value: { name: 'John' } })
+ * const item2 = registry.register({ id: 'user-2', value: { name: 'Jane' } })
+ *
+ * console.log(registry.size) // 2
+ * console.log(registry.get('user-1')) // { id: 'user-1', index: 0, value: { name: 'John' }, ... }
+ * ```
  */
 export function useRegistry<
   Z extends RegistryTicket = RegistryTicket,
@@ -342,6 +355,20 @@ export function useRegistry<
  * @returns A new registry context.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-registry
+ *
+ * @example
+ * ```ts
+ * import { createRegistryContext } from '@vuetify/v0'
+ *
+ * export const [useItems, provideItems, items] = createRegistryContext('items')
+ *
+ * // In a parent component:
+ * provideItems()
+ *
+ * // In a child component:
+ * const items = useItems()
+ * items.register({ id: 'item-1', value: 'Value 1' })
+ * ```
  */
 export function createRegistryContext<
   Z extends RegistryTicket = RegistryTicket,

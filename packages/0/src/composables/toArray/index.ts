@@ -8,6 +8,8 @@ import { isNullOrUndefined } from '#v0/utilities'
  * @template Z The type of the value.
  * @returns The converted array.
  *
+ * @see https://0.vuetifyjs.com/composables/transformers/to-array
+ *
  * @example
  * ```ts
  * import { toArray } from '@vuetify/v0'

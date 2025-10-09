@@ -82,7 +82,7 @@ function defaultFilter (
  *   { name: 'Peter Jones', age: 40 },
  * ])
  *
- * const query = ref('doe' )
+ * const query = ref('doe')
  * const { items: filtered } = useFilter(query, items, { keys: ['name'] })
  *
  * console.log(filtered.value) // [ { name: 'John Doe', age: 30 }, { name: 'Jane Doe', age: 25 } ]
