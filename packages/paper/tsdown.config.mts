@@ -53,6 +53,13 @@ export default defineConfig([{
     __VERSION__,
   },
   name: 'vuetify/paper',
+  exports: {
+    devExports: 'development',
+    customExports (pkg, ctx) {
+      pkg['./browser'] = ctx.isPublish ? './dist/browser/index.js' : { ...pkg['.'], default: './dist/browser/index.js' }
+      return pkg
+    },
+  },
   alias: {
     '#v0': v0,
     '#paper': paper,
