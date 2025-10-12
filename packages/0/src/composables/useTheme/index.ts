@@ -11,7 +11,7 @@ import { useTokens } from '#v0/composables/useTokens'
 import { computed, watch } from 'vue'
 
 // Adapters
-import { Vuetify0ThemeAdapter } from './adapters/v0'
+import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -20,9 +20,14 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef } from 'vue'
-import type { ThemeAdapter } from './adapters/adapter'
+import type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 import type { TokenCollection } from '#v0/composables/useTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+
+// Exports
+export { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
+
+export type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 export type Colors = {
   [key: string]: string

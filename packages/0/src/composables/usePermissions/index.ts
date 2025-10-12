@@ -7,16 +7,21 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useTokens } from '#v0/composables/useTokens'
 
 // Adapters
-import { Vuetify0PermissionAdapter } from '#v0/composables/usePermissions/adapters/v0'
+import { Vuetify0PermissionAdapter } from '#v0/composables/usePermissions/adapters'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { TokenContext, TokenTicket } from '#v0/composables/useTokens'
-import type { PermissionAdapter } from '#v0/composables/usePermissions/adapters/adapter'
+import type { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
 import type { App } from 'vue'
 import type { ID } from '#v0/types'
+
+// Exports
+export { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
+
+export type { PermissionAdapterInterface } from '#v0/composables/usePermissions/adapters'
 
 export interface PermissionTicket extends TokenTicket {
   value: boolean | ((context: Record<string, any>) => boolean)

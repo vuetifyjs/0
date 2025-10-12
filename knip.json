@@ -12,10 +12,12 @@
     "apps/docs": {
       "entry": [
         "src/components.d.ts",
-        "src/main.ts"
+        "src/main.ts",
+        "build/**/*.ts"
       ],
       "project": [
-        "src/**/*.{js,ts,vue,md}"
+        "src/**/*.{js,ts,vue,md}",
+        "build/**/*.ts"
       ],
       "ignore": [
         "src/typed-router.d.ts",
@@ -53,6 +55,10 @@
         "!src/**/*.test.ts",
         "!src/**/*.spec.ts"
       ],
+      "ignore": [
+        "src/**/*.bench.ts",
+        "src/**/fixtures/**",
+      ],
       "paths": {
         "#v0/*": [
           "src/*"
@@ -64,6 +70,9 @@
         "src/**/*.{ts,vue}",
         "!src/**/*.test.ts",
         "!src/**/*.spec.ts"
+      ],
+      "ignore": [
+        "src/**/helpers.ts"
       ],
       "ignoreDependencies": [
         "sass"

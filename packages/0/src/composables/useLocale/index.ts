@@ -18,6 +18,11 @@ import type { LocaleAdapter } from './adapters'
 import type { App } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 
+// Exports
+export type { LocaleAdapter } from '#v0/composables/useLocale/adapters'
+
+export { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters'
+
 export type LocaleTicket = SingleTicket
 
 export interface LocaleContext<Z extends LocaleTicket> extends SingleContext<Z> {

@@ -6,25 +6,26 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { getCurrentInstance, shallowRef } from 'vue'
 
 // Adapters
-import { Vuetify0LoggerAdapter } from './adapters'
+import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
 // Globals
 import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { App } from 'vue'
-import type { LoggerAdapter } from './adapters'
-import type { LogLevel } from './types'
+import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
+import type { LogLevel } from '#v0/composables/useLogger/types'
 
-export type { LoggerAdapter } from './adapters'
+// Exports
+export type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
 export {
   ConsolaLoggerAdapter,
   PinoLoggerAdapter,
   Vuetify0LoggerAdapter,
-} from './adapters'
+} from '#v0/composables/useLogger/adapters'
 
-export type { LogLevel } from './types'
+export type { LogLevel } from '#v0/composables/useLogger/types'
 
 export interface LoggerContext {
   debug: (message: string, ...args: unknown[]) => void

@@ -6,14 +6,14 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { ref, watch } from 'vue'
 
 // Adapters
-import { MemoryAdapter } from './adapters'
+import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
 
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { App, Ref } from 'vue'
-import type { StorageAdapter } from './adapters'
+import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
 
 export interface StorageContext {
   get: <T>(key: string, defaultValue?: T) => Ref<T>
@@ -30,6 +30,10 @@ export interface StorageOptions {
     write: (value: any) => string
   }
 }
+// Exports
+export { MemoryAdapter } from '#v0/composables/useStorage/adapters'
+
+export type { StorageAdapter, StorageType } from '#v0/composables/useStorage/adapters'
 
 export const [useStorageContext, provideStorageContext] = createContext<StorageContext>('v0:storage')
 
