@@ -113,8 +113,8 @@ export function createBreakpoints<
   const name = shallowRef<BreakpointName>('xs')
   const width = shallowRef(0)
   const height = shallowRef(0)
-  const isMobile = shallowRef(false)
-  const xs = shallowRef(false)
+  const isMobile = shallowRef(true)
+  const xs = shallowRef(true)
   const sm = shallowRef(false)
   const md = shallowRef(false)
   const lg = shallowRef(false)
@@ -125,11 +125,11 @@ export function createBreakpoints<
   const lgAndUp = shallowRef(false)
   const xlAndUp = shallowRef(false)
   const xxlAndUp = shallowRef(false)
-  const smAndDown = shallowRef(false)
-  const mdAndDown = shallowRef(false)
-  const lgAndDown = shallowRef(false)
-  const xlAndDown = shallowRef(false)
-  const xxlAndDown = shallowRef(false)
+  const smAndDown = shallowRef(true)
+  const mdAndDown = shallowRef(true)
+  const lgAndDown = shallowRef(true)
+  const xlAndDown = shallowRef(true)
+  const xxlAndDown = shallowRef(true)
 
   function update () {
     if (!IN_BROWSER) return
