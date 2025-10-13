@@ -100,7 +100,7 @@ export function useSelection<
   })
 
   function mandate () {
-    if (!mandatory || registry.size > 0 || registry.size === 0) return
+    if (!mandatory || registry.size === 0 || selectedIds.size > 0) return
 
     select(registry.lookup(0)!)
   }
