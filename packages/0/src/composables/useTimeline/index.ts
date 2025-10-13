@@ -5,10 +5,10 @@ import { useRegistry } from '#v0/composables/useRegistry'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 
 export interface TimelineContext<Z extends TimelineTicket> extends RegistryContext<Z> {
-  /* Unapplies the last registered ticket */
-  undo: () => void
-  /* Reapplies the last undone ticket */
-  redo: () => void
+  /* Removes the last registered ticket and stores it for redo */
+  undo: () => Z | undefined
+  /* Restores the last undone ticket */
+  redo: () => Z | undefined
 }
 
 export interface TimelineTicket extends RegistryTicket {}
@@ -51,17 +51,20 @@ export function useTimeline<
   const { size = 10, ...options } = _options
   const registry = useRegistry<Z, E>(options)
 
-  const undoTimeline: Z[] = []
-  const redoTimeline: Z[] = []
+  const undoStack: Z[] = []
+  const redoStack: Z[] = []
+  const overflow: Z[] = []
 
   function register (item: Partial<Z>) {
+    redoStack.length = 0
+
     if (registry.size < size) return registry.register({ ...item })
 
     const id = registry.lookup(0)!
     const removing = registry.get(id)!
 
-    if (redoTimeline.length === size) redoTimeline.shift()
-    redoTimeline.push(removing)
+    if (overflow.length === size) overflow.shift()
+    overflow.push(removing)
 
     registry.unregister(id)
 
@@ -71,31 +74,35 @@ export function useTimeline<
     return ticket
   }
 
-  function redo () {
-    if (undoTimeline.length === 0) return
-
-    registry.register(undoTimeline.pop())
-    registry.reindex()
-  }
-
   function undo () {
     const id = registry.lookup(registry.size - 1)
-    if (!id) return
+    if (!id) return undefined
 
-    undoTimeline.push(registry.get(id)!)
+    const item = registry.get(id)!
+    undoStack.push(item)
 
-    registry.unregister(id!)
+    registry.unregister(id)
 
-    restore()
+    const restored = overflow.pop()
+    if (restored) {
+      registry.clear()
+      registry.onboard([restored, ...registry.values()])
+      registry.reindex()
+    }
+
+    return item
   }
 
-  function restore () {
-    const value = redoTimeline.pop()
-    const restored = value ? [value, ...registry.values()] : [...registry.values()]
+  function redo () {
+    if (undoStack.length === 0) return undefined
 
-    registry.clear()
-    registry.onboard(restored)
+    const item = undoStack.pop()!
+    redoStack.push(item)
+
+    const ticket = registry.register(item)
     registry.reindex()
+
+    return ticket
   }
 
   return {
