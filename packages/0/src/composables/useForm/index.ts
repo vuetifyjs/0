@@ -9,13 +9,12 @@ import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
-import type { Ref, ShallowRef } from 'vue'
+import type { ComputedRef, Ref, ShallowRef } from 'vue'
 import type { ID } from '#v0/types'
-import type { AnyARecord } from 'node:dns'
 
 export type FormValidationResult = string | true | Promise<string | true>
 
-export type FormValidationRule = (value: AnyARecord) => FormValidationResult
+export type FormValidationRule = (value: any) => FormValidationResult
 
 export type FormValue = Ref<any> | ShallowRef<any>
 
@@ -35,8 +34,8 @@ export interface FormContext<Z extends FormTicket = FormTicket> extends Registry
   submit: (id?: ID | ID[]) => Promise<boolean>
   reset: () => void
   validateOn: 'submit' | 'change' | string
-  isValid: ShallowRef<boolean | null>
-  isValidating: ShallowRef<boolean>
+  isValid: ComputedRef<boolean | null>
+  isValidating: ComputedRef<boolean>
 }
 
 export interface FormOptions extends RegistryOptions {
