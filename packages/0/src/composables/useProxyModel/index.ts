@@ -113,10 +113,10 @@ export function useProxyModel<Z extends SelectionTicket> (
         registry.selectedIds.add(id)
       }
     } else {
-      const next = targetIds.values().next().value as ID
-      const last = currentIds.values().next().value as ID
-      registry.selectedIds.delete(last)
-      registry.selectedIds.add(next)
+      const next = targetIds.values().next().value
+      const last = currentIds.values().next().value
+      if (last !== undefined) registry.unselect(last)
+      if (next !== undefined) registry.select(next)
     }
 
     watcher.resume()
