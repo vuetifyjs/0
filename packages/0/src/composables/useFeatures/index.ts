@@ -87,7 +87,7 @@ export function createFeatures<
     const ticket = registry.register(item)
 
     if (
-      isBoolean(ticket.value) || (
+      (isBoolean(ticket.value) && ticket.value === true) || (
         isObject(ticket.value) && (
           isBoolean(ticket.value.$value) &&
           ticket.value.$value === true
