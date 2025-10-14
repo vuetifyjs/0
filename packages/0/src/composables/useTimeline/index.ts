@@ -85,8 +85,9 @@ export function useTimeline<
 
     const restored = overflow.pop()
     if (restored) {
+      const remaining = registry.values()
       registry.clear()
-      registry.onboard([restored, ...registry.values()])
+      registry.onboard([restored, ...remaining])
       registry.reindex()
     }
 
@@ -110,5 +111,8 @@ export function useTimeline<
     register,
     undo,
     redo,
+    get size () {
+      return registry.size
+    },
   } as E
 }
