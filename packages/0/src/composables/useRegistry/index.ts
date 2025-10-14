@@ -29,7 +29,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   collection: Map<ID, Z>
   /** Clear the entire registry */
   clear: () => void
-  /** Check if an item exists by ID */
+  /** Check if a ticket exists by ID */
   has: (id: ID) => boolean
   /** Returns an array of registered IDs */
   keys: () => ID[]
@@ -39,15 +39,15 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   lookup: (index: number) => ID | undefined
   /** Get a ticket by ID */
   get: (id: ID) => Z | undefined
-  /** Update or insert an item by ID */
-  upsert: (id: ID, item?: Partial<Z>) => Z
+  /** Update or insert a ticket by ID */
+  upsert: (id: ID, ticket?: Partial<Z>) => Z
   /** Get all registered tickets */
   values: () => Z[]
   /** Get all entries as [ID, ticket] pairs */
   entries: () => [ID, Z][]
-  /** Register a new item */
-  register: (item?: Partial<Z>) => Z
-  /** Unregister an item by ID */
+  /** Register a new ticket */
+  register: (ticket?: Partial<Z>) => Z
+  /** Unregister an ticket by ID */
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
   reindex: () => void
@@ -59,7 +59,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   emit: (event: string, data: any) => void
   /** Clears the registry and listeners */
   dispose: () => void
-  /** Onboard multiple new items */
+  /** Onboard multiple new tickets */
   onboard: (registrations: Partial<Z>[]) => Z[]
   /** The size of the registry */
   size: number
@@ -86,8 +86,8 @@ export interface RegistryOptions {
  *
  * const registry = useRegistry()
  *
- * const item1 = registry.register({ id: 'user-1', value: { name: 'John' } })
- * const item2 = registry.register({ id: 'user-2', value: { name: 'Jane' } })
+ * const ticket1 = registry.register({ id: 'user-1', value: { name: 'John' } })
+ * const ticket2 = registry.register({ id: 'user-2', value: { name: 'Jane' } })
  *
  * console.log(registry.size) // 2
  * console.log(registry.get('user-1')) // { id: 'user-1', index: 0, value: { name: 'John' }, ... }
@@ -257,15 +257,15 @@ export function useRegistry<
 
     let index = 0
 
-    for (const item of values()) {
-      if (item.index !== index) {
-        item.index = index
+    for (const ticket of values()) {
+      if (ticket.index !== index) {
+        ticket.index = index
 
-        if (item.valueIsIndex) item.value = index
+        if (ticket.valueIsIndex) ticket.value = index
       }
 
-      directory.set(index, item.id)
-      assign(item.value, item.id)
+      directory.set(index, ticket.id)
+      assign(ticket.value, ticket.id)
 
       index++
     }
@@ -278,7 +278,7 @@ export function useRegistry<
     const id = registration.id ?? genId()
 
     if (has(id)) {
-      logger.warn(`Item with id "${id}" already exists in the registry. Skipping registration.`)
+      logger.warn(`Ticket with id "${id}" already exists in the registry. Skipping registration.`)
 
       return get(id) as Z
     }
@@ -287,7 +287,7 @@ export function useRegistry<
     const value = registration.value === undefined ? index : registration.value
     const valueIsIndex = registration.value === undefined
 
-    const item = {
+    const ticket = {
       ...registration,
       id,
       index,
@@ -295,26 +295,26 @@ export function useRegistry<
       valueIsIndex,
     } as Z
 
-    collection.set(item.id, item)
-    directory.set(item.index, item.id)
+    collection.set(ticket.id, ticket)
+    directory.set(ticket.index, ticket.id)
 
-    assign(item.value, item.id)
+    assign(ticket.value, ticket.id)
     invalidate()
-    emit('register', item)
+    emit('register', ticket)
 
-    return item
+    return ticket
   }
 
   function unregister (id: ID) {
-    const item = collection.get(id)
+    const ticket = collection.get(id)
 
-    if (!item) return
+    if (!ticket) return
 
-    collection.delete(item.id)
-    directory.delete(item.index)
-    unassign(item.value, item.id)
+    collection.delete(ticket.id)
+    directory.delete(ticket.index)
+    unassign(ticket.value, ticket.id)
 
-    emit('unregister', item)
+    emit('unregister', ticket)
     reindex()
   }
 
