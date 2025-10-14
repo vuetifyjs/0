@@ -174,6 +174,9 @@ export function useTokens<
     ...registry,
     resolve,
     isAlias,
+    get size () {
+      return registry.size
+    },
   } as E
 }
 

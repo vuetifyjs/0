@@ -94,6 +94,9 @@ export function useGroup<
     unselect,
     toggle,
     selectedIndexes,
+    get size () {
+      return registry.size
+    },
   } as E
 }
 

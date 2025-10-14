@@ -104,6 +104,9 @@ export function createFeatures<
     ...registry,
     variation,
     register,
+    get size () {
+      return registry.size
+    },
   } as E
 
   function provideFeaturesContext (_context: E = context, app?: App) {

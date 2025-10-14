@@ -210,5 +210,8 @@ export function useForm<
     validateOn,
     isValid,
     isValidating,
+    get size () {
+      return registry.size
+    },
   } as E
 }

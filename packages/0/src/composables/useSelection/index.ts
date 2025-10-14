@@ -197,6 +197,9 @@ export function useSelection<
     unselect,
     toggle,
     selected,
+    get size () {
+      return registry.size
+    },
   } as E
 }
 

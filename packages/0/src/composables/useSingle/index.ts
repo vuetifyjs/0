@@ -91,6 +91,9 @@ export function useSingle<
     select,
     unselect,
     toggle,
+    get size () {
+      return registry.size
+    },
   } as E
 }
 

@@ -163,6 +163,9 @@ export function createTheme<
     colors,
     register,
     cycle,
+    get size () {
+      return registry.size
+    },
   } as E
 
   function provideThemeContext (_context: E = context, app?: App): E {

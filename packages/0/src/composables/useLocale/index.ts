@@ -103,6 +103,9 @@ export function createLocale<
     ...registry,
     t,
     n,
+    get size () {
+      return registry.size
+    },
   } as E
 
   function provideLocaleContext (_context: E = context, app?: App): E {

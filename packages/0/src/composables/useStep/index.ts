@@ -110,6 +110,9 @@ export function useStep<
     next,
     prev,
     step,
+    get size () {
+      return registry.size
+    },
   } as E
 }
 
