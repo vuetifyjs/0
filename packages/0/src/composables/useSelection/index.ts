@@ -102,7 +102,11 @@ export function useSelection<
   function mandate () {
     if (!mandatory || registry.size === 0 || selectedIds.size > 0) return
 
-    select(registry.lookup(0)!)
+    for (const item of registry.values()) {
+      if (item.disabled) continue
+
+      return select(item.id)
+    }
   }
 
   function select (id: ID) {
@@ -154,7 +158,7 @@ export function useSelection<
 
   function reset () {
     registry.clear()
-    registry.reindex()
+    selectedIds.clear()
     mandate()
   }
 

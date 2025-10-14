@@ -91,8 +91,70 @@ describe('useSelection', () => {
 
       selection.mandate()
 
-      // mandate() calls select(registry.lookup(0)!), which is 'item-1'
-      // but select() checks if item is disabled and returns early
+      // mandate() should skip the disabled item-1 and select item-2
+      expect(selection.selectedIds.size).toBe(1)
+      expect(selection.selectedIds.has('item-2')).toBe(true)
+    })
+
+    it('should not select anything when all items are disabled', () => {
+      const selection = useSelection({ mandatory: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1', disabled: true },
+        { id: 'item-2', value: 'value-2', disabled: true },
+        { id: 'item-3', value: 'value-3', disabled: true },
+      ])
+
+      selection.mandate()
+
+      // All items are disabled, so nothing should be selected
+      expect(selection.selectedIds.size).toBe(0)
+    })
+  })
+
+  describe('reset', () => {
+    it('should clear registry and selectedIds', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      selection.select('item-1')
+      selection.select('item-2')
+
+      // Verify selectedIds has items before reset
+      expect(selection.selectedIds.size).toBe(2)
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+      expect(selection.selectedIds.has('item-2')).toBe(true)
+
+      selection.reset()
+
+      // After reset, everything should be cleared
+      expect(selection.size).toBe(0)
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should clear selectedIds and call mandate when mandatory is true', () => {
+      const selection = useSelection({ mandatory: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      selection.select('item-2')
+
+      // Verify selectedIds before reset
+      expect(selection.selectedIds.size).toBe(1)
+      expect(selection.selectedIds.has('item-2')).toBe(true)
+
+      selection.reset()
+
+      // After reset, registry is empty, selectedIds is cleared, mandate does nothing
+      expect(selection.size).toBe(0)
       expect(selection.selectedIds.size).toBe(0)
     })
   })
