@@ -61,18 +61,13 @@ export function useStep<
   const registry = useSingle<Z, E>(options)
 
   function first () {
-    if (registry.size === 0) return
-
-    registry.selectedIds.clear()
-    registry.select(registry.lookup(0)!)
+    const ticket = registry.seek('first')
+    if (ticket) registry.select(ticket.id)
   }
 
   function last () {
-    const size = registry.size
-    if (size === 0) return
-
-    registry.selectedIds.clear()
-    registry.select(registry.lookup(size - 1)!)
+    const ticket = registry.seek('last')
+    if (ticket) registry.select(ticket.id)
   }
 
   function next () {
@@ -84,7 +79,7 @@ export function useStep<
   }
 
   function wrapped (length: number, index: number) {
-    return (index + length) % length
+    return ((index % length) + length) % length
   }
 
   function step (count = 1) {
