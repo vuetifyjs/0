@@ -37,6 +37,11 @@ export function isNullOrUndefined (item: unknown): item is null {
 }
 
 /* #__NO_SIDE_EFFECTS__ */
+export function isUndefined (item: unknown): item is undefined {
+  return item === undefined
+}
+
+/* #__NO_SIDE_EFFECTS__ */
 export function isPrimitive (item: unknown): item is string | number | boolean {
   return (
     typeof item === 'string' ||
