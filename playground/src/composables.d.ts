@@ -80,6 +80,7 @@ declare global {
   const isRef: typeof import('vue')['isRef']
   const isSelfClosingTag: typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']
   const isString: typeof import('../../packages/0/src/utilities/helpers')['isString']
+  const isUndefined: typeof import('../../packages/0/src/utilities/helpers')['isUndefined']
   const markRaw: typeof import('vue')['markRaw']
   const mergeDeep: typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']
   const nextTick: typeof import('vue')['nextTick']
@@ -364,6 +365,7 @@ declare module 'vue' {
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isSelfClosingTag: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']>
     readonly isString: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isString']>
+    readonly isUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isUndefined']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly mergeDeep: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
