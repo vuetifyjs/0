@@ -6,7 +6,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { genId, isArray } from '#v0/utilities'
+import { genId, isArray, isUndefined } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
@@ -51,6 +51,8 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   unregister: (id: ID) => void
   /** Reset the index directory and update all tickets */
   reindex: () => void
+  /** Find the first or last ticket, optionally filtered by a predicate and starting from a specific index */
+  seek: (direction?: 'first' | 'last', from?: number, predicate?: (ticket: Z) => boolean) => Z | undefined
   /** Listen for registry events */
   on: (event: string, cb: Function) => void
   /** Stop listening for registry events */
@@ -318,6 +320,33 @@ export function useRegistry<
     reindex()
   }
 
+  function seek (
+    direction: 'first' | 'last' = 'first',
+    from?: number,
+    predicate?: (ticket: Z) => boolean,
+  ): Z | undefined {
+    if (collection.size === 0) return undefined
+
+    const tickets = values()
+    const index = isUndefined(from) ? undefined : Math.max(0, Math.min(from, tickets.length - 1))
+
+    if (direction === 'last') {
+      const start = isUndefined(index) ? tickets.length - 1 : index
+      for (let i = start; i >= 0; i--) {
+        const ticket = tickets[i]!
+        if (!predicate || predicate(ticket)) return ticket
+      }
+    } else {
+      const start = isUndefined(index) ? 0 : index
+      for (let i = start; i < tickets.length; i++) {
+        const ticket = tickets[i]!
+        if (!predicate || predicate(ticket)) return ticket
+      }
+    }
+
+    return undefined
+  }
+
   return {
     collection,
     emit,
@@ -336,6 +365,7 @@ export function useRegistry<
     register,
     unregister,
     reindex,
+    seek,
     onboard (registrations: Partial<Z>[]) {
       return registrations.map(registration => this.register(registration))
     },

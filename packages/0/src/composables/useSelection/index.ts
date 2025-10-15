@@ -7,7 +7,7 @@ import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { computed, shallowReactive, toRef } from 'vue'
-import { genId, isUndefined } from '#v0/utilities'
+import { genId } from '#v0/utilities'
 
 // Types
 import type { App, ComputedRef, Reactive, Ref } from 'vue'
@@ -42,8 +42,6 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
   selected: (id: ID) => boolean
   /** Mandates selected ID based on "mandatory" Option */
   mandate: () => void
-  /** Seek first or last non-disabled ticket, optionally starting from a specific index */
-  seek: (direction?: 'first' | 'last', from?: number) => Z | undefined
 }
 
 export interface SelectionOptions extends RegistryOptions {
@@ -102,24 +100,7 @@ export function useSelection<
   })
 
   function seek (direction: 'first' | 'last' = 'first', from?: number): Z | undefined {
-    if (registry.size === 0) return undefined
-
-    const tickets = registry.values()
-    const index = isUndefined(from) ? undefined : Math.max(0, Math.min(from, tickets.length - 1))
-
-    if (direction === 'last') {
-      const start = isUndefined(index) ? tickets.length - 1 : index
-      for (let i = start; i >= 0; i--) {
-        if (!tickets[i]!.disabled) return tickets[i]
-      }
-    } else {
-      const start = isUndefined(index) ? 0 : index
-      for (let i = start; i < tickets.length; i++) {
-        if (!tickets[i]!.disabled) return tickets[i]
-      }
-    }
-
-    return undefined
+    return registry.seek(direction, from, (ticket: Z) => !ticket.disabled)
   }
 
   function mandate () {
