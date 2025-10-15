@@ -51,22 +51,20 @@ export function useTimeline<
   const { size = 10, ...options } = _options
   const registry = useRegistry<Z, E>(options)
 
-  const undoStack: Z[] = []
-  const redoStack: Z[] = []
+  const stack: Z[] = []
   const overflow: Z[] = []
 
   function register (item: Partial<Z>) {
-    redoStack.length = 0
+    stack.length = 0
 
     if (registry.size < size) return registry.register({ ...item })
 
-    const id = registry.lookup(0)!
-    const removing = registry.get(id)!
+    const removing = registry.seek('first')!
 
     if (overflow.length === size) overflow.shift()
     overflow.push(removing)
 
-    registry.unregister(id)
+    registry.unregister(removing.id)
 
     const ticket = registry.register({ ...item })
     registry.reindex()
@@ -75,13 +73,12 @@ export function useTimeline<
   }
 
   function undo () {
-    const id = registry.lookup(registry.size - 1)
-    if (!id) return undefined
+    const item = registry.seek('last')
+    if (!item) return undefined
 
-    const item = registry.get(id)!
-    undoStack.push(item)
+    stack.push(item)
 
-    registry.unregister(id)
+    registry.unregister(item.id)
 
     const restored = overflow.pop()
     if (restored) {
@@ -95,10 +92,9 @@ export function useTimeline<
   }
 
   function redo () {
-    if (undoStack.length === 0) return undefined
+    if (stack.length === 0) return undefined
 
-    const item = undoStack.pop()!
-    redoStack.push(item)
+    const item = stack.pop()!
 
     const ticket = registry.register(item)
     registry.reindex()

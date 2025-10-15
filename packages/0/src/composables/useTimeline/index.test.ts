@@ -133,4 +133,80 @@ describe('useTimeline', () => {
     expect(timeline.size).toBe(1)
     expect(timeline.values()[0]!.value).toBe('A')
   })
+
+  it('should support multiple consecutive redos', () => {
+    const timeline = useTimeline({ size: 3 })
+
+    timeline.register({ id: 'a', value: 'A' })
+    timeline.register({ id: 'b', value: 'B' })
+    timeline.register({ id: 'c', value: 'C' })
+
+    // Undo twice to get [A]
+    timeline.undo()
+    timeline.undo()
+    expect(timeline.values().map(t => t.value)).toEqual(['A'])
+
+    // Redo twice to restore [A, B, C]
+    timeline.redo()
+    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B'])
+    timeline.redo()
+    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B', 'C'])
+  })
+
+  it('should clear redo stack when new item is registered after undo', () => {
+    const timeline = useTimeline({ size: 3 })
+
+    timeline.register({ id: 'a', value: 'A' })
+    timeline.register({ id: 'b', value: 'B' })
+    timeline.register({ id: 'c', value: 'C' })
+
+    // Undo to get [A, B]
+    timeline.undo()
+    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B'])
+
+    // Register new item - should clear redo stack
+    timeline.register({ id: 'd', value: 'D' })
+    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B', 'D'])
+
+    // Redo should not restore C (redo stack was cleared)
+    const result = timeline.redo()
+    expect(result).toBeUndefined()
+    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B', 'D'])
+  })
+
+  it('should use seek to find first and last items correctly', () => {
+    const timeline = useTimeline({ size: 3 })
+
+    timeline.register({ id: 'a', value: 'A' })
+    timeline.register({ id: 'b', value: 'B' })
+    timeline.register({ id: 'c', value: 'C' })
+
+    // Verify seek('first') finds the first item
+    const first = timeline.seek('first')
+    expect(first?.value).toBe('A')
+    expect(first?.id).toBe('a')
+
+    // Verify seek('last') finds the last item
+    const last = timeline.seek('last')
+    expect(last?.value).toBe('C')
+    expect(last?.id).toBe('c')
+  })
+
+  it('should properly remove first item when timeline overflows', () => {
+    const timeline = useTimeline({ size: 2 })
+
+    // Fill timeline
+    timeline.register({ id: 'a', value: 'A' })
+    timeline.register({ id: 'b', value: 'B' })
+
+    // This should remove 'a' (first item) and add 'c'
+    timeline.register({ id: 'c', value: 'C' })
+
+    expect(timeline.size).toBe(2)
+    expect(timeline.values().map(t => t.value)).toEqual(['B', 'C'])
+
+    // Verify 'a' is in overflow by undoing
+    timeline.undo()
+    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B'])
+  })
 })
