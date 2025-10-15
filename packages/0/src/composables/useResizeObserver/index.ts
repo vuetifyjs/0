@@ -42,19 +42,28 @@ export interface ResizeObserverOptions {
  * import { ref } from 'vue'
  * import { useResizeObserver } from '@vuetify/v0'
  *
- * const el = ref(null)
+ * const el = ref<HTMLElement>()
  * const width = ref(0)
  * const height = ref(0)
  *
- * useResizeObserver(
+ * const { pause, resume, isPaused } = useResizeObserver(
  *   el,
  *   (entries) => {
  *     const entry = entries[0]
- *     width.value = entry.contentRect.width
- *     height.value = entry.contentRect.height
+ *     if (entry) {
+ *       width.value = entry.contentRect.width
+ *       height.value = entry.contentRect.height
+ *       console.log('Size changed:', width.value, 'x', height.value)
+ *     }
  *   },
  *   { immediate: true }
  * )
+ *
+ * // Pause observation
+ * pause()
+ *
+ * // Resume observation
+ * resume()
  * ```
  */
 export function useResizeObserver (
@@ -65,43 +74,6 @@ export function useResizeObserver (
   const { isHydrated } = useHydration()
   const observer = shallowRef<ResizeObserver>()
   const isPaused = shallowRef(false)
-
-  watch([isHydrated, target], ([hydrated, el]) => {
-    cleanup()
-
-    if (!hydrated || !SUPPORTS_OBSERVER || !el) return
-
-    observer.value = new ResizeObserver(entries => {
-      const transformedEntries: ResizeObserverEntry[] = entries.map(entry => ({
-        contentRect: {
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-          top: entry.contentRect.top,
-          left: entry.contentRect.left,
-        },
-        target: entry.target,
-      }))
-
-      callback(transformedEntries)
-    })
-
-    observer.value.observe(el, {
-      box: options.box || 'content-box',
-    })
-
-    if (options.immediate) {
-      const rect = el.getBoundingClientRect()
-      callback([{
-        contentRect: {
-          width: rect.width,
-          height: rect.height,
-          top: rect.top,
-          left: rect.left,
-        },
-        target: el,
-      }])
-    }
-  })
 
   function setup () {
     if (!isHydrated.value || !SUPPORTS_OBSERVER || !target.value || isPaused.value) return
@@ -137,6 +109,11 @@ export function useResizeObserver (
       }])
     }
   }
+
+  watch([isHydrated, target], () => {
+    cleanup()
+    setup()
+  })
 
   function cleanup () {
     if (observer.value) {
@@ -182,11 +159,16 @@ export function useResizeObserver (
  *
  * @example
  * ```ts
- * import { ref } from 'vue'
+ * import { ref, watchEffect } from 'vue'
  * import { useElementSize } from '@vuetify/v0'
  *
  * const box = ref<HTMLElement>()
  * const { width, height } = useElementSize(box)
+ *
+ * // Width and height are reactive refs
+ * watchEffect(() => {
+ *   console.log('Box size:', width.value, 'x', height.value)
+ * })
  * ```
  */
 export function useElementSize (target: Ref<Element | undefined>) {

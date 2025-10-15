@@ -41,15 +41,29 @@ export interface IntersectionObserverOptions {
  *
  * @example
  * ```ts
+ * import { ref } from 'vue'
  * import { useIntersectionObserver } from '@vuetify/v0'
+ *
+ * const target = ref<HTMLElement>()
+ * const isVisible = ref(false)
  *
  * const { isIntersecting, pause, resume } = useIntersectionObserver(
  *   target,
  *   (entries) => {
- *     console.log('Intersection entries:', entries)
+ *     const entry = entries[0]
+ *     if (entry) {
+ *       isVisible.value = entry.isIntersecting
+ *       console.log('Element is visible:', entry.isIntersecting)
+ *     }
  *   },
- *   { immediate: true, threshold: 0.5 }
+ *   { threshold: 0.5 }
  * )
+ *
+ * // Pause observation
+ * pause()
+ *
+ * // Resume observation
+ * resume()
  * ```
  */
 export function useIntersectionObserver (
@@ -61,56 +75,6 @@ export function useIntersectionObserver (
   const observer = shallowRef<IntersectionObserver>()
   const isPaused = shallowRef(false)
   const isIntersecting = shallowRef(false)
-
-  watch([isHydrated, target], ([hydrated, el]) => {
-    cleanup()
-
-    if (!hydrated || !SUPPORTS_INTERSECTION_OBSERVER || !el) return
-
-    observer.value = new IntersectionObserver(entries => {
-      const transformedEntries: IntersectionObserverEntry[] = entries.map(entry => ({
-        boundingClientRect: entry.boundingClientRect,
-        intersectionRatio: entry.intersectionRatio,
-        intersectionRect: entry.intersectionRect,
-        isIntersecting: entry.isIntersecting,
-        rootBounds: entry.rootBounds,
-        target: entry.target,
-        time: entry.time,
-      }))
-
-      // Update reactive state
-      const latestEntry = transformedEntries.at(-1)
-      if (latestEntry) {
-        isIntersecting.value = latestEntry.isIntersecting
-      }
-
-      callback(transformedEntries)
-    }, {
-      root: options.root || null,
-      rootMargin: options.rootMargin || '0px',
-      threshold: options.threshold || 0,
-    })
-
-    observer.value.observe(el)
-
-    if (options.immediate) {
-      // For immediate callback, we need to create a synthetic entry
-      // Since we can't know intersection state without actual observation,
-      // we'll call with initial state (typically not intersecting)
-      const rect = el.getBoundingClientRect()
-      const syntheticEntry: IntersectionObserverEntry = {
-        boundingClientRect: rect,
-        intersectionRatio: 0,
-        intersectionRect: new DOMRect(0, 0, 0, 0),
-        isIntersecting: false,
-        rootBounds: null,
-        target: el,
-        time: performance.now(),
-      }
-
-      callback([syntheticEntry])
-    }
-  })
 
   function setup () {
     if (!isHydrated.value || !SUPPORTS_INTERSECTION_OBSERVER || !target.value || isPaused.value) return
@@ -153,6 +117,11 @@ export function useIntersectionObserver (
       callback([syntheticEntry])
     }
   }
+
+  watch([isHydrated, target], () => {
+    cleanup()
+    setup()
+  })
 
   function cleanup () {
     if (observer.value) {
@@ -202,7 +171,16 @@ export function useIntersectionObserver (
  * import { useElementIntersection } from '@vuetify/v0'
  *
  * const myElement = ref<HTMLElement>()
- * const { isIntersecting, intersectionRatio } = useElementIntersection(myElement)
+ * const { isIntersecting, intersectionRatio } = useElementIntersection(myElement, {
+ *   threshold: 0.5
+ * })
+ *
+ * // Use in template to conditionally render or animate
+ * watchEffect(() => {
+ *   if (isIntersecting.value) {
+ *     console.log('Element is visible!', intersectionRatio.value)
+ *   }
+ * })
  * ```
  */
 export function useElementIntersection (

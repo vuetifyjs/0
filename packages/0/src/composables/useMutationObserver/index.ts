@@ -43,6 +43,38 @@ export interface UseMutationObserverOptions {
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
  * @see https://0.vuetifyjs.com/composables/system/use-mutation-observer
+ *
+ * @example
+ * ```ts
+ * import { ref } from 'vue'
+ * import { useMutationObserver } from '@vuetify/v0'
+ *
+ * const container = ref<HTMLElement>()
+ *
+ * const { pause, resume, isPaused } = useMutationObserver(
+ *   container,
+ *   (mutations) => {
+ *     mutations.forEach((mutation) => {
+ *       if (mutation.type === 'childList') {
+ *         console.log('Children changed:', mutation.addedNodes, mutation.removedNodes)
+ *       } else if (mutation.type === 'attributes') {
+ *         console.log('Attribute changed:', mutation.attributeName)
+ *       }
+ *     })
+ *   },
+ *   {
+ *     childList: true,
+ *     attributes: true,
+ *     subtree: true
+ *   }
+ * )
+ *
+ * // Pause observation
+ * pause()
+ *
+ * // Resume observation
+ * resume()
+ * ```
  */
 export function useMutationObserver (
   target: Ref<Element | undefined>,
@@ -62,55 +94,6 @@ export function useMutationObserver (
     characterDataOldValue: options.characterDataOldValue ?? false,
     attributeFilter: options.attributeFilter,
   }
-
-  watch([isHydrated, target], ([hydrated, el]) => {
-    cleanup()
-
-    if (!hydrated || !SUPPORTS_MUTATION_OBSERVER || !el) return
-
-    observer.value = new MutationObserver(mutations => {
-      const transformedEntries: MutationObserverRecord[] = mutations.map(mutation => ({
-        type: mutation.type,
-        target: mutation.target,
-        addedNodes: mutation.addedNodes,
-        removedNodes: mutation.removedNodes,
-        previousSibling: mutation.previousSibling,
-        nextSibling: mutation.nextSibling,
-        attributeName: mutation.attributeName,
-        attributeNamespace: mutation.attributeNamespace,
-        oldValue: mutation.oldValue,
-      }))
-
-      callback(transformedEntries)
-    })
-
-    observer.value.observe(el, observerOptions)
-
-    if (options.immediate) {
-      // For immediate callback, we create a synthetic entry representing the initial state
-      // Create empty NodeList-like objects for consistency
-      const emptyNodeList = {
-        length: 0,
-        item: () => null,
-        forEach: () => {},
-        * [Symbol.iterator] () {},
-      } as unknown as NodeList
-
-      const syntheticEntry: MutationObserverRecord = {
-        type: 'childList',
-        target: el,
-        addedNodes: emptyNodeList,
-        removedNodes: emptyNodeList,
-        previousSibling: null,
-        nextSibling: null,
-        attributeName: null,
-        attributeNamespace: null,
-        oldValue: null,
-      }
-
-      callback([syntheticEntry])
-    }
-  }, { immediate: true })
 
   function setup () {
     if (!isHydrated.value || !SUPPORTS_MUTATION_OBSERVER || !target.value || isPaused.value) return
@@ -156,6 +139,11 @@ export function useMutationObserver (
       callback([syntheticEntry])
     }
   }
+
+  watch([isHydrated, target], () => {
+    cleanup()
+    setup()
+  }, { immediate: true })
 
   function cleanup () {
     if (observer.value) {
