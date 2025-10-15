@@ -132,6 +132,7 @@ export function useIntersectionObserver (
 
   function pause () {
     isPaused.value = true
+    isIntersecting.value = false
     observer.value?.disconnect()
   }
 
@@ -190,7 +191,7 @@ export function useElementIntersection (
   const isIntersecting = shallowRef(false)
   const intersectionRatio = shallowRef(0)
 
-  useIntersectionObserver(
+  const { pause: _pause, resume, stop, isPaused } = useIntersectionObserver(
     target,
     entries => {
       const entry = entries.at(-1)
@@ -202,8 +203,18 @@ export function useElementIntersection (
     { immediate: true, ...options },
   )
 
+  function pause () {
+    isIntersecting.value = false
+    intersectionRatio.value = 0
+    _pause()
+  }
+
   return {
     isIntersecting: readonly(isIntersecting),
     intersectionRatio: readonly(intersectionRatio),
+    isPaused,
+    pause,
+    resume,
+    stop,
   }
 }
