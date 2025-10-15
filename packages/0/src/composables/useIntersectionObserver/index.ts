@@ -121,7 +121,7 @@ export function useIntersectionObserver (
   watch([isHydrated, target], () => {
     cleanup()
     setup()
-  })
+  }, { immediate: true })
 
   function cleanup () {
     if (observer.value) {

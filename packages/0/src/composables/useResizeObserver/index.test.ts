@@ -86,7 +86,7 @@ describe('useResizeObserver', () => {
     expect(typeof result.isPaused.value).toBe('boolean')
   })
 
-  it('should call immediate callback when immediate option is true', async () => {
+  it('should call immediate callback when immediate option is true (hydration changes)', async () => {
     const target = ref<Element | undefined>(element)
     const callback = vi.fn()
 
@@ -96,6 +96,28 @@ describe('useResizeObserver', () => {
 
     await nextTick()
 
+    expect(callback).toHaveBeenCalledWith([{
+      target: element,
+      contentRect: {
+        width: 100,
+        height: 50,
+        top: 0,
+        left: 0,
+      },
+    }])
+  })
+
+  it('should call immediate callback when already hydrated at initialization', async () => {
+    // Set up hydration BEFORE creating the observer
+    mockIsHydrated.value = true
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useResizeObserver(target, callback, { immediate: true })
+    await nextTick()
+
+    // The immediate callback should be called even though hydration was already true
     expect(callback).toHaveBeenCalledWith([{
       target: element,
       contentRect: {

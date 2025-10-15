@@ -92,7 +92,7 @@ describe('useIntersectionObserver', () => {
     expect(typeof result.isPaused.value).toBe('boolean')
   })
 
-  it('should call immediate callback when immediate option is true', async () => {
+  it('should call immediate callback when immediate option is true (hydration changes)', async () => {
     const target = ref<Element | undefined>(element)
     const callback = vi.fn()
 
@@ -103,6 +103,28 @@ describe('useIntersectionObserver', () => {
     await nextTick()
 
     // The immediate callback should be called with synthetic intersection data
+    expect(callback).toHaveBeenCalledWith([{
+      boundingClientRect: expect.any(Object),
+      intersectionRatio: 0,
+      intersectionRect: expect.any(Object),
+      isIntersecting: false,
+      rootBounds: null,
+      target: element,
+      time: expect.any(Number),
+    }])
+  })
+
+  it('should call immediate callback when already hydrated at initialization', async () => {
+    // Set up hydration BEFORE creating the observer
+    mockIsHydrated.value = true
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useIntersectionObserver(target, callback, { immediate: true })
+    await nextTick()
+
+    // The immediate callback should be called even though hydration was already true
     expect(callback).toHaveBeenCalledWith([{
       boundingClientRect: expect.any(Object),
       intersectionRatio: 0,

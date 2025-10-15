@@ -113,7 +113,7 @@ export function useResizeObserver (
   watch([isHydrated, target], () => {
     cleanup()
     setup()
-  })
+  }, { immediate: true })
 
   function cleanup () {
     if (observer.value) {
