@@ -175,7 +175,7 @@ export function useElementSize (target: Ref<Element | undefined>) {
   const width = shallowRef(0)
   const height = shallowRef(0)
 
-  useResizeObserver(
+  const { pause: _pause, resume, stop, isPaused } = useResizeObserver(
     target,
     entries => {
       const entry = entries[0]
@@ -187,5 +187,18 @@ export function useElementSize (target: Ref<Element | undefined>) {
     { immediate: true },
   )
 
-  return { width, height }
+  function pause () {
+    width.value = 0
+    height.value = 0
+    _pause()
+  }
+
+  return {
+    width,
+    height,
+    isPaused,
+    pause,
+    resume,
+    stop,
+  }
 }
