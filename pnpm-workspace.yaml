@@ -36,7 +36,7 @@ catalog:
   sass-embedded: ^1.92.1
   sherif: ^1.6.1
   shiki: ^3.12.2
-  storybook: ^9.1.5
+  storybook: ^9.1.10
   tsdown: ^0.14.2
   typescript: 5.8.3
   unocss: ^66.5.1
