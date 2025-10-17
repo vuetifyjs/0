@@ -107,14 +107,21 @@ export function useRegistry<
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<Function>>()
 
+  const events = options?.events ?? false
+
   function emit (event: string, data: any) {
-    if (!options?.events) return
+    if (!events) return
     const cbs = listeners.get(event)
     if (!cbs) return
     for (const cb of cbs) cb(data)
   }
 
   function on (event: string, cb: Function) {
+    if (!events) {
+      logger.warn(`Attempted to register event listener for "${event}" but events are disabled.`)
+      return
+    }
+
     if (!listeners.has(event)) listeners.set(event, new Set())
     listeners.get(event)!.add(cb)
   }
