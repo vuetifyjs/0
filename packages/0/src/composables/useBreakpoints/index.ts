@@ -185,10 +185,7 @@ export function createBreakpoints<
       update()
     }
     window.addEventListener('resize', listener, { passive: true })
-
-    if (getCurrentInstance()) {
-      onScopeDispose(() => window.removeEventListener('resize', listener))
-    }
+    onScopeDispose(() => window.removeEventListener('resize', listener), true)
   }
 
   const context = {
