@@ -31,7 +31,7 @@ export interface ProxyModelOptions {
  * ```ts
  * import { useSelection, useProxyModel } from '@vuetify/v0'
  *
- * const registry = useSelection()
+ * const registry = useSelection({ events: true })
  * registry.onboard([
  *   { id: 'item-1', value: 'Item 1' },
  *   { id: 'item-2', value: 'Item 2' },
