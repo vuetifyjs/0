@@ -16,15 +16,24 @@ import type { App, Ref } from 'vue'
 import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
 
 export interface StorageContext {
+  /** Check if a key exists in storage */
+  has: (key: string) => boolean
+  /** Get a reactive ref for a storage key */
   get: <T>(key: string, defaultValue?: T) => Ref<T>
+  /** Set a value for a storage key */
   set: <T>(key: string, value: T) => void
+  /** Remove a key from storage */
   remove: (key: string) => void
+  /** Clear all keys from storage */
   clear: () => void
 }
 
 export interface StorageOptions {
+  /** The storage adapter to use. Defaults to localStorage in browser, MemoryAdapter otherwise */
   adapter?: StorageAdapter
+  /** The prefix to use for all storage keys. Defaults to 'v0:' */
   prefix?: string
+  /** Custom serializer for reading and writing values. Defaults to JSON.parse/stringify */
   serializer?: {
     read: (value: string) => any
     write: (value: any) => string
@@ -72,6 +81,12 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
   } = options
 
   const cache = new Map<string, Ref<any>>()
+  const watchers = new Map<string, () => void>()
+
+  function has (key: string) {
+    const prefixedKey = `${prefix}${key}`
+    return cache.has(prefixedKey)
+  }
 
   function get<T> (key: string, defaultValue?: T): Ref<T> {
     const prefixedKey = `${prefix}${key}`
@@ -93,7 +108,7 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
 
     const valueRef = ref<T>(initialValue as T)
 
-    watch(valueRef, newValue => {
+    const stop = watch(valueRef, newValue => {
       if (newValue === undefined || newValue === null) {
         adapter?.removeItem(prefixedKey)
       } else {
@@ -101,7 +116,9 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
       }
     }, { deep: true })
 
+    watchers.set(prefixedKey, stop)
     cache.set(prefixedKey, valueRef)
+
     return valueRef as Ref<T>
   }
 
@@ -112,18 +129,34 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
 
   function remove (key: string) {
     const prefixedKey = `${prefix}${key}`
+    const stop = watchers.get(prefixedKey)
+
+    if (!stop) return
+
+    stop()
+    watchers.delete(prefixedKey)
     adapter?.removeItem(prefixedKey)
     cache.delete(prefixedKey)
   }
 
   function clear () {
-    for (const key of cache.keys()) {
-      adapter?.removeItem(key)
+    if (watchers.size > 0) {
+      for (const stop of watchers.values()) {
+        stop()
+      }
+      watchers.clear()
     }
-    cache.clear()
+
+    if (cache.size > 0) {
+      for (const key of cache.keys()) {
+        adapter?.removeItem(key)
+      }
+      cache.clear()
+    }
   }
 
   return {
+    has,
     get,
     set,
     remove,
@@ -136,7 +169,7 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
  *
  * @returns The current storage instance.
  *
- * @see https://0.vuetifyjs.com/composables/use-storage
+ * @see https://0.vuetifyjs.com/composables/plugins/use-storage
  *
  * @example
  * ```vue
