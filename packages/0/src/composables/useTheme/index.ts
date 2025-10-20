@@ -8,7 +8,7 @@ import { useSingle } from '#v0/composables/useSingle'
 import { useTokens } from '#v0/composables/useTokens'
 
 // Utilities
-import { computed, watch } from 'vue'
+import { computed, watch, onScopeDispose } from 'vue'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
@@ -260,7 +260,8 @@ export function createThemePlugin<
     },
     setup: () => {
       if (IN_BROWSER) {
-        watch(themeContext.colors, update, { immediate: true, deep: true })
+        const stop = watch(themeContext.colors, update, { immediate: true, deep: true })
+        onScopeDispose(stop, true)
       } else {
         update(themeContext.colors.value)
       }
