@@ -1,8 +1,5 @@
-// Composables
-import { useLogger } from '#v0/composables/useLogger'
-
 // Utilities
-import { computed, watch, ref, toValue, toRaw, shallowRef } from 'vue'
+import { computed, watch, ref, toValue, shallowRef, onScopeDispose } from 'vue'
 import { isFunction, isArray } from '#v0/utilities'
 
 // Transformers
@@ -23,8 +20,8 @@ export interface ProxyModelOptions {
  * @param registry The selection registry to bind to.
  * @param initial The initial value of the model.
  * @param options The options for the proxy model.
- * @param _transformIn A function to transform the value before setting it.
- * @param _transformOut A function to transform the value before getting it.
+ * @param transformIn A function to transform the value before setting it.
+ * @param transformOut A function to transform the value before getting it.
  * @template Z The type of the selection ticket.
  * @returns A proxy model that can be used to bind to a selection.
  *
@@ -40,28 +37,25 @@ export interface ProxyModelOptions {
  *   { id: 'item-2', value: 'Item 2' },
  * ])
  *
- * const model = useProxyModel(registry, registry.get('item-1'))
+ * const model = useProxyModel(registry, 'Item 1')
  * ```
  */
 export function useProxyModel<Z extends SelectionTicket> (
   registry: SelectionContext<Z>,
-  initial?: Z | Z[],
+  initial?: unknown | unknown[],
   options?: ProxyModelOptions,
-  _transformIn?: (val: Z[] | Z) => Z[],
-  _transformOut?: (val: Z[]) => Z | Z[],
+  _transformIn?: (val: unknown[] | unknown) => unknown[],
+  _transformOut?: (val: unknown[]) => unknown | unknown[],
 ) {
-  const logger = useLogger()
   const reactivity = options?.deep ? ref : shallowRef
-  const internal = reactivity<Z[]>(initial ? toArray<Z>(initial) : [])
+  const internal = reactivity<unknown[]>(initial ? toArray<unknown>(initial) : [])
   const isModelArray = isArray(initial)
 
-  function transformIn (val: Z | Z[]): Z[] {
-    if (isFunction(_transformIn)) return _transformIn(val)
-
-    return toArray(val)
+  function transformIn (val: unknown | unknown[]) {
+    return (isFunction(_transformIn) ? _transformIn(val) : toArray(val))
   }
 
-  function transformOut (val: Z[]): Z | Z[] | undefined {
+  function transformOut (val: unknown[]) {
     if (isFunction(_transformOut)) return _transformOut(val)
 
     return isModelArray ? val : val[0]
@@ -69,25 +63,20 @@ export function useProxyModel<Z extends SelectionTicket> (
 
   const model = computed({
     get () {
-      return transformOut(internal.value as Z[])
+      return transformOut(internal.value)
     },
-    set (val: Z[]) {
+    set (val: unknown | unknown[]) {
       internal.value = transformIn(val)
     },
   })
 
-  const watcher = watch(registry.selectedIds, (val, oldVal) => {
-    if (toRaw(val).symmetricDifference(toRaw(oldVal)).size === 0) return
-
-    if (val.size === 0) {
-      model.value = []
-      return
-    }
-
-    model.value = Array.from(registry.selectedValues.value) as Z[]
+  const registryWatcher = watch(registry.selectedValues, val => {
+    modelWatcher.pause()
+    model.value = Array.from(toValue(val))
+    modelWatcher.resume()
   })
 
-  watch(model, val => {
+  const modelWatcher = watch(model, val => {
     const currentIds = new Set(toValue(registry.selectedIds))
     const targetIds = new Set<ID>()
 
@@ -97,12 +86,10 @@ export function useProxyModel<Z extends SelectionTicket> (
         for (const single of ids) targetIds.add(single)
       } else if (ids) {
         targetIds.add(ids)
-      } else {
-        logger.warn('Unable to find id for value', value)
       }
     }
 
-    watcher.pause()
+    registryWatcher.pause()
 
     if (isModelArray) {
       for (const id of currentIds.difference(targetIds)) {
@@ -119,7 +106,25 @@ export function useProxyModel<Z extends SelectionTicket> (
       if (next !== undefined) registry.select(next)
     }
 
-    watcher.resume()
+    registryWatcher.resume()
+  })
+
+  function onRegister (ticket: Z) {
+    if (!internal.value.includes(ticket.value)) return
+
+    registryWatcher.pause()
+    modelWatcher.pause()
+    registry.select(ticket.id)
+    registryWatcher.resume()
+    modelWatcher.resume()
+  }
+
+  registry.on('register', onRegister)
+
+  onScopeDispose(() => {
+    registryWatcher()
+    modelWatcher()
+    registry.off('register', onRegister)
   })
 
   return model
