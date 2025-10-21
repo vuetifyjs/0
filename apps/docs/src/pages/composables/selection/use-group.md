@@ -45,6 +45,13 @@ console.log(group.selectedIndexes.value) // []
 
 ## API
 
+
+| Composable | Description |
+|---|---|
+| [useSelection](/composables/selection/use-selection) | Base selection system that useGroup extends |
+| [useSingle](/composables/selection/use-single) | Single-selection variant |
+| [useFeatures](/composables/plugins/use-features) | Feature flags system (extends useGroup) |
+| [useRegistry](/composables/registration/use-registry) | Base registry system |
 - **Type**
 
   ```ts

@@ -50,6 +50,7 @@ export const useAppStore = defineStore('app', {
             name: 'Registration',
             children: [
               { name: 'useRegistry', to: '/composables/registration/use-registry' },
+              { name: 'useProxyRegistry', to: '/composables/registration/use-proxy-registry' },
               { name: 'useTimeline', to: '/composables/registration/use-timeline' },
               { name: 'useTokens', to: '/composables/registration/use-tokens' },
             ],
@@ -92,6 +93,13 @@ export const useAppStore = defineStore('app', {
               { name: 'usePermissions', to: '/composables/plugins/use-permissions' },
               { name: 'useStorage', to: '/composables/plugins/use-storage' },
               { name: 'useTheme', to: '/composables/plugins/use-theme' },
+            ],
+          },
+          {
+            name: 'Transformers',
+            children: [
+              { name: 'toArray', to: '/composables/transformers/to-array' },
+              { name: 'toReactive', to: '/composables/transformers/to-reactive' },
             ],
           },
         ],

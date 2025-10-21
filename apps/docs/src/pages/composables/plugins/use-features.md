@@ -78,6 +78,13 @@ Optionally register features at runtime:
 
 ## API
 
+
+| Composable | Description |
+|---|---|
+| [useTokens](/composables/registration/use-tokens) | Design token system that powers feature values |
+| [useGroup](/composables/selection/use-group) | Multi-selection system (features extends this) |
+| [useRegistry](/composables/registration/use-registry) | Base registry system |
+| [createPlugin](/composables/foundation/create-plugin) | Plugin creation pattern |
 ### Extensions
 
 | Composable | Description |
@@ -91,7 +98,17 @@ Optionally register features at runtime:
 * **Type**
   ```ts
   interface FeatureTicket extends GroupTicket {
-    value: boolean | { value: boolean, variation?: any }
+    value: TokenValue // string | number | boolean | TokenAlias
+  }
+
+  interface TokenAlias<T = unknown> {
+    $value: T
+    $variation?: any
+    $type?: string
+    $description?: string
+    $extensions?: Record<string, unknown>
+    $deprecated?: boolean | string
+    [key: string]: unknown
   }
 
   interface FeatureContext<Z extends FeatureTicket = FeatureTicket> extends GroupContext<Z> {
@@ -105,7 +122,8 @@ Optionally register features at runtime:
   interface FeatureOptions extends FeaturePluginOptions {}
   ```
 * **Details**
-  - `variation (id: string, fallback?: any): any`: Get the variation value for a feature, or return the provided fallback if not set.
+  - `value`: Can be a primitive (string, number, boolean) or a TokenAlias object following the W3C Design Tokens format with `$value`, `$variation`, and other metadata fields.
+  - `variation (id: string, fallback?: any): any`: Get the variation value for a feature. Looks for `$variation` property in token objects, or returns the provided fallback if not set.
 
 ### `register`
 

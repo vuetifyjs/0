@@ -99,6 +99,12 @@ Optionally register permissions at runtime:
 
 ## API
 
+
+| Composable | Description |
+|---|---|
+| [useTokens](/composables/registration/use-tokens) | Design token system for managing permission definitions |
+| [useRegistry](/composables/registration/use-registry) | Base registry system |
+| [createPlugin](/composables/foundation/create-plugin) | Plugin creation pattern |
 ### Extensions
 
 | Composable | Description |

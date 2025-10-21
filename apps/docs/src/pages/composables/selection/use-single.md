@@ -39,6 +39,13 @@ console.log(single.selectedId) // 'banana' (replaces apple)
 
 ## API
 
+
+| Composable | Description |
+|---|---|
+| [useSelection](/composables/selection/use-selection) | Base selection system that useSingle extends |
+| [useGroup](/composables/selection/use-group) | Multi-selection variant |
+| [useStep](/composables/selection/use-step) | Navigation through items (extends useSingle) |
+| [useRegistry](/composables/registration/use-registry) | Base registry system |
 - **Type**
 
   ```ts

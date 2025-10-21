@@ -42,6 +42,7 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-permissions': RouteRecordInfo<'/composables/plugins/use-permissions', '/composables/plugins/use-permissions', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-storage': RouteRecordInfo<'/composables/plugins/use-storage', '/composables/plugins/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-theme': RouteRecordInfo<'/composables/plugins/use-theme', '/composables/plugins/use-theme', Record<never, never>, Record<never, never>>,
+    '/composables/registration/use-proxy-registry': RouteRecordInfo<'/composables/registration/use-proxy-registry', '/composables/registration/use-proxy-registry', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-registry': RouteRecordInfo<'/composables/registration/use-registry', '/composables/registration/use-registry', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-timeline': RouteRecordInfo<'/composables/registration/use-timeline', '/composables/registration/use-timeline', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-tokens': RouteRecordInfo<'/composables/registration/use-tokens', '/composables/registration/use-tokens', Record<never, never>, Record<never, never>>,
@@ -55,6 +56,8 @@ declare module 'vue-router/auto-routes' {
     '/composables/system/use-keydown': RouteRecordInfo<'/composables/system/use-keydown', '/composables/system/use-keydown', Record<never, never>, Record<never, never>>,
     '/composables/system/use-mutation-observer': RouteRecordInfo<'/composables/system/use-mutation-observer', '/composables/system/use-mutation-observer', Record<never, never>, Record<never, never>>,
     '/composables/system/use-resize-observer': RouteRecordInfo<'/composables/system/use-resize-observer', '/composables/system/use-resize-observer', Record<never, never>, Record<never, never>>,
+    '/composables/transformers/to-array': RouteRecordInfo<'/composables/transformers/to-array', '/composables/transformers/to-array', Record<never, never>, Record<never, never>>,
+    '/composables/transformers/to-reactive': RouteRecordInfo<'/composables/transformers/to-reactive', '/composables/transformers/to-reactive', Record<never, never>, Record<never, never>>,
     '/guide/': RouteRecordInfo<'/guide/', '/guide', Record<never, never>, Record<never, never>>,
     '/guide/accessibility': RouteRecordInfo<'/guide/accessibility', '/guide/accessibility', Record<never, never>, Record<never, never>>,
     '/guide/components': RouteRecordInfo<'/guide/components', '/guide/components', Record<never, never>, Record<never, never>>,
@@ -177,6 +180,10 @@ declare module 'vue-router/auto-routes' {
       routes: '/composables/plugins/use-theme'
       views: never
     }
+    'src/pages/composables/registration/use-proxy-registry.md': {
+      routes: '/composables/registration/use-proxy-registry'
+      views: never
+    }
     'src/pages/composables/registration/use-registry.md': {
       routes: '/composables/registration/use-registry'
       views: never
@@ -227,6 +234,14 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/composables/system/use-resize-observer.md': {
       routes: '/composables/system/use-resize-observer'
+      views: never
+    }
+    'src/pages/composables/transformers/to-array.md': {
+      routes: '/composables/transformers/to-array'
+      views: never
+    }
+    'src/pages/composables/transformers/to-reactive.md': {
+      routes: '/composables/transformers/to-reactive'
       views: never
     }
     'src/pages/guide/index.md': {

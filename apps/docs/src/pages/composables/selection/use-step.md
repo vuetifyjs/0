@@ -46,6 +46,13 @@ steps.step(1) // moves to 'step2'
 
 ## API
 
+
+| Composable | Description |
+|---|---|
+| [useSingle](/composables/selection/use-single) | Single-selection system that useStep extends |
+| [useSelection](/composables/selection/use-selection) | Base selection system |
+| [useTheme](/composables/plugins/use-theme) | Theme management (uses useSingle for theme selection) |
+| [useRegistry](/composables/registration/use-registry) | Base registry system |
 - **Type**
 
   ```ts

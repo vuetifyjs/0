@@ -39,6 +39,13 @@ features.resolve('rtl') // { value: true, variation: 'toggle' }
 
 ## API
 
+
+| Composable | Description |
+|---|---|
+| [useRegistry](/composables/registration/use-registry) | Base registry system |
+| [useProxyRegistry](/composables/registration/use-proxy-registry) | Reactive registry wrapper |
+| [useTheme](/composables/plugins/use-theme) | Theme system using tokens |
+| [useFeatures](/composables/plugins/use-features) | Feature flags using tokens |
 ### `useTokens`
 
 * **Type**

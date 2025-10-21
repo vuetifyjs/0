@@ -14,6 +14,8 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | [createTrinity](/composables/foundation/create-trinity) | Create context provider/consumer pattern utilities |
 | **Registration** | |
 | [useRegistry](/composables/registration/use-registry) | Foundation for registration-based systems |
+| [useProxyRegistry](/composables/registration/use-proxy-registry) | Proxy-based registry with automatic reactivity |
+| [useTimeline](/composables/registration/use-timeline) | Bounded undo/redo system with fixed-size history |
 | [useTokens](/composables/registration/use-tokens) | Design token management system |
 | **Selection** | |
 | [useFilter](/composables/selection/use-filter) | Filter arrays based on search queries |
@@ -39,3 +41,6 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | [usePermissions](/composables/plugins/use-permissions) | Role-based access control and permissions management |
 | [useStorage](/composables/plugins/use-storage) | Reactive interface to browser storage APIs |
 | [useTheme](/composables/plugins/use-theme) | Application theme management with CSS custom properties |
+| **Transformers** | |
+| [toArray](/composables/transformers/to-array) | Convert any value to an array with null/undefined handling |
+| [toReactive](/composables/transformers/to-reactive) | Convert MaybeRef objects to reactive proxies |

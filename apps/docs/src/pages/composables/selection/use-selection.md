@@ -22,16 +22,26 @@ import { useSelection } from '@vuetify/v0'
 
 const selection = useSelection()
 
-selection.select({ id: 'apple', value: 'Apple' })
-selection.select({ id: 'banana', value: 'Banana' })
+selection.register({ id: 'apple', value: 'Apple' })
+selection.register({ id: 'banana', value: 'Banana' })
 
-console.log(selection.selectedIds) // ['apple', 'banana']
-console.log(selection.selectedValues) // ['Apple', 'Banana']
+selection.select('apple')
+selection.select('banana')
+
+console.log(selection.selectedIds) // Set(2) { 'apple', 'banana' }
+console.log(selection.selectedValues) // ComputedRef<Set> { value: Set(2) { 'Apple', 'Banana' } }
 console.log(selection.has('apple')) // true
 ```
 
 ## API
 
+
+| Composable | Description |
+|---|---|
+| [useRegistry](/composables/registration/use-registry) | Base registry system that useSelection extends |
+| [useSingle](/composables/selection/use-single) | Single-selection variant |
+| [useGroup](/composables/selection/use-group) | Multi-selection variant with batch operations |
+| [useStep](/composables/selection/use-step) | Navigation through items based on useSingle |
 - **Type**
 
   ```ts
@@ -81,50 +91,65 @@ console.log(selection.has('apple')) // true
 
 - **Type**
   ```ts
-  ID[]
+  Reactive<Set<ID>>
   ```
 
 - **Details**
-  An array of IDs for all currently selected items.
+  A reactive Set containing the IDs of all currently selected items.
   Automatically updates when selection changes.
 
 - **Example**
   ```ts
+  selection.register({ id: 'apple', value: 'Apple' })
   selection.select('apple')
-  console.log(selection.selectedIds) // ['apple']
+  console.log(selection.selectedIds) // Set(1) { 'apple' }
+  console.log(selection.selectedIds.has('apple')) // true
   ```
 
 ### `selectedItems`
 
 - **Type**
   ```ts
-  Z[]
+  ComputedRef<Set<Z>>
   ```
 
 - **Details**
-  An array containing the full item objects for all selected items.
+  A computed Set containing the full ticket objects for all selected items.
 
 - **Example**
   ```ts
-  selection.select({ id: 'apple', value: 'Apple' })
-  console.log(selection.selectedItems)
-  // [{ id: 'apple', value: 'Apple', selected: true }]
+  selection.register({ id: 'apple', value: 'Apple' })
+  selection.select('apple')
+  console.log(selection.selectedItems.value)
+  // Set(1) { { id: 'apple', value: 'Apple', isSelected: ..., ... } }
+
+  // Iterate over selected items
+  for (const item of selection.selectedItems.value) {
+    console.log(item.value) // 'Apple'
+  }
   ```
 
 ### `selectedValues`
 
 - **Type**
   ```ts
-  unknown[]
+  ComputedRef<Set<unknown>>
   ```
 
 - **Details**
-  An array of only the value fields from each selected item.
+  A computed Set containing only the value fields from each selected item.
 
 - **Example**
   ```ts
-  selection.select({ id: 'apple', value: 'Apple' })
-  console.log(selection.selectedValues) // ['Apple']
+  selection.register({ id: 'apple', value: 'Apple' })
+  selection.register({ id: 'banana', value: 'Banana' })
+  selection.select('apple')
+  selection.select('banana')
+  console.log(selection.selectedValues.value) // Set(2) { 'Apple', 'Banana' }
+
+  // Convert to array if needed
+  const valuesArray = Array.from(selection.selectedValues.value)
+  console.log(valuesArray) // ['Apple', 'Banana']
   ```
 
 ### `reset`
@@ -135,29 +160,33 @@ console.log(selection.has('apple')) // true
   ```
 
 - **Details**
-  Clears all selections and resets the selection state.
+  Clears all selections and resets the selection state. Also clears the registry.
 
 - **Example**
   ```ts
+  selection.register({ id: 'apple', value: 'Apple' })
   selection.select('apple')
   selection.reset()
-  console.log(selection.selectedIds) // []
+  console.log(selection.selectedIds) // Set(0) {}
+  console.log(selection.size) // 0
   ```
 
 ### `select`
 
 - **Type**
   ```ts
-  function select(id: ID | Partial<Z>): void
+  function select(id: ID): void
   ```
 
 - **Details**
-  Selects the given ID or item. Adds it to the registry if it doesn’t already exist.
+  Marks the item with the given ID as selected. The item must already be registered in the registry. If the item is disabled or doesn't exist, this method does nothing.
 
 - **Example**
   ```ts
+  selection.register({ id: 'apple', value: 'Apple' })
   selection.select('apple')
-  console.log(selection.has('apple')) // true
+  console.log(selection.selected('apple')) // true
+  console.log(selection.selectedIds.has('apple')) // true
   ```
 
 ### `unselect`
@@ -168,13 +197,16 @@ console.log(selection.has('apple')) // true
   ```
 
 - **Details**
-  Removes the given ID from the selection list.
+  Removes the given ID from the selection. If `mandatory` mode is enabled and this is the only selected item, the operation is ignored to maintain at least one selection.
 
 - **Example**
   ```ts
+  selection.register({ id: 'apple', value: 'Apple' })
   selection.select('apple')
+  console.log(selection.selected('apple')) // true
+
   selection.unselect('apple')
-  console.log(selection.has('apple')) // false
+  console.log(selection.selected('apple')) // false
   ```
 
 ### `toggle`
@@ -191,8 +223,13 @@ console.log(selection.has('apple')) // true
 
 - **Example**
   ```ts
+  selection.register({ id: 'apple', value: 'Apple' })
+
   selection.toggle('apple') // selects apple
+  console.log(selection.selected('apple')) // true
+
   selection.toggle('apple') // unselects apple
+  console.log(selection.selected('apple')) // false
   ```
 
 ### `selected`
@@ -207,6 +244,9 @@ console.log(selection.has('apple')) // true
 
 - **Example**
   ```ts
+  selection.register({ id: 'apple', value: 'Apple' })
+  selection.register({ id: 'banana', value: 'Banana' })
+
   selection.select('apple')
   console.log(selection.selected('apple')) // true
   console.log(selection.selected('banana')) // false
@@ -227,12 +267,17 @@ console.log(selection.has('apple')) // true
 
 - **Example**
   ```ts
-  // Suppose mandatory mode is enabled
-  selection.unselect('apple')
-  selection.unselect('banana')
+  const selection = useSelection({ mandatory: true })
 
-  // Now no items are selected, so mandate() will pick one automatically
+  selection.register({ id: 'apple', value: 'Apple' })
+  selection.register({ id: 'banana', value: 'Banana' })
+
+  selection.select('apple')
+  selection.unselect('apple') // Won't work - mandatory mode prevents last item deselection
+
+  console.log(selection.selectedIds) // Set(1) { 'apple' }
+
+  // If somehow empty, mandate() will auto-select first available
   selection.mandate()
-
-  console.log(selection.selectedIds) // e.g., ['apple'] if apple was the first available
   ```
+
