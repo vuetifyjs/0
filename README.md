@@ -24,22 +24,49 @@ Core foundational components and composables:
 - `Theme` - Theme management and CSS variable injection
 
 **Composables:**
-- `createContext` - Type-safe context management
-- `createTrinity` - Context trio creation utility
-- `createPlugin` - Plugin creation helper
+
+*Foundation:*
+- `createContext` - Type-safe context management for dependency injection
+- `createPlugin` - Vue plugin creation with standardized patterns
+- `createTrinity` - Context provider/consumer pattern utilities
+
+*Registration:*
+- `useRegistry` - Foundation for registration-based systems
+- `useProxyRegistry` - Proxy-based registry with automatic reactivity
+- `useTimeline` - Bounded undo/redo system with fixed-size history
+- `useTokens` - Design token management with alias resolution
+
+*Selection:*
+- `useSelection` - General selection state management
+- `useSingle` - Single-selection specialization
+- `useGroup` - Multi-selection with array-based operations
+- `useStep` - Navigation through items (first/last/next/prev)
+- `useFilter` - Reactive array filtering with multiple modes
+
+*Forms:*
+- `useForm` - Form state management and validation
+- `useProxyModel` - Proxy model utilities for reactive data binding
+
+*System:*
+- `useEventListener` - DOM event handling with automatic cleanup
+- `useIntersectionObserver` - Visibility detection via Intersection Observer API
+- `useKeydown` - Keyboard event handling with automatic cleanup
+- `useMutationObserver` - DOM change detection via Mutation Observer API
+- `useResizeObserver` - Element size change detection via Resize Observer API
+
+*Plugins:*
 - `useBreakpoints` - Responsive breakpoint detection
-- `useFilter` - Collection filtering utilities
-- `useGroup` - Selection group management
-- `useHydration` - SSR hydration helpers
-- `useKeydown` - Keyboard event handling
-- `useLocale` - Internationalization support
-- `useRegistry` - Component registration system
-- `useSelection` - Baseline selection logic
-- `useSingle` - Single-selection logic
-- `useStep` - Step navigation logic
-- `useTheme` - Theme switching and CSS variable management
-- `useTokens` - Design token system
-- `toReactive` - Utility for reactive object conversion
+- `useFeatures` - Feature flags and A/B testing management
+- `useHydration` - SSR hydration process management
+- `useLocale` - Internationalization system
+- `useLogger` - Logging system with multiple adapters
+- `usePermissions` - Role-based access control and permissions
+- `useStorage` - Reactive browser storage interface
+- `useTheme` - Theme management with CSS custom properties
+
+*Transformers:*
+- `toArray` - Convert any value to array with null/undefined handling
+- `toReactive` - Convert MaybeRef objects to reactive proxies
 
 ### `@vuetify/paper`
 Styling and layout primitives:
@@ -78,6 +105,53 @@ Components in vuetify0 should be:
 - **CSS Variable-based**: All styling via `--v0-*` custom properties
 - **Framework-minimal**: No global state dependencies
 - **Interface-based**: External dependencies through clean interfaces
+
+## 📂 Project Structure
+
+### Important Locations
+
+For LLMs and developers navigating this codebase, here are the key directories:
+
+#### Core Package (`@vuetify/v0`)
+- **`packages/0/src/composables/`** - All composable functions, the heart of v0's functionality
+  - Each composable in its own directory with `index.ts`, `index.test.ts`, and optional `index.bench.ts`
+  - Foundation layer: `createContext/`, `createTrinity/`, `createPlugin/`
+  - Registry system: `useRegistry/`, `useProxyRegistry/`, `useTokens/`, `useTimeline/`
+  - Selection system: `useSelection/`, `useSingle/`, `useGroup/`, `useStep/`, `useFilter/`
+  - Forms: `useForm/`, `useProxyModel/`
+  - System utilities: `useEventListener/`, `useIntersectionObserver/`, `useKeydown/`, etc.
+  - Plugins: `useTheme/`, `useBreakpoints/`, `useFeatures/`, `useLocale/`, etc.
+  - Transformers: `toArray/`, `toReactive/`
+
+- **`packages/0/src/components/`** - Vue components (Atom, Theme, Breakpoints, etc.)
+
+- **`packages/0/src/types/`** - Shared TypeScript types and interfaces
+
+- **`packages/0/src/utilities/`** - Helper functions and utility modules
+
+- **`packages/0/src/constants/`** - Global constants (IN_BROWSER, htmlElements, etc.)
+
+#### Paper Package (`@vuetify/paper`)
+- **`packages/paper/src/`** - Styling and layout primitives
+  - Depends on `@vuetify/v0` for core functionality
+
+#### Applications
+- **`apps/docs/src/pages/`** - Documentation markdown files
+- **`apps/storybook/`** - Component stories and visual testing
+- **`playground/`** - Development playground for rapid prototyping
+
+#### Configuration
+- **Root `vitest.config.ts`** - Test configuration
+- **Root `package.json`** - Monorepo scripts and workspace configuration
+- **`pnpm-workspace.yaml`** - PNPM workspace definitions
+
+### Entry Points
+- **`packages/0/src/index.ts`** - Main export for `@vuetify/v0`
+- **`packages/paper/src/index.ts`** - Main export for `@vuetify/paper`
+
+### Path Aliases
+- `#v0/` → `packages/0/src/`
+- Used throughout the codebase for clean imports
 
 ## 🚀 Quick Start
 
