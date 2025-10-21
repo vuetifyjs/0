@@ -125,7 +125,7 @@ export function useProxyModel<Z extends SelectionTicket> (
     registryWatcher()
     modelWatcher()
     registry.off('register', onRegister)
-  })
+  }, true)
 
   return model
 }

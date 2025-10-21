@@ -160,7 +160,7 @@ describe('useBreakpoints', () => {
       createBreakpoints()
 
       expect(mockWindow.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
-      expect(mockOnScopeDispose).toHaveBeenCalledWith(expect.any(Function))
+      expect(mockOnScopeDispose).toHaveBeenCalledWith(expect.any(Function), true)
     })
 
     it('should handle hydration state correctly', () => {
@@ -348,7 +348,7 @@ describe('useBreakpoints', () => {
 
       createBreakpoints()
 
-      expect(mockOnScopeDispose).toHaveBeenCalledWith(expect.any(Function))
+      expect(mockOnScopeDispose).toHaveBeenCalledWith(expect.any(Function), true)
 
       // Execute the dispose callback
       const disposeCallback = mockOnScopeDispose.mock.calls[0]![0]
