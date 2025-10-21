@@ -1,5 +1,5 @@
 // Utilities
-import { ref, shallowRef, nextTick, onScopeDispose } from 'vue'
+import { ref, shallowRef, onScopeDispose } from 'vue'
 
 // Types
 import type { RegistryContext, RegistryTicket } from '#v0/composables/useRegistry'
