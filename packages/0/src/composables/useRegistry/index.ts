@@ -323,6 +323,7 @@ export function useRegistry<
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
 
+    invalidate()
     emit('unregister', ticket)
     reindex()
   }
