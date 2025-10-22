@@ -62,10 +62,12 @@ console.log(registry.size) // 3
     register: (item?: Partial<Z>) => Z
     unregister: (id: ID) => void
     reindex: () => void
+    seek: (direction?: 'first' | 'last', from?: number, predicate?: (ticket: Z) => boolean) => Z | undefined
     on: (event: string, cb: Function) => void
     off: (event: string, cb: Function) => void
     emit: (event: string, data: any) => void
     dispose: () => void
+    onboard: (registrations: Partial<Z>[]) => Z[]
     size: number
   }
 
@@ -88,10 +90,12 @@ console.log(registry.size) // 3
   - `register(item?: Partial<Z>)`: Registers a new item, returning the created ticket. If `item` is provided, it will be merged with the default ticket structure.
   - `unregister(id: ID)`: Unregisters an item by its ID, removing it from the registry.
   - `reindex()`: Rebuilds the index of registered items, useful if the order of items has changed.
+  - `seek(direction?, from?, predicate?)`: Searches for a ticket based on direction ('first' or 'last'), optional starting index, and optional predicate function.
   - `on(event: string, cb: Function)`: Registers an event listener for a specific event.
   - `off(event: string, cb: Function)`: Unregisters an event listener for a specific event.
   - `emit(event: string, data: any)`: Emits an event with the provided data, triggering all registered listeners for that event.
   - `dispose()`: Resets the collection and clears all listeners. Useful to call during onScopeDispose to clean up resources.
+  - `onboard(registrations: Partial<Z>[])`: Registers multiple items in a single call, returning an array of tickets.
   - `size`: Returns the number of registered items in the registry.
 
 - **Options**
@@ -399,6 +403,53 @@ console.log(registry.size) // 3
   registry.reindex()
   console.log(registry.lookup(0)) // 'second'
   console.log(registry.lookup(1)) // 'first'
+  ```
+
+### `seek`
+
+- **Type**
+  ```ts
+  function seek(
+    direction?: 'first' | 'last',
+    from?: number,
+    predicate?: (ticket: Z) => boolean
+  ): Z | undefined
+  ```
+
+- **Details**
+  Searches for a ticket based on direction and an optional predicate function.
+
+  - `direction`: The direction to seek - `'first'` (default) searches from start to end, `'last'` searches from end to start
+  - `from`: Optional starting index position. Defaults to beginning/end based on direction
+  - `predicate`: Optional filter function. Returns the first ticket that satisfies the predicate
+
+  Returns `undefined` if no matching ticket is found.
+
+- **Example**
+  ```ts
+  const registry = useRegistry()
+
+  registry.register({ id: 'ticket-1', value: 'apple' })
+  registry.register({ id: 'ticket-2', value: 'banana' })
+  registry.register({ id: 'ticket-3', value: 'cherry' })
+
+  // Get first ticket
+  const first = registry.seek('first')
+  console.log(first?.value) // 'apple'
+
+  // Get last ticket
+  const last = registry.seek('last')
+  console.log(last?.value) // 'cherry'
+
+  // Find first ticket with value 'banana'
+  const banana = registry.seek('first', undefined, ticket => ticket.value === 'banana')
+  console.log(banana?.id) // 'ticket-2'
+
+  // Seek from index 1 to find the next ticket with value starting with 'c'
+  const cherry = registry.seek('first', 1, ticket =>
+    (ticket.value as string).startsWith('c')
+  )
+  console.log(cherry?.value) // 'cherry'
   ```
 
 ### `on`
