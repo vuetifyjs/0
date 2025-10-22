@@ -1,3 +1,19 @@
+/**
+ * @module useRegistry
+ *
+ * @remarks
+ * A foundational composable for managing collections of items (tickets) with:
+ * - Unique ID-based access
+ * - Index-based ordering
+ * - Value-based reverse lookup
+ * - Automatic reindexing
+ * - Optional event emission
+ * - Performance-optimized caching
+ *
+ * The registry serves as the base for many other composables in the system,
+ * including useSelection, useForm, useTimeline, and more.
+ */
+
 // Factories
 import { createContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -16,59 +32,484 @@ import type { App } from 'vue'
 export interface RegistryTicket {
   /** The unique identifier. Is randomly generated if not provided. */
   id: ID
-  /** The index of the ticket. It's not recommended to manually set this. */
+  /**
+   * The index of the ticket in the registry.
+   *
+   * @remarks Automatically managed by the registry. Updated during reindexing. It's not recommended to manually set this.
+   */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
   value: unknown
-  /** Whether the value is derived from index. It's not recommended to manually set this. */
+  /**
+   * Whether the value is derived from index.
+   *
+   * @remarks Set to true when no explicit value is provided during registration. It's not recommended to manually set this.
+   */
   valueIsIndex: boolean
 }
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
-  /** The collection of tickets */
+  /**
+   * The collection of tickets in the registry
+   *
+   * @template ID The type of the ticket ID.
+   * @template Z The type of the registry ticket.
+   *
+   * @remarks Exposed for read-only access and advanced use cases. **Warning:** Direct mutation may cause inconsistencies in indexes, catalogs, and caches. Always prefer using the provided methods (`register`, `unregister`, etc.) to maintain internal consistency.
+   */
   collection: Map<ID, Z>
-  /** Clear the entire registry */
+  /**
+   * Clear the entire registry
+   *
+   * @remarks Removes all tickets from the registry. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#clear
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1' })
+   * registry.register({ id: 'ticket-2' })
+   *
+   * console.log(registry.size) // 2
+   *
+   * registry.clear()
+   *
+   * console.log(registry.size) // 0
+   * ```
+   */
   clear: () => void
-  /** Check if a ticket exists by ID */
+  /**
+   * Check if a ticket exists by ID
+   *
+   * @param id The ID of the ticket to check.
+   * @remarks Calls `collection.has` internally.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#has
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-id' })
+   *
+   * const exists = registry.has('ticket-id') // true
+   * ```
+   */
   has: (id: ID) => boolean
-  /** Returns an array of registered IDs */
+  /**
+   * Get all registered IDs
+   *
+   * @remarks Calls `collection.keys` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#keys
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1' })
+   * registry.register({ id: 'ticket-2' })
+   *
+   * const ids = registry.keys() // ['ticket-1', 'ticket-2']
+   * ```
+   */
   keys: () => ID[]
-  /** Browse for an ID by value */
+  /**
+   * Browse for an ID(s) by value
+   *
+   * @param value The value to browse for.
+   * @remarks Returns a single ID or an array of IDs if multiple tickets share the same value.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#browse
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1', value: 'common-value' })
+   * registry.register({ id: 'ticket-2', value: 'common-value' })
+   * registry.register({ id: 'ticket-3', value: 'unique-value' })
+   *
+   * const common = registry.browse('common-value') // ['ticket-1', 'ticket-2']
+   * const unique = registry.browse('unique-value') // 'ticket-3'
+   * ```
+   */
   browse: (value: unknown) => ID | ID[] | undefined
-  /** lookup a ticket by index number */
+  /**
+   * lookup a ticket by index number
+   *
+   * @param index The index number to lookup.
+   * @remarks Maps do not support indexing by default, this method provides a way to retrieve an ID based on its index in the registry.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#lookup
+   *
+   * @example
+   * ```ts
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1' })
+   * registry.register({ id: 'ticket-2' })
+   *
+   * const ticket1 = registry.lookup(0) // 'ticket-1'
+   * const ticket2 = registry.lookup(1) // 'ticket-2'
+   * ```
+   */
   lookup: (index: number) => ID | undefined
-  /** Get a ticket by ID */
+  /**
+   * Get a ticket by ID
+   *
+   * @param id The ID of the ticket to retrieve.
+   * @remarks Calls `collection.get` internally.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#get
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-id', value: 'some-value' })
+   *
+   * const ticket = registry.get('ticket-id') // { id: 'ticket-id', index: 0, value: 'some-value', ... }
+   * ```
+   */
   get: (id: ID) => Z | undefined
-  /** Update or insert a ticket by ID */
+  /**
+   * Update or insert a ticket by ID
+   *
+   * @param id The ID of the ticket to upsert.
+   * @param ticket The partial ticket data to update or insert.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#upsert
+   *
+   * @remarks If the ticket exists, it will be updated with the provided data. If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * // Insert a new ticket
+   * const ticket = registry.upsert('ticket-id', { value: 'initial-value' })
+   *
+   * // Update the existing ticket
+   * const patched = registry.upsert('ticket-id', { value: 'updated-value' })
+   * ```
+  */
   upsert: (id: ID, ticket?: Partial<Z>) => Z
-  /** Get all registered tickets */
+  /**
+   * Get all values of registered tickets
+   *
+   * @remarks Calls `collection.values` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#values
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1', value: 'value-1' })
+   * registry.register({ id: 'ticket-2', value: 'value-2' })
+   *
+   * const values = registry.values() // [{ id: 'ticket-1', ... }, { id: 'ticket-2', ... }]
+   * ```
+   */
   values: () => Z[]
-  /** Get all entries as [ID, ticket] pairs */
+  /**
+   * Get all entries of registered tickets
+   *
+   * @remarks Calls `collection.entries` internally with caching. First call is O(n), subsequent calls are O(1) until cache invalidation.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#entries
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1', value: 'value-1' })
+   * registry.register({ id: 'ticket-2', value: 'value-2' })
+   *
+   * const entries = registry.entries() // [['ticket-1', { id: 'ticket-1', ... }], ['ticket-2', { id: 'ticket-2', ... }]]
+   * ```
+  */
   entries: () => [ID, Z][]
-  /** Register a new ticket */
+  /**
+   * Register a new ticket
+   *
+   * @param ticket The partial ticket data to register.
+   * @remarks If no ID is provided, a unique ID will be generated automatically. If no value is provided, it defaults to the ticket's index. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#register
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * const ticket = registry.register()
+   *
+   * console.log(ticket) // { id: 'generated-id', index: 0, value: 0, valueIsIndex: true }
+   * ```
+  */
   register: (ticket?: Partial<Z>) => Z
-  /** Unregister an ticket by ID */
+  /**
+   * Unregister an ticket by ID
+   *
+   * @param id The ID of the ticket to unregister.
+   * @remarks Removes the ticket from the registry and reindexes the remaining tickets. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#unregister
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-id' })
+   *
+   * registry.unregister('ticket-id')
+   * ```
+  */
   unregister: (id: ID) => void
-  /** Reset the index directory and update all tickets */
+  /**
+   * Reset the index directory and update all tickets
+   *
+   * @remarks Rebuilds the internal index mapping and ensures all tickets have correct index values. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#reindex
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1' })
+   * registry.register({ id: 'ticket-2' })
+   *
+   * // After some operations that may affect indexing
+   * registry.reindex()
+   * ```
+  */
   reindex: () => void
-  /** Find the first or last ticket, optionally filtered by a predicate and starting from a specific index */
+  /**
+   * Seek for a ticket based on direction and optional predicate
+   *
+   * @param direction The direction to seek ('first' or 'last'). Defaults to 'first'.
+   * @param from The index to start seeking from. Defaults to the beginning or end based on direction.
+   * @param predicate An optional function to test each ticket. The first ticket that satisfies the predicate will be returned.
+   * @remarks This method allows for flexible searching within the registry, either from the start or end, and can filter tickets based on custom criteria.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#seek
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1', value: 'apple' })
+   * registry.register({ id: 'ticket-2', value: 'banana' })
+   * registry.register({ id: 'ticket-3', value: 'cherry' })
+   *
+   * // Seek the first ticket
+   * const first = registry.seek('first')
+   *
+   * // Seek the last ticket
+   * const last = registry.seek('last')
+   *
+   * // Seek the first ticket with value 'banana'
+   * const banana = registry.seek('first', undefined, ticket => ticket.value === 'banana')
+   *
+   * // Seek from index 1 to find the next ticket with value starting with 'c'
+   * const cherry = registry.seek('first', 1, ticket => (ticket.value as string).startsWith('c'))
+   * ```
+  */
   seek: (direction?: 'first' | 'last', from?: number, predicate?: (ticket: Z) => boolean) => Z | undefined
-  /** Listen for registry events */
+  /**
+   * Listen for registry events
+   *
+   * @param event The name of the event to listen for.
+   * @param cb The callback function to invoke when the event is emitted.
+   * @remarks Must be enabled via the `events` option when creating the registry.
+   * Supported events:
+   * - `register` - Emitted when a ticket is registered, receives the ticket as argument
+   * - `unregister` - Emitted when a ticket is unregistered, receives the ticket as argument
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#on
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry({ events: true })
+   *
+   * registry.on('register', (ticket) => {
+   *   console.log('Ticket registered:', ticket)
+   * })
+   *
+   * registry.register({ id: 'ticket-id' }) // Console: Ticket registered: { id: 'ticket-id', ... }
+   * ```
+  */
   on: (event: string, cb: Function) => void
-  /** Stop listening for registry events */
+  /**
+   * Stop listening for registry events
+   *
+   * @param event The name of the event to stop listening for.
+   * @param cb The callback function to remove.
+   * @remarks Must be enabled via the `events` option when creating the registry.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#off
+   *
+   * @example
+   * ```ts
+   * import { onScopeDispose } from 'vue'
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry({ events: true })
+   *
+   * function onRegister(ticket) {
+   *   console.log('Ticket registered:', ticket)
+   * }
+   *
+   * registry.on('register', onRegister)
+   *
+   * registry.register({ id: 'ticket-id' }) // Console: Ticket registered: { id: 'ticket-id', ... }
+   *
+   * onScopeDispose(() => {
+   *   registry.off('register', onRegister)
+   * })
+   * ```
+  */
   off: (event: string, cb: Function) => void
-  /** Emit an event with data */
+  /**
+   * Emit an event with data
+   *
+   * @param event The name of the event to emit.
+   * @param data The data to pass to event listeners.
+   * @remarks Must be enabled via the `events` option when creating the registry.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#emit
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry({ events: true })
+   *
+   * registry.on('custom-event', (data) => {
+   *   console.log('Custom event received:', data)
+   * })
+   *
+   * registry.emit('custom-event', { message: 'Hello, World!' }) // Console: Custom event received: { message: 'Hello, World!' }
+   * ```
+  */
   emit: (event: string, data: any) => void
-  /** Clears the registry and listeners */
+  /**
+   * Clears the registry and removes all listeners
+   *
+   * @remarks Disposes of the registry by clearing all tickets and removing all event listeners.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#dispose
+   *
+   * @example
+   * ```ts
+   * import { onScopeDispose } from 'vue'
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry({ events: true })
+   *
+   * registry.register({ id: 'ticket-id' })
+   *
+   * onScopeDispose(() => {
+   *   registry.dispose()
+   * })
+   * ```
+  */
   dispose: () => void
-  /** Onboard multiple new tickets */
+  /**
+   * Onboard multiple tickets at once
+   *
+   * @param registrations An array of partial ticket data to register.
+   * @remarks Registers multiple tickets in a single operation and returns the array of registered tickets.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#onboard
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * const tickets = registry.onboard([
+   *   { id: 'ticket-1', value: 'value-1' },
+   *   { id: 'ticket-2', value: 'value-2' },
+   * ])
+   *
+   * console.log(tickets) // [{ id: 'ticket-1', ... }, { id: 'ticket-2', ... }]
+   * ```
+  */
   onboard: (registrations: Partial<Z>[]) => Z[]
-  /** The size of the registry */
+  /**
+   * The number of tickets in the registry
+   *
+   * @remarks Reflects the current size of the internal ticket collection.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#size
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry()
+   *
+   * registry.register({ id: 'ticket-1' })
+   * registry.register({ id: 'ticket-2' })
+   *
+   * console.log(registry.size) // 2
+   * ```
+  */
   size: number
 }
 
 export interface RegistryOptions {
-  /** Enable event emission for registry operations */
+  /**
+   * Enable event emission for registry operations
+   *
+   * @default false
+   * @remarks When enabled, the registry will emit events for operations like registration and unregistration. Listeners can be added using the `on` method.
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry({ events: true })
+   *
+   * registry.on('register', (ticket) => {
+   *   console.log('Ticket registered:', ticket)
+   * })
+   *
+   * registry.register({ id: 'ticket-id' }) // Console: Ticket registered: { id: 'ticket-id', ... }
+   * ```
+  */
   events?: boolean
 }
 
@@ -76,8 +517,8 @@ export interface RegistryOptions {
  * Creates a new registry instance.
  *
  * @param options The options for the registry instance.
- * @template Z The type of the registry ticket.
- * @template E The type of the registry context.
+ * @template Z The type of registry ticket that extends RegistryTicket. Use this to add custom properties to tickets.
+ * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
  * @returns A new registry instance.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-registry
@@ -388,9 +829,9 @@ export function useRegistry<
  *
  * @param namespace The namespace for the registry context.
  * @param options The options for the registry context.
- * @template Z The type of the registry ticket.
- * @template E The type of the registry context.
- * @returns A new registry context.
+ *
+ * @template Z The type of registry ticket that extends RegistryTicket. Use this to add custom properties to tickets.
+ * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-registry
  *
