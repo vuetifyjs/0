@@ -8,6 +8,7 @@ import pkg from './package.json' with { type: 'json' }
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
 import UnocssVitePlugin from 'unocss/vite'
+import type { ViteSSGOptions } from 'vite-ssg'
 
 export default defineConfig({
   ssr: {
@@ -16,6 +17,9 @@ export default defineConfig({
   experimental: {
     enableNativePlugin: true,
   },
+  ssgOptions: {
+    dirStyle: 'nested',
+  } as ViteSSGOptions,
   plugins: [
     VueRouter({
       dts: './src/typed-router.d.ts',
