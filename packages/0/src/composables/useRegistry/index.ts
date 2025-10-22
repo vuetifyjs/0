@@ -190,10 +190,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @param id The ID of the ticket to upsert.
    * @param ticket The partial ticket data to update or insert.
+   * @remarks If the ticket exists, it will be updated with the provided data. If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
    * @see https://0.vuetifyjs.com/composables/registration/use-registry#upsert
-   *
-   * @remarks If the ticket exists, it will be updated with the provided data. If it doesn't exist, a new ticket will be created with the given ID and data. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
    *
    * @example
    * ```ts
