@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useBreakpoints, useFeatures, usePermissions } from '@vuetify/v0'
+  import { Atom, useFeatures, usePermissions } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'
@@ -17,7 +17,6 @@
   if (!import.meta.env.SSR) {
     auth = useAuthStore()
   }
-  const breakpoints = useBreakpoints()
   const permissions = usePermissions()
   const features = useFeatures()
 
@@ -32,7 +31,6 @@
   <Atom
     :as
     class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3"
-    :class="breakpoints.isMobile.value && 'left-0'"
   >
     <div class="flex items-center gap-1">
       <img
@@ -44,8 +42,7 @@
       >
 
       <AppIcon
-        v-if="breakpoints.isMobile.value"
-        class="pa-1 cursor-pointer"
+        class="pa-1 cursor-pointer md:hidden"
         :icon="app.drawer ? 'close' : 'menu'"
         @click="app.drawer = !app.drawer"
       />

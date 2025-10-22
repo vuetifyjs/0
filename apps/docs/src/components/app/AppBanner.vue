@@ -1,13 +1,11 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom } from '@vuetify/v0'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'header' } = defineProps<AtomProps>()
-
-  const breakpoints = useBreakpoints()
 </script>
 
 <template>
@@ -18,7 +16,7 @@
     <AppIcon icon="alert" :size="14" />
 
     <div>
-      You are viewing Pre-Alpha documentation. <span v-if="!breakpoints.isMobile.value">Some features may not work as expected.</span>
+      You are viewing Pre-Alpha documentation. <span class="hidden md:inline">Some features may not work as expected.</span>
     </div>
   </Atom>
 </template>
