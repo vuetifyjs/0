@@ -353,6 +353,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * - `register:ticket` - Emitted when a ticket is registered, receives the ticket as argument
    * - `unregister:ticket` - Emitted when a ticket is unregistered, receives the ticket as argument
    * - `update:ticket` - Emitted when a ticket is updated, receives the updated ticket as argument
+   * - `clear:registry` - Emitted when the registry is cleared
    *
    * @see https://0.vuetifyjs.com/composables/registration/use-registry#on
    *
@@ -550,7 +551,7 @@ export function useRegistry<
 
   const events = options?.events ?? false
 
-  function emit (event: string, data: any) {
+  function emit (event: string, data: unknown = undefined) {
     if (!events) return
     const cbs = listeners.get(event)
     if (!cbs) return
@@ -696,6 +697,7 @@ export function useRegistry<
     if (catalog.size > 0) catalog.clear()
     if (directory.size > 0) directory.clear()
     invalidate()
+    emit('clear:registry')
   }
 
   function invalidate () {

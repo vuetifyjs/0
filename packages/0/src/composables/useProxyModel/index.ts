@@ -139,9 +139,18 @@ export function useProxyModel<Z extends SelectionTicket> (
     }
   }
 
+  function onClear () {
+    registryWatcher.pause()
+    modelWatcher.pause()
+    registry.selectedIds.clear()
+    registryWatcher.resume()
+    modelWatcher.resume()
+  }
+
   registry.on('register:ticket', onRegister)
   registry.on('unregister:ticket', onUnregister)
   registry.on('update:ticket', onUpdate)
+  registry.on('clear:registry', onClear)
 
   onScopeDispose(() => {
     registryWatcher()
@@ -149,6 +158,7 @@ export function useProxyModel<Z extends SelectionTicket> (
     registry.off('register:item', onRegister)
     registry.off('unregister:ticket', onUnregister)
     registry.off('update:ticket', onUpdate)
+    registry.off('clear:registry', onClear)
   }, true)
 
   return model
