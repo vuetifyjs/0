@@ -34,7 +34,7 @@ console.log(registry.size) // 3
 
 | Composable | Description |
 |---|---|
-| [useProxyRegistry](/composables/registration/use-registry) | Reactive registry wrapper |
+| [useProxyRegistry](/composables/registration/use-proxy-registry) | Reactive registry wrapper |
 | [useSelection](/composables/selection/use-selection) | Selection-enabled registries |
 | [useTokens](/composables/registration/use-tokens) | Token management |
 | [useTimeline](/composables/registration/use-timeline) | Undo/redo system |
