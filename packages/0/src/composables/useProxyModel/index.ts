@@ -119,12 +119,36 @@ export function useProxyModel<Z extends SelectionTicket> (
     modelWatcher.resume()
   }
 
-  registry.on('register', onRegister)
+  function onUnregister (ticket: Z) {
+    if (!internal.value.includes(ticket.value)) return
+
+    registryWatcher.pause()
+    modelWatcher.pause()
+    registry.unselect(ticket.id)
+    registryWatcher.resume()
+    modelWatcher.resume()
+  }
+
+  function onUpdate (ticket: Z) {
+    const hasValue = internal.value.includes(ticket.value)
+    const isSelected = toValue(registry.selectedIds).has(ticket.id)
+    if (!hasValue && isSelected) {
+      onUnregister(ticket)
+    } else if (hasValue && !isSelected) {
+      onRegister(ticket)
+    }
+  }
+
+  registry.on('register:ticket', onRegister)
+  registry.on('unregister:ticket', onUnregister)
+  registry.on('update:ticket', onUpdate)
 
   onScopeDispose(() => {
     registryWatcher()
     modelWatcher()
-    registry.off('register', onRegister)
+    registry.off('register:item', onRegister)
+    registry.off('unregister:ticket', onUnregister)
+    registry.off('update:ticket', onUpdate)
   }, true)
 
   return model

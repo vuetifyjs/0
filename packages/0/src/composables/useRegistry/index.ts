@@ -350,8 +350,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * @param cb The callback function to invoke when the event is emitted.
    * @remarks Must be enabled via the `events` option when creating the registry.
    * Supported events:
-   * - `register` - Emitted when a ticket is registered, receives the ticket as argument
-   * - `unregister` - Emitted when a ticket is unregistered, receives the ticket as argument
+   * - `register:ticket` - Emitted when a ticket is registered, receives the ticket as argument
+   * - `unregister:ticket` - Emitted when a ticket is unregistered, receives the ticket as argument
+   * - `update:ticket` - Emitted when a ticket is updated, receives the updated ticket as argument
    *
    * @see https://0.vuetifyjs.com/composables/registration/use-registry#on
    *
@@ -361,7 +362,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * const registry = useRegistry({ events: true })
    *
-   * registry.on('register', (ticket) => {
+   * registry.on('register:ticket', (ticket) => {
    *   console.log('Ticket registered:', ticket)
    * })
    *
@@ -389,12 +390,12 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *   console.log('Ticket registered:', ticket)
    * }
    *
-   * registry.on('register', onRegister)
+   * registry.on('register:ticket', onRegister)
    *
    * registry.register({ id: 'ticket-id' }) // Console: Ticket registered: { id: 'ticket-id', ... }
    *
    * onScopeDispose(() => {
-   *   registry.off('register', onRegister)
+   *   registry.off('register:ticket', onRegister)
    * })
    * ```
   */
@@ -502,7 +503,7 @@ export interface RegistryOptions {
    *
    * const registry = useRegistry({ events: true })
    *
-   * registry.on('register', (ticket) => {
+   * registry.on('register:ticket', (ticket) => {
    *   console.log('Ticket registered:', ticket)
    * })
    *
@@ -614,6 +615,7 @@ export function useRegistry<
 
     collection.set(id, updated)
     invalidate()
+    emit('update:ticket', updated)
 
     return updated
   }
@@ -749,7 +751,7 @@ export function useRegistry<
 
     assign(ticket.value, ticket.id)
     invalidate()
-    emit('register', ticket)
+    emit('register:ticket', ticket)
 
     return ticket
   }
@@ -764,7 +766,7 @@ export function useRegistry<
     unassign(ticket.value, ticket.id)
 
     invalidate()
-    emit('unregister', ticket)
+    emit('unregister:ticket', ticket)
     reindex()
   }
 
