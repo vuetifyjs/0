@@ -51,6 +51,7 @@ export const useAppStore = defineStore('app', {
             children: [
               { name: 'useRegistry', to: '/composables/registration/use-registry' },
               { name: 'useProxyRegistry', to: '/composables/registration/use-proxy-registry' },
+              { name: 'useQueue', to: '/composables/registration/use-queue' },
               { name: 'useTimeline', to: '/composables/registration/use-timeline' },
               { name: 'useTokens', to: '/composables/registration/use-tokens' },
             ],

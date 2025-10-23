@@ -157,6 +157,7 @@ declare global {
   const usePermissions: typeof import('../../packages/0/src/composables/usePermissions/index')['usePermissions']
   const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']
   const useProxyRegistry: typeof import('../../packages/0/src/composables/useProxyRegistry/index')['useProxyRegistry']
+  const useQueue: typeof import('../../packages/0/src/composables/useQueue/index')['useQueue']
   const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']
   const useResizeObserver: typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']
@@ -258,6 +259,9 @@ declare global {
   // @ts-ignore
   export type { ProxyRegistryOptions, ProxyRegistryContext } from '../../packages/0/src/composables/useProxyRegistry/index'
   import('../../packages/0/src/composables/useProxyRegistry/index')
+  // @ts-ignore
+  export type { QueueTicket, QueueContext, QueueOptions } from '../../packages/0/src/composables/useQueue/index'
+  import('../../packages/0/src/composables/useQueue/index')
   // @ts-ignore
   export type { RegistryTicket, RegistryContext, RegistryOptions } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
@@ -441,6 +445,7 @@ declare module 'vue' {
     readonly usePermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['usePermissions']>
     readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
     readonly useProxyRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyRegistry/index')['useProxyRegistry']>
+    readonly useQueue: UnwrapRef<typeof import('../../packages/0/src/composables/useQueue/index')['useQueue']>
     readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
     readonly useResizeObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>

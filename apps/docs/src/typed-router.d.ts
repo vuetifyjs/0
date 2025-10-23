@@ -43,6 +43,7 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-storage': RouteRecordInfo<'/composables/plugins/use-storage', '/composables/plugins/use-storage', Record<never, never>, Record<never, never>>,
     '/composables/plugins/use-theme': RouteRecordInfo<'/composables/plugins/use-theme', '/composables/plugins/use-theme', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-proxy-registry': RouteRecordInfo<'/composables/registration/use-proxy-registry', '/composables/registration/use-proxy-registry', Record<never, never>, Record<never, never>>,
+    '/composables/registration/use-queue': RouteRecordInfo<'/composables/registration/use-queue', '/composables/registration/use-queue', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-registry': RouteRecordInfo<'/composables/registration/use-registry', '/composables/registration/use-registry', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-timeline': RouteRecordInfo<'/composables/registration/use-timeline', '/composables/registration/use-timeline', Record<never, never>, Record<never, never>>,
     '/composables/registration/use-tokens': RouteRecordInfo<'/composables/registration/use-tokens', '/composables/registration/use-tokens', Record<never, never>, Record<never, never>>,
@@ -182,6 +183,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/composables/registration/use-proxy-registry.md': {
       routes: '/composables/registration/use-proxy-registry'
+      views: never
+    }
+    'src/pages/composables/registration/use-queue.md': {
+      routes: '/composables/registration/use-queue'
       views: never
     }
     'src/pages/composables/registration/use-registry.md': {
