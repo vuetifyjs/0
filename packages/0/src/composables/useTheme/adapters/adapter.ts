@@ -6,7 +6,8 @@ export interface ThemeAdapterInterface {
 }
 
 export abstract class ThemeAdapter implements ThemeAdapterInterface {
-  protected prefix: string
+  public stylesheetId = 'v0-theme-stylesheet'
+  public prefix: string
 
   constructor (prefix: string) {
     this.prefix = prefix

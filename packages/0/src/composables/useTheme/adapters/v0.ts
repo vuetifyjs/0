@@ -21,7 +21,6 @@ export interface Vuetify0ThemeOptions {
  */
 export class Vuetify0ThemeAdapter extends ThemeAdapter {
   cspNonce?: string
-  stylesheetId = 'v0-theme-stylesheet'
 
   constructor (options: Vuetify0ThemeOptions = {}) {
     super(options.prefix ?? 'v0')
