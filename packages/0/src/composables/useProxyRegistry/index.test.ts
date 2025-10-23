@@ -7,29 +7,29 @@ import { describe, it, expect } from 'vitest'
 
 describe('useProxyRegistry', () => {
   describe('basic functionality', () => {
-    it('should create reactive refs for registry data', () => {
+    it('should create reactive objects for registry data', () => {
       const registry = useRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
-      expect(proxy.keys.value).toEqual([])
-      expect(proxy.values.value).toEqual([])
-      expect(proxy.entries.value).toEqual([])
-      expect(proxy.size.value).toBe(0)
+      expect(proxy.keys).toEqual([])
+      expect(proxy.values).toEqual([])
+      expect(proxy.entries).toEqual([])
+      expect(proxy.size).toBe(0)
     })
 
-    it('should update refs when items are registered', () => {
+    it('should update properties when items are registered', () => {
       const registry = useRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       const ticket1 = registry.register({ value: 'Item 1' })
       const ticket2 = registry.register({ value: 'Item 2' })
 
-      expect(proxy.keys.value).toEqual([ticket1.id, ticket2.id])
-      expect(proxy.values.value).toEqual([ticket1, ticket2])
-      expect(proxy.size.value).toBe(2)
+      expect(proxy.keys).toEqual([ticket1.id, ticket2.id])
+      expect(proxy.values).toEqual([ticket1, ticket2])
+      expect(proxy.size).toBe(2)
     })
 
-    it('should update refs when items are unregistered', () => {
+    it('should update properties when items are unregistered', () => {
       const registry = useRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
@@ -38,18 +38,18 @@ describe('useProxyRegistry', () => {
 
       registry.unregister(ticket1.id)
 
-      expect(proxy.keys.value).toEqual([ticket2.id])
-      expect(proxy.values.value).toEqual([ticket2])
-      expect(proxy.size.value).toBe(1)
+      expect(proxy.keys).toEqual([ticket2.id])
+      expect(proxy.values).toEqual([ticket2])
+      expect(proxy.size).toBe(1)
     })
 
-    it('should update entries ref correctly', () => {
+    it('should update entries property correctly', () => {
       const registry = useRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       const ticket = registry.register({ value: 'Item 1' })
 
-      expect(proxy.entries.value).toEqual([[ticket.id, ticket]])
+      expect(proxy.entries).toEqual([[ticket.id, ticket]])
     })
   })
 
@@ -58,7 +58,7 @@ describe('useProxyRegistry', () => {
       const registry = useRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
-      expect(proxy.keys.value).toBeDefined()
+      expect(proxy.keys).toBeDefined()
     })
 
     it('should support deep reactivity option', () => {
@@ -67,7 +67,7 @@ describe('useProxyRegistry', () => {
 
       const ticket = registry.register({ value: { nested: 'data' } })
 
-      expect(proxy.values.value).toEqual([ticket])
+      expect(proxy.values).toEqual([ticket])
     })
   })
 
@@ -80,14 +80,14 @@ describe('useProxyRegistry', () => {
         registry.register({ value: `Item ${i}` })
       }
 
-      expect(proxy.size.value).toBe(10)
+      expect(proxy.size).toBe(10)
 
-      const ids = proxy.keys.value
+      const ids = proxy.keys
       for (let i = 0; i < 5; i++) {
         registry.unregister(ids[i]!)
       }
 
-      expect(proxy.size.value).toBe(5)
+      expect(proxy.size).toBe(5)
     })
 
     it('should handle bulk operations via onboard', () => {
@@ -100,8 +100,8 @@ describe('useProxyRegistry', () => {
         { value: 'Item 3' },
       ])
 
-      expect(proxy.size.value).toBe(3)
-      expect(proxy.values.value.length).toBe(3)
+      expect(proxy.size).toBe(3)
+      expect(proxy.values.length).toBe(3)
     })
   })
 
@@ -113,8 +113,8 @@ describe('useProxyRegistry', () => {
 
       registry.register({ value: 'Item 1' })
 
-      expect(proxy1.size.value).toBe(1)
-      expect(proxy2.size.value).toBe(1)
+      expect(proxy1.size).toBe(1)
+      expect(proxy2.size).toBe(1)
     })
   })
 })
