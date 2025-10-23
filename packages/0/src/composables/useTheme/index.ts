@@ -61,6 +61,7 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
   default?: ID
   palette?: TokenCollection
   themes?: Record<ID, Z>
+  target?: string | HTMLElement | null
 }
 
 /**
@@ -246,24 +247,56 @@ export function createThemePlugin<
   Z extends ThemeTicket = ThemeTicket,
   E extends ThemeContext<Z> = ThemeContext<Z>,
 > (_options: ThemePluginOptions = {}) {
-  const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {}, ...options } = _options
+  const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {}, target, ...options } = _options
   const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', { ...options, themes, palette })
-
-  function update (colors: Record<string, Colors>) {
-    adapter.update(colors)
-  }
 
   return createPlugin({
     namespace: 'v0:theme',
     provide: (app: App) => {
       provideThemeContext(themeContext, app)
     },
-    setup: () => {
+    setup: (app: App) => {
       if (IN_BROWSER) {
-        const stop = watch(themeContext.colors, update, { immediate: true, deep: true })
-        onScopeDispose(stop, true)
+        const stopWatch = watch(themeContext.colors, colors => {
+          adapter.update(colors)
+        }, { immediate: true })
+
+        onScopeDispose(stopWatch, true)
+
+        if (target === null) return
+
+        const targetEl = target instanceof HTMLElement
+          ? target
+          : (typeof target === 'string'
+              ? document.querySelector(target)
+              : (app._container as HTMLElement | undefined) || document.querySelector('#app') || document.body)
+
+        if (!targetEl) return
+
+        let prevClass = ''
+
+        const stopClass = watch(themeContext.selectedId, id => {
+          if (!id) return
+
+          const themeClass = `${adapter.prefix}-theme--${id}`
+          if (prevClass) targetEl.classList.remove(prevClass)
+          targetEl.classList.add(themeClass)
+          prevClass = themeClass
+        }, { immediate: true })
+
+        onScopeDispose(stopClass, true)
       } else {
-        update(themeContext.colors.value)
+        const head = app._context?.provides?.usehead
+        if (head?.push) {
+          const id = themeContext.selectedId.value
+          head.push({
+            htmlAttrs: { class: id ? `${adapter.prefix}-theme--${id}` : '' },
+            style: [{
+              innerHTML: adapter.generate(themeContext.colors.value),
+              id: adapter.stylesheetId,
+            }],
+          })
+        }
       }
     },
   })

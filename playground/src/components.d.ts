@@ -25,6 +25,8 @@ declare module 'vue' {
     PopoverAnchor: typeof import('./../../packages/0/src/components/Popover/PopoverAnchor.vue')['default']
     PopoverContent: typeof import('./../../packages/0/src/components/Popover/PopoverContent.vue')['default']
     PopoverRoot: typeof import('./../../packages/0/src/components/Popover/PopoverRoot.vue')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     StepItem: typeof import('./../../packages/0/src/components/Step/StepItem.vue')['default']
     StepRoot: typeof import('./../../packages/0/src/components/Step/StepRoot.vue')['default']
     ThemeItem: typeof import('./../../packages/0/src/components/Theme/ThemeItem.vue')['default']
