@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev"
+    "dev": "vite dev",
+    "build": "vite-ssg build",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "sass-embedded": "catalog:",
@@ -13,9 +15,12 @@
     "unplugin-auto-import": "catalog:",
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vite-ssg": "catalog:",
+    "vue-router": "catalog:"
   },
   "dependencies": {
+    "@unhead/vue": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "vue": "catalog:"

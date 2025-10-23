@@ -36,6 +36,9 @@ catalogs:
     '@types/node':
       specifier: ^24.7.2
       version: 24.7.2
+    '@unhead/vue':
+      specifier: ^2.0.0
+      version: 2.0.14
     '@unocss/reset':
       specifier: ^66.5.1
       version: 66.5.1
@@ -49,8 +52,8 @@ catalogs:
       specifier: ^0.8.1
       version: 0.8.1
     '@vuetify/one':
-      specifier: ^2.4.0
-      version: 2.4.0
+      specifier: ^2.5.1
+      version: 2.5.1
     bumpp:
       specifier: ^10.3.1
       version: 10.3.1
@@ -210,7 +213,7 @@ importers:
         version: 7.0.3
       '@vuetify/one':
         specifier: 'catalog:'
-        version: 2.4.0(@vue/compiler-sfc@3.5.21)(lodash-es@4.17.21)(mdi-js-es@7.4.47)(rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))(vuetify@3.9.6)
+        version: 2.5.1(@vue/compiler-sfc@3.5.21)(lodash-es@4.17.21)(mdi-js-es@7.4.47)(rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))(vuetify@3.9.6)
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
@@ -368,6 +371,9 @@ importers:
 
   playground:
     dependencies:
+      '@unhead/vue':
+        specifier: 'catalog:'
+        version: 2.0.14(vue@3.5.21(typescript@5.8.3))
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../packages/paper
@@ -399,6 +405,12 @@ importers:
       vite:
         specifier: npm:rolldown-vite@^7.1.8
         version: rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1)
+      vite-ssg:
+        specifier: 'catalog:'
+        version: 28.1.0(rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1))(unhead@2.0.14)(vue-router@4.5.1(vue@3.5.21(typescript@5.8.3)))(vue@3.5.21(typescript@5.8.3))
+      vue-router:
+        specifier: 'catalog:'
+        version: 4.5.1(vue@3.5.21(typescript@5.8.3))
 
 packages:
 
@@ -2006,8 +2018,8 @@ packages:
       vue: ^3.0.0
       vuetify: ^3.0.0
 
-  '@vuetify/one@2.4.0':
-    resolution: {integrity: sha512-UzXPmGndwoQ4c/Ni5MxS4f2y0Auixj2pgrXow0LFM6ccchsFWaW4CoVOdoY8fUG9am4AzpiE/a+haSL2tSa/8A==}
+  '@vuetify/one@2.5.1':
+    resolution: {integrity: sha512-BoAuBubM+oVcNW0z1g+695s8vLtntfqAEQ7pZnm+HlgnrkrSJbPZW0aNi6ns0nFk35hDHw7jb6mbxqZeDQDYtA==}
     peerDependencies:
       '@mdi/js': 7.4.47
       lodash-es: ^4.17.21
@@ -6203,6 +6215,12 @@ snapshots:
     dependencies:
       unhead: 2.0.14
 
+  '@unhead/vue@2.0.14(vue@3.5.21(typescript@5.8.3))':
+    dependencies:
+      hookable: 5.5.3
+      unhead: 2.0.14
+      vue: 3.5.21(typescript@5.8.3)
+
   '@unhead/vue@2.0.14(vue@3.5.21(typescript@5.9.2))':
     dependencies:
       hookable: 5.5.3
@@ -6699,7 +6717,7 @@ snapshots:
       vuetify: 3.9.6(typescript@5.9.2)(vite-plugin-vuetify@2.1.2)(vue@3.5.21(typescript@5.9.2))
     optional: true
 
-  '@vuetify/one@2.4.0(@vue/compiler-sfc@3.5.21)(lodash-es@4.17.21)(mdi-js-es@7.4.47)(rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))(vuetify@3.9.6)':
+  '@vuetify/one@2.5.1(@vue/compiler-sfc@3.5.21)(lodash-es@4.17.21)(mdi-js-es@7.4.47)(rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))(vuetify@3.9.6)':
     dependencies:
       '@mdi/js': mdi-js-es@7.4.47
       lodash-es: 4.17.21
@@ -9841,11 +9859,31 @@ snapshots:
       - supports-color
     optional: true
 
+  vite-ssg@28.1.0(rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1))(unhead@2.0.14)(vue-router@4.5.1(vue@3.5.21(typescript@5.8.3)))(vue@3.5.21(typescript@5.8.3)):
+    dependencies:
+      '@unhead/dom': 2.0.14(unhead@2.0.14)
+      '@unhead/vue': 2.0.14(vue@3.5.21(typescript@5.8.3))
+      ansis: 4.2.0
+      cac: 6.7.14
+      html-minifier-terser: 7.2.0
+      html5parser: 2.0.2
+      jsdom: 26.1.0
+      vite: rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1)
+      vue: 3.5.21(typescript@5.8.3)
+    optionalDependencies:
+      vue-router: 4.5.1(vue@3.5.21(typescript@5.8.3))
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - unhead
+      - utf-8-validate
+
   vite-ssg@28.1.0(rolldown-vite@7.1.8(@types/node@24.7.2)(esbuild@0.25.11)(jiti@2.6.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.44.0)(yaml@2.8.1))(unhead@2.0.14)(vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       '@unhead/dom': 2.0.14(unhead@2.0.14)
       '@unhead/vue': 2.0.14(vue@3.5.21(typescript@5.9.2))
-      ansis: 4.1.0
+      ansis: 4.2.0
       cac: 6.7.14
       html-minifier-terser: 7.2.0
       html5parser: 2.0.2
@@ -9985,6 +10023,11 @@ snapshots:
   vue-inbrowser-compiler-independent-utils@4.71.1(vue@3.5.21(typescript@5.9.2)):
     dependencies:
       vue: 3.5.21(typescript@5.9.2)
+
+  vue-router@4.5.1(vue@3.5.21(typescript@5.8.3)):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.21(typescript@5.8.3)
 
   vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)):
     dependencies:

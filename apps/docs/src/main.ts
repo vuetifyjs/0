@@ -10,9 +10,9 @@ export const createApp = ViteSSG(
   App,
   routerOptions,
   ({ app, router, initialState }) => {
-    registerPlugins(app)
-
     app.use(pinia)
+
+    registerPlugins(app)
 
     if (import.meta.env.SSR)
       initialState.pinia = pinia.state.value

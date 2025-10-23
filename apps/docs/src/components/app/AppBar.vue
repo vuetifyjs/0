@@ -51,7 +51,7 @@
     <div class="flex align-center items-center gap-3">
       <!-- update when latest @vuetify/one is released -->
       <button
-        v-if="permissions.can((auth?.user as any)?.role, 'use', 'devmode')"
+        v-if="permissions.can(auth?.user?.role ?? 'guest', 'use', 'devmode')"
         class="text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         :class="devmode.isSelected.value ? 'bg-red' : 'bg-gray-400'"
         @click="onClickDevmode"
