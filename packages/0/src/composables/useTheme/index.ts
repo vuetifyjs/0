@@ -286,7 +286,7 @@ export function createThemePlugin<
 
         onScopeDispose(stopClass, true)
       } else {
-        const head = app._context?.provides?.usehead
+        const head = app._context?.provides?.usehead ?? app._context?.provides?.head
         if (head?.push) {
           const id = themeContext.selectedId.value
           head.push({
