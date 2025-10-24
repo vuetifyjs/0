@@ -62,6 +62,7 @@ describe('useForm validateOn functionality', () => {
     })
 
     field.value = 'changed'
+    expect(form.isValidating.value).toBe(true)
     await nextTick()
 
     expect(mockRule).toHaveBeenCalledWith('changed')
@@ -120,5 +121,42 @@ describe('useForm validateOn functionality', () => {
     await nextTick()
 
     expect(mockRule).toHaveBeenCalledWith('changed')
+  })
+
+  it('should correctly compute isValid and isValidating', async () => {
+    const form = useForm({ validateOn: 'submit' })
+    const mockRule = vi.fn().mockResolvedValue(true)
+
+    form.register({
+      id: 'test',
+      rules: [mockRule],
+      value: 'test-value',
+    })
+
+    const submitPromise = form.submit()
+
+    await nextTick()
+    expect(form.isValidating.value).toBe(true)
+
+    await submitPromise
+
+    expect(form.isValid.value).toBe(true)
+    expect(form.isValidating.value).toBe(false)
+  })
+})
+
+describe('Use form validations', () => {
+  it('Should successfully validate when no rules are provided', async () => {
+    const form = useForm({ validateOn: 'submit' })
+    const ticket = form.register({
+      id: 'test',
+      value: 'test-value',
+    })
+
+    await ticket.validate()
+
+    expect(ticket.isValid.value).toBe(true)
+    expect(ticket.errors.value).toEqual([])
+    expect(form.isValid.value).toBe(true)
   })
 })
