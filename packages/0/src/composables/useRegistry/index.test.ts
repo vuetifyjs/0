@@ -16,6 +16,16 @@ describe('useRegistry', () => {
       expect(registry.collection.size).toBe(1)
     })
 
+    it('should upsert an item', () => {
+      const registry = useRegistry()
+      const ticket = registry.upsert('item-1', { value: 'value-1' })
+
+      expect(ticket).toBeDefined()
+      expect(ticket.id).toBeDefined()
+      expect(ticket.index).toBe(0)
+      expect(registry.collection.size).toBe(1)
+    })
+
     it('should register an item with a custom id', () => {
       const registry = useRegistry()
       const ticket = registry.register({ id: 'test-id' })
@@ -52,16 +62,30 @@ describe('useRegistry', () => {
       const tickets = registry.onboard([
         { id: 'item-1', value: 'value-1' },
         { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-2' },
       ])
 
-      expect(tickets.length).toBe(2)
-      expect(registry.collection.size).toBe(2)
+      expect(tickets.length).toBe(3)
+      expect(registry.collection.size).toBe(3)
 
       const item1 = registry.get('item-1')
       const item2 = registry.get('item-2')
 
       expect(item1?.value).toBe('value-1')
       expect(item2?.value).toBe('value-2')
+    })
+
+    it('should not remove an item if unregistering a non-existent id', () => {
+      const registry = useRegistry()
+      const tickets = registry.onboard([
+        { id: 'item-1', value: 1, valueIsIndex: true },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-2' },
+      ])
+
+      expect(tickets.length).toBe(3)
+      registry.unregister('non-existent-id')
+      expect(registry.collection.size).toBe(3)
     })
   })
 
@@ -110,14 +134,16 @@ describe('useRegistry', () => {
       const registry = useRegistry()
       registry.register({ id: 'item-1', index: 2, value: 'value-1' })
       registry.register({ id: 'item-2', index: 3, value: 'value-2' })
+      registry.register({ id: 'item-3', index: 4, valueIsIndex: true })
 
       expect(registry.lookup(2)).toBe('item-1')
       expect(registry.get('item-1')?.index).toBe(2)
 
       registry.reindex()
 
-      expect(registry.lookup(2)).toBeUndefined()
+      expect(registry.lookup(3)).toBeUndefined()
       expect(registry.get('item-1')?.index).toBe(0)
+      expect(registry.get('item-3')?.value).toBe(2)
     })
 
     it('should clear the entire registry', () => {
@@ -146,6 +172,19 @@ describe('useRegistry', () => {
 
       expect(updated.valueIsIndex).toBe(true)
       expect(updated.value).toBe(updated.index)
+    })
+  })
+
+  describe('Catalog management', () => {
+    it('Catalogs tickets with duplicate values', () => {
+      const registry = useRegistry()
+      registry.onboard([{ id: 'item-1', value: 'value-1' }, { id: 'item-2', value: 'value-2' }, { id: 'dupe-item-1', value: 'value-1', valueIsIndex: true }])
+      const ids = registry.browse('value-1')
+      expect(ids).toEqual(['item-1', 'dupe-item-1'])
+
+      registry.unregister('dupe-item-1')
+      const idsAfterUnregister = registry.browse('value-1')
+      expect(idsAfterUnregister).toEqual('item-1')
     })
   })
 })
