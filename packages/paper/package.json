@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/paper",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Vuetify Paper",
   "license": "MIT",
   "main": "./dist/index.js",
