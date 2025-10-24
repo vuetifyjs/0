@@ -242,7 +242,7 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions, LocaleAdapter } from '../../packages/0/src/composables/useLocale/index'
+  export type { LocaleRecord, LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions, LocaleAdapter } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
   // @ts-ignore
   export type { LoggerContext, LoggerOptions, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
