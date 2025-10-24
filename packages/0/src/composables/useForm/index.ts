@@ -100,7 +100,7 @@ export function useForm<
       if (ticket.isValid.value === false) return false
       if (ticket.isValid.value === null) return null
     }
-    return hasFields ? true : null
+    return hasFields || null
   })
 
   function reset () {
@@ -150,7 +150,7 @@ export function useForm<
     }
 
     async function validate (silent = false): Promise<boolean> {
-      if (rules.length === 0) return true
+      if (rules.length === 0) return isValid.value = true
 
       isValidating.value = true
       try {
