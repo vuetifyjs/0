@@ -10,6 +10,9 @@ import { useTokens } from '#v0/composables/useTokens'
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
+// Utilities
+import { isString } from '#v0/utilities'
+
 // Types
 import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
@@ -83,7 +86,7 @@ export function createLocale<
 
     // If the key exists in messages, resolve it with token references
     // Otherwise, use the key itself as a template string
-    const template = typeof message === 'string' ? resolve(locale, message) : key
+    const template = isString(message) ? resolve(locale, message) : key
 
     return adapter.t(template, ...params)
   }
@@ -105,14 +108,14 @@ export function createLocale<
       const messages = targetTicket?.value as TokenCollection | undefined
       const resolved = messages?.[name]
 
-      if (typeof resolved === 'string') {
+      if (isString(resolved)) {
         return resolve(target, resolved)
       }
 
       const alias = `{${key}}`
       if (tokens.isAlias(alias)) {
         const result = tokens.resolve(alias)
-        return typeof result === 'string' ? result : match
+        return isString(result) ? result : match
       }
 
       return match
