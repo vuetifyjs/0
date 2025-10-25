@@ -65,7 +65,7 @@ export function useProxyRegistry<
   registry.on('clear:registry', update)
 
   onScopeDispose(() => {
-    registry.off('register:item', update)
+    registry.off('register:ticket', update)
     registry.off('unregister:ticket', update)
     registry.off('update:ticket', update)
     registry.off('clear:registry', update)
