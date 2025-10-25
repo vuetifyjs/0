@@ -159,4 +159,21 @@ describe('Use form validations', () => {
     expect(ticket.errors.value).toEqual([])
     expect(form.isValid.value).toBe(true)
   })
+
+  it('should fail validation when a rule returns an error message', async () => {
+    const form = useForm({ validateOn: 'submit' })
+    const ticket = form.register({
+      id: 'test',
+      value: 'test-value',
+      rules: [
+        value => value === 'valid-value' || 'Invalid value provided',
+      ],
+    })
+
+    await ticket.validate()
+
+    expect(ticket.isValid.value).toBe(false)
+    expect(ticket.errors.value).toEqual(['Invalid value provided'])
+    expect(form.isValid.value).toBe(false)
+  })
 })
