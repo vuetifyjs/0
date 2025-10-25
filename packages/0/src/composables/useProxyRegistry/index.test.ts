@@ -3,7 +3,8 @@ import { useRegistry } from '#v0/composables/useRegistry'
 import { useProxyRegistry } from './index'
 
 // Utilities
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import { effectScope } from 'vue'
 
 describe('useProxyRegistry', () => {
   describe('basic functionality', () => {
@@ -115,6 +116,27 @@ describe('useProxyRegistry', () => {
 
       expect(proxy1.size).toBe(1)
       expect(proxy2.size).toBe(1)
+    })
+  })
+
+  describe('cleanup', () => {
+    it('should remove event listeners on scope disposal', () => {
+      const scope = effectScope()
+      const registry = useRegistry({ events: true })
+      vi.spyOn(registry, 'off')
+
+      scope.run(() => {
+        useProxyRegistry(registry)
+      })
+
+      expect(registry.off).not.toHaveBeenCalled()
+
+      scope.stop()
+      expect(registry.off).toHaveBeenCalledTimes(4)
+      expect(registry.off).toHaveBeenCalledWith('register:ticket', expect.any(Function))
+      expect(registry.off).toHaveBeenCalledWith('unregister:ticket', expect.any(Function))
+      expect(registry.off).toHaveBeenCalledWith('update:ticket', expect.any(Function))
+      expect(registry.off).toHaveBeenCalledWith('clear:registry', expect.any(Function))
     })
   })
 })
