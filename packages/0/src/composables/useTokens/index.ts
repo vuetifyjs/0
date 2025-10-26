@@ -39,12 +39,66 @@ export type FlatTokenCollection = {
 export interface TokenTicket extends RegistryTicket {}
 
 export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
+  /**
+   * Checks if a token is an alias
+   *
+   * @param token The token to check.
+   * @returns True if the token is an alias, false otherwise.
+   * @remarks An alias is a string that starts with "{" and ends with "}".
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-tokens#is-alias
+   *
+   * @example
+   * ```ts
+   * const tokens = useTokens({
+   *   colors: {
+   *     primary: '#3b82f6',
+   *     secondary: '{colors.primary}', // Alias reference
+   *   },
+   * })
+   *
+   * console.log(tokens.isAlias('{colors.primary}')) // true
+   * console.log(tokens.isAlias('#3b82f6')) // false
+   * ```
+   */
   isAlias: (token: unknown) => token is string
+  /**
+   * Resolves a token or alias to its value.
+   *
+   * @param token The token or alias to resolve.
+   * @returns The resolved value of the token or alias, or undefined if not found.
+   * @remarks This function can resolve nested aliases and supports token paths using dot notation.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-tokens#resolve
+   *
+   * @example
+   * ```ts
+   * const tokens = useTokens({
+   *   colors: {
+   *     primary: '#3b82f6',
+   *     secondary: '{colors.primary}', // Alias reference
+   *   },
+   * })
+   *
+   * console.log(tokens.resolve('{colors.primary}')) // '#3b82f6'
+   * console.log(tokens.resolve('{colors.secondary}')) // '#3b82f6'
+   * ```
+   */
   resolve: (token: string | TokenAlias) => unknown | undefined
 }
 
 export interface TokenOptions {
+  /**
+   * Whether to flatten nested token structures.
+   *
+   * @default false
+   */
   flat?: boolean
+  /**
+   * An optional prefix to prepend to each token ID during registration.
+   *
+   * @remarks This is useful for namespacing tokens.
+   */
   prefix?: string
 }
 
@@ -220,10 +274,11 @@ export function createTokensContext<
 > (
   namespace: string,
   tokens: TokenCollection = {},
+  options: TokenOptions = {},
 ): ContextTrinity<E> {
   const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
 
-  const context = useTokens<Z, E>(tokens)
+  const context = useTokens<Z, E>(tokens, options)
 
   function provideTokensContext (_context: E = context, app?: App): E {
     return _provideTokensContext(_context, app)
