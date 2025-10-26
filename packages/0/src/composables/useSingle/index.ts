@@ -11,7 +11,7 @@ import { computed } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { ComputedRef } from 'vue'
+import type { App, ComputedRef } from 'vue'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 
 export interface SingleTicket extends SelectionTicket {}
@@ -132,7 +132,7 @@ export function createSingleContext<
   const [useSingleContext, _provideSingleContext] = createContext<E>(namespace)
   const context = useSingle<Z, E>(options)
 
-  function provideSingleContext (_context: E = context, app?: any): E {
+  function provideSingleContext (_context: E = context, app?: App): E {
     return _provideSingleContext(_context, app)
   }
 
