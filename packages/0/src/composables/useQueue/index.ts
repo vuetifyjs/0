@@ -14,6 +14,10 @@
  * expires or is removed, the next ticket in the queue automatically becomes active.
  */
 
+// Factories
+import { createContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
@@ -23,7 +27,9 @@ import { genId } from '#v0/utilities'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
+import type { App } from 'vue'
 
 export interface QueueTicket extends RegistryTicket {
   /**
@@ -370,4 +376,41 @@ export function useQueue<
       return registry.size
     },
   } as E
+}
+
+/**
+ * Creates a new queue context.
+ *
+ * @param namespace The namespace for the queue context.
+ * @param options The options for the queue context.
+ * @template Z The type of the queue ticket.
+ * @template E The type of the queue context.
+ * @returns A new queue context.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-queue
+ *
+ * @example
+ * ```ts
+ * import { createQueueContext } from '@vuetify/v0'
+ *
+ * export const [useQueue, provideQueue] = createQueueContext('v0:queue', {
+ *   timeout: 5000,
+ * })
+ * ```
+ */
+export function createQueueContext<
+  Z extends QueueTicket = QueueTicket,
+  E extends QueueContext<Z> = QueueContext<Z>,
+> (
+  namespace: string,
+  options?: QueueOptions,
+): ContextTrinity<E> {
+  const [useQueueContext, _provideQueueContext] = createContext<E>(namespace)
+  const context = useQueue<Z, E>(options)
+
+  function provideQueueContext (_context: E = context, app?: App): E {
+    return _provideQueueContext(_context, app)
+  }
+
+  return createTrinity<E>(useQueueContext, provideQueueContext, context)
 }
