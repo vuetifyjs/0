@@ -194,7 +194,16 @@ tokens.resolve('{colors.primary}') // '#3b82f6'
 **Advanced Features**:
 - Supports W3C Design Tokens format with `$value`, `$type`, `$description`
 - Nested path resolution: can resolve `{colors}.blue.500` if `colors` is a token
-- Cache for resolved values
+- Cache for resolved values with circular reference protection
+
+**Critical Protection**: Circular alias detection prevents stack overflow:
+```typescript
+const tokens = useTokens({
+  a: '{b}',
+  b: '{a}' // Detected and handled gracefully
+})
+tokens.resolve('{a}') // Returns undefined with warning
+```
 
 Location: `packages/0/src/composables/useTokens/index.ts`
 
@@ -312,7 +321,7 @@ Location: `packages/0/src/composables/useTheme/index.ts`
 
 ### Context Trinity Pattern Usage
 
-Almost every major composable exports both:
+All applicable composables export both:
 1. A direct `useX()` function for standalone use
 2. A `createXContext()` function returning a trinity
 
@@ -325,7 +334,7 @@ const theme = useTheme()
 const [useMyTheme, provideMyTheme, defaultTheme] = createThemeContext('my-theme', options)
 ```
 
-This dual pattern allows both standalone and injected usage.
+This dual pattern allows both standalone and injected usage. All registry-based composables implement the context creation pattern for dependency injection.
 
 ### Adapter Pattern
 
@@ -354,11 +363,16 @@ Adapters live in `packages/0/src/composables/useX/adapters/`
 - Named with `use` prefix (e.g., `useTheme`, `useBreakpoints`) or `create` for factories
 - Located in `packages/0/src/composables/`
 - Each composable in its own directory with `index.ts`
+- **@module JSDoc block required** at line 1 of every composable file with:
+  - `@module` tag with composable name
+  - `@remarks` section explaining purpose and key features
+  - Inheritance/relationship notes where applicable
 - Tests colocated as `index.test.ts` in same directory
-- Benchmark files as `index.bench.ts` where applicable (see `useTokens`, `useRegistry`)
+- Benchmark files as `index.bench.ts` where performance-critical (see `useTokens`, `useRegistry`)
 - Most composables extend `useRegistry` or build on the foundation layer
 - Export both standalone functions and context creation functions
 - Use generic type parameters for extensibility: `<Z extends TicketType, E extends ContextType>`
+- Section comments for imports (e.g., `// Factories`, `// Composables`, `// Types`) are encouraged
 
 ### Testing
 
@@ -367,19 +381,27 @@ Adapters live in `packages/0/src/composables/useX/adapters/`
 - **Test files**: `*.test.ts` or `*.spec.ts`
 - **Configuration**: Root `vitest.config.ts` uses project-based testing for all `packages/*`
 - **Mocking**: Vue composables are mocked for isolated unit tests (see `createContext/index.test.ts`)
+- **What NOT to include in tests**:
+  - No "real-world use case" or "example" test sections (belongs in docs/integration tests)
+  - No TypeScript-only tests that verify types at runtime (impossible)
+  - No tests of implementation details (test behavior, not internals)
+  - No redundant/duplicate tests covering identical behavior
+- **Focus on**: Edge cases, error conditions, async handling, SSR safety, memory leak prevention
 
 ### TypeScript
 
-- Full type safety required throughout
+- Full type safety required throughout (zero `any` types allowed)
 - Export types alongside implementation
 - Heavy use of generic constraints for extensibility:
   - `Z extends TicketType` - The ticket/item type
   - `E extends ContextType` - The context/API type
   - Default types provided: `<Z extends TicketType = TicketType>`
-- Path aliases: `#v0/` maps to `packages/0/src/`
+- Path aliases: `#v0/` maps to `packages/0/src/` (use these, NOT relative imports)
 - `ID` type imported from `#v0/types` (used for identifiers)
 - Readonly tuples for trinity pattern: `as const`
 - MaybeRef/MaybeRefOrGetter for flexible reactive inputs
+- Use `unknown` instead of `any` for truly unknown data
+- Proper `App` type from Vue for app-level provision
 
 ### File Organization
 

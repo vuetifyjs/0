@@ -216,11 +216,11 @@ pnpm build:docs   # Build documentation
 ### Testing & Quality
 
 ```bash
-pnpm test         # Run tests
+pnpm test         # Run tests in watch mode
 pnpm test:ui      # Run tests with UI
 pnpm coverage     # Generate coverage report
 pnpm lint         # Lint codebase
-pnpm type-check   # Type checking
+pnpm typecheck    # Type checking
 ```
 
 ## 📚 Resources
@@ -240,10 +240,54 @@ Perfect for:
 
 ## ⚡ Performance
 
-- **Bundle Size**: Minimal footprint with tree-shaking
+- **Bundle Size**: Minimal footprint with tree-shaking support
 - **Runtime**: Optimized Vue 3 composition patterns
 - **SSR**: Full server-side rendering support
 - **Hydration**: Seamless client-side hydration
+- **Memory Safety**: Automatic cleanup for all observers and event listeners
+
+## 🔬 Composable System
+
+The `@vuetify/v0` package is built on a sophisticated hierarchy of composables:
+
+### Foundation Layer
+- **createContext** - Type-safe dependency injection
+- **createTrinity** - Context provider/consumer pattern ([use, provide, default])
+- **createPlugin** - Vue plugin factory with app.runWithContext support
+
+### Registry System
+- **useRegistry** - Enhanced Map with indexing, caching, and events (foundation for most composables)
+- **useTokens** - Design token registry with alias resolution and circular reference protection
+- **useTimeline** - Bounded undo/redo with fixed-size history
+
+### Selection Hierarchy
+```
+useRegistry → useSelection → useSingle → useStep
+                          → useGroup → useFeatures
+```
+
+### Forms & Validation
+- **useForm** - Async validation with field state management
+- **useFilter** - Reactive array filtering (some/every/union/intersection)
+
+### Theme System
+- **useTheme** - Theme management with CSS variable injection and token resolution
+- **useBreakpoints** - Responsive breakpoint detection with matchMedia
+
+### Browser APIs
+- **useEventListener** - DOM event handling with auto-cleanup
+- **useKeydown** - Keyboard event handling
+- **useIntersectionObserver** - Visibility detection (SSR-safe)
+- **useMutationObserver** - DOM change detection (SSR-safe)
+- **useResizeObserver** - Element size change detection (SSR-safe)
+
+### Adapters
+- **useStorage** - Reactive storage (localStorage/sessionStorage/memory)
+- **useLogger** - Logging system (console/consola/pino adapters)
+- **useLocale** - i18n with token-based messages
+- **usePermissions** - RBAC/ABAC permission management
+
+All composables follow the **trinity pattern** for dependency injection and support both standalone and context-based usage.
 
 ---
 
