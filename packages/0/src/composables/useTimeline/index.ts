@@ -1,19 +1,75 @@
+// Factories
+import { createContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { App } from 'vue'
 
 export interface TimelineContext<Z extends TimelineTicket> extends RegistryContext<Z> {
-  /* Removes the last registered ticket and stores it for redo */
+  /**
+   * Removes the last registered ticket and stores it for redo
+   *
+   * @return The removed ticket, or undefined if there are no tickets to undo.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-timeline#undo
+   *
+   * @example
+   * ```ts
+   * import { useTimeline } from '@vuetify/v0'
+   *
+   * const timeline = useTimeline()
+   *
+   * timeline.register({ id: 'one' })
+   * timeline.register({ id: 'two' })
+   *
+   * console.log(timeline.values()) // [{ id: 'one' }, { id: 'two' }]
+   *
+   * timeline.undo()
+   * console.log(timeline.values()) // [{ id: 'one' }]
+   * ```
+   */
   undo: () => Z | undefined
-  /* Restores the last undone ticket */
+  /**
+   * Restores the last undone ticket
+   *
+   * @returns The restored ticket, or undefined if there are no tickets to redo.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-timeline#redo
+   *
+   * @example
+   * ```ts
+   * import { useTimeline } from '@vuetify/v0'
+   *
+   * const timeline = useTimeline()
+   *
+   * timeline.register({ id: 'one' })
+   * timeline.register({ id: 'two' })
+   *
+   * console.log(timeline.values()) // [{ id: 'one' }, { id: 'two' }]
+   *
+   * timeline.undo()
+   * console.log(timeline.values()) // [{ id: 'one' }]
+   *
+   * timeline.redo()
+   * console.log(timeline.values()) // [{ id: 'one' }, { id: 'two' }]
+   * ```
+   */
   redo: () => Z | undefined
 }
 
 export interface TimelineTicket extends RegistryTicket {}
 
 export interface TimelineOptions extends RegistryOptions {
+  /**
+   * The maximum size of the timeline.
+   *
+   * @default 10
+   */
   size?: number
 }
 
@@ -111,4 +167,48 @@ export function useTimeline<
       return registry.size
     },
   } as E
+}
+
+/**
+ * Creates a new timeline plugin.
+ *
+ * @param namespace The namespace for the timeline plugin.
+ * @param options The options for the timeline plugin.
+ * @template Z The type of the timeline ticket.
+ * @template E The type of the timeline context.
+ * @returns A new timeline plugin.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-timeline
+ *
+ * @example
+ * ```ts
+ * import { createTimelineContext } from '@vuetify/v0'
+ *
+ * export const [useTimeline, provideTimeline, context] = createTimelineContext('v0:timeline', { size: 5 })
+ * context.register({ id: 'example' })
+ *
+ * // In a parent component
+ * provideTimeline()
+ *
+ * // In a child component
+ * const timeline = useTimeline()
+ *
+ * console.log(timeline.values()) // [{ id: 'example' }]
+ * ```
+ */
+export function createTimelineContext<
+  Z extends TimelineTicket = TimelineTicket,
+  E extends TimelineContext<Z> = TimelineContext<Z>,
+> (
+  namespace: string,
+  options: TimelineOptions = {},
+): ContextTrinity<E> {
+  const [useTimelineContext, _provideTimelineContext] = createContext<E>(namespace)
+  const context = useTimeline<Z, E>(options)
+
+  function provideTimelineContext (_context: E = context, app?: App): E {
+    return _provideTimelineContext(_context, app)
+  }
+
+  return createTrinity<E>(useTimelineContext, provideTimelineContext, context)
 }
