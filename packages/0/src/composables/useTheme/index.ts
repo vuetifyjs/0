@@ -44,23 +44,84 @@ export type ThemeRecord = {
   colors: ThemeColors
 }
 
-export type ThemeTicket = SingleTicket & {
-  lazy: boolean
+export interface ThemeTicket extends SingleTicket {
+  /**
+   * Indicates whether the theme is dark or light.
+   *
+   * @remarks Defaults to `false` (light theme).
+   */
   dark: boolean
+  /**
+   * Indicates whether the theme should be loaded lazily.
+   *
+   * @remarks Defaults to `false`.
+   */
+  lazy: boolean
 }
 
 export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
+  /**
+   * A computed reference to the resolved colors of the current theme.
+   *
+   * @remarks The colors are resolved by replacing any token aliases with their actual values.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#colors
+   *
+   * @example
+   * ```ts
+   * import { useTheme } from '@vuetify/v0'
+   *
+   * const theme = useTheme()
+   *
+   * console.log(theme.colors.value)
+   * ```
+   */
   colors: ComputedRef<Record<string, Colors>>
+  /**
+   * Cycles through the provided themes in order.
+   *
+   * @param themes An array of theme IDs to cycle through. Defaults to all registered themes.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#cycle
+   *
+   * @example
+   * ```ts
+   * import { useTheme } from '@vuetify/v0'
+   *
+   * const theme = useTheme()
+   *
+   * theme.cycle(['light', 'dark'])
+   * ```
+   */
   cycle: (themes: ID[]) => void
 }
 
 export interface ThemeOptions extends ThemePluginOptions {}
 
 export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
+  /**
+   * The theme adapter to use.
+   *
+   * @remarks Defaults to `Vuetify0ThemeAdapter`.
+   */
   adapter?: ThemeAdapter
+  /**
+   * The default theme ID to select on initialization.
+   */
   default?: ID
+  /**
+   * A collection of tokens to use for resolving theme colors.
+   */
   palette?: TokenCollection
+  /**
+   * A record of themes to register.
+   */
   themes?: Record<ID, Z>
+  /**
+   * The target element or selector to apply theme classes to.
+   *
+   * @remarks If `null`, no classes will be applied.
+   */
   target?: string | HTMLElement | null
 }
 
@@ -198,8 +259,11 @@ export function createTheme<
  * </template>
  * ```
  */
-export function useTheme (): ThemeContext<ThemeTicket> {
-  return useContext<ThemeContext<ThemeTicket>>('v0:theme')
+export function useTheme<
+  Z extends ThemeTicket = ThemeTicket,
+  E extends ThemeContext<Z> = ThemeContext<Z>,
+> (): E {
+  return useContext<E>('v0:theme')
 }
 
 /**
