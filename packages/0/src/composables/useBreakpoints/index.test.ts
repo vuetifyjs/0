@@ -504,6 +504,24 @@ describe('useBreakpoints', () => {
     })
   })
 
+  describe('SSR safety', () => {
+    it('should initialize with default values in SSR mode', () => {
+      const context = createBreakpoints()[2]
+
+      expect(context.name.value).toBe('xs')
+      expect(context.width.value).toBe(0)
+      expect(context.height.value).toBe(0)
+      expect(context.isMobile.value).toBe(true)
+    })
+
+    it('should handle context creation without errors', () => {
+      expect(() => {
+        const [, , context] = createBreakpoints()
+        expect(context).toHaveProperty('update')
+      }).not.toThrow()
+    })
+  })
+
   describe('edge cases', () => {
     it('should handle window width of 0', () => {
       mockWindow.innerWidth = 0

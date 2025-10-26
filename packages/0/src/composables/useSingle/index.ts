@@ -1,3 +1,17 @@
+/**
+ * @module useSingle
+ *
+ * @remarks
+ * Single-selection composable that extends useSelection to enforce only one selected item.
+ *
+ * Key features:
+ * - Auto-clears previous selection when selecting new item
+ * - Singular computed properties (selectedId, selectedItem, selectedIndex, selectedValue)
+ * - Perfect for tabs, radio buttons, theme selectors
+ *
+ * Inheritance chain: useRegistry → useSelection → useSingle
+ */
+
 // Factories
 import { createContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -26,12 +40,30 @@ export interface SingleContext<Z extends SingleTicket> extends SelectionContext<
 export interface SingleOptions extends SelectionOptions {}
 
 /**
- * Creates a new single selection instance.
+ * Creates a new single selection instance that enforces only one selected item at a time.
+ *
+ * Extends `useSelection` by automatically clearing previous selections when a new item is selected.
+ * Adds computed singular properties: `selectedId`, `selectedItem`, `selectedIndex`, `selectedValue`.
  *
  * @param options The options for the single selection instance.
  * @template Z The type of the single selection ticket.
  * @template E The type of the single selection context.
- * @returns A new single selection instance.
+ * @returns A new single selection instance with single-selection enforcement.
+ *
+ * @remarks
+ * **Key Differences from `useSelection`:**
+ * - Automatically clears `selectedIds` before selecting a new item (enforces single selection)
+ * - Provides singular computed properties instead of plural sets
+ * - Perfect for tabs, radio buttons, theme selectors, and other single-choice UI components
+ *
+ * **Computed Properties:**
+ * - `selectedId`: The ID of the selected item (undefined if none selected)
+ * - `selectedItem`: The selected ticket object (undefined if none selected)
+ * - `selectedIndex`: The index of the selected item (-1 if none selected)
+ * - `selectedValue`: The value of the selected item (undefined if none selected)
+ *
+ * **Inheritance Chain:**
+ * `useRegistry` → `useSelection` → `useSingle` → `useStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
  *
@@ -39,16 +71,22 @@ export interface SingleOptions extends SelectionOptions {}
  * ```ts
  * import { useSingle } from '@vuetify/v0'
  *
- * const single = useSingle()
+ * const tabs = useSingle({ mandatory: true })
  *
- * single.onboard([
- *   { id: 'option-1', value: 'Option 1' },
- *   { id: 'option-2', value: 'Option 2' },
+ * tabs.onboard([
+ *   { id: 'home', value: 'Home' },
+ *   { id: 'about', value: 'About' },
+ *   { id: 'contact', value: 'Contact' },
  * ])
  *
- * single.select('option-1')
+ * tabs.first() // Select first tab
  *
- * console.log(single.selectedId.value) // 'option-1'
+ * console.log(tabs.selectedId.value) // 'home'
+ * console.log(tabs.selectedIndex.value) // 0
+ *
+ * tabs.select('about') // Switch to about tab
+ * console.log(tabs.selectedId.value) // 'about'
+ * console.log(tabs.selectedIds.size) // 1 (always enforces single selection)
  * ```
  */
 export function useSingle<

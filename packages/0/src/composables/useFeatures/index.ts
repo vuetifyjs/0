@@ -1,3 +1,20 @@
+/**
+ * @module useFeatures
+ *
+ * @remarks
+ * Feature flag system with boolean and token-based features.
+ *
+ * Key features:
+ * - Boolean features (true/false activation)
+ * - Token features with $variation support
+ * - Auto-selection of enabled features
+ * - Multi-select support for feature combinations
+ * - Perfect for A/B testing, progressive rollout, feature toggles
+ *
+ * Inheritance chain: useRegistry → useSelection → useGroup → useFeatures
+ * Integrates with useTokens for token-based features.
+ */
+
 // Factories
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'

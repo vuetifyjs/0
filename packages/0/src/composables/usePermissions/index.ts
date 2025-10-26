@@ -1,3 +1,19 @@
+/**
+ * @module usePermissions
+ *
+ * @remarks
+ * Permission management composable with support for RBAC and ABAC patterns.
+ *
+ * Key features:
+ * - Role-Based Access Control (RBAC) support
+ * - Attribute-Based Access Control (ABAC) with context
+ * - Functional permission conditions
+ * - Token-based permission storage
+ * - Adapter pattern for custom permission systems
+ *
+ * Built on useTokens for flexible permission configuration.
+ */
+
 // Factories
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'

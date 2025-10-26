@@ -1,7 +1,24 @@
+/**
+ * @module useTheme
+ *
+ * @remarks
+ * Theme management composable with token resolution and CSS variable injection.
+ *
+ * Key features:
+ * - Single-selection theme switching (extends useSingle)
+ * - Token alias resolution via useTokens
+ * - Lazy theme loading (compute colors only when selected)
+ * - CSS variable generation via adapter pattern
+ * - SSR support with head integration
+ * - Theme cycling
+ *
+ * Integrates with useSingle for selection and useTokens for color resolution.
+ */
+
 // Factories
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
-import { createContext, useContext } from '../createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 
 // Composables
 import { useSingle } from '#v0/composables/useSingle'
@@ -93,7 +110,7 @@ export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
    * theme.cycle(['light', 'dark'])
    * ```
    */
-  cycle: (themes: ID[]) => void
+  cycle: (themes?: ID[]) => void
 }
 
 export interface ThemeOptions extends ThemePluginOptions {}

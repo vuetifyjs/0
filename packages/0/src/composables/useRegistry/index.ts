@@ -423,7 +423,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * registry.emit('custom-event', { message: 'Hello, World!' }) // Console: Custom event received: { message: 'Hello, World!' }
    * ```
   */
-  emit: (event: string, data: any) => void
+  emit: (event: string, data: unknown) => void
   /**
    * Clears the registry and removes all listeners
    *
@@ -832,9 +832,9 @@ export function useRegistry<
  *
  * @param namespace The namespace for the registry context.
  * @param options The options for the registry context.
- *
  * @template Z The type of registry ticket that extends RegistryTicket. Use this to add custom properties to tickets.
  * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
+ * @returns A new registry context.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-registry
  *

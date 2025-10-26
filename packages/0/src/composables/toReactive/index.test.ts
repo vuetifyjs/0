@@ -298,6 +298,40 @@ describe('toReactive', () => {
     })
   })
 
+  describe('edge cases', () => {
+    it('should handle circular references', () => {
+      const obj: any = { name: 'test' }
+      obj.self = obj
+      const objRef = ref(obj)
+      const result = toReactive(objRef)
+
+      expect(result.name).toBe('test')
+      expect(result.self.name).toBe('test')
+    })
+
+    it('should handle deeply nested refs', () => {
+      const deepRef = ref({
+        level1: ref({
+          level2: ref({
+            value: 'deep',
+          }),
+        }),
+      })
+      const result = toReactive(deepRef)
+
+      expect(result.level1.level2.value).toBe('deep')
+    })
+
+    it('should work with null prototype objects', () => {
+      const obj = Object.create(null)
+      obj.key = 'value'
+      const objRef = ref(obj)
+      const result = toReactive(objRef)
+
+      expect(result.key).toBe('value')
+    })
+  })
+
   describe('getOwnPropertyDescriptor', () => {
     it('should preserve property descriptors while making them configurable', () => {
       const objRef = ref({})

@@ -1,3 +1,14 @@
+/**
+ * @module toArray
+ *
+ * @remarks
+ * Utility function to normalize single values and arrays into arrays.
+ *
+ * Converts single values into single-element arrays, passes arrays through unchanged,
+ * and handles null/undefined by returning empty arrays. Perfect for functions that
+ * accept both single values and arrays as input (e.g., ID | ID[]).
+ */
+
 // Utilities
 import { isNullOrUndefined } from '#v0/utilities'
 

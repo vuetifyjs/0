@@ -1,3 +1,19 @@
+/**
+ * @module useLocale
+ *
+ * @remarks
+ * Internationalization (i18n) composable with adapter pattern for message translation.
+ *
+ * Key features:
+ * - Locale selection with useSingle
+ * - Token-based message storage with useTokens
+ * - Numbered and named placeholder support ({0}, {name})
+ * - Number formatting with Intl.NumberFormat
+ * - Adapter pattern for integration with i18n providers
+ *
+ * Integrates with useSingle for locale selection and useTokens for message resolution.
+ */
+
 // Factories
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'

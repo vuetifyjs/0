@@ -1,3 +1,19 @@
+/**
+ * @module useStorage
+ *
+ * @remarks
+ * Reactive storage composable with adapter pattern for localStorage, sessionStorage, or memory.
+ *
+ * Key features:
+ * - Reactive refs that sync with storage
+ * - localStorage, sessionStorage, and memory adapters
+ * - Custom serialization support
+ * - SSR fallback to memory adapter
+ * - Automatic cleanup on remove/clear
+ *
+ * Uses adapter pattern to abstract storage implementation details.
+ */
+
 // Factories
 import { createContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'

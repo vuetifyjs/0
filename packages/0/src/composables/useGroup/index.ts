@@ -1,3 +1,18 @@
+/**
+ * @module useGroup
+ *
+ * @remarks
+ * Multi-selection composable that extends useSelection with batch operation support.
+ *
+ * Key features:
+ * - Batch operations (select/unselect/toggle accept ID | ID[])
+ * - selectedIndexes computed Set for position-based tracking
+ * - Perfect for checkboxes, multi-select dropdowns, filter panels
+ *
+ * Inheritance chain: useRegistry → useSelection → useGroup
+ * Extended by: useFeatures
+ */
+
 // Factories
 import { createContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -12,7 +27,7 @@ import { computed } from 'vue'
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { ComputedRef } from 'vue'
+import type { App, ComputedRef } from 'vue'
 import type { ID } from '#v0/types'
 import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -32,12 +47,36 @@ export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z>
 export interface GroupOptions extends SelectionOptions {}
 
 /**
- * Creates a new group instance.
+ * Creates a new group instance with batch selection operations.
+ *
+ * Extends `useSelection` to support selecting, unselecting, and toggling multiple items
+ * at once by passing an array of IDs. Adds `selectedIndexes` computed property.
  *
  * @param options The options for the group instance.
  * @template Z The type of the group ticket.
  * @template E The type of the group context.
- * @returns A new group instance.
+ * @returns A new group instance with batch selection support.
+ *
+ * @remarks
+ * **Key Differences from `useSelection`:**
+ * - `select()` accepts `ID | ID[]` for batch operations
+ * - `unselect()` accepts `ID | ID[]` for batch operations
+ * - `toggle()` accepts `ID | ID[]` for batch operations
+ * - Adds `selectedIndexes` computed Set for getting selected item indexes
+ * - Perfect for checkboxes, multi-select dropdowns, and bulk operations
+ *
+ * **Batch Operations:**
+ * - Single ID: `group.select('item-1')`
+ * - Array of IDs: `group.select(['item-1', 'item-2', 'item-3'])`
+ * - Uses `toArray()` utility internally to normalize input
+ * - Disabled items are automatically skipped in batch operations
+ * - Non-existent IDs are silently ignored
+ *
+ * **Inheritance Chain:**
+ * `useRegistry` → `useSelection` → `useGroup`
+ *
+ * **Used By:**
+ * - `useFeatures` for feature flag management with multiple selections
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-group
  *
@@ -45,17 +84,23 @@ export interface GroupOptions extends SelectionOptions {}
  * ```ts
  * import { useGroup } from '@vuetify/v0'
  *
- * const group = useGroup()
+ * const checkboxes = useGroup()
  *
- * group.onboard([
- *   { id: 'item-1', value: 'Item 1' },
- *   { id: 'item-2', value: 'Item 2' },
- *   { id: 'item-3', value: 'Item 3' },
+ * checkboxes.onboard([
+ *   { id: 'option-a', value: 'Option A' },
+ *   { id: 'option-b', value: 'Option B' },
+ *   { id: 'option-c', value: 'Option C' },
  * ])
  *
- * group.select(['item-1', 'item-2'])
+ * // Select multiple items at once
+ * checkboxes.select(['option-a', 'option-c'])
  *
- * console.log(group.selectedIds) // Set { 'item-1', 'item-2' }
+ * console.log(checkboxes.selectedIds) // Set { 'option-a', 'option-c' }
+ * console.log(Array.from(checkboxes.selectedIndexes.value)) // [0, 2]
+ *
+ * // Toggle operations
+ * checkboxes.toggle(['option-a', 'option-b'])
+ * console.log(checkboxes.selectedIds) // Set { 'option-b', 'option-c' }
  * ```
  */
 export function useGroup<
@@ -134,7 +179,7 @@ export function createGroupContext<
   const [useGroupContext, _provideGroupContext] = createContext<E>(namespace)
   const context = useGroup<Z, E>(options)
 
-  function provideGroupContext (_context: E = context, app?: any): E {
+  function provideGroupContext (_context: E = context, app?: App): E {
     return _provideGroupContext(_context, app)
   }
 

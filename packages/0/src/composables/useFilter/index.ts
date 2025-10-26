@@ -1,3 +1,19 @@
+/**
+ * @module useFilter
+ *
+ * @remarks
+ * Reactive array filtering composable with multiple filter modes.
+ *
+ * Key features:
+ * - Four filter modes: some, every, union, intersection
+ * - Case-insensitive filtering
+ * - Custom filter functions
+ * - Reactive updates
+ * - Perfect for search, multi-criteria filtering
+ *
+ * Filters arrays based on query strings with configurable matching strategies.
+ */
+
 // Utilities
 import { computed, isRef, toRef, toValue } from 'vue'
 

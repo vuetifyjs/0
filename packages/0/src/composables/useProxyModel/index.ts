@@ -1,3 +1,19 @@
+/**
+ * @module useProxyModel
+ *
+ * @remarks
+ * Proxy composable for bidirectional sync between selection registry and v-model.
+ *
+ * Key features:
+ * - Bidirectional synchronization
+ * - Array and single-value modes
+ * - Watcher pause to prevent infinite loops
+ * - Automatic cleanup on scope disposal
+ * - Perfect for form controls with selection backing
+ *
+ * Bridges the gap between selection composables and Vue's v-model.
+ */
+
 // Utilities
 import { computed, watch, ref, toValue, shallowRef, onScopeDispose } from 'vue'
 import { isFunction, isArray } from '#v0/utilities'

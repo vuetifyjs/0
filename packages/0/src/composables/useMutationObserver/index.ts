@@ -1,3 +1,20 @@
+/**
+ * @module useMutationObserver
+ *
+ * @remarks
+ * MutationObserver composable with lifecycle management.
+ *
+ * Key features:
+ * - MutationObserver API wrapper
+ * - Pause/resume/stop functionality
+ * - Automatic cleanup on unmount
+ * - SSR-safe (checks SUPPORTS_MUTATION_OBSERVER)
+ * - Hydration-aware
+ * - Configurable observation options (childList, attributes, characterData, etc.)
+ *
+ * Perfect for detecting DOM changes and responding to mutations.
+ */
+
 // Utilities
 import { shallowRef, watch, onUnmounted, readonly } from 'vue'
 

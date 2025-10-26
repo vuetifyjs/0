@@ -1,3 +1,19 @@
+/**
+ * @module toReactive
+ *
+ * @remarks
+ * Utility function to convert values and refs into reactive proxies with ref unwrapping.
+ *
+ * Key features:
+ * - Automatic ref unwrapping
+ * - Deep reactive proxying
+ * - Map and Set support with ref unwrapping
+ * - Nested object/array reactivity
+ * - Type preservation
+ *
+ * Perfect for creating reactive versions of plain objects while automatically unwrapping refs.
+ */
+
 // Utilities
 import { isRef, reactive, unref } from 'vue'
 

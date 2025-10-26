@@ -170,5 +170,56 @@ describe('useHydration', () => {
       expect(context1.isHydrated.value).toBe(true)
       expect(context2.isHydrated.value).toBe(false)
     })
+
+    it('should return shallowReadonly ref for isHydrated', () => {
+      const context = createHydration()
+
+      // isHydrated should be a readonly ref created with shallowReadonly
+      expect(context.isHydrated).toHaveProperty('value')
+      expect(context.isHydrated.value).toBe(false)
+
+      context.hydrate()
+      expect(context.isHydrated.value).toBe(true)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should handle hydration of child components correctly', () => {
+      const plugin = createHydrationPlugin()
+      const mockApp = {
+        runWithContext: vi.fn(callback => callback()),
+        mixin: vi.fn(),
+        provide: vi.fn(),
+      }
+
+      plugin.install(mockApp as any)
+
+      const mixinOptions = mockApp.mixin.mock.calls[0]![0]
+      const mountedCallback = mixinOptions.mounted
+
+      const childWithParent = { $parent: { someData: true } }
+      const childWithNestedParent = { $parent: { $parent: {} } }
+      const rootComponent = { $parent: null }
+
+      const hydrateSpy = vi.fn()
+
+      mountedCallback.call(childWithParent)
+      mountedCallback.call(childWithNestedParent)
+      expect(hydrateSpy).not.toHaveBeenCalled()
+
+      mountedCallback.call(rootComponent)
+    })
+
+    it('should not hydrate twice on root component', () => {
+      const context = createHydration()
+
+      expect(context.isHydrated.value).toBe(false)
+
+      context.hydrate()
+      expect(context.isHydrated.value).toBe(true)
+
+      context.hydrate()
+      expect(context.isHydrated.value).toBe(true)
+    })
   })
 })

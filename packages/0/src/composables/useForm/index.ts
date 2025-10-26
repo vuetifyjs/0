@@ -1,3 +1,24 @@
+/**
+ * @module useForm
+ *
+ * @remarks
+ * Form validation composable with async rule support and multiple validation modes.
+ *
+ * Key features:
+ * - Sync and async validation rules
+ * - Multiple validation modes (submit, change, combined)
+ * - Tri-state isValid (null/true/false)
+ * - isPristine tracking
+ * - Silent validation mode
+ * - Form-level validation and reset
+ *
+ * Each field is registered with validation rules and tracks its own state independently.
+ */
+
+// Factories
+import { createContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
@@ -9,7 +30,8 @@ import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
-import type { ComputedRef, Ref, ShallowRef } from 'vue'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { ComputedRef, Ref, ShallowRef, App } from 'vue'
 import type { ID } from '#v0/types'
 
 export type FormValidationResult = string | true | Promise<string | true>
@@ -214,4 +236,49 @@ export function useForm<
       return registry.size
     },
   } as E
+}
+
+/**
+ * Creates a new form context.
+ *
+ * @param namespace The namespace for the form context.
+ * @param options The options for the form context.
+ * @template Z The type of the form ticket.
+ * @template E The type of the form context.
+ * @returns A new form context.
+ *
+ * @see https://0.vuetifyjs.com/composables/forms/use-form
+ *
+ * @example
+ * ```ts
+ * import { createFormContext } from '@vuetify/v0'
+ *
+ * export const [useMyForm, provideMyForm, myForm] = createFormContext('my-form', {
+ *   validateOn: 'change',
+ * })
+ *
+ * // In a parent component:
+ * provideMyForm()
+ *
+ * // In a child component:
+ * const form = useMyForm()
+ * form.register({ id: 'field', value: ref(''), rules: [...] })
+ * ```
+ */
+export function createFormContext<
+  Z extends FormTicket = FormTicket,
+  E extends FormContext<Z> = FormContext<Z>,
+> (
+  namespace: string,
+  options?: FormOptions,
+): ContextTrinity<E> {
+  const [useFormContext, _provideFormContext] = createContext<E>(namespace)
+
+  const context = useForm<Z, E>(options)
+
+  function provideFormContext (_context: E = context, app?: App): E {
+    return _provideFormContext(_context, app)
+  }
+
+  return createTrinity<E>(useFormContext, provideFormContext, context)
 }

@@ -94,15 +94,6 @@ describe('createContext', () => {
     expect(result).toEqual(testValue)
   })
 
-  it('should handle null context value (only undefined throws)', () => {
-    mockInject.mockReturnValue(null)
-
-    const [injectContext] = createContext('null-test')
-    const result = injectContext()
-
-    expect(result).toBe(null)
-  })
-
   it('should handle falsy but defined context values', () => {
     const falsyValues = [false, 0, '', null]
 
@@ -112,5 +103,29 @@ describe('createContext', () => {
 
       expect(injectContext()).toBe(value)
     }
+  })
+
+  it('should provide context at app level when app is provided', () => {
+    const mockApp = {
+      provide: vi.fn().mockReturnValue(true),
+    } as any
+
+    const [, provideContext] = createContext('app-level-test')
+    const testValue = { data: 'app-level' }
+
+    mockProvide.mockClear()
+    provideContext(testValue, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('app-level-test', testValue)
+    expect(mockProvide).not.toHaveBeenCalled()
+  })
+
+  it('should provide context at component level when app is not provided', () => {
+    const [, provideContext] = createContext('component-level-test')
+    const testValue = { data: 'component-level' }
+
+    provideContext(testValue)
+
+    expect(mockProvide).toHaveBeenCalledWith('component-level-test', testValue)
   })
 })

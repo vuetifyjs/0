@@ -1,3 +1,18 @@
+/**
+ * @module useKeydown
+ *
+ * @remarks
+ * Keydown event listener composable with key filtering.
+ *
+ * Key features:
+ * - Key-specific event handling
+ * - preventDefault and stopPropagation options
+ * - Automatic cleanup on scope disposal
+ * - Auto-starts when in component scope
+ *
+ * Simplified wrapper around useEventListener for keyboard interactions.
+ */
+
 // Utilities
 import { onMounted, getCurrentScope, onScopeDispose } from 'vue'
 

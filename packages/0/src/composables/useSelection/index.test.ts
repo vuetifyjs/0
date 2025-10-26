@@ -338,6 +338,68 @@ describe('useSelection', () => {
   })
 
   describe('selection', () => {
+    it('should select an item', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      selection.select('item-1')
+
+      expect(selection.selectedIds.size).toBe(1)
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+    })
+
+    it('should unselect an item', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      selection.select('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      selection.unselect('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(false)
+    })
+
+    it('should toggle an item on and off', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      selection.toggle('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      selection.toggle('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(false)
+    })
+
+    it('should allow multiple selections', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      selection.select('item-1')
+      selection.select('item-2')
+      selection.select('item-3')
+
+      expect(selection.selectedIds.size).toBe(3)
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+      expect(selection.selectedIds.has('item-2')).toBe(true)
+      expect(selection.selectedIds.has('item-3')).toBe(true)
+    })
+
     it('should prevent deselection when mandatory is true and only one item selected', () => {
       const selection = useSelection({ mandatory: true })
 
@@ -357,12 +419,41 @@ describe('useSelection', () => {
       expect(selection.selectedIds.has('item-1')).toBe(true)
     })
 
+    it('should allow deselection when mandatory is true but multiple items selected', () => {
+      const selection = useSelection({ mandatory: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      selection.select('item-1')
+      selection.select('item-2')
+      expect(selection.selectedIds.size).toBe(2)
+
+      selection.unselect('item-1')
+      expect(selection.selectedIds.size).toBe(1)
+      expect(selection.selectedIds.has('item-2')).toBe(true)
+    })
+
     it('should not select disabled items', () => {
       const selection = useSelection()
 
       selection.register({ id: 'disabled-item', value: 'value', disabled: true })
 
       selection.select('disabled-item')
+
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should not select non-existent items', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      selection.select('non-existent')
 
       expect(selection.selectedIds.size).toBe(0)
     })
@@ -380,6 +471,207 @@ describe('useSelection', () => {
       expect(selection.selectedIds.has('item-1')).toBe(true)
       expect(selection.selectedIds.has('item-2')).toBe(false)
       expect(selection.selectedIds.has('item-3')).toBe(true)
+    })
+
+    it('should check if an item is selected with selected()', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      expect(selection.selected('item-1')).toBe(false)
+
+      selection.select('item-1')
+      expect(selection.selected('item-1')).toBe(true)
+
+      selection.unselect('item-1')
+      expect(selection.selected('item-1')).toBe(false)
+    })
+  })
+
+  describe('selectedItems and selectedValues', () => {
+    it('should compute selectedItems correctly', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      selection.select('item-1')
+      selection.select('item-3')
+
+      const items = Array.from(selection.selectedItems.value)
+      expect(items.length).toBe(2)
+      expect(items.some(item => item.id === 'item-1')).toBe(true)
+      expect(items.some(item => item.id === 'item-3')).toBe(true)
+    })
+
+    it('should compute selectedValues correctly', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      selection.select('item-1')
+      selection.select('item-3')
+
+      const values = Array.from(selection.selectedValues.value)
+      expect(values.length).toBe(2)
+      expect(values).toContain('value-1')
+      expect(values).toContain('value-3')
+    })
+
+    it('should update selectedItems and selectedValues reactively', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      expect(selection.selectedItems.value.size).toBe(0)
+      expect(selection.selectedValues.value.size).toBe(0)
+
+      selection.select('item-1')
+      expect(selection.selectedItems.value.size).toBe(1)
+      expect(selection.selectedValues.value.size).toBe(1)
+
+      selection.select('item-2')
+      expect(selection.selectedItems.value.size).toBe(2)
+      expect(selection.selectedValues.value.size).toBe(2)
+
+      selection.unselect('item-1')
+      expect(selection.selectedItems.value.size).toBe(1)
+      expect(selection.selectedValues.value.size).toBe(1)
+    })
+  })
+
+  describe('ticket methods', () => {
+    it('should provide select() method on each ticket', () => {
+      const selection = useSelection()
+
+      const ticket = selection.register({ id: 'item-1', value: 'value-1' })
+
+      expect(typeof ticket.select).toBe('function')
+
+      ticket.select()
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+    })
+
+    it('should provide unselect() method on each ticket', () => {
+      const selection = useSelection()
+
+      const ticket = selection.register({ id: 'item-1', value: 'value-1' })
+      ticket.select()
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      ticket.unselect()
+      expect(selection.selectedIds.has('item-1')).toBe(false)
+    })
+
+    it('should provide toggle() method on each ticket', () => {
+      const selection = useSelection()
+
+      const ticket = selection.register({ id: 'item-1', value: 'value-1' })
+
+      ticket.toggle()
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      ticket.toggle()
+      expect(selection.selectedIds.has('item-1')).toBe(false)
+    })
+
+    it('should provide reactive isSelected property on each ticket', () => {
+      const selection = useSelection()
+
+      const ticket = selection.register({ id: 'item-1', value: 'value-1' })
+
+      expect(ticket.isSelected.value).toBe(false)
+
+      ticket.select()
+      expect(ticket.isSelected.value).toBe(true)
+
+      ticket.unselect()
+      expect(ticket.isSelected.value).toBe(false)
+    })
+  })
+
+  describe('unregister', () => {
+    it('should remove item from selectedIds when unregistering', () => {
+      const selection = useSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      selection.select('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      selection.unregister('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(false)
+      expect(selection.size).toBe(1)
+    })
+  })
+
+  describe('edge cases', () => {
+    it('should handle empty registry gracefully', () => {
+      const selection = useSelection()
+
+      expect(selection.size).toBe(0)
+      expect(selection.selectedIds.size).toBe(0)
+
+      selection.select('non-existent')
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should handle mandatory with enroll', () => {
+      const selection = useSelection({ mandatory: true, enroll: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      // Both should be enrolled
+      expect(selection.selectedIds.size).toBe(2)
+
+      // Should still prevent deselection when only one remains
+      selection.unselect('item-1')
+      expect(selection.selectedIds.size).toBe(1)
+
+      selection.unselect('item-2')
+      // Mandatory prevents last deselection
+      expect(selection.selectedIds.size).toBe(1)
+      expect(selection.selectedIds.has('item-2')).toBe(true)
+    })
+
+    it('should handle all disabled items with enroll', () => {
+      const selection = useSelection({ enroll: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1', disabled: true },
+        { id: 'item-2', value: 'value-2', disabled: true },
+      ])
+
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should handle mandatory force with all disabled items', () => {
+      const selection = useSelection({ mandatory: 'force' })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1', disabled: true },
+        { id: 'item-2', value: 'value-2', disabled: true },
+      ])
+
+      expect(selection.selectedIds.size).toBe(0)
     })
   })
 })

@@ -10,7 +10,7 @@ describe('createTrinity', () => {
     const singleton = createTrinity(mockUseContext, mockProvideContext, mockContext)
 
     expect(singleton).toHaveLength(3)
-    expect(typeof singleton[0]).toBe('function') // createContext
+    expect(typeof singleton[0]).toBe('function') // useContext
     expect(typeof singleton[1]).toBe('function') // provideContext wrapper
     expect(singleton[2]).toBe(mockContext) // context
   })
@@ -58,18 +58,5 @@ describe('createTrinity', () => {
     provideContext(undefined, mockApp)
 
     expect(mockProvideContext).toHaveBeenCalledWith(mockContext, mockApp)
-  })
-
-  it('should return readonly tuple', () => {
-    const mockContext = { value: 'test' }
-    const mockUseContext = vi.fn(() => mockContext)
-    const mockProvideContext = vi.fn(context => context)
-
-    const singleton = createTrinity(mockUseContext, mockProvideContext, mockContext)
-
-    // Should be read-only, but we can't directly test this in runtime
-    // The type system ensures it's readonly
-    expect(Array.isArray(singleton)).toBe(true)
-    expect(Object.isFrozen(singleton)).toBe(false) // as const doesn't freeze, just makes readonly at type level
   })
 })

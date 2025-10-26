@@ -1,3 +1,20 @@
+/**
+ * @module useBreakpoints
+ *
+ * @remarks
+ * Responsive breakpoint detection composable with window resize handling.
+ *
+ * Key features:
+ * - Window matchMedia integration
+ * - Six built-in breakpoints (xs, sm, md, lg, xl, xxl)
+ * - Automatic resize listener with cleanup
+ * - SSR-safe (checks IN_BROWSER)
+ * - Hydration-aware
+ * - Custom breakpoint configuration
+ *
+ * Perfect for responsive layouts and conditional rendering based on screen size.
+ */
+
 // Factories
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'

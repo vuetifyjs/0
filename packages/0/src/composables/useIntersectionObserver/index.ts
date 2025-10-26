@@ -1,3 +1,20 @@
+/**
+ * @module useIntersectionObserver
+ *
+ * @remarks
+ * IntersectionObserver composable with lifecycle management.
+ *
+ * Key features:
+ * - IntersectionObserver API wrapper
+ * - Pause/resume/stop functionality
+ * - Automatic cleanup on unmount
+ * - SSR-safe (checks SUPPORTS_INTERSECTION_OBSERVER)
+ * - Hydration-aware
+ * - Immediate callback option
+ *
+ * Perfect for lazy loading, infinite scroll, and visibility detection.
+ */
+
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
 

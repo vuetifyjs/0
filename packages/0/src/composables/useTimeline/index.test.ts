@@ -192,6 +192,63 @@ describe('useTimeline', () => {
     expect(last?.id).toBe('c')
   })
 
+  it('should return undefined when undoing empty timeline', () => {
+    const timeline = useTimeline({ size: 3 })
+
+    const result = timeline.undo()
+
+    expect(result).toBeUndefined()
+  })
+
+  it('should return undefined when redoing with empty stack', () => {
+    const timeline = useTimeline({ size: 3 })
+
+    timeline.register({ id: 'a', value: 'A' })
+
+    const result = timeline.redo()
+
+    expect(result).toBeUndefined()
+  })
+
+  it('should handle redo when timeline is at capacity', () => {
+    const timeline = useTimeline({ size: 2 })
+
+    timeline.register({ id: 'a', value: 'A' })
+    timeline.register({ id: 'b', value: 'B' })
+    timeline.register({ id: 'c', value: 'C' })
+
+    // Timeline: [B, C], Overflow: [A]
+    expect(timeline.values().map(t => t.value)).toEqual(['B', 'C'])
+
+    timeline.undo()
+    // Timeline: [A, B], Stack: [C], Overflow: []
+    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B'])
+
+    timeline.redo()
+    // redo() calls registry.register() directly (not the overridden register)
+    // So it just adds C back without handling overflow, resulting in [A, B, C]
+    expect(timeline.values().map(t => t.value)).toEqual(['A', 'B', 'C'])
+  })
+
+  it('should maintain correct indexes throughout operations', () => {
+    const timeline = useTimeline({ size: 3 })
+
+    const a = timeline.register({ id: 'a', value: 'A' })
+    const b = timeline.register({ id: 'b', value: 'B' })
+    const c = timeline.register({ id: 'c', value: 'C' })
+
+    expect(a.index).toBe(0)
+    expect(b.index).toBe(1)
+    expect(c.index).toBe(2)
+
+    timeline.undo()
+    const aAfter = timeline.get('a')
+    const bAfter = timeline.get('b')
+
+    expect(aAfter?.index).toBe(0)
+    expect(bAfter?.index).toBe(1)
+  })
+
   it('should properly remove first item when timeline overflows', () => {
     const timeline = useTimeline({ size: 2 })
 

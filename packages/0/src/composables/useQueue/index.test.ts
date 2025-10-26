@@ -379,5 +379,64 @@ describe('useQueue', () => {
 
       expect(queue.size).toBe(1)
     })
+
+    it('should handle explicit timeout of 0 as immediate dismissal', () => {
+      const queue = useQueue({ timeout: 3000 })
+      const ticket = queue.register({ value: 'test', timeout: 0 })
+
+      expect(ticket.timeout).toBe(0)
+      expect(queue.size).toBe(1)
+
+      vi.advanceTimersByTime(0)
+
+      expect(queue.size).toBe(0)
+    })
+
+    it('should clear all timeouts when queue is cleared mid-execution', () => {
+      const queue = useQueue({ timeout: 1000 })
+      queue.register({ value: 'first' })
+      queue.register({ value: 'second' })
+      queue.register({ value: 'third' })
+
+      expect(queue.size).toBe(3)
+
+      vi.advanceTimersByTime(500)
+
+      queue.clear()
+
+      expect(queue.size).toBe(0)
+
+      vi.advanceTimersByTime(1000)
+
+      expect(queue.size).toBe(0)
+    })
+
+    it('should handle multiple tickets with timeout -1', () => {
+      const queue = useQueue({ timeout: -1 })
+      const ticket1 = queue.register({ value: 'first' })
+      const ticket2 = queue.register({ value: 'second' })
+
+      expect(ticket1.timeout).toBe(-1)
+      expect(ticket2.timeout).toBe(-1)
+      expect(ticket1.isPaused).toBe(false)
+      expect(ticket2.isPaused).toBe(true)
+
+      vi.advanceTimersByTime(10000)
+
+      expect(queue.size).toBe(2)
+    })
+
+    it('should not start timeout when pausing immediately after registration', () => {
+      const queue = useQueue({ timeout: 1000 })
+      const ticket = queue.register({ value: 'test' })
+
+      expect(ticket.isPaused).toBe(false)
+
+      queue.pause()
+
+      vi.advanceTimersByTime(2000)
+
+      expect(queue.size).toBe(1)
+    })
   })
 })

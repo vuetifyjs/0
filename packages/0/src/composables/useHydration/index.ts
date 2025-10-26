@@ -1,3 +1,19 @@
+/**
+ * @module useHydration
+ *
+ * @remarks
+ * SSR hydration state management composable.
+ *
+ * Key features:
+ * - Hydration state detection (browser vs SSR)
+ * - Root component detection
+ * - Readonly hydration state refs
+ * - Plugin installation support
+ * - Perfect for hydration-safe rendering
+ *
+ * Essential for composables that need to behave differently during SSR vs client-side.
+ */
+
 // Factories
 import { createContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'

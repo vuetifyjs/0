@@ -1,3 +1,19 @@
+/**
+ * @module useProxyRegistry
+ *
+ * @remarks
+ * Proxy composable for reactive registry keys, values, entries, and size.
+ *
+ * Key features:
+ * - Reactive proxy for registry data
+ * - Deep or shallow reactivity options
+ * - Event-based updates
+ * - Automatic cleanup on scope disposal
+ * - Transforms Map-based registry into reactive refs
+ *
+ * Perfect for exposing registry data as reactive computed properties.
+ */
+
 // Utilities
 import { reactive, shallowReactive, onScopeDispose } from 'vue'
 

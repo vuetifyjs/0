@@ -1,3 +1,14 @@
+/**
+ * @module createContext
+ *
+ * @remarks
+ * Factory for creating type-safe Vue dependency injection contexts.
+ *
+ * Provides a wrapper around Vue's provide/inject that throws errors when context is not found,
+ * eliminating silent failures and improving developer experience. Supports both app-level and
+ * component-level provision.
+ */
+
 // Utilities
 import { inject, provide } from 'vue'
 
@@ -37,20 +48,33 @@ export function useContext<Z> (key: ContextKey<Z>) {
  *
  * @param key The key of the context to provide.
  * @param context The context to provide.
- * @param app The Vue app instance to provide the context to.
+ * @param app Optional Vue app instance to provide the context at app level instead of component level.
  * @template Z The type of the context.
  * @returns The provided context.
+ *
+ * @remarks
+ * When `app` parameter is provided, the context is made available to all components in the app.
+ * When omitted, the context is provided at the current component level and available to descendants only.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#provide
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
  *
  * @example
  * ```ts
+ * // Component-level provision
  * provideContext<MyContext>('my-context', myContext)
+ *
+ * // App-level provision (typically used in plugins)
+ * const app = createApp({})
+ * provideContext<MyContext>('my-context', myContext, app)
  * ```
  */
 export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
-  app?.provide(key, context) ?? provide(key, context)
+  if (app) {
+    app.provide(key, context)
+  } else {
+    provide(key, context)
+  }
 
   return context
 }

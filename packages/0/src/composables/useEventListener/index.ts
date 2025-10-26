@@ -1,3 +1,19 @@
+/**
+ * @module useEventListener
+ *
+ * @remarks
+ * Event listener composable with automatic cleanup on scope disposal.
+ *
+ * Key features:
+ * - Supports Window, Document, and HTMLElement targets
+ * - Reactive targets, events, and listeners
+ * - Event options support (capture, passive, once)
+ * - Automatic removeEventListener on unmount
+ * - Multiple overloads for type safety
+ *
+ * Perfect for safely managing event listeners in Vue components.
+ */
+
 // Utilities
 import { onScopeDispose, watch, toValue, unref } from 'vue'
 

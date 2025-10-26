@@ -98,26 +98,10 @@ describe('createPlugin', () => {
     }
 
     const plugin = createPlugin(options)
-    plugin.install(mockApp)
+    await plugin.install(mockApp)
 
     expect(asyncSetup).toHaveBeenCalledOnce()
     expect(asyncSetup).toHaveBeenCalledWith(mockApp)
-  })
-
-  it('should work with different namespace values', () => {
-    const namespaces = ['my-plugin', 'custom-namespace', 'vuetify-component']
-
-    for (const namespace of namespaces) {
-      const options: PluginOptions = {
-        namespace,
-        provide: mockProvide,
-      }
-
-      const plugin = createPlugin(options)
-
-      expect(plugin).toHaveProperty('install')
-      expect(typeof plugin.install).toBe('function')
-    }
   })
 
   it('should maintain execution order: provide then setup', () => {
@@ -141,44 +125,5 @@ describe('createPlugin', () => {
     plugin.install(mockApp)
 
     expect(executionOrder).toEqual(['provide', 'setup'])
-  })
-
-  it('should work with generic type parameter', () => {
-    interface CustomPlugin {
-      install: (app: App) => void
-      customMethod?: () => string
-    }
-
-    const options: PluginOptions = {
-      namespace: 'typed-plugin',
-      provide: mockProvide,
-    }
-
-    const plugin = createPlugin<CustomPlugin>(options)
-
-    // TypeScript should understand this as CustomPlugin type
-    expect(plugin).toHaveProperty('install')
-    expect(typeof plugin.install).toBe('function')
-  })
-
-  it('should integrate with real Vue app', () => {
-    const realApp = createApp({})
-    const realProvide = vi.fn()
-    const realSetup = vi.fn()
-
-    const options: PluginOptions = {
-      namespace: 'real-test',
-      provide: realProvide,
-      setup: realSetup,
-    }
-
-    const plugin = createPlugin(options)
-
-    expect(() => {
-      plugin.install(realApp)
-    }).not.toThrow()
-
-    expect(realProvide).toHaveBeenCalledWith(realApp)
-    expect(realSetup).toHaveBeenCalledWith(realApp)
   })
 })

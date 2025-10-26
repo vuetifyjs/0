@@ -1,3 +1,19 @@
+/**
+ * @module useTimeline
+ *
+ * @remarks
+ * Bounded undo/redo system with overflow management.
+ *
+ * Key features:
+ * - Fixed-size history (default: 10 items)
+ * - Undo/redo stack management
+ * - Overflow queue (preserves oldest items)
+ * - Automatic reindexing after operations
+ * - Perfect for command pattern, history tracking
+ *
+ * Extends useRegistry with temporal navigation capabilities.
+ */
+
 // Factories
 import { createContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'

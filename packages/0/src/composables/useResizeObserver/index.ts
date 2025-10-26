@@ -1,3 +1,20 @@
+/**
+ * @module useResizeObserver
+ *
+ * @remarks
+ * ResizeObserver composable with lifecycle management.
+ *
+ * Key features:
+ * - ResizeObserver API wrapper
+ * - Pause/resume/stop functionality
+ * - Automatic cleanup on unmount
+ * - SSR-safe (checks SUPPORTS_OBSERVER)
+ * - Hydration-aware
+ * - Box model options (content-box/border-box)
+ *
+ * Perfect for responsive components and size-based rendering.
+ */
+
 // Utilities
 import { shallowRef, watch, onUnmounted, readonly } from 'vue'
 

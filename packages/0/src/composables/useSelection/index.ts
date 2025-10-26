@@ -1,3 +1,19 @@
+/**
+ * @module useSelection
+ *
+ * @remarks
+ * Base composable for managing selected items in a collection with Set-based tracking.
+ *
+ * Key features:
+ * - Set-based selectedIds for O(1) selection checks
+ * - Mandatory selection mode (prevents deselecting last item)
+ * - Auto-enrollment option (selects non-disabled items on register)
+ * - Disabled item filtering
+ * - Computed selectedItems and selectedValues Sets
+ *
+ * Extends useRegistry and serves as the base for useSingle, useGroup, useStep, and useFeatures.
+ */
+
 // Factories
 import { createContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -45,18 +61,44 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
 }
 
 export interface SelectionOptions extends RegistryOptions {
-  /** When true, newly registered items are automatically selected if not disabled */
+  /**
+   * When true, newly registered items are automatically selected if not disabled.
+   * Useful for pre-selecting items in multi-select scenarios.
+   */
   enroll?: boolean
+  /**
+   * Controls mandatory selection behavior:
+   * - `false` (default): No mandatory selection enforcement
+   * - `true`: Prevents deselecting the last selected item (user must always have one selected)
+   * - `'force'`: Automatically selects the first non-disabled item on registration
+   */
   mandatory?: boolean | 'force'
 }
 
 /**
- * Creates a new selection instance.
+ * Creates a new selection instance for managing multiple selected items.
+ *
+ * Extends `useRegistry` with selection tracking via a reactive `Set` of selected IDs.
+ * Supports disabled items, mandatory selection enforcement, and auto-enrollment.
  *
  * @param options The options for the selection instance.
  * @template Z The type of the selection ticket.
  * @template E The type of the selection context.
- * @returns A new selection instance.
+ * @returns A new selection instance with selection management methods.
+ *
+ * @remarks
+ * **Key Features:**
+ * - Multi-selection support (unlike `useSingle` which enforces single selection)
+ * - Set-based `selectedIds` tracking for efficient lookups
+ * - Computed `selectedItems` and `selectedValues` for reactive access
+ * - Each ticket gets `isSelected`, `select()`, `unselect()`, and `toggle()` methods
+ * - Disabled items cannot be selected
+ * - Mandatory mode prevents deselecting the last item
+ * - Force mode auto-selects first non-disabled item on registration
+ * - Enroll option auto-selects all non-disabled items on registration
+ *
+ * **Inheritance Chain:**
+ * `useRegistry` → `useSelection` → `useSingle`/`useGroup` → `useStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
  *
@@ -76,6 +118,7 @@ export interface SelectionOptions extends RegistryOptions {
  * selection.select('item-3')
  *
  * console.log(selection.selectedIds) // Set { 'item-1', 'item-3' }
+ * console.log(Array.from(selection.selectedValues.value)) // ['Item 1', 'Item 3']
  * ```
  */
 export function useSelection<

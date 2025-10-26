@@ -1,3 +1,19 @@
+/**
+ * @module useLogger
+ *
+ * @remarks
+ * Logging composable with adapter pattern supporting console, consola, and pino.
+ *
+ * Key features:
+ * - Multiple log levels (trace, debug, info, warn, error, fatal)
+ * - Adapter pattern for console/consola/pino integration
+ * - Enable/disable logging
+ * - Fallback logger for undefined loggers
+ * - Context logging support
+ *
+ * Uses adapter pattern to abstract logging implementation.
+ */
+
 // Composables
 import { createContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'

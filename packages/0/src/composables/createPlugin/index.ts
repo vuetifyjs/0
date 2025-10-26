@@ -1,3 +1,13 @@
+/**
+ * @module createPlugin
+ *
+ * @remarks
+ * Factory for creating Vue plugins with proper context provision.
+ *
+ * Wraps the provide function in app.runWithContext() to ensure proper execution context,
+ * allowing plugins to safely provide dependency injection contexts at the application level.
+ */
+
 // Utilities
 import type { App } from 'vue'
 
@@ -8,7 +18,7 @@ export interface PluginOptions {
 }
 
 export interface Plugin {
-  install: (app: App, ...options: any[]) => void
+  install: (app: App, ...options: unknown[]) => void
 }
 
 /**

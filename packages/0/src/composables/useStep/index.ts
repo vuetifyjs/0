@@ -1,3 +1,18 @@
+/**
+ * @module useStep
+ *
+ * @remarks
+ * Navigation composable that extends useSingle with first/last/next/prev/step methods.
+ *
+ * Key features:
+ * - Circular navigation (wraps around at boundaries)
+ * - Automatic disabled item skipping
+ * - Arbitrary step counts (positive/negative)
+ * - Perfect for wizards, carousels, onboarding flows
+ *
+ * Inheritance chain: useRegistry → useSelection → useSingle → useStep
+ */
+
 // Factories
 import { createContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -6,6 +21,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useSingle } from '#v0/composables/useSingle'
 
 // Types
+import type { App } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 
@@ -27,12 +43,38 @@ export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
 export interface StepOptions extends SingleOptions {}
 
 /**
- * Creates a new step instance.
+ * Creates a new step instance with circular navigation through items.
+ *
+ * Extends `useSingle` with `first()`, `last()`, `next()`, `prev()`, and `step(count)` methods
+ * for sequential navigation. Automatically wraps around at boundaries (circular navigation).
  *
  * @param options The options for the step instance.
  * @template Z The type of the step ticket.
  * @template E The type of the step context.
- * @returns A new step instance.
+ * @returns A new step instance with navigation methods.
+ *
+ * @remarks
+ * **Key Features:**
+ * - **Circular Navigation**: Wrapping at start/end boundaries
+ * - **Disabled Item Skipping**: Automatically skips disabled items during navigation
+ * - **Bidirectional**: Forward (`next`, positive `step`) and backward (`prev`, negative `step`)
+ * - **Safe Edge Cases**: Handles empty registries and all-disabled scenarios gracefully
+ *
+ * **Navigation Methods:**
+ * - `first()`: Select first non-disabled item
+ * - `last()`: Select last non-disabled item
+ * - `next()`: Move to next item (wraps to first)
+ * - `prev()`: Move to previous item (wraps to last)
+ * - `step(count)`: Move by `count` positions (negative for backward)
+ *
+ * **Wrapping Behavior:**
+ * - Uses modulo arithmetic for circular wrapping: `((index % length) + length) % length`
+ * - Works correctly with negative indexes and large step counts
+ * - Continues searching if landing on disabled items (up to registry length iterations)
+ * - Returns early if all items are disabled to prevent infinite loops
+ *
+ * **Inheritance Chain:**
+ * `useRegistry` → `useSelection` → `useSingle` → `useStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
  *
@@ -40,18 +82,23 @@ export interface StepOptions extends SingleOptions {}
  * ```ts
  * import { useStep } from '@vuetify/v0'
  *
- * const stepper = useStep()
+ * const wizard = useStep({ mandatory: true })
  *
- * stepper.onboard([
- *   { id: 'step-1', value: 'Account Info' },
- *   { id: 'step-2', value: 'Payment' },
- *   { id: 'step-3', value: 'Confirmation' },
+ * wizard.onboard([
+ *   { id: 'account', value: 'Account Info' },
+ *   { id: 'payment', value: 'Payment Details' },
+ *   { id: 'review', value: 'Review', disabled: true },
+ *   { id: 'confirm', value: 'Confirmation' },
  * ])
  *
- * stepper.first()
- * stepper.next() // Move to step-2
+ * wizard.first() // Select 'account'
+ * console.log(wizard.selectedId.value) // 'account'
  *
- * console.log(stepper.selectedIndex.value) // 1
+ * wizard.next() // Move to 'payment'
+ * wizard.next() // Skip disabled 'review', move to 'confirm'
+ * wizard.next() // Wrap around to 'account'
+ *
+ * wizard.step(-2) // Go back 2 steps (wraps correctly)
  * ```
  */
 export function useStep<
@@ -151,7 +198,7 @@ export function createStepContext<
   const [useStepContext, _provideStepContext] = createContext<E>(namespace)
   const context = useStep<Z, E>(options)
 
-  function provideStepContext (_context: E = context, app?: any): E {
+  function provideStepContext (_context: E = context, app?: App): E {
     return _provideStepContext(_context, app)
   }
 
