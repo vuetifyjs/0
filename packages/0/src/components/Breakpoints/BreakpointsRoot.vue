@@ -3,9 +3,9 @@
   import { createBreakpoints } from '#v0/composables/useBreakpoints'
 
   // Types
-  import type { BreakpointsContext, BreakpointsOptions } from '#v0/composables/useBreakpoints'
+  import type { BreakpointsContext, BreakpointsPluginOptions } from '#v0/composables/useBreakpoints'
 
-  export interface BreakpointsRootProps extends BreakpointsOptions {}
+  export interface BreakpointsRootProps extends BreakpointsPluginOptions {}
 
   export interface BreakpointsRootSlots {
     default: (scope: BreakpointsContext) => any
@@ -17,9 +17,9 @@
 
   defineSlots<BreakpointsRootSlots>()
 
-  const props = defineProps<BreakpointsRootProps>()
+  const { namespace, ...props } = defineProps<BreakpointsRootProps>()
 
-  const [, provideBreakpointsContext, context] = createBreakpoints('v0:breakpoints', props)
+  const [, provideBreakpointsContext, context] = createBreakpoints(namespace, props)
 
   provideBreakpointsContext(context)
 </script>

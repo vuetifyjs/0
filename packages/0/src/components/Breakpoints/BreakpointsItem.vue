@@ -5,6 +5,10 @@
   // Types
   import type { BreakpointsContext } from '#v0/composables/useBreakpoints'
 
+  export interface BreakpointsItemProps {
+    namespace?: string
+  }
+
   export interface BreakpointsSlots {
     default: (scope: BreakpointsContext) => any
     xs?: (scope: BreakpointsContext) => any
@@ -21,7 +25,9 @@
 
   defineSlots<BreakpointsSlots>()
 
-  const breakpointsContext = useBreakpoints()
+  const { namespace = 'v0:breakpoints' } = defineProps<BreakpointsItemProps>()
+
+  const breakpointsContext = useBreakpoints(namespace)
 </script>
 
 <template>

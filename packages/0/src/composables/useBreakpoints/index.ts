@@ -61,9 +61,10 @@ export interface BreakpointsContext {
   update: () => void
 }
 
-export interface BreakpointsOptions extends BreakpointsPluginOptions {}
+export interface BreakpointsOptions extends Omit<BreakpointsPluginOptions, 'namespace'> {}
 
 export interface BreakpointsPluginOptions {
+  namespace?: string
   mobileBreakpoint?: BreakpointName | number
   breakpoints?: Partial<Record<BreakpointName, number>>
 }
@@ -260,8 +261,10 @@ export function createBreakpoints<
  * </template>
  * ```
  */
-export function useBreakpoints (): BreakpointsContext {
-  return useContext<BreakpointsContext>('v0:breakpoints')
+export function useBreakpoints<
+  E extends BreakpointsContext = BreakpointsContext,
+> (namespace = 'v0:breakpoints'): E {
+  return useContext<E>(namespace)
 }
 
 /**
@@ -300,11 +303,12 @@ export function useBreakpoints (): BreakpointsContext {
  */
 export function createBreakpointsPlugin<
   E extends BreakpointsContext = BreakpointsContext,
-> (options: BreakpointsPluginOptions = {}) {
-  const [, provideBreakpointsContext, context] = createBreakpoints<E>('v0:breakpoints', options)
+> (_options: BreakpointsPluginOptions = {}) {
+  const { namespace = 'v0:breakpoints', ...options } = _options
+  const [, provideBreakpointsContext, context] = createBreakpoints<E>(namespace, options)
 
   return createPlugin({
-    namespace: 'v0:breakpoints',
+    namespace,
     provide: (app: App) => {
       provideBreakpointsContext(context, app)
     },
