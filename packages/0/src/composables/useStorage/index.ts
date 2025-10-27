@@ -47,6 +47,8 @@ export interface StorageContext {
 export interface StorageOptions {
   /** The storage adapter to use. Defaults to localStorage in browser, MemoryAdapter otherwise */
   adapter?: StorageAdapter
+  /** The namespace for the storage context. Defaults to 'v0:storage' */
+  namespace?: string
   /** The prefix to use for all storage keys. Defaults to 'v0:' */
   prefix?: string
   /** Custom serializer for reading and writing values. Defaults to JSON.parse/stringify */
@@ -183,6 +185,7 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
 /**
  * Returns the current storage instance.
  *
+ * @param namespace The namespace for the storage context. Defaults to `'v0:storage'`.
  * @returns The current storage instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-storage
@@ -203,8 +206,8 @@ export function createStorage<E extends StorageContext> (options: StorageOptions
  * </template>
  * ```
  */
-export function useStorage (): StorageContext {
-  return useStorageContext()
+export function useStorage (namespace = 'v0:storage'): StorageContext {
+  return useStorageContext(namespace)
 }
 
 /**
@@ -229,10 +232,11 @@ export function useStorage (): StorageContext {
  * ```
  */
 export function createStoragePlugin (options: StorageOptions = {}) {
+  const { namespace = 'v0:storage' } = options
   const context = createStorage(options)
 
   return createPlugin({
-    namespace: 'v0:storage',
+    namespace,
     provide: (app: App) => {
       provideStorageContext(context, app)
     },

@@ -1,5 +1,5 @@
 // Composables
-import { useGroup } from './index'
+import { createGroup } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest'
 describe('useGroup', () => {
   describe('single ID selection', () => {
     it('should select a single item by ID', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -22,7 +22,7 @@ describe('useGroup', () => {
     })
 
     it('should unselect a single item by ID', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -40,7 +40,7 @@ describe('useGroup', () => {
     })
 
     it('should toggle a single item by ID', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -56,7 +56,7 @@ describe('useGroup', () => {
 
   describe('array ID selection', () => {
     it('should select multiple items by array of IDs', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -73,7 +73,7 @@ describe('useGroup', () => {
     })
 
     it('should unselect multiple items by array of IDs', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -90,7 +90,7 @@ describe('useGroup', () => {
     })
 
     it('should toggle multiple items by array of IDs', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -111,7 +111,7 @@ describe('useGroup', () => {
     })
 
     it('should handle empty array', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -128,7 +128,7 @@ describe('useGroup', () => {
 
   describe('mixed operations', () => {
     it('should support mixed single and array operations', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -153,7 +153,7 @@ describe('useGroup', () => {
     })
 
     it('should accumulate selections over multiple calls', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -171,7 +171,7 @@ describe('useGroup', () => {
 
   describe('selectedIndexes', () => {
     it('should compute selectedIndexes correctly', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -188,7 +188,7 @@ describe('useGroup', () => {
     })
 
     it('should update selectedIndexes reactively', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -213,7 +213,7 @@ describe('useGroup', () => {
 
   describe('disabled items', () => {
     it('should not select disabled items', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -230,7 +230,7 @@ describe('useGroup', () => {
     })
 
     it('should skip disabled items in array operations', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -247,7 +247,7 @@ describe('useGroup', () => {
 
   describe('mandatory mode', () => {
     it('should prevent deselection of last item with mandatory', () => {
-      const group = useGroup({ mandatory: true })
+      const group = createGroup({ mandatory: true })
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -264,7 +264,7 @@ describe('useGroup', () => {
     })
 
     it('should allow deselection when multiple items selected', () => {
-      const group = useGroup({ mandatory: true })
+      const group = createGroup({ mandatory: true })
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -280,7 +280,7 @@ describe('useGroup', () => {
     })
 
     it('should prevent deselecting all items in array operation', () => {
-      const group = useGroup({ mandatory: true })
+      const group = createGroup({ mandatory: true })
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -295,7 +295,7 @@ describe('useGroup', () => {
     })
 
     it('should auto-select with mandatory force', () => {
-      const group = useGroup({ mandatory: 'force' })
+      const group = createGroup({ mandatory: 'force' })
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -309,7 +309,7 @@ describe('useGroup', () => {
 
   describe('enroll option', () => {
     it('should auto-select all non-disabled items with enroll', () => {
-      const group = useGroup({ enroll: true })
+      const group = createGroup({ enroll: true })
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -326,7 +326,7 @@ describe('useGroup', () => {
 
   describe('edge cases', () => {
     it('should handle empty registry', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       expect(group.size).toBe(0)
       expect(group.selectedIds.size).toBe(0)
@@ -336,7 +336,7 @@ describe('useGroup', () => {
     })
 
     it('should handle non-existent IDs in array', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -349,7 +349,7 @@ describe('useGroup', () => {
     })
 
     it('should handle duplicate IDs in array', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -362,7 +362,7 @@ describe('useGroup', () => {
     })
 
     it('should handle all disabled items', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -374,7 +374,7 @@ describe('useGroup', () => {
     })
 
     it('should handle unselecting already unselected items', () => {
-      const group = useGroup()
+      const group = createGroup()
 
       group.onboard([
         { id: 'item-1', value: 'value-1' },

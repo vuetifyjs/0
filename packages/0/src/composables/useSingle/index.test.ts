@@ -1,5 +1,5 @@
 // Composables
-import { useSingle } from './index'
+import { createSingle } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest'
 describe('useSingle', () => {
   describe('single selection enforcement', () => {
     it('should only allow one item to be selected at a time', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -33,7 +33,7 @@ describe('useSingle', () => {
     })
 
     it('should not affect selection when selecting already selected item', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -51,7 +51,7 @@ describe('useSingle', () => {
 
   describe('computed singular properties', () => {
     it('should compute selectedId correctly', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -68,7 +68,7 @@ describe('useSingle', () => {
     })
 
     it('should compute selectedItem correctly', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -87,7 +87,7 @@ describe('useSingle', () => {
     })
 
     it('should compute selectedIndex correctly', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -108,7 +108,7 @@ describe('useSingle', () => {
     })
 
     it('should compute selectedValue correctly', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -127,7 +127,7 @@ describe('useSingle', () => {
 
   describe('unselect', () => {
     it('should unselect the selected item', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -143,7 +143,7 @@ describe('useSingle', () => {
     })
 
     it('should do nothing when unselecting non-selected item', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -160,7 +160,7 @@ describe('useSingle', () => {
 
   describe('toggle', () => {
     it('should toggle item on when not selected', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -171,7 +171,7 @@ describe('useSingle', () => {
     })
 
     it('should toggle item off when selected', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -185,7 +185,7 @@ describe('useSingle', () => {
     })
 
     it('should clear other selections when toggling on', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -203,7 +203,7 @@ describe('useSingle', () => {
 
   describe('mandatory mode', () => {
     it('should prevent deselection when mandatory is true', () => {
-      const single = useSingle({ mandatory: true })
+      const single = createSingle({ mandatory: true })
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -219,7 +219,7 @@ describe('useSingle', () => {
     })
 
     it('should prevent toggle off when mandatory is true', () => {
-      const single = useSingle({ mandatory: true })
+      const single = createSingle({ mandatory: true })
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -233,7 +233,7 @@ describe('useSingle', () => {
     })
 
     it('should allow switching selections in mandatory mode', () => {
-      const single = useSingle({ mandatory: true })
+      const single = createSingle({ mandatory: true })
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -248,7 +248,7 @@ describe('useSingle', () => {
     })
 
     it('should auto-select first item with mandatory force', () => {
-      const single = useSingle({ mandatory: 'force' })
+      const single = createSingle({ mandatory: 'force' })
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -259,7 +259,7 @@ describe('useSingle', () => {
     })
 
     it('should skip disabled items with mandatory force', () => {
-      const single = useSingle({ mandatory: 'force' })
+      const single = createSingle({ mandatory: 'force' })
 
       single.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -272,7 +272,7 @@ describe('useSingle', () => {
 
   describe('disabled items', () => {
     it('should not select disabled items', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -284,7 +284,7 @@ describe('useSingle', () => {
     })
 
     it('should not switch to disabled item', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -302,7 +302,7 @@ describe('useSingle', () => {
 
   describe('enroll option', () => {
     it('should auto-select all non-disabled items with enroll', () => {
-      const single = useSingle({ enroll: true })
+      const single = createSingle({ enroll: true })
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -316,7 +316,7 @@ describe('useSingle', () => {
     })
 
     it('should skip disabled items with enroll', () => {
-      const single = useSingle({ enroll: true })
+      const single = createSingle({ enroll: true })
 
       single.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -329,7 +329,7 @@ describe('useSingle', () => {
 
   describe('edge cases', () => {
     it('should handle empty registry', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       expect(single.selectedId.value).toBeUndefined()
       expect(single.selectedIndex.value).toBe(-1)
@@ -338,7 +338,7 @@ describe('useSingle', () => {
     })
 
     it('should handle selecting non-existent item', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -349,7 +349,7 @@ describe('useSingle', () => {
     })
 
     it('should handle all disabled items', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -361,7 +361,7 @@ describe('useSingle', () => {
     })
 
     it('should handle all disabled items with mandatory force', () => {
-      const single = useSingle({ mandatory: 'force' })
+      const single = createSingle({ mandatory: 'force' })
 
       single.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -372,7 +372,7 @@ describe('useSingle', () => {
     })
 
     it('should maintain correct registry size after unregistering items', () => {
-      const single = useSingle()
+      const single = createSingle()
 
       single.onboard([
         { id: 'item-1', value: 'value-1' },

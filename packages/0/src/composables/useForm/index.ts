@@ -16,7 +16,7 @@
  */
 
 // Factories
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
@@ -64,6 +64,11 @@ export interface FormOptions extends RegistryOptions {
   validateOn?: 'submit' | 'change' | string
 }
 
+export interface FormContextOptions extends RegistryOptions {
+  namespace: string
+  validateOn?: 'submit' | 'change' | string
+}
+
 /**
  * Creates a new form instance.
  *
@@ -76,9 +81,9 @@ export interface FormOptions extends RegistryOptions {
  *
  * @example
  * ```ts
- * import { useForm } from '@vuetify/v0'
+ * import { createForm } from '@vuetify/v0'
  *
- * const form = useForm()
+ * const form = createForm()
  *
  * const username = form.register({
  *   id: 'username',
@@ -93,7 +98,7 @@ export interface FormOptions extends RegistryOptions {
  * form.reset()
  * ```
  */
-export function useForm<
+export function createForm<
   Z extends FormTicket = FormTicket,
   E extends FormContext<Z> = FormContext<Z>,
 > (options?: FormOptions): E {
@@ -269,16 +274,46 @@ export function createFormContext<
   Z extends FormTicket = FormTicket,
   E extends FormContext<Z> = FormContext<Z>,
 > (
-  namespace: string,
-  options?: FormOptions,
+  _options: FormContextOptions,
 ): ContextTrinity<E> {
+  const { namespace, ...options } = _options
   const [useFormContext, _provideFormContext] = createContext<E>(namespace)
 
-  const context = useForm<Z, E>(options)
+  const context = createForm<Z, E>(options)
 
   function provideFormContext (_context: E = context, app?: App): E {
     return _provideFormContext(_context, app)
   }
 
   return createTrinity<E>(useFormContext, provideFormContext, context)
+}
+
+/**
+ * Returns the current form instance.
+ *
+ * @param namespace The namespace for the form context. Defaults to `'v0:form'`.
+ * @returns The current form instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/forms/use-form
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useForm } from '@vuetify/v0'
+ *
+ *   const form = useForm()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Form is {{ form.isValid.value ? 'valid' : 'invalid' }}</p>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useForm<
+  Z extends FormTicket = FormTicket,
+  E extends FormContext<Z> = FormContext<Z>,
+> (namespace = 'v0:form'): E {
+  return useContext<E>(namespace)
 }

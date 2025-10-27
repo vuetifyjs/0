@@ -5,7 +5,7 @@ import { Vuetify0PermissionAdapter } from './adapters/v0'
 describe('usePermissions', () => {
   describe('createPermissions', () => {
     it('should create permissions instance with default options', () => {
-      const [usePermissions, providePermissions, defaultPermissions] = createPermissions()
+      const defaultPermissions = createPermissions()
 
       expect(defaultPermissions).toBeDefined()
       expect(typeof defaultPermissions.can).toBe('function')
@@ -13,7 +13,7 @@ describe('usePermissions', () => {
     })
 
     it('should create permissions from config', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           admin: [
             ['read', 'users'],
@@ -35,7 +35,7 @@ describe('usePermissions', () => {
     })
 
     it('should check single permission', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           admin: [
             ['read', 'users'],
@@ -49,7 +49,7 @@ describe('usePermissions', () => {
     })
 
     it('should check multiple actions', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           editor: [
             [['read', 'write'], 'posts'],
@@ -63,7 +63,7 @@ describe('usePermissions', () => {
     })
 
     it('should check multiple subjects', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           viewer: [
             ['read', ['posts', 'comments', 'users']],
@@ -78,7 +78,7 @@ describe('usePermissions', () => {
     })
 
     it('should handle complex role configurations', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           admin: [
             [['read', 'write', 'delete'], ['users', 'posts', 'comments']],
@@ -112,7 +112,7 @@ describe('usePermissions', () => {
     })
 
     it('should handle conditional permissions with functions', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           owner: [
             ['write', 'posts', (ctx: any) => ctx.isOwner === true],
@@ -128,7 +128,7 @@ describe('usePermissions', () => {
     })
 
     it('should handle context in permission checks', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           editor: [
             ['edit', 'posts', (ctx: any) => ctx.userId === ctx.postAuthorId],
@@ -141,7 +141,7 @@ describe('usePermissions', () => {
     })
 
     it('should return false for non-existent permissions', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           admin: [
             ['read', 'users'],
@@ -163,7 +163,7 @@ describe('usePermissions', () => {
     })
 
     it('should check boolean permissions', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         adapter,
         permissions: {
           admin: [['read', 'users']],
@@ -175,7 +175,7 @@ describe('usePermissions', () => {
     })
 
     it('should check functional permissions', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         adapter,
         permissions: {
           owner: [
@@ -189,7 +189,7 @@ describe('usePermissions', () => {
     })
 
     it('should return false for missing permissions', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         adapter,
         permissions: {},
       })
@@ -232,7 +232,7 @@ describe('usePermissions', () => {
 
   describe('edge cases', () => {
     it('should handle empty permissions', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {},
       })
 
@@ -240,7 +240,7 @@ describe('usePermissions', () => {
     })
 
     it('should handle empty context', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           user: [['read', 'posts']],
         },
@@ -251,7 +251,7 @@ describe('usePermissions', () => {
     })
 
     it('should handle function that throws', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           user: [
             ['access', 'dangerous', () => {
@@ -265,7 +265,7 @@ describe('usePermissions', () => {
     })
 
     it('should handle undefined condition as true', () => {
-      const [, , permissions] = createPermissions('test:permissions', {
+      const permissions = createPermissions({
         permissions: {
           user: [
             ['read', 'posts', undefined as any],

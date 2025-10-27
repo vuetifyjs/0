@@ -13,11 +13,11 @@
  */
 
 // Factories
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { useSelection } from '#v0/composables/useSelection'
+import { createSelection } from '#v0/composables/useSelection'
 
 // Utilities
 import { computed } from 'vue'
@@ -26,7 +26,7 @@ import { computed } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef } from 'vue'
-import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
+import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 
 export interface SingleTicket extends SelectionTicket {}
 
@@ -39,10 +39,12 @@ export interface SingleContext<Z extends SingleTicket> extends SelectionContext<
 
 export interface SingleOptions extends SelectionOptions {}
 
+export interface SingleContextOptions extends SelectionContextOptions {}
+
 /**
  * Creates a new single selection instance that enforces only one selected item at a time.
  *
- * Extends `useSelection` by automatically clearing previous selections when a new item is selected.
+ * Extends `createSelection` by automatically clearing previous selections when a new item is selected.
  * Adds computed singular properties: `selectedId`, `selectedItem`, `selectedIndex`, `selectedValue`.
  *
  * @param options The options for the single selection instance.
@@ -51,7 +53,7 @@ export interface SingleOptions extends SelectionOptions {}
  * @returns A new single selection instance with single-selection enforcement.
  *
  * @remarks
- * **Key Differences from `useSelection`:**
+ * **Key Differences from `createSelection`:**
  * - Automatically clears `selectedIds` before selecting a new item (enforces single selection)
  * - Provides singular computed properties instead of plural sets
  * - Perfect for tabs, radio buttons, theme selectors, and other single-choice UI components
@@ -63,15 +65,15 @@ export interface SingleOptions extends SelectionOptions {}
  * - `selectedValue`: The value of the selected item (undefined if none selected)
  *
  * **Inheritance Chain:**
- * `useRegistry` → `useSelection` → `useSingle` → `useStep`
+ * `useRegistry` → `createSelection` → `createSingle` → `createStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
  *
  * @example
  * ```ts
- * import { useSingle } from '@vuetify/v0'
+ * import { createSingle } from '@vuetify/v0'
  *
- * const tabs = useSingle({ mandatory: true })
+ * const tabs = createSingle({ mandatory: true })
  *
  * tabs.onboard([
  *   { id: 'home', value: 'Home' },
@@ -89,11 +91,11 @@ export interface SingleOptions extends SelectionOptions {}
  * console.log(tabs.selectedIds.size) // 1 (always enforces single selection)
  * ```
  */
-export function useSingle<
+export function createSingle<
   Z extends SingleTicket = SingleTicket,
   E extends SingleContext<Z> = SingleContext<Z>,
 > (options?: SingleOptions): E {
-  const registry = useSelection<Z, E>(options)
+  const registry = createSelection<Z, E>(options)
   const mandatory = options?.mandatory ?? false
 
   const selectedId = computed(() => registry.selectedIds.values().next().value)
@@ -163,16 +165,44 @@ export function useSingle<
 export function createSingleContext<
   Z extends SingleTicket = SingleTicket,
   E extends SingleContext<Z> = SingleContext<Z>,
-> (
-  namespace: string,
-  options?: SingleOptions,
-): ContextTrinity<E> {
+> (_options: SingleContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
   const [useSingleContext, _provideSingleContext] = createContext<E>(namespace)
-  const context = useSingle<Z, E>(options)
+  const context = createSingle<Z, E>(options)
 
   function provideSingleContext (_context: E = context, app?: App): E {
     return _provideSingleContext(_context, app)
   }
 
   return createTrinity<E>(useSingleContext, provideSingleContext, context)
+}
+
+/**
+ * Returns the current single selection instance.
+ *
+ * @param namespace The namespace for the single selection context. Defaults to `'v0:single'`.
+ * @returns The current single selection instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-single
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useSingle } from '@vuetify/v0'
+ *
+ *   const tabs = useSingle()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Selected: {{ tabs.selectedId }}</p>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useSingle<
+  Z extends SingleTicket = SingleTicket,
+  E extends SingleContext<Z> = SingleContext<Z>,
+> (namespace = 'v0:single'): E {
+  return useContext<E>(namespace)
 }

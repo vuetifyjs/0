@@ -15,7 +15,7 @@
  */
 
 // Factories
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
@@ -75,6 +75,10 @@ export interface SelectionOptions extends RegistryOptions {
   mandatory?: boolean | 'force'
 }
 
+export interface SelectionContextOptions extends SelectionOptions {
+  namespace: string
+}
+
 /**
  * Creates a new selection instance for managing multiple selected items.
  *
@@ -98,15 +102,15 @@ export interface SelectionOptions extends RegistryOptions {
  * - Enroll option auto-selects all non-disabled items on registration
  *
  * **Inheritance Chain:**
- * `useRegistry` → `useSelection` → `useSingle`/`useGroup` → `useStep`
+ * `useRegistry` → `createSelection` → `createSingle`/`createGroup` → `createStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
  *
  * @example
  * ```ts
- * import { useSelection } from '@vuetify/v0'
+ * import { createSelection } from '@vuetify/v0'
  *
- * const selection = useSelection({ mandatory: true })
+ * const selection = createSelection({ mandatory: true })
  *
  * selection.onboard([
  *   { id: 'item-1', value: 'Item 1' },
@@ -121,7 +125,7 @@ export interface SelectionOptions extends RegistryOptions {
  * console.log(Array.from(selection.selectedValues.value)) // ['Item 1', 'Item 3']
  * ```
  */
-export function useSelection<
+export function createSelection<
   Z extends SelectionTicket = SelectionTicket,
   E extends SelectionContext<Z> = SelectionContext<Z>,
 > (options?: SelectionOptions): E {
@@ -255,16 +259,44 @@ export function useSelection<
 export function createSelectionContext<
   Z extends SelectionTicket = SelectionTicket,
   E extends SelectionContext<Z> = SelectionContext<Z>,
-> (
-  namespace: string,
-  options?: SelectionOptions,
-): ContextTrinity<E> {
+> (_options: SelectionContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
   const [useSelectionContext, _provideSelectionContext] = createContext<E>(namespace)
-  const context = useSelection<Z, E>(options)
+  const context = createSelection<Z, E>(options)
 
   function provideSelectionContext (_context: E = context, app?: App): E {
     return _provideSelectionContext(_context, app)
   }
 
   return createTrinity<E>(useSelectionContext, provideSelectionContext, context)
+}
+
+/**
+ * Returns the current selection instance.
+ *
+ * @param namespace The namespace for the selection context. Defaults to `'v0:selection'`.
+ * @returns The current selection instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-selection
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useSelection } from '@vuetify/v0'
+ *
+ *   const selection = useSelection()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Selected: {{ selection.selectedIds.size }}</p>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useSelection<
+  Z extends SelectionTicket = SelectionTicket,
+  E extends SelectionContext<Z> = SelectionContext<Z>,
+> (namespace = 'v0:selection'): E {
+  return useContext<E>(namespace)
 }

@@ -1,5 +1,5 @@
 // Composables
-import { useSelection } from './index'
+import { createSelection } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest'
 describe('useSelection', () => {
   describe('mandate', () => {
     it('should select first item when mandatory is true and no selection exists', () => {
-      const selection = useSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -24,7 +24,7 @@ describe('useSelection', () => {
     })
 
     it('should not select anything when mandatory is false', () => {
-      const selection = useSelection({ mandatory: false })
+      const selection = createSelection({ mandatory: false })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -39,7 +39,7 @@ describe('useSelection', () => {
     })
 
     it('should not select anything when registry is empty', () => {
-      const selection = useSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true })
 
       expect(selection.size).toBe(0)
       expect(selection.selectedIds.size).toBe(0)
@@ -50,7 +50,7 @@ describe('useSelection', () => {
     })
 
     it('should not change selection when something is already selected', () => {
-      const selection = useSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -71,7 +71,7 @@ describe('useSelection', () => {
     })
 
     it('should auto-select first item during registration when mandatory is "force"', () => {
-      const selection = useSelection({ mandatory: 'force' })
+      const selection = createSelection({ mandatory: 'force' })
 
       expect(selection.selectedIds.size).toBe(0)
 
@@ -82,7 +82,7 @@ describe('useSelection', () => {
     })
 
     it('should skip disabled items when mandating selection', () => {
-      const selection = useSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -97,7 +97,7 @@ describe('useSelection', () => {
     })
 
     it('should not select anything when all items are disabled', () => {
-      const selection = useSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -114,7 +114,7 @@ describe('useSelection', () => {
 
   describe('reset', () => {
     it('should clear registry and selectedIds', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -138,7 +138,7 @@ describe('useSelection', () => {
     })
 
     it('should clear selectedIds and call mandate when mandatory is true', () => {
-      const selection = useSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -161,7 +161,7 @@ describe('useSelection', () => {
 
   describe('seek', () => {
     it('should find first non-disabled item', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -176,7 +176,7 @@ describe('useSelection', () => {
     })
 
     it('should find last non-disabled item', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -191,7 +191,7 @@ describe('useSelection', () => {
     })
 
     it('should skip disabled items when seeking first', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -206,7 +206,7 @@ describe('useSelection', () => {
     })
 
     it('should skip disabled items when seeking last', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -221,7 +221,7 @@ describe('useSelection', () => {
     })
 
     it('should return undefined when all items are disabled', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -236,7 +236,7 @@ describe('useSelection', () => {
     })
 
     it('should return undefined when registry is empty', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       const first = selection.seek('first')
       const last = selection.seek('last')
@@ -246,7 +246,7 @@ describe('useSelection', () => {
     })
 
     it('should seek forward from specific index', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -263,7 +263,7 @@ describe('useSelection', () => {
     })
 
     it('should seek backward from specific index', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -280,7 +280,7 @@ describe('useSelection', () => {
     })
 
     it('should skip disabled items when seeking from index', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -299,7 +299,7 @@ describe('useSelection', () => {
     })
 
     it('should clamp from index to valid range', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -318,7 +318,7 @@ describe('useSelection', () => {
     })
 
     it('should handle item removal scenario - find next from removed position', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -339,7 +339,7 @@ describe('useSelection', () => {
 
   describe('selection', () => {
     it('should select an item', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -353,7 +353,7 @@ describe('useSelection', () => {
     })
 
     it('should unselect an item', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -368,7 +368,7 @@ describe('useSelection', () => {
     })
 
     it('should toggle an item on and off', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -382,7 +382,7 @@ describe('useSelection', () => {
     })
 
     it('should allow multiple selections', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -401,7 +401,7 @@ describe('useSelection', () => {
     })
 
     it('should prevent deselection when mandatory is true and only one item selected', () => {
-      const selection = useSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -420,7 +420,7 @@ describe('useSelection', () => {
     })
 
     it('should allow deselection when mandatory is true but multiple items selected', () => {
-      const selection = useSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -437,7 +437,7 @@ describe('useSelection', () => {
     })
 
     it('should not select disabled items', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.register({ id: 'disabled-item', value: 'value', disabled: true })
 
@@ -447,7 +447,7 @@ describe('useSelection', () => {
     })
 
     it('should not select non-existent items', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -459,7 +459,7 @@ describe('useSelection', () => {
     })
 
     it('should auto-enroll non-disabled items when enroll is true', () => {
-      const selection = useSelection({ enroll: true })
+      const selection = createSelection({ enroll: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -474,7 +474,7 @@ describe('useSelection', () => {
     })
 
     it('should check if an item is selected with selected()', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -492,7 +492,7 @@ describe('useSelection', () => {
 
   describe('selectedItems and selectedValues', () => {
     it('should compute selectedItems correctly', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -510,7 +510,7 @@ describe('useSelection', () => {
     })
 
     it('should compute selectedValues correctly', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -528,7 +528,7 @@ describe('useSelection', () => {
     })
 
     it('should update selectedItems and selectedValues reactively', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -554,7 +554,7 @@ describe('useSelection', () => {
 
   describe('ticket methods', () => {
     it('should provide select() method on each ticket', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       const ticket = selection.register({ id: 'item-1', value: 'value-1' })
 
@@ -565,7 +565,7 @@ describe('useSelection', () => {
     })
 
     it('should provide unselect() method on each ticket', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       const ticket = selection.register({ id: 'item-1', value: 'value-1' })
       ticket.select()
@@ -576,7 +576,7 @@ describe('useSelection', () => {
     })
 
     it('should provide toggle() method on each ticket', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       const ticket = selection.register({ id: 'item-1', value: 'value-1' })
 
@@ -588,7 +588,7 @@ describe('useSelection', () => {
     })
 
     it('should provide reactive isSelected property on each ticket', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       const ticket = selection.register({ id: 'item-1', value: 'value-1' })
 
@@ -604,7 +604,7 @@ describe('useSelection', () => {
 
   describe('unregister', () => {
     it('should remove item from selectedIds when unregistering', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -622,7 +622,7 @@ describe('useSelection', () => {
 
   describe('edge cases', () => {
     it('should handle empty registry gracefully', () => {
-      const selection = useSelection()
+      const selection = createSelection()
 
       expect(selection.size).toBe(0)
       expect(selection.selectedIds.size).toBe(0)
@@ -632,7 +632,7 @@ describe('useSelection', () => {
     })
 
     it('should handle mandatory with enroll', () => {
-      const selection = useSelection({ mandatory: true, enroll: true })
+      const selection = createSelection({ mandatory: true, enroll: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -653,7 +653,7 @@ describe('useSelection', () => {
     })
 
     it('should handle all disabled items with enroll', () => {
-      const selection = useSelection({ enroll: true })
+      const selection = createSelection({ enroll: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },
@@ -664,7 +664,7 @@ describe('useSelection', () => {
     })
 
     it('should handle mandatory force with all disabled items', () => {
-      const selection = useSelection({ mandatory: 'force' })
+      const selection = createSelection({ mandatory: 'force' })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1', disabled: true },

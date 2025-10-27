@@ -10,7 +10,7 @@ vi.mock('#v0/constants/globals', () => ({
 describe('createTheme', () => {
   describe('basic functionality', () => {
     it('should create a theme context with default values', () => {
-      const context = createTheme('test-theme')[2]
+      const context = createTheme({})
 
       expect(context).toBeDefined()
       expect(context.selectedId).toBeDefined()
@@ -19,7 +19,7 @@ describe('createTheme', () => {
     })
 
     it('should register themes from options', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
         themes: {
           light: {
             dark: false,
@@ -36,7 +36,7 @@ describe('createTheme', () => {
             },
           },
         },
-      })[2]
+      })
 
       expect(context.collection.size).toBe(2)
       expect(context.collection.has('light')).toBe(true)
@@ -44,7 +44,8 @@ describe('createTheme', () => {
     })
 
     it('should select default theme if provided', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
+        namespace: 'test-theme',
         default: 'dark',
         themes: {
           light: {
@@ -56,20 +57,20 @@ describe('createTheme', () => {
             colors: { primary: '#90caf9' },
           },
         },
-      })[2]
+      })
 
       expect(context.selectedId.value).toBe('dark')
     })
 
     it('should not select any theme if default is not provided', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
         themes: {
           light: {
             dark: false,
             colors: { primary: '#1976d2' },
           },
         },
-      })[2]
+      })
 
       expect(context.selectedId.value).toBeUndefined()
     })
@@ -77,7 +78,7 @@ describe('createTheme', () => {
 
   describe('theme properties', () => {
     it('should set dark property correctly', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
         themes: {
           light: {
             dark: false,
@@ -88,7 +89,7 @@ describe('createTheme', () => {
             colors: { primary: '#90caf9' },
           },
         },
-      })[2]
+      })
 
       const lightTheme = context.collection.get('light')
       const darkTheme = context.collection.get('dark')
@@ -98,20 +99,20 @@ describe('createTheme', () => {
     })
 
     it('should default dark to false', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
         themes: {
           light: {
             colors: { primary: '#1976d2' },
           },
         },
-      })[2]
+      })
 
       const theme = context.collection.get('light')
       expect(theme?.dark).toBe(false)
     })
 
     it('should set lazy property correctly', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
         themes: {
           lazy: {
             lazy: true,
@@ -122,7 +123,7 @@ describe('createTheme', () => {
             colors: { primary: '#90caf9' },
           },
         },
-      })[2]
+      })
 
       const lazyTheme = context.collection.get('lazy')
       const eagerTheme = context.collection.get('eager')
@@ -132,13 +133,13 @@ describe('createTheme', () => {
     })
 
     it('should default lazy to false', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
         themes: {
           normal: {
             colors: { primary: '#1976d2' },
           },
         },
-      })[2]
+      })
 
       const theme = context.collection.get('normal')
       expect(theme?.lazy).toBe(false)
@@ -147,7 +148,8 @@ describe('createTheme', () => {
 
   describe('color resolution', () => {
     it('should resolve simple colors', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
+        namespace: 'test-theme',
         default: 'light',
         themes: {
           light: {
@@ -157,7 +159,7 @@ describe('createTheme', () => {
             },
           },
         },
-      })[2]
+      })
 
       const colors = context.colors.value
       expect(colors.light).toBeDefined()
@@ -166,7 +168,8 @@ describe('createTheme', () => {
     })
 
     it('should resolve token aliases in colors', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
+        namespace: 'test-theme',
         default: 'light',
         palette: {
           blue: {
@@ -180,14 +183,15 @@ describe('createTheme', () => {
             },
           },
         },
-      })[2]
+      })
 
       const colors = context.colors.value
       expect(colors.light!.primary).toBe('#3b82f6')
     })
 
     it('should skip lazy themes that are not selected', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
+        namespace: 'test-theme',
         default: 'light',
         themes: {
           light: {
@@ -198,7 +202,7 @@ describe('createTheme', () => {
             colors: { primary: '#90caf9' },
           },
         },
-      })[2]
+      })
 
       const colors = context.colors.value
       expect(colors.light).toBeDefined()
@@ -206,7 +210,8 @@ describe('createTheme', () => {
     })
 
     it('should include lazy theme when it is selected', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
+        namespace: 'test-theme',
         default: 'dark',
         themes: {
           light: {
@@ -217,7 +222,7 @@ describe('createTheme', () => {
             colors: { primary: '#90caf9' },
           },
         },
-      })[2]
+      })
 
       const colors = context.colors.value
       expect(colors.dark).toBeDefined()
@@ -227,14 +232,15 @@ describe('createTheme', () => {
 
   describe('theme cycling', () => {
     it('should cycle through provided themes', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
+        namespace: 'test-theme',
         default: 'light',
         themes: {
           light: { colors: { primary: '#1976d2' } },
           dark: { colors: { primary: '#90caf9' } },
           high_contrast: { colors: { primary: '#000000' } },
         },
-      })[2]
+      })
 
       expect(context.selectedId.value).toBe('light')
 
@@ -249,13 +255,14 @@ describe('createTheme', () => {
     })
 
     it('should cycle through all registered themes when no array provided', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
+        namespace: 'test-theme',
         default: 'light',
         themes: {
           light: { colors: { primary: '#1976d2' } },
           dark: { colors: { primary: '#90caf9' } },
         },
-      })[2]
+      })
 
       expect(context.selectedId.value).toBe('light')
 
@@ -267,12 +274,12 @@ describe('createTheme', () => {
     })
 
     it('should handle cycling when current theme is not in the list', () => {
-      const context = createTheme('test-theme', {
+      const context = createTheme({
         themes: {
           light: { colors: { primary: '#1976d2' } },
           dark: { colors: { primary: '#90caf9' } },
         },
-      })[2]
+      })
 
       // No theme selected initially
       context.cycle(['light', 'dark'])
@@ -282,7 +289,7 @@ describe('createTheme', () => {
 
   describe('manual theme registration', () => {
     it('should allow registering themes dynamically', () => {
-      const context = createTheme('test-theme')[2]
+      const context = createTheme({})
 
       expect(context.collection.size).toBe(0)
 
@@ -579,7 +586,8 @@ describe('useTheme', () => {
 
 describe('ThemeAdapter', () => {
   it('should generate CSS with correct format', () => {
-    createTheme('test-theme', {
+    createTheme({
+      namespace: 'test-theme',
       themes: {
         light: {
           colors: {

@@ -5,7 +5,7 @@ import { Vuetify0LocaleAdapter } from './adapters/v0'
 describe('useLocale', () => {
   describe('createLocale', () => {
     it('should create locale instance with default options', () => {
-      const [useLocale, provideLocale, defaultLocale] = createLocale()
+      const defaultLocale = createLocale()
 
       expect(defaultLocale).toBeDefined()
       expect(typeof defaultLocale.t).toBe('function')
@@ -15,7 +15,7 @@ describe('useLocale', () => {
     })
 
     it('should register locales from messages option', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         messages: {
           en: { hello: 'Hello' },
           es: { hello: 'Hola' },
@@ -28,7 +28,7 @@ describe('useLocale', () => {
     })
 
     it('should select default locale', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: { hello: 'Hello' },
@@ -40,7 +40,7 @@ describe('useLocale', () => {
     })
 
     it('should translate messages', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: { hello: 'Hello', greeting: 'Hello {name}' },
@@ -53,7 +53,7 @@ describe('useLocale', () => {
     })
 
     it('should return key when translation not found', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: { hello: 'Hello' },
@@ -64,7 +64,7 @@ describe('useLocale', () => {
     })
 
     it('should switch locale and translate accordingly', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: { hello: 'Hello' },
@@ -79,7 +79,7 @@ describe('useLocale', () => {
     })
 
     it('should handle numbered placeholders', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: { greet: 'Hello {0}, you have {1} messages' },
@@ -90,7 +90,7 @@ describe('useLocale', () => {
     })
 
     it('should handle named placeholders', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: { greet: 'Hello {name}, you have {count} messages' },
@@ -101,7 +101,7 @@ describe('useLocale', () => {
     })
 
     it('should resolve token references in messages', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: {
@@ -115,7 +115,7 @@ describe('useLocale', () => {
     })
 
     it('should format numbers with n()', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en-US',
         messages: {
           'en-US': {},
@@ -128,7 +128,7 @@ describe('useLocale', () => {
     })
 
     it('should handle cross-locale references', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: { hello: 'Hello' },
@@ -232,7 +232,7 @@ describe('useLocale', () => {
 
   describe('locale switching', () => {
     it('should update translations when locale changes', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         messages: {
           en: { message: 'English message' },
           fr: { message: 'Message français' },
@@ -251,7 +251,7 @@ describe('useLocale', () => {
     })
 
     it('should handle missing translations in selected locale', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: { hello: 'Hello', goodbye: 'Goodbye' },
@@ -267,7 +267,7 @@ describe('useLocale', () => {
 
   describe('token resolution', () => {
     it('should resolve token references in messages', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: {
@@ -286,7 +286,7 @@ describe('useLocale', () => {
     })
 
     it('should handle self-referencing tokens', () => {
-      const [, , locale] = createLocale('test:locale', {
+      const locale = createLocale({
         default: 'en',
         messages: {
           en: {

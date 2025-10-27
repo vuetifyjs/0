@@ -15,7 +15,7 @@
  */
 
 // Factories
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
@@ -89,6 +89,10 @@ export interface TimelineOptions extends RegistryOptions {
   size?: number
 }
 
+export interface TimelineContextOptions extends TimelineOptions {
+  namespace: string
+}
+
 /**
  * Creates a new timeline instance.
  *
@@ -116,10 +120,10 @@ export interface TimelineOptions extends RegistryOptions {
  * console.log(timeline.values()) // [{ id: 'one' }, { id: 'two' }, { id: 'three' }]
  * ```
  */
-export function useTimeline<
+export function createTimeline<
   Z extends TimelineTicket = TimelineTicket,
   E extends TimelineContext<Z> = TimelineContext<Z>,
-> (_options: TimelineOptions = {}) {
+> (_options: TimelineOptions = {}): E {
   const { size = 10, ...options } = _options
   const registry = useRegistry<Z, E>(options)
 
@@ -215,16 +219,38 @@ export function useTimeline<
 export function createTimelineContext<
   Z extends TimelineTicket = TimelineTicket,
   E extends TimelineContext<Z> = TimelineContext<Z>,
-> (
-  namespace: string,
-  options: TimelineOptions = {},
-): ContextTrinity<E> {
+> (_options: TimelineContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
   const [useTimelineContext, _provideTimelineContext] = createContext<E>(namespace)
-  const context = useTimeline<Z, E>(options)
+  const context = createTimeline<Z, E>(options)
 
   function provideTimelineContext (_context: E = context, app?: App): E {
     return _provideTimelineContext(_context, app)
   }
 
   return createTrinity<E>(useTimelineContext, provideTimelineContext, context)
+}
+
+/**
+ * Returns the current timeline instance.
+ *
+ * @param namespace The namespace for the timeline context. Defaults to `'v0:timeline'`.
+ * @returns The current timeline instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-timeline
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useTimeline } from '@vuetify/v0'
+ *
+ *   const timeline = useTimeline()
+ * </script>
+ * ```
+ */
+export function useTimeline<
+  Z extends TimelineTicket = TimelineTicket,
+  E extends TimelineContext<Z> = TimelineContext<Z>,
+> (namespace = 'v0:timeline'): E {
+  return useContext<E>(namespace)
 }

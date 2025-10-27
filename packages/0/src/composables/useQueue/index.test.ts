@@ -1,10 +1,10 @@
 // Composables
-import { useQueue } from './index'
+import { createQueue } from './index'
 
 // Utilities
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-describe('useQueue', () => {
+describe('createQueue', () => {
   beforeEach(() => {
     vi.useFakeTimers()
   })
@@ -15,21 +15,21 @@ describe('useQueue', () => {
 
   describe('timeout management', () => {
     it('should use default timeout when not specified', () => {
-      const queue = useQueue({ timeout: 5000 })
+      const queue = createQueue({ timeout: 5000 })
       const ticket = queue.register({ value: 'test' })
 
       expect(ticket.timeout).toBe(5000)
     })
 
     it('should use custom timeout when specified', () => {
-      const queue = useQueue({ timeout: 5000 })
+      const queue = createQueue({ timeout: 5000 })
       const ticket = queue.register({ value: 'test', timeout: 3000 })
 
       expect(ticket.timeout).toBe(3000)
     })
 
     it('should create persistent ticket with timeout -1', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const ticket = queue.register({ value: 'persistent', timeout: -1 })
 
       expect(ticket.timeout).toBe(-1)
@@ -42,7 +42,7 @@ describe('useQueue', () => {
     })
 
     it('should automatically remove ticket after timeout', () => {
-      const queue = useQueue({ timeout: 3000 })
+      const queue = createQueue({ timeout: 3000 })
       queue.register({ value: 'first' })
 
       expect(queue.size).toBe(1)
@@ -54,7 +54,7 @@ describe('useQueue', () => {
     })
 
     it('should not start timeout for paused tickets', () => {
-      const queue = useQueue({ timeout: 3000 })
+      const queue = createQueue({ timeout: 3000 })
       const ticket1 = queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
 
@@ -72,7 +72,7 @@ describe('useQueue', () => {
 
   describe('pause and resume', () => {
     it('should pause the first ticket', () => {
-      const queue = useQueue({ timeout: 5000 })
+      const queue = createQueue({ timeout: 5000 })
       const ticket = queue.register({ value: 'test' })
 
       expect(ticket.isPaused).toBe(false)
@@ -84,7 +84,7 @@ describe('useQueue', () => {
     })
 
     it('should return undefined when pausing already paused ticket', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       queue.register({ value: 'test' })
       queue.pause()
 
@@ -94,14 +94,14 @@ describe('useQueue', () => {
     })
 
     it('should return undefined when pausing empty queue', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const result = queue.pause()
 
       expect(result).toBeUndefined()
     })
 
     it('should resume the first paused ticket', () => {
-      const queue = useQueue({ timeout: 5000 })
+      const queue = createQueue({ timeout: 5000 })
       const ticket = queue.register({ value: 'test' })
       queue.pause()
 
@@ -112,7 +112,7 @@ describe('useQueue', () => {
     })
 
     it('should return undefined when resuming non-paused ticket', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       queue.register({ value: 'test' })
 
       const result = queue.resume()
@@ -121,14 +121,14 @@ describe('useQueue', () => {
     })
 
     it('should return undefined when resuming empty queue', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const result = queue.resume()
 
       expect(result).toBeUndefined()
     })
 
     it('should allow pause and resume cycle', () => {
-      const queue = useQueue({ timeout: 5000 })
+      const queue = createQueue({ timeout: 5000 })
       const ticket = queue.register({ value: 'test' })
 
       expect(ticket.isPaused).toBe(false)
@@ -145,7 +145,7 @@ describe('useQueue', () => {
 
   describe('queue progression', () => {
     it('should automatically resume next ticket when first is removed', () => {
-      const queue = useQueue({ timeout: 3000 })
+      const queue = createQueue({ timeout: 3000 })
       const ticket1 = queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
 
@@ -161,7 +161,7 @@ describe('useQueue', () => {
     })
 
     it('should remove first ticket automatically after timeout', async () => {
-      const queue = useQueue({ timeout: 1000 })
+      const queue = createQueue({ timeout: 1000 })
       const ticket1 = queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
 
@@ -179,7 +179,7 @@ describe('useQueue', () => {
     })
 
     it('should handle tickets with different timeout values', async () => {
-      const queue = useQueue({ timeout: 3000 })
+      const queue = createQueue({ timeout: 3000 })
       const ticket1 = queue.register({ value: 'quick', timeout: 1000 })
       const ticket2 = queue.register({ value: 'slow', timeout: 5000 })
 
@@ -198,7 +198,7 @@ describe('useQueue', () => {
 
   describe('unregister', () => {
     it('should unregister first ticket when no id provided', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const ticket1 = queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
 
@@ -210,7 +210,7 @@ describe('useQueue', () => {
     })
 
     it('should unregister specific ticket by id', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const ticket1 = queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
 
@@ -222,21 +222,21 @@ describe('useQueue', () => {
     })
 
     it('should return undefined when unregistering non-existent ticket', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const result = queue.unregister('non-existent')
 
       expect(result).toBeUndefined()
     })
 
     it('should return undefined when unregistering from empty queue', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const result = queue.unregister()
 
       expect(result).toBeUndefined()
     })
 
     it('should clear timeout when unregistering', () => {
-      const queue = useQueue({ timeout: 5000 })
+      const queue = createQueue({ timeout: 5000 })
       const ticket = queue.register({ value: 'test' })
 
       queue.unregister(ticket.id)
@@ -251,7 +251,7 @@ describe('useQueue', () => {
 
   describe('dismiss', () => {
     it('should allow ticket to dismiss itself', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const ticket = queue.register({ value: 'test' })
 
       expect(queue.size).toBe(1)
@@ -263,7 +263,7 @@ describe('useQueue', () => {
     })
 
     it('should trigger next ticket when dismissed', () => {
-      const queue = useQueue({ timeout: 3000 })
+      const queue = createQueue({ timeout: 3000 })
       const ticket1 = queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
 
@@ -278,7 +278,7 @@ describe('useQueue', () => {
 
   describe('clear and dispose', () => {
     it('should clear all tickets and timeouts', () => {
-      const queue = useQueue({ timeout: 5000 })
+      const queue = createQueue({ timeout: 5000 })
       queue.register({ value: 'first' })
       queue.register({ value: 'second' })
 
@@ -294,7 +294,7 @@ describe('useQueue', () => {
     })
 
     it('should dispose queue and clean up resources', () => {
-      const queue = useQueue({ timeout: 5000, events: true })
+      const queue = createQueue({ timeout: 5000, events: true })
       queue.register({ value: 'test' })
 
       const callback = vi.fn()
@@ -314,14 +314,14 @@ describe('useQueue', () => {
 
   describe('isPaused state', () => {
     it('should mark first ticket as not paused', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       const ticket = queue.register({ value: 'first' })
 
       expect(ticket.isPaused).toBe(false)
     })
 
     it('should mark subsequent tickets as paused', () => {
-      const queue = useQueue()
+      const queue = createQueue()
       queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
       const ticket3 = queue.register({ value: 'third' })
@@ -331,7 +331,7 @@ describe('useQueue', () => {
     })
 
     it('should update isPaused when ticket becomes first', () => {
-      const queue = useQueue({ timeout: 1000 })
+      const queue = createQueue({ timeout: 1000 })
       const ticket1 = queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
 
@@ -346,14 +346,14 @@ describe('useQueue', () => {
 
   describe('edge cases', () => {
     it('should use default timeout when timeout is not provided', () => {
-      const queue = useQueue({ timeout: 3000 })
+      const queue = createQueue({ timeout: 3000 })
       const ticket = queue.register({ value: 'test' })
 
       expect(ticket.timeout).toBe(3000)
     })
 
     it('should handle registering while queue is processing', () => {
-      const queue = useQueue({ timeout: 1000 })
+      const queue = createQueue({ timeout: 1000 })
       const ticket1 = queue.register({ value: 'first' })
 
       vi.advanceTimersByTime(500)
@@ -370,7 +370,7 @@ describe('useQueue', () => {
     })
 
     it('should handle explicit undefined timeout as no timeout', () => {
-      const queue = useQueue({ timeout: 3000 })
+      const queue = createQueue({ timeout: 3000 })
       const ticket = queue.register({ value: 'test', timeout: undefined })
 
       expect(ticket.timeout).toBeUndefined()
@@ -381,7 +381,7 @@ describe('useQueue', () => {
     })
 
     it('should handle explicit timeout of 0 as immediate dismissal', () => {
-      const queue = useQueue({ timeout: 3000 })
+      const queue = createQueue({ timeout: 3000 })
       const ticket = queue.register({ value: 'test', timeout: 0 })
 
       expect(ticket.timeout).toBe(0)
@@ -393,7 +393,7 @@ describe('useQueue', () => {
     })
 
     it('should clear all timeouts when queue is cleared mid-execution', () => {
-      const queue = useQueue({ timeout: 1000 })
+      const queue = createQueue({ timeout: 1000 })
       queue.register({ value: 'first' })
       queue.register({ value: 'second' })
       queue.register({ value: 'third' })
@@ -412,7 +412,7 @@ describe('useQueue', () => {
     })
 
     it('should handle multiple tickets with timeout -1', () => {
-      const queue = useQueue({ timeout: -1 })
+      const queue = createQueue({ timeout: -1 })
       const ticket1 = queue.register({ value: 'first' })
       const ticket2 = queue.register({ value: 'second' })
 
@@ -427,7 +427,7 @@ describe('useQueue', () => {
     })
 
     it('should not start timeout when pausing immediately after registration', () => {
-      const queue = useQueue({ timeout: 1000 })
+      const queue = createQueue({ timeout: 1000 })
       const ticket = queue.register({ value: 'test' })
 
       expect(ticket.isPaused).toBe(false)

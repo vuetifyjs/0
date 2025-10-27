@@ -5,14 +5,14 @@
  * Theme management composable with token resolution and CSS variable injection.
  *
  * Key features:
- * - Single-selection theme switching (extends useSingle)
+ * - Single-selection theme switching (extends createSingle)
  * - Token alias resolution via useTokens
  * - Lazy theme loading (compute colors only when selected)
  * - CSS variable generation via adapter pattern
  * - SSR support with head integration
  * - Theme cycling
  *
- * Integrates with useSingle for selection and useTokens for color resolution.
+ * Integrates with createSingle for selection and useTokens for color resolution.
  */
 
 // Factories
@@ -21,8 +21,8 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createContext, useContext } from '#v0/composables/createContext'
 
 // Composables
-import { useSingle } from '#v0/composables/useSingle'
-import { useTokens } from '#v0/composables/useTokens'
+import { createSingle } from '#v0/composables/useSingle'
+import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
 import { computed, watch, onScopeDispose } from 'vue'
@@ -35,6 +35,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
+import type { RegistryOptions } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef } from 'vue'
 import type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
@@ -113,9 +114,7 @@ export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
   cycle: (themes?: ID[]) => void
 }
 
-export interface ThemeOptions extends ThemePluginOptions {}
-
-export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
+export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends RegistryOptions {
   /**
    * The theme adapter to use.
    *
@@ -126,6 +125,10 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
    * The default theme ID to select on initialization.
    */
   default?: ID
+  /**
+   * The namespace for the theme context.
+   */
+  namespace?: string
   /**
    * A collection of tokens to use for resolving theme colors.
    */
@@ -142,10 +145,15 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
   target?: string | HTMLElement | null
 }
 
+export interface ThemePluginOptions extends ThemeOptions {}
+
+export interface ThemeContextOptions extends ThemeOptions {
+  namespace: string
+}
+
 /**
  * Creates a new theme instance.
  *
- * @param namespace The namespace for the theme instance.
  * @param options The options for the theme instance.
  * @template Z The type of the theme ticket.
  * @template E The type of the theme context.
@@ -157,7 +165,8 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
  * ```ts
  * import { createTheme } from '@vuetify/v0'
  *
- * export const [useTheme, provideTheme] = createTheme('v0:theme', {
+ * export const [useTheme, provideTheme] = createTheme({
+ *   namespace: 'v0:theme',
  *   default: 'light',
  *   themes: {
  *     light: {
@@ -180,14 +189,10 @@ export interface ThemePluginOptions<Z extends ThemeRecord = ThemeRecord> {
 export function createTheme<
   Z extends ThemeTicket = ThemeTicket,
   E extends ThemeContext<Z> = ThemeContext<Z>,
-> (
-  namespace = 'v0:theme',
-  options: ThemeOptions = {},
-): ContextTrinity<E> {
-  const { themes = {}, palette = {} } = options
-  const [useThemeContext, _provideThemeContext] = createContext<E>(namespace)
-  const tokens = useTokens({ palette, ...themes }, { flat: true })
-  const registry = useSingle<Z, E>()
+> (_options: ThemeOptions = {}): E {
+  const { themes = {}, palette = {}, ...options } = _options
+  const tokens = createTokens({ palette, ...themes }, { flat: true })
+  const registry = createSingle<Z, E>(options)
 
   for (const id in themes) {
     const { colors: value, ...theme } = themes[id]!
@@ -237,7 +242,7 @@ export function createTheme<
     return registry.register(item) as Z
   }
 
-  const context = {
+  return {
     ...registry,
     colors,
     register,
@@ -246,41 +251,21 @@ export function createTheme<
       return registry.size
     },
   } as E
+}
+
+export function createThemeContext<
+  Z extends ThemeTicket = ThemeTicket,
+  E extends ThemeContext<Z> = ThemeContext<Z>,
+> (_options: ThemeContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
+  const [useThemeContext, _provideThemeContext] = createContext<E>(namespace)
+  const context = createTheme<Z, E>(options)
 
   function provideThemeContext (_context: E = context, app?: App): E {
     return _provideThemeContext(_context, app)
   }
 
   return createTrinity<E>(useThemeContext, provideThemeContext, context)
-}
-
-/**
- * Returns the current theme instance.
- *
- * @returns The current theme instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-theme
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useTheme } from '@vuetify/v0'
- *
- *   const theme = useTheme()
- * </script>
- *
- * <template>
- *   <div>
- *     <p>Current theme: {{ theme.selected.value }}</p>
- *   </div>
- * </template>
- * ```
- */
-export function useTheme<
-  Z extends ThemeTicket = ThemeTicket,
-  E extends ThemeContext<Z> = ThemeContext<Z>,
-> (): E {
-  return useContext<E>('v0:theme')
 }
 
 /**
@@ -328,11 +313,11 @@ export function createThemePlugin<
   Z extends ThemeTicket = ThemeTicket,
   E extends ThemeContext<Z> = ThemeContext<Z>,
 > (_options: ThemePluginOptions = {}) {
-  const { adapter = new Vuetify0ThemeAdapter(), palette = {}, themes = {}, target, ...options } = _options
-  const [, provideThemeContext, themeContext] = createTheme<Z, E>('v0:theme', { ...options, themes, palette })
+  const { adapter = new Vuetify0ThemeAdapter(), namespace = 'v0:theme', palette = {}, themes = {}, target, ...options } = _options
+  const [, provideThemeContext, themeContext] = createThemeContext<Z, E>({ namespace, ...options, themes, palette })
 
   return createPlugin({
-    namespace: 'v0:theme',
+    namespace,
     provide: (app: App) => {
       provideThemeContext(themeContext, app)
     },
@@ -381,4 +366,34 @@ export function createThemePlugin<
       }
     },
   })
+}
+
+/**
+ * Returns the current theme instance.
+ *
+ * @param namespace The namespace for the theme context. Defaults to `'v0:theme'`.
+ * @returns The current theme instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useTheme } from '@vuetify/v0'
+ *
+ *   const theme = useTheme()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Current theme: {{ theme.selected.value }}</p>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useTheme<
+  Z extends ThemeTicket = ThemeTicket,
+  E extends ThemeContext<Z> = ThemeContext<Z>,
+> (namespace = 'v0:theme'): E {
+  return useContext<E>(namespace)
 }

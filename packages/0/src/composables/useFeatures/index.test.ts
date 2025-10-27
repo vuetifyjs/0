@@ -5,7 +5,7 @@ import { createApp } from 'vue'
 describe('createFeatures', () => {
   describe('basic functionality', () => {
     it('should create a features context', () => {
-      const [, , context] = createFeatures('test-features')
+      const context = createFeatures({ })
 
       expect(context).toBeDefined()
       expect(context.variation).toBeDefined()
@@ -13,7 +13,7 @@ describe('createFeatures', () => {
     })
 
     it('should register boolean features', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'feature-a': true,
           'feature-b': false,
@@ -26,7 +26,7 @@ describe('createFeatures', () => {
     })
 
     it('should register token features', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'theme-variant': { $variation: 'blue' },
           'layout-mode': { $variation: 'compact' },
@@ -39,7 +39,7 @@ describe('createFeatures', () => {
     })
 
     it('should register mixed feature types', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'dark-mode': true,
           'theme-color': { $variation: 'blue' },
@@ -53,7 +53,7 @@ describe('createFeatures', () => {
 
   describe('auto-selection', () => {
     it('should auto-select boolean features that are true', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'enabled-feature': true,
           'disabled-feature': false,
@@ -65,7 +65,7 @@ describe('createFeatures', () => {
     })
 
     it('should auto-select token features with $value: true', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'feature-a': { $value: true, $variation: 'blue' },
           'feature-b': { $value: false, $variation: 'red' },
@@ -77,7 +77,7 @@ describe('createFeatures', () => {
     })
 
     it('should not auto-select token features without $value', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'theme-variant': { $variation: 'blue' },
         },
@@ -89,7 +89,7 @@ describe('createFeatures', () => {
 
   describe('variation retrieval', () => {
     it('should return variation value for token features', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'theme-color': { $variation: 'blue' },
           'layout-mode': { $variation: 'compact' },
@@ -101,7 +101,7 @@ describe('createFeatures', () => {
     })
 
     it('should return the value itself for boolean features', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'dark-mode': true,
           'beta-feature': false,
@@ -113,7 +113,7 @@ describe('createFeatures', () => {
     })
 
     it('should return fallback for non-existent features', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           existing: true,
         },
@@ -125,7 +125,7 @@ describe('createFeatures', () => {
     })
 
     it('should return fallback when variation is not set', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'feature-without-variation': { $value: true },
         },
@@ -135,7 +135,7 @@ describe('createFeatures', () => {
     })
 
     it('should handle complex variation values', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           config: {
             $variation: {
@@ -158,7 +158,7 @@ describe('createFeatures', () => {
 
   describe('dynamic registration', () => {
     it('should allow registering features dynamically', () => {
-      const [, , context] = createFeatures('test-features')
+      const context = createFeatures({ })
 
       expect(context.collection.size).toBe(0)
 
@@ -172,7 +172,7 @@ describe('createFeatures', () => {
     })
 
     it('should auto-select dynamically registered true features', () => {
-      const [, , context] = createFeatures('test-features')
+      const context = createFeatures({ })
 
       context.register({
         id: 'dynamic-feature',
@@ -183,7 +183,7 @@ describe('createFeatures', () => {
     })
 
     it('should not auto-select dynamically registered false features', () => {
-      const [, , context] = createFeatures('test-features')
+      const context = createFeatures({ })
 
       context.register({
         id: 'dynamic-feature',
@@ -196,7 +196,7 @@ describe('createFeatures', () => {
 
   describe('feature selection and deselection', () => {
     it('should allow manually selecting features', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'feature-a': false,
           'feature-b': false,
@@ -210,7 +210,7 @@ describe('createFeatures', () => {
     })
 
     it('should allow manually deselecting features', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'feature-a': true,
           'feature-b': true,
@@ -224,7 +224,7 @@ describe('createFeatures', () => {
     })
 
     it('should support multi-select', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'feature-a': false,
           'feature-b': false,
@@ -242,7 +242,7 @@ describe('createFeatures', () => {
 
   describe('feature queries', () => {
     it('should check if a feature is selected', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           enabled: true,
           disabled: false,
@@ -258,7 +258,7 @@ describe('createFeatures', () => {
     })
 
     it('should get selected features', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'feature-a': true,
           'feature-b': false,
@@ -274,7 +274,7 @@ describe('createFeatures', () => {
 
   describe('edge cases', () => {
     it('should handle empty features object', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {},
       })
 
@@ -282,7 +282,7 @@ describe('createFeatures', () => {
     })
 
     it('should handle features with no options', () => {
-      const [, , context] = createFeatures('test-features')
+      const context = createFeatures({ })
 
       expect(context.collection.size).toBe(0)
       expect(context.variation).toBeDefined()
@@ -290,7 +290,7 @@ describe('createFeatures', () => {
     })
 
     it('should handle feature values that are objects without $variation', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           config: {
             theme: 'dark',
@@ -305,7 +305,7 @@ describe('createFeatures', () => {
     })
 
     it('should handle null and undefined variation values', () => {
-      const [, , context] = createFeatures('test-features', {
+      const context = createFeatures({
         features: {
           'null-feature': { $variation: null },
           'undefined-feature': {},

@@ -514,6 +514,10 @@ export interface RegistryOptions {
   events?: boolean
 }
 
+export interface RegistryContextOptions extends RegistryOptions {
+  namespace: string
+}
+
 /**
  * Creates a new registry instance.
  *
@@ -855,10 +859,8 @@ export function useRegistry<
 export function createRegistryContext<
   Z extends RegistryTicket = RegistryTicket,
   E extends RegistryContext<Z> = RegistryContext<Z>,
-> (
-  namespace: string,
-  options?: RegistryOptions,
-): ContextTrinity<E> {
+> (_options: RegistryContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
   const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
 
   const context = useRegistry<Z, E>(options)

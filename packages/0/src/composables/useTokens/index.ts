@@ -16,7 +16,7 @@
 
 // Factories
 import { createTrinity } from '#v0/composables/createTrinity'
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
@@ -26,7 +26,7 @@ import { useLogger } from '#v0/composables/useLogger'
 import { isObject, isString } from '#v0/utilities'
 
 // Types
-import type { RegistryTicket, RegistryContext } from '#v0/composables/useRegistry'
+import type { RegistryTicket, RegistryContext, RegistryOptions, RegistryContextOptions } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App } from 'vue'
 
@@ -103,7 +103,7 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
   resolve: (token: string | TokenAlias) => unknown | undefined
 }
 
-export interface TokenOptions {
+export interface TokenOptions extends RegistryOptions {
   /**
    * Whether to flatten nested token structures.
    *
@@ -116,6 +116,10 @@ export interface TokenOptions {
    * @remarks This is useful for namespacing tokens.
    */
   prefix?: string
+}
+
+export interface TokenContextOptions extends TokenOptions, RegistryContextOptions {
+  tokens?: TokenCollection
 }
 
 /**
@@ -145,7 +149,7 @@ export interface TokenOptions {
  * console.log(tokens.resolve('{colors.secondary}')) // '#3b82f6'
  * ```
  */
-export function useTokens<
+export function createTokens<
   Z extends TokenTicket = TokenTicket,
   E extends TokenContext<Z> = TokenContext<Z>,
 > (
@@ -153,7 +157,7 @@ export function useTokens<
   options: TokenOptions = {},
 ): E {
   const logger = useLogger()
-  const registry = useRegistry<Z, E>()
+  const registry = useRegistry<Z, E>(options)
 
   const cache = new Map<string, unknown | undefined>()
 
@@ -296,20 +300,41 @@ export function useTokens<
 export function createTokensContext<
   Z extends TokenTicket = TokenTicket,
   E extends TokenContext<Z> = TokenContext<Z>,
-> (
-  namespace: string,
-  tokens: TokenCollection = {},
-  options: TokenOptions = {},
-): ContextTrinity<E> {
+> (_options: TokenContextOptions): ContextTrinity<E> {
+  const { namespace, tokens = {}, ...options } = _options
   const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
 
-  const context = useTokens<Z, E>(tokens, options)
+  const context = createTokens<Z, E>(tokens, options)
 
   function provideTokensContext (_context: E = context, app?: App): E {
     return _provideTokensContext(_context, app)
   }
 
   return createTrinity<E>(useTokensContext, provideTokensContext, context)
+}
+
+/**
+ * Returns the current tokens instance.
+ *
+ * @param namespace The namespace for the tokens context. Defaults to `'v0:tokens'`.
+ * @returns The current tokens instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useTokens } from '@vuetify/v0'
+ *
+ *   const tokens = useTokens()
+ * </script>
+ * ```
+ */
+export function useTokens<
+  Z extends TokenTicket = TokenTicket,
+  E extends TokenContext<Z> = TokenContext<Z>,
+> (namespace = 'v0:tokens'): E {
+  return useContext<E>(namespace)
 }
 
 /**

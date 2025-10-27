@@ -5,13 +5,13 @@
  * Internationalization (i18n) composable with adapter pattern for message translation.
  *
  * Key features:
- * - Locale selection with useSingle
+ * - Locale selection with createSingle
  * - Token-based message storage with useTokens
  * - Numbered and named placeholder support ({0}, {name})
  * - Number formatting with Intl.NumberFormat
  * - Adapter pattern for integration with i18n providers
  *
- * Integrates with useSingle for locale selection and useTokens for message resolution.
+ * Integrates with createSingle for locale selection and useTokens for message resolution.
  */
 
 // Factories
@@ -20,8 +20,8 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createContext, useContext } from '#v0/composables/createContext'
 
 // Composables
-import { useSingle } from '#v0/composables/useSingle'
-import { useTokens } from '#v0/composables/useTokens'
+import { createSingle } from '#v0/composables/useSingle'
+import { createTokens } from '#v0/composables/useTokens'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
@@ -30,7 +30,7 @@ import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 import { isString } from '#v0/utilities'
 
 // Types
-import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
+import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 import type { ID } from '#v0/types'
 import type { TokenCollection } from '#v0/composables/useTokens'
 import type { LocaleAdapter } from './adapters'
@@ -53,17 +53,25 @@ export interface LocaleContext<Z extends LocaleTicket> extends SingleContext<Z> 
 
 export interface LocaleOptions extends LocalePluginOptions {}
 
-export interface LocalePluginOptions<Z extends LocaleRecord = LocaleRecord> {
+export interface LocalePluginOptions<Z extends LocaleRecord = LocaleRecord> extends SingleOptions {
   adapter?: LocaleAdapter
   default?: ID
   fallback?: ID
+  namespace?: string
+  messages?: Record<ID, Z>
+}
+
+export interface LocaleContextOptions<Z extends LocaleRecord = LocaleRecord> extends SingleOptions {
+  adapter?: LocaleAdapter
+  default?: ID
+  fallback?: ID
+  namespace: string
   messages?: Record<ID, Z>
 }
 
 /**
  * Creates a new locale instance.
  *
- * @param namespace The namespace for the locale instance.
  * @param options The options for the locale instance.
  * @template Z The type of the locale ticket.
  * @template E The type of the locale context.
@@ -74,14 +82,10 @@ export interface LocalePluginOptions<Z extends LocaleRecord = LocaleRecord> {
 export function createLocale<
   Z extends LocaleTicket = LocaleTicket,
   E extends LocaleContext<Z> = LocaleContext<Z>,
-> (
-  namespace = 'v0:locale',
-  options: LocaleOptions = {},
-): ContextTrinity<E> {
-  const { adapter = new Vuetify0LocaleAdapter(), messages = {} } = options
-  const [useLocaleContext, _provideLocaleContext] = createContext<E>(namespace)
-  const tokens = useTokens({ ...messages }, { flat: true })
-  const registry = useSingle<Z, E>()
+> (_options: LocaleOptions = {}): E {
+  const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
+  const tokens = createTokens(messages, { flat: true })
+  const registry = createSingle<Z, E>(options)
 
   for (const id in messages) {
     registry.register({ id, value: messages[id] } as Partial<Z>)
@@ -138,7 +142,7 @@ export function createLocale<
     })
   }
 
-  const context = {
+  return {
     ...registry,
     t,
     n,
@@ -146,23 +150,51 @@ export function createLocale<
       return registry.size
     },
   } as E
+}
+
+/**
+ * Creates a new locale context.
+ *
+ * @param options The options for the locale context.
+ * @template Z The type of the locale ticket.
+ * @template E The type of the locale context.
+ * @returns A new locale context.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-locale
+ *
+ * @example
+ * ```ts
+ * import { createLocaleContext } from '@vuetify/v0'
+ *
+ * export const [useAppLocale, provideAppLocale, appLocale] = createLocaleContext({
+ *   namespace: 'app:locale',
+ *   messages: {
+ *     en: { hello: 'Hello' },
+ *     es: { hello: 'Hola' },
+ *   },
+ * })
+ *
+ * // In a parent component:
+ * provideAppLocale()
+ *
+ * // In a child component:
+ * const locale = useAppLocale()
+ * locale.select('es')
+ * ```
+ */
+export function createLocaleContext<
+  Z extends LocaleTicket = LocaleTicket,
+  E extends LocaleContext<Z> = LocaleContext<Z>,
+> (_options: LocaleContextOptions = {} as LocaleContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
+  const [useLocaleContext, _provideLocaleContext] = createContext<E>(namespace)
+  const context = createLocale<Z, E>(options)
 
   function provideLocaleContext (_context: E = context, app?: App): E {
     return _provideLocaleContext(_context, app)
   }
 
   return createTrinity<E>(useLocaleContext, provideLocaleContext, context)
-}
-
-/**
- * Returns the current locale instance.
- *
- * @returns The current locale instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-locale
- */
-export function useLocale (): LocaleContext<LocaleTicket> {
-  return useContext<LocaleContext<LocaleTicket>>('v0:locale')
 }
 
 /**
@@ -181,13 +213,27 @@ export function createLocalePlugin<
   Z extends LocaleTicket = LocaleTicket,
   E extends LocaleContext<Z> = LocaleContext<Z>,
 > (_options: LocalePluginOptions = {}) {
-  const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
-  const [, provideLocaleContext, localeContext] = createLocale<Z, E>('v0:locale', { ...options, adapter, messages })
+  const { namespace = 'v0:locale', adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
+  const [, provideLocaleContext, context] = createLocaleContext<Z, E>({ ...options, namespace, adapter, messages })
 
   return createPlugin({
-    namespace: 'v0:locale',
+    namespace,
     provide: (app: App) => {
-      provideLocaleContext(localeContext, app)
+      provideLocaleContext(context, app)
     },
   })
+}
+
+/**
+ * Returns the current locale instance.
+ *
+ * @returns The current locale instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-locale
+ */
+export function useLocale<
+  Z extends LocaleTicket = LocaleTicket,
+  E extends LocaleContext<Z> = LocaleContext<Z>,
+> (namespace = 'v0:locale'): E {
+  return useContext<E>(namespace)
 }

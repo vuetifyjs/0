@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { useTimeline } from './index'
+import { createTimeline } from './index'
 
-describe('useTimeline', () => {
+describe('createTimeline', () => {
   it('should register to the timeline buffer', () => {
-    const timeline = useTimeline({ size: 15 })
+    const timeline = createTimeline({ size: 15 })
     for (let i = 0; i <= 20; i++) {
       timeline.register({
         id: `item${i}`,
@@ -17,7 +17,7 @@ describe('useTimeline', () => {
   })
 
   it('should undo the last action', () => {
-    const timeline = useTimeline({ size: 5 })
+    const timeline = createTimeline({ size: 5 })
     for (let i = 0; i < 7; i++) {
       timeline.register({
         id: `item${i}`,
@@ -33,7 +33,7 @@ describe('useTimeline', () => {
   })
 
   it('should redo the last action', () => {
-    const timeline = useTimeline({ size: 5 })
+    const timeline = createTimeline({ size: 5 })
     for (let i = 0; i < 5; i++) {
       timeline.register({
         id: `item${i}`,
@@ -48,7 +48,7 @@ describe('useTimeline', () => {
   })
 
   it('should preserve all remaining items when restoring from overflow', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     // Register 5 items (overflow will have items 0 and 1)
     for (let i = 0; i < 5; i++) {
@@ -74,7 +74,7 @@ describe('useTimeline', () => {
   })
 
   it('should handle multiple undos with overflow restoration', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     // Register 6 items
     for (let i = 0; i < 6; i++) {
@@ -101,7 +101,7 @@ describe('useTimeline', () => {
   })
 
   it('should not lose data when undoing with overflow', () => {
-    const timeline = useTimeline({ size: 2 })
+    const timeline = createTimeline({ size: 2 })
 
     timeline.register({ id: 'a', value: 'A' })
     timeline.register({ id: 'b', value: 'B' })
@@ -122,7 +122,7 @@ describe('useTimeline', () => {
   })
 
   it('should handle undo when overflow is empty', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     timeline.register({ id: 'a', value: 'A' })
     timeline.register({ id: 'b', value: 'B' })
@@ -135,7 +135,7 @@ describe('useTimeline', () => {
   })
 
   it('should support multiple consecutive redos', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     timeline.register({ id: 'a', value: 'A' })
     timeline.register({ id: 'b', value: 'B' })
@@ -154,7 +154,7 @@ describe('useTimeline', () => {
   })
 
   it('should clear redo stack when new item is registered after undo', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     timeline.register({ id: 'a', value: 'A' })
     timeline.register({ id: 'b', value: 'B' })
@@ -175,7 +175,7 @@ describe('useTimeline', () => {
   })
 
   it('should use seek to find first and last items correctly', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     timeline.register({ id: 'a', value: 'A' })
     timeline.register({ id: 'b', value: 'B' })
@@ -193,7 +193,7 @@ describe('useTimeline', () => {
   })
 
   it('should return undefined when undoing empty timeline', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     const result = timeline.undo()
 
@@ -201,7 +201,7 @@ describe('useTimeline', () => {
   })
 
   it('should return undefined when redoing with empty stack', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     timeline.register({ id: 'a', value: 'A' })
 
@@ -211,7 +211,7 @@ describe('useTimeline', () => {
   })
 
   it('should handle redo when timeline is at capacity', () => {
-    const timeline = useTimeline({ size: 2 })
+    const timeline = createTimeline({ size: 2 })
 
     timeline.register({ id: 'a', value: 'A' })
     timeline.register({ id: 'b', value: 'B' })
@@ -231,7 +231,7 @@ describe('useTimeline', () => {
   })
 
   it('should maintain correct indexes throughout operations', () => {
-    const timeline = useTimeline({ size: 3 })
+    const timeline = createTimeline({ size: 3 })
 
     const a = timeline.register({ id: 'a', value: 'A' })
     const b = timeline.register({ id: 'b', value: 'B' })
@@ -250,7 +250,7 @@ describe('useTimeline', () => {
   })
 
   it('should properly remove first item when timeline overflows', () => {
-    const timeline = useTimeline({ size: 2 })
+    const timeline = createTimeline({ size: 2 })
 
     // Fill timeline
     timeline.register({ id: 'a', value: 'A' })

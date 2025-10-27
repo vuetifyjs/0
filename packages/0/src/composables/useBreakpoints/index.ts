@@ -61,10 +61,16 @@ export interface BreakpointsContext {
   update: () => void
 }
 
-export interface BreakpointsOptions extends Omit<BreakpointsPluginOptions, 'namespace'> {}
+export interface BreakpointsOptions extends BreakpointsPluginOptions {}
 
 export interface BreakpointsPluginOptions {
   namespace?: string
+  mobileBreakpoint?: BreakpointName | number
+  breakpoints?: Partial<Record<BreakpointName, number>>
+}
+
+export interface BreakpointsContextOptions {
+  namespace: string
   mobileBreakpoint?: BreakpointName | number
   breakpoints?: Partial<Record<BreakpointName, number>>
 }
@@ -91,7 +97,6 @@ function createDefaultBreakpoints () {
 /**
  * Creates a new breakpoints instance.
  *
- * @param namespace The namespace to use for the breakpoints instance.
  * @param options The options for the breakpoints instance.
  * @template E The type of the breakpoints context.
  * @returns A new breakpoints instance.
@@ -102,7 +107,8 @@ function createDefaultBreakpoints () {
  * ```ts
  * import { createBreakpoints } from '@vuetify/v0'
  *
- * export const [useBreakpoints, provideBreakpoints] = createBreakpoints('v0:breakpoints', {
+ * export const [useBreakpoints, provideBreakpoints] = createBreakpoints({
+ *   namespace: 'v0:breakpoints',
  *   mobileBreakpoint: 'sm',
  *   breakpoints: {
  *     xs: 0,
@@ -118,12 +124,10 @@ function createDefaultBreakpoints () {
 export function createBreakpoints<
   E extends BreakpointsContext = BreakpointsContext,
 > (
-  namespace = 'v0:breakpoints',
-  options: BreakpointsOptions = {},
-): ContextTrinity<E> {
-  const [useBreakpointsContext, _provideBreakpointsContext] = createContext<E>(namespace)
+  _options: BreakpointsOptions = {},
+): E {
   const defaults = createDefaultBreakpoints()
-  const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as any)
+  const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, _options as any)
   const sorted = Object.entries(breakpoints!).toSorted((a, b) => a[1] - b[1]) as [BreakpointName, number][]
   const names = sorted.map(([n]) => n)
   const mb = typeof mobileBreakpoint === 'number' ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md
@@ -206,7 +210,7 @@ export function createBreakpoints<
     onScopeDispose(() => window.removeEventListener('resize', listener), true)
   }
 
-  const context = {
+  return {
     breakpoints,
     name: readonly(name),
     width: readonly(width),
@@ -230,41 +234,45 @@ export function createBreakpoints<
     xxlAndDown: readonly(xxlAndDown),
     update,
   } as E
+}
+
+/**
+ * Creates a new breakpoints context.
+ *
+ * @param options The options for the breakpoints context.
+ * @template E The type of the breakpoints context.
+ * @returns A new breakpoints context.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ *
+ * @example
+ * ```ts
+ * import { createBreakpointsContext } from '@vuetify/v0'
+ *
+ * export const [useAppBreakpoints, provideAppBreakpoints, appBreakpoints] = createBreakpointsContext({
+ *   namespace: 'app:breakpoints',
+ *   mobileBreakpoint: 'sm',
+ * })
+ *
+ * // In a parent component:
+ * provideAppBreakpoints()
+ *
+ * // In a child component:
+ * const breakpoints = useAppBreakpoints()
+ * ```
+ */
+export function createBreakpointsContext<
+  E extends BreakpointsContext = BreakpointsContext,
+> (_options: BreakpointsContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
+  const [useBreakpointsContext, _provideBreakpointsContext] = createContext<E>(namespace)
+  const context = createBreakpoints<E>(options)
 
   function provideBreakpointsContext (_context: E = context, app?: App): E {
     return _provideBreakpointsContext(_context, app)
   }
 
   return createTrinity<E>(useBreakpointsContext, provideBreakpointsContext, context)
-}
-
-/**
- * Returns the current breakpoints instance.
- *
- * @returns The current breakpoints instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useBreakpoints } from '@vuetify/v0'
- *
- *   const { isMobile, mdAndUp } = useBreakpoints()
- * </script>
- *
- * <template>
- *   <div class="pa-4">
- *     <p v-if="isMobile.value">Mobile layout active</p>
- *     <p v-else-if="mdAndUp.value">Medium and up layout active</p>
- *   </div>
- * </template>
- * ```
- */
-export function useBreakpoints<
-  E extends BreakpointsContext = BreakpointsContext,
-> (namespace = 'v0:breakpoints'): E {
-  return useContext<E>(namespace)
 }
 
 /**
@@ -305,7 +313,7 @@ export function createBreakpointsPlugin<
   E extends BreakpointsContext = BreakpointsContext,
 > (_options: BreakpointsPluginOptions = {}) {
   const { namespace = 'v0:breakpoints', ...options } = _options
-  const [, provideBreakpointsContext, context] = createBreakpoints<E>(namespace, options)
+  const [, provideBreakpointsContext, context] = createBreakpointsContext<E>({ namespace, ...options })
 
   return createPlugin({
     namespace,
@@ -320,4 +328,33 @@ export function createBreakpointsPlugin<
       })
     },
   })
+}
+
+/**
+ * Returns the current breakpoints instance.
+ *
+ * @returns The current breakpoints instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useBreakpoints } from '@vuetify/v0'
+ *
+ *   const { isMobile, mdAndUp } = useBreakpoints()
+ * </script>
+ *
+ * <template>
+ *   <div class="pa-4">
+ *     <p v-if="isMobile.value">Mobile layout active</p>
+ *     <p v-else-if="mdAndUp.value">Medium and up layout active</p>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useBreakpoints<
+  E extends BreakpointsContext = BreakpointsContext,
+> (namespace = 'v0:breakpoints'): E {
+  return useContext<E>(namespace)
 }

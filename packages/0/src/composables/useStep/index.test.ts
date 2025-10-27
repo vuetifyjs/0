@@ -1,5 +1,5 @@
 // Composables
-import { useStep } from './index'
+import { createStep } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest'
 describe('useStep', () => {
   describe('first', () => {
     it('should select first item', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -22,7 +22,7 @@ describe('useStep', () => {
     })
 
     it('should skip disabled items and select first non-disabled item', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1', disabled: true },
@@ -37,7 +37,7 @@ describe('useStep', () => {
     })
 
     it('should do nothing when all items are disabled', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1', disabled: true },
@@ -50,7 +50,7 @@ describe('useStep', () => {
     })
 
     it('should do nothing when registry is empty', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.first()
 
@@ -58,7 +58,7 @@ describe('useStep', () => {
     })
 
     it('should change selection from current to first', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -76,7 +76,7 @@ describe('useStep', () => {
 
   describe('last', () => {
     it('should select last item', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -91,7 +91,7 @@ describe('useStep', () => {
     })
 
     it('should skip disabled items and select last non-disabled item', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -106,7 +106,7 @@ describe('useStep', () => {
     })
 
     it('should do nothing when all items are disabled', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1', disabled: true },
@@ -119,7 +119,7 @@ describe('useStep', () => {
     })
 
     it('should do nothing when registry is empty', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.last()
 
@@ -127,7 +127,7 @@ describe('useStep', () => {
     })
 
     it('should change selection from current to last', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -145,7 +145,7 @@ describe('useStep', () => {
 
   describe('next', () => {
     it('should move to next item', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -164,7 +164,7 @@ describe('useStep', () => {
     })
 
     it('should wrap around to first item at end', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -180,7 +180,7 @@ describe('useStep', () => {
     })
 
     it('should skip disabled items when moving next', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -197,14 +197,14 @@ describe('useStep', () => {
     })
 
     it('should do nothing when registry is empty', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.next()
       expect(stepper.selectedId.value).toBeUndefined()
     })
 
     it('should do nothing when all items are disabled', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1', disabled: true },
@@ -216,7 +216,7 @@ describe('useStep', () => {
     })
 
     it('should work when no initial selection', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -232,7 +232,7 @@ describe('useStep', () => {
 
   describe('prev', () => {
     it('should move to previous item', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -251,7 +251,7 @@ describe('useStep', () => {
     })
 
     it('should wrap around to last item at start', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -267,7 +267,7 @@ describe('useStep', () => {
     })
 
     it('should skip disabled items when moving prev', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -284,14 +284,14 @@ describe('useStep', () => {
     })
 
     it('should do nothing when registry is empty', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.prev()
       expect(stepper.selectedId.value).toBeUndefined()
     })
 
     it('should do nothing when all items are disabled', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1', disabled: true },
@@ -305,7 +305,7 @@ describe('useStep', () => {
 
   describe('step', () => {
     it('should step forward by count', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -326,7 +326,7 @@ describe('useStep', () => {
     })
 
     it('should step backward with negative count', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -347,7 +347,7 @@ describe('useStep', () => {
     })
 
     it('should wrap around when stepping forward beyond end', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -362,7 +362,7 @@ describe('useStep', () => {
     })
 
     it('should wrap around when stepping backward beyond start', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -376,7 +376,7 @@ describe('useStep', () => {
     })
 
     it('should skip disabled items when stepping', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -395,7 +395,7 @@ describe('useStep', () => {
     })
 
     it('should handle large step counts', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -411,7 +411,7 @@ describe('useStep', () => {
     })
 
     it('should handle step count of 0', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -426,7 +426,7 @@ describe('useStep', () => {
     })
 
     it('should do nothing when all items are disabled', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1', disabled: true },
@@ -438,7 +438,7 @@ describe('useStep', () => {
     })
 
     it('should do nothing when registry is empty', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.step(5)
       expect(stepper.selectedId.value).toBeUndefined()
@@ -447,7 +447,7 @@ describe('useStep', () => {
 
   describe('circular navigation', () => {
     it('should continuously wrap in forward direction', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -465,7 +465,7 @@ describe('useStep', () => {
     })
 
     it('should continuously wrap in backward direction', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -487,7 +487,7 @@ describe('useStep', () => {
 
   describe('inheritance from useSingle', () => {
     it('should enforce single selection', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -503,7 +503,7 @@ describe('useStep', () => {
     })
 
     it('should have all useSingle computed properties', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -520,7 +520,7 @@ describe('useStep', () => {
 
   describe('edge cases', () => {
     it('should handle only one item', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -537,7 +537,7 @@ describe('useStep', () => {
     })
 
     it('should handle only one enabled item among disabled items', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1', disabled: true },
@@ -556,7 +556,7 @@ describe('useStep', () => {
     })
 
     it('should handle wrapping with multiple disabled items', () => {
-      const stepper = useStep()
+      const stepper = createStep()
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },

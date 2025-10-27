@@ -1,25 +1,25 @@
 import { describe, it, expect, vi } from 'vitest'
 import { nextTick } from 'vue'
-import { useForm } from './index'
+import { createForm } from './index'
 
 describe('useForm validateOn functionality', () => {
   it('should default to submit validation only', () => {
-    const form = useForm()
+    const form = createForm()
     expect(form.validateOn).toBe('submit')
   })
 
   it('should accept custom validateOn option', () => {
-    const form = useForm({ validateOn: 'change' })
+    const form = createForm({ validateOn: 'change' })
     expect(form.validateOn).toBe('change')
   })
 
   it('should support multiple triggers', () => {
-    const form = useForm({ validateOn: 'submit change' })
+    const form = createForm({ validateOn: 'submit change' })
     expect(form.validateOn).toBe('submit change')
   })
 
   it('should validate on submit when validateOn includes submit', async () => {
-    const form = useForm({ validateOn: 'submit' })
+    const form = createForm({ validateOn: 'submit' })
     const mockRule = vi.fn().mockResolvedValue('Error message')
 
     const field = form.register({
@@ -35,7 +35,7 @@ describe('useForm validateOn functionality', () => {
   })
 
   it('should not validate on submit when validateOn does not include submit', async () => {
-    const form = useForm({ validateOn: 'change' })
+    const form = createForm({ validateOn: 'change' })
     const mockRule = vi.fn().mockResolvedValue('Error message')
 
     form.register({
@@ -52,7 +52,7 @@ describe('useForm validateOn functionality', () => {
   })
 
   it('should validate on change when validateOn includes change', async () => {
-    const form = useForm({ validateOn: 'change' })
+    const form = createForm({ validateOn: 'change' })
     const mockRule = vi.fn().mockResolvedValue(true)
 
     const field = form.register({
@@ -69,7 +69,7 @@ describe('useForm validateOn functionality', () => {
   })
 
   it('should not validate on change when validateOn does not include change', async () => {
-    const form = useForm({ validateOn: 'submit' })
+    const form = createForm({ validateOn: 'submit' })
     const mockRule = vi.fn().mockResolvedValue(true)
 
     const field = form.register({
@@ -85,7 +85,7 @@ describe('useForm validateOn functionality', () => {
   })
 
   it('should support field-level validateOn override', async () => {
-    const form = useForm({ validateOn: 'submit' })
+    const form = createForm({ validateOn: 'submit' })
     const mockRule = vi.fn().mockResolvedValue(true)
 
     const field = form.register({
@@ -103,12 +103,12 @@ describe('useForm validateOn functionality', () => {
   })
 
   it('should support custom string triggers', () => {
-    const form = useForm({ validateOn: 'blur focus custom' })
+    const form = createForm({ validateOn: 'blur focus custom' })
     expect(form.validateOn).toBe('blur focus custom')
   })
 
   it('should be case insensitive', async () => {
-    const form = useForm({ validateOn: 'SUBMIT Change' })
+    const form = createForm({ validateOn: 'SUBMIT Change' })
     const mockRule = vi.fn().mockResolvedValue(true)
 
     const field = form.register({
@@ -124,7 +124,7 @@ describe('useForm validateOn functionality', () => {
   })
 
   it('should correctly compute isValid and isValidating', async () => {
-    const form = useForm({ validateOn: 'submit' })
+    const form = createForm({ validateOn: 'submit' })
     const mockRule = vi.fn().mockResolvedValue(true)
 
     form.register({
@@ -147,7 +147,7 @@ describe('useForm validateOn functionality', () => {
 
 describe('Use form validations', () => {
   it('Should successfully validate when no rules are provided', async () => {
-    const form = useForm({ validateOn: 'submit' })
+    const form = createForm({ validateOn: 'submit' })
     const ticket = form.register({
       id: 'test',
       value: 'test-value',
@@ -161,7 +161,7 @@ describe('Use form validations', () => {
   })
 
   it('should fail validation when a rule returns an error message', async () => {
-    const form = useForm({ validateOn: 'submit' })
+    const form = createForm({ validateOn: 'submit' })
     const ticket = form.register({
       id: 'test',
       value: 'test-value',
@@ -181,12 +181,12 @@ describe('Use form validations', () => {
 describe('useForm edge cases', () => {
   describe('isValid computation', () => {
     it('should return null when no fields are registered', () => {
-      const form = useForm()
+      const form = createForm()
       expect(form.isValid.value).toBe(null)
     })
 
     it('should return null when fields have not been validated', () => {
-      const form = useForm()
+      const form = createForm()
       form.register({
         id: 'field1',
         value: 'test',
@@ -197,7 +197,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should return true when all fields are valid', async () => {
-      const form = useForm()
+      const form = createForm()
       const field1 = form.register({
         id: 'field1',
         value: 'valid',
@@ -216,7 +216,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should return false when any field is invalid', async () => {
-      const form = useForm()
+      const form = createForm()
       const field1 = form.register({
         id: 'field1',
         value: 'valid',
@@ -235,7 +235,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should return null when some fields are validated and some are not', async () => {
-      const form = useForm()
+      const form = createForm()
       const field1 = form.register({
         id: 'field1',
         value: 'valid',
@@ -255,7 +255,7 @@ describe('useForm edge cases', () => {
 
   describe('isPristine tracking', () => {
     it('should be pristine initially', () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'initial',
@@ -266,7 +266,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should be non-pristine after value change', () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'initial',
@@ -279,7 +279,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should be pristine again after reset', () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'initial',
@@ -295,7 +295,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should be pristine when value is changed back to initial', () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'initial',
@@ -312,7 +312,7 @@ describe('useForm edge cases', () => {
 
   describe('async validation', () => {
     it('should handle async validation rules', async () => {
-      const form = useForm()
+      const form = createForm()
       async function asyncRule (v: string) {
         await new Promise(resolve => setTimeout(resolve, 10))
         return v.length > 5 || 'Must be longer than 5 characters'
@@ -331,7 +331,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should handle mixed sync and async rules', async () => {
-      const form = useForm()
+      const form = createForm()
       function syncRule (v: string) {
         return v.length > 0 || 'Required'
       }
@@ -353,7 +353,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should track isValidating state during async validation', async () => {
-      const form = useForm()
+      const form = createForm()
       async function asyncRule (_v: string) {
         await new Promise(resolve => setTimeout(resolve, 50))
         return true as const
@@ -380,7 +380,7 @@ describe('useForm edge cases', () => {
 
   describe('silent validation', () => {
     it('should not update errors when silent is true', async () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: '',
@@ -395,7 +395,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should not update isValid when silent is true', async () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'valid',
@@ -412,7 +412,7 @@ describe('useForm edge cases', () => {
 
   describe('form reset', () => {
     it('should reset all fields when form.reset() is called', async () => {
-      const form = useForm()
+      const form = createForm()
       const field1 = form.register({
         id: 'field1',
         value: 'initial1',
@@ -444,7 +444,7 @@ describe('useForm edge cases', () => {
 
   describe('multiple validation rules', () => {
     it('should collect all error messages from failing rules', async () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'ab',
@@ -462,7 +462,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should return true when all rules pass', async () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'valid',
@@ -482,7 +482,7 @@ describe('useForm edge cases', () => {
 
   describe('validateOn change mode', () => {
     it('should trigger validation on value change', async () => {
-      const form = useForm({ validateOn: 'change' })
+      const form = createForm({ validateOn: 'change' })
       const field = form.register({
         id: 'test',
         value: 'initial',
@@ -498,7 +498,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should update validation on subsequent changes', async () => {
-      const form = useForm({ validateOn: 'change' })
+      const form = createForm({ validateOn: 'change' })
       const field = form.register({
         id: 'test',
         value: 'initial',
@@ -520,7 +520,7 @@ describe('useForm edge cases', () => {
 
   describe('combined validation modes', () => {
     it('should validate on both submit and change', async () => {
-      const form = useForm({ validateOn: 'submit change' })
+      const form = createForm({ validateOn: 'submit change' })
       const mockRule = vi.fn(v => v.length > 5 || 'Too short')
 
       const field = form.register({
@@ -544,7 +544,7 @@ describe('useForm edge cases', () => {
 
   describe('disabled fields', () => {
     it('should register disabled fields', () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'test',
@@ -556,7 +556,7 @@ describe('useForm edge cases', () => {
     })
 
     it('should default to enabled when disabled is not specified', () => {
-      const form = useForm()
+      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'test',

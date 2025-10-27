@@ -15,7 +15,7 @@
  */
 
 // Factories
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
@@ -237,6 +237,10 @@ export interface QueueOptions extends RegistryOptions {
   timeout?: number
 }
 
+export interface QueueContextOptions extends QueueOptions {
+  namespace: string
+}
+
 /**
  * Creates a new queue instance
  *
@@ -268,11 +272,11 @@ export interface QueueOptions extends RegistryOptions {
  * console.log(queue.size) // 2
  * ```
  */
-export function useQueue<
+export function createQueue<
   Z extends QueueTicket = QueueTicket,
   E extends QueueContext<Z> = QueueContext<Z>,
-> (_options?: QueueOptions): E {
-  const { timeout: _timeout = 3000, ...options } = _options ?? {}
+> (_options: QueueOptions = {}): E {
+  const { timeout: _timeout = 3000, ...options } = _options
   const registry = useRegistry<Z, E>({ ...options, events: true })
   const timeouts = new Map<ID, NodeJS.Timeout>()
 
@@ -401,16 +405,38 @@ export function useQueue<
 export function createQueueContext<
   Z extends QueueTicket = QueueTicket,
   E extends QueueContext<Z> = QueueContext<Z>,
-> (
-  namespace: string,
-  options?: QueueOptions,
-): ContextTrinity<E> {
+> (_options: QueueContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
   const [useQueueContext, _provideQueueContext] = createContext<E>(namespace)
-  const context = useQueue<Z, E>(options)
+  const context = createQueue<Z, E>(options)
 
   function provideQueueContext (_context: E = context, app?: App): E {
     return _provideQueueContext(_context, app)
   }
 
   return createTrinity<E>(useQueueContext, provideQueueContext, context)
+}
+
+/**
+ * Returns the current queue instance.
+ *
+ * @param namespace The namespace for the queue context. Defaults to `'v0:queue'`.
+ * @returns The current queue instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/use-queue
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useQueue } from '@vuetify/v0'
+ *
+ *   const queue = useQueue()
+ * </script>
+ * ```
+ */
+export function useQueue<
+  Z extends QueueTicket = QueueTicket,
+  E extends QueueContext<Z> = QueueContext<Z>,
+> (namespace = 'v0:queue'): E {
+  return useContext<E>(namespace)
 }

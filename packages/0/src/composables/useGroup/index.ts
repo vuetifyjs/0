@@ -14,11 +14,11 @@
  */
 
 // Factories
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { useSelection } from '#v0/composables/useSelection'
+import { createSelection } from '#v0/composables/useSelection'
 
 // Utilities
 import { computed } from 'vue'
@@ -29,7 +29,7 @@ import { toArray } from '#v0/composables/toArray'
 // Types
 import type { App, ComputedRef } from 'vue'
 import type { ID } from '#v0/types'
-import type { SelectionContext, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
+import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export interface GroupTicket extends SelectionTicket {}
@@ -46,10 +46,12 @@ export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z>
 
 export interface GroupOptions extends SelectionOptions {}
 
+export interface GroupContextOptions extends SelectionContextOptions {}
+
 /**
  * Creates a new group instance with batch selection operations.
  *
- * Extends `useSelection` to support selecting, unselecting, and toggling multiple items
+ * Extends `createSelection` to support selecting, unselecting, and toggling multiple items
  * at once by passing an array of IDs. Adds `selectedIndexes` computed property.
  *
  * @param options The options for the group instance.
@@ -58,7 +60,7 @@ export interface GroupOptions extends SelectionOptions {}
  * @returns A new group instance with batch selection support.
  *
  * @remarks
- * **Key Differences from `useSelection`:**
+ * **Key Differences from `createSelection`:**
  * - `select()` accepts `ID | ID[]` for batch operations
  * - `unselect()` accepts `ID | ID[]` for batch operations
  * - `toggle()` accepts `ID | ID[]` for batch operations
@@ -73,18 +75,18 @@ export interface GroupOptions extends SelectionOptions {}
  * - Non-existent IDs are silently ignored
  *
  * **Inheritance Chain:**
- * `useRegistry` → `useSelection` → `useGroup`
+ * `useRegistry` → `createSelection` → `createGroup`
  *
  * **Used By:**
- * - `useFeatures` for feature flag management with multiple selections
+ * - `createFeatures` for feature flag management with multiple selections
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-group
  *
  * @example
  * ```ts
- * import { useGroup } from '@vuetify/v0'
+ * import { createGroup } from '@vuetify/v0'
  *
- * const checkboxes = useGroup()
+ * const checkboxes = createGroup()
  *
  * checkboxes.onboard([
  *   { id: 'option-a', value: 'Option A' },
@@ -103,11 +105,11 @@ export interface GroupOptions extends SelectionOptions {}
  * console.log(checkboxes.selectedIds) // Set { 'option-b', 'option-c' }
  * ```
  */
-export function useGroup<
+export function createGroup<
   Z extends GroupTicket = GroupTicket,
   E extends GroupContext<Z> = GroupContext<Z>,
 > (options?: GroupOptions): E {
-  const registry = useSelection<Z, E>(options)
+  const registry = createSelection<Z, E>(options)
 
   const selectedIndexes = computed(() => {
     return new Set(
@@ -172,16 +174,44 @@ export function useGroup<
 export function createGroupContext<
   Z extends GroupTicket = GroupTicket,
   E extends GroupContext<Z> = GroupContext<Z>,
-> (
-  namespace: string,
-  options?: GroupOptions,
-): ContextTrinity<E> {
+> (_options: GroupContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
   const [useGroupContext, _provideGroupContext] = createContext<E>(namespace)
-  const context = useGroup<Z, E>(options)
+  const context = createGroup<Z, E>(options)
 
   function provideGroupContext (_context: E = context, app?: App): E {
     return _provideGroupContext(_context, app)
   }
 
   return createTrinity<E>(useGroupContext, provideGroupContext, context)
+}
+
+/**
+ * Returns the current group instance.
+ *
+ * @param namespace The namespace for the group context. Defaults to `'v0:group'`.
+ * @returns The current group instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-group
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useGroup } from '@vuetify/v0'
+ *
+ *   const group = useGroup()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Selected: {{ group.selectedIds.size }}</p>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useGroup<
+  Z extends GroupTicket = GroupTicket,
+  E extends GroupContext<Z> = GroupContext<Z>,
+> (namespace: string): E {
+  return useContext<E>(namespace)
 }

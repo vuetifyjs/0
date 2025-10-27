@@ -1,5 +1,5 @@
 // Composables
-import { useSelection } from '#v0/composables/useSelection'
+import { createSelection } from '#v0/composables/useSelection'
 import { useProxyModel } from './index'
 
 // Utilities
@@ -8,7 +8,7 @@ import { nextTick } from 'vue'
 
 describe('useProxyModel', () => {
   it('should sync model when selection changes', async () => {
-    const selection = useSelection({ events: true })
+    const selection = createSelection({ events: true })
     const model = useProxyModel(selection)
 
     selection.onboard([
@@ -29,7 +29,7 @@ describe('useProxyModel', () => {
   })
 
   it('should sync selection when model changes', async () => {
-    const selection = useSelection({ events: true })
+    const selection = createSelection({ events: true })
     const model = useProxyModel(selection)
 
     selection.onboard([
@@ -52,7 +52,7 @@ describe('useProxyModel', () => {
   })
 
   it('should handle array mode for multi-selection', async () => {
-    const selection = useSelection({ events: true })
+    const selection = createSelection({ events: true })
     const model = useProxyModel(selection, [])
 
     selection.onboard([
@@ -70,7 +70,7 @@ describe('useProxyModel', () => {
   })
 
   it('should select items that register after model is set', async () => {
-    const selection = useSelection({ events: true })
+    const selection = createSelection({ events: true })
     useProxyModel(selection, 'value-2')
 
     await nextTick()
@@ -88,7 +88,7 @@ describe('useProxyModel', () => {
   })
 
   it('should handle empty selection', async () => {
-    const selection = useSelection({ events: true })
+    const selection = createSelection({ events: true })
     const model = useProxyModel(selection)
 
     selection.onboard([
@@ -107,7 +107,7 @@ describe('useProxyModel', () => {
   })
 
   it('should handle array mode with empty selection', async () => {
-    const selection = useSelection({ events: true })
+    const selection = createSelection({ events: true })
     const model = useProxyModel(selection, [])
 
     selection.onboard([
@@ -126,7 +126,7 @@ describe('useProxyModel', () => {
   })
 
   it('should maintain bidirectional sync', async () => {
-    const selection = useSelection({ events: true })
+    const selection = createSelection({ events: true })
     const model = useProxyModel(selection)
 
     selection.onboard([

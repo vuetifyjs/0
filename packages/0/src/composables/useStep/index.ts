@@ -14,16 +14,16 @@
  */
 
 // Factories
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { useSingle } from '#v0/composables/useSingle'
+import { createSingle } from '#v0/composables/useSingle'
 
 // Types
 import type { App } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
+import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 
 export interface StepTicket extends SingleTicket {}
 
@@ -42,10 +42,12 @@ export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
 
 export interface StepOptions extends SingleOptions {}
 
+export interface StepContextOptions extends SingleContextOptions {}
+
 /**
  * Creates a new step instance with circular navigation through items.
  *
- * Extends `useSingle` with `first()`, `last()`, `next()`, `prev()`, and `step(count)` methods
+ * Extends `createSingle` with `first()`, `last()`, `next()`, `prev()`, and `step(count)` methods
  * for sequential navigation. Automatically wraps around at boundaries (circular navigation).
  *
  * @param options The options for the step instance.
@@ -74,15 +76,15 @@ export interface StepOptions extends SingleOptions {}
  * - Returns early if all items are disabled to prevent infinite loops
  *
  * **Inheritance Chain:**
- * `useRegistry` → `useSelection` → `useSingle` → `useStep`
+ * `useRegistry` → `createSelection` → `createSingle` → `createStep`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
  *
  * @example
  * ```ts
- * import { useStep } from '@vuetify/v0'
+ * import { createStep } from '@vuetify/v0'
  *
- * const wizard = useStep({ mandatory: true })
+ * const wizard = createStep({ mandatory: true })
  *
  * wizard.onboard([
  *   { id: 'account', value: 'Account Info' },
@@ -101,11 +103,11 @@ export interface StepOptions extends SingleOptions {}
  * wizard.step(-2) // Go back 2 steps (wraps correctly)
  * ```
  */
-export function useStep<
+export function createStep<
   Z extends StepTicket = StepTicket,
   E extends StepContext<Z> = StepContext<Z>,
 > (options?: StepOptions): E {
-  const registry = useSingle<Z, E>(options)
+  const registry = createSingle<Z, E>(options)
 
   function first () {
     const ticket = registry.seek('first')
@@ -191,16 +193,45 @@ export function useStep<
 export function createStepContext<
   Z extends StepTicket = StepTicket,
   E extends StepContext<Z> = StepContext<Z>,
-> (
-  namespace: string,
-  options?: StepOptions,
-): ContextTrinity<E> {
+> (_options: StepContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
   const [useStepContext, _provideStepContext] = createContext<E>(namespace)
-  const context = useStep<Z, E>(options)
+  const context = createStep<Z, E>(options)
 
   function provideStepContext (_context: E = context, app?: App): E {
     return _provideStepContext(_context, app)
   }
 
   return createTrinity<E>(useStepContext, provideStepContext, context)
+}
+
+/**
+ * Returns the current step instance.
+ *
+ * @param namespace The namespace for the step context. Defaults to `'v0:step'`.
+ * @returns The current step instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/selection/use-step
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useStep } from '@vuetify/v0'
+ *
+ *   const wizard = useStep()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Current step: {{ wizard.selectedIndex }}</p>
+ *     <button @click="wizard.next()">Next</button>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useStep<
+  Z extends StepTicket = StepTicket,
+  E extends StepContext<Z> = StepContext<Z>,
+> (namespace = 'v0:step'): E {
+  return useContext<E>(namespace)
 }

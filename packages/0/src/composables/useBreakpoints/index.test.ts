@@ -70,7 +70,7 @@ describe('useBreakpoints', () => {
 
   describe('createBreakpoints', () => {
     it('should create breakpoints context with default values', () => {
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       expect(context).toHaveProperty('breakpoints')
       expect(context).toHaveProperty('name')
@@ -99,7 +99,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerWidth = 1024
       mockWindow.innerHeight = 768
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       expect(context.name.value).toBe('xs')
       expect(context.width.value).toBe(0)
@@ -115,6 +115,7 @@ describe('useBreakpoints', () => {
 
     it('should accept custom breakpoint options', () => {
       const customOptions = {
+        namespace: 'v0:breakpoints',
         mobileBreakpoint: 'lg' as const,
         breakpoints: {
           sm: 768,
@@ -122,17 +123,18 @@ describe('useBreakpoints', () => {
         },
       }
 
-      const context = createBreakpoints('v0:breakpoints', customOptions)[2]
+      const context = createBreakpoints(customOptions)
 
       expect(context.breakpoints).toBeDefined()
     })
 
     it('should handle numeric mobile breakpoint', () => {
       const customOptions = {
+        namespace: 'v0:breakpoints',
         mobileBreakpoint: 800,
       }
 
-      const context = createBreakpoints('v0:breakpoints', customOptions)[2]
+      const context = createBreakpoints(customOptions)
 
       expect(context.isMobile.value).toBeDefined()
     })
@@ -194,7 +196,7 @@ describe('useBreakpoints', () => {
       })
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -211,7 +213,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 400
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -230,7 +232,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 500
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -251,7 +253,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 600
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -269,7 +271,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 800
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -288,7 +290,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 1200
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -307,7 +309,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 1600
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -326,7 +328,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerWidth = 500
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger initial update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -373,7 +375,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 600
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -443,6 +445,7 @@ describe('useBreakpoints', () => {
   describe('custom breakpoint configurations', () => {
     it('should handle custom breakpoint values', () => {
       const customBreakpoints = {
+        namespace: 'v0:breakpoints',
         breakpoints: {
           xs: 0,
           sm: 480,
@@ -453,7 +456,7 @@ describe('useBreakpoints', () => {
         },
       }
 
-      const context = createBreakpoints('v0:breakpoints', customBreakpoints)[2]
+      const context = createBreakpoints(customBreakpoints)
 
       expect(context.breakpoints).toBeDefined()
     })
@@ -462,9 +465,10 @@ describe('useBreakpoints', () => {
       mockWindow.innerWidth = 1200
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints('v0:breakpoints', {
+      const context = createBreakpoints({
+        namespace: 'v0:breakpoints',
         mobileBreakpoint: 'lg',
-      })[2]
+      })
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -477,9 +481,10 @@ describe('useBreakpoints', () => {
       mockWindow.innerWidth = 1000
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints('v0:breakpoints', {
+      const context = createBreakpoints({
+        namespace: 'v0:breakpoints',
         mobileBreakpoint: 1200,
-      })[2]
+      })
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -492,9 +497,10 @@ describe('useBreakpoints', () => {
       mockWindow.innerWidth = 1000
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints('v0:breakpoints', {
+      const context = createBreakpoints({
+        namespace: 'v0:breakpoints',
         mobileBreakpoint: 'invalid' as any,
-      })[2]
+      })
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -506,7 +512,7 @@ describe('useBreakpoints', () => {
 
   describe('SSR safety', () => {
     it('should initialize with default values in SSR mode', () => {
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       expect(context.name.value).toBe('xs')
       expect(context.width.value).toBe(0)
@@ -516,7 +522,7 @@ describe('useBreakpoints', () => {
 
     it('should handle context creation without errors', () => {
       expect(() => {
-        const [, , context] = createBreakpoints()
+        const context = createBreakpoints()
         expect(context).toHaveProperty('update')
       }).not.toThrow()
     })
@@ -528,7 +534,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 0
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -544,7 +550,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerHeight = 3000
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]
@@ -559,7 +565,7 @@ describe('useBreakpoints', () => {
       mockWindow.innerWidth = 960 // Exactly at md breakpoint
       mockGetCurrentInstance.mockReturnValue({} as any)
 
-      const context = createBreakpoints()[2]
+      const context = createBreakpoints()
 
       // Execute the onMounted callback to trigger update
       const mountedCallback = mockOnMounted.mock.calls[0]![0]

@@ -27,7 +27,7 @@
     reset: () => void
   }
 
-  export const [useAvatarContext, provideAvatarContext, registry] = createRegistryContext<AvatarTicket, AvatarContext>('avatar')
+  export const [useAvatarContext, provideAvatarContext, registry] = createRegistryContext<AvatarTicket, AvatarContext>({ namespace: 'avatar' })
 </script>
 
 <script setup lang="ts">

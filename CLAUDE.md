@@ -216,7 +216,8 @@ Built on `useGroup` + `useTokens`. Features can be:
 - Token objects: `{ 'theme': { $variation: 'blue' } }`
 
 ```ts
-const features = createFeatures('v0:features', {
+const features = createFeatures({
+  namespace: 'v0:features',
   features: {
     'new-ui': true,
     'theme-variant': { $variation: 'compact' }
@@ -323,16 +324,21 @@ Location: `packages/0/src/composables/useTheme/index.ts`
 
 All applicable composables export both:
 1. A direct `useX()` function for standalone use
-2. A `createXContext()` function returning a trinity
+2. A `createX()` function returning a trinity
 
 Example pattern:
 ```ts
-// Direct usage
+// Direct usage (uses default 'v0:theme' namespace)
 const theme = useTheme()
 
-// Or create your own context
-const [useMyTheme, provideMyTheme, defaultTheme] = createThemeContext('my-theme', options)
+// Or create your own context with custom namespace
+const [useMyTheme, provideMyTheme, defaultTheme] = createTheme({
+  namespace: 'my-theme',
+  ...options
+})
 ```
+
+**Namespace Parameter**: All `createX` functions now accept `namespace` within their options object (not as a separate parameter). This provides a consistent API across all composables while maintaining backward compatibility through default values.
 
 This dual pattern allows both standalone and injected usage. All registry-based composables implement the context creation pattern for dependency injection.
 
