@@ -123,7 +123,7 @@ export function createBreakpoints<
   const [useBreakpointsContext, _provideBreakpointsContext] = createContext<E>(namespace)
   const defaults = createDefaultBreakpoints()
   const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, options as any)
-  const sorted = Object.entries(breakpoints!).sort((a, b) => a[1] - b[1]) as [BreakpointName, number][]
+  const sorted = Object.entries(breakpoints!).toSorted((a, b) => a[1] - b[1]) as [BreakpointName, number][]
   const names = sorted.map(([n]) => n)
   const mb = typeof mobileBreakpoint === 'number' ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md
 

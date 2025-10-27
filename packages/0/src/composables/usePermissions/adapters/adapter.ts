@@ -7,7 +7,7 @@ export interface PermissionAdapterInterface {
     action: string,
     subject: string,
     context: Record<string, any>,
-    permissions: PermissionContext<Z>
+    permissions: PermissionContext<Z>,
   ) => boolean
 }
 

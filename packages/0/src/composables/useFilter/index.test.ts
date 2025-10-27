@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { describe, it, expect } from 'vitest'
+import type { Primitive } from './index'
 import { useFilter } from './index'
 
 describe('useFilter', () => {
@@ -123,9 +124,9 @@ describe('useFilter', () => {
   })
 
   it('uses custom filter function when provided', () => {
-    const customFilter = (query: string | string[], item: any) => {
+    function customFilter (query: Primitive | Primitive[], item: any) {
       const q = Array.isArray(query) ? query[0] : query
-      return item.name.startsWith(q!)
+      return item.name.startsWith(q!) as boolean
     }
 
     const { items: filtered } = useFilter('app', items, {

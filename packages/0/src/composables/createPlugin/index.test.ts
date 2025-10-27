@@ -1,5 +1,4 @@
 // Factories
-import { createApp } from 'vue'
 import { createPlugin } from './index'
 
 // Utilities

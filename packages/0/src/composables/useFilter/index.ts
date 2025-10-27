@@ -49,11 +49,11 @@ function defaultFilter (
   }
 
   const values =
-      typeof item === 'object' && item !== null
-        ? (keys?.length
-            ? keys.map(k => item[k])
-            : Object.values(item))
-        : [item]
+    typeof item === 'object' && item !== null
+      ? (keys?.length
+          ? keys.map(k => item[k])
+          : Object.values(item))
+      : [item]
 
   const stringValues = values.map(v => String(v).toLowerCase())
 

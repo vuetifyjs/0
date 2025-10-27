@@ -313,7 +313,7 @@ describe('useForm edge cases', () => {
   describe('async validation', () => {
     it('should handle async validation rules', async () => {
       const form = useForm()
-      const asyncRule = async (v: string) => {
+      async function asyncRule (v: string) {
         await new Promise(resolve => setTimeout(resolve, 10))
         return v.length > 5 || 'Must be longer than 5 characters'
       }
@@ -332,8 +332,10 @@ describe('useForm edge cases', () => {
 
     it('should handle mixed sync and async rules', async () => {
       const form = useForm()
-      const syncRule = (v: string) => v.length > 0 || 'Required'
-      const asyncRule = async (v: string) => {
+      function syncRule (v: string) {
+        return v.length > 0 || 'Required'
+      }
+      async function asyncRule (v: string) {
         await new Promise(resolve => setTimeout(resolve, 10))
         return v.length > 5 || 'Must be longer than 5 characters'
       }
@@ -352,9 +354,9 @@ describe('useForm edge cases', () => {
 
     it('should track isValidating state during async validation', async () => {
       const form = useForm()
-      const asyncRule = async (v: string) => {
+      async function asyncRule (_v: string) {
         await new Promise(resolve => setTimeout(resolve, 50))
-        return true
+        return true as const
       }
 
       const field = form.register({

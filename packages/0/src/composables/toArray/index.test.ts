@@ -115,7 +115,9 @@ describe('toArray', () => {
     })
 
     it('should handle functions', () => {
-      const fn = () => 'test'
+      function fn () {
+        return 'test'
+      }
       const result = toArray(fn)
 
       expect(result).toEqual([fn])

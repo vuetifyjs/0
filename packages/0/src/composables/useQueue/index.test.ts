@@ -421,7 +421,7 @@ describe('useQueue', () => {
       expect(ticket1.isPaused).toBe(false)
       expect(ticket2.isPaused).toBe(true)
 
-      vi.advanceTimersByTime(10000)
+      vi.advanceTimersByTime(10_000)
 
       expect(queue.size).toBe(2)
     })

@@ -115,7 +115,7 @@ describe('createFeatures', () => {
     it('should return fallback for non-existent features', () => {
       const [, , context] = createFeatures('test-features', {
         features: {
-          'existing': true,
+          existing: true,
         },
       })
 
@@ -137,7 +137,7 @@ describe('createFeatures', () => {
     it('should handle complex variation values', () => {
       const [, , context] = createFeatures('test-features', {
         features: {
-          'config': {
+          config: {
             $variation: {
               theme: 'blue',
               layout: 'compact',
@@ -244,8 +244,8 @@ describe('createFeatures', () => {
     it('should check if a feature is selected', () => {
       const [, , context] = createFeatures('test-features', {
         features: {
-          'enabled': true,
-          'disabled': false,
+          enabled: true,
+          disabled: false,
         },
       })
 
@@ -292,7 +292,7 @@ describe('createFeatures', () => {
     it('should handle feature values that are objects without $variation', () => {
       const [, , context] = createFeatures('test-features', {
         features: {
-          'config': {
+          config: {
             theme: 'dark',
             layout: 'compact',
           },
