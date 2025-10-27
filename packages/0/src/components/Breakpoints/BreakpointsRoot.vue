@@ -17,7 +17,7 @@
 
   defineSlots<BreakpointsRootSlots>()
 
-  const { namespace, ...props } = defineProps<BreakpointsRootProps>()
+  const { namespace = 'v0:breakpoints', ...props } = defineProps<BreakpointsRootProps>()
 
   const [, provideBreakpointsContext, context] = createBreakpoints(namespace, props)
 
