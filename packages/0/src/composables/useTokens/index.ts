@@ -39,7 +39,7 @@ export interface TokenAlias<T = unknown> {
   $deprecated?: boolean | string
 }
 
-export type TokenPrimitive = string | number | boolean
+export type TokenPrimitive = string | number | boolean | null
 
 export type TokenValue = TokenPrimitive | TokenAlias
 
