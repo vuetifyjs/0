@@ -1,7 +1,4 @@
 export * from './Atom'
 export * from './Avatar'
-export * from './Breakpoints'
 export * from './Context'
-export * from './Hydration'
 export * from './Popover'
-export * from './Theme'
