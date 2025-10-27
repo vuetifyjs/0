@@ -34,6 +34,7 @@ declare global {
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
   const createFeatures: typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']
   const createFeaturesPlugin: typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']
+  const createFormContext: typeof import('../../packages/0/src/composables/useForm/index')['createFormContext']
   const createGroupContext: typeof import('../../packages/0/src/composables/useGroup/index')['createGroupContext']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
@@ -44,6 +45,7 @@ declare global {
   const createPermissions: typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']
   const createPermissionsPlugin: typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']
   const createPlugin: typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']
+  const createQueueContext: typeof import('../../packages/0/src/composables/useQueue/index')['createQueueContext']
   const createRegistryContext: typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']
   const createSelectionContext: typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']
   const createSingleContext: typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']
@@ -52,6 +54,7 @@ declare global {
   const createStoragePlugin: typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']
   const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
   const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
+  const createTimelineContext: typeof import('../../packages/0/src/composables/useTimeline/index')['createTimelineContext']
   const createTokensContext: typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']
   const createTrinity: typeof import('../../packages/0/src/composables/createTrinity/index')['createTrinity']
   const customRef: typeof import('vue')['customRef']
@@ -327,6 +330,7 @@ declare module 'vue' {
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']>
     readonly createFeaturesPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']>
+    readonly createFormContext: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createFormContext']>
     readonly createGroupContext: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroupContext']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
@@ -337,6 +341,7 @@ declare module 'vue' {
     readonly createPermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']>
     readonly createPermissionsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']>
     readonly createPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']>
+    readonly createQueueContext: UnwrapRef<typeof import('../../packages/0/src/composables/useQueue/index')['createQueueContext']>
     readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']>
     readonly createSelectionContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']>
     readonly createSingleContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']>
@@ -345,6 +350,7 @@ declare module 'vue' {
     readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
     readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
+    readonly createTimelineContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTimeline/index')['createTimelineContext']>
     readonly createTokensContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']>
     readonly createTrinity: UnwrapRef<typeof import('../../packages/0/src/composables/createTrinity/index')['createTrinity']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
