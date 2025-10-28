@@ -15,7 +15,7 @@
  */
 
 // Utilities
-import { computed, watch, ref, toValue, shallowRef, onScopeDispose } from 'vue'
+import { computed, watch, ref, toValue, shallowRef, onScopeDispose, unref, type MaybeRef } from 'vue'
 import { isFunction, isArray } from '#v0/utilities'
 
 // Transformers
@@ -58,12 +58,13 @@ export interface ProxyModelOptions {
  */
 export function useProxyModel<Z extends SelectionTicket> (
   registry: SelectionContext<Z>,
-  initial?: unknown | unknown[],
+  _initial?: MaybeRef | MaybeRef[],
   options?: ProxyModelOptions,
   _transformIn?: (val: unknown[] | unknown) => unknown[],
   _transformOut?: (val: unknown[]) => unknown | unknown[],
 ) {
   const reactivity = options?.deep ? ref : shallowRef
+  const initial = unref(_initial)
   const internal = reactivity<unknown[]>(initial ? toArray<unknown>(initial) : [])
   const isModelArray = isArray(initial)
 
