@@ -33,13 +33,8 @@ console.log(registry.size) // 3
 
 ## API
 
+### `useRegistry`
 
-| Composable | Description |
-|---|---|
-| [useProxyRegistry](/composables/registration/use-proxy-registry) | Reactive registry wrapper |
-| [useSelection](/composables/selection/use-selection) | Selection-enabled registries |
-| [useTokens](/composables/registration/use-tokens) | Token management |
-| [useTimeline](/composables/registration/use-timeline) | Undo/redo system |
 - **Type**
 
   ```ts
@@ -521,6 +516,7 @@ console.log(registry.size) // 3
   ```
 
 ### `dispose`
+
 - **Type**
   ```ts
   function dispose(): void
@@ -558,3 +554,16 @@ console.log(registry.size) // 3
 
   console.log(registry.size) // 2
   ```
+
+### `createRegistryContext`{ #create-registry-context }
+
+- **Type**
+  ```ts
+  function createRegistryContext<
+    Z extends RegistryTicket = RegistryTicket,
+    E extends RegistryContext<Z> = RegistryContext<Z>
+  >(options?: RegistryOptions): E
+  ```
+
+- **Details**
+  Creates a new registry context instance, which can be extended with additional methods by specifying a custom type for `E`.

@@ -526,7 +526,7 @@ export interface RegistryContextOptions extends RegistryOptions {
  * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
  * @returns A new registry instance.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-registry
+ * @see https://0.vuetifyjs.com/composables/registration/use-registry#use-registry
  *
  * @example
  * ```ts
@@ -840,7 +840,7 @@ export function useRegistry<
  * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
  * @returns A new registry context.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-registry
+ * @see https://0.vuetifyjs.com/composables/registration/use-registry#create-registry-context
  *
  * @example
  * ```ts
