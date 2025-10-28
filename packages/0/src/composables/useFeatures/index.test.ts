@@ -5,7 +5,7 @@ import { createApp } from 'vue'
 describe('createFeatures', () => {
   describe('basic functionality', () => {
     it('should create a features context', () => {
-      const context = createFeatures({ })
+      const context = createFeatures({})
 
       expect(context).toBeDefined()
       expect(context.variation).toBeDefined()
@@ -158,7 +158,7 @@ describe('createFeatures', () => {
 
   describe('dynamic registration', () => {
     it('should allow registering features dynamically', () => {
-      const context = createFeatures({ })
+      const context = createFeatures({})
 
       expect(context.collection.size).toBe(0)
 
@@ -172,7 +172,7 @@ describe('createFeatures', () => {
     })
 
     it('should auto-select dynamically registered true features', () => {
-      const context = createFeatures({ })
+      const context = createFeatures({})
 
       context.register({
         id: 'dynamic-feature',
@@ -183,7 +183,7 @@ describe('createFeatures', () => {
     })
 
     it('should not auto-select dynamically registered false features', () => {
-      const context = createFeatures({ })
+      const context = createFeatures({})
 
       context.register({
         id: 'dynamic-feature',
@@ -282,7 +282,7 @@ describe('createFeatures', () => {
     })
 
     it('should handle features with no options', () => {
-      const context = createFeatures({ })
+      const context = createFeatures({})
 
       expect(context.collection.size).toBe(0)
       expect(context.variation).toBeDefined()
