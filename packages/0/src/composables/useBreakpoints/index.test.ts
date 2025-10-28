@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { getCurrentInstance, onMounted, watch, onScopeDispose } from 'vue'
+import { getCurrentInstance, onMounted, onScopeDispose } from 'vue'
 import { createBreakpoints, useBreakpoints, createBreakpointsPlugin } from './index'
 import { useHydration } from '../useHydration'
 
@@ -10,7 +10,6 @@ vi.mock('vue', async () => {
     ...actual,
     getCurrentInstance: vi.fn(),
     onMounted: vi.fn(),
-    watch: vi.fn(),
     onScopeDispose: vi.fn(),
   }
 })
@@ -35,7 +34,6 @@ vi.mock('#v0/utilities', () => ({
 
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
 const mockOnMounted = vi.mocked(onMounted)
-const mockWatch = vi.mocked(watch)
 const mockOnScopeDispose = vi.mocked(onScopeDispose)
 const mockUseHydration = vi.mocked(useHydration)
 
@@ -139,71 +137,57 @@ describe('useBreakpoints', () => {
       expect(context.isMobile.value).toBeDefined()
     })
 
-    it('should register onMounted callback when in component context', () => {
+    it('should not call onMounted directly in createBreakpoints', () => {
       mockGetCurrentInstance.mockReturnValue({} as any)
-
-      createBreakpoints()
-
-      expect(mockOnMounted).toHaveBeenCalledOnce()
-      expect(typeof mockOnMounted.mock.calls[0]![0]).toBe('function')
-    })
-
-    it('should not register onMounted callback when not in component context', () => {
-      mockGetCurrentInstance.mockReturnValue(null)
 
       createBreakpoints()
 
       expect(mockOnMounted).not.toHaveBeenCalled()
     })
 
-    it('should register resize listener in browser environment', () => {
+    it('should provide an update method', () => {
+      const context = createBreakpoints()
+
+      expect(context.update).toBeDefined()
+      expect(typeof context.update).toBe('function')
+    })
+
+    it('should not register resize listener directly in createBreakpoints', () => {
       mockGetCurrentInstance.mockReturnValue({} as any)
 
       createBreakpoints()
 
-      expect(mockWindow.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
-      expect(mockOnScopeDispose).toHaveBeenCalledWith(expect.any(Function), true)
+      expect(mockWindow.addEventListener).not.toHaveBeenCalled()
+      expect(mockOnScopeDispose).not.toHaveBeenCalled()
     })
 
-    it('should handle hydration state correctly', () => {
-      mockUseHydration.mockReturnValue({
-        isHydrated: { value: false, [Symbol.for('v-frag')]: true } as any,
-        hydrate: vi.fn(),
-      })
-      mockGetCurrentInstance.mockReturnValue({} as any)
-
-      createBreakpoints()
-
-      expect(mockOnMounted).toHaveBeenCalledOnce()
-
-      // Execute the onMounted callback
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
-
-      expect(mockWatch).toHaveBeenCalledWith(
-        { value: false, [Symbol.for('v-frag')]: true },
-        expect.any(Function),
-        { immediate: true },
-      )
-    })
-
-    it('should update immediately when hydrated', () => {
+    it('should update dimensions when update is called', () => {
       mockWindow.innerWidth = 1200
       mockWindow.innerHeight = 800
-      mockUseHydration.mockReturnValue({
-        isHydrated: { value: true, [Symbol.for('v-frag')]: true } as any,
-        hydrate: vi.fn(),
-      })
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
 
-      // Execute the onMounted callback
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      expect(context.width.value).toBe(0)
+      expect(context.height.value).toBe(0)
+
+      context.update()
 
       expect(context.width.value).toBe(1200)
       expect(context.height.value).toBe(800)
+    })
+
+    it('should detect correct breakpoint when update is called', () => {
+      mockWindow.innerWidth = 1200
+      mockWindow.innerHeight = 800
+
+      const context = createBreakpoints()
+
+      expect(context.name.value).toBe('xs')
+
+      context.update()
+
+      expect(context.name.value).toBe('md')
+      expect(context.md.value).toBe(true)
     })
   })
 
@@ -211,13 +195,9 @@ describe('useBreakpoints', () => {
     it('should detect xs breakpoint correctly', () => {
       mockWindow.innerWidth = 500
       mockWindow.innerHeight = 400
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('xs')
       expect(context.xs.value).toBe(true)
@@ -230,13 +210,9 @@ describe('useBreakpoints', () => {
     it('should detect sm breakpoint correctly', () => {
       mockWindow.innerWidth = 700
       mockWindow.innerHeight = 500
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('sm')
       expect(context.xs.value).toBe(false)
@@ -251,13 +227,9 @@ describe('useBreakpoints', () => {
     it('should detect md breakpoint correctly', () => {
       mockWindow.innerWidth = 1000
       mockWindow.innerHeight = 600
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('md')
       expect(context.md.value).toBe(true)
@@ -269,13 +241,9 @@ describe('useBreakpoints', () => {
     it('should detect lg breakpoint correctly', () => {
       mockWindow.innerWidth = 1400
       mockWindow.innerHeight = 800
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('lg')
       expect(context.lg.value).toBe(true)
@@ -288,13 +256,9 @@ describe('useBreakpoints', () => {
     it('should detect xl breakpoint correctly', () => {
       mockWindow.innerWidth = 2000
       mockWindow.innerHeight = 1200
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('xl')
       expect(context.xl.value).toBe(true)
@@ -307,13 +271,9 @@ describe('useBreakpoints', () => {
     it('should detect xxl breakpoint correctly', () => {
       mockWindow.innerWidth = 2800
       mockWindow.innerHeight = 1600
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('xxl')
       expect(context.xxl.value).toBe(true)
@@ -324,62 +284,44 @@ describe('useBreakpoints', () => {
   })
 
   describe('window resize handling', () => {
-    it('should update breakpoint on window resize', () => {
+    it('should update breakpoint when update is called multiple times', () => {
       mockWindow.innerWidth = 500
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger initial update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('xs')
 
-      // Simulate window resize to 1400 (which should be lg: 1280-1919)
       mockWindow.innerWidth = 1400
-      const resizeListener = mockWindow.addEventListener.mock.calls[0][1]
-      resizeListener()
+      context.update()
 
       expect(context.name.value).toBe('lg')
       expect(context.width.value).toBe(1400)
     })
 
-    it('should clean up resize listener on scope dispose', () => {
-      mockGetCurrentInstance.mockReturnValue({} as any)
+    it('should expose update method for manual breakpoint updates', () => {
+      const context = createBreakpoints()
 
-      createBreakpoints()
-
-      expect(mockOnScopeDispose).toHaveBeenCalledWith(expect.any(Function), true)
-
-      // Execute the dispose callback
-      const disposeCallback = mockOnScopeDispose.mock.calls[0]![0]
-      disposeCallback()
-
-      expect(mockWindow.removeEventListener).toHaveBeenCalledWith('resize', expect.any(Function))
+      expect(typeof context.update).toBe('function')
+      expect(() => context.update()).not.toThrow()
     })
   })
 
   describe('non-browser environment', () => {
-    it('should not register resize listener in non-browser environment', () => {
-      // Since we can't easily mock the IN_BROWSER constant,
-      // we'll test that the normal behavior works in browser environment
-      createBreakpoints()
-
-      expect(mockWindow.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true })
-    })
-
-    it('should not update dimensions in non-browser environment', () => {
-      // Test that the update function works in browser environment
-      mockWindow.innerWidth = 1000
-      mockWindow.innerHeight = 600
-      mockGetCurrentInstance.mockReturnValue({} as any)
-
+    it('should work without addEventListener in browser environment', () => {
       const context = createBreakpoints()
 
-      // Execute the onMounted callback
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      expect(context).toHaveProperty('update')
+      expect(context).toHaveProperty('width')
+      expect(context).toHaveProperty('height')
+    })
+
+    it('should update dimensions correctly in browser environment', () => {
+      mockWindow.innerWidth = 1000
+      mockWindow.innerHeight = 600
+
+      const context = createBreakpoints()
+      context.update()
 
       expect(context.width.value).toBe(1000)
       expect(context.height.value).toBe(600)
@@ -463,48 +405,39 @@ describe('useBreakpoints', () => {
 
     it('should handle custom mobile breakpoint as string', () => {
       mockWindow.innerWidth = 1200
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints({
         namespace: 'v0:breakpoints',
         mobileBreakpoint: 'lg',
       })
 
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.isMobile.value).toBe(true) // 1200 < 1280 (lg breakpoint)
     })
 
     it('should handle custom mobile breakpoint as number', () => {
       mockWindow.innerWidth = 1000
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints({
         namespace: 'v0:breakpoints',
         mobileBreakpoint: 1200,
       })
 
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.isMobile.value).toBe(true) // 1000 < 1200
     })
 
     it('should fallback to md breakpoint when custom mobile breakpoint is not found', () => {
       mockWindow.innerWidth = 1000
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints({
         namespace: 'v0:breakpoints',
         mobileBreakpoint: 'invalid' as any,
       })
 
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.isMobile.value).toBe(false) // 1000 >= 960 (md breakpoint)
     })
@@ -532,13 +465,9 @@ describe('useBreakpoints', () => {
     it('should handle window width of 0', () => {
       mockWindow.innerWidth = 0
       mockWindow.innerHeight = 0
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('xs')
       expect(context.width.value).toBe(0)
@@ -548,13 +477,9 @@ describe('useBreakpoints', () => {
     it('should handle very large window width', () => {
       mockWindow.innerWidth = 5000
       mockWindow.innerHeight = 3000
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('xxl')
       expect(context.width.value).toBe(5000)
@@ -563,13 +488,9 @@ describe('useBreakpoints', () => {
 
     it('should handle breakpoint exactly at threshold', () => {
       mockWindow.innerWidth = 960 // Exactly at md breakpoint
-      mockGetCurrentInstance.mockReturnValue({} as any)
 
       const context = createBreakpoints()
-
-      // Execute the onMounted callback to trigger update
-      const mountedCallback = mockOnMounted.mock.calls[0]![0]
-      mountedCallback()
+      context.update()
 
       expect(context.name.value).toBe('md')
       expect(context.md.value).toBe(true)

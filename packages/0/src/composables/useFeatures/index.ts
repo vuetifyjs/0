@@ -1,6 +1,8 @@
 /**
  * @module useFeatures
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-features
+ *
  * @remarks
  * Feature flag system with boolean and token-based features.
  *
@@ -45,14 +47,14 @@ export interface FeatureContext<Z extends FeatureTicket = FeatureTicket> extends
 }
 
 export interface FeatureOptions extends RegistryOptions {
-  namespace?: string
   features?: Record<ID, boolean | TokenCollection>
 }
 
-export interface FeatureContextOptions extends RegistryOptions {
-  namespace: string
-  features?: Record<ID, boolean | TokenCollection>
+export interface FeatureContextOptions extends FeatureOptions {
+  namespace?: string
 }
+
+export interface FeaturePluginOptions extends FeatureContextOptions {}
 
 /**
  * Creates a new features instance.
@@ -68,7 +70,7 @@ export interface FeatureContextOptions extends RegistryOptions {
  * ```ts
  * import { createFeatures } from '@vuetify/v0'
  *
- * const [useFeatures, provideFeaturesContext] = createFeatures({
+ * const [useFeatures, provideFeaturesContext, context] = createFeatures({
  *   namespace: 'v0:features',
  *   features: {
  *     'dark-mode': true,
@@ -80,9 +82,7 @@ export interface FeatureContextOptions extends RegistryOptions {
 export function createFeatures<
   Z extends FeatureTicket = FeatureTicket,
   E extends FeatureContext<Z> = FeatureContext<Z>,
-> (
-  _options: FeatureOptions = {},
-): E {
+> (_options: FeatureOptions = {}): E {
   const { features, ...options } = _options
   const tokens = createTokens(features, { flat: true })
   const registry = createGroup<Z, E>(options)
@@ -145,27 +145,20 @@ export function createFeatures<
  * ```ts
  * import { createFeaturesContext } from '@vuetify/v0'
  *
- * export const [useAppFeatures, provideAppFeatures, appFeatures] = createFeaturesContext({
+ * export const [useFeatures, provideFeatures, context] = createFeaturesContext({
  *   namespace: 'app:features',
  *   features: {
  *     'dark-mode': true,
  *     'theme-color': { $variation: 'blue' },
  *   },
  * })
- *
- * // In a parent component:
- * provideAppFeatures()
- *
- * // In a child component:
- * const features = useAppFeatures()
- * features.select('dark-mode')
  * ```
  */
 export function createFeaturesContext<
   Z extends FeatureTicket = FeatureTicket,
   E extends FeatureContext<Z> = FeatureContext<Z>,
-> (_options: FeatureContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: FeatureContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:features', ...options } = _options
   const [useFeaturesContext, _provideFeaturesContext] = createContext<E>(namespace)
   const context = createFeatures<Z, E>(options)
 
@@ -209,9 +202,9 @@ export function createFeaturesContext<
 export function createFeaturesPlugin<
   Z extends FeatureTicket = FeatureTicket,
   E extends FeatureContext<Z> = FeatureContext<Z>,
-> (_options: FeatureOptions = {}) {
+> (_options: FeaturePluginOptions = {}) {
   const { namespace = 'v0:features', ...options } = _options
-  const [, provideFeaturesContext, context] = createFeaturesContext<Z, E>({ namespace, ...options })
+  const [, provideFeaturesContext, context] = createFeaturesContext<Z, E>({ ...options, namespace })
 
   return createPlugin({
     namespace,
@@ -224,7 +217,7 @@ export function createFeaturesPlugin<
 /**
  * Returns the current features instance.
  *
- * @param namespace The namespace for the features context. Defaults to `'v0:features'`.
+ * @param namespace The namespace for the features context. Defaults to `v0:features`.
  * @template Z The type of the feature ticket.
  * @returns The current features instance.
  *

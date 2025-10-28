@@ -45,7 +45,6 @@ describe('createTheme', () => {
 
     it('should select default theme if provided', () => {
       const context = createTheme({
-        namespace: 'test-theme',
         default: 'dark',
         themes: {
           light: {
@@ -149,7 +148,6 @@ describe('createTheme', () => {
   describe('color resolution', () => {
     it('should resolve simple colors', () => {
       const context = createTheme({
-        namespace: 'test-theme',
         default: 'light',
         themes: {
           light: {
@@ -169,7 +167,6 @@ describe('createTheme', () => {
 
     it('should resolve token aliases in colors', () => {
       const context = createTheme({
-        namespace: 'test-theme',
         default: 'light',
         palette: {
           blue: {
@@ -191,7 +188,6 @@ describe('createTheme', () => {
 
     it('should skip lazy themes that are not selected', () => {
       const context = createTheme({
-        namespace: 'test-theme',
         default: 'light',
         themes: {
           light: {
@@ -211,7 +207,6 @@ describe('createTheme', () => {
 
     it('should include lazy theme when it is selected', () => {
       const context = createTheme({
-        namespace: 'test-theme',
         default: 'dark',
         themes: {
           light: {
@@ -233,7 +228,6 @@ describe('createTheme', () => {
   describe('theme cycling', () => {
     it('should cycle through provided themes', () => {
       const context = createTheme({
-        namespace: 'test-theme',
         default: 'light',
         themes: {
           light: { colors: { primary: '#1976d2' } },
@@ -256,7 +250,6 @@ describe('createTheme', () => {
 
     it('should cycle through all registered themes when no array provided', () => {
       const context = createTheme({
-        namespace: 'test-theme',
         default: 'light',
         themes: {
           light: { colors: { primary: '#1976d2' } },
@@ -587,7 +580,6 @@ describe('useTheme', () => {
 describe('ThemeAdapter', () => {
   it('should generate CSS with correct format', () => {
     createTheme({
-      namespace: 'test-theme',
       themes: {
         light: {
           colors: {

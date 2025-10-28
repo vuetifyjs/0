@@ -1,6 +1,8 @@
 /**
  * @module usePermissions
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
+ *
  * @remarks
  * Permission management composable with support for RBAC and ABAC patterns.
  *
@@ -48,19 +50,16 @@ export interface PermissionContext<Z extends PermissionTicket = PermissionTicket
   can: (id: ID, action: string, subject: string, context?: Record<string, any>) => boolean
 }
 
-export interface PermissionOptions extends PermissionPluginOptions {}
-
-export interface PermissionPluginOptions extends TokenOptions {
+export interface PermissionOptions extends TokenOptions {
   adapter?: PermissionAdapter
+  permissions?: Record<ID, any>
+}
+
+export interface PermissionContextOptions extends PermissionOptions {
   namespace?: string
-  permissions?: Record<ID, any>
 }
 
-export interface PermissionContextOptions extends TokenOptions {
-  adapter?: PermissionAdapter
-  namespace: string
-  permissions?: Record<ID, any>
-}
+export interface PermissionPluginOptions extends PermissionContextOptions {}
 
 /**
  * Creates a new permissions instance.
@@ -131,27 +130,20 @@ export function createPermissions<
  * ```ts
  * import { createPermissionsContext } from '@vuetify/v0'
  *
- * export const [useAppPermissions, provideAppPermissions, appPermissions] = createPermissionsContext({
+ * export const [usePermissions, providePermissions, context] = createPermissionsContext({
  *   namespace: 'app:permissions',
  *   permissions: {
  *     admin: [['read', 'users'], ['edit', 'users']],
  *     editor: [['edit', 'posts']],
  *   },
  * })
- *
- * // In a parent component:
- * provideAppPermissions()
- *
- * // In a child component:
- * const perms = useAppPermissions()
- * perms.select('admin')
  * ```
  */
 export function createPermissionsContext<
   Z extends PermissionTicket = PermissionTicket,
   E extends PermissionContext<Z> = PermissionContext<Z>,
-> (_options: PermissionContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: PermissionContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:permissions', ...options } = _options
   const [usePermissionsContext, _providePermissionsContext] = createContext<E>(namespace)
   const context = createPermissions<Z, E>(options)
 
@@ -195,7 +187,7 @@ export function createPermissionsContext<
 export function createPermissionsPlugin<
   Z extends PermissionTicket = PermissionTicket,
   E extends PermissionContext<Z> = PermissionContext<Z>,
-> (_options: PermissionOptions = {}) {
+> (_options: PermissionPluginOptions = {}) {
   const { namespace = 'v0:permissions', ...options } = _options
   const [, providePermissionContext, context] = createPermissionsContext<Z, E>({ ...options, namespace })
 

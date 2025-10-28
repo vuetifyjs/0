@@ -51,23 +51,17 @@ export interface LocaleContext<Z extends LocaleTicket> extends SingleContext<Z> 
   n: (value: number) => string
 }
 
-export interface LocaleOptions extends LocalePluginOptions {}
-
-export interface LocalePluginOptions<Z extends LocaleRecord = LocaleRecord> extends SingleOptions {
+export interface LocaleOptions<Z extends LocaleRecord = LocaleRecord> extends SingleOptions {
   adapter?: LocaleAdapter
   default?: ID
   fallback?: ID
+  messages?: Record<ID, Z>
+}
+export interface LocaleContextOptions extends LocaleOptions {
   namespace?: string
-  messages?: Record<ID, Z>
 }
 
-export interface LocaleContextOptions<Z extends LocaleRecord = LocaleRecord> extends SingleOptions {
-  adapter?: LocaleAdapter
-  default?: ID
-  fallback?: ID
-  namespace: string
-  messages?: Record<ID, Z>
-}
+export interface LocalePluginOptions extends LocaleContextOptions {}
 
 /**
  * Creates a new locale instance.
@@ -185,8 +179,8 @@ export function createLocale<
 export function createLocaleContext<
   Z extends LocaleTicket = LocaleTicket,
   E extends LocaleContext<Z> = LocaleContext<Z>,
-> (_options: LocaleContextOptions = {} as LocaleContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: LocaleContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:locale', ...options } = _options
   const [useLocaleContext, _provideLocaleContext] = createContext<E>(namespace)
   const context = createLocale<Z, E>(options)
 

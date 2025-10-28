@@ -1,6 +1,8 @@
 /**
  * @module useTheme
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ *
  * @remarks
  * Theme management composable with token resolution and CSS variable injection.
  *
@@ -126,10 +128,6 @@ export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends Regis
    */
   default?: ID
   /**
-   * The namespace for the theme context.
-   */
-  namespace?: string
-  /**
    * A collection of tokens to use for resolving theme colors.
    */
   palette?: TokenCollection
@@ -145,11 +143,11 @@ export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends Regis
   target?: string | HTMLElement | null
 }
 
-export interface ThemePluginOptions extends ThemeOptions {}
-
 export interface ThemeContextOptions extends ThemeOptions {
-  namespace: string
+  namespace?: string
 }
+
+export interface ThemePluginOptions extends ThemeContextOptions {}
 
 /**
  * Creates a new theme instance.
@@ -253,11 +251,45 @@ export function createTheme<
   } as E
 }
 
+/**
+ * Creates a new theme context trinity.
+ *
+ * @param options The options for the theme context.
+ * @template Z The type of the theme ticket.
+ * @template E The type of the theme context.
+ * @returns A new theme context trinity.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-theme
+ *
+ * @example
+ * ```ts
+ * import { createThemeContext } from '@vuetify/v0'
+ *
+ * export const [useThemeContext, provideThemeContext, context] = createThemeContext({
+ *   namespace: 'v0:theme',
+ *   default: 'light',
+ *   themes: {
+ *     light: {
+ *       dark: false,
+ *       colors: {
+ *         primary: '#3b82f6',
+ *       },
+ *     },
+ *     dark: {
+ *       dark: true,
+ *       colors: {
+ *         primary: '#675496',
+ *       },
+ *     },
+ *   },
+ * })
+ * ```
+ */
 export function createThemeContext<
   Z extends ThemeTicket = ThemeTicket,
   E extends ThemeContext<Z> = ThemeContext<Z>,
-> (_options: ThemeContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: ThemeContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:theme', ...options } = _options
   const [useThemeContext, _provideThemeContext] = createContext<E>(namespace)
   const context = createTheme<Z, E>(options)
 
@@ -271,7 +303,7 @@ export function createThemeContext<
 /**
  * Creates a new theme plugin.
  *
- * @param _options The options for the theme plugin.
+ * @param options The options for the theme plugin.
  * @template Z The type of the theme ticket.
  * @template E The type of the theme context.
  * @returns A new theme plugin.
@@ -314,16 +346,16 @@ export function createThemePlugin<
   E extends ThemeContext<Z> = ThemeContext<Z>,
 > (_options: ThemePluginOptions = {}) {
   const { adapter = new Vuetify0ThemeAdapter(), namespace = 'v0:theme', palette = {}, themes = {}, target, ...options } = _options
-  const [, provideThemeContext, themeContext] = createThemeContext<Z, E>({ namespace, ...options, themes, palette })
+  const [, provideThemeContext, context] = createThemeContext<Z, E>({ ...options, namespace, themes, palette })
 
   return createPlugin({
     namespace,
     provide: (app: App) => {
-      provideThemeContext(themeContext, app)
+      provideThemeContext(context, app)
     },
     setup: (app: App) => {
       if (IN_BROWSER) {
-        const stopWatch = watch(themeContext.colors, colors => {
+        const stopWatch = watch(context.colors, colors => {
           adapter.update(colors)
         }, { immediate: true })
 
@@ -341,7 +373,7 @@ export function createThemePlugin<
 
         let prevClass = ''
 
-        const stopClass = watch(themeContext.selectedId, id => {
+        const stopClass = watch(context.selectedId, id => {
           if (!id) return
 
           const themeClass = `${adapter.prefix}-theme--${id}`
@@ -354,11 +386,11 @@ export function createThemePlugin<
       } else {
         const head = app._context?.provides?.usehead ?? app._context?.provides?.head
         if (head?.push) {
-          const id = themeContext.selectedId.value
+          const id = context.selectedId.value
           head.push({
             htmlAttrs: { class: id ? `${adapter.prefix}-theme--${id}` : '' },
             style: [{
-              innerHTML: adapter.generate(themeContext.colors.value),
+              innerHTML: adapter.generate(context.colors.value),
               id: adapter.stylesheetId,
             }],
           })
@@ -371,7 +403,7 @@ export function createThemePlugin<
 /**
  * Returns the current theme instance.
  *
- * @param namespace The namespace for the theme context. Defaults to `'v0:theme'`.
+ * @param namespace The namespace for the theme context. Defaults to `v0:theme`.
  * @returns The current theme instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-theme

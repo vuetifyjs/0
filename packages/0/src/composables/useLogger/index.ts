@@ -1,6 +1,8 @@
 /**
  * @module useLogger
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-logger
+ *
  * @remarks
  * Logging composable with adapter pattern supporting console, consola, and pino.
  *
@@ -13,6 +15,8 @@
  *
  * Uses adapter pattern to abstract logging implementation.
  */
+// Factories
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { createContext, useContext } from '#v0/composables/createContext'
@@ -31,6 +35,7 @@ import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 import type { App } from 'vue'
 import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
 import type { LogLevel } from '#v0/composables/useLogger/types'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 // Exports
 export type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
@@ -60,10 +65,15 @@ export interface LoggerContext {
 export interface LoggerOptions {
   adapter?: LoggerAdapter
   level?: LogLevel
-  namespace?: string
   prefix?: string
   enabled?: boolean
 }
+
+export interface LoggerContextOptions extends LoggerOptions {
+  namespace?: string
+}
+
+export interface LoggerPluginOptions extends LoggerContextOptions {}
 
 /**
  * Creates a new logger instance.
@@ -72,6 +82,22 @@ export interface LoggerOptions {
  * @returns A new logger instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-logger
+ *
+ * @example
+ * ```ts
+ * import { createLogger } from '@vuetify/v0'
+ *
+ * const logger = createLogger({
+ *   level: 'debug',
+ *   prefix: '[MyApp]',
+ * })
+ *
+ * logger.info('This is an info message')
+ * logger.debug('This is a debug message')
+ * logger.error('This is an error message')
+ * logger.level('debug')
+ * logger.debug('This debug message will now be logged')
+ * ```
  */
 export function createLogger<
   E extends LoggerContext = LoggerContext,
@@ -189,25 +215,36 @@ function createFallbackLogger<
 }
 
 /**
- * Uses an existing or creates a new logger instance.
+ * Creates a new logger context.
  *
- * @param namespace The namespace for the logger context. Defaults to `'v0:logger'`.
- * @returns The logger instance.
+ * @param options The options for the logger context.
+ * @template E The type of the logger context.
+ * @returns A new logger context.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-logger
+ *
+ * @example
+ * ```ts
+ * import { createLoggerContext } from '@vuetify/v0'
+ *
+ * export const [useAppLogger, provideAppLogger, appLogger] = createLoggerContext({
+ *   namespace: 'app:logger',
+ *   level: 'debug',
+ * })
+ * ```
  */
-export function useLogger<
+export function createLoggerContext<
   E extends LoggerContext = LoggerContext,
-> (namespace = 'v0:logger'): E {
-  if (getCurrentInstance()) {
-    try {
-      return useContext<E>(namespace)
-    } catch (error) {
-      if (__DEV__ && IN_BROWSER && namespace) console.warn(error)
-    }
+> (_options: LoggerContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:logger', ...options } = _options
+  const [useLoggerContext, _provideLoggerContext] = createContext<E>(namespace)
+  const context = createLogger<E>(options)
+
+  function provideLoggerContext (_context: E = context, app?: App): E {
+    return _provideLoggerContext(_context, app)
   }
 
-  return createFallbackLogger<E>(namespace)
+  return createTrinity<E>(useLoggerContext, provideLoggerContext, context)
 }
 
 /**
@@ -217,13 +254,30 @@ export function useLogger<
  * @returns A new logger plugin.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-logger
+ *
+ * @example
+ * ```ts
+ * import { createApp } from 'vue'
+ * import { createLoggerPlugin } from '@vuetify/v0'
+ * import App from './App.vue'
+ *
+ * const logger = createLoggerPlugin({
+ *   level: 'debug',
+ *   prefix: '[MyApp]',
+ * })
+ *
+ * const app = createApp(App)
+ *
+ * app.use(logger)
+ *
+ * app.mount('#app')
+ * ```
  */
 export function createLoggerPlugin<
   E extends LoggerContext = LoggerContext,
-> (_options: LoggerOptions = {}) {
+> (_options: LoggerPluginOptions = {}) {
   const { namespace = 'v0:logger', ...options } = _options
-  const [, provideLoggerContext] = createContext<E>('v0:logger')
-  const context = createLogger<E>(options)
+  const [, provideLoggerContext, context] = createLoggerContext<E>({ ...options, namespace })
 
   return createPlugin({
     namespace,
@@ -236,4 +290,39 @@ export function createLoggerPlugin<
       }
     },
   })
+}
+
+/**
+ * Uses an existing or creates a new logger instance.
+ *
+ * @param namespace The namespace for the logger context. Defaults to `'v0:logger'`.
+ * @returns The logger instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-logger
+ *
+ * @example
+ * ```ts
+ * import { useLogger } from '@vuetify/v0'
+ *
+ * const logger = useLogger()
+ *
+ * logger.info('This is an info message')
+ * logger.debug('This is a debug message')
+ * logger.error('This is an error message')
+ * logger.level('debug')
+ * logger.debug('This debug message will now be logged')
+ * ```
+ */
+export function useLogger<
+  E extends LoggerContext = LoggerContext,
+> (namespace = 'v0:logger'): E {
+  const fallback = createFallbackLogger<E>(namespace)
+
+  if (!getCurrentInstance()) return fallback
+
+  try {
+    return useContext<E>(namespace, fallback)
+  } catch {
+    return fallback
+  }
 }

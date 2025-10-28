@@ -1,6 +1,8 @@
 /**
  * @module useTokens
  *
+ * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ *
  * @remarks
  * Design token registry with alias resolution and W3C Design Tokens format support.
  *
@@ -278,23 +280,15 @@ export function createTokens<
  * ```ts
  * import { createTokensContext } from '@vuetify/v0'
  *
- * const myTokens = {
- *   spacing: {
- *     sm: '8px',
- *     md: '16px',
- *     lg: '24px',
- *   },
- * }
- *
- * export const [useDesignTokens, provideDesignTokens, designTokens] = createTokensContext('design-tokens', myTokens)
- *
- * // In a parent component:
- * provideDesignTokens()
- *
- * // In a child component:
- * const tokens = useDesignTokens()
- *
- * console.log(tokens.resolve('{spacing.md}')) // '16px'
+ * export const [useTokens, provideTokens, context] = createTokensContext({
+ *  namespace: 'v0:tokens',
+ *  tokens: {
+ *    colors: {
+ *      primary: '#3b82f6',
+ *      secondary: '{colors.primary}', // Alias reference
+ *    },
+ *  },
+ * })
  * ```
  */
 export function createTokensContext<
