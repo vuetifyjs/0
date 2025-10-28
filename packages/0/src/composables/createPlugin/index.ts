@@ -1,6 +1,9 @@
 /**
  * @module createPlugin
  *
+ * @see https://vuejs.org/guide/reusability/plugins.html
+ * @see https://0.vuetifyjs.com/composables/foundation/create-plugin
+ *
  * @remarks
  * Factory for creating Vue plugins with proper context provision.
  *
@@ -27,8 +30,7 @@ export interface Plugin {
  * @param options The plugin options.
  * @returns A new Vue plugin.
  *
- * @see https://vuejs.org/guide/reusability/plugins.html
- * @see https://0.vuetifyjs.com/composables/foundation/create-plugin
+ * @see https://0.vuetifyjs.com/composables/foundation/create-plugin#create-plugin
  *
  * @example
  * ```ts

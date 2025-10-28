@@ -75,6 +75,8 @@ Now, whenever your application starts, the plugin is registered and the context 
 
 ## API
 
+### `createPlugin`{ #create-plugin }
+
 - **Type**
 
   ```ts
