@@ -302,12 +302,15 @@ export function createBreakpointsPlugin<
             context.update()
           }
 
-          watch(hydration.isHydrated, hydrated => {
+          const unwatch = watch(hydration.isHydrated, hydrated => {
             if (hydrated) listener()
           }, { immediate: true })
 
           window.addEventListener('resize', listener, { passive: true })
-          onScopeDispose(() => window.removeEventListener('resize', listener), true)
+          onScopeDispose(() => {
+            window.removeEventListener('resize', listener)
+            unwatch()
+          }, true)
         },
       })
     },
