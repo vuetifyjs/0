@@ -3,15 +3,17 @@ meta:
   title: useResizeObserver
   description: Resize Observer API wrapper for detecting element size changes with automatic cleanup.
   keywords: resize observer, size, dimensions, responsive, Vue, composable
-category: System
-performance: 0
+features:
+  category: Composable
+  label: 'E: useResizeObserver'
+  github: /composables/useResizeObserver/
 ---
 
 # useResizeObserver
 
 A composable for detecting element size changes using the Resize Observer API with automatic cleanup.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 
@@ -150,3 +152,204 @@ useResizeObserver(container, (entries) => {
   // Use width/height reactively
   const aspectRatio = computed(() => width.value / height.value)
   ```
+
+## Lifecycle & Cleanup
+
+### Automatic Cleanup
+
+`useResizeObserver` automatically disconnects the observer when:
+- The component unmounts
+- The Vue effect scope is disposed
+- You call the returned `stop()` function
+
+**Implementation:**
+```ts
+// Uses Vue's onScopeDispose internally
+onScopeDispose(() => observer.disconnect())
+```
+
+This prevents memory leaks by ensuring observers don't continue running after the component is destroyed.
+
+### Manual Control
+
+The composable returns control functions for fine-grained lifecycle management:
+
+```ts
+const { isPaused, pause, resume, stop } = useResizeObserver(
+  element,
+  callback,
+  options
+)
+
+// Temporarily pause observation (keeps observer alive)
+pause()
+
+// Resume observation
+resume()
+
+// Permanently stop and disconnect observer
+stop()
+```
+
+**Difference between pause and stop:**
+- **`pause()`**: Temporarily stops observing, can be resumed with `resume()`
+- **`stop()`**: Permanently disconnects the observer, cannot be restarted
+
+### Reactive Target
+
+The target element can be reactive. When the target ref changes, the observer automatically re-attaches:
+
+```ts
+const element = ref<HTMLElement | null>(null)
+
+useResizeObserver(element, callback, options)
+
+// Later - observer automatically reconnects to new element
+element.value = document.querySelector('.new-target')
+```
+
+### Template Refs
+
+Works seamlessly with Vue's template refs:
+
+```vue
+<script setup>
+import { useTemplateRef } from 'vue'
+import { useResizeObserver } from '@vuetify/v0'
+
+const panel = useTemplateRef('panel')
+
+useResizeObserver(
+  panel,
+  ([entry]) => {
+    const { width, height } = entry.contentRect
+    console.log('Panel resized:', width, 'x', height)
+  }
+)
+</script>
+
+<template>
+  <div ref="panel" class="resizable-panel">
+    <!-- Size changes will be observed -->
+  </div>
+</template>
+```
+
+### Usage Outside Components
+
+If called outside a component setup function:
+- **No automatic cleanup** (no active effect scope)
+- **Must manually call** `stop()` to prevent memory leaks
+- Consider wrapping in `effectScope()`:
+
+```ts
+import { effectScope } from 'vue'
+
+const scope = effectScope()
+
+scope.run(() => {
+  useResizeObserver(element, callback, options)
+})
+
+// Later, cleanup all observers in the scope
+scope.stop()
+```
+
+### SSR Considerations
+
+`ResizeObserver` is a browser-only API. The composable checks for browser environment internally:
+
+```ts
+// Safe to call during SSR - will not throw
+const { isPaused } = useResizeObserver(element, callback, options)
+// isPaused.value will be false in SSR
+
+// useElementSize also handles SSR safely
+const { width, height } = useElementSize(element)
+// width.value and height.value will be 0 in SSR
+```
+
+### Performance Tips
+
+**Use debouncing for expensive operations:**
+```ts
+import { debounce } from 'lodash-es'
+
+const debouncedCallback = debounce((entries: ResizeObserverEntry[]) => {
+  const { width, height } = entries[0].contentRect
+  expensiveLayoutCalculation(width, height)
+}, 150)
+
+useResizeObserver(element, debouncedCallback)
+```
+
+**Pause during animations:**
+```ts
+const { pause, resume } = useResizeObserver(element, callback)
+
+// Pause during CSS animations to avoid callback spam
+element.value?.classList.add('animating')
+pause()
+await animationComplete()
+resume()
+element.value?.classList.remove('animating')
+```
+
+**Choose the right box model:**
+```ts
+// content-box - excludes padding and border (default)
+useResizeObserver(element, callback, { box: 'content-box' })
+
+// border-box - includes padding and border
+useResizeObserver(element, callback, { box: 'border-box' })
+```
+
+**Batch multiple observations:**
+```ts
+// Instead of multiple observers
+const elements = [el1, el2, el3]
+elements.forEach(el => {
+  useResizeObserver(el, callback) // Creates 3 observers
+})
+
+// Use a single observer with multiple elements
+const observer = new ResizeObserver(callback)
+elements.forEach(el => observer.observe(el.value))
+onScopeDispose(() => observer.disconnect())
+```
+
+### Common Use Cases
+
+**Responsive Charts:**
+```ts
+const chart = useTemplateRef('chart')
+const { width, height } = useElementSize(chart, { immediate: true })
+
+watch([width, height], ([w, h]) => {
+  chartInstance.resize(w, h)
+})
+```
+
+**Container Queries Alternative:**
+```ts
+const container = useTemplateRef('container')
+const containerClass = ref('container-sm')
+
+useResizeObserver(container, ([entry]) => {
+  const width = entry.contentRect.width
+  if (width < 600) containerClass.value = 'container-sm'
+  else if (width < 1200) containerClass.value = 'container-md'
+  else containerClass.value = 'container-lg'
+})
+```
+
+**Virtualized Lists:**
+```ts
+const list = useTemplateRef('list')
+const { height } = useElementSize(list)
+
+const visibleItems = computed(() => {
+  const itemHeight = 40
+  return Math.ceil(height.value / itemHeight)
+})
+```

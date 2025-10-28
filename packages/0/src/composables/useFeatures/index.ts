@@ -62,7 +62,7 @@ export interface FeatureContextOptions extends RegistryOptions {
  * @template E The type of the feature context.
  * @returns A new features instance.
  *
- * @see https://0.vuetifyjs.com/composables/plugins/create-features
+ * @see https://0.vuetifyjs.com/composables/plugins/use-features
  *
  * @example
  * ```ts
@@ -139,7 +139,7 @@ export function createFeatures<
  * @template E The type of the feature context.
  * @returns A new features context.
  *
- * @see https://0.vuetifyjs.com/composables/plugins/create-features
+ * @see https://0.vuetifyjs.com/composables/plugins/use-features
  *
  * @example
  * ```ts
@@ -184,7 +184,7 @@ export function createFeaturesContext<
  * @template E The type of the feature context.
  * @returns A new features plugin.
  *
- * @see https://0.vuetifyjs.com/composables/plugins/create-features
+ * @see https://0.vuetifyjs.com/composables/plugins/use-features
  *
  * @example
  * ```ts
@@ -228,7 +228,7 @@ export function createFeaturesPlugin<
  * @template Z The type of the feature ticket.
  * @returns The current features instance.
  *
- * @see https://0.vuetifyjs.com/composables/plugins/create-features
+ * @see https://0.vuetifyjs.com/composables/plugins/use-features
  *
  * @example
  * ```vue

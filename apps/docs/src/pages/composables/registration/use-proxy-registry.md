@@ -3,15 +3,17 @@ meta:
   title: useProxyRegistry
   description: A reactive proxy wrapper for registry collections that automatically updates refs when items are registered or unregistered.
   keywords: useProxyRegistry, registry, reactive, composable, Vue, state management
-category: Registration
-performance: 0
+features:
+  category: Composable
+  label: 'E: useProxyRegistry'
+  github: /composables/useProxyRegistry/
 ---
 
 # useProxyRegistry
 
 A reactive proxy wrapper for registry collections that automatically updates refs when items are registered or unregistered.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 

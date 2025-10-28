@@ -3,15 +3,17 @@ meta:
   title: useTimeline
   description: A bounded undo/redo system built on useRegistry, managing a fixed-size timeline of items with overflow handling.
   keywords: useTimeline, timeline, undo, redo, history, registry, composable, Vue, state management
-category: Registration
-performance: 0
+features:
+  category: Composable
+  label: 'E: useTimeline'
+  github: /composables/useTimeline/
 ---
 
 # useTimeline
 
 A bounded undo/redo system that manages a fixed-size timeline of registered items with automatic overflow handling and history management.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 
@@ -160,4 +162,3 @@ console.log(timeline.size) // 3
   console.log(redone.id) // 'b'
   console.log(timeline.size) // 2
   ```
-

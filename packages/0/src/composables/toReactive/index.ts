@@ -27,7 +27,7 @@ import type { MaybeRef, UnwrapNestedRefs } from 'vue'
  * @template Z The type of the object.
  * @returns The converted object.
  *
- * @see https://vuejs.org/api/reactivity-utilities.html#toreactive
+ * @see https://0.vuetifyjs.com/composables/transformers/to-reactive
  *
  * @example
  * ```ts

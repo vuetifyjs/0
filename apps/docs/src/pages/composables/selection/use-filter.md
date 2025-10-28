@@ -3,15 +3,17 @@ meta:
   title: useFilter
   description: A composable for filtering arrays of items based on search queries with support for multiple filter modes and custom filtering logic.
   keywords: useFilter, filter, search, composable, Vue, array filtering
-category: Selection
-performance: 0
+features:
+  category: Composable
+  label: 'E: useFilter'
+  github: /composables/useFilter/
 ---
 
 # useFilter
 
 A composable for filtering arrays of items based on search queries, supporting both primitive values and complex objects with customizable filtering logic.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 

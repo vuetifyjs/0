@@ -3,15 +3,17 @@ meta:
   title: useKeydown
   description: A composable for handling keyboard events with automatic cleanup and customizable behavior.
   keywords: useKeydown, keyboard, events, keydown, composable, Vue
-category: System
-performance: 0
+features:
+  category: Composable
+  label: 'E: useKeydown'
+  github: /composables/useKeydown/
 ---
 
 # useKeydown
 
 A composable for handling keyboard events with automatic cleanup and customizable behavior.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 

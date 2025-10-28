@@ -2,7 +2,7 @@
 
 A collection of foundational components designed to be headless, accessible, and highly customizable.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Available Components
 

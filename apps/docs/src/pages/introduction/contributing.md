@@ -2,4 +2,4 @@
 
 Contribution guide coming soon.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />

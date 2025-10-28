@@ -3,15 +3,17 @@ meta:
   title: useForm
   description: A composable for building reactive forms with validation, field registration, and submission handling. Built on top of the registry system for managing form fields.
   keywords: useForm, form, validation, composable, Vue, registry
-category: Forms
-performance: 0
+features:
+  category: Composable
+  label: 'E: useForm'
+  github: /composables/useForm/
 ---
 
 # useForm
 
 A composable for building reactive forms with validation, field registration, and submission handling. Built on top of the registry system for managing form fields.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 
@@ -104,4 +106,3 @@ Each registered field returns a `FormTicket` with:
 - `reset()`: Reset field to initial value
 - `rules`: Array of validation functions
 - `disabled`: Whether field is disabled
-

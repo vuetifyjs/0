@@ -1,3 +1,3 @@
 # Hydration
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />

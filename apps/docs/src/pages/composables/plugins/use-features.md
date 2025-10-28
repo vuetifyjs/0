@@ -176,3 +176,80 @@ Optionally register features at runtime:
     features.variation('non_existent') // null
   </script>
   ```
+
+### `createFeaturesContext`
+
+- **Type**
+  ```ts
+  interface FeatureContextOptions extends RegistryOptions {
+    namespace: string
+    features?: Record<ID, boolean | TokenCollection>
+  }
+
+  function createFeaturesContext<
+    Z extends FeatureTicket = FeatureTicket,
+    E extends FeatureContext<Z> = FeatureContext<Z>
+  > (options: FeatureContextOptions): ContextTrinity<E>
+  ```
+
+- **Details**
+
+  Creates a features context using the [trinity pattern](/composables/foundation/create-trinity). Returns a readonly tuple of `[useFeaturesContext, provideFeaturesContext, context]` for dependency injection.
+
+  This is useful when you want to create custom feature flag contexts with their own namespaces, separate from the global plugin instance.
+
+- **Parameters**
+
+  - `options`: Configuration object containing:
+    - `namespace`: Unique string key for providing/injecting the context
+    - `features` (optional): Initial features to register (Record<ID, boolean | TokenCollection>)
+    - Other `RegistryOptions` (e.g., `events`)
+
+- **Returns**
+
+  A readonly tuple `[useFeaturesContext, provideFeaturesContext, context]`:
+  - **useFeaturesContext**: Function to inject/consume the context
+  - **provideFeaturesContext**: Function to provide the context to app or component tree
+  - **context**: Default features instance for standalone usage
+
+- **Example**
+  ```ts
+  import { createFeaturesContext } from '@vuetify/v0'
+
+  // Create a custom features context with its own namespace
+  const [useAppFeatures, provideAppFeatures, features] = createFeaturesContext({
+    namespace: 'my-app:features',
+    features: {
+      'dark-mode': true,
+      'analytics': false,
+      'search': { $value: true, $variation: 'v2' }
+    }
+  })
+
+  // In root component or main.ts
+  provideAppFeatures()
+
+  // In any descendant component
+  const features = useAppFeatures()
+  features.select('analytics')
+  console.log(features.variation('search', 'v1')) // 'v2'
+  ```
+
+- **Trinity Pattern**
+
+  The three elements work together:
+
+  ```ts
+  const [useContext, provideContext, context] = createFeaturesContext(options)
+
+  // 1. useContext - Inject in child components
+  const features = useContext()
+
+  // 2. provideContext - Provide in parent component
+  provideContext()
+
+  // 3. context - Direct access without provide/inject
+  context.select('feature-id')
+  ```
+
+  See [createTrinity](/composables/foundation/create-trinity) for more details on the trinity pattern.

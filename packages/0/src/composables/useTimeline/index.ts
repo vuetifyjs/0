@@ -198,7 +198,7 @@ export function createTimeline<
  * @template E The type of the timeline context.
  * @returns A new timeline plugin.
  *
- * @see https://0.vuetifyjs.com/composables/plugins/use-timeline
+ * @see https://0.vuetifyjs.com/composables/registration/use-timeline
  *
  * @example
  * ```ts

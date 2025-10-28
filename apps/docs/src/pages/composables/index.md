@@ -2,7 +2,7 @@
 
 Reusable pieces of logic that can be shared across components, providing encapsulated functionality and state management.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Available Composables
 

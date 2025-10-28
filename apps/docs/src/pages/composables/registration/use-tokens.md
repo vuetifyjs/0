@@ -1,8 +1,19 @@
+---
+meta:
+  title: useTokens
+  description: A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system.
+  keywords: useTokens, design tokens, tokens, aliases, composable, Vue
+features:
+  category: Composable
+  label: 'E: useTokens'
+  github: /composables/useTokens/
+---
+
 # useTokens
 
 A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system. Inspired by [Design Tokens](https://www.designtokens.org/tr/drafts/format/#design-token).
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 
@@ -146,33 +157,49 @@ features.resolve('rtl') // { value: true, variation: 'toggle' }
 
 * **Type**
   ```ts
+  interface TokenContextOptions extends TokenOptions, RegistryContextOptions {
+    namespace: string
+    tokens?: TokenCollection
+  }
+
   function createTokensContext<
     Z extends TokenTicket = TokenTicket,
     E extends TokenContext<Z> = TokenContext<Z>
-  > (tokens: TokenCollection): E
+  > (options: TokenContextOptions): ContextTrinity<E>
   ```
 * **Details**
-  The `createTokensContext` function is a factory that creates a context for managing tokens. It takes a TokenCollection and returns a context object that includes the resolve function. This function is useful for creating a context that can be provided to components or composables that need access to the token system.
+  The `createTokensContext` function is a factory that creates a context for managing tokens using the trinity pattern. It takes an options object and returns a readonly tuple of `[useTokensContext, provideTokensContext, context]` for dependency injection.
 
 * **Description**
   * Factory function to create a fully injectable/providable token context for Vue applications.
   * Accepts a namespace string to isolate the context.
   * Initializes the token registry with optional tokens.
-  * Returns a tuple containing:
+  * Returns a readonly tuple (trinity pattern) containing:
     * The injection function (useTokensContext) to consume the context.
     * The provision function (provideTokensContext) to provide the context in a Vue app or component.
-    * The underlying token context object.
+    * The underlying token context object (default instance).
 
 * **Parameters**
-  * namespace: A unique string key for providing/injecting the token context.
-  * tokens (optional): Initial token collection to register.
+  * options: Configuration object containing:
+    * namespace: A unique string key for providing/injecting the token context.
+    * tokens (optional): Initial token collection to register.
+    * flat (optional): Keep nested objects intact at their base id.
+    * prefix (optional): Prefix to prepend to all generated ids.
 
 * **Returns**
-  * A tuple [useTokensContext, provideTokensContext, context] for managing token context lifecycle.
+  * A readonly tuple `[useTokensContext, provideTokensContext, context]` for managing token context lifecycle.
 
 * **Example**
   ```ts
-  const [useTokensContext, provideTokensContext, context] = createTokensContext('my-app:tokens', tokens)
+  const [useTokensContext, provideTokensContext, context] = createTokensContext({
+    namespace: 'my-app:tokens',
+    tokens: {
+      fontSize: {
+        base: '16px',
+        lg: '18px'
+      }
+    }
+  })
 
   // In root component or plugin setup
   provideTokensContext(context, app)

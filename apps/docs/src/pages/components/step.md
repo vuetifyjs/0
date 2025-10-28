@@ -1,3 +1,3 @@
 # Step
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />

@@ -3,21 +3,23 @@ meta:
   title: useSingle
   description: A composable for managing single-item selection in a collection, extending useSelection with single-selection constraints.
   keywords: useSingle, single selection, composable, Vue, state management
-category: Selection
-performance: 0
+features:
+  category: Composable
+  label: 'E: useSingle'
+  github: /composables/useSingle/
 ---
 
 # useSingle
 
-A wrapper around `useGroup` that provides a simplified API for single-selection scenarios with singular selection properties and streamlined selection methods.
+A composable that extends `useSelection` to enforce single-item selection. Automatically clears the previous selection before selecting a new item, ensuring only one item is selected at any time.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 <Mermaid code="
 flowchart TD
-createContext --> useRegistrar
-useRegistrar --> useGroup
-useGroup --> useSingle
+useRegistry --> useSelection
+useSelection --> useSingle
+useSingle --> useStep
 " />
 
 ## Usage
@@ -29,11 +31,17 @@ import { useSingle } from '@vuetify/v0'
 
 const single = useSingle()
 
-single.select({ id: 'apple', value: 'Apple' })
+// Register items first
+single.register({ id: 'apple', value: 'Apple' })
+single.register({ id: 'banana', value: 'Banana' })
+
+// Select by ID
+single.select('apple')
 console.log(single.selectedId) // 'apple'
 console.log(single.selectedValue) // 'Apple'
 
-single.select({ id: 'banana', value: 'Banana' })
+// Selecting a new item automatically clears the previous selection
+single.select('banana')
 console.log(single.selectedId) // 'banana' (replaces apple)
 ```
 

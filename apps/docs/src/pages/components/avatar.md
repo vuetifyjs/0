@@ -1,3 +1,3 @@
 # Avatar
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />

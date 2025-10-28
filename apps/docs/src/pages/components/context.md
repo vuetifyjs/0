@@ -1,3 +1,3 @@
 # Context
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />

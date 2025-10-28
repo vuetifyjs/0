@@ -1,3 +1,3 @@
 # Theme
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />

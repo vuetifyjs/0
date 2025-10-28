@@ -3,15 +3,17 @@ meta:
   title: useProxyModel
   description: A composable for creating proxy models that synchronize bidirectionally with selection contexts, enabling seamless v-model integration with selection state.
   keywords: useProxyModel, proxy model, v-model, two-way binding, selection, composable, Vue
-category: Forms
-performance: 0
+features:
+  category: Composable
+  label: 'E: useProxyModel'
+  github: /composables/useProxyModel/
 ---
 
 # useProxyModel
 
 A composable for creating proxy models that synchronize bidirectionally with selection contexts, enabling seamless v-model integration with selection state.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 
@@ -90,4 +92,3 @@ In **single mode**:
 In **array mode**:
 - Setting a new array merges the selections (adds/removes as needed)
 - Getting returns an array of all selected values
-

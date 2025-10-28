@@ -3,15 +3,17 @@ meta:
   title: useRegistry
   description: A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing, and lifecycle management.
   keywords: useRegistry, registry, composable, Vue, state management
-category: Registration
-performance: 0
+features:
+  category: Composable
+  label: 'E: useRegistry'
+  github: /composables/useRegistry/
 ---
 
 # useRegistry
 
 A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing, and lifecycle management.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 

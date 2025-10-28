@@ -3,15 +3,17 @@ meta:
   title: useSelection
   description: A composable for managing the selection of items in a collection with automatic indexing and lifecycle management.
   keywords: useSelection, selection, composable, Vue, state management
-category: Selection
-performance: 0
+features:
+  category: Composable
+  label: 'E: useSelection'
+  github: /composables/useSelection/
 ---
 
 # useSelection
 
 A composable for managing the selection of items in a collection with automatic indexing and lifecycle management.
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />
 
 ## Usage
 
@@ -280,4 +282,3 @@ console.log(selection.has('apple')) // true
   // If somehow empty, mandate() will auto-select first available
   selection.mandate()
   ```
-

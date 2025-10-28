@@ -1,3 +1,3 @@
 # Popover
 
-<DocsPageFeatures />
+<DocsPageFeatures :frontmatter />

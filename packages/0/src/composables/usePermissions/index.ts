@@ -70,7 +70,7 @@ export interface PermissionContextOptions extends TokenOptions {
  * @template E The type of the permission context.
  * @returns A new permissions instance.
  *
- * @see https://0.vuetifyjs.com/composables/plugins/create-permissions
+ * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
  *
  * @example
  * ```ts
