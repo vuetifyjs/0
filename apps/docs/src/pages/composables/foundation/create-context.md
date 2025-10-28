@@ -35,12 +35,7 @@ export { useContext }
 
 ## API
 
-
-| Composable | Description |
-|---|---|
-| [createTrinity](/composables/foundation/create-trinity) | Creates context consumer/provider/context tuple |
-| [createPlugin](/composables/foundation/create-plugin) | Creates Vue plugin with context |
-### `createContext`
+### `createContext`{ #create-context }
 
 - **Type**
 
@@ -60,7 +55,7 @@ export { useContext }
 
   **Z** represents the context interface, which defines the structure of the context object that will be created and consumed. **namespace** is an optional string that overrides the default provided key. **defaultValue** is an optional default context that will be returned if the context is not provided by an ancestor or called outside of a Vue setup context.
 
-### `useContext`
+### `useContext`{ #use-context }
 
 - **Type**
 
@@ -74,3 +69,19 @@ export { useContext }
 - **Details**
 
   A simple wrapper function for injecting context. If a `defaultValue` is provided, it will be returned when the context is not found. Otherwise, it throws an error if the context is not found, ensuring that the consumer is aware of the missing context.
+
+### `provideContext`{ #provide-context }
+
+- **Type**
+
+  ```ts
+  function provideContext<Z> (
+    key: ContextKey<Z>,
+    context: Z,
+    app?: App
+  ) => Z
+  ```
+
+- **Details**
+
+  A simple wrapper function for providing context. It uses Vue's `provide` API to make the context available to descendant components. If an `app` instance is provided, it will register the context at the application level, making it available globally.

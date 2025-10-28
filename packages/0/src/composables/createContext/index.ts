@@ -1,6 +1,8 @@
 /**
  * @module createContext
  *
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context
+ *
  * @remarks
  * Factory for creating type-safe Vue dependency injection contexts.
  *
@@ -27,14 +29,15 @@ export type ContextKey<Z> = InjectionKey<Z> | string
  * @throws An error if the context is not found and no default is provided.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
- * @see https://0.vuetifyjs.com/composables/foundation/create-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context#use-context
  *
  * @example
  * ```ts
- * const myContext = useContext<MyContext>('my-context')
+ * // Without default value
+ * const context = useContext<MyContext>('my-context')
  *
  * // With default value
- * const myContext = useContext<MyContext>('my-context', defaultContext)
+ * const context = useContext<MyContext>('my-context', defaultContext)
  * ```
  */
 export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
@@ -61,16 +64,16 @@ export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
  * When omitted, the context is provided at the current component level and available to descendants only.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#provide
- * @see https://0.vuetifyjs.com/composables/foundation/create-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context#provide-context
  *
  * @example
  * ```ts
  * // Component-level provision
- * provideContext<MyContext>('my-context', myContext)
+ * provideContext<MyContext>('my-context', context)
  *
  * // App-level provision (typically used in plugins)
- * const app = createApp({})
- * provideContext<MyContext>('my-context', myContext, app)
+ * const app = createApp()
+ * provideContext<MyContext>('my-context', context, app)
  * ```
  */
 export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
@@ -92,10 +95,11 @@ export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
  * @returns A tuple containing the `useContext` and `provideContext` functions.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html
- * @see https://0.vuetifyjs.com/composables/foundation/create-context
+ * @see https://0.vuetifyjs.com/composables/foundation/create-context#create-context
  *
  * @example
  * ```ts
+ * // Without default value
  * const [useMyContext, provideMyContext] = createContext<MyContext>('my-context')
  *
  * // With default value
