@@ -27,7 +27,7 @@ import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
 import { onScopeDispose, shallowRef, readonly, watch } from 'vue'
-import { mergeDeep } from '#v0/utilities'
+import { isNumber, mergeDeep } from '#v0/utilities'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -126,7 +126,7 @@ export function createBreakpoints<
   const { mobileBreakpoint, breakpoints } = mergeDeep(defaults, _options as any)
   const sorted = Object.entries(breakpoints!).toSorted((a, b) => a[1] - b[1]) as [BreakpointName, number][]
   const names = sorted.map(([n]) => n)
-  const mb = typeof mobileBreakpoint === 'number' ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md
+  const mb = isNumber(mobileBreakpoint) ? mobileBreakpoint : breakpoints[mobileBreakpoint] ?? breakpoints.md
 
   const name = shallowRef<BreakpointName>('xs')
   const width = shallowRef(0)

@@ -1,3 +1,6 @@
+// Utilities
+import { isObject } from '#v0/utilities'
+
 // Types
 import type { LoggerAdapter } from './adapter'
 
@@ -48,7 +51,7 @@ export class PinoLoggerAdapter implements LoggerAdapter {
     }
 
     // If first arg is an object, use it as metadata
-    if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
+    if (args.length === 1 && isObject(args[0])) {
       return { ...args[0], msg: message }
     }
 

@@ -16,6 +16,7 @@
 
 // Utilities
 import { computed, isRef, toRef, toValue } from 'vue'
+import { isObject } from '#v0/utilities'
 
 // Types
 import type { ComputedRef, MaybeRefOrGetter, MaybeRef } from 'vue'
@@ -48,12 +49,11 @@ function defaultFilter (
     return String(value).toLowerCase().includes(q)
   }
 
-  const values =
-    typeof item === 'object' && item !== null
-      ? (keys?.length
-          ? keys.map(k => item[k])
-          : Object.values(item))
-      : [item]
+  const values = isObject(item)
+    ? (keys?.length
+        ? keys.map(k => item[k])
+        : Object.values(item))
+    : [item]
 
   const stringValues = values.map(v => String(v).toLowerCase())
 

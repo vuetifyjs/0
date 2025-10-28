@@ -1,3 +1,6 @@
+// Utilities
+import { isObject } from '#v0/utilities'
+
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
@@ -17,7 +20,7 @@ export class Vuetify0LocaleAdapter implements LocaleAdapter {
     let resolvedMessage = message
 
     // Handle named variables if the first param is an object
-    if (params.length > 0 && typeof params[0] === 'object' && params[0] !== null && !Array.isArray(params[0])) {
+    if (params.length > 0 && isObject(params[0])) {
       const variables = params[0] as Record<string, unknown>
       resolvedMessage = resolvedMessage.replace(/{([a-zA-Z][a-zA-Z0-9_]*)}/g, (match, name) => {
         return variables[name] === undefined ? match : String(variables[name])

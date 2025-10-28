@@ -28,6 +28,7 @@ import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
 import { computed, watch, onScopeDispose } from 'vue'
+import { isString } from '#v0/utilities'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
@@ -365,7 +366,7 @@ export function createThemePlugin<
 
         const targetEl = target instanceof HTMLElement
           ? target
-          : (typeof target === 'string'
+          : (isString(target)
               ? document.querySelector(target)
               : (app._container as HTMLElement | undefined) || document.querySelector('#app') || document.body)
 

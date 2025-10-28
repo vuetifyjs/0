@@ -24,6 +24,7 @@ import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { computed, shallowRef, toValue } from 'vue'
+import { isString } from '#v0/utilities'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -182,7 +183,7 @@ export function createForm<
       isValidating.value = true
       try {
         const results = await Promise.all(rules.map(rule => rule(model.value)))
-        const errorMessages = results.filter(result => typeof result === 'string') as string[]
+        const errorMessages = results.filter(result => isString(result)) as string[]
 
         if (!silent) {
           errors.value = errorMessages

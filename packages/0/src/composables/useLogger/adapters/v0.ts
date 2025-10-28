@@ -1,3 +1,6 @@
+// Utilities
+import { isFunction } from '#v0/utilities'
+
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
 
@@ -90,9 +93,9 @@ export class Vuetify0LoggerAdapter implements LoggerAdapter {
     const [formattedMessage, ...restArgs] = this.format(level, message, ...args)
     const style = this.style(level)
 
-    if (IN_BROWSER && style && typeof console[method] === 'function') {
+    if (IN_BROWSER && style && isFunction(console[method])) {
       ;(console[method] as any)(`%c${formattedMessage}`, style, ...restArgs)
-    } else if (typeof console[method] === 'function') {
+    } else if (isFunction(console[method])) {
       ;(console[method] as any)(formattedMessage, ...restArgs)
     }
   }

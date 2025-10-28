@@ -30,6 +30,7 @@ vi.mock('#v0/utilities', () => ({
     ...defaults,
     ...options,
   })),
+  isNumber: vi.fn(value => typeof value === 'number'),
 }))
 
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
