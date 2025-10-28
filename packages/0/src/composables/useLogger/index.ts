@@ -261,14 +261,14 @@ export function createLoggerContext<
  * import { createLoggerPlugin } from '@vuetify/v0'
  * import App from './App.vue'
  *
- * const logger = createLoggerPlugin({
- *   level: 'debug',
- *   prefix: '[MyApp]',
- * })
- *
  * const app = createApp(App)
  *
- * app.use(logger)
+ * app.use(
+ *  createLoggerPlugin({
+ *    level: 'debug',
+ *    prefix: '[MyApp]',
+ *  })
+ * )
  *
  * app.mount('#app')
  * ```
