@@ -15,7 +15,7 @@
  */
 
 // Factories
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 
 // Utilities
@@ -29,23 +29,16 @@ export interface HydrationContext {
   hydrate: () => void
 }
 
-export const [useHydrationContext, provideHydrationContext] = createContext<HydrationContext>('v0:hydration')
-
 /**
  * Creates a new hydration instance.
  *
  * @returns A new hydration instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-hydration
- *
- * @example
- * ```ts
- * import { createHydration } from '@vuetify/v0'
- *
- * const [useHydration, provideHydration] = createHydration()
- * ```
  */
-export function createHydration (): HydrationContext {
+export function createHydration<
+  E extends HydrationContext = HydrationContext,
+> (): E {
   const isHydrated = shallowRef(false)
 
   function hydrate () {
@@ -55,7 +48,7 @@ export function createHydration (): HydrationContext {
   return {
     isHydrated: shallowReadonly(isHydrated),
     hydrate,
-  }
+  } as E
 }
 
 /**
@@ -80,8 +73,10 @@ export function createHydration (): HydrationContext {
  * </template>
  * ```
  */
-export function useHydration (): HydrationContext {
-  return useHydrationContext()
+export function useHydration<
+  E extends HydrationContext = HydrationContext,
+> (): E {
+  return useContext<E>('v0:hydration')
 }
 
 /**
@@ -106,8 +101,11 @@ export function useHydration (): HydrationContext {
  * app.mount('#app')
  * ```
  */
-export function createHydrationPlugin () {
-  const context = createHydration()
+export function createHydrationPlugin<
+  E extends HydrationContext = HydrationContext,
+> () {
+  const [, provideHydrationContext] = createContext<E>('v0:hydration')
+  const context = createHydration<E>()
 
   return createPlugin({
     namespace: 'v0:hydration',

@@ -12,6 +12,7 @@ vi.mock('#v0/composables/createContext', () => ({
     mockUseHydrationContext,
     mockProvideHydrationContext,
   ]),
+  useContext: mockUseHydrationContext,
 }))
 
 vi.mock('vue', async () => {
