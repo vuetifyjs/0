@@ -294,6 +294,8 @@ export function createBreakpointsPlugin<
     setup: (app: App) => {
       app.mixin({
         mounted () {
+          if (this.$parent !== null) return
+
           const hydration = useHydration()
 
           function listener () {
