@@ -1,15 +1,15 @@
 // Composables
-import { useTokens } from './index'
+import { createTokens } from './index'
 
 // Utilities
 import { bench, describe } from 'vitest'
 
 import TOKENS from './fixtures/tokens'
 
-describe('useTokens benchmarks', () => {
+describe('createTokens benchmarks', () => {
   describe('registration operations', () => {
     bench('resolve operations', () => {
-      const tokens = useTokens(TOKENS)
+      const tokens = createTokens(TOKENS)
 
       tokens.resolve('theme.typography.family.sans')
       tokens.resolve('theme.color.brand.primary.base')
