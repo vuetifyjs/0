@@ -12,7 +12,7 @@
   const route = useRoute()
 
   watch(route, () => {
-    if (app.drawer && breakpoints.isMobile) {
+    if (app.drawer && breakpoints.isMobile.value) {
       app.drawer = false
     }
   })
