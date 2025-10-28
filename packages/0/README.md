@@ -1,9 +1,25 @@
 <div align="center">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-dark.png">
-  <img alt="Vuetify One Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-light.png" height="150">
-</picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-dark.png">
+    <img alt="Vuetify One Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-light.png" height="150">
+  </picture>
 </div>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@vuetify/v0">
+    <img src="https://img.shields.io/npm/dt/@vuetify/v0.svg" alt="Downloads">
+  </a>
+  <a href="https://www.npmjs.com/package/@vuetify/v0">
+    <img src="https://img.shields.io/npm/dm/@vuetify/v0.svg" alt="Downloads">
+  </a>
+  <br>
+  <a href="https://github.com/vuetifyjs/@vuetify/v0/blob/master/LICENSE.md">
+    <img src="https://img.shields.io/npm/l/@vuetify/v0.svg" alt="License">
+  </a>
+  <a href="https://community.vuetifyjs.com">
+    <img src="https://discordapp.com/api/guilds/340160225338195969/widget.png" alt="Chat">
+  </a>
+</p>
 
 # @vuetify/v0
 
@@ -12,11 +28,13 @@ Core foundational package from providing components and composables for building
 ## 🚀 Installation
 
 ```bash
-npm install @vuetify/v0
+npm install @vuetify/v0@latest
 # or
 pnpm add @vuetify/v0
 # or
 yarn add @vuetify/v0
+# or
+bun add @vuetify/v0
 ```
 
 ## 📦 What's Included
@@ -24,201 +42,61 @@ yarn add @vuetify/v0
 ### Components
 
 - **`Atom`** - Base element wrapper with renderless capabilities
-- **`Breakpoints`** - Responsive breakpoint utilities
-- **`Context`** - Context injection/provision system
-- **`Group`** - Selection grouping with multiple/single modes
-- **`Hydration`** - Client-side hydration utilities
+- **`Avatar`** - User avatar component
 - **`Popover`** - CSS anchor-positioned popup components
-- **`Step`** - Step-based navigation system
-- **`Theme`** - Theme management and CSS variable injection
 
 ### Composables
 
-- **`useBreakpoints`** - Responsive breakpoint detection
-- **`createContext`** - Type-safe context management
-- **`useEventListener`** - Event listener utilities
-- **`useFilter`** - Collection filtering utilities
-- **`useForm`** - Form validation and management
-- **`useGroup`** - Selection group management
-- **`useHydration`** - SSR hydration helpers
-- **`useIntersectionObserver`** - Intersection observer utilities
-- **`useKeydown`** - Keyboard event handling
-- **`useLocale`** - Internationalization support
-- **`useLogger`** - Development logging utilities
-- **`useMutationObserver`** - DOM mutation observation
-- **`useProxyModel`** - Model proxy utilities
-- **`useRegistry`** - Component registration system
-- **`useResizeObserver`** - Resize observer utilities
-- **`useSelection`** - Selection management
-- **`useSingle`** - Single selection utilities
-- **`useStep`** - Step navigation logic
-- **`useStorage`** - Local/session storage utilities
-- **`useTheme`** - Theme switching and CSS variable management
-- **`useTokens`** - Design token system
-
-### Factories
+#### Factories
 
 - **`createContext`** - Context factory with type safety
 - **`createPlugin`** - Vue plugin factory
-- **`createRootProvider`** - Root provider factory
 - **`createTrinity`** - Trinity pattern factory
+
+#### Registration
+
+- **`useRegistry`** - Component registration and retrieval system
+- **`useProxyRegistry`** - Make any registry reactive
+- **`useQueue`** - Registry for managing ordered items
+- **`useTimeline`** - Registry for managing timeline items
+- **`useTokens`** - Design token system
+
+#### Selection
+
+- **`useFilter`** - Collection filtering utilities
+- **`useSelection`** - Selection management
+- **`useGroup`** - Selection group management
+- **`useSingle`** - Single selection utilities
+- **`useStep`** - Step navigation logic
+
+#### Forms
+
+- **`useForm`** - Form validation and state management
+- **`useProxyModel`** - Proxy registry for Vue reactive models
+
+#### System
+- **`useEventListener`** - Event listener utilities
+- **`useIntersectionObserver`** - Intersection observer utilities
+- **`useKeydown`** - Keyboard event handling
+- **`useMutationObserver`** - DOM mutation observation
+- **`useResizeObserver`** - Resize observer utilities
+
+
+#### Plugins
+
+- **`useBreakpoints`** - Responsive breakpoint detection
+- **`useFeatures`** - Feature detection utilities
+- **`useHydration`** - SSR hydration helpers
+- **`useLocale`** - Internationalization support
+- **`useLogger`** - Development logging utilities
+- **`usePermissions`** - User permission management
+- **`useStorage`** - Local/session storage utilities
+- **`useTheme`** - Theme switching and CSS variable management
 
 ### Transformers
 
 - **`toArray`** - Array transformation utilities
 - **`toReactive`** - Reactive object conversion
-
-### Utilities
-
-- **Type guards** - `isString`, `isNumber`, `isObject`, etc.
-- **Object utilities** - `mergeDeep`, `genId`
-- **Performance utilities** - Benchmarking tools
-
-
-## 📖 Basic Usage
-
-### Theme Setup
-
-```vue
-<script setup>
-import { createThemePlugin } from '@vuetify/v0'
-
-// Install theme plugin in your main.js
-app.use(createThemePlugin({
-  default: 'light',
-  themes: {
-    light: {
-      colors: {
-        primary: '#1976d2',
-        secondary: '#424242',
-        background: '#ffffff'
-      }
-    },
-    dark: {
-      colors: {
-        primary: '#2196f3',
-        secondary: '#616161',
-        background: '#121212'
-      }
-    }
-  }
-}))
-</script>
-```
-
-### Using Components
-
-```vue
-<script setup>
-import { Atom, Group, Step } from '@vuetify/v0'
-import { ref } from 'vue'
-
-const selectedItems = ref([])
-const currentStep = ref(0)
-</script>
-
-<template>
-  <!-- Base Atom component -->
-  <Atom as="section" class="container">
-    <h1>My Application</h1>
-  </Atom>
-
-  <!-- Group selection -->
-  <Group v-model="selectedItems" multiple>
-    <template #default="{ select, isSelected }">
-      <button
-        v-for="item in items"
-        :key="item.id"
-        @click="select(item.id)"
-        :class="{ active: isSelected(item.id) }"
-      >
-        {{ item.name }}
-      </button>
-    </template>
-  </Group>
-
-  <!-- Step navigation -->
-  <Step v-model="currentStep" :max="3">
-    <template #default="{ step, next, prev, canNext, canPrev }">
-      <div class="step-content">
-        Step {{ step + 1 }} content
-      </div>
-      <div class="step-actions">
-        <button @click="prev" :disabled="!canPrev">Previous</button>
-        <button @click="next" :disabled="!canNext">Next</button>
-      </div>
-    </template>
-  </Step>
-</template>
-```
-
-### Using Composables
-
-```vue
-<script setup>
-import { useBreakpoints, useTheme, useForm } from '@vuetify/v0'
-import { ref } from 'vue'
-
-// Responsive breakpoints
-const { isMobile, mdAndUp } = useBreakpoints()
-
-// Theme management
-const { theme, setTheme, colors } = useTheme()
-
-// Form management
-const { register, validate, errors } = useForm({
-  validateOn: 'change'
-})
-
-const email = ref('')
-const password = ref('')
-
-// Register form fields
-register('email', email, [
-  (value) => !!value || 'Email is required',
-  (value) => /.+@.+\..+/.test(value) || 'Email must be valid'
-])
-
-register('password', password, [
-  (value) => !!value || 'Password is required',
-  (value) => value.length >= 8 || 'Password must be at least 8 characters'
-])
-
-const handleSubmit = async () => {
-  const isValid = await validate()
-  if (isValid) {
-    // Submit form
-  }
-}
-</script>
-
-<template>
-  <div :class="{ mobile: isMobile, desktop: mdAndUp }">
-    <button @click="setTheme(theme === 'light' ? 'dark' : 'light')">
-      Toggle Theme ({{ theme }})
-    </button>
-
-    <form @submit.prevent="handleSubmit">
-      <input
-        v-model="email"
-        type="email"
-        placeholder="Email"
-        :style="{ borderColor: colors.primary }"
-      />
-      <div v-if="errors.email" class="error">{{ errors.email[0] }}</div>
-
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Password"
-      />
-      <div v-if="errors.password" class="error">{{ errors.password[0] }}</div>
-
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-</template>
-```
 
 ## 🏗️ Design Principles
 
@@ -233,14 +111,9 @@ const handleSubmit = async () => {
 
 For detailed API documentation, type definitions, and examples, visit our [documentation site](https://0.vuetifyjs.com) or explore the TypeScript definitions included in this package.
 
-## 🔗 Related Packages
-
-- **[@vuetify/paper](https://npmjs.com/package/@vuetify/paper)** - Styling and layout primitives
-- **[Vuetify 3](https://vuetifyjs.com)** - Full-featured Material Design component library
-
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our contributing guidelines and ensure all tests pass before submitting a pull request.
+We are not currently accepting contributions to this package, check back later.
 
 ## 📄 License
 
