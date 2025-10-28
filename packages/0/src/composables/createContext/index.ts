@@ -21,9 +21,10 @@ export type ContextKey<Z> = InjectionKey<Z> | string
  * Injects a context provided by an ancestor component.
  *
  * @param key The key of the context to inject.
+ * @param defaultValue Optional default value if context is not found.
  * @template Z The type of the context.
  * @returns The injected context.
- * @throws An error if the context is not found.
+ * @throws An error if the context is not found and no default is provided.
  *
  * @see https://vuejs.org/api/composition-api-dependency-injection.html#inject
  * @see https://0.vuetifyjs.com/composables/foundation/create-context
@@ -31,10 +32,13 @@ export type ContextKey<Z> = InjectionKey<Z> | string
  * @example
  * ```ts
  * const myContext = useContext<MyContext>('my-context')
+ *
+ * // With default value
+ * const myContext = useContext<MyContext>('my-context', defaultContext)
  * ```
  */
-export function useContext<Z> (key: ContextKey<Z>) {
-  const context = inject<Z>(key, undefined as Z)
+export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
+  const context = inject<Z>(key, defaultValue as Z)
 
   if (context === undefined) {
     throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)
@@ -83,6 +87,7 @@ export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
  * Creates a new context for providing and injecting data.
  *
  * @param key The key of the context to create.
+ * @param defaultValue Optional default value if context is not found.
  * @template Z The type of the context.
  * @returns A tuple containing the `useContext` and `provideContext` functions.
  *
@@ -91,16 +96,19 @@ export function provideContext<Z> (key: ContextKey<Z>, context: Z, app?: App) {
  *
  * @example
  * ```ts
- * const [provideMyContext, useMyContext] = createContext<MyContext>('my-context')
+ * const [useMyContext, provideMyContext] = createContext<MyContext>('my-context')
+ *
+ * // With default value
+ * const [useMyContext, provideMyContext] = createContext<MyContext>('my-context', defaultContext)
  * ```
  */
-export function createContext<Z> (_key: ContextKey<Z>) {
+export function createContext<Z> (_key: ContextKey<Z>, defaultValue?: Z) {
   function _provideContext (context: Z, app?: App) {
     return provideContext<Z>(_key, context, app)
   }
 
   function _useContext (key = _key) {
-    return useContext<Z>(key)
+    return useContext<Z>(key, defaultValue)
   }
 
   return [_useContext, _provideContext] as const

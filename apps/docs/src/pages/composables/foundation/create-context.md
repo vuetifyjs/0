@@ -47,7 +47,10 @@ export { useContext }
   ```ts
   type ContextKey<Z> = InjectionKey<Z> | string
 
-  function createContext<Z> (key: ContextKey<Z>): [
+  function createContext<Z> (
+    key: ContextKey<Z>,
+    defaultValue?: Z
+  ): [
     (namespace?: string) => Z,
     (context: Z, app?: App) => Z,
   ]
@@ -55,17 +58,19 @@ export { useContext }
 
 - **Details**
 
-  **Z** represents the context interface, which defines the structure of the context object that will be created and consumed. **namespace** is an optional string that overrides the default provided key.
+  **Z** represents the context interface, which defines the structure of the context object that will be created and consumed. **namespace** is an optional string that overrides the default provided key. **defaultValue** is an optional default context that will be returned if the context is not provided by an ancestor or called outside of a Vue setup context.
 
 ### `useContext`
 
 - **Type**
 
   ```ts
-  function useContext<Z> (key: ContextKey<Z>) => Z
+  function useContext<Z> (
+    key: ContextKey<Z>,
+    defaultValue?: Z
+  ) => Z
   ```
 
 - **Details**
 
-  A simple wrapper function for injecting context that always fallsback to `undefined` if not found. It throws an error if the context is not found, ensuring that the consumer is aware of the missing context.
-
+  A simple wrapper function for injecting context. If a `defaultValue` is provided, it will be returned when the context is not found. Otherwise, it throws an error if the context is not found, ensuring that the consumer is aware of the missing context.
