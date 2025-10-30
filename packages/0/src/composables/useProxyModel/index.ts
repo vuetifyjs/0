@@ -7,7 +7,6 @@
  * Key features:
  * - Bidirectional synchronization
  * - Array and single-value modes
- * - Watcher pause to prevent infinite loops
  * - Automatic cleanup on scope disposal
  * - Perfect for form controls with selection backing
  *
@@ -15,31 +14,31 @@
  */
 
 // Utilities
-import { computed, watch, ref, toValue, shallowRef, onScopeDispose, unref, type MaybeRef } from 'vue'
+import { watch, toValue, onScopeDispose } from 'vue'
 import { isFunction, isArray } from '#v0/utilities'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
 // Types
+import type { Ref } from 'vue'
 import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
 import type { ID } from '#v0/types'
 
 export interface ProxyModelOptions {
-  /** Whether to use deep reactivity for the model */
-  deep?: boolean
+  multiple?: boolean
+  transformIn?: (val: unknown) => unknown
+  transformOut?: (val: unknown) => unknown
 }
 
 /**
- * Creates a proxy model that can be used to bind to a selection.
+ * Syncs a ref with a selection registry bidirectionally.
  *
  * @param registry The selection registry to bind to.
- * @param initial The initial value of the model.
+ * @param model The ref to sync.
  * @param options The options for the proxy model.
- * @param transformIn A function to transform the value before setting it.
- * @param transformOut A function to transform the value before getting it.
  * @template Z The type of the selection ticket.
- * @returns A proxy model that can be used to bind to a selection.
+ * @returns A function to stop the sync.
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-proxy-model
  *
@@ -47,57 +46,62 @@ export interface ProxyModelOptions {
  * ```ts
  * import { createSelection, useProxyModel } from '@vuetify/v0'
  *
+ * const model = ref()
  * const registry = createSelection({ events: true })
  * registry.onboard([
  *   { id: 'item-1', value: 'Item 1' },
  *   { id: 'item-2', value: 'Item 2' },
  * ])
  *
- * const model = useProxyModel(registry, 'Item 1')
+ * const stop = useProxyModel(registry, model)
  * ```
  */
-export function useProxyModel<Z extends SelectionTicket> (
+export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
   registry: SelectionContext<Z>,
-  _initial?: MaybeRef | MaybeRef[],
+  model: Ref<unknown>,
   options?: ProxyModelOptions,
-  _transformIn?: (val: unknown[] | unknown) => unknown[],
-  _transformOut?: (val: unknown[]) => unknown | unknown[],
 ) {
-  const reactivity = options?.deep ? ref : shallowRef
-  const initial = unref(_initial)
-  const internal = reactivity<unknown[]>(initial ? toArray<unknown>(initial) : [])
-  const isModelArray = isArray(initial)
+  const isModelArray = options?.multiple ?? isArray(model.value)
+  const _transformIn = options?.transformIn
+  const _transformOut = options?.transformOut
 
-  function transformIn (val: unknown | unknown[]) {
-    return (isFunction(_transformIn) ? _transformIn(val) : toArray(val))
+  function transformIn (val: unknown): unknown[] {
+    return toArray(isFunction(_transformIn) ? _transformIn(val) : val)
   }
 
   function transformOut (val: unknown[]) {
     if (isFunction(_transformOut)) return _transformOut(val)
-
     return isModelArray ? val : val[0]
   }
 
-  const model = computed({
-    get () {
-      return transformOut(internal.value)
-    },
-    set (val: unknown | unknown[]) {
-      internal.value = transformIn(val)
-    },
-  })
+  const pending = new Set(toArray(model.value))
 
-  const registryWatcher = watch(registry.selectedValues, val => {
-    modelWatcher.pause()
-    model.value = Array.from(toValue(val))
-    modelWatcher.resume()
-  })
+  for (const value of toArray(model.value)) {
+    const ids = registry.browse(value)
+    if (isArray(ids)) {
+      for (const id of ids) registry.select(id)
+      pending.delete(value)
+    } else if (ids) {
+      registry.select(ids)
+      pending.delete(value)
+    }
+  }
 
-  const modelWatcher = watch(model, val => {
+  const registryWatch = watch(registry.selectedValues, val => {
+    modelWatch.pause()
+
+    model.value = transformOut(Array.from(toValue(val)))
+
+    modelWatch.resume()
+  }, { flush: 'sync' })
+
+  const modelWatch = watch(model, val => {
+    registryWatch.pause()
+
     const currentIds = new Set(toValue(registry.selectedIds))
     const targetIds = new Set<ID>()
 
-    for (const value of toArray(val)) {
+    for (const value of transformIn(val)) {
       const ids = registry.browse(value)
       if (isArray(ids)) {
         for (const single of ids) targetIds.add(single)
@@ -106,13 +110,10 @@ export function useProxyModel<Z extends SelectionTicket> (
       }
     }
 
-    registryWatcher.pause()
-
     if (isModelArray) {
       for (const id of currentIds.difference(targetIds)) {
         registry.selectedIds.delete(id)
       }
-
       for (const id of targetIds.difference(currentIds)) {
         registry.selectedIds.add(id)
       }
@@ -123,60 +124,28 @@ export function useProxyModel<Z extends SelectionTicket> (
       if (next !== undefined) registry.select(next)
     }
 
-    registryWatcher.resume()
-  })
+    registryWatch.resume()
+  }, { flush: 'sync', deep: isModelArray })
 
   function onRegister (ticket: Z) {
-    if (!internal.value.includes(ticket.value)) return
-
-    registryWatcher.pause()
-    modelWatcher.pause()
+    if (!pending.has(ticket.value) || ticket.disabled) return
+    registryWatch.pause()
+    modelWatch.pause()
     registry.select(ticket.id)
-    registryWatcher.resume()
-    modelWatcher.resume()
-  }
-
-  function onUnregister (ticket: Z) {
-    if (!internal.value.includes(ticket.value)) return
-
-    registryWatcher.pause()
-    modelWatcher.pause()
-    registry.unselect(ticket.id)
-    registryWatcher.resume()
-    modelWatcher.resume()
-  }
-
-  function onUpdate (ticket: Z) {
-    const hasValue = internal.value.includes(ticket.value)
-    const isSelected = toValue(registry.selectedIds).has(ticket.id)
-    if (!hasValue && isSelected) {
-      onUnregister(ticket)
-    } else if (hasValue && !isSelected) {
-      onRegister(ticket)
-    }
-  }
-
-  function onClear () {
-    registryWatcher.pause()
-    modelWatcher.pause()
-    registry.selectedIds.clear()
-    registryWatcher.resume()
-    modelWatcher.resume()
+    pending.delete(ticket.value)
+    modelWatch.resume()
+    registryWatch.resume()
   }
 
   registry.on('register:ticket', onRegister)
-  registry.on('unregister:ticket', onUnregister)
-  registry.on('update:ticket', onUpdate)
-  registry.on('clear:registry', onClear)
 
-  onScopeDispose(() => {
-    registryWatcher()
-    modelWatcher()
-    registry.off('register:item', onRegister)
-    registry.off('unregister:ticket', onUnregister)
-    registry.off('update:ticket', onUpdate)
-    registry.off('clear:registry', onClear)
-  }, true)
+  function stop () {
+    registryWatch()
+    modelWatch()
+    registry.off('register:ticket', onRegister)
+  }
 
-  return model
+  onScopeDispose(stop, true)
+
+  return stop
 }

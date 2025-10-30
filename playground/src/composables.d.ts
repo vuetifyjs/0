@@ -29,32 +29,48 @@ declare global {
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']
+  const createBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsContext']
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']
   const createContext: typeof import('../../packages/0/src/composables/createContext/index')['createContext']
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']
   const createFeatures: typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']
+  const createFeaturesContext: typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesContext']
   const createFeaturesPlugin: typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']
+  const createForm: typeof import('../../packages/0/src/composables/useForm/index')['createForm']
   const createFormContext: typeof import('../../packages/0/src/composables/useForm/index')['createFormContext']
+  const createGroup: typeof import('../../packages/0/src/composables/useGroup/index')['createGroup']
   const createGroupContext: typeof import('../../packages/0/src/composables/useGroup/index')['createGroupContext']
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']
+  const createHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationContext']
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']
   const createLocale: typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']
+  const createLocaleContext: typeof import('../../packages/0/src/composables/useLocale/index')['createLocaleContext']
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']
+  const createLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerContext']
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']
   const createPermissions: typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']
+  const createPermissionsContext: typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsContext']
   const createPermissionsPlugin: typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']
   const createPlugin: typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']
+  const createQueue: typeof import('../../packages/0/src/composables/useQueue/index')['createQueue']
   const createQueueContext: typeof import('../../packages/0/src/composables/useQueue/index')['createQueueContext']
   const createRegistryContext: typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']
+  const createSelection: typeof import('../../packages/0/src/composables/useSelection/index')['createSelection']
   const createSelectionContext: typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']
+  const createSingle: typeof import('../../packages/0/src/composables/useSingle/index')['createSingle']
   const createSingleContext: typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']
+  const createStep: typeof import('../../packages/0/src/composables/useStep/index')['createStep']
   const createStepContext: typeof import('../../packages/0/src/composables/useStep/index')['createStepContext']
   const createStorage: typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']
+  const createStorageContext: typeof import('../../packages/0/src/composables/useStorage/index')['createStorageContext']
   const createStoragePlugin: typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']
   const createTheme: typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']
+  const createThemeContext: typeof import('../../packages/0/src/composables/useTheme/index')['createThemeContext']
   const createThemePlugin: typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']
+  const createTimeline: typeof import('../../packages/0/src/composables/useTimeline/index')['createTimeline']
   const createTimelineContext: typeof import('../../packages/0/src/composables/useTimeline/index')['createTimelineContext']
+  const createTokens: typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']
   const createTokensContext: typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']
   const createTrinity: typeof import('../../packages/0/src/composables/createTrinity/index')['createTrinity']
   const customRef: typeof import('vue')['customRef']
@@ -218,25 +234,25 @@ declare global {
   export type { ContextTrinity } from '../../packages/0/src/composables/createTrinity/index'
   import('../../packages/0/src/composables/createTrinity/index')
   // @ts-ignore
-  export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPluginOptions } from '../../packages/0/src/composables/useBreakpoints/index'
+  export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPluginOptions, BreakpointsContextOptions } from '../../packages/0/src/composables/useBreakpoints/index'
   import('../../packages/0/src/composables/useBreakpoints/index')
   // @ts-ignore
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
   import('../../packages/0/src/composables/useEventListener/index')
   // @ts-ignore
-  export type { FeatureTicket, FeatureContext, FeatureOptions, FeaturePluginOptions } from '../../packages/0/src/composables/useFeatures/index'
+  export type { FeatureTicket, FeatureContext, FeatureOptions, FeatureContextOptions, FeaturePluginOptions } from '../../packages/0/src/composables/useFeatures/index'
   import('../../packages/0/src/composables/useFeatures/index')
   // @ts-ignore
   export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, UseFilterOptions, UseFilterResult } from '../../packages/0/src/composables/useFilter/index'
   import('../../packages/0/src/composables/useFilter/index')
   // @ts-ignore
-  export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions } from '../../packages/0/src/composables/useForm/index'
+  export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/useForm/index'
   import('../../packages/0/src/composables/useForm/index')
   // @ts-ignore
-  export type { GroupTicket, GroupContext, GroupOptions } from '../../packages/0/src/composables/useGroup/index'
+  export type { GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
   // @ts-ignore
-  export type { HydrationContext } from '../../packages/0/src/composables/useHydration/index'
+  export type { HydrationContext, HydrationOptions, HydrationContextOptions, HydrationPluginOptions } from '../../packages/0/src/composables/useHydration/index'
   import('../../packages/0/src/composables/useHydration/index')
   // @ts-ignore
   export type { IntersectionObserverEntry, IntersectionObserverOptions } from '../../packages/0/src/composables/useIntersectionObserver/index'
@@ -245,16 +261,16 @@ declare global {
   export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
-  export type { LocaleRecord, LocaleTicket, LocaleContext, LocaleOptions, LocalePluginOptions, LocaleAdapter } from '../../packages/0/src/composables/useLocale/index'
+  export type { LocaleRecord, LocaleTicket, LocaleContext, LocaleOptions, LocaleContextOptions, LocalePluginOptions, LocaleAdapter } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
   // @ts-ignore
-  export type { LoggerContext, LoggerOptions, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
+  export type { LoggerContext, LoggerOptions, LoggerContextOptions, LoggerPluginOptions, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
   import('../../packages/0/src/composables/useLogger/index')
   // @ts-ignore
   export type { MutationObserverRecord, UseMutationObserverOptions } from '../../packages/0/src/composables/useMutationObserver/index'
   import('../../packages/0/src/composables/useMutationObserver/index')
   // @ts-ignore
-  export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
+  export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
   import('../../packages/0/src/composables/usePermissions/index')
   // @ts-ignore
   export type { ProxyModelOptions } from '../../packages/0/src/composables/useProxyModel/index'
@@ -263,34 +279,34 @@ declare global {
   export type { ProxyRegistryOptions, ProxyRegistryContext } from '../../packages/0/src/composables/useProxyRegistry/index'
   import('../../packages/0/src/composables/useProxyRegistry/index')
   // @ts-ignore
-  export type { QueueTicket, QueueContext, QueueOptions } from '../../packages/0/src/composables/useQueue/index'
+  export type { QueueTicket, QueueContext, QueueOptions, QueueContextOptions } from '../../packages/0/src/composables/useQueue/index'
   import('../../packages/0/src/composables/useQueue/index')
   // @ts-ignore
-  export type { RegistryTicket, RegistryContext, RegistryOptions } from '../../packages/0/src/composables/useRegistry/index'
+  export type { RegistryTicket, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
   // @ts-ignore
   export type { ResizeObserverEntry, ResizeObserverOptions } from '../../packages/0/src/composables/useResizeObserver/index'
   import('../../packages/0/src/composables/useResizeObserver/index')
   // @ts-ignore
-  export type { SelectionTicket, SelectionContext, SelectionOptions } from '../../packages/0/src/composables/useSelection/index'
+  export type { SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/useSelection/index'
   import('../../packages/0/src/composables/useSelection/index')
   // @ts-ignore
-  export type { SingleTicket, SingleContext, SingleOptions } from '../../packages/0/src/composables/useSingle/index'
+  export type { SingleTicket, SingleContext, SingleOptions, SingleContextOptions } from '../../packages/0/src/composables/useSingle/index'
   import('../../packages/0/src/composables/useSingle/index')
   // @ts-ignore
-  export type { StepTicket, StepContext, StepOptions } from '../../packages/0/src/composables/useStep/index'
+  export type { StepTicket, StepContext, StepOptions, StepContextOptions } from '../../packages/0/src/composables/useStep/index'
   import('../../packages/0/src/composables/useStep/index')
   // @ts-ignore
-  export type { StorageContext, StorageOptions, StorageAdapter, StorageType } from '../../packages/0/src/composables/useStorage/index'
+  export type { StorageContext, StorageOptions, StorageContextOptions, StoragePluginOptions, StorageAdapter, StorageType } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
   // @ts-ignore
-  export type { Colors, ThemeColors, ThemeRecord, ThemeTicket, ThemeContext, ThemeOptions, ThemePluginOptions, ThemeAdapter } from '../../packages/0/src/composables/useTheme/index'
+  export type { Colors, ThemeColors, ThemeRecord, ThemeTicket, ThemeContext, ThemeOptions, ThemeContextOptions, ThemePluginOptions, ThemeAdapter } from '../../packages/0/src/composables/useTheme/index'
   import('../../packages/0/src/composables/useTheme/index')
   // @ts-ignore
-  export type { TimelineContext, TimelineTicket, TimelineOptions } from '../../packages/0/src/composables/useTimeline/index'
+  export type { TimelineContext, TimelineTicket, TimelineOptions, TimelineContextOptions } from '../../packages/0/src/composables/useTimeline/index'
   import('../../packages/0/src/composables/useTimeline/index')
   // @ts-ignore
-  export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions } from '../../packages/0/src/composables/useTokens/index'
+  export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions, TokenContextOptions } from '../../packages/0/src/composables/useTokens/index'
   import('../../packages/0/src/composables/useTokens/index')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
@@ -325,32 +341,48 @@ declare module 'vue' {
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
     readonly createBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']>
+    readonly createBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsContext']>
     readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
     readonly createContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['createContext']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']>
+    readonly createFeaturesContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesContext']>
     readonly createFeaturesPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']>
+    readonly createForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createForm']>
     readonly createFormContext: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createFormContext']>
+    readonly createGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroup']>
     readonly createGroupContext: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroupContext']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
+    readonly createHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationContext']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
     readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
+    readonly createLocaleContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocaleContext']>
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
+    readonly createLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerContext']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
     readonly createPermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']>
+    readonly createPermissionsContext: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsContext']>
     readonly createPermissionsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']>
     readonly createPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']>
+    readonly createQueue: UnwrapRef<typeof import('../../packages/0/src/composables/useQueue/index')['createQueue']>
     readonly createQueueContext: UnwrapRef<typeof import('../../packages/0/src/composables/useQueue/index')['createQueueContext']>
     readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']>
+    readonly createSelection: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['createSelection']>
     readonly createSelectionContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']>
+    readonly createSingle: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['createSingle']>
     readonly createSingleContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']>
+    readonly createStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['createStep']>
     readonly createStepContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['createStepContext']>
     readonly createStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']>
+    readonly createStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorageContext']>
     readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
     readonly createTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createTheme']>
+    readonly createThemeContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemeContext']>
     readonly createThemePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['createThemePlugin']>
+    readonly createTimeline: UnwrapRef<typeof import('../../packages/0/src/composables/useTimeline/index')['createTimeline']>
     readonly createTimelineContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTimeline/index')['createTimelineContext']>
+    readonly createTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokens']>
     readonly createTokensContext: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['createTokensContext']>
     readonly createTrinity: UnwrapRef<typeof import('../../packages/0/src/composables/createTrinity/index')['createTrinity']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
@@ -400,7 +432,6 @@ declare module 'vue' {
     readonly parseColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['provideContext']>
-    readonly provideHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']>
     readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
@@ -440,7 +471,6 @@ declare module 'vue' {
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
-    readonly useHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
     readonly useKeydown: UnwrapRef<typeof import('../../packages/0/src/composables/useKeydown/index')['useKeydown']>
