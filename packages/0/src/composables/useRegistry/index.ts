@@ -39,7 +39,7 @@ export interface RegistryTicket {
    */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
-  value: unknown
+  value: any
   /**
    * Whether the value is derived from index.
    *
