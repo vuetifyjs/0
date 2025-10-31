@@ -189,7 +189,7 @@ export function createSelection<
   }
 
   function toggle (id: ID) {
-    if (selectedIds.has(id)) unselect(id)
+    if (selected(id)) unselect(id)
     else select(id)
   }
 
@@ -203,7 +203,7 @@ export function createSelection<
       disabled: false,
       ...registration,
       id,
-      isSelected: toRef(() => selectedIds.has(id)),
+      isSelected: toRef(() => selected(id)),
       select: () => select(id),
       unselect: () => unselect(id),
       toggle: () => toggle(id),
