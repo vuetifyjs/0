@@ -5,10 +5,10 @@
 
   // Utilities
   import { toRef, toValue } from 'vue'
+  import { isArray } from '#v0/utilities'
 
   // Types
   import type { ID } from '#v0/types'
-  import { isArray } from '#v0/utilities'
 
   defineOptions({ name: 'SelectionRoot' })
 
