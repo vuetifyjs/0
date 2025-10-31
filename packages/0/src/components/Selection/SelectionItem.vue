@@ -9,13 +9,25 @@
 
   defineSlots<{
     default: (props: {
+      /** Unique identifier (auto-generated if not provided) */
       id: string
+      /** Optional display label (passed through to slot, not used in registration) */
       label?: string
+      /** Value associated with this item */
       value: unknown
+      /** Whether this item is currently selected */
       isSelected: boolean
+      /** Disables this specific item */
       disabled: boolean
+      /** ARIA disabled state */
+      ariaSelected: boolean
+      /** ARIA selected state */
+      ariaDisabled: boolean
+      /** Select this item */
       select: () => void
+      /** Unselect this item */
       unselect: () => void
+      /** Toggle this item's selection state */
       toggle: () => void
     }) => any
   }>()
@@ -27,31 +39,38 @@
     disabled,
     namespace = 'v0:selection',
   } = defineProps<{
+    /** Optional display label (passed through to slot, not used in registration) */
     label?: string
+    /** Unique identifier (auto-generated if not provided) */
     id?: string
+    /** Disables this specific item */
     disabled?: boolean
+    /** Value associated with this item */
     value?: unknown
+    /** Namespace for dependency injection */
     namespace?: string
   }>()
 
   const selection = useSelection(namespace)
-  const radio = selection.register({ id, value, disabled })
-  const isDisabled = toRef(() => radio.disabled || selection.disabled)
+  const ticket = selection.register({ id, value, disabled })
+  const isDisabled = toRef(() => ticket.disabled || selection.disabled)
 
   onUnmounted(() => {
-    selection.unregister(radio.id)
+    selection.unregister(ticket.id)
   })
 </script>
 
 <template>
   <slot
-    :id="String(radio.id)"
+    :id="String(ticket.id)"
+    :aria-disabled="toValue(isDisabled)"
+    :aria-selected="toValue(ticket.isSelected)"
     :disabled="toValue(isDisabled)"
-    :is-selected="toValue(radio.isSelected)"
+    :is-selected="toValue(ticket.isSelected)"
     :label
-    :select="radio.select"
-    :toggle="radio.toggle"
-    :unselect="radio.unselect"
+    :select="ticket.select"
+    :toggle="ticket.toggle"
+    :unselect="ticket.unselect"
     :value
   />
 </template>
