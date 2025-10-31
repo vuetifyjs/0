@@ -26,13 +26,15 @@ import { computed, shallowReactive, toRef } from 'vue'
 import { genId } from '#v0/utilities'
 
 // Types
-import type { App, ComputedRef, Reactive, Ref } from 'vue'
+import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export interface SelectionTicket extends RegistryTicket {
+  /** Disabled state of the ticket */
   disabled: boolean
+  /** Whether the ticket is currently selected */
   isSelected: Readonly<Ref<boolean, boolean>>
   /** Select self */
   select: () => void
@@ -43,9 +45,14 @@ export interface SelectionTicket extends RegistryTicket {
 }
 
 export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
+  /** Set of selected ticket IDs */
   selectedIds: Reactive<Set<ID>>
+  /** Set of selected ticket instances */
   selectedItems: ComputedRef<Set<Z>>
+  /** Set of selected ticket values */
   selectedValues: ComputedRef<Set<unknown>>
+  /** Disable state for the entire selection instance */
+  disabled: MaybeRef<boolean>
   /** Clear all selected IDs and reindexes */
   reset: () => void
   /** Select a ticket by ID (Toggle ON) */
@@ -61,6 +68,8 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
 }
 
 export interface SelectionOptions extends RegistryOptions {
+  /** When true, the entire selection instance is disabled. */
+  disabled?: MaybeRef<boolean>
   /**
    * When true, newly registered items are automatically selected if not disabled.
    * Useful for pre-selecting items in multi-select scenarios.
@@ -131,6 +140,7 @@ export function createSelection<
 > (options?: SelectionOptions): E {
   const registry = useRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
+  const disabled = options?.disabled ?? false
   const enroll = options?.enroll ?? false
   const mandatory = options?.mandatory ?? false
 
@@ -213,6 +223,7 @@ export function createSelection<
 
   return {
     ...registry,
+    disabled,
     selectedIds,
     selectedItems,
     selectedValues,
