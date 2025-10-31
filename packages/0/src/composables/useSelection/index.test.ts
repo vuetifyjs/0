@@ -114,7 +114,7 @@ describe('useSelection', () => {
 
   describe('reset', () => {
     it('should clear registry and selectedIds', () => {
-      const selection = createSelection()
+      const selection = createSelection({ multiple: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -382,7 +382,7 @@ describe('useSelection', () => {
     })
 
     it('should allow multiple selections', () => {
-      const selection = createSelection()
+      const selection = createSelection({ multiple: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -420,7 +420,7 @@ describe('useSelection', () => {
     })
 
     it('should allow deselection when mandatory is true but multiple items selected', () => {
-      const selection = createSelection({ mandatory: true })
+      const selection = createSelection({ mandatory: true, multiple: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -492,7 +492,7 @@ describe('useSelection', () => {
 
   describe('selectedItems and selectedValues', () => {
     it('should compute selectedItems correctly', () => {
-      const selection = createSelection()
+      const selection = createSelection({ multiple: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -510,7 +510,7 @@ describe('useSelection', () => {
     })
 
     it('should compute selectedValues correctly', () => {
-      const selection = createSelection()
+      const selection = createSelection({ multiple: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -528,7 +528,7 @@ describe('useSelection', () => {
     })
 
     it('should update selectedItems and selectedValues reactively', () => {
-      const selection = createSelection()
+      const selection = createSelection({ multiple: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
