@@ -108,8 +108,9 @@ export interface GroupContextOptions extends SelectionContextOptions {}
 export function createGroup<
   Z extends GroupTicket = GroupTicket,
   E extends GroupContext<Z> = GroupContext<Z>,
-> (options?: GroupOptions): E {
-  const registry = createSelection<Z, E>(options)
+> (_options: GroupOptions = {}): E {
+  const { mandatory = false, multiple = true, ...options } = _options
+  const registry = createSelection<Z, E>({ ...options, mandatory, multiple })
 
   const selectedIndexes = computed(() => {
     return new Set(
