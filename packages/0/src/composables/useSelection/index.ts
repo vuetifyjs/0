@@ -82,6 +82,8 @@ export interface SelectionOptions extends RegistryOptions {
    * - `'force'`: Automatically selects the first non-disabled item on registration
    */
   mandatory?: boolean | 'force'
+  /** When true, treats the selection as an array */
+  multiple?: boolean
 }
 
 export interface SelectionContextOptions extends SelectionOptions {
@@ -142,6 +144,7 @@ export function createSelection<
     disabled = false,
     enroll = false,
     mandatory = false,
+    multiple = false,
     ...options
   } = _options
   const registry = useRegistry<Z, E>(options)
@@ -175,6 +178,7 @@ export function createSelection<
     const item = registry.get(id)
     if (!item || item.disabled) return
 
+    if (!multiple) selectedIds.clear()
     selectedIds.add(id)
   }
 
