@@ -27,6 +27,8 @@ declare module 'vue' {
     PopoverRoot: typeof import('./../../packages/0/src/components/Popover/PopoverRoot.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SelectionItem: typeof import('./../../packages/0/src/components/Selection/SelectionItem.vue')['default']
+    SelectionRoot: typeof import('./../../packages/0/src/components/Selection/SelectionRoot.vue')['default']
     StepItem: typeof import('./../../packages/0/src/components/Step/StepItem.vue')['default']
     StepRoot: typeof import('./../../packages/0/src/components/Step/StepRoot.vue')['default']
     ThemeItem: typeof import('./../../packages/0/src/components/Theme/ThemeItem.vue')['default']
