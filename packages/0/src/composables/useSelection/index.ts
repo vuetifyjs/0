@@ -137,12 +137,15 @@ export interface SelectionContextOptions extends SelectionOptions {
 export function createSelection<
   Z extends SelectionTicket = SelectionTicket,
   E extends SelectionContext<Z> = SelectionContext<Z>,
-> (options?: SelectionOptions): E {
+> (_options: SelectionOptions = {}): E {
+  const {
+    disabled = false,
+    enroll = false,
+    mandatory = false,
+    ...options
+  } = _options
   const registry = useRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
-  const disabled = options?.disabled ?? false
-  const enroll = options?.enroll ?? false
-  const mandatory = options?.mandatory ?? false
 
   const selectedItems = computed(() => {
     return new Set(
