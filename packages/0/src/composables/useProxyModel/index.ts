@@ -61,22 +61,24 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
   model: Ref<unknown>,
   options?: ProxyModelOptions,
 ) {
-  const isModelArray = options?.multiple ?? isArray(model.value)
+  const multiple = options?.multiple ?? false
   const _transformIn = options?.transformIn
   const _transformOut = options?.transformOut
 
   function transformIn (val: unknown): unknown[] {
-    return toArray(isFunction(_transformIn) ? _transformIn(val) : val)
+    const value = toValue(val)
+    return toArray(isFunction(_transformIn) ? _transformIn(value) : value)
   }
 
   function transformOut (val: unknown[]) {
     if (isFunction(_transformOut)) return _transformOut(val)
-    return isModelArray ? val : val[0]
+    return multiple ? val : val[0]
   }
 
-  const pending = new Set(toArray(model.value))
+  const modelAsArray = transformIn(model)
+  const pending = new Set(modelAsArray)
 
-  for (const value of toArray(model.value)) {
+  for (const value of modelAsArray) {
     const ids = registry.browse(value)
     if (isArray(ids)) {
       for (const id of ids) registry.select(id)
@@ -110,7 +112,7 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
       }
     }
 
-    if (isModelArray) {
+    if (multiple) {
       for (const id of currentIds.difference(targetIds)) {
         registry.selectedIds.delete(id)
       }
@@ -125,7 +127,7 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
     }
 
     registryWatch.resume()
-  }, { flush: 'sync', deep: isModelArray })
+  }, { flush: 'sync', deep: multiple })
 
   function onRegister (ticket: Z) {
     if (!pending.has(ticket.value) || ticket.disabled) return
