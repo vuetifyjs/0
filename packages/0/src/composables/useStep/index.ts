@@ -20,6 +20,9 @@ import { createTrinity } from '#v0/composables/createTrinity'
 // Composables
 import { createSingle } from '#v0/composables/useSingle'
 
+// Utilities
+import { toValue } from 'vue'
+
 // Types
 import type { App } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -140,7 +143,7 @@ export function createStep<
     let index = wrapped(length, registry.selectedIndex.value + count)
     let id = registry.lookup(index)
 
-    while (id !== undefined && registry.get(id)?.disabled && hops < length) {
+    while (id !== undefined && toValue(registry.get(id)?.disabled) && hops < length) {
       index = wrapped(length, index + direction)
       id = registry.lookup(index)
       hops++

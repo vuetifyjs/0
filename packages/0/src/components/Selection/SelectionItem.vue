@@ -5,6 +5,9 @@
   // Utilities
   import { onUnmounted, toRef, toValue } from 'vue'
 
+  // Types
+  import type { MaybeRef } from 'vue'
+
   defineOptions({ name: 'SelectionItem' })
 
   defineSlots<{
@@ -44,7 +47,7 @@
     /** Unique identifier (auto-generated if not provided) */
     id?: string
     /** Disables this specific item */
-    disabled?: boolean
+    disabled?: MaybeRef<boolean>
     /** Value associated with this item */
     value?: any
     /** Namespace for dependency injection */

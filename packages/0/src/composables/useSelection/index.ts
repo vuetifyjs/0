@@ -22,7 +22,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
-import { computed, shallowReactive, toRef } from 'vue'
+import { computed, shallowReactive, toRef, toValue } from 'vue'
 import { genId } from '#v0/utilities'
 
 // Types
@@ -33,7 +33,7 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export interface SelectionTicket extends RegistryTicket {
   /** Disabled state of the ticket */
-  disabled: boolean
+  disabled: MaybeRef<boolean>
   /** Whether the ticket is currently selected */
   isSelected: Readonly<Ref<boolean, boolean>>
   /** Select self */
@@ -163,7 +163,7 @@ export function createSelection<
   })
 
   function seek (direction: 'first' | 'last' = 'first', from?: number): Z | undefined {
-    return registry.seek(direction, from, (ticket: Z) => !ticket.disabled)
+    return registry.seek(direction, from, (ticket: Z) => !toValue(ticket.disabled))
   }
 
   function mandate () {
@@ -176,7 +176,7 @@ export function createSelection<
 
   function select (id: ID) {
     const item = registry.get(id)
-    if (!item || item.disabled) return
+    if (!item || toValue(item.disabled)) return
 
     if (!multiple) selectedIds.clear()
     selectedIds.add(id)
@@ -211,7 +211,7 @@ export function createSelection<
 
     const ticket = registry.register(item) as Z
 
-    if (enroll && !item.disabled) selectedIds.add(ticket.id)
+    if (enroll && !toValue(item.disabled)) selectedIds.add(ticket.id)
     if (mandatory === 'force') mandate()
 
     return ticket
