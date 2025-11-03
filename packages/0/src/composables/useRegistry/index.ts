@@ -711,6 +711,7 @@ export function useRegistry<
   function reindex () {
     if (catalog.size > 0) catalog.clear()
     if (directory.size > 0) directory.clear()
+    invalidate()
 
     let index = 0
 
@@ -726,8 +727,6 @@ export function useRegistry<
 
       index++
     }
-
-    invalidate()
   }
 
   function register (registration: Partial<Z> = {}): Z {
