@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script lang="ts" setup generic="T = unknown">
   // Composables
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { createSelectionContext } from '#v0/composables/useSelection'
@@ -32,6 +32,7 @@
     namespace = 'v0:selection',
     disabled = false,
     enroll = false,
+    mandatory = false,
     multiple = false,
   } = defineProps<{
     /** Namespace for dependency injection (must match SelectionItem namespace) */
@@ -40,16 +41,24 @@
     disabled?: boolean
     /** Auto-select non-disabled items on registration */
     enroll?: boolean
+    /**
+     * Controls mandatory selection behavior:
+     * - false (default): No mandatory selection enforcement
+     * - true: Prevents deselecting the last selected item
+     * - `force`: Automatically selects the first non-disabled item on registration
+     */
+    mandatory?: boolean | 'force'
     /** Enable multi-selection mode (array v-model) */
     multiple?: boolean
   }>()
 
-  const model = defineModel<unknown | unknown[]>()
+  const model = defineModel<T | T[]>()
 
   const [, provideSelectionControl, context] = createSelectionContext({
     namespace,
     disabled: toRef(() => disabled),
     enroll,
+    mandatory,
     multiple,
     events: true,
   })

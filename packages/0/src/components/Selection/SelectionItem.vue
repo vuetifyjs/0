@@ -14,7 +14,7 @@
       /** Optional display label (passed through to slot, not used in registration) */
       label?: string
       /** Value associated with this item */
-      value: unknown
+      value: any
       /** Whether this item is currently selected */
       isSelected: boolean
       /** Disables this specific item */
@@ -46,7 +46,7 @@
     /** Disables this specific item */
     disabled?: boolean
     /** Value associated with this item */
-    value?: unknown
+    value?: any
     /** Namespace for dependency injection */
     namespace?: string
   }>()
