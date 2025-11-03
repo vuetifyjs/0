@@ -727,6 +727,8 @@ export function useRegistry<
 
       index++
     }
+
+    emit('reindex:registry')
   }
 
   function register (registration: Partial<Z> = {}): Z {
