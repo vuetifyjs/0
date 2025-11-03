@@ -742,7 +742,7 @@ export function useRegistry<
     }
 
     const valueIsUndefined = isUndefined(registration.value)
-    const index = size
+    const index = registration.index ?? size
     const value = valueIsUndefined ? index : registration.value
     const valueIsIndex = valueIsUndefined
 
