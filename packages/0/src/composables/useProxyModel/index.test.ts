@@ -137,8 +137,8 @@ describe('useProxyModel', () => {
     const selection = createSelection({ events: true })
     const model = ref()
     useProxyModel(selection, model, {
-      transformIn: (val) => String(val).toUpperCase(),
-      transformOut: (val) => String(val).toLowerCase(),
+      transformIn: val => String(val).toUpperCase(),
+      transformOut: val => String(val).toLowerCase(),
     })
 
     selection.onboard([
