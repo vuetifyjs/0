@@ -676,7 +676,7 @@ export function useRegistry<
 
   function values () {
     const cached = cache.get('values')
-    if (cached != undefined) return cached as Z[]
+    if (!isUndefined(cached)) return cached as Z[]
 
     const values = Array.from(collection.values())
 
@@ -687,7 +687,7 @@ export function useRegistry<
 
   function entries () {
     const cached = cache.get('entries')
-    if (cached != undefined) return cached as [ID, Z][]
+    if (!isUndefined(cached)) return cached as [ID, Z][]
 
     const entries = Array.from(collection.entries())
 
@@ -740,9 +740,10 @@ export function useRegistry<
       return get(id) as Z
     }
 
+    const valueIsUndefined = isUndefined(registration.value)
     const index = registration.index ?? size
-    const value = registration.value === undefined ? index : registration.value
-    const valueIsIndex = registration.value === undefined
+    const value = valueIsUndefined ? index : registration.value
+    const valueIsIndex = valueIsUndefined
 
     const ticket = {
       ...registration,
