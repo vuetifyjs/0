@@ -24,8 +24,11 @@ declare module 'vue-router/auto-routes' {
     '/components/breakpoints': RouteRecordInfo<'/components/breakpoints', '/components/breakpoints', Record<never, never>, Record<never, never>>,
     '/components/components': RouteRecordInfo<'/components/components', '/components/components', Record<never, never>, Record<never, never>>,
     '/components/context': RouteRecordInfo<'/components/context', '/components/context', Record<never, never>, Record<never, never>>,
+    '/components/group': RouteRecordInfo<'/components/group', '/components/group', Record<never, never>, Record<never, never>>,
     '/components/hydration': RouteRecordInfo<'/components/hydration', '/components/hydration', Record<never, never>, Record<never, never>>,
     '/components/popover': RouteRecordInfo<'/components/popover', '/components/popover', Record<never, never>, Record<never, never>>,
+    '/components/selection': RouteRecordInfo<'/components/selection', '/components/selection', Record<never, never>, Record<never, never>>,
+    '/components/single': RouteRecordInfo<'/components/single', '/components/single', Record<never, never>, Record<never, never>>,
     '/components/step': RouteRecordInfo<'/components/step', '/components/step', Record<never, never>, Record<never, never>>,
     '/components/theme': RouteRecordInfo<'/components/theme', '/components/theme', Record<never, never>, Record<never, never>>,
     '/composables/': RouteRecordInfo<'/composables/', '/composables', Record<never, never>, Record<never, never>>,
@@ -109,12 +112,24 @@ declare module 'vue-router/auto-routes' {
       routes: '/components/context'
       views: never
     }
+    'src/pages/components/group.md': {
+      routes: '/components/group'
+      views: never
+    }
     'src/pages/components/hydration.md': {
       routes: '/components/hydration'
       views: never
     }
     'src/pages/components/popover.md': {
       routes: '/components/popover'
+      views: never
+    }
+    'src/pages/components/selection.md': {
+      routes: '/components/selection'
+      views: never
+    }
+    'src/pages/components/single.md': {
+      routes: '/components/single'
       views: never
     }
     'src/pages/components/step.md': {

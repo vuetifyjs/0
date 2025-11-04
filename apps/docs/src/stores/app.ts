@@ -35,6 +35,20 @@ export const useAppStore = defineStore('app', {
       },
       { divider: true },
       {
+        name: 'Components',
+        to: '/components',
+        children: [
+          { name: 'Atom', to: '/components/atom' },
+          { name: 'Avatar', to: '/components/avatar' },
+          { name: 'Group', to: '/components/group' },
+          { name: 'Popover', to: '/components/popover' },
+          { name: 'Selection', to: '/components/selection' },
+          { name: 'Single', to: '/components/single' },
+          { name: 'Step', to: '/components/step' },
+        ],
+      },
+      { divider: true },
+      {
         name: 'Composables',
         to: '/composables',
         children: [
@@ -105,28 +119,6 @@ export const useAppStore = defineStore('app', {
           },
         ],
       },
-      // { divider: true },
-      // {
-      //   name: 'Components',
-      //   to: '/components',
-      //   children: [
-      //     { name: 'Atom', to: '/components/atom' },
-      //     { name: 'Avatar', to: '/components/avatar' },
-      //     { name: 'Breakpoints', to: '/components/breakpoints' },
-      //     { name: 'Context', to: '/components/context' },
-      //     { name: 'Hydration', to: '/components/hydration' },
-      //     { name: 'Popover', to: '/components/popover' },
-      //     { name: 'Step', to: '/components/step' },
-      //     { name: 'Theme', to: '/components/theme' },
-      //   ],
-      // },
-      // { divider: true },
-      // {
-      //   name: 'Utilities',
-      //   children: [
-      //     { name: 'toReactive', to: '/utilities/to-reactive' },
-      //   ],
-      // },
     ],
     stats: {
       commit: null as Commit | null,
