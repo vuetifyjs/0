@@ -3,7 +3,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { onMounted, toRef, useTemplateRef } from 'vue'
+  import { onMounted, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import { usePopoverContext } from './PopoverRoot.vue'
@@ -45,6 +45,17 @@
   onMounted(() => {
     if (context.isSelected.value) {
       ref.value?.element?.showPopover()
+    }
+  })
+
+  watch(context.isSelected, isOpen => {
+    const element = ref.value?.element
+    if (!element) return
+
+    if (isOpen) {
+      element.showPopover?.()
+    } else {
+      element.hidePopover?.()
     }
   })
 
