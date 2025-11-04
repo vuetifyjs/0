@@ -8,7 +8,11 @@
 <template>
   <Selection.Root v-model="selected" mandatory multiple>
     <div class="flex flex-col gap-2">
-      <Selection.Item v-for="i in 3" :key="i" :value="`option${i}`">
+      <Selection.Item
+        v-for="i in 3"
+        :key="i"
+        :value="`option${i}`"
+      >
         <template #default="{ isSelected, toggle }">
           <button
             class="px-3 py-1.5 border rounded text-left text-sm"

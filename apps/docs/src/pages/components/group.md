@@ -12,8 +12,6 @@ features:
 <script setup>
 import BasicExample from '@/examples/components/group/basic.vue'
 import BasicExampleRaw from '@/examples/components/group/basic.vue?raw'
-import BatchExample from '@/examples/components/group/batch.vue'
-import BatchExampleRaw from '@/examples/components/group/batch.vue?raw'
 </script>
 
 # Group
@@ -117,11 +115,3 @@ Individual group items that register with the Group context.
     }) => any
   }
   ```
-
-## Examples
-
-### Batch Operations
-
-<DocsExample file="batch.vue" :code="BatchExampleRaw">
-  <BatchExample />
-</DocsExample>
