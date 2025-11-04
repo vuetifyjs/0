@@ -29,6 +29,8 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SelectionItem: typeof import('./../../packages/0/src/components/Selection/SelectionItem.vue')['default']
     SelectionRoot: typeof import('./../../packages/0/src/components/Selection/SelectionRoot.vue')['default']
+    SingleItem: typeof import('./../../packages/0/src/components/Single/SingleItem.vue')['default']
+    SingleRoot: typeof import('./../../packages/0/src/components/Single/SingleRoot.vue')['default']
     StepItem: typeof import('./../../packages/0/src/components/Step/StepItem.vue')['default']
     StepRoot: typeof import('./../../packages/0/src/components/Step/StepRoot.vue')['default']
     ThemeItem: typeof import('./../../packages/0/src/components/Theme/ThemeItem.vue')['default']
