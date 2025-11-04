@@ -7,11 +7,15 @@
 
 <template>
   <Selection.Root v-model="selected" multiple>
-    <div class="flex flex-col gap-1">
-      <Selection.Item v-for="item in ['apple', 'banana', 'cherry']" :key="item" :value="item">
+    <div class="flex flex-col gap-2">
+      <Selection.Item
+        v-for="item in ['apple', 'banana', 'cherry']"
+        :key="item"
+        :value="item"
+      >
         <template #default="{ isSelected, toggle }">
           <button
-            class="px-2 py-1 border rounded text-sm"
+            class="px-3 py-1.5 border rounded text-left text-sm"
             :class="isSelected ? 'bg-surfaceTint border-primary' : 'bg-surface border-divider'"
             @click="toggle"
           >
@@ -22,5 +26,5 @@
     </div>
   </Selection.Root>
 
-  <p class="mt-2 text-sm">Selected: {{ selected.join(', ') }}</p>
+  <p class="mt-4">Selected: {{ selected.join(', ') }}</p>
 </template>
