@@ -12,10 +12,7 @@
         <template #default="{ isSelected, toggle }">
           <button
             class="px-3 py-1.5 border rounded text-left text-sm"
-            :style="{
-              backgroundColor: isSelected ? 'var(--v0-surface-tint)' : 'var(--v0-surface)',
-              borderColor: isSelected ? 'var(--v0-primary)' : 'var(--v0-divider)'
-            }"
+            :class="isSelected ? 'bg-surfaceTint border-primary' : 'bg-surface border-divider'"
             @click="toggle"
           >
             {{ size }}

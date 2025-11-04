@@ -12,10 +12,7 @@
         <template #default="{ isSelected, toggle }">
           <button
             class="px-3 py-1.5 border rounded text-left text-sm"
-            :style="{
-              backgroundColor: isSelected ? 'var(--v0-surface-tint)' : 'var(--v0-surface)',
-              borderColor: isSelected ? 'var(--v0-primary)' : 'var(--v0-divider)'
-            }"
+            :class="isSelected ? 'bg-surfaceTint border-primary' : 'bg-surface border-divider'"
             @click="toggle"
           >
             Option 1
@@ -26,8 +23,7 @@
       <Selection.Item :disabled="true" value="option2">
         <template #default="{ disabled }">
           <button
-            class="px-3 py-1.5 border rounded text-left text-sm opacity-50"
-            style="background-color: var(--v0-surface-tint); border-color: var(--v0-divider);"
+            class="px-3 py-1.5 border border-divider rounded text-left text-sm opacity-50 bg-surfaceTint"
             :disabled="disabled"
           >
             Option 2 (disabled)
@@ -39,10 +35,7 @@
         <template #default="{ isSelected, toggle }">
           <button
             class="px-3 py-1.5 border rounded text-left text-sm"
-            :style="{
-              backgroundColor: isSelected ? 'var(--v0-surface-tint)' : 'var(--v0-surface)',
-              borderColor: isSelected ? 'var(--v0-primary)' : 'var(--v0-divider)'
-            }"
+            :class="isSelected ? 'bg-surfaceTint border-primary' : 'bg-surface border-divider'"
             @click="toggle"
           >
             Option 3

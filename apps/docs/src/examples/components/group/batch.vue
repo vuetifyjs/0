@@ -10,10 +10,10 @@
   <Group.Root v-model="selected">
     <template #default="{ select, unselect }">
       <div class="flex gap-2 mb-4">
-        <button class="px-3 py-1 rounded" style="background-color: var(--v0-primary); color: var(--v0-on-primary);" @click="select(items)">
+        <button class="px-3 py-1 rounded bg-primary text-on-primary" @click="select(items)">
           Select All
         </button>
-        <button class="px-3 py-1 rounded" style="background-color: var(--v0-secondary); color: var(--v0-on-secondary);" @click="unselect(items)">
+        <button class="px-3 py-1 rounded bg-secondary text-on-secondary" @click="unselect(items)">
           Clear
         </button>
       </div>
