@@ -364,6 +364,20 @@ Adapters live in `packages/0/src/composables/useX/adapters/`
 - **CSS variables only**: All styling via `--v0-*` custom properties, never hardcoded
 - **No global state**: All state is local or context-based
 
+### Styling Guidelines
+
+- **Always use UnoCSS utility classes** for styling in examples, documentation, and playground
+- UnoCSS is the primary styling approach for this project
+- Use utility-first classes instead of custom `<style>` blocks whenever possible
+- Examples:
+  - Layout: `flex`, `grid`, `items-center`, `justify-between`, `gap-4`
+  - Spacing: `px-6`, `py-4`, `mb-8`, `mt-12`
+  - Colors: `bg-blue-50`, `text-gray-900`, `border-gray-300`
+  - Typography: `text-2xl`, `font-medium`, `leading-relaxed`
+  - Effects: `transition-all`, `hover:bg-gray-100`, `rounded-lg`
+- Only use custom CSS when absolutely necessary (e.g., animations, complex gradients)
+- Component library code remains headless (no styling in components themselves)
+
 ### Composables
 
 - Named with `use` prefix (e.g., `useTheme`, `useBreakpoints`) or `create` for factories
