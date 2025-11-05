@@ -24,6 +24,7 @@ declare module 'vue-router/auto-routes' {
     '/components/breakpoints': RouteRecordInfo<'/components/breakpoints', '/components/breakpoints', Record<never, never>, Record<never, never>>,
     '/components/components': RouteRecordInfo<'/components/components', '/components/components', Record<never, never>, Record<never, never>>,
     '/components/context': RouteRecordInfo<'/components/context', '/components/context', Record<never, never>, Record<never, never>>,
+    '/components/expansion-panel': RouteRecordInfo<'/components/expansion-panel', '/components/expansion-panel', Record<never, never>, Record<never, never>>,
     '/components/group': RouteRecordInfo<'/components/group', '/components/group', Record<never, never>, Record<never, never>>,
     '/components/hydration': RouteRecordInfo<'/components/hydration', '/components/hydration', Record<never, never>, Record<never, never>>,
     '/components/popover': RouteRecordInfo<'/components/popover', '/components/popover', Record<never, never>, Record<never, never>>,
@@ -110,6 +111,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/components/context.md': {
       routes: '/components/context'
+      views: never
+    }
+    'src/pages/components/expansion-panel.md': {
+      routes: '/components/expansion-panel'
       views: never
     }
     'src/pages/components/group.md': {
