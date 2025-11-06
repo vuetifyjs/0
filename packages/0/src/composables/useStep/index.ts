@@ -5,10 +5,10 @@
  * Navigation composable that extends useSingle with first/last/next/prev/step methods.
  *
  * Key features:
- * - Circular navigation (wraps around at boundaries)
+ * - Configurable circular or bounded navigation
  * - Automatic disabled item skipping
  * - Arbitrary step counts (positive/negative)
- * - Perfect for wizards, carousels, onboarding flows
+ * - Perfect for wizards, carousels, pagination, onboarding flows
  *
  * Inheritance chain: useRegistry → useSelection → useSingle → useStep
  */
@@ -43,15 +43,31 @@ export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
   step: (count: number) => void
 }
 
-export interface StepOptions extends SingleOptions {}
+export interface StepOptions extends SingleOptions {
+  /**
+   * Enable circular navigation (wrapping at boundaries).
+   * - true: Navigation wraps around (carousel behavior)
+   * - false: Navigation stops at boundaries (pagination behavior)
+   * @default false
+   */
+  circular?: boolean
+}
 
-export interface StepContextOptions extends SingleContextOptions {}
+export interface StepContextOptions extends SingleContextOptions {
+  /**
+   * Enable circular navigation (wrapping at boundaries).
+   * - true: Navigation wraps around (carousel behavior)
+   * - false: Navigation stops at boundaries (pagination behavior)
+   * @default false
+   */
+  circular?: boolean
+}
 
 /**
- * Creates a new step instance with circular navigation through items.
+ * Creates a new step instance with navigation through items.
  *
  * Extends `createSingle` with `first()`, `last()`, `next()`, `prev()`, and `step(count)` methods
- * for sequential navigation. Automatically wraps around at boundaries (circular navigation).
+ * for sequential navigation. Supports both circular (wrapping) and bounded (stopping at edges) modes.
  *
  * @param options The options for the step instance.
  * @template Z The type of the step ticket.
@@ -60,7 +76,7 @@ export interface StepContextOptions extends SingleContextOptions {}
  *
  * @remarks
  * **Key Features:**
- * - **Circular Navigation**: Wrapping at start/end boundaries
+ * - **Configurable Navigation**: `circular: true` for wrapping, `false` for bounded (default: false)
  * - **Disabled Item Skipping**: Automatically skips disabled items during navigation
  * - **Bidirectional**: Forward (`next`, positive `step`) and backward (`prev`, negative `step`)
  * - **Safe Edge Cases**: Handles empty registries and all-disabled scenarios gracefully
@@ -68,15 +84,20 @@ export interface StepContextOptions extends SingleContextOptions {}
  * **Navigation Methods:**
  * - `first()`: Select first non-disabled item
  * - `last()`: Select last non-disabled item
- * - `next()`: Move to next item (wraps to first)
- * - `prev()`: Move to previous item (wraps to last)
+ * - `next()`: Move to next item (wraps if circular, stops at end if bounded)
+ * - `prev()`: Move to previous item (wraps if circular, stops at start if bounded)
  * - `step(count)`: Move by `count` positions (negative for backward)
  *
- * **Wrapping Behavior:**
- * - Uses modulo arithmetic for circular wrapping: `((index % length) + length) % length`
+ * **Circular Mode (`circular: true`):**
+ * - Uses modulo arithmetic for wrapping: `((index % length) + length) % length`
  * - Works correctly with negative indexes and large step counts
- * - Continues searching if landing on disabled items (up to registry length iterations)
- * - Returns early if all items are disabled to prevent infinite loops
+ * - Perfect for carousels, theme switchers, infinite scrolling
+ *
+ * **Bounded Mode (`circular: false`, default):**
+ * - Navigation stops at boundaries (no wrapping)
+ * - `next()` on last item does nothing
+ * - `prev()` on first item does nothing
+ * - Perfect for pagination, wizards with explicit completion, forms
  *
  * **Inheritance Chain:**
  * `useRegistry` → `createSelection` → `createSingle` → `createStep`
@@ -87,29 +108,34 @@ export interface StepContextOptions extends SingleContextOptions {}
  * ```ts
  * import { createStep } from '@vuetify/v0'
  *
- * const wizard = createStep({ mandatory: true })
- *
- * wizard.onboard([
- *   { id: 'account', value: 'Account Info' },
- *   { id: 'payment', value: 'Payment Details' },
- *   { id: 'review', value: 'Review', disabled: true },
- *   { id: 'confirm', value: 'Confirmation' },
+ * // Bounded navigation (default) - for pagination
+ * const pagination = createStep({ circular: false })
+ * pagination.onboard([
+ *   { id: 'page-1', value: 1 },
+ *   { id: 'page-2', value: 2 },
+ *   { id: 'page-3', value: 3 },
  * ])
+ * pagination.first() // Select page 1
+ * pagination.prev() // Does nothing (already at first)
+ * pagination.next() // Select page 2
  *
- * wizard.first() // Select 'account'
- * console.log(wizard.selectedId.value) // 'account'
- *
- * wizard.next() // Move to 'payment'
- * wizard.next() // Skip disabled 'review', move to 'confirm'
- * wizard.next() // Wrap around to 'account'
- *
- * wizard.step(-2) // Go back 2 steps (wraps correctly)
+ * // Circular navigation - for carousels
+ * const carousel = createStep({ circular: true })
+ * carousel.onboard([
+ *   { id: 'slide-1', value: 'First' },
+ *   { id: 'slide-2', value: 'Second' },
+ *   { id: 'slide-3', value: 'Third' },
+ * ])
+ * carousel.first()
+ * carousel.prev() // Wraps to 'slide-3'
+ * carousel.next() // Wraps to 'slide-1'
  * ```
  */
 export function createStep<
   Z extends StepTicket = StepTicket,
   E extends StepContext<Z> = StepContext<Z>,
-> (options?: StepOptions): E {
+> (_options: StepOptions = {}): E {
+  const { circular = false, ...options } = _options
   const registry = createSingle<Z, E>(options)
 
   function first () {
@@ -138,13 +164,24 @@ export function createStep<
     const length = registry.size
     if (!length) return
 
+    const currentIndex = registry.selectedIndex.value
     const direction = Math.sign(count || 1)
     let hops = 0
-    let index = wrapped(length, registry.selectedIndex.value + count)
+    let index = circular
+      ? wrapped(length, currentIndex + count)
+      : currentIndex + count
+
+    if (!circular && (index < 0 || index >= length)) return
+
     let id = registry.lookup(index)
 
     while (id !== undefined && toValue(registry.get(id)?.disabled) && hops < length) {
-      index = wrapped(length, index + direction)
+      index = circular
+        ? wrapped(length, index + direction)
+        : index + direction
+
+      if (!circular && (index < 0 || index >= length)) return
+
       id = registry.lookup(index)
       hops++
     }

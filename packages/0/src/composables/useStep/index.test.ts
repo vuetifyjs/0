@@ -163,7 +163,7 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBe('step-3')
     })
 
-    it('should wrap around to first item at end', () => {
+    it('should not wrap around at end when circular is false (default)', () => {
       const stepper = createStep()
 
       stepper.onboard([
@@ -176,7 +176,7 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBe('step-3')
 
       stepper.next()
-      expect(stepper.selectedId.value).toBe('step-1')
+      expect(stepper.selectedId.value).toBe('step-3')
     })
 
     it('should skip disabled items when moving next', () => {
@@ -225,7 +225,7 @@ describe('useStep', () => {
 
       // selectedIndex is -1 when nothing selected
       stepper.next()
-      // Should select step-1 (wrapping from -1 + 1 = 0)
+      // Should select step-1 (from -1 + 1 = 0)
       expect(stepper.selectedId.value).toBe('step-1')
     })
   })
@@ -250,7 +250,7 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBe('step-1')
     })
 
-    it('should wrap around to last item at start', () => {
+    it('should not wrap around at start when circular is false (default)', () => {
       const stepper = createStep()
 
       stepper.onboard([
@@ -263,7 +263,7 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBe('step-1')
 
       stepper.prev()
-      expect(stepper.selectedId.value).toBe('step-3')
+      expect(stepper.selectedId.value).toBe('step-1')
     })
 
     it('should skip disabled items when moving prev', () => {
@@ -346,7 +346,7 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBe('step-1')
     })
 
-    it('should wrap around when stepping forward beyond end', () => {
+    it('should not wrap when stepping forward beyond end (circular false)', () => {
       const stepper = createStep()
 
       stepper.onboard([
@@ -357,11 +357,11 @@ describe('useStep', () => {
 
       stepper.select('step-2')
       stepper.step(5)
-      // From index 1 (step-2), step(5): (1 + 5) % 3 = 6 % 3 = 0, so should be at index 0 (step-1)
-      expect(stepper.selectedId.value).toBe('step-1')
+      // Should stay at step-2 (cannot step beyond boundary)
+      expect(stepper.selectedId.value).toBe('step-2')
     })
 
-    it('should wrap around when stepping backward beyond start', () => {
+    it('should not wrap when stepping backward beyond start (circular false)', () => {
       const stepper = createStep()
 
       stepper.onboard([
@@ -372,7 +372,7 @@ describe('useStep', () => {
 
       stepper.first()
       stepper.step(-1)
-      expect(stepper.selectedId.value).toBe('step-3')
+      expect(stepper.selectedId.value).toBe('step-1')
     })
 
     it('should skip disabled items when stepping', () => {
@@ -394,7 +394,7 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBe('step-4')
     })
 
-    it('should handle large step counts', () => {
+    it('should stop at boundary with large step counts (circular false)', () => {
       const stepper = createStep()
 
       stepper.onboard([
@@ -406,8 +406,8 @@ describe('useStep', () => {
       stepper.first()
       stepper.step(100)
 
-      // 100 % 3 = 1, so should be at index 1 (step-2)
-      expect(stepper.selectedId.value).toBe('step-2')
+      // Should stay at step-1 (cannot step beyond boundary)
+      expect(stepper.selectedId.value).toBe('step-1')
     })
 
     it('should handle step count of 0', () => {
@@ -445,9 +445,41 @@ describe('useStep', () => {
     })
   })
 
-  describe('circular navigation', () => {
+  describe('circular: true (default behavior in old tests)', () => {
+    it('should wrap to first when calling next on last item', () => {
+      const stepper = createStep({ circular: true })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.last()
+      expect(stepper.selectedId.value).toBe('step-3')
+
+      stepper.next()
+      expect(stepper.selectedId.value).toBe('step-1')
+    })
+
+    it('should wrap to last when calling prev on first item', () => {
+      const stepper = createStep({ circular: true })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.first()
+      expect(stepper.selectedId.value).toBe('step-1')
+
+      stepper.prev()
+      expect(stepper.selectedId.value).toBe('step-3')
+    })
+
     it('should continuously wrap in forward direction', () => {
-      const stepper = createStep()
+      const stepper = createStep({ circular: true })
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -465,7 +497,7 @@ describe('useStep', () => {
     })
 
     it('should continuously wrap in backward direction', () => {
-      const stepper = createStep()
+      const stepper = createStep({ circular: true })
 
       stepper.onboard([
         { id: 'step-1', value: 'Step 1' },
@@ -482,6 +514,155 @@ describe('useStep', () => {
       // Using wrapped function: ((-10 % 3) + 3) % 3 = (-1 + 3) % 3 = 2 % 3 = 2
       // So should be at index 2 (step-3)
       expect(stepper.selectedId.value).toBe('step-3')
+    })
+
+    it('should wrap when stepping beyond boundaries', () => {
+      const stepper = createStep({ circular: true })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.select('step-2')
+      stepper.step(5)
+      // From index 1, step(5): (1 + 5) % 3 = 6 % 3 = 0
+      expect(stepper.selectedId.value).toBe('step-1')
+
+      stepper.first()
+      stepper.step(-1)
+      expect(stepper.selectedId.value).toBe('step-3')
+    })
+
+    it('should skip disabled items when wrapping', () => {
+      const stepper = createStep({ circular: true })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1', disabled: true },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.last()
+      expect(stepper.selectedId.value).toBe('step-3')
+
+      stepper.next()
+      // Should wrap to first, but skip disabled step-1, landing on step-2
+      expect(stepper.selectedId.value).toBe('step-2')
+    })
+  })
+
+  describe('circular: false (bounded navigation)', () => {
+    it('should not wrap when calling next on last item', () => {
+      const stepper = createStep({ circular: false })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.last()
+      expect(stepper.selectedId.value).toBe('step-3')
+
+      stepper.next()
+      // Should stay at step-3 (no wrapping)
+      expect(stepper.selectedId.value).toBe('step-3')
+    })
+
+    it('should not wrap when calling prev on first item', () => {
+      const stepper = createStep({ circular: false })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.first()
+      expect(stepper.selectedId.value).toBe('step-1')
+
+      stepper.prev()
+      // Should stay at step-1 (no wrapping)
+      expect(stepper.selectedId.value).toBe('step-1')
+    })
+
+    it('should stop at boundaries when stepping beyond', () => {
+      const stepper = createStep({ circular: false })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.first()
+      stepper.step(-5)
+      // Should stay at step-1 (cannot go beyond boundary)
+      expect(stepper.selectedId.value).toBe('step-1')
+
+      stepper.last()
+      stepper.step(5)
+      // Should stay at step-3 (cannot go beyond boundary)
+      expect(stepper.selectedId.value).toBe('step-3')
+    })
+
+    it('should skip disabled items but stop at boundaries', () => {
+      const stepper = createStep({ circular: false })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2', disabled: true },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.first()
+      expect(stepper.selectedId.value).toBe('step-1')
+
+      stepper.next()
+      // Should skip step-2 and go to step-3
+      expect(stepper.selectedId.value).toBe('step-3')
+
+      stepper.next()
+      // Should stay at step-3 (boundary)
+      expect(stepper.selectedId.value).toBe('step-3')
+    })
+
+    it('should handle multiple next calls at end boundary', () => {
+      const stepper = createStep({ circular: false })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.last()
+      for (let i = 0; i < 10; i++) {
+        stepper.next()
+      }
+
+      // Should still be at last item
+      expect(stepper.selectedId.value).toBe('step-3')
+    })
+
+    it('should handle multiple prev calls at start boundary', () => {
+      const stepper = createStep({ circular: false })
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.first()
+      for (let i = 0; i < 10; i++) {
+        stepper.prev()
+      }
+
+      // Should still be at first item
+      expect(stepper.selectedId.value).toBe('step-1')
     })
   })
 
@@ -555,7 +736,7 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBe('step-2')
     })
 
-    it('should handle wrapping with multiple disabled items', () => {
+    it('should handle boundaries with multiple disabled items (no wrapping)', () => {
       const stepper = createStep()
 
       stepper.onboard([
@@ -572,7 +753,8 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBe('step-4')
 
       stepper.next()
-      expect(stepper.selectedId.value).toBe('step-1')
+      // Should stay at step-4 (boundary, no wrapping)
+      expect(stepper.selectedId.value).toBe('step-4')
     })
   })
 })

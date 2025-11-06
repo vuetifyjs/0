@@ -17,33 +17,38 @@ A composable for managing navigation through multi-step processes like forms, wi
 
 ## Usage
 
-The `useStep` composable manages a list of steps and allows navigation between them in a controlled way.
+The `useStep` composable manages a list of steps and allows navigation between them with configurable circular (wrapping) or bounded (stopping at edges) behavior.
 You register each step (with an `id` and value) in the order they should be navigated, then use the navigation methods to move
 
 ```ts
-import { useStep } from '@vuetify/v0'
+import { createStep } from '@vuetify/v0'
 
-const steps = useStep()
+// Bounded navigation (default) - for wizards, forms
+const wizard = createStep({ circular: false })
 
-// Register steps
-steps.register({ id: 'step1', value: 'Step 1' })
-steps.register({ id: 'step2', value: 'Step 2' })
-steps.register({ id: 'step3', value: 'Step 3' })
+wizard.onboard([
+  { id: 'step1', value: 'Account Info' },
+  { id: 'step2', value: 'Payment' },
+  { id: 'step3', value: 'Confirmation' },
+])
 
-// Jump to first step
-steps.first()
+wizard.first()    // Go to step1
+wizard.next()     // Go to step2
+wizard.next()     // Go to step3
+wizard.next()     // Stays at step3 (bounded)
 
-// Move forward
-steps.next()
+// Circular navigation - for carousels, theme switchers
+const carousel = createStep({ circular: true })
 
-// Move backward
-steps.prev()
+carousel.onboard([
+  { id: 'slide1', value: 'First' },
+  { id: 'slide2', value: 'Second' },
+  { id: 'slide3', value: 'Third' },
+])
 
-// Jump to last step
-steps.last()
-
-// Go directly to a step by its index (0-based)
-steps.step(1) // moves to 'step2'
+carousel.last()   // Go to slide3
+carousel.next()   // Wraps to slide1
+carousel.prev()   // Wraps to slide3
 ```
 
 ## API
@@ -73,15 +78,23 @@ steps.step(1) // moves to 'step2'
     step: (count: number) => void
   }
 
-  export interface StepOptions extends SingleOptions {}
+  export interface StepOptions extends SingleOptions {
+    /**
+     * Enable circular navigation (wrapping at boundaries).
+     * - true: Navigation wraps around (carousel behavior)
+     * - false: Navigation stops at boundaries (pagination behavior)
+     * @default false
+     */
+    circular?: boolean
+  }
   ```
 - **Details**
 
   - `first()`: Jump to the first step.
   - `last()`: Jump to the last step.
-  - `next()`: Move forward one step.
-  - `prev()`: Move back one step.
-  - `step(index)`: Jump to a specific step by its 0-based index.
+  - `next()`: Move forward one step (wraps if `circular: true`, stops at boundary if `circular: false`).
+  - `prev()`: Move back one step (wraps if `circular: true`, stops at boundary if `circular: false`).
+  - `step(count)`: Move by `count` positions (negative for backward, wraps or stops depending on `circular`).
 
 ### `first`
 
@@ -137,7 +150,8 @@ steps.step(1) // moves to 'step2'
 
 - **Details**
   Moves selection to the next step in the sequence.
-  If the current step is the last, this method does nothing.
+  - If `circular: false` (default): Stops at the last step (does nothing if already at the end)
+  - If `circular: true`: Wraps around to the first step when called on the last step
 
 - **Example**
   ```ts
@@ -159,7 +173,8 @@ steps.step(1) // moves to 'step2'
 
 - **Details**
   Moves selection to the previous step in the sequence.
-  If the current step is the first, this method does nothing.
+  - If `circular: false` (default): Stops at the first step (does nothing if already at the start)
+  - If `circular: true`: Wraps around to the last step when called on the first step
 
 - **Example**
   ```ts
@@ -176,20 +191,27 @@ steps.step(1) // moves to 'step2'
 
 - **Type**
   ```ts
-  function step(index: number): void
+  function step(count: number): void
   ```
 
 - **Details**
-  Moves selection directly to the step at the given 0-based index, if it exists in the registry.
+  Moves selection by `count` positions (positive for forward, negative for backward).
+  - If `circular: false` (default): Stops at boundaries (does nothing if stepping beyond edges)
+  - If `circular: true`: Wraps around using modulo arithmetic
 
 - **Example**
   ```ts
-  const steps = useStep()
-  steps.register({ id: 's1', value: 'Intro' })
-  steps.register({ id: 's2', value: 'Details' })
-  steps.register({ id: 's3', value: 'Summary' })
+  const steps = createStep({ circular: false })
+  steps.onboard([
+    { id: 's1', value: 'Intro' },
+    { id: 's2', value: 'Details' },
+    { id: 's3', value: 'Summary' },
+  ])
 
-  steps.step(1)
+  steps.first()
+  steps.step(2)   // Move forward 2 steps
+  console.log(steps.selectedId.value) // 's3'
+
+  steps.step(-1)  // Move back 1 step
   console.log(steps.selectedId.value) // 's2'
-  console.log(steps.selectedValue.value) // 'Details'
   ```
