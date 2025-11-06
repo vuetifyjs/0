@@ -30,7 +30,7 @@
 
 <template>
   <Atom
-    v-if="ticket.isVisible"
+    v-if="ticket.isSelected.value"
     :as
     :renderless
   >

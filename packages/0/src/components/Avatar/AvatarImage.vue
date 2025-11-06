@@ -34,17 +34,20 @@
 
   const ticket = context.register({
     priority,
-    status: 'loading',
     type: 'image',
+    disabled: true,
   })
 
   function onLoad (e: Event) {
-    ticket.status = 'loaded'
+    ticket.disabled = false
+    ticket.select()
     emit('load', e)
   }
 
   function onError (e: Event) {
-    ticket.status = 'error'
+    ticket.disabled = true
+    const first = context.seek('first')
+    if (first) context.select(first.id)
     emit('error', e)
   }
 
@@ -66,7 +69,7 @@
 
 <template>
   <Atom
-    v-show="ticket.isVisible"
+    v-show="ticket.isSelected.value"
     :as
     :renderless
     v-bind="bindableProps"
