@@ -13,7 +13,8 @@
       "entry": [
         "src/components.d.ts",
         "src/main.ts",
-        "build/**/*.ts"
+        "build/**/*.ts",
+        "src/examples/**/*.vue"
       ],
       "project": [
         "src/**/*.{js,ts,vue,md}",
@@ -57,7 +58,7 @@
       ],
       "ignore": [
         "src/**/*.bench.ts",
-        "src/**/fixtures/**",
+        "src/**/fixtures/**"
       ],
       "paths": {
         "#v0/*": [
