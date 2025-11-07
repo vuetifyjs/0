@@ -1,96 +1,65 @@
-<script lang="ts" setup>
+<script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Composables
+  import { createContext } from '#v0/composables/createContext'
   import { useSelection } from '#v0/composables/useSelection'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { computed, onUnmounted, toValue } from 'vue'
 
   // Types
-  import type { MaybeRef } from 'vue'
+  import type { AtomProps } from '#v0/components/Atom'
+  import type { SelectionTicket } from '#v0/composables/useSelection'
+  import type { ComputedRef, MaybeRef } from 'vue'
 
+  export interface ExpansionPanelItemProps extends AtomProps {
+    id?: string
+    value?: any
+    disabled?: MaybeRef<boolean>
+    namespace?: string
+    itemNamespace?: string
+  }
+
+  export interface ExpansionPanelItemContext {
+    ticket: SelectionTicket
+    headerId: ComputedRef<string>
+    contentId: ComputedRef<string>
+    isDisabled: ComputedRef<boolean>
+  }
+</script>
+
+<script lang="ts" setup>
   defineOptions({ name: 'ExpansionPanelItem' })
 
-  defineSlots<{
-    default: (props: {
-      /** Unique identifier (auto-generated if not provided) */
-      id: string
-      /** Optional display title (passed through to slot, not used in registration) */
-      title?: string
-      /** Value associated with this panel */
-      value: any
-      /** Whether this panel is currently selected */
-      isSelected: boolean
-      /** Disables this specific panel */
-      disabled: boolean
-      /** ARIA expanded state */
-      ariaExpanded: boolean
-      /** ARIA disabled state */
-      ariaDisabled: boolean
-      /** Select this panel */
-      select: () => void
-      /** Unselect this panel */
-      unselect: () => void
-      /** Toggle this panel's selection state */
-      toggle: () => void
-    }) => any
-
-    header: (props: {
-      /** Unique identifier for header element */
-      id: string
-      /** Optional display title */
-      title?: string
-      /** Whether this panel is currently selected */
-      isSelected: boolean
-      /** Disables this specific panel */
-      disabled: boolean
-      /** Toggle this panel's selection state */
-      toggle: () => void
-      /** ARIA expanded state */
-      ariaExpanded: boolean
-      /** ARIA controls attribute (references content id) */
-      ariaControls: string
-      /** ARIA disabled state */
-      ariaDisabled: boolean
-      /** Role for header element */
-      role: 'button'
-      /** Tabindex for keyboard navigation */
-      tabindex: number
-    }) => any
-
-    content: (props: {
-      /** Unique identifier for content element */
-      id: string
-      /** Whether this panel is currently selected */
-      isSelected: boolean
-      /** ARIA labelledby attribute (references header id) */
-      ariaLabelledby: string
-      /** Role for content element */
-      role: 'region'
-    }) => any
-  }>()
+  defineSlots<{ default: () => any }>()
 
   const {
+    as,
+    renderless,
     id,
-    title,
     value,
     disabled,
     namespace = 'v0:expansion-panel',
-  } = defineProps<{
-    /** Optional display title (passed through to slot, not used in registration) */
-    title?: string
-    /** Unique identifier (auto-generated if not provided) */
-    id?: string
-    /** Disables this specific panel */
-    disabled?: MaybeRef<boolean>
-    /** Value associated with this panel */
-    value?: any
-    /** Namespace for dependency injection */
-    namespace?: string
-  }>()
+    itemNamespace = 'v0:expansion-panel-item',
+  } = defineProps<ExpansionPanelItemProps>()
 
   const expansion = useSelection(namespace)
   const ticket = expansion.register({ id, value, disabled })
-  const isDisabled = toRef(() => ticket.disabled || expansion.disabled)
+
+  const headerId = computed(() => `${ticket.id}-header`)
+  const contentId = computed(() => `${ticket.id}-content`)
+  const isDisabled = computed(() => toValue(ticket.disabled) || toValue(expansion.disabled))
+
+  const [, provideItemContext] = createContext<ExpansionPanelItemContext>(itemNamespace)
+
+  provideItemContext({
+    ticket,
+    headerId,
+    contentId,
+    isDisabled,
+  })
 
   onUnmounted(() => {
     expansion.unregister(ticket.id)
@@ -98,38 +67,7 @@
 </script>
 
 <template>
-  <slot
-    :id="String(ticket.id)"
-    :aria-disabled="toValue(isDisabled)"
-    :aria-expanded="toValue(ticket.isSelected)"
-    :disabled="toValue(isDisabled)"
-    :is-selected="toValue(ticket.isSelected)"
-    :select="ticket.select"
-    :title
-    :toggle="ticket.toggle"
-    :unselect="ticket.unselect"
-    :value
-  >
-    <slot
-      :id="`${ticket.id}-header`"
-      :aria-controls="`${ticket.id}-content`"
-      :aria-disabled="toValue(isDisabled)"
-      :aria-expanded="toValue(ticket.isSelected)"
-      :disabled="toValue(isDisabled)"
-      :is-selected="toValue(ticket.isSelected)"
-      name="header"
-      role="button"
-      :tabindex="toValue(isDisabled) ? -1 : 0"
-      :title
-      :toggle="ticket.toggle"
-    />
-
-    <slot
-      :id="`${ticket.id}-header`"
-      :aria-labelledby="`${ticket.id}-content`"
-      :is-selected="toValue(ticket.isSelected)"
-      name="content"
-      role="region"
-    />
-  </slot>
+  <Atom :as :renderless>
+    <slot />
+  </Atom>
 </template>

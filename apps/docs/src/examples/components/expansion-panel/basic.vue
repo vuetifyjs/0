@@ -16,46 +16,34 @@
 </script>
 
 <template>
-  <ExpansionPanel.Root v-model="expanded" multiple>
-    <div class="border border-gray-300 rounded-lg overflow-hidden">
-      <ExpansionPanel.Item
-        v-for="(item, index) in panels"
-        :key="item.id"
-        :title="item.title"
-        :value="item.id"
+  <ExpansionPanel.Root v-model="expanded" class="border border-gray-300 rounded-lg border-solid overflow-hidden" multiple>
+    <ExpansionPanel.Item
+      v-for="(item, index) in panels"
+      :key="item.id"
+      :value="item.id"
+    >
+      <ExpansionPanel.Activator
+        v-slot="{ isSelected }"
+        class="w-full px-6 py-2 border-none border-b border-gray-300 flex items-center gap-3 cursor-pointer transition-all text-base text-left bg-white hover:bg-gray-50"
       >
-        <template #header="{ toggle, isSelected, ariaExpanded, ariaControls, tabindex }">
-          <button
-            :aria-controls="ariaControls"
-            :aria-expanded="ariaExpanded"
-            class="w-full px-6 py-2 bg-white border-none border-b border-gray-300 flex items-center gap-3 cursor-pointer transition-all text-base text-left"
-            :class="isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'"
-            :tabindex="tabindex"
-            @click="toggle"
-          >
-            <span class="inline-flex items-center justify-center w-5 text-sm text-gray-600 transition-transform">
-              {{ isSelected ? '−' : '+' }}
-            </span>
-            <span class="flex-1 font-medium text-gray-900">{{ item.title }}</span>
-          </button>
-        </template>
+        <span class="inline-flex items-center justify-center w-5 text-sm text-gray-600">
+          {{ isSelected ? '−' : '+' }}
+        </span>
+        <span class="flex-1 font-medium text-gray-900">{{ item.title }}</span>
+      </ExpansionPanel.Activator>
 
-        <template #content="{ isSelected, ariaLabelledby, id }">
-          <div
-            v-show="isSelected"
-            :id="id"
-            :aria-labelledby="ariaLabelledby"
-            class="px-6 py-6 bg-white"
-            :class="{ 'border-b border-gray-300': !isLast(index) }"
-            role="region"
-          >
-            <p class="m-0 text-gray-800 leading-relaxed">
-              {{ item.content }}
-            </p>
-          </div>
-        </template>
-      </ExpansionPanel.Item>
-    </div>
+      <ExpansionPanel.Content v-slot="{ isSelected }">
+        <div
+          v-show="isSelected"
+          class="px-6 py-6 bg-white"
+          :class="{ 'border-b border-gray-300': !isLast(index) }"
+        >
+          <p class="m-0 text-gray-800 leading-relaxed">
+            {{ item.content }}
+          </p>
+        </div>
+      </ExpansionPanel.Content>
+    </ExpansionPanel.Item>
   </ExpansionPanel.Root>
 
   <p class="mt-4 text-sm text-gray-600">

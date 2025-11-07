@@ -86,7 +86,7 @@ The root component that manages expansion state and provides context to items.
 
 ### ExpansionPanelItem
 
-Individual expansion panel items that register with the ExpansionPanel context.
+Individual expansion panel items that register with the ExpansionPanel context and provide context to child components.
 
 - **Props**
 
@@ -101,10 +101,24 @@ Individual expansion panel items that register with the ExpansionPanel context.
   ```
 
   - `id`: Unique identifier (auto-generated if not provided)
-  - `title`: Optional display title (passed to slot, not used in registration)
+  - `title`: Optional display title (passed to context and slot)
   - `value`: Value associated with this panel
   - `disabled`: Disables this specific panel
   - `namespace`: Must match ExpansionPanelRoot namespace (default: `'v0:expansion-panel'`)
+
+- **Context Provided**
+
+  ExpansionPanelItem provides context to child components (Activator/Content) via dependency injection:
+
+  ```ts
+  interface ExpansionPanelItemContext {
+    ticket: SelectionTicket
+    headerId: ComputedRef<string>
+    contentId: ComputedRef<string>
+    disabled: ComputedRef<boolean>
+    title?: string
+  }
+  ```
 
 - **Slots**
 
@@ -122,41 +136,188 @@ Individual expansion panel items that register with the ExpansionPanel context.
       unselect: () => void
       toggle: () => void
     }) => any
-
-    header: (props: {
-      id: string
-      title?: string
-      isSelected: boolean
-      disabled: boolean
-      toggle: () => void
-      ariaExpanded: boolean
-      ariaControls: string
-      ariaDisabled: boolean
-      role: 'button'
-      tabindex: number
-    }) => any
-
-    content: (props: {
-      id: string
-      isSelected: boolean
-      ariaLabelledby: string
-      role: 'region'
-    }) => any
   }
   ```
 
 - **Example**
 
-  ```html
-  <ExpansionPanel.Item value="panel-1" title="Panel Title">
-    <template #header="{ toggle, ariaExpanded }">
-      <button @click="toggle">
-        Panel Title {{ ariaExpanded ? '▲' : '▼' }}
-      </button>
-    </template>
+  ```vue
+    <script lang="ts" setup>
+      import { ExpansionPanel } from '@vuetify/v0'
+    </script>
 
-    <template #content>
-      <p>Panel content goes here</p>
+    <template>
+      <ExpansionPanel.Item value="panel-1">
+        <ExpansionPanel.Activator v-slot="{ toggle, isSelected }">
+          <button @click="toggle">
+            Panel Title {{ isSelected ? '▲' : '▼' }}
+          </button>
+        </ExpansionPanel.Activator>
+
+        <ExpansionPanel.Content v-slot="{ isSelected }">
+          <div v-show="isSelected">
+            <p>Panel content goes here</p>
+          </div>
+        </ExpansionPanel.Content>
+      </ExpansionPanel.Item>
     </template>
-  </ExpansionPanel.Item>
+  ```
+
+### ExpansionPanelActivator
+
+The activator component that triggers the expansion/collapse of a panel. Must be used within `ExpansionPanelItem`.
+
+- **Props**
+
+  Extends `AtomProps` for maximum flexibility:
+
+  ```ts
+  interface ExpansionPanelActivatorProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
+  }
+  ```
+
+  - `as`: The element type to render (default: `'button'`)
+  - `renderless`: If true, renders no wrapper element
+
+- **Context Requirements**
+
+  - Must be used within `ExpansionPanelItem`
+  - Automatically inherits panel state from parent item context
+  - Generates appropriate ARIA attributes for accessibility
+
+- **Slot Props**
+
+  ```ts
+  interface ExpansionPanelActivatorSlotProps {
+    id: string
+    role: 'button'
+    tabindex: number
+    'aria-expanded': boolean
+    'aria-controls': string
+    'aria-disabled': boolean
+    onClick: () => void
+    onKeydown: (e: KeyboardEvent) => void
+  }
+  ```
+
+  All ARIA attributes are automatically provided via `bindableProps`. When using the default slot, these props are available for custom implementations.
+
+- **Accessibility Features**
+
+  - Automatic `role="button"` for keyboard interaction
+  - `aria-expanded` reflects panel state
+  - `aria-controls` links to associated content region
+  - `aria-disabled` when parent is disabled
+  - `tabindex` managed for keyboard navigation (-1 when disabled, 0 when enabled)
+  - Built-in keyboard handling (Enter/Space keys trigger toggle)
+
+- **Example**
+
+  ```vue
+    <script lang="ts" setup>
+      import { ExpansionPanel } from '@vuetify/v0'
+    </script>
+
+    <template>
+      <!-- Simple usage (automatic ARIA binding) -->
+      <ExpansionPanel.Activator>
+        Click to expand
+      </ExpansionPanel.Activator>
+
+      <!-- Custom implementation with slot props -->
+      <ExpansionPanel.Activator v-slot="{ toggle, ariaExpanded }">
+        <button @click="toggle" class="custom-button">
+          {{ ariaExpanded ? '−' : '+' }} Custom Header
+        </button>
+      </ExpansionPanel.Activator>
+
+      <!-- Renderless mode -->
+      <ExpansionPanel.Activator renderless v-slot="props">
+        <MyCustomButton v-bind="props">
+          Advanced Custom Header
+        </MyCustomButton>
+      </ExpansionPanel.Activator>
+
+      <!-- Custom element type -->
+      <ExpansionPanel.Activator as="div">
+        Custom div activator
+      </ExpansionPanel.Activator>
+    </template>
+  ```
+
+### ExpansionPanelContent
+
+The content container for an expansion panel. Must be used within `ExpansionPanelItem`.
+
+- **Props**
+
+  Extends `AtomProps` for maximum flexibility:
+
+  ```ts
+  interface ExpansionPanelContentProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
+  }
+  ```
+
+  - `as`: The element type to render (default: `'div'`)
+  - `renderless`: If true, renders no wrapper element
+
+- **Context Requirements**
+
+  - Must be used within `ExpansionPanelItem`
+  - Automatically inherits panel state from parent item context
+  - Visibility is NOT automatically controlled - consumer must implement `v-show` or similar based on slot props
+
+- **Slot Props**
+
+  ```ts
+  interface ExpansionPanelContentSlotProps {
+    id: string
+    role: 'region'
+    'aria-labelledby': string
+  }
+  ```
+
+  All ARIA attributes are automatically provided via `bindableProps`.
+
+- **Accessibility Features**
+
+  - Automatic `role="region"` for screen reader navigation
+  - `aria-labelledby` links to associated activator for proper labeling
+  - Content ID matches the `aria-controls` attribute from the activator
+
+- **Example**
+
+  ```vue
+    <script lang="ts" setup>
+      import { ExpansionPanel } from '@vuetify/v0'
+    </script>
+
+    <template>
+      <!-- Simple usage with manual visibility control -->
+      <ExpansionPanel.Content v-slot="{ isSelected }">
+        <div v-show="isSelected">
+          Content here
+        </div>
+      </ExpansionPanel.Content>
+
+      <!-- With transitions -->
+      <ExpansionPanel.Content v-slot="{ isSelected }">
+        <Transition name="expand">
+          <div v-show="isSelected">
+            Animated content
+          </div>
+        </Transition>
+      </ExpansionPanel.Content>
+
+      <!-- Renderless mode -->
+      <ExpansionPanel.Content renderless v-slot="{ isSelected, ...props }">
+        <MyCustomContent v-show="isSelected" v-bind="props">
+          Custom content
+        </MyCustomContent>
+      </ExpansionPanel.Content>
+    </template>
   ```

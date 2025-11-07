@@ -1,4 +1,7 @@
-<script lang="ts" setup generic="T = unknown">
+<script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Composables
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { createSelectionContext } from '#v0/composables/useSelection'
@@ -8,7 +11,18 @@
 
   // Types
   import type { ID } from '#v0/types'
+  import type { AtomProps } from '#v0/components/Atom'
 
+  export interface ExpansionPanelRootProps extends AtomProps {
+    namespace?: string
+    disabled?: boolean
+    enroll?: boolean
+    mandatory?: boolean | 'force'
+    multiple?: boolean
+  }
+</script>
+
+<script lang="ts" setup generic="T = unknown">
   defineOptions({ name: 'ExpansionPanelRoot' })
 
   defineSlots<{
@@ -29,32 +43,14 @@
   }>()
 
   const {
+    as,
+    renderless,
     namespace = 'v0:expansion-panel',
     disabled = false,
     enroll = false,
     mandatory = false,
     multiple = false,
-  } = defineProps<{
-    /** Namespace for dependency injection (must match ExpansionPanelItem namespace) */
-    namespace?: string
-    /** Disables the entire expansion panel instance */
-    disabled?: boolean
-    /** Auto-expand non-disabled items on registration */
-    enroll?: boolean
-    /**
-     * Controls mandatory expansion behavior:
-     * - false (default): All panels can be collapsed
-     * - true: Prevents collapsing the last expanded panel
-     * - `force`: Automatically expands the first non-disabled panel on registration
-     */
-    mandatory?: boolean | 'force'
-    /**
-     * Expansion mode:
-     * - false (default): Single panel expanded at a time (accordion mode)
-     * - true: Multiple panels can be expanded simultaneously
-     */
-    multiple?: boolean
-  }>()
+  } = defineProps<ExpansionPanelRootProps>()
 
   const model = defineModel<T | T[]>()
 
@@ -73,12 +69,18 @@
 </script>
 
 <template>
-  <slot
-    :aria-multiselectable="multiple"
-    :disabled="toValue(context.disabled)"
-    :multiple="multiple"
-    :select="context.select"
-    :toggle="context.toggle"
-    :unselect="context.unselect"
-  />
+  <Atom
+    :aria-multiselectable="!renderless && multiple"
+    :as
+    :renderless
+  >
+    <slot
+      :aria-multiselectable="multiple"
+      :disabled="toValue(context.disabled)"
+      :multiple="multiple"
+      :select="context.select"
+      :toggle="context.toggle"
+      :unselect="context.unselect"
+    />
+  </Atom>
 </template>
