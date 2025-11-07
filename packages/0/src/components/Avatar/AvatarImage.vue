@@ -2,16 +2,20 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Composables
+  import { useContext } from '#v0/composables'
+
   // Utilities
   import { onUnmounted, toRef } from 'vue'
 
   // Types
-  import { useAvatarContext } from './AvatarRoot.vue'
   import type { AtomProps } from '#v0/components/Atom'
+  import type { AvatarContext } from './AvatarRoot.vue'
 
   export interface AvatarImageProps extends AtomProps {
     src?: string
     priority?: number
+    namespace?: string
   }
 
   export interface AvatarImageEmits {
@@ -26,11 +30,17 @@
     inheritAttrs: false,
   })
 
-  const { as = 'img', renderless, priority = 0, ...props } = defineProps<AvatarImageProps>()
+  const {
+    as = 'img',
+    renderless,
+    priority = 0,
+    namespace = 'v0:avatar',
+    ...props
+  } = defineProps<AvatarImageProps>()
 
   const emit = defineEmits<AvatarImageEmits>()
 
-  const context = useAvatarContext()
+  const context = useContext<AvatarContext>(namespace)
 
   const ticket = context.register({
     priority,

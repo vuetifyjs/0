@@ -9,7 +9,9 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
 
-  export interface AvatarRootProps extends AtomProps {}
+  export interface AvatarRootProps extends AtomProps {
+    namespace?: string
+  }
 
   interface AvatarTicket extends SelectionTicket {
     type?: 'image' | 'fallback'
@@ -17,14 +19,23 @@
   }
 
   export interface AvatarContext extends SelectionContext<AvatarTicket> {}
-
-  export const [useAvatarContext, provideAvatarContext, context] = createSelectionContext<AvatarTicket, AvatarContext>({ namespace: 'v0:avatar', mandatory: 'force', multiple: false })
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'AvatarRoot' })
 
-  const { as = 'div', renderless } = defineProps<AvatarRootProps>()
+  const {
+    as = 'div',
+    renderless,
+    namespace = 'v0:avatar',
+  } = defineProps<AvatarRootProps>()
+
+  const [, provideAvatarContext] = createSelectionContext<AvatarTicket, AvatarContext>({
+    namespace,
+    mandatory: 'force',
+    multiple: false,
+  })
+
   provideAvatarContext()
 </script>
 

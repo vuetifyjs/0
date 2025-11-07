@@ -2,22 +2,31 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Composables
+  import { useContext } from '#v0/composables'
+
   // Utilities
   import { onUnmounted } from 'vue'
 
   // Types
-  import { useAvatarContext } from './AvatarRoot.vue'
+  import type { AvatarContext } from './AvatarRoot.vue'
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface AvatarFallbackProps extends AtomProps {}
+  export interface AvatarFallbackProps extends AtomProps {
+    namespace?: string
+  }
 </script>
 
 <script lang="ts" setup>
   defineOptions({ name: 'AvatarFallback' })
 
-  const { as = 'span', renderless } = defineProps<AvatarFallbackProps>()
+  const {
+    as = 'span',
+    renderless,
+    namespace = 'v0:avatar',
+  } = defineProps<AvatarFallbackProps>()
 
-  const context = useAvatarContext()
+  const context = useContext<AvatarContext>(namespace)
 
   const ticket = context.register({
     type: 'fallback',
