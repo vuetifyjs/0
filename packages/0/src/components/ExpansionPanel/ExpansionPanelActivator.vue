@@ -1,3 +1,15 @@
+/**
+ * @module ExpansionPanelActivator
+ *
+ * @remarks
+ * Header/button element for an expansion panel item that controls expansion/collapse.
+ * Consumes the ExpansionPanelItemContext via dependency injection and provides complete
+ * ARIA attributes and keyboard handling for accessibility.
+ *
+ * Automatically handles Enter and Space key presses, prevents default behavior, and
+ * toggles the panel state. Manages disabled state, tabindex, and ARIA relationships.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
@@ -13,6 +25,7 @@
   import type { ExpansionPanelItemContext } from './ExpansionPanelItem.vue'
 
   export interface ExpansionPanelActivatorProps extends AtomProps {
+    /** Namespace for retrieving the parent ExpansionPanelItem context (default: 'v0:expansion-panel-item') */
     itemNamespace?: string
   }
 </script>

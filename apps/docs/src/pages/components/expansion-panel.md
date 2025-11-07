@@ -93,18 +93,18 @@ Individual expansion panel items that register with the ExpansionPanel context a
   ```ts
   interface ExpansionPanelItemProps {
     id?: string
-    title?: string
     value?: any
     disabled?: MaybeRef<boolean>
     namespace?: string
+    itemNamespace?: string
   }
   ```
 
   - `id`: Unique identifier (auto-generated if not provided)
-  - `title`: Optional display title (passed to context and slot)
-  - `value`: Value associated with this panel
+  - `value`: Value associated with this panel for v-model binding
   - `disabled`: Disables this specific panel
   - `namespace`: Must match ExpansionPanelRoot namespace (default: `'v0:expansion-panel'`)
+  - `itemNamespace`: Namespace for providing context to child components (default: `'v0:expansion-panel-item'`)
 
 - **Context Provided**
 
@@ -113,10 +113,9 @@ Individual expansion panel items that register with the ExpansionPanel context a
   ```ts
   interface ExpansionPanelItemContext {
     ticket: SelectionTicket
-    headerId: ComputedRef<string>
-    contentId: ComputedRef<string>
-    disabled: ComputedRef<boolean>
-    title?: string
+    headerId: Readonly<Ref<string>>
+    contentId: Readonly<Ref<string>>
+    isDisabled: Readonly<Ref<boolean>>
   }
   ```
 
@@ -124,43 +123,32 @@ Individual expansion panel items that register with the ExpansionPanel context a
 
   ```ts
   interface ExpansionPanelItemSlots {
-    default: (props: {
-      id: string
-      title?: string
-      value: any
-      isSelected: boolean
-      disabled: boolean
-      ariaExpanded: boolean
-      ariaDisabled: boolean
-      select: () => void
-      unselect: () => void
-      toggle: () => void
-    }) => any
+    default: () => any
   }
   ```
 
 - **Example**
 
   ```vue
-    <script lang="ts" setup>
-      import { ExpansionPanel } from '@vuetify/v0'
-    </script>
+  <script lang="ts" setup>
+    import { ExpansionPanel } from '@vuetify/v0'
+  </script>
 
-    <template>
-      <ExpansionPanel.Item value="panel-1">
-        <ExpansionPanel.Activator v-slot="{ toggle, isSelected }">
-          <button @click="toggle">
-            Panel Title {{ isSelected ? '▲' : '▼' }}
-          </button>
-        </ExpansionPanel.Activator>
+  <template>
+    <ExpansionPanel.Item value="panel-1">
+      <ExpansionPanel.Activator v-slot="{ toggle, isSelected }">
+        <button @click="toggle">
+          Panel Title {{ isSelected ? '▲' : '▼' }}
+        </button>
+      </ExpansionPanel.Activator>
 
-        <ExpansionPanel.Content v-slot="{ isSelected }">
-          <div v-show="isSelected">
-            <p>Panel content goes here</p>
-          </div>
-        </ExpansionPanel.Content>
-      </ExpansionPanel.Item>
-    </template>
+      <ExpansionPanel.Content v-slot="{ isSelected }">
+        <div v-show="isSelected">
+          <p>Panel content goes here</p>
+        </div>
+      </ExpansionPanel.Content>
+    </ExpansionPanel.Item>
+  </template>
   ```
 
 ### ExpansionPanelActivator
@@ -175,11 +163,13 @@ The activator component that triggers the expansion/collapse of a panel. Must be
   interface ExpansionPanelActivatorProps extends AtomProps {
     as?: DOMElement | null
     renderless?: boolean
+    itemNamespace?: string
   }
   ```
 
   - `as`: The element type to render (default: `'button'`)
   - `renderless`: If true, renders no wrapper element
+  - `itemNamespace`: Namespace for retrieving the parent ExpansionPanelItem context (default: `'v0:expansion-panel-item'`)
 
 - **Context Requirements**
 
@@ -197,6 +187,8 @@ The activator component that triggers the expansion/collapse of a panel. Must be
     'aria-expanded': boolean
     'aria-controls': string
     'aria-disabled': boolean
+    isSelected: boolean
+    toggle: () => void
     onClick: () => void
     onKeydown: (e: KeyboardEvent) => void
   }
@@ -216,35 +208,35 @@ The activator component that triggers the expansion/collapse of a panel. Must be
 - **Example**
 
   ```vue
-    <script lang="ts" setup>
-      import { ExpansionPanel } from '@vuetify/v0'
-    </script>
+  <script lang="ts" setup>
+    import { ExpansionPanel } from '@vuetify/v0'
+  </script>
 
-    <template>
-      <!-- Simple usage (automatic ARIA binding) -->
-      <ExpansionPanel.Activator>
-        Click to expand
-      </ExpansionPanel.Activator>
+  <template>
+    <!-- Simple usage (automatic ARIA binding) -->
+    <ExpansionPanel.Activator>
+      Click to expand
+    </ExpansionPanel.Activator>
 
-      <!-- Custom implementation with slot props -->
-      <ExpansionPanel.Activator v-slot="{ toggle, ariaExpanded }">
-        <button @click="toggle" class="custom-button">
-          {{ ariaExpanded ? '−' : '+' }} Custom Header
-        </button>
-      </ExpansionPanel.Activator>
+    <!-- Custom implementation with slot props -->
+    <ExpansionPanel.Activator v-slot="{ toggle, isSelected }">
+      <button @click="toggle" class="custom-button">
+        {{ isSelected ? '−' : '+' }} Custom Header
+      </button>
+    </ExpansionPanel.Activator>
 
-      <!-- Renderless mode -->
-      <ExpansionPanel.Activator renderless v-slot="props">
-        <MyCustomButton v-bind="props">
-          Advanced Custom Header
-        </MyCustomButton>
-      </ExpansionPanel.Activator>
+    <!-- Renderless mode -->
+    <ExpansionPanel.Activator renderless v-slot="props">
+      <MyCustomButton v-bind="props">
+        Advanced Custom Header
+      </MyCustomButton>
+    </ExpansionPanel.Activator>
 
-      <!-- Custom element type -->
-      <ExpansionPanel.Activator as="div">
-        Custom div activator
-      </ExpansionPanel.Activator>
-    </template>
+    <!-- Custom element type -->
+    <ExpansionPanel.Activator as="div">
+      Custom div activator
+    </ExpansionPanel.Activator>
+  </template>
   ```
 
 ### ExpansionPanelContent
@@ -259,11 +251,13 @@ The content container for an expansion panel. Must be used within `ExpansionPane
   interface ExpansionPanelContentProps extends AtomProps {
     as?: DOMElement | null
     renderless?: boolean
+    itemNamespace?: string
   }
   ```
 
   - `as`: The element type to render (default: `'div'`)
   - `renderless`: If true, renders no wrapper element
+  - `itemNamespace`: Namespace for retrieving the parent ExpansionPanelItem context (default: `'v0:expansion-panel-item'`)
 
 - **Context Requirements**
 
@@ -278,6 +272,7 @@ The content container for an expansion panel. Must be used within `ExpansionPane
     id: string
     role: 'region'
     'aria-labelledby': string
+    isSelected: boolean
   }
   ```
 
@@ -292,32 +287,32 @@ The content container for an expansion panel. Must be used within `ExpansionPane
 - **Example**
 
   ```vue
-    <script lang="ts" setup>
-      import { ExpansionPanel } from '@vuetify/v0'
-    </script>
+  <script lang="ts" setup>
+    import { ExpansionPanel } from '@vuetify/v0'
+  </script>
 
-    <template>
-      <!-- Simple usage with manual visibility control -->
-      <ExpansionPanel.Content v-slot="{ isSelected }">
+  <template>
+    <!-- Simple usage with manual visibility control -->
+    <ExpansionPanel.Content v-slot="{ isSelected }">
+      <div v-show="isSelected">
+        Content here
+      </div>
+    </ExpansionPanel.Content>
+
+    <!-- With transitions -->
+    <ExpansionPanel.Content v-slot="{ isSelected }">
+      <Transition name="expand">
         <div v-show="isSelected">
-          Content here
+          Animated content
         </div>
-      </ExpansionPanel.Content>
+      </Transition>
+    </ExpansionPanel.Content>
 
-      <!-- With transitions -->
-      <ExpansionPanel.Content v-slot="{ isSelected }">
-        <Transition name="expand">
-          <div v-show="isSelected">
-            Animated content
-          </div>
-        </Transition>
-      </ExpansionPanel.Content>
-
-      <!-- Renderless mode -->
-      <ExpansionPanel.Content renderless v-slot="{ isSelected, ...props }">
-        <MyCustomContent v-show="isSelected" v-bind="props">
-          Custom content
-        </MyCustomContent>
-      </ExpansionPanel.Content>
-    </template>
+    <!-- Renderless mode -->
+    <ExpansionPanel.Content renderless v-slot="{ isSelected, ...props }">
+      <MyCustomContent v-show="isSelected" v-bind="props">
+        Custom content
+      </MyCustomContent>
+    </ExpansionPanel.Content>
+  </template>
   ```

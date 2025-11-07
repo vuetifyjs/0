@@ -16,6 +16,8 @@ declare module 'vue' {
     BreakpointsRoot: typeof import('./../../packages/0/src/components/Breakpoints/BreakpointsRoot.vue')['default']
     ContextItem: typeof import('./../../packages/0/src/components/Context/ContextItem.vue')['default']
     ContextRoot: typeof import('./../../packages/0/src/components/Context/ContextRoot.vue')['default']
+    ExpansionPanelActivator: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelActivator.vue')['default']
+    ExpansionPanelContent: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelContent.vue')['default']
     ExpansionPanelItem: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelItem.vue')['default']
     ExpansionPanelRoot: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelRoot.vue')['default']
     GroupItem: typeof import('./../../packages/0/src/components/Group/GroupItem.vue')['default']

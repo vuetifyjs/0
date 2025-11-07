@@ -1,3 +1,14 @@
+/**
+ * @module ExpansionPanelContent
+ *
+ * @remarks
+ * Content container for an expansion panel item that displays when the panel is expanded.
+ * Consumes the ExpansionPanelItemContext via dependency injection and provides ARIA region
+ * attributes for accessibility.
+ *
+ * Automatically manages ARIA labelledby relationship with the corresponding header element.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
@@ -13,6 +24,7 @@
   import type { ExpansionPanelItemContext } from './ExpansionPanelItem.vue'
 
   export interface ExpansionPanelContentProps extends AtomProps {
+    /** Namespace for retrieving the parent ExpansionPanelItem context (default: 'v0:expansion-panel-item') */
     itemNamespace?: string
   }
 </script>
