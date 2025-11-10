@@ -14,13 +14,15 @@ export default defineConfig([{
   ],
   platform: 'browser',
   dts: false,
-  define: {
-    __DEV__: 'false',
-    __VITE_LOGGER_ENABLED__: 'false',
-    __VUE_OPTIONS_API__: 'true',
-    __VUE_PROD_DEVTOOLS__: 'false',
-    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
-    __VERSION__,
+  transform: {
+    define: {
+      __DEV__: 'false',
+      __VITE_LOGGER_ENABLED__: 'false',
+      __VUE_OPTIONS_API__: 'true',
+      __VUE_PROD_DEVTOOLS__: 'false',
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+      __VERSION__,
+    },
   },
   entry: ['./src/index.ts'],
   name: 'vuetify/v0',
@@ -36,13 +38,15 @@ export default defineConfig([{
   dts: {
     vue: true,
   },
-  define: {
-    __DEV__: 'process.env.NODE_ENV !== \'production\'',
-    __VITE_LOGGER_ENABLED__: 'process.env.VITE_LOGGER_ENABLED',
-    __VUE_OPTIONS_API__: 'true',
-    __VUE_PROD_DEVTOOLS__: 'false',
-    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
-    __VERSION__,
+  transform: {
+    define: {
+      __DEV__: 'process.env.NODE_ENV !== \'production\'',
+      __VITE_LOGGER_ENABLED__: 'process.env.VITE_LOGGER_ENABLED',
+      __VUE_OPTIONS_API__: 'true',
+      __VUE_PROD_DEVTOOLS__: 'false',
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+      __VERSION__,
+    },
   },
   entry: ['./src/*/index.ts', './src/index.ts'],
   name: 'vuetify/v0',
