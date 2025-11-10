@@ -27,14 +27,10 @@ import { createSingle } from '#v0/composables/useSingle'
 import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
-import { computed, watch, onScopeDispose, toRef } from 'vue'
-import { isNull, isString } from '#v0/utilities'
+import { computed, toRef } from 'vue'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
@@ -375,48 +371,7 @@ export function createThemePlugin<
       provideThemeContext(context, app)
     },
     setup: (app: App) => {
-      if (IN_BROWSER) {
-        const stopWatch = watch(context.colors, colors => {
-          adapter.update(colors)
-        }, { immediate: true })
-
-        onScopeDispose(stopWatch, true)
-
-        if (isNull(target)) return
-
-        const targetEl = target instanceof HTMLElement
-          ? target
-          : (isString(target)
-              ? document.querySelector(target)
-              : (app._container as HTMLElement | undefined) || document.querySelector('#app') || document.body)
-
-        if (!targetEl) return
-
-        let prevClass = ''
-
-        const stopClass = watch(context.selectedId, id => {
-          if (!id) return
-
-          const themeClass = `${adapter.prefix}-theme--${id}`
-          if (prevClass) targetEl.classList.remove(prevClass)
-          targetEl.classList.add(themeClass)
-          prevClass = themeClass
-        }, { immediate: true })
-
-        onScopeDispose(stopClass, true)
-      } else {
-        const head = app._context?.provides?.usehead ?? app._context?.provides?.head
-        if (head?.push) {
-          const id = context.selectedId.value
-          head.push({
-            htmlAttrs: { class: id ? `${adapter.prefix}-theme--${id}` : '' },
-            style: [{
-              innerHTML: adapter.generate(context.colors.value),
-              id: adapter.stylesheetId,
-            }],
-          })
-        }
-      }
+      adapter.setup(app, context, target)
     },
   })
 }

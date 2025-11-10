@@ -1,7 +1,20 @@
 // Types
+import type { App, ComputedRef, Ref } from 'vue'
 import type { Colors } from '..'
+import type { ID } from '#v0/types'
+
+export interface ThemeAdapterSetupContext {
+  colors: ComputedRef<Record<string, Colors>>
+  selectedId: Ref<ID | null | undefined>
+  isDark: Readonly<Ref<boolean>>
+}
 
 export interface ThemeAdapterInterface {
+  setup: <T extends ThemeAdapterSetupContext>(
+    app: App,
+    context: T,
+    target?: string | HTMLElement | null,
+  ) => void
   update: (colors: Record<string, Colors>) => void
 }
 
@@ -31,5 +44,10 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     return css
   }
 
+  abstract setup<T extends ThemeAdapterSetupContext>(
+    app: App,
+    context: T,
+    target?: string | HTMLElement | null
+  ): void
   abstract update (colors: Record<string, Colors>): void
 }
