@@ -55,7 +55,7 @@ export default function zero (app: App) {
             'on-error': '#ffffff',
             'on-info': '#ffffff',
             'on-success': '#ffffff',
-            'on-warning': '#ffffff',
+            'on-warning': '#000000',
             'on-background': '#000000',
             'on-surface': '#000000',
             'on-surface-variant': '#ffffff',
