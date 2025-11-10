@@ -28,7 +28,7 @@ import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
 import { computed, watch, onScopeDispose } from 'vue'
-import { isString } from '#v0/utilities'
+import { isNull, isString } from '#v0/utilities'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
@@ -362,7 +362,7 @@ export function createThemePlugin<
 
         onScopeDispose(stopWatch, true)
 
-        if (target === null) return
+        if (isNull(target)) return
 
         const targetEl = target instanceof HTMLElement
           ? target
