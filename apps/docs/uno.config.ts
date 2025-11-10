@@ -31,5 +31,8 @@ export default defineConfig({
       'on-surface-tint': 'var(--v0-on-surface-tint)',
       'on-surface-variant': 'var(--v0-on-surface-variant)',
     },
+    borderColor: {
+      DEFAULT: 'var(--v0-divider)',
+    },
   },
 })
