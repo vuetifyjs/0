@@ -19,7 +19,7 @@
   import { createSelectionContext } from '#v0/composables/useSelection'
 
   // Utilities
-  import { toRef, toValue } from 'vue'
+  import { computed, toRef, toValue } from 'vue'
 
   // Types
   import type { ID } from '#v0/types'
@@ -47,6 +47,21 @@
      */
     multiple?: boolean
   }
+
+  export interface ExpansionPanelRootSlotProps {
+    /** Disables the entire expansion panel instance and all registered items */
+    disabled: boolean
+    /** Whether multiple panels can be expanded */
+    multiple: boolean
+    /** Select a panel by ID */
+    select: (id: ID) => void
+    /** Unselect a panel by ID */
+    unselect: (id: ID) => void
+    /** Toggle a panel's expansion state by ID */
+    toggle: (id: ID) => void
+    /** ARIA multiselectable state */
+    ariaMultiselectable: boolean
+  }
 </script>
 
 /**
@@ -58,20 +73,7 @@
   defineOptions({ name: 'ExpansionPanelRoot' })
 
   defineSlots<{
-    default: (props: {
-      /** Disables the entire expansion panel instance and all registered items */
-      disabled: boolean
-      /** Whether multiple panels can be expanded */
-      multiple: boolean
-      /** Select a panel by ID */
-      select: (id: ID) => void
-      /** Unselect a panel by ID */
-      unselect: (id: ID) => void
-      /** Toggle a panel's expansion state by ID */
-      toggle: (id: ID) => void
-      /** ARIA multiselectable state */
-      ariaMultiselectable: boolean
-    }) => any
+    default: (props: ExpansionPanelRootSlotProps) => any
   }>()
 
   defineEmits<{
@@ -100,6 +102,15 @@
     events: true,
   })
 
+  const bindableProps = computed<ExpansionPanelRootSlotProps>(() => ({
+    disabled: toValue(context.disabled),
+    multiple,
+    select: context.select,
+    unselect: context.unselect,
+    toggle: context.toggle,
+    ariaMultiselectable: multiple,
+  }))
+
   useProxyModel(context, model, { multiple })
 
   provideExpansionControl(context)
@@ -107,17 +118,15 @@
 
 <template>
   <Atom
-    :aria-multiselectable="!renderless && multiple"
+    :aria-multiselectable="bindableProps.ariaMultiselectable"
     :as
+    :disabled="bindableProps.disabled"
+    :multiple="bindableProps.multiple"
     :renderless
+    :select="bindableProps.select"
+    :toggle="bindableProps.toggle"
+    :unselect="bindableProps.unselect"
   >
-    <slot
-      :aria-multiselectable="multiple"
-      :disabled="toValue(context.disabled)"
-      :multiple="multiple"
-      :select="context.select"
-      :toggle="context.toggle"
-      :unselect="context.unselect"
-    />
+    <slot v-bind="bindableProps" />
   </Atom>
 </template>

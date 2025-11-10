@@ -27,18 +27,24 @@
     /** Namespace for retrieving the parent ExpansionPanelItem context (default: 'v0:expansion-panel-item') */
     itemNamespace?: string
   }
+
+  export interface ExpansionPanelContentSlotProps {
+    /** Unique ID for the content region */
+    'id': string
+    /** ARIA role for accessibility */
+    'role': 'region'
+    /** ARIA labelledby attribute pointing to header element */
+    'aria-labelledby': string
+    /** Whether this panel is currently selected/expanded */
+    'isSelected': boolean
+  }
 </script>
 
 <script lang="ts" setup>
   defineOptions({ name: 'ExpansionPanelContent' })
 
   defineSlots<{
-    default: (props: {
-      'id': string
-      'role': 'region'
-      'aria-labelledby': string
-      'isSelected': boolean
-    }) => any
+    default: (props: ExpansionPanelContentSlotProps) => any
   }>()
 
   const {
@@ -49,9 +55,9 @@
 
   const context = useContext<ExpansionPanelItemContext>(itemNamespace)
 
-  const bindableProps = computed(() => ({
+  const bindableProps = computed<ExpansionPanelContentSlotProps>(() => ({
     'id': context.contentId.value,
-    'role': 'region' as const,
+    'role': 'region',
     'aria-labelledby': context.headerId.value,
     'isSelected': context.ticket.isSelected.value,
   }))
@@ -59,11 +65,11 @@
 
 <template>
   <Atom
-    :id="!renderless && bindableProps.id"
-    :aria-labelledby="!renderless && bindableProps['aria-labelledby']"
+    :id="bindableProps.id"
+    :aria-labelledby="bindableProps['aria-labelledby']"
     :as
     :renderless
-    :role="!renderless && bindableProps.role"
+    :role="bindableProps.role"
   >
     <slot v-bind="bindableProps" />
   </Atom>

@@ -28,24 +28,36 @@
     /** Namespace for retrieving the parent ExpansionPanelItem context (default: 'v0:expansion-panel-item') */
     itemNamespace?: string
   }
+
+  export interface ExpansionPanelActivatorSlotProps {
+    /** Unique ID for the header/activator element */
+    'id': string
+    /** ARIA role for accessibility */
+    'role': 'button'
+    /** Tab index for keyboard navigation */
+    'tabindex': number
+    /** ARIA expanded state */
+    'aria-expanded': boolean
+    /** ARIA controls attribute pointing to content region */
+    'aria-controls': string
+    /** ARIA disabled state */
+    'aria-disabled': boolean
+    /** Whether this panel is currently selected/expanded */
+    'isSelected': boolean
+    /** Toggle the panel's expansion state */
+    'toggle': () => void
+    /** Click handler to toggle panel */
+    'onClick': () => void
+    /** Keyboard handler for Enter and Space keys */
+    'onKeydown': (e: KeyboardEvent) => void
+  }
 </script>
 
 <script lang="ts" setup>
   defineOptions({ name: 'ExpansionPanelActivator' })
 
   defineSlots<{
-    default: (props: {
-      'id': string
-      'role': 'button'
-      'tabindex': number
-      'aria-expanded': boolean
-      'aria-controls': string
-      'aria-disabled': boolean
-      'isSelected': boolean
-      'toggle': () => void
-      'onClick': () => void
-      'onKeydown': (e: KeyboardEvent) => void
-    }) => any
+    default: (props: ExpansionPanelActivatorSlotProps) => any
   }>()
 
   const {
@@ -56,9 +68,16 @@
 
   const context = useContext<ExpansionPanelItemContext>(itemNamespace)
 
-  const bindableProps = computed(() => ({
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      context.ticket.toggle()
+    }
+  }
+
+  const bindableProps = computed<ExpansionPanelActivatorSlotProps>(() => ({
     'id': context.headerId.value,
-    'role': 'button' as const,
+    'role': 'button',
     'tabindex': context.isDisabled.value ? -1 : 0,
     'aria-expanded': context.ticket.isSelected.value,
     'aria-controls': context.contentId.value,
@@ -66,27 +85,22 @@
     'isSelected': context.ticket.isSelected.value,
     'toggle': context.ticket.toggle,
     'onClick': context.ticket.toggle,
-    'onKeydown': (e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        context.ticket.toggle()
-      }
-    },
+    onKeydown,
   }))
 </script>
 
 <template>
   <Atom
-    :id="!renderless && bindableProps.id"
-    :aria-controls="!renderless && bindableProps['aria-controls']"
-    :aria-disabled="!renderless && bindableProps['aria-disabled']"
-    :aria-expanded="!renderless && bindableProps['aria-expanded']"
+    :id="bindableProps.id"
+    :aria-controls="bindableProps['aria-controls']"
+    :aria-disabled="bindableProps['aria-disabled']"
+    :aria-expanded="bindableProps['aria-expanded']"
     :as
     :renderless
-    :role="!renderless && bindableProps.role"
-    :tabindex="!renderless && bindableProps.tabindex"
-    @click="bindableProps.onClick"
-    @keydown="bindableProps.onKeydown"
+    :role="bindableProps.role"
+    :tabindex="bindableProps.tabindex"
+    @click="context.ticket.toggle"
+    @keydown="onKeydown"
   >
     <slot v-bind="bindableProps" />
   </Atom>
