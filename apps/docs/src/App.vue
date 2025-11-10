@@ -5,15 +5,18 @@
 </script>
 
 <template>
-  <div :class="`v0-theme--${theme.selectedId.value}`">
+  <div
+    :class="[
+      `v0-theme--${theme.selectedId.value}`,
+      'bg-background text-on-background',
+    ]"
+  >
     <router-view />
   </div>
 </template>
 
 <style>
   #app > div {
-    background-color: var(--v0-background);
-
     hr {
       border: none;
       border-top: 1px solid var(--v0-divider);
@@ -56,7 +59,7 @@
       margin: 1rem 0;
       padding: 0.5rem 1rem;
       background-color: var(--v0-surface);
-      border-left: 4px solid #d1d5db;
+      border-left: 4px solid var(--v0-divider);
     }
 
     code {
@@ -82,7 +85,6 @@
     }
 
     .shiki, .skiki span {
-      background-color: var(--v0-pre) !important;
       overflow-x: auto;
     }
 
@@ -95,7 +97,7 @@
 
     th, td {
       padding: 0.25rem 0.5rem;
-      border: 1px solid #d1d5db;
+      border: 1px solid var(--v0-divider);
       text-align: left;
     }
   }
