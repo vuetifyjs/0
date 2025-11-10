@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run tests
-        run: pnpm test --run
+        run: pnpm test:run
 
   repo-integrity:
     needs: prepare
@@ -96,9 +96,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run knip check
-        run: pnpm test:knip
+        run: pnpm repo:knip
       - name: Run sherif check
-        run: pnpm test:sherif
+        run: pnpm repo:sherif
 
   build:
     runs-on: ubuntu-latest

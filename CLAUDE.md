@@ -21,39 +21,81 @@ This is a **pnpm monorepo** for Vue 3 headless UI primitives and composables, pr
 
 ### Development
 ```bash
-pnpm dev          # Start playground dev server
-pnpm dev:docs     # Start documentation site
-pnpm storybook    # Start Storybook
+pnpm dev              # Start playground dev server
+pnpm dev:docs         # Start documentation site
+pnpm dev:storybook    # Start Storybook
 ```
 
 ### Building
 ```bash
-pnpm build        # Build all packages (uses tsdown)
-pnpm build:docs   # Build documentation site
-pnpm build:storybook
+# Individual packages
+pnpm build:0          # Build @vuetify/v0 only
+pnpm build:paper      # Build @vuetify/paper only
+pnpm build:packages   # Build all packages
+
+# Individual apps
+pnpm build:playground # Build playground
+pnpm build:docs       # Build documentation site
+pnpm build:storybook  # Build Storybook
+
+# Composite builds
+pnpm build            # Build all packages (shorthand for build:packages)
+pnpm build:apps       # Build all apps (docs + storybook + playground)
+pnpm build:all        # Build everything (packages + apps)
 ```
 
 ### Testing
 ```bash
-pnpm test         # Run Vitest tests (watch mode)
-pnpm test:ui      # Run tests with Vitest UI
-pnpm coverage     # Generate coverage report
-pnpm test:bench   # Run benchmarks (verbose)
-pnpm bench        # Run benchmarks (default)
-pnpm test:knip    # Check for unused dependencies/exports
-pnpm test:sherif  # Check monorepo dependency consistency
+pnpm test             # Run tests in watch mode (default)
+pnpm test:run         # Run tests once (CI mode)
+pnpm test:ui          # Run tests with Vitest UI
+pnpm test:coverage    # Generate coverage report
+pnpm test:bench       # Run benchmarks (verbose)
+pnpm bench            # Run benchmarks (default)
 ```
 
-### Code Quality
+### Type Checking
 ```bash
-pnpm typecheck    # Type check @vuetify/v0 package
-pnpm lint         # Lint codebase
-pnpm lint:fix     # Fix linting issues
+pnpm typecheck        # Type check all packages
+pnpm typecheck:0      # Type check @vuetify/v0 only
+pnpm typecheck:paper  # Type check @vuetify/paper only
+```
+
+### Linting
+```bash
+pnpm lint             # Lint codebase
+pnpm lint:fix         # Fix linting issues
+```
+
+### Preview
+```bash
+pnpm preview:playground # Preview playground build
+pnpm preview:docs       # Preview docs build
+pnpm preview:storybook  # Preview Storybook build
+```
+
+### Repository Integrity
+```bash
+pnpm repo:knip        # Check for unused dependencies/exports
+pnpm repo:sherif      # Check monorepo dependency consistency
+pnpm repo:check       # Run both knip and sherif
+```
+
+### Validation
+```bash
+pnpm validate         # Run lint + typecheck + test (pre-commit/CI)
 ```
 
 ### Release
 ```bash
-pnpm release      # Bump version with bumpp
+# Preparation
+pnpm release:prepare  # Run all checks + build (pre-release validation)
+
+# Version bumping
+pnpm release          # Interactive version bump (prompts for version type)
+pnpm release:patch    # Bump patch version (0.0.X)
+pnpm release:minor    # Bump minor version (0.X.0)
+pnpm release:major    # Bump major version (X.0.0)
 ```
 
 ## Composables Architecture
