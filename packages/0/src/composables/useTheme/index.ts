@@ -27,7 +27,7 @@ import { createSingle } from '#v0/composables/useSingle'
 import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
-import { computed, watch, onScopeDispose } from 'vue'
+import { computed, watch, onScopeDispose, toRef } from 'vue'
 import { isNull, isString } from '#v0/utilities'
 
 // Adapters
@@ -40,7 +40,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 import type { RegistryOptions } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef } from 'vue'
+import type { App, ComputedRef, Ref } from 'vue'
 import type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 import type { TokenCollection } from '#v0/composables/useTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -98,6 +98,23 @@ export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
    * ```
    */
   colors: ComputedRef<Record<string, Colors>>
+  /**
+   * A ref indicating whether the current theme is dark.
+   *
+   * @remarks Returns `true` if the current theme has `dark: true`, otherwise `false`.
+   *
+   * @see https://0.vuetifyjs.com/composables/plugins/use-theme#isDark
+   *
+   * @example
+   * ```ts
+   * import { useTheme } from '@vuetify/v0'
+   *
+   * const theme = useTheme()
+   *
+   * console.log(theme.isDark.value) // true or false
+   * ```
+   */
+  isDark: Readonly<Ref<boolean>>
   /**
    * Cycles through the provided themes in order.
    *
@@ -215,6 +232,8 @@ export function createTheme<
     return resolved
   })
 
+  const isDark = toRef(() => registry.selectedItem.value?.dark ?? false)
+
   function cycle (themes: ID[] = names.value) {
     const current = themes.indexOf(registry.selectedId.value ?? '')
     const next = current === -1 ? 0 : (current + 1) % themes.length
@@ -244,6 +263,7 @@ export function createTheme<
   return {
     ...registry,
     colors,
+    isDark,
     register,
     cycle,
     get size () {
