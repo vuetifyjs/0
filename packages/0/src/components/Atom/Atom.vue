@@ -21,9 +21,10 @@
    * rendering capabilities.
    */
 
-  // Utils
+  // Utilities
   import { toRef, useAttrs, useTemplateRef } from 'vue'
   import { isSelfClosingTag } from '#v0/constants/htmlElements'
+  import { isNull, isString } from '#v0/utilities'
 
   // Types
   import type { DOMElement } from '#v0/types'
@@ -84,13 +85,13 @@
   defineExpose<AtomExpose>({ element })
 
   const attrs = useAttrs()
-  const isSelfClosing = toRef(() => typeof as === 'string' && isSelfClosingTag(as as keyof HTMLElementTagNameMap))
+  const isSelfClosing = toRef(() => isString(as) && isSelfClosingTag(as as keyof HTMLElementTagNameMap))
   const slotProps = toRef(() => attrs as T)
 </script>
 
 <template>
   <slot
-    v-if="renderless || as === null"
+    v-if="renderless || isNull(as)"
     v-bind="slotProps"
   />
 

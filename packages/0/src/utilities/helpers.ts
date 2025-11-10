@@ -32,6 +32,11 @@ export function isArray (item: unknown): item is unknown[] {
 }
 
 /* #__NO_SIDE_EFFECTS__ */
+export function isNull (item: unknown): item is null {
+  return item === null
+}
+
+/* #__NO_SIDE_EFFECTS__ */
 export function isNullOrUndefined (item: unknown): item is null {
   return item == null
 }
