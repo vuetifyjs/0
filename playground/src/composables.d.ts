@@ -89,6 +89,7 @@ declare global {
   const isArray: typeof import('../../packages/0/src/utilities/helpers')['isArray']
   const isBoolean: typeof import('../../packages/0/src/utilities/helpers')['isBoolean']
   const isFunction: typeof import('../../packages/0/src/utilities/helpers')['isFunction']
+  const isNull: typeof import('../../packages/0/src/utilities/helpers')['isNull']
   const isNullOrUndefined: typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']
   const isNumber: typeof import('../../packages/0/src/utilities/helpers')['isNumber']
   const isObject: typeof import('../../packages/0/src/utilities/helpers')['isObject']
@@ -401,6 +402,7 @@ declare module 'vue' {
     readonly isArray: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isArray']>
     readonly isBoolean: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isBoolean']>
     readonly isFunction: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isFunction']>
+    readonly isNull: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNull']>
     readonly isNullOrUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']>
     readonly isNumber: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNumber']>
     readonly isObject: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isObject']>
