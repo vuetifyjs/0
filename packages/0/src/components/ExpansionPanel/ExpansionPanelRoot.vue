@@ -74,6 +74,11 @@
     }) => any
   }>()
 
+  defineEmits<{
+    /** Emitted when the expanded panels change */
+    'update:model-value': T | T[]
+  }>()
+
   const {
     as,
     renderless,
