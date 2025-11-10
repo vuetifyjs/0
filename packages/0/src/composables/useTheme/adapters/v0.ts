@@ -40,8 +40,8 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
     target?: string | HTMLElement | null,
   ): void {
     if (IN_BROWSER) {
-      const stopWatch = watch(context.colors, colors => {
-        this.update(colors)
+      const stopWatch = watch([context.colors, context.isDark], ([colors, isDark]) => {
+        this.update(colors, isDark)
       }, { immediate: true })
 
       onScopeDispose(stopWatch, true)
@@ -51,31 +51,28 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
       const targetEl = target instanceof HTMLElement
         ? target
         : (isString(target)
-            ? document.querySelector(target)
-            : (app._container as HTMLElement | undefined) || document.querySelector('#app') || document.body)
+            ? document.querySelector(target) as HTMLElement | null
+            : (app._container as HTMLElement | undefined) || document.querySelector('#app') as HTMLElement | null || document.body)
 
       if (!targetEl) return
 
-      let prevClass = ''
-
-      const stopClass = watch(context.selectedId, id => {
+      const stopTheme = watch(context.selectedId, id => {
         if (!id) return
 
-        const themeClass = `${this.prefix}-theme--${id}`
-        if (prevClass) targetEl.classList.remove(prevClass)
-        targetEl.classList.add(themeClass)
-        prevClass = themeClass
+        targetEl.dataset.theme = String(id)
       }, { immediate: true })
 
-      onScopeDispose(stopClass, true)
+      onScopeDispose(stopTheme, true)
     } else {
       const head = app._context?.provides?.usehead ?? app._context?.provides?.head
       if (head?.push) {
         const id = context.selectedId.value
         head.push({
-          htmlAttrs: { class: id ? `${this.prefix}-theme--${id}` : '' },
+          htmlAttrs: {
+            'data-theme': id ? String(id) : '',
+          },
           style: [{
-            innerHTML: this.generate(context.colors.value),
+            innerHTML: this.generate(context.colors.value, context.isDark.value),
             id: this.stylesheetId,
           }],
         })
@@ -83,10 +80,13 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
     }
   }
 
-  update (colors: Record<ID, Colors>): void {
+  update (
+    colors: Record<ID, Colors>,
+    isDark?: boolean,
+  ): void {
     if (!IN_BROWSER) return
 
-    this.upsert(this.generate(colors))
+    this.upsert(this.generate(colors, isDark))
   }
 
   upsert (styles: string): void {

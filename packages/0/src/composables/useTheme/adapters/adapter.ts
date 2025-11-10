@@ -15,7 +15,10 @@ export interface ThemeAdapterInterface {
     context: T,
     target?: string | HTMLElement | null,
   ) => void
-  update: (colors: Record<string, Colors>) => void
+  update: (
+    colors: Record<string, Colors>,
+    isDark?: boolean,
+  ) => void
 }
 
 export abstract class ThemeAdapter implements ThemeAdapterInterface {
@@ -26,7 +29,10 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     this.prefix = prefix
   }
 
-  generate (colors: Record<string, Colors>): string {
+  generate (
+    colors: Record<string, Colors>,
+    isDark?: boolean,
+  ): string {
     let css = ''
 
     for (const theme in colors) {
@@ -38,7 +44,11 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
         .map(([key, val]) => `  --${this.prefix}-${key}: ${val};`)
         .join('\n')
 
-      css += `.${this.prefix}-theme--${theme} {\n${vars}\n}\n`
+      css += `[data-theme="${theme}"] {\n${vars}\n}\n`
+    }
+
+    if (isDark !== undefined) {
+      css += `:root {\n  color-scheme: ${isDark ? 'dark' : 'light'};\n}\n`
     }
 
     return css
@@ -49,5 +59,8 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
     context: T,
     target?: string | HTMLElement | null
   ): void
-  abstract update (colors: Record<string, Colors>): void
+  abstract update (
+    colors: Record<string, Colors>,
+    isDark?: boolean
+  ): void
 }
