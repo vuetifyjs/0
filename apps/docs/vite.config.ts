@@ -8,6 +8,7 @@ import pkg from './package.json' with { type: 'json' }
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
 import UnocssVitePlugin from 'unocss/vite'
+import VueDevTools from 'vite-plugin-vue-devtools'
 import type { ViteSSGOptions } from 'vite-ssg'
 
 export default defineConfig({
@@ -28,6 +29,7 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
+    VueDevTools(),
     await Markdown(),
     Components({
       dirs: ['src/components'],

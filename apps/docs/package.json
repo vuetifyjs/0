@@ -24,6 +24,7 @@
     "unplugin-vue-markdown": "catalog:",
     "unplugin-vue-router": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:",
     "vite-plugin-vue-layouts-next": "catalog:",
     "vite-ssg": "catalog:",
     "vue-router": "catalog:"
