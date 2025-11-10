@@ -39,8 +39,10 @@ describe('useIntersectionObserver', () => {
     }
 
     // Mock IntersectionObserver globally
-    global.IntersectionObserver = vi.fn(() => mockObserver)
-    window.IntersectionObserver = vi.fn(() => mockObserver)
+    globalThis.IntersectionObserver = vi.fn(function (this: any) {
+      return mockObserver
+    }) as any
+    window.IntersectionObserver = globalThis.IntersectionObserver
 
     // Create test element
     element = document.createElement('div')
@@ -67,7 +69,7 @@ describe('useIntersectionObserver', () => {
     useIntersectionObserver(target, callback)
     await nextTick()
 
-    expect(global.IntersectionObserver).not.toHaveBeenCalled()
+    expect(globalThis.IntersectionObserver).not.toHaveBeenCalled()
   })
 
   it('should create observer when target is provided', async () => {
@@ -170,7 +172,7 @@ describe('useIntersectionObserver', () => {
     await nextTick()
 
     // Verify observer was created with correct options
-    expect(global.IntersectionObserver).toHaveBeenCalledWith(
+    expect(globalThis.IntersectionObserver).toHaveBeenCalledWith(
       expect.any(Function),
       {
         root: document.body,

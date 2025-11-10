@@ -29,8 +29,8 @@ describe('useEventListener', () => {
     } as any
 
     // Set global mocks
-    global.document = mockDocument
-    global.window = mockWindow as any
+    globalThis.document = mockDocument
+    globalThis.window = mockWindow as any
   })
 
   afterEach(() => {

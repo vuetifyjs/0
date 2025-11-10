@@ -37,8 +37,10 @@ describe('useMutationObserver', () => {
       disconnect: vi.fn(),
     }
 
-    global.MutationObserver = vi.fn(() => mockObserver)
-    window.MutationObserver = vi.fn(() => mockObserver)
+    globalThis.MutationObserver = vi.fn(function (this: any) {
+      return mockObserver
+    }) as any
+    window.MutationObserver = globalThis.MutationObserver
 
     element = document.createElement('div')
 
@@ -52,7 +54,7 @@ describe('useMutationObserver', () => {
     useMutationObserver(target, callback)
     await nextTick()
 
-    expect(global.MutationObserver).not.toHaveBeenCalled()
+    expect(globalThis.MutationObserver).not.toHaveBeenCalled()
   })
 
   it('should create observer when target is provided', async () => {
@@ -133,7 +135,7 @@ describe('useMutationObserver', () => {
     mockIsHydrated.value = true
     await nextTick()
 
-    expect(global.MutationObserver).toHaveBeenCalledWith(expect.any(Function))
+    expect(globalThis.MutationObserver).toHaveBeenCalledWith(expect.any(Function))
     expect(mockObserver.observe).toHaveBeenCalledWith(element, {
       childList: true,
       attributes: true,
@@ -175,7 +177,7 @@ describe('useMutationObserver', () => {
     await nextTick()
 
     // Verify observer was created
-    expect(global.MutationObserver).toHaveBeenCalled()
+    expect(globalThis.MutationObserver).toHaveBeenCalled()
     expect(mockObserver.observe).toHaveBeenCalledWith(element, expect.any(Object))
   })
 
@@ -188,7 +190,7 @@ describe('useMutationObserver', () => {
     mockIsHydrated.value = true
     await nextTick()
 
-    expect(global.MutationObserver).toHaveBeenCalled()
+    expect(globalThis.MutationObserver).toHaveBeenCalled()
 
     stop()
     expect(mockObserver.disconnect).toHaveBeenCalled()

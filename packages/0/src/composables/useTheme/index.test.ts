@@ -383,7 +383,7 @@ describe('createThemePlugin', () => {
 
     await nextTick()
 
-    expect(targetEl.classList.contains('v0-theme--dark')).toBe(true)
+    expect(targetEl.dataset.theme).toBe('dark')
 
     app.unmount()
     targetEl.remove()
@@ -424,15 +424,14 @@ describe('createThemePlugin', () => {
 
     await nextTick()
 
-    expect(targetEl.classList.contains('v0-theme--light')).toBe(true)
+    expect(targetEl.dataset.theme).toBe('light')
 
     // Switch theme using the context from setup
     themeContext.select('dark')
 
     await nextTick()
 
-    expect(targetEl.classList.contains('v0-theme--light')).toBe(false)
-    expect(targetEl.classList.contains('v0-theme--dark')).toBe(true)
+    expect(targetEl.dataset.theme).toBe('dark')
 
     app.unmount()
     targetEl.remove()
@@ -462,9 +461,9 @@ describe('createThemePlugin', () => {
     await nextTick()
 
     // Should apply to container or body
-    const hasClass = container.classList.contains('v0-theme--light') ||
-      document.body.classList.contains('v0-theme--light')
-    expect(hasClass).toBe(true)
+    const hasDataTheme = container.dataset.theme === 'light' ||
+      document.body.dataset.theme === 'light'
+    expect(hasDataTheme).toBe(true)
 
     app.unmount()
     container.remove()
@@ -508,6 +507,7 @@ describe('createThemePlugin', () => {
         adapter: {
           prefix: 'custom',
           stylesheetId: 'custom-theme-styles',
+          setup: vi.fn(),
           update: vi.fn(),
           generate: () => '',
         },

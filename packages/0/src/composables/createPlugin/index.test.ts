@@ -11,8 +11,8 @@ import type { PluginOptions } from './index'
 describe('createPlugin', () => {
   let mockApp: App
   let mockRunWithContext: ReturnType<typeof vi.fn>
-  let mockProvide: ReturnType<typeof vi.fn>
-  let mockSetup: ReturnType<typeof vi.fn>
+  let mockProvide: (app: App) => void
+  let mockSetup: (app: App) => void
 
   beforeEach(() => {
     mockRunWithContext = vi.fn(callback => callback())
@@ -20,8 +20,8 @@ describe('createPlugin', () => {
       runWithContext: mockRunWithContext,
     } as any
 
-    mockProvide = vi.fn()
-    mockSetup = vi.fn()
+    mockProvide = vi.fn() as (app: App) => void
+    mockSetup = vi.fn() as (app: App) => void
   })
 
   it('should return a plugin object with install method', () => {
@@ -89,7 +89,7 @@ describe('createPlugin', () => {
   })
 
   it('should handle async setup function', async () => {
-    const asyncSetup = vi.fn().mockResolvedValue(undefined)
+    const asyncSetup = vi.fn().mockResolvedValue(undefined) as (app: App) => Promise<void>
     const options: PluginOptions = {
       namespace: 'test',
       provide: mockProvide,
@@ -108,11 +108,11 @@ describe('createPlugin', () => {
 
     const orderTrackingProvide = vi.fn(() => {
       executionOrder.push('provide')
-    })
+    }) as (app: App) => void
 
     const orderTrackingSetup = vi.fn(() => {
       executionOrder.push('setup')
-    })
+    }) as (app: App) => void
 
     const options: PluginOptions = {
       namespace: 'test',

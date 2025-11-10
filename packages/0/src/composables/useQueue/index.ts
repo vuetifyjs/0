@@ -278,7 +278,7 @@ export function createQueue<
 > (_options: QueueOptions = {}): E {
   const { timeout: _timeout = 3000, ...options } = _options
   const registry = useRegistry<Z, E>({ ...options, events: true })
-  const timeouts = new Map<ID, NodeJS.Timeout>()
+  const timeouts = new Map<ID, ReturnType<typeof setTimeout>>()
 
   function startTimeout (ticket: Z) {
     if (ticket.timeout === undefined || ticket.timeout === -1 || ticket.isPaused) return
