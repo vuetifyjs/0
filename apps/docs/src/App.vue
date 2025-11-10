@@ -1,16 +1,9 @@
 <script lang="ts" setup>
-  import { useTheme } from '@vuetify/v0'
-
-  const theme = useTheme()
+  //
 </script>
 
 <template>
-  <div
-    :class="[
-      `v0-theme--${theme.selectedId.value}`,
-      'bg-background text-on-background',
-    ]"
-  >
+  <div class="bg-background text-on-background">
     <router-view />
   </div>
 </template>
