@@ -23,7 +23,7 @@ export type ContextTrinity<Z = unknown> = readonly [
 /**
  * Creates a new trinity for a context composable and its provider.
  *
- * @param createContext The function that retrieves/uses the context (typically named `useContext`).
+ * @param useContext The function that retrieves/uses the context (typically named `useContext`).
  * @param provideContext The function that provides the context to descendants.
  * @param context The default context instance to use when no custom context is provided.
  * @template Z The type of the context.
@@ -60,12 +60,12 @@ export type ContextTrinity<Z = unknown> = readonly [
  * ```
  */
 export function createTrinity<Z = unknown> (
-  createContext: () => Z,
+  useContext: () => Z,
   provideContext: (_context?: Z, app?: App) => Z,
   context: Z,
 ): ContextTrinity<Z> {
   return [
-    createContext,
+    useContext,
     (_context: Z = context, app?: App): Z => provideContext(_context, app),
     context,
   ] as const
