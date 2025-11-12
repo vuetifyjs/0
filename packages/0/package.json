@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Vuetify0",
   "license": "MIT",
   "main": "./dist/index.js",
