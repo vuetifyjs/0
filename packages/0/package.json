@@ -3,9 +3,9 @@
   "version": "0.0.10",
   "description": "Vuetify0",
   "license": "MIT",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "type": "module",
   "files": [
     "dist"
@@ -25,15 +25,15 @@
         "types": "./src/index.ts",
         "import": "./src/index.ts"
       },
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     },
     "./browser": {
       "development": {
         "types": "./src/index.ts",
         "import": "./src/index.ts"
       },
-      "types": "./dist/index.d.ts",
+      "types": "./dist/index.d.mts",
       "import": "./dist/browser/index.js"
     },
     "./components": {
@@ -41,54 +41,54 @@
         "types": "./src/components/index.ts",
         "import": "./src/components/index.ts"
       },
-      "types": "./dist/components/index.d.ts",
-      "import": "./dist/components/index.js"
+      "types": "./dist/components/index.d.mts",
+      "import": "./dist/components/index.mjs"
     },
     "./composables": {
       "development": {
         "types": "./src/composables/index.ts",
         "import": "./src/composables/index.ts"
       },
-      "types": "./dist/composables/index.d.ts",
-      "import": "./dist/composables/index.js"
+      "types": "./dist/composables/index.d.mts",
+      "import": "./dist/composables/index.mjs"
     },
     "./constants": {
       "development": {
         "types": "./src/constants/index.ts",
         "import": "./src/constants/index.ts"
       },
-      "types": "./dist/constants/index.d.ts",
-      "import": "./dist/constants/index.js"
+      "types": "./dist/constants/index.d.mts",
+      "import": "./dist/constants/index.mjs"
     },
     "./types": {
       "development": {
         "types": "./src/types/index.ts",
         "import": "./src/types/index.ts"
       },
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/types/index.js"
+      "types": "./dist/types/index.d.mts",
+      "import": "./dist/types/index.mjs"
     },
     "./utilities": {
       "development": {
         "types": "./src/utilities/index.ts",
         "import": "./src/utilities/index.ts"
       },
-      "types": "./dist/utilities/index.d.ts",
-      "import": "./dist/utilities/index.js"
+      "types": "./dist/utilities/index.d.mts",
+      "import": "./dist/utilities/index.mjs"
     }
   },
   "publishConfig": {
     "exports": {
-      ".": "./dist/index.js",
+      ".": "./dist/index.mjs",
       "./browser": {
-        "types": "./dist/index.d.ts",
+        "types": "./dist/index.d.mts",
         "import": "./dist/browser/index.js"
       },
-      "./components": "./dist/components/index.js",
-      "./composables": "./dist/composables/index.js",
-      "./constants": "./dist/constants/index.js",
-      "./types": "./dist/types/index.js",
-      "./utilities": "./dist/utilities/index.js"
+      "./components": "./dist/components/index.mjs",
+      "./composables": "./dist/composables/index.mjs",
+      "./constants": "./dist/constants/index.mjs",
+      "./types": "./dist/types/index.mjs",
+      "./utilities": "./dist/utilities/index.mjs"
     }
   },
   "peerDependencies": {
