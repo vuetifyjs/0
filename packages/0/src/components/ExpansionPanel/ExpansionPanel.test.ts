@@ -4,7 +4,8 @@ import { ExpansionPanel } from './index'
 // Utilities
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { h, ref, nextTick } from 'vue'
+import { h, ref, nextTick, createSSRApp, defineComponent } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 
 describe('ExpansionPanel', () => {
   describe('Root', () => {
@@ -831,6 +832,175 @@ describe('ExpansionPanel', () => {
       await activators[1]?.trigger('click')
       await nextTick()
       expect(selected.value).toBe('value-2')
+    })
+  })
+
+  describe('SSR/Hydration', () => {
+    it('should render to string on server without errors', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(ExpansionPanel.Root as any, { modelValue: 'value-1' }, () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-1', value: 'value-1' },
+              () => [
+                h(ExpansionPanel.Activator as any, {}, () => 'Header'),
+                h(ExpansionPanel.Content as any, {}, () => 'Content'),
+              ],
+            ),
+          ),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toBeTruthy()
+      expect(html).toContain('panel-1-header')
+      expect(html).toContain('panel-1-content')
+      expect(html).toContain('Header')
+      expect(html).toContain('Content')
+    })
+
+    it('should render ARIA attributes on server', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(ExpansionPanel.Root as any, { modelValue: 'value-1' }, () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-1', value: 'value-1' },
+              () => h(ExpansionPanel.Activator as any, {}, () => 'Header'),
+            ),
+          ),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('role="button"')
+      expect(html).toContain('aria-expanded="true"')
+      expect(html).toContain('aria-controls="panel-1-content"')
+      expect(html).toContain('id="panel-1-header"')
+      expect(html).toContain('tabindex="0"')
+    })
+
+    it('should render collapsed state correctly on server', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(ExpansionPanel.Root as any, {}, () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-1', value: 'value-1' },
+              () => h(ExpansionPanel.Activator as any, {}, () => 'Header'),
+            ),
+          ),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('aria-expanded="false"')
+    })
+
+    it('should render disabled state on server', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(ExpansionPanel.Root as any, { disabled: true }, () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-1', value: 'value-1' },
+              () => h(ExpansionPanel.Activator as any, {}, () => 'Header'),
+            ),
+          ),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('aria-disabled="true"')
+      expect(html).toContain('tabindex="-1"')
+    })
+
+    it('should render multiple panels on server', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(ExpansionPanel.Root as any, { modelValue: ['value-1', 'value-2'], multiple: true }, () => [
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-1', value: 'value-1' },
+              () => h(ExpansionPanel.Activator as any, {}, () => 'Panel 1'),
+            ),
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-2', value: 'value-2' },
+              () => h(ExpansionPanel.Activator as any, {}, () => 'Panel 2'),
+            ),
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-3', value: 'value-3' },
+              () => h(ExpansionPanel.Activator as any, {}, () => 'Panel 3'),
+            ),
+          ]),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('aria-multiselectable="true"')
+      expect(html).toContain('Panel 1')
+      expect(html).toContain('Panel 2')
+      expect(html).toContain('Panel 3')
+    })
+
+    it('should render Content region with proper ARIA on server', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(ExpansionPanel.Root as any, {}, () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-1', value: 'value-1' },
+              () => [
+                h(ExpansionPanel.Activator as any, {}, () => 'Header'),
+                h(ExpansionPanel.Content as any, {}, () => 'Panel content here'),
+              ],
+            ),
+          ),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('role="region"')
+      expect(html).toContain('aria-labelledby="panel-1-header"')
+      expect(html).toContain('id="panel-1-content"')
+      expect(html).toContain('Panel content here')
+    })
+
+    it('should hydrate without mismatches', async () => {
+      const Component = defineComponent({
+        render: () =>
+          h(ExpansionPanel.Root as any, { modelValue: 'value-1' }, () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'panel-1', value: 'value-1' },
+              () => [
+                h(ExpansionPanel.Activator as any, {}, () => 'Header'),
+                h(ExpansionPanel.Content as any, {}, () => 'Content'),
+              ],
+            ),
+          ),
+      })
+
+      const ssrApp = createSSRApp(Component)
+      const serverHtml = await renderToString(ssrApp)
+
+      const container = document.createElement('div')
+      container.innerHTML = serverHtml
+
+      const wrapper = mount(Component, {
+        attachTo: container,
+      })
+
+      await nextTick()
+
+      const activator = wrapper.findComponent(ExpansionPanel.Activator)
+      expect(activator.attributes('id')).toBe('panel-1-header')
+      expect(activator.attributes('aria-expanded')).toBe('true')
+
+      wrapper.unmount()
     })
   })
 })
