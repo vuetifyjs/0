@@ -14,9 +14,14 @@
  */
 
 // Utilities
-import { onMounted, getCurrentScope, onScopeDispose, ref, shallowReadonly } from 'vue'
+import { onMounted, getCurrentScope, onScopeDispose, ref, shallowReadonly, shallowRef } from 'vue'
+import { genId, isArray } from '#v0/utilities'
+
+// Globals
+import { IN_DOCUMENT } from '#v0/constants'
+
+// Types
 import type { ID } from '#v0/types'
-import { genId } from '#v0/utilities'
 
 export interface KeyHandler {
   key: string
@@ -33,8 +38,7 @@ let globalListener: ((event: KeyboardEvent) => void) | null = null
 const handlerMap: Map<ID, KeyHandler> = new Map()
 
 function startGlobalListener () {
-  if (typeof document === 'undefined') return
-  if (globalListener) return
+  if (globalListener || IN_DOCUMENT) return
 
   globalListener = (event: KeyboardEvent) => {
     for (const h of handlerMap.values()) {
@@ -49,7 +53,7 @@ function startGlobalListener () {
 }
 
 function stopGlobalListener () {
-  if (typeof document === 'undefined') return
+  if (IN_DOCUMENT) return
 
   if (globalListener && handlerMap.size === 0) {
     document.removeEventListener('keydown', globalListener)
@@ -66,11 +70,14 @@ function stopGlobalListener () {
  * @returns Object with methods to manually start and stop listening for keydown events.
  */
 
-export function useKeydown (handlers: KeyHandler[] | KeyHandler, options: UseKeydownOptions = {}) {
+export function useKeydown (
+  handlers: KeyHandler[] | KeyHandler,
+  options: UseKeydownOptions = {},
+) {
   const { immediate = true } = options
-  const keyHandlers = Array.isArray(handlers) ? handlers : [handlers]
+  const keyHandlers = isArray(handlers) ? handlers : [handlers]
   const handlerIds = ref<ID[]>([])
-  const isListening = ref(false)
+  const isListening = shallowRef(false)
 
   function startListening () {
     if (isListening.value) return
