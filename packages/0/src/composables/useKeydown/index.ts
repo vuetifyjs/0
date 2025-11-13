@@ -10,38 +10,74 @@
  * - Automatic cleanup on scope disposal
  * - Auto-starts when in component scope
  *
- * Simplified wrapper around useEventListener for keyboard interactions.
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ * import { useKeydown } from '#v0/composables/useKeydown'
+ *
+ * useKeydown({
+ *   key: 'Enter',
+ *   handler: (event) => {
+ *     console.log('Enter key pressed!', event)
+ *   },
+ *   preventDefault: true,
+ * })
+ * </script>
+ * ```
  */
 
 // Utilities
 import { onMounted, getCurrentScope, onScopeDispose, ref, shallowReadonly, shallowRef } from 'vue'
-import { genId, isArray } from '#v0/utilities'
+import { isArray } from '#v0/utilities'
+
+// Composables
+import { useRegistry } from '#v0/composables/useRegistry'
 
 // Globals
 import { IN_DOCUMENT } from '#v0/constants'
 
 // Types
 import type { ID } from '#v0/types'
+import type { RegistryTicket } from '#v0/composables/useRegistry'
 
 export interface KeyHandler {
+  /**
+   * The key to listen for. This can be a single character, a modifier key (e.g., `Control`, `Shift`),
+   * or a special key (e.g., `ArrowUp`).
+   */
   key: string
+  /**
+   * The handler function to call when the specified key is pressed.
+   * @param event The KeyboardEvent object containing details about the keydown event.
+   * @returns
+   */
   handler: (event: KeyboardEvent) => void
+  /**
+   * Whether to call event.preventDefault() when the handler is invoked.
+   * @default false
+   */
   preventDefault?: boolean
+  /**
+   * Whether to call event.stopPropagation() when the handler is invoked.
+   * @default false
+   */
   stopPropagation?: boolean
 }
+
+export interface KeyHandlerTicket extends RegistryTicket, KeyHandler {}
 
 export interface UseKeydownOptions {
   immediate?: boolean
 }
 
 let globalListener: ((event: KeyboardEvent) => void) | null = null
-const handlerMap: Map<ID, KeyHandler> = new Map()
+const handlerRegistry = useRegistry<KeyHandlerTicket>()
 
 function startGlobalListener () {
-  if (globalListener || IN_DOCUMENT) return
+  if (globalListener || !IN_DOCUMENT) return
 
   globalListener = (event: KeyboardEvent) => {
-    for (const h of handlerMap.values()) {
+    for (const h of handlerRegistry.values()) {
       if (h.key === event.key) {
         if (h.preventDefault) event.preventDefault()
         if (h.stopPropagation) event.stopPropagation()
@@ -53,9 +89,9 @@ function startGlobalListener () {
 }
 
 function stopGlobalListener () {
-  if (IN_DOCUMENT) return
+  if (!IN_DOCUMENT) return
 
-  if (globalListener && handlerMap.size === 0) {
+  if (globalListener && handlerRegistry.size === 0) {
     document.removeEventListener('keydown', globalListener)
     globalListener = null
   }
@@ -82,15 +118,16 @@ export function useKeydown (
   function startListening () {
     if (isListening.value) return
 
-    const ids = Array.from({ length: keyHandlers.length }, genId)
+    const ids: ID[] = []
 
-    for (const [index, id] of ids.entries()) {
-      handlerMap.set(id, keyHandlers[index]!)
+    for (const handler of keyHandlers) {
+      const ticket = handlerRegistry.register(handler)
+      ids.push(ticket.id)
     }
 
     handlerIds.value = ids
 
-    if (handlerMap.size > 0) {
+    if (handlerRegistry.size > 0) {
       startGlobalListener()
     }
 
@@ -101,12 +138,12 @@ export function useKeydown (
     if (!isListening.value) return
 
     for (const id of handlerIds.value) {
-      handlerMap.delete(id)
+      handlerRegistry.unregister(id)
     }
     handlerIds.value = []
     isListening.value = false
 
-    if (handlerMap.size === 0) {
+    if (handlerRegistry.size === 0) {
       stopGlobalListener()
     }
   }
@@ -124,4 +161,4 @@ export function useKeydown (
   }
 }
 
-export { handlerMap }
+export { handlerRegistry }

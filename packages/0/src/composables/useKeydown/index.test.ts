@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { useKeydown, handlerMap } from './index'
+import { useKeydown, handlerRegistry } from './index'
 
 describe('useKeydown', () => {
   let addEventListenerSpy: ReturnType<typeof vi.spyOn>
@@ -13,7 +13,7 @@ describe('useKeydown', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
-    handlerMap.clear()
+    handlerRegistry.clear()
   })
 
   it('should create only one global listener for multiple useKeydown calls', () => {
@@ -32,14 +32,14 @@ describe('useKeydown', () => {
     expect(addEventListenerSpy).toHaveBeenCalledTimes(1)
     expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
 
-    expect(handlerMap.size).toBe(3)
+    expect(handlerRegistry.size).toBe(3)
 
     keydown1.stopListening()
     keydown2.stopListening()
     keydown3.stopListening()
 
     expect(removeEventListenerSpy).toHaveBeenCalledTimes(1)
-    expect(handlerMap.size).toBe(0)
+    expect(handlerRegistry.size).toBe(0)
   })
 
   it('should handle multiple handlers for the same key', () => {
@@ -79,11 +79,11 @@ describe('useKeydown', () => {
     keydown1.stopListening()
 
     expect(removeEventListenerSpy).not.toHaveBeenCalled()
-    expect(handlerMap.size).toBe(1)
+    expect(handlerRegistry.size).toBe(1)
 
     keydown2.stopListening()
 
     expect(removeEventListenerSpy).toHaveBeenCalledTimes(1)
-    expect(handlerMap.size).toBe(0)
+    expect(handlerRegistry.size).toBe(0)
   })
 })
