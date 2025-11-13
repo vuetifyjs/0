@@ -46,14 +46,14 @@ describe('useBreakpoints', () => {
     vi.clearAllMocks()
 
     // Mock window object
-    originalWindow = global.window
+    originalWindow = globalThis.window
     mockWindow = {
       innerWidth: 1024,
       innerHeight: 768,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
     }
-    global.window = mockWindow
+    globalThis.window = mockWindow
 
     // Mock hydration
     mockUseHydration.mockReturnValue({
@@ -63,7 +63,7 @@ describe('useBreakpoints', () => {
   })
 
   afterEach(() => {
-    global.window = originalWindow
+    globalThis.window = originalWindow
     vi.restoreAllMocks()
   })
 

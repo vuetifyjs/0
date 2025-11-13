@@ -7,52 +7,52 @@ autoInstallPeers: true
 
 catalog:
   '@mdi/js': npm:mdi-js-es@7.4.47
-  '@octokit/core': ^7.0.3
-  '@octokit/openapi-types': ^25.1.0
-  '@shikijs/langs': ^3.12.2
-  '@shikijs/markdown-it': ^3.12.2
-  '@shikijs/themes': ^3.12.2
-  '@storybook/vue3-vite': ^9.1.5
+  '@octokit/core': ^7.0.6
+  '@octokit/openapi-types': ^27.0.0
+  '@shikijs/langs': ^3.15.0
+  '@shikijs/markdown-it': ^3.15.0
+  '@shikijs/themes': ^3.15.0
+  '@storybook/vue3-vite': ^10.0.6
   '@tsconfig/node22': ^22.0.2
   '@types/markdown-it-attrs': ^4.1.3
   '@types/node': ^24.10.0
-  '@unocss/reset': ^66.5.1
-  '@vitest/coverage-v8': 3.2.4
+  '@unocss/reset': ^66.5.5
+  '@vitest/coverage-v8': 4.0.8
   '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.8.1
-  '@vuetify/one': ^2.5.1
+  '@vuetify/one': ^2.6.0
   bumpp: ^10.3.1
   eslint: ^9.39.1
-  eslint-config-vuetify: 4.2.0
-  eslint-plugin-storybook: ^9.1.16
+  eslint-config-vuetify: 4.2.1-beta.1
+  eslint-plugin-storybook: ^10.0.6
   eslint-plugin-vuejs-accessibility: ^2.4.1
-  happy-dom: ^18.0.1
+  happy-dom: ^20.0.10
   knip: ^5.68.0
   markdown-it-anchor: ^9.2.0
   markdown-it-attrs: ^4.3.1
-  mermaid: ^11.11.0
-  pinia: ^3.0.3
+  mermaid: ^11.12.1
+  pinia: ^3.0.4
   rollup-plugin-sass: ^1.15.3
-  sass: ^1.92.1
-  sass-embedded: ^1.92.1
+  sass: ^1.93.3
+  sass-embedded: ^1.93.3
   sherif: ^1.8.0
-  shiki: ^3.12.2
-  storybook: ^9.1.10
-  tsdown: ^0.15.12
-  typescript: 5.8.3
-  unocss: ^66.5.1
-  unplugin-auto-import: ^19.3.0
+  shiki: ^3.15.0
+  storybook: ^10.0.6
+  tsdown: ^0.16.1
+  typescript: 5.9.3
+  unocss: ^66.5.5
+  unplugin-auto-import: ^20.2.0
   unplugin-vue: ^7.0.4
-  unplugin-vue-components: ^29.0.0
-  unplugin-vue-markdown: ^29.1.0
-  unplugin-vue-router: ^0.15.0
-  vite: npm:rolldown-vite@^7.1.8
+  unplugin-vue-components: ^30.0.0
+  unplugin-vue-markdown: ^29.2.0
+  unplugin-vue-router: ^0.16.1
+  vite: npm:rolldown-vite@^7.2.2
   vite-plugin-vue-devtools: ^8.0.3
-  vite-plugin-vue-layouts-next: ^1.0.0
-  vite-ssg: ^28.1.0
-  vitest: ^3.2.4
-  vue: ^3.5.21
-  vue-router: ^4.5.1
+  vite-plugin-vue-layouts-next: ^1.2.0
+  vite-ssg: ^28.2.2
+  vitest: ^4.0.8
+  vue: ^3.5.24
+  vue-router: ^4.6.3
   vue-tsc: ^3.1.3
 
 catalogMode: strict

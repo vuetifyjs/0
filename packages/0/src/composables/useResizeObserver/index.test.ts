@@ -38,8 +38,10 @@ describe('useResizeObserver', () => {
       disconnect: vi.fn(),
     }
 
-    global.ResizeObserver = vi.fn(() => mockObserver)
-    window.ResizeObserver = vi.fn(() => mockObserver)
+    globalThis.ResizeObserver = vi.fn(function (this: any) {
+      return mockObserver
+    }) as any
+    window.ResizeObserver = globalThis.ResizeObserver
 
     element = document.createElement('div')
     element.getBoundingClientRect = vi.fn(() => ({
@@ -64,7 +66,7 @@ describe('useResizeObserver', () => {
     useResizeObserver(target, callback)
     await nextTick()
 
-    expect(global.ResizeObserver).not.toHaveBeenCalled()
+    expect(globalThis.ResizeObserver).not.toHaveBeenCalled()
   })
 
   it('should create observer when target is provided', async () => {

@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 
 function getLuminance (r: number, g: number, b: number): number {
-  const [red, green, blue] = [r, g, b].map(value => {
+  const [red = 0, green = 0, blue = 0] = [r, g, b].map(value => {
     const normalized = value / 255
     return normalized <= 0.039_28
       ? normalized / 12.92
@@ -12,11 +12,11 @@ function getLuminance (r: number, g: number, b: number): number {
 
 function parseRgba (color: string): { r: number, g: number, b: number } | null {
   const match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+),\s*\d*\.?\d*\)$/)
-  if (match) {
+  if (match && match[1] && match[2] && match[3]) {
     return {
-      r: Number.parseInt(match[1]),
-      g: Number.parseInt(match[2]),
-      b: Number.parseInt(match[3]),
+      r: Number.parseInt(match[1], 10),
+      g: Number.parseInt(match[2], 10),
+      b: Number.parseInt(match[3], 10),
     }
   }
   return null

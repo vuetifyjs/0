@@ -69,6 +69,25 @@ The root component that manages expansion state and provides context to items.
 
   Binds to expanded value(s). When `multiple` is true, expects an array.
 
+- **Events**
+
+  | Event | Payload | Description |
+  |---|---|---|
+  | `update:model-value` | `T \| T[]` | Emitted when the expanded panels change. Type depends on the `multiple` prop: single value `T` when `multiple=false`, or array `T[]` when `multiple=true` |
+
+  **Example:**
+
+  ```vue
+  <template>
+    <ExpansionPanel.Root
+      v-model="model"
+      @update:model-value="onModelChange"
+    >
+      <!-- panels -->
+    </ExpansionPanel.Root>
+  </template>
+  ```
+
 - **Slots**
 
   ```ts

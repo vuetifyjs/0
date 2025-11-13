@@ -48,15 +48,16 @@ export function hexToRgba (hexCode: string, opacity = 1): string {
 
 export function rgbaToHexa (rgba: string): string {
   const sep = rgba.includes(',') ? ',' : ' '
-  const rgbaArray = rgba
-    .slice(5)
-    .split(')')[0]
+  const rgbaString = rgba.slice(5).split(')')[0]
+  if (!rgbaString) return '#000000ff'
+
+  const rgbaArray = rgbaString
     .split(sep)
     .map((string: string) => Number.parseInt(string, 10))
   if (rgbaArray.length === 3) {
     rgbaArray.push(1)
   }
-  const [r, g, b, a] = rgbaArray
+  const [r = 0, g = 0, b = 0, a = 1] = rgbaArray
   const alpha = Math.round(a * 255)
   return `#${(0x1_00_00_00 + r * 0x1_00_00 + g * 0x1_00 + b).toString(16).slice(1)}${(alpha + 0x1_00_00).toString(16).slice(-2)}`
 }

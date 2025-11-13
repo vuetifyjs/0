@@ -41,7 +41,7 @@ export const useAppStore = defineStore('app', {
           { name: 'Atom', to: '/components/atom' },
           { name: 'Avatar', to: '/components/avatar' },
           { name: 'Group', to: '/components/group' },
-          { name: 'Expansion Panel', to: '/components/expansion-panel' },
+          { name: 'ExpansionPanel', to: '/components/expansion-panel' },
           { name: 'Popover', to: '/components/popover' },
           { name: 'Selection', to: '/components/selection' },
           { name: 'Single', to: '/components/single' },
