@@ -1,44 +1,48 @@
 /**
  * @module useKeydown
  *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-keydown
+ *
  * @remarks
- * Keydown event listener composable with key filtering.
+ * Keydown event listener plugin with key filtering and automatic cleanup.
  *
  * Key features:
- * - Key-specific event handling
+ * - Global keyboard event coordination
+ * - Key-specific event handling with registry
  * - preventDefault and stopPropagation options
  * - Automatic cleanup on scope disposal
- * - Auto-starts when in component scope
+ * - Plugin-first architecture for app-level usage
+ *
+ * Plugin-primary composable for managing document-level keyboard events.
  *
  * @example
- * ```vue
- * <script setup lang="ts">
-  * import { useKeydown } from '@vuetify/v0'
-  *
-  * useKeydown({
-  *   key: 'Enter',
-  *   handler: (event) => {
-  *     console.log('Enter key pressed!', event)
-  *   },
-  *   preventDefault: true,
-  * })
- * </script>
+ * ```ts
+ * import { createApp } from 'vue'
+ * import { createKeydownPlugin } from '@vuetify/v0'
+ *
+ * const app = createApp(App)
+ * app.use(createKeydownPlugin())
  * ```
  */
+
+// Factories
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
+import { createContext, useContext } from '#v0/composables/createContext'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
-import { onMounted, getCurrentScope, onScopeDispose, ref, shallowReadonly, shallowRef } from 'vue'
-import { isArray } from '#v0/utilities'
+import { onMounted, getCurrentScope, onScopeDispose, shallowReadonly, shallowRef } from 'vue'
 
 // Globals
 import { IN_DOCUMENT } from '#v0/constants'
 
 // Types
-import type { ID } from '#v0/types'
-import type { RegistryTicket } from '#v0/composables/useRegistry'
+import type { RegistryTicket, RegistryContext, RegistryOptions } from '#v0/composables/useRegistry'
+import type { App, Ref } from 'vue'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export interface KeyHandler {
   /**
@@ -112,127 +116,104 @@ export interface KeyHandler {
 
 export interface KeyHandlerTicket extends RegistryTicket, KeyHandler {}
 
-/**
- * Options for the `useKeydown` composable.
- *
- * @property immediate - Whether to start listening for keydown events immediately upon composable initialization.
- *   If set to `true`, the composable will automatically start listening when in a component scope.
- *   Defaults to `true`.
- *
- * @example
- * ```ts
- * import { useKeydown } from '@vuetify/v0'
- *
- * useKeydown({
- *   key: 'Enter',
- *   handler: (event) => {
- *     console.log('Enter key pressed!', event)
- *   },
- * }, { immediate: false })
- * ```
- */
-export interface UseKeydownOptions {
+export interface KeydownContext<Z extends KeyHandlerTicket = KeyHandlerTicket> extends RegistryContext<Z> {
+  /**
+   * Reactive state indicating whether keyboard listeners are active.
+   */
+  isListening: Readonly<Ref<boolean>>
+  /**
+   * Manually start listening for keyboard events.
+   */
+  startListening: () => void
+  /**
+   * Manually stop listening for keyboard events.
+   */
+  stopListening: () => void
+}
+
+export interface KeydownOptions extends RegistryOptions {
+  /**
+   * Whether to start listening immediately when called in a component scope.
+   * @default true
+   */
   immediate?: boolean
 }
 
-let globalListener: ((event: KeyboardEvent) => void) | null = null
-const handlerRegistry = useRegistry<KeyHandlerTicket>()
-
-function startGlobalListener () {
-  if (globalListener || !IN_DOCUMENT) return
-
-  globalListener = (event: KeyboardEvent) => {
-    for (const h of handlerRegistry.values()) {
-      if (h.key === event.key) {
-        if (h.preventDefault) event.preventDefault()
-        if (h.stopPropagation) event.stopPropagation()
-        h.handler(event)
-      }
-    }
-  }
-  document.addEventListener('keydown', globalListener)
+export interface KeydownContextOptions extends KeydownOptions {
+  namespace?: string
 }
 
-function stopGlobalListener () {
-  if (!IN_DOCUMENT) return
-
-  if (globalListener && handlerRegistry.size === 0) {
-    document.removeEventListener('keydown', globalListener)
-    globalListener = null
-  }
-}
+export interface KeydownPluginOptions extends KeydownContextOptions {}
 
 /**
- * Sets up global keyboard event listeners for specified key handlers with automatic cleanup.
- * This composable automatically starts listening when mounted and cleans up when the scope
- * is disposed, providing a clean way to handle global keyboard interactions.
+ * Creates a new keydown instance.
  *
- * @param handlers A single handler or array of handlers to register for keydown events.
- * @returns Object with methods to manually start and stop listening for keydown events.
+ * @param options The options for the keydown instance.
+ * @template Z The type of the keydown ticket.
+ * @template E The type of the keydown context.
+ * @returns A new keydown instance.
  *
- * @see https://0.vuetify.dev/api/composables/use-keydown
+ * @see https://0.vuetifyjs.com/composables/plugins/use-keydown
  *
  * @example
  * ```ts
- *   import { useKeydown } from '@vuetify/v0'
+ * import { createKeydown } from '@vuetify/v0'
  *
- *   useKeydown([
- *    {
- *      key: 'Escape',
- *      handler: (event) => {
- *        console.log('Escape key pressed!', event)
- *       },
- *       preventDefault: true,
- *    },
- *    {
- *      key: 'Enter',
- *      handler: (event) => {
- *        console.log('Enter key pressed!', event)
- *      },
-  *   },
-  * ])
+ * const keydown = createKeydown({ immediate: false })
+ *
+ * keydown.register({
+ *   key: 'Escape',
+ *   handler: (event) => console.log('Escape pressed'),
+ *   preventDefault: true
+ * })
+ *
+ * keydown.startListening()
  * ```
  */
-export function useKeydown (
-  handlers: KeyHandler[] | KeyHandler,
-  options: UseKeydownOptions = {},
-) {
-  const { immediate = true } = options
-  const keyHandlers = isArray(handlers) ? handlers : [handlers]
-  const handlerIds = ref<ID[]>([])
+export function createKeydown<
+  Z extends KeyHandlerTicket = KeyHandlerTicket,
+  E extends KeydownContext<Z> = KeydownContext<Z>,
+> (_options: KeydownOptions = {}): E {
+  const { immediate = true, ...options } = _options
+  const registry = useRegistry<Z, E>(options)
   const isListening = shallowRef(false)
+  let documentListener: ((event: KeyboardEvent) => void) | null = null
+
+  function startDocumentListener () {
+    if (documentListener || !IN_DOCUMENT) return
+
+    documentListener = (event: KeyboardEvent) => {
+      for (const handler of registry.values()) {
+        if (handler.key === event.key) {
+          if (handler.preventDefault) event.preventDefault()
+          if (handler.stopPropagation) event.stopPropagation()
+          handler.handler(event)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', documentListener)
+  }
+
+  function stopDocumentListener () {
+    if (!IN_DOCUMENT || !documentListener) return
+
+    document.removeEventListener('keydown', documentListener)
+    documentListener = null
+  }
 
   function startListening () {
     if (isListening.value) return
 
-    const ids: ID[] = []
-
-    for (const handler of keyHandlers) {
-      const ticket = handlerRegistry.register(handler)
-      ids.push(ticket.id)
-    }
-
-    handlerIds.value = ids
-
-    if (handlerRegistry.size > 0) {
-      startGlobalListener()
-    }
-
+    startDocumentListener()
     isListening.value = true
   }
 
   function stopListening () {
     if (!isListening.value) return
 
-    for (const id of handlerIds.value) {
-      handlerRegistry.unregister(id)
-    }
-    handlerIds.value = []
+    stopDocumentListener()
     isListening.value = false
-
-    if (handlerRegistry.size === 0) {
-      stopGlobalListener()
-    }
   }
 
   if (getCurrentScope() && immediate) {
@@ -242,10 +223,111 @@ export function useKeydown (
   onScopeDispose(stopListening, true)
 
   return {
+    ...registry,
     startListening,
     stopListening,
     isListening: shallowReadonly(isListening),
-  }
+  } as E
 }
 
-export { handlerRegistry }
+/**
+ * Creates a new keydown context trinity.
+ *
+ * @param options The options for the keydown context.
+ * @template Z The type of the keydown ticket.
+ * @template E The type of the keydown context.
+ * @returns A new keydown context trinity.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-keydown
+ *
+ * @example
+ * ```ts
+ * import { createKeydownContext } from '@vuetify/v0'
+ *
+ * const [useKeydownContext, provideKeydownContext, context] = createKeydownContext({
+ *   namespace: 'my-app:keydown'
+ * })
+ * ```
+ */
+export function createKeydownContext<
+  Z extends KeyHandlerTicket = KeyHandlerTicket,
+  E extends KeydownContext<Z> = KeydownContext<Z>,
+> (_options: KeydownContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:keydown', ...options } = _options
+  const [useKeydownContext, _provideKeydownContext] = createContext<E>(namespace)
+  const context = createKeydown<Z, E>(options)
+
+  function provideKeydownContext (_context: E = context, app?: App): E {
+    return _provideKeydownContext(_context, app)
+  }
+
+  return createTrinity<E>(useKeydownContext, provideKeydownContext, context)
+}
+
+/**
+ * Creates a new keydown plugin.
+ *
+ * @param options The options for the keydown plugin.
+ * @template Z The type of the keydown ticket.
+ * @template E The type of the keydown context.
+ * @returns A new keydown plugin.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-keydown
+ *
+ * @example
+ * ```ts
+ * import { createApp } from 'vue'
+ * import { createKeydownPlugin } from '@vuetify/v0'
+ * import App from './App.vue'
+ *
+ * const app = createApp(App)
+ *
+ * app.use(createKeydownPlugin())
+ *
+ * app.mount('#app')
+ * ```
+ */
+export function createKeydownPlugin<
+  Z extends KeyHandlerTicket = KeyHandlerTicket,
+  E extends KeydownContext<Z> = KeydownContext<Z>,
+> (_options: KeydownPluginOptions = {}) {
+  const { namespace = 'v0:keydown', ...options } = _options
+  const [, provideKeydownContext, context] = createKeydownContext<Z, E>({ ...options, namespace })
+
+  return createPlugin({
+    namespace,
+    provide: (app: App) => {
+      provideKeydownContext(context, app)
+    },
+  })
+}
+
+/**
+ * Returns the current keydown instance from context.
+ *
+ * @param namespace The namespace for the keydown context. Defaults to `v0:keydown`.
+ * @returns The current keydown instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-keydown
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useKeydown } from '@vuetify/v0'
+ *
+ *   const keydown = useKeydown()
+ *
+ *   keydown.register({
+ *     key: 'Escape',
+ *     handler: () => console.log('Escape pressed')
+ *   })
+ * </script>
+ * ```
+ */
+export function useKeydown<
+  Z extends KeyHandlerTicket = KeyHandlerTicket,
+  E extends KeydownContext<Z> = KeydownContext<Z>,
+> (namespace = 'v0:keydown'): E {
+  return useContext<E>(namespace)
+}
+
