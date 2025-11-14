@@ -13,25 +13,25 @@
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useKeydown } from '#v0/composables/useKeydown'
- *
- * useKeydown({
- *   key: 'Enter',
- *   handler: (event) => {
- *     console.log('Enter key pressed!', event)
- *   },
- *   preventDefault: true,
- * })
+  * import { useKeydown } from '@vuetify/v0'
+  *
+  * useKeydown({
+  *   key: 'Enter',
+  *   handler: (event) => {
+  *     console.log('Enter key pressed!', event)
+  *   },
+  *   preventDefault: true,
+  * })
  * </script>
  * ```
  */
 
+// Composables
+import { useRegistry } from '#v0/composables/useRegistry'
+
 // Utilities
 import { onMounted, getCurrentScope, onScopeDispose, ref, shallowReadonly, shallowRef } from 'vue'
 import { isArray } from '#v0/utilities'
-
-// Composables
-import { useRegistry } from '#v0/composables/useRegistry'
 
 // Globals
 import { IN_DOCUMENT } from '#v0/constants'
@@ -48,24 +48,89 @@ export interface KeyHandler {
   key: string
   /**
    * The handler function to call when the specified key is pressed.
+   *
    * @param event The KeyboardEvent object containing details about the keydown event.
-   * @returns
+   *
+   * @see https://0.vuetify.dev/api/composables/use-keydown#keyhandler-handler
+   *
+   * @example
+   * ```ts
+   * import { useKeydown } from '@vuetify/v0'
+   *
+   * useKeydown({
+   *   key: 'Escape',
+   *   handler: (event) => {
+   *     console.log('Escape key pressed!', event)
+   *   },
+   * })
+   * ```
    */
   handler: (event: KeyboardEvent) => void
   /**
    * Whether to call event.preventDefault() when the handler is invoked.
+   *
    * @default false
+   *
+   * @see https://0.vuetify.dev/api/composables/use-keydown#keyhandler-preventdefault
+   *
+   * @example
+   * ```ts
+   * import { useKeydown } from '@vuetify/v0'
+   *
+   * useKeydown({
+   *   key: 'Tab',
+   *   handler: (event) => {
+   *     console.log('Tab key pressed!', event)
+   *   },
+   *   preventDefault: true,
+   * })
+   * ```
    */
   preventDefault?: boolean
   /**
    * Whether to call event.stopPropagation() when the handler is invoked.
+   *
    * @default false
+   *
+   * @see https://0.vuetify.dev/api/composables/use-keydown#keyhandler-stoppropagation
+   *
+   * @example
+   * ```ts
+   * import { useKeydown } from '@vuetify/v0'
+   *
+   * useKeydown({
+   *   key: 'Escape',
+   *   handler: (event) => {
+   *     console.log('Escape key pressed!', event)
+   *   },
+   *   stopPropagation: true,
+   * })
+   * ```
    */
   stopPropagation?: boolean
 }
 
 export interface KeyHandlerTicket extends RegistryTicket, KeyHandler {}
 
+/**
+ * Options for the `useKeydown` composable.
+ *
+ * @property immediate - Whether to start listening for keydown events immediately upon composable initialization.
+ *   If set to `true`, the composable will automatically start listening when in a component scope.
+ *   Defaults to `true`.
+ *
+ * @example
+ * ```ts
+ * import { useKeydown } from '@vuetify/v0'
+ *
+ * useKeydown({
+ *   key: 'Enter',
+ *   handler: (event) => {
+ *     console.log('Enter key pressed!', event)
+ *   },
+ * }, { immediate: false })
+ * ```
+ */
 export interface UseKeydownOptions {
   immediate?: boolean
 }
@@ -104,8 +169,30 @@ function stopGlobalListener () {
  *
  * @param handlers A single handler or array of handlers to register for keydown events.
  * @returns Object with methods to manually start and stop listening for keydown events.
+ *
+ * @see https://0.vuetify.dev/api/composables/use-keydown
+ *
+ * @example
+ * ```ts
+ *   import { useKeydown } from '@vuetify/v0'
+ *
+ *   useKeydown([
+ *    {
+ *      key: 'Escape',
+ *      handler: (event) => {
+ *        console.log('Escape key pressed!', event)
+ *       },
+ *       preventDefault: true,
+ *    },
+ *    {
+ *      key: 'Enter',
+ *      handler: (event) => {
+ *        console.log('Enter key pressed!', event)
+ *      },
+  *   },
+  * ])
+ * ```
  */
-
 export function useKeydown (
   handlers: KeyHandler[] | KeyHandler,
   options: UseKeydownOptions = {},
