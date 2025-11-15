@@ -1,131 +1,115 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useKeydown } from './index'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { createKeydown } from './index'
 
-// Mock Vue's lifecycle hooks
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
-  return {
-    ...actual,
-    onMounted: vi.fn(),
-    getCurrentScope: vi.fn(() => true),
-    onScopeDispose: vi.fn(),
-  }
-})
+describe('createKeydown', () => {
+  let addEventListenerSpy: ReturnType<typeof vi.spyOn>
+  let removeEventListenerSpy: ReturnType<typeof vi.spyOn>
 
-describe('useKeydown', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Mock document.addEventListener and removeEventListener
-    vi.spyOn(document, 'addEventListener')
-    vi.spyOn(document, 'removeEventListener')
+    addEventListenerSpy = vi.spyOn(document, 'addEventListener')
+    removeEventListenerSpy = vi.spyOn(document, 'removeEventListener')
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  describe('basic functionality', () => {
-    it('should return startListening and stopListening functions', () => {
-      const handler = { key: 'Enter', handler: vi.fn() }
-      const result = useKeydown(handler)
+  it('should create separate document listeners for each keydown instance', () => {
+    const handler1 = vi.fn()
+    const handler2 = vi.fn()
+    const handler3 = vi.fn()
 
-      expect(result).toHaveProperty('startListening')
-      expect(result).toHaveProperty('stopListening')
-      expect(typeof result.startListening).toBe('function')
-      expect(typeof result.stopListening).toBe('function')
-    })
+    const keydown1 = createKeydown({ immediate: false })
+    const keydown2 = createKeydown({ immediate: false })
+    const keydown3 = createKeydown({ immediate: false })
 
-    it('should accept single handler', () => {
-      const handler = { key: 'Enter', handler: vi.fn() }
+    keydown1.register({ key: 'Enter', handler: handler1 })
+    keydown2.register({ key: 'Escape', handler: handler2 })
+    keydown3.register({ key: 'Space', handler: handler3 })
 
-      expect(() => useKeydown(handler)).not.toThrow()
-    })
+    keydown1.startListening()
+    keydown2.startListening()
+    keydown3.startListening()
 
-    it('should accept array of handlers', () => {
-      const handlers = [
-        { key: 'Enter', handler: vi.fn() },
-        { key: 'Escape', handler: vi.fn() },
-      ]
+    // Each instance creates its own listener
+    expect(addEventListenerSpy).toHaveBeenCalledTimes(3)
+    expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
 
-      expect(() => useKeydown(handlers)).not.toThrow()
-    })
+    keydown1.stopListening()
+    keydown2.stopListening()
+    keydown3.stopListening()
+
+    expect(removeEventListenerSpy).toHaveBeenCalledTimes(3)
   })
 
-  describe('event handling', () => {
-    it('should call handler when matching key is pressed', () => {
-      const mockHandler = vi.fn()
-      const handler = { key: 'Enter', handler: mockHandler }
-      const { startListening } = useKeydown(handler)
+  it('should handle multiple handlers for the same key within one instance', () => {
+    const handler1 = vi.fn()
+    const handler2 = vi.fn()
 
-      startListening()
+    const keydown = createKeydown({ immediate: false })
 
-      // Simulate keydown event
-      const event = new KeyboardEvent('keydown', { key: 'Enter' })
-      document.dispatchEvent(event)
+    keydown.register({ key: 'Enter', handler: handler1 })
+    keydown.register({ key: 'Enter', handler: handler2 })
 
-      expect(mockHandler).toHaveBeenCalledWith(event)
-    })
+    keydown.startListening()
 
-    it('should not call handler when non-matching key is pressed', () => {
-      const mockHandler = vi.fn()
-      const handler = { key: 'Enter', handler: mockHandler }
-      const { startListening } = useKeydown(handler)
+    const event = { key: 'Enter' } as KeyboardEvent
 
-      startListening()
+    const registeredHandler = addEventListenerSpy.mock.calls[0]![1] as (event: KeyboardEvent) => void
+    registeredHandler(event)
 
-      // Simulate keydown event with different key
-      const event = new KeyboardEvent('keydown', { key: 'Escape' })
-      document.dispatchEvent(event)
+    expect(handler1).toHaveBeenCalledWith(event)
+    expect(handler2).toHaveBeenCalledWith(event)
 
-      expect(mockHandler).not.toHaveBeenCalled()
-    })
-
-    it('should prevent default when preventDefault is true', () => {
-      const mockHandler = vi.fn()
-      const handler = { key: 'Enter', handler: mockHandler, preventDefault: true }
-      const { startListening } = useKeydown(handler)
-
-      startListening()
-
-      const event = new KeyboardEvent('keydown', { key: 'Enter' })
-      const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
-      document.dispatchEvent(event)
-
-      expect(preventDefaultSpy).toHaveBeenCalled()
-    })
-
-    it('should stop propagation when stopPropagation is true', () => {
-      const mockHandler = vi.fn()
-      const handler = { key: 'Enter', handler: mockHandler, stopPropagation: true }
-      const { startListening } = useKeydown(handler)
-
-      startListening()
-
-      const event = new KeyboardEvent('keydown', { key: 'Enter' })
-      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation')
-      document.dispatchEvent(event)
-
-      expect(stopPropagationSpy).toHaveBeenCalled()
-    })
+    keydown.stopListening()
   })
 
-  describe('lifecycle management', () => {
-    it('should add event listener when startListening is called', () => {
-      const handler = { key: 'Enter', handler: vi.fn() }
-      const { startListening } = useKeydown(handler)
+  it('should only trigger handlers for matching keys', () => {
+    const enterHandler = vi.fn()
+    const escapeHandler = vi.fn()
 
-      startListening()
+    const keydown = createKeydown({ immediate: false })
 
-      expect(document.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
-    })
+    keydown.register({ key: 'Enter', handler: enterHandler })
+    keydown.register({ key: 'Escape', handler: escapeHandler })
 
-    it('should remove event listener when stopListening is called', () => {
-      const handler = { key: 'Enter', handler: vi.fn() }
-      const { stopListening } = useKeydown(handler)
+    keydown.startListening()
 
-      stopListening()
+    const enterEvent = { key: 'Enter' } as KeyboardEvent
+    const registeredHandler = addEventListenerSpy.mock.calls[0]![1] as (event: KeyboardEvent) => void
 
-      expect(document.removeEventListener).toHaveBeenCalledWith('keydown', expect.any(Function))
-    })
+    registeredHandler(enterEvent)
+
+    expect(enterHandler).toHaveBeenCalledWith(enterEvent)
+    expect(escapeHandler).not.toHaveBeenCalled()
+
+    keydown.stopListening()
+  })
+
+  it('should track isListening state correctly', () => {
+    const keydown = createKeydown({ immediate: false })
+
+    expect(keydown.isListening.value).toBe(false)
+
+    keydown.register({ key: 'Enter', handler: vi.fn() })
+    keydown.startListening()
+
+    expect(keydown.isListening.value).toBe(true)
+
+    keydown.stopListening()
+
+    expect(keydown.isListening.value).toBe(false)
+  })
+
+  it('should provide registry methods', () => {
+    const keydown = createKeydown({ immediate: false })
+
+    expect(keydown.register).toBeDefined()
+    expect(keydown.unregister).toBeDefined()
+    expect(keydown.get).toBeDefined()
+    expect(keydown.has).toBeDefined()
+    expect(keydown.keys).toBeDefined()
+    expect(keydown.values).toBeDefined()
   })
 })
