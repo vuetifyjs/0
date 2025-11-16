@@ -24,29 +24,20 @@
   },
   "exports": {
     ".": {
-      "development": {
-        "types": "./src/index.ts",
-        "import": "./src/index.ts"
-      },
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
     },
+    "./package.json": "./package.json",
     "./browser": {
-      "development": {
-        "types": "./src/index.ts",
-        "import": "./src/index.ts"
-      },
-      "types": "./dist/index.d.ts",
-      "import": "./dist/browser/index.js"
+      "development": "./src/index.ts",
+      "default": "./dist/browser/index.js"
     }
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
-      "./browser": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/browser/index.js"
-      }
+      "./package.json": "./package.json",
+      "./browser": "./dist/browser/index.js"
     }
   },
   "dependencies": {
