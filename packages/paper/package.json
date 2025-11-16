@@ -1,11 +1,11 @@
 {
   "name": "@vuetify/paper",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Vuetify Paper",
   "license": "MIT",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "type": "module",
   "files": [
     "dist"
@@ -25,7 +25,7 @@
   "exports": {
     ".": {
       "development": "./src/index.ts",
-      "default": "./dist/index.js"
+      "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json",
     "./browser": {
@@ -35,7 +35,7 @@
   },
   "publishConfig": {
     "exports": {
-      ".": "./dist/index.js",
+      ".": "./dist/index.mjs",
       "./package.json": "./package.json",
       "./browser": "./dist/browser/index.js"
     }
