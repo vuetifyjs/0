@@ -17,6 +17,7 @@ import {
   mdiPencil,
   mdiTagOutline,
   mdiDevTo,
+  mdiContentCopy,
 } from '@mdi/js'
 
 // Types
@@ -25,6 +26,7 @@ import type { App } from 'vue'
 export const [useIconContext, provideIconContext, context] = createTokensContext({
   namespace: 'v0:icons',
   tokens: {
+    'copy': mdiContentCopy,
     'dev': mdiDevTo,
     'cog': mdiCog,
     'alert': mdiAlert,
