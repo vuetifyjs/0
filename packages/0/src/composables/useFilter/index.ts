@@ -85,7 +85,7 @@ function defaultFilter (
  * @template Z The type of the items.
  * @returns The filtered items.
  *
- * @see https://0.vuetifyjs.com/composables/selection/use-filter
+ * @see https://0.vuetifyjs.com/composables/utilities/use-filter
  *
  * @example
  * ```ts

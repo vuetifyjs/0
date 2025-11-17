@@ -74,7 +74,6 @@ export const useAppStore = defineStore('app', {
           {
             name: 'Selection',
             children: [
-              { name: 'useFilter', to: '/composables/selection/use-filter' },
               { name: 'useSelection', to: '/composables/selection/use-selection' },
               { name: 'useGroup', to: '/composables/selection/use-group' },
               { name: 'useSingle', to: '/composables/selection/use-single' },
@@ -114,6 +113,7 @@ export const useAppStore = defineStore('app', {
           {
             name: 'Utilities',
             children: [
+              { name: 'useFilter', to: '/composables/utilities/use-filter' },
               { name: 'useVirtual', to: '/composables/utilities/use-virtual' },
             ],
           },
