@@ -338,6 +338,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/utilities/use-virtual': RouteRecordInfo<
+      '/composables/utilities/use-virtual',
+      '/composables/utilities/use-virtual',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -709,6 +716,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/use-virtual.md': {
+      routes:
+        | '/composables/utilities/use-virtual'
       views:
         | never
     }

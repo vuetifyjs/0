@@ -91,3 +91,61 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
 export function genId (): string {
   return Math.random().toString(36).slice(2, 9)
 }
+
+/**
+ * Clamps a value between a minimum and maximum
+ *
+ * @param value The value to clamp
+ * @param min The minimum value (default: 0)
+ * @param max The maximum value (default: 1)
+ * @returns The clamped value
+ *
+ * @example
+ * ```ts
+ * clamp(5, 0, 10)  // 5
+ * clamp(-5, 0, 10) // 0
+ * clamp(15, 0, 10) // 10
+ * ```
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function clamp (value: number, min = 0, max = 1): number {
+  return Math.max(min, Math.min(max, value))
+}
+
+/**
+ * Debounces a function call by the specified delay
+ *
+ * @param fn The function to debounce
+ * @param delay The delay in milliseconds
+ * @returns A debounced function with clear and immediate methods
+ *
+ * @example
+ * ```ts
+ * const debouncedFn = debounce(() => console.log('called'), 500)
+ * debouncedFn()        // Will call after 500ms
+ * debouncedFn.clear()  // Cancel pending call
+ * debouncedFn.immediate() // Call immediately
+ * ```
+ */
+export function debounce<T extends (...args: any[]) => any> (
+  fn: T,
+  delay: number,
+) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+  function debounced (...args: Parameters<T>) {
+    if (timeoutId !== undefined) clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn(...args), delay)
+  }
+
+  debounced.clear = () => {
+    if (timeoutId !== undefined) clearTimeout(timeoutId)
+  }
+
+  debounced.immediate = (...args: Parameters<T>) => {
+    debounced.clear()
+    fn(...args)
+  }
+
+  return debounced
+}

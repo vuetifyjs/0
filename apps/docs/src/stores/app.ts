@@ -112,6 +112,12 @@ export const useAppStore = defineStore('app', {
             ],
           },
           {
+            name: 'Utilities',
+            children: [
+              { name: 'useVirtual', to: '/composables/utilities/use-virtual' },
+            ],
+          },
+          {
             name: 'Transformers',
             children: [
               { name: 'toArray', to: '/composables/transformers/to-array' },
