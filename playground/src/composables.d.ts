@@ -315,7 +315,7 @@ declare global {
   export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions, TokenContextOptions } from '../../packages/0/src/composables/useTokens/index'
   import('../../packages/0/src/composables/useTokens/index')
   // @ts-ignore
-  export type { VirtualOptions, VirtualItem, VirtualContext } from '../../packages/0/src/composables/useVirtual/index'
+  export type { VirtualDirection, VirtualState, VirtualAnchor, ScrollToOptions, VirtualOptions, VirtualItem, VirtualContext } from '../../packages/0/src/composables/useVirtual/index'
   import('../../packages/0/src/composables/useVirtual/index')
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'

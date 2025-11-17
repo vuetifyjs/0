@@ -17,7 +17,7 @@
     size,
     scroll,
     scrollTo,
-  } = useVirtual(items, { itemHeight: 50 })
+  } = useVirtual(items, { itemHeight: 40 })
 
   const stats = computed(() => ({
     total: items.value.length,
@@ -45,10 +45,10 @@
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="flex gap-2 items-center text-sm">
+    <div class="flex gap-2 items-center text-sm flex-wrap">
       <input
         v-model="jumpTo"
-        class="px-2 py-1 border rounded w-24"
+        class="px-2 py-1 border rounded w-24 flex-1 md:flex-none"
         placeholder="Jump to..."
         type="number"
         @keyup.enter="handleJumpTo"
@@ -77,7 +77,7 @@
       <div
         v-for="item in virtualItems"
         :key="item.index"
-        class="h-[50px] px-4 flex items-center justify-between border-b"
+        class="h-[40px] px-4 flex items-center justify-between border-b hover:bg-gray-50"
       >
         <span class="font-mono text-sm">{{ item.raw.name }}</span>
         <span class="text-gray-600">{{ item.raw.value }}</span>

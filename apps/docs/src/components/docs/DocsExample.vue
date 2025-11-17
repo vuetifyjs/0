@@ -55,7 +55,7 @@
       {{ title }}
     </div>
 
-    <div class="p-8 bg-white">
+    <div class="p-4 bg-white">
       <slot />
     </div>
 
