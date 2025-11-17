@@ -15,8 +15,8 @@ export default defineConfig({
       'warning': 'var(--v0-warning)',
       'background': 'var(--v0-background)',
       'surface': 'var(--v0-surface)',
-      'surfaceTint': 'var(--v0-surface-tint)',
-      'surfaceVariant': 'var(--v0-surface-variant)',
+      'surface-tint': 'var(--v0-surface-tint)',
+      'surface-variant': 'var(--v0-surface-variant)',
       'divider': 'var(--v0-divider)',
       'pre': 'var(--v0-pre)',
       'on-primary': 'var(--v0-on-primary)',
@@ -28,7 +28,6 @@ export default defineConfig({
       'on-warning': 'var(--v0-on-warning)',
       'on-background': 'var(--v0-on-background)',
       'on-surface': 'var(--v0-on-surface)',
-      'on-surface-tint': 'var(--v0-on-surface-tint)',
       'on-surface-variant': 'var(--v0-on-surface-variant)',
     },
     borderColor: {

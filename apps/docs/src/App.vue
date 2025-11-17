@@ -77,21 +77,60 @@
       margin-bottom: 0.5rem;
     }
 
-    .shiki, .skiki span {
+    .shiki, .shiki span {
       overflow-x: auto;
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
-      border-radius: 6px;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 0.5rem;
+      border: thin solid var(--v0-divider);
       margin-bottom: 1rem;
+      overflow: hidden;
     }
 
     th, td {
-      padding: 0.25rem 0.5rem;
-      border: 1px solid var(--v0-divider);
+      padding: 0.5rem 0.75rem;
+      border-bottom: thin solid var(--v0-divider);
+      border-right: thin solid var(--v0-divider);
       text-align: left;
     }
+
+    th {
+      background-color: var(--v0-surface-tint);
+      font-weight: 600;
+    }
+
+    th:last-child, td:last-child {
+      border-right: none;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  /* Shiki theme switching */
+  .shiki {
+    --shiki-light-bg: var(--v0-pre) !important;
+    --shiki-dark-bg: var(--v0-pre) !important;
+    background-color: var(--shiki-light-bg);
+    border: thin solid var(--v0-divider);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .shiki span {
+    color: var(--shiki-light);
+  }
+
+  [data-theme] .shiki {
+    background-color: light-dark(var(--shiki-light-bg), var(--shiki-dark-bg));
+  }
+
+  [data-theme] .shiki span {
+    color: light-dark(var(--shiki-light), var(--shiki-dark));
   }
 </style>

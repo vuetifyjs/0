@@ -46,6 +46,7 @@ export default async function MarkdownPlugin () {
             light: 'github-light-default',
             dark: 'github-dark-default',
           },
+          defaultColor: false,
         }),
       )
       md.renderer.rules.link_open = (tokens, idx, options, env, self) => {

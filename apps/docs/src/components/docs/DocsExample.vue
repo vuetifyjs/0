@@ -2,6 +2,7 @@
   import { ref, computed, onMounted, shallowRef } from 'vue'
   import { createHighlighterCore } from 'shiki/core'
   import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+  import type { HighlighterCore } from 'shiki/core'
 
   const props = defineProps<{
     file?: string
@@ -12,6 +13,7 @@
   const showCode = ref(false)
   const highlightedCode = shallowRef<string>('')
   const copied = ref(false)
+  const highlighter = shallowRef<HighlighterCore | null>(null)
 
   const fileName = computed(() => props.file?.split('/').pop() || '')
 
@@ -31,9 +33,10 @@
 
   onMounted(async () => {
     if (props.code) {
-      const highlighter = await createHighlighterCore({
+      highlighter.value = await createHighlighterCore({
         themes: [
           import('@shikijs/themes/github-light-default'),
+          import('@shikijs/themes/github-dark-default'),
         ],
         langs: [
           import('@shikijs/langs/vue'),
@@ -41,27 +44,31 @@
         engine: createOnigurumaEngine(() => import('shiki/wasm')),
       })
 
-      highlightedCode.value = highlighter.codeToHtml(props.code, {
+      highlightedCode.value = highlighter.value.codeToHtml(props.code, {
         lang: 'vue',
-        theme: 'github-light-default',
+        themes: {
+          light: 'github-light-default',
+          dark: 'github-dark-default',
+        },
+        defaultColor: false,
       })
     }
   })
 </script>
 
 <template>
-  <div class="border border-gray-200 rounded-lg my-6 overflow-hidden">
-    <div v-if="title" class="px-4 py-3 font-semibold border-b border-gray-200 bg-gray-50">
+  <div class="border border-divider rounded-lg my-6 overflow-hidden">
+    <div v-if="title" class="px-4 py-3 font-semibold border-b border-divider bg-surface-tint">
       {{ title }}
     </div>
 
-    <div class="p-4 bg-white">
+    <div class="p-4 bg-surface">
       <slot />
     </div>
 
-    <div class="border-t border-gray-200 bg-gray-50">
+    <div class="border-t border-divider bg-surface-tint">
       <button
-        class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-gray-700 transition-colors hover:bg-gray-100"
+        class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
         @click="showCode = !showCode"
       >
         <span v-if="showCode">Hide code</span>
@@ -72,10 +79,10 @@
 
     <div
       v-if="showCode && highlightedCode"
-      class="relative bg-gray-50"
+      class="relative bg-pre"
     >
       <button
-        class="absolute top-3 right-3 pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        class="absolute top-3 right-3 pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
         @click="copyCode"
       >
         <AppIcon :icon="!copied ? 'copy' : 'success'" />

@@ -16,7 +16,7 @@
 </script>
 
 <template>
-  <ExpansionPanel.Root v-model="expanded" class="border border-gray-300 rounded-lg border-solid overflow-hidden" multiple>
+  <ExpansionPanel.Root v-model="expanded" class="border border-divider rounded-lg border-solid overflow-hidden" multiple>
     <ExpansionPanel.Item
       v-for="(item, index) in panels"
       :key="item.id"
@@ -24,21 +24,21 @@
     >
       <ExpansionPanel.Activator
         v-slot="{ isSelected }"
-        class="w-full px-6 py-2 border-none border-b border-gray-300 flex items-center gap-3 cursor-pointer transition-all text-base text-left bg-white hover:bg-gray-50"
+        class="w-full px-6 py-2 border-none border-b border-divider flex items-center gap-3 cursor-pointer transition-all text-base text-left bg-surface hover:bg-surface-tint"
       >
-        <span class="inline-flex items-center justify-center w-5 text-sm text-gray-600">
+        <span class="inline-flex items-center justify-center w-5 text-sm text-on-surface opacity-60">
           {{ isSelected ? '−' : '+' }}
         </span>
-        <span class="flex-1 font-medium text-gray-900">{{ item.title }}</span>
+        <span class="flex-1 font-medium text-on-surface">{{ item.title }}</span>
       </ExpansionPanel.Activator>
 
       <ExpansionPanel.Content v-slot="{ isSelected }">
         <div
           v-show="isSelected"
-          class="px-6 py-6 bg-white"
-          :class="{ 'border-b border-gray-300': !isLast(index) }"
+          class="px-6 py-6 bg-surface"
+          :class="{ 'border-b border-divider': !isLast(index) }"
         >
-          <p class="m-0 text-gray-800 leading-relaxed">
+          <p class="m-0 text-on-surface leading-relaxed">
             {{ item.content }}
           </p>
         </div>
@@ -46,7 +46,7 @@
     </ExpansionPanel.Item>
   </ExpansionPanel.Root>
 
-  <p class="mt-4 text-sm text-gray-600">
+  <p class="mt-4 text-sm text-on-surface opacity-60">
     Expanded: {{ expanded.join(', ') }}
   </p>
 </template>

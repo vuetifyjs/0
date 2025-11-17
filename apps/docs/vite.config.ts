@@ -10,13 +10,16 @@ import Vue from 'unplugin-vue/rolldown'
 import UnocssVitePlugin from 'unocss/vite'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import type { ViteSSGOptions } from 'vite-ssg'
+import { Features } from 'lightningcss'
 
 export default defineConfig({
+  css: {
+    lightningcss: {
+      exclude: Features.LightDark,
+    },
+  },
   ssr: {
     noExternal: ['@vuetify/one'],
-  },
-  experimental: {
-    enableNativePlugin: true,
   },
   ssgOptions: {
     dirStyle: 'nested',

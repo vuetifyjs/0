@@ -80,7 +80,7 @@
       target="_blank"
     >
       <AppChip
-        color="text-blue-800"
+        color="text-info"
         icon="pencil"
         text="Edit this page"
       />
@@ -92,7 +92,7 @@
       target="_blank"
     >
       <AppChip
-        color="text-red-400"
+        color="text-error"
         icon="bug"
         text="Report a Bug"
       />
@@ -105,7 +105,7 @@
       target="_blank"
     >
       <AppChip
-        color="text-yellow-600"
+        color="text-warning"
         icon="alert"
         text="Open issues"
       />
@@ -124,7 +124,7 @@
     </a>
 
     <AppChip
-      :color="copied ? 'text-green-700' : 'text-gray-500'"
+      :color="copied ? 'text-success' : 'text-on-surface'"
       :icon="copied ? 'success' : 'markdown'"
       :text="copied ? 'Copied' : 'Copy Page as Markdown'"
       @click="onClickCopy"

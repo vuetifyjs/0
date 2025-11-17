@@ -33,7 +33,7 @@
 <template>
   <div
     v-if="show"
-    class="text-end text-sm text-blue-500 mt-16 underline cursor-pointer"
+    class="text-end text-sm text-primary mt-16 underline cursor-pointer"
     @click="scrollToTop"
   >
     <div class="inline-flex align-center">

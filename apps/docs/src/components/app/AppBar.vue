@@ -1,10 +1,13 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useFeatures, usePermissions } from '@vuetify/v0'
+  import { Atom, useFeatures, usePermissions, useTheme } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'
   import { useAuthStore } from '@vuetify/one/stores/auth'
+
+  // Utilities
+  import { computed, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -19,12 +22,29 @@
   }
   const permissions = usePermissions()
   const features = useFeatures()
+  const theme = useTheme()
 
   const devmode = features.get('devmode')!
 
   function onClickDevmode () {
     devmode.toggle()
   }
+
+  function onClickTheme () {
+    theme.cycle(['light', 'dark'])
+  }
+
+  watch(() => theme.selectedId.value, id => {
+    if (!id) return
+
+    localStorage.setItem('v0:theme', JSON.stringify(id))
+  })
+
+  const themeIcon = computed(() => theme.isDark.value ? 'theme-light' : 'theme-dark')
+  const src = computed(() => theme.isDark.value
+    ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.png'
+    : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png',
+  )
 </script>
 
 <template>
@@ -37,7 +57,7 @@
         alt="Vuetify0 Logo"
         decoding="async"
         fetchpriority="high"
-        src="https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png"
+        :src
         width="128"
       >
 
@@ -49,6 +69,14 @@
     </div>
 
     <div class="flex align-center items-center gap-3">
+      <button
+        class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded opacity-90 hover:opacity-100 transition-all border"
+        title="Toggle Theme"
+        @click="onClickTheme"
+      >
+        <AppIcon :icon="themeIcon" />
+      </button>
+
       <!-- update when latest @vuetify/one is released -->
       <button
         v-if="permissions.can(auth?.user?.role ?? 'guest', 'use', 'devmode')"

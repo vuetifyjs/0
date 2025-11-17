@@ -40,16 +40,16 @@
   >
     <RouterLink
       v-if="prev && prev !== '/'"
-      class="flex-1 basis-0 cursor-pointer capitalize border rounded-lg pa-2"
+      class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 hover:bg-surface-tint"
       :to="prev"
     >
-      <div class="inline-flex align-center text-xs text-gray-500">
+      <div class="inline-flex align-center text-xs text-on-surface opacity-60">
         <AppIcon icon="left" />
 
         Previous page
       </div>
 
-      <div class="font-medium ps-1">
+      <div class="font-medium ps-1 text-on-surface">
         {{ prev.split('/').pop()!.replace(/-/g, ' ') }}
       </div>
     </RouterLink>
@@ -58,16 +58,16 @@
 
     <RouterLink
       v-if="next && next !== '/'"
-      class="flex-1 basis-0 cursor-pointer capitalize border rounded-lg pa-2 text-end"
+      class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 text-end hover:bg-surface-tint"
       :to="next"
     >
-      <div class="inline-flex align-center text-xs text-gray-500">
+      <div class="inline-flex align-center text-xs text-on-surface opacity-60">
         Next page
 
         <AppIcon icon="right" />
       </div>
 
-      <div class="font-medium pe-1">
+      <div class="font-medium pe-1 text-on-surface">
         {{ next.split('/').pop()!.replace(/-/g, ' ') }}
       </div>
     </RouterLink>
