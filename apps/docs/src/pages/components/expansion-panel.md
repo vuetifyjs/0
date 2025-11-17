@@ -41,13 +41,13 @@ The root component that manages expansion state and provides context to items.
 - **Props**
 
   ```ts
-    interface ExpansionPanelRootProps<T = unknown> {
-      namespace?: string
-      disabled?: boolean
-      enroll?: boolean
-      mandatory?: boolean | 'force'
-      multiple?: boolean
-    }
+  interface ExpansionPanelRootProps<T = unknown> {
+    namespace?: string
+    disabled?: boolean
+    enroll?: boolean
+    mandatory?: boolean | 'force'
+    multiple?: boolean
+  }
   ```
 
   - `namespace`: Namespace for dependency injection (default: `'v0:expansion-panel'`)
@@ -91,16 +91,16 @@ The root component that manages expansion state and provides context to items.
 - **Slots**
 
   ```ts
-    interface ExpansionPanelRootSlots {
-      default: (props: {
-        disabled: boolean
-        multiple: boolean
-        select: (id: ID) => void
-        unselect: (id: ID) => void
-        toggle: (id: ID) => void
-        ariaMultiselectable: boolean
-      }) => any
-    }
+  interface ExpansionPanelRootSlots {
+    default: (props: {
+      disabled: boolean
+      multiple: boolean
+      select: (id: ID) => void
+      unselect: (id: ID) => void
+      toggle: (id: ID) => void
+      ariaMultiselectable: boolean
+    }) => any
+  }
   ```
 
 ### ExpansionPanelItem
@@ -110,13 +110,13 @@ Individual expansion panel items that register with the ExpansionPanel context a
 - **Props**
 
   ```ts
-    interface ExpansionPanelItemProps {
-      id?: string
-      value?: any
-      disabled?: MaybeRef<boolean>
-      namespace?: string
-      itemNamespace?: string
-    }
+  interface ExpansionPanelItemProps {
+    id?: string
+    value?: any
+    disabled?: MaybeRef<boolean>
+    namespace?: string
+    itemNamespace?: string
+  }
   ```
 
   - `id`: Unique identifier (auto-generated if not provided)
@@ -130,44 +130,44 @@ Individual expansion panel items that register with the ExpansionPanel context a
   ExpansionPanelItem provides context to child components (Activator/Content) via dependency injection:
 
   ```ts
-    interface ExpansionPanelItemContext {
-      ticket: SelectionTicket
-      headerId: Readonly<Ref<string>>
-      contentId: Readonly<Ref<string>>
-      isDisabled: Readonly<Ref<boolean>>
-    }
+  interface ExpansionPanelItemContext {
+    ticket: SelectionTicket
+    headerId: Readonly<Ref<string>>
+    contentId: Readonly<Ref<string>>
+    isDisabled: Readonly<Ref<boolean>>
+  }
   ```
 
 - **Slots**
 
   ```ts
-    interface ExpansionPanelItemSlots {
-      default: () => any
-    }
+  interface ExpansionPanelItemSlots {
+    default: () => any
+  }
   ```
 
 - **Example**
 
   ```vue
-    <script lang="ts" setup>
-      import { ExpansionPanel } from '@vuetify/v0'
-    </script>
+  <script lang="ts" setup>
+    import { ExpansionPanel } from '@vuetify/v0'
+  </script>
 
-    <template>
-      <ExpansionPanel.Item value="panel-1">
-        <ExpansionPanel.Activator v-slot="{ toggle, isSelected }">
-          <button @click="toggle">
-            Panel Title {{ isSelected ? '▲' : '▼' }}
-          </button>
-        </ExpansionPanel.Activator>
+  <template>
+    <ExpansionPanel.Item value="panel-1">
+      <ExpansionPanel.Activator v-slot="{ toggle, isSelected }">
+        <button @click="toggle">
+          Panel Title {{ isSelected ? '▲' : '▼' }}
+        </button>
+      </ExpansionPanel.Activator>
 
-        <ExpansionPanel.Content v-slot="{ isSelected }">
-          <div v-show="isSelected">
-            <p>Panel content goes here</p>
-          </div>
-        </ExpansionPanel.Content>
-      </ExpansionPanel.Item>
-    </template>
+      <ExpansionPanel.Content v-slot="{ isSelected }">
+        <div v-show="isSelected">
+          <p>Panel content goes here</p>
+        </div>
+      </ExpansionPanel.Content>
+    </ExpansionPanel.Item>
+  </template>
   ```
 
 ### ExpansionPanelActivator
@@ -179,11 +179,11 @@ The activator component that triggers the expansion/collapse of a panel. Must be
   Extends `AtomProps` for maximum flexibility:
 
   ```ts
-    interface ExpansionPanelActivatorProps extends AtomProps {
-      as?: DOMElement | null
-      renderless?: boolean
-      itemNamespace?: string
-    }
+  interface ExpansionPanelActivatorProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
+    itemNamespace?: string
+  }
   ```
 
   - `as`: The element type to render (default: `'button'`)
@@ -199,18 +199,18 @@ The activator component that triggers the expansion/collapse of a panel. Must be
 - **Slot Props**
 
   ```ts
-    interface ExpansionPanelActivatorSlotProps {
-      id: string
-      role: 'button'
-      tabindex: number
-      'aria-expanded': boolean
-      'aria-controls': string
-      'aria-disabled': boolean
-      isSelected: boolean
-      toggle: () => void
-      onClick: () => void
-      onKeydown: (e: KeyboardEvent) => void
-    }
+  interface ExpansionPanelActivatorSlotProps {
+    id: string
+    role: 'button'
+    tabindex: number
+    'aria-expanded': boolean
+    'aria-controls': string
+    'aria-disabled': boolean
+    isSelected: boolean
+    toggle: () => void
+    onClick: () => void
+    onKeydown: (e: KeyboardEvent) => void
+  }
   ```
 
   All ARIA attributes are automatically provided via `bindableProps`. When using the default slot, these props are available for custom implementations.
@@ -227,35 +227,35 @@ The activator component that triggers the expansion/collapse of a panel. Must be
 - **Example**
 
   ```vue
-    <script lang="ts" setup>
-      import { ExpansionPanel } from '@vuetify/v0'
-    </script>
+  <script lang="ts" setup>
+    import { ExpansionPanel } from '@vuetify/v0'
+  </script>
 
-    <template>
-      <!-- Simple usage (automatic ARIA binding) -->
-      <ExpansionPanel.Activator>
-        Click to expand
-      </ExpansionPanel.Activator>
+  <template>
+    <!-- Simple usage (automatic ARIA binding) -->
+    <ExpansionPanel.Activator>
+      Click to expand
+    </ExpansionPanel.Activator>
 
-      <!-- Custom implementation with slot props -->
-      <ExpansionPanel.Activator v-slot="{ toggle, isSelected }">
-        <button @click="toggle" class="custom-button">
-          {{ isSelected ? '−' : '+' }} Custom Header
-        </button>
-      </ExpansionPanel.Activator>
+    <!-- Custom implementation with slot props -->
+    <ExpansionPanel.Activator v-slot="{ toggle, isSelected }">
+      <button @click="toggle" class="custom-button">
+        {{ isSelected ? '−' : '+' }} Custom Header
+      </button>
+    </ExpansionPanel.Activator>
 
-      <!-- Renderless mode -->
-      <ExpansionPanel.Activator renderless v-slot="props">
-        <MyCustomButton v-bind="props">
-          Advanced Custom Header
-        </MyCustomButton>
-      </ExpansionPanel.Activator>
+    <!-- Renderless mode -->
+    <ExpansionPanel.Activator renderless v-slot="props">
+      <MyCustomButton v-bind="props">
+        Advanced Custom Header
+      </MyCustomButton>
+    </ExpansionPanel.Activator>
 
-      <!-- Custom element type -->
-      <ExpansionPanel.Activator as="div">
-        Custom div activator
-      </ExpansionPanel.Activator>
-    </template>
+    <!-- Custom element type -->
+    <ExpansionPanel.Activator as="div">
+      Custom div activator
+    </ExpansionPanel.Activator>
+  </template>
   ```
 
 ### ExpansionPanelContent
@@ -267,11 +267,11 @@ The content container for an expansion panel. Must be used within `ExpansionPane
   Extends `AtomProps` for maximum flexibility:
 
   ```ts
-    interface ExpansionPanelContentProps extends AtomProps {
-      as?: DOMElement | null
-      renderless?: boolean
-      itemNamespace?: string
-    }
+  interface ExpansionPanelContentProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
+    itemNamespace?: string
+  }
   ```
 
   - `as`: The element type to render (default: `'div'`)
@@ -287,12 +287,12 @@ The content container for an expansion panel. Must be used within `ExpansionPane
 - **Slot Props**
 
   ```ts
-    interface ExpansionPanelContentSlotProps {
-      id: string
-      role: 'region'
-      'aria-labelledby': string
-      isSelected: boolean
-    }
+  interface ExpansionPanelContentSlotProps {
+    id: string
+    role: 'region'
+    'aria-labelledby': string
+    isSelected: boolean
+  }
   ```
 
   All ARIA attributes are automatically provided via `bindableProps`.
@@ -306,32 +306,32 @@ The content container for an expansion panel. Must be used within `ExpansionPane
 - **Example**
 
   ```vue
-    <script lang="ts" setup>
-      import { ExpansionPanel } from '@vuetify/v0'
-    </script>
+  <script lang="ts" setup>
+    import { ExpansionPanel } from '@vuetify/v0'
+  </script>
 
-    <template>
-      <!-- Simple usage with manual visibility control -->
-      <ExpansionPanel.Content v-slot="{ isSelected }">
+  <template>
+    <!-- Simple usage with manual visibility control -->
+    <ExpansionPanel.Content v-slot="{ isSelected }">
+      <div v-show="isSelected">
+        Content here
+      </div>
+    </ExpansionPanel.Content>
+
+    <!-- With transitions -->
+    <ExpansionPanel.Content v-slot="{ isSelected }">
+      <Transition name="expand">
         <div v-show="isSelected">
-          Content here
+          Animated content
         </div>
-      </ExpansionPanel.Content>
+      </Transition>
+    </ExpansionPanel.Content>
 
-      <!-- With transitions -->
-      <ExpansionPanel.Content v-slot="{ isSelected }">
-        <Transition name="expand">
-          <div v-show="isSelected">
-            Animated content
-          </div>
-        </Transition>
-      </ExpansionPanel.Content>
-
-      <!-- Renderless mode -->
-      <ExpansionPanel.Content renderless v-slot="{ isSelected, ...props }">
-        <MyCustomContent v-show="isSelected" v-bind="props">
-          Custom content
-        </MyCustomContent>
-      </ExpansionPanel.Content>
-    </template>
+    <!-- Renderless mode -->
+    <ExpansionPanel.Content renderless v-slot="{ isSelected, ...props }">
+      <MyCustomContent v-show="isSelected" v-bind="props">
+        Custom content
+      </MyCustomContent>
+    </ExpansionPanel.Content>
+  </template>
   ```
