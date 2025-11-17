@@ -11,8 +11,23 @@
 
   const showCode = ref(false)
   const highlightedCode = shallowRef<string>('')
+  const copied = ref(false)
 
   const fileName = computed(() => props.file?.split('/').pop() || '')
+
+  async function copyCode () {
+    if (!props.code) return
+
+    try {
+      await navigator.clipboard.writeText(props.code)
+      copied.value = true
+      setTimeout(() => {
+        copied.value = false
+      }, 2000)
+    } catch (error) {
+      console.error('Failed to copy code:', error)
+    }
+  }
 
   onMounted(async () => {
     if (props.code) {
@@ -57,8 +72,18 @@
 
     <div
       v-if="showCode && highlightedCode"
-      class="[&_pre]:p-4"
-      v-html="highlightedCode"
-    />
+      class="relative bg-gray-50"
+    >
+      <button
+        class="absolute top-3 right-3 pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        @click="copyCode"
+      >
+        <AppIcon :icon="!copied ? 'copy' : 'success'" />
+      </button>
+      <div
+        class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:text-sm [&_pre]:leading-relaxed [&_pre]:overflow-x-auto"
+        v-html="highlightedCode"
+      />
+    </div>
   </div>
 </template>
