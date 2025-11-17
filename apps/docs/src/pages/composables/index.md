@@ -15,10 +15,10 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | **Registration** | |
 | [useRegistry](/composables/registration/use-registry) | Foundation for registration-based systems |
 | [useProxyRegistry](/composables/registration/use-proxy-registry) | Proxy-based registry with automatic reactivity |
+| [useQueue](/composables/registration/use-queue) | Time-based queue management with automatic timeouts |
 | [useTimeline](/composables/registration/use-timeline) | Bounded undo/redo system with fixed-size history |
 | [useTokens](/composables/registration/use-tokens) | Design token management system |
 | **Selection** | |
-| [useFilter](/composables/selection/use-filter) | Filter arrays based on search queries |
 | [useGroup](/composables/selection/use-group) | Manage collections with selection capabilities |
 | [useSelection](/composables/selection/use-selection) | General selection state management |
 | [useSingle](/composables/selection/use-single) | Simplified single-selection wrapper around useGroup |
@@ -41,6 +41,9 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | [usePermissions](/composables/plugins/use-permissions) | Role-based access control and permissions management |
 | [useStorage](/composables/plugins/use-storage) | Reactive interface to browser storage APIs |
 | [useTheme](/composables/plugins/use-theme) | Application theme management with CSS custom properties |
+| **Utilities** | |
+| [useFilter](/composables/utilities/use-filter) | Filter arrays based on search queries |
+| [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling for efficiently rendering large lists |
 | **Transformers** | |
 | [toArray](/composables/transformers/to-array) | Convert any value to an array with null/undefined handling |
 | [toReactive](/composables/transformers/to-reactive) | Convert MaybeRef objects to reactive proxies |

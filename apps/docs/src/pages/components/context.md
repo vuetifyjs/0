@@ -1,3 +1,0 @@
-# Context
-
-<DocsPageFeatures :frontmatter />

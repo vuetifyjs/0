@@ -1,3 +1,0 @@
-# Breakpoints
-
-<DocsPageFeatures :frontmatter />

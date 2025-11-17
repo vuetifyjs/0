@@ -30,6 +30,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/': RouteRecordInfo<
+      '/components/',
+      '/components',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/atom': RouteRecordInfo<
       '/components/atom',
       '/components/atom',
@@ -44,27 +51,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/components/breakpoints': RouteRecordInfo<
-      '/components/breakpoints',
-      '/components/breakpoints',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/components/components': RouteRecordInfo<
-      '/components/components',
-      '/components/components',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/components/context': RouteRecordInfo<
-      '/components/context',
-      '/components/context',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/components/expansion-panel': RouteRecordInfo<
       '/components/expansion-panel',
       '/components/expansion-panel',
@@ -75,13 +61,6 @@ declare module 'vue-router/auto-routes' {
     '/components/group': RouteRecordInfo<
       '/components/group',
       '/components/group',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/components/hydration': RouteRecordInfo<
-      '/components/hydration',
-      '/components/hydration',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -110,13 +89,6 @@ declare module 'vue-router/auto-routes' {
     '/components/step': RouteRecordInfo<
       '/components/step',
       '/components/step',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/components/theme': RouteRecordInfo<
-      '/components/theme',
-      '/components/theme',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -254,13 +226,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/selection/use-filter': RouteRecordInfo<
-      '/composables/selection/use-filter',
-      '/composables/selection/use-filter',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/composables/selection/use-group': RouteRecordInfo<
       '/composables/selection/use-group',
       '/composables/selection/use-group',
@@ -334,6 +299,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/utilities/use-filter': RouteRecordInfo<
+      '/composables/utilities/use-filter',
+      '/composables/utilities/use-filter',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -455,6 +427,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/index.md': {
+      routes:
+        | '/components/'
+      views:
+        | never
+    }
     'src/pages/components/atom.md': {
       routes:
         | '/components/atom'
@@ -467,24 +445,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/components/breakpoints.md': {
-      routes:
-        | '/components/breakpoints'
-      views:
-        | never
-    }
-    'src/pages/components/components.md': {
-      routes:
-        | '/components/components'
-      views:
-        | never
-    }
-    'src/pages/components/context.md': {
-      routes:
-        | '/components/context'
-      views:
-        | never
-    }
     'src/pages/components/expansion-panel.md': {
       routes:
         | '/components/expansion-panel'
@@ -494,12 +454,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/group.md': {
       routes:
         | '/components/group'
-      views:
-        | never
-    }
-    'src/pages/components/hydration.md': {
-      routes:
-        | '/components/hydration'
       views:
         | never
     }
@@ -524,12 +478,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/step.md': {
       routes:
         | '/components/step'
-      views:
-        | never
-    }
-    'src/pages/components/theme.md': {
-      routes:
-        | '/components/theme'
       views:
         | never
     }
@@ -647,12 +595,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/selection/use-filter.md': {
-      routes:
-        | '/composables/selection/use-filter'
-      views:
-        | never
-    }
     'src/pages/composables/selection/use-group.md': {
       routes:
         | '/composables/selection/use-group'
@@ -716,6 +658,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/use-filter.md': {
+      routes:
+        | '/composables/utilities/use-filter'
       views:
         | never
     }

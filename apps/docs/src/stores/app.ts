@@ -40,8 +40,8 @@ export const useAppStore = defineStore('app', {
         children: [
           { name: 'Atom', to: '/components/atom' },
           { name: 'Avatar', to: '/components/avatar' },
-          { name: 'Group', to: '/components/group' },
           { name: 'ExpansionPanel', to: '/components/expansion-panel' },
+          { name: 'Group', to: '/components/group' },
           { name: 'Popover', to: '/components/popover' },
           { name: 'Selection', to: '/components/selection' },
           { name: 'Single', to: '/components/single' },
