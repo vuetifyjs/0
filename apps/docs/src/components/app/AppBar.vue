@@ -30,7 +30,7 @@
 <template>
   <Atom
     :as
-    class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 bg-surface text-on-surface border-b border-solid border-divider"
+    class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 bg-surface text-on-surface border-b border-solid border-divider z-1"
   >
     <div class="flex items-center gap-1">
       <img

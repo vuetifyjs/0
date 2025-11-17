@@ -11,7 +11,7 @@
 <template>
   <Atom
     :as
-    class="app-banner flex items-center justify-center h-[24px] fixed left-0 top-0 right-0 px-3 text-xs gap-2 bg-warning text-on-warning"
+    class="app-banner flex items-center justify-center h-[24px] fixed left-0 top-0 right-0 px-3 text-xs gap-2 bg-warning text-on-warning z-1"
   >
     <AppIcon icon="alert" :size="14" />
 
