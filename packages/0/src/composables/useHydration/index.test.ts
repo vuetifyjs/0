@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { mockUseHydrationContext, mockProvideHydrationContext } = vi.hoisted(() => {
+const { mockUseHydrationContext, mockProvideHydrationContext, mockUseContext } = vi.hoisted(() => {
   return {
     mockUseHydrationContext: vi.fn(),
     mockProvideHydrationContext: vi.fn(),
+    mockUseContext: vi.fn(),
   }
 })
 
@@ -12,7 +13,7 @@ vi.mock('#v0/composables/createContext', () => ({
     mockUseHydrationContext,
     mockProvideHydrationContext,
   ]),
-  useContext: mockUseHydrationContext,
+  useContext: mockUseContext,
 }))
 
 vi.mock('vue', async () => {
@@ -21,6 +22,7 @@ vi.mock('vue', async () => {
     ...actual,
     shallowRef: vi.fn(value => ({ value })),
     shallowReadonly: vi.fn(ref => ref),
+    getCurrentInstance: vi.fn(() => ({ uid: 1 })),
   }
 })
 
@@ -31,6 +33,7 @@ describe('useHydration', () => {
     vi.clearAllMocks()
     mockUseHydrationContext.mockClear()
     mockProvideHydrationContext.mockClear()
+    mockUseContext.mockClear()
   })
 
   describe('createHydration', () => {
@@ -65,15 +68,16 @@ describe('useHydration', () => {
   })
 
   describe('useHydration', () => {
-    it('should call useHydrationContext', () => {
-      mockUseHydrationContext.mockReturnValue({
+    it('should call useContext', () => {
+      mockUseContext.mockReturnValue({
         isHydrated: { value: false },
         hydrate: vi.fn(),
       })
 
       useHydration()
 
-      expect(mockUseHydrationContext).toHaveBeenCalledOnce()
+      expect(mockUseContext).toHaveBeenCalledOnce()
+      expect(mockUseContext).toHaveBeenCalledWith('v0:hydration', expect.any(Object))
     })
   })
 
