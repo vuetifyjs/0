@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useFeatures, usePermissions, useTheme } from '@vuetify/v0'
+  import { Atom, useFeatures, usePermissions, useTheme, useStorage } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'
@@ -15,6 +15,7 @@
   const { as = 'header' } = defineProps<AtomProps>()
 
   const app = useAppStore()
+  const storage = useStorage()
 
   let auth: ReturnType<typeof useAuthStore> | null = null
   if (!import.meta.env.SSR) {
@@ -35,9 +36,11 @@
   }
 
   watch(() => theme.selectedId.value, id => {
-    if (!id) return
+    storage.set('theme', id)
+  })
 
-    localStorage.setItem('v0:theme', JSON.stringify(id))
+  watch(() => devmode.isSelected.value, isSelected => {
+    storage.set('devmode', isSelected)
   })
 
   const themeIcon = computed(() => theme.isDark.value ? 'theme-light' : 'theme-dark')

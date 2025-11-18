@@ -17,7 +17,7 @@ export default function zero (app: App) {
     createFeaturesPlugin({
       features: {
         devmode: {
-          $value: false,
+          $value: IN_BROWSER ? localStorage.getItem('v0:devmode') === 'true' : false,
           $description: 'Enables development mode with additional logging and warnings',
         },
       },
