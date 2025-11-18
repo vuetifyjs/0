@@ -8,19 +8,40 @@
  * - Key-specific event handling
  * - preventDefault and stopPropagation options
  * - Automatic cleanup on scope disposal
- * - Auto-starts when in component scope
+ * - Built on useEventListener for consistent event handling
  *
  * Simplified wrapper around useEventListener for keyboard interactions.
  */
 
+// Composables
+import { useDocumentEventListener } from '#v0/composables/useEventListener'
+
 // Utilities
-import { onMounted, getCurrentScope, onScopeDispose } from 'vue'
+import { toRef, toValue } from 'vue'
+
+// Types
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface KeyHandler {
   key: string
   handler: (event: KeyboardEvent) => void
   preventDefault?: boolean
   stopPropagation?: boolean
+}
+
+export interface UseKeydownReturn {
+  /**
+   * Whether the listener is currently active
+   */
+  readonly isActive: Readonly<Ref<boolean>>
+  /**
+   * Start listening for keydown events
+   */
+  start: () => void
+  /**
+   * Stop listening for keydown events
+   */
+  stop: () => void
 }
 
 /**
@@ -35,19 +56,25 @@ export interface KeyHandler {
  * ```ts
  * import { useKeydown } from '@vuetify/v0'
  *
- * const { startListening, stopListening } = useKeydown([
+ * const { isActive, start, stop } = useKeydown([
  *   { key: 'Enter', handler: () => console.log('Enter pressed') },
  *   { key: 'Escape', handler: () => console.log('Escape pressed'), preventDefault: true },
  * ])
  *
- * startListening()
- * stopListening()
+ * // Listener is automatically active when called in component setup
+ * // Manually control if needed:
+ * stop()
+ * start()
  * ```
  */
-export function useKeydown (handlers: KeyHandler[] | KeyHandler) {
-  const keyHandlers = Array.isArray(handlers) ? handlers : [handlers]
+export function useKeydown (handlers: MaybeRefOrGetter<KeyHandler[] | KeyHandler>): UseKeydownReturn {
+  let cleanup: (() => void) | null = null
+  const isActive = toRef(() => !!cleanup)
 
   function onKeydown (event: KeyboardEvent) {
+    const handlerList = toValue(handlers)
+    const keyHandlers = Array.isArray(handlerList) ? handlerList : [handlerList]
+
     const handler = keyHandlers.find(h => h.key === event.key)
     if (handler) {
       if (handler.preventDefault) event.preventDefault()
@@ -56,22 +83,22 @@ export function useKeydown (handlers: KeyHandler[] | KeyHandler) {
     }
   }
 
-  function startListening () {
-    document.addEventListener('keydown', onKeydown)
+  function start () {
+    if (cleanup) return
+    cleanup = useDocumentEventListener('keydown', onKeydown)
   }
 
-  function stopListening () {
-    document.removeEventListener('keydown', onKeydown)
+  function stop () {
+    if (!cleanup) return
+    cleanup()
+    cleanup = null
   }
 
-  if (getCurrentScope()) {
-    onMounted(startListening)
-  }
-
-  onScopeDispose(stopListening, true)
+  cleanup = useDocumentEventListener('keydown', onKeydown)
 
   return {
-    startListening,
-    stopListening,
+    isActive,
+    start,
+    stop,
   }
 }

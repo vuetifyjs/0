@@ -23,6 +23,7 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
+import { useWindowEventListener } from '#v0/composables/useEventListener'
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
@@ -306,9 +307,9 @@ export function createBreakpointsPlugin<
             if (hydrated) listener()
           }, { immediate: true })
 
-          window.addEventListener('resize', listener, { passive: true })
+          const cleanup = useWindowEventListener('resize', listener, { passive: true })
           onScopeDispose(() => {
-            window.removeEventListener('resize', listener)
+            cleanup()
             unwatch()
           }, true)
         },
