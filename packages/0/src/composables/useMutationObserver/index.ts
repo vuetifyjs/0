@@ -16,7 +16,7 @@
  */
 
 // Utilities
-import { shallowRef, watch, onUnmounted, readonly } from 'vue'
+import { computed, onUnmounted, shallowReadonly, shallowRef, watch } from 'vue'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
@@ -48,6 +48,33 @@ export interface UseMutationObserverOptions {
   attributeOldValue?: boolean
   characterDataOldValue?: boolean
   attributeFilter?: string[]
+}
+
+export interface UseMutationObserverReturn {
+  /**
+   * Whether the observer is currently active (created and observing)
+   */
+  readonly isActive: Readonly<Ref<boolean>>
+
+  /**
+   * Whether the observer is currently paused
+   */
+  readonly isPaused: Readonly<Ref<boolean>>
+
+  /**
+   * Pause observation (disconnects observer but keeps it alive)
+   */
+  pause: () => void
+
+  /**
+   * Resume observation
+   */
+  resume: () => void
+
+  /**
+   * Stop observation and clean up (destroys observer)
+   */
+  stop: () => void
 }
 
 /**
@@ -97,10 +124,11 @@ export function useMutationObserver (
   target: Ref<Element | undefined>,
   callback: (entries: MutationObserverRecord[]) => void,
   options: UseMutationObserverOptions = {},
-) {
+): UseMutationObserverReturn {
   const { isHydrated } = useHydration()
   const observer = shallowRef<MutationObserver>()
   const isPaused = shallowRef(false)
+  const isActive = computed(() => !!observer.value)
 
   const observerOptions = {
     childList: options.childList ?? true,
@@ -186,7 +214,8 @@ export function useMutationObserver (
   onUnmounted(stop)
 
   return {
-    isPaused: readonly(isPaused),
+    isActive: shallowReadonly(isActive),
+    isPaused: shallowReadonly(isPaused),
     pause,
     resume,
     stop,

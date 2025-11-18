@@ -78,6 +78,7 @@ useMutationObserver(target, (mutations) => {
     callback: (mutations: MutationRecord[]) => void,
     options?: MutationObserverOptions
   ): {
+    isActive: Readonly<Ref<boolean>>
     isPaused: Readonly<Ref<boolean>>
     pause: () => void
     resume: () => void
@@ -105,6 +106,7 @@ useMutationObserver(target, (mutations) => {
 
 - **Returns**
 
+  - `isActive`: Whether the observer is currently created and observing
   - `isPaused`: Whether observation is paused
   - `pause()`: Pause observation
   - `resume()`: Resume observation
@@ -160,21 +162,31 @@ This prevents memory leaks by ensuring observers don't continue running after th
 The composable returns control functions for fine-grained lifecycle management:
 
 ```ts
-const { isPaused, pause, resume, stop } = useMutationObserver(
+const { isActive, isPaused, pause, resume, stop } = useMutationObserver(
   element,
   callback,
   options
 )
 
+// Check if observer is active
+console.log(isActive.value) // true
+
 // Temporarily pause observation (keeps observer alive)
 pause()
+console.log(isActive.value) // false
 
 // Resume observation
 resume()
+console.log(isActive.value) // true
 
 // Permanently stop and disconnect observer
 stop()
+console.log(isActive.value) // false
 ```
+
+**State properties:**
+- **`isActive`**: True when the observer exists and is observing (false when paused or stopped)
+- **`isPaused`**: True when observation is temporarily paused
 
 **Difference between pause and stop:**
 - **`pause()`**: Temporarily stops observing, can be resumed with `resume()`
@@ -249,8 +261,8 @@ scope.stop()
 
 ```ts
 // Safe to call during SSR - will not throw
-const { isPaused } = useMutationObserver(element, callback, options)
-// isPaused.value will be false in SSR
+const { isActive, isPaused } = useMutationObserver(element, callback, options)
+// isActive.value and isPaused.value will be false in SSR
 ```
 
 ### Performance Tips
