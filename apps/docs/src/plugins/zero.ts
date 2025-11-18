@@ -54,7 +54,7 @@ export default function zero (app: App) {
             'secondary': '#64748b',
             'accent': '#6366f1',
             'error': '#ef4444',
-            'info': '#0ea5e9',
+            'info': '#1867c0',
             'success': '#22c55e',
             'warning': '#f59e0b',
             'background': '#FFFFFF',
