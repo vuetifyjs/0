@@ -207,35 +207,11 @@ export function useIntersectionObserver (
   }
 }
 
-export interface UseElementIntersectionReturn {
-  /**
-   * Whether the observer is currently active (created and observing)
-   */
-  readonly isActive: Readonly<Ref<boolean>>
-  /**
-   * Whether the target element is currently intersecting with the viewport
-   */
-  readonly isIntersecting: Readonly<Ref<boolean>>
+export interface UseElementIntersectionReturn extends UseIntersectionObserverReturn {
   /**
    * The intersection ratio (0.0 to 1.0) indicating how much of the element is visible
    */
   readonly intersectionRatio: Readonly<Ref<number>>
-  /**
-   * Whether the observer is currently paused
-   */
-  readonly isPaused: Readonly<Ref<boolean>>
-  /**
-   * Pause observation (disconnects observer but keeps it alive)
-   */
-  pause: () => void
-  /**
-   * Resume observation
-   */
-  resume: () => void
-  /**
-   * Stop observation and clean up (destroys observer)
-   */
-  stop: () => void
 }
 
 /**
