@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createLocale, createLocalePlugin } from './index'
 import { Vuetify0LocaleAdapter } from './adapters/v0'
 
@@ -47,9 +47,12 @@ describe('useLocale', () => {
           es: { hello: 'Hola', greeting: 'Hola {name}' },
         },
       })
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(locale.t('hello')).toBe('Hello')
       expect(locale.t('greeting', { name: 'John' })).toBe('Hello John')
+
+      warnSpy.mockRestore()
     })
 
     it('should return key when translation not found', () => {
@@ -85,8 +88,11 @@ describe('useLocale', () => {
           en: { greet: 'Hello {0}, you have {1} messages' },
         },
       })
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(locale.t('greet', 'John', 5)).toBe('Hello John, you have 5 messages')
+
+      warnSpy.mockRestore()
     })
 
     it('should handle named placeholders', () => {
@@ -96,8 +102,11 @@ describe('useLocale', () => {
           en: { greet: 'Hello {name}, you have {count} messages' },
         },
       })
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       expect(locale.t('greet', { name: 'John', count: 5 })).toBe('Hello John, you have 5 messages')
+
+      warnSpy.mockRestore()
     })
 
     it('should resolve token references in messages', () => {
@@ -156,19 +165,31 @@ describe('useLocale', () => {
     })
 
     it('should handle numbered placeholders', () => {
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
       expect(adapter.t('Hello {0}', 'World')).toBe('Hello World')
       expect(adapter.t('Sum: {0} + {1} = {2}', 1, 2, 3)).toBe('Sum: 1 + 2 = 3')
+
+      warnSpy.mockRestore()
     })
 
     it('should handle named placeholders', () => {
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
       expect(adapter.t('Hello {name}', { name: 'World' })).toBe('Hello World')
       expect(adapter.t('Hello {firstName} {lastName}', { firstName: 'John', lastName: 'Doe' }))
         .toBe('Hello John Doe')
+
+      warnSpy.mockRestore()
     })
 
     it('should handle mixed placeholders', () => {
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
       expect(adapter.t('Hello {name}, you have {0} messages', { name: 'John' }, 5))
         .toBe('Hello John, you have 5 messages')
+
+      warnSpy.mockRestore()
     })
 
     it('should preserve unresolved placeholders', () => {

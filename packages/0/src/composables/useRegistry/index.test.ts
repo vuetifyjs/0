@@ -192,11 +192,14 @@ describe('useRegistry', () => {
     it('should not emit events when events option is disabled', () => {
       const registry = useRegistry({ events: false })
       const listener = vi.fn()
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       registry.on('register:ticket', listener)
       registry.register({ id: 'test' })
 
       expect(listener).not.toHaveBeenCalled()
+
+      warnSpy.mockRestore()
     })
 
     it('should emit register:ticket event when enabled', () => {
@@ -271,7 +274,7 @@ describe('useRegistry', () => {
 
     it('should warn when attempting to register listener without events enabled', () => {
       const registry = useRegistry({ events: false })
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       registry.on('register:ticket', vi.fn())
 
@@ -470,12 +473,16 @@ describe('useRegistry', () => {
   describe('Edge cases', () => {
     it('should handle registering duplicate IDs by returning existing ticket', () => {
       const registry = useRegistry()
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
       const ticket1 = registry.register({ id: 'duplicate', value: 'first' })
       const ticket2 = registry.register({ id: 'duplicate', value: 'second' })
 
       expect(ticket1).toBe(ticket2)
       expect(registry.size).toBe(1)
       expect(ticket1.value).toBe('first')
+
+      warnSpy.mockRestore()
     })
 
     it('should handle null value in browse', () => {

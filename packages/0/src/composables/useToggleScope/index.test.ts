@@ -242,12 +242,16 @@ describe('useToggleScope', () => {
     await nextTick()
     expect(controls.isActive.value).toBe(true)
 
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     // Attempt to modify (should fail silently or throw in strict mode)
     // @ts-expect-error - isActive should be readonly
     controls.isActive.value = false
 
     // Value should remain unchanged
     expect(controls.isActive.value).toBe(true)
+
+    warnSpy.mockRestore()
   })
 
   it('prevents duplicate start calls', async () => {

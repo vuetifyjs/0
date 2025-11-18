@@ -180,7 +180,8 @@ export function createTokens<
     if (cached !== undefined) return cached
 
     const reference: unknown = isTokenAlias(token) ? token.$value : token
-    const clean = isString(reference) && isAlias(reference) ? reference.slice(1, -1) : String(reference)
+    const isAliasReference = isString(reference) && isAlias(reference)
+    const clean = isAliasReference ? reference.slice(1, -1) : String(reference)
 
     // Detect circular references
     if (visited.has(clean)) {
@@ -209,7 +210,10 @@ export function createTokens<
     }
 
     if (found?.value === undefined) {
-      logger.warn(`Alias not found for "${String(reference)}"`)
+      // Only warn if the original token was an alias (wrapped in {})
+      if (isAliasReference) {
+        logger.warn(`Alias not found for "${String(reference)}"`)
+      }
       cache.set(cacheKey, undefined)
       return undefined
     }

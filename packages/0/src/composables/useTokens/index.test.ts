@@ -2,7 +2,7 @@
 import { createTokensContext, createTokens } from './index'
 
 // Utilities
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, ref, nextTick, computed } from 'vue'
 
@@ -161,10 +161,13 @@ describe('createTokensContext', () => {
     })
 
     it('should return undefined for non-existent tokens', () => {
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
       const context = createTokensContext({ namespace: 'test', tokens: {} })[2]
 
       expect(context.resolve('nonexistent')).toBeUndefined()
       expect(context.resolve('{nonexistent}')).toBeUndefined()
+
+      warnSpy.mockRestore()
     })
   })
 
@@ -503,10 +506,13 @@ describe('useTokens edge cases', () => {
       }
 
       const context = createTokens(tokens)
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       // Should return undefined and not cause stack overflow
       const result = context.resolve('a')
       expect(result).toBeUndefined()
+
+      warnSpy.mockRestore()
     })
 
     it('should detect and prevent indirect circular references', () => {
@@ -517,10 +523,13 @@ describe('useTokens edge cases', () => {
       }
 
       const context = createTokens(tokens)
+      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
       // Should return undefined and not cause stack overflow
       const result = context.resolve('a')
       expect(result).toBeUndefined()
+
+      warnSpy.mockRestore()
     })
   })
 
