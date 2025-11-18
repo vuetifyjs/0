@@ -16,7 +16,7 @@
  */
 
 // Utilities
-import { onUnmounted, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
@@ -179,7 +179,7 @@ export function useResizeObserver (
     cleanup()
   }
 
-  onUnmounted(stop)
+  onScopeDispose(stop, true)
 
   return {
     isActive: shallowReadonly(isActive),

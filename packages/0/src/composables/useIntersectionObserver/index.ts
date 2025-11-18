@@ -19,7 +19,7 @@
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { onUnmounted, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Globals
 import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
@@ -195,7 +195,7 @@ export function useIntersectionObserver (
     cleanup()
   }
 
-  onUnmounted(stop)
+  onScopeDispose(stop, true)
 
   return {
     isActive: shallowReadonly(isActive),

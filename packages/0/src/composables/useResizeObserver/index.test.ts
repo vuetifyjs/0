@@ -17,14 +17,6 @@ vi.mock('#v0/constants/globals', () => ({
   SUPPORTS_OBSERVER: true,
 }))
 
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
-  return {
-    ...actual,
-    onUnmounted: vi.fn(),
-  }
-})
-
 describe('useResizeObserver', () => {
   let mockObserver: any
   let element: HTMLDivElement

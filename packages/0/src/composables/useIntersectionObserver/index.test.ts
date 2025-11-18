@@ -13,14 +13,6 @@ vi.mock('#v0/constants/globals', () => ({
   SUPPORTS_INTERSECTION_OBSERVER: true,
 }))
 
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
-  return {
-    ...actual,
-    onUnmounted: vi.fn(),
-  }
-})
-
 import { useIntersectionObserver, useElementIntersection } from './index'
 
 describe('useIntersectionObserver', () => {

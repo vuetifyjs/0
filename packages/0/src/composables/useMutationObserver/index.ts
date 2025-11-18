@@ -16,7 +16,7 @@
  */
 
 // Utilities
-import { computed, onUnmounted, shallowReadonly, shallowRef, watch } from 'vue'
+import { computed, onScopeDispose, shallowReadonly, shallowRef, watch } from 'vue'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
@@ -211,7 +211,7 @@ export function useMutationObserver (
     cleanup()
   }
 
-  onUnmounted(stop)
+  onScopeDispose(stop, true)
 
   return {
     isActive: shallowReadonly(isActive),
