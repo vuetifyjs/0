@@ -46,6 +46,7 @@ export default function zero (app: App) {
   app.use(
     createThemePlugin({
       default: savedTheme,
+      target: 'html',
       themes: {
         light: {
           dark: false,
