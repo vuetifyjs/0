@@ -22,7 +22,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createPlugin } from '#v0/composables/createPlugin'
 
 // Utilities
-import { shallowRef, shallowReadonly } from 'vue'
+import { shallowRef, shallowReadonly, getCurrentInstance } from 'vue'
 
 // Types
 import type { App, ShallowRef } from 'vue'
@@ -70,6 +70,15 @@ export function createHydration<
   return {
     isHydrated: shallowReadonly(isHydrated),
     hydrate,
+  } as E
+}
+
+export function createFallbackHydration<
+  E extends HydrationContext = HydrationContext,
+> (): E {
+  return {
+    isHydrated: shallowReadonly(shallowRef(true)),
+    hydrate: () => {},
   } as E
 }
 
@@ -176,5 +185,13 @@ export function createHydrationPlugin<
 export function useHydration<
   E extends HydrationContext = HydrationContext,
 > (namespace = 'v0:hydration'): E {
-  return useContext<E>(namespace)
+  const fallback = createFallbackHydration<E>()
+
+  if (!getCurrentInstance()) return fallback
+
+  try {
+    return useContext<E>(namespace, fallback)
+  } catch {
+    return fallback
+  }
 }
