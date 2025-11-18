@@ -39,6 +39,7 @@ catalog:
   sherif: ^1.8.0
   shiki: ^3.15.0
   storybook: ^10.0.6
+  swetrix: ^3.7.2
   tsdown: ^0.16.1
   typescript: 5.9.3
   unocss: ^66.5.5

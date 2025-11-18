@@ -38,6 +38,7 @@
     "@vuetify/v0": "workspace:*",
     "mermaid": "catalog:",
     "pinia": "catalog:",
+    "swetrix": "catalog:",
     "vue": "catalog:"
   }
 }

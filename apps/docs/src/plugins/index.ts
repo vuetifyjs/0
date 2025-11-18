@@ -1,4 +1,5 @@
 // Plugins
+import './analytics'
 import _app from './app'
 import zero from './zero'
 
