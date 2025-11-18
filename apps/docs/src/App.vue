@@ -3,13 +3,13 @@
 </script>
 
 <template>
-  <div class="bg-background text-on-background">
+  <main class="min-h-screen pt-[72px] bg-background text-on-background">
     <router-view />
-  </div>
+  </main>
 </template>
 
 <style>
-  #app > div {
+  #app > main {
     hr {
       border: none;
       border-top: 1px solid var(--v0-divider);
