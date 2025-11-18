@@ -76,6 +76,7 @@ describe('useResizeObserver', () => {
     const result = useResizeObserver(target, callback)
 
     expect(result).toEqual({
+      isActive: expect.any(Object),
       isPaused: expect.any(Object),
       pause: expect.any(Function),
       resume: expect.any(Function),
@@ -85,6 +86,7 @@ describe('useResizeObserver', () => {
     expect(typeof result.pause).toBe('function')
     expect(typeof result.resume).toBe('function')
     expect(typeof result.stop).toBe('function')
+    expect(typeof result.isActive.value).toBe('boolean')
     expect(typeof result.isPaused.value).toBe('boolean')
   })
 

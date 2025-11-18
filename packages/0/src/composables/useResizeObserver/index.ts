@@ -16,7 +16,7 @@
  */
 
 // Utilities
-import { shallowRef, watch, onUnmounted, readonly } from 'vue'
+import { onUnmounted, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
@@ -40,6 +40,29 @@ export interface ResizeObserverEntry {
 export interface ResizeObserverOptions {
   immediate?: boolean
   box?: 'content-box' | 'border-box'
+}
+
+export interface UseResizeObserverReturn {
+  /**
+   * Whether the observer is currently active (created and observing)
+   */
+  readonly isActive: Readonly<Ref<boolean>>
+  /**
+   * Whether the observer is currently paused
+   */
+  readonly isPaused: Readonly<Ref<boolean>>
+  /**
+   * Pause observation (disconnects observer but keeps it alive)
+   */
+  pause: () => void
+  /**
+   * Resume observation
+   */
+  resume: () => void
+  /**
+   * Stop observation and clean up (destroys observer)
+   */
+  stop: () => void
 }
 
 /**
@@ -87,10 +110,11 @@ export function useResizeObserver (
   target: Ref<Element | undefined>,
   callback: (entries: ResizeObserverEntry[]) => void,
   options: ResizeObserverOptions = {},
-) {
+): UseResizeObserverReturn {
   const { isHydrated } = useHydration()
   const observer = shallowRef<ResizeObserver>()
   const isPaused = shallowRef(false)
+  const isActive = toRef(() => !!observer.value)
 
   function setup () {
     if (!isHydrated.value || !SUPPORTS_OBSERVER || !target.value || isPaused.value) return
@@ -158,11 +182,24 @@ export function useResizeObserver (
   onUnmounted(stop)
 
   return {
-    isPaused: readonly(isPaused),
+    isActive: shallowReadonly(isActive),
+    isPaused: shallowReadonly(isPaused),
     pause,
     resume,
     stop,
   }
+}
+
+export interface UseElementSizeReturn extends UseResizeObserverReturn {
+  /**
+   * The width of the element in pixels
+   */
+  width: Ref<number>
+
+  /**
+   * The height of the element in pixels
+   */
+  height: Ref<number>
 }
 
 /**
@@ -188,11 +225,11 @@ export function useResizeObserver (
  * })
  * ```
  */
-export function useElementSize (target: Ref<Element | undefined>) {
+export function useElementSize (target: Ref<Element | undefined>): UseElementSizeReturn {
   const width = shallowRef(0)
   const height = shallowRef(0)
 
-  const { pause: _pause, resume, stop, isPaused } = useResizeObserver(
+  const { pause: _pause, resume, stop, isActive, isPaused } = useResizeObserver(
     target,
     entries => {
       const entry = entries[0]
@@ -213,6 +250,7 @@ export function useElementSize (target: Ref<Element | undefined>) {
   return {
     width,
     height,
+    isActive,
     isPaused,
     pause,
     resume,

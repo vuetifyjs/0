@@ -65,6 +65,7 @@ useResizeObserver(container, (entries) => {
     callback: (entries: ResizeObserverEntry[]) => void,
     options?: ResizeObserverOptions
   ): {
+    isActive: Readonly<Ref<boolean>>
     isPaused: Readonly<Ref<boolean>>
     pause: () => void
     resume: () => void
@@ -86,6 +87,7 @@ useResizeObserver(container, (entries) => {
 
 - **Returns**
 
+  - `isActive`: Whether the observer is currently created and observing
   - `isPaused`: Whether observation is paused
   - `pause()`: Pause observation
   - `resume()`: Resume observation
@@ -122,6 +124,7 @@ useResizeObserver(container, (entries) => {
   ): {
     width: Readonly<Ref<number>>
     height: Readonly<Ref<number>>
+    isActive: Readonly<Ref<boolean>>
     isPaused: Readonly<Ref<boolean>>
     pause: () => void
     resume: () => void
@@ -137,6 +140,7 @@ useResizeObserver(container, (entries) => {
 
   - `width`: Current width of the element in pixels
   - `height`: Current height of the element in pixels
+  - `isActive`: Whether the observer is currently created and observing
   - `isPaused`: Whether observation is paused
   - `pause()`: Pause observation
   - `resume()`: Resume observation
@@ -175,21 +179,31 @@ This prevents memory leaks by ensuring observers don't continue running after th
 The composable returns control functions for fine-grained lifecycle management:
 
 ```ts
-const { isPaused, pause, resume, stop } = useResizeObserver(
+const { isActive, isPaused, pause, resume, stop } = useResizeObserver(
   element,
   callback,
   options
 )
 
+// Check if observer is active
+console.log(isActive.value) // true
+
 // Temporarily pause observation (keeps observer alive)
 pause()
+console.log(isActive.value) // false
 
 // Resume observation
 resume()
+console.log(isActive.value) // true
 
 // Permanently stop and disconnect observer
 stop()
+console.log(isActive.value) // false
 ```
+
+**State properties:**
+- **`isActive`**: True when the observer exists and is observing (false when paused or stopped)
+- **`isPaused`**: True when observation is temporarily paused
 
 **Difference between pause and stop:**
 - **`pause()`**: Temporarily stops observing, can be resumed with `resume()`
@@ -261,12 +275,13 @@ scope.stop()
 
 ```ts
 // Safe to call during SSR - will not throw
-const { isPaused } = useResizeObserver(element, callback, options)
-// isPaused.value will be false in SSR
+const { isActive, isPaused } = useResizeObserver(element, callback, options)
+// isActive.value and isPaused.value will be false in SSR
 
 // useElementSize also handles SSR safely
-const { width, height } = useElementSize(element)
+const { width, height, isActive } = useElementSize(element)
 // width.value and height.value will be 0 in SSR
+// isActive.value will be false in SSR
 ```
 
 ### Performance Tips
