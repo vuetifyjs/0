@@ -95,6 +95,7 @@ export const useAppStore = defineStore('app', {
               { name: 'useKeydown', to: '/composables/system/use-keydown' },
               { name: 'useMutationObserver', to: '/composables/system/use-mutation-observer' },
               { name: 'useResizeObserver', to: '/composables/system/use-resize-observer' },
+              { name: 'useToggleScope', to: '/composables/system/use-toggle-scope' },
             ],
           },
           {

@@ -289,6 +289,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-toggle-scope': RouteRecordInfo<
+      '/composables/system/use-toggle-scope',
+      '/composables/system/use-toggle-scope',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/transformers/to-array': RouteRecordInfo<
       '/composables/transformers/to-array',
       '/composables/transformers/to-array',
@@ -646,6 +653,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-resize-observer.md': {
       routes:
         | '/composables/system/use-resize-observer'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-toggle-scope.md': {
+      routes:
+        | '/composables/system/use-toggle-scope'
       views:
         | never
     }
