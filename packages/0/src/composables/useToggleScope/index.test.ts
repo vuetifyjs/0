@@ -134,7 +134,7 @@ describe('useToggleScope', () => {
     let receivedControls: any
 
     effectScope().run(() => {
-      useToggleScope(source, (controls) => {
+      useToggleScope(source, controls => {
         receivedControls = controls
         fn()
       })
@@ -324,7 +324,9 @@ describe('useToggleScope', () => {
 
   it('works with computed sources', async () => {
     const count = ref(0)
-    const source = () => count.value > 0
+    function source () {
+      return count.value > 0
+    }
     const fn = vi.fn()
 
     effectScope().run(() => {
