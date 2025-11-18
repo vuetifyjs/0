@@ -69,6 +69,7 @@ useIntersectionObserver(target, (entries) => {
     callback: (entries: IntersectionObserverEntry[]) => void,
     options?: IntersectionObserverOptions
   ): {
+    isActive: Readonly<Ref<boolean>>
     isIntersecting: Readonly<Ref<boolean>>
     isPaused: Readonly<Ref<boolean>>
     pause: () => void
@@ -93,6 +94,7 @@ useIntersectionObserver(target, (entries) => {
 
 - **Returns**
 
+  - `isActive`: Whether the observer is currently created and observing
   - `isIntersecting`: Whether the element is currently intersecting
   - `isPaused`: Whether observation is paused
   - `pause()`: Pause observation
@@ -123,6 +125,7 @@ useIntersectionObserver(target, (entries) => {
     target: Ref<Element | undefined>,
     options?: IntersectionObserverOptions
   ): {
+    isActive: Readonly<Ref<boolean>>
     isIntersecting: Readonly<Ref<boolean>>
     intersectionRatio: Readonly<Ref<number>>
     isPaused: Readonly<Ref<boolean>>
@@ -138,6 +141,7 @@ useIntersectionObserver(target, (entries) => {
 
 - **Returns**
 
+  - `isActive`: Whether the observer is currently created and observing
   - `isIntersecting`: Whether the element is currently intersecting
   - `intersectionRatio`: How much of the element is visible (0-1)
   - `isPaused`: Whether observation is paused
@@ -180,20 +184,32 @@ This prevents memory leaks by ensuring observers don't continue running after th
 The composable returns control functions for fine-grained lifecycle management:
 
 ```ts
-const { isIntersecting, pause, resume, stop } = useIntersectionObserver(
+const { isActive, isIntersecting, pause, resume, stop } = useIntersectionObserver(
   element,
   callback
 )
 
+// Check if observer is active
+console.log(isActive.value) // true
+
 // Temporarily pause observation (keeps observer alive)
 pause()
+console.log(isActive.value) // false
+console.log(isIntersecting.value) // false (reset on pause)
 
 // Resume observation
 resume()
+console.log(isActive.value) // true
 
 // Permanently stop and disconnect observer
 stop()
+console.log(isActive.value) // false
 ```
+
+**State properties:**
+- **`isActive`**: True when the observer exists and is observing (false when paused or stopped)
+- **`isPaused`**: True when observation is temporarily paused
+- **`isIntersecting`**: True when the element is currently intersecting the viewport
 
 **Difference between pause and stop:**
 - **`pause()`**: Temporarily stops observing, can be resumed with `resume()`

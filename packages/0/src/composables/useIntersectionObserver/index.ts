@@ -19,7 +19,7 @@
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { shallowRef, watch, onUnmounted, readonly } from 'vue'
+import { onUnmounted, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Globals
 import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
@@ -42,6 +42,38 @@ export interface IntersectionObserverOptions {
   root?: Element | null
   rootMargin?: string
   threshold?: number | number[]
+}
+
+export interface UseIntersectionObserverReturn {
+  /**
+   * Whether the observer is currently active (created and observing)
+   */
+  readonly isActive: Readonly<Ref<boolean>>
+
+  /**
+   * Whether the target element is currently intersecting with the viewport
+   */
+  readonly isIntersecting: Readonly<Ref<boolean>>
+
+  /**
+   * Whether the observer is currently paused
+   */
+  readonly isPaused: Readonly<Ref<boolean>>
+
+  /**
+   * Pause observation (disconnects observer but keeps it alive)
+   */
+  pause: () => void
+
+  /**
+   * Resume observation
+   */
+  resume: () => void
+
+  /**
+   * Stop observation and clean up (destroys observer)
+   */
+  stop: () => void
 }
 
 /**
@@ -87,11 +119,12 @@ export function useIntersectionObserver (
   target: Ref<Element | undefined>,
   callback: (entries: IntersectionObserverEntry[]) => void,
   options: IntersectionObserverOptions = {},
-) {
+): UseIntersectionObserverReturn {
   const { isHydrated } = useHydration()
   const observer = shallowRef<IntersectionObserver>()
   const isPaused = shallowRef(false)
   const isIntersecting = shallowRef(false)
+  const isActive = toRef(() => !!observer.value)
 
   function setup () {
     if (!isHydrated.value || !SUPPORTS_INTERSECTION_OBSERVER || !target.value || isPaused.value) return
@@ -165,12 +198,44 @@ export function useIntersectionObserver (
   onUnmounted(stop)
 
   return {
-    isIntersecting: readonly(isIntersecting),
-    isPaused: readonly(isPaused),
+    isActive: shallowReadonly(isActive),
+    isIntersecting: shallowReadonly(isIntersecting),
+    isPaused: shallowReadonly(isPaused),
     pause,
     resume,
     stop,
   }
+}
+
+export interface UseElementIntersectionReturn {
+  /**
+   * Whether the observer is currently active (created and observing)
+   */
+  readonly isActive: Readonly<Ref<boolean>>
+  /**
+   * Whether the target element is currently intersecting with the viewport
+   */
+  readonly isIntersecting: Readonly<Ref<boolean>>
+  /**
+   * The intersection ratio (0.0 to 1.0) indicating how much of the element is visible
+   */
+  readonly intersectionRatio: Readonly<Ref<number>>
+  /**
+   * Whether the observer is currently paused
+   */
+  readonly isPaused: Readonly<Ref<boolean>>
+  /**
+   * Pause observation (disconnects observer but keeps it alive)
+   */
+  pause: () => void
+  /**
+   * Resume observation
+   */
+  resume: () => void
+  /**
+   * Stop observation and clean up (destroys observer)
+   */
+  stop: () => void
 }
 
 /**
@@ -204,11 +269,11 @@ export function useIntersectionObserver (
 export function useElementIntersection (
   target: Ref<Element | undefined>,
   options: IntersectionObserverOptions = {},
-) {
+): UseElementIntersectionReturn {
   const isIntersecting = shallowRef(false)
   const intersectionRatio = shallowRef(0)
 
-  const { pause: _pause, resume, stop, isPaused } = useIntersectionObserver(
+  const { pause: _pause, resume, stop, isActive, isPaused } = useIntersectionObserver(
     target,
     entries => {
       const entry = entries.at(-1)
@@ -227,8 +292,9 @@ export function useElementIntersection (
   }
 
   return {
-    isIntersecting: readonly(isIntersecting),
-    intersectionRatio: readonly(intersectionRatio),
+    isIntersecting: shallowReadonly(isIntersecting),
+    intersectionRatio: shallowReadonly(intersectionRatio),
+    isActive,
     isPaused,
     pause,
     resume,

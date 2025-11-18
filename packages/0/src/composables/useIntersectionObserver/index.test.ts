@@ -79,6 +79,7 @@ describe('useIntersectionObserver', () => {
     const result = useIntersectionObserver(target, callback)
 
     expect(result).toEqual({
+      isActive: expect.any(Object), // This is a readonly ref
       isIntersecting: expect.any(Object), // This is a readonly ref
       isPaused: expect.any(Object), // This is a readonly ref
       pause: expect.any(Function),
