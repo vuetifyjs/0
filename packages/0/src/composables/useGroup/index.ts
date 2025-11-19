@@ -213,6 +213,6 @@ export function createGroupContext<
 export function useGroup<
   Z extends GroupTicket = GroupTicket,
   E extends GroupContext<Z> = GroupContext<Z>,
-> (namespace: string): E {
+> (namespace = 'v0:group'): E {
   return useContext<E>(namespace)
 }
