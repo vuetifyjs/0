@@ -52,6 +52,9 @@
       "optional": true
     }
   },
+  "dependencies": {
+    "@js-temporal/polyfill": "^0.4.4"
+  },
   "devDependencies": {
     "@vue/test-utils": "catalog:",
     "tsdown": "catalog:",
