@@ -474,6 +474,8 @@ export function useVirtual<T = unknown> (
 
   function findIndex (scrollTop: number) {
     const arr = offsets.value
+    if (arr.length === 0) return 0
+
     let low = 0
     let high = arr.length - 1
 
