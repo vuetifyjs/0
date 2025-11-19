@@ -23,7 +23,7 @@ import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { onScopeDispose } from 'vue'
-import { genId } from '#v0/utilities'
+import { genId, isUndefined } from '#v0/utilities'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
@@ -281,7 +281,7 @@ export function createQueue<
   const timeouts = new Map<ID, ReturnType<typeof setTimeout>>()
 
   function startTimeout (ticket: Z) {
-    if (ticket.timeout === undefined || ticket.timeout === -1 || ticket.isPaused) return
+    if (isUndefined(ticket.timeout) || ticket.timeout < 0 || ticket.isPaused) return
 
     const timeout = setTimeout(() => {
       timeouts.delete(ticket.id)
@@ -340,20 +340,19 @@ export function createQueue<
     if (!ticket || ticket.isPaused) return undefined
 
     clearTimeout(ticket.id)
-    registry.upsert(ticket.id, { isPaused: true } as Partial<Z>)
 
-    return ticket
+    return registry.upsert(ticket.id, { isPaused: true } as Partial<Z>)
   }
 
   function resume (): Z | undefined {
     const ticket = registry.seek('first')
     if (!ticket || ticket.index !== 0 || !ticket.isPaused) return undefined
 
-    registry.upsert(ticket.id, { isPaused: false } as Partial<Z>)
+    const updated = registry.upsert(ticket.id, { isPaused: false } as Partial<Z>)
 
-    startTimeout(ticket)
+    startTimeout(updated)
 
-    return ticket
+    return updated
   }
 
   function clear () {
