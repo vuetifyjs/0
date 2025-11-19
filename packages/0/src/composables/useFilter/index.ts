@@ -45,7 +45,7 @@ function defaultFilter (
 ): boolean {
   const queries = Array.isArray(query) ? query.map(q => String(q).toLowerCase()) : [String(query).toLowerCase()]
 
-  function match (value: any, q: string) {
+  function match (value: unknown, q: string) {
     return String(value).toLowerCase().includes(q)
   }
 

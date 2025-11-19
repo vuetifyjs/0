@@ -53,8 +53,8 @@ export interface StorageOptions {
   prefix?: string
   /** Custom serializer for reading and writing values. Defaults to JSON.parse/stringify */
   serializer?: {
-    read: (value: string) => any
-    write: (value: any) => string
+    read: (value: string) => unknown
+    write: (value: unknown) => string
   }
 }
 

@@ -43,7 +43,7 @@ export interface FeatureTicket extends GroupTicket {
 
 export interface FeatureContext<Z extends FeatureTicket = FeatureTicket> extends GroupContext<Z> {
   /* Get the variation value of a feature, or a fallback if not set */
-  variation: (id: ID, fallback?: any) => any
+  variation: (id: ID, fallback?: unknown) => unknown
 }
 
 export interface FeatureOptions extends RegistryOptions {
@@ -91,7 +91,7 @@ export function createFeatures<
     register({ id, value } as Partial<Z>)
   }
 
-  function variation (id: ID, fallback: any = null) {
+  function variation (id: ID, fallback: unknown = null) {
     const ticket = registry.get(id)
 
     if (!ticket) return fallback

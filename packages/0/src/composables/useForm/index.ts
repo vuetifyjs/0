@@ -37,9 +37,9 @@ import type { ID } from '#v0/types'
 
 export type FormValidationResult = string | true | Promise<string | true>
 
-export type FormValidationRule = (value: any) => FormValidationResult
+export type FormValidationRule = (value: unknown) => FormValidationResult
 
-export type FormValue = Ref<any> | ShallowRef<any>
+export type FormValue = Ref<unknown> | ShallowRef<unknown>
 
 export interface FormTicket extends RegistryTicket {
   validate: (silent?: boolean) => Promise<boolean>
@@ -128,7 +128,7 @@ export function createForm<
       if (ticket.isValid.value === false) return false
       if (ticket.isValid.value === null) return null
     }
-    return hasFields || null
+    return hasFields ? true : null
   })
 
   function reset () {

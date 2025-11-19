@@ -52,12 +52,12 @@ export function toReactive<Z extends object> (
   if (target instanceof Map) {
     const mapProxy = new Proxy(new Map(), {
       get (_, p) {
-        const map = objectRef.value as Map<any, any>
+        const map = objectRef.value as Map<unknown, unknown>
         if (p === 'get') {
-          return (key: any) => unref(map.get(key))
+          return (key: unknown) => unref(map.get(key))
         }
         if (p === 'set') {
-          return (key: any, value: any) => {
+          return (key: unknown, value: unknown) => {
             const existingValue = map.get(key)
             if (isRef(existingValue)) {
               existingValue.value = unref(value)
@@ -68,10 +68,10 @@ export function toReactive<Z extends object> (
           }
         }
         if (p === 'has') {
-          return (key: any) => map.has(key)
+          return (key: unknown) => map.has(key)
         }
         if (p === 'delete') {
-          return (key: any) => map.delete(key)
+          return (key: unknown) => map.delete(key)
         }
         if (p === 'clear') {
           return () => map.clear()
@@ -92,12 +92,12 @@ export function toReactive<Z extends object> (
         if (p === 'entries') {
           return function* () {
             for (const [key, value] of map.entries()) {
-              yield [key, unref(value)] as [any, any]
+              yield [key, unref(value)] as [unknown, unknown]
             }
           }
         }
         if (p === 'forEach') {
-          return (callback: (value: any, key: any, map: Map<any, any>) => void, thisArg?: any) => {
+          return (callback: (value: unknown, key: unknown, map: Map<unknown, unknown>) => void, thisArg?: unknown) => {
             for (const [key, value] of map.entries()) {
               callback.call(thisArg, unref(value), key, mapProxy)
             }
@@ -106,7 +106,7 @@ export function toReactive<Z extends object> (
         if (p === Symbol.iterator) {
           return function* () {
             for (const [key, value] of map.entries()) {
-              yield [key, unref(value)] as [any, any]
+              yield [key, unref(value)] as [unknown, unknown]
             }
           }
         }
@@ -120,18 +120,18 @@ export function toReactive<Z extends object> (
   if (target instanceof Set) {
     const setProxy = new Proxy(new Set(), {
       get (_, p) {
-        const set = objectRef.value as Set<any>
+        const set = objectRef.value as Set<unknown>
         if (p === 'add') {
-          return (value: any) => {
+          return (value: unknown) => {
             set.add(value)
             return setProxy
           }
         }
         if (p === 'has') {
-          return (value: any) => set.has(value)
+          return (value: unknown) => set.has(value)
         }
         if (p === 'delete') {
-          return (value: any) => set.delete(value)
+          return (value: unknown) => set.delete(value)
         }
         if (p === 'clear') {
           return () => set.clear()
@@ -150,12 +150,12 @@ export function toReactive<Z extends object> (
           return function* () {
             for (const value of set.values()) {
               const unreffedValue = unref(value)
-              yield [unreffedValue, unreffedValue] as [any, any]
+              yield [unreffedValue, unreffedValue] as [unknown, unknown]
             }
           }
         }
         if (p === 'forEach') {
-          return (callback: (value: any, value2: any, set: Set<any>) => void, thisArg?: any) => {
+          return (callback: (value: unknown, value2: unknown, set: Set<unknown>) => void, thisArg?: unknown) => {
             for (const value of set) {
               const unreffedValue = unref(value)
               callback.call(thisArg, unreffedValue, unreffedValue, setProxy)
@@ -181,7 +181,7 @@ export function toReactive<Z extends object> (
       return unref(Reflect.get(objectRef.value, p, receiver))
     },
     set (_, p, value) {
-      const currentTarget = objectRef.value as Record<PropertyKey, any>
+      const currentTarget = objectRef.value as Record<PropertyKey, unknown>
       currentTarget[p] = value
       return true
     },
