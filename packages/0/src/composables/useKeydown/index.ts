@@ -17,7 +17,7 @@
 import { useDocumentEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
-import { toRef, toValue } from 'vue'
+import { onScopeDispose, toRef, toValue } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'
@@ -95,6 +95,8 @@ export function useKeydown (handlers: MaybeRefOrGetter<KeyHandler[] | KeyHandler
   }
 
   cleanup = useDocumentEventListener('keydown', onKeydown)
+
+  onScopeDispose(stop)
 
   return {
     isActive,
