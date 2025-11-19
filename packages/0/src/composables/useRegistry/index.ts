@@ -595,7 +595,7 @@ export function useRegistry<
     let valueIsIndex = existing.valueIsIndex
 
     if (hasValue) {
-      if (patch.value === undefined) {
+      if (isUndefined(patch.value)) {
         value = existing.index
         valueIsIndex = true
       } else {

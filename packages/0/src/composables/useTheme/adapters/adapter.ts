@@ -2,6 +2,7 @@
 import type { App, ComputedRef, Ref } from 'vue'
 import type { Colors } from '..'
 import type { ID } from '#v0/types'
+import { isUndefined } from '#v0/utilities'
 
 export interface ThemeAdapterSetupContext {
   colors: ComputedRef<Record<string, Colors>>
@@ -47,7 +48,7 @@ export abstract class ThemeAdapter implements ThemeAdapterInterface {
       css += `[data-theme="${theme}"] {\n${vars}\n}\n`
     }
 
-    if (isDark !== undefined) {
+    if (!isUndefined(isDark)) {
       css += `:root {\n  color-scheme: ${isDark ? 'dark' : 'light'};\n}\n`
     }
 

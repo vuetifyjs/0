@@ -322,7 +322,7 @@ export function createQueue<
   }
 
   function unregister (id?: ID): Z | undefined {
-    const ticket = id === undefined ? registry.seek('first') : registry.get(id)
+    const ticket = isUndefined(id) ? registry.seek('first') : registry.get(id)
     if (!ticket) return undefined
 
     const wasFirst = ticket.index === 0

@@ -13,6 +13,7 @@
 
 // Utilities
 import { inject, provide } from 'vue'
+import { isUndefined } from '#v0/utilities'
 
 // Types
 import type { App, InjectionKey } from 'vue'
@@ -43,7 +44,7 @@ export type ContextKey<Z> = InjectionKey<Z> | string
 export function useContext<Z> (key: ContextKey<Z>, defaultValue?: Z) {
   const context = inject<Z>(key, defaultValue as Z)
 
-  if (context === undefined) {
+  if (isUndefined(context)) {
     throw new Error(`Context "${String(key)}" not found. Ensure it's provided by an ancestor.`)
   }
 

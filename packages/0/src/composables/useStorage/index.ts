@@ -21,6 +21,7 @@ import { createPlugin } from '#v0/composables/createPlugin'
 
 // Utilities
 import { ref, watch } from 'vue'
+import { isNullOrUndefined } from '#v0/utilities'
 
 // Adapters
 import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
@@ -137,7 +138,7 @@ export function createStorage<
     const valueRef = ref<T>(initialValue as T)
 
     const stop = watch(valueRef, newValue => {
-      if (newValue === undefined || newValue === null) {
+      if (isNullOrUndefined(newValue)) {
         adapter?.removeItem(prefixedKey)
       } else {
         adapter?.setItem(prefixedKey, serializer.write(newValue))

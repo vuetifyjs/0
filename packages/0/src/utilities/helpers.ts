@@ -134,12 +134,12 @@ export function debounce<T extends (...args: any[]) => any> (
   let timeoutId: ReturnType<typeof setTimeout> | undefined
 
   function debounced (...args: Parameters<T>) {
-    if (timeoutId !== undefined) clearTimeout(timeoutId)
+    if (!isUndefined(timeoutId)) clearTimeout(timeoutId)
     timeoutId = setTimeout(() => fn(...args), delay)
   }
 
   debounced.clear = () => {
-    if (timeoutId !== undefined) clearTimeout(timeoutId)
+    if (!isUndefined(timeoutId)) clearTimeout(timeoutId)
   }
 
   debounced.immediate = (...args: Parameters<T>) => {

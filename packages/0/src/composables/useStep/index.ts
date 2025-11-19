@@ -22,6 +22,7 @@ import { createSingle } from '#v0/composables/useSingle'
 
 // Utilities
 import { toValue } from 'vue'
+import { isUndefined } from '#v0/utilities'
 
 // Types
 import type { App } from 'vue'
@@ -175,7 +176,7 @@ export function createStep<
 
     let id = registry.lookup(index)
 
-    while (id !== undefined && toValue(registry.get(id)?.disabled) && hops < length) {
+    while (!isUndefined(id) && toValue(registry.get(id)?.disabled) && hops < length) {
       index = circular
         ? wrapped(length, index + direction)
         : index + direction
@@ -186,7 +187,7 @@ export function createStep<
       hops++
     }
 
-    if (id === undefined || hops === length) return
+    if (isUndefined(id) || hops === length) return
 
     registry.selectedIds.clear()
     registry.select(id)

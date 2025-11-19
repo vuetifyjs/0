@@ -15,7 +15,7 @@
 
 // Utilities
 import { watch, toValue, onScopeDispose } from 'vue'
-import { isFunction, isArray } from '#v0/utilities'
+import { isFunction, isArray, isUndefined } from '#v0/utilities'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -122,8 +122,8 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
     } else {
       const next = targetIds.values().next().value
       const last = currentIds.values().next().value
-      if (last !== undefined) registry.unselect(last)
-      if (next !== undefined) registry.select(next)
+      if (!isUndefined(last)) registry.unselect(last)
+      if (!isUndefined(next)) registry.select(next)
     }
 
     registryWatch.resume()

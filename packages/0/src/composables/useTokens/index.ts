@@ -25,7 +25,7 @@ import { useRegistry } from '#v0/composables/useRegistry'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { isObject, isString } from '#v0/utilities'
+import { isObject, isString, isUndefined } from '#v0/utilities'
 
 // Types
 import type { RegistryTicket, RegistryContext, RegistryOptions, RegistryContextOptions } from '#v0/composables/useRegistry'
@@ -177,7 +177,7 @@ export function createTokens<
     const cacheKey = isString(token) ? token : JSON.stringify(token)
     const cached = cache.get(cacheKey)
 
-    if (cached !== undefined) return cached
+    if (!isUndefined(cached)) return cached
 
     const reference: unknown = isTokenAlias(token) ? token.$value : token
     const isAliasReference = isString(reference) && isAlias(reference)
@@ -201,7 +201,7 @@ export function createTokens<
         const prefix = parts.slice(0, i).join('.')
         const suffix = parts.slice(i)
         const candidate = registry.get(prefix)
-        if (candidate?.value !== undefined) {
+        if (!isUndefined(candidate?.value)) {
           found = candidate
           segments = suffix
           break
@@ -209,7 +209,7 @@ export function createTokens<
       }
     }
 
-    if (found?.value === undefined) {
+    if (isUndefined(found?.value)) {
       // Only warn if the original token was an alias (wrapped in {})
       if (isAliasReference) {
         logger.warn(`Alias not found for "${String(reference)}"`)
@@ -235,7 +235,7 @@ export function createTokens<
         if (isTokenAlias(current)) current = current.$value
       }
 
-      if (current === undefined) {
+      if (isUndefined(current)) {
         logger.warn(`Path not found inside "${clean}": ${segments.join('.')}`)
         cache.set(cacheKey, undefined)
         return undefined
