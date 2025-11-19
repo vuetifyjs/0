@@ -190,7 +190,7 @@ describe('useForm edge cases', () => {
       form.register({
         id: 'field1',
         value: 'test',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
 
       expect(form.isValid.value).toBe(null)
@@ -201,12 +201,12 @@ describe('useForm edge cases', () => {
       const field1 = form.register({
         id: 'field1',
         value: 'valid',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
       const field2 = form.register({
         id: 'field2',
         value: 'also valid',
-        rules: [v => v.length > 3 || 'Min 3 chars'],
+        rules: [v => (v as string).length > 3 || 'Min 3 chars'],
       })
 
       await field1.validate()
@@ -220,12 +220,12 @@ describe('useForm edge cases', () => {
       const field1 = form.register({
         id: 'field1',
         value: 'valid',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
       const field2 = form.register({
         id: 'field2',
         value: '',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
 
       await field1.validate()
@@ -239,12 +239,12 @@ describe('useForm edge cases', () => {
       const field1 = form.register({
         id: 'field1',
         value: 'valid',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
       form.register({
         id: 'field2',
         value: 'not validated',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
 
       await field1.validate()
@@ -313,9 +313,9 @@ describe('useForm edge cases', () => {
   describe('async validation', () => {
     it('should handle async validation rules', async () => {
       const form = createForm()
-      async function asyncRule (v: string) {
+      async function asyncRule (v: unknown) {
         await new Promise(resolve => setTimeout(resolve, 10))
-        return v.length > 5 || 'Must be longer than 5 characters'
+        return (v as string).length > 5 || 'Must be longer than 5 characters'
       }
 
       const field = form.register({
@@ -332,12 +332,12 @@ describe('useForm edge cases', () => {
 
     it('should handle mixed sync and async rules', async () => {
       const form = createForm()
-      function syncRule (v: string) {
-        return v.length > 0 || 'Required'
+      function syncRule (v: unknown) {
+        return (v as string).length > 0 || 'Required'
       }
-      async function asyncRule (v: string) {
+      async function asyncRule (v: unknown) {
         await new Promise(resolve => setTimeout(resolve, 10))
-        return v.length > 5 || 'Must be longer than 5 characters'
+        return (v as string).length > 5 || 'Must be longer than 5 characters'
       }
 
       const field = form.register({
@@ -354,7 +354,7 @@ describe('useForm edge cases', () => {
 
     it('should track isValidating state during async validation', async () => {
       const form = createForm()
-      async function asyncRule (_v: string) {
+      async function asyncRule (_v: unknown) {
         await new Promise(resolve => setTimeout(resolve, 50))
         return true as const
       }
@@ -384,7 +384,7 @@ describe('useForm edge cases', () => {
       const field = form.register({
         id: 'test',
         value: '',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
 
       const result = await field.validate(true)
@@ -399,7 +399,7 @@ describe('useForm edge cases', () => {
       const field = form.register({
         id: 'test',
         value: 'valid',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
 
       const result = await field.validate(true)
@@ -416,12 +416,12 @@ describe('useForm edge cases', () => {
       const field1 = form.register({
         id: 'field1',
         value: 'initial1',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
       const field2 = form.register({
         id: 'field2',
         value: 'initial2',
-        rules: [v => v.length > 0 || 'Required'],
+        rules: [v => (v as string).length > 0 || 'Required'],
       })
 
       field1.value = 'changed1'
@@ -449,9 +449,9 @@ describe('useForm edge cases', () => {
         id: 'test',
         value: 'ab',
         rules: [
-          v => v.length > 3 || 'Must be longer than 3 characters',
-          v => v.length < 10 || 'Must be shorter than 10 characters',
-          v => /^[a-z]+$/.test(v) || 'Must contain only lowercase letters',
+          v => (v as string).length > 3 || 'Must be longer than 3 characters',
+          v => (v as string).length < 10 || 'Must be shorter than 10 characters',
+          v => /^[a-z]+$/.test(v as string) || 'Must contain only lowercase letters',
         ],
       })
 
@@ -467,9 +467,9 @@ describe('useForm edge cases', () => {
         id: 'test',
         value: 'valid',
         rules: [
-          v => v.length > 3 || 'Must be longer than 3 characters',
-          v => v.length < 10 || 'Must be shorter than 10 characters',
-          v => /^[a-z]+$/.test(v) || 'Must contain only lowercase letters',
+          v => (v as string).length > 3 || 'Must be longer than 3 characters',
+          v => (v as string).length < 10 || 'Must be shorter than 10 characters',
+          v => /^[a-z]+$/.test(v as string) || 'Must contain only lowercase letters',
         ],
       })
 
@@ -486,7 +486,7 @@ describe('useForm edge cases', () => {
       const field = form.register({
         id: 'test',
         value: 'initial',
-        rules: [v => v.length > 10 || 'Must be longer than 10 characters'],
+        rules: [v => (v as string).length > 10 || 'Must be longer than 10 characters'],
       })
 
       field.value = 'short'
@@ -502,7 +502,7 @@ describe('useForm edge cases', () => {
       const field = form.register({
         id: 'test',
         value: 'initial',
-        rules: [v => v.length > 10 || 'Must be longer than 10 characters'],
+        rules: [v => (v as string).length > 10 || 'Must be longer than 10 characters'],
       })
 
       field.value = 'short'
