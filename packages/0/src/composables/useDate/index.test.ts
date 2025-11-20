@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest'
 import { Temporal } from '@js-temporal/polyfill'
-import { createDate, defaultDate, TemporalAdapter } from './index'
+import { createDate, defaultDate, TemporalAdapter, TemporalDateTimeAdapter } from './index'
 
 describe('TemporalAdapter', () => {
   const adapter = new TemporalAdapter({ locale: 'en-US' })
@@ -402,5 +402,171 @@ describe('defaultDate', () => {
 
     const tomorrow = defaultDate.addDays(today!, 1)
     expect(defaultDate.isAfter(tomorrow, today!)).toBe(true)
+  })
+})
+
+describe('TemporalDateTimeAdapter', () => {
+  const adapter = new TemporalDateTimeAdapter({ locale: 'en-US' })
+
+  describe('time support', () => {
+    it('should create current datetime when called with no arguments', () => {
+      const result = adapter.date()
+      expect(result).toBeInstanceOf(Temporal.PlainDateTime)
+    })
+
+    it('should handle Temporal.PlainDateTime instances', () => {
+      const dt = Temporal.PlainDateTime.from('2023-11-30T14:30:00')
+      const result = adapter.date(dt)
+      expect(result).toBe(dt)
+    })
+
+    it('should convert PlainDate to PlainDateTime', () => {
+      const date = Temporal.PlainDate.from('2023-11-30')
+      const result = adapter.date(date)
+      expect(result).toBeInstanceOf(Temporal.PlainDateTime)
+      expect(adapter.getHours(result!)).toBe(0)
+      expect(adapter.getMinutes(result!)).toBe(0)
+    })
+
+    it('should preserve time from JavaScript Date', () => {
+      const jsDate = new Date(2023, 10, 30, 14, 30, 45)
+      const result = adapter.date(jsDate)
+      expect(adapter.getHours(result!)).toBe(14)
+      expect(adapter.getMinutes(result!)).toBe(30)
+    })
+
+    it('should get and set hours', () => {
+      const dt = Temporal.PlainDateTime.from('2023-11-30T14:30:00')
+      expect(adapter.getHours(dt)).toBe(14)
+
+      const updated = adapter.setHours(dt, 20)
+      expect(adapter.getHours(updated)).toBe(20)
+    })
+
+    it('should get and set minutes', () => {
+      const dt = Temporal.PlainDateTime.from('2023-11-30T14:30:00')
+      expect(adapter.getMinutes(dt)).toBe(30)
+
+      const updated = adapter.setMinutes(dt, 45)
+      expect(adapter.getMinutes(updated)).toBe(45)
+    })
+
+    it('should add hours', () => {
+      const dt = Temporal.PlainDateTime.from('2023-11-30T14:30:00')
+      const result = adapter.addHours(dt, 5)
+      expect(adapter.getHours(result)).toBe(19)
+    })
+
+    it('should add hours across day boundary', () => {
+      const dt = Temporal.PlainDateTime.from('2023-11-30T22:00:00')
+      const result = adapter.addHours(dt, 5)
+      expect(adapter.getDate(result)).toBe(1) // Dec 1
+      expect(adapter.getHours(result)).toBe(3)
+    })
+
+    it('should add minutes', () => {
+      const dt = Temporal.PlainDateTime.from('2023-11-30T14:30:00')
+      const result = adapter.addMinutes(dt, 45)
+      expect(adapter.getHours(result)).toBe(15)
+      expect(adapter.getMinutes(result)).toBe(15)
+    })
+  })
+
+  describe('day boundaries with time', () => {
+    const dt = Temporal.PlainDateTime.from('2023-11-15T14:30:45')
+
+    it('should return start of day at midnight', () => {
+      const result = adapter.startOfDay(dt)
+      expect(adapter.getHours(result)).toBe(0)
+      expect(adapter.getMinutes(result)).toBe(0)
+    })
+
+    it('should return end of day at 23:59:59.999', () => {
+      const result = adapter.endOfDay(dt)
+      expect(adapter.getHours(result)).toBe(23)
+      expect(adapter.getMinutes(result)).toBe(59)
+    })
+
+    it('should return start of week at midnight', () => {
+      const result = adapter.startOfWeek(dt, 0)
+      expect(adapter.getHours(result)).toBe(0)
+      expect(adapter.getMinutes(result)).toBe(0)
+    })
+  })
+
+  describe('comparison with time', () => {
+    it('should compare datetimes with time precision', () => {
+      const dt1 = Temporal.PlainDateTime.from('2023-11-30T14:30:00')
+      const dt2 = Temporal.PlainDateTime.from('2023-11-30T14:31:00')
+
+      expect(adapter.isBefore(dt1, dt2)).toBe(true)
+      expect(adapter.isAfter(dt2, dt1)).toBe(true)
+      expect(adapter.isEqual(dt1, dt2)).toBe(false)
+    })
+
+    it('should check same day even with different times', () => {
+      const morning = Temporal.PlainDateTime.from('2023-11-30T08:00:00')
+      const evening = Temporal.PlainDateTime.from('2023-11-30T20:00:00')
+
+      expect(adapter.isSameDay(morning, evening)).toBe(true)
+    })
+
+    it('should check after day ignoring time', () => {
+      const dt1 = Temporal.PlainDateTime.from('2023-11-30T23:59:59')
+      const dt2 = Temporal.PlainDateTime.from('2023-12-01T00:00:00')
+
+      expect(adapter.isAfterDay(dt2, dt1)).toBe(true)
+      expect(adapter.isAfterDay(dt1, dt2)).toBe(false)
+    })
+  })
+
+  describe('time formatting', () => {
+    const dt = Temporal.PlainDateTime.from('2023-11-30T14:30:00')
+
+    it('should format with time formats', () => {
+      const result = adapter.format(dt, 'fullTime24h')
+      expect(result).toBeTruthy()
+      expect(typeof result).toBe('string')
+    })
+
+    it('should format full datetime', () => {
+      const result = adapter.format(dt, 'fullDateTime24h')
+      expect(result).toBeTruthy()
+      expect(typeof result).toBe('string')
+    })
+  })
+
+  describe('diff with time', () => {
+    it('should calculate diff in hours', () => {
+      const dt1 = Temporal.PlainDateTime.from('2023-11-30T10:00:00')
+      const dt2 = Temporal.PlainDateTime.from('2023-11-30T14:00:00')
+
+      const diff = adapter.getDiff(dt2, dt1, 'hours')
+      expect(diff).toBe(4)
+    })
+
+    it('should calculate diff in minutes', () => {
+      const dt1 = Temporal.PlainDateTime.from('2023-11-30T10:00:00')
+      const dt2 = Temporal.PlainDateTime.from('2023-11-30T10:30:00')
+
+      const diff = adapter.getDiff(dt2, dt1, 'minutes')
+      expect(diff).toBe(30)
+    })
+  })
+
+  describe('ISO parsing with time', () => {
+    it('should parse ISO datetime string', () => {
+      const result = adapter.parseISO('2023-11-30T14:30:00')
+      expect(result).toBeInstanceOf(Temporal.PlainDateTime)
+      expect(adapter.getHours(result)).toBe(14)
+      expect(adapter.getMinutes(result)).toBe(30)
+    })
+
+    it('should parse ISO date string and set midnight', () => {
+      const result = adapter.parseISO('2023-11-30')
+      expect(result).toBeInstanceOf(Temporal.PlainDateTime)
+      expect(adapter.getHours(result)).toBe(0)
+      expect(adapter.getMinutes(result)).toBe(0)
+    })
   })
 })

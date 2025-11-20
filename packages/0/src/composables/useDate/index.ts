@@ -39,6 +39,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Adapters
 import { TemporalAdapter } from './adapters/temporal'
+import { TemporalDateTimeAdapter } from './adapters/temporal-datetime'
 
 // Types
 import type { Temporal } from '@js-temporal/polyfill'
@@ -181,4 +182,4 @@ export { useDate, provideDate, defaultDate }
 export type { DateAdapter, DateAdapterOptions, DateContext, DateOptions }
 
 // Export adapters
-export { TemporalAdapter }
+export { TemporalAdapter, TemporalDateTimeAdapter }
