@@ -633,7 +633,6 @@ export function useRegistry<
         valueIsIndex = false
       }
 
-      // Track indexDependentCount changes
       if (valueIsIndex !== existing.valueIsIndex) {
         if (valueIsIndex) {
           indexDependentCount++
@@ -665,7 +664,6 @@ export function useRegistry<
   }
 
   function browse (value: unknown) {
-    // If values depend on indexes and we're dirty, must reindex first
     if (indexDependentCount > 0 && needsReindex) {
       reindex()
     }
@@ -813,7 +811,6 @@ export function useRegistry<
     const value = valueIsUndefined ? index : registration.value
     const valueIsIndex = valueIsUndefined
 
-    // Track tickets that depend on index for their value
     if (valueIsIndex) {
       indexDependentCount++
     }
@@ -868,7 +865,6 @@ export function useRegistry<
   ): Z | undefined {
     if (collection.size === 0) return undefined
 
-    // Reindex if dirty since seek depends on correct ordering
     if (needsReindex) reindex()
 
     const tickets = values()
