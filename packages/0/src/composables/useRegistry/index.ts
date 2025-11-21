@@ -581,9 +581,9 @@ export function useRegistry<
 
   const events = options?.events ?? false
 
-  // Performance optimization: track if any tickets depend on index for their value
   let indexDependentCount = 0
   let needsReindex = false
+  let minDirtyIndex = Infinity
 
   function emit (event: string, data: unknown = undefined) {
     if (!events) return
@@ -747,6 +747,7 @@ export function useRegistry<
     invalidate()
     indexDependentCount = 0
     needsReindex = false
+    minDirtyIndex = Infinity
     emit('clear:registry')
   }
 
@@ -755,27 +756,45 @@ export function useRegistry<
   }
 
   function reindex () {
-    if (catalog.size > 0) catalog.clear()
-    if (directory.size > 0) directory.clear()
+    const startIndex = minDirtyIndex === Infinity ? 0 : minDirtyIndex
+
+    if (startIndex === 0) {
+      if (catalog.size > 0) catalog.clear()
+      if (directory.size > 0) directory.clear()
+    }
+
     invalidate()
 
     let index = 0
 
-    // Use iterator directly instead of values() to avoid unnecessary array allocation
     for (const ticket of collection.values()) {
-      if (ticket.index !== index) {
-        ticket.index = index
-
-        if (ticket.valueIsIndex) ticket.value = index
+      if (index < startIndex) {
+        index++
+        continue
       }
 
+      if (startIndex > 0) {
+        directory.delete(ticket.index)
+      }
+
+      if (ticket.valueIsIndex) {
+        if (startIndex > 0) {
+          unassign(ticket.value, ticket.id)
+        }
+        ticket.value = index
+        assign(ticket.value, ticket.id)
+      } else if (startIndex === 0) {
+        assign(ticket.value, ticket.id)
+      }
+
+      ticket.index = index
       directory.set(index, ticket.id)
-      assign(ticket.value, ticket.id)
 
       index++
     }
 
     needsReindex = false
+    minDirtyIndex = Infinity
     emit('reindex:registry')
   }
 
@@ -822,7 +841,6 @@ export function useRegistry<
 
     if (!ticket) return
 
-    // Track index-dependent count
     if (ticket.valueIsIndex) {
       indexDependentCount--
     }
@@ -834,10 +852,11 @@ export function useRegistry<
     invalidate()
     emit('unregister:ticket', ticket)
 
-    // Defer reindexing unless values depend on indexes and we're not removing from the end
     if (indexDependentCount > 0 && ticket.index < collection.size) {
+      minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
       reindex()
     } else {
+      minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
       needsReindex = true
     }
   }
@@ -892,52 +911,7 @@ export function useRegistry<
     reindex,
     seek,
     onboard (registrations: Partial<Z>[]) {
-      const tickets: Z[] = []
-
-      for (const registration of registrations) {
-        const id = registration.id ?? genId()
-
-        if (has(id)) {
-          logger.warn(`Ticket with id "${id}" already exists in the registry. Skipping registration.`)
-          tickets.push(get(id) as Z)
-          continue
-        }
-
-        const size = collection.size
-        const valueIsUndefined = isUndefined(registration.value)
-        const index = registration.index ?? size
-        const value = valueIsUndefined ? index : registration.value
-        const valueIsIndex = valueIsUndefined
-
-        if (valueIsIndex) {
-          indexDependentCount++
-        }
-
-        const ticket = {
-          ...registration,
-          id,
-          index,
-          value,
-          valueIsIndex,
-        } as Z
-
-        collection.set(ticket.id, ticket)
-        directory.set(ticket.index, ticket.id)
-        assign(ticket.value, ticket.id)
-        tickets.push(ticket)
-      }
-
-      // Single invalidation for all registrations
-      invalidate()
-
-      // Emit events for each ticket
-      if (events) {
-        for (const ticket of tickets) {
-          emit('register:ticket', ticket)
-        }
-      }
-
-      return tickets
+      return registrations.map(registration => register(registration))
     },
     offboard (ids: ID[]) {
       const removed: Z[] = []
@@ -950,6 +924,7 @@ export function useRegistry<
           indexDependentCount--
         }
 
+        minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
         collection.delete(ticket.id)
         directory.delete(ticket.index)
         unassign(ticket.value, ticket.id)
@@ -958,17 +933,14 @@ export function useRegistry<
 
       if (removed.length === 0) return
 
-      // Single invalidation for all unregistrations
       invalidate()
 
-      // Emit events for each ticket
       if (events) {
         for (const ticket of removed) {
           emit('unregister:ticket', ticket)
         }
       }
 
-      // Defer reindexing - will be done on next lookup/seek if needed
       needsReindex = true
     },
     get size () {
