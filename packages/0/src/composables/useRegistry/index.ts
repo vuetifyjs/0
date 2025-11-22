@@ -858,6 +858,37 @@ export function useRegistry<
     }
   }
 
+  function offboard (ids: ID[]) {
+    const removed: Z[] = []
+
+    for (const id of ids) {
+      const ticket = collection.get(id)
+      if (!ticket) continue
+
+      if (ticket.valueIsIndex) {
+        indexDependentCount--
+      }
+
+      minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
+      collection.delete(ticket.id)
+      directory.delete(ticket.index)
+      unassign(ticket.value, ticket.id)
+      removed.push(ticket)
+    }
+
+    if (removed.length === 0) return
+
+    invalidate()
+
+    if (events) {
+      for (const ticket of removed) {
+        emit('unregister:ticket', ticket)
+      }
+    }
+
+    needsReindex = true
+  }
+
   function seek (
     direction: 'first' | 'last' = 'first',
     from?: number,
@@ -909,36 +940,7 @@ export function useRegistry<
     onboard (registrations: Partial<Z>[]) {
       return registrations.map(registration => register(registration))
     },
-    offboard (ids: ID[]) {
-      const removed: Z[] = []
-
-      for (const id of ids) {
-        const ticket = collection.get(id)
-        if (!ticket) continue
-
-        if (ticket.valueIsIndex) {
-          indexDependentCount--
-        }
-
-        minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
-        collection.delete(ticket.id)
-        directory.delete(ticket.index)
-        unassign(ticket.value, ticket.id)
-        removed.push(ticket)
-      }
-
-      if (removed.length === 0) return
-
-      invalidate()
-
-      if (events) {
-        for (const ticket of removed) {
-          emit('unregister:ticket', ticket)
-        }
-      }
-
-      needsReindex = true
-    },
+    offboard,
     get size () {
       return collection.size
     },
