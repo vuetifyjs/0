@@ -65,6 +65,7 @@ console.log(registry.size) // 3
     emit: (event: string, data: any) => void
     dispose: () => void
     onboard: (registrations: Partial<Z>[]) => Z[]
+    offboard: (ids: ID[]) => void
     size: number
   }
 
@@ -93,6 +94,7 @@ console.log(registry.size) // 3
   - `emit(event: string, data: any)`: Emits an event with the provided data, triggering all registered listeners for that event.
   - `dispose()`: Resets the collection and clears all listeners. Useful to call during onScopeDispose to clean up resources.
   - `onboard(registrations: Partial<Z>[])`: Registers multiple items in a single call, returning an array of tickets.
+  - `offboard(ids: ID[])`: Unregisters multiple items by their IDs in a single call.
   - `size`: Returns the number of registered items in the registry.
 
 - **Options**
@@ -375,6 +377,34 @@ console.log(registry.size) // 3
 
   console.log(tickets.length) // 3
   console.log(registry.size) // 2 (third reused existing)
+  ```
+
+### `offboard`
+
+- **Type**
+  ```ts
+  function offboard(ids: ID[]): void
+  ```
+
+- **Details**
+  Unregisters multiple items by their IDs in a single call. This is useful for batch removal operations and is more efficient than calling `unregister` multiple times. If an ID does not exist, it is silently skipped. Emits an `unregister:ticket` event for each removed ticket if events are enabled.
+
+- **Example**
+  ```ts
+  const registry = useRegistry()
+
+  registry.onboard([
+    { id: 'a', value: 'Apple' },
+    { id: 'b', value: 'Banana' },
+    { id: 'c', value: 'Cherry' },
+  ])
+
+  console.log(registry.size) // 3
+
+  registry.offboard(['a', 'c'])
+
+  console.log(registry.size) // 1
+  console.log(registry.get('b')?.value) // 'Banana'
   ```
 
 ### `reindex`
