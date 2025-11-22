@@ -2,7 +2,7 @@
  * @module useValidation
  *
  * @remarks
- * Single field validation composable with async rule support.
+ * Standalone field validation composable with async rule support.
  *
  * Key features:
  * - Sync and async validation rules
@@ -11,17 +11,17 @@
  * - isPristine tracking
  * - Silent validation mode
  * - Reactive value getter/setter
- * - Auto-registration with parent form context
  *
- * Can be used standalone or as part of useForm.
+ * Use this for standalone validation outside of forms.
+ * For form-integrated validation, use useForm from createFormContext.
  */
 
 // Utilities
-import { inject, onUnmounted, shallowRef, toValue } from 'vue'
+import { shallowRef, toValue } from 'vue'
 import { isString } from '#v0/utilities'
 
 // Types
-import type { InjectionKey, ShallowRef } from 'vue'
+import type { ShallowRef } from 'vue'
 import type { ID } from '#v0/types'
 
 export type ValidationResult = string | true | Promise<string | true>
@@ -50,20 +50,6 @@ export interface ValidationTicket {
   isValidating: ShallowRef<boolean>
 }
 
-/**
- * Form registration context for auto-registering validation fields.
- */
-export interface FormRegistrationContext {
-  register: (ticket: ValidationTicket) => void
-  unregister: (id: ID) => void
-  validateOn: string
-}
-
-/**
- * Injection key for form registration context.
- */
-export const FORM_REGISTRATION_KEY: InjectionKey<FormRegistrationContext> = Symbol('v0:form-registration')
-
 // Generate unique IDs for validation tickets
 let validationId = 0
 function generateId (): ID {
@@ -71,10 +57,14 @@ function generateId (): ID {
 }
 
 /**
- * Creates a single field validation instance.
+ * Creates a standalone field validation instance.
  *
  * @param options The options for the validation instance.
  * @returns A validation ticket with reactive state and methods.
+ *
+ * @remarks
+ * This is for standalone validation outside of forms.
+ * For form-integrated fields, use createFormContext and its useForm function.
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-validation
  *
@@ -105,13 +95,8 @@ export function useValidation (options: ValidationOptions = {}): ValidationTicke
   const errors = shallowRef<string[]>([])
   const isValidating = shallowRef(false)
   const initialValue = model.value
+  const validateOn = options.validateOn || 'submit'
   const disabled = options.disabled || false
-
-  // Inject form registration context if available
-  const formContext = inject(FORM_REGISTRATION_KEY, null)
-
-  // Use form's validateOn if not explicitly set, fallback to 'submit'
-  const validateOn = options.validateOn || formContext?.validateOn || 'submit'
 
   const isPristine = shallowRef(true)
   const isValid = shallowRef<boolean | null>(null)
@@ -178,16 +163,6 @@ export function useValidation (options: ValidationOptions = {}): ValidationTicke
         validate()
       }
     },
-  }
-
-  // Register with parent form if context exists
-  if (formContext) {
-    formContext.register(ticket)
-
-    // Unregister on component unmount
-    onUnmounted(() => {
-      formContext.unregister(id)
-    })
   }
 
   return ticket
