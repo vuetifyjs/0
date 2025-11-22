@@ -2,17 +2,15 @@
  * @module useForm
  *
  * @remarks
- * Form validation composable with async rule support and multiple validation modes.
+ * Form orchestration composable for managing multiple validated fields.
  *
  * Key features:
- * - Sync and async validation rules
- * - Multiple validation modes (submit, change, combined)
- * - Tri-state isValid (null/true/false)
- * - isPristine tracking
- * - Silent validation mode
+ * - Manages multiple validation fields via useRegistry
  * - Form-level validation and reset
+ * - Aggregate validation state
+ * - Per-field or form-level validation modes
  *
- * Each field is registered with validation rules and tracks its own state independently.
+ * Builds on useValidation for individual field logic.
  */
 
 // Factories
@@ -21,10 +19,10 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
+import { useValidation } from '#v0/composables/useValidation'
 
 // Utilities
-import { computed, shallowRef, toValue } from 'vue'
-import { isString } from '#v0/utilities'
+import { computed } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -32,12 +30,13 @@ import { toArray } from '#v0/composables/toArray'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { ValidationRule } from '#v0/composables/useValidation'
 import type { ComputedRef, Ref, ShallowRef, App } from 'vue'
 import type { ID } from '#v0/types'
 
 export type FormValidationResult = string | true | Promise<string | true>
 
-export type FormValidationRule = (value: any) => FormValidationResult
+export type FormValidationRule = ValidationRule
 
 export type FormValue = Ref<any> | ShallowRef<any>
 
@@ -156,72 +155,36 @@ export function createForm<
   }
 
   function register (registration: Partial<Z>): Z {
-    const model = shallowRef(registration.value == null ? '' : toValue(registration.value))
-    const rules = registration.rules || []
-    const errors = shallowRef<string[]>([])
-    const isValidating = shallowRef(false)
-    const initialValue = model.value
-    const triggers = registration.validateOn || validateOn
-
-    const isPristine = shallowRef(true)
-    const isValid = shallowRef<boolean | null>(null)
-
-    function _validatesOn (event: 'submit' | 'change'): boolean {
-      return parse(triggers).includes(event)
-    }
-
-    function _reset () {
-      model.value = initialValue
-      errors.value = []
-      isPristine.value = true
-      isValid.value = null
-    }
-
-    async function validate (silent = false): Promise<boolean> {
-      if (rules.length === 0) return isValid.value = true
-
-      isValidating.value = true
-      try {
-        const results = await Promise.all(rules.map(rule => rule(model.value)))
-        const errorMessages = results.filter(result => isString(result)) as string[]
-
-        if (!silent) {
-          errors.value = errorMessages
-          isValid.value = errorMessages.length === 0
-          isPristine.value = toValue(model) === initialValue
-        }
-
-        return errorMessages.length === 0
-      } finally {
-        isValidating.value = false
-      }
-    }
+    // Use useValidation for the field validation logic
+    const validation = useValidation({
+      value: registration.value,
+      rules: registration.rules,
+      validateOn: registration.validateOn || validateOn,
+      disabled: registration.disabled,
+    })
 
     const item: Partial<Z> = {
       ...registration,
-      rules,
-      errors,
-      disabled: registration.disabled || false,
-      validateOn: triggers,
-      isValidating,
-      isPristine,
-      isValid,
-      reset: _reset,
-      validate,
+      rules: validation.rules,
+      errors: validation.errors,
+      disabled: validation.disabled,
+      validateOn: validation.validateOn,
+      isValidating: validation.isValidating,
+      isPristine: validation.isPristine,
+      isValid: validation.isValid,
+      reset: validation.reset,
+      validate: validation.validate,
     }
 
     const ticket = registry.register(item) as Z
 
+    // Copy the value getter/setter from validation to the ticket
     Object.defineProperty(ticket, 'value', {
       get () {
-        return model.value
+        return validation.value
       },
       set (val) {
-        model.value = val
-        isPristine.value = val === initialValue
-        isValid.value = null
-
-        if (_validatesOn('change')) validate()
+        validation.value = val
       },
       enumerable: true,
       configurable: true,
