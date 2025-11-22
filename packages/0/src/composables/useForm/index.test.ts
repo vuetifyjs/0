@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { nextTick } from 'vue'
-import { createForm } from './index'
+import { nextTick, defineComponent, h } from 'vue'
+import { mount } from '@vue/test-utils'
+import { createForm, provideForm } from './index'
+import { useValidation } from '#v0/composables/useValidation'
 
 describe('useForm validateOn functionality', () => {
   it('should default to submit validation only', () => {
@@ -565,5 +567,269 @@ describe('useForm edge cases', () => {
 
       expect(field.disabled).toBe(false)
     })
+  })
+})
+
+describe('provideForm and useValidation auto-registration', () => {
+  it('should auto-register useValidation with parent form', async () => {
+    let form: ReturnType<typeof provideForm>
+    let validation: ReturnType<typeof useValidation>
+
+    const Parent = defineComponent({
+      setup () {
+        form = provideForm({ validateOn: 'submit' })
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        validation = useValidation({
+          value: '',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    // Form should have one registered field
+    expect(form!.size).toBe(1)
+
+    // Submit should validate the auto-registered field
+    const result = await form!.submit()
+    expect(result).toBe(false)
+    expect(validation!.errors.value).toEqual(['Required'])
+  })
+
+  it('should unregister useValidation when component unmounts', async () => {
+    let form: ReturnType<typeof provideForm>
+
+    const Child = defineComponent({
+      setup () {
+        useValidation({
+          value: 'test',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    const Parent = defineComponent({
+      props: ['showChild'],
+      setup (props) {
+        form = provideForm()
+        return () => props.showChild ? h(Child) : null
+      },
+    })
+
+    const wrapper = mount(Parent, {
+      props: { showChild: true },
+    })
+
+    expect(form!.size).toBe(1)
+
+    // Unmount child
+    await wrapper.setProps({ showChild: false })
+    await nextTick()
+
+    expect(form!.size).toBe(0)
+  })
+
+  it('should validate all auto-registered fields on submit', async () => {
+    let form: ReturnType<typeof provideForm>
+
+    const Parent = defineComponent({
+      setup () {
+        form = provideForm({ validateOn: 'submit' })
+        return () => h('div', [h(ChildA), h(ChildB)])
+      },
+    })
+
+    const ChildA = defineComponent({
+      setup () {
+        useValidation({
+          id: 'field-a',
+          value: 'valid',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    const ChildB = defineComponent({
+      setup () {
+        useValidation({
+          id: 'field-b',
+          value: '',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    expect(form!.size).toBe(2)
+
+    const result = await form!.submit()
+    expect(result).toBe(false) // One field is invalid
+    expect(form!.isValid.value).toBe(false)
+  })
+
+  it('should reset all auto-registered fields', async () => {
+    let form: ReturnType<typeof provideForm>
+    let validation: ReturnType<typeof useValidation>
+
+    const Parent = defineComponent({
+      setup () {
+        form = provideForm()
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        validation = useValidation({
+          value: 'initial',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    // Change value and validate
+    validation!.value = 'changed'
+    await validation!.validate()
+
+    expect(validation!.value).toBe('changed')
+    expect(validation!.isPristine.value).toBe(false)
+
+    // Reset form
+    form!.reset()
+
+    expect(validation!.value).toBe('initial')
+    expect(validation!.isPristine.value).toBe(true)
+    expect(validation!.isValid.value).toBe(null)
+  })
+
+  it('should inherit validateOn from parent form', () => {
+    let validation: ReturnType<typeof useValidation>
+
+    const Parent = defineComponent({
+      setup () {
+        provideForm({ validateOn: 'change' })
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        validation = useValidation({
+          value: 'test',
+          rules: [],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    expect(validation!.validateOn).toBe('change')
+  })
+
+  it('should allow field-level validateOn override', () => {
+    let validation: ReturnType<typeof useValidation>
+
+    const Parent = defineComponent({
+      setup () {
+        provideForm({ validateOn: 'submit' })
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        validation = useValidation({
+          value: 'test',
+          validateOn: 'change',
+          rules: [],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    expect(validation!.validateOn).toBe('change')
+  })
+
+  it('should work with deeply nested components', async () => {
+    let form: ReturnType<typeof provideForm>
+    let validation: ReturnType<typeof useValidation>
+
+    const GrandChild = defineComponent({
+      setup () {
+        validation = useValidation({
+          value: '',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        return () => h(GrandChild)
+      },
+    })
+
+    const Parent = defineComponent({
+      setup () {
+        form = provideForm()
+        return () => h(Child)
+      },
+    })
+
+    mount(Parent)
+
+    expect(form!.size).toBe(1)
+
+    const result = await form!.submit()
+    expect(result).toBe(false)
+    expect(validation!.errors.value).toEqual(['Required'])
+  })
+
+  it('should compute form isValid from auto-registered fields', async () => {
+    let form: ReturnType<typeof provideForm>
+
+    const Parent = defineComponent({
+      setup () {
+        form = provideForm()
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        useValidation({
+          value: 'valid',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    // Initially null (not validated)
+    expect(form!.isValid.value).toBe(null)
+
+    // After submit
+    await form!.submit()
+    expect(form!.isValid.value).toBe(true)
   })
 })

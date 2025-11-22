@@ -19,10 +19,10 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
-import { useValidation } from '#v0/composables/useValidation'
+import { useValidation, FORM_REGISTRATION_KEY } from '#v0/composables/useValidation'
 
 // Utilities
-import { computed } from 'vue'
+import { computed, provide } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -30,7 +30,7 @@ import { toArray } from '#v0/composables/toArray'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ValidationRule } from '#v0/composables/useValidation'
+import type { ValidationRule, ValidationTicket } from '#v0/composables/useValidation'
 import type { ComputedRef, Ref, ShallowRef, App } from 'vue'
 import type { ID } from '#v0/types'
 
@@ -55,6 +55,7 @@ export interface FormTicket extends RegistryTicket {
 export interface FormContext<Z extends FormTicket = FormTicket> extends RegistryContext<Z> {
   submit: (id?: ID | ID[]) => Promise<boolean>
   reset: () => void
+  registerTicket: (validation: ValidationTicket) => Z
   validateOn: 'submit' | 'change' | string
   isValid: ComputedRef<boolean | null>
   isValidating: ComputedRef<boolean>
@@ -157,14 +158,20 @@ export function createForm<
   function register (registration: Partial<Z>): Z {
     // Use useValidation for the field validation logic
     const validation = useValidation({
+      id: registration.id,
       value: registration.value,
       rules: registration.rules,
       validateOn: registration.validateOn || validateOn,
       disabled: registration.disabled,
     })
 
-    const item: Partial<Z> = {
-      ...registration,
+    return registerTicket(validation)
+  }
+
+  // Register a pre-created validation ticket (used by provideForm for auto-registration)
+  function registerTicket (validation: ValidationTicket): Z {
+    const item = {
+      id: validation.id,
       rules: validation.rules,
       errors: validation.errors,
       disabled: validation.disabled,
@@ -174,7 +181,7 @@ export function createForm<
       isValid: validation.isValid,
       reset: validation.reset,
       validate: validation.validate,
-    }
+    } as Partial<Z>
 
     const ticket = registry.register(item) as Z
 
@@ -196,6 +203,7 @@ export function createForm<
   return {
     ...registry,
     register,
+    registerTicket,
     reset,
     submit,
     validateOn,
@@ -205,6 +213,60 @@ export function createForm<
       return registry.size
     },
   } as E
+}
+
+/**
+ * Creates a form and provides registration context for child useValidation composables.
+ *
+ * @param options The options for the form instance.
+ * @template Z The type of the form ticket.
+ * @template E The type of the form context.
+ * @returns A new form instance with registration context provided.
+ *
+ * @remarks
+ * This function creates a form and automatically provides a registration context
+ * that allows child components using `useValidation` to auto-register with the form.
+ * When `form.submit()` is called, all auto-registered validations are validated.
+ *
+ * @see https://0.vuetifyjs.com/composables/forms/use-form
+ *
+ * @example
+ * ```ts
+ * // Parent component
+ * import { provideForm } from '@vuetify/v0'
+ *
+ * const form = provideForm({ validateOn: 'change' })
+ *
+ * // Child component - auto-registers with parent form
+ * import { useValidation } from '@vuetify/v0'
+ *
+ * const email = useValidation({
+ *   rules: [v => /@/.test(v) || 'Invalid email'],
+ * })
+ *
+ * // Parent can validate all fields
+ * await form.submit()
+ * ```
+ */
+export function provideForm<
+  Z extends FormTicket = FormTicket,
+  E extends FormContext<Z> = FormContext<Z>,
+> (options?: FormOptions): E {
+  const form = createForm<Z, E>(options)
+
+  // Provide registration context for child useValidation composables
+  provide(FORM_REGISTRATION_KEY, {
+    register: (ticket: ValidationTicket) => {
+      // Register the pre-created validation ticket directly
+      form.registerTicket(ticket)
+    },
+    unregister: (id: ID) => {
+      form.unregister(id)
+    },
+    validateOn: form.validateOn,
+  })
+
+  return form
 }
 
 /**

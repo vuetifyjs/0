@@ -11,22 +11,25 @@
  * - isPristine tracking
  * - Silent validation mode
  * - Reactive value getter/setter
+ * - Auto-registration with parent form context
  *
  * Can be used standalone or as part of useForm.
  */
 
 // Utilities
-import { shallowRef, toValue } from 'vue'
+import { inject, onUnmounted, shallowRef, toValue } from 'vue'
 import { isString } from '#v0/utilities'
 
 // Types
-import type { ShallowRef } from 'vue'
+import type { InjectionKey, ShallowRef } from 'vue'
+import type { ID } from '#v0/types'
 
 export type ValidationResult = string | true | Promise<string | true>
 
 export type ValidationRule = (value: any) => ValidationResult
 
 export interface ValidationOptions {
+  id?: ID
   value?: any
   rules?: ValidationRule[]
   validateOn?: 'submit' | 'change' | string
@@ -34,6 +37,7 @@ export interface ValidationOptions {
 }
 
 export interface ValidationTicket {
+  id: ID
   value: any
   validate: (silent?: boolean) => Promise<boolean>
   reset: () => void
@@ -44,6 +48,26 @@ export interface ValidationTicket {
   isPristine: ShallowRef<boolean>
   isValid: ShallowRef<boolean | null>
   isValidating: ShallowRef<boolean>
+}
+
+/**
+ * Form registration context for auto-registering validation fields.
+ */
+export interface FormRegistrationContext {
+  register: (ticket: ValidationTicket) => void
+  unregister: (id: ID) => void
+  validateOn: string
+}
+
+/**
+ * Injection key for form registration context.
+ */
+export const FORM_REGISTRATION_KEY: InjectionKey<FormRegistrationContext> = Symbol('v0:form-registration')
+
+// Generate unique IDs for validation tickets
+let validationId = 0
+function generateId (): ID {
+  return `validation-${++validationId}`
 }
 
 /**
@@ -75,13 +99,19 @@ export interface ValidationTicket {
  * ```
  */
 export function useValidation (options: ValidationOptions = {}): ValidationTicket {
+  const id = options.id ?? generateId()
   const model = shallowRef(options.value == null ? '' : toValue(options.value))
   const rules = options.rules || []
   const errors = shallowRef<string[]>([])
   const isValidating = shallowRef(false)
   const initialValue = model.value
-  const validateOn = options.validateOn || 'submit'
   const disabled = options.disabled || false
+
+  // Inject form registration context if available
+  const formContext = inject(FORM_REGISTRATION_KEY, null)
+
+  // Use form's validateOn if not explicitly set, fallback to 'submit'
+  const validateOn = options.validateOn || formContext?.validateOn || 'submit'
 
   const isPristine = shallowRef(true)
   const isValid = shallowRef<boolean | null>(null)
@@ -126,6 +156,7 @@ export function useValidation (options: ValidationOptions = {}): ValidationTicke
 
   // Create ticket object
   const ticket: ValidationTicket = {
+    id,
     rules,
     errors,
     disabled,
@@ -147,6 +178,16 @@ export function useValidation (options: ValidationOptions = {}): ValidationTicke
         validate()
       }
     },
+  }
+
+  // Register with parent form if context exists
+  if (formContext) {
+    formContext.register(ticket)
+
+    // Unregister on component unmount
+    onUnmounted(() => {
+      formContext.unregister(id)
+    })
   }
 
   return ticket
