@@ -172,11 +172,10 @@ export function createPagination<
     }
   }
 
-  const pageSize = toValue(_size)
   const count = toRef(() => {
     if (!isUndefined(_count)) return toValue(_count)
     // If count not provided, estimate from pages
-    return registry.size * pageSize
+    return registry.size * toValue(_size)
   })
 
   const page = toRef(() => {
@@ -189,13 +188,13 @@ export function createPagination<
   const from = toRef(() => {
     const current = page.value
     if (current === 0) return 0
-    return (current - 1) * pageSize + 1
+    return (current - 1) * toValue(_size) + 1
   })
 
   const to = toRef(() => {
     const current = page.value
     if (current === 0) return 0
-    const last = current * pageSize
+    const last = current * toValue(_size)
     return Math.min(last, count.value)
   })
 
