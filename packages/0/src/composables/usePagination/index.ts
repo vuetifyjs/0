@@ -22,7 +22,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createStep } from '#v0/composables/useStep'
 
 // Utilities
-import { computed, toValue } from 'vue'
+import { toRef, toValue } from 'vue'
 import { isUndefined } from '#v0/utilities'
 
 // Types
@@ -175,39 +175,39 @@ export function createPagination<
     }
   }
 
-  const limit = computed(() => toValue(_limit))
-  const count = computed(() => {
+  const limit = toRef(() => toValue(_limit))
+  const count = toRef(() => {
     if (!isUndefined(_count)) return toValue(_count)
     // If count not provided, estimate from pages
     return registry.size * limit.value
   })
 
-  const page = computed(() => {
+  const page = toRef(() => {
     const index = registry.selectedIndex.value
     return index >= 0 ? index + 1 : 0
   })
 
-  const length = computed(() => registry.size)
+  const length = toRef(() => registry.size)
 
-  const from = computed(() => {
+  const from = toRef(() => {
     const current = page.value
     if (current === 0) return 0
     return (current - 1) * limit.value + 1
   })
 
-  const to = computed(() => {
+  const to = toRef(() => {
     const current = page.value
     if (current === 0) return 0
     const last = current * limit.value
     return Math.min(last, count.value)
   })
 
-  const hasNext = computed(() => {
+  const hasNext = toRef(() => {
     const current = page.value
     return current > 0 && current < length.value
   })
 
-  const hasPrev = computed(() => {
+  const hasPrev = toRef(() => {
     const current = page.value
     return current > 1
   })
