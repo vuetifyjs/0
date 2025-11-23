@@ -200,7 +200,7 @@ describe('usePagination', () => {
     })
   })
 
-  describe('forward', () => {
+  describe('hasNext', () => {
     it('should return true when not on last page', () => {
       const pagination = createPagination()
 
@@ -212,7 +212,7 @@ describe('usePagination', () => {
 
       pagination.first()
 
-      expect(pagination.forward.value).toBe(true)
+      expect(pagination.hasNext.value).toBe(true)
     })
 
     it('should return false when on last page', () => {
@@ -226,7 +226,7 @@ describe('usePagination', () => {
 
       pagination.last()
 
-      expect(pagination.forward.value).toBe(false)
+      expect(pagination.hasNext.value).toBe(false)
     })
 
     it('should return false when no selection', () => {
@@ -237,7 +237,7 @@ describe('usePagination', () => {
         { id: 'page-2', value: 2 },
       ])
 
-      expect(pagination.forward.value).toBe(false)
+      expect(pagination.hasNext.value).toBe(false)
     })
 
     it('should return false when only one page and selected', () => {
@@ -249,11 +249,11 @@ describe('usePagination', () => {
 
       pagination.first()
 
-      expect(pagination.forward.value).toBe(false)
+      expect(pagination.hasNext.value).toBe(false)
     })
   })
 
-  describe('backward', () => {
+  describe('hasPrev', () => {
     it('should return false when on first page', () => {
       const pagination = createPagination()
 
@@ -265,7 +265,7 @@ describe('usePagination', () => {
 
       pagination.first()
 
-      expect(pagination.backward.value).toBe(false)
+      expect(pagination.hasPrev.value).toBe(false)
     })
 
     it('should return true when not on first page', () => {
@@ -279,7 +279,7 @@ describe('usePagination', () => {
 
       pagination.go(2)
 
-      expect(pagination.backward.value).toBe(true)
+      expect(pagination.hasPrev.value).toBe(true)
     })
 
     it('should return false when no selection', () => {
@@ -290,7 +290,7 @@ describe('usePagination', () => {
         { id: 'page-2', value: 2 },
       ])
 
-      expect(pagination.backward.value).toBe(false)
+      expect(pagination.hasPrev.value).toBe(false)
     })
   })
 
@@ -552,8 +552,8 @@ describe('usePagination', () => {
 
       expect(pagination.page.value).toBe(0)
       expect(pagination.length.value).toBe(0)
-      expect(pagination.forward.value).toBe(false)
-      expect(pagination.backward.value).toBe(false)
+      expect(pagination.hasNext.value).toBe(false)
+      expect(pagination.hasPrev.value).toBe(false)
       expect(pagination.from.value).toBe(0)
       expect(pagination.to.value).toBe(0)
     })
@@ -569,8 +569,8 @@ describe('usePagination', () => {
 
       expect(pagination.page.value).toBe(1)
       expect(pagination.length.value).toBe(1)
-      expect(pagination.forward.value).toBe(false)
-      expect(pagination.backward.value).toBe(false)
+      expect(pagination.hasNext.value).toBe(false)
+      expect(pagination.hasPrev.value).toBe(false)
       expect(pagination.from.value).toBe(1)
       expect(pagination.to.value).toBe(10)
     })

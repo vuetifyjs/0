@@ -6,7 +6,7 @@
  *
  * Key features:
  * - 1-based page numbers for user-friendly API
- * - Computed properties: page, length, from, to, forward, backward
+ * - Computed properties: page, length, from, to, hasNext, hasPrev
  * - go method for direct page navigation
  * - Optional auto-generation of pages from count/limit
  * - Perfect for data tables, lists, galleries, search results
@@ -46,9 +46,9 @@ export interface PaginationContext<Z extends PaginationTicket> extends StepConte
   /** Index of the last item on the current page (1-based) */
   to: ComputedRef<number>
   /** Whether there is a next page available */
-  forward: ComputedRef<boolean>
+  hasNext: ComputedRef<boolean>
   /** Whether there is a previous page available */
-  backward: ComputedRef<boolean>
+  hasPrev: ComputedRef<boolean>
   /** Navigate to a specific page by number (1-based) */
   go: (page: number) => void
 }
@@ -94,7 +94,7 @@ export interface PaginationContextOptions extends StepContextOptions {
  * **Key Features:**
  * - **1-based Page Numbers**: User-friendly `page` property (1, 2, 3...) instead of 0-based indexes
  * - **Computed Metadata**: `length`, `from`, `to` for displaying pagination info
- * - **Navigation Helpers**: `forward`, `backward` for enabling/disabling UI controls
+ * - **Navigation Helpers**: `hasNext`, `hasPrev` for enabling/disabling UI controls
  * - **Direct Navigation**: `go(n)` to jump to any page
  * - **Auto-generation**: Optionally provide `count` and `limit` to auto-create pages
  *
@@ -105,8 +105,8 @@ export interface PaginationContextOptions extends StepContextOptions {
  * - `count`: Total items (computed from pages if not provided)
  * - `from`: First item index on current page (1-based)
  * - `to`: Last item index on current page (1-based)
- * - `forward`: True if not on last page
- * - `backward`: True if not on first page
+ * - `hasNext`: True if not on last page
+ * - `hasPrev`: True if not on first page
  *
  * **Inherited Navigation:**
  * - `first()`: Go to first page
@@ -137,8 +137,8 @@ export interface PaginationContextOptions extends StepContextOptions {
  * console.log(pagination.length.value) // 3
  * console.log(pagination.from.value) // 1
  * console.log(pagination.to.value) // 25
- * console.log(pagination.forward.value) // true
- * console.log(pagination.backward.value) // false
+ * console.log(pagination.hasNext.value) // true
+ * console.log(pagination.hasPrev.value) // false
  *
  * pagination.go(3)
  * console.log(pagination.page.value) // 3
@@ -202,12 +202,12 @@ export function createPagination<
     return Math.min(last, count.value)
   })
 
-  const forward = computed(() => {
+  const hasNext = computed(() => {
     const current = page.value
     return current > 0 && current < length.value
   })
 
-  const backward = computed(() => {
+  const hasPrev = computed(() => {
     const current = page.value
     return current > 1
   })
@@ -232,8 +232,8 @@ export function createPagination<
     count,
     from,
     to,
-    forward,
-    backward,
+    hasNext,
+    hasPrev,
     go,
     get size () {
       return registry.size
@@ -303,8 +303,8 @@ export function createPaginationContext<
  *   <div>
  *     <p>Page {{ pagination.page }} of {{ pagination.length }}</p>
  *     <p>Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.count }}</p>
- *     <button :disabled="!pagination.backward" @click="pagination.prev()">Previous</button>
- *     <button :disabled="!pagination.forward" @click="pagination.next()">Next</button>
+ *     <button :disabled="!pagination.hasPrev" @click="pagination.prev()">Previous</button>
+ *     <button :disabled="!pagination.hasNext" @click="pagination.next()">Next</button>
  *   </div>
  * </template>
  * ```
