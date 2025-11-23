@@ -83,29 +83,15 @@ describe('usePagination', () => {
     })
   })
 
-  describe('limit', () => {
-    it('should default to 10', () => {
-      const pagination = createPagination()
-
-      expect(pagination.limit.value).toBe(10)
-    })
-
-    it('should use provided limit value', () => {
-      const pagination = createPagination({ limit: 25 })
-
-      expect(pagination.limit.value).toBe(25)
-    })
-  })
-
   describe('count', () => {
     it('should use provided count value', () => {
-      const pagination = createPagination({ count: 100, limit: 10 })
+      const pagination = createPagination({ count: 100, size: 10 })
 
       expect(pagination.count.value).toBe(100)
     })
 
     it('should estimate count from pages when not provided', () => {
-      const pagination = createPagination({ limit: 20 })
+      const pagination = createPagination({ size: 20 })
 
       pagination.onboard([
         { id: 'page-1', value: 1 },
@@ -120,7 +106,7 @@ describe('usePagination', () => {
 
   describe('from and to', () => {
     it('should calculate from and to for first page', () => {
-      const pagination = createPagination({ limit: 10 })
+      const pagination = createPagination({ size: 10 })
 
       pagination.onboard([
         { id: 'page-1', value: 1 },
@@ -135,7 +121,7 @@ describe('usePagination', () => {
     })
 
     it('should calculate from and to for middle page', () => {
-      const pagination = createPagination({ limit: 10 })
+      const pagination = createPagination({ size: 10 })
 
       pagination.onboard([
         { id: 'page-1', value: 1 },
@@ -150,7 +136,7 @@ describe('usePagination', () => {
     })
 
     it('should calculate from and to for last page', () => {
-      const pagination = createPagination({ limit: 10 })
+      const pagination = createPagination({ size: 10 })
 
       pagination.onboard([
         { id: 'page-1', value: 1 },
@@ -165,7 +151,7 @@ describe('usePagination', () => {
     })
 
     it('should cap to at count when on last page', () => {
-      const pagination = createPagination({ limit: 10, count: 25 })
+      const pagination = createPagination({ size: 10, count: 25 })
 
       pagination.last()
 
@@ -174,7 +160,7 @@ describe('usePagination', () => {
     })
 
     it('should return 0 for from and to when no selection', () => {
-      const pagination = createPagination({ limit: 10 })
+      const pagination = createPagination({ size: 10 })
 
       pagination.onboard([
         { id: 'page-1', value: 1 },
@@ -186,7 +172,7 @@ describe('usePagination', () => {
     })
 
     it('should handle different limit values', () => {
-      const pagination = createPagination({ limit: 25 })
+      const pagination = createPagination({ size: 25 })
 
       pagination.onboard([
         { id: 'page-1', value: 1 },
@@ -387,7 +373,7 @@ describe('usePagination', () => {
     it('should auto-generate pages from count and limit', () => {
       const pagination = createPagination({
         count: 100,
-        limit: 10,
+        size: 10,
       })
 
       expect(pagination.length.value).toBe(10)
@@ -396,7 +382,7 @@ describe('usePagination', () => {
     it('should round up when count is not divisible by limit', () => {
       const pagination = createPagination({
         count: 95,
-        limit: 10,
+        size: 10,
       })
 
       expect(pagination.length.value).toBe(10)
@@ -405,7 +391,7 @@ describe('usePagination', () => {
     it('should create single page for small counts', () => {
       const pagination = createPagination({
         count: 5,
-        limit: 10,
+        size: 10,
       })
 
       expect(pagination.length.value).toBe(1)
@@ -414,7 +400,7 @@ describe('usePagination', () => {
     it('should create pages with correct IDs', () => {
       const pagination = createPagination({
         count: 30,
-        limit: 10,
+        size: 10,
       })
 
       expect(pagination.has('page-1')).toBe(true)
@@ -425,7 +411,7 @@ describe('usePagination', () => {
     it('should allow navigation on auto-generated pages', () => {
       const pagination = createPagination({
         count: 50,
-        limit: 10,
+        size: 10,
       })
 
       pagination.first()
@@ -559,7 +545,7 @@ describe('usePagination', () => {
     })
 
     it('should handle single page', () => {
-      const pagination = createPagination({ limit: 10 })
+      const pagination = createPagination({ size: 10 })
 
       pagination.onboard([
         { id: 'page-1', value: 1 },
@@ -578,7 +564,7 @@ describe('usePagination', () => {
     it('should handle count of 0', () => {
       const pagination = createPagination({
         count: 0,
-        limit: 10,
+        size: 10,
       })
 
       expect(pagination.length.value).toBe(0)
