@@ -6,9 +6,9 @@
  *
  * Key features:
  * - 1-based page numbers for user-friendly API
- * - Computed properties: page, totalPages, from, to, hasNextPage, hasPrevPage
- * - goToPage method for direct page navigation
- * - Optional auto-generation of pages from total/perPage
+ * - Computed properties: page, length, from, to, forward, backward
+ * - go method for direct page navigation
+ * - Optional auto-generation of pages from count/limit
  * - Perfect for data tables, lists, galleries, search results
  *
  * Inheritance chain: useRegistry → useSelection → useSingle → useStep → usePagination
@@ -36,35 +36,35 @@ export interface PaginationContext<Z extends PaginationTicket> extends StepConte
   /** Current page number (1-based) */
   page: ComputedRef<number>
   /** Total number of pages */
-  totalPages: ComputedRef<number>
-  /** Items per page (for metadata) */
-  perPage: ComputedRef<number>
+  length: ComputedRef<number>
+  /** Items per page */
+  limit: ComputedRef<number>
   /** Total number of items being paginated */
-  total: ComputedRef<number>
+  count: ComputedRef<number>
   /** Index of the first item on the current page (1-based) */
   from: ComputedRef<number>
   /** Index of the last item on the current page (1-based) */
   to: ComputedRef<number>
   /** Whether there is a next page available */
-  hasNextPage: ComputedRef<boolean>
+  forward: ComputedRef<boolean>
   /** Whether there is a previous page available */
-  hasPrevPage: ComputedRef<boolean>
+  backward: ComputedRef<boolean>
   /** Navigate to a specific page by number (1-based) */
-  goToPage: (pageNum: number) => void
+  go: (page: number) => void
 }
 
 export interface PaginationOptions extends StepOptions {
   /**
    * Number of items per page.
-   * Used for computing `from`, `to`, and auto-generating pages when `total` is provided.
+   * Used for computing `from`, `to`, and auto-generating pages when `count` is provided.
    * @default 10
    */
-  perPage?: MaybeRefOrGetter<number>
+  limit?: MaybeRefOrGetter<number>
   /**
    * Total number of items to paginate.
-   * When provided with `perPage`, pages are auto-generated.
+   * When provided with `limit`, pages are auto-generated.
    */
-  total?: MaybeRefOrGetter<number>
+  count?: MaybeRefOrGetter<number>
 }
 
 export interface PaginationContextOptions extends StepContextOptions {
@@ -72,18 +72,18 @@ export interface PaginationContextOptions extends StepContextOptions {
    * Number of items per page.
    * @default 10
    */
-  perPage?: MaybeRefOrGetter<number>
+  limit?: MaybeRefOrGetter<number>
   /**
    * Total number of items to paginate.
    */
-  total?: MaybeRefOrGetter<number>
+  count?: MaybeRefOrGetter<number>
 }
 
 /**
  * Creates a new pagination instance for navigating through pages.
  *
- * Extends `createStep` with pagination-specific computed properties like `page`, `totalPages`,
- * `from`, `to`, `hasNextPage`, `hasPrevPage`, and a `goToPage` method for direct navigation.
+ * Extends `createStep` with pagination-specific computed properties like `page`, `length`,
+ * `from`, `to`, `forward`, `backward`, and a `go` method for direct navigation.
  *
  * @param options The options for the pagination instance.
  * @template Z The type of the pagination ticket.
@@ -93,20 +93,20 @@ export interface PaginationContextOptions extends StepContextOptions {
  * @remarks
  * **Key Features:**
  * - **1-based Page Numbers**: User-friendly `page` property (1, 2, 3...) instead of 0-based indexes
- * - **Computed Metadata**: `totalPages`, `from`, `to` for displaying pagination info
- * - **Navigation Helpers**: `hasNextPage`, `hasPrevPage` for enabling/disabling UI controls
- * - **Direct Navigation**: `goToPage(n)` to jump to any page
- * - **Auto-generation**: Optionally provide `total` and `perPage` to auto-create pages
+ * - **Computed Metadata**: `length`, `from`, `to` for displaying pagination info
+ * - **Navigation Helpers**: `forward`, `backward` for enabling/disabling UI controls
+ * - **Direct Navigation**: `go(n)` to jump to any page
+ * - **Auto-generation**: Optionally provide `count` and `limit` to auto-create pages
  *
  * **Computed Properties:**
  * - `page`: Current page number (1-based, 0 if no selection)
- * - `totalPages`: Total number of pages (equals registry size)
- * - `perPage`: Items per page (from options, default 10)
- * - `total`: Total items (computed from pages if not provided)
+ * - `length`: Total number of pages (equals registry size)
+ * - `limit`: Items per page (from options, default 10)
+ * - `count`: Total items (computed from pages if not provided)
  * - `from`: First item index on current page (1-based)
  * - `to`: Last item index on current page (1-based)
- * - `hasNextPage`: True if not on last page
- * - `hasPrevPage`: True if not on first page
+ * - `forward`: True if not on last page
+ * - `backward`: True if not on first page
  *
  * **Inherited Navigation:**
  * - `first()`: Go to first page
@@ -125,7 +125,7 @@ export interface PaginationContextOptions extends StepContextOptions {
  * import { createPagination } from '@vuetify/v0'
  *
  * // Manual page registration
- * const pagination = createPagination({ perPage: 25 })
+ * const pagination = createPagination({ limit: 25 })
  * pagination.onboard([
  *   { id: 'page-1', value: 1 },
  *   { id: 'page-2', value: 2 },
@@ -134,22 +134,22 @@ export interface PaginationContextOptions extends StepContextOptions {
  * pagination.first() // Go to page 1
  *
  * console.log(pagination.page.value) // 1
- * console.log(pagination.totalPages.value) // 3
+ * console.log(pagination.length.value) // 3
  * console.log(pagination.from.value) // 1
  * console.log(pagination.to.value) // 25
- * console.log(pagination.hasNextPage.value) // true
- * console.log(pagination.hasPrevPage.value) // false
+ * console.log(pagination.forward.value) // true
+ * console.log(pagination.backward.value) // false
  *
- * pagination.goToPage(3)
+ * pagination.go(3)
  * console.log(pagination.page.value) // 3
  *
- * // Auto-generate pages from total
+ * // Auto-generate pages from count
  * const autoPagination = createPagination({
- *   total: 100,
- *   perPage: 10,
+ *   count: 100,
+ *   limit: 10,
  * })
  * // Automatically creates 10 pages
- * console.log(autoPagination.totalPages.value) // 10
+ * console.log(autoPagination.length.value) // 10
  * ```
  */
 export function createPagination<
@@ -157,29 +157,29 @@ export function createPagination<
   E extends PaginationContext<Z> = PaginationContext<Z>,
 > (_options: PaginationOptions = {}): E {
   const {
-    perPage: _perPage = 10,
-    total: _total,
+    limit: _limit = 10,
+    count: _count,
     ...options
   } = _options
 
   const registry = createStep<Z, E>(options)
 
-  // If total is provided, auto-generate pages
-  if (!isUndefined(_total)) {
-    const totalValue = toValue(_total)
-    const perPageValue = toValue(_perPage)
-    const pageCount = Math.ceil(totalValue / perPageValue)
+  // If count is provided, auto-generate pages
+  if (!isUndefined(_count)) {
+    const countValue = toValue(_count)
+    const limitValue = toValue(_limit)
+    const pages = Math.ceil(countValue / limitValue)
 
-    for (let i = 1; i <= pageCount; i++) {
+    for (let i = 1; i <= pages; i++) {
       registry.register({ id: `page-${i}`, value: i } as Partial<Z>)
     }
   }
 
-  const perPage = computed(() => toValue(_perPage))
-  const total = computed(() => {
-    if (!isUndefined(_total)) return toValue(_total)
-    // If total not provided, estimate from pages
-    return registry.size * perPage.value
+  const limit = computed(() => toValue(_limit))
+  const count = computed(() => {
+    if (!isUndefined(_count)) return toValue(_count)
+    // If count not provided, estimate from pages
+    return registry.size * limit.value
   })
 
   const page = computed(() => {
@@ -187,36 +187,36 @@ export function createPagination<
     return index >= 0 ? index + 1 : 0
   })
 
-  const totalPages = computed(() => registry.size)
+  const length = computed(() => registry.size)
 
   const from = computed(() => {
-    const currentPage = page.value
-    if (currentPage === 0) return 0
-    return (currentPage - 1) * perPage.value + 1
+    const current = page.value
+    if (current === 0) return 0
+    return (current - 1) * limit.value + 1
   })
 
   const to = computed(() => {
-    const currentPage = page.value
-    if (currentPage === 0) return 0
-    const lastItem = currentPage * perPage.value
-    return Math.min(lastItem, total.value)
+    const current = page.value
+    if (current === 0) return 0
+    const last = current * limit.value
+    return Math.min(last, count.value)
   })
 
-  const hasNextPage = computed(() => {
-    const currentPage = page.value
-    return currentPage > 0 && currentPage < totalPages.value
+  const forward = computed(() => {
+    const current = page.value
+    return current > 0 && current < length.value
   })
 
-  const hasPrevPage = computed(() => {
-    const currentPage = page.value
-    return currentPage > 1
+  const backward = computed(() => {
+    const current = page.value
+    return current > 1
   })
 
-  function goToPage (pageNum: number) {
-    if (pageNum < 1 || pageNum > registry.size) return
+  function go (target: number) {
+    if (target < 1 || target > registry.size) return
 
-    const targetIndex = pageNum - 1
-    const id = registry.lookup(targetIndex)
+    const index = target - 1
+    const id = registry.lookup(index)
 
     if (!isUndefined(id)) {
       registry.selectedIds.clear()
@@ -227,14 +227,14 @@ export function createPagination<
   return {
     ...registry,
     page,
-    totalPages,
-    perPage,
-    total,
+    length,
+    limit,
+    count,
     from,
     to,
-    hasNextPage,
-    hasPrevPage,
-    goToPage,
+    forward,
+    backward,
+    go,
     get size () {
       return registry.size
     },
@@ -257,7 +257,7 @@ export function createPagination<
  *
  * export const [useTablePagination, provideTablePagination, tablePagination] = createPaginationContext({
  *   namespace: 'table-pagination',
- *   perPage: 20,
+ *   limit: 20,
  * })
  *
  * // In a parent component:
@@ -265,7 +265,7 @@ export function createPagination<
  *
  * // In a child component:
  * const pagination = useTablePagination()
- * pagination.goToPage(2)
+ * pagination.go(2)
  * ```
  */
 export function createPaginationContext<
@@ -301,10 +301,10 @@ export function createPaginationContext<
  *
  * <template>
  *   <div>
- *     <p>Page {{ pagination.page }} of {{ pagination.totalPages }}</p>
- *     <p>Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }}</p>
- *     <button :disabled="!pagination.hasPrevPage" @click="pagination.prev()">Previous</button>
- *     <button :disabled="!pagination.hasNextPage" @click="pagination.next()">Next</button>
+ *     <p>Page {{ pagination.page }} of {{ pagination.length }}</p>
+ *     <p>Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.count }}</p>
+ *     <button :disabled="!pagination.backward" @click="pagination.prev()">Previous</button>
+ *     <button :disabled="!pagination.forward" @click="pagination.next()">Next</button>
  *   </div>
  * </template>
  * ```
