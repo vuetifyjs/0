@@ -116,7 +116,7 @@ export interface PaginationContextOptions extends StepContextOptions {
  * - `step(count)`: Step through pages by count
  *
  * **Inheritance Chain:**
- * `useRegistry` → `createSelection` → `createSingle` → `createStep` → `createPagination`
+ * `useRegistry` → `useSelection` → `useSingle` → `useStep` → `usePagination`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-pagination
  *
