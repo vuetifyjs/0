@@ -214,10 +214,14 @@ export function createPagination<
     const index = target - 1
     const id = registry.lookup(index)
 
-    if (!isUndefined(id)) {
-      registry.selectedIds.clear()
-      registry.select(id)
-    }
+    if (isUndefined(id)) return
+
+    // Check if target page is disabled before clearing selection
+    const item = registry.get(id)
+    if (item && toValue(item.disabled)) return
+
+    registry.selectedIds.clear()
+    registry.select(id)
   }
 
   return {

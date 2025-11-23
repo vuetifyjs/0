@@ -367,6 +367,22 @@ describe('usePagination', () => {
 
       expect(pagination.page.value).toBe(1)
     })
+
+    it('should do nothing when navigating to disabled page', () => {
+      const pagination = createPagination()
+
+      pagination.onboard([
+        { id: 'page-1', value: 1 },
+        { id: 'page-2', value: 2, disabled: true },
+        { id: 'page-3', value: 3 },
+      ])
+
+      pagination.first()
+      pagination.go(2)
+
+      expect(pagination.page.value).toBe(1)
+      expect(pagination.selectedId.value).toBe('page-1')
+    })
   })
 
   describe('auto-generation from count', () => {
