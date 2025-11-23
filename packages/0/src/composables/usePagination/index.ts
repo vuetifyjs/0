@@ -209,19 +209,7 @@ export function createPagination<
   })
 
   function go (target: number) {
-    if (target < 1 || target > registry.size) return
-
-    const index = target - 1
-    const id = registry.lookup(index)
-
-    if (isUndefined(id)) return
-
-    // Check if target page is disabled before clearing selection
-    const item = registry.get(id)
-    if (item && toValue(item.disabled)) return
-
-    registry.selectedIds.clear()
-    registry.select(id)
+    registry.goto(target - 1)
   }
 
   return {

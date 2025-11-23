@@ -445,6 +445,119 @@ describe('useStep', () => {
     })
   })
 
+  describe('goto', () => {
+    it('should navigate to specific index', () => {
+      const stepper = createStep()
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.goto(1)
+      expect(stepper.selectedId.value).toBe('step-2')
+      expect(stepper.selectedIndex.value).toBe(1)
+    })
+
+    it('should do nothing for negative index', () => {
+      const stepper = createStep()
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+      ])
+
+      stepper.first()
+      stepper.goto(-1)
+
+      expect(stepper.selectedId.value).toBe('step-1')
+    })
+
+    it('should do nothing for index beyond length', () => {
+      const stepper = createStep()
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+      ])
+
+      stepper.first()
+      stepper.goto(10)
+
+      expect(stepper.selectedId.value).toBe('step-1')
+    })
+
+    it('should do nothing when target is disabled', () => {
+      const stepper = createStep()
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2', disabled: true },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.first()
+      stepper.goto(1)
+
+      expect(stepper.selectedId.value).toBe('step-1')
+    })
+
+    it('should do nothing when registry is empty', () => {
+      const stepper = createStep()
+
+      stepper.goto(0)
+
+      expect(stepper.selectedId.value).toBeUndefined()
+    })
+
+    it('should change selection from current to target', () => {
+      const stepper = createStep()
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.first()
+      expect(stepper.selectedId.value).toBe('step-1')
+
+      stepper.goto(2)
+      expect(stepper.selectedId.value).toBe('step-3')
+    })
+
+    it('should navigate to first index (0)', () => {
+      const stepper = createStep()
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.last()
+      stepper.goto(0)
+
+      expect(stepper.selectedId.value).toBe('step-1')
+    })
+
+    it('should navigate to last index', () => {
+      const stepper = createStep()
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.first()
+      stepper.goto(2)
+
+      expect(stepper.selectedId.value).toBe('step-3')
+    })
+  })
+
   describe('circular: true (default behavior in old tests)', () => {
     it('should wrap to first when calling next on last item', () => {
       const stepper = createStep({ circular: true })

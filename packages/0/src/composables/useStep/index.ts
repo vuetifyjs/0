@@ -42,6 +42,8 @@ export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
   prev: () => void
   /** Step through the collection by a given count */
   step: (count: number) => void
+  /** Navigate directly to a specific index (0-based) */
+  goto: (index: number) => void
 }
 
 export interface StepOptions extends SingleOptions {
@@ -193,6 +195,20 @@ export function createStep<
     registry.select(id)
   }
 
+  function goto (target: number) {
+    if (target < 0 || target >= registry.size) return
+
+    const id = registry.lookup(target)
+
+    if (isUndefined(id)) return
+
+    const item = registry.get(id)
+    if (item && toValue(item.disabled)) return
+
+    registry.selectedIds.clear()
+    registry.select(id)
+  }
+
   return {
     ...registry,
     first,
@@ -200,6 +216,7 @@ export function createStep<
     next,
     prev,
     step,
+    goto,
     get size () {
       return registry.size
     },
