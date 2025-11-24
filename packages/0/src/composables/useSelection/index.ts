@@ -222,6 +222,17 @@ export function createSelection<
     registry.unregister(id)
   }
 
+  function offboard (ids: ID[]) {
+    for (const id of ids) {
+      selectedIds.delete(id)
+    }
+    registry.offboard(ids)
+  }
+
+  function onboard (registrations: Partial<Z>[]) {
+    return registrations.map(registration => register(registration))
+  }
+
   function reset () {
     registry.clear()
     selectedIds.clear()
@@ -236,6 +247,8 @@ export function createSelection<
     selectedValues,
     register,
     unregister,
+    onboard,
+    offboard,
     reset,
     mandate,
     seek,

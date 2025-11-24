@@ -335,6 +335,22 @@ export function createQueue<
     return ticket
   }
 
+  function offboard (ids: ID[]) {
+    let hadFirst = false
+
+    for (const id of ids) {
+      const ticket = registry.get(id)
+      if (!ticket) continue
+
+      if (ticket.index === 0) hadFirst = true
+      clearTimeout(ticket.id)
+    }
+
+    registry.offboard(ids)
+
+    if (hadFirst) resume()
+  }
+
   function pause (): Z | undefined {
     const ticket = registry.seek('first')
     if (!ticket || ticket.isPaused) return undefined
@@ -371,6 +387,7 @@ export function createQueue<
     ...registry,
     register,
     unregister,
+    offboard,
     pause,
     resume,
     clear,

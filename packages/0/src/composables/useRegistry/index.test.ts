@@ -75,6 +75,68 @@ describe('useRegistry', () => {
       expect(item2?.value).toBe('value-2')
     })
 
+    it('should offboard multiple items at once', () => {
+      const registry = useRegistry()
+      registry.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      expect(registry.size).toBe(3)
+
+      registry.offboard(['item-1', 'item-3'])
+
+      expect(registry.size).toBe(1)
+      expect(registry.has('item-1')).toBe(false)
+      expect(registry.has('item-2')).toBe(true)
+      expect(registry.has('item-3')).toBe(false)
+    })
+
+    it('should skip non-existent ids when offboarding', () => {
+      const registry = useRegistry()
+      registry.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      registry.offboard(['item-1', 'non-existent', 'item-2'])
+
+      expect(registry.size).toBe(0)
+    })
+
+    it('should update indexes correctly after offboard', () => {
+      const registry = useRegistry()
+      registry.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      registry.offboard(['item-1'])
+
+      expect(registry.lookup(0)).toBe('item-2')
+      expect(registry.lookup(1)).toBe('item-3')
+      expect(registry.get('item-2')?.index).toBe(0)
+      expect(registry.get('item-3')?.index).toBe(1)
+    })
+
+    it('should emit events for each offboarded item', () => {
+      const registry = useRegistry({ events: true })
+      const listener = vi.fn()
+
+      registry.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      registry.on('unregister:ticket', listener)
+      registry.offboard(['item-1', 'item-3'])
+
+      expect(listener).toHaveBeenCalledTimes(2)
+    })
+
     it('should not remove an item if unregistering a non-existent id', () => {
       const registry = useRegistry()
       const tickets = registry.onboard([
