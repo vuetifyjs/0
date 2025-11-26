@@ -56,6 +56,11 @@ export function isPrimitive (item: unknown): item is string | number | boolean {
 }
 
 /* #__NO_SIDE_EFFECTS__ */
+export function isNaN (item: unknown): item is number {
+  return isNumber(item) && Number.isNaN(item)
+}
+
+/* #__NO_SIDE_EFFECTS__ */
 export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<T>[]): T {
   if (sources.length === 0) return target
 
@@ -110,6 +115,26 @@ export function genId (): string {
 /* #__NO_SIDE_EFFECTS__ */
 export function clamp (value: number, min = 0, max = 1): number {
   return Math.max(min, Math.min(max, value))
+}
+
+/**
+ * Creates an array of sequential numbers
+ *
+ * @param length The length of the array to create
+ * @param start The starting index (default: 0)
+ * @returns An array of sequential numbers
+ *
+ * @example
+ * ```ts
+ * range(3)     // [0, 1, 2]
+ * range(3, 1)  // [1, 2, 3]
+ * range(5, 10) // [10, 11, 12, 13, 14]
+ * range(0)     // []
+ * ```
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function range (length: number, start = 0): number[] {
+  return Array.from({ length }, (_, index) => start + index)
 }
 
 /**
