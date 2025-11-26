@@ -1,0 +1,290 @@
+/**
+ * @module usePagination
+ *
+ * @remarks
+ * Lightweight pagination composable for navigating through pages.
+ *
+ * Key features:
+ * - No registry overhead - just a bounded integer
+ * - Direct ref support for v-model compatibility
+ * - Navigation methods: next, prev, first, last
+ * - Computed visible items with ellipsis
+ * - Trinity pattern for dependency injection
+ *
+ * Unlike registry-based composables, pagination tracks a single number
+ * within a range, making it efficient for large page counts.
+ */
+
+// Factories
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+
+// Utilities
+import { isNaN, range } from '#v0/utilities'
+
+// Vue
+import { computed, isRef, shallowRef, toValue, type App, type ComputedRef, type MaybeRefOrGetter, type ShallowRef } from 'vue'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+
+export interface PaginationItem {
+  type: 'page' | 'ellipsis'
+  value: number | string
+}
+
+export interface PaginationContext<Z extends PaginationItem = PaginationItem> {
+  /** Current page (1-indexed) */
+  page: ShallowRef<number>
+  /** Items per page */
+  itemsPerPage: ShallowRef<number>
+  /** Total number of items */
+  size: number
+  /** Total number of pages (computed from size / itemsPerPage) */
+  pages: number
+  /** Ellipsis character */
+  ellipsis: string
+  /** Visible page numbers and ellipsis for rendering */
+  items: ComputedRef<Z[]>
+  /** Start index of items on current page (0-indexed) */
+  pageStart: ComputedRef<number>
+  /** End index of items on current page (exclusive, 0-indexed) */
+  pageStop: ComputedRef<number>
+  /** Whether current page is the first page */
+  isFirst: ComputedRef<boolean>
+  /** Whether current page is the last page */
+  isLast: ComputedRef<boolean>
+  /** Go to first page */
+  first: () => void
+  /** Go to last page */
+  last: () => void
+  /** Go to next page */
+  next: () => void
+  /** Go to previous page */
+  prev: () => void
+  /** Go to specific page */
+  goto: (value: number) => void
+}
+
+export interface PaginationOptions {
+  /** Initial page or ref for v-model (1-indexed). @default 1 */
+  page?: number | ShallowRef<number>
+  /** Items per page or ref for v-model. @default 10 */
+  itemsPerPage?: number | ShallowRef<number>
+  /** Total number of items. @default 0 */
+  size?: MaybeRefOrGetter<number>
+  /** Maximum visible page buttons. @default 5 */
+  visible?: MaybeRefOrGetter<number>
+  /** Ellipsis character. @default '…' */
+  ellipsis?: string
+}
+
+export interface PaginationContextOptions extends PaginationOptions {
+  /** Namespace for dependency injection */
+  namespace: string
+}
+
+/**
+ * Creates a pagination instance.
+ *
+ * @param options The options for the pagination instance.
+ * @returns A pagination context with navigation methods.
+ *
+ * @example
+ * ```ts
+ * import { createPagination } from '@vuetify/v0'
+ *
+ * // Basic usage
+ * const pagination = createPagination({ size: 100 })
+ * pagination.next()
+ * pagination.items.value // [{ type: 'page', value: 1 }, { type: 'page', value: 2 }, ...]
+ *
+ * // With v-model (pass a ref)
+ * const page = ref(1)
+ * const pagination = createPagination({ page, size: 100 })
+ * // Mutating pagination.page or the passed ref syncs both
+ * ```
+ */
+export function createPagination<
+  Z extends PaginationItem = PaginationItem,
+  E extends PaginationContext<Z> = PaginationContext<Z>,
+> (_options: PaginationOptions = {}): E {
+  const {
+    page: _page = 1,
+    itemsPerPage: _itemsPerPage = 10,
+    size: _size = 0,
+    visible: _visible = 5,
+    ellipsis = '…',
+  } = _options
+
+  const page: ShallowRef<number> = isRef(_page) ? _page : shallowRef(_page)
+  const itemsPerPage: ShallowRef<number> = isRef(_itemsPerPage) ? _itemsPerPage : shallowRef(_itemsPerPage)
+
+  // Compute total pages from size (total items) and itemsPerPage
+  const pages = computed(() => {
+    const size = toValue(_size)
+    if (size <= 0 || isNaN(size)) return 0
+    return Math.ceil(size / itemsPerPage.value)
+  })
+
+  function first () {
+    page.value = 1
+  }
+
+  function last () {
+    page.value = pages.value
+  }
+
+  function next () {
+    if (page.value < pages.value) page.value++
+  }
+
+  function prev () {
+    if (page.value > 1) page.value--
+  }
+
+  function goto (value: number) {
+    if (value < 1) {
+      page.value = 1
+    } else if (value > pages.value) {
+      page.value = pages.value
+    } else {
+      page.value = value
+    }
+  }
+
+  const isFirst = computed(() => page.value <= 1)
+  const isLast = computed(() => page.value >= pages.value)
+  const pageStart = computed(() => (page.value - 1) * itemsPerPage.value)
+  const pageStop = computed(() => Math.min(pageStart.value + itemsPerPage.value, toValue(_size)))
+
+  function toPage (value: number): Z {
+    return { type: 'page', value } as Z
+  }
+
+  function toEllipsis (): Z {
+    return { type: 'ellipsis', value: ellipsis } as Z
+  }
+
+  const items = computed<Z[]>(() => {
+    const pageCount = pages.value
+    const visible = toValue(_visible)
+    const current = page.value
+
+    if (pageCount <= 0 || isNaN(pageCount) || pageCount > Number.MAX_SAFE_INTEGER) return []
+    if (visible <= 0) return []
+    if (visible === 1) return [toPage(current)]
+    if (pageCount <= visible) return range(pageCount, 1).map(toPage)
+
+    const boundary = visible - 2
+    const middle = visible - 4
+
+    // Handle small visible values
+    if (middle <= 0) {
+      return current <= Math.ceil(pageCount / 2)
+        ? [...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)]
+        : [toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)]
+    }
+
+    const leftThreshold = boundary - 1
+    const rightThreshold = pageCount - boundary + 2
+
+    if (current <= leftThreshold) {
+      // Start layout
+      return [...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)]
+    } else if (current >= rightThreshold) {
+      // End layout
+      return [toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)]
+    } else {
+      // Middle layout - center pages around current
+      const half = Math.floor(middle / 2)
+      const start = current - half
+      return [toPage(1), toEllipsis(), ...range(middle, start).map(toPage), toEllipsis(), toPage(pageCount)]
+    }
+  })
+
+  return {
+    page,
+    itemsPerPage,
+    ellipsis,
+    items,
+    pageStart,
+    pageStop,
+    isFirst,
+    isLast,
+    first,
+    last,
+    next,
+    prev,
+    goto,
+    get size () {
+      return toValue(_size)
+    },
+    get pages () {
+      return pages.value
+    },
+  } as E
+}
+
+/**
+ * Creates a pagination context for dependency injection.
+ *
+ * @param options The options including namespace.
+ * @returns A trinity: [usePagination, providePagination, defaultContext]
+ *
+ * @example
+ * ```ts
+ * const [usePagination, providePaginationContext] = createPaginationContext({
+ *   namespace: 'my-pagination',
+ *   size: 50,
+ * })
+ *
+ * // Parent component
+ * providePaginationContext()
+ *
+ * // Child component
+ * const pagination = usePagination()
+ * pagination.next()
+ * ```
+ */
+export function createPaginationContext<
+  Z extends PaginationItem = PaginationItem,
+  E extends PaginationContext<Z> = PaginationContext<Z>,
+> (_options: PaginationContextOptions): ContextTrinity<E> {
+  const { namespace, ...options } = _options
+  const [usePaginationContext, _providePaginationContext] = createContext<E>(namespace)
+  const context = createPagination<Z, E>(options)
+
+  function providePaginationContext (_context: E = context, app?: App): E {
+    return _providePaginationContext(_context, app)
+  }
+
+  return createTrinity<E>(usePaginationContext, providePaginationContext, context)
+}
+
+/**
+ * Returns the current pagination instance from context.
+ *
+ * @param namespace The namespace. @default 'v0:pagination'
+ * @returns The pagination context.
+ *
+ * @example
+ * ```vue
+ * <script setup>
+ *  import { usePagination } from '@vuetify/v0'
+ *
+ *  const pagination = usePagination()
+ * </script>
+ *
+ * <template>
+ *   <button @click="pagination.prev()" :disabled="pagination.isFirst.value">Prev</button>
+ *   <button @click="pagination.next()" :disabled="pagination.isLast.value">Next</button>
+ * </template>
+ * ```
+ */
+export function usePagination<
+  Z extends PaginationItem = PaginationItem,
+  E extends PaginationContext<Z> = PaginationContext<Z>,
+> (namespace = 'v0:pagination'): E {
+  return useContext<E>(namespace)
+}

@@ -34,6 +34,7 @@ declare global {
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsPlugin
   const createContext: typeof import('../../packages/0/src/composables/createContext/index').createContext
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index').createElevation
+  const createFallbackHydration: typeof import('../../packages/0/src/composables/useHydration/index').createFallbackHydration
   const createFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').createFeatures
   const createFeaturesContext: typeof import('../../packages/0/src/composables/useFeatures/index').createFeaturesContext
   const createFeaturesPlugin: typeof import('../../packages/0/src/composables/useFeatures/index').createFeaturesPlugin
@@ -50,6 +51,8 @@ declare global {
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index').createLogger
   const createLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerContext
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerPlugin
+  const createPagination: typeof import('../../packages/0/src/composables/usePagination/index').createPagination
+  const createPaginationContext: typeof import('../../packages/0/src/composables/usePagination/index').createPaginationContext
   const createPermissions: typeof import('../../packages/0/src/composables/usePermissions/index').createPermissions
   const createPermissionsContext: typeof import('../../packages/0/src/composables/usePermissions/index').createPermissionsContext
   const createPermissionsPlugin: typeof import('../../packages/0/src/composables/usePermissions/index').createPermissionsPlugin
@@ -92,6 +95,7 @@ declare global {
   const isArray: typeof import('../../packages/0/src/utilities/helpers').isArray
   const isBoolean: typeof import('../../packages/0/src/utilities/helpers').isBoolean
   const isFunction: typeof import('../../packages/0/src/utilities/helpers').isFunction
+  const isNaN: typeof import('../../packages/0/src/utilities/helpers').isNaN
   const isNull: typeof import('../../packages/0/src/utilities/helpers').isNull
   const isNullOrUndefined: typeof import('../../packages/0/src/utilities/helpers').isNullOrUndefined
   const isNumber: typeof import('../../packages/0/src/utilities/helpers').isNumber
@@ -128,6 +132,7 @@ declare global {
   const provideContext: typeof import('../../packages/0/src/composables/createContext/index').provideContext
   const provideHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['provideHydrationContext']
   const provideStorageContext: typeof import('../../packages/0/src/composables/useStorage/index').provideStorageContext
+  const range: typeof import('../../packages/0/src/utilities/helpers').range
   const reactive: typeof import('vue').reactive
   const readonly: typeof import('vue').readonly
   const ref: typeof import('vue').ref
@@ -178,6 +183,7 @@ declare global {
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index').useLogger
   const useModel: typeof import('vue').useModel
   const useMutationObserver: typeof import('../../packages/0/src/composables/useMutationObserver/index').useMutationObserver
+  const usePagination: typeof import('../../packages/0/src/composables/usePagination/index').usePagination
   const usePermissions: typeof import('../../packages/0/src/composables/usePermissions/index').usePermissions
   const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index').useProxyModel
   const useProxyRegistry: typeof import('../../packages/0/src/composables/useProxyRegistry/index').useProxyRegistry
@@ -195,6 +201,7 @@ declare global {
   const useTemplateRef: typeof import('vue').useTemplateRef
   const useTheme: typeof import('../../packages/0/src/composables/useTheme/index').useTheme
   const useTimeline: typeof import('../../packages/0/src/composables/useTimeline/index').useTimeline
+  const useToggleScope: typeof import('../../packages/0/src/composables/useToggleScope/index').useToggleScope
   const useTokens: typeof import('../../packages/0/src/composables/useTokens/index').useTokens
   const useVirtual: typeof import('../../packages/0/src/composables/useVirtual/index').useVirtual
   const useWindowEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useWindowEventListener
@@ -261,10 +268,10 @@ declare global {
   export type { HydrationContext, HydrationOptions, HydrationContextOptions, HydrationPluginOptions } from '../../packages/0/src/composables/useHydration/index'
   import('../../packages/0/src/composables/useHydration/index')
   // @ts-ignore
-  export type { IntersectionObserverEntry, IntersectionObserverOptions } from '../../packages/0/src/composables/useIntersectionObserver/index'
+  export type { IntersectionObserverEntry, IntersectionObserverOptions, UseIntersectionObserverReturn, UseElementIntersectionReturn } from '../../packages/0/src/composables/useIntersectionObserver/index'
   import('../../packages/0/src/composables/useIntersectionObserver/index')
   // @ts-ignore
-  export type { KeyHandler } from '../../packages/0/src/composables/useKeydown/index'
+  export type { KeyHandler, UseKeydownReturn } from '../../packages/0/src/composables/useKeydown/index'
   import('../../packages/0/src/composables/useKeydown/index')
   // @ts-ignore
   export type { LocaleRecord, LocaleTicket, LocaleContext, LocaleOptions, LocaleContextOptions, LocalePluginOptions, LocaleAdapter } from '../../packages/0/src/composables/useLocale/index'
@@ -273,8 +280,11 @@ declare global {
   export type { LoggerContext, LoggerOptions, LoggerContextOptions, LoggerPluginOptions, LoggerAdapter, LogLevel } from '../../packages/0/src/composables/useLogger/index'
   import('../../packages/0/src/composables/useLogger/index')
   // @ts-ignore
-  export type { MutationObserverRecord, UseMutationObserverOptions } from '../../packages/0/src/composables/useMutationObserver/index'
+  export type { MutationObserverRecord, UseMutationObserverOptions, UseMutationObserverReturn } from '../../packages/0/src/composables/useMutationObserver/index'
   import('../../packages/0/src/composables/useMutationObserver/index')
+  // @ts-ignore
+  export type { PaginationItem, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/usePagination/index'
+  import('../../packages/0/src/composables/usePagination/index')
   // @ts-ignore
   export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
   import('../../packages/0/src/composables/usePermissions/index')
@@ -291,7 +301,7 @@ declare global {
   export type { RegistryTicket, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/useRegistry/index'
   import('../../packages/0/src/composables/useRegistry/index')
   // @ts-ignore
-  export type { ResizeObserverEntry, ResizeObserverOptions } from '../../packages/0/src/composables/useResizeObserver/index'
+  export type { ResizeObserverEntry, ResizeObserverOptions, UseResizeObserverReturn, UseElementSizeReturn } from '../../packages/0/src/composables/useResizeObserver/index'
   import('../../packages/0/src/composables/useResizeObserver/index')
   // @ts-ignore
   export type { SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/useSelection/index'
@@ -311,6 +321,9 @@ declare global {
   // @ts-ignore
   export type { TimelineContext, TimelineTicket, TimelineOptions, TimelineContextOptions } from '../../packages/0/src/composables/useTimeline/index'
   import('../../packages/0/src/composables/useTimeline/index')
+  // @ts-ignore
+  export type { ToggleScopeControls } from '../../packages/0/src/composables/useToggleScope/index'
+  import('../../packages/0/src/composables/useToggleScope/index')
   // @ts-ignore
   export type { TokenAlias, TokenPrimitive, TokenValue, TokenCollection, FlatTokenCollection, TokenTicket, TokenContext, TokenOptions, TokenContextOptions } from '../../packages/0/src/composables/useTokens/index'
   import('../../packages/0/src/composables/useTokens/index')
@@ -355,6 +368,7 @@ declare module 'vue' {
     readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
     readonly createContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['createContext']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
+    readonly createFallbackHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createFallbackHydration']>
     readonly createFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']>
     readonly createFeaturesContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesContext']>
     readonly createFeaturesPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']>
@@ -371,6 +385,8 @@ declare module 'vue' {
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerContext']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
+    readonly createPagination: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['createPagination']>
+    readonly createPaginationContext: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['createPaginationContext']>
     readonly createPermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']>
     readonly createPermissionsContext: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsContext']>
     readonly createPermissionsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissionsPlugin']>
@@ -413,6 +429,7 @@ declare module 'vue' {
     readonly isArray: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isArray']>
     readonly isBoolean: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isBoolean']>
     readonly isFunction: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isFunction']>
+    readonly isNaN: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNaN']>
     readonly isNull: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNull']>
     readonly isNullOrUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNullOrUndefined']>
     readonly isNumber: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isNumber']>
@@ -447,6 +464,7 @@ declare module 'vue' {
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['provideContext']>
     readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
+    readonly range: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['range']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
     readonly ref: UnwrapRef<typeof import('vue')['ref']>
@@ -492,6 +510,7 @@ declare module 'vue' {
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useMutationObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']>
+    readonly usePagination: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['usePagination']>
     readonly usePermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['usePermissions']>
     readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
     readonly useProxyRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyRegistry/index')['useProxyRegistry']>
@@ -509,6 +528,7 @@ declare module 'vue' {
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
     readonly useTimeline: UnwrapRef<typeof import('../../packages/0/src/composables/useTimeline/index')['useTimeline']>
+    readonly useToggleScope: UnwrapRef<typeof import('../../packages/0/src/composables/useToggleScope/index')['useToggleScope']>
     readonly useTokens: UnwrapRef<typeof import('../../packages/0/src/composables/useTokens/index')['useTokens']>
     readonly useVirtual: UnwrapRef<typeof import('../../packages/0/src/composables/useVirtual/index')['useVirtual']>
     readonly useWindowEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useWindowEventListener']>

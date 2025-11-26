@@ -65,6 +65,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/pagination': RouteRecordInfo<
+      '/components/pagination',
+      '/components/pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/popover': RouteRecordInfo<
       '/components/popover',
       '/components/popover',
@@ -317,6 +324,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/utilities/use-pagination': RouteRecordInfo<
+      '/composables/utilities/use-pagination',
+      '/composables/utilities/use-pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/utilities/use-virtual': RouteRecordInfo<
       '/composables/utilities/use-virtual',
       '/composables/utilities/use-virtual',
@@ -461,6 +475,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/group.md': {
       routes:
         | '/components/group'
+      views:
+        | never
+    }
+    'src/pages/components/pagination.md': {
+      routes:
+        | '/components/pagination'
       views:
         | never
     }
@@ -677,6 +697,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/utilities/use-filter.md': {
       routes:
         | '/composables/utilities/use-filter'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/use-pagination.md': {
+      routes:
+        | '/composables/utilities/use-pagination'
       views:
         | never
     }

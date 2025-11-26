@@ -42,6 +42,7 @@ export const useAppStore = defineStore('app', {
           { name: 'Avatar', to: '/components/avatar' },
           { name: 'ExpansionPanel', to: '/components/expansion-panel' },
           { name: 'Group', to: '/components/group' },
+          { name: 'Pagination', to: '/components/pagination' },
           { name: 'Popover', to: '/components/popover' },
           { name: 'Selection', to: '/components/selection' },
           { name: 'Single', to: '/components/single' },
@@ -115,6 +116,7 @@ export const useAppStore = defineStore('app', {
             name: 'Utilities',
             children: [
               { name: 'useFilter', to: '/composables/utilities/use-filter' },
+              { name: 'usePagination', to: '/composables/utilities/use-pagination' },
               { name: 'useVirtual', to: '/composables/utilities/use-virtual' },
             ],
           },
