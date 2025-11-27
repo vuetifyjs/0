@@ -7,11 +7,16 @@
 
 <template>
   <Pagination.Root
-    v-slot="{ pageStart, pageStop }"
+    v-slot="{ pageStart, pageStop, visible }"
     v-model="page"
-    class="flex items-center gap-1"
+    class="flex flex-wrap items-center gap-1"
     :size="200"
     :visible="7"
+    auto-visible
+    :button-width="36"
+    :button-gap="4"
+    :nav-buttons="4"
+    :min-visible="3"
   >
     <Pagination.First class="w-9 h-9 rounded border border-divider flex items-center justify-center bg-surface hover:bg-surface-tint data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed">
       «
@@ -45,12 +50,12 @@
       »
     </Pagination.Last>
 
-    <span class="ml-4 text-sm text-on-surface opacity-60">
-      Showing {{ pageStart + 1 }}-{{ pageStop }} of 200
+    <span class="ml-4 text-sm text-on-surface opacity-60 whitespace-nowrap">
+      {{ pageStart + 1 }}-{{ pageStop }} of 200
     </span>
   </Pagination.Root>
 
   <p class="mt-4 text-sm text-on-surface opacity-60">
-    Page: {{ page }} / {{ Math.ceil(200 / 10) }}
+    Page: {{ page }} / {{ Math.ceil(200 / 10) }} (showing {{ visible }} buttons)
   </p>
 </template>
