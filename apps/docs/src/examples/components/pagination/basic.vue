@@ -29,7 +29,7 @@
         />
         <Pagination.Item
           v-else
-          class="w-9 h-9 rounded border border-divider flex items-center justify-center bg-surface hover:bg-surface-tint data-[selected]:bg-primary data-[selected]:text-on-primary data-[selected]:border-primary"
+          class="w-9 h-9 rounded border border-divider flex items-center justify-center bg-surface hover:bg-surface-tint data-[selected]:bg-primary data-[selected]:text-on-primary data-[selected]:border-primary data-[selected]:hover:bg-primary"
           :value="item.value as number"
         >
           {{ item.value }}
