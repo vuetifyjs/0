@@ -32,7 +32,7 @@ import type { ID } from '#v0/types'
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 
-export interface GroupTicket extends SelectionTicket {}
+export interface GroupTicket<V = unknown> extends SelectionTicket<V> {}
 
 export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z> {
   selectedIndexes: ComputedRef<Set<number>>

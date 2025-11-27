@@ -31,7 +31,7 @@ import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/compo
 import type { ID } from '#v0/types'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 
-export interface SelectionTicket extends RegistryTicket {
+export interface SelectionTicket<V = unknown> extends RegistryTicket<V> {
   /** Disabled state of the ticket */
   disabled: MaybeRef<boolean>
   /** Whether the ticket is currently selected */

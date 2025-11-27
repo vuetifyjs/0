@@ -28,13 +28,13 @@ import type { ID } from '#v0/types'
 import type { App, ComputedRef } from 'vue'
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 
-export interface SingleTicket extends SelectionTicket {}
+export interface SingleTicket<V = unknown> extends SelectionTicket<V> {}
 
 export interface SingleContext<Z extends SingleTicket> extends SelectionContext<Z> {
   selectedId: ComputedRef<ID | undefined>
   selectedIndex: ComputedRef<number>
   selectedItem: ComputedRef<Z | undefined>
-  selectedValue: ComputedRef<unknown>
+  selectedValue: ComputedRef<Z['value'] | undefined>
 }
 
 export interface SingleOptions extends SelectionOptions {}

@@ -78,7 +78,7 @@ export interface TimelineContext<Z extends TimelineTicket> extends RegistryConte
   redo: () => Z | undefined
 }
 
-export interface TimelineTicket extends RegistryTicket {}
+export interface TimelineTicket<V = unknown> extends RegistryTicket<V> {}
 
 export interface TimelineOptions extends RegistryOptions {
   /**

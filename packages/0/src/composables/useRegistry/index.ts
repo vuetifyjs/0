@@ -29,7 +29,7 @@ import type { ID } from '#v0/types'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App } from 'vue'
 
-export interface RegistryTicket {
+export interface RegistryTicket<V = unknown> {
   /** The unique identifier. Is randomly generated if not provided. */
   id: ID
   /**
@@ -39,7 +39,7 @@ export interface RegistryTicket {
    */
   index: number
   /** The value associated with the ticket. If not provided, it defaults to the index. */
-  value: any
+  value: V
   /**
    * Whether the value is derived from index.
    *

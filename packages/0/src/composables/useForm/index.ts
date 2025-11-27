@@ -41,7 +41,7 @@ export type FormValidationRule = (value: unknown) => FormValidationResult
 
 export type FormValue = Ref<unknown> | ShallowRef<unknown>
 
-export interface FormTicket extends RegistryTicket {
+export interface FormTicket<V = unknown> extends RegistryTicket<V> {
   validate: (silent?: boolean) => Promise<boolean>
   reset: () => void
   validateOn: 'submit' | 'change' | string
