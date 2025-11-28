@@ -4,7 +4,7 @@
 
   // Composables
   import { createPaginationContext } from '#v0/composables/usePagination'
-  import { useResponsivePagination } from '#v0/composables/useResponsivePagination'
+  import { useElementSize } from '#v0/composables/useResizeObserver'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -14,23 +14,27 @@
   export interface PaginationRootProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
-    /** Total number of pages */
+    /** Total number of items to paginate */
     size?: MaybeRefOrGetter<number>
-    /** Maximum visible page buttons (or max when autoVisible is enabled) */
+    /** Number of visible page buttons. When maxVisible is set, this is ignored. @default 5 */
     visible?: MaybeRefOrGetter<number>
     /** Number of items per page */
     itemsPerPage?: MaybeRefOrGetter<number>
     /** Ellipsis character */
     ellipsis?: string
-    /** Enable responsive auto-calculation of visible buttons based on container width */
-    autoVisible?: boolean
-    /** Width of each page button in pixels (used when autoVisible is true). @default 36 */
+    /**
+     * Maximum number of visible page buttons (enables responsive auto-calculation).
+     * When set, visible buttons are calculated based on container width,
+     * up to this maximum value.
+     */
+    maxVisible?: MaybeRefOrGetter<number>
+    /** Width of each page button in pixels (used with maxVisible). @default 36 */
     buttonWidth?: MaybeRefOrGetter<number>
-    /** Gap between buttons in pixels (used when autoVisible is true). @default 4 */
+    /** Gap between buttons in pixels (used with maxVisible). @default 4 */
     buttonGap?: MaybeRefOrGetter<number>
-    /** Number of navigation buttons to account for (used when autoVisible is true). @default 4 */
+    /** Number of navigation buttons to account for (used with maxVisible). @default 4 */
     navButtons?: MaybeRefOrGetter<number>
-    /** Minimum number of visible page buttons (used when autoVisible is true). @default 1 */
+    /** Minimum number of visible page buttons (used with maxVisible). @default 1 */
     minVisible?: MaybeRefOrGetter<number>
   }
 
@@ -44,7 +48,7 @@
       pages: number
       /** Items per page */
       itemsPerPage: number
-      /** Number of visible page buttons (computed when autoVisible is enabled) */
+      /** Number of visible page buttons (computed when maxVisible is set) */
       visible: number
       /** Visible page items for rendering */
       items: PaginationItem[]
@@ -72,7 +76,7 @@
 
 <script setup lang="ts">
   // Utilities
-  import { toRef, toValue, useTemplateRef, watch } from 'vue'
+  import { computed, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose } from '#v0/components/Atom'
@@ -91,7 +95,7 @@
     visible,
     itemsPerPage,
     ellipsis,
-    autoVisible,
+    maxVisible,
     buttonWidth,
     buttonGap,
     navButtons,
@@ -102,20 +106,48 @@
   const atomRef = useTemplateRef<AtomExpose>('atomRef')
   const rootEl = toRef(() => atomRef.value?.element as Element | undefined)
 
-  // Use responsive pagination when autoVisible is enabled
-  const { visible: responsiveVisible } = useResponsivePagination(rootEl, {
-    buttonWidth: () => toValue(buttonWidth) ?? 36,
-    gap: () => toValue(buttonGap) ?? 4,
-    navButtons: () => toValue(navButtons) ?? 4,
-    minVisible: () => toValue(minVisible) ?? 1,
-    maxVisible: () => toValue(visible) ?? Infinity,
+  // Track container width for responsive calculation
+  const { width: containerWidth } = useElementSize(rootEl)
+
+  // Calculate responsive visible count based on container width
+  const responsiveVisible = computed(() => {
+    const max = toValue(maxVisible)
+    if (max === undefined) return undefined
+
+    const width = containerWidth.value
+    const btnWidth = toValue(buttonWidth) ?? 36
+    const gap = toValue(buttonGap) ?? 4
+    const navBtns = toValue(navButtons) ?? 4
+    const min = toValue(minVisible) ?? 1
+
+    if (width <= 0) return min
+
+    // Calculate space taken by navigation buttons
+    const navSpace = navBtns * (btnWidth + gap)
+    const availableSpace = width - navSpace
+
+    if (availableSpace <= 0) return min
+
+    // Calculate how many page buttons can fit
+    // n buttons: n * btnWidth + (n-1) * gap = n * (btnWidth + gap) - gap
+    const maxButtons = Math.floor((availableSpace + gap) / (btnWidth + gap))
+
+    return Math.min(max, Math.max(min, maxButtons))
+  })
+
+  // Determine effective visible value
+  const effectiveVisible = computed(() => {
+    if (responsiveVisible.value !== undefined) {
+      return responsiveVisible.value
+    }
+    return toValue(visible) ?? 5
   })
 
   const [, providePaginationContext] = createPaginationContext({
     namespace,
     page: page.value,
     size: () => toValue(size) ?? 1,
-    visible: () => autoVisible ? responsiveVisible.value : (toValue(visible) ?? 5),
+    visible: effectiveVisible,
     itemsPerPage: toRef(() => toValue(itemsPerPage) ?? 10),
     ellipsis,
   })
@@ -126,15 +158,12 @@
   watch(page, v => context.page.value = v)
   watch(() => context.page.value, v => page.value = v)
 
-  // Compute current visible value
-  const currentVisible = toRef(() => autoVisible ? responsiveVisible.value : (toValue(visible) ?? 5))
-
   const slotProps = toRef(() => ({
     page: context.page.value,
     size: context.size,
     pages: context.pages,
     itemsPerPage: context.itemsPerPage.value,
-    visible: currentVisible.value,
+    visible: effectiveVisible.value,
     items: context.items.value,
     pageStart: context.pageStart.value,
     pageStop: context.pageStop.value,

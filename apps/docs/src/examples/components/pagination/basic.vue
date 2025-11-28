@@ -11,8 +11,7 @@
     v-model="page"
     class="flex flex-wrap items-center gap-1"
     :size="200"
-    :visible="7"
-    auto-visible
+    :max-visible="7"
     :button-width="36"
     :button-gap="4"
     :nav-buttons="4"
