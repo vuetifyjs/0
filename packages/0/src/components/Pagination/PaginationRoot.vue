@@ -3,6 +3,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
+  import { useContext } from '#v0/composables/createContext'
   import { createPaginationContext } from '#v0/composables/usePagination'
   import { createRegistryContext } from '#v0/composables/useRegistry'
   import { useElementSize } from '#v0/composables/useResizeObserver'
@@ -10,14 +11,18 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { PaginationItem } from '#v0/composables/usePagination'
+  import type { RegistryContext } from '#v0/composables/useRegistry'
   import type { MaybeRefOrGetter } from 'vue'
 
-  // Element registry for responsive measurement
-  // Child components register their elements, first one is used for measurement
-  export const [
-    usePaginationElements,
-    providePaginationElements,
-  ] = createRegistryContext({ namespace: 'v0:pagination-elements' })
+  /**
+   * Access the element registry provided by PaginationRoot for responsive measurement.
+   * Child components register their elements here so the root can measure button widths.
+   *
+   * @param namespace - The parent pagination namespace (default: 'v0:pagination')
+   */
+  export function usePaginationElements (namespace = 'v0:pagination') {
+    return useContext<RegistryContext>(`${namespace}:elements`)
+  }
 
   export interface PaginationRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -104,8 +109,11 @@
   // Track container width for responsive calculation
   const { width: containerWidth } = useElementSize(rootEl)
 
-  // Element registry - child components register their elements
-  const elementRegistry = providePaginationElements()
+  // Element registry for responsive measurement - uses same namespace as pagination
+  const [, provideElementRegistry, elementRegistry] = createRegistryContext({
+    namespace: `${namespace}:elements`,
+  })
+  provideElementRegistry(elementRegistry)
 
   // Measure item width from first registered element
   const itemWidth = computed(() => {

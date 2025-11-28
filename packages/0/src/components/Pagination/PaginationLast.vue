@@ -50,7 +50,7 @@
 
   // Register element for responsive measurement
   const atomRef = useTemplateRef<AtomExpose>('atomRef')
-  const elements = usePaginationElements()
+  const elements = usePaginationElements(namespace)
   const ticket = elements.register()
 
   watch(() => atomRef.value?.element, el => {
