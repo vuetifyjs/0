@@ -28,12 +28,6 @@
      * up to this maximum value.
      */
     maxVisible?: MaybeRefOrGetter<number>
-    /** Width of each page button in pixels (used with maxVisible). @default 36 */
-    buttonWidth?: MaybeRefOrGetter<number>
-    /** Gap between buttons in pixels (used with maxVisible). @default 4 */
-    buttonGap?: MaybeRefOrGetter<number>
-    /** Number of navigation buttons to account for (used with maxVisible). @default 4 */
-    navButtons?: MaybeRefOrGetter<number>
     /** Minimum number of visible page buttons (used with maxVisible). @default 1 */
     minVisible?: MaybeRefOrGetter<number>
   }
@@ -96,9 +90,6 @@
     itemsPerPage,
     ellipsis,
     maxVisible,
-    buttonWidth,
-    buttonGap,
-    navButtons,
     minVisible,
   } = defineProps<PaginationRootProps>()
 
@@ -110,27 +101,22 @@
   const { width: containerWidth } = useElementSize(rootEl)
 
   // Calculate responsive visible count based on container width
+  // Uses 40px per button (36px button + 4px gap) as standard sizing
   const responsiveVisible = computed(() => {
     const max = toValue(maxVisible)
     if (max === undefined) return undefined
 
     const width = containerWidth.value
-    const btnWidth = toValue(buttonWidth) ?? 36
-    const gap = toValue(buttonGap) ?? 4
-    const navBtns = toValue(navButtons) ?? 4
     const min = toValue(minVisible) ?? 1
 
     if (width <= 0) return min
 
-    // Calculate space taken by navigation buttons
-    const navSpace = navBtns * (btnWidth + gap)
-    const availableSpace = width - navSpace
+    // 40px per button (36px + 4px gap), 4 nav buttons = 160px reserved
+    const availableSpace = width - 160
 
     if (availableSpace <= 0) return min
 
-    // Calculate how many page buttons can fit
-    // n buttons: n * btnWidth + (n-1) * gap = n * (btnWidth + gap) - gap
-    const maxButtons = Math.floor((availableSpace + gap) / (btnWidth + gap))
+    const maxButtons = Math.floor((availableSpace + 4) / 40)
 
     return Math.min(max, Math.max(min, maxButtons))
   })

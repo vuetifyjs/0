@@ -12,9 +12,6 @@
     class="flex flex-wrap items-center gap-1"
     :size="200"
     :max-visible="7"
-    :button-width="36"
-    :button-gap="4"
-    :nav-buttons="4"
     :min-visible="3"
   >
     <Pagination.First class="w-9 h-9 rounded border border-divider flex items-center justify-center bg-surface hover:bg-surface-tint data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed">
