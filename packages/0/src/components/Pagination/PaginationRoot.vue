@@ -14,14 +14,8 @@
   import type { RegistryContext } from '#v0/composables/useRegistry'
   import type { MaybeRefOrGetter } from 'vue'
 
-  /**
-   * Access the element registry provided by PaginationRoot for responsive measurement.
-   * Child components register their elements here so the root can measure button widths.
-   *
-   * @param namespace - The parent pagination namespace (default: 'v0:pagination')
-   */
   export function usePaginationElements (namespace = 'v0:pagination') {
-    return useContext<RegistryContext>(`${namespace}:elements`)
+    return useContext<RegistryContext>(`${namespace}/elements`)
   }
 
   export interface PaginationRootProps extends AtomProps {
@@ -102,20 +96,15 @@
     minVisible,
   } = defineProps<PaginationRootProps>()
 
-  // Template ref for responsive sizing - Atom exposes element via defineExpose
   const atomRef = useTemplateRef<AtomExpose>('atomRef')
   const rootEl = toRef(() => atomRef.value?.element as Element | undefined)
-
-  // Track container width for responsive calculation
   const { width: containerWidth } = useElementSize(rootEl)
 
-  // Element registry for responsive measurement - uses same namespace as pagination
   const [, provideElementRegistry, elementRegistry] = createRegistryContext({
-    namespace: `${namespace}:elements`,
+    namespace: `${namespace}/elements`,
   })
   provideElementRegistry(elementRegistry)
 
-  // Measure item width from first registered element
   const itemWidth = computed(() => {
     const firstTicket = elementRegistry.seek('first')
     const el = firstTicket?.value as HTMLElement | undefined
@@ -129,7 +118,6 @@
     return el.offsetWidth + Math.max(marginX, gapX)
   })
 
-  // Calculate responsive visible count based on container width
   const responsiveVisible = computed(() => {
     const max = toValue(maxVisible)
     if (max === undefined) return max
@@ -140,7 +128,6 @@
 
     if (width <= 0 || btnWidth <= 0) return min
 
-    // Reserve space for nav buttons (first, prev, next, last)
     const navButtonsSpace = btnWidth * 4
     const availableSpace = width - navButtonsSpace
 
@@ -151,7 +138,6 @@
     return Math.min(max, Math.max(min, maxButtons))
   })
 
-  // Use responsive value, or maxVisible as static fallback, or default 5
   const effectiveVisible = computed(() => {
     return responsiveVisible.value ?? toValue(maxVisible) ?? 5
   })
@@ -167,7 +153,6 @@
 
   const context = providePaginationContext()
 
-  // Sync model with context
   watch(page, v => context.page.value = v)
   watch(() => context.page.value, v => page.value = v)
 

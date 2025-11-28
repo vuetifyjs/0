@@ -48,7 +48,6 @@
 
   const context = usePagination(namespace)
 
-  // Register element for responsive measurement
   const atomRef = useTemplateRef<AtomExpose>('atomRef')
   const elements = usePaginationElements(namespace)
   const ticket = elements.register()
