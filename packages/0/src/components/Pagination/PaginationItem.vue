@@ -33,10 +33,10 @@
 
 <script setup lang="ts">
   // Utilities
-  import { inject, toRef, useTemplateRef } from 'vue'
+  import { onScopeDispose, toRef, useTemplateRef, watch } from 'vue'
 
   // Local
-  import { PaginationElementKey } from './PaginationRoot.vue'
+  import { usePaginationElements } from './PaginationRoot.vue'
 
   // Types
   import type { AtomExpose } from '#v0/components/Atom'
@@ -57,10 +57,14 @@
 
   // Register element for responsive measurement
   const atomRef = useTemplateRef<AtomExpose>('atomRef')
-  const registerElement = inject(PaginationElementKey, undefined)
-  if (registerElement) {
-    registerElement(toRef(() => atomRef.value?.element as HTMLElement | undefined))
-  }
+  const elements = usePaginationElements()
+  const ticket = elements.register()
+
+  watch(() => atomRef.value?.element, el => {
+    if (el) elements.upsert(ticket.id, { value: el })
+  }, { immediate: true })
+
+  onScopeDispose(() => elements.unregister(ticket.id))
 
   const isSelected = toRef(() => context.page.value === value)
 

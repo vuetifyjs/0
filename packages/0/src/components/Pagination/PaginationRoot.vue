@@ -4,12 +4,20 @@
 
   // Composables
   import { createPaginationContext } from '#v0/composables/usePagination'
+  import { createRegistryContext } from '#v0/composables/useRegistry'
   import { useElementSize } from '#v0/composables/useResizeObserver'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { PaginationItem } from '#v0/composables/usePagination'
-  import type { InjectionKey, MaybeRefOrGetter, Ref } from 'vue'
+  import type { MaybeRefOrGetter } from 'vue'
+
+  // Element registry for responsive measurement
+  // Child components register their elements, first one is used for measurement
+  export const [
+    usePaginationElements,
+    providePaginationElements,
+  ] = createRegistryContext({ namespace: 'v0:pagination-elements' })
 
   export interface PaginationRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -63,14 +71,11 @@
       goto: (page: number) => void
     }) => any
   }
-
-  /** Injection key for pagination element registration */
-  export const PaginationElementKey: InjectionKey<(el: Ref<HTMLElement | undefined>) => void> = Symbol('PaginationElement')
 </script>
 
 <script setup lang="ts">
   // Utilities
-  import { computed, provide, shallowRef, toRef, toValue, useTemplateRef, watch } from 'vue'
+  import { computed, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose } from '#v0/components/Atom'
@@ -99,23 +104,13 @@
   // Track container width for responsive calculation
   const { width: containerWidth } = useElementSize(rootEl)
 
-  // Element registration - first child to register provides measurement reference
-  const registeredElement = shallowRef<HTMLElement>()
+  // Element registry - child components register their elements
+  const elementRegistry = providePaginationElements()
 
-  provide(PaginationElementKey, (el: Ref<HTMLElement | undefined>) => {
-    // Only register if we don't have one yet
-    if (registeredElement.value) return
-
-    watch(el, newEl => {
-      if (newEl && !registeredElement.value) {
-        registeredElement.value = newEl
-      }
-    }, { immediate: true })
-  })
-
-  // Measure item width from registered element
+  // Measure item width from first registered element
   const itemWidth = computed(() => {
-    const el = registeredElement.value
+    const firstTicket = elementRegistry.seek('first')
+    const el = firstTicket?.value as HTMLElement | undefined
     const root = rootEl.value
     if (!el || !root) return 0
 
