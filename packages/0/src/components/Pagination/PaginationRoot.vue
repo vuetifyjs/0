@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
   // Utilities
-  import { computed, toRef, toValue, useTemplateRef, watch } from 'vue'
+  import { computed, shallowRef, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose } from '#v0/components/Atom'
@@ -100,23 +100,47 @@
   // Track container width for responsive calculation
   const { width: containerWidth } = useElementSize(rootEl)
 
+  // Measure actual button dimensions from the DOM
+  const itemWidth = shallowRef(0)
+
+  function measureItemWidth () {
+    const el = rootEl.value
+    if (!el) return
+
+    // Find first button element (pagination item or nav button)
+    const firstItem = el.querySelector('button') as HTMLElement
+    if (!firstItem) return
+
+    const style = getComputedStyle(firstItem)
+    const marginX = parseFloat(style.marginLeft) + parseFloat(style.marginRight)
+    const gapX = parseFloat(getComputedStyle(el).gap) || 0
+
+    itemWidth.value = firstItem.offsetWidth + Math.max(marginX, gapX)
+  }
+
+  // Measure on width changes (ResizeObserver triggers this)
+  watch(containerWidth, () => {
+    if (itemWidth.value === 0) measureItemWidth()
+  })
+
   // Calculate responsive visible count based on container width
-  // Uses 40px per button (36px button + 4px gap) as standard sizing
   const responsiveVisible = computed(() => {
     const max = toValue(maxVisible)
     if (max === undefined) return undefined
 
     const width = containerWidth.value
     const min = toValue(minVisible) ?? 1
+    const btnWidth = itemWidth.value
 
-    if (width <= 0) return min
+    if (width <= 0 || btnWidth <= 0) return min
 
-    // 40px per button (36px + 4px gap), 4 nav buttons = 160px reserved
-    const availableSpace = width - 160
+    // Reserve space for nav buttons (first, prev, next, last)
+    const navButtonsSpace = btnWidth * 4
+    const availableSpace = width - navButtonsSpace
 
     if (availableSpace <= 0) return min
 
-    const maxButtons = Math.floor((availableSpace + 4) / 40)
+    const maxButtons = Math.floor(availableSpace / btnWidth)
 
     return Math.min(max, Math.max(min, maxButtons))
   })
