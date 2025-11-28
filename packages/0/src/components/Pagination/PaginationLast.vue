@@ -27,7 +27,13 @@
 
 <script setup lang="ts">
   // Utilities
-  import { toRef } from 'vue'
+  import { inject, toRef, useTemplateRef } from 'vue'
+
+  // Local
+  import { PaginationElementKey } from './PaginationRoot.vue'
+
+  // Types
+  import type { AtomExpose } from '#v0/components/Atom'
 
   defineOptions({ name: 'PaginationLast' })
 
@@ -42,6 +48,13 @@
 
   const context = usePagination(namespace)
 
+  // Register element for responsive measurement
+  const atomRef = useTemplateRef<AtomExpose>('atomRef')
+  const registerElement = inject(PaginationElementKey, undefined)
+  if (registerElement) {
+    registerElement(toRef(() => atomRef.value?.element as HTMLElement | undefined))
+  }
+
   const isDisabled = toRef(() => disabled ?? context.isLast.value)
 
   const slotProps = toRef(() => ({
@@ -52,6 +65,7 @@
 
 <template>
   <Atom
+    ref="atomRef"
     :aria-disabled="isDisabled"
     aria-label="Go to last page"
     :as

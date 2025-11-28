@@ -9,26 +9,23 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { PaginationItem } from '#v0/composables/usePagination'
-  import type { MaybeRefOrGetter } from 'vue'
+  import type { InjectionKey, MaybeRefOrGetter, Ref } from 'vue'
 
   export interface PaginationRootProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
     /** Total number of items to paginate */
     size?: MaybeRefOrGetter<number>
-    /** Number of visible page buttons. When maxVisible is set, this is ignored. @default 5 */
-    visible?: MaybeRefOrGetter<number>
     /** Number of items per page */
     itemsPerPage?: MaybeRefOrGetter<number>
     /** Ellipsis character */
     ellipsis?: string
     /**
-     * Maximum number of visible page buttons (enables responsive auto-calculation).
-     * When set, visible buttons are calculated based on container width,
-     * up to this maximum value.
+     * Maximum number of visible page buttons.
+     * Enables responsive auto-calculation based on container width.
      */
     maxVisible?: MaybeRefOrGetter<number>
-    /** Minimum number of visible page buttons (used with maxVisible). @default 1 */
+    /** Minimum number of visible page buttons. @default 1 */
     minVisible?: MaybeRefOrGetter<number>
   }
 
@@ -42,7 +39,7 @@
       pages: number
       /** Items per page */
       itemsPerPage: number
-      /** Number of visible page buttons (computed when maxVisible is set) */
+      /** Number of visible page buttons */
       visible: number
       /** Visible page items for rendering */
       items: PaginationItem[]
@@ -66,11 +63,14 @@
       goto: (page: number) => void
     }) => any
   }
+
+  /** Injection key for pagination element registration */
+  export const PaginationElementKey: InjectionKey<(el: Ref<HTMLElement | undefined>) => void> = Symbol('PaginationElement')
 </script>
 
 <script setup lang="ts">
   // Utilities
-  import { computed, shallowRef, toRef, toValue, useTemplateRef, watch } from 'vue'
+  import { computed, provide, shallowRef, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose } from '#v0/components/Atom'
@@ -86,7 +86,6 @@
     renderless,
     namespace = 'v0:pagination',
     size,
-    visible,
     itemsPerPage,
     ellipsis,
     maxVisible,
@@ -100,33 +99,37 @@
   // Track container width for responsive calculation
   const { width: containerWidth } = useElementSize(rootEl)
 
-  // Measure actual button dimensions from the DOM
-  const itemWidth = shallowRef(0)
+  // Element registration - first child to register provides measurement reference
+  const registeredElement = shallowRef<HTMLElement>()
 
-  function measureItemWidth () {
-    const el = rootEl.value
-    if (!el) return
+  provide(PaginationElementKey, (el: Ref<HTMLElement | undefined>) => {
+    // Only register if we don't have one yet
+    if (registeredElement.value) return
 
-    // Find first button element (pagination item or nav button)
-    const firstItem = el.querySelector('button') as HTMLElement
-    if (!firstItem) return
+    watch(el, newEl => {
+      if (newEl && !registeredElement.value) {
+        registeredElement.value = newEl
+      }
+    }, { immediate: true })
+  })
 
-    const style = getComputedStyle(firstItem)
+  // Measure item width from registered element
+  const itemWidth = computed(() => {
+    const el = registeredElement.value
+    const root = rootEl.value
+    if (!el || !root) return 0
+
+    const style = getComputedStyle(el)
     const marginX = parseFloat(style.marginLeft) + parseFloat(style.marginRight)
-    const gapX = parseFloat(getComputedStyle(el).gap) || 0
+    const gapX = parseFloat(getComputedStyle(root).gap) || 0
 
-    itemWidth.value = firstItem.offsetWidth + Math.max(marginX, gapX)
-  }
-
-  // Measure on width changes (ResizeObserver triggers this)
-  watch(containerWidth, () => {
-    if (itemWidth.value === 0) measureItemWidth()
+    return el.offsetWidth + Math.max(marginX, gapX)
   })
 
   // Calculate responsive visible count based on container width
   const responsiveVisible = computed(() => {
     const max = toValue(maxVisible)
-    if (max === undefined) return undefined
+    if (max === undefined) return max
 
     const width = containerWidth.value
     const min = toValue(minVisible) ?? 1
@@ -145,12 +148,9 @@
     return Math.min(max, Math.max(min, maxButtons))
   })
 
-  // Determine effective visible value
+  // Use responsive value, or maxVisible as static fallback, or default 5
   const effectiveVisible = computed(() => {
-    if (responsiveVisible.value !== undefined) {
-      return responsiveVisible.value
-    }
-    return toValue(visible) ?? 5
+    return responsiveVisible.value ?? toValue(maxVisible) ?? 5
   })
 
   const [, providePaginationContext] = createPaginationContext({
