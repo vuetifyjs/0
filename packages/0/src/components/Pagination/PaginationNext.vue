@@ -49,7 +49,7 @@
   const context = usePagination(namespace)
 
   const atomRef = useTemplateRef<AtomExpose>('atomRef')
-  const elements = usePaginationElements(namespace)
+  const elements = usePaginationElements()
   const ticket = elements.register()
 
   watch(() => atomRef.value?.element, el => {

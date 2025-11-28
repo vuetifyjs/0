@@ -3,19 +3,25 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { useContext } from '#v0/composables/createContext'
   import { createPaginationContext } from '#v0/composables/usePagination'
-  import { createRegistryContext } from '#v0/composables/useRegistry'
+  import { useRegistry } from '#v0/composables/useRegistry'
   import { useElementSize } from '#v0/composables/useResizeObserver'
+
+  // Utilities
+  import { inject, provide } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { PaginationItem } from '#v0/composables/usePagination'
   import type { RegistryContext } from '#v0/composables/useRegistry'
-  import type { MaybeRefOrGetter } from 'vue'
+  import type { InjectionKey, MaybeRefOrGetter } from 'vue'
 
-  export function usePaginationElements (namespace = 'v0:pagination') {
-    return useContext<RegistryContext>(`${namespace}/elements`)
+  const PaginationElementsKey: InjectionKey<RegistryContext> = Symbol('v0:pagination')
+
+  export function usePaginationElements () {
+    const elements = inject(PaginationElementsKey)
+    if (!elements) throw new Error('PaginationElements not provided')
+    return elements
   }
 
   export interface PaginationRootProps extends AtomProps {
@@ -100,10 +106,8 @@
   const rootEl = toRef(() => atomRef.value?.element as Element | undefined)
   const { width: containerWidth } = useElementSize(rootEl)
 
-  const [, provideElementRegistry, elementRegistry] = createRegistryContext({
-    namespace: `${namespace}/elements`,
-  })
-  provideElementRegistry(elementRegistry)
+  const elementRegistry = useRegistry()
+  provide(PaginationElementsKey, elementRegistry)
 
   const itemWidth = computed(() => {
     const firstTicket = elementRegistry.seek('first')
