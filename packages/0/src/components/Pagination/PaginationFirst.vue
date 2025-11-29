@@ -4,6 +4,7 @@
 
   // Composables
   import { usePagination } from '#v0/composables/usePagination'
+  import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
   import { toRef } from 'vue'
@@ -40,6 +41,7 @@
     disabled,
   } = defineProps<PaginationFirstProps>()
 
+  const locale = useLocale()
   const pagination = usePagination(namespace)
 
   const isDisabled = toRef(() => disabled || pagination.isFirst.value)
@@ -59,7 +61,7 @@
 <template>
   <Atom
     :aria-disabled="isDisabled"
-    aria-label="Go to first page"
+    :aria-label="locale.t('Go to first page')"
     :as
     :data-disabled="isDisabled || undefined"
     :disabled="isDisabled"

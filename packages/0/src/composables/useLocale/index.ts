@@ -27,6 +27,7 @@ import { createTokens } from '#v0/composables/useTokens'
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
 // Utilities
+import { getCurrentInstance } from 'vue'
 import { isString } from '#v0/utilities'
 
 // Types
@@ -146,6 +147,17 @@ export function createLocale<
   } as E
 }
 
+export function createLocaleFallback<
+  Z extends LocaleTicket = LocaleTicket,
+  E extends LocaleContext<Z> = LocaleContext<Z>,
+> (): E {
+  return {
+    size: 0,
+    t: (key: string) => key,
+    n: String,
+  } as unknown as E
+}
+
 /**
  * Creates a new locale context.
  *
@@ -229,5 +241,13 @@ export function useLocale<
   Z extends LocaleTicket = LocaleTicket,
   E extends LocaleContext<Z> = LocaleContext<Z>,
 > (namespace = 'v0:locale'): E {
-  return useContext<E>(namespace)
+  const fallback = createLocaleFallback<Z, E>()
+
+  if (!getCurrentInstance()) return fallback
+
+  try {
+    return useContext<E>(namespace, fallback)
+  } catch {
+    return fallback
+  }
 }

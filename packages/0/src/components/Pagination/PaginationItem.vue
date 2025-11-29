@@ -3,8 +3,9 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { usePagination } from '#v0/composables/usePagination'
   import { useContext } from '#v0/composables/createContext'
+  import { useLocale } from '#v0/composables/useLocale'
+  import { usePagination } from '#v0/composables/usePagination'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -50,6 +51,7 @@
     disabled,
   } = defineProps<PaginationItemProps>()
 
+  const locale = useLocale()
   const pagination = usePagination(namespace)
   const itemRegistry = useContext<RegistryContext>(`${namespace}:item`)
 
@@ -81,7 +83,7 @@
 <template>
   <Atom
     ref="atom"
-    :aria-current="isSelected ? 'page' : undefined"
+    :aria-current="isSelected ? locale.t('page') : undefined"
     :aria-disabled="disabled"
     :as
     :data-selected="isSelected ? '' : undefined"

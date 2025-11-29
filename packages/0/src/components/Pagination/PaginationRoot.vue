@@ -4,7 +4,9 @@
 
   // Composables
   import { createPaginationContext } from '#v0/composables/usePagination'
-  import { createRegistryContext, useElementSize } from '#v0/composables'
+  import { createRegistryContext } from '#v0/composables/useRegistry'
+  import { useElementSize } from '#v0/composables/useResizeObserver'
+  import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -85,6 +87,8 @@
   const rootEl = toRef(() => atom.value?.element as Element | undefined)
   const { width: containerWidth } = useElementSize(rootEl)
 
+  const locale = useLocale()
+
   const [, providePaginationItemContext, itemContext] = createRegistryContext({
     namespace: `${namespace}:item`,
   })
@@ -164,7 +168,7 @@
 <template>
   <Atom
     ref="atom"
-    aria-label="pagination"
+    :aria-label="locale.t('Pagination')"
     :as
     :renderless
     role="navigation"

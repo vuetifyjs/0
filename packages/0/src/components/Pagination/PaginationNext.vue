@@ -3,6 +3,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
+  import { useLocale } from '#v0/composables/useLocale'
   import { usePagination } from '#v0/composables/usePagination'
 
   // Utilities
@@ -40,6 +41,7 @@
     disabled,
   } = defineProps<PaginationNextProps>()
 
+  const locale = useLocale()
   const pagination = usePagination(namespace)
 
   const isDisabled = toRef(() => disabled || pagination.isLast.value)
@@ -59,7 +61,7 @@
 <template>
   <Atom
     :aria-disabled="isDisabled"
-    aria-label="Go to next page"
+    :aria-label="locale.t('Go to next page')"
     :as
     :data-disabled="isDisabled || undefined"
     :disabled="isDisabled"
