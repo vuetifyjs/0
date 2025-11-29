@@ -1,3 +1,11 @@
+/**
+ * @module PaginationNext
+ *
+ * @remarks
+ * Navigation button that moves to the next page. Automatically disables when
+ * already on the last page. Provides localized aria-label for accessibility.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'

@@ -1,3 +1,12 @@
+/**
+ * @module PaginationContent
+ *
+ * @remarks
+ * Container component that provides access to the visible page items array.
+ * Consumes the PaginationContext and exposes items for rendering page buttons
+ * including ellipsis markers.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'

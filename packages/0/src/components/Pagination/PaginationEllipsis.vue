@@ -1,3 +1,12 @@
+/**
+ * @module PaginationEllipsis
+ *
+ * @remarks
+ * Visual indicator for omitted page numbers in pagination. Renders the ellipsis
+ * character (default "...") and is hidden from screen readers via aria-hidden.
+ * Can override the ellipsis character via prop or inherits from PaginationRoot context.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'

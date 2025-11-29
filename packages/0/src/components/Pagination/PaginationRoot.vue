@@ -1,3 +1,15 @@
+/**
+ * @module PaginationRoot
+ *
+ * @remarks
+ * Root component for pagination controls that manages page state and provides context
+ * to child components. Supports automatic calculation of visible page buttons based on
+ * container width, or explicit totalVisible configuration.
+ *
+ * Built on createPaginationContext from usePagination composable. Provides navigation
+ * methods (first, last, next, prev, goto) and computed page ranges via slot props.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'

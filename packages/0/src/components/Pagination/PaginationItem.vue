@@ -1,3 +1,12 @@
+/**
+ * @module PaginationItem
+ *
+ * @remarks
+ * Individual page button that navigates to a specific page number when clicked.
+ * Registers with the parent PaginationRoot for width calculations and provides
+ * ARIA attributes for accessibility including aria-current for the selected page.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'

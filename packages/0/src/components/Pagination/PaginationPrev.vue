@@ -1,3 +1,11 @@
+/**
+ * @module PaginationPrev
+ *
+ * @remarks
+ * Navigation button that moves to the previous page. Automatically disables when
+ * already on the first page. Provides localized aria-label for accessibility.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'

@@ -1,3 +1,11 @@
+/**
+ * @module PaginationFirst
+ *
+ * @remarks
+ * Navigation button that jumps to the first page. Automatically disables when
+ * already on the first page. Provides localized aria-label for accessibility.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'

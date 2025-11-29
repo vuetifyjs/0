@@ -1,3 +1,11 @@
+/**
+ * @module PaginationLast
+ *
+ * @remarks
+ * Navigation button that jumps to the last page. Automatically disables when
+ * already on the last page. Provides localized aria-label for accessibility.
+ */
+
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
