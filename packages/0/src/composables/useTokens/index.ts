@@ -54,7 +54,7 @@ export type FlatTokenCollection = {
   value: TokenValue
 }
 
-export interface TokenTicket extends RegistryTicket<TokenValue> {}
+export interface TokenTicket<Z extends TokenValue = TokenValue> extends RegistryTicket<Z> {}
 
 export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
   /**

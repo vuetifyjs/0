@@ -42,9 +42,7 @@ export { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
 
 export type { PermissionAdapterInterface } from '#v0/composables/usePermissions/adapters'
 
-export interface PermissionTicket extends TokenTicket {
-  value: boolean | ((context: Record<string, any>) => boolean)
-}
+export interface PermissionTicket extends TokenTicket<boolean | ((context: Record<string, any>) => boolean)> {}
 
 export interface PermissionContext<Z extends PermissionTicket = PermissionTicket> extends TokenContext<Z> {
   can: (id: ID, action: string, subject: string, context?: Record<string, any>) => boolean
