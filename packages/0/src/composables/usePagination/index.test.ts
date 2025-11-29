@@ -318,8 +318,10 @@ describe('usePagination', () => {
       const itemsPerPage = shallowRef(25)
       const pagination = createPagination({ itemsPerPage, size: 100 })
 
-      expect(pagination.itemsPerPage.value).toBe(25)
-      expect(pagination.itemsPerPage).toBe(itemsPerPage)
+      expect(pagination.itemsPerPage).toBe(25)
+
+      itemsPerPage.value = 50
+      expect(pagination.itemsPerPage).toBe(50)
     })
   })
 
@@ -333,7 +335,7 @@ describe('usePagination', () => {
     it('should have default itemsPerPage of 10', () => {
       const pagination = createPagination({ size: 100 })
 
-      expect(pagination.itemsPerPage.value).toBe(10)
+      expect(pagination.itemsPerPage).toBe(10)
     })
 
     it('should have default visible of 5', () => {
@@ -418,4 +420,5 @@ describe('usePagination', () => {
       expect(pagination.page.value).toBe(500_000)
     })
   })
+
 })

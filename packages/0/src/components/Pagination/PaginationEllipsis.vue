@@ -5,6 +5,9 @@
   // Composables
   import { usePagination } from '#v0/composables/usePagination'
 
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -18,15 +21,12 @@
   export interface PaginationEllipsisSlots {
     default: (props: {
       /** Ellipsis character */
-      ellipsis: string
+      ellipsis: string | false
     }) => any
   }
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'PaginationEllipsis' })
 
   defineSlots<PaginationEllipsisSlots>()
@@ -38,9 +38,9 @@
     ellipsis,
   } = defineProps<PaginationEllipsisProps>()
 
-  const context = usePagination(namespace)
+  const pagination = usePagination(namespace)
 
-  const resolvedEllipsis = toRef(() => ellipsis ?? context.ellipsis)
+  const resolvedEllipsis = toRef(() => ellipsis ?? pagination.ellipsis)
 
   const slotProps = toRef(() => ({
     ellipsis: resolvedEllipsis.value,

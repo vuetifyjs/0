@@ -37,13 +37,13 @@ export interface PaginationContext<Z extends PaginationItem = PaginationItem> {
   /** Current page (1-indexed) */
   page: ShallowRef<number>
   /** Items per page */
-  itemsPerPage: ShallowRef<number>
+  itemsPerPage: number
   /** Total number of items */
   size: number
   /** Total number of pages (computed from size / itemsPerPage) */
   pages: number
-  /** Ellipsis character */
-  ellipsis: string
+  /** Ellipsis character, or false if disabled */
+  ellipsis: string | false
   /** Visible page numbers and ellipsis for rendering */
   items: ComputedRef<Z[]>
   /** Start index of items on current page (0-indexed) */
@@ -69,14 +69,14 @@ export interface PaginationContext<Z extends PaginationItem = PaginationItem> {
 export interface PaginationOptions {
   /** Initial page or ref for v-model (1-indexed). @default 1 */
   page?: number | ShallowRef<number>
-  /** Items per page or ref for v-model. @default 10 */
-  itemsPerPage?: number | ShallowRef<number>
+  /** Items per page. @default 10 */
+  itemsPerPage?: MaybeRefOrGetter<number>
   /** Total number of items. @default 0 */
   size?: MaybeRefOrGetter<number>
   /** Maximum visible page buttons. @default 5 */
   visible?: MaybeRefOrGetter<number>
   /** Ellipsis character. @default '…' */
-  ellipsis?: string
+  ellipsis?: string | false
 }
 
 export interface PaginationContextOptions extends PaginationOptions {
@@ -113,18 +113,18 @@ export function createPagination<
     page: _page = 1,
     itemsPerPage: _itemsPerPage = 10,
     size: _size = 0,
-    visible: _visible = 5,
+    visible: _visible = 7,
     ellipsis = '…',
   } = _options
 
   const page: ShallowRef<number> = isRef(_page) ? _page : shallowRef(_page)
-  const itemsPerPage: ShallowRef<number> = isRef(_itemsPerPage) ? _itemsPerPage : shallowRef(_itemsPerPage)
 
   // Compute total pages from size (total items) and itemsPerPage
   const pages = computed(() => {
     const size = toValue(_size)
+    const perPage = toValue(_itemsPerPage)
     if (size <= 0 || isNaN(size)) return 0
-    return Math.ceil(size / itemsPerPage.value)
+    return Math.ceil(size / perPage)
   })
 
   function first () {
@@ -155,15 +155,19 @@ export function createPagination<
 
   const isFirst = computed(() => page.value <= 1)
   const isLast = computed(() => page.value >= pages.value)
-  const pageStart = computed(() => (page.value - 1) * itemsPerPage.value)
-  const pageStop = computed(() => Math.min(pageStart.value + itemsPerPage.value, toValue(_size)))
+  const pageStart = computed(() => (page.value - 1) * toValue(_itemsPerPage))
+  const pageStop = computed(() => Math.min(pageStart.value + toValue(_itemsPerPage), toValue(_size)))
 
   function toPage (value: number): Z {
     return { type: 'page', value } as Z
   }
 
-  function toEllipsis (): Z {
-    return { type: 'ellipsis', value: ellipsis } as Z
+  function toEllipsis (): Z | false {
+    return ellipsis === false ? false : { type: 'ellipsis', value: ellipsis } as Z
+  }
+
+  function filter (array: (Z | false)[]): Z[] {
+    return array.filter(Boolean) as Z[]
   }
 
   const items = computed<Z[]>(() => {
@@ -176,14 +180,19 @@ export function createPagination<
     if (visible === 1) return [toPage(current)]
     if (pageCount <= visible) return range(pageCount, 1).map(toPage)
 
+    if (visible === 2) return [toPage(1), toPage(pageCount)]
+    if (visible === 3) {
+      const mid = current <= 1 ? 2 : (current >= pageCount ? pageCount - 1 : current)
+      return [toPage(1), toPage(mid), toPage(pageCount)]
+    }
+
     const boundary = visible - 2
     const middle = visible - 4
 
-    // Handle small visible values
     if (middle <= 0) {
       return current <= Math.ceil(pageCount / 2)
-        ? [...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)]
-        : [toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)]
+        ? filter([...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)])
+        : filter([toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)])
     }
 
     const leftThreshold = boundary - 1
@@ -191,21 +200,20 @@ export function createPagination<
 
     if (current <= leftThreshold) {
       // Start layout
-      return [...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)]
+      return filter([...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)])
     } else if (current >= rightThreshold) {
       // End layout
-      return [toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)]
+      return filter([toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)])
     } else {
       // Middle layout - center pages around current
       const half = Math.floor(middle / 2)
       const start = current - half
-      return [toPage(1), toEllipsis(), ...range(middle, start).map(toPage), toEllipsis(), toPage(pageCount)]
+      return filter([toPage(1), toEllipsis(), ...range(middle, start).map(toPage), toEllipsis(), toPage(pageCount)])
     }
   })
 
   return {
     page,
-    itemsPerPage,
     ellipsis,
     items,
     pageStart,
@@ -217,6 +225,9 @@ export function createPagination<
     next,
     prev,
     goto,
+    get itemsPerPage () {
+      return toValue(_itemsPerPage)
+    },
     get size () {
       return toValue(_size)
     },

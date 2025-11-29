@@ -36,25 +36,25 @@ The Pagination component provides a compound component pattern for building page
 
 ### PaginationRoot
 
-The root component that manages pagination state and provides context to child components.
+The root component that manages pagination state and provides context to child components. Supports responsive auto-sizing based on container width.
 
 - **Props**
 
   ```ts
   interface PaginationRootProps {
     namespace?: string
-    size?: MaybeRefOrGetter<number>
-    visible?: MaybeRefOrGetter<number>
-    itemsPerPage?: MaybeRefOrGetter<number>
-    ellipsis?: string
+    size?: number
+    totalVisible?: number
+    itemsPerPage?: number
+    ellipsis?: string | false
   }
   ```
 
   - `namespace`: Namespace for dependency injection (default: `'v0:pagination'`)
   - `size`: Total number of items to paginate
-  - `visible`: Maximum number of visible page buttons (default: `5`)
+  - `totalVisible`: Maximum number of visible page buttons. If undefined, auto-calculates based on container width
   - `itemsPerPage`: Number of items per page (default: `10`)
-  - `ellipsis`: Character used for ellipsis (default: `'…'`)
+  - `ellipsis`: Character used for ellipsis, or `false` to disable ellipsis (default: `'…'`)
 
 - **v-model**
 
@@ -231,6 +231,8 @@ Displays ellipsis to indicate hidden page numbers.
   }
   ```
 
+  Note: When `ellipsis: false` is set on PaginationRoot, no ellipsis items are generated, so this component won't render.
+
 - **Accessibility**
 
   - `aria-hidden="true"` to hide from screen readers
@@ -259,7 +261,7 @@ Button to navigate to the first page.
   interface PaginationFirstSlots {
     default: (props: {
       disabled: boolean
-      goto: () => void
+      onClick: () => void
     }) => any
   }
   ```
@@ -299,7 +301,7 @@ Button to navigate to the previous page.
   interface PaginationPrevSlots {
     default: (props: {
       disabled: boolean
-      goto: () => void
+      onClick: () => void
     }) => any
   }
   ```
@@ -339,7 +341,7 @@ Button to navigate to the next page.
   interface PaginationNextSlots {
     default: (props: {
       disabled: boolean
-      goto: () => void
+      onClick: () => void
     }) => any
   }
   ```
@@ -379,7 +381,7 @@ Button to navigate to the last page.
   interface PaginationLastSlots {
     default: (props: {
       disabled: boolean
-      goto: () => void
+      onClick: () => void
     }) => any
   }
   ```

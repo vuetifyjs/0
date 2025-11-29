@@ -5,6 +5,9 @@
   // Composables
   import { usePagination } from '#v0/composables/usePagination'
 
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { PaginationItem } from '#v0/composables/usePagination'
@@ -23,9 +26,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'PaginationContent' })
 
   defineSlots<PaginationContentSlots>()
@@ -36,10 +36,10 @@
     namespace = 'v0:pagination',
   } = defineProps<PaginationContentProps>()
 
-  const context = usePagination(namespace)
+  const pagination = usePagination(namespace)
 
   const slotProps = toRef(() => ({
-    items: context.items.value,
+    items: pagination.items.value,
   }))
 </script>
 

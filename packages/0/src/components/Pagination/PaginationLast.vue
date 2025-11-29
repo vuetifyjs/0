@@ -5,6 +5,9 @@
   // Composables
   import { usePagination } from '#v0/composables/usePagination'
 
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -20,15 +23,12 @@
       /** Whether already on last page */
       disabled: boolean
       /** Go to last page */
-      goto: () => void
+      onClick: () => void
     }) => any
   }
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'PaginationLast' })
 
   defineSlots<PaginationLastSlots>()
@@ -37,16 +37,22 @@
     as = 'button',
     renderless,
     namespace = 'v0:pagination',
-    disabled = undefined,
+    disabled,
   } = defineProps<PaginationLastProps>()
 
-  const context = usePagination(namespace)
+  const pagination = usePagination(namespace)
 
-  const isDisabled = toRef(() => disabled ?? context.isLast.value)
+  const isDisabled = toRef(() => disabled || pagination.isLast.value)
+
+  function onClick () {
+    if (isDisabled.value) return
+
+    pagination.last()
+  }
 
   const slotProps = toRef(() => ({
     disabled: isDisabled.value,
-    goto: context.last,
+    onClick,
   }))
 </script>
 
@@ -58,7 +64,7 @@
     :data-disabled="isDisabled || undefined"
     :disabled="isDisabled"
     :renderless
-    @click="context.last"
+    @click="onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

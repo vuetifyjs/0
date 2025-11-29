@@ -4,9 +4,15 @@
 
   // Composables
   import { usePagination } from '#v0/composables/usePagination'
+  import { useContext } from '#v0/composables/createContext'
+
+  // Utilities
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
+  import { genId } from '#v0/utilities'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { RegistryContext } from '#v0/composables/useRegistry'
 
   export interface PaginationItemProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -32,9 +38,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'PaginationItem' })
 
   defineSlots<PaginationItemSlots>()
@@ -47,26 +50,37 @@
     disabled,
   } = defineProps<PaginationItemProps>()
 
-  const context = usePagination(namespace)
+  const pagination = usePagination(namespace)
+  const itemRegistry = useContext<RegistryContext>(`${namespace}:item`)
 
-  const isSelected = toRef(() => context.page.value === value)
+  const id = genId()
+  const atom = useTemplateRef<AtomExpose>('atom')
+
+  watch(() => atom.value?.element, el => {
+    if (el) itemRegistry.register({ id, value: el })
+  }, { immediate: true })
+
+  onBeforeUnmount(() => itemRegistry.unregister(id))
+
+  const isSelected = toRef(() => pagination.page.value === value)
 
   function goto () {
     if (disabled) return
 
-    context.goto(value)
+    pagination.goto(value)
   }
 
   const slotProps = toRef(() => ({
     page: value,
     isSelected: isSelected.value,
-    disabled: disabled ?? false,
+    disabled,
     goto,
   }))
 </script>
 
 <template>
   <Atom
+    ref="atom"
     :aria-current="isSelected ? 'page' : undefined"
     :aria-disabled="disabled"
     :as
