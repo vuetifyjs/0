@@ -1,184 +1,185 @@
 import { describe, it, expect, vi } from 'vitest'
-import { nextTick } from 'vue'
-import { createForm } from './index'
+import { nextTick, defineComponent, h } from 'vue'
+import { mount } from '@vue/test-utils'
+import { createForm, createFormContext, provideForm, useForm, defaultForm } from './index'
+import type { FormTicket, FormContext } from './index'
 
-describe('useForm validateOn functionality', () => {
-  it('should default to submit validation only', () => {
-    const form = createForm()
-    expect(form.validateOn).toBe('submit')
-  })
-
-  it('should accept custom validateOn option', () => {
-    const form = createForm({ validateOn: 'change' })
-    expect(form.validateOn).toBe('change')
-  })
-
-  it('should support multiple triggers', () => {
-    const form = createForm({ validateOn: 'submit change' })
-    expect(form.validateOn).toBe('submit change')
-  })
-
-  it('should validate on submit when validateOn includes submit', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const mockRule = vi.fn().mockResolvedValue('Error message')
-
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'test-value',
+describe('createForm', () => {
+  describe('validateOn functionality', () => {
+    it('should default to submit validation only', () => {
+      const form = createForm()
+      expect(form.validateOn).toBe('submit')
     })
 
-    await form.submit()
-
-    expect(mockRule).toHaveBeenCalledWith('test-value')
-    expect(field.errors.value).toEqual(['Error message'])
-  })
-
-  it('should not validate on submit when validateOn does not include submit', async () => {
-    const form = createForm({ validateOn: 'change' })
-    const mockRule = vi.fn().mockResolvedValue('Error message')
-
-    form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'test-value',
+    it('should accept custom validateOn option', () => {
+      const form = createForm({ validateOn: 'change' })
+      expect(form.validateOn).toBe('change')
     })
 
-    const result = await form.submit()
-
-    expect(mockRule).not.toHaveBeenCalled()
-    // Should return true since no validation was performed and field is in initial state
-    expect(result).toBe(false) // false because isValid is null initially
-  })
-
-  it('should validate on change when validateOn includes change', async () => {
-    const form = createForm({ validateOn: 'change' })
-    const mockRule = vi.fn().mockResolvedValue(true)
-
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'initial',
+    it('should support multiple triggers', () => {
+      const form = createForm({ validateOn: 'submit change' })
+      expect(form.validateOn).toBe('submit change')
     })
 
-    field.value = 'changed'
-    expect(form.isValidating.value).toBe(true)
-    await nextTick()
+    it('should validate on submit when validateOn includes submit', async () => {
+      const form = createForm({ validateOn: 'submit' })
+      const mockRule = vi.fn().mockResolvedValue('Error message')
 
-    expect(mockRule).toHaveBeenCalledWith('changed')
-  })
+      const field = form.register({
+        id: 'test',
+        rules: [mockRule],
+        value: 'test-value',
+      })
 
-  it('should not validate on change when validateOn does not include change', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const mockRule = vi.fn().mockResolvedValue(true)
+      await form.submit()
 
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'initial',
+      expect(mockRule).toHaveBeenCalledWith('test-value')
+      expect(field.errors.value).toEqual(['Error message'])
     })
 
-    field.value = 'changed'
-    await nextTick()
+    it('should not validate on submit when validateOn does not include submit', async () => {
+      const form = createForm({ validateOn: 'change' })
+      const mockRule = vi.fn().mockResolvedValue('Error message')
 
-    expect(mockRule).not.toHaveBeenCalled()
-  })
+      form.register({
+        id: 'test',
+        rules: [mockRule],
+        value: 'test-value',
+      })
 
-  it('should support field-level validateOn override', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const mockRule = vi.fn().mockResolvedValue(true)
+      const result = await form.submit()
 
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'initial',
-      validateOn: 'change',
+      expect(mockRule).not.toHaveBeenCalled()
+      expect(result).toBe(false)
     })
 
-    field.value = 'changed'
-    await nextTick()
+    it('should validate on change when validateOn includes change', async () => {
+      const form = createForm({ validateOn: 'change' })
+      const mockRule = vi.fn().mockResolvedValue(true)
 
-    expect(mockRule).toHaveBeenCalledWith('changed')
-    expect(field.validateOn).toBe('change')
-  })
+      const field = form.register({
+        id: 'test',
+        rules: [mockRule],
+        value: 'initial',
+      })
 
-  it('should support custom string triggers', () => {
-    const form = createForm({ validateOn: 'blur focus custom' })
-    expect(form.validateOn).toBe('blur focus custom')
-  })
+      field.value = 'changed'
+      expect(form.isValidating.value).toBe(true)
+      await nextTick()
 
-  it('should be case insensitive', async () => {
-    const form = createForm({ validateOn: 'SUBMIT Change' })
-    const mockRule = vi.fn().mockResolvedValue(true)
-
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'initial',
+      expect(mockRule).toHaveBeenCalledWith('changed')
     })
 
-    field.value = 'changed'
-    await nextTick()
+    it('should not validate on change when validateOn does not include change', async () => {
+      const form = createForm({ validateOn: 'submit' })
+      const mockRule = vi.fn().mockResolvedValue(true)
 
-    expect(mockRule).toHaveBeenCalledWith('changed')
-  })
+      const field = form.register({
+        id: 'test',
+        rules: [mockRule],
+        value: 'initial',
+      })
 
-  it('should correctly compute isValid and isValidating', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const mockRule = vi.fn().mockResolvedValue(true)
+      field.value = 'changed'
+      await nextTick()
 
-    form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'test-value',
+      expect(mockRule).not.toHaveBeenCalled()
     })
 
-    const submitPromise = form.submit()
+    it('should support field-level validateOn override', async () => {
+      const form = createForm({ validateOn: 'submit' })
+      const mockRule = vi.fn().mockResolvedValue(true)
 
-    await nextTick()
-    expect(form.isValidating.value).toBe(true)
+      const field = form.register({
+        id: 'test',
+        rules: [mockRule],
+        value: 'initial',
+        validateOn: 'change',
+      })
 
-    await submitPromise
+      field.value = 'changed'
+      await nextTick()
 
-    expect(form.isValid.value).toBe(true)
-    expect(form.isValidating.value).toBe(false)
-  })
-})
-
-describe('Use form validations', () => {
-  it('Should successfully validate when no rules are provided', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const ticket = form.register({
-      id: 'test',
-      value: 'test-value',
+      expect(mockRule).toHaveBeenCalledWith('changed')
+      expect(field.validateOn).toBe('change')
     })
 
-    await ticket.validate()
-
-    expect(ticket.isValid.value).toBe(true)
-    expect(ticket.errors.value).toEqual([])
-    expect(form.isValid.value).toBe(true)
-  })
-
-  it('should fail validation when a rule returns an error message', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const ticket = form.register({
-      id: 'test',
-      value: 'test-value',
-      rules: [
-        value => value === 'valid-value' || 'Invalid value provided',
-      ],
+    it('should support custom string triggers', () => {
+      const form = createForm({ validateOn: 'blur focus custom' })
+      expect(form.validateOn).toBe('blur focus custom')
     })
 
-    await ticket.validate()
+    it('should be case insensitive', async () => {
+      const form = createForm({ validateOn: 'SUBMIT Change' })
+      const mockRule = vi.fn().mockResolvedValue(true)
 
-    expect(ticket.isValid.value).toBe(false)
-    expect(ticket.errors.value).toEqual(['Invalid value provided'])
-    expect(form.isValid.value).toBe(false)
+      const field = form.register({
+        id: 'test',
+        rules: [mockRule],
+        value: 'initial',
+      })
+
+      field.value = 'changed'
+      await nextTick()
+
+      expect(mockRule).toHaveBeenCalledWith('changed')
+    })
+
+    it('should correctly compute isValid and isValidating', async () => {
+      const form = createForm({ validateOn: 'submit' })
+      const mockRule = vi.fn().mockResolvedValue(true)
+
+      form.register({
+        id: 'test',
+        rules: [mockRule],
+        value: 'test-value',
+      })
+
+      const submitPromise = form.submit()
+
+      await nextTick()
+      expect(form.isValidating.value).toBe(true)
+
+      await submitPromise
+
+      expect(form.isValid.value).toBe(true)
+      expect(form.isValidating.value).toBe(false)
+    })
   })
-})
 
-describe('useForm edge cases', () => {
+  describe('validations', () => {
+    it('should successfully validate when no rules are provided', async () => {
+      const form = createForm({ validateOn: 'submit' })
+      const ticket = form.register({
+        id: 'test',
+        value: 'test-value',
+      })
+
+      await ticket.validate()
+
+      expect(ticket.isValid.value).toBe(true)
+      expect(ticket.errors.value).toEqual([])
+      expect(form.isValid.value).toBe(true)
+    })
+
+    it('should fail validation when a rule returns an error message', async () => {
+      const form = createForm({ validateOn: 'submit' })
+      const ticket = form.register({
+        id: 'test',
+        value: 'test-value',
+        rules: [
+          value => value === 'valid-value' || 'Invalid value provided',
+        ],
+      })
+
+      await ticket.validate()
+
+      expect(ticket.isValid.value).toBe(false)
+      expect(ticket.errors.value).toEqual(['Invalid value provided'])
+      expect(form.isValid.value).toBe(false)
+    })
+  })
+
   describe('isValid computation', () => {
     it('should return null when no fields are registered', () => {
       const form = createForm()
@@ -490,7 +491,6 @@ describe('useForm edge cases', () => {
       })
 
       field.value = 'short'
-      // Wait for the async validation to complete
       await vi.waitFor(() => {
         expect(field.isValid.value).toBe(false)
       })
@@ -565,5 +565,294 @@ describe('useForm edge cases', () => {
 
       expect(field.disabled).toBe(false)
     })
+  })
+})
+
+describe('createFormContext and useForm registration', () => {
+  it('should register field when useForm is called in child', async () => {
+    const [useMyForm, provideMyForm, myForm] = createFormContext<FormTicket, FormContext>({
+      namespace: 'test-form',
+      validateOn: 'submit',
+    })
+
+    const Parent = defineComponent({
+      setup () {
+        provideMyForm()
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        useMyForm({
+          value: '',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    expect(myForm.size).toBe(1)
+
+    const result = await myForm.submit()
+    expect(result).toBe(false)
+  })
+
+  it('should unregister field when component unmounts', async () => {
+    const [useMyForm, provideMyForm, myForm] = createFormContext<FormTicket, FormContext>({
+      namespace: 'test-form-2',
+    })
+
+    const Child = defineComponent({
+      setup () {
+        useMyForm({
+          value: 'test',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    const Parent = defineComponent({
+      props: ['showChild'],
+      setup (props) {
+        provideMyForm()
+        return () => props.showChild ? h(Child) : null
+      },
+    })
+
+    const wrapper = mount(Parent, {
+      props: { showChild: true },
+    })
+
+    expect(myForm.size).toBe(1)
+
+    await wrapper.setProps({ showChild: false })
+    await nextTick()
+
+    expect(myForm.size).toBe(0)
+  })
+
+  it('should validate all registered fields on submit', async () => {
+    const [useMyForm, provideMyForm, myForm] = createFormContext<FormTicket, FormContext>({
+      namespace: 'test-form-3',
+      validateOn: 'submit',
+    })
+
+    const Parent = defineComponent({
+      setup () {
+        provideMyForm()
+        return () => h('div', [h(ChildA), h(ChildB)])
+      },
+    })
+
+    const ChildA = defineComponent({
+      setup () {
+        useMyForm({
+          id: 'field-a',
+          value: 'valid',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    const ChildB = defineComponent({
+      setup () {
+        useMyForm({
+          id: 'field-b',
+          value: '',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    expect(myForm.size).toBe(2)
+
+    const result = await myForm.submit()
+    expect(result).toBe(false)
+    expect(myForm.isValid.value).toBe(false)
+  })
+
+  it('should reset all registered fields', async () => {
+    const [useMyForm, provideMyForm, myForm] = createFormContext<FormTicket, FormContext>({
+      namespace: 'test-form-4',
+    })
+
+    let field: ReturnType<typeof useMyForm>
+
+    const Parent = defineComponent({
+      setup () {
+        provideMyForm()
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        field = useMyForm({
+          value: 'initial',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    field!.value = 'changed'
+    await field!.validate()
+
+    expect(field!.value).toBe('changed')
+    expect(field!.isPristine.value).toBe(false)
+
+    myForm.reset()
+
+    expect(field!.value).toBe('initial')
+    expect(field!.isPristine.value).toBe(true)
+    expect(field!.isValid.value).toBe(null)
+  })
+
+  it('should inherit validateOn from form', () => {
+    const [useMyForm, provideMyForm] = createFormContext<FormTicket, FormContext>({
+      namespace: 'test-form-5',
+      validateOn: 'change',
+    })
+
+    let field: ReturnType<typeof useMyForm>
+
+    const Parent = defineComponent({
+      setup () {
+        provideMyForm()
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        field = useMyForm({
+          value: 'test',
+          rules: [],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    expect(field!.validateOn).toBe('change')
+  })
+
+  it('should allow field-level validateOn override', () => {
+    const [useMyForm, provideMyForm] = createFormContext<FormTicket, FormContext>({
+      namespace: 'test-form-6',
+      validateOn: 'submit',
+    })
+
+    let field: ReturnType<typeof useMyForm>
+
+    const Parent = defineComponent({
+      setup () {
+        provideMyForm()
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        field = useMyForm({
+          value: 'test',
+          validateOn: 'change',
+          rules: [],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    expect(field!.validateOn).toBe('change')
+  })
+
+  it('should work with deeply nested components', async () => {
+    const [useMyForm, provideMyForm, myForm] = createFormContext<FormTicket, FormContext>({
+      namespace: 'test-form-7',
+    })
+
+    let field: ReturnType<typeof useMyForm>
+
+    const GrandChild = defineComponent({
+      setup () {
+        field = useMyForm({
+          value: '',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        return () => h(GrandChild)
+      },
+    })
+
+    const Parent = defineComponent({
+      setup () {
+        provideMyForm()
+        return () => h(Child)
+      },
+    })
+
+    mount(Parent)
+
+    expect(myForm.size).toBe(1)
+
+    const result = await myForm.submit()
+    expect(result).toBe(false)
+    expect(field!.errors.value).toEqual(['Required'])
+  })
+
+  it('should compute form isValid from registered fields', async () => {
+    const [useMyForm, provideMyForm, myForm] = createFormContext<FormTicket, FormContext>({
+      namespace: 'test-form-8',
+    })
+
+    const Parent = defineComponent({
+      setup () {
+        provideMyForm()
+        return () => h(Child)
+      },
+    })
+
+    const Child = defineComponent({
+      setup () {
+        useMyForm({
+          value: 'valid',
+          rules: [v => v.length > 0 || 'Required'],
+        })
+        return () => null
+      },
+    })
+
+    mount(Parent)
+
+    expect(myForm.isValid.value).toBe(null)
+
+    await myForm.submit()
+    expect(myForm.isValid.value).toBe(true)
+  })
+})
+
+describe('default form exports', () => {
+  it('should export useForm, provideForm, and defaultForm', () => {
+    expect(useForm).toBeDefined()
+    expect(provideForm).toBeDefined()
+    expect(defaultForm).toBeDefined()
   })
 })

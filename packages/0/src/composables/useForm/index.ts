@@ -2,28 +2,26 @@
  * @module useForm
  *
  * @remarks
- * Form validation composable with async rule support and multiple validation modes.
+ * Form orchestration composable for managing multiple validated fields.
  *
  * Key features:
- * - Sync and async validation rules
- * - Multiple validation modes (submit, change, combined)
- * - Tri-state isValid (null/true/false)
- * - isPristine tracking
- * - Silent validation mode
+ * - Manages multiple validation fields via useRegistry
  * - Form-level validation and reset
+ * - Aggregate validation state
+ * - Per-field or form-level validation modes
+ * - Trinity pattern: createFormContext returns [useForm, provideForm, form]
  *
- * Each field is registered with validation rules and tracks its own state independently.
+ * Children use the useForm function from the trinity to register fields.
  */
 
 // Factories
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createContext } from '#v0/composables/createContext'
 
 // Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
-import { computed, shallowRef, toValue } from 'vue'
+import { computed, inject, onUnmounted, shallowRef, toValue } from 'vue'
 import { isString } from '#v0/utilities'
 
 // Transformers
@@ -31,9 +29,18 @@ import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ComputedRef, Ref, ShallowRef, App } from 'vue'
+import type { ComputedRef, InjectionKey, Ref, ShallowRef, App } from 'vue'
 import type { ID } from '#v0/types'
+
+/**
+ * Return type for createFormContext.
+ * Different from ContextTrinity because useForm returns field ticket, not form context.
+ */
+export type FormContextTrinity<Z extends FormTicket, E extends FormContext<Z>> = readonly [
+  (fieldOptions?: FormFieldOptions) => Z,
+  (form?: E, app?: App) => E,
+  E
+]
 
 export type FormValidationResult = string | true | Promise<string | true>
 
@@ -53,7 +60,8 @@ export interface FormTicket<V = unknown> extends RegistryTicket<V> {
   isValidating: ShallowRef<boolean>
 }
 
-export interface FormContext<Z extends FormTicket = FormTicket> extends RegistryContext<Z> {
+export interface FormContext<Z extends FormTicket = FormTicket> extends Omit<RegistryContext<Z>, 'register'> {
+  register: (options: FormFieldOptions) => Z
   submit: (id?: ID | ID[]) => Promise<boolean>
   reset: () => void
   validateOn: 'submit' | 'change' | string
@@ -65,9 +73,27 @@ export interface FormOptions extends RegistryOptions {
   validateOn?: 'submit' | 'change' | string
 }
 
-export interface FormContextOptions extends RegistryOptions {
-  namespace: string
+export interface FormContextOptions extends FormOptions {
+  namespace?: string
+}
+
+export interface FormFieldOptions {
+  id?: ID
+  value?: any
+  rules?: FormValidationRule[]
   validateOn?: 'submit' | 'change' | string
+  disabled?: boolean
+}
+
+/**
+ * Injection key for form registration context.
+ */
+export const FORM_CONTEXT_KEY: InjectionKey<FormContext> = Symbol('v0:form-context')
+
+// Generate unique IDs for form tickets
+let formFieldId = 0
+function generateId (): ID {
+  return `form-field-${++formFieldId}`
 }
 
 /**
@@ -103,7 +129,7 @@ export function createForm<
   Z extends FormTicket = FormTicket,
   E extends FormContext<Z> = FormContext<Z>,
 > (options?: FormOptions): E {
-  const registry = useRegistry<Z, E>(options)
+  const registry = useRegistry<Z>(options)
   const validateOn = options?.validateOn || 'submit'
 
   function parse (value: string): string[] {
@@ -155,63 +181,69 @@ export function createForm<
     return tickets.every(ticket => ticket.isValid.value === true)
   }
 
-  function register (registration: Partial<Z>): Z {
+  function register (registration: FormFieldOptions): Z {
+    const id = registration.id ?? generateId()
     const model = shallowRef(registration.value == null ? '' : toValue(registration.value))
     const rules = registration.rules || []
     const errors = shallowRef<string[]>([])
-    const isValidating = shallowRef(false)
+    const fieldIsValidating = shallowRef(false)
     const initialValue = model.value
-    const triggers = registration.validateOn || validateOn
+    const fieldValidateOn = registration.validateOn || validateOn
+    const disabled = registration.disabled || false
 
     const isPristine = shallowRef(true)
-    const isValid = shallowRef<boolean | null>(null)
+    const fieldIsValid = shallowRef<boolean | null>(null)
 
-    function _validatesOn (event: 'submit' | 'change'): boolean {
-      return parse(triggers).includes(event)
+    function fieldValidatesOn (event: 'submit' | 'change'): boolean {
+      return parse(fieldValidateOn).includes(event)
     }
 
-    function _reset () {
+    function fieldReset () {
       model.value = initialValue
       errors.value = []
       isPristine.value = true
-      isValid.value = null
+      fieldIsValid.value = null
     }
 
-    async function validate (silent = false): Promise<boolean> {
-      if (rules.length === 0) return isValid.value = true
+    async function fieldValidate (silent = false): Promise<boolean> {
+      if (rules.length === 0) {
+        fieldIsValid.value = true
+        return true
+      }
 
-      isValidating.value = true
+      fieldIsValidating.value = true
       try {
         const results = await Promise.all(rules.map(rule => rule(model.value)))
         const errorMessages = results.filter(result => isString(result)) as string[]
 
         if (!silent) {
           errors.value = errorMessages
-          isValid.value = errorMessages.length === 0
-          isPristine.value = toValue(model) === initialValue
+          fieldIsValid.value = errorMessages.length === 0
+          isPristine.value = model.value === initialValue
         }
 
         return errorMessages.length === 0
       } finally {
-        isValidating.value = false
+        fieldIsValidating.value = false
       }
     }
 
-    const item: Partial<Z> = {
-      ...registration,
+    const item = {
+      id,
       rules,
       errors,
-      disabled: registration.disabled || false,
-      validateOn: triggers,
-      isValidating,
+      disabled,
+      validateOn: fieldValidateOn,
+      isValidating: fieldIsValidating,
       isPristine,
-      isValid,
-      reset: _reset,
-      validate,
-    }
+      isValid: fieldIsValid,
+      reset: fieldReset,
+      validate: fieldValidate,
+    } as Partial<Z>
 
     const ticket = registry.register(item) as Z
 
+    // Add value getter/setter to the ticket
     Object.defineProperty(ticket, 'value', {
       get () {
         return model.value
@@ -219,9 +251,11 @@ export function createForm<
       set (val) {
         model.value = val
         isPristine.value = val === initialValue
-        isValid.value = null
+        fieldIsValid.value = null
 
-        if (_validatesOn('change')) validate()
+        if (fieldValidatesOn('change')) {
+          fieldValidate()
+        }
       },
       enumerable: true,
       configurable: true,
@@ -245,13 +279,18 @@ export function createForm<
 }
 
 /**
- * Creates a new form context.
+ * Creates a form context with trinity pattern.
  *
- * @param namespace The namespace for the form context.
- * @param options The options for the form context.
+ * @param options The options for the form context including namespace.
  * @template Z The type of the form ticket.
  * @template E The type of the form context.
- * @returns A new form context.
+ * @returns A trinity: [useForm, provideForm, form]
+ *
+ * @remarks
+ * Returns a trinity where:
+ * - `useForm(options)` - Called by children to inject context and register a field
+ * - `provideForm()` - Called by parent to provide the form context
+ * - `form` - The default form instance
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-form
  *
@@ -259,62 +298,100 @@ export function createForm<
  * ```ts
  * import { createFormContext } from '@vuetify/v0'
  *
- * export const [useMyForm, provideMyForm, myForm] = createFormContext('my-form', {
+ * // Create form context
+ * export const [useMyForm, provideMyForm, myForm] = createFormContext({
+ *   namespace: 'my-form',
  *   validateOn: 'change',
  * })
  *
- * // In a parent component:
+ * // Parent component
  * provideMyForm()
  *
- * // In a child component:
- * const form = useMyForm()
- * form.register({ id: 'field', value: ref(''), rules: [...] })
+ * // Child component - useForm injects and registers
+ * const field = useMyForm({
+ *   id: 'email',
+ *   value: ref(''),
+ *   rules: [v => /@/.test(v) || 'Invalid email']
+ * })
+ *
+ * // Access field state
+ * field.errors.value
+ * field.isValid.value
  * ```
  */
 export function createFormContext<
   Z extends FormTicket = FormTicket,
   E extends FormContext<Z> = FormContext<Z>,
 > (
-  _options: FormContextOptions,
-): ContextTrinity<E> {
-  const { namespace, ...options } = _options
-  const [useFormContext, _provideFormContext] = createContext<E>(namespace)
+  options?: FormContextOptions,
+): FormContextTrinity<Z, E> {
+  const namespace = options?.namespace || 'v0:form'
+  const [_useFormContext, _provideFormContext] = createContext<E>(namespace)
 
-  const context = createForm<Z, E>(options)
+  const form = createForm<Z, E>(options)
 
-  function provideFormContext (_context: E = context, app?: App): E {
-    return _provideFormContext(_context, app)
+  /**
+   * Provide the form context to children.
+   */
+  function provideForm (_form: E = form, app?: App): E {
+    return _provideFormContext(_form, app)
   }
 
-  return createTrinity<E>(useFormContext, provideFormContext, context)
+  /**
+   * Inject form context and register a field.
+   * Called by child components to register with the parent form.
+   */
+  function useForm (fieldOptions?: FormFieldOptions): Z {
+    const formContext = inject<E>(namespace, form)
+
+    const ticket = formContext.register(fieldOptions || {})
+
+    // Unregister on component unmount
+    onUnmounted(() => {
+      formContext.unregister(ticket.id)
+    })
+
+    return ticket
+  }
+
+  return [useForm, provideForm, form] as const
 }
 
+// Default form context
+const [_useForm, _provideForm, _defaultForm] = createFormContext<FormTicket, FormContext>({
+  namespace: 'v0:form',
+})
+
 /**
- * Returns the current form instance.
+ * Use the default form context and register a field.
  *
- * @param namespace The namespace for the form context. Defaults to `'v0:form'`.
- * @returns The current form instance.
+ * @param options Field options for registration.
+ * @returns The registered form ticket.
  *
  * @see https://0.vuetifyjs.com/composables/forms/use-form
  *
  * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useForm } from '@vuetify/v0'
+ * ```ts
+ * // Parent component
+ * import { provideForm } from '@vuetify/v0'
+ * provideForm()
  *
- *   const form = useForm()
- * </script>
- *
- * <template>
- *   <div>
- *     <p>Form is {{ form.isValid.value ? 'valid' : 'invalid' }}</p>
- *   </div>
- * </template>
+ * // Child component
+ * import { useForm } from '@vuetify/v0'
+ * const field = useForm({
+ *   value: '',
+ *   rules: [v => v.length > 0 || 'Required']
+ * })
  * ```
  */
-export function useForm<
-  Z extends FormTicket = FormTicket,
-  E extends FormContext<Z> = FormContext<Z>,
-> (namespace = 'v0:form'): E {
-  return useContext<E>(namespace)
-}
+export const useForm = _useForm
+
+/**
+ * Provide the default form context.
+ */
+export const provideForm = _provideForm
+
+/**
+ * The default form instance.
+ */
+export const defaultForm = _defaultForm
