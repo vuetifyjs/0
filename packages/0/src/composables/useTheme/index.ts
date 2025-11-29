@@ -55,13 +55,12 @@ export type ThemeColors = {
 }
 
 export type ThemeRecord = {
-  [key: string]: any
   dark?: boolean
   lazy?: boolean
   colors: ThemeColors
 }
 
-export interface ThemeTicket extends SingleTicket {
+export interface ThemeTicket extends SingleTicket<ThemeColors> {
   /**
    * Indicates whether the theme is dark or light.
    *

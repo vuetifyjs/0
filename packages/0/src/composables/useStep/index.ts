@@ -29,7 +29,7 @@ import type { App } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 
-export interface StepTicket extends SingleTicket {}
+export interface StepTicket<V = unknown> extends SingleTicket<V> {}
 
 export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
   /** Select the first Ticket in the collection */

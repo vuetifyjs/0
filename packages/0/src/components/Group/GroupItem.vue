@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script lang="ts" setup generic="V = unknown">
   // Composables
   import { useGroup } from '#v0/composables/useGroup'
 
@@ -17,7 +17,7 @@
       /** Optional display label (passed through to slot, not used in registration) */
       label?: string
       /** Value associated with this item */
-      value: any
+      value: V | undefined
       /** Whether this item is currently selected */
       isSelected: boolean
       /** Disables this specific item */
@@ -32,7 +32,7 @@
       unselect: () => void
       /** Toggle this item's group state */
       toggle: () => void
-    }) => any
+    }) => unknown
   }>()
 
   const {
@@ -49,7 +49,7 @@
     /** Disables this specific item */
     disabled?: MaybeRef<boolean>
     /** Value associated with this item */
-    value?: any
+    value?: V
     /** Namespace for dependency injection */
     namespace?: string
   }>()

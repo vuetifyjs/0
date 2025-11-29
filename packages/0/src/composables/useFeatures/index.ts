@@ -37,9 +37,7 @@ import type { App } from 'vue'
 import type { TokenCollection, TokenValue } from '#v0/composables/useTokens'
 import type { RegistryOptions } from '#v0/composables/useRegistry'
 
-export interface FeatureTicket extends GroupTicket {
-  value: TokenValue
-}
+export interface FeatureTicket extends GroupTicket<TokenValue> {}
 
 export interface FeatureContext<Z extends FeatureTicket = FeatureTicket> extends GroupContext<Z> {
   /* Get the variation value of a feature, or a fallback if not set */

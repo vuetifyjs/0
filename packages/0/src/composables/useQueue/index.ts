@@ -31,7 +31,7 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
 
-export interface QueueTicket extends RegistryTicket {
+export interface QueueTicket<V = unknown> extends RegistryTicket<V> {
   /**
    * Timeout in milliseconds
    *

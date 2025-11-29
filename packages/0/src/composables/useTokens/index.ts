@@ -41,7 +41,7 @@ export interface TokenAlias<T = unknown> {
   $deprecated?: boolean | string
 }
 
-export type TokenPrimitive = string | number | boolean | null
+export type TokenPrimitive = string | number | boolean | null | Function
 
 export type TokenValue = TokenPrimitive | TokenAlias
 
@@ -54,7 +54,7 @@ export type FlatTokenCollection = {
   value: TokenValue
 }
 
-export interface TokenTicket extends RegistryTicket {}
+export interface TokenTicket extends RegistryTicket<TokenValue> {}
 
 export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> {
   /**
