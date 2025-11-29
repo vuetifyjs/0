@@ -37,7 +37,7 @@ export function isNull (item: unknown): item is null {
 }
 
 /* #__NO_SIDE_EFFECTS__ */
-export function isNullOrUndefined (item: unknown): item is null {
+export function isNullOrUndefined (item: unknown): item is null | undefined {
   return item == null
 }
 
