@@ -338,14 +338,14 @@ describe('usePagination', () => {
       expect(pagination.itemsPerPage).toBe(10)
     })
 
-    it('should have default visible of 5', () => {
+    it('should have default visible of 7', () => {
       // 1000 items / 10 per page = 100 pages
       const pagination = createPagination({ size: 1000 })
 
-      // With visible=5 at page 1: [1, 2, 3, ..., 100] = 5 items total
-      expect(pagination.items.value.length).toBe(5)
+      // With visible=7 at page 1: [1, 2, 3, 4, 5, ..., 100] = 7 items total
+      expect(pagination.items.value.length).toBe(7)
       const pageItems = pagination.items.value.filter(item => item.type === 'page')
-      expect(pageItems.length).toBe(4) // 1, 2, 3, 100
+      expect(pageItems.length).toBe(6) // 1, 2, 3, 4, 5, 100
     })
 
     it('should have default ellipsis of "…"', () => {
@@ -420,5 +420,4 @@ describe('usePagination', () => {
       expect(pagination.page.value).toBe(500_000)
     })
   })
-
 })
