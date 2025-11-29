@@ -18,7 +18,7 @@
   import { useContext } from '#v0/composables'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -75,7 +75,7 @@
     }
   }
 
-  const bindableProps = computed<ExpansionPanelActivatorSlotProps>(() => ({
+  const slotProps = toRef((): ExpansionPanelActivatorSlotProps => ({
     'id': context.headerId.value,
     'role': 'button',
     'tabindex': context.isDisabled.value ? -1 : 0,
@@ -87,21 +87,26 @@
     'onClick': context.ticket.toggle,
     onKeydown,
   }))
+
+  const isExpanded = toRef(() => context.ticket.isSelected.value)
+  const isDisabled = toRef(() => context.isDisabled.value)
 </script>
 
 <template>
   <Atom
-    :id="bindableProps.id"
-    :aria-controls="bindableProps['aria-controls']"
-    :aria-disabled="bindableProps['aria-disabled']"
-    :aria-expanded="bindableProps['aria-expanded']"
+    :id="slotProps.id"
+    :aria-controls="slotProps['aria-controls']"
+    :aria-disabled="slotProps['aria-disabled']"
+    :aria-expanded="slotProps['aria-expanded']"
     :as
+    :data-disabled="isDisabled ? '' : undefined"
+    :data-expanded="isExpanded ? '' : undefined"
     :renderless
-    :role="bindableProps.role"
-    :tabindex="bindableProps.tabindex"
+    :role="slotProps.role"
+    :tabindex="slotProps.tabindex"
     @click="context.ticket.toggle"
     @keydown="onKeydown"
   >
-    <slot v-bind="bindableProps" />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>

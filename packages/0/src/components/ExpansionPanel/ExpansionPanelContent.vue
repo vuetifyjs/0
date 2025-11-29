@@ -17,7 +17,7 @@
   import { useContext } from '#v0/composables'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -48,29 +48,32 @@
   }>()
 
   const {
-    as,
+    as = 'div',
     renderless,
     itemNamespace = 'v0:expansion-panel-item',
   } = defineProps<ExpansionPanelContentProps>()
 
   const context = useContext<ExpansionPanelItemContext>(itemNamespace)
 
-  const bindableProps = computed<ExpansionPanelContentSlotProps>(() => ({
+  const slotProps = toRef((): ExpansionPanelContentSlotProps => ({
     'id': context.contentId.value,
     'role': 'region',
     'aria-labelledby': context.headerId.value,
     'isSelected': context.ticket.isSelected.value,
   }))
+
+  const isExpanded = toRef(() => context.ticket.isSelected.value)
 </script>
 
 <template>
   <Atom
-    :id="bindableProps.id"
-    :aria-labelledby="bindableProps['aria-labelledby']"
+    :id="slotProps.id"
+    :aria-labelledby="slotProps['aria-labelledby']"
     :as
+    :data-expanded="isExpanded ? '' : undefined"
     :renderless
-    :role="bindableProps.role"
+    :role="slotProps.role"
   >
-    <slot v-bind="bindableProps" />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>
