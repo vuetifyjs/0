@@ -1,5 +1,5 @@
 // Vuetify0
-import { createBreakpointsPlugin, createFeaturesPlugin, createHydrationPlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
+import { createBreakpointsPlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
 
 // Plugins
 import { createIconPlugin } from './icons'
@@ -28,6 +28,12 @@ export default function zero (app: App) {
       permissions: {
         super: [['use', 'devmode']],
       },
+    }),
+  )
+  app.use(
+    createLocalePlugin({
+      default: 'en',
+      fallback: 'en',
     }),
   )
 
