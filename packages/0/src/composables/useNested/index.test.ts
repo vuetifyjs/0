@@ -112,9 +112,9 @@ describe('useNested', () => {
     })
   })
 
-  describe('classic strategy', () => {
+  describe('classic adapter', () => {
     it('should propagate selection down to descendants', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -130,7 +130,7 @@ describe('useNested', () => {
     })
 
     it('should propagate unselection down to descendants', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -147,7 +147,7 @@ describe('useNested', () => {
     })
 
     it('should calculate parent indeterminate state', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -163,7 +163,7 @@ describe('useNested', () => {
     })
 
     it('should set parent to on when all children selected', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -178,7 +178,7 @@ describe('useNested', () => {
     })
 
     it('should handle deep hierarchy', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -196,7 +196,7 @@ describe('useNested', () => {
     })
 
     it('should output only leaf nodes', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -215,9 +215,9 @@ describe('useNested', () => {
     })
   })
 
-  describe('independent strategy', () => {
+  describe('independent adapter', () => {
     it('should not propagate selection', () => {
-      const nested = createNested({ strategy: 'independent' })
+      const nested = createNested({ adapter: 'independent' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -233,7 +233,7 @@ describe('useNested', () => {
     })
 
     it('should allow selecting any node independently', () => {
-      const nested = createNested({ strategy: 'independent' })
+      const nested = createNested({ adapter: 'independent' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -247,9 +247,9 @@ describe('useNested', () => {
     })
   })
 
-  describe('single-independent strategy', () => {
+  describe('single-independent adapter', () => {
     it('should only allow one selection', () => {
-      const nested = createNested({ strategy: 'single-independent' })
+      const nested = createNested({ adapter: 'single-independent' })
 
       nested.onboard([
         { id: 'item-1', value: 'Item 1' },
@@ -266,9 +266,9 @@ describe('useNested', () => {
     })
   })
 
-  describe('leaf strategy', () => {
+  describe('leaf adapter', () => {
     it('should only allow selecting leaf nodes', () => {
-      const nested = createNested({ strategy: 'leaf' })
+      const nested = createNested({ adapter: 'leaf' })
 
       nested.onboard([
         { id: 'folder', value: 'Folder' },
@@ -286,7 +286,7 @@ describe('useNested', () => {
     })
 
     it('should allow multi-selection of leaves', () => {
-      const nested = createNested({ strategy: 'leaf' })
+      const nested = createNested({ adapter: 'leaf' })
 
       nested.onboard([
         { id: 'folder', value: 'Folder' },
@@ -301,9 +301,9 @@ describe('useNested', () => {
     })
   })
 
-  describe('single-leaf strategy', () => {
+  describe('single-leaf adapter', () => {
     it('should only allow one leaf selection', () => {
-      const nested = createNested({ strategy: 'single-leaf' })
+      const nested = createNested({ adapter: 'single-leaf' })
 
       nested.onboard([
         { id: 'folder', value: 'Folder' },
@@ -320,9 +320,9 @@ describe('useNested', () => {
     })
   })
 
-  describe('trunk strategy', () => {
+  describe('trunk adapter', () => {
     it('should output highest selected ancestors', () => {
-      const nested = createNested({ strategy: 'trunk' })
+      const nested = createNested({ adapter: 'trunk' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -344,7 +344,7 @@ describe('useNested', () => {
     })
 
     it('should output root when all children selected', () => {
-      const nested = createNested({ strategy: 'trunk' })
+      const nested = createNested({ adapter: 'trunk' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -361,7 +361,7 @@ describe('useNested', () => {
 
   describe('disabled nodes', () => {
     it('should not select disabled nodes', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -376,7 +376,7 @@ describe('useNested', () => {
     })
 
     it('should exclude disabled from parent state calculation', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -393,7 +393,7 @@ describe('useNested', () => {
 
   describe('mandatory option', () => {
     it('should prevent deselecting last item', () => {
-      const nested = createNested({ strategy: 'independent', mandatory: true })
+      const nested = createNested({ adapter: 'independent', mandatory: true })
 
       nested.onboard([
         { id: 'item-1', value: 'Item 1' },
@@ -409,7 +409,7 @@ describe('useNested', () => {
     })
 
     it('should allow deselecting when multiple selected', () => {
-      const nested = createNested({ strategy: 'independent', mandatory: true })
+      const nested = createNested({ adapter: 'independent', mandatory: true })
 
       nested.onboard([
         { id: 'item-1', value: 'Item 1' },
@@ -426,7 +426,7 @@ describe('useNested', () => {
 
   describe('bulk operations', () => {
     it('should select all leaf nodes', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -443,7 +443,7 @@ describe('useNested', () => {
     })
 
     it('should unselect all nodes', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -457,7 +457,7 @@ describe('useNested', () => {
     })
 
     it('should toggle all nodes', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -475,7 +475,7 @@ describe('useNested', () => {
 
   describe('indeterminate state tracking', () => {
     it('should report isIndeterminate correctly', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },
@@ -501,7 +501,7 @@ describe('useNested', () => {
 
   describe('ticket properties', () => {
     it('should provide state computed on ticket', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       const tickets = nested.onboard([
         { id: 'root', value: 'Root' },
@@ -547,7 +547,7 @@ describe('useNested', () => {
     })
 
     it('should provide select/unselect/toggle methods on ticket', () => {
-      const nested = createNested({ strategy: 'independent' })
+      const nested = createNested({ adapter: 'independent' })
 
       const tickets = nested.onboard([
         { id: 'item', value: 'Item' },
@@ -592,7 +592,7 @@ describe('useNested', () => {
     })
 
     it('should reset all state', () => {
-      const nested = createNested({ strategy: 'classic' })
+      const nested = createNested({ adapter: 'classic' })
 
       nested.onboard([
         { id: 'root', value: 'Root' },

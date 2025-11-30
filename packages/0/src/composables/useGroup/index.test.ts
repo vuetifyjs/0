@@ -278,7 +278,6 @@ describe('useGroup', () => {
     })
   })
 
-
   describe('single ID selection', () => {
     it('should select a single item by ID', () => {
       const group = createGroup()

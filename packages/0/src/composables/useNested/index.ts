@@ -2,17 +2,18 @@
  * @module useNested
  *
  * @remarks
- * Hierarchical selection composable for tree structures with multiple selection strategies.
+ * Hierarchical selection composable for tree structures with multiple selection adapters.
  *
  * Key features:
  * - Parent-child relationship tracking
  * - Tri-state selection (on/off/indeterminate)
- * - 6 selection strategies (classic, leaf, independent, trunk, etc.)
- * - Bidirectional propagation (classic strategy)
+ * - 6 selection adapters (classic, leaf, independent, trunk, etc.)
+ * - Bidirectional propagation (classic adapter)
  * - Path utilities (getPath, getDescendants, getAncestors)
  * - Per-node selection state
+ * - Follows the adapter pattern used by Theme, Logger, Storage, Locale
  *
- * Inheritance chain: useRegistry → useSelection → useGroup → useNested
+ * Inheritance chain: useRegistry → useNested
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-nested
  */
@@ -28,18 +29,19 @@ import { useRegistry } from '#v0/composables/useRegistry'
 import { computed, shallowRef, toValue } from 'vue'
 import { genId } from '#v0/utilities'
 
-// Strategies
-import { getSelectStrategy } from './strategies'
+// Adapters
+import { getSelectAdapter } from './adapters'
 
 // Types
 import type { App, ComputedRef, MaybeRef, Ref } from 'vue'
 import type { ID } from '#v0/types'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { SelectionState, SelectStrategy, SelectStrategyProp } from './strategies'
+import type { SelectAdapter, SelectAdapterName, SelectionState } from './adapters'
 
-// Re-export strategy types
-export type { SelectionState, SelectStrategy, SelectStrategyProp } from './strategies'
+// Re-export adapter types
+export type { SelectAdapter, SelectAdapterName, SelectionState } from './adapters'
+export * from './adapters'
 
 export interface NestedTicket<V = unknown> extends RegistryTicket<V> {
   /** Parent node ID (undefined for root nodes) */
@@ -73,8 +75,8 @@ export interface NestedContext<Z extends NestedTicket> extends RegistryContext<Z
   selectionState: Ref<Map<ID, SelectionState>>
   /** Set of disabled node IDs */
   disabledIds: Ref<Set<ID>>
-  /** Current selection strategy */
-  strategy: SelectStrategyProp | SelectStrategy
+  /** Current selection adapter */
+  adapter: SelectAdapterName | SelectAdapter
   /** Set of selected node IDs (nodes with state 'on') */
   selectedIds: ComputedRef<Set<ID>>
   /** Selected values (output from strategy) */
@@ -116,8 +118,8 @@ export interface NestedContext<Z extends NestedTicket> extends RegistryContext<Z
 }
 
 export interface NestedOptions extends RegistryOptions {
-  /** Selection strategy */
-  strategy?: SelectStrategyProp | SelectStrategy | ((mandatory: boolean) => SelectStrategy)
+  /** Selection adapter (name, instance, or factory) */
+  adapter?: SelectAdapterName | SelectAdapter | ((mandatory: boolean) => SelectAdapter)
   /** When true, prevents deselecting the last item */
   mandatory?: boolean
   /** Initial selected IDs */
@@ -131,7 +133,7 @@ export interface NestedContextOptions extends NestedOptions {
 /**
  * Creates a new nested selection instance for hierarchical data.
  *
- * Provides tri-state selection with configurable propagation strategies
+ * Provides tri-state selection with configurable propagation adapters
  * for tree structures like file explorers, nested checkboxes, and menus.
  *
  * @param options The options for the nested instance.
@@ -140,7 +142,7 @@ export interface NestedContextOptions extends NestedOptions {
  * @returns A new nested instance with hierarchical selection support.
  *
  * @remarks
- * **Selection Strategies:**
+ * **Selection Adapters:**
  * - `'classic'` (default): Tri-state with bidirectional propagation
  * - `'leaf'`: Only leaf nodes selectable, multi-select
  * - `'single-leaf'`: Only leaf nodes, single selection
@@ -156,7 +158,7 @@ export interface NestedContextOptions extends NestedOptions {
  * **Tri-State Selection:**
  * - `'on'`: Node is selected
  * - `'off'`: Node is not selected
- * - `'indeterminate'`: Some children selected (classic strategy)
+ * - `'indeterminate'`: Some children selected (classic adapter)
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-nested
  *
@@ -164,7 +166,7 @@ export interface NestedContextOptions extends NestedOptions {
  * ```ts
  * import { createNested } from '@vuetify/v0'
  *
- * const tree = createNested({ strategy: 'classic' })
+ * const tree = createNested({ adapter: 'classic' })
  *
  * tree.onboard([
  *   { id: 'root', value: 'Root' },
@@ -191,7 +193,7 @@ export function createNested<
   E extends NestedContext<Z> = NestedContext<Z>,
 > (_options: NestedOptions = {}): E {
   const {
-    strategy: strategyOption = 'classic',
+    adapter: adapterOption = 'classic',
     mandatory = false,
     selected: initialSelected = [],
     ...options
@@ -207,12 +209,12 @@ export function createNested<
   const selectionState = shallowRef(new Map<ID, SelectionState>())
   const disabledIds = shallowRef(new Set<ID>())
 
-  // Get the strategy
-  const resolvedStrategy = typeof strategyOption === 'function'
-    ? strategyOption(mandatory)
-    : (typeof strategyOption === 'object'
-        ? strategyOption
-        : getSelectStrategy(strategyOption, mandatory))
+  // Get the adapter
+  const resolvedAdapter = typeof adapterOption === 'function'
+    ? adapterOption(mandatory)
+    : (typeof adapterOption === 'object'
+        ? adapterOption
+        : getSelectAdapter(adapterOption, mandatory))
 
   // Computed: selected IDs (nodes with 'on' state)
   const selectedIds = computed(() => {
@@ -223,12 +225,15 @@ export function createNested<
     return ids
   })
 
-  // Computed: selected values (strategy output)
+  // Computed: selected values (adapter output)
   const selectedValues = computed(() => {
-    return resolvedStrategy.out(
+    return resolvedAdapter.transformOut(
       selectionState.value,
-      childrenMap.value,
-      parents.value,
+      {
+        children: childrenMap.value,
+        parents: parents.value,
+        disabled: disabledIds.value,
+      },
     )
   })
 
@@ -326,9 +331,9 @@ export function createNested<
     return ancestors
   }
 
-  // Apply selection using strategy
+  // Apply selection using adapter
   function applySelection (id: ID, value: boolean) {
-    const newState = resolvedStrategy.select({
+    const newState = resolvedAdapter.select({
       id,
       value,
       selected: new Map(selectionState.value),
@@ -495,11 +500,13 @@ export function createNested<
 
   // Initialize with initial selected values
   if (initialSelected.length > 0) {
-    const initialState = resolvedStrategy.in(
+    const initialState = resolvedAdapter.transformIn(
       initialSelected,
-      childrenMap.value,
-      parents.value,
-      disabledIds.value,
+      {
+        children: childrenMap.value,
+        parents: parents.value,
+        disabled: disabledIds.value,
+      },
     )
     selectionState.value = initialState
   }
@@ -510,7 +517,7 @@ export function createNested<
     childrenMap,
     selectionState,
     disabledIds,
-    strategy: strategyOption,
+    adapter: adapterOption,
     selectedIds,
     selectedValues,
     roots,
@@ -552,7 +559,7 @@ export function createNested<
  * ```ts
  * const [useFileTree, provideFileTree, fileTree] = createNestedContext({
  *   namespace: 'file-tree',
- *   strategy: 'classic',
+ *   adapter: 'classic',
  * })
  *
  * // In parent component:
