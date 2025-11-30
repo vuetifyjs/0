@@ -87,7 +87,7 @@ export interface SelectionOptions extends RegistryOptions {
 }
 
 export interface SelectionContextOptions extends SelectionOptions {
-  namespace: string
+  namespace?: string
 }
 
 /**
@@ -265,7 +265,6 @@ export function createSelection<
 /**
  * Creates a new selection context.
  *
- * @param namespace The namespace for the selection context.
  * @param options The options for the selection context.
  * @template Z The type of the selection ticket.
  * @template E The type of the selection context.
@@ -277,7 +276,11 @@ export function createSelection<
  * ```ts
  * import { createSelectionContext } from '@vuetify/v0'
  *
- * export const [useCheckboxes, provideCheckboxes, checkboxes] = createSelectionContext('checkboxes')
+ * // With default namespace 'v0:selection'
+ * export const [useCheckboxes, provideCheckboxes, checkboxes] = createSelectionContext()
+ *
+ * // Or with custom namespace
+ * export const [useCheckboxes, provideCheckboxes, checkboxes] = createSelectionContext({ namespace: 'checkboxes' })
  *
  * // In a parent component:
  * provideCheckboxes()
@@ -290,8 +293,8 @@ export function createSelection<
 export function createSelectionContext<
   Z extends SelectionTicket = SelectionTicket,
   E extends SelectionContext<Z> = SelectionContext<Z>,
-> (_options: SelectionContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: SelectionContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:selection', ...options } = _options
   const [useSelectionContext, _provideSelectionContext] = createContext<E>(namespace)
   const context = createSelection<Z, E>(options)
 

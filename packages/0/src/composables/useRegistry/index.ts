@@ -541,7 +541,7 @@ export interface RegistryOptions {
 }
 
 export interface RegistryContextOptions extends RegistryOptions {
-  namespace: string
+  namespace?: string
 }
 
 /**
@@ -962,7 +962,11 @@ export function useRegistry<
  * ```ts
  * import { createRegistryContext } from '@vuetify/v0'
  *
- * export const [useItems, provideItems, items] = createRegistryContext('items')
+ * // With default namespace 'v0:registry'
+ * export const [useItems, provideItems, items] = createRegistryContext()
+ *
+ * // Or with custom namespace
+ * export const [useItems, provideItems, items] = createRegistryContext({ namespace: 'my-items' })
  *
  * // In a parent component:
  * provideItems()
@@ -975,8 +979,8 @@ export function useRegistry<
 export function createRegistryContext<
   Z extends RegistryTicket = RegistryTicket,
   E extends RegistryContext<Z> = RegistryContext<Z>,
-> (_options: RegistryContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: RegistryContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:registry', ...options } = _options
   const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
 
   const context = useRegistry<Z, E>(options)

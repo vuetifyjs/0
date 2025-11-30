@@ -209,7 +209,6 @@ export function createStep<
 /**
  * Creates a new step context.
  *
- * @param namespace The namespace for the step context.
  * @param options The options for the step context.
  * @template Z The type of the step ticket.
  * @template E The type of the step context.
@@ -221,21 +220,22 @@ export function createStep<
  * ```ts
  * import { createStepContext } from '@vuetify/v0'
  *
- * export const [useWizard, provideWizard, wizard] = createStepContext('wizard')
+ * // With default namespace 'v0:step'
+ * export const [useStep, provideStep, context] = createStepContext()
  *
  * // In a parent component:
- * provideWizard()
+ * provideStep()
  *
  * // In a child component:
- * const wizard = useWizard()
- * wizard.next() // Progress to next step
+ * const context = useStep()
+ * context.next() // Progress to next step
  * ```
  */
 export function createStepContext<
   Z extends StepTicket = StepTicket,
   E extends StepContext<Z> = StepContext<Z>,
-> (_options: StepContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: StepContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:step', ...options } = _options
   const [useStepContext, _provideStepContext] = createContext<E>(namespace)
   const context = createStep<Z, E>(options)
 

@@ -131,7 +131,6 @@ export function createSingle<
 /**
  * Creates a new single selection context.
  *
- * @param namespace The namespace for the single selection context.
  * @param options The options for the single selection context.
  * @template Z The type of the single selection ticket.
  * @template E The type of the single selection context.
@@ -143,21 +142,22 @@ export function createSingle<
  * ```ts
  * import { createSingleContext } from '@vuetify/v0'
  *
- * export const [useTabs, provideTabs, tabs] = createSingleContext('tabs', { mandatory: true })
+ * // With default namespace 'v0:single'
+ * export const [useSingle, provideSingle, context] = createSingleContext()
  *
  * // In a parent component:
- * provideTabs()
+ * provideSingle()
  *
  * // In a child component:
- * const tabs = useTabs()
- * tabs.select('tab-1')
+ * const single = useSingle()
+ * single.select('tab-1')
  * ```
  */
 export function createSingleContext<
   Z extends SingleTicket = SingleTicket,
   E extends SingleContext<Z> = SingleContext<Z>,
-> (_options: SingleContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: SingleContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:single', ...options } = _options
   const [useSingleContext, _provideSingleContext] = createContext<E>(namespace)
   const context = createSingle<Z, E>(options)
 

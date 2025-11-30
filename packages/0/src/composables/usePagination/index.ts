@@ -81,7 +81,7 @@ export interface PaginationOptions {
 
 export interface PaginationContextOptions extends PaginationOptions {
   /** Namespace for dependency injection */
-  namespace: string
+  namespace?: string
 }
 
 /**
@@ -245,6 +245,10 @@ export function createPagination<
  *
  * @example
  * ```ts
+ * // With default namespace 'v0:pagination'
+ * const [usePagination, providePaginationContext] = createPaginationContext({ size: 50 })
+ *
+ * // Or with custom namespace
  * const [usePagination, providePaginationContext] = createPaginationContext({
  *   namespace: 'my-pagination',
  *   size: 50,
@@ -261,8 +265,8 @@ export function createPagination<
 export function createPaginationContext<
   Z extends PaginationItem = PaginationItem,
   E extends PaginationContext<Z> = PaginationContext<Z>,
-> (_options: PaginationContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: PaginationContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:pagination', ...options } = _options
   const [usePaginationContext, _providePaginationContext] = createContext<E>(namespace)
   const context = createPagination<Z, E>(options)
 

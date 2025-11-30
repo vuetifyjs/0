@@ -71,8 +71,6 @@ export { MemoryAdapter } from '#v0/composables/useStorage/adapters'
 
 export type { StorageAdapter, StorageType } from '#v0/composables/useStorage/adapters'
 
-export const [useStorageContext, provideStorageContext] = createContext<StorageContext>('v0:storage')
-
 /**
  * Creates a new storage instance.
  *

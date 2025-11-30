@@ -151,7 +151,6 @@ export function createGroup<
 /**
  * Creates a new group context.
  *
- * @param namespace The namespace for the group context.
  * @param options The options for the group context.
  * @template Z The type of the group ticket.
  * @template E The type of the group context.
@@ -163,7 +162,11 @@ export function createGroup<
  * ```ts
  * import { createGroupContext } from '@vuetify/v0'
  *
- * export const [useMyGroup, provideMyGroup, myGroup] = createGroupContext('my-group')
+ * // With default namespace 'v0:group'
+ * export const [useMyGroup, provideMyGroup, myGroup] = createGroupContext()
+ *
+ * // Or with custom namespace
+ * export const [useMyGroup, provideMyGroup, myGroup] = createGroupContext({ namespace: 'my-group' })
  *
  * // In a parent component:
  * provideMyGroup()
@@ -175,8 +178,8 @@ export function createGroup<
 export function createGroupContext<
   Z extends GroupTicket = GroupTicket,
   E extends GroupContext<Z> = GroupContext<Z>,
-> (_options: GroupContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: GroupContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:group', ...options } = _options
   const [useGroupContext, _provideGroupContext] = createContext<E>(namespace)
   const context = createGroup<Z, E>(options)
 

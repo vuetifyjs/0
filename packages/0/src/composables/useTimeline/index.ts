@@ -90,7 +90,7 @@ export interface TimelineOptions extends RegistryOptions {
 }
 
 export interface TimelineContextOptions extends TimelineOptions {
-  namespace: string
+  namespace?: string
 }
 
 /**
@@ -190,13 +190,12 @@ export function createTimeline<
 }
 
 /**
- * Creates a new timeline plugin.
+ * Creates a new timeline context.
  *
- * @param namespace The namespace for the timeline plugin.
- * @param options The options for the timeline plugin.
+ * @param options The options for the timeline context.
  * @template Z The type of the timeline ticket.
  * @template E The type of the timeline context.
- * @returns A new timeline plugin.
+ * @returns A new timeline context.
  *
  * @see https://0.vuetifyjs.com/composables/registration/use-timeline
  *
@@ -204,7 +203,9 @@ export function createTimeline<
  * ```ts
  * import { createTimelineContext } from '@vuetify/v0'
  *
- * export const [useTimeline, provideTimeline, context] = createTimelineContext('v0:timeline', { size: 5 })
+ * // With default namespace 'v0:timeline'
+ * export const [useTimeline, provideTimeline, context] = createTimelineContext({ size: 5 })
+ *
  * context.register({ id: 'example' })
  *
  * // In a parent component
@@ -219,8 +220,8 @@ export function createTimeline<
 export function createTimelineContext<
   Z extends TimelineTicket = TimelineTicket,
   E extends TimelineContext<Z> = TimelineContext<Z>,
-> (_options: TimelineContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: TimelineContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:timeline', ...options } = _options
   const [useTimelineContext, _provideTimelineContext] = createContext<E>(namespace)
   const context = createTimeline<Z, E>(options)
 

@@ -66,7 +66,7 @@ export interface FormOptions extends RegistryOptions {
 }
 
 export interface FormContextOptions extends RegistryOptions {
-  namespace: string
+  namespace?: string
   validateOn?: 'submit' | 'change' | string
 }
 
@@ -247,7 +247,6 @@ export function createForm<
 /**
  * Creates a new form context.
  *
- * @param namespace The namespace for the form context.
  * @param options The options for the form context.
  * @template Z The type of the form ticket.
  * @template E The type of the form context.
@@ -259,7 +258,12 @@ export function createForm<
  * ```ts
  * import { createFormContext } from '@vuetify/v0'
  *
- * export const [useMyForm, provideMyForm, myForm] = createFormContext('my-form', {
+ * // With default namespace 'v0:form'
+ * export const [useMyForm, provideMyForm, myForm] = createFormContext({ validateOn: 'change' })
+ *
+ * // Or with custom namespace
+ * export const [useMyForm, provideMyForm, myForm] = createFormContext({
+ *   namespace: 'my-form',
  *   validateOn: 'change',
  * })
  *
@@ -274,10 +278,8 @@ export function createForm<
 export function createFormContext<
   Z extends FormTicket = FormTicket,
   E extends FormContext<Z> = FormContext<Z>,
-> (
-  _options: FormContextOptions,
-): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: FormContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:form', ...options } = _options
   const [useFormContext, _provideFormContext] = createContext<E>(namespace)
 
   const context = createForm<Z, E>(options)
