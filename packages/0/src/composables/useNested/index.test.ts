@@ -605,7 +605,7 @@ describe('useNested', () => {
       expect(nested.size).toBe(0)
       expect(nested.parents.value.size).toBe(0)
       expect(nested.childrenMap.value.size).toBe(0)
-      expect(nested.selectionState.value.size).toBe(0)
+      expect(nested.selectedIds.value.size).toBe(0)
     })
   })
 })

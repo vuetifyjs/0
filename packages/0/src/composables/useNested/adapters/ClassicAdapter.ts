@@ -2,21 +2,22 @@
  * @module useNested/adapters/ClassicAdapter
  *
  * @remarks
- * Classic selection adapter - tri-state with bidirectional propagation.
+ * Classic selection adapter - downward propagation with computed parent state.
  *
- * The most feature-rich adapter implementing checkbox tree behavior:
+ * Key behaviors:
  * - Selecting a parent selects all descendants (downward propagation)
- * - Parent state is calculated from children (upward propagation):
+ * - Parent state is computed dynamically (not stored):
  *   - 'on' if all children are selected
  *   - 'off' if no children are selected
  *   - 'indeterminate' if some children are selected
  *
- * Output only includes leaf nodes that are 'on'.
+ * Output only includes leaf nodes that are selected.
+ * Uses Set<ID> for consistency with useSelection/useGroup.
  */
 
 // Types
 import type { ID } from '#v0/types'
-import type { SelectAdapter, SelectContext, SelectData, SelectionState } from './SelectAdapter'
+import type { SelectAdapter, SelectContext, SelectData } from './SelectAdapter'
 
 /**
  * Creates a classic selection adapter.
@@ -27,8 +28,8 @@ export function createClassicAdapter (mandatory = false): SelectAdapter {
   const adapter: SelectAdapter = {
     name: 'classic',
 
-    select: ({ id, value, selected, children, parents, disabled }: SelectData): Map<ID, SelectionState> => {
-      const original = new Map(selected)
+    select: ({ id, value, selected, children, disabled }: SelectData): Set<ID> => {
+      const newSelected = new Set(selected)
 
       // DOWNWARD PROPAGATION: select/unselect all descendants
       const items: ID[] = [id]
@@ -36,7 +37,11 @@ export function createClassicAdapter (mandatory = false): SelectAdapter {
         const item = items.shift()!
 
         if (!disabled.has(item)) {
-          selected.set(item, value ? 'on' : 'off')
+          if (value) {
+            newSelected.add(item)
+          } else {
+            newSelected.delete(item)
+          }
         }
 
         if (children.has(item)) {
@@ -44,70 +49,43 @@ export function createClassicAdapter (mandatory = false): SelectAdapter {
         }
       }
 
-      // UPWARD PROPAGATION: recalculate ancestor states
-      let parent = parents.get(id)
-      while (parent != null) {
-        let everySelected = true
-        let noneSelected = true
-
-        for (const child of children.get(parent)!) {
-          if (disabled.has(child)) continue
-
-          if (selected.get(child) !== 'on') everySelected = false
-          if (selected.has(child) && selected.get(child) !== 'off') noneSelected = false
-
-          if (!everySelected && !noneSelected) break
-        }
-
-        if (everySelected) {
-          selected.set(parent, 'on')
-        } else if (noneSelected) {
-          selected.set(parent, 'off')
-        } else {
-          selected.set(parent, 'indeterminate')
-        }
-
-        parent = parents.get(parent)
-      }
-
       // Respect mandatory constraint
-      if (mandatory && !value) {
-        const on = Array.from(selected.entries())
-          .filter(([, v]) => v === 'on')
-          .map(([k]) => k)
-        if (on.length === 0) return original
+      if (mandatory && !value && newSelected.size === 0) {
+        return selected
       }
 
-      return selected
+      return newSelected
     },
 
     transformIn: (
       values: readonly ID[] | undefined,
       context: SelectContext,
-    ): Map<ID, SelectionState> => {
-      let map = new Map<ID, SelectionState>()
+    ): Set<ID> => {
+      let selected = new Set<ID>()
 
       for (const id of values || []) {
-        map = adapter.select({
+        selected = adapter.select({
           id,
           value: true,
-          selected: map,
+          selected,
           ...context,
         })
       }
 
-      return map
+      return selected
     },
 
     transformOut: (
-      state: Map<ID, SelectionState>,
+      selected: Set<ID>,
       context: SelectContext,
     ): ID[] => {
-      // Only output leaf nodes that are 'on'
+      // Only output leaf nodes that are selected
       const arr: ID[] = []
 
-      for (const [key, value] of state.entries()) {
-        if (value === 'on' && !context.children.has(key)) arr.push(key)
+      for (const id of selected) {
+        if (!context.children.has(id)) {
+          arr.push(id)
+        }
       }
 
       return arr

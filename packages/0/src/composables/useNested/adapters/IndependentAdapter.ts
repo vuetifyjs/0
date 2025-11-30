@@ -5,11 +5,13 @@
  * Independent selection adapter - no parent-child propagation.
  * Each node can be selected/unselected independently without affecting
  * parent or child nodes. Supports multi-selection.
+ *
+ * Uses Set<ID> for consistency with useSelection/useGroup.
  */
 
 // Types
 import type { ID } from '#v0/types'
-import type { SelectAdapter, SelectContext, SelectData, SelectionState } from './SelectAdapter'
+import type { SelectAdapter, SelectContext, SelectData } from './SelectAdapter'
 
 /**
  * Creates an independent selection adapter.
@@ -20,45 +22,32 @@ export function createIndependentAdapter (mandatory = false): SelectAdapter {
   const adapter: SelectAdapter = {
     name: 'independent',
 
-    select: ({ id, value, selected }: SelectData): Map<ID, SelectionState> => {
+    select: ({ id, value, selected }: SelectData): Set<ID> => {
+      const newSelected = new Set(selected)
+
       // Respect mandatory constraint
-      if (mandatory && !value) {
-        const on = Array.from(selected.entries())
-          .filter(([, v]) => v === 'on')
-          .map(([k]) => k)
-        if (on.length === 1 && on[0] === id) return selected
+      if (mandatory && !value && newSelected.size === 1 && newSelected.has(id)) {
+        return newSelected
       }
 
-      selected.set(id, value ? 'on' : 'off')
-      return selected
+      if (value) {
+        newSelected.add(id)
+      } else {
+        newSelected.delete(id)
+      }
+
+      return newSelected
     },
 
     transformIn: (
       values: readonly ID[] | undefined,
-      context: SelectContext,
-    ): Map<ID, SelectionState> => {
-      const map = new Map<ID, SelectionState>()
-
-      for (const id of values || []) {
-        adapter.select({
-          id,
-          value: true,
-          selected: map,
-          ...context,
-        })
-      }
-
-      return map
+      _context: SelectContext,
+    ): Set<ID> => {
+      return values ? new Set(values) : new Set()
     },
 
-    transformOut: (state: Map<ID, SelectionState>): ID[] => {
-      const arr: ID[] = []
-
-      for (const [key, value] of state.entries()) {
-        if (value === 'on') arr.push(key)
-      }
-
-      return arr
+    transformOut: (selected: Set<ID>): ID[] => {
+      return Array.from(selected)
     },
   }
 
@@ -73,36 +62,38 @@ export function createIndependentAdapter (mandatory = false): SelectAdapter {
  * @param mandatory When true, prevents deselecting the last selected item
  */
 export function createIndependentSingleAdapter (mandatory = false): SelectAdapter {
-  const baseAdapter = createIndependentAdapter(mandatory)
-
   const adapter: SelectAdapter = {
     name: 'single-independent',
 
-    select: ({ selected, id, ...rest }: SelectData): Map<ID, SelectionState> => {
-      // Keep only this item's previous state (if any) for single selection
-      const singleSelected = selected.has(id)
-        ? new Map<ID, SelectionState>([[id, selected.get(id)!]])
-        : new Map<ID, SelectionState>()
+    select: ({ id, value, selected }: SelectData): Set<ID> => {
+      // Respect mandatory constraint
+      if (mandatory && !value && selected.size === 1 && selected.has(id)) {
+        return new Set(selected)
+      }
 
-      return baseAdapter.select({ ...rest, id, selected: singleSelected })
+      if (value) {
+        // Single selection: clear all and add this one
+        return new Set([id])
+      } else {
+        const newSelected = new Set(selected)
+        newSelected.delete(id)
+        return newSelected
+      }
     },
 
     transformIn: (
       values: readonly ID[] | undefined,
-      context: SelectContext,
-    ): Map<ID, SelectionState> => {
+      _context: SelectContext,
+    ): Set<ID> => {
       // Only take the first item for single selection
-      if (values?.length) {
-        return baseAdapter.transformIn(values.slice(0, 1), context)
+      if (values && values.length > 0) {
+        return new Set([values[0] as ID])
       }
-      return new Map<ID, SelectionState>()
+      return new Set()
     },
 
-    transformOut: (
-      state: Map<ID, SelectionState>,
-      context: SelectContext,
-    ): ID[] => {
-      return baseAdapter.transformOut(state, context)
+    transformOut: (selected: Set<ID>): ID[] => {
+      return Array.from(selected)
     },
   }
 

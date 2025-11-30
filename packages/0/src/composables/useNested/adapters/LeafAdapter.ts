@@ -4,6 +4,8 @@
  * @remarks
  * Leaf selection adapters - only leaf nodes can be selected.
  * Nodes with children (branches/folders) cannot be selected.
+ *
+ * Uses Set<ID> for consistency with useSelection/useGroup.
  */
 
 // Adapters
@@ -11,7 +13,7 @@ import { createIndependentAdapter, createIndependentSingleAdapter } from './Inde
 
 // Types
 import type { ID } from '#v0/types'
-import type { SelectAdapter, SelectData, SelectionState } from './SelectAdapter'
+import type { SelectAdapter, SelectData } from './SelectAdapter'
 
 /**
  * Creates a leaf selection adapter.
@@ -27,11 +29,11 @@ export function createLeafAdapter (mandatory = false): SelectAdapter {
   const adapter: SelectAdapter = {
     name: 'leaf',
 
-    select: ({ id, selected, children, ...rest }: SelectData): Map<ID, SelectionState> => {
+    select: ({ id, children, ...rest }: SelectData): Set<ID> => {
       // Skip if this node has children (is a branch)
-      if (children.has(id)) return selected
+      if (children.has(id)) return new Set(rest.selected)
 
-      return baseAdapter.select({ id, selected, children, ...rest })
+      return baseAdapter.select({ id, children, ...rest })
     },
 
     transformIn: baseAdapter.transformIn,
@@ -54,11 +56,11 @@ export function createLeafSingleAdapter (mandatory = false): SelectAdapter {
   const adapter: SelectAdapter = {
     name: 'single-leaf',
 
-    select: ({ id, selected, children, ...rest }: SelectData): Map<ID, SelectionState> => {
+    select: ({ id, children, ...rest }: SelectData): Set<ID> => {
       // Skip if this node has children (is a branch)
-      if (children.has(id)) return selected
+      if (children.has(id)) return new Set(rest.selected)
 
-      return baseAdapter.select({ id, selected, children, ...rest })
+      return baseAdapter.select({ id, children, ...rest })
     },
 
     transformIn: baseAdapter.transformIn,

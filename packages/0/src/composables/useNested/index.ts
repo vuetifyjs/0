@@ -6,12 +6,11 @@
  *
  * Key features:
  * - Parent-child relationship tracking
- * - Tri-state selection (on/off/indeterminate)
+ * - Tri-state selection (on/off/indeterminate) - indeterminate is computed, not stored
  * - 6 selection adapters (classic, leaf, independent, trunk, etc.)
- * - Bidirectional propagation (classic adapter)
+ * - Downward propagation (classic adapter)
  * - Path utilities (getPath, getDescendants, getAncestors)
- * - Per-node selection state
- * - Follows the adapter pattern used by Theme, Logger, Storage, Locale
+ * - Uses Set<ID> like useSelection/useGroup for consistency
  *
  * Inheritance chain: useRegistry → useNested
  *
@@ -48,12 +47,12 @@ export interface NestedTicket<V = unknown> extends RegistryTicket<V> {
   parent?: ID
   /** Disabled state of the ticket */
   disabled: MaybeRef<boolean>
-  /** Selection state: 'on' | 'off' | 'indeterminate' */
+  /** Selection state: 'on' | 'off' | 'indeterminate' (computed) */
   state: ComputedRef<SelectionState>
   /** Whether this node is a leaf (has no children) */
   isLeaf: ComputedRef<boolean>
   /** Whether this node is selected ('on') */
-  isSelected: Readonly<Ref<boolean>>
+  isSelected: ComputedRef<boolean>
   /** Whether this node is indeterminate */
   isIndeterminate: ComputedRef<boolean>
   /** Child node IDs */
@@ -71,15 +70,13 @@ export interface NestedContext<Z extends NestedTicket> extends RegistryContext<Z
   parents: Ref<Map<ID, ID>>
   /** Parent-to-children relationship map */
   childrenMap: Ref<Map<ID, ID[]>>
-  /** Selection state per node */
-  selectionState: Ref<Map<ID, SelectionState>>
+  /** Set of selected node IDs (like useSelection) */
+  selectedIds: Ref<Set<ID>>
   /** Set of disabled node IDs */
   disabledIds: Ref<Set<ID>>
   /** Current selection adapter */
   adapter: SelectAdapterName | SelectAdapter
-  /** Set of selected node IDs (nodes with state 'on') */
-  selectedIds: ComputedRef<Set<ID>>
-  /** Selected values (output from strategy) */
+  /** Selected values (output from adapter) */
   selectedValues: ComputedRef<ID[]>
   /** Root nodes (nodes without parent) */
   roots: ComputedRef<Z[]>
@@ -101,7 +98,7 @@ export interface NestedContext<Z extends NestedTicket> extends RegistryContext<Z
   unselectAll: () => void
   /** Toggle all nodes */
   toggleAll: () => void
-  /** Get selection state for a node */
+  /** Get selection state for a node (computed dynamically) */
   getState: (id: ID) => SelectionState
   /** Get path from root to node */
   getPath: (id: ID) => ID[]
@@ -143,7 +140,7 @@ export interface NestedContextOptions extends NestedOptions {
  *
  * @remarks
  * **Selection Adapters:**
- * - `'classic'` (default): Tri-state with bidirectional propagation
+ * - `'classic'` (default): Downward propagation, indeterminate computed
  * - `'leaf'`: Only leaf nodes selectable, multi-select
  * - `'single-leaf'`: Only leaf nodes, single selection
  * - `'independent'`: No propagation, any node selectable
@@ -156,9 +153,9 @@ export interface NestedContextOptions extends NestedOptions {
  * ```
  *
  * **Tri-State Selection:**
- * - `'on'`: Node is selected
- * - `'off'`: Node is not selected
- * - `'indeterminate'`: Some children selected (classic adapter)
+ * - `'on'`: Node is in selectedIds
+ * - `'off'`: Node is not in selectedIds and has no selected children
+ * - `'indeterminate'`: Node has some but not all children selected (computed)
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-nested
  *
@@ -175,7 +172,7 @@ export interface NestedContextOptions extends NestedOptions {
  *   { id: 'file-2', value: 'File 2.txt', parent: 'folder-1' },
  * ])
  *
- * // Select folder-1 (selects all descendants with classic strategy)
+ * // Select folder-1 (selects all descendants with classic adapter)
  * tree.select('folder-1')
  *
  * console.log(tree.getState('folder-1')) // 'on'
@@ -205,8 +202,8 @@ export function createNested<
   const parents = shallowRef(new Map<ID, ID>())
   const childrenMap = shallowRef(new Map<ID, ID[]>())
 
-  // Selection state
-  const selectionState = shallowRef(new Map<ID, SelectionState>())
+  // Selection state - uses Set<ID> like useSelection/useGroup
+  const selectedIds = shallowRef(new Set<ID>())
   const disabledIds = shallowRef(new Set<ID>())
 
   // Get the adapter
@@ -216,19 +213,10 @@ export function createNested<
         ? adapterOption
         : getSelectAdapter(adapterOption, mandatory))
 
-  // Computed: selected IDs (nodes with 'on' state)
-  const selectedIds = computed(() => {
-    const ids = new Set<ID>()
-    for (const [id, state] of selectionState.value.entries()) {
-      if (state === 'on') ids.add(id)
-    }
-    return ids
-  })
-
   // Computed: selected values (adapter output)
   const selectedValues = computed(() => {
     return resolvedAdapter.transformOut(
-      selectionState.value,
+      selectedIds.value,
       {
         children: childrenMap.value,
         parents: parents.value,
@@ -261,16 +249,69 @@ export function createNested<
   const isAllSelected = computed(() => {
     const leaves = leafIds.value
     if (leaves.length === 0) return false
-    return leaves.every(id => selectionState.value.get(id) === 'on')
+    return leaves.every(id => selectedIds.value.has(id))
   })
 
   const isIndeterminate = computed(() => {
     return !isNoneSelected.value && !isAllSelected.value
   })
 
-  // Get selection state for a node
+  // Determine if adapter uses tree-based state computation
+  const adapterName = typeof adapterOption === 'string'
+    ? adapterOption
+    : (typeof adapterOption === 'object' ? adapterOption.name : null)
+  const usesTreeState = adapterName === 'classic' || adapterName === 'trunk'
+
+  /**
+   * Get selection state for a node (computed dynamically).
+   *
+   * For classic/trunk adapters:
+   * - 'on': Node is in selectedIds OR all children are 'on'
+   * - 'off': Node is not selected and has no selected descendants
+   * - 'indeterminate': Node has some but not all descendants selected
+   *
+   * For other adapters (independent, leaf):
+   * - 'on': Node is in selectedIds
+   * - 'off': Node is not in selectedIds
+   */
   function getState (id: ID): SelectionState {
-    return selectionState.value.get(id) ?? 'off'
+    // If directly selected, it's 'on'
+    if (selectedIds.value.has(id)) return 'on'
+
+    // For non-tree adapters, state is simply based on selectedIds
+    if (!usesTreeState) return 'off'
+
+    // For classic/trunk: compute state from children
+    const nodeChildren = childrenMap.value.get(id)
+    if (!nodeChildren || nodeChildren.length === 0) {
+      // Leaf node - either on or off
+      return 'off'
+    }
+
+    // Check children's states recursively
+    let hasSelectedChild = false
+    let allChildrenSelected = true
+
+    for (const childId of nodeChildren) {
+      if (disabledIds.value.has(childId)) continue
+
+      const childState = getState(childId)
+      if (childState === 'on') {
+        hasSelectedChild = true
+      } else if (childState === 'indeterminate') {
+        hasSelectedChild = true
+        allChildrenSelected = false
+      } else {
+        allChildrenSelected = false
+      }
+    }
+
+    if (hasSelectedChild && allChildrenSelected) {
+      return 'on'
+    } else if (hasSelectedChild) {
+      return 'indeterminate'
+    }
+    return 'off'
   }
 
   // Check if a node is selected
@@ -333,15 +374,15 @@ export function createNested<
 
   // Apply selection using adapter
   function applySelection (id: ID, value: boolean) {
-    const newState = resolvedAdapter.select({
+    const newSelected = resolvedAdapter.select({
       id,
       value,
-      selected: new Map(selectionState.value),
+      selected: new Set(selectedIds.value),
       children: childrenMap.value,
       parents: parents.value,
       disabled: disabledIds.value,
     })
-    selectionState.value = newState
+    selectedIds.value = newSelected
   }
 
   // Select one or more nodes
@@ -384,12 +425,12 @@ export function createNested<
     if (mandatory && selectedIds.value.size > 0) {
       // Keep only the first selected leaf
       const firstSelected = Array.from(selectedIds.value)[0]
-      selectionState.value = new Map<ID, SelectionState>()
+      selectedIds.value = new Set<ID>()
       if (firstSelected != null) {
         applySelection(firstSelected, true)
       }
     } else {
-      selectionState.value = new Map<ID, SelectionState>()
+      selectedIds.value = new Set<ID>()
     }
   }
 
@@ -469,10 +510,10 @@ export function createNested<
     newDisabled.delete(id)
     disabledIds.value = newDisabled
 
-    // Remove selection state
-    const newState = new Map(selectionState.value)
-    newState.delete(id)
-    selectionState.value = newState
+    // Remove from selection
+    const newSelected = new Set(selectedIds.value)
+    newSelected.delete(id)
+    selectedIds.value = newSelected
 
     registry.unregister(id)
   }
@@ -494,7 +535,7 @@ export function createNested<
     registry.clear()
     parents.value = new Map()
     childrenMap.value = new Map()
-    selectionState.value = new Map()
+    selectedIds.value = new Set()
     disabledIds.value = new Set()
   }
 
@@ -508,17 +549,16 @@ export function createNested<
         disabled: disabledIds.value,
       },
     )
-    selectionState.value = initialState
+    selectedIds.value = initialState
   }
 
   return {
     ...registry,
     parents,
     childrenMap,
-    selectionState,
+    selectedIds,
     disabledIds,
     adapter: adapterOption,
-    selectedIds,
     selectedValues,
     roots,
     isNoneSelected,
