@@ -5,6 +5,280 @@ import { createGroup } from './index'
 import { describe, it, expect } from 'vitest'
 
 describe('useGroup', () => {
+  describe('indeterminate state', () => {
+    it('should report isNoneSelected when nothing is selected', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      expect(group.isNoneSelected.value).toBe(true)
+      expect(group.isAllSelected.value).toBe(false)
+      expect(group.isIndeterminate.value).toBe(false)
+    })
+
+    it('should report isAllSelected when all items are selected', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.select(['item-1', 'item-2'])
+
+      expect(group.isNoneSelected.value).toBe(false)
+      expect(group.isAllSelected.value).toBe(true)
+      expect(group.isIndeterminate.value).toBe(false)
+    })
+
+    it('should report isIndeterminate when some items are selected', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      group.select('item-1')
+
+      expect(group.isNoneSelected.value).toBe(false)
+      expect(group.isAllSelected.value).toBe(false)
+      expect(group.isIndeterminate.value).toBe(true)
+    })
+
+    it('should ignore disabled items when calculating isAllSelected', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2', disabled: true },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      // Select only non-disabled items
+      group.select(['item-1', 'item-3'])
+
+      expect(group.isAllSelected.value).toBe(true)
+      expect(group.isIndeterminate.value).toBe(false)
+    })
+
+    it('should report isAllSelected as false when registry is empty', () => {
+      const group = createGroup()
+
+      expect(group.isAllSelected.value).toBe(false)
+      expect(group.isNoneSelected.value).toBe(true)
+      expect(group.isIndeterminate.value).toBe(false)
+    })
+
+    it('should report isAllSelected as false when all items are disabled', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1', disabled: true },
+        { id: 'item-2', value: 'value-2', disabled: true },
+      ])
+
+      expect(group.isAllSelected.value).toBe(false)
+      expect(group.isNoneSelected.value).toBe(true)
+    })
+
+    it('should update indeterminate state reactively', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      expect(group.isNoneSelected.value).toBe(true)
+
+      group.select('item-1')
+      expect(group.isIndeterminate.value).toBe(true)
+
+      group.select('item-2')
+      expect(group.isAllSelected.value).toBe(true)
+      expect(group.isIndeterminate.value).toBe(false)
+
+      group.unselect('item-1')
+      expect(group.isIndeterminate.value).toBe(true)
+
+      group.unselect('item-2')
+      expect(group.isNoneSelected.value).toBe(true)
+    })
+  })
+
+  describe('selectAll', () => {
+    it('should select all non-disabled items', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      group.selectAll()
+
+      expect(group.selectedIds.size).toBe(3)
+      expect(group.isAllSelected.value).toBe(true)
+    })
+
+    it('should skip disabled items when selecting all', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2', disabled: true },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      group.selectAll()
+
+      expect(group.selectedIds.size).toBe(2)
+      expect(group.selectedIds.has('item-1')).toBe(true)
+      expect(group.selectedIds.has('item-2')).toBe(false)
+      expect(group.selectedIds.has('item-3')).toBe(true)
+      expect(group.isAllSelected.value).toBe(true)
+    })
+
+    it('should handle empty registry', () => {
+      const group = createGroup()
+
+      group.selectAll()
+
+      expect(group.selectedIds.size).toBe(0)
+    })
+  })
+
+  describe('unselectAll', () => {
+    it('should unselect all items', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.selectAll()
+      expect(group.selectedIds.size).toBe(2)
+
+      group.unselectAll()
+      expect(group.selectedIds.size).toBe(0)
+      expect(group.isNoneSelected.value).toBe(true)
+    })
+
+    it('should respect mandatory option by keeping first selected item', () => {
+      const group = createGroup({ mandatory: true })
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.selectAll()
+      expect(group.selectedIds.size).toBe(2)
+
+      group.unselectAll()
+      expect(group.selectedIds.size).toBe(1)
+    })
+
+    it('should handle empty selection', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      group.unselectAll()
+      expect(group.selectedIds.size).toBe(0)
+    })
+  })
+
+  describe('toggleAll', () => {
+    it('should select all when none are selected', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.toggleAll()
+
+      expect(group.isAllSelected.value).toBe(true)
+      expect(group.selectedIds.size).toBe(2)
+    })
+
+    it('should unselect all when all are selected', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.selectAll()
+      group.toggleAll()
+
+      expect(group.isNoneSelected.value).toBe(true)
+      expect(group.selectedIds.size).toBe(0)
+    })
+
+    it('should select all when in indeterminate state', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      group.select('item-1')
+      expect(group.isIndeterminate.value).toBe(true)
+
+      group.toggleAll()
+
+      expect(group.isAllSelected.value).toBe(true)
+      expect(group.selectedIds.size).toBe(3)
+    })
+
+    it('should respect mandatory option when toggling off', () => {
+      const group = createGroup({ mandatory: true })
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.selectAll()
+      group.toggleAll()
+
+      // Should keep one item due to mandatory
+      expect(group.selectedIds.size).toBe(1)
+    })
+
+    it('should skip disabled items when toggling on', () => {
+      const group = createGroup()
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2', disabled: true },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      group.toggleAll()
+
+      expect(group.selectedIds.size).toBe(2)
+      expect(group.selectedIds.has('item-2')).toBe(false)
+      expect(group.isAllSelected.value).toBe(true)
+    })
+  })
+
+
   describe('single ID selection', () => {
     it('should select a single item by ID', () => {
       const group = createGroup()
