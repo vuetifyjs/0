@@ -17,7 +17,7 @@
   // Composables
   import { createPaginationContext } from '#v0/composables/usePagination'
   import { createRegistryContext } from '#v0/composables/useRegistry'
-  import { useElementSize } from '#v0/composables/useResizeObserver'
+  import { createOverflow } from '#v0/composables/useOverflow'
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
@@ -42,6 +42,13 @@
     itemsPerPage?: number
     /** Ellipsis character */
     ellipsis?: string | false
+    /**
+     * Reserved space for nav buttons.
+     * - Values <= 10 are treated as multipliers (e.g., 4 = itemWidth * 4)
+     * - Values > 10 are treated as pixels (e.g., 200 = 200px)
+     * Defaults to 4 (space for first/prev/next/last buttons).
+     */
+    reserved?: number
   }
 
   export interface PaginationRootSlots {
@@ -93,11 +100,11 @@
     totalVisible,
     itemsPerPage = 10,
     ellipsis = '...',
+    reserved,
   } = defineProps<PaginationRootProps>()
 
   const atom = useTemplateRef<AtomExpose>('atom')
-  const rootEl = toRef(() => atom.value?.element as Element | undefined)
-  const { width: containerWidth } = useElementSize(rootEl)
+  const rootEl = toRef(() => atom.value?.element.value)
 
   const locale = useLocale()
 
@@ -107,44 +114,42 @@
 
   const itemWidth = shallowRef(0)
 
-  watch([() => itemContext.collection.size, containerWidth], () => {
+  const rootGap = shallowRef(0)
+
+  const overflow = createOverflow({
+    itemWidth,
+    reserved: () => {
+      const r = reserved ?? 4
+      return r > 10 ? r : (itemWidth.value + rootGap.value) * r
+    },
+  })
+
+  watch(rootEl, el => {
+    overflow.container.value = el ?? undefined
+  }, { immediate: true })
+
+  watch([() => itemContext.collection.size, () => overflow.width.value], () => {
     const first = itemContext.seek('first')
     const el = first?.value as HTMLElement | undefined
     const root = rootEl.value
     if (!el || !root) return
 
+    const rootStyle = getComputedStyle(root)
     const style = getComputedStyle(el)
     const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    const gapX = Number.parseFloat(getComputedStyle(root).gap) || 0
+    const gapX = Number.parseFloat(rootStyle.gap) || 0
 
+    rootGap.value = gapX
     itemWidth.value = el.offsetWidth + Math.max(marginX, gapX)
   }, { flush: 'post' })
 
-  const maxButtons = computed(() => {
-    const width = containerWidth.value
-    const btnWidth = itemWidth.value
-    if (width <= 0 || btnWidth <= 0) return 0
-
-    const navButtonsSpace = btnWidth * 4
-    const availableSpace = width - navButtonsSpace
-    if (availableSpace <= 0) return 1
-
-    return Math.max(1, Math.floor(availableSpace / btnWidth))
-  })
-
   const visible = computed(() => {
-    const max = maxButtons.value
+    const cap = overflow.capacity.value
 
-    // If we can calculate what fits, respect container width
-    if (max > 0) return isNullOrUndefined(totalVisible) ? max : Math.min(totalVisible, max)
+    if (cap === Infinity) return totalVisible ?? 7
+    if (cap > 0) return isNullOrUndefined(totalVisible) ? cap : Math.min(totalVisible, cap)
 
-    // Fallback when we can't calculate yet (no items registered)
-    if (!isNullOrUndefined(totalVisible)) return totalVisible
-
-    return Math.max(0, Math.floor(
-      // Round to two decimal places to avoid floating point errors
-      Number(((containerWidth.value - itemWidth.value * 3) / itemWidth.value).toFixed(2)),
-    ))
+    return isNullOrUndefined(totalVisible) ? 1 : totalVisible
   })
 
   const [, providePaginationContext, paginationContext] = createPaginationContext({
