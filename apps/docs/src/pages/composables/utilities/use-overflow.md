@@ -20,16 +20,17 @@ A composable for computing how many items fit in a container based on available 
 The `useOverflow` composable provides reactive container width tracking and capacity calculation. It supports two modes: variable-width (for items with different widths like breadcrumbs) and uniform-width (for same-width items like pagination buttons).
 
 ```ts
+import { useTemplateRef } from 'vue'
 import { createOverflow } from '@vuetify/v0'
 
-// Variable-width mode (default)
+const containerRef = useTemplateRef('container')
+
+// Pass container as a ref or getter for proper reactive tracking
 const overflow = createOverflow({
+  container: containerRef,
   gap: 8,
   reserved: 40,
 })
-
-// Assign container element
-overflow.container.value = containerElement
 
 // Check capacity
 console.log(overflow.capacity.value) // Number of items that fit
@@ -50,6 +51,7 @@ Creates an overflow instance for computing item capacity.
 
   ```ts
   interface OverflowOptions {
+    container?: MaybeRefOrGetter<Element | undefined>
     gap?: MaybeRefOrGetter<number>
     reserved?: MaybeRefOrGetter<number>
     itemWidth?: MaybeRefOrGetter<number>
@@ -57,7 +59,7 @@ Creates an overflow instance for computing item capacity.
   }
 
   interface OverflowContext {
-    container: ShallowRef<Element | undefined>
+    container: Ref<Element | undefined>
     width: Readonly<ShallowRef<number>>
     capacity: ComputedRef<number>
     total: ComputedRef<number>
@@ -71,6 +73,7 @@ Creates an overflow instance for computing item capacity.
 
 - **Parameters**
 
+  - `container`: Container element to track. Can be a ref, getter, or MaybeRefOrGetter. Recommended for proper reactive tracking. Default: `undefined`
   - `gap`: Gap between items in pixels. Default: `0`
   - `reserved`: Reserved space in pixels (for nav buttons, ellipsis, etc). Default: `0`
   - `itemWidth`: Uniform item width in pixels. When provided, enables uniform mode. Default: `undefined`
@@ -78,7 +81,7 @@ Creates an overflow instance for computing item capacity.
 
 - **Returns**
 
-  - `container`: Ref to assign container element for width tracking
+  - `container`: Ref to the container element
   - `width`: Current container width (reactive via ResizeObserver)
   - `capacity`: How many items fit in available space
   - `total`: Total width of all measured items
@@ -128,10 +131,14 @@ For items with different widths, measure each item individually:
 
 ```vue
 <script setup lang="ts">
+  import { useTemplateRef } from 'vue'
   import { createOverflow } from '@vuetify/v0'
 
   const items = ['Home', 'Documentation', 'Components', 'Breadcrumbs']
+  const containerRef = useTemplateRef('nav')
+
   const overflow = createOverflow({
+    container: containerRef,
     gap: 8,
     reserved: 40, // Space for ellipsis
     reverse: true, // Calculate from trailing items
@@ -139,7 +146,7 @@ For items with different widths, measure each item individually:
 </script>
 
 <template>
-  <nav :ref="el => overflow.container.value = el">
+  <nav ref="nav">
     <template v-for="(item, i) in items" :key="i">
       <span
         v-if="!overflow.isOverflowing.value || i >= items.length - overflow.capacity.value"
@@ -161,9 +168,11 @@ For items with the same width, provide `itemWidth` for efficient calculation:
 import { shallowRef } from 'vue'
 import { createOverflow } from '@vuetify/v0'
 
+const containerRef = useTemplateRef('container')
 const buttonWidth = shallowRef(36) // Measured from sample button
 
 const overflow = createOverflow({
+  container: containerRef,
   itemWidth: buttonWidth,
   reserved: () => buttonWidth.value * 4, // Space for nav buttons
 })
@@ -257,12 +266,15 @@ const visibleItems = items.slice(startIndex)
 ### Vue Component Example
 
 ```vue
-<script setup lang="ts">
-  import { ref } from 'vue'
+<script lang="ts" setup>
+  import { ref, useTemplateRef } from 'vue'
   import { createOverflow } from '@vuetify/v0'
 
   const items = ref(['First', 'Second', 'Third', 'Fourth', 'Fifth'])
+  const containerRef = useTemplateRef('container')
+
   const overflow = createOverflow({
+    container: containerRef,
     gap: 8,
     reserved: 24, // Ellipsis space
   })
@@ -270,7 +282,7 @@ const visibleItems = items.slice(startIndex)
 
 <template>
   <div
-    :ref="el => overflow.container.value = el"
+    ref="container"
     class="flex gap-2 overflow-hidden"
   >
     <template v-for="(item, i) in items" :key="i">
