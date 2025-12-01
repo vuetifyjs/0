@@ -116,6 +116,7 @@ export const useAppStore = defineStore('app', {
             name: 'Utilities',
             children: [
               { name: 'useFilter', to: '/composables/utilities/use-filter' },
+              { name: 'useOverflow', to: '/composables/utilities/use-overflow' },
               { name: 'usePagination', to: '/composables/utilities/use-pagination' },
               { name: 'useVirtual', to: '/composables/utilities/use-virtual' },
             ],

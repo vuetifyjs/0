@@ -324,6 +324,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/utilities/use-overflow': RouteRecordInfo<
+      '/composables/utilities/use-overflow',
+      '/composables/utilities/use-overflow',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/utilities/use-pagination': RouteRecordInfo<
       '/composables/utilities/use-pagination',
       '/composables/utilities/use-pagination',
@@ -697,6 +704,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/utilities/use-filter.md': {
       routes:
         | '/composables/utilities/use-filter'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/use-overflow.md': {
+      routes:
+        | '/composables/utilities/use-overflow'
       views:
         | never
     }

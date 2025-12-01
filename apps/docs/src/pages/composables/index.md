@@ -43,6 +43,8 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | [useTheme](/composables/plugins/use-theme) | Application theme management with CSS custom properties |
 | **Utilities** | |
 | [useFilter](/composables/utilities/use-filter) | Filter arrays based on search queries |
+| [useOverflow](/composables/utilities/use-overflow) | Compute how many items fit in a container for responsive truncation |
+| [usePagination](/composables/utilities/use-pagination) | Pagination state management with navigation methods |
 | [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling for efficiently rendering large lists |
 | **Transformers** | |
 | [toArray](/composables/transformers/to-array) | Convert any value to an array with null/undefined handling |

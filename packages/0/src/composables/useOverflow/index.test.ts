@@ -1,0 +1,364 @@
+// Composables
+import { createOverflow, createOverflowContext, useOverflow } from './index'
+
+// Utilities
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { ref, nextTick } from 'vue'
+
+const mockIsHydrated = ref(true)
+vi.mock('#v0/composables/useHydration', () => ({
+  useHydration: () => ({
+    isHydrated: mockIsHydrated,
+    hydrate: vi.fn(),
+  }),
+}))
+
+vi.mock('#v0/constants/globals', () => ({
+  SUPPORTS_OBSERVER: true,
+}))
+
+describe('createOverflow', () => {
+  let mockObserver: { observe: ReturnType<typeof vi.fn>, disconnect: ReturnType<typeof vi.fn> }
+  let resizeCallback: ((entries: Array<{ contentRect: { width: number, height: number } }>) => void) | null
+
+  beforeEach(() => {
+    resizeCallback = null
+    mockObserver = {
+      observe: vi.fn(),
+      disconnect: vi.fn(),
+    }
+
+    globalThis.ResizeObserver = vi.fn(function (this: unknown, cb: (entries: Array<{ contentRect: { width: number, height: number } }>) => void) {
+      resizeCallback = cb
+      return mockObserver
+    }) as unknown as typeof ResizeObserver
+
+    vi.clearAllMocks()
+  })
+
+  it('should return correct interface', () => {
+    const result = createOverflow()
+
+    expect(result).toEqual({
+      container: expect.any(Object),
+      width: expect.any(Object),
+      capacity: expect.any(Object),
+      total: expect.any(Object),
+      isOverflowing: expect.any(Object),
+      measure: expect.any(Function),
+      reset: expect.any(Function),
+    })
+  })
+
+  it('should return Infinity capacity when width is 0 (SSR)', () => {
+    const result = createOverflow()
+
+    expect(result.capacity.value).toBe(Infinity)
+  })
+
+  it('should measure item widths', async () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    result.measure(1, el)
+    result.measure(2, el)
+
+    expect(result.total.value).toBe(150)
+  })
+
+  it('should include gap in total calculation', async () => {
+    const result = createOverflow({ gap: 10 })
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    result.measure(1, el)
+    result.measure(2, el)
+
+    // 50 + (10 + 50) + (10 + 50) = 170
+    expect(result.total.value).toBe(170)
+  })
+
+  it('should remove measurement when element is undefined', async () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    result.measure(1, el)
+    expect(result.total.value).toBe(100)
+
+    result.measure(1, undefined)
+    expect(result.total.value).toBe(50)
+  })
+
+  it('should reset all measurements', async () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    result.measure(1, el)
+    expect(result.total.value).toBe(100)
+
+    result.reset()
+    expect(result.total.value).toBe(0)
+  })
+
+  it('should compute capacity based on available space', async () => {
+    const result = createOverflow({ reserved: 100 })
+
+    const container = document.createElement('div')
+    container.getBoundingClientRect = vi.fn(() => ({
+      width: 300,
+      height: 50,
+      top: 0,
+      left: 0,
+      right: 300,
+      bottom: 50,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }))
+
+    result.container.value = container
+    await nextTick()
+
+    // Trigger resize observer
+    resizeCallback?.([{ contentRect: { width: 300, height: 50 } }])
+    await nextTick()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    result.measure(1, el)
+    result.measure(2, el)
+    result.measure(3, el)
+    result.measure(4, el)
+
+    // Available: 300 - 100 = 200
+    // Each item: 50px
+    // Capacity: 4 items fit (200 / 50 = 4)
+    expect(result.capacity.value).toBe(4)
+  })
+
+  it('should compute capacity with gap', async () => {
+    const result = createOverflow({ reserved: 0, gap: 10 })
+
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+
+    resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+    await nextTick()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    result.measure(1, el)
+    result.measure(2, el)
+    result.measure(3, el)
+    result.measure(4, el)
+
+    // Available: 200
+    // First item: 50, second: 50+10=60, third: 50+10=60
+    // 50 + 60 + 60 = 170 (3 fit)
+    // 50 + 60 + 60 + 60 = 230 (4 don't fit)
+    expect(result.capacity.value).toBe(3)
+  })
+
+  it('should compute isOverflowing', async () => {
+    const result = createOverflow({ reserved: 0 })
+
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+
+    resizeCallback?.([{ contentRect: { width: 100, height: 50 } }])
+    await nextTick()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    result.measure(1, el)
+    expect(result.isOverflowing.value).toBe(false)
+
+    result.measure(2, el)
+    expect(result.isOverflowing.value).toBe(true)
+  })
+
+  it('should return 0 capacity when no space available', async () => {
+    const result = createOverflow({ reserved: 500 })
+
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+
+    resizeCallback?.([{ contentRect: { width: 300, height: 50 } }])
+    await nextTick()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+
+    expect(result.capacity.value).toBe(0)
+  })
+
+  it('should include margins in width measurement', async () => {
+    const result = createOverflow()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '5px',
+      marginRight: '5px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+
+    expect(result.total.value).toBe(60) // 50 + 5 + 5
+  })
+
+  it('should compute capacity in uniform mode', async () => {
+    const result = createOverflow({ itemWidth: 50, reserved: 0 })
+
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+
+    resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+    await nextTick()
+
+    // 200px available, 50px per item = 4 items
+    expect(result.capacity.value).toBe(4)
+  })
+
+  it('should compute capacity in uniform mode with gap', async () => {
+    const result = createOverflow({ itemWidth: 50, gap: 10, reserved: 0 })
+
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+
+    resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+    await nextTick()
+
+    // First item: 50, subsequent: 50+10=60
+    // 50 + 60 + 60 = 170 (3 fit)
+    // 50 + 60 + 60 + 60 = 230 (4 don't fit)
+    expect(result.capacity.value).toBe(3)
+  })
+
+  it('should compute capacity in uniform mode with reserved space', async () => {
+    const result = createOverflow({ itemWidth: 50, reserved: 100 })
+
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+
+    resizeCallback?.([{ contentRect: { width: 300, height: 50 } }])
+    await nextTick()
+
+    // Available: 300 - 100 = 200
+    // 50px per item = 4 items
+    expect(result.capacity.value).toBe(4)
+  })
+
+  it('should return 0 capacity in uniform mode when no space', async () => {
+    const result = createOverflow({ itemWidth: 50, reserved: 300 })
+
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+
+    resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+    await nextTick()
+
+    expect(result.capacity.value).toBe(0)
+  })
+})
+
+describe('createOverflowContext', () => {
+  it('should return trinity tuple', () => {
+    const result = createOverflowContext()
+
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useContext
+    expect(typeof result[1]).toBe('function') // provideContext
+    expect(result[2]).toEqual({
+      container: expect.any(Object),
+      width: expect.any(Object),
+      capacity: expect.any(Object),
+      total: expect.any(Object),
+      isOverflowing: expect.any(Object),
+      measure: expect.any(Function),
+      reset: expect.any(Function),
+    })
+  })
+
+  it('should pass options to createOverflow', () => {
+    const [,, context] = createOverflowContext({ gap: 20, reserved: 100 })
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    context.measure(0, el)
+    context.measure(1, el)
+
+    // 50 + (20 + 50) = 120
+    expect(context.total.value).toBe(120)
+  })
+})
+
+describe('useOverflow', () => {
+  it('should be a function that accepts namespace', () => {
+    expect(typeof useOverflow).toBe('function')
+    expect(useOverflow.length).toBe(0) // optional parameter
+  })
+})
