@@ -3,7 +3,7 @@ import { createOverflow, createOverflowContext, useOverflow } from './index'
 
 // Utilities
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, nextTick } from 'vue'
+import { nextTick, ref, shallowRef } from 'vue'
 
 const mockIsHydrated = ref(true)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -317,6 +317,149 @@ describe('createOverflow', () => {
     await nextTick()
 
     expect(result.capacity.value).toBe(0)
+  })
+
+  describe('container option', () => {
+    it('should accept container as a ref', async () => {
+      const container = document.createElement('div')
+      container.getBoundingClientRect = vi.fn(() => ({
+        width: 200,
+        height: 50,
+        top: 0,
+        left: 0,
+        right: 200,
+        bottom: 50,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }))
+
+      const containerRef = shallowRef<Element | undefined>(container)
+      const result = createOverflow({ container: containerRef, itemWidth: 50 })
+
+      await nextTick()
+      resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+      await nextTick()
+
+      expect(result.capacity.value).toBe(4)
+    })
+
+    it('should accept container as a getter function', async () => {
+      const container = document.createElement('div')
+      container.getBoundingClientRect = vi.fn(() => ({
+        width: 200,
+        height: 50,
+        top: 0,
+        left: 0,
+        right: 200,
+        bottom: 50,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }))
+
+      const containerRef = shallowRef<Element | undefined>(container)
+      const result = createOverflow({
+        container: () => containerRef.value,
+        itemWidth: 50,
+      })
+
+      await nextTick()
+      resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+      await nextTick()
+
+      expect(result.capacity.value).toBe(4)
+    })
+
+    it('should track reactive changes when container is provided as getter', async () => {
+      const container1 = document.createElement('div')
+      const container2 = document.createElement('div')
+
+      container1.getBoundingClientRect = vi.fn(() => ({
+        width: 100,
+        height: 50,
+        top: 0,
+        left: 0,
+        right: 100,
+        bottom: 50,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }))
+
+      container2.getBoundingClientRect = vi.fn(() => ({
+        width: 300,
+        height: 50,
+        top: 0,
+        left: 0,
+        right: 300,
+        bottom: 50,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }))
+
+      // Start with undefined (simulates component before mount)
+      const containerRef = shallowRef<Element | undefined>(undefined)
+      const result = createOverflow({
+        container: () => containerRef.value,
+        itemWidth: 50,
+      })
+
+      // Initially should be Infinity (no container)
+      expect(result.capacity.value).toBe(Infinity)
+
+      // Set first container
+      containerRef.value = container1
+      await nextTick()
+      resizeCallback?.([{ contentRect: { width: 100, height: 50 } }])
+      await nextTick()
+
+      expect(result.capacity.value).toBe(2)
+
+      // Change to second container
+      containerRef.value = container2
+      await nextTick()
+      resizeCallback?.([{ contentRect: { width: 300, height: 50 } }])
+      await nextTick()
+
+      expect(result.capacity.value).toBe(6)
+    })
+
+    it('should handle nested ref access pattern (like atom.value?.element)', async () => {
+      // This simulates the pattern: () => atom.value?.element
+      // where atom is a ref to an object with an element property
+      const container = document.createElement('div')
+      container.getBoundingClientRect = vi.fn(() => ({
+        width: 200,
+        height: 50,
+        top: 0,
+        left: 0,
+        right: 200,
+        bottom: 50,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }))
+
+      const atom = shallowRef<{ element: Element } | undefined>(undefined)
+
+      const result = createOverflow({
+        container: () => atom.value?.element,
+        itemWidth: 50,
+      })
+
+      // Initially undefined
+      expect(result.capacity.value).toBe(Infinity)
+
+      // Simulate component mount - atom.value becomes available
+      atom.value = { element: container }
+      await nextTick()
+      resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+      await nextTick()
+
+      expect(result.capacity.value).toBe(4)
+    })
   })
 })
 

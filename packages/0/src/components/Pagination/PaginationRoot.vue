@@ -42,13 +42,6 @@
     itemsPerPage?: number
     /** Ellipsis character */
     ellipsis?: string | false
-    /**
-     * Reserved space for nav buttons.
-     * - Values <= 10 are treated as multipliers (e.g., 4 = itemWidth * 4)
-     * - Values > 10 are treated as pixels (e.g., 200 = 200px)
-     * Defaults to 4 (space for first/prev/next/last buttons).
-     */
-    reserved?: number
   }
 
   export interface PaginationRootSlots {
@@ -100,11 +93,9 @@
     totalVisible,
     itemsPerPage = 10,
     ellipsis = '...',
-    reserved,
   } = defineProps<PaginationRootProps>()
 
   const atom = useTemplateRef<AtomExpose>('atom')
-  const rootEl = toRef(() => atom.value?.element.value)
 
   const locale = useLocale()
 
@@ -113,25 +104,24 @@
   })
 
   const itemWidth = shallowRef(0)
-
   const rootGap = shallowRef(0)
 
+  // Use createOverflow with container getter for proper reactive tracking
   const overflow = createOverflow({
+    container: () => atom.value?.element as Element | undefined,
     itemWidth,
     reserved: () => {
-      const r = reserved ?? 4
-      return r > 10 ? r : (itemWidth.value + rootGap.value) * r
+      const btnWidth = itemWidth.value
+      const gap = rootGap.value
+      // Reserve space for 4 nav buttons (first, prev, next, last)
+      return btnWidth > 0 ? (btnWidth + gap) * 4 : 0
     },
   })
-
-  watch(rootEl, el => {
-    overflow.container.value = el ?? undefined
-  }, { immediate: true })
 
   watch([() => itemContext.collection.size, () => overflow.width.value], () => {
     const first = itemContext.seek('first')
     const el = first?.value as HTMLElement | undefined
-    const root = rootEl.value
+    const root = overflow.container.value
     if (!el || !root) return
 
     const rootStyle = getComputedStyle(root)
@@ -146,7 +136,10 @@
   const visible = computed(() => {
     const cap = overflow.capacity.value
 
+    // SSR or not measured yet - use totalVisible or default
     if (cap === Infinity) return totalVisible ?? 7
+
+    // Use capacity, respecting totalVisible maximum if set
     if (cap > 0) return isNullOrUndefined(totalVisible) ? cap : Math.min(totalVisible, cap)
 
     return isNullOrUndefined(totalVisible) ? 1 : totalVisible

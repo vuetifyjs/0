@@ -47,10 +47,13 @@ declare global {
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index').createHydrationPlugin
   const createLocale: typeof import('../../packages/0/src/composables/useLocale/index').createLocale
   const createLocaleContext: typeof import('../../packages/0/src/composables/useLocale/index').createLocaleContext
+  const createLocaleFallback: typeof import('../../packages/0/src/composables/useLocale/index').createLocaleFallback
   const createLocalePlugin: typeof import('../../packages/0/src/composables/useLocale/index').createLocalePlugin
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index').createLogger
   const createLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerContext
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerPlugin
+  const createOverflow: typeof import('../../packages/0/src/composables/useOverflow/index').createOverflow
+  const createOverflowContext: typeof import('../../packages/0/src/composables/useOverflow/index').createOverflowContext
   const createPagination: typeof import('../../packages/0/src/composables/usePagination/index').createPagination
   const createPaginationContext: typeof import('../../packages/0/src/composables/usePagination/index').createPaginationContext
   const createPermissions: typeof import('../../packages/0/src/composables/usePermissions/index').createPermissions
@@ -183,6 +186,7 @@ declare global {
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index').useLogger
   const useModel: typeof import('vue').useModel
   const useMutationObserver: typeof import('../../packages/0/src/composables/useMutationObserver/index').useMutationObserver
+  const useOverflow: typeof import('../../packages/0/src/composables/useOverflow/index').useOverflow
   const usePagination: typeof import('../../packages/0/src/composables/usePagination/index').usePagination
   const usePermissions: typeof import('../../packages/0/src/composables/usePermissions/index').usePermissions
   const useProxyModel: typeof import('../../packages/0/src/composables/useProxyModel/index').useProxyModel
@@ -283,6 +287,9 @@ declare global {
   export type { MutationObserverRecord, UseMutationObserverOptions, UseMutationObserverReturn } from '../../packages/0/src/composables/useMutationObserver/index'
   import('../../packages/0/src/composables/useMutationObserver/index')
   // @ts-ignore
+  export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/useOverflow/index'
+  import('../../packages/0/src/composables/useOverflow/index')
+  // @ts-ignore
   export type { PaginationItem, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/usePagination/index'
   import('../../packages/0/src/composables/usePagination/index')
   // @ts-ignore
@@ -381,10 +388,13 @@ declare module 'vue' {
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
     readonly createLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocale']>
     readonly createLocaleContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocaleContext']>
+    readonly createLocaleFallback: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocaleFallback']>
     readonly createLocalePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['createLocalePlugin']>
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerContext']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
+    readonly createOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/useOverflow/index')['createOverflow']>
+    readonly createOverflowContext: UnwrapRef<typeof import('../../packages/0/src/composables/useOverflow/index')['createOverflowContext']>
     readonly createPagination: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['createPagination']>
     readonly createPaginationContext: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['createPaginationContext']>
     readonly createPermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['createPermissions']>
@@ -463,7 +473,6 @@ declare module 'vue' {
     readonly parseColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['parseColor']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['provideContext']>
-    readonly provideStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['provideStorageContext']>
     readonly range: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['range']>
     readonly reactive: UnwrapRef<typeof import('vue')['reactive']>
     readonly readonly: UnwrapRef<typeof import('vue')['readonly']>
@@ -510,6 +519,7 @@ declare module 'vue' {
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useMutationObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']>
+    readonly useOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/useOverflow/index')['useOverflow']>
     readonly usePagination: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['usePagination']>
     readonly usePermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['usePermissions']>
     readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
@@ -524,8 +534,6 @@ declare module 'vue' {
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
     readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['useStep']>
     readonly useStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorage']>
-    readonly usePagination: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['usePagination']>
-    readonly useStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>
     readonly useTimeline: UnwrapRef<typeof import('../../packages/0/src/composables/useTimeline/index')['useTimeline']>

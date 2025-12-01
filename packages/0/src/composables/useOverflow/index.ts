@@ -27,10 +27,15 @@ import { useElementSize } from '#v0/composables/useResizeObserver'
 import { computed, shallowRef, toRef, toValue } from 'vue'
 
 // Types
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export interface OverflowOptions {
+  /**
+   * Container element to track. Can be a ref, getter, or MaybeRefOrGetter.
+   * When provided, useOverflow tracks this element's width automatically.
+   */
+  container?: MaybeRefOrGetter<Element | undefined>
   /** Gap between items in pixels */
   gap?: MaybeRefOrGetter<number>
   /** Reserved space in pixels (for nav buttons, ellipsis, etc) */
@@ -49,8 +54,8 @@ export interface OverflowOptions {
 }
 
 export interface OverflowContext {
-  /** Container element ref - consumer assigns this */
-  container: ShallowRef<Element | undefined>
+  /** Container element ref */
+  container: Readonly<Ref<Element | undefined>>
   /** Current container width */
   width: Readonly<ShallowRef<number>>
   /** How many items fit in available space */
@@ -58,7 +63,7 @@ export interface OverflowContext {
   /** Total width of all measured items */
   total: ComputedRef<number>
   /** Whether items overflow the container */
-  isOverflowing: ComputedRef<boolean>
+  isOverflowing: Readonly<Ref<boolean>>
   /** Register an item's element for width measurement */
   measure: (index: number, el: Element | undefined) => void
   /** Clear all measurements */
@@ -79,11 +84,19 @@ export interface OverflowContextOptions extends OverflowOptions {
  * @example Variable-width mode (Breadcrumbs)
  * ```vue
  * <script lang="ts" setup>
- *   const overflow = createOverflow({ gap: 8, reserved: 40 })
+ *   import { useTemplateRef } from 'vue'
+ *   import { createOverflow } from '@vuetify/v0'
+ *
+ *   const containerRef = useTemplateRef('container')
+ *   const overflow = createOverflow({
+ *     container: containerRef,
+ *     gap: 8,
+ *     reserved: 40,
+ *   })
  * </script>
  *
  * <template>
- *   <div :ref="el => overflow.container.value = el">
+ *   <div ref="container">
  *     <span
  *       v-for="(item, i) in items.slice(0, overflow.capacity.value)"
  *       :key="i"
@@ -97,31 +110,54 @@ export interface OverflowContextOptions extends OverflowOptions {
  * ```
  *
  * @example Uniform-width mode (Pagination)
- * ```vue
- * <script lang="ts" setup>
- *   const overflow = createOverflow({
- *     itemWidth: buttonWidth,  // Measured from sample button
- *     reserved: buttonWidth * 4,  // Space for nav buttons
- *   })
- * </script>
+ * ```ts
+ * const overflow = createOverflow({
+ *   container: () => atom.value?.element,
+ *   itemWidth: buttonWidth,
+ *   reserved: () => buttonWidth.value * 4,
+ * })
  * ```
  */
 export function createOverflow<
   E extends OverflowContext = OverflowContext,
 > (options: OverflowOptions = {}): E {
   const {
+    container: _container,
     gap = 0,
     reserved = 0,
     itemWidth,
     reverse = false,
   } = options
 
-  const container = shallowRef<Element>()
+  const container = _container === undefined ? shallowRef<Element | undefined>() : toRef(_container)
   const widths = shallowRef<Map<number, number>>(new Map())
 
   const { width } = useElementSize(container)
 
-  const total = toRef(() => {
+  function measure (index: number, el: Element | undefined) {
+    if (!el) {
+      if (widths.value.has(index)) {
+        const next = new Map(widths.value)
+        next.delete(index)
+        widths.value = next
+      }
+      return
+    }
+
+    const style = getComputedStyle(el)
+    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
+    const w = (el as HTMLElement).offsetWidth + marginX
+
+    if (widths.value.get(index) !== w) {
+      widths.value = new Map(widths.value).set(index, w)
+    }
+  }
+
+  function reset () {
+    widths.value = new Map()
+  }
+
+  const total = computed(() => {
     const g = toValue(gap)
     let sum = 0
     let count = 0
@@ -132,10 +168,6 @@ export function createOverflow<
     }
 
     return sum
-  })
-
-  const isOverflowing = toRef(() => {
-    return total.value > (width.value - toValue(reserved))
   })
 
   const capacity = computed(() => {
@@ -193,28 +225,9 @@ export function createOverflow<
     return count
   })
 
-  function measure (index: number, el: Element | undefined) {
-    if (!el) {
-      if (widths.value.has(index)) {
-        const next = new Map(widths.value)
-        next.delete(index)
-        widths.value = next
-      }
-      return
-    }
-
-    const style = getComputedStyle(el)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    const w = (el as HTMLElement).offsetWidth + marginX
-
-    if (widths.value.get(index) !== w) {
-      widths.value = new Map(widths.value).set(index, w)
-    }
-  }
-
-  function reset () {
-    widths.value = new Map()
-  }
+  const isOverflowing = toRef(() => {
+    return total.value > (width.value - toValue(reserved))
+  })
 
   return {
     container,
@@ -252,7 +265,10 @@ export function createOverflow<
 export function createOverflowContext<
   E extends OverflowContext = OverflowContext,
 > (_options: OverflowContextOptions = {}): ContextTrinity<E> {
-  const { namespace = 'v0:overflow', ...options } = _options
+  const {
+    namespace = 'v0:overflow',
+    ...options
+  } = _options
 
   const [useOverflowContext, _provideOverflowContext] = createContext<E>(namespace)
 
@@ -273,7 +289,7 @@ export function createOverflowContext<
  *
  * @example
  * ```vue
- * <script setup lang="ts">
+ * <script lang="ts" setup>
  *   import { useOverflow } from '@vuetify/v0'
  *
  *   // Inject overflow context provided by parent
