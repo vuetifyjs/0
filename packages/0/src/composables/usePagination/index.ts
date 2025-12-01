@@ -177,10 +177,8 @@ export function createPagination<
 
     if (pageCount <= 0 || isNaN(pageCount) || pageCount > Number.MAX_SAFE_INTEGER) return []
     if (visible <= 0) return []
-    if (visible === 1) return [toPage(current)]
+    if (visible <= 2) return [toPage(current)]
     if (pageCount <= visible) return range(pageCount, 1).map(toPage)
-
-    if (visible === 2) return [toPage(1), toPage(pageCount)]
     if (visible === 3) {
       const mid = current <= 1 ? 2 : (current >= pageCount ? pageCount - 1 : current)
       return [toPage(1), toPage(mid), toPage(pageCount)]
@@ -190,22 +188,31 @@ export function createPagination<
     const middle = visible - 4
 
     if (middle <= 0) {
+      // [1, 2, 3, …, 10]
+      if (current <= boundary) {
+        return filter([...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)])
+      }
+      // [1, …, 8, 9, 10]
+      if (current > pageCount - boundary) {
+        return filter([toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)])
+      }
+      // [1, 3, …, 10] or [1, …, 7, 10]
       return current <= Math.ceil(pageCount / 2)
-        ? filter([...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)])
-        : filter([toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)])
+        ? filter([toPage(1), toPage(current), toEllipsis(), toPage(pageCount)])
+        : filter([toPage(1), toEllipsis(), toPage(current), toPage(pageCount)])
     }
 
     const leftThreshold = boundary - 1
     const rightThreshold = pageCount - boundary + 2
 
+    // [1, 2, 3, 4, …, 20]
     if (current <= leftThreshold) {
-      // Start layout
       return filter([...range(boundary, 1).map(toPage), toEllipsis(), toPage(pageCount)])
+    // [1, …, 17, 18, 19, 20]
     } else if (current >= rightThreshold) {
-      // End layout
       return filter([toPage(1), toEllipsis(), ...range(boundary, pageCount - boundary + 1).map(toPage)])
+    // [1, …, 9, 10, 11, …, 20]
     } else {
-      // Middle layout - center pages around current
       const half = Math.floor(middle / 2)
       const start = current - half
       return filter([toPage(1), toEllipsis(), ...range(middle, start).map(toPage), toEllipsis(), toPage(pageCount)])

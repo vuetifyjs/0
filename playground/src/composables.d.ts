@@ -524,6 +524,7 @@ declare module 'vue' {
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
     readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['useStep']>
     readonly useStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorage']>
+    readonly usePagination: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['usePagination']>
     readonly useStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorageContext']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>

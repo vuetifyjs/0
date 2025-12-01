@@ -187,10 +187,12 @@ describe('usePagination', () => {
       expect(pagination.items.value).toEqual([])
     })
 
-    it('should return single page when visible is 1', () => {
-      const pagination = createPagination({ size: 100, page: 5, visible: 1 })
+    it('should return current page when visible is 1 or 2', () => {
+      const p1 = createPagination({ size: 100, page: 5, visible: 1 })
+      expect(p1.items.value).toEqual([{ type: 'page', value: 5 }])
 
-      expect(pagination.items.value).toEqual([{ type: 'page', value: 5 }])
+      const p2 = createPagination({ size: 100, page: 7, visible: 2 })
+      expect(p2.items.value).toEqual([{ type: 'page', value: 7 }])
     })
 
     it('should return all pages when page count <= visible', () => {
@@ -245,15 +247,51 @@ describe('usePagination', () => {
       ])
     })
 
-    it('should handle small visible values without double ellipsis', () => {
+    it('should always show current page with small visible values', () => {
       // 1000 items / 10 per page = 100 pages
-      // visible: 4 with middle <= 0, so only start/end layouts
+      // visible: 4, current in middle → [1, current, ..., 100]
       const pagination = createPagination({ size: 1000, page: 50, visible: 4 })
+
+      expect(pagination.items.value).toEqual([
+        { type: 'page', value: 1 },
+        { type: 'page', value: 50 },
+        { type: 'ellipsis', value: '…' },
+        { type: 'page', value: 100 },
+      ])
+    })
+
+    it('should position ellipsis based on current page proximity', () => {
+      // page closer to end → ellipsis before current
+      const pagination = createPagination({ size: 1000, page: 75, visible: 4 })
+
+      expect(pagination.items.value).toEqual([
+        { type: 'page', value: 1 },
+        { type: 'ellipsis', value: '…' },
+        { type: 'page', value: 75 },
+        { type: 'page', value: 100 },
+      ])
+    })
+
+    it('should show start boundary when current is near start', () => {
+      // current=2 is within boundary (2), show start layout
+      const pagination = createPagination({ size: 1000, page: 2, visible: 4 })
 
       expect(pagination.items.value).toEqual([
         { type: 'page', value: 1 },
         { type: 'page', value: 2 },
         { type: 'ellipsis', value: '…' },
+        { type: 'page', value: 100 },
+      ])
+    })
+
+    it('should show end boundary when current is near end', () => {
+      // current=99 is within end boundary, show end layout
+      const pagination = createPagination({ size: 1000, page: 99, visible: 4 })
+
+      expect(pagination.items.value).toEqual([
+        { type: 'page', value: 1 },
+        { type: 'ellipsis', value: '…' },
+        { type: 'page', value: 99 },
         { type: 'page', value: 100 },
       ])
     })
