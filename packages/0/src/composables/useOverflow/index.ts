@@ -55,7 +55,7 @@ export interface OverflowOptions {
 
 export interface OverflowContext {
   /** Container element ref */
-  container: Readonly<Ref<Element | undefined>>
+  container: ShallowRef<Element | undefined>
   /** Current container width */
   width: Readonly<ShallowRef<number>>
   /** How many items fit in available space */
