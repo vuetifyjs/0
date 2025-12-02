@@ -299,7 +299,7 @@ export function createTokensContext<
   Z extends TokenTicket = TokenTicket,
   E extends TokenContext<Z> = TokenContext<Z>,
 > (_options: TokenContextOptions): ContextTrinity<E> {
-  const { namespace, tokens = {}, ...options } = _options
+  const { namespace = 'v0:tokens', tokens = {}, ...options } = _options
   const [useTokensContext, _provideTokensContext] = createContext<E>(namespace)
 
   const context = createTokens<Z, E>(tokens, options)
