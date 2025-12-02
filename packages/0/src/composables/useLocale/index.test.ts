@@ -43,8 +43,8 @@ describe('useLocale', () => {
       const locale = createLocale({
         default: 'en',
         messages: {
-          en: { hello: 'Hello', greeting: 'Hello {name}' },
-          es: { hello: 'Hola', greeting: 'Hola {name}' },
+          en: { hello: 'Hello', greeting: 'Hello $name' },
+          es: { hello: 'Hola', greeting: 'Hola $name' },
         },
       })
       const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -85,7 +85,7 @@ describe('useLocale', () => {
       const locale = createLocale({
         default: 'en',
         messages: {
-          en: { greet: 'Hello {0}, you have {1} messages' },
+          en: { greet: 'Hello $0, you have $1 messages' },
         },
       })
       const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -99,7 +99,7 @@ describe('useLocale', () => {
       const locale = createLocale({
         default: 'en',
         messages: {
-          en: { greet: 'Hello {name}, you have {count} messages' },
+          en: { greet: 'Hello $name, you have $count messages' },
         },
       })
       const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -167,8 +167,8 @@ describe('useLocale', () => {
     it('should handle numbered placeholders', () => {
       const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-      expect(adapter.t('Hello {0}', 'World')).toBe('Hello World')
-      expect(adapter.t('Sum: {0} + {1} = {2}', 1, 2, 3)).toBe('Sum: 1 + 2 = 3')
+      expect(adapter.t('Hello $0', 'World')).toBe('Hello World')
+      expect(adapter.t('Sum: $0 + $1 = $2', 1, 2, 3)).toBe('Sum: 1 + 2 = 3')
 
       warnSpy.mockRestore()
     })
@@ -176,8 +176,8 @@ describe('useLocale', () => {
     it('should handle named placeholders', () => {
       const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-      expect(adapter.t('Hello {name}', { name: 'World' })).toBe('Hello World')
-      expect(adapter.t('Hello {firstName} {lastName}', { firstName: 'John', lastName: 'Doe' }))
+      expect(adapter.t('Hello $name', { name: 'World' })).toBe('Hello World')
+      expect(adapter.t('Hello $firstName $lastName', { firstName: 'John', lastName: 'Doe' }))
         .toBe('Hello John Doe')
 
       warnSpy.mockRestore()
@@ -186,20 +186,20 @@ describe('useLocale', () => {
     it('should handle mixed placeholders', () => {
       const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-      expect(adapter.t('Hello {name}, you have {0} messages', { name: 'John' }, 5))
+      expect(adapter.t('Hello $name, you have $0 messages', { name: 'John' }, 5))
         .toBe('Hello John, you have 5 messages')
 
       warnSpy.mockRestore()
     })
 
     it('should preserve unresolved placeholders', () => {
-      expect(adapter.t('Hello {name}', {})).toBe('Hello {name}')
-      expect(adapter.t('Hello {0}')).toBe('Hello {0}')
+      expect(adapter.t('Hello $name', {})).toBe('Hello $name')
+      expect(adapter.t('Hello $0')).toBe('Hello $0')
     })
 
     it('should handle special characters in named placeholders', () => {
-      expect(adapter.t('Hello {name123}', { name123: 'Test' })).toBe('Hello Test')
-      expect(adapter.t('Hello {first_name}', { first_name: 'John' })).toBe('Hello John')
+      expect(adapter.t('Hello $name123', { name123: 'Test' })).toBe('Hello Test')
+      expect(adapter.t('Hello $first_name', { first_name: 'John' })).toBe('Hello John')
     })
 
     it('should format numbers', () => {

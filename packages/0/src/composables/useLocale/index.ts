@@ -7,7 +7,7 @@
  * Key features:
  * - Locale selection with createSingle
  * - Token-based message storage with useTokens
- * - Numbered and named placeholder support ({0}, {name})
+ * - Numbered and named placeholder support ($0, $name)
  * - Number formatting with Intl.NumberFormat
  * - Adapter pattern for integration with i18n providers
  *
