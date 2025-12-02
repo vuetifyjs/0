@@ -1,3 +1,12 @@
+/**
+ * @module SelectionItem
+ *
+ * @remarks
+ * Item component for selection contexts. Registers with parent SelectionRoot
+ * and provides selection state and methods via scoped slot. Supports both
+ * single and multi-selection modes. Automatically unregisters on unmount.
+ */
+
 <script lang="ts" setup generic="V = unknown">
   // Composables
   import { useSelection } from '#v0/composables/useSelection'
@@ -56,7 +65,7 @@
 
   const selection = useSelection(namespace)
   const ticket = selection.register({ id, value, disabled })
-  const isDisabled = toRef(() => ticket.disabled || selection.disabled)
+  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(selection.disabled))
 
   onUnmounted(() => {
     selection.unregister(ticket.id)

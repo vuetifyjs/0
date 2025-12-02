@@ -1,3 +1,12 @@
+/**
+ * @module SelectionRoot
+ *
+ * @remarks
+ * Root component for generic selection contexts. Creates and provides selection
+ * context to child SelectionItem components. Supports both single and multi-selection
+ * modes via the `multiple` prop.
+ */
+
 <script lang="ts" setup generic="T = unknown">
   // Composables
   import { useProxyModel } from '#v0/composables/useProxyModel'

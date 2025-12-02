@@ -1,3 +1,12 @@
+/**
+ * @module SingleItem
+ *
+ * @remarks
+ * Item component for single-selection contexts. Registers with parent SingleRoot
+ * and provides selection state and methods via scoped slot. Automatically
+ * unregisters on unmount.
+ */
+
 <script lang="ts" setup generic="V = unknown">
   // Composables
   import { useSingle } from '#v0/composables/useSingle'
@@ -56,7 +65,7 @@
 
   const single = useSingle(namespace)
   const ticket = single.register({ id, value, disabled })
-  const isDisabled = toRef(() => ticket.disabled || single.disabled)
+  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(single.disabled))
 
   onUnmounted(() => {
     single.unregister(ticket.id)

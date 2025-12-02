@@ -1,3 +1,12 @@
+/**
+ * @module GroupRoot
+ *
+ * @remarks
+ * Root component for multi-selection groups with tri-state support. Creates
+ * and provides group context to child GroupItem components. Supports batch
+ * operations (selectAll, unselectAll, toggleAll) and mixed/indeterminate states.
+ */
+
 <script lang="ts" setup generic="T = unknown">
   // Composables
   import { useProxyModel } from '#v0/composables/useProxyModel'

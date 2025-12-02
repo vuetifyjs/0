@@ -1,3 +1,12 @@
+/**
+ * @module SingleRoot
+ *
+ * @remarks
+ * Root component for single-selection contexts. Creates and provides single
+ * context to child SingleItem components. Only one item can be selected at
+ * a time - selecting a new item automatically deselects the previous one.
+ */
+
 <script lang="ts" setup generic="T = unknown">
   // Composables
   import { useProxyModel } from '#v0/composables/useProxyModel'

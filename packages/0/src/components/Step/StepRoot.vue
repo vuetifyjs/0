@@ -1,3 +1,12 @@
+/**
+ * @module StepRoot
+ *
+ * @remarks
+ * Root component for step/stepper navigation. Creates and provides step
+ * context to child StepItem components. Extends single selection with
+ * sequential navigation methods (first, last, next, prev, step).
+ */
+
 <script lang="ts" setup generic="T = unknown">
   // Composables
   import { useProxyModel } from '#v0/composables/useProxyModel'

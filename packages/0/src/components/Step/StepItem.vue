@@ -1,3 +1,12 @@
+/**
+ * @module StepItem
+ *
+ * @remarks
+ * Item component for step/stepper contexts. Registers with parent StepRoot
+ * and provides selection state and methods via scoped slot. Supports
+ * sequential navigation through step controls. Automatically unregisters on unmount.
+ */
+
 <script lang="ts" setup generic="V = unknown">
   // Composables
   import { useStep } from '#v0/composables/useStep'
@@ -56,7 +65,7 @@
 
   const step = useStep(namespace)
   const ticket = step.register({ id, value, disabled })
-  const isDisabled = toRef(() => ticket.disabled || step.disabled)
+  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(step.disabled))
 
   onUnmounted(() => {
     step.unregister(ticket.id)

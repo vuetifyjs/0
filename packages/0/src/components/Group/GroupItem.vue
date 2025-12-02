@@ -1,3 +1,13 @@
+/**
+ * @module GroupItem
+ *
+ * @remarks
+ * Item component for multi-selection groups. Registers with parent GroupRoot
+ * and provides selection state and methods via scoped slot. Supports tri-state
+ * (selected, unselected, mixed) for checkbox-like behavior. Automatically
+ * unregisters on unmount.
+ */
+
 <script lang="ts" setup generic="V = unknown">
   // Composables
   import { useGroup } from '#v0/composables/useGroup'
