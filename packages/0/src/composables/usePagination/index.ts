@@ -20,10 +20,11 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
+import { computed, isRef, shallowRef, toValue } from 'vue'
 import { isNaN, range } from '#v0/utilities'
 
 // Vue
-import { computed, isRef, shallowRef, toValue, type App, type ComputedRef, type MaybeRefOrGetter, type ShallowRef } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -63,7 +64,7 @@ export interface PaginationContext<Z extends PaginationItem = PaginationItem> {
   /** Go to previous page */
   prev: () => void
   /** Go to specific page */
-  goto: (value: number) => void
+  select: (value: number) => void
 }
 
 export interface PaginationOptions {
@@ -143,7 +144,7 @@ export function createPagination<
     if (page.value > 1) page.value--
   }
 
-  function goto (value: number) {
+  function select (value: number) {
     if (value < 1) {
       page.value = 1
     } else if (value > pages.value) {
@@ -231,7 +232,7 @@ export function createPagination<
     last,
     next,
     prev,
-    goto,
+    select,
     get itemsPerPage () {
       return toValue(_itemsPerPage)
     },
