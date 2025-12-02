@@ -201,12 +201,12 @@ export function createSelection<
     const id = registration.id ?? genId()
     const item: Partial<Z> = {
       disabled: false,
-      ...registration,
-      id,
-      isSelected: toRef(() => selected(id)),
       select: () => select(id),
       unselect: () => unselect(id),
       toggle: () => toggle(id),
+      isSelected: toRef(() => selected(id)),
+      ...registration,
+      id,
     }
 
     const ticket = registry.register(item) as Z
