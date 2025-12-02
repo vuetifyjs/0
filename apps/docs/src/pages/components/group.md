@@ -12,6 +12,8 @@ features:
 <script setup>
 import BasicExample from '@/examples/components/group/basic.vue'
 import BasicExampleRaw from '@/examples/components/group/basic.vue?raw'
+import SelectAllExample from '@/examples/components/group/select-all.vue'
+import SelectAllExampleRaw from '@/examples/components/group/select-all.vue?raw'
 </script>
 
 # Group
@@ -26,6 +28,21 @@ The Group component is a specialization of Selection that enforces multi-selecti
 
 <DocsExample file="basic.vue" title="Basic Multi-Selection" :code="BasicExampleRaw">
   <BasicExample />
+</DocsExample>
+
+## Select All
+
+The Group component exposes select-all helpers through its slot props for implementing "select all" checkbox patterns:
+
+- **`isNoneSelected`**: True when no items are selected
+- **`isAllSelected`**: True when all selectable items are selected
+- **`isMixed`**: True when some but not all are selected
+- **`selectAll`**: Selects all non-disabled items
+- **`unselectAll`**: Unselects all items (respects mandatory option)
+- **`toggleAll`**: Toggles between all selected and none selected
+
+<DocsExample file="select-all.vue" title="Select All Pattern" :code="SelectAllExampleRaw">
+  <SelectAllExample />
 </DocsExample>
 
 ## API

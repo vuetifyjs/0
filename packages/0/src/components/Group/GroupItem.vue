@@ -20,6 +20,8 @@
       value: V | undefined
       /** Whether this item is currently selected */
       isSelected: boolean
+      /** Whether this item is in a mixed/indeterminate state */
+      isMixed: boolean
       /** Disables this specific item */
       disabled: boolean
       /** ARIA disabled state */
@@ -32,6 +34,10 @@
       unselect: () => void
       /** Toggle this item's group state */
       toggle: () => void
+      /** Set this item to mixed/indeterminate state */
+      mix: () => void
+      /** Clear mixed/indeterminate state from this item */
+      unmix: () => void
     }) => unknown
   }>()
 
@@ -41,6 +47,7 @@
     value,
     disabled,
     namespace = 'v0:group',
+    indeterminate = false,
   } = defineProps<{
     /** Optional display label (passed through to slot, not used in registration) */
     label?: string
@@ -48,6 +55,8 @@
     id?: string
     /** Disables this specific item */
     disabled?: MaybeRef<boolean>
+    /** Sets the indeterminate state (for checkboxes) */
+    indeterminate?: MaybeRef<boolean>
     /** Value associated with this item */
     value?: V
     /** Namespace for dependency injection */
@@ -55,8 +64,8 @@
   }>()
 
   const group = useGroup(namespace)
-  const ticket = group.register({ id, value, disabled })
-  const isDisabled = toRef(() => ticket.disabled || group.disabled)
+  const ticket = group.register({ id, value, disabled, indeterminate })
+  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
 
   onUnmounted(() => {
     group.unregister(ticket.id)
@@ -69,10 +78,13 @@
     :aria-disabled="toValue(isDisabled)"
     :aria-selected="toValue(ticket.isSelected)"
     :disabled="toValue(isDisabled)"
+    :is-mixed="toValue(ticket.isMixed)"
     :is-selected="toValue(ticket.isSelected)"
     :label
+    :mix="ticket.mix"
     :select="ticket.select"
     :toggle="ticket.toggle"
+    :unmix="ticket.unmix"
     :unselect="ticket.unselect"
     :value
   />

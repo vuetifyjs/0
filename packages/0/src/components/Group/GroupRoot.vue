@@ -21,6 +21,18 @@
       unselect: (id: ID | ID[]) => void
       /** Toggle an item's group state by ID */
       toggle: (id: ID | ID[]) => void
+      /** Whether no items are currently selected */
+      isNoneSelected: boolean
+      /** Whether all selectable (non-disabled) items are selected */
+      isAllSelected: boolean
+      /** Whether some but not all selectable items are selected */
+      isMixed: boolean
+      /** Select all selectable (non-disabled) items */
+      selectAll: () => void
+      /** Unselect all items (respects mandatory option) */
+      unselectAll: () => void
+      /** Toggle between all selected and none selected */
+      toggleAll: () => void
       /** ARIA multiselectable state */
       ariaMultiselectable: boolean
     }) => any
@@ -66,8 +78,14 @@
   <slot
     :aria-multiselectable="true"
     :disabled="toValue(context.disabled)"
+    :is-all-selected="context.isAllSelected.value"
+    :is-mixed="context.isMixed.value"
+    :is-none-selected="context.isNoneSelected.value"
     :select="context.select"
+    :select-all="context.selectAll"
     :toggle="context.toggle"
+    :toggle-all="context.toggleAll"
     :unselect="context.unselect"
+    :unselect-all="context.unselectAll"
   />
 </template>

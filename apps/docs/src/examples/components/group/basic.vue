@@ -11,17 +11,16 @@
       <Group.Item
         v-for="item in ['apple', 'banana', 'cherry']"
         :key="item"
+        v-slot="{ isSelected, toggle }"
         :value="item"
       >
-        <template #default="{ isSelected, toggle }">
-          <button
-            class="px-3 py-1.5 border rounded text-left text-sm"
-            :class="isSelected ? 'bg-surface-tint border-primary' : 'bg-surface border-divider'"
-            @click="toggle"
-          >
-            {{ item }}
-          </button>
-        </template>
+        <button
+          class="px-3 py-1.5 border rounded text-left text-sm"
+          :class="isSelected ? 'bg-surface-tint border-primary' : 'bg-surface border-divider'"
+          @click="toggle"
+        >
+          {{ item }}
+        </button>
       </Group.Item>
     </div>
   </Group.Root>
