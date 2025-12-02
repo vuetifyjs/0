@@ -13,18 +13,23 @@
 
   // Composables
   import { usePagination } from '#v0/composables/usePagination'
+  import { useLocale } from '#v0/composables'
+  import { usePaginationItems } from './PaginationRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
+  import { genId } from '#v0/utilities'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface PaginationEllipsisProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
     /** Ellipsis character to display (overrides context) */
     ellipsis?: string
+    /** Unique identifier for registration */
+    id?: string
   }
 
   export interface PaginationEllipsisSlots {
@@ -45,20 +50,37 @@
     renderless,
     namespace = 'v0:pagination',
     ellipsis,
+    id = genId(),
   } = defineProps<PaginationEllipsisProps>()
 
+  const locale = useLocale()
   const pagination = usePagination(namespace)
+  const items = usePaginationItems(namespace)
+
+  const atom = useTemplateRef<AtomExpose>('atom')
+
+  watch(() => atom.value?.element, el => {
+    if (!el) return
+
+    items.register({ id, value: el })
+  }, { immediate: true })
+
+  onBeforeUnmount(() => items.unregister(id))
 
   const resolvedEllipsis = toRef(() => ellipsis ?? pagination.ellipsis)
 
   const slotProps = toRef(() => ({
+    ariaLabel: locale.t('ellipsis indicating non-visible pages'),
+    ariaHidden: 'true',
     ellipsis: resolvedEllipsis.value,
   }))
 </script>
 
 <template>
   <Atom
-    aria-hidden="true"
+    ref="atom"
+    :aria-hidden="slotProps.ariaHidden"
+    :aria-label="slotProps.ariaLabel"
     :as
     :renderless
   >

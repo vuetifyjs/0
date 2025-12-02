@@ -7,7 +7,7 @@
  * container width, or explicit totalVisible configuration.
  *
  * Built on createPaginationContext from usePagination composable. Provides navigation
- * methods (first, last, next, prev, goto) and computed page ranges via slot props.
+ * methods (first, last, next, prev, select) and computed page ranges via slot props.
  */
 
 <script lang="ts">
@@ -19,6 +19,7 @@
   import { createRegistryContext } from '#v0/composables/useRegistry'
   import { createOverflow } from '#v0/composables/useOverflow'
   import { useLocale } from '#v0/composables/useLocale'
+  import { useContext } from '#v0/composables'
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -26,7 +27,16 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { RegistryContext } from '#v0/composables/useRegistry'
   import type { PaginationItem } from '#v0/composables/usePagination'
+
+  export function usePaginationControls (namespace: string) {
+    return useContext<RegistryContext>(`${namespace}:controls`)
+  }
+
+  export function usePaginationItems (namespace: string) {
+    return useContext<RegistryContext>(`${namespace}:items`)
+  }
 
   export interface PaginationRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -46,6 +56,8 @@
 
   export interface PaginationRootSlots {
     default: (props: {
+      /** ARIA label for the navigation region */
+      ariaLabel: string
       /** Current page (1-indexed) */
       page: number
       /** Total number of items */
@@ -73,17 +85,20 @@
       /** Go to previous page */
       prev: () => void
       /** Go to specific page */
-      goto: (page: number) => void
+      select: (page: number) => void
     }) => any
   }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T = unknown">
   defineOptions({ name: 'PaginationRoot' })
 
   defineSlots<PaginationRootSlots>()
 
-  const page = defineModel<number>({ default: 1 })
+  defineEmits<{
+    /** Emitted when the pagination changes */
+    'update:model-value': T | T[]
+  }>()
 
   const {
     as = 'nav',
@@ -95,32 +110,30 @@
     ellipsis = '...',
   } = defineProps<PaginationRootProps>()
 
-  const atom = useTemplateRef<AtomExpose>('atom')
-
-  const locale = useLocale()
-
-  const [, providePaginationItemContext, itemContext] = createRegistryContext({
-    namespace: `${namespace}:item`,
-  })
+  const page = defineModel<number>({ default: 1 })
 
   const itemWidth = shallowRef(0)
-  const rootGap = shallowRef(0)
+  const itemGap = shallowRef(0)
 
-  // Use createOverflow with container getter for proper reactive tracking
+  const atom = useTemplateRef<AtomExpose>('atom')
+  const locale = useLocale()
+
+  const [, provideControlContext, controls] = createRegistryContext({
+    namespace: `${namespace}:controls`,
+  })
+
+  const [, provideItemContext, items] = createRegistryContext({
+    namespace: `${namespace}:items`,
+  })
+
   const overflow = createOverflow({
     container: () => atom.value?.element as Element | undefined,
     itemWidth,
-    reserved: () => {
-      const btnWidth = itemWidth.value
-      const gap = rootGap.value
-      // Reserve space for 4 nav buttons (first, prev, next, last)
-      return btnWidth > 0 ? (btnWidth + gap) * 4 : 0
-    },
+    gap: itemGap,
   })
 
-  watch([() => itemContext.collection.size, () => overflow.width.value], () => {
-    const first = itemContext.seek('first')
-    const el = first?.value as HTMLElement | undefined
+  watch([() => items.size, () => overflow.width.value], () => {
+    const el = items.seek('first')?.value as HTMLElement | undefined
     const root = overflow.container.value
     if (!el || !root) return
 
@@ -129,23 +142,28 @@
     const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
     const gapX = Number.parseFloat(rootStyle.gap) || 0
 
-    rootGap.value = gapX
-    itemWidth.value = el.offsetWidth + Math.max(marginX, gapX)
+    // Item width is margin box (content + margin), gap is separate
+    itemWidth.value = el.offsetWidth + marginX
+    itemGap.value = gapX
   }, { flush: 'post' })
 
   const visible = computed(() => {
-    const cap = overflow.capacity.value
+    const totalCap = overflow.capacity.value
 
     // SSR or not measured yet - use totalVisible or default
-    if (cap === Infinity) return totalVisible ?? 7
+    if (totalCap === Infinity) return totalVisible ?? Infinity
+
+    // Subtract nav buttons from total capacity to get page item capacity
+    const pageCap = Math.max(0, totalCap - controls.size)
+    const noVisible = isNullOrUndefined(totalVisible)
 
     // Use capacity, respecting totalVisible maximum if set
-    if (cap > 0) return isNullOrUndefined(totalVisible) ? cap : Math.min(totalVisible, cap)
+    if (pageCap > 0) return noVisible ? pageCap : Math.min(totalVisible, pageCap)
 
-    return isNullOrUndefined(totalVisible) ? 1 : totalVisible
+    return noVisible ? 1 : totalVisible
   })
 
-  const [, providePaginationContext, paginationContext] = createPaginationContext({
+  const [, providePaginationContext, pagination] = createPaginationContext({
     namespace,
     page,
     visible,
@@ -155,33 +173,34 @@
   })
 
   const slotProps = toRef(() => ({
-    page: paginationContext.page.value,
-    size: paginationContext.size,
-    pages: paginationContext.pages,
-    itemsPerPage: paginationContext.itemsPerPage,
-    items: paginationContext.items.value,
-    pageStart: paginationContext.pageStart.value,
-    pageStop: paginationContext.pageStop.value,
-    isFirst: paginationContext.isFirst.value,
-    isLast: paginationContext.isLast.value,
-    first: paginationContext.first,
-    last: paginationContext.last,
-    next: paginationContext.next,
-    prev: paginationContext.prev,
-    goto: paginationContext.goto,
+    ariaLabel: locale.t('Pagination'),
+    page: pagination.page.value,
+    size: pagination.size,
+    pages: pagination.pages,
+    itemsPerPage: pagination.itemsPerPage,
+    items: pagination.items.value,
+    pageStart: pagination.pageStart.value,
+    pageStop: pagination.pageStop.value,
+    isFirst: pagination.isFirst.value,
+    isLast: pagination.isLast.value,
+    first: pagination.first,
+    last: pagination.last,
+    next: pagination.next,
+    prev: pagination.prev,
+    select: pagination.select,
   }))
 
   providePaginationContext()
-  providePaginationItemContext()
+  provideControlContext()
+  provideItemContext()
 </script>
 
 <template>
   <Atom
     ref="atom"
-    :aria-label="locale.t('Pagination')"
+    :aria-label="slotProps.ariaLabel"
     :as
     :renderless
-    role="navigation"
   >
     <slot v-bind="slotProps" />
   </Atom>

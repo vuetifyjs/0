@@ -1,4 +1,3 @@
-export * from './PaginationContent.vue'
 export * from './PaginationEllipsis.vue'
 export * from './PaginationFirst.vue'
 export * from './PaginationItem.vue'
@@ -7,7 +6,6 @@ export * from './PaginationNext.vue'
 export * from './PaginationPrev.vue'
 export * from './PaginationRoot.vue'
 
-import Content from './PaginationContent.vue'
 import Ellipsis from './PaginationEllipsis.vue'
 import First from './PaginationFirst.vue'
 import Item from './PaginationItem.vue'
@@ -18,7 +16,6 @@ import Root from './PaginationRoot.vue'
 
 export const Pagination = {
   Root,
-  Content,
   Item,
   First,
   Prev,

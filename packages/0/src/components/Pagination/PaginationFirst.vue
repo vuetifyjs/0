@@ -11,24 +11,30 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { usePagination } from '#v0/composables/usePagination'
   import { useLocale } from '#v0/composables/useLocale'
+  import { usePagination } from '#v0/composables/usePagination'
+  import { usePaginationControls } from './PaginationRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
+  import { genId } from '#v0/utilities'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
 
   export interface PaginationFirstProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
     /** Override disabled state */
     disabled?: boolean
+    /** Unique identifier for registration */
+    id?: string
   }
 
   export interface PaginationFirstSlots {
     default: (props: {
+      /** Localized label for the button */
+      ariaLabel: string
       /** Whether button is disabled */
       disabled: boolean
       /** Go to first page */
@@ -47,10 +53,22 @@
     renderless,
     namespace = 'v0:pagination',
     disabled,
+    id = genId(),
   } = defineProps<PaginationFirstProps>()
 
   const locale = useLocale()
   const pagination = usePagination(namespace)
+  const controls = usePaginationControls(namespace)
+
+  const atom = useTemplateRef<AtomExpose>('atom')
+
+  watch(() => atom.value?.element, el => {
+    if (!el) return
+
+    controls.register({ id, value: el })
+  }, { immediate: true })
+
+  onBeforeUnmount(() => controls.unregister(id))
 
   const isDisabled = toRef(() => disabled || pagination.isFirst.value)
 
@@ -61,6 +79,7 @@
   }
 
   const slotProps = toRef(() => ({
+    ariaLabel: locale.t('Go to first page'),
     disabled: isDisabled.value,
     onClick,
   }))
@@ -68,11 +87,12 @@
 
 <template>
   <Atom
-    :aria-disabled="isDisabled"
-    :aria-label="locale.t('Go to first page')"
+    ref="atom"
+    :aria-disabled="slotProps.disabled"
+    :aria-label="slotProps.ariaLabel"
     :as
-    :data-disabled="isDisabled || undefined"
-    :disabled="isDisabled"
+    :data-disabled="slotProps.disabled || undefined"
+    :disabled="as === 'button' ? slotProps.disabled : undefined"
     :renderless
     @click="onClick"
   >

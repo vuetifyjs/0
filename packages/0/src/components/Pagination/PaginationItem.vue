@@ -12,9 +12,9 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { useContext } from '#v0/composables/createContext'
   import { useLocale } from '#v0/composables/useLocale'
   import { usePagination } from '#v0/composables/usePagination'
+  import { usePaginationItems } from './PaginationRoot.vue'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -22,7 +22,6 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
-  import type { RegistryContext } from '#v0/composables/useRegistry'
 
   export interface PaginationItemProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -31,6 +30,8 @@
     value: number
     /** Override disabled state */
     disabled?: boolean
+    /** Unique identifier for registration */
+    id?: string
   }
 
   export interface PaginationItemSlots {
@@ -42,7 +43,7 @@
       /** Whether this item is disabled */
       disabled: boolean
       /** Go to this page */
-      goto: () => void
+      select: () => void
     }) => any
   }
 </script>
@@ -57,48 +58,60 @@
     renderless,
     namespace = 'v0:pagination',
     value,
-    disabled,
+    disabled = false,
+    id = genId(),
   } = defineProps<PaginationItemProps>()
 
   const locale = useLocale()
   const pagination = usePagination(namespace)
-  const itemRegistry = useContext<RegistryContext>(`${namespace}:item`)
+  const items = usePaginationItems(namespace)
 
-  const id = genId()
   const atom = useTemplateRef<AtomExpose>('atom')
 
   watch(() => atom.value?.element, el => {
-    if (el) itemRegistry.register({ id, value: el })
+    if (!el) return
+
+    items.register({ id, value: el })
   }, { immediate: true })
 
-  onBeforeUnmount(() => itemRegistry.unregister(id))
+  onBeforeUnmount(() => items.unregister(id))
 
   const isSelected = toRef(() => pagination.page.value === value)
 
-  function goto () {
-    if (disabled) return
-
-    pagination.goto(value)
-  }
+  const ariaLabel = toRef(() => {
+    return isSelected.value
+      ? locale.t('Page $page, current page', { page: value })
+      : locale.t('Go to page $page', { page: value })
+  })
 
   const slotProps = toRef(() => ({
+    ariaLabel: ariaLabel.value,
+    ariaCurrent: isSelected.value ? 'page' : undefined,
     page: value,
     isSelected: isSelected.value,
+    dataSelected: isSelected.value,
     disabled,
-    goto,
+    select,
   }))
+
+  function select () {
+    if (disabled) return
+
+    pagination.select(value)
+  }
 </script>
 
 <template>
   <Atom
     ref="atom"
-    :aria-current="isSelected ? locale.t('page') : undefined"
-    :aria-disabled="disabled"
+    :aria-current="slotProps.ariaCurrent"
+    :aria-label="slotProps.ariaLabel"
     :as
-    :data-selected="isSelected ? '' : undefined"
-    :disabled
+    :data-disabled="slotProps.disabled || undefined"
+    :data-selected="slotProps.dataSelected || undefined"
+    :disabled="as === 'button' ? slotProps.disabled : undefined"
     :renderless
-    @click="goto"
+    @click="slotProps.select"
   >
     <slot v-bind="slotProps" />
   </Atom>
