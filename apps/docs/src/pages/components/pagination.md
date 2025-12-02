@@ -411,7 +411,7 @@ Button to navigate to the last page.
   - `aria-label` with localized text (e.g., "Go to last page")
   - `aria-disabled` when disabled
 
-## Cookbook
+## Recipes
 
 Examples of common Pagination structures:
 
