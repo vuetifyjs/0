@@ -25,6 +25,7 @@ import { useElementSize } from '#v0/composables/useResizeObserver'
 
 // Utilities
 import { computed, shallowRef, toRef, toValue } from 'vue'
+import { isUndefined } from '#v0/utilities'
 
 // Types
 import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
@@ -49,8 +50,9 @@ export interface OverflowOptions {
   /**
    * Calculate capacity from end instead of start.
    * Useful for breadcrumbs where trailing items take priority.
+   * Only affects variable mode (uniform mode capacity is direction-independent).
    */
-  reverse?: boolean
+  reverse?: MaybeRefOrGetter<boolean>
 }
 
 export interface OverflowContext {
@@ -126,10 +128,10 @@ export function createOverflow<
     gap = 0,
     reserved = 0,
     itemWidth,
-    reverse = false,
+    reverse,
   } = options
 
-  const container = _container === undefined ? shallowRef<Element | undefined>() : toRef(_container)
+  const container = isUndefined(_container) ? shallowRef<Element | undefined>() : toRef(_container)
   const widths = shallowRef<Map<number, number>>(new Map())
 
   const { width } = useElementSize(container)
@@ -192,26 +194,8 @@ export function createOverflow<
 
     // Variable mode: sum measured widths until overflow
     const entries = [...widths.value.entries()].toSorted((a, b) => a[0] - b[0])
+    if (toValue(reverse)) entries.reverse()
 
-    // Reverse mode: calculate how many trailing items fit
-    if (reverse) {
-      let sum = 0
-      let count = 0
-
-      for (let i = entries.length - 1; i >= 0; i--) {
-        const entry = entries[i]
-        if (!entry) continue
-        const w = entry[1]
-        const next = sum + w + (count > 0 ? g : 0)
-        if (next > available) break
-        sum = next
-        count++
-      }
-
-      return count
-    }
-
-    // Forward mode: calculate how many leading items fit
     let sum = 0
     let count = 0
 

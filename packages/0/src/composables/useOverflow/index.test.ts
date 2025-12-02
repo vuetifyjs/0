@@ -319,6 +319,202 @@ describe('createOverflow', () => {
     expect(result.capacity.value).toBe(0)
   })
 
+  it('should fall back to variable mode when itemWidth is 0', async () => {
+    const result = createOverflow({ itemWidth: 0, reserved: 0 })
+
+    const container = document.createElement('div')
+    result.container.value = container
+    await nextTick()
+
+    resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+    await nextTick()
+
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'offsetWidth', { value: 50 })
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      marginLeft: '0px',
+      marginRight: '0px',
+    } as CSSStyleDeclaration)
+
+    result.measure(0, el)
+    result.measure(1, el)
+    result.measure(2, el)
+
+    // Falls back to variable mode, measures 3 items of 50px each = 150px
+    // 200px available, so all 3 fit
+    expect(result.capacity.value).toBe(3)
+  })
+
+  describe('reverse mode', () => {
+    it('should compute capacity from end in reverse mode', async () => {
+      const result = createOverflow({ reverse: true, reserved: 0 })
+
+      const container = document.createElement('div')
+      result.container.value = container
+      await nextTick()
+
+      resizeCallback?.([{ contentRect: { width: 100, height: 50 } }])
+      await nextTick()
+
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        marginLeft: '0px',
+        marginRight: '0px',
+      } as CSSStyleDeclaration)
+
+      // Create items with different widths: [80, 30, 30, 30]
+      const el80 = document.createElement('div')
+      Object.defineProperty(el80, 'offsetWidth', { value: 80 })
+
+      const el30 = document.createElement('div')
+      Object.defineProperty(el30, 'offsetWidth', { value: 30 })
+
+      result.measure(0, el80) // 80px
+      result.measure(1, el30) // 30px
+      result.measure(2, el30) // 30px
+      result.measure(3, el30) // 30px
+
+      // Forward mode would fit: 80px (item 0 only, can't fit 80+30=110)
+      // Reverse mode fits from end: 30 + 30 + 30 = 90px (items 3, 2, 1)
+      expect(result.capacity.value).toBe(3)
+    })
+
+    it('should compute capacity from end with gap', async () => {
+      const result = createOverflow({ reverse: true, gap: 10, reserved: 0 })
+
+      const container = document.createElement('div')
+      result.container.value = container
+      await nextTick()
+
+      resizeCallback?.([{ contentRect: { width: 100, height: 50 } }])
+      await nextTick()
+
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        marginLeft: '0px',
+        marginRight: '0px',
+      } as CSSStyleDeclaration)
+
+      const el30 = document.createElement('div')
+      Object.defineProperty(el30, 'offsetWidth', { value: 30 })
+
+      result.measure(0, el30)
+      result.measure(1, el30)
+      result.measure(2, el30)
+      result.measure(3, el30)
+
+      // From end: 30 + (10+30) + (10+30) = 110 > 100, so only 2 fit
+      // 30 + (10+30) = 70, fits
+      expect(result.capacity.value).toBe(2)
+    })
+
+    it('should support reactive reverse option', async () => {
+      const reverse = ref(false)
+      const result = createOverflow({ reverse, reserved: 0 })
+
+      const container = document.createElement('div')
+      result.container.value = container
+      await nextTick()
+
+      resizeCallback?.([{ contentRect: { width: 100, height: 50 } }])
+      await nextTick()
+
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        marginLeft: '0px',
+        marginRight: '0px',
+      } as CSSStyleDeclaration)
+
+      // Items: [80, 30, 30]
+      const el80 = document.createElement('div')
+      Object.defineProperty(el80, 'offsetWidth', { value: 80 })
+
+      const el30 = document.createElement('div')
+      Object.defineProperty(el30, 'offsetWidth', { value: 30 })
+
+      result.measure(0, el80)
+      result.measure(1, el30)
+      result.measure(2, el30)
+
+      // Forward: 80px fits, 80+30=110 doesn't fit
+      expect(result.capacity.value).toBe(1)
+
+      // Switch to reverse
+      reverse.value = true
+
+      // Reverse: 30 + 30 = 60 fits
+      expect(result.capacity.value).toBe(2)
+    })
+  })
+
+  describe('reactive options', () => {
+    it('should react to gap changes', async () => {
+      const gap = ref(0)
+      const result = createOverflow({ gap, reserved: 0 })
+
+      const container = document.createElement('div')
+      result.container.value = container
+      await nextTick()
+
+      resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+      await nextTick()
+
+      const el = document.createElement('div')
+      Object.defineProperty(el, 'offsetWidth', { value: 50 })
+      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+        marginLeft: '0px',
+        marginRight: '0px',
+      } as CSSStyleDeclaration)
+
+      result.measure(0, el)
+      result.measure(1, el)
+      result.measure(2, el)
+      result.measure(3, el)
+
+      // No gap: 50*4 = 200, all 4 fit
+      expect(result.capacity.value).toBe(4)
+
+      // Add gap: 50 + 60 + 60 + 60 = 230 > 200, only 3 fit
+      gap.value = 10
+      expect(result.capacity.value).toBe(3)
+    })
+
+    it('should react to reserved changes', async () => {
+      const reserved = ref(0)
+      const result = createOverflow({ reserved, itemWidth: 50 })
+
+      const container = document.createElement('div')
+      result.container.value = container
+      await nextTick()
+
+      resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+      await nextTick()
+
+      // No reserved: 200 / 50 = 4
+      expect(result.capacity.value).toBe(4)
+
+      // Reserved 100: (200-100) / 50 = 2
+      reserved.value = 100
+      expect(result.capacity.value).toBe(2)
+    })
+
+    it('should react to itemWidth changes', async () => {
+      const itemWidth = ref(50)
+      const result = createOverflow({ itemWidth, reserved: 0 })
+
+      const container = document.createElement('div')
+      result.container.value = container
+      await nextTick()
+
+      resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
+      await nextTick()
+
+      // 200 / 50 = 4
+      expect(result.capacity.value).toBe(4)
+
+      // 200 / 100 = 2
+      itemWidth.value = 100
+      expect(result.capacity.value).toBe(2)
+    })
+  })
+
   describe('container option', () => {
     it('should accept container as a ref', async () => {
       const container = document.createElement('div')
