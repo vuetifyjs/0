@@ -173,17 +173,43 @@ Location: `packages/0/src/composables/useRegistry/index.ts`
 Understanding the inheritance chain is crucial:
 
 ```
+createContext / createTrinity / createPlugin (Factories)
+    ↓
 useRegistry (base: collection management)
-  ↓
-useSelection (adds: selectedIds, select/unselect/toggle, mandatory/enroll options)
-  ↓
-  ├─ useSingle (single selection: selectedId, selectedItem, selectedIndex, selectedValue)
-  │    ↓
-  │    └─ useStep (navigation: first, last, next, prev, step)
-  │         └─ Used by: Theme switching, Step components
-  │
-  └─ useGroup (multi-selection: selectedIndexes, array-based select/unselect)
-       └─ useFeatures (feature flags with variations)
+    ↓
+    ├─ useSelection (adds: selectedIds, select/unselect/toggle, mandatory/enroll)
+    │    ├─ useSingle (single selection)
+    │    │    ├─ useStep (navigation: first, last, next, prev)
+    │    │    ├─ useTheme (extends useSingle + useTokens)
+    │    │    └─ useLocale (extends useSingle)
+    │    │
+    │    └─ useGroup (multi-selection + tri-state)
+    │         └─ useFeatures (feature flags with variations)
+    │
+    ├─ useForm (form validation, extends registry independently)
+    ├─ useTimeline (undo/redo, extends registry independently)
+    └─ useQueue (FIFO with timeout, extends registry independently)
+
+useTokens (design tokens, independent registry)
+    └─ usePermissions (RBAC/ABAC)
+
+Independent composables (non-registry):
+    ├─ usePagination (simple integer-based)
+    ├─ useVirtual (virtual scrolling)
+    ├─ useOverflow (container measurement)
+    ├─ useFilter (array filtering)
+    └─ useBreakpoints (responsive detection)
+
+Proxy/Binding utilities:
+    ├─ useProxyModel (selection ↔ v-model)
+    └─ useProxyRegistry (registry → reactive object)
+
+System/Observer composables:
+    ├─ useResizeObserver, useIntersectionObserver, useMutationObserver
+    ├─ useEventListener, useKeydown
+    ├─ useToggleScope (conditional effect scope)
+    ├─ useStorage, useLogger, useHydration
+    └─ toReactive, toArray (transformers)
 ```
 
 ### Key Composable Systems
@@ -202,9 +228,13 @@ useSelection (adds: selectedIds, select/unselect/toggle, mandatory/enroll option
 - Adds: `selectedId`, `selectedItem`, `selectedIndex`, `selectedValue` (all singular)
 - Used by `useTheme` for theme switching
 
-**`useGroup`** - Multi-selection specialization
+**`useGroup`** - Multi-selection specialization with tri-state support
 - Accepts `ID | ID[]` for batch operations
 - Adds: `selectedIndexes` computed set
+- **Tri-state/mixed support**: Items can be selected, unselected, or mixed (indeterminate)
+- Batch operations: `selectAll()`, `unselectAll()`, `toggleAll()`
+- Computed states: `isAllSelected`, `isNoneSelected`, `isMixed`
+- Tickets get: `isMixed`, `mix()`, `unmix()`, `indeterminate` properties
 
 **`useStep`** - Navigation through items
 - Extends `useSingle` with: `first()`, `last()`, `next()`, `prev()`, `step(count)`
@@ -342,6 +372,139 @@ createThemePlugin({
 
 Location: `packages/0/src/composables/useTheme/index.ts`
 
+#### Queue System
+
+**`useQueue`** - FIFO queue with timeout management
+
+Extends `useRegistry` for notification/toast stacks:
+- `timeout` option per item for automatic dismissal
+- First item in queue is active, others are paused
+- `pause()` / `resume()` for queue control
+- Tickets get: `timeout`, `isPaused`, `dismiss()`
+
+```ts
+const queue = useQueue({ timeout: 5000 })
+queue.register({ id: 'toast-1', value: { message: 'Hello!' } })
+// Auto-dismissed after 5 seconds, or manually:
+queue.get('toast-1')?.dismiss()
+```
+
+Location: `packages/0/src/composables/useQueue/index.ts`
+
+#### Pagination
+
+**`usePagination`** - Lightweight page navigation (non-registry based)
+
+Simple integer-based pagination without registry overhead:
+- `page`: Current page (shallowRef)
+- `length`: Total pages
+- Navigation: `first()`, `last()`, `next()`, `prev()`, `goto(n)`
+- Computed: `pageStart`, `pageStop` (for slice indices)
+
+```ts
+const pagination = usePagination({ length: 10, itemsPerPage: 25 })
+pagination.next()
+pagination.goto(5)
+```
+
+Location: `packages/0/src/composables/usePagination/index.ts`
+
+#### Virtual Scrolling
+
+**`useVirtual`** - Virtual scrolling for large lists
+
+Renders only visible items + overscan buffer:
+- Dynamic or fixed item heights
+- Bidirectional scrolling (forward/reverse for chat apps)
+- Scroll anchoring (maintains position across data changes)
+- Edge detection for infinite scroll triggers
+
+```ts
+const virtual = useVirtual({
+  items: list,
+  itemHeight: 48,
+  overscan: 5
+})
+// Returns: visibleItems, totalHeight, scrollTo()
+```
+
+Location: `packages/0/src/composables/useVirtual/index.ts`
+
+#### Overflow Detection
+
+**`useOverflow`** - Container overflow measurement
+
+Tracks available space and computes item capacity:
+- **Variable mode**: Per-item width measurement (different-width items)
+- **Uniform mode**: Capacity from single item width (same-width items)
+- Supports reserved space for navigation buttons
+- Reverse mode for calculating from end (breadcrumbs)
+
+```ts
+const overflow = useOverflow({
+  container: containerRef,
+  items: itemRefs,
+  reserved: 80 // space for "more" button
+})
+// Returns: capacity, availableWidth
+```
+
+Location: `packages/0/src/composables/useOverflow/index.ts`
+
+#### Proxy Utilities
+
+**`useProxyModel`** - Bridges selection context to v-model
+
+Bidirectional sync between selection registries and component v-model:
+- Supports single value or array modes via `multiple` option
+- Custom transform functions for value mapping
+- Used by all selection-based components
+
+```ts
+// In component setup
+useProxyModel(selectionContext, model, { multiple: true })
+```
+
+Location: `packages/0/src/composables/useProxyModel/index.ts`
+
+**`useProxyRegistry`** - Converts registry Map to reactive object
+
+Exposes registry internals as reactive properties:
+- `keys`, `values`, `entries`, `size` as reactive refs
+- Supports deep or shallow reactivity
+- Updates via event subscription
+
+Location: `packages/0/src/composables/useProxyRegistry/index.ts`
+
+#### Scope Management
+
+**`useToggleScope`** - Conditional effect scope management
+
+Creates/destroys effect scope based on reactive condition:
+- All watches/effects inside automatically cleaned up when deactivated
+- Manual `start()` / `stop()` / `reset()` controls
+- Efficient for feature flags and conditional rendering logic
+
+```ts
+const scope = useToggleScope(isEnabled, () => {
+  // Effects here only run when isEnabled is true
+  watch(source, handler)
+})
+```
+
+Location: `packages/0/src/composables/useToggleScope/index.ts`
+
+#### Permissions
+
+**`usePermissions`** - RBAC/ABAC permission system
+
+Built on `useTokens` for permission checking:
+- Role-based and attribute-based access control
+- Adapter pattern for custom permission backends
+- `can(permission)`, `cannot(permission)` methods
+
+Location: `packages/0/src/composables/usePermissions/index.ts`
+
 #### Other Composables
 
 **Filtering**: `useFilter` - Reactive array filtering with multiple modes (some/every/union/intersection)
@@ -352,7 +515,7 @@ Location: `packages/0/src/composables/useTheme/index.ts`
 
 **Storage**: `useStorage` - Adapter pattern for localStorage/sessionStorage/memory
 
-**Locale**: `useLocale` - i18n adapter pattern
+**Locale**: `useLocale` - i18n adapter with message interpolation, extends `useSingle` for locale switching
 
 **Logger**: `useLogger` - Logging adapter (consola/pino/custom)
 
@@ -395,6 +558,56 @@ Several composables support adapters for framework-agnostic core logic:
 - **Permissions**: Permission system adapters
 
 Adapters live in `packages/0/src/composables/useX/adapters/`
+
+## Components
+
+All components follow the **compound component pattern** and are located in `packages/0/src/components/`.
+
+### Component Architecture
+
+- **Compound pattern**: Components have Root + sub-components (e.g., `SelectionRoot`, `SelectionItem`)
+- **Context-driven**: Root components create and provide context, items consume it
+- **Generic v-model**: Components use `<script setup generic="T">` for type-safe v-model binding
+- **ProxyModel binding**: `useProxyModel` bridges selection context to v-model
+
+**Pattern Example**:
+```vue
+<!-- Root creates context and connects to v-model -->
+<SelectionRoot v-model="selected" multiple>
+  <SelectionItem value="a">Option A</SelectionItem>
+  <SelectionItem value="b">Option B</SelectionItem>
+</SelectionRoot>
+```
+
+### Component List
+
+| Component | Description | Context Used |
+|-----------|-------------|--------------|
+| **Atom** | Polymorphic foundation component. Renders as any HTML element via `as` prop. Supports renderless mode. | None |
+| **Avatar** | Image with fallback display. Root, Image, Fallback sub-components. | `createSelectionContext` |
+| **ExpansionPanel** | Accordion/collapsible panels. Supports single (accordion) or multi-expand modes. | `createSelectionContext` |
+| **Group** | Multi-selection with tri-state support. Provides `selectAll`, `unselectAll`, `toggleAll`. | `createGroupContext` |
+| **Pagination** | Page navigation with ellipsis. Root, Item, First, Prev, Next, Last, Ellipsis sub-components. | `usePagination` (non-registry) |
+| **Popover** | Toggle/visibility management. Root, Anchor, Content sub-components. | Direct `createContext` |
+| **Selection** | Generic single/multi-selection. Configurable via `multiple` prop. | `createSelectionContext` |
+| **Single** | Single-selection specialization of Selection. | `createSelectionContext` |
+| **Step** | Navigation/stepper with first, last, next, prev. | `createSelectionContext` |
+
+### Context Provision in Components
+
+Components create and immediately provide their context:
+```ts
+// In Root component
+const [, provideSelectionControl, context] = createSelectionContext({
+  mandatory,
+  multiple: false,
+  enroll
+})
+provideSelectionControl(context)
+
+// Connect to v-model
+useProxyModel(context, model, { multiple })
+```
 
 ## Code Conventions
 
@@ -469,7 +682,7 @@ Adapters live in `packages/0/src/composables/useX/adapters/`
 
 ```
 packages/0/src/
-├── components/       # Vue components (Atom, Theme, etc.)
+├── components/       # Vue components (Atom, Avatar, Selection, Group, etc.)
 ├── composables/      # Composable functions
 │   └── useX/
 │       ├── index.ts
@@ -507,9 +720,10 @@ interface RegistryTicket {
 
 Composables extend this with additional properties:
 - `SelectionTicket` adds: `disabled`, `isSelected`, `select()`, `unselect()`, `toggle()`
+- `GroupTicket` extends SelectionTicket with: `isMixed`, `mix()`, `unmix()`, `indeterminate`
 - `FormTicket` adds: `validate()`, `reset()`, `errors`, `isValid`, `isPristine`, `rules`
+- `QueueTicket` adds: `timeout`, `isPaused`, `dismiss()`
 - `ThemeTicket` adds: `lazy`, `dark`
-- etc.
 
 ### Spread Pattern for Extension
 
