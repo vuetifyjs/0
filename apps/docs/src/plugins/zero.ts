@@ -92,7 +92,7 @@ export default function zero (app: App) {
             'info': '#38bdf8',
             'success': '#4ade80',
             'warning': '#fb923c',
-            'background': '#0f0f0f',
+            'background': '#121212',
             'surface': '#1a1a1a',
             'surface-tint': '#2a2a2a',
             'surface-variant': '#1e1e1e',
