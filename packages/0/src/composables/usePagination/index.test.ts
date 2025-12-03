@@ -63,11 +63,11 @@ describe('usePagination', () => {
       })
     })
 
-    describe('goto', () => {
+    describe('select', () => {
       it('should go to specified page', () => {
         const pagination = createPagination({ size: 100, page: 1 })
 
-        pagination.goto(5)
+        pagination.select(5)
 
         expect(pagination.page.value).toBe(5)
       })
@@ -75,17 +75,17 @@ describe('usePagination', () => {
       it('should clamp to 1 when value is less than 1', () => {
         const pagination = createPagination({ size: 100, page: 5 })
 
-        pagination.goto(0)
+        pagination.select(0)
         expect(pagination.page.value).toBe(1)
 
-        pagination.goto(-5)
+        pagination.select(-5)
         expect(pagination.page.value).toBe(1)
       })
 
       it('should clamp to page count when value exceeds pages', () => {
         const pagination = createPagination({ size: 100, page: 1 })
 
-        pagination.goto(15)
+        pagination.select(15)
 
         expect(pagination.page.value).toBe(10)
       })
@@ -93,7 +93,7 @@ describe('usePagination', () => {
       it('should handle going to first page', () => {
         const pagination = createPagination({ size: 100, page: 5 })
 
-        pagination.goto(1)
+        pagination.select(1)
 
         expect(pagination.page.value).toBe(1)
       })
@@ -101,7 +101,7 @@ describe('usePagination', () => {
       it('should handle going to last page', () => {
         const pagination = createPagination({ size: 100, page: 1 })
 
-        pagination.goto(10)
+        pagination.select(10)
 
         expect(pagination.page.value).toBe(10)
       })
