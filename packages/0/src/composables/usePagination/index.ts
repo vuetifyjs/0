@@ -115,7 +115,7 @@ export function createPagination<
     itemsPerPage: _itemsPerPage = 10,
     size: _size = 0,
     visible: _visible = 7,
-    ellipsis = '…',
+    ellipsis = '...',
   } = _options
 
   const page: ShallowRef<number> = isRef(_page) ? _page : shallowRef(_page)
