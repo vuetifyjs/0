@@ -1,3 +1,13 @@
+---
+title: Vuetify0 Components
+meta:
+  - name: description
+    content: A collection of foundational components designed to be headless, accessible,
+      and highly customizable.
+  - name: keywords
+    content: components, headless, accessible, customizable, Vue
+---
+
 # Components
 
 A collection of foundational components designed to be headless, accessible, and highly customizable.

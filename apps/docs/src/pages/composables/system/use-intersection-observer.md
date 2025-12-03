@@ -1,8 +1,12 @@
 ---
+title: useIntersectionObserver Composable
 meta:
-  title: useIntersectionObserver
-  description: Intersection Observer API wrapper for detecting element visibility changes with automatic cleanup.
-  keywords: intersection observer, visibility, viewport, lazy loading, scroll, Vue, composable
+- name: description
+  content: Intersection Observer API wrapper for detecting element visibility changes
+    with automatic cleanup.
+- name: keywords
+  content: intersection observer, visibility, viewport, lazy loading, scroll, Vue,
+    composable
 features:
   category: Composable
   label: 'E: useIntersectionObserver'

@@ -24,6 +24,7 @@ export default async function MarkdownPlugin () {
   })
 
   return Markdown({
+    headEnabled: true,
     markdownItOptions: {
       html: true,
       linkify: true,

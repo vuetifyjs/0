@@ -1,8 +1,11 @@
 ---
+title: useMutationObserver Composable
 meta:
-  title: useMutationObserver
-  description: Mutation Observer API wrapper for detecting DOM changes with automatic cleanup.
-  keywords: mutation observer, DOM, changes, mutations, Vue, composable
+- name: description
+  content: Mutation Observer API wrapper for detecting DOM changes with automatic
+    cleanup.
+- name: keywords
+  content: mutation observer, DOM, changes, mutations, Vue, composable
 features:
   category: Composable
   label: 'E: useMutationObserver'

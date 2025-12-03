@@ -1,8 +1,11 @@
 ---
+title: useTheme Composable
 meta:
-  title: useTheme
-  description: A composable for theme management that registers multiple themes, switches between them, and generates CSS custom properties with token alias resolution.
-  keywords: useTheme, theme, dark mode, CSS variables, design tokens, composable
+- name: description
+  content: A composable for theme management that registers multiple themes, switches
+    between them, and generates CSS custom properties with token alias resolution.
+- name: keywords
+  content: useTheme, theme, dark mode, CSS variables, design tokens, composable
 features:
   category: Plugin
   label: 'E: useTheme'

@@ -1,3 +1,12 @@
+---
+title: Vuetify0 Composables
+meta:
+  - name: description
+    content: Reusable pieces of logic that can be shared across components, providing encapsulated functionality and state management.
+  - name: keywords
+    content: composables, reusable, logic, Vue, state management
+---
+
 # Composables
 
 Reusable pieces of logic that can be shared across components, providing encapsulated functionality and state management.

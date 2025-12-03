@@ -1,8 +1,11 @@
 ---
+title: Popover Component
 meta:
-  title: Popover
-  description: A headless component for creating popovers and tooltips using modern CSS anchor positioning.
-  keywords: popover, tooltip, anchor, positioning, component, Vue, headless
+- name: description
+  content: A headless component for creating popovers and tooltips using modern CSS
+    anchor positioning.
+- name: keywords
+  content: popover, tooltip, anchor, positioning, component, Vue, headless
 features:
   category: Component
   label: 'E: Popover'

@@ -1,8 +1,11 @@
 ---
+title: Step Component
 meta:
-  title: Step
-  description: A headless component for navigation through multi-step processes like wizards and forms.
-  keywords: step, wizard, stepper, navigation, component, Vue, headless
+- name: description
+  content: A headless component for navigation through multi-step processes like wizards
+    and forms.
+- name: keywords
+  content: step, wizard, stepper, navigation, component, Vue, headless
 features:
   category: Component
   label: 'E: Step'

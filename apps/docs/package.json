@@ -14,6 +14,7 @@
     "@shikijs/markdown-it": "catalog:",
     "@shikijs/themes": "catalog:",
     "@types/markdown-it-attrs": "catalog:",
+    "@unhead/vue": "catalog:",
     "@unocss/reset": "catalog:",
     "lightningcss": "catalog:",
     "markdown-it-anchor": "catalog:",

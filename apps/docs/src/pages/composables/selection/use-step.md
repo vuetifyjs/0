@@ -1,8 +1,11 @@
 ---
+title: useStep Composable
 meta:
-  title: useStep
-  description: A composable for controlling navigation between steps in a sequence, such as in multi-step forms, wizards, or guided flows.
-  keywords: useStep, step navigation, multi-step, wizard, composable, Vue, state management
+- name: description
+  content: A composable for controlling navigation between steps in a sequence, such
+    as in multi-step forms, wizards, or guided flows.
+- name: keywords
+  content: useStep, step navigation, multi-step, wizard, composable, Vue, state management
 features:
   category: Composable
   label: 'E: useStep'

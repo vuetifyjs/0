@@ -1,8 +1,11 @@
 ---
+title: Selection Component
 meta:
-  title: Selection
-  description: A headless component for managing selection state in collections with support for single and multi-selection patterns.
-  keywords: selection, component, Vue, headless, accessibility
+  - name: description
+    content: A headless component for managing selection state in collections with support
+      for single and multi-selection patterns.
+  - name: keywords
+    content: selection, component, Vue, headless, accessibility
 features:
   category: Component
   label: 'E: Selection'

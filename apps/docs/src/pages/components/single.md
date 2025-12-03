@@ -1,8 +1,11 @@
 ---
+title: Single Component
 meta:
-  title: Single
-  description: A headless component for managing single-selection with automatic deselection of previous items.
-  keywords: single, single-select, component, Vue, headless, accessibility
+- name: description
+  content: A headless component for managing single-selection with automatic deselection
+    of previous items.
+- name: keywords
+  content: single, single-select, component, Vue, headless, accessibility
 features:
   category: Component
   label: 'E: Single'

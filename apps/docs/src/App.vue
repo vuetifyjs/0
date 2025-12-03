@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-  //
+  import { useHead } from '@unhead/vue'
+
+  useHead({
+    title: 'Vuetify0 Documentation',
+    titleTemplate: '%s — Vuetify0',
+  })
 </script>
 
 <template>

@@ -1,8 +1,10 @@
 ---
+title: createPlugin Composable
 meta:
-  title: createPlugin
-  description: A foundational composable for registering Vue plugins with context support.
-  keywords: createContext, context, composable, Vue, state management
+- name: description
+  content: A foundational composable for registering Vue plugins with context support.
+- name: keywords
+  content: createContext, context, composable, Vue, state management
 features:
   category: Factory
   label: 'E: createPlugin'

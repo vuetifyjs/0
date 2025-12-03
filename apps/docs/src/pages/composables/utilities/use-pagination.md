@@ -1,8 +1,11 @@
 ---
+title: usePagination Composable
 meta:
-  title: usePagination
-  description: A lightweight composable for managing pagination state with navigation methods and computed visible page items.
-  keywords: usePagination, pagination, navigation, composable, Vue, pages
+- name: description
+  content: A lightweight composable for managing pagination state with navigation
+    methods and computed visible page items.
+- name: keywords
+  content: usePagination, pagination, navigation, composable, Vue, pages
 features:
   category: Composable
   label: 'U: usePagination'

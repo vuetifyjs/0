@@ -1,8 +1,11 @@
 ---
+title: useVirtual Composable
 meta:
-  title: useVirtual
-  description: Virtual scrolling composable for efficiently rendering large lists by only rendering visible items.
-  keywords: virtual scroll, virtualization, large lists, performance, Vue, composable
+- name: description
+  content: Virtual scrolling composable for efficiently rendering large lists by only
+    rendering visible items.
+- name: keywords
+  content: virtual scroll, virtualization, large lists, performance, Vue, composable
 features:
   category: Composable
   label: 'C: useVirtual'

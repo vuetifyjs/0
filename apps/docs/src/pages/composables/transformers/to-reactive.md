@@ -1,8 +1,11 @@
 ---
+title: toReactive Transformer
 meta:
-  title: toReactive
-  description: A utility function that converts MaybeRef objects to reactive proxies, providing seamless access to ref values without .value syntax.
-  keywords: toReactive, transformer, reactive, ref, composable, Vue
+- name: description
+  content: A utility function that converts MaybeRef objects to reactive proxies,
+    providing seamless access to ref values without .value syntax.
+- name: keywords
+  content: toReactive, transformer, reactive, ref, composable, Vue
 features:
   category: Transformer
   label: 'E: toReactive'

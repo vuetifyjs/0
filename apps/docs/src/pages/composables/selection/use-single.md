@@ -1,8 +1,11 @@
 ---
+title: useSingle Composable
 meta:
-  title: useSingle
-  description: A composable for managing single-item selection in a collection, extending useSelection with single-selection constraints.
-  keywords: useSingle, single selection, composable, Vue, state management
+- name: description
+  content: A composable for managing single-item selection in a collection, extending
+    useSelection with single-selection constraints.
+- name: keywords
+  content: useSingle, single selection, composable, Vue, state management
 features:
   category: Composable
   label: 'E: useSingle'

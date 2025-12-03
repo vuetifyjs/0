@@ -1,8 +1,11 @@
 ---
+title: useBreakpoints Composable
 meta:
-  title: useBreakpoints
-  description: A composable for responsive design that detects viewport dimensions and provides reactive breakpoint information for building mobile-first layouts.
-  keywords: useBreakpoints, breakpoints, responsive, viewport, mobile-first, composable
+- name: description
+  content: A composable for responsive design that detects viewport dimensions and
+    provides reactive breakpoint information for building mobile-first layouts.
+- name: keywords
+  content: useBreakpoints, breakpoints, responsive, viewport, mobile-first, composable
 features:
   category: Plugin
   label: 'E: useBreakpoints'
@@ -163,4 +166,3 @@ interface BreakpointsContext {
 **Methods:**
 
 - `update()`: Manually trigger breakpoint recalculation (automatically called on resize)
-

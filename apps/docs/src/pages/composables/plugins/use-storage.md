@@ -1,8 +1,13 @@
 ---
+title: useStorage Composable
 meta:
-  title: useStorage
-  description: A composable for reactive storage management with support for localStorage, sessionStorage, and custom adapters. Provides automatic serialization, caching, and SSR-safe operations.
-  keywords: useStorage, localStorage, sessionStorage, storage adapter, reactive storage, composable
+- name: description
+  content: A composable for reactive storage management with support for localStorage,
+    sessionStorage, and custom adapters. Provides automatic serialization, caching,
+    and SSR-safe operations.
+- name: keywords
+  content: useStorage, localStorage, sessionStorage, storage adapter, reactive storage,
+    composable
 features:
   category: Plugin
   label: 'E: useStorage'
@@ -114,4 +119,3 @@ interface StorageContext {
 - `set(key, value)`: Set a value for a storage key
 - `remove(key)`: Remove a key from storage and stop its watcher
 - `clear()`: Clear all keys from storage and stop all watchers
-

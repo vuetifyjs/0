@@ -1,8 +1,11 @@
 ---
+title: useLogger Composable
 meta:
-  title: useLogger
-  description: A composable for application logging with configurable adapters, log levels, and filtering that supports popular logging libraries like Consola and Pino.
-  keywords: useLogger, logging, debug, consola, pino, logger adapter, log levels, composable
+- name: description
+  content: A composable for application logging with configurable adapters, log levels,
+    and filtering that supports popular logging libraries like Consola and Pino.
+- name: keywords
+  content: useLogger, logging, debug, consola, pino, logger adapter, log levels, composable
 features:
   category: Plugin
   label: 'E: useLogger'
@@ -131,4 +134,3 @@ interface LoggerAdapter {
   fatal?: (message: string, ...args: unknown[]) => void
 }
 ```
-

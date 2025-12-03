@@ -1,8 +1,12 @@
 ---
+title: useForm
 meta:
-  title: useForm
-  description: A composable for building reactive forms with validation, field registration, and submission handling. Built on top of the registry system for managing form fields.
-  keywords: useForm, form, validation, composable, Vue, registry
+- name: description
+  content: A composable for building reactive forms with validation, field registration,
+    and submission handling. Built on top of the registry system for managing form
+    fields.
+- name: keywords
+  content: useForm, form, validation, composable, Vue, registry
 features:
   category: Composable
   label: 'E: useForm'

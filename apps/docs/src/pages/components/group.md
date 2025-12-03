@@ -1,8 +1,10 @@
 ---
+title: Group Component
 meta:
-  title: Group
-  description: A headless component for managing multi-selection with batch operations.
-  keywords: group, multi-select, component, Vue, headless, accessibility
+- name: description
+  content: A headless component for managing multi-selection with batch operations.
+- name: keywords
+  content: group, multi-select, component, Vue, headless, accessibility
 features:
   category: Component
   label: 'E: Group'

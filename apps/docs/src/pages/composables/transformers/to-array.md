@@ -1,8 +1,11 @@
 ---
+title: toArray Transformer
 meta:
-  title: toArray
-  description: A utility function that converts any value to an array, handling null/undefined values and ensuring consistent array output.
-  keywords: toArray, transformer, utility, array conversion
+- name: description
+  content: A utility function that converts any value to an array, handling null/undefined
+    values and ensuring consistent array output.
+- name: keywords
+  content: toArray, transformer, utility, array conversion
 features:
   category: Transformer
   label: 'E: toArray'

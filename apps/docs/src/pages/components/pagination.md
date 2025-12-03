@@ -1,8 +1,10 @@
 ---
+title: Pagination Component
 meta:
-  title: Pagination
-  description: A headless component for creating page navigation with proper ARIA support.
-  keywords: pagination, navigation, component, Vue, headless, accessibility
+- name: description
+  content: A headless component for creating page navigation with proper ARIA support.
+- name: keywords
+  content: pagination, navigation, component, Vue, headless, accessibility
 features:
   category: Component
   label: 'P: Pagination'

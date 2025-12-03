@@ -1,8 +1,11 @@
 ---
+title: useFilter Composable
 meta:
-  title: useFilter
-  description: A composable for filtering arrays of items based on search queries with support for multiple filter modes and custom filtering logic.
-  keywords: useFilter, filter, search, composable, Vue, array filtering
+- name: description
+  content: A composable for filtering arrays of items based on search queries with
+    support for multiple filter modes and custom filtering logic.
+- name: keywords
+  content: useFilter, filter, search, composable, Vue, array filtering
 features:
   category: Composable
   label: 'E: useFilter'

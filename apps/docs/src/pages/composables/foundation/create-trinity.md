@@ -1,8 +1,12 @@
 ---
+title: createTrinity Composable
 meta:
-  title: createTrinity
-  description: A factory function for creating a 3 item tuple that contains a context consumer, a provider, and the actual context object, allowing for easy state management and sharing across components.
-  keywords: createTrinity, context, composable, Vue, state management
+- name: description
+  content: A factory function for creating a 3 item tuple that contains a context
+    consumer, a provider, and the actual context object, allowing for easy state management
+    and sharing across components.
+- name: keywords
+  content: createTrinity, context, composable, Vue, state management
 features:
   category: Factory
   label: 'E: createTrinity'

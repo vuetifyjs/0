@@ -1,8 +1,11 @@
 ---
+title: useKeydown Composable
 meta:
-  title: useKeydown
-  description: A composable for handling keyboard events with automatic cleanup and customizable behavior.
-  keywords: useKeydown, keyboard, events, keydown, composable, Vue
+- name: description
+  content: A composable for handling keyboard events with automatic cleanup and customizable
+    behavior.
+- name: keywords
+  content: useKeydown, keyboard, events, keydown, composable, Vue
 features:
   category: Composable
   label: 'E: useKeydown'

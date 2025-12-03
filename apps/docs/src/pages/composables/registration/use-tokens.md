@@ -1,8 +1,11 @@
 ---
+title: useTokens Composable
 meta:
-  title: useTokens
-  description: A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system.
-  keywords: useTokens, design tokens, tokens, aliases, composable, Vue
+- name: description
+  content: A utility for managing design tokens with support for hierarchical collections,
+    aliases, and token resolution across your application's design system.
+- name: keywords
+  content: useTokens, design tokens, tokens, aliases, composable, Vue
 features:
   category: Composable
   label: 'E: useTokens'

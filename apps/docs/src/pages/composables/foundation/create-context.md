@@ -1,8 +1,12 @@
 ---
+title: createContext Composable
 meta:
-  title: createContext
-  description: A foundational utility for creating and consuming context throughout your application, enabling sharing state and methods across components without prop drilling.
-  keywords: createContext, context, composable, Vue, state management
+- name: description
+  content: A foundational utility for creating and consuming context throughout your
+    application, enabling sharing state and methods across components without prop
+    drilling.
+- name: keywords
+  content: createContext, context, composable, Vue, state management
 features:
   category: Factory
   label: 'E: createContext'

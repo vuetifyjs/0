@@ -1,8 +1,12 @@
 ---
+title: useProxyModel Composable
 meta:
-  title: useProxyModel
-  description: A composable for syncing refs bidirectionally with selection contexts, enabling seamless v-model integration with selection state.
-  keywords: useProxyModel, proxy model, v-model, two-way binding, selection, composable, Vue, defineModel
+- name: description
+  content: A composable for syncing refs bidirectionally with selection contexts,
+    enabling seamless v-model integration with selection state.
+- name: keywords
+  content: useProxyModel, proxy model, v-model, two-way binding, selection, composable,
+    Vue, defineModel
 features:
   category: Composable
   label: 'E: useProxyModel'

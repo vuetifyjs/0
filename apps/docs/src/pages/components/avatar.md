@@ -1,8 +1,11 @@
 ---
+title: Avatar Component
 meta:
-  title: Avatar
-  description: A headless component for managing image loading with priority-based fallback system.
-  keywords: avatar, image, fallback, loading, component, Vue, headless
+- name: description
+  content: A headless component for managing image loading with priority-based fallback
+    system.
+- name: keywords
+  content: avatar, image, fallback, loading, component, Vue, headless
 features:
   category: Component
   label: 'E: Avatar'

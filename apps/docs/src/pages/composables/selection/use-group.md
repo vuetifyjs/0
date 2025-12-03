@@ -1,8 +1,13 @@
 ---
+title: useGroup Composable
 meta:
-  title: useGroup
-  description: A composable for managing grouped selections of items with support for selecting, unselecting, toggling, tri-state (mixed/indeterminate), and tracking selected indexes.
-  keywords: useGroup, selection, group selection, composable, Vue, state management, indeterminate, tri-state, checkbox tree
+- name: description
+  content: A composable for managing grouped selections of items with support for
+    selecting, unselecting, toggling, tri-state (mixed/indeterminate), and tracking
+    selected indexes.
+- name: keywords
+  content: useGroup, selection, group selection, composable, Vue, state management,
+    indeterminate, tri-state, checkbox tree
 features:
   category: Composable
   label: 'E: useGroup'

@@ -1,8 +1,11 @@
 ---
+title: useEventListener Composable
 meta:
-  title: useEventListener
-  description: A composable for handling DOM events with automatic cleanup on component unmount.
-  keywords: useEventListener, events, DOM, composable, Vue, event handling
+- name: description
+  content: A composable for handling DOM events with automatic cleanup on component
+    unmount.
+- name: keywords
+  content: useEventListener, events, DOM, composable, Vue, event handling
 features:
   category: Composable
   label: 'E: useEventListener'

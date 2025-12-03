@@ -1,8 +1,11 @@
 ---
+title: useRegistry Composable
 meta:
-  title: useRegistry
-  description: A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing, and lifecycle management.
-  keywords: useRegistry, registry, composable, Vue, state management
+- name: description
+  content: A foundational composable for building registration-based systems, managing
+    collections of registered items with automatic indexing, and lifecycle management.
+- name: keywords
+  content: useRegistry, registry, composable, Vue, state management
 features:
   category: Composable
   label: 'E: useRegistry'

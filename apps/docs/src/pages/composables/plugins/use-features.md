@@ -1,8 +1,11 @@
 ---
+title: useFeatures Composable
 meta:
-  title: useFeatures
-  description: Feature flags and variations composable for toggling features on/off and reading per-feature variations.
-  keywords: features, feature flags, variations, A/B testing, plugin, Vue, composable
+- name: description
+  content: Feature flags and variations composable for toggling features on/off and
+    reading per-feature variations.
+- name: keywords
+  content: features, feature flags, variations, A/B testing, plugin, Vue, composable
 features:
   category: Plugin
   label: 'E: useFeatures'

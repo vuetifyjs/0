@@ -1,3 +1,12 @@
+---
+title: Guide
+meta:
+  - name: description
+    content: Learn how to build your UI library with Vuetify0
+  - name: keywords
+    content: vuetify0, guide, vue3, ui library
+---
+
 # Guide
 
 Learn how to build your UI library with Vuetify0

@@ -1,3 +1,12 @@
+---
+title: Getting Started
+meta:
+  - name: description
+    content: Get started with Vuetify0 by installing the framework and setting up your Vue application with just a few simple steps.
+  - name: keywords
+    content: vuetify0, getting started, installation, vue3, ui library
+---
+
 # Get started with Vuetify0
 
 Get started with Vuetify0 by installing the framework and setting up your Vue application with just a few simple steps.

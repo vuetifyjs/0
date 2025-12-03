@@ -1,8 +1,11 @@
 ---
+title: Atom Component
 meta:
-  title: Atom
-  description: The foundational building block for dynamic element rendering with renderless capabilities.
-  keywords: atom, component, renderless, polymorphic, Vue, headless
+- name: description
+  content: The foundational building block for dynamic element rendering with renderless
+    capabilities.
+- name: keywords
+  content: atom, component, renderless, polymorphic, Vue, headless
 features:
   category: Component
   label: 'E: Atom'

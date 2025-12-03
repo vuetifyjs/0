@@ -1,8 +1,11 @@
 ---
+title: ExpansionPanel Component
 meta:
-  title: ExpansionPanel
-  description: A headless component for creating accordion-style expansion panels with proper ARIA support.
-  keywords: expansion panel, accordion, component, Vue, headless, accessibility
+- name: description
+  content: A headless component for creating accordion-style expansion panels with
+    proper ARIA support.
+- name: keywords
+  content: expansion panel, accordion, component, Vue, headless, accessibility
 features:
   category: Component
   label: 'E: ExpansionPanel'

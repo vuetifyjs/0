@@ -1,8 +1,12 @@
 ---
+title: useOverflow Composable
 meta:
-  title: useOverflow
-  description: A composable for computing how many items fit in a container based on available width, enabling responsive truncation for pagination, breadcrumbs, and similar components.
-  keywords: useOverflow, overflow, responsive, truncation, composable, Vue, capacity
+- name: description
+  content: A composable for computing how many items fit in a container based on available
+    width, enabling responsive truncation for pagination, breadcrumbs, and similar
+    components.
+- name: keywords
+  content: useOverflow, overflow, responsive, truncation, composable, Vue, capacity
 features:
   category: Composable
   label: 'U: useOverflow'

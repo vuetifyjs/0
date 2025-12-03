@@ -1,8 +1,11 @@
 ---
+title: useSelection Composable
 meta:
-  title: useSelection
-  description: A composable for managing the selection of items in a collection with automatic indexing and lifecycle management.
-  keywords: useSelection, selection, composable, Vue, state management
+- name: description
+  content: A composable for managing the selection of items in a collection with automatic
+    indexing and lifecycle management.
+- name: keywords
+  content: useSelection, selection, composable, Vue, state management
 features:
   category: Composable
   label: 'E: useSelection'

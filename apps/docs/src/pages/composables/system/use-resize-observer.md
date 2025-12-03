@@ -1,8 +1,11 @@
 ---
+title: useResizeObserver Composable
 meta:
-  title: useResizeObserver
-  description: Resize Observer API wrapper for detecting element size changes with automatic cleanup.
-  keywords: resize observer, size, dimensions, responsive, Vue, composable
+- name: description
+  content: Resize Observer API wrapper for detecting element size changes with automatic
+    cleanup.
+- name: keywords
+  content: resize observer, size, dimensions, responsive, Vue, composable
 features:
   category: Composable
   label: 'E: useResizeObserver'

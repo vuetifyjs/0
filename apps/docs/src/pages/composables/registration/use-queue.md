@@ -1,8 +1,11 @@
 ---
+title: useQueue Composable
 meta:
-  title: useQueue
-  description: A queue composable for managing time-based collections with automatic timeout-based removal, pause/resume functionality, and FIFO ordering.
-  keywords: useQueue, queue, composable, Vue, timeout, FIFO
+- name: description
+  content: A queue composable for managing time-based collections with automatic timeout-based
+    removal, pause/resume functionality, and FIFO ordering.
+- name: keywords
+  content: useQueue, queue, composable, Vue, timeout, FIFO
 features:
   category: Composable
   label: 'E: useQueue'

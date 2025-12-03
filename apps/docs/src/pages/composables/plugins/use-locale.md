@@ -1,8 +1,13 @@
 ---
+title: useLocale Composable
 meta:
-  title: useLocale
-  description: A composable for internationalization (i18n) that manages translations, switches between locales, and provides translation functions with variable replacement, message linking, and number formatting.
-  keywords: useLocale, i18n, internationalization, localization, translation, locale, composable
+- name: description
+  content: A composable for internationalization (i18n) that manages translations,
+    switches between locales, and provides translation functions with variable replacement,
+    message linking, and number formatting.
+- name: keywords
+  content: useLocale, i18n, internationalization, localization, translation, locale,
+    composable
 features:
   category: Plugin
   label: 'E: useLocale'
@@ -131,4 +136,3 @@ interface LocaleContext extends SingleContext {
 - `select(id)`: Select a specific locale by ID
 - `selectedId`: Currently selected locale ID
 - `selectedItem`: Currently selected locale ticket with metadata
-

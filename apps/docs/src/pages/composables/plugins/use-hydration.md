@@ -1,8 +1,12 @@
 ---
+title: useHydration Composable
 meta:
-  title: useHydration
-  description: A composable for managing SSR hydration state, controlling when components are hydrated to prevent hydration mismatches and optimize client-side rendering.
-  keywords: useHydration, SSR, hydration, server-side rendering, composable, hydration mismatch
+- name: description
+  content: A composable for managing SSR hydration state, controlling when components
+    are hydrated to prevent hydration mismatches and optimize client-side rendering.
+- name: keywords
+  content: useHydration, SSR, hydration, server-side rendering, composable, hydration
+    mismatch
 features:
   category: Plugin
   label: 'E: useHydration'
@@ -94,4 +98,3 @@ app.mixin({
   }
 })
 ```
-
