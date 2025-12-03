@@ -85,6 +85,7 @@
         v-if="permissions.can(auth?.user?.role ?? 'guest', 'use', 'devmode')"
         class="text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         :class="devmode.isSelected.value ? 'bg-red' : 'bg-gray-400'"
+        title="Developer Mode"
         @click="onClickDevmode"
       >
         <AppIcon icon="dev" />
