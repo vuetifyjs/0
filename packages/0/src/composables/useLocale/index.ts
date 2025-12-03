@@ -7,7 +7,7 @@
  * Key features:
  * - Locale selection with createSingle
  * - Token-based message storage with useTokens
- * - Numbered and named placeholder support ($0, $name)
+ * - Numbered and named placeholder support ({0}, {name})
  * - Number formatting with Intl.NumberFormat
  * - Adapter pattern for integration with i18n providers
  *
@@ -22,6 +22,9 @@ import { createContext, useContext } from '#v0/composables/createContext'
 // Composables
 import { createSingle } from '#v0/composables/useSingle'
 import { createTokens } from '#v0/composables/useTokens'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
@@ -48,7 +51,29 @@ export type LocaleRecord = TokenCollection
 export type LocaleTicket = SingleTicket
 
 export interface LocaleContext<Z extends LocaleTicket> extends SingleContext<Z> {
-  t: (key: string, ...params: unknown[]) => string
+  /**
+   * Translate a message key with optional parameters and fallback.
+   *
+   * @param key - The message key to look up
+   * @param params - Optional object with named parameters for interpolation
+   * @param fallback - Optional fallback string if key not found in messages
+   * @returns The translated and interpolated message
+   *
+   * @example
+   * ```ts
+   * // Simple key lookup
+   * locale.t('hello') // Returns message for 'hello' or 'hello' if not found
+   *
+   * // With parameters
+   * locale.t('greeting', { name: 'World' }) // 'Hello {name}' → 'Hello World'
+   *
+   * // With fallback (useful for dynamic keys)
+   * locale.t('Pagination.goToPage', { page: 5 }, `Go to page 5`)
+   * // If 'pagination.goToPage' exists: uses that message with {page} replaced
+   * // If not found: returns 'Go to page 5'
+   * ```
+   */
+  t: (key: string, params?: Record<string, unknown>, fallback?: string) => string
   n: (value: number) => string
 }
 
@@ -79,31 +104,36 @@ export function createLocale<
   E extends LocaleContext<Z> = LocaleContext<Z>,
 > (_options: LocaleOptions = {}): E {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
-  const tokens = createTokens(messages, { flat: true })
+  const tokens = createTokens(messages)
   const registry = createSingle<Z, E>(options)
 
   for (const id in messages) {
-    registry.register({ id, value: messages[id] } as Partial<Z>)
+    registry.register({ id } as Partial<Z>)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
     }
   }
 
-  function t (key: string, ...params: unknown[]): string {
+  function t (
+    key: string,
+    params?: Record<string, unknown>,
+    fallback?: string,
+  ): string {
     const locale = registry.selectedId.value
+    const args = toArray(params)
 
-    if (!locale) return key
+    if (!locale) return adapter.t(fallback ?? key, ...args)
 
-    const ticket = registry.get(locale)
-    const messages = ticket?.value as TokenCollection | undefined
-    const message = messages?.[key]
+    // Look up the full flattened path in the token registry
+    const path = `${locale}.${key}`
+    const message = tokens.get(path)?.value
 
     // If the key exists in messages, resolve it with token references
-    // Otherwise, use the key itself as a template string
-    const template = isString(message) ? resolve(locale, message) : key
+    // Otherwise, use the fallback or key itself as a template string
+    const template = isString(message) ? resolve(locale, message) : (fallback ?? key)
 
-    return adapter.t(template, ...params)
+    return adapter.t(template, ...args)
   }
 
   function n (value: number, ...params: unknown[]): string {
@@ -112,25 +142,17 @@ export function createLocale<
 
   function resolve (locale: ID, str: string): string {
     return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, key) => {
+      // Check if the key starts with a registered locale (cross-locale reference)
       const [prefix, ...rest] = key.split('.')
-      const path = rest.join('.')
+      const target = registry.has(prefix) ? prefix : locale
+      const name = registry.has(prefix) ? rest.join('.') : key
 
-      const prefixTicket = registry.get(prefix)
-      const target = prefixTicket ? prefix : locale
-      const name = prefixTicket ? path : key
-
-      const targetTicket = registry.get(target)
-      const messages = targetTicket?.value as TokenCollection | undefined
-      const resolved = messages?.[name]
+      // Look up the full flattened path in the token registry
+      const path = `${target}.${name}`
+      const resolved = tokens.get(path)?.value
 
       if (isString(resolved)) {
         return resolve(target, resolved)
-      }
-
-      const alias = `{${key}}`
-      if (tokens.isAlias(alias)) {
-        const result = tokens.resolve(alias)
-        return isString(result) ? result : match
       }
 
       return match
@@ -153,7 +175,11 @@ export function createLocaleFallback<
 > (): E {
   return {
     size: 0,
-    t: (key: string) => key,
+    t: (
+      key: string,
+      _params?: Record<string, unknown>,
+      fallback?: string,
+    ) => fallback ?? key,
     n: String,
   } as unknown as E
 }

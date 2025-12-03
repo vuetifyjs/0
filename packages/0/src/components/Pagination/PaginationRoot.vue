@@ -173,7 +173,7 @@
   })
 
   const slotProps = toRef(() => ({
-    ariaLabel: locale.t('Pagination'),
+    ariaLabel: locale.t('Pagination.label', undefined, 'Pagination'),
     page: pagination.page.value,
     size: pagination.size,
     pages: pagination.pages,

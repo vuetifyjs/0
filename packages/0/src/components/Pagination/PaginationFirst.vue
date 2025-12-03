@@ -79,7 +79,7 @@
   }
 
   const slotProps = toRef(() => ({
-    ariaLabel: locale.t('Go to first page'),
+    ariaLabel: locale.t('Pagination.first', undefined, 'Go to first page'),
     disabled: isDisabled.value,
     onClick,
   }))

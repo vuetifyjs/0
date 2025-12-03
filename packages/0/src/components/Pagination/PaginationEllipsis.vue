@@ -70,7 +70,7 @@
   const resolvedEllipsis = toRef(() => ellipsis ?? pagination.ellipsis)
 
   const slotProps = toRef(() => ({
-    ariaLabel: locale.t('ellipsis indicating non-visible pages'),
+    ariaLabel: locale.t('Pagination.ellipsis', undefined, 'ellipsis indicating non-visible pages'),
     ariaHidden: 'true',
     ellipsis: resolvedEllipsis.value,
   }))

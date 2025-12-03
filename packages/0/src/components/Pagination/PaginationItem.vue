@@ -80,8 +80,8 @@
 
   const ariaLabel = toRef(() => {
     return isSelected.value
-      ? locale.t('Page $page, current page', { page: value })
-      : locale.t('Go to page $page', { page: value })
+      ? locale.t('Pagination.currentPage', { page: value }, `Page ${value}, current page`)
+      : locale.t('Pagination.goToPage', { page: value }, `Go to page ${value}`)
   })
 
   const slotProps = toRef(() => ({
