@@ -1,0 +1,91 @@
+# Vuetify0
+
+> Lightweight, modular meta-framework for building headless UI systems with Vue.js. Provides unstyled, logic-focused components and composables as building blocks for design systems.
+
+## Guide
+
+- [Introduction](https://0.vuetifyjs.com/guide): Overview of Vuetify0 architecture and concepts
+- [Getting Started](https://0.vuetifyjs.com/introduction/getting-started): Installation and initial setup
+- [Structure](https://0.vuetifyjs.com/guide/structure): Project organization and patterns
+- [Components Guide](https://0.vuetifyjs.com/guide/components): Working with headless components
+- [Theming](https://0.vuetifyjs.com/guide/theming): Theme system and customization
+- [Plugins](https://0.vuetifyjs.com/guide/plugins): Plugin architecture
+- [Utilities](https://0.vuetifyjs.com/guide/utilities): Utility functions and helpers
+- [Accessibility](https://0.vuetifyjs.com/guide/accessibility): A11y considerations
+- [Features](https://0.vuetifyjs.com/guide/features): Feature flags system
+- [Framework Core](https://0.vuetifyjs.com/guide/framework-core): Core framework concepts
+
+## Components
+
+- [Atom](https://0.vuetifyjs.com/components/atom): Polymorphic foundation component, renders as any HTML element
+- [Avatar](https://0.vuetifyjs.com/components/avatar): Image with fallback display
+- [Expansion Panel](https://0.vuetifyjs.com/components/expansion-panel): Accordion/collapsible panels
+- [Group](https://0.vuetifyjs.com/components/group): Multi-selection with tri-state support
+- [Pagination](https://0.vuetifyjs.com/components/pagination): Page navigation with ellipsis
+- [Popover](https://0.vuetifyjs.com/components/popover): Toggle/visibility management
+- [Selection](https://0.vuetifyjs.com/components/selection): Generic single/multi-selection
+- [Single](https://0.vuetifyjs.com/components/single): Single-selection specialization
+- [Step](https://0.vuetifyjs.com/components/step): Navigation/stepper component
+
+## Composables - Foundation
+
+- [createContext](https://0.vuetifyjs.com/composables/foundation/create-context): Type-safe Vue dependency injection wrapper
+- [createPlugin](https://0.vuetifyjs.com/composables/foundation/create-plugin): Vue plugin factory
+- [createTrinity](https://0.vuetifyjs.com/composables/foundation/create-trinity): Context triple pattern (use, provide, default)
+
+## Composables - Registration
+
+- [useRegistry](https://0.vuetifyjs.com/composables/registration/use-registry): Base collection management with indexing and caching
+- [useTokens](https://0.vuetifyjs.com/composables/registration/use-tokens): Design token registry with alias resolution
+- [useQueue](https://0.vuetifyjs.com/composables/registration/use-queue): FIFO queue with timeout management
+- [useTimeline](https://0.vuetifyjs.com/composables/registration/use-timeline): Bounded undo/redo system
+- [useProxyRegistry](https://0.vuetifyjs.com/composables/registration/use-proxy-registry): Registry to reactive object conversion
+
+## Composables - Selection
+
+- [useSelection](https://0.vuetifyjs.com/composables/selection/use-selection): Base selection with Set-based tracking
+- [useSingle](https://0.vuetifyjs.com/composables/selection/use-single): Single-selection specialization
+- [useGroup](https://0.vuetifyjs.com/composables/selection/use-group): Multi-selection with tri-state support
+- [useStep](https://0.vuetifyjs.com/composables/selection/use-step): Navigation through items (first, last, next, prev)
+
+## Composables - Forms
+
+- [useForm](https://0.vuetifyjs.com/composables/forms/use-form): Form validation and state management
+- [useProxyModel](https://0.vuetifyjs.com/composables/forms/use-proxy-model): Bridges selection context to v-model
+
+## Composables - Plugins
+
+- [useTheme](https://0.vuetifyjs.com/composables/plugins/use-theme): Theme management with CSS variable injection
+- [useLocale](https://0.vuetifyjs.com/composables/plugins/use-locale): i18n adapter with message interpolation
+- [useStorage](https://0.vuetifyjs.com/composables/plugins/use-storage): localStorage/sessionStorage/memory adapters
+- [useLogger](https://0.vuetifyjs.com/composables/plugins/use-logger): Logging adapter (consola/pino/custom)
+- [useBreakpoints](https://0.vuetifyjs.com/composables/plugins/use-breakpoints): Responsive breakpoint detection
+- [useFeatures](https://0.vuetifyjs.com/composables/plugins/use-features): Feature flags with variations
+- [usePermissions](https://0.vuetifyjs.com/composables/plugins/use-permissions): RBAC/ABAC permission system
+- [useHydration](https://0.vuetifyjs.com/composables/plugins/use-hydration): SSR hydration helpers
+
+## Composables - System
+
+- [useEventListener](https://0.vuetifyjs.com/composables/system/use-event-listener): Lifecycle-managed event listeners
+- [useKeydown](https://0.vuetifyjs.com/composables/system/use-keydown): Keyboard event handling
+- [useResizeObserver](https://0.vuetifyjs.com/composables/system/use-resize-observer): Resize observation
+- [useIntersectionObserver](https://0.vuetifyjs.com/composables/system/use-intersection-observer): Intersection observation
+- [useMutationObserver](https://0.vuetifyjs.com/composables/system/use-mutation-observer): DOM mutation observation
+- [useToggleScope](https://0.vuetifyjs.com/composables/system/use-toggle-scope): Conditional effect scope management
+
+## Composables - Utilities
+
+- [usePagination](https://0.vuetifyjs.com/composables/utilities/use-pagination): Lightweight page navigation
+- [useVirtual](https://0.vuetifyjs.com/composables/utilities/use-virtual): Virtual scrolling for large lists
+- [useOverflow](https://0.vuetifyjs.com/composables/utilities/use-overflow): Container overflow measurement
+- [useFilter](https://0.vuetifyjs.com/composables/utilities/use-filter): Reactive array filtering
+
+## Composables - Transformers
+
+- [toArray](https://0.vuetifyjs.com/composables/transformers/to-array): Value to array transformation
+- [toReactive](https://0.vuetifyjs.com/composables/transformers/to-reactive): Ref to reactive conversion
+
+## Optional
+
+- [Contributing](https://0.vuetifyjs.com/introduction/contributing): How to contribute
+- [FAQ](https://0.vuetifyjs.com/introduction/frequently-asked): Frequently asked questions
