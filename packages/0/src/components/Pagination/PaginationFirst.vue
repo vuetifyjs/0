@@ -94,7 +94,8 @@
     :data-disabled="slotProps.disabled || undefined"
     :disabled="as === 'button' ? slotProps.disabled : undefined"
     :renderless
-    @click="onClick"
+    :type="as === 'button' ? 'button' : undefined"
+    @click="slotProps.onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

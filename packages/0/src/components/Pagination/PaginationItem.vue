@@ -111,6 +111,7 @@
     :data-selected="slotProps.dataSelected || undefined"
     :disabled="as === 'button' ? slotProps.disabled : undefined"
     :renderless
+    :type="as === 'button' ? 'button' : undefined"
     @click="slotProps.select"
   >
     <slot v-bind="slotProps" />

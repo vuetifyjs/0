@@ -13,7 +13,6 @@
 
   // Composables
   import { usePagination } from '#v0/composables/usePagination'
-  import { useLocale } from '#v0/composables'
   import { usePaginationItems } from './PaginationRoot.vue'
 
   // Utilities
@@ -53,7 +52,6 @@
     id = genId(),
   } = defineProps<PaginationEllipsisProps>()
 
-  const locale = useLocale()
   const pagination = usePagination(namespace)
   const items = usePaginationItems(namespace)
 
@@ -70,7 +68,6 @@
   const resolvedEllipsis = toRef(() => ellipsis ?? pagination.ellipsis)
 
   const slotProps = toRef(() => ({
-    ariaLabel: locale.t('Pagination.ellipsis', undefined, 'ellipsis indicating non-visible pages'),
     ariaHidden: 'true',
     ellipsis: resolvedEllipsis.value,
   }))
@@ -80,7 +77,6 @@
   <Atom
     ref="atom"
     :aria-hidden="slotProps.ariaHidden"
-    :aria-label="slotProps.ariaLabel"
     :as
     :renderless
   >
