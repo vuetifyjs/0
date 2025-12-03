@@ -35,9 +35,9 @@
   >
     <ul class="flex gap-2 flex-col">
       <template v-for="(nav, i) in app.nav" :key="i">
-        <div v-if="nav.divider" class="px-4">
+        <li v-if="nav.divider" class="px-4">
           <AppDivider />
-        </div>
+        </li>
 
         <AppNavLink
           v-else
