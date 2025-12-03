@@ -144,6 +144,9 @@ catalogs:
     vite-ssg:
       specifier: ^28.2.2
       version: 28.2.2
+    vite-ssg-sitemap:
+      specifier: ^0.10.0
+      version: 0.10.0
     vitest:
       specifier: ^4.0.8
       version: 4.0.8
@@ -302,6 +305,9 @@ importers:
       vite-ssg:
         specifier: 'catalog:'
         version: 28.2.2(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(sass-embedded@1.93.3)(sass@1.93.3)(terser@5.44.1)(yaml@2.8.1))(unhead@2.0.19)(vue-router@4.6.3(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))
+      vite-ssg-sitemap:
+        specifier: 'catalog:'
+        version: 0.10.0
       vue-router:
         specifier: 'catalog:'
         version: 4.6.3(vue@3.5.24(typescript@5.9.3))
@@ -4649,6 +4655,9 @@ packages:
       vite: '>=5'
       vue: ^3.0.0
       vuetify: ^3.0.0
+
+  vite-ssg-sitemap@0.10.0:
+    resolution: {integrity: sha512-OIja4fqUMcvWl5+bxQARe3LgzWTd8U/dWHWgrqiC7vv3AmTn0YnhMNUAimQ0M/0Aa9myEIAGLV0yKlYbKP8BJQ==}
 
   vite-ssg@28.2.2:
     resolution: {integrity: sha512-aZQNtNMh+fVfaXjD+FZcSaE4Pnm/x/Rj5s9ce48CWLZjztfdijmrsTbda9B9ADnUL9VZy6N5yIa7GqC3XI+PCA==}
@@ -9538,6 +9547,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
     optional: true
+
+  vite-ssg-sitemap@0.10.0: {}
 
   vite-ssg@28.2.2(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(sass-embedded@1.93.3)(sass@1.93.3)(terser@5.44.1)(yaml@2.8.1))(unhead@2.0.19)(vue-router@4.6.3(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3)):
     dependencies:

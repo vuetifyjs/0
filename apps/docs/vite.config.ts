@@ -4,6 +4,7 @@ import VueRouter from 'unplugin-vue-router/vite'
 import Components from 'unplugin-vue-components/vite'
 import Markdown from './build/markdown'
 import pkg from './package.json' with { type: 'json' }
+import generateSitemap from 'vite-ssg-sitemap'
 
 import { defineConfig } from 'vite'
 import Vue from 'unplugin-vue/rolldown'
@@ -23,6 +24,11 @@ export default defineConfig({
   },
   ssgOptions: {
     dirStyle: 'nested',
+    onFinished () {
+      generateSitemap({
+        hostname: 'https://0.vuetifyjs.com',
+      })
+    },
   } as ViteSSGOptions,
   plugins: [
     VueRouter({
