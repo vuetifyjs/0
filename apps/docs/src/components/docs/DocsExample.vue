@@ -88,9 +88,18 @@
         <AppIcon :icon="!copied ? 'copy' : 'success'" />
       </button>
       <div
-        class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:text-sm [&_pre]:leading-relaxed [&_pre]:overflow-x-auto"
+        class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto"
         v-html="highlightedCode"
       />
     </div>
   </div>
 </template>
+
+<style scoped>
+  ::v-deep(.shiki) {
+    border: none;
+    border-top: thin solid var(--v0-divider);
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+</style>
