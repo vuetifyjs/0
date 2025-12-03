@@ -28,6 +28,32 @@ The Pagination component provides a compound component pattern for building page
   <BasicExample />
 </DocsExample>
 
+## Anatomy
+
+```vue
+<script lang="ts" setup>
+  import { Pagination } from '@vuetify/v0'
+</script>
+
+<template>
+  <Pagination.Root v-slot="{ items }">
+    <Pagination.First />
+
+    <Pagination.Prev />
+
+    <template v-for="(item, index) in items" :key="index">
+      <Pagination.Ellipsis v-if="item.type === 'ellipsis'" />
+
+      <Pagination.Item v-else :value="item.value" />
+    </template>
+
+    <Pagination.Next />
+
+    <Pagination.Last />
+  </Pagination.Root>
+</template>
+```
+
 ## API
 
 | Composable | Description |
