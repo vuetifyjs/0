@@ -214,7 +214,7 @@ describe('usePagination', () => {
         { type: 'page', value: 1 },
         { type: 'page', value: 2 },
         { type: 'page', value: 3 },
-        { type: 'ellipsis', value: '…' },
+        { type: 'ellipsis', value: '...' },
         { type: 'page', value: 100 },
       ])
     })
@@ -226,7 +226,7 @@ describe('usePagination', () => {
 
       expect(pagination.items.value).toEqual([
         { type: 'page', value: 1 },
-        { type: 'ellipsis', value: '…' },
+        { type: 'ellipsis', value: '...' },
         { type: 'page', value: 98 },
         { type: 'page', value: 99 },
         { type: 'page', value: 100 },
@@ -240,9 +240,9 @@ describe('usePagination', () => {
 
       expect(pagination.items.value).toEqual([
         { type: 'page', value: 1 },
-        { type: 'ellipsis', value: '…' },
+        { type: 'ellipsis', value: '...' },
         { type: 'page', value: 50 },
-        { type: 'ellipsis', value: '…' },
+        { type: 'ellipsis', value: '...' },
         { type: 'page', value: 100 },
       ])
     })
@@ -255,7 +255,7 @@ describe('usePagination', () => {
       expect(pagination.items.value).toEqual([
         { type: 'page', value: 1 },
         { type: 'page', value: 50 },
-        { type: 'ellipsis', value: '…' },
+        { type: 'ellipsis', value: '...' },
         { type: 'page', value: 100 },
       ])
     })
@@ -266,7 +266,7 @@ describe('usePagination', () => {
 
       expect(pagination.items.value).toEqual([
         { type: 'page', value: 1 },
-        { type: 'ellipsis', value: '…' },
+        { type: 'ellipsis', value: '...' },
         { type: 'page', value: 75 },
         { type: 'page', value: 100 },
       ])
@@ -279,7 +279,7 @@ describe('usePagination', () => {
       expect(pagination.items.value).toEqual([
         { type: 'page', value: 1 },
         { type: 'page', value: 2 },
-        { type: 'ellipsis', value: '…' },
+        { type: 'ellipsis', value: '...' },
         { type: 'page', value: 100 },
       ])
     })
@@ -290,7 +290,7 @@ describe('usePagination', () => {
 
       expect(pagination.items.value).toEqual([
         { type: 'page', value: 1 },
-        { type: 'ellipsis', value: '…' },
+        { type: 'ellipsis', value: '...' },
         { type: 'page', value: 99 },
         { type: 'page', value: 100 },
       ])
@@ -386,12 +386,12 @@ describe('usePagination', () => {
       expect(pageItems.length).toBe(6) // 1, 2, 3, 4, 5, 100
     })
 
-    it('should have default ellipsis of "…"', () => {
+    it('should have default ellipsis of "..."', () => {
       // 1000 items / 10 per page = 100 pages
       const pagination = createPagination({ size: 1000, page: 50 })
 
       const ellipsis = pagination.items.value.find(item => item.type === 'ellipsis')
-      expect(ellipsis?.value).toBe('…')
+      expect(ellipsis?.value).toBe('...')
     })
   })
 
