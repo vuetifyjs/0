@@ -39,7 +39,7 @@
       ›
     </Pagination.Next>
 
-    <Pagination.Last class="w-9 h-9 rounded border border-divider flex items-center justify-center bg-surface hover:bg-surface-tint [disabled]:opacity-50 data-[disabled]:cursor-not-allowed">
+    <Pagination.Last class="w-9 h-9 rounded border border-divider flex items-center justify-center bg-surface hover:bg-surface-tint data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed">
       »
     </Pagination.Last>
   </Pagination.Root>
