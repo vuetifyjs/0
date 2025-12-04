@@ -202,6 +202,7 @@ Individual page number button.
   | Attribute | Description |
   |---|---|
   | `data-selected` | Present when this page is currently selected |
+  | `data-disabled` | Present when this item is disabled |
 
 - **Accessibility**
 
@@ -233,14 +234,12 @@ Displays ellipsis to indicate hidden page numbers.
   ```ts
   interface PaginationEllipsisSlots {
     default: (props: {
-      ariaLabel: string
       ariaHidden: string
       ellipsis: string | false
     }) => any
   }
   ```
 
-  - `ariaLabel`: Localized label describing the ellipsis
   - `ariaHidden`: Always `'true'` to hide from screen readers
   - `ellipsis`: The ellipsis character, or `false` if disabled
 
@@ -249,7 +248,6 @@ Displays ellipsis to indicate hidden page numbers.
 - **Accessibility**
 
   - `aria-hidden="true"` to hide from screen readers
-  - `aria-label` with localized description
 
 ### PaginationFirst
 

@@ -88,7 +88,7 @@
 <template>
   <Atom
     ref="atom"
-    :aria-disabled="slotProps.disabled"
+    :aria-disabled="as !== 'button' ? slotProps.disabled : undefined"
     :aria-label="slotProps.ariaLabel"
     :as
     :data-disabled="slotProps.disabled || undefined"

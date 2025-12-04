@@ -133,7 +133,7 @@ export function createPagination<
   }
 
   function last () {
-    page.value = pages.value
+    page.value = Math.max(1, pages.value)
   }
 
   function next () {
@@ -148,7 +148,7 @@ export function createPagination<
     if (value < 1) {
       page.value = 1
     } else if (value > pages.value) {
-      page.value = pages.value
+      page.value = Math.max(1, pages.value)
     } else {
       page.value = value
     }

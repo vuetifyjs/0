@@ -25,6 +25,9 @@
   import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { isNullOrUndefined } from '#v0/utilities'
 
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { RegistryContext } from '#v0/composables/useRegistry'
@@ -133,6 +136,8 @@
   })
 
   watch([() => items.size, () => overflow.width.value], () => {
+    if (!IN_BROWSER) return
+
     const el = items.seek('first')?.value as HTMLElement | undefined
     const root = overflow.container.value
     if (!el || !root) return
