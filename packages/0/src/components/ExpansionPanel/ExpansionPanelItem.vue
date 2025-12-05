@@ -16,27 +16,25 @@
 
   // Composables
   import { createContext } from '#v0/composables/createContext'
-  import { useSelection } from '#v0/composables/useSelection'
+  import { useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SelectionTicket } from '#v0/composables/useSelection'
   import type { MaybeRef, Ref } from 'vue'
 
-  export interface ExpansionPanelItemProps extends AtomProps {
+  export interface ExpansionPanelItemProps<V = unknown> extends AtomProps {
     /** Unique identifier for the panel item (auto-generated if not provided) */
     id?: string
     /** Value associated with this panel item for v-model binding */
-    value?: any
+    value?: V
     /** Disables this specific panel item */
     disabled?: MaybeRef<boolean>
     /** Namespace to retrieve the parent ExpansionPanelRoot context (default: 'v0:expansion-panel') */
     namespace?: string
-    /** Namespace for providing context to child components (default: 'v0:expansion-panel-item') */
-    itemNamespace?: string
   }
 
   /**
@@ -53,12 +51,31 @@
     /** Combined disabled state from item and parent */
     isDisabled: Readonly<Ref<boolean>>
   }
+
+  /**
+   * Slot props provided to the default slot of ExpansionPanelItem
+   */
+  export interface ExpansionPanelItemSlotProps {
+    /** Whether this panel is currently selected/expanded */
+    isSelected: boolean
+    /** Combined disabled state from item and parent */
+    isDisabled: boolean
+    /** Attributes to bind to the root element for accessibility */
+    attrs: {
+      /** Data attribute for selected state */
+      'data-selected': true | undefined
+    }
+  }
+
+  export const [useExpansionPanelItem, provideExpansionPanelItem] = createContext<ExpansionPanelItemContext>({ suffix: 'item' })
 </script>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="V = unknown">
   defineOptions({ name: 'ExpansionPanelItem' })
 
-  defineSlots<{ default: () => any }>()
+  defineSlots<{
+    default: (props: ExpansionPanelItemSlotProps) => any
+  }>()
 
   const {
     as,
@@ -67,32 +84,39 @@
     value,
     disabled,
     namespace = 'v0:expansion-panel',
-    itemNamespace = 'v0:expansion-panel-item',
-  } = defineProps<ExpansionPanelItemProps>()
+  } = defineProps<ExpansionPanelItemProps<V>>()
 
-  const expansion = useSelection(namespace)
-  const ticket = expansion.register({ id, value, disabled })
+  const selection = useExpansionPanelRoot(namespace)
+  const ticket = selection.register({ id, value, disabled })
 
   const headerId = toRef(() => `${ticket.id}-header`)
   const contentId = toRef(() => `${ticket.id}-content`)
-  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(expansion.disabled))
+  const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(selection.disabled))
 
-  const [, provideItemContext] = createContext<ExpansionPanelItemContext>(itemNamespace)
+  const slotProps = toRef((): ExpansionPanelItemSlotProps => ({
+    isSelected: ticket.isSelected.value,
+    isDisabled: isDisabled.value,
+    attrs: {
+      'data-selected': ticket.isSelected.value || undefined,
+    },
+  }))
 
-  provideItemContext({
+  onBeforeUnmount(() => selection.unregister(ticket.id))
+
+  provideExpansionPanelItem(namespace, {
     ticket,
     headerId,
     contentId,
     isDisabled,
   })
-
-  onUnmounted(() => {
-    expansion.unregister(ticket.id)
-  })
 </script>
 
 <template>
-  <Atom :as :renderless>
-    <slot />
+  <Atom
+    v-bind="slotProps.attrs"
+    :as
+    :renderless
+  >
+    <slot v-bind="slotProps" />
   </Atom>
 </template>

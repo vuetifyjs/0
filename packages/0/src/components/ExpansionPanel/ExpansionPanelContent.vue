@@ -14,29 +14,34 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { useContext } from '#v0/composables'
+  import { useExpansionPanelItem } from './ExpansionPanelItem.vue'
 
   // Utilities
   import { toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ExpansionPanelItemContext } from './ExpansionPanelItem.vue'
 
   export interface ExpansionPanelContentProps extends AtomProps {
-    /** Namespace for retrieving the parent ExpansionPanelItem context (default: 'v0:expansion-panel-item') */
-    itemNamespace?: string
+    namespace?: string
   }
 
   export interface ExpansionPanelContentSlotProps {
-    /** Unique ID for the content region */
-    'id': string
-    /** ARIA role for accessibility */
-    'role': 'region'
-    /** ARIA labelledby attribute pointing to header element */
-    'aria-labelledby': string
     /** Whether this panel is currently selected/expanded */
-    'isSelected': boolean
+    isSelected: boolean
+    /** Attributes to bind to the content element for accessibility */
+    attrs: {
+      /** Data attribute for selected state */
+      'data-selected': boolean
+      /** Unique ID for the content region */
+      'id': string
+      /** ARIA role for accessibility */
+      'role': 'region'
+      /** ARIA labelledby attribute pointing to header element */
+      'aria-labelledby': string
+      /** Whether the content is hidden */
+      'hidden': boolean
+    }
   }
 </script>
 
@@ -50,29 +55,28 @@
   const {
     as = 'div',
     renderless,
-    itemNamespace = 'v0:expansion-panel-item',
+    namespace = 'v0:expansion-panel',
   } = defineProps<ExpansionPanelContentProps>()
 
-  const context = useContext<ExpansionPanelItemContext>(itemNamespace)
+  const item = useExpansionPanelItem(namespace)
 
   const slotProps = toRef((): ExpansionPanelContentSlotProps => ({
-    'id': context.contentId.value,
-    'role': 'region',
-    'aria-labelledby': context.headerId.value,
-    'isSelected': context.ticket.isSelected.value,
+    isSelected: item.ticket.isSelected.value,
+    attrs: {
+      'data-selected': item.ticket.isSelected.value,
+      'id': item.contentId.value,
+      'role': 'region',
+      'aria-labelledby': item.headerId.value,
+      'hidden': !item.ticket.isSelected.value,
+    },
   }))
-
-  const isExpanded = toRef(() => context.ticket.isSelected.value)
 </script>
 
 <template>
   <Atom
-    :id="slotProps.id"
-    :aria-labelledby="slotProps['aria-labelledby']"
+    v-bind="slotProps.attrs"
     :as
-    :data-expanded="isExpanded ? '' : undefined"
     :renderless
-    :role="slotProps.role"
   >
     <slot v-bind="slotProps" />
   </Atom>

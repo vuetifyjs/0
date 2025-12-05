@@ -15,41 +15,52 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { useContext } from '#v0/composables'
+  import { useExpansionPanelItem } from './ExpansionPanelItem.vue'
 
   // Utilities
   import { toRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { ExpansionPanelItemContext } from './ExpansionPanelItem.vue'
 
   export interface ExpansionPanelActivatorProps extends AtomProps {
-    /** Namespace for retrieving the parent ExpansionPanelItem context (default: 'v0:expansion-panel-item') */
-    itemNamespace?: string
+    namespace?: string
   }
 
   export interface ExpansionPanelActivatorSlotProps {
-    /** Unique ID for the header/activator element */
-    'id': string
-    /** ARIA role for accessibility */
-    'role': 'button'
-    /** Tab index for keyboard navigation */
-    'tabindex': number
-    /** ARIA expanded state */
-    'aria-expanded': boolean
-    /** ARIA controls attribute pointing to content region */
-    'aria-controls': string
-    /** ARIA disabled state */
-    'aria-disabled': boolean
+    /** Disabled state */
+    isDisabled: boolean
     /** Whether this panel is currently selected/expanded */
-    'isSelected': boolean
-    /** Toggle the panel's expansion state */
-    'toggle': () => void
-    /** Click handler to toggle panel */
-    'onClick': () => void
-    /** Keyboard handler for Enter and Space keys */
-    'onKeydown': (e: KeyboardEvent) => void
+    isSelected: boolean
+    /** Toggle the panels expansion state */
+    toggle: () => void
+    /** Attributes to bind to the activator element for accessibility */
+    attrs: {
+      /** Unique ID for the header/activator element */
+      'id': string
+      /** ARIA role for accessibility (only set when not using native button) */
+      'role': 'button' | undefined
+      /** Tab index for keyboard navigation */
+      'tabindex': number
+      /** ARIA expanded state */
+      'aria-expanded': boolean
+      /** ARIA controls attribute pointing to content region */
+      'aria-controls': string
+      /** ARIA disabled state */
+      'aria-disabled': boolean
+      /** Data attribute for disabled state */
+      'data-disabled': true | undefined
+      /** Data attribute for selected state */
+      'data-selected': true | undefined
+      /** Disabled attribute for native button elements */
+      'disabled': boolean | undefined
+      /** Type attribute for native button elements */
+      'type': 'button' | undefined
+      /** Click handler to toggle panel */
+      'onClick': () => void
+      /** Keyboard handler for Enter and Space keys */
+      'onKeydown': (e: KeyboardEvent) => void
+    }
   }
 </script>
 
@@ -63,49 +74,44 @@
   const {
     as = 'button',
     renderless,
-    itemNamespace = 'v0:expansion-panel-item',
+    namespace = 'v0:expansion-panel',
   } = defineProps<ExpansionPanelActivatorProps>()
 
-  const context = useContext<ExpansionPanelItemContext>(itemNamespace)
+  const item = useExpansionPanelItem(namespace)
 
   function onKeydown (e: KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      context.ticket.toggle()
+      item.ticket.toggle()
     }
   }
 
   const slotProps = toRef((): ExpansionPanelActivatorSlotProps => ({
-    'id': context.headerId.value,
-    'role': 'button',
-    'tabindex': context.isDisabled.value ? -1 : 0,
-    'aria-expanded': context.ticket.isSelected.value,
-    'aria-controls': context.contentId.value,
-    'aria-disabled': context.isDisabled.value,
-    'isSelected': context.ticket.isSelected.value,
-    'toggle': context.ticket.toggle,
-    'onClick': context.ticket.toggle,
-    onKeydown,
+    isDisabled: item.isDisabled.value,
+    isSelected: item.ticket.isSelected.value,
+    toggle: item.ticket.toggle,
+    attrs: {
+      'id': item.headerId.value,
+      'role': as === 'button' ? undefined : 'button',
+      'tabindex': item.isDisabled.value ? -1 : 0,
+      'aria-expanded': item.ticket.isSelected.value,
+      'aria-controls': item.contentId.value,
+      'aria-disabled': item.isDisabled.value,
+      'data-disabled': item.isDisabled.value || undefined,
+      'data-selected': item.ticket.isSelected.value || undefined,
+      'disabled': as === 'button' ? item.isDisabled.value : undefined,
+      'type': as === 'button' ? 'button' : undefined,
+      'onClick': item.ticket.toggle,
+      onKeydown,
+    },
   }))
-
-  const isExpanded = toRef(() => context.ticket.isSelected.value)
-  const isDisabled = toRef(() => context.isDisabled.value)
 </script>
 
 <template>
   <Atom
-    :id="slotProps.id"
-    :aria-controls="slotProps['aria-controls']"
-    :aria-disabled="slotProps['aria-disabled']"
-    :aria-expanded="slotProps['aria-expanded']"
+    v-bind="slotProps.attrs"
     :as
-    :data-disabled="isDisabled ? '' : undefined"
-    :data-expanded="isExpanded ? '' : undefined"
     :renderless
-    :role="slotProps.role"
-    :tabindex="slotProps.tabindex"
-    @click="context.ticket.toggle"
-    @keydown="onKeydown"
   >
     <slot v-bind="slotProps" />
   </Atom>

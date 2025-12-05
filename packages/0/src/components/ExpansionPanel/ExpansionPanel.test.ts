@@ -23,7 +23,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header'),
               ),
@@ -51,12 +51,12 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () => [
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header 1'),
               ),
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-2', value: 'value-2' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header 2'),
               ),
@@ -89,7 +89,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header'),
               ),
@@ -106,7 +106,7 @@ describe('ExpansionPanel', () => {
     })
 
     describe('disabled prop', () => {
-      it('should expose disabled state via ARIA attributes', () => {
+      it('should expose disabled state via native disabled attribute on buttons', () => {
         const wrapper = mount(ExpansionPanel.Root, {
           props: {
             disabled: true,
@@ -114,7 +114,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, {}, () => 'Header'),
               ),
@@ -123,7 +123,7 @@ describe('ExpansionPanel', () => {
 
         const activator = wrapper.findComponent(ExpansionPanel.Activator)
         expect(activator.attributes('tabindex')).toBe('-1')
-        expect(activator.attributes('aria-disabled')).toBe('true')
+        expect(activator.attributes('disabled')).toBe('')
       })
 
       it('should expose disabled state in slot props', () => {
@@ -141,7 +141,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        expect(capturedProps.disabled).toBe(true)
+        expect(capturedProps.isDisabled.value).toBe(true)
       })
     })
 
@@ -162,35 +162,10 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        expect(capturedProps.disabled).toBe(false)
-        expect(capturedProps.multiple).toBe(true)
+        expect(capturedProps.isDisabled.value).toBe(false)
         expect(typeof capturedProps.select).toBe('function')
         expect(typeof capturedProps.unselect).toBe('function')
         expect(typeof capturedProps.toggle).toBe('function')
-        expect(capturedProps.ariaMultiselectable).toBe(true)
-      })
-    })
-
-    describe('ARIA attributes', () => {
-      it('should set aria-multiselectable when multiple=true', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
-          props: {
-            multiple: true,
-          },
-        })
-
-        expect(wrapper.attributes('aria-multiselectable')).toBe('true')
-      })
-
-      it('should not set aria-multiselectable when renderless=true', () => {
-        const wrapper = mount(ExpansionPanel.Root, {
-          props: {
-            multiple: true,
-            renderless: true,
-          },
-        })
-
-        expect(wrapper.attributes('aria-multiselectable')).toBeUndefined()
       })
     })
   })
@@ -202,7 +177,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -222,7 +197,7 @@ describe('ExpansionPanel', () => {
             default: () =>
               showItem.value
                 ? h(
-                    ExpansionPanel.Item,
+                    ExpansionPanel.Item as any,
                     { id: 'item-1', value: 'value-1' },
                     () => h(ExpansionPanel.Activator),
                   )
@@ -243,7 +218,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'custom-id', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -261,7 +236,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'panel-123', value: 'value' },
                 () => [h(ExpansionPanel.Activator), h(ExpansionPanel.Content)],
               ),
@@ -287,7 +262,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1', disabled: false },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -295,7 +270,7 @@ describe('ExpansionPanel', () => {
         })
 
         const activator = wrapper.findComponent(ExpansionPanel.Activator)
-        expect(activator.attributes('aria-disabled')).toBe('true')
+        expect(activator.attributes('disabled')).toBe('')
         expect(activator.attributes('tabindex')).toBe('-1')
       })
 
@@ -307,7 +282,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1', disabled: true },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -315,7 +290,7 @@ describe('ExpansionPanel', () => {
         })
 
         const activator = wrapper.findComponent(ExpansionPanel.Activator)
-        expect(activator.attributes('aria-disabled')).toBe('true')
+        expect(activator.attributes('disabled')).toBe('')
         expect(activator.attributes('tabindex')).toBe('-1')
       })
 
@@ -327,7 +302,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1', disabled: false },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -335,7 +310,7 @@ describe('ExpansionPanel', () => {
         })
 
         const activator = wrapper.findComponent(ExpansionPanel.Activator)
-        expect(activator.attributes('aria-disabled')).toBe('false')
+        expect(activator.attributes('disabled')).toBeUndefined()
         expect(activator.attributes('tabindex')).toBe('0')
       })
     })
@@ -354,7 +329,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'custom-value' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -377,7 +352,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -387,11 +362,13 @@ describe('ExpansionPanel', () => {
         const activator = wrapper.findComponent(ExpansionPanel.Activator)
 
         expect(activator.attributes('id')).toBe('item-1-header')
-        expect(activator.attributes('role')).toBe('button')
+        // Native button doesn't need role="button"
+        expect(activator.attributes('role')).toBeUndefined()
         expect(activator.attributes('tabindex')).toBe('0')
         expect(activator.attributes('aria-expanded')).toBe('false')
         expect(activator.attributes('aria-controls')).toBe('item-1-content')
-        expect(activator.attributes('aria-disabled')).toBe('false')
+        // Native button uses disabled attribute, not aria-disabled
+        expect(activator.attributes('disabled')).toBeUndefined()
       })
 
       it('should set aria-expanded=true when panel is expanded', async () => {
@@ -404,7 +381,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -417,12 +394,12 @@ describe('ExpansionPanel', () => {
         expect(activator.attributes('aria-expanded')).toBe('true')
       })
 
-      it('should set aria-disabled=true when item is disabled', () => {
+      it('should set disabled attribute when item is disabled', () => {
         const wrapper = mount(ExpansionPanel.Root, {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1', disabled: true },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -430,7 +407,8 @@ describe('ExpansionPanel', () => {
         })
 
         const activator = wrapper.findComponent(ExpansionPanel.Activator)
-        expect(activator.attributes('aria-disabled')).toBe('true')
+        // Native button uses disabled attribute, not aria-disabled
+        expect(activator.attributes('disabled')).toBe('')
         expect(activator.attributes('tabindex')).toBe('-1')
       })
 
@@ -439,7 +417,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, { renderless: true }),
               ),
@@ -467,7 +445,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -494,7 +472,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -523,7 +501,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -550,7 +528,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () =>
                   h(ExpansionPanel.Activator, {}, {
@@ -564,16 +542,19 @@ describe('ExpansionPanel', () => {
         })
 
         expect(slotProps).toBeDefined()
-        expect(slotProps.id).toBe('item-1-header')
-        expect(slotProps.role).toBe('button')
-        expect(slotProps.tabindex).toBe(0)
-        expect(slotProps['aria-expanded']).toBe(false)
-        expect(slotProps['aria-controls']).toBe('item-1-content')
-        expect(slotProps['aria-disabled']).toBe(false)
+        expect(slotProps.isDisabled).toBe(false)
         expect(slotProps.isSelected).toBe(false)
         expect(typeof slotProps.toggle).toBe('function')
-        expect(typeof slotProps.onClick).toBe('function')
-        expect(typeof slotProps.onKeydown).toBe('function')
+        // attrs for v-bind
+        expect(slotProps.attrs.id).toBe('item-1-header')
+        // Native button doesn't get role="button"
+        expect(slotProps.attrs.role).toBeUndefined()
+        expect(slotProps.attrs.tabindex).toBe(0)
+        expect(slotProps.attrs['aria-expanded']).toBe(false)
+        expect(slotProps.attrs['aria-controls']).toBe('item-1-content')
+        expect(slotProps.attrs['aria-disabled']).toBe(false)
+        expect(typeof slotProps.attrs.onClick).toBe('function')
+        expect(typeof slotProps.attrs.onKeydown).toBe('function')
       })
     })
 
@@ -583,7 +564,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator),
               ),
@@ -599,7 +580,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Activator, { as: 'div' }),
               ),
@@ -619,7 +600,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Content),
               ),
@@ -638,7 +619,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Content, { renderless: true }),
               ),
@@ -656,7 +637,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'custom-panel', value: 'value' },
                 () => [h(ExpansionPanel.Activator), h(ExpansionPanel.Content)],
               ),
@@ -681,7 +662,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () =>
                   h(ExpansionPanel.Content, {}, {
@@ -695,10 +676,11 @@ describe('ExpansionPanel', () => {
         })
 
         expect(slotProps).toBeDefined()
-        expect(slotProps.id).toBe('item-1-content')
-        expect(slotProps.role).toBe('region')
-        expect(slotProps['aria-labelledby']).toBe('item-1-header')
         expect(slotProps.isSelected).toBe(false)
+        // attrs for v-bind
+        expect(slotProps.attrs.id).toBe('item-1-content')
+        expect(slotProps.attrs.role).toBe('region')
+        expect(slotProps.attrs['aria-labelledby']).toBe('item-1-header')
       })
 
       it('should expose isSelected=true when panel is expanded', async () => {
@@ -712,7 +694,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () =>
                   h(ExpansionPanel.Content, {}, {
@@ -737,7 +719,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Content),
               ),
@@ -753,7 +735,7 @@ describe('ExpansionPanel', () => {
           slots: {
             default: () =>
               h(
-                ExpansionPanel.Item,
+                ExpansionPanel.Item as any,
                 { id: 'item-1', value: 'value-1' },
                 () => h(ExpansionPanel.Content, { as: 'section' }),
               ),
@@ -772,7 +754,7 @@ describe('ExpansionPanel', () => {
         slots: {
           default: () =>
             h(
-              ExpansionPanel.Item,
+              ExpansionPanel.Item as any,
               { id: 'panel-1', value: 'value-1' },
               () => [h(ExpansionPanel.Activator), h(ExpansionPanel.Content)],
             ),
@@ -804,7 +786,7 @@ describe('ExpansionPanel', () => {
         slots: {
           default: () => [
             h(
-              ExpansionPanel.Item,
+              ExpansionPanel.Item as any,
               { id: 'panel-1', value: 'value-1' },
               () => [
                 h(ExpansionPanel.Activator, {}, () => 'Panel 1'),
@@ -812,7 +794,7 @@ describe('ExpansionPanel', () => {
               ],
             ),
             h(
-              ExpansionPanel.Item,
+              ExpansionPanel.Item as any,
               { id: 'panel-2', value: 'value-2' },
               () => [
                 h(ExpansionPanel.Activator, {}, () => 'Panel 2'),
@@ -874,11 +856,12 @@ describe('ExpansionPanel', () => {
 
       const html = await renderToString(app)
 
-      expect(html).toContain('role="button"')
+      // Native button doesn't need role="button"
       expect(html).toContain('aria-expanded="true"')
       expect(html).toContain('aria-controls="panel-1-content"')
       expect(html).toContain('id="panel-1-header"')
       expect(html).toContain('tabindex="0"')
+      expect(html).toContain('type="button"')
     })
 
     it('should render collapsed state correctly on server', async () => {
@@ -912,7 +895,8 @@ describe('ExpansionPanel', () => {
 
       const html = await renderToString(app)
 
-      expect(html).toContain('aria-disabled="true"')
+      // Native button uses disabled attribute, not aria-disabled
+      expect(html).toContain('disabled')
       expect(html).toContain('tabindex="-1"')
     })
 
@@ -940,7 +924,6 @@ describe('ExpansionPanel', () => {
 
       const html = await renderToString(app)
 
-      expect(html).toContain('aria-multiselectable="true"')
       expect(html).toContain('Panel 1')
       expect(html).toContain('Panel 2')
       expect(html).toContain('Panel 3')

@@ -15,15 +15,22 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
+  import { createContext } from '#v0/composables/createContext'
+  import { createSelection } from '#v0/composables/useSelection'
   import { useProxyModel } from '#v0/composables/useProxyModel'
-  import { createSelectionContext } from '#v0/composables/useSelection'
 
   // Utilities
-  import { computed, toRef, toValue } from 'vue'
+  import { toRef, type Ref } from 'vue'
 
   // Types
   import type { ID } from '#v0/types'
   import type { AtomProps } from '#v0/components/Atom'
+  import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+
+  export interface ExpansionPanelOptionsContext {
+    /** Disabled state of the entire expansion panel */
+    isDisabled: Readonly<Ref<boolean>>
+  }
 
   export interface ExpansionPanelRootProps extends AtomProps {
     /** Namespace for dependency injection (default: 'v0:expansion-panel') */
@@ -50,18 +57,16 @@
 
   export interface ExpansionPanelRootSlotProps {
     /** Disables the entire expansion panel instance and all registered items */
-    disabled: boolean
-    /** Whether multiple panels can be expanded */
-    multiple: boolean
+    isDisabled: Readonly<Ref<boolean>>
     /** Select a panel by ID */
     select: (id: ID) => void
     /** Unselect a panel by ID */
     unselect: (id: ID) => void
     /** Toggle a panel's expansion state by ID */
     toggle: (id: ID) => void
-    /** ARIA multiselectable state */
-    ariaMultiselectable: boolean
   }
+
+  export const [useExpansionPanelRoot, provideExpansionPanelSelection] = createContext<SelectionContext<SelectionTicket>>()
 </script>
 
 /**
@@ -93,40 +98,33 @@
 
   const model = defineModel<T | T[]>()
 
-  const [, provideExpansionControl, context] = createSelectionContext({
-    namespace,
-    disabled: toRef(() => disabled),
+  const isDisabled = toRef(() => disabled)
+
+  const selection = createSelection({
+    disabled: isDisabled,
     enroll,
     mandatory,
     multiple,
     events: true,
   })
 
-  const bindableProps = computed<ExpansionPanelRootSlotProps>(() => ({
-    disabled: toValue(context.disabled),
-    multiple,
-    select: context.select,
-    unselect: context.unselect,
-    toggle: context.toggle,
-    ariaMultiselectable: multiple,
+  useProxyModel(selection, model, { multiple })
+
+  const slotProps = toRef((): ExpansionPanelRootSlotProps => ({
+    isDisabled,
+    select: selection.select,
+    unselect: selection.unselect,
+    toggle: selection.toggle,
   }))
 
-  useProxyModel(context, model, { multiple })
-
-  provideExpansionControl(context)
+  provideExpansionPanelSelection(namespace, selection)
 </script>
 
 <template>
   <Atom
-    :aria-multiselectable="bindableProps.ariaMultiselectable"
     :as
-    :disabled="bindableProps.disabled"
-    :multiple="bindableProps.multiple"
     :renderless
-    :select="bindableProps.select"
-    :toggle="bindableProps.toggle"
-    :unselect="bindableProps.unselect"
   >
-    <slot v-bind="bindableProps" />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>
