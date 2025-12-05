@@ -281,15 +281,21 @@ Semantic heading wrapper for the expansion panel activator. Per WAI-ARIA accordi
 - **Example**
 
   ```vue
-  <!-- Default h3 heading -->
-  <ExpansionPanel.Header>
-    <ExpansionPanel.Activator>Panel Title</ExpansionPanel.Activator>
-  </ExpansionPanel.Header>
+  <script lang="ts" setup>
+    import { ExpansionPanel } from '@vuetify/v0'
+  </script>
 
-  <!-- Custom heading level -->
-  <ExpansionPanel.Header as="h2">
-    <ExpansionPanel.Activator>Panel Title</ExpansionPanel.Activator>
-  </ExpansionPanel.Header>
+  <template>
+    <!-- Default h3 heading -->
+    <ExpansionPanel.Header>
+      <ExpansionPanel.Activator>Panel Title</ExpansionPanel.Activator>
+    </ExpansionPanel.Header>
+
+    <!-- Custom heading level -->
+    <ExpansionPanel.Header as="h2">
+      <ExpansionPanel.Activator>Panel Title</ExpansionPanel.Activator>
+    </ExpansionPanel.Header>
+  </template>
   ```
 
 ### ExpansionPanelActivator
