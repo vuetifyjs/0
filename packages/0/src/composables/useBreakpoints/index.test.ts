@@ -31,6 +31,9 @@ vi.mock('#v0/utilities', () => ({
     ...options,
   })),
   isNumber: vi.fn(value => typeof value === 'number'),
+  isString: vi.fn(value => typeof value === 'string'),
+  isObject: vi.fn(value => value !== null && typeof value === 'object'),
+  isUndefined: vi.fn(value => value === undefined),
 }))
 
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
