@@ -26,6 +26,8 @@ export default defineConfig({
       'warning': 'var(--v0-warning)',
       'background': 'var(--v0-background)',
       'surface': 'var(--v0-surface)',
+      'surface-tint': 'var(--v0-surface-tint)',
+      'divider': 'var(--v0-divider)',
       'on-primary': 'var(--v0-on-primary)',
       'on-secondary': 'var(--v0-on-secondary)',
       'on-accent': 'var(--v0-on-accent)',
@@ -35,6 +37,7 @@ export default defineConfig({
       'on-warning': 'var(--v0-on-warning)',
       'on-background': 'var(--v0-on-background)',
       'on-surface': 'var(--v0-on-surface)',
+      'on-surface-tint': 'var(--v0-on-surface-tint)',
     },
   },
 })
