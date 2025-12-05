@@ -56,6 +56,11 @@ export function isPrimitive (item: unknown): item is string | number | boolean {
 }
 
 /* #__NO_SIDE_EFFECTS__ */
+export function isSymbol (item: unknown): item is symbol {
+  return typeof item === 'symbol'
+}
+
+/* #__NO_SIDE_EFFECTS__ */
 export function isNaN (item: unknown): item is number {
   return isNumber(item) && Number.isNaN(item)
 }

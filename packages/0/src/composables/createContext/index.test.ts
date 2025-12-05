@@ -18,114 +18,190 @@ describe('createContext', () => {
     vi.clearAllMocks()
   })
 
-  it('should return inject and provide functions', () => {
-    const [injectContext, provideContext] = createContext('test')
+  describe('static key mode', () => {
+    it('should return inject and provide functions', () => {
+      const [injectContext, provideContext] = createContext('test')
 
-    expect(typeof injectContext).toBe('function')
-    expect(typeof provideContext).toBe('function')
+      expect(typeof injectContext).toBe('function')
+      expect(typeof provideContext).toBe('function')
+    })
+
+    it('should provide context value with string key', () => {
+      const [, provideContext] = createContext('test-key')
+      const testValue = { data: 'test' }
+
+      provideContext(testValue)
+
+      expect(mockProvide).toHaveBeenCalledWith('test-key', testValue)
+    })
+
+    it('should provide context value with InjectionKey', () => {
+      const injectionKey = Symbol('test-key') as any
+      const [, provideContext] = createContext(injectionKey)
+      const testValue = { data: 'test' }
+
+      provideContext(testValue)
+
+      expect(mockProvide).toHaveBeenCalledWith(injectionKey, testValue)
+    })
+
+    it('should inject context value successfully', () => {
+      const testValue = { data: 'test' }
+      mockInject.mockReturnValue(testValue)
+
+      const [injectContext] = createContext('test-key')
+      const result = injectContext()
+
+      expect(mockInject).toHaveBeenCalledWith('test-key', undefined)
+      expect(result).toBe(testValue)
+    })
+
+    it('should throw error when context is not found', () => {
+      mockInject.mockReturnValue(undefined)
+
+      const [injectContext] = createContext('missing-key')
+
+      expect(() => injectContext()).toThrow(
+        'Context "missing-key" not found. Ensure it\'s provided by an ancestor.',
+      )
+    })
+
+    it('should handle symbol key in error message', () => {
+      const symbolKey = Symbol('symbol-key')
+      mockInject.mockReturnValue(undefined)
+
+      const [injectContext] = createContext(symbolKey as any)
+
+      expect(() => injectContext()).toThrow(
+        'Context "Symbol(symbol-key)" not found. Ensure it\'s provided by an ancestor.',
+      )
+    })
+
+    it('should work with typed context', () => {
+      interface TestContext {
+        name: string
+        value: number
+      }
+
+      const [injectContext, provideContext] = createContext<TestContext>('typed-test')
+      const testValue: TestContext = { name: 'test', value: 42 }
+
+      mockInject.mockReturnValue(testValue)
+
+      provideContext(testValue)
+      const result = injectContext()
+
+      expect(mockProvide).toHaveBeenCalledWith('typed-test', testValue)
+      expect(result).toEqual(testValue)
+    })
+
+    it('should handle falsy but defined context values', () => {
+      const falsyValues = [false, 0, '', null]
+
+      for (const value of falsyValues) {
+        mockInject.mockReturnValue(value)
+        const [injectContext] = createContext(`falsy-${value}`)
+
+        expect(injectContext()).toBe(value)
+      }
+    })
+
+    it('should provide context at app level when app is provided', () => {
+      const mockApp = {
+        provide: vi.fn().mockReturnValue(true),
+      } as any
+
+      const [, provideContext] = createContext('app-level-test')
+      const testValue = { data: 'app-level' }
+
+      mockProvide.mockClear()
+      provideContext(testValue, mockApp)
+
+      expect(mockApp.provide).toHaveBeenCalledWith('app-level-test', testValue)
+      expect(mockProvide).not.toHaveBeenCalled()
+    })
+
+    it('should provide context at component level when app is not provided', () => {
+      const [, provideContext] = createContext('component-level-test')
+      const testValue = { data: 'component-level' }
+
+      provideContext(testValue)
+
+      expect(mockProvide).toHaveBeenCalledWith('component-level-test', testValue)
+    })
   })
 
-  it('should provide context value with string key', () => {
-    const [, provideContext] = createContext('test-key')
-    const testValue = { data: 'test' }
+  describe('dynamic key mode', () => {
+    it('should return inject and provide functions', () => {
+      const [injectContext, provideContext] = createContext()
 
-    provideContext(testValue)
+      expect(typeof injectContext).toBe('function')
+      expect(typeof provideContext).toBe('function')
+    })
 
-    expect(mockProvide).toHaveBeenCalledWith('test-key', testValue)
-  })
+    it('should provide context with runtime key', () => {
+      const [, provideContext] = createContext()
+      const testValue = { data: 'test' }
 
-  it('should provide context value with InjectionKey', () => {
-    const injectionKey = Symbol('test-key') as any
-    const [, provideContext] = createContext(injectionKey)
-    const testValue = { data: 'test' }
+      provideContext('runtime-key', testValue)
 
-    provideContext(testValue)
+      expect(mockProvide).toHaveBeenCalledWith('runtime-key', testValue)
+    })
 
-    expect(mockProvide).toHaveBeenCalledWith(injectionKey, testValue)
-  })
+    it('should inject context with runtime key', () => {
+      const testValue = { data: 'test' }
+      mockInject.mockReturnValue(testValue)
 
-  it('should inject context value successfully', () => {
-    const testValue = { data: 'test' }
-    mockInject.mockReturnValue(testValue)
+      const [injectContext] = createContext()
+      const result = injectContext('runtime-key')
 
-    const [injectContext] = createContext('test-key')
-    const result = injectContext()
+      expect(mockInject).toHaveBeenCalledWith('runtime-key', undefined)
+      expect(result).toBe(testValue)
+    })
 
-    expect(mockInject).toHaveBeenCalledWith('test-key', undefined)
-    expect(result).toBe(testValue)
-  })
+    it('should append suffix to runtime key when provided', () => {
+      const [, provideContext] = createContext({ suffix: 'item' })
+      const testValue = { data: 'test' }
 
-  it('should throw error when context is not found', () => {
-    mockInject.mockReturnValue(undefined)
+      provideContext('v0:panel', testValue)
 
-    const [injectContext] = createContext('missing-key')
+      expect(mockProvide).toHaveBeenCalledWith('v0:panel:item', testValue)
+    })
 
-    expect(() => injectContext()).toThrow(
-      'Context "missing-key" not found. Ensure it\'s provided by an ancestor.',
-    )
-  })
+    it('should inject with suffix appended to runtime key', () => {
+      const testValue = { data: 'test' }
+      mockInject.mockReturnValue(testValue)
 
-  it('should handle symbol key in error message', () => {
-    const symbolKey = Symbol('symbol-key')
-    mockInject.mockReturnValue(undefined)
+      const [injectContext] = createContext({ suffix: 'item' })
+      const result = injectContext('v0:panel')
 
-    const [injectContext] = createContext(symbolKey as any)
+      expect(mockInject).toHaveBeenCalledWith('v0:panel:item', undefined)
+      expect(result).toBe(testValue)
+    })
 
-    expect(() => injectContext()).toThrow(
-      'Context "Symbol(symbol-key)" not found. Ensure it\'s provided by an ancestor.',
-    )
-  })
+    it('should throw error when context is not found', () => {
+      mockInject.mockReturnValue(undefined)
 
-  it('should work with typed context', () => {
-    interface TestContext {
-      name: string
-      value: number
-    }
+      const [injectContext] = createContext()
 
-    const [injectContext, provideContext] = createContext<TestContext>('typed-test')
-    const testValue: TestContext = { name: 'test', value: 42 }
+      expect(() => injectContext('missing-key')).toThrow(
+        'Context "missing-key" not found. Ensure it\'s provided by an ancestor.',
+      )
+    })
 
-    mockInject.mockReturnValue(testValue)
+    it('should provide context at app level when app is provided', () => {
+      const mockApp = {
+        provide: vi.fn().mockReturnValue(true),
+      } as any
 
-    provideContext(testValue)
-    const result = injectContext()
+      const [, provideContext] = createContext()
+      const testValue = { data: 'app-level' }
 
-    expect(mockProvide).toHaveBeenCalledWith('typed-test', testValue)
-    expect(result).toEqual(testValue)
-  })
+      mockProvide.mockClear()
+      provideContext('app-key', testValue, mockApp)
 
-  it('should handle falsy but defined context values', () => {
-    const falsyValues = [false, 0, '', null]
-
-    for (const value of falsyValues) {
-      mockInject.mockReturnValue(value)
-      const [injectContext] = createContext(`falsy-${value}`)
-
-      expect(injectContext()).toBe(value)
-    }
-  })
-
-  it('should provide context at app level when app is provided', () => {
-    const mockApp = {
-      provide: vi.fn().mockReturnValue(true),
-    } as any
-
-    const [, provideContext] = createContext('app-level-test')
-    const testValue = { data: 'app-level' }
-
-    mockProvide.mockClear()
-    provideContext(testValue, mockApp)
-
-    expect(mockApp.provide).toHaveBeenCalledWith('app-level-test', testValue)
-    expect(mockProvide).not.toHaveBeenCalled()
-  })
-
-  it('should provide context at component level when app is not provided', () => {
-    const [, provideContext] = createContext('component-level-test')
-    const testValue = { data: 'component-level' }
-
-    provideContext(testValue)
-
-    expect(mockProvide).toHaveBeenCalledWith('component-level-test', testValue)
+      expect(mockApp.provide).toHaveBeenCalledWith('app-key', testValue)
+      expect(mockProvide).not.toHaveBeenCalled()
+    })
   })
 })
