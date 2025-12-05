@@ -111,6 +111,7 @@ declare global {
   const isSelfClosingTag: typeof import('../../packages/0/src/constants/htmlElements').isSelfClosingTag
   const isShallow: typeof import('vue').isShallow
   const isString: typeof import('../../packages/0/src/utilities/helpers').isString
+  const isSymbol: typeof import('../../packages/0/src/utilities/helpers').isSymbol
   const isUndefined: typeof import('../../packages/0/src/utilities/helpers').isUndefined
   const markRaw: typeof import('vue').markRaw
   const mergeDeep: typeof import('../../packages/0/src/utilities/helpers').mergeDeep
@@ -242,7 +243,7 @@ declare global {
   export type { Theme, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
   // @ts-ignore
-  export type { ContextKey } from '../../packages/0/src/composables/createContext/index'
+  export type { ContextKey, CreateContextOptions } from '../../packages/0/src/composables/createContext/index'
   import('../../packages/0/src/composables/createContext/index')
   // @ts-ignore
   export type { PluginOptions, Plugin } from '../../packages/0/src/composables/createPlugin/index'
@@ -452,6 +453,7 @@ declare module 'vue' {
     readonly isSelfClosingTag: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['isSelfClosingTag']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isString: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isString']>
+    readonly isSymbol: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isSymbol']>
     readonly isUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isUndefined']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly mergeDeep: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']>

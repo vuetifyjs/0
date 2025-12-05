@@ -17,6 +17,7 @@ declare module 'vue' {
     AvatarRoot: typeof import('./../../packages/0/src/components/Avatar/AvatarRoot.vue')['default']
     ExpansionPanelActivator: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelActivator.vue')['default']
     ExpansionPanelContent: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelContent.vue')['default']
+    ExpansionPanelHeader: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelHeader.vue')['default']
     ExpansionPanelItem: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelItem.vue')['default']
     ExpansionPanelRoot: typeof import('./../../packages/0/src/components/ExpansionPanel/ExpansionPanelRoot.vue')['default']
     GroupItem: typeof import('./../../packages/0/src/components/Group/GroupItem.vue')['default']

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { ref } from 'vue'
   import { ExpansionPanel } from '@vuetify/v0'
 
   const panels = [
@@ -7,14 +6,12 @@
     { id: 'panel-2', title: 'Panel 2', content: 'This is the content for panel 2.' },
     { id: 'panel-3', title: 'Panel 3', content: 'This is the content for panel 3.' },
   ]
-
-  const model = ref(['panel-2'])
 </script>
 
 <template>
   <ExpansionPanel.Root
-    v-model="model"
     class="border border-divider rounded-lg border-solid overflow-hidden divide-y divide-divider"
+    :model-value="['panel-1', 'panel-3']"
     multiple
   >
     <ExpansionPanel.Item
@@ -40,8 +37,4 @@
       </ExpansionPanel.Content>
     </ExpansionPanel.Item>
   </ExpansionPanel.Root>
-
-  <p class="mt-4 text-sm text-on-surface opacity-60">
-    Expanded: {{ model.join(', ') }}
-  </p>
 </template>
