@@ -7,41 +7,61 @@
  * sequential navigation through step controls. Automatically unregisters on unmount.
  */
 
+<script lang="ts">
+  // Types
+  import type { MaybeRef } from 'vue'
+
+  export interface StepItemProps<V = unknown> {
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
+    /** Optional display label (passed through to slot, not used in registration) */
+    label?: string
+    /** Value associated with this item */
+    value?: V
+    /** Disables this specific item */
+    disabled?: MaybeRef<boolean>
+    /** Namespace for dependency injection */
+    namespace?: string
+  }
+
+  export interface StepItemSlotProps<V = unknown> {
+    /** Unique identifier */
+    id: string
+    /** Optional display label */
+    label?: string
+    /** Value associated with this item */
+    value: V | undefined
+    /** Whether this item is currently selected */
+    isSelected: boolean
+    /** Whether this item is disabled */
+    isDisabled: boolean
+    /** Select this item */
+    select: () => void
+    /** Unselect this item */
+    unselect: () => void
+    /** Toggle this item's step state */
+    toggle: () => void
+    /** Attributes to bind to the item element */
+    attrs: {
+      'aria-selected': boolean
+      'aria-disabled': boolean
+      'data-selected': true | undefined
+      'data-disabled': true | undefined
+    }
+  }
+</script>
+
 <script lang="ts" setup generic="V = unknown">
   // Composables
-  import { useStep } from '#v0/composables/useStep'
+  import { useStepRoot } from './StepRoot.vue'
 
   // Utilities
   import { onUnmounted, toRef, toValue } from 'vue'
 
-  // Types
-  import type { MaybeRef } from 'vue'
-
   defineOptions({ name: 'StepItem' })
 
   defineSlots<{
-    default: (props: {
-      /** Unique identifier (auto-generated if not provided) */
-      id: string
-      /** Optional display label (passed through to slot, not used in registration) */
-      label?: string
-      /** Value associated with this item */
-      value: V | undefined
-      /** Whether this item is currently selected */
-      isSelected: boolean
-      /** Disables this specific item */
-      disabled: boolean
-      /** ARIA disabled state */
-      ariaSelected: boolean
-      /** ARIA selected state */
-      ariaDisabled: boolean
-      /** Select this item */
-      select: () => void
-      /** Unselect this item */
-      unselect: () => void
-      /** Toggle this item's step state */
-      toggle: () => void
-    }) => unknown
+    default: (props: StepItemSlotProps<V>) => unknown
   }>()
 
   const {
@@ -50,39 +70,34 @@
     value,
     disabled,
     namespace = 'v0:step',
-  } = defineProps<{
-    /** Optional display label (passed through to slot, not used in registration) */
-    label?: string
-    /** Unique identifier (auto-generated if not provided) */
-    id?: string
-    /** Disables this specific item */
-    disabled?: MaybeRef<boolean>
-    /** Value associated with this item */
-    value?: V
-    /** Namespace for dependency injection */
-    namespace?: string
-  }>()
+  } = defineProps<StepItemProps<V>>()
 
-  const step = useStep(namespace)
+  const step = useStepRoot(namespace)
   const ticket = step.register({ id, value, disabled })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(step.disabled))
 
   onUnmounted(() => {
     step.unregister(ticket.id)
   })
+
+  const slotProps = toRef((): StepItemSlotProps<V> => ({
+    id: String(ticket.id),
+    label,
+    value,
+    isSelected: toValue(ticket.isSelected),
+    isDisabled: toValue(isDisabled),
+    select: ticket.select,
+    unselect: ticket.unselect,
+    toggle: ticket.toggle,
+    attrs: {
+      'aria-selected': toValue(ticket.isSelected),
+      'aria-disabled': toValue(isDisabled),
+      'data-selected': toValue(ticket.isSelected) || undefined,
+      'data-disabled': toValue(isDisabled) || undefined,
+    },
+  }))
 </script>
 
 <template>
-  <slot
-    :id="String(ticket.id)"
-    :aria-disabled="toValue(isDisabled)"
-    :aria-selected="toValue(ticket.isSelected)"
-    :disabled="toValue(isDisabled)"
-    :is-selected="toValue(ticket.isSelected)"
-    :label
-    :select="ticket.select"
-    :toggle="ticket.toggle"
-    :unselect="ticket.unselect"
-    :value
-  />
+  <slot v-bind="slotProps" />
 </template>
