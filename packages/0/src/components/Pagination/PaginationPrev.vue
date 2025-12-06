@@ -12,8 +12,7 @@
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
-  import { usePagination } from '#v0/composables/usePagination'
-  import { usePaginationControls } from './PaginationRoot.vue'
+  import { usePagination, usePaginationControls } from './PaginationRoot.vue'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -31,22 +30,30 @@
     id?: string
   }
 
-  export interface PaginationPrevSlots {
-    default: (props: {
-      /** Localized label for the button */
-      ariaLabel: string
-      /** Whether already on first page */
-      disabled: boolean
-      /** Go to previous page */
-      onClick: () => void
-    }) => any
+  export interface PaginationPrevSlotProps {
+    /** Whether button is disabled */
+    isDisabled: boolean
+    /** Go to previous page */
+    prev: () => void
+    /** Attributes to bind to the button element */
+    attrs: {
+      'aria-label': string
+      'aria-disabled': boolean | undefined
+      'data-disabled': true | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
+      'onClick': () => void
+    }
   }
+
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'PaginationPrev' })
 
-  defineSlots<PaginationPrevSlots>()
+  defineSlots<{
+    default: (props: PaginationPrevSlotProps) => any
+  }>()
 
   const {
     as = 'button',
@@ -68,34 +75,36 @@
     controls.register({ id, value: el })
   }, { immediate: true })
 
-  onBeforeUnmount(() => controls.unregister(id))
-
   const isDisabled = toRef(() => disabled || pagination.isFirst.value)
 
-  function onClick () {
+  function prev () {
     if (isDisabled.value) return
 
     pagination.prev()
   }
 
-  const slotProps = toRef(() => ({
-    ariaLabel: locale.t('Pagination.prev', undefined, 'Go to previous page'),
-    disabled: isDisabled.value,
-    onClick,
+  const slotProps = toRef((): PaginationPrevSlotProps => ({
+    isDisabled: isDisabled.value,
+    prev,
+    attrs: {
+      'aria-label': locale.t('Pagination.prev', undefined, 'Go to previous page'),
+      'aria-disabled': as === 'button' ? undefined : isDisabled.value,
+      'data-disabled': isDisabled.value || undefined,
+      'disabled': as === 'button' ? isDisabled.value : undefined,
+      'type': as === 'button' ? 'button' : undefined,
+      'onClick': prev,
+    },
   }))
+
+  onBeforeUnmount(() => controls.unregister(id))
 </script>
 
 <template>
   <Atom
     ref="atom"
-    :aria-disabled="as !== 'button' ? slotProps.disabled : undefined"
-    :aria-label="slotProps.ariaLabel"
+    v-bind="slotProps.attrs"
     :as
-    :data-disabled="slotProps.disabled || undefined"
-    :disabled="as === 'button' ? slotProps.disabled : undefined"
     :renderless
-    :type="as === 'button' ? 'button' : undefined"
-    @click="slotProps.onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

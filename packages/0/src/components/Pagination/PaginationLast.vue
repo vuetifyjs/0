@@ -12,8 +12,7 @@
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
-  import { usePagination } from '#v0/composables/usePagination'
-  import { usePaginationControls } from './PaginationRoot.vue'
+  import { usePagination, usePaginationControls } from './PaginationRoot.vue'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -31,22 +30,30 @@
     id?: string
   }
 
-  export interface PaginationLastSlots {
-    default: (props: {
-      /** Localized label for the button */
-      ariaLabel: string
-      /** Whether already on last page */
-      disabled: boolean
-      /** Go to last page */
-      onClick: () => void
-    }) => any
+  export interface PaginationLastSlotProps {
+    /** Whether button is disabled */
+    isDisabled: boolean
+    /** Go to last page */
+    last: () => void
+    /** Attributes to bind to the button element */
+    attrs: {
+      'aria-label': string
+      'aria-disabled': boolean | undefined
+      'data-disabled': true | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
+      'onClick': () => void
+    }
   }
+
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'PaginationLast' })
 
-  defineSlots<PaginationLastSlots>()
+  defineSlots<{
+    default: (props: PaginationLastSlotProps) => any
+  }>()
 
   const {
     as = 'button',
@@ -68,34 +75,36 @@
     controls.register({ id, value: el })
   }, { immediate: true })
 
-  onBeforeUnmount(() => controls.unregister(id))
-
   const isDisabled = toRef(() => disabled || pagination.isLast.value)
 
-  function onClick () {
+  function last () {
     if (isDisabled.value) return
 
     pagination.last()
   }
 
-  const slotProps = toRef(() => ({
-    ariaLabel: locale.t('Pagination.last', undefined, 'Go to last page'),
-    disabled: isDisabled.value,
-    onClick,
+  const slotProps = toRef((): PaginationLastSlotProps => ({
+    isDisabled: isDisabled.value,
+    last,
+    attrs: {
+      'aria-label': locale.t('Pagination.last', undefined, 'Go to last page'),
+      'aria-disabled': as === 'button' ? undefined : isDisabled.value,
+      'data-disabled': isDisabled.value || undefined,
+      'disabled': as === 'button' ? isDisabled.value : undefined,
+      'type': as === 'button' ? 'button' : undefined,
+      'onClick': last,
+    },
   }))
+
+  onBeforeUnmount(() => controls.unregister(id))
 </script>
 
 <template>
   <Atom
     ref="atom"
-    :aria-disabled="as !== 'button' ? slotProps.disabled : undefined"
-    :aria-label="slotProps.ariaLabel"
+    v-bind="slotProps.attrs"
     :as
-    :data-disabled="slotProps.disabled || undefined"
-    :disabled="as === 'button' ? slotProps.disabled : undefined"
     :renderless
-    :type="as === 'button' ? 'button' : undefined"
-    @click="slotProps.onClick"
   >
     <slot v-bind="slotProps" />
   </Atom>

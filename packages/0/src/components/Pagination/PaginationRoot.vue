@@ -15,11 +15,11 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { createPaginationContext } from '#v0/composables/usePagination'
-  import { createRegistryContext } from '#v0/composables/useRegistry'
+  import { createContext } from '#v0/composables/createContext'
   import { createOverflow } from '#v0/composables/useOverflow'
+  import { createPagination } from '#v0/composables/usePagination'
   import { useLocale } from '#v0/composables/useLocale'
-  import { useContext } from '#v0/composables'
+  import { useRegistry } from '#v0/composables/useRegistry'
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
@@ -31,15 +31,11 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { RegistryContext } from '#v0/composables/useRegistry'
-  import type { PaginationItem } from '#v0/composables/usePagination'
+  import type { PaginationContext, PaginationItem } from '#v0/composables/usePagination'
 
-  export function usePaginationControls (namespace: string) {
-    return useContext<RegistryContext>(`${namespace}:controls`)
-  }
-
-  export function usePaginationItems (namespace: string) {
-    return useContext<RegistryContext>(`${namespace}:items`)
-  }
+  export const [usePagination, providePagination] = createContext<PaginationContext>()
+  export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })
+  export const [usePaginationItems, providePaginationItems] = createContext<RegistryContext>({ suffix: 'items' })
 
   export interface PaginationRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -57,46 +53,48 @@
     ellipsis?: string | false
   }
 
-  export interface PaginationRootSlots {
-    default: (props: {
-      /** ARIA label for the navigation region */
-      ariaLabel: string
-      /** Current page (1-indexed) */
-      page: number
-      /** Total number of items */
-      size: number
-      /** Total number of pages */
-      pages: number
-      /** Items per page */
-      itemsPerPage: number
-      /** Visible page items for rendering */
-      items: PaginationItem[]
-      /** Start index of items on current page (0-indexed) */
-      pageStart: number
-      /** End index of items on current page (exclusive) */
-      pageStop: number
-      /** Whether on first page */
-      isFirst: boolean
-      /** Whether on last page */
-      isLast: boolean
-      /** Go to first page */
-      first: () => void
-      /** Go to last page */
-      last: () => void
-      /** Go to next page */
-      next: () => void
-      /** Go to previous page */
-      prev: () => void
-      /** Go to specific page */
-      select: (page: number) => void
-    }) => any
+  export interface PaginationRootSlotProps {
+    /** Current page (1-indexed) */
+    page: number
+    /** Total number of items */
+    size: number
+    /** Total number of pages */
+    pages: number
+    /** Items per page */
+    itemsPerPage: number
+    /** Visible page items for rendering */
+    items: PaginationItem[]
+    /** Start index of items on current page (0-indexed) */
+    pageStart: number
+    /** End index of items on current page (exclusive) */
+    pageStop: number
+    /** Whether on first page */
+    isFirst: boolean
+    /** Whether on last page */
+    isLast: boolean
+    /** Go to first page */
+    first: () => void
+    /** Go to last page */
+    last: () => void
+    /** Go to next page */
+    next: () => void
+    /** Go to previous page */
+    prev: () => void
+    /** Go to specific page */
+    select: (page: number) => void
+    /** Attributes to bind to the root element */
+    attrs: {
+      'aria-label': string
+    }
   }
 </script>
 
 <script setup lang="ts" generic="T = unknown">
   defineOptions({ name: 'PaginationRoot' })
 
-  defineSlots<PaginationRootSlots>()
+  defineSlots<{
+    default: (props: PaginationRootSlotProps) => any
+  }>()
 
   defineEmits<{
     /** Emitted when the pagination changes */
@@ -115,19 +113,13 @@
 
   const page = defineModel<number>({ default: 1 })
 
-  const itemWidth = shallowRef(0)
-  const itemGap = shallowRef(0)
+  const locale = useLocale()
+  const controls = useRegistry()
+  const items = useRegistry()
 
   const atom = useTemplateRef<AtomExpose>('atom')
-  const locale = useLocale()
-
-  const [, provideControlContext, controls] = createRegistryContext({
-    namespace: `${namespace}:controls`,
-  })
-
-  const [, provideItemContext, items] = createRegistryContext({
-    namespace: `${namespace}:items`,
-  })
+  const itemWidth = shallowRef(0)
+  const itemGap = shallowRef(0)
 
   const overflow = createOverflow({
     container: () => atom.value?.element as Element | undefined,
@@ -168,8 +160,7 @@
     return noVisible ? 1 : totalVisible
   })
 
-  const [, providePaginationContext, pagination] = createPaginationContext({
-    namespace,
+  const pagination = createPagination({
     page,
     visible,
     ellipsis,
@@ -177,8 +168,7 @@
     itemsPerPage: () => itemsPerPage,
   })
 
-  const slotProps = toRef(() => ({
-    ariaLabel: locale.t('Pagination.label', undefined, 'Pagination'),
+  const slotProps = toRef((): PaginationRootSlotProps => ({
     page: pagination.page.value,
     size: pagination.size,
     pages: pagination.pages,
@@ -193,17 +183,20 @@
     next: pagination.next,
     prev: pagination.prev,
     select: pagination.select,
+    attrs: {
+      'aria-label': locale.t('Pagination.label', undefined, 'Pagination'),
+    },
   }))
 
-  providePaginationContext()
-  provideControlContext()
-  provideItemContext()
+  providePagination(namespace, pagination)
+  providePaginationControls(namespace, controls)
+  providePaginationItems(namespace, items)
 </script>
 
 <template>
   <Atom
     ref="atom"
-    :aria-label="slotProps.ariaLabel"
+    v-bind="slotProps.attrs"
     :as
     :renderless
   >

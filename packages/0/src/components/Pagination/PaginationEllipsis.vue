@@ -12,8 +12,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { usePagination } from '#v0/composables/usePagination'
-  import { usePaginationItems } from './PaginationRoot.vue'
+  import { usePagination, usePaginationItems } from './PaginationRoot.vue'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -31,18 +30,23 @@
     id?: string
   }
 
-  export interface PaginationEllipsisSlots {
-    default: (props: {
-      /** Ellipsis character */
-      ellipsis: string | false
-    }) => any
+  export interface PaginationEllipsisSlotProps {
+    /** Ellipsis character */
+    ellipsis: string | false
+    /** Attributes to bind to the ellipsis element */
+    attrs: {
+      'aria-hidden': 'true'
+    }
   }
+
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'PaginationEllipsis' })
 
-  defineSlots<PaginationEllipsisSlots>()
+  defineSlots<{
+    default: (props: PaginationEllipsisSlotProps) => any
+  }>()
 
   const {
     as = 'span',
@@ -63,20 +67,22 @@
     items.register({ id, value: el })
   }, { immediate: true })
 
-  onBeforeUnmount(() => items.unregister(id))
-
   const resolvedEllipsis = toRef(() => ellipsis ?? pagination.ellipsis)
 
-  const slotProps = toRef(() => ({
-    ariaHidden: 'true',
+  const slotProps = toRef((): PaginationEllipsisSlotProps => ({
     ellipsis: resolvedEllipsis.value,
+    attrs: {
+      'aria-hidden': 'true',
+    },
   }))
+
+  onBeforeUnmount(() => items.unregister(id))
 </script>
 
 <template>
   <Atom
     ref="atom"
-    :aria-hidden="slotProps.ariaHidden"
+    v-bind="slotProps.attrs"
     :as
     :renderless
   >

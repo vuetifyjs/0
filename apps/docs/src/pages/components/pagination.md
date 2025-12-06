@@ -60,8 +60,8 @@ The Pagination component provides a compound component pattern for building page
 
 | Composable | Description |
 |---|---|
-| [usePagination](/composables/utilities/use-pagination) | The underlying composable used by Pagination |
 | [useOverflow](/composables/utilities/use-overflow) | Used for responsive auto-sizing of visible page buttons |
+| [usePagination](/composables/utilities/use-pagination) | The underlying composable used by Pagination |
 
 ### PaginationRoot
 
@@ -69,8 +69,12 @@ The root component that manages pagination state and provides context to child c
 
 - **Props**
 
+  Extends `AtomProps`:
+
   ```ts
   interface PaginationRootProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
     namespace?: string
     size?: number
     totalVisible?: number
@@ -115,31 +119,30 @@ The root component that manages pagination state and provides context to child c
   </template>
   ```
 
-- **Slots**
+- **Slot Props**
 
   ```ts
-  interface PaginationRootSlots {
-    default: (props: {
-      ariaLabel: string
-      page: number
-      size: number
-      pages: number
-      itemsPerPage: number
-      items: PaginationItem[]
-      pageStart: number
-      pageStop: number
-      isFirst: boolean
-      isLast: boolean
-      first: () => void
-      last: () => void
-      next: () => void
-      prev: () => void
-      select: (page: number) => void
-    }) => any
+  interface PaginationRootSlotProps {
+    page: number
+    size: number
+    pages: number
+    itemsPerPage: number
+    items: PaginationItem[]
+    pageStart: number
+    pageStop: number
+    isFirst: boolean
+    isLast: boolean
+    first: () => void
+    last: () => void
+    next: () => void
+    prev: () => void
+    select: (page: number) => void
+    attrs: {
+      'aria-label': string
+    }
   }
   ```
 
-  - `ariaLabel`: Localized label for the navigation region
   - `page`: Current page number (1-indexed)
   - `size`: Total number of items
   - `pages`: Total number of pages (computed from size / itemsPerPage)
@@ -150,6 +153,7 @@ The root component that manages pagination state and provides context to child c
   - `isFirst`: Whether on the first page
   - `isLast`: Whether on the last page
   - `first`, `last`, `next`, `prev`, `select`: Navigation methods
+  - `attrs`: Object containing attributes to bind to the root element
 
 ### PaginationItem
 
@@ -157,8 +161,12 @@ Individual page number button.
 
 - **Props**
 
+  Extends `AtomProps`:
+
   ```ts
   interface PaginationItemProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
     namespace?: string
     value: number
     disabled?: boolean
@@ -173,29 +181,31 @@ Individual page number button.
   - `disabled`: Override disabled state
   - `id`: Unique identifier for registration (auto-generated if not provided)
 
-- **Slots**
+- **Slot Props**
 
   ```ts
-  interface PaginationItemSlots {
-    default: (props: {
-      ariaLabel: string
-      ariaCurrent: 'page' | undefined
-      page: number
-      isSelected: boolean
-      dataSelected: boolean
-      disabled: boolean
-      select: () => void
-    }) => any
+  interface PaginationItemSlotProps {
+    page: number
+    isSelected: boolean
+    isDisabled: boolean
+    select: () => void
+    attrs: {
+      'aria-label': string
+      'aria-current': 'page' | undefined
+      'data-selected': true | undefined
+      'data-disabled': true | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
+      'onClick': () => void
+    }
   }
   ```
 
-  - `ariaLabel`: Localized label (changes based on selection state)
-  - `ariaCurrent`: `'page'` when selected, `undefined` otherwise
   - `page`: Page number
   - `isSelected`: Whether this page is currently selected
-  - `dataSelected`: Same as isSelected (for data attribute binding)
-  - `disabled`: Whether this item is disabled
+  - `isDisabled`: Whether this item is disabled
   - `select`: Go to this page
+  - `attrs`: Object containing all bindable attributes including ARIA attributes and event handlers
 
 - **Data Attributes**
 
@@ -209,14 +219,49 @@ Individual page number button.
   - `aria-current="page"` when selected
   - `aria-label` with localized text (e.g., "Go to page 5" or "Page 5, current page")
 
+- **Example**
+
+  ```vue
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Simple usage -->
+    <Pagination.Item :value="1">1</Pagination.Item>
+
+    <!-- With slot props -->
+    <Pagination.Item :value="2" v-slot="{ isSelected }">
+      <span :class="{ 'font-bold': isSelected }">2</span>
+    </Pagination.Item>
+
+    <!-- With data attributes for styling -->
+    <Pagination.Item
+      :value="3"
+      class="data-[selected]:bg-blue-500 data-[selected]:text-white"
+    >
+      3
+    </Pagination.Item>
+
+    <!-- Renderless mode with attrs spread -->
+    <Pagination.Item :value="4" renderless v-slot="{ attrs }">
+      <MyCustomButton v-bind="attrs">4</MyCustomButton>
+    </Pagination.Item>
+  </template>
+  ```
+
 ### PaginationEllipsis
 
 Displays ellipsis to indicate hidden page numbers.
 
 - **Props**
 
+  Extends `AtomProps`:
+
   ```ts
   interface PaginationEllipsisProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
     namespace?: string
     ellipsis?: string
     id?: string
@@ -229,19 +274,19 @@ Displays ellipsis to indicate hidden page numbers.
   - `ellipsis`: Override the ellipsis character from context
   - `id`: Unique identifier for registration (auto-generated if not provided)
 
-- **Slots**
+- **Slot Props**
 
   ```ts
-  interface PaginationEllipsisSlots {
-    default: (props: {
-      ariaHidden: string
-      ellipsis: string | false
-    }) => any
+  interface PaginationEllipsisSlotProps {
+    ellipsis: string | false
+    attrs: {
+      'aria-hidden': 'true'
+    }
   }
   ```
 
-  - `ariaHidden`: Always `'true'` to hide from screen readers
   - `ellipsis`: The ellipsis character, or `false` if disabled
+  - `attrs`: Object containing attributes to bind to the element
 
   Note: When `ellipsis: false` is set on PaginationRoot, no ellipsis items are generated, so this component won't render.
 
@@ -249,14 +294,39 @@ Displays ellipsis to indicate hidden page numbers.
 
   - `aria-hidden="true"` to hide from screen readers
 
+- **Example**
+
+  ```vue
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Uses default "..." from Root -->
+    <Pagination.Ellipsis />
+
+    <!-- Override ellipsis character -->
+    <Pagination.Ellipsis ellipsis="…" />
+
+    <!-- Custom rendering with slot props -->
+    <Pagination.Ellipsis v-slot="{ ellipsis, attrs }">
+      <span v-bind="attrs" class="px-2">{{ ellipsis }}</span>
+    </Pagination.Ellipsis>
+  </template>
+  ```
+
 ### PaginationFirst
 
 Button to navigate to the first page.
 
 - **Props**
 
+  Extends `AtomProps`:
+
   ```ts
   interface PaginationFirstProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
     namespace?: string
     disabled?: boolean
     id?: string
@@ -269,21 +339,26 @@ Button to navigate to the first page.
   - `disabled`: Override disabled state (defaults to `isFirst`)
   - `id`: Unique identifier for registration (auto-generated if not provided)
 
-- **Slots**
+- **Slot Props**
 
   ```ts
-  interface PaginationFirstSlots {
-    default: (props: {
-      ariaLabel: string
-      disabled: boolean
-      onClick: () => void
-    }) => any
+  interface PaginationFirstSlotProps {
+    isDisabled: boolean
+    first: () => void
+    attrs: {
+      'aria-label': string
+      'aria-disabled': boolean | undefined
+      'data-disabled': true | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
+      'onClick': () => void
+    }
   }
   ```
 
-  - `ariaLabel`: Localized label for the button
-  - `disabled`: Whether the button is disabled
-  - `onClick`: Go to first page
+  - `isDisabled`: Whether the button is disabled
+  - `first`: Go to first page
+  - `attrs`: Object containing all bindable attributes including ARIA attributes and event handlers
 
 - **Data Attributes**
 
@@ -294,7 +369,36 @@ Button to navigate to the first page.
 - **Accessibility**
 
   - `aria-label` with localized text (e.g., "Go to first page")
-  - `aria-disabled` when disabled
+  - `aria-disabled` when disabled (for non-button elements)
+  - Native `disabled` attribute for button elements
+
+- **Example**
+
+  ```vue
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Simple usage -->
+    <Pagination.First>«</Pagination.First>
+
+    <!-- With slot props -->
+    <Pagination.First v-slot="{ isDisabled }">
+      <span :class="{ 'opacity-50': isDisabled }">«</span>
+    </Pagination.First>
+
+    <!-- With data attributes for styling -->
+    <Pagination.First class="data-[disabled]:opacity-50">
+      First
+    </Pagination.First>
+
+    <!-- Renderless mode with attrs spread -->
+    <Pagination.First renderless v-slot="{ attrs }">
+      <MyCustomButton v-bind="attrs">«</MyCustomButton>
+    </Pagination.First>
+  </template>
+  ```
 
 ### PaginationPrev
 
@@ -302,8 +406,12 @@ Button to navigate to the previous page.
 
 - **Props**
 
+  Extends `AtomProps`:
+
   ```ts
   interface PaginationPrevProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
     namespace?: string
     disabled?: boolean
     id?: string
@@ -316,21 +424,26 @@ Button to navigate to the previous page.
   - `disabled`: Override disabled state (defaults to `isFirst`)
   - `id`: Unique identifier for registration (auto-generated if not provided)
 
-- **Slots**
+- **Slot Props**
 
   ```ts
-  interface PaginationPrevSlots {
-    default: (props: {
-      ariaLabel: string
-      disabled: boolean
-      onClick: () => void
-    }) => any
+  interface PaginationPrevSlotProps {
+    isDisabled: boolean
+    prev: () => void
+    attrs: {
+      'aria-label': string
+      'aria-disabled': boolean | undefined
+      'data-disabled': true | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
+      'onClick': () => void
+    }
   }
   ```
 
-  - `ariaLabel`: Localized label for the button
-  - `disabled`: Whether the button is disabled
-  - `onClick`: Go to previous page
+  - `isDisabled`: Whether the button is disabled
+  - `prev`: Go to previous page
+  - `attrs`: Object containing all bindable attributes including ARIA attributes and event handlers
 
 - **Data Attributes**
 
@@ -341,7 +454,36 @@ Button to navigate to the previous page.
 - **Accessibility**
 
   - `aria-label` with localized text (e.g., "Go to previous page")
-  - `aria-disabled` when disabled
+  - `aria-disabled` when disabled (for non-button elements)
+  - Native `disabled` attribute for button elements
+
+- **Example**
+
+  ```vue
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Simple usage -->
+    <Pagination.Prev>‹</Pagination.Prev>
+
+    <!-- With slot props -->
+    <Pagination.Prev v-slot="{ isDisabled }">
+      <span :class="{ 'opacity-50': isDisabled }">‹</span>
+    </Pagination.Prev>
+
+    <!-- With data attributes for styling -->
+    <Pagination.Prev class="data-[disabled]:opacity-50">
+      Prev
+    </Pagination.Prev>
+
+    <!-- Renderless mode with attrs spread -->
+    <Pagination.Prev renderless v-slot="{ attrs }">
+      <MyCustomButton v-bind="attrs">‹</MyCustomButton>
+    </Pagination.Prev>
+  </template>
+  ```
 
 ### PaginationNext
 
@@ -349,8 +491,12 @@ Button to navigate to the next page.
 
 - **Props**
 
+  Extends `AtomProps`:
+
   ```ts
   interface PaginationNextProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
     namespace?: string
     disabled?: boolean
     id?: string
@@ -363,21 +509,26 @@ Button to navigate to the next page.
   - `disabled`: Override disabled state (defaults to `isLast`)
   - `id`: Unique identifier for registration (auto-generated if not provided)
 
-- **Slots**
+- **Slot Props**
 
   ```ts
-  interface PaginationNextSlots {
-    default: (props: {
-      ariaLabel: string
-      disabled: boolean
-      onClick: () => void
-    }) => any
+  interface PaginationNextSlotProps {
+    isDisabled: boolean
+    next: () => void
+    attrs: {
+      'aria-label': string
+      'aria-disabled': boolean | undefined
+      'data-disabled': true | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
+      'onClick': () => void
+    }
   }
   ```
 
-  - `ariaLabel`: Localized label for the button
-  - `disabled`: Whether the button is disabled
-  - `onClick`: Go to next page
+  - `isDisabled`: Whether the button is disabled
+  - `next`: Go to next page
+  - `attrs`: Object containing all bindable attributes including ARIA attributes and event handlers
 
 - **Data Attributes**
 
@@ -388,7 +539,36 @@ Button to navigate to the next page.
 - **Accessibility**
 
   - `aria-label` with localized text (e.g., "Go to next page")
-  - `aria-disabled` when disabled
+  - `aria-disabled` when disabled (for non-button elements)
+  - Native `disabled` attribute for button elements
+
+- **Example**
+
+  ```vue
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Simple usage -->
+    <Pagination.Next>›</Pagination.Next>
+
+    <!-- With slot props -->
+    <Pagination.Next v-slot="{ isDisabled }">
+      <span :class="{ 'opacity-50': isDisabled }">›</span>
+    </Pagination.Next>
+
+    <!-- With data attributes for styling -->
+    <Pagination.Next class="data-[disabled]:opacity-50">
+      Next
+    </Pagination.Next>
+
+    <!-- Renderless mode with attrs spread -->
+    <Pagination.Next renderless v-slot="{ attrs }">
+      <MyCustomButton v-bind="attrs">›</MyCustomButton>
+    </Pagination.Next>
+  </template>
+  ```
 
 ### PaginationLast
 
@@ -396,8 +576,12 @@ Button to navigate to the last page.
 
 - **Props**
 
+  Extends `AtomProps`:
+
   ```ts
   interface PaginationLastProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
     namespace?: string
     disabled?: boolean
     id?: string
@@ -410,21 +594,26 @@ Button to navigate to the last page.
   - `disabled`: Override disabled state (defaults to `isLast`)
   - `id`: Unique identifier for registration (auto-generated if not provided)
 
-- **Slots**
+- **Slot Props**
 
   ```ts
-  interface PaginationLastSlots {
-    default: (props: {
-      ariaLabel: string
-      disabled: boolean
-      onClick: () => void
-    }) => any
+  interface PaginationLastSlotProps {
+    isDisabled: boolean
+    last: () => void
+    attrs: {
+      'aria-label': string
+      'aria-disabled': boolean | undefined
+      'data-disabled': true | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
+      'onClick': () => void
+    }
   }
   ```
 
-  - `ariaLabel`: Localized label for the button
-  - `disabled`: Whether the button is disabled
-  - `onClick`: Go to last page
+  - `isDisabled`: Whether the button is disabled
+  - `last`: Go to last page
+  - `attrs`: Object containing all bindable attributes including ARIA attributes and event handlers
 
 - **Data Attributes**
 
@@ -435,7 +624,36 @@ Button to navigate to the last page.
 - **Accessibility**
 
   - `aria-label` with localized text (e.g., "Go to last page")
-  - `aria-disabled` when disabled
+  - `aria-disabled` when disabled (for non-button elements)
+  - Native `disabled` attribute for button elements
+
+- **Example**
+
+  ```vue
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Simple usage -->
+    <Pagination.Last>»</Pagination.Last>
+
+    <!-- With slot props -->
+    <Pagination.Last v-slot="{ isDisabled }">
+      <span :class="{ 'opacity-50': isDisabled }">»</span>
+    </Pagination.Last>
+
+    <!-- With data attributes for styling -->
+    <Pagination.Last class="data-[disabled]:opacity-50">
+      Last
+    </Pagination.Last>
+
+    <!-- Renderless mode with attrs spread -->
+    <Pagination.Last renderless v-slot="{ attrs }">
+      <MyCustomButton v-bind="attrs">»</MyCustomButton>
+    </Pagination.Last>
+  </template>
+  ```
 
 ## Recipes
 

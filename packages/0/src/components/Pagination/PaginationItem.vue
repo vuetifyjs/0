@@ -13,8 +13,7 @@
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
-  import { usePagination } from '#v0/composables/usePagination'
-  import { usePaginationItems } from './PaginationRoot.vue'
+  import { usePagination, usePaginationItems } from './PaginationRoot.vue'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -34,24 +33,35 @@
     id?: string
   }
 
-  export interface PaginationItemSlots {
-    default: (props: {
-      /** Page number */
-      page: number
-      /** Whether this page is currently selected */
-      isSelected: boolean
-      /** Whether this item is disabled */
-      disabled: boolean
-      /** Go to this page */
-      select: () => void
-    }) => any
+  export interface PaginationItemSlotProps {
+    /** Page number */
+    page: number
+    /** Whether this page is currently selected */
+    isSelected: boolean
+    /** Whether this item is disabled */
+    isDisabled: boolean
+    /** Go to this page */
+    select: () => void
+    /** Attributes to bind to the item element */
+    attrs: {
+      'aria-label': string
+      'aria-current': 'page' | undefined
+      'data-selected': true | undefined
+      'data-disabled': true | undefined
+      'disabled': boolean | undefined
+      'type': 'button' | undefined
+      'onClick': () => void
+    }
   }
+
 </script>
 
 <script setup lang="ts">
   defineOptions({ name: 'PaginationItem' })
 
-  defineSlots<PaginationItemSlots>()
+  defineSlots<{
+    default: (props: PaginationItemSlotProps) => any
+  }>()
 
   const {
     as = 'button',
@@ -74,8 +84,6 @@
     items.register({ id, value: el })
   }, { immediate: true })
 
-  onBeforeUnmount(() => items.unregister(id))
-
   const isSelected = toRef(() => pagination.page.value === value)
 
   const ariaLabel = toRef(() => {
@@ -84,35 +92,37 @@
       : locale.t('Pagination.goToPage', { page: value }, `Go to page ${value}`)
   })
 
-  const slotProps = toRef(() => ({
-    ariaLabel: ariaLabel.value,
-    ariaCurrent: isSelected.value ? 'page' : undefined,
-    page: value,
-    isSelected: isSelected.value,
-    dataSelected: isSelected.value,
-    disabled,
-    select,
-  }))
-
   function select () {
     if (disabled) return
 
     pagination.select(value)
   }
+
+  const slotProps = toRef((): PaginationItemSlotProps => ({
+    page: value,
+    isSelected: isSelected.value,
+    isDisabled: disabled,
+    select,
+    attrs: {
+      'aria-label': ariaLabel.value,
+      'aria-current': isSelected.value ? 'page' : undefined,
+      'data-selected': isSelected.value || undefined,
+      'data-disabled': disabled || undefined,
+      'disabled': as === 'button' ? disabled : undefined,
+      'type': as === 'button' ? 'button' : undefined,
+      'onClick': select,
+    },
+  }))
+
+  onBeforeUnmount(() => items.unregister(id))
 </script>
 
 <template>
   <Atom
     ref="atom"
-    :aria-current="slotProps.ariaCurrent"
-    :aria-label="slotProps.ariaLabel"
+    v-bind="slotProps.attrs"
     :as
-    :data-disabled="slotProps.disabled || undefined"
-    :data-selected="slotProps.dataSelected || undefined"
-    :disabled="as === 'button' ? slotProps.disabled : undefined"
     :renderless
-    :type="as === 'button' ? 'button' : undefined"
-    @click="slotProps.select"
   >
     <slot v-bind="slotProps" />
   </Atom>
