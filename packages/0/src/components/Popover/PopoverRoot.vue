@@ -1,15 +1,19 @@
-<script lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
+/**
+ * @module PopoverRoot
+ *
+ * @remarks
+ * Root component for popover contexts. Creates and provides popover context
+ * to child PopoverAnchor and PopoverContent components. Manages open/closed
+ * state via v-model binding.
+ */
 
+<script lang="ts">
   // Composables
   import { createContext } from '#v0/composables/createContext'
 
-  // Utilities
-  import { toRef, useId, type ShallowRef } from 'vue'
-
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { ShallowRef } from 'vue'
 
   export interface PopoverContext {
     isSelected: ShallowRef<boolean>
@@ -18,14 +22,34 @@
   }
 
   export interface PopoverRootProps extends AtomProps {
+    /** Unique identifier for the popover (auto-generated if not provided) */
     id?: string
+  }
+
+  export interface PopoverRootSlotProps {
+    /** Unique identifier */
+    id: string
+    /** Whether the popover is currently open */
+    isSelected: boolean
+    /** Toggle the popover open/closed state */
+    toggle: () => void
   }
 
   export const [usePopoverContext, providePopoverContext] = createContext<PopoverContext>('Popover')
 </script>
 
 <script lang="ts" setup>
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Utilities
+  import { toRef, toValue, useId } from 'vue'
+
   defineOptions({ name: 'PopoverRoot' })
+
+  defineSlots<{
+    default: (props: PopoverRootSlotProps) => any
+  }>()
 
   const { as = null, ...props } = defineProps<PopoverRootProps>()
 
@@ -37,29 +61,24 @@
     isSelected.value = !isSelected.value
   }
 
-  const bindableProps = toRef(() => ({
-    id,
-    isSelected,
-    toggle,
-  }))
-
-  type BindableProps = typeof bindableProps.value
-
-  defineSlots<{ default: (props: BindableProps) => any }>()
-
   providePopoverContext({
     isSelected,
     toggle,
-    id: id.value,
+    id: toValue(id),
   })
+
+  const slotProps = toRef((): PopoverRootSlotProps => ({
+    id: toValue(id),
+    isSelected: isSelected.value,
+    toggle,
+  }))
 </script>
 
 <template>
   <Atom
     :as
-    :renderless
-    v-bind="bindableProps"
+    renderless
   >
-    <slot v-bind="bindableProps" />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>

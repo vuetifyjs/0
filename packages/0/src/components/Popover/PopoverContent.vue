@@ -1,27 +1,55 @@
+/**
+ * @module PopoverContent
+ *
+ * @remarks
+ * Content component for popovers. Renders the popover panel using the native
+ * popover API. Supports CSS anchor positioning for automatic placement relative
+ * to the anchor element.
+ */
+
 <script lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Utilities
-  import { onMounted, toRef, useTemplateRef, watch } from 'vue'
-
   // Types
-  import { usePopoverContext } from './PopoverRoot.vue'
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface PopoverContentProps extends AtomProps {
+    /** Unique identifier (defaults to parent PopoverRoot id) */
     id?: string
+    /** CSS position-area value for anchor positioning */
     positionArea?: string
+    /** CSS position-try value for fallback positioning */
     positionTry?: string
   }
 
   export interface PopoverContentEmits {
     beforetoggle: [e: ToggleEvent]
   }
+
+  export interface PopoverContentSlotProps {
+    /** Whether the popover is currently open */
+    isOpen: boolean
+    /** Attributes to bind to the content element */
+    attrs: {
+      id: string
+      popover: ''
+    }
+  }
 </script>
 
 <script lang="ts" setup>
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Context
+  import { usePopoverContext } from './PopoverRoot.vue'
+
+  // Utilities
+  import { onMounted, toRef, toValue, useTemplateRef, watch } from 'vue'
+
   defineOptions({ name: 'PopoverContent' })
+
+  defineSlots<{
+    default: (props: PopoverContentSlotProps) => any
+  }>()
 
   const {
     positionArea = 'bottom',
@@ -38,7 +66,7 @@
   const id = toRef(() => props.id ?? context.id)
   const style = toRef(() => ({
     positionArea,
-    positionAnchor: `--${id.value}`,
+    positionAnchor: `--${toValue(id)}`,
     positionTry,
   }))
 
@@ -64,16 +92,23 @@
 
     emit('beforetoggle', e)
   }
+
+  const slotProps = toRef((): PopoverContentSlotProps => ({
+    isOpen: context.isSelected.value,
+    attrs: {
+      id: toValue(id),
+      popover: '',
+    },
+  }))
 </script>
 
 <template>
   <Atom
-    :id
     ref="ref"
-    popover
     :style
+    v-bind="slotProps.attrs"
     @beforetoggle="onBeforeToggle"
   >
-    <slot />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>
