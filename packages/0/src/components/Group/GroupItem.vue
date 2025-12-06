@@ -8,47 +8,70 @@
  * unregisters on unmount.
  */
 
+<script lang="ts">
+  // Types
+  import type { MaybeRef } from 'vue'
+
+  export interface GroupItemProps<V = unknown> {
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
+    /** Optional display label (passed through to slot, not used in registration) */
+    label?: string
+    /** Value associated with this item */
+    value?: V
+    /** Disables this specific item */
+    disabled?: MaybeRef<boolean>
+    /** Sets the indeterminate state (for checkboxes) */
+    indeterminate?: MaybeRef<boolean>
+    /** Namespace for dependency injection */
+    namespace?: string
+  }
+
+  export interface GroupItemSlotProps<V = unknown> {
+    /** Unique identifier */
+    id: string
+    /** Optional display label */
+    label?: string
+    /** Value associated with this item */
+    value: V | undefined
+    /** Whether this item is currently selected */
+    isSelected: boolean
+    /** Whether this item is in a mixed/indeterminate state */
+    isMixed: boolean
+    /** Whether this item is disabled */
+    isDisabled: boolean
+    /** Select this item */
+    select: () => void
+    /** Unselect this item */
+    unselect: () => void
+    /** Toggle this item's group state */
+    toggle: () => void
+    /** Set this item to mixed/indeterminate state */
+    mix: () => void
+    /** Clear mixed/indeterminate state from this item */
+    unmix: () => void
+    /** Attributes to bind to the item element */
+    attrs: {
+      'aria-selected': boolean
+      'aria-disabled': boolean
+      'data-selected': true | undefined
+      'data-disabled': true | undefined
+      'data-mixed': true | undefined
+    }
+  }
+</script>
+
 <script lang="ts" setup generic="V = unknown">
   // Composables
-  import { useGroup } from '#v0/composables/useGroup'
+  import { useGroupRoot } from './GroupRoot.vue'
 
   // Utilities
   import { onUnmounted, toRef, toValue } from 'vue'
 
-  // Types
-  import type { MaybeRef } from 'vue'
-
   defineOptions({ name: 'GroupItem' })
 
   defineSlots<{
-    default: (props: {
-      /** Unique identifier (auto-generated if not provided) */
-      id: string
-      /** Optional display label (passed through to slot, not used in registration) */
-      label?: string
-      /** Value associated with this item */
-      value: V | undefined
-      /** Whether this item is currently selected */
-      isSelected: boolean
-      /** Whether this item is in a mixed/indeterminate state */
-      isMixed: boolean
-      /** Disables this specific item */
-      disabled: boolean
-      /** ARIA disabled state */
-      ariaSelected: boolean
-      /** ARIA selected state */
-      ariaDisabled: boolean
-      /** Select this item */
-      select: () => void
-      /** Unselect this item */
-      unselect: () => void
-      /** Toggle this item's group state */
-      toggle: () => void
-      /** Set this item to mixed/indeterminate state */
-      mix: () => void
-      /** Clear mixed/indeterminate state from this item */
-      unmix: () => void
-    }) => unknown
+    default: (props: GroupItemSlotProps<V>) => unknown
   }>()
 
   const {
@@ -58,44 +81,38 @@
     disabled,
     namespace = 'v0:group',
     indeterminate = false,
-  } = defineProps<{
-    /** Optional display label (passed through to slot, not used in registration) */
-    label?: string
-    /** Unique identifier (auto-generated if not provided) */
-    id?: string
-    /** Disables this specific item */
-    disabled?: MaybeRef<boolean>
-    /** Sets the indeterminate state (for checkboxes) */
-    indeterminate?: MaybeRef<boolean>
-    /** Value associated with this item */
-    value?: V
-    /** Namespace for dependency injection */
-    namespace?: string
-  }>()
+  } = defineProps<GroupItemProps<V>>()
 
-  const group = useGroup(namespace)
+  const group = useGroupRoot(namespace)
   const ticket = group.register({ id, value, disabled, indeterminate })
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
 
   onUnmounted(() => {
     group.unregister(ticket.id)
   })
+
+  const slotProps = toRef((): GroupItemSlotProps<V> => ({
+    id: String(ticket.id),
+    label,
+    value,
+    isSelected: toValue(ticket.isSelected),
+    isMixed: toValue(ticket.isMixed),
+    isDisabled: toValue(isDisabled),
+    select: ticket.select,
+    unselect: ticket.unselect,
+    toggle: ticket.toggle,
+    mix: ticket.mix,
+    unmix: ticket.unmix,
+    attrs: {
+      'aria-selected': toValue(ticket.isSelected),
+      'aria-disabled': toValue(isDisabled),
+      'data-selected': toValue(ticket.isSelected) || undefined,
+      'data-disabled': toValue(isDisabled) || undefined,
+      'data-mixed': toValue(ticket.isMixed) || undefined,
+    },
+  }))
 </script>
 
 <template>
-  <slot
-    :id="String(ticket.id)"
-    :aria-disabled="toValue(isDisabled)"
-    :aria-selected="toValue(ticket.isSelected)"
-    :disabled="toValue(isDisabled)"
-    :is-mixed="toValue(ticket.isMixed)"
-    :is-selected="toValue(ticket.isSelected)"
-    :label
-    :mix="ticket.mix"
-    :select="ticket.select"
-    :toggle="ticket.toggle"
-    :unmix="ticket.unmix"
-    :unselect="ticket.unselect"
-    :value
-  />
+  <slot v-bind="slotProps" />
 </template>
