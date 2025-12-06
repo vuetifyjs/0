@@ -1,20 +1,22 @@
+/**
+ * @module AvatarImage
+ *
+ * @remarks
+ * Image component that registers with the Avatar context and manages loading state.
+ * Automatically shows when loaded and hides on error. Supports priority ordering
+ * so higher-priority images are displayed when multiple are available.
+ */
+
 <script lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { useContext } from '#v0/composables'
-
-  // Utilities
-  import { onUnmounted, toRef } from 'vue'
-
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { AvatarContext } from './AvatarRoot.vue'
 
   export interface AvatarImageProps extends AtomProps {
+    /** Image source URL */
     src?: string
+    /** Priority for display order (higher = more preferred) */
     priority?: number
+    /** Namespace for retrieving avatar context */
     namespace?: string
   }
 
@@ -22,13 +24,38 @@
     load: [e: Event]
     error: [e: Event]
   }
+
+  export interface AvatarImageSlotProps {
+    /** Whether this image is currently visible */
+    isSelected: boolean
+    /** Attributes to bind to the image element */
+    attrs: {
+      role: 'img'
+      src?: string
+      onLoad: (e: Event) => void
+      onError: (e: Event) => void
+    }
+  }
 </script>
 
 <script lang="ts" setup>
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Composables
+  import { useAvatarRoot } from './AvatarRoot.vue'
+
+  // Utilities
+  import { onUnmounted, toRef } from 'vue'
+
   defineOptions({
     name: 'AvatarImage',
     inheritAttrs: false,
   })
+
+  defineSlots<{
+    default: (props: AvatarImageSlotProps) => any
+  }>()
 
   const {
     as = 'img',
@@ -40,7 +67,7 @@
 
   const emit = defineEmits<AvatarImageEmits>()
 
-  const context = useContext<AvatarContext>(namespace)
+  const context = useAvatarRoot(namespace)
 
   const ticket = context.register({
     priority,
@@ -65,25 +92,24 @@
     context.unregister(ticket.id)
   })
 
-  const bindableProps = toRef(() => ({
-    onError,
-    onLoad,
-    role: 'img',
-    ...props,
+  const slotProps = toRef((): AvatarImageSlotProps => ({
+    isSelected: ticket.isSelected.value,
+    attrs: {
+      role: 'img',
+      onLoad,
+      onError,
+      ...props,
+    },
   }))
-
-  type BindableProps = typeof bindableProps.value
-
-  defineSlots<{ default: (props: BindableProps) => any }>()
 </script>
 
 <template>
   <Atom
     v-show="ticket.isSelected.value"
+    v-bind="slotProps.attrs"
     :as
     :renderless
-    v-bind="bindableProps"
   >
-    <slot v-bind="bindableProps" />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>

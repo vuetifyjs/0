@@ -1,24 +1,41 @@
+/**
+ * @module AvatarFallback
+ *
+ * @remarks
+ * Fallback content component shown when no images are loaded. Registers with
+ * the lowest implicit priority so it only displays when all images fail.
+ */
+
 <script lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { useContext } from '#v0/composables'
-
-  // Utilities
-  import { onUnmounted } from 'vue'
-
   // Types
-  import type { AvatarContext } from './AvatarRoot.vue'
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface AvatarFallbackProps extends AtomProps {
+    /** Namespace for retrieving avatar context */
     namespace?: string
+  }
+
+  export interface AvatarFallbackSlotProps {
+    /** Whether this fallback is currently visible */
+    isSelected: boolean
   }
 </script>
 
 <script lang="ts" setup>
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
+  // Composables
+  import { useAvatarRoot } from './AvatarRoot.vue'
+
+  // Utilities
+  import { onUnmounted, toRef } from 'vue'
+
   defineOptions({ name: 'AvatarFallback' })
+
+  defineSlots<{
+    default: (props: AvatarFallbackSlotProps) => any
+  }>()
 
   const {
     as = 'span',
@@ -26,15 +43,15 @@
     namespace = 'v0:avatar',
   } = defineProps<AvatarFallbackProps>()
 
-  const context = useContext<AvatarContext>(namespace)
+  const context = useAvatarRoot(namespace)
 
-  const ticket = context.register({
-    type: 'fallback',
-  })
+  const ticket = context.register({ type: 'fallback' })
 
-  onUnmounted(() => {
-    context.unregister(ticket.id)
-  })
+  const slotProps = toRef((): AvatarFallbackSlotProps => ({
+    isSelected: ticket.isSelected.value,
+  }))
+
+  onUnmounted(() => context.unregister(ticket.id))
 </script>
 
 <template>
@@ -43,6 +60,6 @@
     :as
     :renderless
   >
-    <slot />
+    <slot v-bind="slotProps" />
   </Atom>
 </template>

@@ -31,6 +31,22 @@ The Avatar component provides a robust image loading system with automatic fallb
   <BasicExample />
 </DocsExample>
 
+## Anatomy
+
+```vue
+<script lang="ts" setup>
+  import { Avatar } from '@vuetify/v0'
+</script>
+
+<template>
+  <Avatar.Root>
+    <Avatar.Image src="/path/to/image.jpg" />
+
+    <Avatar.Fallback>JD</Avatar.Fallback>
+  </Avatar.Root>
+</template>
+```
+
 ## API
 
 | Component | Description |
@@ -39,7 +55,7 @@ The Avatar component provides a robust image loading system with automatic fallb
 
 | Composable | Description |
 |---|---|
-| [useRegistry](/composables/registration/use-registry) | Base registry system for managing images and fallbacks |
+| [useSelection](/composables/selection/use-selection) | Base selection system for managing visibility |
 
 ### AvatarRoot
 
@@ -47,28 +63,32 @@ The root component that manages image loading state and fallback logic.
 
 - **Props**
 
-  Extends `AtomProps`:
-
   ```ts
   interface AvatarRootProps extends AtomProps {
+    namespace?: string
     as?: DOMElement | null
     renderless?: boolean
   }
   ```
 
-- **Context**
+  - `namespace`: Namespace for dependency injection (default: `'v0:avatar'`)
+  - `as`: Element to render as (default: `'div'`)
+  - `renderless`: Render only the slot content without a wrapper element
 
-  ```ts
-  interface AvatarContext extends RegistryContext<AvatarTicket> {
-    reset: () => void
-  }
+- **Example**
 
-  interface AvatarTicket extends RegistryTicket {
-    type: 'image' | 'fallback'
-    priority: number
-    status: 'idle' | 'loading' | 'loaded' | 'error'
-    isVisible: ComputedGetter<boolean>
-  }
+  ```vue
+  <script lang="ts" setup>
+    import { Avatar } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <Avatar.Root class="w-12 h-12 rounded-full overflow-hidden">
+      <Avatar.Image src="/avatar.jpg" />
+
+      <Avatar.Fallback>AB</Avatar.Fallback>
+    </Avatar.Root>
+  </template>
   ```
 
 ### AvatarImage
@@ -81,18 +101,62 @@ Image component that registers with the Avatar context and manages loading state
   interface AvatarImageProps extends AtomProps {
     src?: string
     priority?: number
+    namespace?: string
     as?: DOMElement | null
     renderless?: boolean
   }
   ```
 
-- **Emits**
+  - `src`: Image source URL
+  - `priority`: Priority for display order (higher = more preferred, default: `0`)
+  - `namespace`: Namespace for dependency injection (default: `'v0:avatar'`)
+  - `as`: Element to render as (default: `'img'`)
+  - `renderless`: Render only the slot content without a wrapper element
+
+- **Events**
+
+  | Event | Payload | Description |
+  |---|---|---|
+  | `load` | `Event` | Emitted when the image loads successfully |
+  | `error` | `Event` | Emitted when the image fails to load |
+
+- **Slot Props**
 
   ```ts
-  interface AvatarImageEmits {
-    load: [e: Event]
-    error: [e: Event]
+  interface AvatarImageSlotProps {
+    isSelected: boolean
+    attrs: {
+      role: 'img'
+      src?: string
+      onLoad: (e: Event) => void
+      onError: (e: Event) => void
+    }
   }
+  ```
+
+  - `isSelected`: Whether this image is currently visible
+  - `attrs`: Object containing attributes to bind to the image element
+
+- **Example**
+
+  ```vue
+  <script lang="ts" setup>
+    import { Avatar } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Simple usage -->
+    <Avatar.Image src="/avatar.jpg" />
+
+    <!-- With priority (higher priority images preferred) -->
+    <Avatar.Image src="/high-res.jpg" :priority="10" />
+    <Avatar.Image src="/low-res.jpg" :priority="1" />
+
+    <!-- Renderless with custom element -->
+    <Avatar.Image src="/avatar.jpg" renderless v-slot="{ attrs, isSelected }">
+      <img v-bind="attrs" v-show="isSelected" class="object-cover" />
+    </Avatar.Image>
+  </template>
   ```
 
 ### AvatarFallback
@@ -103,7 +167,70 @@ Fallback content component shown when no images are loaded.
 
   ```ts
   interface AvatarFallbackProps extends AtomProps {
+    namespace?: string
     as?: DOMElement | null
     renderless?: boolean
   }
   ```
+
+  - `namespace`: Namespace for dependency injection (default: `'v0:avatar'`)
+  - `as`: Element to render as (default: `'span'`)
+  - `renderless`: Render only the slot content without a wrapper element
+
+- **Slot Props**
+
+  ```ts
+  interface AvatarFallbackSlotProps {
+    isSelected: boolean
+  }
+  ```
+
+  - `isSelected`: Whether this fallback is currently visible
+
+- **Example**
+
+  ```vue
+  <script lang="ts" setup>
+    import { Avatar } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Text initials -->
+    <Avatar.Fallback>JD</Avatar.Fallback>
+
+    <!-- Icon fallback -->
+    <Avatar.Fallback>
+      <UserIcon class="w-6 h-6" />
+    </Avatar.Fallback>
+
+    <!-- Conditional styling -->
+    <Avatar.Fallback v-slot="{ isSelected }">
+      <span v-if="isSelected" class="bg-gray-200 flex items-center justify-center">
+        JD
+      </span>
+    </Avatar.Fallback>
+  </template>
+  ```
+
+## Priority System
+
+The Avatar component uses a priority-based system to determine which content to display:
+
+1. Images register with a `priority` value (default: `0`)
+2. Fallbacks register with the lowest implicit priority
+3. When an image loads successfully, it becomes selectable
+4. The highest-priority loaded image is displayed
+5. If all images fail, the fallback is shown
+
+```vue
+<template>
+  <Avatar.Root>
+    <!-- High-res preferred when available -->
+    <Avatar.Image src="/high-res.jpg" :priority="10" />
+    <!-- Low-res as backup -->
+    <Avatar.Image src="/low-res.jpg" :priority="1" />
+    <!-- Fallback if both fail -->
+    <Avatar.Fallback>JD</Avatar.Fallback>
+  </Avatar.Root>
+</template>
+```
