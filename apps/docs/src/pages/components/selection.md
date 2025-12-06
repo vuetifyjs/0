@@ -37,6 +37,28 @@ The Selection component provides a wrapper and item pattern for managing selecti
   <BasicExample />
 </DocsExample>
 
+## Anatomy
+
+```vue
+<script lang="ts" setup>
+  import { Selection } from '@vuetify/v0'
+</script>
+
+<template>
+  <Selection.Root v-model="selected" v-slot="{ attrs }">
+    <div v-bind="attrs">
+      <Selection.Item value="apple" v-slot="{ attrs }">
+        <button v-bind="attrs">Apple</button>
+      </Selection.Item>
+
+      <Selection.Item value="banana" v-slot="{ attrs }">
+        <button v-bind="attrs">Banana</button>
+      </Selection.Item>
+    </div>
+  </Selection.Root>
+</template>
+```
+
 ## API
 
 | Component | Description |
@@ -56,7 +78,7 @@ The root component that manages selection state and provides context to items.
 - **Props**
 
   ```ts
-  interface SelectionRootProps<T = unknown> {
+  interface SelectionRootProps {
     namespace?: string
     disabled?: boolean
     enroll?: boolean
@@ -69,9 +91,9 @@ The root component that manages selection state and provides context to items.
   - `disabled`: Disables the entire selection instance
   - `enroll`: Auto-select non-disabled items on registration
   - `mandatory`: Controls mandatory selection behavior:
-    - `false` (default): No mandatory selection
+    - `false` (default): No mandatory selection enforcement
     - `true`: Prevents deselecting the last selected item
-    - `'force'`: Automatically selects the first non-disabled item
+    - `'force'`: Automatically selects the first non-disabled item on registration
   - `multiple`: Enable multi-selection mode (array v-model)
 
 - **v-model**
@@ -82,31 +104,57 @@ The root component that manages selection state and provides context to items.
 
   Binds to selected value(s). When `multiple` is true, expects an array.
 
-- **Slots**
+- **Events**
+
+  | Event | Payload | Description |
+  |---|---|---|
+  | `update:model-value` | `T \| T[]` | Emitted when the selection changes |
+
+- **Slot Props**
 
   ```ts
-  interface SelectionRootSlots {
-    default: (props: {
-      disabled: boolean
-      multiple: boolean
-      select: (id: ID) => void
-      unselect: (id: ID) => void
-      toggle: (id: ID) => void
-      ariaMultiselectable: boolean
-    }) => any
+  interface SelectionRootSlotProps {
+    isDisabled: boolean
+    multiple: boolean
+    select: (id: ID) => void
+    unselect: (id: ID) => void
+    toggle: (id: ID) => void
+    attrs: {
+      'aria-multiselectable': boolean
+    }
   }
   ```
+
+  - `isDisabled`: Whether the selection instance is disabled
+  - `multiple`: Whether multi-selection mode is enabled
+  - `select`: Select an item by ID
+  - `unselect`: Unselect an item by ID
+  - `toggle`: Toggle an item's selection state by ID
+  - `attrs`: Object containing attributes to bind to the root element
 
 - **Example**
 
   ```vue
-  <SelectionRoot v-model="selected" mandatory="force">
-    <template #default="{ ariaMultiselectable }">
-      <div :aria-multiselectable="ariaMultiselectable">
+  <script lang="ts" setup>
+    import { Selection } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Simple usage with attrs -->
+    <Selection.Root v-model="selected" v-slot="{ attrs }">
+      <div v-bind="attrs">
         <!-- SelectionItem components -->
       </div>
-    </template>
-  </SelectionRoot>
+    </Selection.Root>
+
+    <!-- With slot props for conditional rendering -->
+    <Selection.Root v-model="selected" v-slot="{ isDisabled, multiple }">
+      <div :class="{ 'opacity-50': isDisabled }">
+        <p v-if="multiple">Select multiple items</p>
+        <!-- SelectionItem components -->
+      </div>
+    </Selection.Root>
+  </template>
   ```
 
 ### SelectionItem
@@ -116,50 +164,93 @@ Individual selectable items that register with the Selection context.
 - **Props**
 
   ```ts
-  interface SelectionItemProps {
+  interface SelectionItemProps<V = unknown> {
     id?: string
     label?: string
-    value?: any
+    value?: V
     disabled?: MaybeRef<boolean>
     namespace?: string
   }
   ```
 
   - `id`: Unique identifier (auto-generated if not provided)
-  - `label`: Optional display label (passed to slot, not used in registration)
+  - `label`: Optional display label (passed through to slot, not used in registration)
   - `value`: Value associated with this item
   - `disabled`: Disables this specific item
-  - `namespace`: Must match SelectionRoot namespace (default: `'v0:selection'`)
+  - `namespace`: Namespace for dependency injection (default: `'v0:selection'`)
 
-- **Slots**
+- **Slot Props**
 
   ```ts
-  interface SelectionItemSlots {
-    default: (props: {
-      id: string
-      label?: string
-      value: any
-      isSelected: boolean
-      disabled: boolean
-      ariaSelected: boolean
-      ariaDisabled: boolean
-      select: () => void
-      unselect: () => void
-      toggle: () => void
-    }) => any
+  interface SelectionItemSlotProps<V = unknown> {
+    id: string
+    label?: string
+    value: V | undefined
+    isSelected: boolean
+    isDisabled: boolean
+    select: () => void
+    unselect: () => void
+    toggle: () => void
+    attrs: {
+      'aria-selected': boolean
+      'aria-disabled': boolean
+      'data-selected': true | undefined
+      'data-disabled': true | undefined
+    }
   }
   ```
+
+  - `id`: Unique identifier for this item
+  - `label`: Optional display label
+  - `value`: Value associated with this item
+  - `isSelected`: Whether this item is currently selected
+  - `isDisabled`: Whether this item is disabled
+  - `select`: Select this item
+  - `unselect`: Unselect this item
+  - `toggle`: Toggle this item's selection state
+  - `attrs`: Object containing all bindable attributes including ARIA and data attributes
+
+- **Data Attributes**
+
+  | Attribute | Description |
+  |---|---|
+  | `data-selected` | Present when this item is selected |
+  | `data-disabled` | Present when this item is disabled |
+
+- **Accessibility**
+
+  - `aria-selected` reflects selection state
+  - `aria-disabled` indicates disabled state
 
 - **Example**
 
   ```vue
-  <SelectionItem value="apple" :disabled="false">
-    <template #default="{ isSelected, toggle, ariaSelected }">
-      <button @click="toggle" :aria-selected="ariaSelected">
-        Apple {{ isSelected ? '✓' : '' }}
+  <script lang="ts" setup>
+    import { Selection } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <!-- Simple usage with attrs spread -->
+    <Selection.Item value="apple" v-slot="{ attrs }">
+      <button v-bind="attrs">Apple</button>
+    </Selection.Item>
+
+    <!-- With slot props for conditional styling -->
+    <Selection.Item value="banana" v-slot="{ isSelected, toggle }">
+      <button @click="toggle" :class="{ 'bg-blue-500': isSelected }">
+        Banana {{ isSelected ? '✓' : '' }}
       </button>
-    </template>
-  </SelectionItem>
+    </Selection.Item>
+
+    <!-- With data attributes for styling -->
+    <Selection.Item
+      value="orange"
+      class="data-[selected]:bg-blue-500 data-[disabled]:opacity-50"
+      v-slot="{ attrs }"
+    >
+      <button v-bind="attrs">Orange</button>
+    </Selection.Item>
+  </template>
   ```
 
 ## Examples

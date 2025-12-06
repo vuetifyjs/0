@@ -7,43 +7,15 @@
  * modes via the `multiple` prop.
  */
 
-<script lang="ts" setup generic="T = unknown">
+<script lang="ts">
   // Composables
-  import { useProxyModel } from '#v0/composables/useProxyModel'
-  import { createSelectionContext } from '#v0/composables/useSelection'
-
-  // Utilities
-  import { toRef, toValue } from 'vue'
+  import { createContext } from '#v0/composables/createContext'
 
   // Types
   import type { ID } from '#v0/types'
+  import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
 
-  defineOptions({ name: 'SelectionRoot' })
-
-  defineSlots<{
-    default: (props: {
-      /** Disables the entire selection instance and all registered items */
-      disabled: boolean
-      /** Enable multi-selection mode (array v-model) */
-      multiple: boolean
-      /** Select an item by ID */
-      select: (id: ID) => void
-      /** Unselect an item by ID */
-      unselect: (id: ID) => void
-      /** Toggle an item's selection state by ID */
-      toggle: (id: ID) => void
-      /** ARIA multiselectable state */
-      ariaMultiselectable: boolean
-    }) => any
-  }>()
-
-  const {
-    namespace = 'v0:selection',
-    disabled = false,
-    enroll = false,
-    mandatory = false,
-    multiple = false,
-  } = defineProps<{
+  export interface SelectionRootProps {
     /** Namespace for dependency injection (must match SelectionItem namespace) */
     namespace?: string
     /** Disables the entire selection instance */
@@ -59,12 +31,53 @@
     mandatory?: boolean | 'force'
     /** Enable multi-selection mode (array v-model) */
     multiple?: boolean
+  }
+
+  export interface SelectionRootSlotProps {
+    /** Whether the selection instance is disabled */
+    isDisabled: boolean
+    /** Enable multi-selection mode (array v-model) */
+    multiple: boolean
+    /** Select an item by ID */
+    select: (id: ID) => void
+    /** Unselect an item by ID */
+    unselect: (id: ID) => void
+    /** Toggle an item's selection state by ID */
+    toggle: (id: ID) => void
+    /** Attributes to bind to the root element */
+    attrs: {
+      'aria-multiselectable': boolean
+    }
+  }
+
+  export const [useSelectionRoot, provideSelectionRoot] = createContext<SelectionContext<SelectionTicket>>()
+</script>
+
+<script lang="ts" setup generic="T = unknown">
+  // Composables
+  import { useProxyModel } from '#v0/composables/useProxyModel'
+  import { createSelection } from '#v0/composables/useSelection'
+
+  // Utilities
+  import { toRef, toValue } from 'vue'
+
+  defineOptions({ name: 'SelectionRoot' })
+
+  defineSlots<{
+    default: (props: SelectionRootSlotProps) => any
   }>()
+
+  const {
+    namespace = 'v0:selection',
+    disabled = false,
+    enroll = false,
+    mandatory = false,
+    multiple = false,
+  } = defineProps<SelectionRootProps>()
 
   const model = defineModel<T | T[]>()
 
-  const [, provideSelectionControl, context] = createSelectionContext({
-    namespace,
+  const selection = createSelection({
     disabled: toRef(() => disabled),
     enroll,
     mandatory,
@@ -72,18 +85,22 @@
     events: true,
   })
 
-  useProxyModel(context, model, { multiple })
+  useProxyModel(selection, model, { multiple })
 
-  provideSelectionControl(context)
+  provideSelectionRoot(namespace, selection)
+
+  const slotProps = toRef((): SelectionRootSlotProps => ({
+    isDisabled: toValue(selection.disabled),
+    multiple,
+    select: selection.select,
+    unselect: selection.unselect,
+    toggle: selection.toggle,
+    attrs: {
+      'aria-multiselectable': multiple,
+    },
+  }))
 </script>
 
 <template>
-  <slot
-    :aria-multiselectable="multiple"
-    :disabled="toValue(context.disabled)"
-    :multiple="multiple"
-    :select="context.select"
-    :toggle="context.toggle"
-    :unselect="context.unselect"
-  />
+  <slot v-bind="slotProps" />
 </template>
