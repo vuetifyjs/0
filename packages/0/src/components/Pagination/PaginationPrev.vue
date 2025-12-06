@@ -12,7 +12,7 @@
 
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
-  import { usePagination, usePaginationControls } from './PaginationRoot.vue'
+  import { usePaginationRoot, usePaginationControls } from './PaginationRoot.vue'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -64,7 +64,7 @@
   } = defineProps<PaginationPrevProps>()
 
   const locale = useLocale()
-  const pagination = usePagination(namespace)
+  const pagination = usePaginationRoot(namespace)
   const controls = usePaginationControls(namespace)
 
   const atom = useTemplateRef<AtomExpose>('atom')

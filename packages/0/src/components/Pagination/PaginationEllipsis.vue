@@ -12,7 +12,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { usePagination, usePaginationItems } from './PaginationRoot.vue'
+  import { usePaginationRoot, usePaginationItems } from './PaginationRoot.vue'
 
   // Utilities
   import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
@@ -56,7 +56,7 @@
     id = genId(),
   } = defineProps<PaginationEllipsisProps>()
 
-  const pagination = usePagination(namespace)
+  const pagination = usePaginationRoot(namespace)
   const items = usePaginationItems(namespace)
 
   const atom = useTemplateRef<AtomExpose>('atom')

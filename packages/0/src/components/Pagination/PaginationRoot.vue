@@ -33,7 +33,7 @@
   import type { RegistryContext } from '#v0/composables/useRegistry'
   import type { PaginationContext, PaginationItem } from '#v0/composables/usePagination'
 
-  export const [usePagination, providePagination] = createContext<PaginationContext>()
+  export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })
   export const [usePaginationItems, providePaginationItems] = createContext<RegistryContext>({ suffix: 'items' })
 
@@ -188,7 +188,7 @@
     },
   }))
 
-  providePagination(namespace, pagination)
+  providePaginationRoot(namespace, pagination)
   providePaginationControls(namespace, controls)
   providePaginationItems(namespace, items)
 </script>
