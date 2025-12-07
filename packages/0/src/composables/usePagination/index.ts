@@ -29,11 +29,11 @@ import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 
-export type PaginationEntry =
+export type PaginationItem =
   | { type: 'page', value: number }
   | { type: 'ellipsis', value: string }
 
-export interface PaginationContext<Z extends PaginationEntry = PaginationEntry> {
+export interface PaginationContext<Z extends PaginationItem = PaginationItem> {
   /** Current page (1-indexed) */
   page: ShallowRef<number>
   /** Items per page */
@@ -106,7 +106,7 @@ export interface PaginationContextOptions extends PaginationOptions {
  * ```
  */
 export function createPagination<
-  Z extends PaginationEntry = PaginationEntry,
+  Z extends PaginationItem = PaginationItem,
   E extends PaginationContext<Z> = PaginationContext<Z>,
 > (_options: PaginationOptions = {}): E {
   const {
@@ -270,7 +270,7 @@ export function createPagination<
  * ```
  */
 export function createPaginationContext<
-  Z extends PaginationEntry = PaginationEntry,
+  Z extends PaginationItem = PaginationItem,
   E extends PaginationContext<Z> = PaginationContext<Z>,
 > (_options: PaginationContextOptions = {}): ContextTrinity<E> {
   const { namespace = 'v0:pagination', ...options } = _options
@@ -305,7 +305,7 @@ export function createPaginationContext<
  * ```
  */
 export function usePagination<
-  Z extends PaginationEntry = PaginationEntry,
+  Z extends PaginationItem = PaginationItem,
   E extends PaginationContext<Z> = PaginationContext<Z>,
 > (namespace = 'v0:pagination'): E {
   return useContext<E>(namespace)

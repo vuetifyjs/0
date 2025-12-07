@@ -40,7 +40,7 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { RegistryContext } from '#v0/composables/useRegistry'
-  import type { PaginationContext, PaginationEntry } from '#v0/composables/usePagination'
+  import type { PaginationContext, PaginationItem } from '#v0/composables/usePagination'
 
   export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })
@@ -72,7 +72,7 @@
     /** Items per page */
     itemsPerPage: number
     /** Visible page items for rendering */
-    items: PaginationEntry[]
+    items: PaginationItem[]
     /** Start index of items on current page (0-indexed) */
     pageStart: number
     /** End index of items on current page (exclusive) */
@@ -148,7 +148,6 @@
     const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
     const gapX = Number.parseFloat(rootStyle.gap) || 0
 
-    // Item width is margin box (content + margin), gap is separate
     itemWidth.value = el.offsetWidth + marginX
     itemGap.value = gapX
   }, { flush: 'post' })
@@ -163,7 +162,6 @@
     const pageCap = Math.max(0, totalCap - controls.size)
     const noVisible = isNullOrUndefined(totalVisible)
 
-    // Use capacity, respecting totalVisible maximum if set
     if (pageCap > 0) return noVisible ? pageCap : Math.min(totalVisible, pageCap)
 
     return noVisible ? 1 : totalVisible
