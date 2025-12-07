@@ -29,10 +29,9 @@ import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 
-export interface PaginationItem {
-  type: 'page' | 'ellipsis'
-  value: number | string
-}
+export type PaginationItem =
+  | { type: 'page', value: number }
+  | { type: 'ellipsis', value: string }
 
 export interface PaginationContext<Z extends PaginationItem = PaginationItem> {
   /** Current page (1-indexed) */
