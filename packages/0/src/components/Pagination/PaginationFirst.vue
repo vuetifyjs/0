@@ -41,6 +41,7 @@
       'aria-disabled': boolean | undefined
       'data-disabled': true | undefined
       'disabled': boolean | undefined
+      'tabindex': -1 | undefined
       'type': 'button' | undefined
       'onClick': () => void
     }
@@ -91,6 +92,7 @@
       'aria-disabled': as === 'button' ? undefined : isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,
+      'tabindex': as !== 'button' && isDisabled.value ? -1 : undefined,
       'type': as === 'button' ? 'button' : undefined,
       'onClick': first,
     },
