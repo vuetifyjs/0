@@ -569,6 +569,7 @@ All components follow the **compound component pattern** and are located in `pac
 - **Context-driven**: Root components create and provide context, items consume it
 - **Generic v-model**: Components use `<script setup generic="T">` for type-safe v-model binding
 - **ProxyModel binding**: `useProxyModel` bridges selection context to v-model
+- **Vue Devtools compatibility**: Always include explicit `defineEmits` alongside `defineModel` - Vue Devtools requires the emit declaration to display model events correctly, even though `defineModel` handles the actual emit
 
 **Pattern Example**:
 ```vue
@@ -796,3 +797,45 @@ Uses iterative stack-based algorithm (not recursive) for performance.
 ## Documentation
 
 Documentation is in `apps/docs/src/pages/` as Markdown files with examples. When adding new features, corresponding documentation should be added.
+
+## TypeScript / Volar Gotchas
+
+For proper slot prop type inference in consuming apps, **both** of the following are required:
+
+### 1. Component Barrel Exports
+
+**NEVER use `export *` to re-export Vue components.** This breaks Volar's slot type inference.
+
+```ts
+// ❌ BAD - breaks slot prop types
+export * from './SelectionRoot.vue'
+export * from './SelectionItem.vue'
+
+// ✅ GOOD - preserves slot prop types
+export type { SelectionRootProps, SelectionRootSlotProps } from './SelectionRoot.vue'
+export { default as SelectionRoot } from './SelectionRoot.vue'
+export { default as SelectionItem } from './SelectionItem.vue'
+```
+
+Always use explicit named exports for:
+1. `export type { ... }` for interfaces/types
+2. `export { default as ComponentName }` for the component itself
+3. `export { functionName }` for any exported functions (like context hooks)
+
+### 2. Path Alias Resolution in Monorepo
+
+The `#v0/` path alias is defined in the package's tsconfig but consuming apps (playground, docs, storybook) need it too for Volar to resolve types when using `customConditions: ["development"]`.
+
+Add to consuming app's `tsconfig.app.json`:
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "#v0": ["../packages/0/src"],
+      "#v0/*": ["../packages/0/src/*"]
+    }
+  }
+}
+```
+
+External consumers using the published npm package don't need this - the dist files have aliases resolved by the bundler.
