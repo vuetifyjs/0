@@ -6,9 +6,9 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "customConditions": ["development"],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"],
+      "#v0": ["../packages/0/src"],
+      "#v0/*": ["../packages/0/src/*"]
     },
     "lib": [
       "dom",

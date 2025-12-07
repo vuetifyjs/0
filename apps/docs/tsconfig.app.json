@@ -7,9 +7,9 @@
     "customConditions": ["development"],
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"],
+      "#v0": ["../../packages/0/src"],
+      "#v0/*": ["../../packages/0/src/*"]
     },
     "lib": [
       "dom",
