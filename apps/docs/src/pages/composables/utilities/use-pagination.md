@@ -56,7 +56,7 @@ Creates a pagination instance.
 - **Type**
 
   ```ts
-  interface PaginationItem {
+  interface PaginationTicket {
     type: 'page' | 'ellipsis'
     value: number | string
   }
@@ -75,7 +75,7 @@ Creates a pagination instance.
     size: number
     pages: number
     ellipsis: string
-    items: ComputedRef<PaginationItem[]>
+    items: ComputedRef<PaginationTicket[]>
     pageStart: ComputedRef<number>
     pageStop: ComputedRef<number>
     isFirst: ComputedRef<boolean>

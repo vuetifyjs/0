@@ -129,7 +129,7 @@ The root component that manages pagination state and provides context to child c
     size: number
     pages: number
     itemsPerPage: number
-    items: PaginationItem[]
+    items: PaginationTicket[]
     pageStart: number
     pageStop: number
     isFirst: boolean
