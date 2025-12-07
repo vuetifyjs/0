@@ -8,6 +8,15 @@
  *
  * Built on createPaginationContext from usePagination composable. Provides navigation
  * methods (first, last, next, prev, select) and computed page ranges via slot props.
+ *
+ * Provides three contexts via dependency injection:
+ * - `usePaginationRoot`: Core pagination state (page, length, navigation methods)
+ * - `usePaginationItems`: Registry for page buttons and ellipses (used for width calculation)
+ * - `usePaginationControls`: Registry for navigation buttons (first/prev/next/last)
+ *
+ * The dual registry architecture separates page items from navigation controls because
+ * only page items contribute to the responsive visible count calculation. Navigation
+ * buttons occupy reserved space that's subtracted from the available width.
  */
 
 <script lang="ts">
@@ -147,8 +156,8 @@
   const visible = computed(() => {
     const totalCap = overflow.capacity.value
 
-    // SSR or not measured yet - use totalVisible or default
-    if (totalCap === Infinity) return totalVisible ?? Infinity
+    // SSR or not measured yet
+    if (totalCap === Infinity) return totalVisible ?? 7
 
     // Subtract nav buttons from total capacity to get page item capacity
     const pageCap = Math.max(0, totalCap - controls.size)
