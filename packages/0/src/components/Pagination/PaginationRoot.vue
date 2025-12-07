@@ -40,7 +40,7 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { RegistryContext } from '#v0/composables/useRegistry'
-  import type { PaginationContext, PaginationItem } from '#v0/composables/usePagination'
+  import type { PaginationContext, PaginationEntry } from '#v0/composables/usePagination'
 
   export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })
@@ -72,7 +72,7 @@
     /** Items per page */
     itemsPerPage: number
     /** Visible page items for rendering */
-    items: PaginationItem[]
+    items: PaginationEntry[]
     /** Start index of items on current page (0-indexed) */
     pageStart: number
     /** End index of items on current page (exclusive) */
