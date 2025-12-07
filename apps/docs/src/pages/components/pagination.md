@@ -56,6 +56,8 @@ The Pagination component provides a compound component pattern for building page
 </template>
 ```
 
+> For responsive sizing to work accurately, **all pagination buttons must have the same width**. The component measures a sample button and uses that width to calculate how many buttons fit. If buttons have variable widths (e.g., single-digit "1" vs double-digit "50"), the calculation will be inaccurate and items may overflow or leave excess space.
+
 ## API
 
 | Composable | Description |
@@ -654,7 +656,6 @@ Button to navigate to the last page.
     </Pagination.Last>
   </template>
   ```
-
 ## Recipes
 
 Examples of common Pagination structures:
