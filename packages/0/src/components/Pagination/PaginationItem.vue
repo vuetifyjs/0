@@ -124,6 +124,8 @@
     :as
     :renderless
   >
-    <slot v-bind="slotProps" />
+    <slot v-bind="slotProps">
+      {{ value }}
+    </slot>
   </Atom>
 </template>
