@@ -12,7 +12,7 @@
  * - Auto-selection of enabled features
  * - Multi-select support for feature combinations
  * - Perfect for A/B testing, progressive rollout, feature toggles
- * - Adapter pattern for external services (PostHog, LaunchDarkly)
+ * - Adapter pattern for external feature flag services
  *
  * Inheritance chain: useRegistry → createSelection → createGroup → createFeatures
  * Integrates with useTokens for token-based features.
@@ -42,7 +42,7 @@ import type { FeaturesAdapterInterface, FeaturesAdapterFlags } from '#v0/composa
 
 // Exports
 export type { FeaturesAdapterInterface, FeaturesAdapterFlags, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
-export { FeaturesAdapter, PostHogFeaturesAdapter, LaunchDarklyFeaturesAdapter } from '#v0/composables/useFeatures/adapters'
+export { FeaturesAdapter } from '#v0/composables/useFeatures/adapters'
 
 export interface FeatureTicket extends GroupTicket<TokenValue> {}
 
