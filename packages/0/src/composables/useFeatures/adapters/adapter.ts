@@ -7,24 +7,15 @@ export type FeaturesAdapterFlags = Record<ID, FeaturesAdapterValue>
 
 export interface FeaturesAdapterInterface {
   /**
-   * Initialize the adapter connection.
+   * Initialize the adapter and return initial flags.
    *
-   * @remarks Called during plugin setup. Can be async for remote services.
-   */
-  init?: () => Promise<void> | void
-  /**
-   * Get all feature flags.
+   * @param onUpdate Callback invoked when flags change.
+   * @returns Initial feature flags.
    *
-   * @remarks Returns the current flag values from the adapter source.
+   * @remarks Called during plugin setup. Sets up change listeners
+   * and returns the initial flag values.
    */
-  getFlags: () => FeaturesAdapterFlags
-  /**
-   * Subscribe to flag changes.
-   *
-   * @param callback Called when flags change with the updated flags.
-   * @returns Unsubscribe function to stop listening for changes.
-   */
-  onChange?: (callback: (flags: FeaturesAdapterFlags) => void) => () => void
+  setup: (onUpdate: (flags: FeaturesAdapterFlags) => void) => FeaturesAdapterFlags
   /**
    * Cleanup adapter resources.
    *
@@ -34,5 +25,5 @@ export interface FeaturesAdapterInterface {
 }
 
 export abstract class FeaturesAdapter implements FeaturesAdapterInterface {
-  abstract getFlags (): FeaturesAdapterFlags
+  abstract setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags
 }

@@ -68,23 +68,22 @@ export interface FeatureContext<Z extends FeatureTicket = FeatureTicket> extends
 export interface FeatureOptions extends RegistryOptions {
   /**
    * Static feature flags to register.
-   *
-   * @remarks These are merged with adapter flags if an adapter is provided.
    */
   features?: Record<ID, boolean | TokenCollection>
-  /**
-   * Feature flag adapter for external services.
-   *
-   * @remarks Adapters provide dynamic flag values from services like PostHog or LaunchDarkly.
-   */
-  adapter?: FeaturesAdapterInterface
 }
 
 export interface FeatureContextOptions extends FeatureOptions {
   namespace?: string
 }
 
-export interface FeaturePluginOptions extends FeatureContextOptions {}
+export interface FeaturePluginOptions extends FeatureContextOptions {
+  /**
+   * Feature flag adapter for external services.
+   *
+   * @remarks Adapters provide dynamic flag values from external services.
+   */
+  adapter?: FeaturesAdapterInterface
+}
 
 /**
  * Creates a new features instance.
@@ -113,13 +112,9 @@ export function createFeatures<
   Z extends FeatureTicket = FeatureTicket,
   E extends FeatureContext<Z> = FeatureContext<Z>,
 > (_options: FeatureOptions = {}): E {
-  const { features, adapter, ...options } = _options
+  const { features, ...options } = _options
 
-  // Merge static features with adapter flags (adapter takes precedence)
-  const adapterFlags = adapter?.getFlags() ?? {}
-  const mergedFeatures = { ...features, ...adapterFlags } as Record<ID, boolean | TokenCollection>
-
-  const tokens = createTokens(mergedFeatures, { flat: true })
+  const tokens = createTokens(features, { flat: true })
   const registry = createGroup<Z, E>(options)
 
   for (const [id, { value }] of tokens.entries()) {
@@ -266,31 +261,25 @@ export function createFeaturesPlugin<
   E extends FeatureContext<Z> = FeatureContext<Z>,
 > (_options: FeaturePluginOptions = {}) {
   const { namespace = 'v0:features', adapter, ...options } = _options
-  const [, provideFeaturesContext, context] = createFeaturesContext<Z, E>({ ...options, adapter, namespace })
+  const [, provideFeaturesContext, context] = createFeaturesContext<Z, E>({ ...options, namespace })
 
   return createPlugin({
     namespace,
     provide: (app: App) => {
       provideFeaturesContext(context, app)
     },
-    setup: async (_app: App) => {
+    setup: (_app: App) => {
       if (!adapter) return
 
-      // Initialize adapter (may be async for remote services)
-      if (adapter.init) {
-        await adapter.init()
-      }
+      // Initialize adapter and sync initial flags
+      const initialFlags = adapter.setup((flags) => {
+        context.sync(flags)
+      })
 
-      // Subscribe to flag changes
-      if (adapter.onChange) {
-        const unsubscribe = adapter.onChange((flags) => {
-          context.sync(flags)
-        })
+      context.sync(initialFlags)
 
-        onScopeDispose(() => {
-          unsubscribe()
-          adapter.dispose?.()
-        }, true)
+      if (adapter.dispose) {
+        onScopeDispose(() => adapter.dispose!(), true)
       }
     },
   })
