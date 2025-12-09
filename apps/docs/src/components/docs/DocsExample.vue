@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-  import { ref, computed, onMounted, shallowRef } from 'vue'
+  // Utilities
+  import { ref, computed, onMounted, shallowRef, watch } from 'vue'
   import { createHighlighterCore } from 'shiki/core'
   import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+
+  // Types
   import type { HighlighterCore } from 'shiki/core'
 
   const props = defineProps<{
@@ -31,6 +34,19 @@
     }
   }
 
+  async function highlight (code: string) {
+    if (!highlighter.value || !code) return
+
+    highlightedCode.value = highlighter.value.codeToHtml(code, {
+      lang: 'vue',
+      themes: {
+        light: 'github-light-default',
+        dark: 'github-dark-default',
+      },
+      defaultColor: false,
+    })
+  }
+
   onMounted(async () => {
     if (props.code) {
       highlighter.value = await createHighlighterCore({
@@ -44,21 +60,21 @@
         engine: createOnigurumaEngine(() => import('shiki/wasm')),
       })
 
-      highlightedCode.value = highlighter.value.codeToHtml(props.code, {
-        lang: 'vue',
-        themes: {
-          light: 'github-light-default',
-          dark: 'github-dark-default',
-        },
-        defaultColor: false,
-      })
+      await highlight(props.code)
     }
+  })
+
+  watch(() => props.code, async code => {
+    if (code) await highlight(code)
   })
 </script>
 
 <template>
   <div class="border border-divider rounded-lg my-6 overflow-hidden">
-    <div v-if="title" class="px-4 py-3 font-semibold border-b border-divider bg-surface-tint">
+    <div
+      v-if="title"
+      class="px-4 py-3 font-semibold border-b border-divider bg-surface-tint"
+    >
       {{ title }}
     </div>
 
