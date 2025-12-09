@@ -26,6 +26,7 @@ declare module 'vue' {
     DocsLastCommit: typeof import('./components/docs/DocsLastCommit.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
     DocsPageFeatures: typeof import('./components/docs/DocsPageFeatures.vue')['default']
+    FaqList: typeof import('./components/docs/FaqList.vue')['default']
     Mermaid: typeof import('./components/Mermaid.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
