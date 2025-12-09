@@ -1,9 +1,20 @@
 <script lang="ts" setup>
-  import { useHead } from '@unhead/vue'
+  import { useHead, useSeoMeta } from '@unhead/vue'
 
   useHead({
-    title: 'Vuetify0 Documentation',
+    title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
+  })
+
+  useSeoMeta({
+    description: 'Headless components and composables for building modern applications and design systems',
+    ogTitle: 'Vuetify0',
+    ogDescription: 'Headless components and composables for building modern applications and design systems',
+    ogType: 'website',
+    ogUrl: 'https://0.vuetifyjs.com',
+    twitterCard: 'summary',
+    twitterTitle: 'Vuetify0',
+    twitterDescription: 'Headless components and composables for building modern applications and design systems',
   })
 </script>
 
