@@ -7,6 +7,8 @@ autoInstallPeers: true
 
 catalog:
   '@mdi/js': npm:mdi-js-es@7.4.47
+  conventional-changelog-vuetify: ^2.0.2
+  conventional-github-releaser: ^3.1.5
   '@octokit/core': ^7.0.6
   '@octokit/openapi-types': ^27.0.0
   '@shikijs/langs': ^3.15.0
