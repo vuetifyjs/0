@@ -24,6 +24,7 @@ declare module 'vue' {
     DocsBackToTop: typeof import('./components/docs/DocsBackToTop.vue')['default']
     DocsExample: typeof import('./components/docs/DocsExample.vue')['default']
     DocsLastCommit: typeof import('./components/docs/DocsLastCommit.vue')['default']
+    DocsMarkup: typeof import('./components/docs/DocsMarkup.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
     DocsPageFeatures: typeof import('./components/docs/DocsPageFeatures.vue')['default']
     FaqList: typeof import('./components/docs/FaqList.vue')['default']

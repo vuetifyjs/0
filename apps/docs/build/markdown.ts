@@ -50,6 +50,22 @@ export default async function MarkdownPlugin () {
           defaultColor: false,
         }),
       )
+
+      // Wrap code blocks with DocsMarkup component
+      const defaultFence = md.renderer.rules.fence!
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const token = tokens[idx]
+        const code = token.content.trim()
+        // Parse fence info - can be "lang" or "lang filename"
+        const info = token.info?.trim() || ''
+        const [lang, ...rest] = info.split(/\s+/)
+        const title = rest.join(' ') // Only use title if explicitly provided
+        const highlighted = defaultFence(tokens, idx, options, env, self)
+        // Base64 encode to avoid escaping issues
+        const encodedCode = Buffer.from(code).toString('base64')
+        const titleAttr = title ? ` title="${title}"` : ''
+        return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}>${highlighted}</DocsMarkup>`
+      }
       md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
         const t = tokens[idx]
         const ci = t.attrIndex('class')
