@@ -37,7 +37,7 @@ The ExpansionPanel component provides a wrapper and item pattern for managing ex
 
 ## Anatomy
 
-```vue
+```vue Anatomy
 <script lang="ts" setup>
   import { ExpansionPanel } from '@vuetify/v0'
 </script>
@@ -55,7 +55,7 @@ The ExpansionPanel component provides a wrapper and item pattern for managing ex
 
 For instances where you need to wrap the activator in a heading element **(h3)** for semantic purposes and WAI-ARIA, use the [ExpansionPanel.Header](#expansionpanelheader) component:
 
-```vue
+```vue AnatomyWithHeader
 <script lang="ts" setup>
   import { ExpansionPanel } from '@vuetify/v0'
 </script>
@@ -128,7 +128,7 @@ The root component that manages expansion state and provides context to items.
 
   **Example:**
 
-  ```vue
+  ```vue ExpansionPanelRoot
   <template>
     <ExpansionPanel.Root
       v-model="model"
@@ -218,7 +218,7 @@ Individual expansion panel items that register with the ExpansionPanel context a
 
 - **Example**
 
-  ```vue
+  ```vue ExpansionPanelItem
   <script lang="ts" setup>
     import { ExpansionPanel } from '@vuetify/v0'
   </script>
@@ -280,7 +280,7 @@ Semantic heading wrapper for the expansion panel activator. Per WAI-ARIA accordi
 
 - **Example**
 
-  ```vue
+  ```vue ExpansionPanelHeader
   <script lang="ts" setup>
     import { ExpansionPanel } from '@vuetify/v0'
   </script>
@@ -372,7 +372,7 @@ The activator component that triggers the expansion/collapse of a panel. Should 
 
 - **Example**
 
-  ```vue
+  ```vue ExpansionPanelActivator
   <script lang="ts" setup>
     import { ExpansionPanel } from '@vuetify/v0'
   </script>
@@ -462,7 +462,7 @@ The content container for an expansion panel. Must be used within `ExpansionPane
 
 - **Example**
 
-  ```vue
+  ```vue ExpansionPanelContent
   <script lang="ts" setup>
     import { ExpansionPanel } from '@vuetify/v0'
   </script>

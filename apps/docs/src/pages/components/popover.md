@@ -28,7 +28,7 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 
 ## Anatomy
 
-```vue
+```vue Anatomy
 <script lang="ts" setup>
   import { Popover } from '@vuetify/v0'
 </script>
@@ -98,7 +98,7 @@ The root component that manages popover state and provides context.
 
 - **Example**
 
-  ```vue
+  ```vue PopoverRoot
   <script lang="ts" setup>
     import { Popover } from '@vuetify/v0'
     import { ref } from 'vue'
@@ -156,7 +156,7 @@ The anchor button or element that triggers the popover. Uses the native popover 
 
 - **Example**
 
-  ```vue
+  ```vue PopoverAnchor
   <script lang="ts" setup>
     import { Popover } from '@vuetify/v0'
   </script>
@@ -215,7 +215,7 @@ The popover content container with CSS anchor positioning.
 
 - **Example**
 
-  ```vue
+  ```vue PopoverContent
   <script lang="ts" setup>
     import { Popover } from '@vuetify/v0'
   </script>

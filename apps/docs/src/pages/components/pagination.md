@@ -32,7 +32,7 @@ The Pagination component provides a compound component pattern for building page
 
 ## Anatomy
 
-```vue
+```vue Anatomy
 <script lang="ts" setup>
   import { Pagination } from '@vuetify/v0'
 </script>
@@ -109,7 +109,7 @@ The root component that manages pagination state and provides context to child c
 
   **Example:**
 
-  ```vue
+  ```vue PaginationRoot
   <template>
     <Pagination.Root
       v-model="page"
@@ -223,7 +223,7 @@ Individual page number button.
 
 - **Example**
 
-  ```vue
+  ```vue PaginationItem
   <script lang="ts" setup>
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -298,7 +298,7 @@ Displays ellipsis to indicate hidden page numbers.
 
 - **Example**
 
-  ```vue
+  ```vue PaginationEllipsis
   <script lang="ts" setup>
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -376,7 +376,7 @@ Button to navigate to the first page.
 
 - **Example**
 
-  ```vue
+  ```vue PaginationFirst
   <script lang="ts" setup>
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -461,7 +461,7 @@ Button to navigate to the previous page.
 
 - **Example**
 
-  ```vue
+  ```vue PaginationPrev
   <script lang="ts" setup>
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -546,7 +546,7 @@ Button to navigate to the next page.
 
 - **Example**
 
-  ```vue
+  ```vue PaginationNext
   <script lang="ts" setup>
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -631,7 +631,7 @@ Button to navigate to the last page.
 
 - **Example**
 
-  ```vue
+  ```vue PaginationLast
   <script lang="ts" setup>
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -664,7 +664,7 @@ Examples of common Pagination structures:
 
 Use the **as** prop to render pagination items as `RouterLink` components.
 
-```vue
+```vue RouterLink
 <script lang="ts" setup>
   import { Pagination } from '@vuetify/v0'
   import { RouterLink } from 'vue-router'
@@ -700,7 +700,7 @@ Use the **as** prop to render pagination items as `RouterLink` components.
 
 Pagination example with nav, ul, and li elements.
 
-```vue
+```vue UnorderedList
 <script lang="ts" setup>
   import { Pagination } from '@vuetify/v0'
 </script>

@@ -35,7 +35,7 @@ The Group component is a specialization of Selection that enforces multi-selecti
 
 ## Anatomy
 
-```vue
+```vue Anatomy
 <script lang="ts" setup>
   import { Group } from '@vuetify/v0'
 </script>
@@ -152,7 +152,7 @@ The root component that manages multi-selection state with batch operations.
 
 - **Example**
 
-  ```vue
+  ```vue GroupRoot
   <script lang="ts" setup>
     import { Group } from '@vuetify/v0'
   </script>
@@ -248,7 +248,7 @@ Individual group items that register with the Group context. Supports tri-state 
 
 - **Example**
 
-  ```vue
+  ```vue GroupItem
   <script lang="ts" setup>
     import { Group } from '@vuetify/v0'
   </script>
