@@ -7,8 +7,6 @@ autoInstallPeers: true
 
 catalog:
   '@mdi/js': npm:mdi-js-es@7.4.47
-  conventional-changelog-vuetify: ^2.0.2
-  conventional-github-releaser: ^3.1.5
   '@octokit/core': ^7.0.6
   '@octokit/openapi-types': ^27.0.0
   '@shikijs/langs': ^3.15.0
@@ -25,10 +23,13 @@ catalog:
   '@vue/tsconfig': ^0.8.1
   '@vuetify/one': ^2.6.0
   bumpp: ^10.3.1
+  conventional-changelog-vuetify: ^2.0.2
+  conventional-github-releaser: ^3.1.5
   eslint: ^9.39.1
   eslint-config-vuetify: 4.2.1-beta.1
   eslint-plugin-storybook: ^10.0.6
   eslint-plugin-vuejs-accessibility: ^2.4.1
+  fflate: ^0.8.2
   happy-dom: ^20.0.10
   knip: ^5.68.0
   lightningcss: ^1.30.2
