@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+  // Composables
+  import { usePlayground } from '@/composables/playground'
+  import { useBin } from '@/composables/bin'
+
   // Utilities
   import { ref, computed, onMounted, shallowRef, watch } from 'vue'
   import { createHighlighterCore } from 'shiki/core'
@@ -72,13 +76,23 @@
 <template>
   <div class="border border-divider rounded-lg my-6 overflow-hidden">
     <div
-      v-if="title"
-      class="px-4 py-3 font-semibold border-b border-divider bg-surface-tint"
+      v-if="title || code"
+      class="px-4 py-3 font-semibold border-b border-divider bg-surface-tint flex items-center justify-between"
     >
-      {{ title }}
+      <span>{{ title }}</span>
+      <a
+        v-if="code"
+        :href="usePlayground(code)"
+        target="_blank"
+        rel="noopener"
+        class="pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        title="Open in Vuetify Play"
+      >
+        <AppIcon icon="vuetify-play" />
+      </a>
     </div>
 
-    <div class="p-4 bg-surface">
+    <div class="p-6 bg-surface">
       <slot />
     </div>
 
@@ -97,12 +111,24 @@
       v-if="showCode && highlightedCode"
       class="relative bg-pre"
     >
-      <button
-        class="absolute top-3 right-3 pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
-        @click="copyCode"
-      >
-        <AppIcon :icon="!copied ? 'copy' : 'success'" />
-      </button>
+      <div class="absolute top-3 right-3 flex gap-1">
+        <a
+          :href="useBin(code!, 'vue', title || fileName)"
+          target="_blank"
+          rel="noopener"
+          class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
+          title="Open in Vuetify Bin"
+        >
+          <AppIcon icon="vuetify-bin" />
+        </a>
+        <button
+          class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
+          title="Copy code"
+          @click="copyCode"
+        >
+          <AppIcon :icon="!copied ? 'copy' : 'success'" />
+        </button>
+      </div>
       <div
         class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto"
         v-html="highlightedCode"
