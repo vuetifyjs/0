@@ -33,7 +33,7 @@ pnpm add @vuetify/v0
 
 Import and use components directly - no plugin installation required:
 
-```vue
+```vue QuickStart
 <script setup>
 import { ExpansionPanel } from '@vuetify/v0'
 import { ref } from 'vue'

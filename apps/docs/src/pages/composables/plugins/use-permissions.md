@@ -55,7 +55,7 @@ app.mount('#app')
 
 Now in any component, check permissions for specific roles:
 
-```vue
+```vue UsePermissions
 <script lang="ts" setup>
   import { usePermissions } from '@vuetify/v0'
 
@@ -84,7 +84,7 @@ Now in any component, check permissions for specific roles:
 
 Optionally register permissions at runtime:
 
-```vue
+```vue UsePermissions
 <script lang="ts" setup>
   import { usePermissions } from '@vuetify/v0'
 
@@ -179,7 +179,7 @@ Optionally register permissions at runtime:
     })
   )
   ```
-  ```vue
+  ```vue UsePermissions
   <!-- Component.vue -->
   <script lang="ts" setup>
     import { usePermissions } from '@vuetify/v0'

@@ -39,7 +39,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useHydration` composable in any component:
 
-```vue
+```vue UseHydration
 <script setup lang="ts">
 import { useHydration } from '@vuetify/v0'
 

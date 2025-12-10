@@ -25,7 +25,7 @@ export function usePlayground (code: string) {
   // Inject unocss import at the top of the script section
   let modifiedCode = code.replace(
     /<script([^>]*)>/,
-    `<script$1>\n  import './unocss'`
+    `<script$1>\n  import './unocss'`,
   )
 
   // Wrap template content with padding

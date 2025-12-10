@@ -23,7 +23,7 @@ A composable for detecting when elements enter or leave the viewport using the I
 
 The `useIntersectionObserver` composable wraps the Intersection Observer API to detect when elements become visible in the viewport. It's useful for lazy loading images, infinite scroll, entrance animations, and performance optimizations.
 
-```vue
+```vue UseIntersectionObserver
 <script setup>
 import { useIntersectionObserver } from '@vuetify/v0'
 import { ref, useTemplateRef } from 'vue'
@@ -236,7 +236,7 @@ element.value = document.querySelector('.new-target')
 
 Works seamlessly with Vue's template refs:
 
-```vue
+```vue UseIntersectionObserver
 <script setup>
 import { useTemplateRef } from 'vue'
 import { useIntersectionObserver } from '@vuetify/v0'

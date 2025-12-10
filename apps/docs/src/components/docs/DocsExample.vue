@@ -82,10 +82,10 @@
       <span>{{ title }}</span>
       <a
         v-if="code"
-        :href="usePlayground(code)"
-        target="_blank"
-        rel="noopener"
         class="pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        :href="usePlayground(code)"
+        rel="noopener"
+        target="_blank"
         title="Open in Vuetify Play"
       >
         <AppIcon icon="vuetify-play" />
@@ -113,10 +113,10 @@
     >
       <div class="absolute top-3 right-3 flex gap-1">
         <a
-          :href="useBin(code!, 'vue', title || fileName)"
-          target="_blank"
-          rel="noopener"
           class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
+          :href="useBin(code!, 'vue', title || fileName)"
+          rel="noopener"
+          target="_blank"
           title="Open in Vuetify Bin"
         >
           <AppIcon icon="vuetify-bin" />

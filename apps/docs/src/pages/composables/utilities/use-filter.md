@@ -322,7 +322,7 @@ console.log(filtered.value)
 
 A practical example of a searchable user list:
 
-```vue
+```vue UseFilter
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useFilter } from '@vuetify/v0'

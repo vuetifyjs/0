@@ -50,7 +50,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useBreakpoints` composable in any component:
 
-```vue
+```vue UseBreakpoints
 <script setup lang="ts">
 import { useBreakpoints } from '@vuetify/v0'
 

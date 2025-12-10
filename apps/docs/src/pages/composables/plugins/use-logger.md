@@ -43,7 +43,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useLogger` composable in any component:
 
-```vue
+```vue UseLogger
 <script setup lang="ts">
 import { useLogger } from '@vuetify/v0'
 

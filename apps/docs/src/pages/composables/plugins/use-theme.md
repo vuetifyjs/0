@@ -62,7 +62,7 @@ First, install the theme plugin in your application:
 
 Once the plugin is installed, use the `useTheme` composable in any component:
 
-```vue
+```vue UseTheme
   <script setup lang="ts">
     import { useTheme } from '@vuetify/v0'
 

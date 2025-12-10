@@ -22,7 +22,7 @@ A composable for handling DOM events with automatic cleanup on component unmount
 
 The `useEventListener` composable attaches event listeners to DOM elements (Window, Document, or HTMLElement) with automatic cleanup when the component is unmounted. It supports reactive targets, multiple events, and multiple handlers.
 
-```vue
+```vue UseEventListener
 <script setup>
 import { useEventListener, useWindowEventListener, useDocumentEventListener } from '@vuetify/v0'
 import { ref, useTemplateRef } from 'vue'
@@ -215,7 +215,7 @@ watch(
 
 Works seamlessly with Vue's `useTemplateRef`:
 
-```vue
+```vue UseEventListener
 <script setup>
 import { useTemplateRef } from 'vue'
 import { useEventListener } from '@vuetify/v0'

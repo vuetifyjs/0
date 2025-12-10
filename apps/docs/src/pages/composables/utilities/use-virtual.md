@@ -166,7 +166,7 @@ interface ScrollToOptions {
 
 The virtual list requires a specific template structure:
 
-```vue
+```vue UseVirtual
 <template>
   <div
     ref="element"
@@ -197,7 +197,7 @@ The virtual list requires a specific template structure:
 
 Most performant option. Specify a fixed `itemHeight`:
 
-```vue
+```vue UseVirtual
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual } from '@vuetify/v0'
@@ -240,7 +240,7 @@ const { element, items: virtualItems, offset, size, scroll } =
 
 For variable item heights, use `itemHeight: null` and measure each item:
 
-```vue
+```vue UseVirtual
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual, useResizeObserver } from '@vuetify/v0'
@@ -295,7 +295,7 @@ function setupItemResize(el: Element | undefined, index: number) {
 
 Perfect for chat applications where new messages appear at the bottom:
 
-```vue
+```vue UseVirtual
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual } from '@vuetify/v0'
@@ -319,7 +319,7 @@ const { element, items: virtualItems, offset, size, scroll } =
 
 Maintain scroll position when prepending items (e.g., loading older messages):
 
-```vue
+```vue UseVirtual
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual } from '@vuetify/v0'
@@ -345,7 +345,7 @@ async function loadOlder() {
 
 Load more data when scrolling near edges:
 
-```vue
+```vue UseVirtual
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual } from '@vuetify/v0'
@@ -472,7 +472,7 @@ items.value = items.value.filter(item => item.active)
 
 The virtual list itself is headless and provides no ARIA attributes. You should add appropriate ARIA roles based on your use case:
 
-```vue
+```vue UseVirtual
 <div
   ref="element"
   role="list"

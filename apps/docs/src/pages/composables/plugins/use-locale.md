@@ -62,7 +62,7 @@ app.mount('#app')
 
 Once the plugin is installed, use the `useLocale` composable in any component:
 
-```vue
+```vue UseLocale
 <script setup lang="ts">
 import { useLocale } from '@vuetify/v0'
 

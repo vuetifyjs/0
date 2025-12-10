@@ -22,7 +22,7 @@ A composable for handling keyboard events with automatic cleanup and customizabl
 
 The `useKeydown` composable registers keyboard event handlers on the document with automatic cleanup when the component is unmounted. It supports multiple key handlers, preventDefault, and stopPropagation options.
 
-```vue
+```vue UseKeydown
 <script setup>
 import { useKeydown } from '@vuetify/v0'
 import { ref } from 'vue'

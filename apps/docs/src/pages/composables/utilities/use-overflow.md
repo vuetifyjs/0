@@ -133,7 +133,7 @@ Retrieves overflow context from a parent provider.
 
 For items with different widths, measure each item individually:
 
-```vue
+```vue UseOverflow
 <script setup lang="ts">
   import { useTemplateRef } from 'vue'
   import { createOverflow } from '@vuetify/v0'
@@ -269,7 +269,7 @@ const visibleItems = items.slice(startIndex)
 
 ### Vue Component Example
 
-```vue
+```vue UseOverflow
 <script lang="ts" setup>
   import { ref, useTemplateRef } from 'vue'
   import { createOverflow } from '@vuetify/v0'
