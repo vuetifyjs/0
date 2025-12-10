@@ -64,7 +64,7 @@ const faqs = [
   {
     id: 'help',
     question: 'Where can I get help?',
-    answer: '<a href="https://github.com/vuetifyjs/0/issues">GitHub Issues</a> for bug reports, <a href="https://github.com/vuetifyjs/0/discussions">GitHub Discussions</a> for questions, or the <a href="https://community.vuetifyjs.com">Vuetify Discord</a> community for real-time chat.'
+    answer: '<a href="https://github.com/vuetifyjs/0/issues">GitHub Issues</a> for bug reports and feature requests, or the <a href="https://community.vuetifyjs.com">Vuetify Discord</a> community for real-time chat and questions.'
   }
 ]
 </script>
@@ -75,6 +75,6 @@ Common questions and answers about Vuetify0.
 
 <DocsPageFeatures :frontmatter />
 
-Have a question that isn't answered here? Check the [GitHub Discussions](https://github.com/vuetifyjs/0/discussions) or join our [Discord community](https://community.vuetifyjs.com).
+Have a question that isn't answered here? Join our [Discord community](https://community.vuetifyjs.com) or open an [issue on GitHub](https://github.com/vuetifyjs/0/issues).
 
 <FaqList :items="faqs" />
