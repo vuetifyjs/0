@@ -21,7 +21,7 @@ catalog:
   '@vitest/coverage-v8': 4.0.8
   '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.8.1
-  '@vuetify/one': ^2.6.0
+  '@vuetify/one': ^2.6.7
   bumpp: ^10.3.1
   conventional-changelog-vuetify: ^2.0.2
   conventional-github-releaser: ^3.1.5
