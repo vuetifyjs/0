@@ -33,7 +33,7 @@ export type PaginationTicket =
   | { type: 'page', value: number }
   | { type: 'ellipsis', value: string }
 
-export interface PaginationContext<Z extends PaginationTicket = PaginationTicket> {
+export interface PaginationContext {
   /** Current page (1-indexed) */
   page: ShallowRef<number>
   /** Items per page */
@@ -45,7 +45,7 @@ export interface PaginationContext<Z extends PaginationTicket = PaginationTicket
   /** Ellipsis character, or false if disabled */
   ellipsis: string | false
   /** Visible page numbers and ellipsis for rendering */
-  items: ComputedRef<Z[]>
+  items: ComputedRef<PaginationTicket[]>
   /** Start index of items on current page (0-indexed) */
   pageStart: ComputedRef<number>
   /** End index of items on current page (exclusive, 0-indexed) */
@@ -105,10 +105,7 @@ export interface PaginationContextOptions extends PaginationOptions {
  * // Mutating pagination.page or the passed ref syncs both
  * ```
  */
-export function createPagination<
-  Z extends PaginationTicket = PaginationTicket,
-  E extends PaginationContext<Z> = PaginationContext<Z>,
-> (_options: PaginationOptions = {}): E {
+export function createPagination (_options: PaginationOptions = {}): PaginationContext {
   const {
     page: _page = 1,
     itemsPerPage: _itemsPerPage = 10,
@@ -158,19 +155,19 @@ export function createPagination<
   const pageStart = computed(() => (page.value - 1) * toValue(_itemsPerPage))
   const pageStop = computed(() => Math.min(pageStart.value + toValue(_itemsPerPage), toValue(_size)))
 
-  function toPage (value: number): Z {
-    return { type: 'page', value } as Z
+  function toPage (value: number): PaginationTicket {
+    return { type: 'page', value }
   }
 
-  function toEllipsis (): Z | false {
-    return ellipsis === false ? false : { type: 'ellipsis', value: ellipsis } as Z
+  function toEllipsis (): PaginationTicket | false {
+    return ellipsis === false ? false : { type: 'ellipsis', value: ellipsis }
   }
 
-  function filter (array: (Z | false)[]): Z[] {
-    return array.filter(Boolean) as Z[]
+  function filter (array: (PaginationTicket | false)[]): PaginationTicket[] {
+    return array.filter((item): item is PaginationTicket => item !== false)
   }
 
-  const items = computed<Z[]>(() => {
+  const items = computed<PaginationTicket[]>(() => {
     const pageCount = pages.value
     const visible = toValue(_visible)
     const current = page.value
@@ -241,7 +238,7 @@ export function createPagination<
     get pages () {
       return pages.value
     },
-  } as E
+  }
 }
 
 /**
@@ -269,19 +266,16 @@ export function createPagination<
  * pagination.next()
  * ```
  */
-export function createPaginationContext<
-  Z extends PaginationTicket = PaginationTicket,
-  E extends PaginationContext<Z> = PaginationContext<Z>,
-> (_options: PaginationContextOptions = {}): ContextTrinity<E> {
+export function createPaginationContext (_options: PaginationContextOptions = {}): ContextTrinity<PaginationContext> {
   const { namespace = 'v0:pagination', ...options } = _options
-  const [usePaginationContext, _providePaginationContext] = createContext<E>(namespace)
-  const context = createPagination<Z, E>(options)
+  const [usePaginationContext, _providePaginationContext] = createContext<PaginationContext>(namespace)
+  const context = createPagination(options)
 
-  function providePaginationContext (_context: E = context, app?: App): E {
+  function providePaginationContext (_context: PaginationContext = context, app?: App): PaginationContext {
     return _providePaginationContext(_context, app)
   }
 
-  return createTrinity<E>(usePaginationContext, providePaginationContext, context)
+  return createTrinity<PaginationContext>(usePaginationContext, providePaginationContext, context)
 }
 
 /**
@@ -304,9 +298,6 @@ export function createPaginationContext<
  * </template>
  * ```
  */
-export function usePagination<
-  Z extends PaginationTicket = PaginationTicket,
-  E extends PaginationContext<Z> = PaginationContext<Z>,
-> (namespace = 'v0:pagination'): E {
-  return useContext<E>(namespace)
+export function usePagination (namespace = 'v0:pagination'): PaginationContext {
+  return useContext<PaginationContext>(namespace)
 }
