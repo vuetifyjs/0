@@ -11,7 +11,7 @@
 <template>
   <Atom
     :as
-    class="app-footer flex items-center justify-between h-[24px] fixed bottom-0 left-0 md:left-[230px] right-0 px-3 text-xs bg-surface-tint text-on-surface-tint"
+    class="app-footer flex items-center justify-between h-[24px] fixed bottom-0 left-0 md:left-[230px] right-0 px-3 pb-[env(safe-area-inset-bottom)] text-xs bg-surface-tint text-on-surface-tint"
   >
     <DocsLastCommit />
 
