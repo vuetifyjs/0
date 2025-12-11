@@ -578,6 +578,95 @@ Button to navigate to the next page.
   </template>
   ```
 
+### PaginationStatus
+
+Visually-hidden live region that announces page changes to screen readers. Uses `aria-live="polite"` to announce without interrupting the user.
+
+- **Props**
+
+  Extends `AtomProps`:
+
+  ```ts
+  interface PaginationStatusProps extends AtomProps {
+    as?: DOMElement | null
+    renderless?: boolean
+    namespace?: string
+  }
+  ```
+
+  - `as`: Element type to render (default: `'div'`)
+  - `renderless`: If true, renders no wrapper element
+  - `namespace`: Namespace for retrieving pagination context (default: `'v0:pagination'`)
+
+- **Slot Props**
+
+  ```ts
+  interface PaginationStatusSlotProps {
+    page: number
+    pages: number
+    text: string
+    attrs: {
+      'aria-atomic': true
+      'aria-live': 'polite'
+      'role': 'status'
+    }
+  }
+  ```
+
+  - `page`: Current page number (1-indexed)
+  - `pages`: Total number of pages
+  - `text`: The announcement text (e.g., "Page 3 of 10")
+  - `attrs`: Object containing attributes to bind to the element
+
+- **Accessibility**
+
+  - `aria-live="polite"` announces changes without interrupting
+  - `aria-atomic="true"` ensures the entire region is announced
+  - `role="status"` identifies the element as a status region
+  - The live region starts empty and updates after page changes to ensure reliable screen reader announcements
+
+- **Example**
+
+  ```vue PaginationStatus
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
+
+  <template>
+    <Pagination.Root v-model="page" :size="200" v-slot="{ items }">
+      <!-- Visually hidden but announced by screen readers -->
+      <Pagination.Status class="sr-only" />
+
+      <Pagination.First>«</Pagination.First>
+      <Pagination.Prev>‹</Pagination.Prev>
+
+      <template v-for="(item, index) in items" :key="index">
+        <Pagination.Ellipsis v-if="item.type === 'ellipsis'" />
+        <Pagination.Item v-else :value="item.value">
+          {{ item.value }}
+        </Pagination.Item>
+      </template>
+
+      <Pagination.Next>›</Pagination.Next>
+      <Pagination.Last>»</Pagination.Last>
+    </Pagination.Root>
+  </template>
+
+  <style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  </style>
+  ```
+
 ### PaginationLast
 
 Button to navigate to the last page.

@@ -15,6 +15,8 @@ export { default as PaginationPrev } from './PaginationPrev.vue'
 export type { PaginationRootProps, PaginationRootSlotProps } from './PaginationRoot.vue'
 export { providePaginationControls, providePaginationItems, providePaginationRoot, usePaginationControls, usePaginationItems, usePaginationRoot } from './PaginationRoot.vue'
 export { default as PaginationRoot } from './PaginationRoot.vue'
+export type { PaginationStatusProps, PaginationStatusSlotProps } from './PaginationStatus.vue'
+export { default as PaginationStatus } from './PaginationStatus.vue'
 
 import Ellipsis from './PaginationEllipsis.vue'
 import First from './PaginationFirst.vue'
@@ -23,6 +25,7 @@ import Last from './PaginationLast.vue'
 import Next from './PaginationNext.vue'
 import Prev from './PaginationPrev.vue'
 import Root from './PaginationRoot.vue'
+import Status from './PaginationStatus.vue'
 
 export const Pagination = {
   /**
@@ -213,4 +216,25 @@ export const Pagination = {
    * ```
    */
   Last,
+  /**
+   * Visually-hidden live region that announces page changes to screen
+   * readers. Should be styled with sr-only/visually-hidden CSS.
+   *
+   * @see https://0.vuetifyjs.com/components/pagination#paginationstatus
+   *
+   * @example
+   * ```vue
+   * <script lang="ts" setup>
+   *   import { Pagination } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Pagination.Root v-model="page" :size="100">
+   *     <Pagination.Status class="sr-only" />
+   *     <!-- other pagination items -->
+   *   </Pagination.Root>
+   * </template>
+   * ```
+   */
+  Status,
 }
