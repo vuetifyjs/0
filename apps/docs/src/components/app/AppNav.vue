@@ -30,7 +30,7 @@
 <template>
   <Atom
     :as
-    class="bg-surface app-nav flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-solid border-divider"
+    class="bg-surface app-nav flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-solid border-divider z-1"
     :class="app.drawer && '!translate-x-0'"
   >
     <ul class="flex gap-2 flex-col">
