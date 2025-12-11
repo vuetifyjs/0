@@ -6,15 +6,19 @@
   const app = useAppStore()
 
   onMounted(async () => {
-    const { data = [] } = await octokit.request('GET /repos/{owner}/{repo}/commits', {
-      owner: 'vuetifyjs',
-      repo: '0',
-      per_page: 1,
-    })
+    try {
+      const { data = [] } = await octokit.request('GET /repos/{owner}/{repo}/commits', {
+        owner: 'vuetifyjs',
+        repo: '0',
+        per_page: 1,
+      })
 
-    if (data.length === 0) return
+      if (data.length === 0) return
 
-    app.stats.commit = data[0]
+      app.stats.commit = data[0]
+    } catch {
+      // Silently fail - commit info is non-critical
+    }
   })
 </script>
 

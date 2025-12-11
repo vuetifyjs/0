@@ -81,7 +81,7 @@
       text.value = locale.t(
         'Pagination.status',
         { page, pages: pagination.pages },
-        `Page ${page} of ${pagination.pages}`
+        `Page ${page} of ${pagination.pages}`,
       )
     }, 100)
   })
