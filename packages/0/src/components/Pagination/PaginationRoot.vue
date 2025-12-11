@@ -94,6 +94,7 @@
     /** Attributes to bind to the root element */
     attrs: {
       'aria-label': string
+      'role': 'navigation' | undefined
     }
   }
 </script>
@@ -192,6 +193,7 @@
     select: pagination.select,
     attrs: {
       'aria-label': locale.t('Pagination.label', undefined, 'Pagination'),
+      'role': as === 'nav' ? undefined : 'navigation',
     },
   }))
 
