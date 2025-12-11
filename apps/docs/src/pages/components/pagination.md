@@ -141,6 +141,7 @@ The root component that manages pagination state and provides context to child c
     select: (page: number) => void
     attrs: {
       'aria-label': string
+      'role': 'navigation' | undefined
     }
   }
   ```
@@ -194,9 +195,11 @@ Individual page number button.
     attrs: {
       'aria-label': string
       'aria-current': 'page' | undefined
+      'aria-disabled': true | undefined
       'data-selected': true | undefined
       'data-disabled': true | undefined
       'disabled': boolean | undefined
+      'tabindex': -1 | undefined
       'type': 'button' | undefined
       'onClick': () => void
     }
@@ -220,6 +223,9 @@ Individual page number button.
 
   - `aria-current="page"` when selected
   - `aria-label` with localized text (e.g., "Go to page 5" or "Page 5, current page")
+  - `aria-disabled` when disabled (for non-button elements)
+  - `tabindex="-1"` when disabled (for non-button elements)
+  - Native `disabled` attribute for button elements
 
 - **Example**
 
