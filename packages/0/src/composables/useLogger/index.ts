@@ -200,12 +200,12 @@ function createFallbackLogger<
   }
 
   return {
-    debug: (message: string, ...args: unknown[]) => console.log(format(message, 'debug'), ...args),
-    info: (message: string, ...args: unknown[]) => console.log(format(message, 'info'), ...args),
-    warn: (message: string, ...args: unknown[]) => console.log(format(message, 'warn'), ...args),
-    error: (message: string, ...args: unknown[]) => console.log(format(message, 'error'), ...args),
-    trace: (message: string, ...args: unknown[]) => console.log(format(message, 'trace'), ...args),
-    fatal: (message: string, ...args: unknown[]) => console.log(format(message, 'fatal'), ...args),
+    debug: (message: string, ...args: unknown[]) => console.debug(format(message, 'debug'), ...args),
+    info: (message: string, ...args: unknown[]) => console.info(format(message, 'info'), ...args),
+    warn: (message: string, ...args: unknown[]) => console.warn(format(message, 'warn'), ...args),
+    error: (message: string, ...args: unknown[]) => console.error(format(message, 'error'), ...args),
+    trace: (message: string, ...args: unknown[]) => console.trace(format(message, 'trace'), ...args),
+    fatal: (message: string, ...args: unknown[]) => console.error(format(message, 'fatal'), ...args),
     level: () => {},
     current: () => 'info' as LogLevel,
     enabled: () => true,
