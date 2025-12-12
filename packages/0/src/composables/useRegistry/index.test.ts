@@ -1,5 +1,5 @@
 // Composables
-import { useRegistry } from './index'
+import { createRegistryContext, useRegistry } from './index'
 
 // Utilities
 import { describe, it, expect, vi } from 'vitest'
@@ -254,12 +254,13 @@ describe('useRegistry', () => {
     it('should not emit events when events option is disabled', () => {
       const registry = useRegistry({ events: false })
       const listener = vi.fn()
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.on('register:ticket', listener)
       registry.register({ id: 'test' })
 
       expect(listener).not.toHaveBeenCalled()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('events are disabled'))
 
       warnSpy.mockRestore()
     })
@@ -310,6 +311,21 @@ describe('useRegistry', () => {
       expect(listener).toHaveBeenCalledOnce()
     })
 
+    it('should emit reindex:registry event when reindexing', () => {
+      const registry = useRegistry({ events: true })
+      const listener = vi.fn()
+
+      registry.onboard([
+        { id: 'item-1', index: 5 },
+        { id: 'item-2', index: 10 },
+      ])
+
+      registry.on('reindex:registry', listener)
+      registry.reindex()
+
+      expect(listener).toHaveBeenCalledOnce()
+    })
+
     it('should remove event listener with off', () => {
       const registry = useRegistry({ events: true })
       const listener = vi.fn()
@@ -336,9 +352,11 @@ describe('useRegistry', () => {
 
     it('should warn when attempting to register listener without events enabled', () => {
       const registry = useRegistry({ events: false })
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.on('register:ticket', vi.fn())
+
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('events are disabled'))
 
       warnSpy.mockRestore()
     })
@@ -535,7 +553,7 @@ describe('useRegistry', () => {
   describe('Edge cases', () => {
     it('should handle registering duplicate IDs by returning existing ticket', () => {
       const registry = useRegistry()
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const ticket1 = registry.register({ id: 'duplicate', value: 'first' })
       const ticket2 = registry.register({ id: 'duplicate', value: 'second' })
@@ -543,6 +561,7 @@ describe('useRegistry', () => {
       expect(ticket1).toBe(ticket2)
       expect(registry.size).toBe(1)
       expect(ticket1.value).toBe('first')
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('already exists'))
 
       warnSpy.mockRestore()
     })
@@ -598,5 +617,46 @@ describe('useRegistry', () => {
       registry.clear()
       expect(registry.size).toBe(0)
     })
+  })
+})
+
+describe('createRegistryContext', () => {
+  it('should create a context trinity with default namespace', () => {
+    const [useRegistryContext, provideRegistryContext, defaultContext] = createRegistryContext()
+
+    expect(useRegistryContext).toBeDefined()
+    expect(typeof useRegistryContext).toBe('function')
+    expect(provideRegistryContext).toBeDefined()
+    expect(typeof provideRegistryContext).toBe('function')
+    expect(defaultContext).toBeDefined()
+    expect(defaultContext.collection).toBeInstanceOf(Map)
+  })
+
+  it('should create a context with custom namespace', () => {
+    const [, , context] = createRegistryContext({ namespace: 'custom:registry' })
+
+    expect(context.size).toBe(0)
+    context.register({ id: 'test' })
+    expect(context.size).toBe(1)
+  })
+
+  it('should pass events option through to registry', () => {
+    const [, , context] = createRegistryContext({ events: true })
+    const listener = vi.fn()
+
+    context.on('register:ticket', listener)
+    context.register({ id: 'test' })
+
+    expect(listener).toHaveBeenCalledOnce()
+  })
+
+  it('should create independent contexts', () => {
+    const [, , context1] = createRegistryContext({ namespace: 'context-1' })
+    const [, , context2] = createRegistryContext({ namespace: 'context-2' })
+
+    context1.register({ id: 'item-1' })
+
+    expect(context1.size).toBe(1)
+    expect(context2.size).toBe(0)
   })
 })
