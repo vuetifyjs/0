@@ -27,7 +27,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import { clamp, isFunction, isNumber } from '#v0/utilities'
 
 // Vue
-import { computed, readonly, ref, shallowRef, watch } from 'vue'
+import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
 
 // Types
 import type { ComputedRef, Ref, ShallowRef } from 'vue'
@@ -623,6 +623,12 @@ export function useVirtual<T = unknown> (
       element.value.scrollTop = totalHeight
     }
   }
+
+  onScopeDispose(() => {
+    cancelAnimationFrame(raf)
+    cancelAnimationFrame(rebuildRaf)
+    cancelAnimationFrame(edgeRaf)
+  })
 
   return {
     element,
