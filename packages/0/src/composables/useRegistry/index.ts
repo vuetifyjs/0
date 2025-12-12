@@ -354,6 +354,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * - `unregister:ticket` - Emitted when a ticket is unregistered, receives the ticket as argument
    * - `update:ticket` - Emitted when a ticket is updated, receives the updated ticket as argument
    * - `clear:registry` - Emitted when the registry is cleared
+   * - `reindex:registry` - Emitted when the registry is reindexed
    *
    * @see https://0.vuetifyjs.com/composables/registration/use-registry#on
    *
@@ -707,7 +708,7 @@ export function useRegistry<
 
   function keys () {
     const cached = cache.get('keys')
-    if (cached != undefined) return cached as ID[]
+    if (!isUndefined(cached)) return cached as ID[]
 
     const keys = Array.from(collection.keys())
 
@@ -846,14 +847,15 @@ export function useRegistry<
     directory.delete(ticket.index)
     unassign(ticket.value, ticket.id)
 
-    invalidate()
+    const willReindex = indexDependentCount > 0 && ticket.index < collection.size
+    if (!willReindex) invalidate()
+
     emit('unregister:ticket', ticket)
 
-    if (indexDependentCount > 0 && ticket.index < collection.size) {
-      minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
+    minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
+    if (willReindex) {
       reindex()
     } else {
-      minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
       needsReindex = true
     }
   }
@@ -950,8 +952,7 @@ export function useRegistry<
 /**
  * Creates a new registry context.
  *
- * @param namespace The namespace for the registry context.
- * @param options The options for the registry context.
+ * @param options The options for the registry context, including `namespace` (defaults to `'v0:registry'`) and `events`.
  * @template Z The type of registry ticket that extends RegistryTicket. Use this to add custom properties to tickets.
  * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
  * @returns A new registry context.
