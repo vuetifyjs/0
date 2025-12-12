@@ -44,12 +44,12 @@ console.log(filtered.value)
 
 ## API
 
-
 | Composable | Description |
 |---|---|
 | [useSelection](/composables/selection/use-selection) | Selection system for collections |
 | [useRegistry](/composables/registration/use-registry) | Base registry system for managing items |
 | [useProxyModel](/composables/forms/use-proxy-model) | Two-way binding for filtered selections |
+
 - **Type**
 
   ```ts
@@ -59,21 +59,35 @@ console.log(filtered.value)
   export type FilterMode = 'some' | 'every' | 'union' | 'intersection'
   export type FilterFunction = (query: Primitive | Primitive[], item: FilterItem) => boolean
 
-  export interface UseFilterOptions {
+  export interface FilterOptions {
     customFilter?: FilterFunction
     keys?: string[]
     mode?: FilterMode
   }
 
-  export interface UseFilterResult<Z extends FilterItem = FilterItem> {
+  export interface FilterResult<Z extends FilterItem = FilterItem> {
     items: ComputedRef<Z[]>
   }
 
+  export interface FilterContext<Z extends FilterItem = FilterItem> {
+    mode: FilterMode
+    keys: string[] | undefined
+    customFilter: FilterFunction | undefined
+    query: ShallowRef<Primitive | Primitive[]>
+    apply: <T extends Z>(query: FilterQuery, items: MaybeRef<T[]>) => FilterResult<T>
+  }
+
+  // Direct usage
   function useFilter<Z extends FilterItem>(
     query: FilterQuery,
     items: MaybeRef<Z[]>,
-    options?: UseFilterOptions
-  ): UseFilterResult<Z>
+    options?: FilterOptions
+  ): FilterResult<Z>
+
+  // Context creation
+  function createFilter<Z extends FilterItem>(options?: FilterOptions): FilterContext<Z>
+  function createFilterContext<Z extends FilterItem>(options?: FilterContextOptions): ContextTrinity<FilterContext<Z>>
+  function useFilterContext<Z extends FilterItem>(namespace?: string): FilterContext<Z>
   ```
 
 - **Details**
@@ -398,6 +412,77 @@ const { items } = useFilter<Product>(query, products, {
 
 // items is typed as ComputedRef<Product[]>
 console.log(items.value[0]?.name) // TypeScript knows this is a string
+```
+
+## Dependency Injection
+
+For sharing filter configuration across component trees, use the context-based API.
+
+### createFilter
+
+Creates a filter context with pre-configured options:
+
+```ts
+import { createFilter } from '@vuetify/v0'
+
+const filter = createFilter({
+  mode: 'intersection',
+  keys: ['name', 'email'],
+})
+
+// Use the apply method to filter arrays
+const { items } = filter.apply(query, users)
+```
+
+### createFilterContext
+
+Creates a trinity tuple for Vue's provide/inject system:
+
+```ts
+import { createFilterContext } from '@vuetify/v0'
+
+// Create a shared filter context
+export const [useSearchFilter, provideSearchFilter, searchFilter] = createFilterContext({
+  namespace: 'app:search',
+  mode: 'union',
+  keys: ['title', 'description'],
+})
+```
+
+```vue
+<!-- Parent component -->
+<script setup lang="ts">
+import { provideSearchFilter } from './search-filter'
+
+// Provide the filter context to descendants
+provideSearchFilter()
+</script>
+```
+
+```vue
+<!-- Child component -->
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useSearchFilter } from './search-filter'
+
+const filter = useSearchFilter()
+const query = ref('')
+const products = ref([...])
+
+const { items: filtered } = filter.apply(query, products)
+</script>
+```
+
+### useFilterContext
+
+Retrieves a filter context from dependency injection:
+
+```ts
+import { useFilterContext } from '@vuetify/v0'
+
+// Get the filter context provided by an ancestor
+const filter = useFilterContext('app:search')
+const { items } = filter.apply(query, products)
 ```
 
 ## Notes
