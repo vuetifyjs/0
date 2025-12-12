@@ -9,17 +9,23 @@
  * - Case-insensitive filtering
  * - Custom filter functions
  * - Reactive updates
+ * - Context-based DI support
  * - Perfect for search, multi-criteria filtering
  *
  * Filters arrays based on query strings with configurable matching strategies.
  */
+
+// Factories
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { computed, isRef, toRef, toValue } from 'vue'
 import { isObject } from '#v0/utilities'
 
 // Types
-import type { ComputedRef, MaybeRefOrGetter, MaybeRef } from 'vue'
+import type { App, ComputedRef, MaybeRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export type Primitive = string | number | boolean
 export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>
@@ -27,14 +33,37 @@ export type FilterItem = Primitive | Record<string, any>
 export type FilterMode = 'some' | 'every' | 'union' | 'intersection'
 export type FilterFunction = (query: Primitive | Primitive[], item: FilterItem) => boolean
 
-export interface UseFilterOptions {
+export interface FilterOptions {
   customFilter?: FilterFunction
   keys?: string[]
   mode?: FilterMode
 }
 
-export interface UseFilterResult<Z extends FilterItem = FilterItem> {
+export interface FilterResult<Z extends FilterItem = FilterItem> {
   items: ComputedRef<Z[]>
+}
+
+export interface FilterContext<Z extends FilterItem = FilterItem> {
+  /** The filter mode */
+  mode: FilterMode
+  /** Keys to filter on for object items */
+  keys: string[] | undefined
+  /** Custom filter function */
+  customFilter: FilterFunction | undefined
+  /** Current query ref */
+  query: ShallowRef<Primitive | Primitive[]>
+  /**
+   * Apply filter to an array of items
+   *
+   * @param query The query to filter by
+   * @param items The items to filter
+   * @returns The filtered items as a computed ref
+   */
+  apply: <T extends Z>(query: FilterQuery, items: MaybeRef<T[]>) => FilterResult<T>
+}
+
+export interface FilterContextOptions extends FilterOptions {
+  namespace?: string
 }
 
 function defaultFilter (
@@ -77,6 +106,111 @@ function defaultFilter (
 }
 
 /**
+ * Creates a filter context with pre-configured options.
+ *
+ * @param options The filter options
+ * @template Z The type of the items
+ * @template E The type of the filter context
+ * @returns A filter context
+ *
+ * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ *
+ * @example
+ * ```ts
+ * import { createFilter } from '@vuetify/v0'
+ *
+ * const filter = createFilter({
+ *   mode: 'intersection',
+ *   keys: ['name', 'email'],
+ * })
+ *
+ * const { items } = filter.apply(query, users)
+ * ```
+ */
+export function createFilter<
+  Z extends FilterItem = FilterItem,
+  E extends FilterContext<Z> = FilterContext<Z>,
+> (options: FilterOptions = {}): E {
+  const { customFilter, keys, mode = 'some' } = options
+  const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys, mode))
+  const query = toRef<Primitive | Primitive[]>('')
+
+  function apply<T extends Z> (
+    _query: FilterQuery,
+    items: MaybeRef<T[]>,
+  ): FilterResult<T> {
+    const itemsRef = isRef(items) ? items : toRef(() => items)
+    const queryRef = toRef(_query)
+
+    const filteredItems = computed(() => {
+      const q = toValue(queryRef)
+      query.value = q
+      const queries = (Array.isArray(q) ? q : [q]).filter(q => String(q).trim())
+
+      if (queries.length === 0) return itemsRef.value
+
+      const queryParam = queries.length === 1 ? queries[0]! : queries
+      return itemsRef.value.filter(item =>
+        filterFunction(queryParam, item),
+      )
+    })
+
+    return { items: filteredItems }
+  }
+
+  return {
+    mode,
+    keys,
+    customFilter,
+    query,
+    apply,
+  } as E
+}
+
+/**
+ * Creates a filter context with dependency injection support.
+ *
+ * @param options The filter context options
+ * @template Z The type of the items
+ * @template E The type of the filter context
+ * @returns A trinity tuple: [useContext, provideContext, defaultContext]
+ *
+ * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ *
+ * @example
+ * ```ts
+ * import { createFilterContext } from '@vuetify/v0'
+ *
+ * export const [useSearchFilter, provideSearchFilter, searchFilter] = createFilterContext({
+ *   namespace: 'app:search',
+ *   mode: 'union',
+ *   keys: ['title', 'description'],
+ * })
+ *
+ * // In parent component
+ * provideSearchFilter()
+ *
+ * // In child component
+ * const filter = useSearchFilter()
+ * const { items } = filter.apply(query, products)
+ * ```
+ */
+export function createFilterContext<
+  Z extends FilterItem = FilterItem,
+  E extends FilterContext<Z> = FilterContext<Z>,
+> (_options: FilterContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:filter', ...options } = _options
+  const [useFilterContext, _provideFilterContext] = createContext<E>(namespace)
+  const context = createFilter<Z, E>(options)
+
+  function provideFilterContext (_context: E = context, app?: App): E {
+    return _provideFilterContext(_context, app)
+  }
+
+  return createTrinity<E>(useFilterContext, provideFilterContext, context)
+}
+
+/**
  * A reusable function for filtering an array of items.
  *
  * @param query The query to filter by.
@@ -107,27 +241,35 @@ function defaultFilter (
 export function useFilter<Z extends FilterItem> (
   query: FilterQuery,
   items: MaybeRef<Z[]>,
-  options: UseFilterOptions = {},
-): UseFilterResult<Z> {
-  const { customFilter, keys, mode = 'some' } = options
-  const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys, mode))
+  options: FilterOptions = {},
+): FilterResult<Z> {
+  const ctx = createFilter<Z>(options)
+  return ctx.apply(query, items)
+}
 
-  const itemsRef = isRef(items) ? items : toRef(() => items)
-  const queryRef = toRef(query)
-
-  const filteredItems = computed(() => {
-    const q = toValue(queryRef)
-    const queries = (Array.isArray(q) ? q : [q]).filter(q => String(q).trim())
-
-    if (queries.length === 0) return itemsRef.value
-
-    const queryParam = queries.length === 1 ? queries[0]! : queries
-    return itemsRef.value.filter(item =>
-      filterFunction(queryParam, item),
-    )
-  })
-
-  return {
-    items: filteredItems,
-  }
+/**
+ * Returns the current filter context from dependency injection.
+ *
+ * @param namespace The namespace for the filter context. Defaults to `'v0:filter'`.
+ * @template Z The type of the items.
+ * @template E The type of the filter context.
+ * @returns The current filter context.
+ *
+ * @see https://0.vuetifyjs.com/composables/utilities/use-filter
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useFilterContext } from '@vuetify/v0'
+ *
+ *   const filter = useFilterContext()
+ *   const { items } = filter.apply(query, products)
+ * </script>
+ * ```
+ */
+export function useFilterContext<
+  Z extends FilterItem = FilterItem,
+  E extends FilterContext<Z> = FilterContext<Z>,
+> (namespace = 'v0:filter'): E {
+  return useContext<E>(namespace)
 }
