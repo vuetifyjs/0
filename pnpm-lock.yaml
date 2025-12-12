@@ -52,8 +52,8 @@ catalogs:
       specifier: ^0.8.1
       version: 0.8.1
     '@vuetify/one':
-      specifier: ^2.6.7
-      version: 2.6.7
+      specifier: ^2.7.0
+      version: 2.7.0
     bumpp:
       specifier: ^10.3.1
       version: 10.3.1
@@ -243,7 +243,7 @@ importers:
         version: 7.0.6
       '@vuetify/one':
         specifier: 'catalog:'
-        version: 2.6.7(@vue/compiler-sfc@3.5.25)(lodash-es@4.17.21)(mdi-js-es@7.4.47)(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(sass-embedded@1.93.3)(sass@1.96.0)(terser@5.44.1)(yaml@2.8.2))(vue-router@4.6.3(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))(vuetify@3.9.6)
+        version: 2.7.0(@vue/compiler-sfc@3.5.25)(lodash-es@4.17.21)(mdi-js-es@7.4.47)(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(sass-embedded@1.93.3)(sass@1.96.0)(terser@5.44.1)(yaml@2.8.2))(vue-router@4.6.3(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))(vuetify@3.9.6)
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
@@ -2816,8 +2816,8 @@ packages:
       vue: ^3.0.0
       vuetify: ^3.0.0
 
-  '@vuetify/one@2.6.7':
-    resolution: {integrity: sha512-x8GSGjiDrTh0BfsZIxHzNEm3XyBNmJEyugshbc8T0QPbcxHIzes3NxjVGIeUX8PSOLj+fszxB3iUfKxNgH/Rfw==}
+  '@vuetify/one@2.7.0':
+    resolution: {integrity: sha512-+MWr+/LIv9wmBZSfZZsdjZGyfkO0Bhu3MqqbV5anF7OuIH413XAZ9R8Z43PcToMol1NzYdrdDrx54p0C3XiXJw==}
     peerDependencies:
       '@mdi/js': 7.4.47
       lodash-es: ^4.17.21
@@ -2998,8 +2998,8 @@ packages:
     resolution: {integrity: sha512-2NovHVesVF5TXefsGX1yzx1xgr7+m9JQenvz6FQY3qd+YXkKkYiv+vTCc7OriP9mcDZpTC5mAOYN4ocd29+erA==}
     hasBin: true
 
-  baseline-browser-mapping@2.9.6:
-    resolution: {integrity: sha512-v9BVVpOTLB59C9E7aSnmIF8h7qRsFpx+A2nugVMTszEOMcfjlZMsXRm4LF23I3Z9AJxc8ANpIvzbzONoX9VJlg==}
+  baseline-browser-mapping@2.9.7:
+    resolution: {integrity: sha512-k9xFKplee6KIio3IDbwj+uaCLpqzOwakOgmqzPezM0sFJlFKcg30vk2wOiAJtkTSfx0SSQDSe8q+mWA/fSH5Zg==}
     hasBin: true
 
   before-after-hook@4.0.0:
@@ -9783,7 +9783,7 @@ snapshots:
       vuetify: 3.9.6(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.24(typescript@5.9.3))
     optional: true
 
-  '@vuetify/one@2.6.7(@vue/compiler-sfc@3.5.25)(lodash-es@4.17.21)(mdi-js-es@7.4.47)(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(sass-embedded@1.93.3)(sass@1.96.0)(terser@5.44.1)(yaml@2.8.2))(vue-router@4.6.3(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))(vuetify@3.9.6)':
+  '@vuetify/one@2.7.0(@vue/compiler-sfc@3.5.25)(lodash-es@4.17.21)(mdi-js-es@7.4.47)(rolldown-vite@7.2.2(@types/node@24.10.0)(esbuild@0.25.12)(jiti@2.6.1)(sass-embedded@1.93.3)(sass@1.96.0)(terser@5.44.1)(yaml@2.8.2))(vue-router@4.6.3(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))(vuetify@3.9.6)':
     dependencies:
       '@mdi/js': mdi-js-es@7.4.47
       lodash-es: 4.17.21
@@ -9960,7 +9960,7 @@ snapshots:
 
   baseline-browser-mapping@2.8.25: {}
 
-  baseline-browser-mapping@2.9.6: {}
+  baseline-browser-mapping@2.9.7: {}
 
   before-after-hook@4.0.0: {}
 
@@ -10001,7 +10001,7 @@ snapshots:
 
   browserslist@4.28.1:
     dependencies:
-      baseline-browser-mapping: 2.9.6
+      baseline-browser-mapping: 2.9.7
       caniuse-lite: 1.0.30001760
       electron-to-chromium: 1.5.267
       node-releases: 2.0.27
