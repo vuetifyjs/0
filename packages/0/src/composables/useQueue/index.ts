@@ -238,7 +238,7 @@ export interface QueueOptions extends RegistryOptions {
 }
 
 export interface QueueContextOptions extends QueueOptions {
-  namespace: string
+  namespace?: string
 }
 
 /**
@@ -401,7 +401,6 @@ export function createQueue<
 /**
  * Creates a new queue context.
  *
- * @param namespace The namespace for the queue context.
  * @param options The options for the queue context.
  * @template Z The type of the queue ticket.
  * @template E The type of the queue context.
@@ -413,7 +412,7 @@ export function createQueue<
  * ```ts
  * import { createQueueContext } from '@vuetify/v0'
  *
- * export const [useQueue, provideQueue] = createQueueContext('v0:queue', {
+ * export const [useQueue, provideQueue, context] = createQueueContext({
  *   timeout: 5000,
  * })
  * ```
@@ -421,8 +420,8 @@ export function createQueue<
 export function createQueueContext<
   Z extends QueueTicket = QueueTicket,
   E extends QueueContext<Z> = QueueContext<Z>,
-> (_options: QueueContextOptions): ContextTrinity<E> {
-  const { namespace, ...options } = _options
+> (_options: QueueContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:queue', ...options } = _options
   const [useQueueContext, _provideQueueContext] = createContext<E>(namespace)
   const context = createQueue<Z, E>(options)
 
