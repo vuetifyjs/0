@@ -120,14 +120,14 @@
   ],
   "ignoreDependencies": [
     "@vuetify/paper",
-    "@vuetify/v0"
+    "@vuetify/v0",
+    "conventional-changelog-vuetify"
   ],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true
   },
   "ignoreBinaries": [
-    "http-server",
-    "vite"
+    "http-server"
   ]
 }
