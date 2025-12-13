@@ -1,8 +1,64 @@
 // Composables
-import { createSelection } from './index'
+import { createSelection, createSelectionContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
+
+describe('createSelectionContext', () => {
+  it('should return a trinity tuple', () => {
+    const result = createSelectionContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result.length).toBe(3)
+
+    const [useContext, provideContext, defaultContext] = result
+
+    expect(typeof useContext).toBe('function')
+    expect(typeof provideContext).toBe('function')
+    expect(defaultContext).toBeDefined()
+  })
+
+  it('should create a default context with selection methods', () => {
+    const [, , defaultContext] = createSelectionContext()
+
+    expect(defaultContext.selectedIds).toBeDefined()
+    expect(typeof defaultContext.select).toBe('function')
+    expect(typeof defaultContext.unselect).toBe('function')
+    expect(typeof defaultContext.toggle).toBe('function')
+    expect(typeof defaultContext.register).toBe('function')
+  })
+
+  it('should use custom namespace', () => {
+    const [useContext, provideContext, defaultContext] = createSelectionContext({
+      namespace: 'custom:selection',
+    })
+
+    expect(defaultContext).toBeDefined()
+    expect(typeof useContext).toBe('function')
+    expect(typeof provideContext).toBe('function')
+  })
+
+  it('should pass options to the selection instance', () => {
+    const [, , defaultContext] = createSelectionContext({
+      mandatory: true,
+      multiple: true,
+    })
+
+    defaultContext.register({ id: 'item-1', value: 'value-1' })
+    defaultContext.register({ id: 'item-2', value: 'value-2' })
+
+    defaultContext.select('item-1')
+    defaultContext.select('item-2')
+
+    expect(defaultContext.selectedIds.size).toBe(2)
+
+    defaultContext.unselect('item-1')
+    expect(defaultContext.selectedIds.size).toBe(1)
+
+    defaultContext.unselect('item-2')
+    expect(defaultContext.selectedIds.size).toBe(1)
+  })
+})
 
 describe('useSelection', () => {
   describe('mandate', () => {
@@ -617,6 +673,64 @@ describe('useSelection', () => {
       selection.unregister('item-1')
       expect(selection.selectedIds.has('item-1')).toBe(false)
       expect(selection.size).toBe(1)
+    })
+  })
+
+  describe('offboard', () => {
+    it('should remove items from selectedIds when offboarding', () => {
+      const selection = createSelection({ multiple: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      selection.select('item-1')
+      selection.select('item-2')
+
+      expect(selection.size).toBe(3)
+      expect(selection.selectedIds.size).toBe(2)
+
+      selection.offboard(['item-1', 'item-2'])
+
+      expect(selection.size).toBe(1)
+      expect(selection.selectedIds.size).toBe(0)
+      expect(selection.selectedIds.has('item-1')).toBe(false)
+      expect(selection.selectedIds.has('item-2')).toBe(false)
+    })
+
+    it('should handle offboard with non-existent IDs gracefully', () => {
+      const selection = createSelection({ multiple: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      selection.select('item-1')
+
+      selection.offboard(['item-1', 'non-existent', 'also-fake'])
+
+      expect(selection.size).toBe(0)
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should handle offboard of unselected items', () => {
+      const selection = createSelection({ multiple: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      selection.select('item-1')
+
+      selection.offboard(['item-2', 'item-3'])
+
+      expect(selection.size).toBe(1)
+      expect(selection.selectedIds.size).toBe(1)
+      expect(selection.selectedIds.has('item-1')).toBe(true)
     })
   })
 

@@ -50,8 +50,8 @@ console.log(selection.has('apple')) // true
 - **Type**
 
   ```ts
-  export interface SelectionTicket extends RegistryTicket {
-    disabled: boolean
+  export interface SelectionTicket<V = unknown> extends RegistryTicket<V> {
+    disabled: MaybeRef<boolean>
     isSelected: Readonly<Ref<boolean, boolean>>
     select: () => void
     unselect: () => void
@@ -62,6 +62,7 @@ console.log(selection.has('apple')) // true
     selectedIds: Reactive<Set<ID>>
     selectedItems: ComputedRef<Set<Z>>
     selectedValues: ComputedRef<Set<unknown>>
+    disabled: MaybeRef<boolean>
     reset: () => void
     select: (id: ID) => void
     unselect: (id: ID) => void
@@ -71,8 +72,10 @@ console.log(selection.has('apple')) // true
   }
 
   export interface SelectionOptions extends RegistryOptions {
+    disabled?: MaybeRef<boolean>
     enroll?: boolean
     mandatory?: boolean | 'force'
+    multiple?: boolean
   }
   ```
 - **Details**
@@ -89,8 +92,10 @@ console.log(selection.has('apple')) // true
 
 - **Options**
 
+  - `disabled`: If `true` or a ref that resolves to `true`, disables the entire selection instance.
   - `enroll`: If `true`, new items are auto-selected when registered (unless disabled).
-  - `mandatory `: If `true` or `force`, at least one item must always remain selected.
+  - `mandatory`: If `true` or `'force'`, at least one item must always remain selected.
+  - `multiple`: If `true`, allows multiple items to be selected simultaneously.
 
 ### `selectedIds`
 

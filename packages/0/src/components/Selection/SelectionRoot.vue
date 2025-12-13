@@ -67,6 +67,10 @@
     default: (props: SelectionRootSlotProps) => any
   }>()
 
+  defineEmits<{
+    'update:model-value': [value: T | T[]]
+  }>()
+
   const {
     namespace = 'v0:selection',
     disabled = false,
