@@ -494,9 +494,9 @@ console.log(registry.size) // 3
 
 - **Example**
   ```ts
-  const registry = useRegistry()
+  const registry = useRegistry({ events: true })
 
-  registry.on('register', item => {
+  registry.on('register:ticket', item => {
     console.log('Registered:', item)
   })
 
@@ -516,14 +516,14 @@ console.log(registry.size) // 3
 
 - **Example**
   ```ts
-  const registry = useRegistry()
+  const registry = useRegistry({ events: true })
 
   function logItem(item) {
     console.log('Registered:', item)
   }
 
-  registry.on('register', logItem)
-  registry.off('register', logItem)
+  registry.on('register:ticket', logItem)
+  registry.off('register:ticket', logItem)
   ```
 
 ### `emit`
@@ -538,7 +538,7 @@ console.log(registry.size) // 3
 
 - **Example**
   ```ts
-  const registry = useRegistry()
+  const registry = useRegistry({ events: true })
 
   registry.on('custom', payload => {
     console.log('Custom event data:', payload)
@@ -595,8 +595,8 @@ console.log(registry.size) // 3
   function createRegistryContext<
     Z extends RegistryTicket = RegistryTicket,
     E extends RegistryContext<Z> = RegistryContext<Z>
-  >(options?: RegistryOptions): E
+  >(options?: RegistryContextOptions): ContextTrinity<E>
   ```
 
 - **Details**
-  Creates a new registry context instance, which can be extended with additional methods by specifying a custom type for `E`.
+  Creates a new registry context with the trinity pattern, returning a tuple of `[useContext, provideContext, defaultContext]`. The context can be extended with additional methods by specifying a custom type for `E`.

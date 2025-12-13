@@ -516,6 +516,33 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * ```
   */
   size: number
+  /**
+   * Execute operations in a batch, deferring cache invalidation and event emission until complete
+   *
+   * @param fn The function containing batch operations.
+   * @returns The return value of the batch function.
+   * @remarks Useful for bulk operations like onboard(). Invalidation and events happen once at the end, not after each operation.
+   *
+   * @see https://0.vuetifyjs.com/composables/registration/use-registry#batch
+   *
+   * @example
+   * ```ts
+   * import { useRegistry } from '@vuetify/v0'
+   *
+   * const registry = useRegistry({ events: true })
+   *
+   * // Without batch: N invalidations + N events
+   * // With batch: 1 invalidation + N events (after all registrations)
+   * const tickets = registry.batch(() => {
+   *   return [
+   *     registry.register({ id: 'a' }),
+   *     registry.register({ id: 'b' }),
+   *     registry.register({ id: 'c' }),
+   *   ]
+   * })
+   * ```
+  */
+  batch: <R>(fn: () => R) => R
 }
 
 export interface RegistryOptions {
@@ -585,6 +612,8 @@ export function useRegistry<
   let indexDependentCount = 0
   let needsReindex = false
   let minDirtyIndex = Infinity
+  let batching = false
+  let pendingEmits: Array<{ event: string, data: unknown }> = []
 
   function emit (event: string, data: unknown = undefined) {
     if (!events) return
@@ -751,7 +780,38 @@ export function useRegistry<
   }
 
   function invalidate () {
+    if (batching) return
     if (cache.size > 0) cache.clear()
+  }
+
+  function queueEmit (event: string, data: unknown) {
+    if (batching) {
+      pendingEmits.push({ event, data })
+    } else {
+      emit(event, data)
+    }
+  }
+
+  function batch<R> (fn: () => R): R {
+    if (batching) return fn()
+
+    batching = true
+    pendingEmits = []
+
+    try {
+      const result = fn()
+
+      if (cache.size > 0) cache.clear()
+
+      for (const { event, data } of pendingEmits) {
+        emit(event, data)
+      }
+
+      return result
+    } finally {
+      batching = false
+      pendingEmits = []
+    }
   }
 
   function reindex () {
@@ -829,7 +889,7 @@ export function useRegistry<
 
     assign(ticket.value, ticket.id)
     invalidate()
-    emit('register:ticket', ticket)
+    queueEmit('register:ticket', ticket)
 
     return ticket
   }
@@ -939,8 +999,9 @@ export function useRegistry<
     unregister,
     reindex,
     seek,
+    batch,
     onboard (registrations: Partial<Z>[]) {
-      return registrations.map(registration => register(registration))
+      return batch(() => registrations.map(registration => register(registration)))
     },
     offboard,
     get size () {
