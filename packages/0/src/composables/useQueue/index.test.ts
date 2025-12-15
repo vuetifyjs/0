@@ -1,8 +1,21 @@
 // Composables
-import { createQueue } from './index'
+import { createQueue, createQueueContext, useQueue } from './index'
 
 // Utilities
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { provide, inject } from 'vue'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('createQueue', () => {
   beforeEach(() => {
@@ -438,5 +451,278 @@ describe('createQueue', () => {
 
       expect(queue.size).toBe(1)
     })
+  })
+
+  describe('offboard', () => {
+    it('should offboard multiple tickets at once', () => {
+      const queue = createQueue({ timeout: 5000 })
+      const ticket1 = queue.register({ value: 'first' })
+      const ticket2 = queue.register({ value: 'second' })
+      const ticket3 = queue.register({ value: 'third' })
+
+      expect(queue.size).toBe(3)
+
+      queue.offboard([ticket1.id, ticket3.id])
+
+      expect(queue.size).toBe(1)
+      expect(queue.has(ticket1.id)).toBe(false)
+      expect(queue.has(ticket2.id)).toBe(true)
+      expect(queue.has(ticket3.id)).toBe(false)
+    })
+
+    it('should clear timeouts for offboarded tickets', () => {
+      const queue = createQueue({ timeout: 3000 })
+      const ticket1 = queue.register({ value: 'first' })
+      queue.register({ value: 'second' })
+
+      queue.offboard([ticket1.id])
+
+      // Advance time - should not cause issues from cleared timeout
+      vi.advanceTimersByTime(5000)
+
+      // Second ticket should have been resumed and timed out
+      expect(queue.size).toBe(0)
+    })
+
+    it('should skip non-existent ids when offboarding', () => {
+      const queue = createQueue({ timeout: 5000 })
+      const ticket1 = queue.register({ value: 'first' })
+      const ticket2 = queue.register({ value: 'second' })
+
+      expect(queue.size).toBe(2)
+
+      // Include non-existent id
+      queue.offboard([ticket1.id, 'non-existent', ticket2.id])
+
+      expect(queue.size).toBe(0)
+    })
+
+    it('should resume next ticket when first is offboarded', () => {
+      const queue = createQueue({ timeout: 5000 })
+      const ticket1 = queue.register({ value: 'first' })
+      const ticket2 = queue.register({ value: 'second' })
+
+      expect(ticket1.isPaused).toBe(false)
+      expect(ticket2.isPaused).toBe(true)
+
+      queue.offboard([ticket1.id])
+
+      const updatedTicket2 = queue.get(ticket2.id)
+      expect(updatedTicket2?.isPaused).toBe(false)
+    })
+
+    it('should not resume if first ticket was not offboarded', () => {
+      const queue = createQueue({ timeout: 5000 })
+      const ticket1 = queue.register({ value: 'first' })
+      const ticket2 = queue.register({ value: 'second' })
+      const ticket3 = queue.register({ value: 'third' })
+
+      expect(ticket1.isPaused).toBe(false)
+
+      // Only offboard non-first tickets
+      queue.offboard([ticket2.id, ticket3.id])
+
+      // First ticket should still be active
+      const updatedTicket1 = queue.get(ticket1.id)
+      expect(updatedTicket1?.isPaused).toBe(false)
+      expect(queue.size).toBe(1)
+    })
+
+    it('should handle offboarding all tickets', () => {
+      const queue = createQueue({ timeout: 5000 })
+      const ticket1 = queue.register({ value: 'first' })
+      const ticket2 = queue.register({ value: 'second' })
+      const ticket3 = queue.register({ value: 'third' })
+
+      queue.offboard([ticket1.id, ticket2.id, ticket3.id])
+
+      expect(queue.size).toBe(0)
+
+      // Advance time - no timeouts should fire
+      vi.advanceTimersByTime(10_000)
+
+      expect(queue.size).toBe(0)
+    })
+
+    it('should handle empty offboard call', () => {
+      const queue = createQueue({ timeout: 5000 })
+      queue.register({ value: 'first' })
+
+      expect(queue.size).toBe(1)
+
+      queue.offboard([])
+
+      expect(queue.size).toBe(1)
+    })
+
+    it('should clear timeout for first ticket before delegating to registry', () => {
+      const queue = createQueue({ timeout: 2000 })
+      const ticket1 = queue.register({ value: 'first' })
+      const ticket2 = queue.register({ value: 'second' })
+
+      // Advance partway through first ticket's timeout
+      vi.advanceTimersByTime(1000)
+
+      // Offboard first ticket
+      queue.offboard([ticket1.id])
+
+      // Second ticket should now be active and start its timeout
+      const updatedTicket2 = queue.get(ticket2.id)
+      expect(updatedTicket2?.isPaused).toBe(false)
+
+      // Advance remaining time - second ticket should timeout
+      vi.advanceTimersByTime(2000)
+
+      expect(queue.size).toBe(0)
+    })
+
+    it('should handle offboarding tickets with different timeout states', () => {
+      const queue = createQueue({ timeout: 5000 })
+      const ticket1 = queue.register({ value: 'active', timeout: 3000 })
+      const ticket2 = queue.register({ value: 'paused' })
+      const ticket3 = queue.register({ value: 'persistent', timeout: -1 })
+
+      expect(ticket1.isPaused).toBe(false)
+      expect(ticket2.isPaused).toBe(true)
+      expect(ticket3.timeout).toBe(-1)
+
+      queue.offboard([ticket1.id, ticket3.id])
+
+      expect(queue.size).toBe(1)
+      expect(queue.has(ticket2.id)).toBe(true)
+
+      // Second ticket should now be active
+      const updatedTicket2 = queue.get(ticket2.id)
+      expect(updatedTicket2?.isPaused).toBe(false)
+    })
+  })
+})
+
+describe('createQueueContext', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('should return a trinity tuple with 3 elements', () => {
+    const result = createQueueContext()
+
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useContext
+    expect(typeof result[1]).toBe('function') // provideContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create a queue context with default options', () => {
+    const [, , context] = createQueueContext()
+
+    expect(context).toHaveProperty('register')
+    expect(context).toHaveProperty('unregister')
+    expect(context).toHaveProperty('pause')
+    expect(context).toHaveProperty('resume')
+    expect(context).toHaveProperty('clear')
+    expect(context).toHaveProperty('dispose')
+    expect(context).toHaveProperty('offboard')
+  })
+
+  it('should pass timeout option to queue', () => {
+    const [, , context] = createQueueContext({ timeout: 10_000 })
+
+    const ticket = context.register({ value: 'test' })
+
+    expect(ticket.timeout).toBe(10_000)
+  })
+
+  it('should use custom namespace', () => {
+    const [useQueueContext] = createQueueContext({ namespace: 'custom:queue' })
+
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useQueueContext()).toThrow()
+    expect(mockInject).toHaveBeenCalledWith('custom:queue', undefined)
+  })
+
+  it('should use default namespace v0:queue', () => {
+    const [useQueueContext] = createQueueContext()
+
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useQueueContext()).toThrow()
+    expect(mockInject).toHaveBeenCalledWith('v0:queue', undefined)
+  })
+
+  it('should provide context with provideContext', () => {
+    const [, provideContext, context] = createQueueContext()
+
+    provideContext()
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:queue', context)
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideContext] = createQueueContext()
+    const customContext = createQueue({ timeout: 1000 })
+
+    provideContext(customContext as any)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:queue', customContext)
+  })
+
+  it('should provide context at app level', () => {
+    const [, provideContext, context] = createQueueContext()
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+
+    provideContext(undefined, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:queue', context)
+  })
+
+  it('should pass events option to underlying registry', () => {
+    const [, , context] = createQueueContext({ events: true })
+
+    const callback = vi.fn()
+    context.on('register:ticket', callback)
+
+    context.register({ value: 'test' })
+
+    expect(callback).toHaveBeenCalledOnce()
+  })
+})
+
+describe('useQueue', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should retrieve queue context from default namespace', () => {
+    const mockContext = createQueue()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useQueue()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:queue', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should retrieve queue context from custom namespace', () => {
+    const mockContext = createQueue()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useQueue('custom:notification-queue')
+
+    expect(mockInject).toHaveBeenCalledWith('custom:notification-queue', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useQueue()).toThrow()
   })
 })
