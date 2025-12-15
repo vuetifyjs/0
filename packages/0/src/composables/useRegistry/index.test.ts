@@ -620,6 +620,171 @@ describe('useRegistry', () => {
   })
 })
 
+describe('Batch operations', () => {
+  it('should return the value from the batched function', () => {
+    const registry = useRegistry()
+
+    const result = registry.batch(() => {
+      registry.register({ id: 'item-1' })
+      return 'batch-result'
+    })
+
+    expect(result).toBe('batch-result')
+    expect(registry.size).toBe(1)
+  })
+
+  it('should defer event emission until batch completes', () => {
+    const registry = useRegistry({ events: true })
+    const listener = vi.fn()
+    const callOrder: string[] = []
+
+    registry.on('register:ticket', () => {
+      callOrder.push('event')
+      listener()
+    })
+
+    registry.batch(() => {
+      registry.register({ id: 'item-1' })
+      callOrder.push('after-register-1')
+      registry.register({ id: 'item-2' })
+      callOrder.push('after-register-2')
+    })
+    callOrder.push('after-batch')
+
+    // Events should be emitted AFTER all operations, not during
+    expect(listener).toHaveBeenCalledTimes(2)
+    expect(callOrder).toEqual([
+      'after-register-1',
+      'after-register-2',
+      'event',
+      'event',
+      'after-batch',
+    ])
+  })
+
+  it('should only invalidate cache once at end of batch', () => {
+    const registry = useRegistry()
+    registry.register({ id: 'initial' })
+
+    const keys1 = registry.keys()
+
+    registry.batch(() => {
+      registry.register({ id: 'item-1' })
+      const keysDuringBatch = registry.keys()
+      // During batch, cache should still be valid (same reference)
+      expect(keysDuringBatch).toBe(keys1)
+
+      registry.register({ id: 'item-2' })
+    })
+
+    const keys2 = registry.keys()
+    // After batch, cache should be invalidated
+    expect(keys2).not.toBe(keys1)
+    expect(keys2.length).toBe(3)
+  })
+
+  it('should handle nested batch calls correctly', () => {
+    const registry = useRegistry({ events: true })
+    const listener = vi.fn()
+
+    registry.on('register:ticket', listener)
+
+    registry.batch(() => {
+      registry.register({ id: 'item-1' })
+
+      // Nested batch should just execute, not reset outer batch
+      registry.batch(() => {
+        registry.register({ id: 'item-2' })
+      })
+
+      registry.register({ id: 'item-3' })
+    })
+
+    // All 3 events should be emitted after outer batch completes
+    expect(listener).toHaveBeenCalledTimes(3)
+    expect(registry.size).toBe(3)
+  })
+
+  it('should cleanup batching state on error', () => {
+    const registry = useRegistry({ events: true })
+    const listener = vi.fn()
+
+    registry.on('register:ticket', listener)
+
+    expect(() => {
+      registry.batch(() => {
+        registry.register({ id: 'item-1' })
+        throw new Error('Test error')
+      })
+    }).toThrow('Test error')
+
+    // Batching state should be reset
+    // Next register should emit immediately
+    registry.register({ id: 'item-2' })
+    expect(listener).toHaveBeenCalledOnce()
+  })
+
+  it('should batch multiple different operations', () => {
+    const registry = useRegistry({ events: true })
+    const registerListener = vi.fn()
+    const unregisterListener = vi.fn()
+    const updateListener = vi.fn()
+
+    registry.on('register:ticket', registerListener)
+    registry.on('unregister:ticket', unregisterListener)
+    registry.on('update:ticket', updateListener)
+
+    registry.register({ id: 'existing', value: 'initial' })
+    registerListener.mockClear()
+
+    registry.batch(() => {
+      registry.register({ id: 'new-item' })
+      registry.upsert('existing', { value: 'updated' })
+      registry.unregister('new-item')
+    })
+
+    expect(registerListener).toHaveBeenCalledOnce()
+    expect(updateListener).toHaveBeenCalledOnce()
+    expect(unregisterListener).toHaveBeenCalledOnce()
+  })
+
+  it('should work with onboard and offboard in batch', () => {
+    const registry = useRegistry({ events: true })
+    const listener = vi.fn()
+
+    registry.on('register:ticket', listener)
+
+    registry.batch(() => {
+      registry.onboard([
+        { id: 'item-1' },
+        { id: 'item-2' },
+        { id: 'item-3' },
+      ])
+      registry.offboard(['item-2'])
+    })
+
+    // Should emit 3 register events (offboard emits unregister, not register)
+    expect(listener).toHaveBeenCalledTimes(3)
+    expect(registry.size).toBe(2)
+  })
+
+  it('should maintain correct state during batch', () => {
+    const registry = useRegistry()
+
+    registry.batch(() => {
+      registry.register({ id: 'item-1', value: 'a' })
+
+      // State should be immediately available during batch
+      expect(registry.size).toBe(1)
+      expect(registry.has('item-1')).toBe(true)
+      expect(registry.get('item-1')?.value).toBe('a')
+
+      registry.register({ id: 'item-2', value: 'b' })
+      expect(registry.size).toBe(2)
+    })
+  })
+})
+
 describe('createRegistryContext', () => {
   it('should create a context trinity with default namespace', () => {
     const [useRegistryContext, provideRegistryContext, defaultContext] = createRegistryContext()
