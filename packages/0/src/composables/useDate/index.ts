@@ -33,7 +33,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
-import { V0DateAdapter } from '#v0/composables/useDate/adapters/v0'
+import { V0DateAdapter } from './adapters'
 
 // Utilities
 import { getCurrentInstance, computed, watchEffect } from 'vue'
@@ -102,18 +102,19 @@ function isIntlLocale (locale: string): boolean {
  * Creates a new date instance.
  *
  * @param options The options for the date instance.
- * @template T The date type used by the adapter.
+ * @template T The date type used by the adapter. Must be compatible with the provided adapter.
+ *              When using the default V0DateAdapter, this must be Temporal.PlainDateTime.
  * @template E The type of the date context.
  * @returns A new date instance.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-date
  */
 export function createDate<
-  T = Temporal.PlainDateTime,
+  T extends Temporal.PlainDateTime = Temporal.PlainDateTime,
   E extends DateContext<T> = DateContext<T>,
 > (_options: DateOptions<T> = {}): E {
   const {
-    adapter = new V0DateAdapter() as DateAdapter<T>,
+    adapter = new V0DateAdapter() as unknown as DateAdapter<T>,
     locale: defaultLocale,
     localeMap = defaultLocaleMap,
   } = _options
@@ -172,12 +173,16 @@ export function createDate<
 
 /**
  * Creates a fallback date context for when useDate is called outside of a Vue component.
+ *
+ * @template T The date type used by the adapter. Must extend Temporal.PlainDateTime.
+ * @template E The type of the date context.
+ * @returns A fallback date context with V0DateAdapter.
  */
 export function createDateFallback<
-  T = Temporal.PlainDateTime,
+  T extends Temporal.PlainDateTime = Temporal.PlainDateTime,
   E extends DateContext<T> = DateContext<T>,
 > (): E {
-  const adapter = new V0DateAdapter() as DateAdapter<T>
+  const adapter = new V0DateAdapter() as unknown as DateAdapter<T>
 
   return {
     adapter,
@@ -212,7 +217,7 @@ export function createDateFallback<
  * ```
  */
 export function createDateContext<
-  T = Temporal.PlainDateTime,
+  T extends Temporal.PlainDateTime = Temporal.PlainDateTime,
   E extends DateContext<T> = DateContext<T>,
 > (_options: DateContextOptions<T> = {}): ContextTrinity<E> {
   const { namespace = 'v0:date', ...options } = _options
@@ -237,7 +242,7 @@ export function createDateContext<
  * @see https://0.vuetifyjs.com/composables/plugins/use-date
  */
 export function createDatePlugin<
-  T = Temporal.PlainDateTime,
+  T extends Temporal.PlainDateTime = Temporal.PlainDateTime,
   E extends DateContext<T> = DateContext<T>,
 > (_options: DatePluginOptions<T> = {}) {
   const { namespace = 'v0:date', ...options } = _options
@@ -262,7 +267,7 @@ export function createDatePlugin<
  * @see https://0.vuetifyjs.com/composables/plugins/use-date
  */
 export function useDate<
-  T = Temporal.PlainDateTime,
+  T extends Temporal.PlainDateTime = Temporal.PlainDateTime,
   E extends DateContext<T> = DateContext<T>,
 > (namespace = 'v0:date'): E {
   const fallback = createDateFallback<T, E>()

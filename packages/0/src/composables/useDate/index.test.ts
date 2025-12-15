@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { Temporal } from '@js-temporal/polyfill'
-import { createDate, createDatePlugin } from './index'
+import { createDate, createDateFallback, createDatePlugin } from './index'
 import { V0DateAdapter } from './adapters/v0'
 
 describe('useDate', () => {
@@ -728,6 +728,54 @@ describe('useDate', () => {
       })
 
       expect(plugin).toBeDefined()
+    })
+  })
+
+  describe('createDateFallback', () => {
+    it('should return a valid date context without Vue component', () => {
+      // createDateFallback works outside of Vue component lifecycle
+      const fallback = createDateFallback()
+
+      expect(fallback).toBeDefined()
+      expect(fallback.adapter).toBeInstanceOf(V0DateAdapter)
+      expect(fallback.locale).toBeDefined()
+      expect(fallback.locale.value).toBe('en-US')
+    })
+
+    it('should create functional adapter for date operations', () => {
+      const fallback = createDateFallback()
+      const date = fallback.adapter.date('2024-06-15T10:30:00')
+
+      expect(date).not.toBeNull()
+      expect(date!.year).toBe(2024)
+      expect(date!.month).toBe(6)
+    })
+  })
+
+  describe('locale synchronization', () => {
+    it('should sync adapter locale with computed locale', () => {
+      const customAdapter = new V0DateAdapter('en-US')
+      const dateContext = createDate({
+        adapter: customAdapter,
+        locale: 'de-DE',
+      })
+
+      // The computed locale should be 'de-DE'
+      expect(dateContext.locale.value).toBe('de-DE')
+      // The adapter locale should be synced via watchEffect
+      expect(customAdapter.locale).toBe('de-DE')
+    })
+
+    it('should apply localeMap when short code is provided', () => {
+      const customAdapter = new V0DateAdapter('en-US')
+      const dateContext = createDate({
+        adapter: customAdapter,
+        locale: 'fr', // short code
+        localeMap: { fr: 'fr-CA' },
+      })
+
+      expect(dateContext.locale.value).toBe('fr-CA')
+      expect(customAdapter.locale).toBe('fr-CA')
     })
   })
 })
