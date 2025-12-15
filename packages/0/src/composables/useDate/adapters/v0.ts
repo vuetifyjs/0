@@ -41,8 +41,17 @@ function parseDayOfWeek (value: number | string | undefined, defaultValue = 0): 
   return dayMap[lower] ?? (Number.parseInt(value, 10) || defaultValue)
 }
 
+/** Single regex for token replacement in formatByString */
+const FORMAT_TOKEN_REGEX = /YYYY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|ss|s|A|a/g
+
 export class V0DateAdapter implements DateAdapter<PlainDateTime> {
   locale: string
+
+  /** Cache for Intl.DateTimeFormat instances, keyed by locale + options */
+  private formatCache = new Map<string, Intl.DateTimeFormat>()
+
+  /** Cache for Intl.NumberFormat instances, keyed by locale */
+  private numberFormatCache = new Map<string, Intl.NumberFormat>()
 
   constructor (locale = 'en-US') {
     this.locale = locale
@@ -137,9 +146,23 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     return date.toString()
   }
 
+  /**
+   * Parses a date string into a PlainDateTime.
+   *
+   * **Known limitation**: The `format` parameter is currently ignored.
+   * Temporal API doesn't provide built-in format parsing, and implementing
+   * full format string parsing (e.g., 'MM/DD/YYYY') would require a
+   * substantial custom parser. This method delegates to `date()` which
+   * handles ISO 8601 strings and common formats.
+   *
+   * For custom format parsing, consider using a library like date-fns or
+   * luxon with a custom adapter.
+   *
+   * @param value - The date string to parse
+   * @param _format - Format hint (currently ignored)
+   * @returns Parsed PlainDateTime or null if invalid
+   */
   parse (value: string, _format: string): PlainDateTime | null {
-    // Note: Custom format parsing is complex with Temporal API
-    // For now, attempt to parse common formats
     try {
       return this.date(value)
     } catch {
@@ -230,52 +253,46 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     const options = presets[formatString]
 
     if (options) {
-      return new Intl.DateTimeFormat(this.locale, options).format(jsDate)
+      return this.getFormatter(options).format(jsDate)
     }
 
     // Fallback: try to use the format string as-is with Intl
-    return new Intl.DateTimeFormat(this.locale).format(jsDate)
+    return this.getFormatter({}).format(jsDate)
   }
 
   formatByString (date: PlainDateTime, formatString: string): string {
     // Simple token replacement for common format strings
     const jsDate = this.toJsDate(date)
 
-    const tokens: Record<string, string> = {
-      YYYY: String(date.year),
-      YY: String(date.year).slice(-2),
-      MM: String(date.month).padStart(2, '0'),
-      M: String(date.month),
-      DD: String(date.day).padStart(2, '0'),
-      D: String(date.day),
-      HH: String(date.hour).padStart(2, '0'),
-      H: String(date.hour),
-      hh: String(date.hour % 12 || 12).padStart(2, '0'),
-      h: String(date.hour % 12 || 12),
-      mm: String(date.minute).padStart(2, '0'),
-      m: String(date.minute),
-      ss: String(date.second).padStart(2, '0'),
-      s: String(date.second),
-      A: date.hour < 12 ? 'AM' : 'PM',
-      a: date.hour < 12 ? 'am' : 'pm',
-      MMMM: new Intl.DateTimeFormat(this.locale, { month: 'long' }).format(jsDate),
-      MMM: new Intl.DateTimeFormat(this.locale, { month: 'short' }).format(jsDate),
-      dddd: new Intl.DateTimeFormat(this.locale, { weekday: 'long' }).format(jsDate),
-      ddd: new Intl.DateTimeFormat(this.locale, { weekday: 'short' }).format(jsDate),
-    }
-
-    let result = formatString
-
-    // Replace tokens (longer tokens first to avoid partial matches)
-    const sortedTokens = Object.keys(tokens).toSorted((a, b) => b.length - a.length)
-    for (const token of sortedTokens) {
-      const replacement = tokens[token]
-      if (replacement !== undefined) {
-        result = result.replace(new RegExp(token, 'g'), replacement)
+    // Build token values lazily - only compute Intl formats if needed
+    const getTokenValue = (token: string): string => {
+      switch (token) {
+        case 'YYYY': { return String(date.year) }
+        case 'YY': { return String(date.year).slice(-2) }
+        case 'MM': { return String(date.month).padStart(2, '0') }
+        case 'M': { return String(date.month) }
+        case 'DD': { return String(date.day).padStart(2, '0') }
+        case 'D': { return String(date.day) }
+        case 'HH': { return String(date.hour).padStart(2, '0') }
+        case 'H': { return String(date.hour) }
+        case 'hh': { return String(date.hour % 12 || 12).padStart(2, '0') }
+        case 'h': { return String(date.hour % 12 || 12) }
+        case 'mm': { return String(date.minute).padStart(2, '0') }
+        case 'm': { return String(date.minute) }
+        case 'ss': { return String(date.second).padStart(2, '0') }
+        case 's': { return String(date.second) }
+        case 'A': { return date.hour < 12 ? 'AM' : 'PM' }
+        case 'a': { return date.hour < 12 ? 'am' : 'pm' }
+        case 'MMMM': { return this.getFormatter({ month: 'long' }).format(jsDate) }
+        case 'MMM': { return this.getFormatter({ month: 'short' }).format(jsDate) }
+        case 'dddd': { return this.getFormatter({ weekday: 'long' }).format(jsDate) }
+        case 'ddd': { return this.getFormatter({ weekday: 'short' }).format(jsDate) }
+        default: { return token }
       }
     }
 
-    return result
+    // Use pre-compiled regex for single-pass replacement
+    return formatString.replace(FORMAT_TOKEN_REGEX, match => getTokenValue(match))
   }
 
   getFormatHelperText (format: string): string {
@@ -297,7 +314,7 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
   }
 
   formatNumber (numberToFormat: string): string {
-    return new Intl.NumberFormat(this.locale).format(Number(numberToFormat))
+    return this.getNumberFormatter().format(Number(numberToFormat))
   }
 
   getMeridiemText (ampm: 'am' | 'pm'): string {
@@ -305,10 +322,7 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
       ? new Date(2020, 0, 1, 9, 0)
       : new Date(2020, 0, 1, 15, 0)
 
-    const formatted = new Intl.DateTimeFormat(this.locale, {
-      hour: 'numeric',
-      hour12: true,
-    }).format(date)
+    const formatted = this.getFormatter({ hour: 'numeric', hour12: true }).format(date)
 
     // Extract the AM/PM text from the formatted string
     const match = formatted.match(/[AP]M|[ap]m|午前|午後|上午|下午/i)
@@ -576,14 +590,13 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     const weekdays: string[] = []
     // Use a known Sunday as reference (Jan 4, 2015 is a Sunday)
     const refDate = Temporal.PlainDate.from('2015-01-04')
+    const formatter = this.getFormatter({ weekday: format })
 
     for (let i = 0; i < 7; i++) {
       const day = refDate.add({ days: (i + first) % 7 })
       const jsDate = new Date(day.year, day.month - 1, day.day)
 
-      weekdays.push(
-        new Intl.DateTimeFormat(this.locale, { weekday: format }).format(jsDate),
-      )
+      weekdays.push(formatter.format(jsDate))
     }
 
     return weekdays
@@ -657,5 +670,38 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
       second: time.second,
       millisecond: time.millisecond,
     })
+  }
+
+  // ============================================
+  // Private Helpers
+  // ============================================
+
+  /**
+   * Gets a cached Intl.DateTimeFormat instance or creates one if not cached.
+   */
+  private getFormatter (options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+    const key = `${this.locale}:${JSON.stringify(options)}`
+    let formatter = this.formatCache.get(key)
+
+    if (!formatter) {
+      formatter = new Intl.DateTimeFormat(this.locale, options)
+      this.formatCache.set(key, formatter)
+    }
+
+    return formatter
+  }
+
+  /**
+   * Gets a cached Intl.NumberFormat instance or creates one if not cached.
+   */
+  private getNumberFormatter (): Intl.NumberFormat {
+    let formatter = this.numberFormatCache.get(this.locale)
+
+    if (!formatter) {
+      formatter = new Intl.NumberFormat(this.locale)
+      this.numberFormatCache.set(this.locale, formatter)
+    }
+
+    return formatter
   }
 }
