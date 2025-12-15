@@ -3,6 +3,7 @@ import { createSelection, createSelectionContext } from './index'
 
 // Utilities
 import { describe, it, expect } from 'vitest'
+import { ref } from 'vue'
 
 describe('createSelectionContext', () => {
   it('should return a trinity tuple', () => {
@@ -731,6 +732,129 @@ describe('useSelection', () => {
       expect(selection.size).toBe(1)
       expect(selection.selectedIds.size).toBe(1)
       expect(selection.selectedIds.has('item-1')).toBe(true)
+    })
+  })
+
+  describe('context-level disabled', () => {
+    it('should not select when context is disabled', () => {
+      const selection = createSelection({ disabled: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      selection.select('item-1')
+
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should not unselect when context is disabled', () => {
+      const selection = createSelection()
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      selection.select('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      // Now disable the context (simulating runtime change)
+      const disabledSelection = createSelection({ disabled: true })
+      disabledSelection.onboard([{ id: 'item-1', value: 'value-1' }])
+      disabledSelection.selectedIds.add('item-1')
+
+      disabledSelection.unselect('item-1')
+      expect(disabledSelection.selectedIds.has('item-1')).toBe(true)
+    })
+
+    it('should not toggle when context is disabled', () => {
+      const selection = createSelection({ disabled: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      selection.toggle('item-1')
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should not mandate selection when context is disabled', () => {
+      const selection = createSelection({ disabled: true, mandatory: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      selection.mandate()
+
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should not auto-enroll when context is disabled', () => {
+      const selection = createSelection({ disabled: true, enroll: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should not auto-select with mandatory force when context is disabled', () => {
+      const selection = createSelection({ disabled: true, mandatory: 'force' })
+
+      selection.register({ id: 'item-1', value: 'value-1' })
+
+      expect(selection.selectedIds.size).toBe(0)
+    })
+
+    it('should expose disabled property on context', () => {
+      const selection = createSelection({ disabled: true })
+
+      expect(selection.disabled).toBe(true)
+    })
+
+    it('should respect reactive disabled ref', () => {
+      const disabledRef = ref(false)
+      const selection = createSelection({ disabled: disabledRef })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      // Should select when not disabled
+      selection.select('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      // Disable the context
+      disabledRef.value = true
+
+      // Should not unselect when disabled
+      selection.unselect('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      // Should not toggle when disabled
+      selection.toggle('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(true)
+
+      // Re-enable the context
+      disabledRef.value = false
+
+      // Should work again
+      selection.unselect('item-1')
+      expect(selection.selectedIds.has('item-1')).toBe(false)
+    })
+
+    it('should still allow ticket.select() to call context select which respects disabled', () => {
+      const selection = createSelection({ disabled: true })
+
+      const ticket = selection.register({ id: 'item-1', value: 'value-1' })
+
+      ticket.select()
+      expect(selection.selectedIds.has('item-1')).toBe(false)
     })
   })
 

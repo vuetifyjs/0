@@ -175,6 +175,8 @@ export function createSelection<
   }
 
   function select (id: ID) {
+    if (toValue(disabled)) return
+
     const item = registry.get(id)
     if (!item || toValue(item.disabled)) return
 
@@ -183,12 +185,15 @@ export function createSelection<
   }
 
   function unselect (id: ID) {
+    if (toValue(disabled)) return
     if (mandatory && selectedIds.size === 1) return
 
     selectedIds.delete(id)
   }
 
   function toggle (id: ID) {
+    if (toValue(disabled)) return
+
     if (selected(id)) unselect(id)
     else select(id)
   }
@@ -211,7 +216,7 @@ export function createSelection<
 
     const ticket = registry.register(item) as Z
 
-    if (enroll && !toValue(item.disabled)) selectedIds.add(ticket.id)
+    if (enroll && !toValue(disabled) && !toValue(item.disabled)) selectedIds.add(ticket.id)
     if (mandatory === 'force') mandate()
 
     return ticket
