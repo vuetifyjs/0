@@ -46,11 +46,11 @@
     attrs: {
       'aria-label': string
       'aria-current': 'page' | undefined
-      'aria-disabled': true | undefined
+      'aria-disabled': boolean
       'data-selected': true | undefined
       'data-disabled': true | undefined
       'disabled': boolean | undefined
-      'tabindex': -1 | undefined
+      'tabindex': number
       'type': 'button' | undefined
       'onClick': () => void
     }
@@ -108,11 +108,11 @@
     attrs: {
       'aria-label': ariaLabel.value,
       'aria-current': isSelected.value ? 'page' : undefined,
-      'aria-disabled': as !== 'button' && disabled ? true : undefined,
+      'aria-disabled': disabled,
       'data-selected': isSelected.value || undefined,
       'data-disabled': disabled || undefined,
       'disabled': as === 'button' ? disabled : undefined,
-      'tabindex': as !== 'button' && disabled ? -1 : undefined,
+      'tabindex': disabled ? -1 : 0,
       'type': as === 'button' ? 'button' : undefined,
       'onClick': select,
     },

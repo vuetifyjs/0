@@ -38,10 +38,10 @@
     /** Attributes to bind to the button element */
     attrs: {
       'aria-label': string
-      'aria-disabled': boolean | undefined
+      'aria-disabled': boolean
       'data-disabled': true | undefined
       'disabled': boolean | undefined
-      'tabindex': -1 | undefined
+      'tabindex': number
       'type': 'button' | undefined
       'onClick': () => void
     }
@@ -89,10 +89,10 @@
     next,
     attrs: {
       'aria-label': locale.t('Pagination.next', undefined, 'Go to next page'),
-      'aria-disabled': as === 'button' ? undefined : isDisabled.value,
+      'aria-disabled': isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,
-      'tabindex': as !== 'button' && isDisabled.value ? -1 : undefined,
+      'tabindex': isDisabled.value ? -1 : 0,
       'type': as === 'button' ? 'button' : undefined,
       'onClick': next,
     },
