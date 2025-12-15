@@ -242,7 +242,7 @@ describe('useContext', () => {
 
   it('should use default value when context is not found', () => {
     const defaultValue = { data: 'default' }
-    mockInject.mockImplementation((key, def) => def)
+    mockInject.mockImplementation((_key, def) => def)
 
     const result = useContext('missing-key', defaultValue)
 

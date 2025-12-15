@@ -179,7 +179,7 @@ describe('useRegistry', () => {
       const found = registry.browse('test-value')
 
       expect(found).toBeDefined()
-      expect(found).toBe('browse-me')
+      expect(found).toEqual(['browse-me'])
     })
 
     it('should return if an item exists in the collection', () => {
@@ -246,7 +246,7 @@ describe('useRegistry', () => {
 
       registry.unregister('dupe-item-1')
       const idsAfterUnregister = registry.browse('value-1')
-      expect(idsAfterUnregister).toEqual('item-1')
+      expect(idsAfterUnregister).toEqual(['item-1'])
     })
   })
 
@@ -571,7 +571,7 @@ describe('useRegistry', () => {
       registry.register({ id: 'item-1', value: null })
 
       const found = registry.browse(null)
-      expect(found).toBe('item-1')
+      expect(found).toEqual(['item-1'])
     })
 
     it('should handle complex objects as values', () => {
@@ -582,8 +582,8 @@ describe('useRegistry', () => {
       registry.register({ id: 'item-1', value: obj1 })
       registry.register({ id: 'item-2', value: obj2 })
 
-      expect(registry.browse(obj1)).toBe('item-1')
-      expect(registry.browse(obj2)).toBe('item-2')
+      expect(registry.browse(obj1)).toEqual(['item-1'])
+      expect(registry.browse(obj2)).toEqual(['item-2'])
     })
 
     it('should maintain index integrity after multiple operations', () => {

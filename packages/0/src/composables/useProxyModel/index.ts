@@ -15,7 +15,7 @@
 
 // Utilities
 import { watch, toValue, onScopeDispose } from 'vue'
-import { isFunction, isArray, isUndefined } from '#v0/utilities'
+import { isFunction, isUndefined } from '#v0/utilities'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -80,11 +80,8 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
 
   for (const value of modelAsArray) {
     const ids = registry.browse(value)
-    if (isArray(ids)) {
+    if (ids) {
       for (const id of ids) registry.select(id)
-      pending.delete(value)
-    } else if (ids) {
-      registry.select(ids)
       pending.delete(value)
     }
   }
@@ -105,10 +102,8 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
 
     for (const value of transformIn(val)) {
       const ids = registry.browse(value)
-      if (isArray(ids)) {
-        for (const single of ids) targetIds.add(single)
-      } else if (ids) {
-        targetIds.add(ids)
+      if (ids) {
+        for (const id of ids) targetIds.add(id)
       }
     }
 

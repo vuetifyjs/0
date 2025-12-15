@@ -22,7 +22,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { genId, isArray, isUndefined } from '#v0/utilities'
+import { genId, isUndefined } from '#v0/utilities'
 
 // Types
 import type { ID } from '#v0/types'
@@ -141,10 +141,10 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * registry.register({ id: 'ticket-3', value: 'unique-value' })
    *
    * const common = registry.browse('common-value') // ['ticket-1', 'ticket-2']
-   * const unique = registry.browse('unique-value') // 'ticket-3'
+   * const unique = registry.browse('unique-value') // ['ticket-3']
    * ```
    */
-  browse: (value: unknown) => ID | ID[] | undefined
+  browse: (value: unknown) => ID[] | undefined
   /**
    * lookup a ticket by index number
    *
@@ -602,7 +602,7 @@ export function useRegistry<
   const logger = useLogger()
 
   const collection = new Map<ID, Z>()
-  const catalog = new Map<unknown, ID | ID[]>()
+  const catalog = new Map<unknown, ID[]>()
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<Function>>()
@@ -712,27 +712,19 @@ export function useRegistry<
   function assign (value: unknown, id: ID) {
     const bucket = catalog.get(value)
     if (bucket) {
-      if (isArray(bucket)) {
-        if (!bucket.includes(id)) bucket.push(id)
-      } else if (bucket !== id) {
-        catalog.set(value, [bucket, id])
-      }
+      if (!bucket.includes(id)) bucket.push(id)
     } else {
-      catalog.set(value, id)
+      catalog.set(value, [id])
     }
   }
 
   function unassign (value: unknown, id: ID) {
     const bucket = catalog.get(value)
     if (!bucket) return
-    if (isArray(bucket)) {
-      const next = bucket.filter(v => v !== id)
-      if (next.length === 0) catalog.delete(value)
-      else if (next.length === 1) catalog.set(value, next[0]!)
-      else catalog.set(value, next)
-    } else if (bucket === id) {
-      catalog.delete(value)
-    }
+
+    const next = bucket.filter(v => v !== id)
+    if (next.length === 0) catalog.delete(value)
+    else catalog.set(value, next)
   }
 
   function keys () {
