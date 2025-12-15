@@ -43,6 +43,7 @@ Reusable pieces of logic that can be shared across components, providing encapsu
 | [useResizeObserver](/composables/system/use-resize-observer) | Resize Observer API wrapper for element size changes |
 | **Plugins** | |
 | [useBreakpoints](/composables/plugins/use-breakpoints) | Responsive breakpoint detection for different screen sizes |
+| [useDate](/composables/plugins/use-date) | Date manipulation with Temporal API and locale-aware formatting |
 | [useFeatures](/composables/plugins/use-features) | Feature flags and A/B testing management |
 | [useHydration](/composables/plugins/use-hydration) | Manage SSR hydration process |
 | [useLocale](/composables/plugins/use-locale) | Internationalization system for multiple languages |
