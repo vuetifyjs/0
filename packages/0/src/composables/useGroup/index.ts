@@ -29,7 +29,7 @@ import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
 import { computed, shallowReactive, toRef, toValue } from 'vue'
-import { genId } from '#v0/utilities'
+import { genId, isUndefined } from '#v0/utilities'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -171,13 +171,17 @@ export function createGroup<
 
   const selectedIndexes = computed(() => {
     return new Set(
-      Array.from(selection.selectedItems.value).map(item => item?.index),
+      Array.from(selection.selectedItems.value)
+        .map(item => item?.index)
+        .filter((index): index is number => !isUndefined(index)),
     )
   })
 
   const mixedItems = computed(() => {
     return new Set(
-      Array.from(mixedIds).map(id => selection.get(id)),
+      Array.from(mixedIds)
+        .map(id => selection.get(id))
+        .filter((item): item is Z => !isUndefined(item)),
     )
   })
 
@@ -273,11 +277,11 @@ export function createGroup<
     return items.every(item => selection.selectedIds.has(item.id))
   })
 
-  const isMixed = toRef(() => {
+  const isNoneSelected = computed(() => selection.selectedIds.size === 0)
+
+  const isMixed = computed(() => {
     return mixedIds.size > 0 || (!isNoneSelected.value && !isAllSelected.value)
   })
-
-  const isNoneSelected = toRef(() => selection.selectedIds.size === 0)
 
   function selectAll () {
     for (const item of selectableItems.value) {

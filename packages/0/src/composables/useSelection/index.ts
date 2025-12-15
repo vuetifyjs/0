@@ -23,7 +23,7 @@ import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { computed, shallowReactive, toRef, toValue } from 'vue'
-import { genId } from '#v0/utilities'
+import { genId, isUndefined } from '#v0/utilities'
 
 // Types
 import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
@@ -152,13 +152,15 @@ export function createSelection<
 
   const selectedItems = computed(() => {
     return new Set(
-      Array.from(selectedIds).map(id => registry.get(id)),
+      Array.from(selectedIds)
+        .map(id => registry.get(id))
+        .filter((item): item is Z => !isUndefined(item)),
     )
   })
 
   const selectedValues = computed(() => {
     return new Set(
-      Array.from(selectedItems.value).map(item => item?.value),
+      Array.from(selectedItems.value).map(item => item.value),
     )
   })
 

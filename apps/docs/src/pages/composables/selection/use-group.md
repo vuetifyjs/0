@@ -162,7 +162,7 @@ For simpler "select all" checkbox patterns, `useGroup` provides context-level he
 
 - **`isNoneSelected`**: True when no items are selected
 - **`isAllSelected`**: True when all selectable items are selected
-- **`isIndeterminate`**: True when some but not all are selected
+- **`isMixed`**: True when some but not all are selected
 - **`selectAll()`**: Selects all non-disabled items
 - **`unselectAll()`**: Unselects all items (respects mandatory option)
 - **`toggleAll()`**: Toggles between all selected and none selected
@@ -199,7 +199,7 @@ See the [Group component](/components/group#select-all) for a complete example.
     mixed: (id: ID) => boolean
     isNoneSelected: ComputedRef<boolean>
     isAllSelected: ComputedRef<boolean>
-    isIndeterminate: ComputedRef<boolean>
+    isMixed: ComputedRef<boolean>
     selectAll: () => void
     unselectAll: () => void
     toggleAll: () => void
@@ -221,7 +221,7 @@ See the [Group component](/components/group#select-all) for a complete example.
   - `mixed(id)`: Returns true if the item is in mixed state.
   - `isNoneSelected`: True when no items are selected.
   - `isAllSelected`: True when all selectable (non-disabled) items are selected.
-  - `isIndeterminate`: True when some but not all selectable items are selected.
+  - `isMixed`: True when some but not all selectable items are selected.
   - `selectAll()`: Selects all non-disabled items. Clears mixed state on selected items.
   - `unselectAll()`: Clears selection. Respects mandatory option (keeps one item).
   - `toggleAll()`: Selects all if not all selected, otherwise unselects all.
@@ -482,7 +482,7 @@ console.log(ticket.isMixed.value) // false
   console.log(group.isAllSelected.value) // true (disabled items don't count)
   ```
 
-### `isIndeterminate`
+### `isMixed`
 
 - **Type**
   ```ts
@@ -502,10 +502,10 @@ console.log(ticket.isMixed.value) // false
   ])
 
   group.select('a')
-  console.log(group.isIndeterminate.value) // true
+  console.log(group.isMixed.value) // true
 
   group.selectAll()
-  console.log(group.isIndeterminate.value) // false
+  console.log(group.isMixed.value) // false
   ```
 
 ### `selectAll`

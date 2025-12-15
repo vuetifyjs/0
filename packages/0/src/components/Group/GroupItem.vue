@@ -52,7 +52,8 @@
     unmix: () => void
     /** Attributes to bind to the item element */
     attrs: {
-      'aria-selected': boolean
+      'role': 'checkbox'
+      'aria-checked': boolean | 'mixed'
       'aria-disabled': boolean
       'data-selected': true | undefined
       'data-disabled': true | undefined
@@ -104,7 +105,8 @@
     mix: ticket.mix,
     unmix: ticket.unmix,
     attrs: {
-      'aria-selected': toValue(ticket.isSelected),
+      'role': 'checkbox',
+      'aria-checked': toValue(ticket.isMixed) ? 'mixed' : toValue(ticket.isSelected),
       'aria-disabled': toValue(isDisabled),
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
