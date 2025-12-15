@@ -45,6 +45,7 @@
     "pnpm": ">=10.6"
   },
   "devDependencies": {
+    "@js-temporal/polyfill": "catalog:",
     "@tsconfig/node22": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",

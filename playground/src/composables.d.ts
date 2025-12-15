@@ -21,6 +21,7 @@ declare global {
   const SUPPORTS_MUTATION_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_MUTATION_OBSERVER
   const SUPPORTS_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_OBSERVER
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals').SUPPORTS_TOUCH
+  const TemporalDateAdapter: typeof import('../../packages/0/src/composables/useDate/index').TemporalDateAdapter
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index').V0_ELEVATION_KEY
   const Vuetify0LocaleAdapter: typeof import('../../packages/0/src/composables/useLocale/index').Vuetify0LocaleAdapter
   const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').Vuetify0LoggerAdapter
@@ -33,11 +34,17 @@ declare global {
   const createBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsContext
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsPlugin
   const createContext: typeof import('../../packages/0/src/composables/createContext/index').createContext
+  const createDate: typeof import('../../packages/0/src/composables/useDate/index').createDate
+  const createDateContext: typeof import('../../packages/0/src/composables/useDate/index').createDateContext
+  const createDateFallback: typeof import('../../packages/0/src/composables/useDate/index').createDateFallback
+  const createDatePlugin: typeof import('../../packages/0/src/composables/useDate/index').createDatePlugin
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index').createElevation
   const createFallbackHydration: typeof import('../../packages/0/src/composables/useHydration/index').createFallbackHydration
   const createFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').createFeatures
   const createFeaturesContext: typeof import('../../packages/0/src/composables/useFeatures/index').createFeaturesContext
   const createFeaturesPlugin: typeof import('../../packages/0/src/composables/useFeatures/index').createFeaturesPlugin
+  const createFilter: typeof import('../../packages/0/src/composables/useFilter/index').createFilter
+  const createFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').createFilterContext
   const createForm: typeof import('../../packages/0/src/composables/useForm/index').createForm
   const createFormContext: typeof import('../../packages/0/src/composables/useForm/index').createFormContext
   const createGroup: typeof import('../../packages/0/src/composables/useGroup/index').createGroup
@@ -166,6 +173,7 @@ declare global {
   const useContrast: typeof import('../../packages/paper/src/composables/useContrast/index').useContrast
   const useCssModule: typeof import('vue').useCssModule
   const useCssVars: typeof import('vue').useCssVars
+  const useDate: typeof import('../../packages/0/src/composables/useDate/index').useDate
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index').useDimensions
   const useDocumentEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useDocumentEventListener
   const useElementIntersection: typeof import('../../packages/0/src/composables/useIntersectionObserver/index').useElementIntersection
@@ -174,6 +182,7 @@ declare global {
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useEventListener
   const useFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').useFeatures
   const useFilter: typeof import('../../packages/0/src/composables/useFilter/index').useFilter
+  const useFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').useFilterContext
   const useForm: typeof import('../../packages/0/src/composables/useForm/index').useForm
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index').useGroup
   const useHistory: typeof import('../../packages/0/src/composables/useTimeline/index')['useHistory']
@@ -255,13 +264,16 @@ declare global {
   export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPluginOptions, BreakpointsContextOptions } from '../../packages/0/src/composables/useBreakpoints/index'
   import('../../packages/0/src/composables/useBreakpoints/index')
   // @ts-ignore
+  export type { DateContext, DateOptions, DateContextOptions, DatePluginOptions, DateAdapter } from '../../packages/0/src/composables/useDate/index'
+  import('../../packages/0/src/composables/useDate/index')
+  // @ts-ignore
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
   import('../../packages/0/src/composables/useEventListener/index')
   // @ts-ignore
   export type { FeatureTicket, FeatureContext, FeatureOptions, FeatureContextOptions, FeaturePluginOptions } from '../../packages/0/src/composables/useFeatures/index'
   import('../../packages/0/src/composables/useFeatures/index')
   // @ts-ignore
-  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, UseFilterOptions, UseFilterResult } from '../../packages/0/src/composables/useFilter/index'
+  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, FilterOptions, FilterResult, FilterContext, FilterContextOptions } from '../../packages/0/src/composables/useFilter/index'
   import('../../packages/0/src/composables/useFilter/index')
   // @ts-ignore
   export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/useForm/index'
@@ -291,7 +303,7 @@ declare global {
   export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/useOverflow/index'
   import('../../packages/0/src/composables/useOverflow/index')
   // @ts-ignore
-  export type { PaginationItem, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/usePagination/index'
+  export type { PaginationTicket, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/usePagination/index'
   import('../../packages/0/src/composables/usePagination/index')
   // @ts-ignore
   export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
@@ -363,6 +375,7 @@ declare module 'vue' {
     readonly SUPPORTS_MUTATION_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MUTATION_OBSERVER']>
     readonly SUPPORTS_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_OBSERVER']>
     readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
+    readonly TemporalDateAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['TemporalDateAdapter']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
     readonly Vuetify0LocaleAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['Vuetify0LocaleAdapter']>
     readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
@@ -375,11 +388,17 @@ declare module 'vue' {
     readonly createBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsContext']>
     readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
     readonly createContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['createContext']>
+    readonly createDate: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDate']>
+    readonly createDateContext: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDateContext']>
+    readonly createDateFallback: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDateFallback']>
+    readonly createDatePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDatePlugin']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createFallbackHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createFallbackHydration']>
     readonly createFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']>
     readonly createFeaturesContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesContext']>
     readonly createFeaturesPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']>
+    readonly createFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['createFilter']>
+    readonly createFilterContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['createFilterContext']>
     readonly createForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createForm']>
     readonly createFormContext: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createFormContext']>
     readonly createGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroup']>
@@ -503,6 +522,7 @@ declare module 'vue' {
     readonly useContrast: UnwrapRef<typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
+    readonly useDate: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['useDate']>
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
     readonly useDocumentEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']>
     readonly useElementIntersection: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useElementIntersection']>
@@ -511,6 +531,7 @@ declare module 'vue' {
     readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
     readonly useFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['useFeatures']>
     readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
+    readonly useFilterContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilterContext']>
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
