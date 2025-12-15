@@ -210,7 +210,7 @@ export function createForm<
       validate,
     }
 
-    const ticket = registry.register(item) as Z
+    const ticket = registry.register(item)
 
     Object.defineProperty(ticket, 'value', {
       get () {

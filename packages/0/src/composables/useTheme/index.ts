@@ -252,7 +252,7 @@ export function createTheme<
       ...registration,
     }
 
-    return registry.register(item) as Z
+    return registry.register(item)
   }
 
   return {

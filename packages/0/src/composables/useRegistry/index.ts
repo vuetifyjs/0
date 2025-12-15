@@ -856,7 +856,7 @@ export function useRegistry<
     if (has(id)) {
       logger.warn(`Ticket with id "${id}" already exists in the registry. Skipping registration.`)
 
-      return get(id) as Z
+      return get(id)!
     }
 
     const valueIsUndefined = isUndefined(registration.value)

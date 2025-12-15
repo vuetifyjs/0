@@ -239,7 +239,7 @@ export function createGroup<
       unmix: () => unmix(id),
     }
 
-    const ticket = selection.register(item) as Z
+    const ticket = selection.register(item)
 
     if (toValue(registration.indeterminate)) mix(id)
 
