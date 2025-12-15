@@ -1,5 +1,5 @@
 // Factories
-import { createContext } from './index'
+import { createContext, useContext, provideContext } from './index'
 
 // Utilities
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -203,5 +203,151 @@ describe('createContext', () => {
       expect(mockApp.provide).toHaveBeenCalledWith('app-key', testValue)
       expect(mockProvide).not.toHaveBeenCalled()
     })
+  })
+})
+
+describe('useContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with string key', () => {
+    const testValue = { data: 'test' }
+    mockInject.mockReturnValue(testValue)
+
+    const result = useContext('my-key')
+
+    expect(mockInject).toHaveBeenCalledWith('my-key', undefined)
+    expect(result).toBe(testValue)
+  })
+
+  it('should inject context with symbol key', () => {
+    const symbolKey = Symbol('my-key')
+    const testValue = { data: 'test' }
+    mockInject.mockReturnValue(testValue)
+
+    const result = useContext(symbolKey as any)
+
+    expect(mockInject).toHaveBeenCalledWith(symbolKey, undefined)
+    expect(result).toBe(testValue)
+  })
+
+  it('should throw when context is not found and no default provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useContext('missing-key')).toThrow(
+      'Context "missing-key" not found. Ensure it\'s provided by an ancestor.',
+    )
+  })
+
+  it('should use default value when context is not found', () => {
+    const defaultValue = { data: 'default' }
+    mockInject.mockImplementation((key, def) => def)
+
+    const result = useContext('missing-key', defaultValue)
+
+    expect(result).toBe(defaultValue)
+  })
+
+  it('should return context even when default is provided and context exists', () => {
+    const contextValue = { data: 'context' }
+    const defaultValue = { data: 'default' }
+    mockInject.mockReturnValue(contextValue)
+
+    const result = useContext('my-key', defaultValue)
+
+    expect(result).toBe(contextValue)
+  })
+
+  it('should handle falsy context values correctly', () => {
+    // Test that 0, '', false, null are valid contexts
+    mockInject.mockReturnValue(0)
+    expect(useContext('zero-key')).toBe(0)
+
+    mockInject.mockReturnValue('')
+    expect(useContext('empty-string-key')).toBe('')
+
+    mockInject.mockReturnValue(false)
+    expect(useContext('false-key')).toBe(false)
+
+    mockInject.mockReturnValue(null)
+    expect(useContext('null-key')).toBe(null)
+  })
+
+  it('should stringify symbol in error message', () => {
+    const symbolKey = Symbol('test-symbol')
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useContext(symbolKey as any)).toThrow(
+      'Context "Symbol(test-symbol)" not found.',
+    )
+  })
+})
+
+describe('provideContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should provide context with string key', () => {
+    const testValue = { data: 'test' }
+
+    const result = provideContext('my-key', testValue)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-key', testValue)
+    expect(result).toBe(testValue)
+  })
+
+  it('should provide context with symbol key', () => {
+    const symbolKey = Symbol('my-key')
+    const testValue = { data: 'test' }
+
+    const result = provideContext(symbolKey as any, testValue)
+
+    expect(mockProvide).toHaveBeenCalledWith(symbolKey, testValue)
+    expect(result).toBe(testValue)
+  })
+
+  it('should return the provided context', () => {
+    const testValue = { data: 'test', nested: { value: 42 } }
+
+    const result = provideContext('my-key', testValue)
+
+    expect(result).toBe(testValue)
+    expect(result.nested.value).toBe(42)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const testValue = { data: 'test' }
+
+    provideContext('app-key', testValue, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('app-key', testValue)
+    expect(mockProvide).not.toHaveBeenCalled()
+  })
+
+  it('should provide context at component level when app is not passed', () => {
+    const testValue = { data: 'test' }
+
+    provideContext('component-key', testValue)
+
+    expect(mockProvide).toHaveBeenCalledWith('component-key', testValue)
+  })
+
+  it('should handle falsy context values', () => {
+    provideContext('zero', 0 as any)
+    expect(mockProvide).toHaveBeenCalledWith('zero', 0)
+
+    provideContext('empty', '' as any)
+    expect(mockProvide).toHaveBeenCalledWith('empty', '')
+
+    provideContext('false', false as any)
+    expect(mockProvide).toHaveBeenCalledWith('false', false)
+
+    provideContext('null', null as any)
+    expect(mockProvide).toHaveBeenCalledWith('null', null)
   })
 })
