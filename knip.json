@@ -22,7 +22,8 @@
       ],
       "ignore": [
         "src/typed-router.d.ts",
-        "src/layouts/default.vue"
+        "src/layouts/*.vue",
+        "src/pages/index.vue"
       ],
       "paths": {
         "@/*": [

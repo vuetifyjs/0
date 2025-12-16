@@ -84,7 +84,7 @@
       Primitives that handle the hard parts—state, accessibility, keyboard navigation—while you control the styling.
     </p>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch h-[500px] md:h-[350px]">
       <!-- Code -->
       <div class="demo-code rounded-xl border overflow-hidden bg-surface/30 flex flex-col">
         <div class="px-4 py-2 bg-surface-tint text-xs font-medium border-b flex items-center justify-between">
@@ -99,7 +99,7 @@
         <div
           v-if="highlightedCode"
           class="flex-1 overflow-y-auto [&_pre]:p-4 [&_pre]:text-xs [&_pre]:md:text-sm [&_pre]:overflow-x-auto [&_pre]:leading-relaxed [&_pre]:m-0"
-          style="max-height: 350px;"
+
           v-html="highlightedCode"
         />
         <pre v-else class="p-4 text-xs md:text-sm overflow-x-auto leading-relaxed m-0"><code>{{ code }}</code></pre>
