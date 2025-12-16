@@ -23,28 +23,6 @@ import type { DateAdapter } from './adapter'
 
 type PlainDateTime = Temporal.PlainDateTime
 
-/**
- * Converts a day-of-week value to a number (0=Sunday, 1=Monday, etc.)
- * Accepts number or string (for Vuetify 3 compatibility)
- */
-function parseDayOfWeek (value: number | string | undefined, defaultValue = 0): number {
-  if (value == null) return defaultValue
-  if (typeof value === 'number') return value
-
-  // Handle string day names
-  const dayMap: Record<string, number> = {
-    sunday: 0, sun: 0,
-    monday: 1, mon: 1,
-    tuesday: 2, tue: 2,
-    wednesday: 3, wed: 3,
-    thursday: 4, thu: 4,
-    friday: 5, fri: 5,
-    saturday: 6, sat: 6,
-  }
-
-  const lower = value.toLowerCase()
-  return dayMap[lower] ?? (Number.parseInt(value, 10) || defaultValue)
-}
 
 /** Single regex for token replacement in formatByString */
 const FORMAT_TOKEN_REGEX = /YYYY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|ss|s|A|a/g
@@ -346,10 +324,9 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     return date.with({ hour: 23, minute: 59, second: 59, millisecond: 999, microsecond: 999, nanosecond: 999 })
   }
 
-  startOfWeek (date: PlainDateTime, firstDayOfWeek: number | string = 0): PlainDateTime {
-    const first = parseDayOfWeek(firstDayOfWeek, 0)
+  startOfWeek (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime {
     const dayOfWeek = date.dayOfWeek % 7 // Temporal: 1=Mon...7=Sun, we want 0=Sun
-    const diff = (dayOfWeek - first + 7) % 7
+    const diff = (dayOfWeek - firstDayOfWeek + 7) % 7
 
     return this.startOfDay(date.subtract({ days: diff }))
   }
@@ -535,11 +512,9 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     }
   }
 
-  getWeek (date: PlainDateTime, firstDayOfWeek: number | string = 0, firstDayOfYear: number | string = 1): number {
-    const first = parseDayOfWeek(firstDayOfWeek, 0)
-    const minimalDays = typeof firstDayOfYear === 'string' ? Number.parseInt(firstDayOfYear, 10) || 1 : firstDayOfYear
+  getWeek (date: PlainDateTime, firstDayOfWeek = 0, minimalDays = 1): number {
     const startOfYear = this.startOfYear(date)
-    const startOfFirstWeek = this.startOfWeek(startOfYear, first)
+    const startOfFirstWeek = this.startOfWeek(startOfYear, firstDayOfWeek)
 
     // Adjust if the first week doesn't have enough days
     let firstWeekStart = startOfFirstWeek
@@ -548,7 +523,7 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
       firstWeekStart = startOfFirstWeek.add({ weeks: 1 })
     }
 
-    const startOfCurrentWeek = this.startOfWeek(date, first)
+    const startOfCurrentWeek = this.startOfWeek(date, firstDayOfWeek)
     const diff = this.getDiff(startOfCurrentWeek, firstWeekStart, 'weeks')
 
     return Math.max(1, diff + 1)
@@ -590,15 +565,14 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
   // Calendar Utilities
   // ============================================
 
-  getWeekdays (firstDayOfWeek: number | string = 0, format: 'long' | 'short' | 'narrow' = 'short'): string[] {
-    const first = parseDayOfWeek(firstDayOfWeek, 0)
+  getWeekdays (firstDayOfWeek = 0, format: 'long' | 'short' | 'narrow' = 'short'): string[] {
     const weekdays: string[] = []
     // Use a known Sunday as reference (Jan 4, 2015 is a Sunday)
     const refDate = Temporal.PlainDate.from('2015-01-04')
     const formatter = this.getFormatter({ weekday: format })
 
     for (let i = 0; i < 7; i++) {
-      const day = refDate.add({ days: (i + first) % 7 })
+      const day = refDate.add({ days: (i + firstDayOfWeek) % 7 })
       const jsDate = new Date(day.year, day.month - 1, day.day)
 
       weekdays.push(formatter.format(jsDate))
@@ -607,13 +581,12 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     return weekdays
   }
 
-  getWeekArray (date: PlainDateTime, firstDayOfWeek: number | string = 0): PlainDateTime[][] {
-    const first = parseDayOfWeek(firstDayOfWeek, 0)
+  getWeekArray (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime[][] {
     const weeks: PlainDateTime[][] = []
     const monthStart = this.startOfMonth(date)
     const monthEnd = this.endOfMonth(date)
 
-    let current = this.startOfWeek(monthStart, first)
+    let current = this.startOfWeek(monthStart, firstDayOfWeek)
     const end = this.endOfWeek(monthEnd)
 
     while (Temporal.PlainDateTime.compare(current, end) <= 0) {
