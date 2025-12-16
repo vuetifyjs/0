@@ -12,8 +12,13 @@
  * @see https://tc39.es/proposal-temporal/docs/
  * @see https://github.com/dmtrKovalenko/date-io
  */
-
+// Polyfill
 import { Temporal } from '@js-temporal/polyfill'
+
+// Utilities
+import { isNullOrUndefined } from '#v0/utilities'
+
+// Types
 import type { DateAdapter } from './adapter'
 
 type PlainDateTime = Temporal.PlainDateTime
@@ -201,7 +206,7 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
   }
 
   isNull (value: PlainDateTime | null): boolean {
-    return value == null
+    return isNullOrUndefined(value)
   }
 
   // ============================================
