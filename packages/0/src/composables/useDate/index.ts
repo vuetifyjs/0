@@ -33,7 +33,7 @@
  * }
  *
  * // Type is inferred as DateContext<Date>
- * const ctx = createDate({ adapter: new DateFnsAdapter() })
+ * const context = createDate({ adapter: new DateFnsAdapter() })
  * ```
  */
 
@@ -50,6 +50,7 @@ import { V0DateAdapter } from '#v0/composables/useDate/adapters'
 
 // Utilities
 import { getCurrentInstance, computed, watchEffect, onScopeDispose } from 'vue'
+import { isNullOrUndefined } from '#v0/utilities'
 
 // Types
 import type { DateAdapter } from '#v0/composables/useDate/adapters'
@@ -60,10 +61,6 @@ import type { Temporal } from '@js-temporal/polyfill'
 // Exports
 export type { DateAdapter } from '#v0/composables/useDate/adapters'
 export { V0DateAdapter } from '#v0/composables/useDate/adapters'
-
-// ============================================
-// Type Definitions
-// ============================================
 
 /** The default date type when using V0DateAdapter */
 type DefaultDateType = Temporal.PlainDateTime
@@ -112,10 +109,6 @@ export type DateContextOptions<T = DefaultDateType> = DateContextOptionsDefault 
 /** Plugin options */
 export type DatePluginOptions<T = DefaultDateType> = DateContextOptions<T>
 
-// ============================================
-// Constants
-// ============================================
-
 /**
  * Default locale mapping from short locale codes to Intl locale strings.
  * Only used when useLocale provides a short code without region (e.g., 'en' instead of 'en-US').
@@ -133,10 +126,6 @@ const defaultLocaleMap: Record<string, string> = {
   ru: 'ru-RU',
   ar: 'ar-SA',
 }
-
-// ============================================
-// Helpers
-// ============================================
 
 /**
  * Determines if a locale string is a valid Intl locale (contains region).
@@ -158,14 +147,12 @@ function resolveLocale (
   // Priority: 1. useLocale selection, 2. default option, 3. adapter default
   const currentLocale = localeContext?.selectedId?.value
 
-  if (currentLocale != null) {
+  if (!isNullOrUndefined(currentLocale)) {
     const localeStr = String(currentLocale)
 
-    // If it's already an Intl locale (has region like 'en-US'), use directly
+    // If it's already an Intl locale (has region like 'en-US'), use disrectly
     // Otherwise, look up in localeMap (for short codes like 'en')
-    if (isIntlLocale(localeStr)) {
-      return localeStr
-    }
+    if (isIntlLocale(localeStr)) return localeStr
 
     return localeMap[localeStr] ?? localeStr
   }
@@ -173,9 +160,7 @@ function resolveLocale (
   // Apply same logic to default/fallback locale
   const fallbackLocale = defaultLocale ?? adapterLocale ?? 'en-US'
 
-  if (isIntlLocale(fallbackLocale)) {
-    return fallbackLocale
-  }
+  if (isIntlLocale(fallbackLocale)) return fallbackLocale
 
   return localeMap[fallbackLocale] ?? fallbackLocale
 }
@@ -228,10 +213,6 @@ function createDateInternal<T> (
   return { adapter, locale }
 }
 
-// ============================================
-// createDate
-// ============================================
-
 /**
  * Creates a new date context with the default V0DateAdapter.
  *
@@ -273,26 +254,16 @@ export function createDate<T> (options: DateOptionsWithAdapter<T>): DateContext<
 
 // Implementation
 export function createDate<T = DefaultDateType> (
-  options?: DateOptions<T>,
+  _options: DateOptions<T> = {},
 ): DateContext<T> {
-  const opts = options ?? {}
-  const localeMap = opts.localeMap ?? defaultLocaleMap
+  const {
+    localeMap = defaultLocaleMap,
+    adapter = new V0DateAdapter() as unknown as DateAdapter<T>,
+    locale,
+  } = _options
 
-  // Discriminate between overloads
-  if (opts.adapter) {
-    // Custom adapter provided - T is inferred from adapter
-    return createDateInternal(opts.adapter, opts.locale, localeMap)
-  }
-
-  // Default adapter - T = DefaultDateType (guaranteed by overloads)
-  // Note: Type assertion is safe - overloads guarantee correct types at call sites
-  const adapter = new V0DateAdapter()
-  return createDateInternal(adapter, opts.locale, localeMap) as unknown as DateContext<T>
+  return createDateInternal(adapter, locale, localeMap)
 }
-
-// ============================================
-// createDateFallback
-// ============================================
 
 /**
  * Creates a fallback date context for when useDate is called outside of a Vue component.
@@ -308,10 +279,6 @@ export function createDateFallback (): DateContext<DefaultDateType> {
     locale: computed(() => adapter.locale ?? 'en-US'),
   }
 }
-
-// ============================================
-// createDateContext
-// ============================================
 
 /**
  * Creates a new date context trinity with the default V0DateAdapter.
@@ -346,18 +313,11 @@ export function createDateContext<T> (
 
 // Implementation
 export function createDateContext<T = DefaultDateType> (
-  options?: DateContextOptions<T>,
+  _options: DateContextOptions<T> = {},
 ): ContextTrinity<DateContext<T>> {
-  const opts = options ?? {}
-  const namespace = ('namespace' in opts ? opts.namespace : undefined) ?? 'v0:date'
-
+  const { namespace = 'v0:date', ...options } = _options
   const [useDateContext, _provideDateContext] = createContext<DateContext<T>>(namespace)
-
-  // Create context based on whether adapter is provided
-  // Note: Type assertion is safe - overloads guarantee correct types at call sites
-  const context: DateContext<T> = opts.adapter
-    ? createDate({ ...opts, adapter: opts.adapter } as DateOptionsWithAdapter<T>)
-    : createDate(opts as DateOptionsDefault) as unknown as DateContext<T>
+  const context = createDate(options as DateOptionsDefault) as unknown as DateContext<T>
 
   function provideDateContext (_context: DateContext<T> = context, app?: App): DateContext<T> {
     return _provideDateContext(_context, app)
@@ -365,10 +325,6 @@ export function createDateContext<T = DefaultDateType> (
 
   return createTrinity<DateContext<T>>(useDateContext, provideDateContext, context)
 }
-
-// ============================================
-// createDatePlugin
-// ============================================
 
 /**
  * Creates a new date plugin with the default V0DateAdapter.
@@ -412,15 +368,10 @@ export function createDatePlugin<T> (
 
 // Implementation
 export function createDatePlugin<T = DefaultDateType> (
-  options?: DatePluginOptions<T>,
+  _options: DatePluginOptions<T> = {},
 ) {
-  const opts = options ?? {}
-  const namespace = ('namespace' in opts ? opts.namespace : undefined) ?? 'v0:date'
-
-  // Note: Type assertion is safe - overloads guarantee correct types at call sites
-  const [, provideDateContext, context] = opts.adapter
-    ? createDateContext({ ...opts, adapter: opts.adapter } as DateContextOptionsWithAdapter<T>)
-    : createDateContext({ ...opts, namespace } as DateContextOptionsDefault) as unknown as ContextTrinity<DateContext<T>>
+  const { namespace = 'v0:date', ...options } = _options
+  const [, provideDateContext, context] = createDateContext({ namespace, ...options } as DateContextOptionsDefault) as unknown as ContextTrinity<DateContext<T>>
 
   return createPlugin({
     namespace,
@@ -429,10 +380,6 @@ export function createDatePlugin<T = DefaultDateType> (
     },
   })
 }
-
-// ============================================
-// useDate
-// ============================================
 
 /**
  * Returns the current date context.
@@ -477,7 +424,6 @@ export function useDate<T> (namespace: string): DateContext<T>
 
 // Implementation
 export function useDate<T = DefaultDateType> (namespace = 'v0:date'): DateContext<T> {
-  // Note: Type assertion is safe - overloads guarantee correct types at call sites
   const fallback = createDateFallback() as unknown as DateContext<T>
 
   if (!getCurrentInstance()) return fallback
