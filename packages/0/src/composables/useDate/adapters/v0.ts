@@ -15,6 +15,9 @@
 // Polyfill
 import { Temporal } from '@js-temporal/polyfill'
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { isNullOrUndefined } from '#v0/utilities'
 
@@ -22,7 +25,6 @@ import { isNullOrUndefined } from '#v0/utilities'
 import type { DateAdapter } from './adapter'
 
 type PlainDateTime = Temporal.PlainDateTime
-
 
 /** Single regex for token replacement in formatByString */
 const FORMAT_TOKEN_REGEX = /YYYY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|ss|s|A|a/g
@@ -46,7 +48,10 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
 
   date (value?: unknown): PlainDateTime | null {
     if (value == null) {
-      return Temporal.Now.plainDateTimeISO()
+      // SSR safety: Temporal.Now requires browser environment
+      return IN_BROWSER
+        ? Temporal.Now.plainDateTimeISO()
+        : Temporal.PlainDateTime.from({ year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0 })
     }
 
     if (value instanceof Temporal.PlainDateTime) {
