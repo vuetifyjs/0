@@ -31,11 +31,11 @@
     inset: 0;
     z-index: -1;
     background:
-      radial-gradient(at 40% 20%, rgba(124, 58, 237, 0.4) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(14, 165, 233, 0.35) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(236, 72, 153, 0.25) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, rgba(45, 212, 191, 0.3) 0px, transparent 50%),
-      radial-gradient(at 20% 80%, rgba(251, 146, 60, 0.2) 0px, transparent 50%);
+      radial-gradient(at 40% 20%, color-mix(in srgb, var(--v0-accent) 40%, transparent) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, color-mix(in srgb, var(--v0-info) 35%, transparent) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, color-mix(in srgb, var(--v0-error) 25%, transparent) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, color-mix(in srgb, var(--v0-success) 30%, transparent) 0px, transparent 50%),
+      radial-gradient(at 20% 80%, color-mix(in srgb, var(--v0-warning) 20%, transparent) 0px, transparent 50%);
     filter: blur(80px);
     pointer-events: none;
   }
