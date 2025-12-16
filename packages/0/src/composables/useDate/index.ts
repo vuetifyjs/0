@@ -47,8 +47,6 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { Temporal } from '@js-temporal/polyfill'
 export type { DateAdapter } from '#v0/composables/useDate/adapters'
 export { V0DateAdapter } from '#v0/composables/useDate/adapters'
-export { createVuetify3DateBridge } from '#v0/composables/useDate/bridge'
-export type { Vuetify3DateAdapter, Vuetify3DateBridgeOptions } from '#v0/composables/useDate/bridge'
 
 export interface DateContext<T = Temporal.PlainDateTime> {
   /** The date adapter instance */
