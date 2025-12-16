@@ -13,7 +13,7 @@
     {
       title: 'Vuetify Play',
       description: 'Prototype instantly in your browser. No setup—just code and share.',
-      to: 'https://play.vuetifyjs.com',
+      to: 'https://play.vuetifyjs.com/?preset=v0',
       icon: 'vuetify-play',
       internal: false,
       cta: 'Open Playground',
