@@ -12,6 +12,7 @@
  * @see https://tc39.es/proposal-temporal/docs/
  * @see https://github.com/dmtrKovalenko/date-io
  */
+
 // Polyfill
 import { Temporal } from '@js-temporal/polyfill'
 
@@ -515,22 +516,14 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     const duration = date.since(comp, { largestUnit: unitKey })
 
     switch (unitKey) {
-      case 'years': { return duration.years
-      }
-      case 'months': { return duration.months + duration.years * 12
-      }
-      case 'weeks': { return duration.weeks + Math.floor(duration.days / 7)
-      }
-      case 'days': { return duration.days + duration.weeks * 7
-      }
-      case 'hours': { return Math.round(duration.total({ unit: 'hours' }))
-      }
-      case 'minutes': { return Math.round(duration.total({ unit: 'minutes' }))
-      }
-      case 'seconds': { return Math.round(duration.total({ unit: 'seconds' }))
-      }
-      default: { return duration.days
-      }
+      case 'years': { return duration.years }
+      case 'months': { return duration.months + duration.years * 12 }
+      case 'weeks': { return duration.weeks + Math.floor(duration.days / 7) }
+      case 'days': { return duration.days + duration.weeks * 7 }
+      case 'hours': { return Math.round(duration.total({ unit: 'hours' })) }
+      case 'minutes': { return Math.round(duration.total({ unit: 'minutes' })) }
+      case 'seconds': { return Math.round(duration.total({ unit: 'seconds' })) }
+      default: { return duration.days }
     }
   }
 
