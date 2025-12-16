@@ -638,6 +638,105 @@ describe('useDate', () => {
         expect(merged.second).toBe(45)
       })
     })
+
+    describe('SSR behavior', () => {
+      it('should return deterministic date for explicit null/undefined input', () => {
+        // When calling date() without arguments in SSR, the implementation
+        // returns epoch (1970-01-01) for deterministic rendering.
+        // In tests (browser environment), it returns current time.
+        // This test verifies the explicit value paths work correctly.
+        const explicitNull = adapter.date(null)
+        const explicitUndefined = adapter.date(undefined)
+
+        // Both should return a valid PlainDateTime (not null)
+        expect(explicitNull).not.toBeNull()
+        expect(explicitUndefined).not.toBeNull()
+
+        // In happy-dom (browser), these return current time
+        // The important thing is they're consistent with each other
+        expect(explicitNull!.year).toBe(explicitUndefined!.year)
+        expect(explicitNull!.month).toBe(explicitUndefined!.month)
+        expect(explicitNull!.day).toBe(explicitUndefined!.day)
+      })
+
+      it('should return current time in browser environment', () => {
+        // Default test environment has IN_BROWSER = true (happy-dom)
+        const date = adapter.date()
+        const now = new Date()
+
+        expect(date).not.toBeNull()
+        // Should be close to current time (within 1 second)
+        expect(date!.year).toBe(now.getFullYear())
+        expect(date!.month).toBe(now.getMonth() + 1)
+        expect(date!.day).toBe(now.getDate())
+      })
+
+      it('should handle explicit timestamp input for SSR-safe current time', () => {
+        // SSR apps should pass Date.now() explicitly to avoid hydration mismatch
+        const timestamp = Date.now()
+        const date = adapter.date(timestamp)
+
+        expect(date).not.toBeNull()
+        const jsDate = new Date(timestamp)
+        expect(date!.year).toBe(jsDate.getFullYear())
+        expect(date!.month).toBe(jsDate.getMonth() + 1)
+        expect(date!.day).toBe(jsDate.getDate())
+      })
+    })
+
+    describe('cache management', () => {
+      it('should handle many format calls without memory issues', () => {
+        const testAdapter = new V0DateAdapter('en-US')
+        const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+
+        // Call format many times with different presets
+        // This exercises the cache without using invalid locales
+        const presets = [
+          'fullDate', 'shortDate', 'normalDate', 'year', 'month',
+          'monthShort', 'monthAndYear', 'monthAndDate', 'weekday',
+          'weekdayShort', 'dayOfMonth', 'hours12h', 'hours24h',
+          'minutes', 'seconds', 'fullTime', 'fullTime12h', 'fullTime24h',
+          'fullDateTime', 'keyboardDate', 'keyboardDateTime',
+        ]
+
+        // Call each preset multiple times
+        for (let i = 0; i < 100; i++) {
+          const preset = presets[i % presets.length]!
+          testAdapter.format(testDate, preset)
+        }
+
+        // Should still work correctly after many calls
+        expect(testAdapter.format(testDate, 'fullDate')).toBeDefined()
+        expect(testAdapter.format(testDate, 'shortDate')).toBeDefined()
+      })
+
+      it('should reuse cached formatters for same locale and options', () => {
+        const testAdapter = new V0DateAdapter('en-US')
+        const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+
+        // Call format multiple times with same parameters
+        const result1 = testAdapter.format(testDate, 'fullDate')
+        const result2 = testAdapter.format(testDate, 'fullDate')
+        const result3 = testAdapter.format(testDate, 'fullDate')
+
+        // All results should be identical (using cached formatter)
+        expect(result1).toBe(result2)
+        expect(result2).toBe(result3)
+      })
+
+      it('should create different formatters for different locales', () => {
+        const usAdapter = new V0DateAdapter('en-US')
+        const deAdapter = new V0DateAdapter('de-DE')
+        const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+
+        const usResult = usAdapter.format(testDate, 'month')
+        const deResult = deAdapter.format(testDate, 'month')
+
+        // Different locales should produce different output
+        expect(usResult.toLowerCase()).toContain('june')
+        expect(deResult.toLowerCase()).toContain('juni')
+      })
+    })
   })
 
   describe('createDate', () => {

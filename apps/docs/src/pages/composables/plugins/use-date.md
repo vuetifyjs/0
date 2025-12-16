@@ -130,7 +130,7 @@ The adapter provides a comprehensive API compatible with [date-io](https://githu
 
 ```ts
 interface DateAdapter<T> {
-  locale: string
+  locale?: string
 
   // Construction & Conversion
   date(value?: unknown): T | null
@@ -169,9 +169,16 @@ interface DateAdapter<T> {
 
   // Comparison
   isAfter(date: T, comparing: T): boolean
+  isAfterDay(date: T, comparing: T): boolean
+  isAfterMonth(date: T, comparing: T): boolean
+  isAfterYear(date: T, comparing: T): boolean
   isBefore(date: T, comparing: T): boolean
+  isBeforeDay(date: T, comparing: T): boolean
+  isBeforeMonth(date: T, comparing: T): boolean
+  isBeforeYear(date: T, comparing: T): boolean
   isEqual(date: T, comparing: T): boolean
   isSameDay(date: T, comparing: T): boolean
+  isSameHour(date: T, comparing: T): boolean
   isSameMonth(date: T, comparing: T): boolean
   isSameYear(date: T, comparing: T): boolean
   isWithinRange(date: T, range: [T, T]): boolean
