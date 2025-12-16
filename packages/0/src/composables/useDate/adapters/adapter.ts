@@ -59,8 +59,8 @@ export interface DateAdapter<T = unknown> {
 
   startOfDay: (date: T) => T
   endOfDay: (date: T) => T
-  /** @param firstDayOfWeek - 0=Sunday, 1=Monday, etc. Accepts string for Vuetify 3 compat */
-  startOfWeek: (date: T, firstDayOfWeek?: number | string) => T
+  /** @param firstDayOfWeek - 0=Sunday, 1=Monday, etc. */
+  startOfWeek: (date: T, firstDayOfWeek?: number) => T
   endOfWeek: (date: T) => T
   startOfMonth: (date: T) => T
   endOfMonth: (date: T) => T
@@ -108,10 +108,10 @@ export interface DateAdapter<T = unknown> {
   getHours: (date: T) => number
   getMinutes: (date: T) => number
   getSeconds: (date: T) => number
-  /** @param comparing - Can be T or ISO string for Vuetify 3 compat */
+  /** @param comparing - Can be T or ISO string */
   getDiff: (date: T, comparing: T | string, unit?: string) => number
-  /** @param firstDayOfYear - For Vuetify 3 compat (v0 uses minimalDaysInFirstWeek semantics) */
-  getWeek: (date: T, firstDayOfWeek?: number | string, firstDayOfYear?: number | string) => number
+  /** @param minimalDays - Minimum days in first week for it to count as week 1 */
+  getWeek: (date: T, firstDayOfWeek?: number, minimalDays?: number) => number
   /** Get number of days in the month */
   getDaysInMonth: (date: T) => number
 
@@ -130,8 +130,8 @@ export interface DateAdapter<T = unknown> {
   // Calendar Utilities
   // ============================================
 
-  getWeekdays: (firstDayOfWeek?: number | string, weekdayFormat?: 'long' | 'short' | 'narrow') => string[]
-  getWeekArray: (date: T, firstDayOfWeek?: number | string) => T[][]
+  getWeekdays: (firstDayOfWeek?: number, weekdayFormat?: 'long' | 'short' | 'narrow') => string[]
+  getWeekArray: (date: T, firstDayOfWeek?: number) => T[][]
   /** Get array of months in a year (12 dates, one for each month) */
   getMonthArray: (date: T) => T[]
   /** Get array of years between start and end dates */
