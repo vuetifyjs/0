@@ -20,7 +20,7 @@ import { Temporal } from '@js-temporal/polyfill'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isNullOrUndefined } from '#v0/utilities'
+import { isNullOrUndefined, isNumber, isString } from '#v0/utilities'
 
 // Types
 import type { DateAdapter } from './adapter'
@@ -96,7 +96,7 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
       })
     }
 
-    if (typeof value === 'string') {
+    if (isString(value)) {
       try {
         return Temporal.PlainDateTime.from(value)
       } catch {
@@ -109,7 +109,7 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
       }
     }
 
-    if (typeof value === 'number') {
+    if (isNumber(value)) {
       const date = new Date(value)
 
       return Temporal.PlainDateTime.from({
@@ -187,7 +187,7 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
       return !Number.isNaN(date.getTime())
     }
 
-    if (typeof date === 'string') {
+    if (isString(date)) {
       try {
         Temporal.PlainDateTime.from(date)
 
