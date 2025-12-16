@@ -1,0 +1,121 @@
+<script lang="ts" setup>
+  const components = [
+    { name: 'Atom', to: '/components/atom', description: 'Base primitive element' },
+    { name: 'Avatar', to: '/components/avatar', description: 'User avatars with fallback' },
+    { name: 'ExpansionPanel', to: '/components/expansion-panel', description: 'Collapsible content panels' },
+    { name: 'Group', to: '/components/group', description: 'Multi-select grouping' },
+    { name: 'Pagination', to: '/components/pagination', description: 'Page navigation' },
+    { name: 'Popover', to: '/components/popover', description: 'Floating content' },
+    { name: 'Selection', to: '/components/selection', description: 'Selection state management' },
+    { name: 'Step', to: '/components/step', description: 'Stepper/wizard flows' },
+  ]
+
+  const composables = [
+    { name: 'useSelection', category: 'Selection' },
+    { name: 'useGroup', category: 'Selection' },
+    { name: 'useSingle', category: 'Selection' },
+    { name: 'useStep', category: 'Selection' },
+    { name: 'useTheme', category: 'Plugins' },
+    { name: 'useBreakpoints', category: 'Plugins' },
+    { name: 'useLocale', category: 'Plugins' },
+    { name: 'useStorage', category: 'Plugins' },
+    { name: 'useRegistry', category: 'Registration' },
+    { name: 'useTokens', category: 'Registration' },
+    { name: 'usePagination', category: 'Selection' },
+    { name: 'useFilter', category: 'Selection' },
+    { name: 'useForm', category: 'Forms' },
+    { name: 'useVirtual', category: 'System' },
+    { name: 'createContext', category: 'Foundation' },
+  ]
+</script>
+
+<template>
+  <section class="home-ecosystem py-16 md:py-20">
+    <!-- Components -->
+    <div class="mb-16">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-bold mb-2">Components</h2>
+          <p class="opacity-60">Headless primitives ready for your styles</p>
+        </div>
+
+        <router-link
+          class="hidden md:flex items-center gap-1 text-primary hover:underline font-medium"
+          to="/components"
+        >
+          View all
+          →
+        </router-link>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <router-link
+          v-for="component in components"
+          :key="component.name"
+          class="component-card p-4 rounded-xl border bg-surface/30 hover:bg-surface/50 hover:border-primary/50 transition-all group"
+          :to="component.to"
+        >
+          <div class="font-semibold mb-1 group-hover:text-primary transition-colors">
+            {{ component.name }}
+          </div>
+          <div class="text-sm opacity-60">
+            {{ component.description }}
+          </div>
+        </router-link>
+      </div>
+
+      <router-link
+        class="md:hidden flex items-center justify-center gap-1 text-primary hover:underline font-medium mt-6"
+        to="/components"
+      >
+        View all components
+        →
+      </router-link>
+    </div>
+
+    <!-- Composables -->
+    <div>
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-bold mb-2">Composables</h2>
+          <p class="opacity-60">Reactive utilities for any use case</p>
+        </div>
+
+        <router-link
+          class="hidden md:flex items-center gap-1 text-primary hover:underline font-medium"
+          to="/composables"
+        >
+          View all
+          →
+        </router-link>
+      </div>
+
+      <div class="grid grid-cols-2 md:flex md:flex-wrap gap-3">
+        <div
+          v-for="composable in composables"
+          :key="composable.name"
+          class="composable-chip px-4 py-2 rounded-lg border bg-surface/30 hover:bg-surface/50 transition-colors"
+        >
+          <span class="font-mono text-sm">{{ composable.name }}</span>
+          <span class="text-xs opacity-60 ml-2 hidden sm:inline">{{ composable.category }}</span>
+        </div>
+
+        <router-link
+          class="composable-chip px-4 py-2 rounded-lg border bg-surface/30 hover:bg-surface/50 hover:border-primary/50 transition-colors"
+          to="/composables"
+        >
+          <span class="font-mono text-sm text-primary">...</span>
+          <span class="text-xs opacity-60 ml-2">20+ more</span>
+        </router-link>
+      </div>
+
+      <router-link
+        class="md:hidden flex items-center justify-center gap-1 text-primary hover:underline font-medium mt-6"
+        to="/composables"
+      >
+        View all composables
+        →
+      </router-link>
+    </div>
+  </section>
+</template>

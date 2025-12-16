@@ -56,13 +56,15 @@
     class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1"
   >
     <div class="flex items-center gap-1">
-      <img
-        alt="Vuetify0 Logo"
-        decoding="async"
-        fetchpriority="high"
-        :src
-        width="128"
-      >
+      <router-link to="/">
+        <img
+          alt="Vuetify0 Logo"
+          decoding="async"
+          fetchpriority="high"
+          :src
+          width="128"
+        >
+      </router-link>
 
       <AppIcon
         class="pa-1 cursor-pointer md:hidden"
