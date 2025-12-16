@@ -61,7 +61,8 @@ export interface DateAdapter<T = unknown> {
   endOfDay: (date: T) => T
   /** @param firstDayOfWeek - 0=Sunday, 1=Monday, etc. */
   startOfWeek: (date: T, firstDayOfWeek?: number) => T
-  endOfWeek: (date: T) => T
+  /** @param firstDayOfWeek - 0=Sunday, 1=Monday, etc. */
+  endOfWeek: (date: T, firstDayOfWeek?: number) => T
   startOfMonth: (date: T) => T
   endOfMonth: (date: T) => T
   startOfYear: (date: T) => T
