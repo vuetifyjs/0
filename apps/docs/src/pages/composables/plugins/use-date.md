@@ -151,8 +151,8 @@ interface DateAdapter<T> {
   // Navigation
   startOfDay(date: T): T
   endOfDay(date: T): T
-  startOfWeek(date: T, firstDayOfWeek?: number | string): T
-  endOfWeek(date: T): T
+  startOfWeek(date: T, firstDayOfWeek?: number): T
+  endOfWeek(date: T, firstDayOfWeek?: number): T
   startOfMonth(date: T): T
   endOfMonth(date: T): T
   startOfYear(date: T): T
@@ -184,7 +184,7 @@ interface DateAdapter<T> {
   getMinutes(date: T): number
   getSeconds(date: T): number
   getDiff(date: T, comparing: T | string, unit?: string): number
-  getWeek(date: T, firstDayOfWeek?: number | string): number
+  getWeek(date: T, firstDayOfWeek?: number, minimalDays?: number): number
   getDaysInMonth(date: T): number
 
   // Setters (immutable - returns new instance)
@@ -196,8 +196,8 @@ interface DateAdapter<T> {
   setSeconds(date: T, seconds: number): T
 
   // Calendar Utilities
-  getWeekdays(firstDayOfWeek?: number | string, format?: 'long' | 'short' | 'narrow'): string[]
-  getWeekArray(date: T, firstDayOfWeek?: number | string): T[][]
+  getWeekdays(firstDayOfWeek?: number, format?: 'long' | 'short' | 'narrow'): string[]
+  getWeekArray(date: T, firstDayOfWeek?: number): T[][]
   getMonthArray(date: T): T[]
   getYearRange(start: T, end: T): T[]
   getNextMonth(date: T): T
@@ -327,25 +327,6 @@ app.use(createDatePlugin({
 
 When switching locales via `useLocale`, the date adapter automatically updates its formatting locale.
 
-## Vuetify 3 Bridge
-
-For projects using both `@vuetify/v0` and Vuetify 3, a bridge adapter allows v0's Temporal-based date system to work with Vuetify 3's internal date composable:
-
-```ts
-import { createVuetify3DateBridge } from '@vuetify/v0'
-import { createVuetify } from 'vuetify'
-
-const vuetify = createVuetify({
-  date: {
-    adapter: createVuetify3DateBridge({
-      locale: 'en-US',
-    }),
-  },
-})
-```
-
-The bridge converts between Temporal.PlainDateTime and JavaScript Date objects as needed by Vuetify 3 components.
-
 ## Custom Adapters
 
 Create custom adapters for different date libraries (date-fns, luxon, dayjs):
@@ -381,3 +362,9 @@ app.use(createDatePlugin({
 ## Known Limitations
 
 - **parse() format parameter**: The `parse()` method's format parameter is currently ignored. The Temporal API doesn't provide built-in format parsing. The method delegates to `date()` which handles ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a custom adapter.
+
+- **SSR Behavior**: When `adapter.date()` is called without arguments:
+  - Browser: Returns current time via `Temporal.Now.plainDateTimeISO()`
+  - Server: Returns epoch (1970-01-01T00:00:00) for deterministic rendering
+
+  This is intentional to prevent hydration mismatches. For SSR apps needing current time, pass `Date.now()` explicitly and handle hydration via `<ClientOnly>` (Nuxt) or `v-if` + `onMounted` pattern.

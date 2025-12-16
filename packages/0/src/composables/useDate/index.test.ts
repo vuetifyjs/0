@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { Temporal } from '@js-temporal/polyfill'
-import { createDate, createDateFallback, createDatePlugin } from './index'
+import { createDate, createDateFallback, createDatePlugin, useDate } from './index'
 import { V0DateAdapter } from './adapters/v0'
 
 describe('useDate', () => {
@@ -776,6 +776,31 @@ describe('useDate', () => {
 
       expect(dateContext.locale.value).toBe('fr-CA')
       expect(customAdapter.locale).toBe('fr-CA')
+    })
+  })
+
+  describe('useDate', () => {
+    it('should return fallback when called outside component', () => {
+      const ctx = useDate()
+
+      expect(ctx).toBeDefined()
+      expect(ctx.adapter).toBeInstanceOf(V0DateAdapter)
+      expect(ctx.locale.value).toBe('en-US')
+    })
+
+    it('should return fallback with custom namespace outside component', () => {
+      const ctx = useDate('custom:namespace')
+
+      expect(ctx).toBeDefined()
+      expect(ctx.adapter).toBeInstanceOf(V0DateAdapter)
+    })
+
+    it('should handle missing context gracefully', () => {
+      // useDate catches errors and returns fallback
+      const ctx = useDate('nonexistent:namespace')
+
+      expect(ctx).toBeDefined()
+      expect(ctx.adapter).toBeInstanceOf(V0DateAdapter)
     })
   })
 })

@@ -27,7 +27,10 @@ import type { DateAdapter } from './adapter'
 type PlainDateTime = Temporal.PlainDateTime
 
 /** Single regex for token replacement in formatByString */
-const FORMAT_TOKEN_REGEX = /YYYY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|ss|s|A|a/g
+const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|ss|s|A|a/g
+
+/** Maximum cache size to prevent memory leaks */
+const MAX_CACHE_SIZE = 50
 
 export class V0DateAdapter implements DateAdapter<PlainDateTime> {
   locale: string
@@ -46,6 +49,20 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
   // Construction & Conversion
   // ============================================
 
+  /**
+   * Create a date from various input types.
+   *
+   * @param value - Date value (PlainDateTime, PlainDate, ZonedDateTime, Date, ISO string, timestamp)
+   * @returns PlainDateTime or null if invalid
+   *
+   * @remarks
+   * **SSR Safety:** When called without arguments:
+   * - Browser: Returns current time via `Temporal.Now.plainDateTimeISO()`
+   * - Server: Returns epoch (1970-01-01T00:00:00) for deterministic rendering
+   *
+   * For SSR apps needing current time, pass `Date.now()` explicitly and handle
+   * hydration via `<ClientOnly>` (Nuxt) or `v-if` + `onMounted` pattern.
+   */
   date (value?: unknown): PlainDateTime | null {
     if (value == null) {
       // SSR safety: Temporal.Now requires browser environment
@@ -336,8 +353,8 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     return this.startOfDay(date.subtract({ days: diff }))
   }
 
-  endOfWeek (date: PlainDateTime): PlainDateTime {
-    const start = this.startOfWeek(date, 0)
+  endOfWeek (date: PlainDateTime, firstDayOfWeek = 0): PlainDateTime {
+    const start = this.startOfWeek(date, firstDayOfWeek)
 
     return this.endOfDay(start.add({ days: 6 }))
   }
@@ -661,12 +678,19 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
 
   /**
    * Gets a cached Intl.DateTimeFormat instance or creates one if not cached.
+   * Cache is limited to MAX_CACHE_SIZE entries to prevent memory leaks.
    */
   private getFormatter (options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
     const key = `${this.locale}:${JSON.stringify(options)}`
     let formatter = this.formatCache.get(key)
 
     if (!formatter) {
+      // Evict oldest entry if cache is full
+      if (this.formatCache.size >= MAX_CACHE_SIZE) {
+        const firstKey = this.formatCache.keys().next().value
+        if (firstKey) this.formatCache.delete(firstKey)
+      }
+
       formatter = new Intl.DateTimeFormat(this.locale, options)
       this.formatCache.set(key, formatter)
     }
@@ -676,11 +700,18 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
 
   /**
    * Gets a cached Intl.NumberFormat instance or creates one if not cached.
+   * Cache is limited to MAX_CACHE_SIZE entries to prevent memory leaks.
    */
   private getNumberFormatter (): Intl.NumberFormat {
     let formatter = this.numberFormatCache.get(this.locale)
 
     if (!formatter) {
+      // Evict oldest entry if cache is full
+      if (this.numberFormatCache.size >= MAX_CACHE_SIZE) {
+        const firstKey = this.numberFormatCache.keys().next().value
+        if (firstKey) this.numberFormatCache.delete(firstKey)
+      }
+
       formatter = new Intl.NumberFormat(this.locale)
       this.numberFormatCache.set(this.locale, formatter)
     }
