@@ -1,6 +1,7 @@
 <script lang="ts" setup>
   // Composables
   import { useBin } from '@/composables/bin'
+  import { usePlayground } from '@/composables/playground'
 
   // Utilities
   import { ref, computed } from 'vue'
@@ -9,6 +10,7 @@
     code: string // base64 encoded
     language?: string
     title?: string
+    playground?: boolean
   }>()
 
   const decodedCode = computed(() => {
@@ -37,6 +39,11 @@
     const url = useBin(decodedCode.value, props.language || 'markdown', props.title)
     window.open(url, '_blank')
   }
+
+  function openInPlayground () {
+    const url = usePlayground(decodedCode.value)
+    window.open(url, '_blank')
+  }
 </script>
 
 <template>
@@ -48,6 +55,14 @@
       {{ language }}
     </span>
     <div class="absolute top-3 right-3 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+      <button
+        v-if="playground"
+        class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
+        title="Open in Vuetify Play"
+        @click="openInPlayground"
+      >
+        <AppIcon icon="vuetify-play" />
+      </button>
       <button
         class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
         title="Open in Vuetify Bin"
