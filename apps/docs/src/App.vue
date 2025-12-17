@@ -1,5 +1,8 @@
 <script lang="ts" setup>
   import { useHead, useSeoMeta } from '@unhead/vue'
+  import { useScrollPersist } from './composables/useScrollPersist'
+
+  useScrollPersist()
 
   useHead({
     title: 'Vuetify0',
@@ -116,6 +119,7 @@
 
     table {
       width: 100%;
+      background-color: var(--v0-surface);
       border-collapse: separate;
       border-spacing: 0;
       border-radius: 0.5rem;
