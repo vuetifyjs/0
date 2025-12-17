@@ -44,65 +44,65 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/components/atom': RouteRecordInfo<
-      '/components/atom',
-      '/components/atom',
+    '/components/disclosure/expansion-panel': RouteRecordInfo<
+      '/components/disclosure/expansion-panel',
+      '/components/disclosure/expansion-panel',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/avatar': RouteRecordInfo<
-      '/components/avatar',
-      '/components/avatar',
+    '/components/disclosure/popover': RouteRecordInfo<
+      '/components/disclosure/popover',
+      '/components/disclosure/popover',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/expansion-panel': RouteRecordInfo<
-      '/components/expansion-panel',
-      '/components/expansion-panel',
+    '/components/primitives/atom': RouteRecordInfo<
+      '/components/primitives/atom',
+      '/components/primitives/atom',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/group': RouteRecordInfo<
-      '/components/group',
-      '/components/group',
+    '/components/providers/group': RouteRecordInfo<
+      '/components/providers/group',
+      '/components/providers/group',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/pagination': RouteRecordInfo<
-      '/components/pagination',
-      '/components/pagination',
+    '/components/providers/selection': RouteRecordInfo<
+      '/components/providers/selection',
+      '/components/providers/selection',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/popover': RouteRecordInfo<
-      '/components/popover',
-      '/components/popover',
+    '/components/providers/single': RouteRecordInfo<
+      '/components/providers/single',
+      '/components/providers/single',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/selection': RouteRecordInfo<
-      '/components/selection',
-      '/components/selection',
+    '/components/providers/step': RouteRecordInfo<
+      '/components/providers/step',
+      '/components/providers/step',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/single': RouteRecordInfo<
-      '/components/single',
-      '/components/single',
+    '/components/semantic/avatar': RouteRecordInfo<
+      '/components/semantic/avatar',
+      '/components/semantic/avatar',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/step': RouteRecordInfo<
-      '/components/step',
-      '/components/step',
+    '/components/semantic/pagination': RouteRecordInfo<
+      '/components/semantic/pagination',
+      '/components/semantic/pagination',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -488,57 +488,57 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/components/atom.md': {
+    'src/pages/components/disclosure/expansion-panel.md': {
       routes:
-        | '/components/atom'
+        | '/components/disclosure/expansion-panel'
       views:
         | never
     }
-    'src/pages/components/avatar.md': {
+    'src/pages/components/disclosure/popover.md': {
       routes:
-        | '/components/avatar'
+        | '/components/disclosure/popover'
       views:
         | never
     }
-    'src/pages/components/expansion-panel.md': {
+    'src/pages/components/primitives/atom.md': {
       routes:
-        | '/components/expansion-panel'
+        | '/components/primitives/atom'
       views:
         | never
     }
-    'src/pages/components/group.md': {
+    'src/pages/components/providers/group.md': {
       routes:
-        | '/components/group'
+        | '/components/providers/group'
       views:
         | never
     }
-    'src/pages/components/pagination.md': {
+    'src/pages/components/providers/selection.md': {
       routes:
-        | '/components/pagination'
+        | '/components/providers/selection'
       views:
         | never
     }
-    'src/pages/components/popover.md': {
+    'src/pages/components/providers/single.md': {
       routes:
-        | '/components/popover'
+        | '/components/providers/single'
       views:
         | never
     }
-    'src/pages/components/selection.md': {
+    'src/pages/components/providers/step.md': {
       routes:
-        | '/components/selection'
+        | '/components/providers/step'
       views:
         | never
     }
-    'src/pages/components/single.md': {
+    'src/pages/components/semantic/avatar.md': {
       routes:
-        | '/components/single'
+        | '/components/semantic/avatar'
       views:
         | never
     }
-    'src/pages/components/step.md': {
+    'src/pages/components/semantic/pagination.md': {
       routes:
-        | '/components/step'
+        | '/components/semantic/pagination'
       views:
         | never
     }

@@ -22,12 +22,20 @@
   const prev = computed(() => index.value > -1 ? routes.value[index.value - 1] : false)
   const next = computed(() => index.value === -1 ? false : routes.value[index.value + 1])
 
-  function genRoutes (nav: any) {
-    if (nav.children) {
-      return nav.children.flatMap((child: any) => genRoutes(child))
+  function genRoutes (nav: any): string[] {
+    const routes: string[] = []
+
+    // Include this nav's route if it has one
+    if (nav.to) {
+      routes.push(nav.to)
     }
 
-    return nav.to ? [nav.to] : []
+    // Recurse into children
+    if (nav.children) {
+      routes.push(...nav.children.flatMap((child: any) => genRoutes(child)))
+    }
+
+    return routes
   }
 </script>
 

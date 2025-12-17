@@ -14,15 +14,39 @@ A collection of foundational components designed to be headless, accessible, and
 
 <DocsPageFeatures :frontmatter />
 
-## Available Components
+## Primitives
+
+Foundation components for building higher-level abstractions.
 
 | Name | Description |
 | - | - |
-| [Atom](/components/atom) | Base element wrapper with dynamic element types |
-| [Avatar](/components/avatar) | Image/fallback avatar system with priority loading |
-| [ExpansionPanel](/components/expansion-panel) | Accordion-style expansion panels with ARIA support |
-| [Group](/components/group) | Selection grouping with multiple/single modes |
-| [Popover](/components/popover) | CSS anchor-positioned popup components |
-| [Selection](/components/selection) | Manage selection state in collections with single/multi-selection |
-| [Single](/components/single) | Single-selection with automatic deselection |
-| [Step](/components/step) | Step-based navigation for wizards and forms |
+| [Atom](/components/primitives/atom) | Polymorphic element with dynamic `as` prop and renderless mode |
+
+## Providers
+
+Pure context providers for state management. Always renderless—they provide logic without rendering DOM elements.
+
+| Name | Description |
+| - | - |
+| [Selection](/components/providers/selection) | Multi-selection state with v-model binding |
+| [Single](/components/providers/single) | Single-selection with automatic deselection |
+| [Group](/components/providers/group) | Multi-selection with tri-state support |
+| [Step](/components/providers/step) | Sequential navigation (first, last, next, prev) |
+
+## Semantic
+
+Components with meaningful HTML defaults. Render semantic elements by default but support the `as` prop for customization.
+
+| Name | Description |
+| - | - |
+| [Avatar](/components/semantic/avatar) | Image/fallback avatar with priority loading |
+| [Pagination](/components/semantic/pagination) | Page navigation with semantic `<nav>` wrapper |
+
+## Disclosure
+
+Components for showing/hiding content.
+
+| Name | Description |
+| - | - |
+| [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
+| [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |

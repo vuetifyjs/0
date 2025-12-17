@@ -42,15 +42,35 @@ export const useAppStore = defineStore('app', {
         name: 'Components',
         to: '/components',
         children: [
-          { name: 'Atom', to: '/components/atom' },
-          { name: 'Avatar', to: '/components/avatar' },
-          { name: 'ExpansionPanel', to: '/components/expansion-panel' },
-          { name: 'Group', to: '/components/group' },
-          { name: 'Pagination', to: '/components/pagination' },
-          { name: 'Popover', to: '/components/popover' },
-          { name: 'Selection', to: '/components/selection' },
-          { name: 'Single', to: '/components/single' },
-          { name: 'Step', to: '/components/step' },
+          {
+            name: 'Primitives',
+            children: [
+              { name: 'Atom', to: '/components/primitives/atom' },
+            ],
+          },
+          {
+            name: 'Providers',
+            children: [
+              { name: 'Selection', to: '/components/providers/selection' },
+              { name: 'Single', to: '/components/providers/single' },
+              { name: 'Group', to: '/components/providers/group' },
+              { name: 'Step', to: '/components/providers/step' },
+            ],
+          },
+          {
+            name: 'Semantic',
+            children: [
+              { name: 'Avatar', to: '/components/semantic/avatar' },
+              { name: 'Pagination', to: '/components/semantic/pagination' },
+            ],
+          },
+          {
+            name: 'Disclosure',
+            children: [
+              { name: 'ExpansionPanel', to: '/components/disclosure/expansion-panel' },
+              { name: 'Popover', to: '/components/disclosure/popover' },
+            ],
+          },
         ],
       },
       { divider: true },
