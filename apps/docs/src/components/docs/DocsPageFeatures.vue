@@ -91,7 +91,7 @@
     </a>
 
     <a
-      href="https://issues.vuetifyjs.com/"
+      href="https://issues.vuetifyjs.com/?repo=vuetify0&type=bug"
       rel="noopener noreferrer"
       target="_blank"
     >
