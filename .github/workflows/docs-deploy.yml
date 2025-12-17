@@ -17,6 +17,11 @@ jobs:
       - run: pnpm run build:docs
         env:
           VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --config lychee.toml './apps/docs/dist'
+          fail: true
       - uses: vuetifyjs/coolify-action@master
         with:
           imageName: v0-docs
