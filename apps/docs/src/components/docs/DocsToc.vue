@@ -17,10 +17,10 @@
       <ul class="space-y-1">
         <li v-for="h2 in headings" :key="h2.id">
           <a
-            class="block py-1 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors truncate"
-            :class="{
-              'text-primary font-medium': selectedId === h2.id,
-            }"
+            class="block py-1 hover:text-primary transition-colors truncate"
+            :class="selectedId === h2.id
+              ? 'text-primary font-medium'
+              : 'text-gray-600 dark:text-gray-300'"
             :href="`#${h2.id}`"
             @click.prevent="scrollTo(h2.id)"
           >
@@ -30,10 +30,10 @@
           <ul v-if="h2.children.length > 0" class="ml-3 space-y-1">
             <li v-for="h3 in h2.children" :key="h3.id">
               <a
-                class="block py-1 text-gray-500 dark:text-gray-400 hover:text-primary transition-colors truncate text-xs"
-                :class="{
-                  'text-primary font-medium': selectedId === h3.id,
-                }"
+                class="block py-1 hover:text-primary transition-colors truncate text-xs"
+                :class="selectedId === h3.id
+                  ? 'text-primary font-medium'
+                  : 'text-gray-500 dark:text-gray-400'"
                 :href="`#${h3.id}`"
                 @click.prevent="scrollTo(h3.id)"
               >
