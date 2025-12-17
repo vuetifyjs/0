@@ -1,7 +1,7 @@
 name: Docs Deploy
 on:
   push:
-    branches: [master,docs/lychee]
+    branches: [master]
 
 jobs:
   deploy:
@@ -23,10 +23,10 @@ jobs:
           lycheeVersion: v0.22.0
           args: --config lychee.toml './apps/docs/dist'
           fail: true
-      # - uses: vuetifyjs/coolify-action@master
-      #   with:
-      #     imageName: v0-docs
-      #     dockerfilePath: ./apps/docs/Dockerfile
-      #     token: ${{ secrets.GITHUB_TOKEN  }}
-      #     coolifyWebhook: ${{ secrets.COOLIFY_WEBHOOK }}
-      #     coolifySecret: ${{ secrets.COOLIFY_TOKEN }}
+      - uses: vuetifyjs/coolify-action@master
+        with:
+          imageName: v0-docs
+          dockerfilePath: ./apps/docs/Dockerfile
+          token: ${{ secrets.GITHUB_TOKEN  }}
+          coolifyWebhook: ${{ secrets.COOLIFY_WEBHOOK }}
+          coolifySecret: ${{ secrets.COOLIFY_TOKEN }}
