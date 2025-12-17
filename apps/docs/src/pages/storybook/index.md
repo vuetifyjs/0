@@ -11,6 +11,8 @@ meta:
 
 Storybook provides an interactive environment for exploring Vuetify0 components in isolation. Browse through component variations, test different states, and see live examples of each component.
 
+<DocsPageFeatures :frontmatter />
+
 ## Features
 
 - **Interactive Examples** — Explore each component with working demos

@@ -46,7 +46,7 @@ bun add @vuetify/v0
 
 Import and use components directly - no plugin installation required:
 
-```vue QuickStart
+```vue QuickStart.vue playground
 <script setup>
   import { ExpansionPanel } from '@vuetify/v0'
   import { ref } from 'vue'

@@ -9,10 +9,6 @@ export const useAppStore = defineStore('app', {
     drawer: false,
     nav: [
       {
-        name: 'Storybook',
-        to: '/storybook',
-      },
-      {
         name: 'Introduction',
         to: '/',
         children: [
@@ -22,6 +18,7 @@ export const useAppStore = defineStore('app', {
         ],
       },
       { divider: true },
+      { name: 'Storybook', to: '/storybook' },
       {
         name: 'Guide',
         to: '/guide',

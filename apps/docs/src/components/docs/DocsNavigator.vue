@@ -7,7 +7,7 @@
   const route = useRoute()
 
   const routes = computed(() => {
-    const pages = ['/']
+    const pages: string[] = []
 
     for (const nav of app.nav) {
       if (!nav.children && !nav.to) continue
