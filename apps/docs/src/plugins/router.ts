@@ -9,11 +9,19 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
     if (savedPosition) return savedPosition
 
     // If navigating to a hash (anchor), scroll to that element
+    // Delay to allow DOM to settle after hydration
     if (to.hash) {
-      return {
-        el: to.hash,
-        behavior: 'smooth',
-      }
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const el = document.querySelector(to.hash)
+          if (el) {
+            const top = el.getBoundingClientRect().top + window.scrollY - 80
+            resolve({ top, behavior: 'smooth' })
+          } else {
+            resolve({ top: 0 })
+          }
+        }, 100)
+      })
     }
 
     // Otherwise, scroll to top

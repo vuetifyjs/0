@@ -29,6 +29,7 @@ declare module 'vue' {
     DocsMarkup: typeof import('./components/docs/DocsMarkup.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
     DocsPageFeatures: typeof import('./components/docs/DocsPageFeatures.vue')['default']
+    DocsToc: typeof import('./components/docs/DocsToc.vue')['default']
     FaqList: typeof import('./components/docs/FaqList.vue')['default']
     HomeCta: typeof import('./components/home/HomeCta.vue')['default']
     HomeDemo: typeof import('./components/home/HomeDemo.vue')['default']

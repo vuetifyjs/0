@@ -1,7 +1,26 @@
+/**
+ * @module useScrollPersist
+ *
+ * @remarks
+ * Persists scroll position across page refreshes using sessionStorage.
+ *
+ * Key features:
+ * - Saves scroll position on beforeunload
+ * - Restores position after router is ready
+ * - Uses v0 storage composable with sessionStorage adapter
+ * - SSR-safe
+ */
+
+// Composables
 import { createStorage, useWindowEventListener } from '@vuetify/v0'
-import { IN_BROWSER } from '@vuetify/v0/constants'
+
+// Utilities
 import { useRouter } from 'vue-router'
 
+// Globals
+import { IN_BROWSER } from '@vuetify/v0/constants'
+
+// Types
 interface ScrollPosition {
   left: number
   top: number
@@ -21,23 +40,26 @@ export function useScrollPersist () {
     return history.state?.key ?? router.currentRoute.value.fullPath
   }
 
-  useWindowEventListener('beforeunload', () => {
-    console.log('here')
+  function savePosition () {
     const key = getScrollKey()
-    if (key) {
-      storage.set<ScrollPosition>(key, {
-        left: window.scrollX,
-        top: window.scrollY,
-      })
-    }
-  })
+    if (!key) return
 
-  // Restore after hydration
-  router.isReady().then(() => {
+    storage.set<ScrollPosition>(key, {
+      left: window.scrollX,
+      top: window.scrollY,
+    })
+  }
+
+  function restorePosition () {
     const key = getScrollKey()
-    const pos = storage.get<ScrollPosition | null>(key, null)
-    if (pos.value) {
-      window.scrollTo(pos.value.left, pos.value.top)
+    const position = storage.get<ScrollPosition | null>(key, null)
+
+    if (position.value) {
+      window.scrollTo(position.value.left, position.value.top)
     }
-  })
+  }
+
+  useWindowEventListener('beforeunload', savePosition)
+
+  router.isReady().then(restorePosition)
 }
