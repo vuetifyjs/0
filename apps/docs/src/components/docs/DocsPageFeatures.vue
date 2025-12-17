@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import { useOneStore } from '@vuetify/one'
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
@@ -20,6 +21,7 @@
   const base = 'https://github.com/vuetifyjs/0'
   const copied = shallowRef(false)
 
+  const one = useOneStore()
   const route = useRoute()
 
   const link = toRef(() => route.path.split('/').slice(1).filter(Boolean).join('/'))
@@ -44,6 +46,8 @@
   })
 
   async function onClickCopy () {
+    if (!one.isSubscriber) return
+
     let raw = ''
 
     function replace (element: string, value: string) {
@@ -124,9 +128,11 @@
     </a>
 
     <AppChip
+      :class="[{ 'cursor-not-allowed opacity-50': !one.isSubscriber }]"
       :color="copied ? 'text-success' : 'text-on-surface'"
       :icon="copied ? 'success' : 'markdown'"
       :text="copied ? 'Copied' : 'Copy Page as Markdown'"
+      :title="!one.isSubscriber ? 'Subscribe to Vuetify One to Unlock' : ''"
       @click="onClickCopy"
     />
   </div>
