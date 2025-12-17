@@ -150,7 +150,7 @@ function resolveLocale (
   if (!isNullOrUndefined(currentLocale)) {
     const localeStr = String(currentLocale)
 
-    // If it's already an Intl locale (has region like 'en-US'), use disrectly
+    // If it's already an Intl locale (has region like 'en-US'), use directly
     // Otherwise, look up in localeMap (for short codes like 'en')
     if (isIntlLocale(localeStr)) return localeStr
 
@@ -317,7 +317,11 @@ export function createDateContext<T = DefaultDateType> (
 ): ContextTrinity<DateContext<T>> {
   const { namespace = 'v0:date', ...options } = _options
   const [useDateContext, _provideDateContext] = createContext<DateContext<T>>(namespace)
-  const context = createDate(options as DateOptionsDefault) as unknown as DateContext<T>
+
+  // Preserve custom adapter if provided, otherwise use default
+  const context = 'adapter' in options && options.adapter !== undefined
+    ? createDate(options as DateOptionsWithAdapter<T>)
+    : createDate(options as DateOptionsDefault) as unknown as DateContext<T>
 
   function provideDateContext (_context: DateContext<T> = context, app?: App): DateContext<T> {
     return _provideDateContext(_context, app)
@@ -371,7 +375,11 @@ export function createDatePlugin<T = DefaultDateType> (
   _options: DatePluginOptions<T> = {},
 ) {
   const { namespace = 'v0:date', ...options } = _options
-  const [, provideDateContext, context] = createDateContext({ namespace, ...options } as DateContextOptionsDefault) as unknown as ContextTrinity<DateContext<T>>
+
+  // Preserve custom adapter if provided, otherwise use default
+  const [, provideDateContext, context] = 'adapter' in options && options.adapter !== undefined
+    ? createDateContext({ namespace, ...options } as DateContextOptionsWithAdapter<T>)
+    : createDateContext({ namespace, ...options } as DateContextOptionsDefault) as unknown as ContextTrinity<DateContext<T>>
 
   return createPlugin({
     namespace,

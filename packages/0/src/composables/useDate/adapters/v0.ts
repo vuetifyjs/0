@@ -512,7 +512,10 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
     unit?: string,
   ): number {
     const unitKey = (unit ?? 'days') as 'years' | 'months' | 'weeks' | 'days' | 'hours' | 'minutes' | 'seconds'
-    const comp = typeof comparing === 'string' ? this.parseISO(comparing) : comparing
+    const comp = typeof comparing === 'string' ? this.date(comparing) : comparing
+
+    if (comp === null) return 0
+
     const duration = date.since(comp, { largestUnit: unitKey })
 
     switch (unitKey) {
