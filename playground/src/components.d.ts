@@ -30,6 +30,7 @@ declare module 'vue' {
     PaginationNext: typeof import('./../../packages/0/src/components/Pagination/PaginationNext.vue')['default']
     PaginationPrev: typeof import('./../../packages/0/src/components/Pagination/PaginationPrev.vue')['default']
     PaginationRoot: typeof import('./../../packages/0/src/components/Pagination/PaginationRoot.vue')['default']
+    PaginationStatus: typeof import('./../../packages/0/src/components/Pagination/PaginationStatus.vue')['default']
     PopoverAnchor: typeof import('./../../packages/0/src/components/Popover/PopoverAnchor.vue')['default']
     PopoverContent: typeof import('./../../packages/0/src/components/Popover/PopoverContent.vue')['default']
     PopoverRoot: typeof import('./../../packages/0/src/components/Popover/PopoverRoot.vue')['default']
