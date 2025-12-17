@@ -41,7 +41,7 @@
     "release:major": "bumpp major -r"
   },
   "engines": {
-    "node": ">=20.19 || >=22",
+    "node": ">=22",
     "pnpm": ">=10.6"
   },
   "devDependencies": {
