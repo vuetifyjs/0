@@ -1,8 +1,42 @@
 import { defineStore } from 'pinia'
-import type { operations } from '@octokit/openapi-types'
 
-type ListCommitsResponse = operations['repos/list-commits']['responses']['200']['content']['application/json']
-type Commit = ListCommitsResponse[number]
+// Minimal type for commit data we actually use
+interface Commit {
+  sha: string
+  html_url: string
+}
+
+// Navigation item types
+export interface NavItemLink {
+  name: string
+  to: string
+  children?: NavItem[]
+}
+
+export interface NavItemCategory {
+  name: string
+  children: NavItem[]
+}
+
+export interface NavItemDivider {
+  divider: true
+}
+
+export type NavItem = NavItemLink | NavItemCategory | NavItemDivider
+
+function flattenRoutes (nav: NavItem): string[] {
+  const routes: string[] = []
+
+  if ('to' in nav && nav.to) {
+    routes.push(nav.to)
+  }
+
+  if ('children' in nav && nav.children) {
+    routes.push(...nav.children.flatMap(child => flattenRoutes(child)))
+  }
+
+  return routes
+}
 
 export const useAppStore = defineStore('app', {
   state: () => ({
@@ -157,4 +191,17 @@ export const useAppStore = defineStore('app', {
       tag: null,
     },
   }),
+  getters: {
+    routes: (state): string[] => {
+      const pages: string[] = []
+
+      for (const nav of state.nav) {
+        if (!('children' in nav) && !('to' in nav)) continue
+
+        pages.push(...flattenRoutes(nav as NavItem))
+      }
+
+      return pages
+    },
+  },
 })

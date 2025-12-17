@@ -12,7 +12,7 @@ export function processLinks (html: string): string {
 
     if (/^https?:\/\//i.test(href)) {
       suffix = '↗'
-      target = ' target="_blank" rel="noopener"'
+      target = ' target="_blank" rel="noopener noreferrer"'
     } else if (/#/.test(href)) {
       prefix = '#'
     } else {

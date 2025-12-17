@@ -140,7 +140,7 @@ export function useScrollSpy (options: ScrollSpyOptions = {}): ScrollSpyReturn {
   onScopeDispose(clear)
 
   return {
-    selectedId: shallowRef(selectedId),
+    selectedId,
     register,
     unregister,
     clear,

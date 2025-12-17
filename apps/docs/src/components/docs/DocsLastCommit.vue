@@ -15,9 +15,9 @@
 
       if (data.length === 0) return
 
-      app.stats.commit = data[0]
-    } catch {
-      // Silently fail - commit info is non-critical
+      app.stats.commit = data[0] as typeof app.stats.commit
+    } catch (error) {
+      console.warn('Failed to fetch commit info:', error)
     }
   })
 </script>

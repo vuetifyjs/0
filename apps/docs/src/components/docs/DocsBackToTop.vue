@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-  import { shallowRef, onMounted, onBeforeUnmount, nextTick } from 'vue'
+  import { useResizeObserver, useWindowEventListener } from '@vuetify/v0'
+  import { shallowRef, toRef } from 'vue'
 
   const show = shallowRef(false)
 
@@ -7,23 +8,9 @@
     show.value = document.documentElement.scrollHeight > window.innerHeight + 1
   }
 
-  let resizeObserver: ResizeObserver | undefined
-
-  onMounted(async () => {
-    await nextTick()
-    updateOverflow()
-    window.addEventListener('resize', updateOverflow)
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(updateOverflow)
-      resizeObserver.observe(document.documentElement)
-      resizeObserver.observe(document.body)
-    }
-  })
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', updateOverflow)
-    resizeObserver?.disconnect()
-  })
+  useWindowEventListener('resize', updateOverflow)
+  useResizeObserver(toRef(() => document.documentElement), updateOverflow)
+  useResizeObserver(toRef(() => document.body), updateOverflow)
 
   function scrollToTop () {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -31,15 +18,16 @@
 </script>
 
 <template>
-  <div
+  <button
     v-if="show"
-    class="text-end text-sm text-primary mt-16 underline cursor-pointer"
+    class="block ms-auto text-sm text-primary mt-16 underline cursor-pointer bg-transparent border-0"
+    type="button"
     @click="scrollToTop"
   >
-    <div class="inline-flex align-center">
+    <span class="inline-flex align-center">
       Back to Top
 
       <AppIcon icon="up" />
-    </div>
-  </div>
+    </span>
+  </button>
 </template>

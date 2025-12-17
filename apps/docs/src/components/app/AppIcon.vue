@@ -34,6 +34,7 @@
 <template>
   <i class="inline-flex align-center justify-center">
     <svg
+      aria-hidden="true"
       class="inline-block align-middle"
       fill="none"
       :height="size"

@@ -6,14 +6,10 @@
   // Types
   import type { AtomProps } from '@vuetify/v0'
   import type { RouterLinkProps } from 'vue-router'
+  import type { NavItem } from '@/stores/app'
 
-  export interface NavItem {
-    name: string
-    to: string
-  }
-
-  export interface ComponentProps extends AtomProps, RouterLinkProps {
-    children?: (NavItem | { name: string, children: NavItem[] })[]
+  export interface ComponentProps extends AtomProps, Partial<RouterLinkProps> {
+    children?: NavItem[]
   }
 
   const {
@@ -50,12 +46,12 @@
     >
       <AppNavLink
         v-for="child in children"
-        :key="child.name"
-        :children="(child as any).children"
+        :key="'name' in child ? child.name : ''"
+        :children="'children' in child ? child.children : undefined"
         class="text-sm"
-        :to="(child as any).to"
+        :to="'to' in child ? child.to : undefined"
       >
-        {{ child.name }}
+        {{ 'name' in child ? child.name : '' }}
       </AppNavLink>
     </ul>
   </li>

@@ -22,8 +22,8 @@
         const npm = await npmRes.json()
         stats.value.downloads = formatNumber(npm.downloads)
       }
-    } catch {
-      // Silently fail - stats will show placeholder
+    } catch (error) {
+      console.warn('Failed to fetch stats:', error)
     }
   })
 

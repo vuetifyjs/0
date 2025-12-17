@@ -6,37 +6,10 @@
   const app = useAppStore()
   const route = useRoute()
 
-  const routes = computed(() => {
-    const pages: string[] = []
-
-    for (const nav of app.nav) {
-      if (!nav.children && !nav.to) continue
-
-      pages.push(...genRoutes(nav))
-    }
-
-    return pages
-  })
   const path = computed(() => `/${route.path.split('/').slice(1).join('/')}`)
-  const index = computed(() => routes.value.indexOf(path.value))
-  const prev = computed(() => index.value > -1 ? routes.value[index.value - 1] : false)
-  const next = computed(() => index.value === -1 ? false : routes.value[index.value + 1])
-
-  function genRoutes (nav: any): string[] {
-    const routes: string[] = []
-
-    // Include this nav's route if it has one
-    if (nav.to) {
-      routes.push(nav.to)
-    }
-
-    // Recurse into children
-    if (nav.children) {
-      routes.push(...nav.children.flatMap((child: any) => genRoutes(child)))
-    }
-
-    return routes
-  }
+  const index = computed(() => app.routes.indexOf(path.value))
+  const prev = computed(() => index.value > -1 ? app.routes[index.value - 1] : false)
+  const next = computed(() => index.value === -1 ? false : app.routes[index.value + 1])
 </script>
 
 <template>

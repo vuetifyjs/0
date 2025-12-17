@@ -44,6 +44,7 @@ export default function zero (app: App) {
       try {
         savedTheme = JSON.parse(stored)
       } catch {
+        // Stored value is not JSON, use as-is (legacy format)
         savedTheme = stored
       }
     }

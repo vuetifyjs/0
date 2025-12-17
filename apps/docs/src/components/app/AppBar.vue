@@ -66,17 +66,23 @@
         >
       </router-link>
 
-      <AppIcon
-        class="pa-1 cursor-pointer md:hidden"
-        :icon="app.drawer ? 'close' : 'menu'"
+      <button
+        :aria-expanded="app.drawer"
+        :aria-label="app.drawer ? 'Close navigation' : 'Open navigation'"
+        class="pa-1 cursor-pointer md:hidden bg-transparent border-0 inline-flex align-center"
+        type="button"
         @click="app.drawer = !app.drawer"
-      />
+      >
+        <AppIcon :icon="app.drawer ? 'close' : 'menu'" />
+      </button>
     </div>
 
     <div class="flex align-center items-center gap-3">
       <button
+        aria-label="Toggle Theme"
         class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded opacity-90 hover:opacity-100 transition-all border"
         title="Toggle Theme"
+        type="button"
         @click="onClickTheme"
       >
         <AppIcon :icon="themeIcon" />
@@ -85,15 +91,19 @@
       <!-- update when latest @vuetify/one is released -->
       <button
         v-if="permissions.can(auth?.user?.role ?? 'guest', 'use', 'devmode')"
+        :aria-label="devmode.isSelected.value ? 'Disable Developer Mode' : 'Enable Developer Mode'"
+        :aria-pressed="devmode.isSelected.value"
         class="text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         :class="devmode.isSelected.value ? 'bg-red' : 'bg-gray-400'"
         title="Developer Mode"
+        type="button"
         @click="onClickDevmode"
       >
         <AppIcon icon="dev" />
       </button>
 
       <a
+        aria-label="Discord Community (opens in new tab)"
         class="bg-[#5661ea] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://discord.gg/vK6T89eNP7"
         rel="noopener noreferrer"
@@ -104,6 +114,7 @@
       </a>
 
       <a
+        aria-label="GitHub Repository (opens in new tab)"
         class="bg-gray-800 text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://github.com/vuetifyjs/0"
         rel="noopener noreferrer"
