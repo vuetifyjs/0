@@ -25,6 +25,5 @@
   .app-banner {
     background: color-mix(in srgb, var(--v0-warning) 70%, transparent);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
   }
 </style>
