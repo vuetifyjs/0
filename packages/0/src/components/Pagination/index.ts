@@ -27,6 +27,11 @@ import Prev from './PaginationPrev.vue'
 import Root from './PaginationRoot.vue'
 import Status from './PaginationStatus.vue'
 
+/**
+ * Pagination component with sub-components for building pagination controls.
+ *
+ * @see https://0.vuetifyjs.com/components/pagination
+ */
 export const Pagination = {
   /**
    * Root component for pagination controls.

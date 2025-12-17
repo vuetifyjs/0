@@ -19,6 +19,11 @@ import Header from './ExpansionPanelHeader.vue'
 import Item from './ExpansionPanelItem.vue'
 import Root from './ExpansionPanelRoot.vue'
 
+/**
+ * ExpansionPanel component with sub-components for building expansion panels.
+ *
+ * @see https://0.vuetifyjs.com/components/expansion-panels
+ */
 export const ExpansionPanel = {
   /**
    * Root component for expansion panels.

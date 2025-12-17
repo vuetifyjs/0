@@ -9,6 +9,11 @@ export { default as GroupRoot } from './GroupRoot.vue'
 import Root from './GroupRoot.vue'
 import Item from './GroupItem.vue'
 
+/**
+ * Group component with sub-components for multi-selection.
+ *
+ * @see https://0.vuetifyjs.com/components/group
+ */
 export const Group = {
   /**
    * Root component for multi-selection groups.
@@ -24,6 +29,7 @@ export const Group = {
    * <template>
    *   <Group.Root v-model="selected">
    *     <Group.Item value="a">Option A</Group.Item>
+   *
    *     <Group.Item value="b">Option B</Group.Item>
    *   </Group.Root>
    * </template>
@@ -34,6 +40,19 @@ export const Group = {
    * Item component for multi-selection groups.
    *
    * @see https://0.vuetifyjs.com/components/group#groupitem
+   *
+   * @example
+   * ```vue
+   * <script lang="ts" setup>
+   *   import { Group } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Group.Item value="a">
+   *     Option A
+   *   </Group.Item>
+   * </template>
+   * ```
    */
   Item,
 }
