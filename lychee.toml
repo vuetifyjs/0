@@ -1,0 +1,3 @@
+exclude = ["^https?://(www\\.)?github\\.com", "invalid.jpg"]
+
+root_dir = "./apps/docs/dist"
