@@ -14,7 +14,7 @@
     },
     {
       name: 'Vuetify MCP',
-      icon: 'mcp',
+      icon: 'vuetify-mcp',
     },
   ]
 </script>

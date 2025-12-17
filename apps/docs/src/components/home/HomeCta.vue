@@ -22,7 +22,7 @@
       title: 'Vuetify MCP',
       description: 'AI-powered assistance with intelligent suggestions and instant API answers.',
       to: 'https://github.com/vuetifyjs/mcp',
-      icon: 'mcp',
+      icon: 'vuetify-mcp',
       internal: false,
       cta: 'Learn More',
     },
