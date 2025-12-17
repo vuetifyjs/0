@@ -10,8 +10,6 @@ function compressAndEncode (str: string) {
 }
 
 const languageMap: Record<string, string> = {
-  bash: 'markdown',
-  sh: 'markdown',
   js: 'javascript',
   ts: 'typescript',
   vue: 'vue',
@@ -20,6 +18,8 @@ const languageMap: Record<string, string> = {
   json: 'json',
   yaml: 'yaml',
   md: 'markdown',
+  sh: 'shell',
+  bash: 'shell',
 }
 
 export function useBin (code: string, language: string, title?: string) {
