@@ -4,7 +4,7 @@ import Anchor from 'markdown-it-anchor'
 import Container from 'markdown-it-container'
 import { fromHighlighter } from '@shikijs/markdown-it/core'
 import { createHighlighterCore } from 'shiki/core'
-import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import type { HighlighterGeneric } from 'shiki/types'
 
 export default async function MarkdownPlugin () {
@@ -21,7 +21,7 @@ export default async function MarkdownPlugin () {
       import('@shikijs/langs/html'),
       import('@shikijs/langs/markdown'),
     ],
-    engine: createOnigurumaEngine(() => import('shiki/wasm')),
+    engine: createJavaScriptRegexEngine(),
   })
 
   return Markdown({

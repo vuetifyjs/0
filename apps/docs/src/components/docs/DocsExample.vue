@@ -2,14 +2,10 @@
   // Composables
   import { usePlayground } from '@/composables/playground'
   import { useBin } from '@/composables/bin'
+  import { useHighlighter } from '@/composables/useHighlighter'
 
   // Utilities
   import { ref, computed, onMounted, shallowRef, watch } from 'vue'
-  import { createHighlighterCore } from 'shiki/core'
-  import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
-
-  // Types
-  import type { HighlighterCore } from 'shiki/core'
 
   const props = defineProps<{
     file?: string
@@ -20,7 +16,7 @@
   const showCode = ref(false)
   const highlightedCode = shallowRef<string>('')
   const copied = ref(false)
-  const highlighter = shallowRef<HighlighterCore | null>(null)
+  const { highlighter, getHighlighter } = useHighlighter()
 
   const fileName = computed(() => props.file?.split('/').pop() || '')
 
@@ -39,9 +35,11 @@
   }
 
   async function highlight (code: string) {
-    if (!highlighter.value || !code) return
+    if (!code) return
 
-    highlightedCode.value = highlighter.value.codeToHtml(code, {
+    const hl = highlighter.value ?? await getHighlighter()
+
+    highlightedCode.value = hl.codeToHtml(code, {
       lang: 'vue',
       themes: {
         light: 'github-light-default',
@@ -53,17 +51,6 @@
 
   onMounted(async () => {
     if (props.code) {
-      highlighter.value = await createHighlighterCore({
-        themes: [
-          import('@shikijs/themes/github-light-default'),
-          import('@shikijs/themes/github-dark-default'),
-        ],
-        langs: [
-          import('@shikijs/langs/vue'),
-        ],
-        engine: createOnigurumaEngine(() => import('shiki/wasm')),
-      })
-
       await highlight(props.code)
     }
   })
