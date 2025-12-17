@@ -113,16 +113,6 @@
         <AppIcon icon="github" />
       </a>
 
-      <a
-        class="bg-[#1867c0] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
-        href="https://vuetifyjs.com"
-        rel="noopener noreferrer"
-        target="_blank"
-        title="Vuetify Documentation"
-      >
-        <AppIcon icon="vuetify" />
-      </a>
-
       <client-only>
         <img
           v-if="auth!.user?.picture"
