@@ -1,11 +1,15 @@
 <script lang="ts" setup>
-  //
+  definePage({
+    meta: {
+      layout: 'fullscreen',
+    },
+  })
 </script>
 
 <template>
   <div class="relative flex-1 flex flex-col">
     <router-link
-      class="absolute top-4 right-4 z-10 size-10 flex items-center justify-center rounded-full bg-surface text-on-surface shadow-lg hover:bg-surface-tint transition-colors"
+      class="absolute top-12 right-2 z-10 size-10 flex items-center justify-center rounded-full bg-primary text-on-primary shadow-lg transition-colors "
       title="Close Storybook"
       to="/storybook"
     >

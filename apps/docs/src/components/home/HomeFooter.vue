@@ -10,7 +10,7 @@
 </script>
 
 <template>
-  <footer class="home-footer py-8 border-t">
+  <footer class="home-footer py-4 border-t">
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="text-sm opacity-60">
         &copy; 2016-{{ (new Date()).getFullYear() }} Vuetify, LLC
