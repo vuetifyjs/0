@@ -34,7 +34,7 @@ export default async function MarkdownPlugin () {
     markdownItSetup (md) {
       md.use(Attrs)
       md.use(Anchor, {
-        permalink: false,
+        permalink: Anchor.permalink.headerLink({ symbol: '' }),
         slugify: (s: string) => s
           .toLowerCase()
           .trim()
@@ -76,15 +76,22 @@ export default async function MarkdownPlugin () {
       }
       md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
         const t = tokens[idx]
-        const ci = t.attrIndex('class')
-        if (ci < 0) t.attrPush(['class', 'v0-link'])
-        else if (t.attrs && !/\bv0-link\b/.test(t.attrs[ci][1])) t.attrs[ci][1] += ' v0-link'
+        const classes = t.attrGet('class') || ''
+        const isHeaderAnchor = /\bheader-anchor\b/.test(classes)
+
+        // Don't add v0-link class to header anchors
+        if (!isHeaderAnchor) {
+          const ci = t.attrIndex('class')
+          if (ci < 0) t.attrPush(['class', 'v0-link'])
+          else if (t.attrs && !/\bv0-link\b/.test(t.attrs[ci][1])) t.attrs[ci][1] += ' v0-link'
+        }
+
         const href = t.attrGet('href') || ''
         if (/^https?:\/\//i.test(href)) {
           t.attrSet('data-sfx', '↗')
-        } else if (/#/.test(href)) {
+        } else if (/#/.test(href) && !isHeaderAnchor) {
           t.attrSet('data-pfx', '#')
-        } else {
+        } else if (!isHeaderAnchor) {
           t.attrSet('data-sfx', '→')
         }
         let html = self.renderToken(tokens, idx, options)

@@ -66,6 +66,29 @@
       }
     }
 
+    h1, h2, h3, h4, h5, h6 {
+      position: relative;
+      scroll-margin-top: 5rem;
+
+      > .header-anchor {
+        color: inherit;
+        text-decoration: none;
+
+        &::before {
+          content: '#';
+          position: absolute;
+          left: -.75em;
+          opacity: 0;
+          color: var(--v0-primary);
+          transition: opacity 0.2s;
+        }
+      }
+
+      &:hover > .header-anchor::before {
+        opacity: 1;
+      }
+    }
+
     h1 {
       font-size: 2.25rem;
       line-height: 2.5rem;
