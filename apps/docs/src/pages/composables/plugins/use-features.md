@@ -93,7 +93,7 @@ Optionally register features at runtime:
 | Composable | Description |
 |---|---|
 | [useRegistry](/composables/registration/use-registry/) | Base registry composable for managing collections of items. |
-| [useTokens](/composables/tokens/use-tokens/) | Extends `useRegistry` with token utilities. |
+| [useTokens](/composables/registration/use-tokens/) | Extends `useRegistry` with token utilities. |
 | [useGroup](/composables/selection/use-group/) | Extends `useRegistry` with selection utilities. |
 
 ### `useFeatures`

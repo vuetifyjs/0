@@ -96,56 +96,56 @@ Compound components following the Root/Item pattern:
 The real power of Vuetify0. Build custom components with battle-tested logic:
 
 **Foundation**
-- [createContext](/composables/create-context) - Type-safe dependency injection
-- [createTrinity](/composables/create-trinity) - Context triple pattern
-- [createPlugin](/composables/create-plugin) - Vue plugin factory
+- [createContext](/composables/foundation/create-context) - Type-safe dependency injection
+- [createTrinity](/composables/foundation/create-trinity) - Context triple pattern
+- [createPlugin](/composables/foundation/create-plugin) - Vue plugin factory
 
 **Selection & Registration**
-- [useRegistry](/composables/use-registry) - Foundation for collection management
-- [useSelection](/composables/use-selection) - Selection state with Set-based tracking
-- [useSingle](/composables/use-single) - Single-selection
-- [useGroup](/composables/use-group) - Multi-selection with tri-state
-- [useStep](/composables/use-step) - Navigation (first, last, next, prev)
+- [useRegistry](/composables/registration/use-registry) - Foundation for collection management
+- [useSelection](/composables/selection/use-selection) - Selection state with Set-based tracking
+- [useSingle](/composables/selection/use-single) - Single-selection
+- [useGroup](/composables/selection/use-group) - Multi-selection with tri-state
+- [useStep](/composables/selection/use-step) - Navigation (first, last, next, prev)
 
 **Forms & Validation**
-- [useForm](/composables/use-form) - Form validation and state
+- [useForm](/composables/forms/use-form) - Form validation and state
 
 **Theming & Tokens**
-- [useTheme](/composables/use-theme) - Theme management with CSS variables
-- [useTokens](/composables/use-tokens) - Design token registry with alias resolution
-- [useLocale](/composables/use-locale) - i18n adapter
+- [useTheme](/composables/plugins/use-theme) - Theme management with CSS variables
+- [useTokens](/composables/registration/use-tokens) - Design token registry with alias resolution
+- [useLocale](/composables/plugins/use-locale) - i18n adapter
 
 **Data & Collections**
-- [usePagination](/composables/use-pagination) - Lightweight page navigation
-- [useVirtual](/composables/use-virtual) - Virtual scrolling for large lists
-- [useFilter](/composables/use-filter) - Reactive array filtering
-- [useQueue](/composables/use-queue) - FIFO queue with timeout
-- [useTimeline](/composables/use-timeline) - Undo/redo history
+- [usePagination](/composables/utilities/use-pagination) - Lightweight page navigation
+- [useVirtual](/composables/utilities/use-virtual) - Virtual scrolling for large lists
+- [useFilter](/composables/utilities/use-filter) - Reactive array filtering
+- [useQueue](/composables/registration/use-queue) - FIFO queue with timeout
+- [useTimeline](/composables/registration/use-timeline) - Undo/redo history
 
 **Layout & Measurement**
-- [useOverflow](/composables/use-overflow) - Container measurement and capacity
-- [useBreakpoints](/composables/use-breakpoints) - Responsive breakpoint detection
+- [useOverflow](/composables/utilities/use-overflow) - Container measurement and capacity
+- [useBreakpoints](/composables/plugins/use-breakpoints) - Responsive breakpoint detection
 
 **Observers & Events**
-- [useResizeObserver](/composables/use-resize-observer) - Resize observation
-- [useIntersectionObserver](/composables/use-intersection-observer) - Intersection observation
-- [useMutationObserver](/composables/use-mutation-observer) - DOM mutation observation
-- [useEventListener](/composables/use-event-listener) - Auto-cleanup event listeners
-- [useKeydown](/composables/use-keydown) - Keyboard event handling
+- [useResizeObserver](/composables/system/use-resize-observer) - Resize observation
+- [useIntersectionObserver](/composables/system/use-intersection-observer) - Intersection observation
+- [useMutationObserver](/composables/system/use-mutation-observer) - DOM mutation observation
+- [useEventListener](/composables/system/use-event-listener) - Auto-cleanup event listeners
+- [useKeydown](/composables/system/use-keydown) - Keyboard event handling
 
 **Utilities**
-- [useStorage](/composables/use-storage) - localStorage/sessionStorage adapter
-- [useLogger](/composables/use-logger) - Logging adapter
-- [useHydration](/composables/use-hydration) - SSR hydration helpers
-- [useToggleScope](/composables/use-toggle-scope) - Conditional effect scope
-- [useProxyModel](/composables/use-proxy-model) - Selection to v-model bridge
-- [useProxyRegistry](/composables/use-proxy-registry) - Registry to reactive object
-- [useFeatures](/composables/use-features) - Feature flags with variations
-- [usePermissions](/composables/use-permissions) - RBAC/ABAC permissions
+- [useStorage](/composables/plugins/use-storage) - localStorage/sessionStorage adapter
+- [useLogger](/composables/plugins/use-logger) - Logging adapter
+- [useHydration](/composables/plugins/use-hydration) - SSR hydration helpers
+- [useToggleScope](/composables/system/use-toggle-scope) - Conditional effect scope
+- [useProxyModel](/composables/forms/use-proxy-model) - Selection to v-model bridge
+- [useProxyRegistry](/composables/registration/use-proxy-registry) - Registry to reactive object
+- [useFeatures](/composables/plugins/use-features) - Feature flags with variations
+- [usePermissions](/composables/plugins/use-permissions) - RBAC/ABAC permissions
 
 **Transformers**
-- [toReactive](/composables/to-reactive) - Convert to reactive
-- [toArray](/composables/to-array) - Normalize to array
+- [toReactive](/composables/transformers/to-reactive) - Convert to reactive
+- [toArray](/composables/transformers/to-array) - Normalize to array
 
 ## Next Steps
 
