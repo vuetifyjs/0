@@ -5,7 +5,7 @@
 </script>
 
 <template>
-  <section class="not-found text-center py-16 md:py-24">
+  <section class="flex-1 flex flex-col items-center justify-center text-center py-16 md:py-24">
     <div class="text-8xl md:text-9xl font-bold opacity-10 mb-4">
       404
     </div>
@@ -38,15 +38,5 @@
 
 <route lang="yaml">
 meta:
-  layout: home
+  layout: fullscreen
 </route>
-
-<style scoped>
-  .not-found {
-    min-height: calc(100vh - 300px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
