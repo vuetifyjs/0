@@ -1,0 +1,5 @@
+<script>
+  // Polyfill process for libraries that expect Node.js globals
+  window.process = window.process || { env: { NODE_ENV: 'development' } };
+  window.global = window.global || window;
+</script>
