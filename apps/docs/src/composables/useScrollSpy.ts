@@ -40,6 +40,7 @@ export interface ScrollSpyOptions {
   root?: Element | null
 }
 
+/** @public */
 export interface ScrollSpyItem {
   id: string
   element: Element
