@@ -1,0 +1,47 @@
+name: Storybook Deploy
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'apps/storybook/**'
+      - 'packages/0/src/**'
+      - 'packages/paper/src/**'
+      - '.github/workflows/storybook-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: vuetifyjs/setup-action@master
+
+      - name: Build Storybook
+        run: pnpm build:storybook
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/storybook/storybook-static
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
