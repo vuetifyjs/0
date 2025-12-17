@@ -41,6 +41,12 @@
 
 <template>
   <div class="docs-markup relative my-4 group">
+    <span
+      v-if="language && language !== 'text'"
+      class="absolute top-3 left-3 z-10 px-1.5 py-0.5 rounded text-xs font-mono uppercase opacity-50 bg-surface-tint"
+    >
+      {{ language }}
+    </span>
     <div class="absolute top-3 right-3 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
       <button
         class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
@@ -63,6 +69,7 @@
 
 <style scoped>
   .docs-markup :deep(pre) {
+    padding-top: 2.5rem;
     padding-right: 5rem;
   }
 </style>
