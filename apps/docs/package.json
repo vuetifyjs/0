@@ -40,6 +40,7 @@
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",
+    "markdown-it-container": "catalog:",
     "mermaid": "catalog:",
     "pinia": "catalog:",
     "swetrix": "catalog:",

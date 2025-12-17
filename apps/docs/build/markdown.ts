@@ -1,6 +1,7 @@
 import Markdown from 'unplugin-vue-markdown/vite'
 import Attrs from 'markdown-it-attrs'
 import Anchor from 'markdown-it-anchor'
+import Container from 'markdown-it-container'
 import { fromHighlighter } from '@shikijs/markdown-it/core'
 import { createHighlighterCore } from 'shiki/core'
 import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
@@ -40,6 +41,13 @@ export default async function MarkdownPlugin () {
           .replace(/[\s-]+/g, '-')
           .replace(/[^\w-]/g, '')
           .replace(/^-+|-+$/g, ''),
+      })
+      md.use(Container, 'code-group', {
+        render (tokens: any[], idx: number) {
+          return tokens[idx].nesting === 1
+            ? '<DocsCodeGroup>\n'
+            : '</DocsCodeGroup>\n'
+        },
       })
       md.use(
         fromHighlighter(highlighter as HighlighterGeneric<any, any>, {

@@ -23,6 +23,7 @@ declare module 'vue' {
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
     DocsBackmatter: typeof import('./components/docs/DocsBackmatter.vue')['default']
     DocsBackToTop: typeof import('./components/docs/DocsBackToTop.vue')['default']
+    DocsCodeGroup: typeof import('./components/docs/DocsCodeGroup.vue')['default']
     DocsExample: typeof import('./components/docs/DocsExample.vue')['default']
     DocsLastCommit: typeof import('./components/docs/DocsLastCommit.vue')['default']
     DocsMarkup: typeof import('./components/docs/DocsMarkup.vue')['default']

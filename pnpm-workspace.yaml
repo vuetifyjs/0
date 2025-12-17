@@ -35,6 +35,7 @@ catalog:
   lightningcss: ^1.30.2
   markdown-it-anchor: ^9.2.0
   markdown-it-attrs: ^4.3.1
+  markdown-it-container: ^4.0.0
   mermaid: ^11.12.1
   pinia: ^3.0.4
   rollup-plugin-sass: ^1.15.3
