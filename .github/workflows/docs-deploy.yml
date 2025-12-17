@@ -20,6 +20,7 @@ jobs:
       - name: Link Checker
         uses: lycheeverse/lychee-action@v2
         with:
+          lycheeVersion: v0.22.0
           args: --config lychee.toml './apps/docs/dist'
           fail: true
       # - uses: vuetifyjs/coolify-action@master
