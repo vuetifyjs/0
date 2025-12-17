@@ -142,6 +142,5 @@
   .app-header {
     background: color-mix(in srgb, var(--v0-surface) 70%, transparent);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
   }
 </style>

@@ -26,13 +26,13 @@ jobs:
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Install
+        run: pnpm install
+
       - name: GitHub release
         run: pnpm conventional-github-releaser -p vuetify
         env:
           CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install
-        run: pnpm install
 
       - name: Build
         run: pnpm build
