@@ -20,11 +20,11 @@
   import { Selection } from '@vuetify/v0'
   import { ref } from 'vue'
 
-  const items = ref([
+  const items = [
     { id: 1, label: 'Option A' },
     { id: 2, label: 'Option B' },
     { id: 3, label: 'Option C' },
-  ])
+  ]
 
   const selected = ref([])
 <\/script>
