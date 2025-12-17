@@ -1,5 +1,32 @@
 <script lang="ts" setup>
   import { RouterLink } from 'vue-router'
+  import { usePlayground } from '@/composables/playground'
+
+  const starterCode = `<script setup>
+import { Selection } from '@vuetify/v0'
+import { ref } from 'vue'
+
+const selected = ref([])
+<\/script>
+
+<template>
+  <Selection.Root v-model="selected" multiple>
+    <Selection.Item
+      v-for="n in 3"
+      :key="n"
+      v-slot="{ isSelected, toggle }"
+      :value="n"
+    >
+      <button @click="toggle">
+        Option {{ n }} {{ isSelected ? '✓' : '' }}
+      </button>
+    </Selection.Item>
+  </Selection.Root>
+
+  <p>Selected: {{ selected }}</p>
+</template>`
+
+  const playgroundUrl = usePlayground(starterCode)
 
   const features = [
     {
@@ -13,7 +40,7 @@
     {
       title: 'Vuetify Play',
       description: 'Prototype instantly in your browser. No setup—just code and share.',
-      to: 'https://play.vuetifyjs.com',
+      to: playgroundUrl,
       icon: 'vuetify-play',
       internal: false,
       cta: 'Open Playground',
