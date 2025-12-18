@@ -49,6 +49,7 @@ export default defineConfig({
     UnocssVitePlugin(),
     Layouts(),
     VitePWA({
+      injectRegister: 'script-defer',
       registerType: 'autoUpdate',
       manifest: {
         name: 'Vuetify0',
