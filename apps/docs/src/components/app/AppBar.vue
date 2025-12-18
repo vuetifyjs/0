@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useFeatures, usePermissions, useTheme, useStorage } from '@vuetify/v0'
+  import { Atom, useFeatures, usePermissions, useTheme, useStorage, useBreakpoints } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'
@@ -11,6 +11,7 @@
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
+  import { useRoute } from 'vue-router'
 
   const { as = 'header' } = defineProps<AtomProps>()
 
@@ -24,6 +25,8 @@
   const permissions = usePermissions()
   const features = useFeatures()
   const theme = useTheme()
+  const breakpoints = useBreakpoints()
+  const route = useRoute()
 
   const devmode = features.get('devmode')!
 
@@ -48,6 +51,11 @@
     ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.png'
     : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png',
   )
+
+  const showMenu = computed(() => {
+    return route.path !== '/' && breakpoints.isMobile
+  })
+
 </script>
 
 <template>
@@ -67,6 +75,7 @@
       </router-link>
 
       <button
+        v-if="showMenu"
         :aria-expanded="app.drawer"
         :aria-label="app.drawer ? 'Close navigation' : 'Open navigation'"
         class="pa-1 cursor-pointer md:hidden bg-transparent border-0 inline-flex align-center"
