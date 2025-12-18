@@ -51,7 +51,6 @@
     "@vue/tsconfig": "catalog:",
     "bumpp": "catalog:",
     "conventional-changelog-vuetify": "catalog:",
-    "conventional-github-releaser": "catalog:",
     "eslint": "catalog:",
     "eslint-config-vuetify": "catalog:",
     "eslint-plugin-storybook": "catalog:",
