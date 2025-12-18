@@ -20,6 +20,9 @@ import { onScopeDispose, watch, toValue, unref } from 'vue'
 // Transformers
 import { toArray } from '#v0/composables'
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Types
 import type { MaybeArray } from '#v0/types'
 import type { MaybeRef, MaybeRefOrGetter } from 'vue'
@@ -182,7 +185,7 @@ export function useWindowEventListener<E extends keyof WindowEventMap> (
   listener: MaybeRef<MaybeArray<(this: Window, event: WindowEventMap[E]) => any>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction {
-  return useEventListener(window, event, listener, options)
+  return IN_BROWSER ? useEventListener(window, event, listener, options) : () => {}
 }
 
 /**
@@ -201,5 +204,5 @@ export function useDocumentEventListener<E extends keyof DocumentEventMap> (
   listener: MaybeRef<MaybeArray<(this: Document, event: DocumentEventMap[E]) => any>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction {
-  return useEventListener(document, event, listener, options)
+  return IN_BROWSER ? useEventListener(document, event, listener, options) : () => {}
 }

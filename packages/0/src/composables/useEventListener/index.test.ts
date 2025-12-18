@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ref, nextTick, computed, watch } from 'vue'
+
+vi.mock('#v0/constants/globals', () => ({
+  IN_BROWSER: true,
+}))
+
 import { useEventListener, useWindowEventListener, useDocumentEventListener } from './index'
 
 describe('useEventListener', () => {
@@ -311,5 +316,71 @@ describe('useEventListener', () => {
 
       expect(mockDocument.addEventListener).toHaveBeenCalledWith('focusin', focusHandler, undefined)
     })
+  })
+})
+
+describe('useEventListener SSR', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('useWindowEventListener returns noop function during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { useWindowEventListener: useWindowSSR } = await import('./index')
+    const handler = vi.fn()
+    const stop = useWindowSSR('resize', handler)
+
+    expect(stop).toBeTypeOf('function')
+    expect(() => stop()).not.toThrow()
+  })
+
+  it('useDocumentEventListener returns noop function during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { useDocumentEventListener: useDocumentSSR } = await import('./index')
+    const handler = vi.fn()
+    const stop = useDocumentSSR('click', handler)
+
+    expect(stop).toBeTypeOf('function')
+    expect(() => stop()).not.toThrow()
+  })
+
+  it('useWindowEventListener does not access window during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const originalWindow = globalThis.window
+    delete (globalThis as any).window
+
+    const { useWindowEventListener: useWindowSSR } = await import('./index')
+
+    expect(() => {
+      useWindowSSR('resize', vi.fn())
+    }).not.toThrow()
+
+    globalThis.window = originalWindow
+  })
+
+  it('useDocumentEventListener does not access document during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const originalDocument = globalThis.document
+    delete (globalThis as any).document
+
+    const { useDocumentEventListener: useDocumentSSR } = await import('./index')
+
+    expect(() => {
+      useDocumentSSR('click', vi.fn())
+    }).not.toThrow()
+
+    globalThis.document = originalDocument
   })
 })
