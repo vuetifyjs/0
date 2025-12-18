@@ -8,6 +8,7 @@
 
   // Utilities
   import { computed, watch } from 'vue'
+  import { useRoute } from 'vue-router'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -16,6 +17,9 @@
 
   const app = useAppStore()
   const storage = useStorage()
+  const route = useRoute()
+
+  const isHomePage = computed(() => route.path === '/')
 
   let auth: ReturnType<typeof useAuthStore> | null = null
   if (!import.meta.env.SSR) {
@@ -67,6 +71,7 @@
       </router-link>
 
       <button
+        v-if="!isHomePage"
         :aria-expanded="app.drawer"
         :aria-label="app.drawer ? 'Close navigation' : 'Open navigation'"
         class="pa-1 cursor-pointer md:hidden bg-transparent border-0 inline-flex align-center"
