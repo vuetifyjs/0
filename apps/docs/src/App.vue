@@ -15,9 +15,11 @@
     ogDescription: 'Headless components and composables for building modern applications and design systems',
     ogType: 'website',
     ogUrl: 'https://0.vuetifyjs.com',
+    ogImage: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png',
     twitterCard: 'summary',
     twitterTitle: 'Vuetify0',
     twitterDescription: 'Headless components and composables for building modern applications and design systems',
+    twitterImage: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png',
   })
 </script>
 
