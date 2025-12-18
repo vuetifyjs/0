@@ -1,11 +1,10 @@
 ---
-title: Selection Component
+title: Selection - Headless Selection State for Vue 3
 meta:
   - name: description
-    content: A headless component for managing selection state in collections with support
-      for single and multi-selection patterns.
+    content: Manage selection state in Vue 3 collections. Build checkboxes, radio groups, and listboxes with full v-model support, mandatory selection, and item enrollment.
   - name: keywords
-    content: selection, component, Vue, headless, accessibility
+    content: selection, checkbox, radio group, listbox, Vue 3, headless, v-model, state management
 features:
   category: Component
   label: 'E: Selection'

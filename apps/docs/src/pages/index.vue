@@ -1,5 +1,17 @@
 <script lang="ts" setup>
-  //
+  import { useHead, useSeoMeta } from '@unhead/vue'
+
+  useHead({
+    title: 'Headless Vue 3 UI Primitives',
+  })
+
+  useSeoMeta({
+    description: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions. Full control, full flexibility.',
+    ogTitle: 'Vuetify0 - Headless Vue 3 UI Primitives',
+    ogDescription: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions.',
+    twitterTitle: 'Vuetify0 - Headless Vue 3 UI Primitives',
+    twitterDescription: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions.',
+  })
 </script>
 
 <template>

@@ -1,11 +1,10 @@
 ---
-title: useSelection Composable
+title: useSelection - Item Selection State for Vue 3
 meta:
 - name: description
-  content: A composable for managing the selection of items in a collection with automatic
-    indexing and lifecycle management.
+  content: Manage item selection in collections with automatic indexing. Supports single and multi-select patterns, mandatory selection, enrollment, and lifecycle management.
 - name: keywords
-  content: useSelection, selection, composable, Vue, state management
+  content: useSelection, selection, composable, Vue 3, state management, multi-select, mandatory
 features:
   category: Composable
   label: 'E: useSelection'

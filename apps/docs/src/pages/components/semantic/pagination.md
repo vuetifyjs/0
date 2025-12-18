@@ -1,10 +1,10 @@
 ---
-title: Pagination Component
+title: Pagination - Accessible Page Navigation for Vue 3
 meta:
 - name: description
-  content: A headless component for creating page navigation with proper ARIA support.
+  content: Accessible pagination component with responsive auto-sizing, ellipsis support, keyboard navigation, and full ARIA compliance. Compound component pattern for Vue 3.
 - name: keywords
-  content: pagination, navigation, component, Vue, headless, accessibility
+  content: pagination, navigation, Vue 3, headless, accessibility, ARIA, responsive, keyboard navigation
 features:
   category: Component
   label: 'P: Pagination'

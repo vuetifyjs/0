@@ -1,11 +1,10 @@
 ---
-title: Popover Component
+title: Popover - CSS Anchor Positioned Tooltips for Vue 3
 meta:
 - name: description
-  content: A headless component for creating popovers and tooltips using modern CSS
-    anchor positioning.
+  content: Build popovers, tooltips, and dropdowns using the CSS Anchor Positioning API. Zero-JavaScript positioning with v-model state management for Vue 3.
 - name: keywords
-  content: popover, tooltip, anchor, positioning, component, Vue, headless
+  content: popover, tooltip, dropdown, CSS anchor positioning, Vue 3, headless, popover API, menu
 features:
   category: Component
   label: 'E: Popover'

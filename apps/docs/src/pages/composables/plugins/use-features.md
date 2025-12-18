@@ -1,11 +1,10 @@
 ---
-title: useFeatures Composable
+title: useFeatures - Feature Flags and Variations for Vue 3
 meta:
 - name: description
-  content: Feature flags and variations composable for toggling features on/off and
-    reading per-feature variations.
+  content: Manage feature flags and variations for A/B testing. Toggle features dynamically and query per-feature variations with automatic selection state for Vue 3.
 - name: keywords
-  content: features, feature flags, variations, A/B testing, plugin, Vue, composable
+  content: features, feature flags, variations, A/B testing, plugin, Vue 3, composable, toggles
 features:
   category: Plugin
   label: 'E: useFeatures'

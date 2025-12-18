@@ -1,12 +1,10 @@
 ---
-title: useIntersectionObserver Composable
+title: useIntersectionObserver - Visibility Detection for Vue 3
 meta:
 - name: description
-  content: Intersection Observer API wrapper for detecting element visibility changes
-    with automatic cleanup.
+  content: Detect element visibility with Intersection Observer API. Perfect for lazy loading, infinite scroll, and entrance animations with automatic cleanup and pause/resume.
 - name: keywords
-  content: intersection observer, visibility, viewport, lazy loading, scroll, Vue,
-    composable
+  content: intersection observer, visibility, viewport, lazy loading, infinite scroll, Vue 3, composable
 features:
   category: Composable
   label: 'E: useIntersectionObserver'

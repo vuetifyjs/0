@@ -1,11 +1,10 @@
 ---
-title: useSingle Composable
+title: useSingle - Single-Selection State for Vue 3
 meta:
 - name: description
-  content: A composable for managing single-item selection in a collection, extending
-    useSelection with single-selection constraints.
+  content: Single-item selection with automatic deselection. Extends useSelection for radio buttons, tabs, and exclusive choice patterns. Base for useTheme and useLocale.
 - name: keywords
-  content: useSingle, single selection, composable, Vue, state management
+  content: useSingle, single selection, radio button, tabs, exclusive, composable, Vue 3, state management
 features:
   category: Composable
   label: 'E: useSingle'

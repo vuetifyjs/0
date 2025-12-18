@@ -1,11 +1,10 @@
 ---
-title: Group Component
+title: Group - Checkbox Group with Tri-State Support
 meta:
 - name: description
-  content: A headless component for managing multi-selection with batch operations
-    and tri-state support.
+  content: Create checkbox groups with tri-state and indeterminate support. Multi-selection with batch operations, select-all patterns, and array-based v-model binding.
 - name: keywords
-  content: group, multi-select, component, Vue, headless, accessibility
+  content: group, checkbox, multi-select, tri-state, indeterminate, select all, Vue 3, headless
 features:
   category: Component
   label: 'E: Group'

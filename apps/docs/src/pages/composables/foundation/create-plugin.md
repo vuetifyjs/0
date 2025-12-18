@@ -1,10 +1,10 @@
 ---
-title: createPlugin Composable
+title: createPlugin - Vue Plugin Factory with Context Support
 meta:
 - name: description
-  content: A foundational composable for registering Vue plugins with context support.
+  content: Factory for creating Vue plugins with standardized context provision. Simplifies plugin creation with automatic app-level context injection and lifecycle management.
 - name: keywords
-  content: createContext, context, composable, Vue, state management
+  content: createPlugin, Vue plugin, plugin factory, composable, context provision, app-level state, Vue 3
 features:
   category: Factory
   label: 'E: createPlugin'

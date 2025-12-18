@@ -1,12 +1,10 @@
 ---
-title: useProxyModel Composable
+title: useProxyModel - Bidirectional v-model Binding for Vue 3
 meta:
 - name: description
-  content: A composable for syncing refs bidirectionally with selection contexts,
-    enabling seamless v-model integration with selection state.
+  content: Bridge selection context to v-model with bidirectional sync. Supports single value or array modes with custom transform functions for Vue 3 components.
 - name: keywords
-  content: useProxyModel, proxy model, v-model, two-way binding, selection, composable,
-    Vue, defineModel
+  content: useProxyModel, v-model, two-way binding, selection, defineModel, composable, Vue 3, bidirectional
 features:
   category: Composable
   label: 'E: useProxyModel'

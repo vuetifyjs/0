@@ -1,10 +1,14 @@
 ---
-title: Storybook
+title: Storybook - Interactive Component Explorer
 meta:
   - name: description
-    content: Interactive component explorer for Vuetify0 headless components.
+    content: Explore Vuetify0 headless components in isolation with live demos, interactive controls, and accessibility testing. Browse variants and test component states.
   - name: keywords
-    content: storybook, components, playground, interactive, examples
+    content: storybook, components, playground, interactive, examples, Vue 3, headless ui, accessibility testing
+features:
+  category: Documentation
+  label: 'Storybook'
+  github: /apps/storybook/
 ---
 
 # Storybook

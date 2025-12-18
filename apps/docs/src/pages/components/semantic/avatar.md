@@ -1,11 +1,10 @@
 ---
-title: Avatar Component
+title: Avatar - Headless Image Component with Fallbacks
 meta:
 - name: description
-  content: A headless component for managing image loading with priority-based fallback
-    system.
+  content: Headless avatar component with priority-based image loading and automatic fallback handling. Supports initials, icons, and multi-source images for Vue 3.
 - name: keywords
-  content: avatar, image, fallback, loading, component, Vue, headless
+  content: avatar, image, fallback, loading, profile picture, Vue 3, headless, priority loading
 features:
   category: Component
   label: 'E: Avatar'

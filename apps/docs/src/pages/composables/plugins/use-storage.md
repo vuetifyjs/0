@@ -1,13 +1,10 @@
 ---
-title: useStorage Composable
+title: useStorage - Reactive Browser Storage for Vue 3
 meta:
 - name: description
-  content: A composable for reactive storage management with support for localStorage,
-    sessionStorage, and custom adapters. Provides automatic serialization, caching,
-    and SSR-safe operations.
+  content: Reactive storage composable with localStorage, sessionStorage, and custom adapters. Automatic serialization, caching, and SSR-safe operations for Vue 3.
 - name: keywords
-  content: useStorage, localStorage, sessionStorage, storage adapter, reactive storage,
-    composable
+  content: useStorage, localStorage, sessionStorage, storage adapter, reactive storage, composable, Vue 3, SSR
 features:
   category: Plugin
   label: 'E: useStorage'

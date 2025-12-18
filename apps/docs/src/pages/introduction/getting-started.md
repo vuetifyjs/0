@@ -1,10 +1,10 @@
 ---
-title: Getting Started
+title: Getting Started - Install Vuetify0 Headless UI
 meta:
   - name: description
-    content: Get started with Vuetify0 - headless UI primitives and composables for Vue 3. Build your own design system with unstyled, accessible components.
+    content: Get started with Vuetify0 headless UI primitives for Vue 3. Install, configure, and build your own design system with unstyled, accessible components.
   - name: keywords
-    content: vuetify0, getting started, installation, vue3, headless ui, composables
+    content: vuetify0, getting started, installation, Vue 3, headless ui, composables, npm, pnpm
 ---
 
 # Get started with Vuetify0

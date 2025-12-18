@@ -1,12 +1,10 @@
 ---
-title: usePermissions Composable
+title: usePermissions - Role-Based Access Control for Vue 3
 meta:
 - name: description
-  content: Role-based permissions composable for managing user access control with
-    support for actions, subjects, and contexts.
+  content: RBAC composable for managing user permissions. Define access control with actions, subjects, and context-aware conditions using the adapter pattern for Vue 3.
 - name: keywords
-  content: permissions, authorization, RBAC, role-based access control, access control,
-    plugin, Vue, composable
+  content: permissions, authorization, RBAC, role-based access control, access control, plugin, Vue 3, composable
 features:
   category: Plugin
   label: 'E: usePermissions'

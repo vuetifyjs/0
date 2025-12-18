@@ -1,11 +1,10 @@
 ---
-title: Step Component
+title: Step - Wizard and Stepper Navigation for Vue 3
 meta:
 - name: description
-  content: A headless component for navigation through multi-step processes like wizards
-    and forms.
+  content: Navigate multi-step processes with first, last, next, and prev methods. Build form wizards and steppers with automatic disabled item skipping for Vue 3.
 - name: keywords
-  content: step, wizard, stepper, navigation, component, Vue, headless
+  content: step, wizard, stepper, multi-step form, navigation, carousel, Vue 3, headless
 features:
   category: Component
   label: 'E: Step'

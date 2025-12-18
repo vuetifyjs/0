@@ -1,11 +1,10 @@
 ---
-title: useFilter Composable
+title: useFilter - Reactive Array Filtering for Vue 3
 meta:
 - name: description
-  content: A composable for filtering arrays of items based on search queries with
-    support for multiple filter modes and custom filtering logic.
+  content: Filter arrays based on search queries with multiple filter modes (some, every, union, intersection) and custom filtering logic. Reactive and type-safe for Vue 3.
 - name: keywords
-  content: useFilter, filter, search, composable, Vue, array filtering
+  content: useFilter, filter, search, composable, Vue 3, array filtering, reactive, type-safe
 features:
   category: Composable
   label: 'E: useFilter'

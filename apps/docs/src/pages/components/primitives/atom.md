@@ -1,11 +1,10 @@
 ---
-title: Atom Component
+title: Atom - Polymorphic Foundation Component for Vue 3
 meta:
 - name: description
-  content: The foundational building block for dynamic element rendering with renderless
-    capabilities.
+  content: Polymorphic foundation component for dynamic element rendering. Render as any HTML element with the 'as' prop and support renderless mode for full flexibility.
 - name: keywords
-  content: atom, component, renderless, polymorphic, Vue, headless
+  content: atom, component, renderless, polymorphic, as prop, Vue 3, headless, dynamic element
 features:
   category: Component
   label: 'E: Atom'

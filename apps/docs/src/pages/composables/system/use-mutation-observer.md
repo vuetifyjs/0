@@ -1,11 +1,10 @@
 ---
-title: useMutationObserver Composable
+title: useMutationObserver - DOM Change Detection for Vue 3
 meta:
 - name: description
-  content: Mutation Observer API wrapper for detecting DOM changes with automatic
-    cleanup.
+  content: Detect DOM changes with Mutation Observer API. Monitor attributes, child elements, and text content with automatic cleanup and pause/resume controls for Vue 3.
 - name: keywords
-  content: mutation observer, DOM, changes, mutations, Vue, composable
+  content: mutation observer, DOM changes, mutations, attributes, Vue 3, composable, reactive
 features:
   category: Composable
   label: 'E: useMutationObserver'

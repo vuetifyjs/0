@@ -1,10 +1,10 @@
 ---
-title: Contributing
+title: Contributing to Vuetify0 - Developer Guidelines
 meta:
   - name: description
-    content: Guidelines for contributing to the Vuetify0 project.
+    content: Learn how to contribute to Vuetify0. Setup local development, submit pull requests, write tests, and follow coding conventions for Vue 3 composables.
   - name: keywords
-    content: vuetify0, contributing, guide, open source, pull request
+    content: vuetify0, contributing, open source, pull request, development, testing, Vue 3
 ---
 
 # Contributing

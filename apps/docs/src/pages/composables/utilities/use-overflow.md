@@ -1,12 +1,10 @@
 ---
-title: useOverflow Composable
+title: useOverflow - Responsive Container Capacity for Vue 3
 meta:
 - name: description
-  content: A composable for computing how many items fit in a container based on available
-    width, enabling responsive truncation for pagination, breadcrumbs, and similar
-    components.
+  content: Compute how many items fit in a container based on available width. Enables responsive truncation for pagination, breadcrumbs, and overflow menus.
 - name: keywords
-  content: useOverflow, overflow, responsive, truncation, composable, Vue, capacity
+  content: useOverflow, overflow, responsive, truncation, capacity, ResizeObserver, composable, Vue 3
 features:
   category: Composable
   label: 'U: useOverflow'

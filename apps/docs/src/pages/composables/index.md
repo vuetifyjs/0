@@ -1,10 +1,10 @@
 ---
-title: Vuetify0 Composables
+title: Vuetify0 Composables - Vue 3 Headless Primitives
 meta:
   - name: description
-    content: Reusable pieces of logic that can be shared across components, providing encapsulated functionality and state management.
+    content: Type-safe Vue 3 composables for headless UI. Selection, forms, theming, tokens, and state management primitives for building custom design systems.
   - name: keywords
-    content: composables, reusable, logic, Vue, state management
+    content: composables, Vue 3, headless ui, primitives, selection, forms, theming, state management, TypeScript
 ---
 
 # Composables

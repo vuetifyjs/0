@@ -1,11 +1,10 @@
 ---
-title: useVirtual Composable
+title: useVirtual - High-Performance Virtual Scrolling
 meta:
 - name: description
-  content: Virtual scrolling composable for efficiently rendering large lists by only
-    rendering visible items.
+  content: Efficiently render large lists with virtual scrolling. Only renders visible items, supports dynamic heights, bidirectional scrolling, and infinite scroll for Vue 3.
 - name: keywords
-  content: virtual scroll, virtualization, large lists, performance, Vue, composable
+  content: virtual scroll, virtualization, large lists, performance, Vue 3, composable, infinite scroll
 features:
   category: Composable
   label: 'C: useVirtual'

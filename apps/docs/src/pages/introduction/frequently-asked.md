@@ -1,10 +1,10 @@
 ---
-title: Frequently Asked Questions
+title: Vuetify0 FAQ - Headless UI Questions and Answers
 meta:
   - name: description
-    content: Common questions and answers about the Vuetify0 project.
+    content: Find answers to common questions about Vuetify0 headless UI. Learn about accessibility, SSR support, styling approaches, and differences from Vuetify.
   - name: keywords
-    content: vuetify0, faq, frequently asked questions, vue3, ui library
+    content: vuetify0, faq, frequently asked questions, Vue 3, headless ui, accessibility, SSR
 ---
 
 <script setup>

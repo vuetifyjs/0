@@ -1,13 +1,10 @@
 ---
-title: useGroup Composable
+title: useGroup - Multi-Selection with Tri-State Support
 meta:
 - name: description
-  content: A composable for managing grouped selections of items with support for
-    selecting, unselecting, toggling, tri-state (mixed/indeterminate), and tracking
-    selected indexes.
+  content: Multi-selection composable with tri-state support. Manage checkbox trees with indeterminate states, batch operations, and select-all patterns for Vue 3 apps.
 - name: keywords
-  content: useGroup, selection, group selection, composable, Vue, state management,
-    indeterminate, tri-state, checkbox tree
+  content: useGroup, selection, group selection, composable, Vue 3, indeterminate, tri-state, checkbox tree, select all
 features:
   category: Composable
   label: 'E: useGroup'

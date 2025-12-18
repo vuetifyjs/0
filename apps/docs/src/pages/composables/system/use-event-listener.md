@@ -1,11 +1,10 @@
 ---
-title: useEventListener Composable
+title: useEventListener - DOM Event Handling for Vue 3
 meta:
 - name: description
-  content: A composable for handling DOM events with automatic cleanup on component
-    unmount.
+  content: Handle DOM events with automatic cleanup on unmount. Supports Window, Document, and HTMLElement targets with reactive listeners and multiple event handlers.
 - name: keywords
-  content: useEventListener, events, DOM, composable, Vue, event handling
+  content: useEventListener, events, DOM, Vue 3, event handling, cleanup, lifecycle, composable
 features:
   category: Composable
   label: 'E: useEventListener'

@@ -1,11 +1,10 @@
 ---
-title: useKeydown Composable
+title: useKeydown - Keyboard Event Handling for Vue 3
 meta:
 - name: description
-  content: A composable for handling keyboard events with automatic cleanup and customizable
-    behavior.
+  content: Handle keyboard events with automatic cleanup and customizable behavior. Supports preventDefault, stopPropagation, and multiple key handlers for shortcuts.
 - name: keywords
-  content: useKeydown, keyboard, events, keydown, composable, Vue
+  content: useKeydown, keyboard, keydown, shortcuts, hotkeys, Vue 3, composable, event handling
 features:
   category: Composable
   label: 'E: useKeydown'

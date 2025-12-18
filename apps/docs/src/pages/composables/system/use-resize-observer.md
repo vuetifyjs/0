@@ -1,11 +1,10 @@
 ---
-title: useResizeObserver Composable
+title: useResizeObserver - Element Size Detection for Vue 3
 meta:
 - name: description
-  content: Resize Observer API wrapper for detecting element size changes with automatic
-    cleanup.
+  content: Detect element size changes with Resize Observer API. Perfect for responsive components, charts, and virtualized lists with automatic cleanup for Vue 3.
 - name: keywords
-  content: resize observer, size, dimensions, responsive, Vue, composable
+  content: resize observer, size, dimensions, responsive, width, height, Vue 3, composable
 features:
   category: Composable
   label: 'E: useResizeObserver'

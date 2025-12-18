@@ -1,11 +1,10 @@
 ---
-title: toArray Transformer
+title: toArray - Normalize Values to Array for Vue 3
 meta:
 - name: description
-  content: A utility function that converts any value to an array, handling null/undefined
-    values and ensuring consistent array output.
+  content: Convert any value to an array in TypeScript/Vue. Handles null/undefined gracefully, preserves existing arrays, and ensures type-safe consistent output for Vue 3.
 - name: keywords
-  content: toArray, transformer, utility, array conversion
+  content: toArray, transformer, utility, array conversion, normalize, TypeScript, Vue 3
 features:
   category: Transformer
   label: 'E: toArray'

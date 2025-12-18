@@ -1,12 +1,10 @@
 ---
-title: createTrinity Composable
+title: createTrinity - Context Provider/Consumer Pattern for Vue 3
 meta:
 - name: description
-  content: A factory function for creating a 3 item tuple that contains a context
-    consumer, a provider, and the actual context object, allowing for easy state management
-    and sharing across components.
+  content: Factory for the trinity pattern. Creates a 3-tuple with context consumer, provider, and default instance for type-safe sharable singleton state in Vue apps.
 - name: keywords
-  content: createTrinity, context, composable, Vue, state management
+  content: createTrinity, context, trinity pattern, provide inject, singleton, composable, Vue 3
 features:
   category: Factory
   label: 'E: createTrinity'

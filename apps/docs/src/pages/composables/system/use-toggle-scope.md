@@ -1,11 +1,10 @@
 ---
-title: useToggleScope Composable
+title: useToggleScope - Conditional Effect Scope for Vue 3
 meta:
 - name: description
-  content: Conditionally manage effect scopes based on reactive boolean conditions
-    with automatic cleanup.
+  content: Conditionally manage Vue effect scopes based on reactive boolean conditions. Watchers and effects automatically clean up when the scope stops or toggles off.
 - name: keywords
-  content: effect scope, toggle, conditional, lifecycle, cleanup, Vue, composable
+  content: effect scope, toggle, conditional, lifecycle, cleanup, Vue 3, composable, reactive
 features:
   category: Composable
   label: 'E: useToggleScope'

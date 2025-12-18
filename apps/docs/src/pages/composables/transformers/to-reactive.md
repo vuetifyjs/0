@@ -1,11 +1,10 @@
 ---
-title: toReactive Transformer
+title: toReactive - Unwrap Refs to Reactive Proxies
 meta:
 - name: description
-  content: A utility function that converts MaybeRef objects to reactive proxies,
-    providing seamless access to ref values without .value syntax.
+  content: Convert MaybeRef objects to reactive proxies in Vue 3. Automatically unwraps refs for objects, Maps, and Sets while eliminating .value syntax for cleaner code.
 - name: keywords
-  content: toReactive, transformer, reactive, ref, composable, Vue
+  content: toReactive, transformer, reactive, ref, proxy, unwrap, Vue 3, MaybeRef
 features:
   category: Transformer
   label: 'E: toReactive'

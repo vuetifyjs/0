@@ -1,11 +1,10 @@
 ---
-title: usePagination Composable
+title: usePagination - Lightweight Page Navigation for Vue 3
 meta:
 - name: description
-  content: A lightweight composable for managing pagination state with navigation
-    methods and computed visible page items.
+  content: Lightweight composable for pagination state. Includes navigation methods (first, last, next, prev), computed visible pages, and v-model binding for Vue 3.
 - name: keywords
-  content: usePagination, pagination, navigation, composable, Vue, pages
+  content: usePagination, pagination, navigation, composable, Vue 3, pages, page state, goto
 features:
   category: Composable
   label: 'U: usePagination'

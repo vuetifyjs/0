@@ -1,12 +1,10 @@
 ---
-title: useForm
+title: useForm - Reactive Form Validation for Vue 3
 meta:
 - name: description
-  content: A composable for building reactive forms with validation, field registration,
-    and submission handling. Built on top of the registry system for managing form
-    fields.
+  content: Build reactive forms with validation, field registration, and submission handling. Supports async rules, pristine tracking, and multiple validation modes.
 - name: keywords
-  content: useForm, form, validation, composable, Vue, registry
+  content: useForm, form, validation, composable, Vue 3, registry, field registration, async validation
 features:
   category: Composable
   label: 'E: useForm'

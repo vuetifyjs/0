@@ -1,11 +1,10 @@
 ---
-title: Vuetify0 Components
+title: Vuetify0 Components - Headless Vue 3 UI Primitives
 meta:
   - name: description
-    content: A collection of foundational components designed to be headless, accessible,
-      and highly customizable.
+    content: Headless Vue 3 UI components with full accessibility. Selection, pagination, expansion panels, popovers, and more. Unstyled and fully customizable.
   - name: keywords
-    content: components, headless, accessible, customizable, Vue
+    content: components, headless ui, Vue 3, accessible, customizable, selection, pagination, expansion panel, popover
 ---
 
 # Components

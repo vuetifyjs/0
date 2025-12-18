@@ -1,12 +1,10 @@
 ---
-title: useTimeline Composable
+title: useTimeline - Bounded Undo/Redo System for Vue 3
 meta:
 - name: description
-  content: A bounded undo/redo system built on useRegistry, managing a fixed-size
-    timeline of items with overflow handling.
+  content: Bounded undo/redo system with fixed-size history. Built on useRegistry for state management with automatic overflow handling and time-travel debugging for Vue 3.
 - name: keywords
-  content: useTimeline, timeline, undo, redo, history, registry, composable, Vue,
-    state management
+  content: useTimeline, timeline, undo, redo, history, time travel, Vue 3, state management, registry
 features:
   category: Composable
   label: 'E: useTimeline'

@@ -1,12 +1,10 @@
 ---
-title: createContext Composable
+title: createContext - Type-Safe Dependency Injection for Vue 3
 meta:
 - name: description
-  content: A foundational utility for creating and consuming context throughout your
-    application, enabling sharing state and methods across components without prop
-    drilling.
+  content: Type-safe Vue dependency injection wrapper. Create reusable context to share state across components without prop drilling. Foundation for all Vuetify0 composables.
 - name: keywords
-  content: createContext, context, composable, Vue, state management
+  content: createContext, context, dependency injection, provide inject, composable, Vue 3, state management
 features:
   category: Factory
   label: 'E: createContext'

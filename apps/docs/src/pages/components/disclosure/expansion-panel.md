@@ -1,11 +1,10 @@
 ---
-title: ExpansionPanel Component
+title: ExpansionPanel - Accessible Accordion for Vue 3
 meta:
 - name: description
-  content: A headless component for creating accordion-style expansion panels with
-    proper ARIA support.
+  content: Accessible accordion and expansion panels with single or multi-expand modes. WAI-ARIA compliant compound component with Header, Activator, and Content slots.
 - name: keywords
-  content: expansion panel, accordion, component, Vue, headless, accessibility
+  content: expansion panel, accordion, collapsible, Vue 3, headless, accessibility, WAI-ARIA, disclosure
 features:
   category: Component
   label: 'E: ExpansionPanel'
