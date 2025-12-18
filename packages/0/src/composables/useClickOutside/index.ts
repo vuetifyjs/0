@@ -123,15 +123,11 @@ export function useClickOutside (
     detectIframe = false,
   } = options
 
-  // State
   const isPaused = shallowRef(false)
   const isActive = toRef(() => !isPaused.value)
 
-  // Track initial pointer state for two-phase detection
   let initialTarget: EventTarget | null = null
   let startPosition = { x: 0, y: 0 }
-
-  // Cleanup functions (set during setup)
   let cleanupPointerDown: (() => void) | undefined
   let cleanupPointerUp: (() => void) | undefined
   let cleanupBlur: (() => void) | undefined
@@ -169,7 +165,6 @@ export function useClickOutside (
     if (!toValue(enabled)) return
     if (event.defaultPrevented) return
 
-    // Store the initial target (use composedPath for shadow DOM)
     initialTarget = event.composedPath()[0] ?? event.target
     startPosition = { x: event.clientX, y: event.clientY }
   }
@@ -186,7 +181,6 @@ export function useClickOutside (
     const pointerdownTarget = initialTarget
     initialTarget = null
 
-    // Validate initial target is still in DOM
     if (!isValidTarget(pointerdownTarget)) return
 
     const pointerupTarget = event.composedPath()[0] ?? event.target
@@ -194,12 +188,9 @@ export function useClickOutside (
     if (event.pointerType === 'touch') {
       const dx = Math.abs(event.clientX - startPosition.x)
       const dy = Math.abs(event.clientY - startPosition.y)
-      if (dx >= touchScrollThreshold || dy >= touchScrollThreshold) {
-        return // It's a scroll, not a tap
-      }
+      if (dx >= touchScrollThreshold || dy >= touchScrollThreshold) return
     }
 
-    // Both pointerdown and pointerup must be outside to trigger
     if (isOutside(pointerdownTarget) && isOutside(pointerupTarget)) {
       handler(event)
     }
@@ -213,14 +204,9 @@ export function useClickOutside (
     if (!toValue(enabled)) return
     if (event.defaultPrevented) return
 
-    // Check if focus moved to an iframe
     if (document.activeElement instanceof HTMLIFrameElement) {
       const targets = toArray(toValue(target)).filter(Boolean) as HTMLElement[]
-
-      // Check if iframe is outside all targets
-      const iframeIsOutside = targets.every(el => {
-        return !el.contains(document.activeElement)
-      })
+      const iframeIsOutside = targets.every(el => !el.contains(document.activeElement))
 
       if (iframeIsOutside) {
         handler(event)
@@ -260,7 +246,6 @@ export function useClickOutside (
     cleanup()
   }
 
-  // Initial setup
   setup()
 
   return {
