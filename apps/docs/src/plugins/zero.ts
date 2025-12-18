@@ -48,8 +48,8 @@ export default function zero (app: App) {
   }
 
   // Read initial preference via app context (storage plugin already installed)
-  const storedPreference = app.runWithContext(() => useStorage().get<string>('theme'))
-  const savedTheme = resolveTheme(storedPreference)
+  const themePreference = app.runWithContext(() => useStorage().get<string>('theme'))
+  const savedTheme = resolveTheme(themePreference.value)
 
   app.use(
     createThemePlugin({
@@ -117,14 +117,14 @@ export default function zero (app: App) {
   )
 
   // Listen for system theme changes when using system preference
-  if (IN_BROWSER && storedPreference !== 'light' && storedPreference !== 'dark') {
+  if (IN_BROWSER && ['light', 'dark'].includes(themePreference.value)) {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     mediaQuery.addEventListener('change', () => {
       app.runWithContext(() => {
         const storage = useStorage()
         const stored = storage.get<string>('theme')
         // Only auto-switch if user hasn't manually selected a theme
-        if (stored !== 'light' && stored !== 'dark') {
+        if (['light', 'dark'].includes(stored.value)) {
           useTheme().select(getSystemTheme())
         }
       })
