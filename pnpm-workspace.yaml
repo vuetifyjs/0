@@ -25,11 +25,11 @@ catalog:
   conventional-changelog-vuetify: ^2.0.2
   eslint: ^9.39.2
   eslint-config-vuetify: 4.2.1-beta.1
-  eslint-plugin-storybook: ^10.1.9
+  eslint-plugin-storybook: ^10.1.10
   eslint-plugin-vuejs-accessibility: ^2.4.1
   fflate: ^0.8.2
   happy-dom: ^20.0.11
-  knip: ^5.74.0
+  knip: ^5.75.1
   lightningcss: ^1.30.2
   markdown-it-anchor: ^9.2.0
   markdown-it-attrs: ^4.3.1
@@ -58,7 +58,7 @@ catalog:
   vite-ssg: ^28.2.2
   vite-ssg-sitemap: ^0.10.0
   vitest: ^4.0.16
-  vue: ^3.5.25
+  vue: 3.5.24
   vue-router: ^4.6.4
   vue-tsc: ^3.1.8
 
