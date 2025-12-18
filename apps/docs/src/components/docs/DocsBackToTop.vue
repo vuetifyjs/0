@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-  import { useResizeObserver, useWindowEventListener } from '@vuetify/v0'
-  import { shallowRef, toRef } from 'vue'
+  import { IN_BROWSER, useDocumentEventListener, useWindowEventListener } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
 
   const show = shallowRef(false)
 
   function updateOverflow () {
+    if (!IN_BROWSER) return
     show.value = document.documentElement.scrollHeight > window.innerHeight + 1
   }
 
   useWindowEventListener('resize', updateOverflow)
-  useResizeObserver(toRef(() => document.documentElement), updateOverflow)
-  useResizeObserver(toRef(() => document.body), updateOverflow)
+  useDocumentEventListener('scroll', updateOverflow)
 
   function scrollToTop () {
     window.scrollTo({ top: 0, behavior: 'smooth' })
