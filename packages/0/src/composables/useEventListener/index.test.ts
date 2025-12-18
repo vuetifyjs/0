@@ -361,7 +361,7 @@ describe('useEventListener SSR', () => {
     const { useWindowEventListener: useWindowSSR } = await import('./index')
 
     expect(() => {
-      useWindowSSR('resize', vi.fn())
+      useWindowSSR('resize', vi.fn() as () => void)
     }).not.toThrow()
 
     globalThis.window = originalWindow
@@ -378,7 +378,7 @@ describe('useEventListener SSR', () => {
     const { useDocumentEventListener: useDocumentSSR } = await import('./index')
 
     expect(() => {
-      useDocumentSSR('click', vi.fn())
+      useDocumentSSR('click', vi.fn() as () => void)
     }).not.toThrow()
 
     globalThis.document = originalDocument

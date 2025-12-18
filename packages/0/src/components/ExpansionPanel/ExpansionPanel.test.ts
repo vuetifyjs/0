@@ -30,7 +30,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         await activator.trigger('click')
         await nextTick()
 
@@ -96,7 +96,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
 
         await activator.trigger('click')
         await nextTick()
@@ -121,7 +121,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.attributes('tabindex')).toBe('-1')
         expect(activator.attributes('disabled')).toBe('')
       })
@@ -184,7 +184,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.exists()).toBe(true)
         expect(activator.attributes('id')).toBe('item-1-header')
       })
@@ -205,12 +205,12 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        expect(wrapper.findComponent(ExpansionPanel.Activator).exists()).toBe(true)
+        expect(wrapper.findComponent(ExpansionPanel.Activator as any).exists()).toBe(true)
 
         showItem.value = false
         await wrapper.vm.$nextTick()
 
-        expect(wrapper.findComponent(ExpansionPanel.Activator).exists()).toBe(false)
+        expect(wrapper.findComponent(ExpansionPanel.Activator as any).exists()).toBe(false)
       })
 
       it('should use provided ID when given', () => {
@@ -225,7 +225,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.attributes('id')).toBe('custom-id-header')
       })
     })
@@ -243,8 +243,8 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
-        const content = wrapper.findComponent(ExpansionPanel.Content)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
+        const content = wrapper.findComponent(ExpansionPanel.Content as any)
 
         expect(activator.attributes('id')).toBe('panel-123-header')
         expect(content.attributes('id')).toBe('panel-123-content')
@@ -269,7 +269,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.attributes('disabled')).toBe('')
         expect(activator.attributes('tabindex')).toBe('-1')
       })
@@ -289,7 +289,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.attributes('disabled')).toBe('')
         expect(activator.attributes('tabindex')).toBe('-1')
       })
@@ -309,7 +309,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.attributes('disabled')).toBeUndefined()
         expect(activator.attributes('tabindex')).toBe('0')
       })
@@ -336,7 +336,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         await activator.trigger('click')
         await nextTick()
 
@@ -359,7 +359,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
 
         expect(activator.attributes('id')).toBe('item-1-header')
         // Native button doesn't need role="button"
@@ -390,7 +390,7 @@ describe('ExpansionPanel', () => {
 
         await nextTick()
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.attributes('aria-expanded')).toBe('true')
       })
 
@@ -406,7 +406,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         // Native button uses disabled attribute, not aria-disabled
         expect(activator.attributes('disabled')).toBe('')
         expect(activator.attributes('tabindex')).toBe('-1')
@@ -424,7 +424,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.attributes('id')).toBeUndefined()
         expect(activator.attributes('aria-expanded')).toBeUndefined()
         expect(activator.attributes('aria-controls')).toBeUndefined()
@@ -452,7 +452,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         await activator.trigger('keydown', { key: 'Enter' })
         await nextTick()
 
@@ -479,7 +479,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         await activator.trigger('keydown', { key: ' ' })
         await nextTick()
 
@@ -508,7 +508,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
 
         await activator.trigger('click')
         await nextTick()
@@ -571,7 +571,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.element.tagName).toBe('BUTTON')
       })
 
@@ -587,7 +587,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
         expect(activator.element.tagName).toBe('DIV')
       })
     })
@@ -607,7 +607,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const content = wrapper.findComponent(ExpansionPanel.Content)
+        const content = wrapper.findComponent(ExpansionPanel.Content as any)
 
         expect(content.attributes('id')).toBe('item-1-content')
         expect(content.attributes('role')).toBe('region')
@@ -626,7 +626,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const content = wrapper.findComponent(ExpansionPanel.Content)
+        const content = wrapper.findComponent(ExpansionPanel.Content as any)
         expect(content.attributes('id')).toBeUndefined()
         expect(content.attributes('role')).toBeUndefined()
         expect(content.attributes('aria-labelledby')).toBeUndefined()
@@ -644,8 +644,8 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const activator = wrapper.findComponent(ExpansionPanel.Activator)
-        const content = wrapper.findComponent(ExpansionPanel.Content)
+        const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
+        const content = wrapper.findComponent(ExpansionPanel.Content as any)
 
         expect(activator.attributes('id')).toBe('custom-panel-header')
         expect(content.attributes('id')).toBe('custom-panel-content')
@@ -726,7 +726,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const content = wrapper.findComponent(ExpansionPanel.Content)
+        const content = wrapper.findComponent(ExpansionPanel.Content as any)
         expect(content.element.tagName).toBe('DIV')
       })
 
@@ -742,7 +742,7 @@ describe('ExpansionPanel', () => {
           },
         })
 
-        const content = wrapper.findComponent(ExpansionPanel.Content)
+        const content = wrapper.findComponent(ExpansionPanel.Content as any)
         expect(content.element.tagName).toBe('SECTION')
       })
     })
@@ -761,8 +761,8 @@ describe('ExpansionPanel', () => {
         },
       })
 
-      const activator = wrapper.findComponent(ExpansionPanel.Activator)
-      const content = wrapper.findComponent(ExpansionPanel.Content)
+      const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
+      const content = wrapper.findComponent(ExpansionPanel.Content as any)
 
       const activatorId = activator.attributes('id')
       const contentId = content.attributes('id')
@@ -979,7 +979,7 @@ describe('ExpansionPanel', () => {
 
       await nextTick()
 
-      const activator = wrapper.findComponent(ExpansionPanel.Activator)
+      const activator = wrapper.findComponent(ExpansionPanel.Activator as any)
       expect(activator.attributes('id')).toBe('panel-1-header')
       expect(activator.attributes('aria-expanded')).toBe('true')
 
