@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { useHead, useSeoMeta } from '@unhead/vue'
+  import { useHead } from '@unhead/vue'
   import { useScrollPersist } from './composables/useScrollPersist'
 
   useScrollPersist()
@@ -7,19 +7,18 @@
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
-  })
-
-  useSeoMeta({
-    description: 'Headless components and composables for building modern applications and design systems',
-    ogTitle: 'Vuetify0',
-    ogDescription: 'Headless components and composables for building modern applications and design systems',
-    ogType: 'website',
-    ogUrl: 'https://0.vuetifyjs.com',
-    ogImage: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png',
-    twitterCard: 'summary',
-    twitterTitle: 'Vuetify0',
-    twitterDescription: 'Headless components and composables for building modern applications and design systems',
-    twitterImage: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png',
+    meta: [
+      { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
+      { key: 'og:title', property: 'og:title', content: 'Vuetify0' },
+      { key: 'og:description', property: 'og:description', content: 'Headless components and composables for building modern applications and design systems' },
+      { key: 'og:type', property: 'og:type', content: 'website' },
+      { key: 'og:url', property: 'og:url', content: 'https://0.vuetifyjs.com' },
+      { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
+      { key: 'twitter:card', name: 'twitter:card', content: 'summary' },
+      { key: 'twitter:title', name: 'twitter:title', content: 'Vuetify0' },
+      { key: 'twitter:description', name: 'twitter:description', content: 'Headless components and composables for building modern applications and design systems' },
+      { key: 'twitter:image', name: 'twitter:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
+    ],
   })
 </script>
 

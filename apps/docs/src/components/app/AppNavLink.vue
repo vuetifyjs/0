@@ -14,7 +14,7 @@
 
   const {
     as = RouterLink,
-    activeClass = 'underline',
+    activeClass = 'underline text-primary opacity-100!',
     children = [],
     ...props
   } = defineProps<ComponentProps>()

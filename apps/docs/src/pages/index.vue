@@ -1,16 +1,15 @@
 <script lang="ts" setup>
-  import { useHead, useSeoMeta } from '@unhead/vue'
+  import { useHead } from '@unhead/vue'
 
   useHead({
     title: 'Headless Vue 3 UI Primitives',
-  })
-
-  useSeoMeta({
-    description: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions. Full control, full flexibility.',
-    ogTitle: 'Vuetify0 - Headless Vue 3 UI Primitives',
-    ogDescription: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions.',
-    twitterTitle: 'Vuetify0 - Headless Vue 3 UI Primitives',
-    twitterDescription: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions.',
+    meta: [
+      { key: 'description', name: 'description', content: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions. Full control, full flexibility.' },
+      { key: 'og:title', property: 'og:title', content: 'Vuetify0 - Headless Vue 3 UI Primitives' },
+      { key: 'og:description', property: 'og:description', content: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions.' },
+      { key: 'twitter:title', name: 'twitter:title', content: 'Vuetify0 - Headless Vue 3 UI Primitives' },
+      { key: 'twitter:description', name: 'twitter:description', content: 'Build custom design systems with Vuetify0. Headless, accessible Vue 3 components and composables with zero styling opinions.' },
+    ],
   })
 </script>
 
