@@ -628,7 +628,7 @@ export function useVirtual<T = unknown> (
     cancelAnimationFrame(raf)
     cancelAnimationFrame(rebuildRaf)
     cancelAnimationFrame(edgeRaf)
-  })
+  }, true)
 
   return {
     element,
