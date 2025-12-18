@@ -1,13 +1,13 @@
 <script lang="ts" setup>
   const components = [
-    { name: 'Atom', to: '/components/atom', description: 'Base primitive element' },
-    { name: 'Avatar', to: '/components/avatar', description: 'User avatars with fallback' },
-    { name: 'ExpansionPanel', to: '/components/expansion-panel', description: 'Collapsible content panels' },
-    { name: 'Group', to: '/components/group', description: 'Multi-select grouping' },
-    { name: 'Pagination', to: '/components/pagination', description: 'Page navigation' },
-    { name: 'Popover', to: '/components/popover', description: 'Floating content' },
-    { name: 'Selection', to: '/components/selection', description: 'Selection state management' },
-    { name: 'Step', to: '/components/step', description: 'Stepper/wizard flows' },
+    { name: 'Atom', to: '/components/primitives/atom', description: 'Base primitive element' },
+    { name: 'Avatar', to: '/components/semantic/avatar', description: 'User avatars with fallback' },
+    { name: 'ExpansionPanel', to: '/components/disclosure/expansion-panel', description: 'Collapsible content panels' },
+    { name: 'Group', to: '/components/providers/group', description: 'Multi-select grouping' },
+    { name: 'Pagination', to: '/components/semantic/pagination', description: 'Page navigation' },
+    { name: 'Popover', to: '/components/disclosure/popover', description: 'Floating content' },
+    { name: 'Selection', to: '/components/providers/selection', description: 'Selection state management' },
+    { name: 'Step', to: '/components/providers/step', description: 'Stepper/wizard flows' },
   ]
 
   const composables = [
