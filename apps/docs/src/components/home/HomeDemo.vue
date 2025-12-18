@@ -91,7 +91,7 @@
           <span>Selection.vue</span>
           <router-link
             class="text-primary hover:underline"
-            to="/components/selection"
+            to="/components/providers/selection"
           >
             View docs →
           </router-link>
