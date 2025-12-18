@@ -95,9 +95,9 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('returns cleanup function that stops listening', async () => {
+    it('returns object with stop method that stops listening', async () => {
       const handler = vi.fn()
-      const stop = useClickOutside(target, handler)
+      const { stop } = useClickOutside(target, handler)
 
       await nextTick()
       simulatePointerClick(outside)
@@ -106,6 +106,79 @@ describe('useClickOutside', () => {
       stop()
       simulatePointerClick(outside)
       expect(handler).toHaveBeenCalledTimes(1) // Still 1, not called again
+    })
+
+    it('returns isActive and isPaused state refs', () => {
+      const handler = vi.fn()
+      const { isActive, isPaused } = useClickOutside(target, handler)
+
+      expect(isActive.value).toBe(true)
+      expect(isPaused.value).toBe(false)
+    })
+  })
+
+  describe('pause and resume', () => {
+    it('pause stops detection', async () => {
+      const handler = vi.fn()
+      const { pause, isPaused } = useClickOutside(target, handler)
+
+      await nextTick()
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      pause()
+      expect(isPaused.value).toBe(true)
+
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1) // Still 1
+    })
+
+    it('resume restarts detection after pause', async () => {
+      const handler = vi.fn()
+      const { pause, resume, isPaused } = useClickOutside(target, handler)
+
+      await nextTick()
+
+      pause()
+      simulatePointerClick(outside)
+      expect(handler).not.toHaveBeenCalled()
+
+      resume()
+      expect(isPaused.value).toBe(false)
+
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('isActive reflects paused state', async () => {
+      const handler = vi.fn()
+      const { pause, resume, isActive } = useClickOutside(target, handler)
+
+      expect(isActive.value).toBe(true)
+
+      pause()
+      expect(isActive.value).toBe(false)
+
+      resume()
+      expect(isActive.value).toBe(true)
+    })
+
+    it('pause clears pending pointerdown state', async () => {
+      const handler = vi.fn()
+      const { pause, resume } = useClickOutside(target, handler)
+
+      await nextTick()
+
+      // Start a click outside
+      outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+
+      // Pause before pointerup
+      pause()
+      resume()
+
+      // Complete the click - should not trigger because state was cleared
+      outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      expect(handler).not.toHaveBeenCalled()
     })
   })
 

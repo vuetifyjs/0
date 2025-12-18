@@ -8,7 +8,7 @@
  * - Two-phase detection (pointerdown → pointerup) prevents drag-out false positives
  * - Touch scroll threshold ignores swipes/scrolls on mobile
  * - Capture phase listeners work with stopPropagation
- * - Shadow DOM support via composedPath()
+ * - Pause/resume/stop functionality
  * - Optional iframe focus detection
  * - SSR-safe (no-op when not in browser)
  *
@@ -22,13 +22,13 @@ import {
 } from '#v0/composables/useEventListener'
 
 // Utilities
-import { toValue } from 'vue'
+import { shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { MaybeRefOrGetter } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface UseClickOutsideOptions {
   /**
@@ -57,6 +57,29 @@ export interface UseClickOutsideOptions {
   detectIframe?: boolean
 }
 
+export interface UseClickOutsideReturn {
+  /**
+   * Whether the listener is currently active
+   */
+  readonly isActive: Readonly<Ref<boolean>>
+  /**
+   * Whether the listener is currently paused
+   */
+  readonly isPaused: Readonly<Ref<boolean>>
+  /**
+   * Pause listening (stops detection but keeps state)
+   */
+  pause: () => void
+  /**
+   * Resume listening
+   */
+  resume: () => void
+  /**
+   * Stop listening and clean up
+   */
+  stop: () => void
+}
+
 /**
  * Detects clicks outside of the specified element(s).
  *
@@ -66,7 +89,7 @@ export interface UseClickOutsideOptions {
  * @param target Element or elements to detect clicks outside of.
  * @param handler Callback invoked when a click outside is detected.
  * @param options Configuration options.
- * @returns A function to stop listening.
+ * @returns An object with methods to control the listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-click-outside
  *
@@ -75,18 +98,24 @@ export interface UseClickOutsideOptions {
  * const popoverRef = ref<HTMLElement>()
  * const anchorRef = ref<HTMLElement>()
  *
- * useClickOutside(
+ * const { pause, resume, isPaused } = useClickOutside(
  *   () => [popoverRef.value, anchorRef.value],
  *   () => { isOpen.value = false },
  *   { enabled: () => isOpen.value }
  * )
+ *
+ * // Pause detection
+ * pause()
+ *
+ * // Resume detection
+ * resume()
  * ```
  */
 export function useClickOutside (
   target: MaybeRefOrGetter<HTMLElement | HTMLElement[] | null | undefined>,
   handler: (event: Event) => void,
   options: UseClickOutsideOptions = {},
-) {
+): UseClickOutsideReturn {
   const {
     enabled = true,
     capture = true,
@@ -94,9 +123,18 @@ export function useClickOutside (
     detectIframe = false,
   } = options
 
+  // State
+  const isPaused = shallowRef(false)
+  const isActive = toRef(() => !isPaused.value)
+
   // Track initial pointer state for two-phase detection
   let initialTarget: EventTarget | null = null
   let startPosition = { x: 0, y: 0 }
+
+  // Cleanup functions (set during setup)
+  let cleanupPointerDown: (() => void) | undefined
+  let cleanupPointerUp: (() => void) | undefined
+  let cleanupBlur: (() => void) | undefined
 
   /**
    * Check if the event target is outside all target elements.
@@ -127,6 +165,7 @@ export function useClickOutside (
    * Handle pointerdown - store initial target and position.
    */
   function onPointerDown (event: PointerEvent) {
+    if (isPaused.value) return
     if (!toValue(enabled)) return
     if (event.defaultPrevented) return
 
@@ -139,6 +178,7 @@ export function useClickOutside (
    * Handle pointerup - check if it's an outside click.
    */
   function onPointerUp (event: PointerEvent) {
+    if (isPaused.value) return
     if (!toValue(enabled)) return
     if (event.defaultPrevented) return
     if (!initialTarget) return
@@ -149,10 +189,8 @@ export function useClickOutside (
     // Validate initial target is still in DOM
     if (!isValidTarget(pointerdownTarget)) return
 
-    // Get the pointerup target
     const pointerupTarget = event.composedPath()[0] ?? event.target
 
-    // For touch interactions, check scroll threshold
     if (event.pointerType === 'touch') {
       const dx = Math.abs(event.clientX - startPosition.x)
       const dy = Math.abs(event.clientY - startPosition.y)
@@ -171,6 +209,7 @@ export function useClickOutside (
    * Handle window blur - detect focus moving to iframe.
    */
   function onBlur (event: FocusEvent) {
+    if (isPaused.value) return
     if (!toValue(enabled)) return
     if (event.defaultPrevented) return
 
@@ -189,17 +228,46 @@ export function useClickOutside (
     }
   }
 
-  // Set up listeners
-  const cleanupPointerDown = useDocumentEventListener('pointerdown', onPointerDown, capture)
-  const cleanupPointerUp = useDocumentEventListener('pointerup', onPointerUp, capture)
-  const cleanupBlur = detectIframe
-    ? useWindowEventListener('blur', onBlur, capture)
-    : undefined
+  function setup () {
+    cleanupPointerDown = useDocumentEventListener('pointerdown', onPointerDown, capture)
+    cleanupPointerUp = useDocumentEventListener('pointerup', onPointerUp, capture)
+    if (detectIframe) {
+      cleanupBlur = useWindowEventListener('blur', onBlur, capture)
+    }
+  }
 
-  // Return cleanup function
-  return () => {
-    cleanupPointerDown()
-    cleanupPointerUp()
+  function cleanup () {
+    cleanupPointerDown?.()
+    cleanupPointerUp?.()
     cleanupBlur?.()
+    cleanupPointerDown = undefined
+    cleanupPointerUp = undefined
+    cleanupBlur = undefined
+  }
+
+  function pause () {
+    isPaused.value = true
+    initialTarget = null
+    cleanup()
+  }
+
+  function resume () {
+    isPaused.value = false
+    setup()
+  }
+
+  function stop () {
+    cleanup()
+  }
+
+  // Initial setup
+  setup()
+
+  return {
+    isActive: shallowReadonly(isActive),
+    isPaused: shallowReadonly(isPaused),
+    pause,
+    resume,
+    stop,
   }
 }
