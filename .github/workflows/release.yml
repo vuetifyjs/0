@@ -30,9 +30,9 @@ jobs:
         run: pnpm install
 
       - name: GitHub release
-        run: pnpm conventional-github-releaser -p vuetify
+        run: gh release create ${{ github.ref_name }} --generate-notes
         env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         run: pnpm build
