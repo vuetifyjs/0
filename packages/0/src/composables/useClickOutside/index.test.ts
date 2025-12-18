@@ -203,7 +203,7 @@ describe('useClickOutside', () => {
       const target2 = document.createElement('div')
       container.append(target2)
 
-      useClickOutside(() => [target, target2], handler)
+      useClickOutside([() => target, () => target2], handler)
 
       await nextTick()
 
@@ -233,7 +233,7 @@ describe('useClickOutside', () => {
 
     it('filters out null values from target array', async () => {
       const handler = vi.fn()
-      useClickOutside(() => [target, null, undefined] as any, handler)
+      useClickOutside([() => target, () => null, () => undefined], handler)
 
       await nextTick()
 

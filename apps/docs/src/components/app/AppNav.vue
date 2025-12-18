@@ -24,9 +24,9 @@
   useClickOutside(
     () => navRef.value?.element,
     () => {
-      if (!app.drawer || breakpoints.isMobile.value) return
-
-      app.drawer = false
+      if (app.drawer && breakpoints.isMobile.value) {
+        app.drawer = false
+      }
     },
     { ignore: ['[data-app-bar]'] },
   )

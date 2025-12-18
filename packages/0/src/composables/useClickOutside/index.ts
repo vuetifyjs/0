@@ -22,13 +22,15 @@ import {
 } from '#v0/composables/useEventListener'
 
 // Utilities
-import { shallowReadonly, shallowRef, toRef, toValue } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
+import { isRef, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
+import { isNull, isString } from '#v0/utilities'
 
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'
+
+export type ClickOutsideElement = HTMLElement | Ref<HTMLElement | null | undefined> | null | undefined
+export type ClickOutsideTarget = MaybeRefOrGetter<ClickOutsideElement>
+export type ClickOutsideIgnoreTarget = ClickOutsideTarget | string
 
 export interface UseClickOutsideOptions {
   /**
@@ -55,6 +57,12 @@ export interface UseClickOutsideOptions {
    * @default false
    */
   detectIframe?: boolean
+  /**
+   * Elements to ignore when detecting outside clicks.
+   * Accepts element refs, getters, or CSS selector strings.
+   * Clicks on these elements (or their descendants) won't trigger the handler.
+   */
+  ignore?: MaybeRefOrGetter<ClickOutsideIgnoreTarget[]>
 }
 
 export interface UseClickOutsideReturn {
@@ -86,33 +94,53 @@ export interface UseClickOutsideReturn {
  * Uses two-phase detection (pointerdown → pointerup) to prevent false positives
  * when users drag from inside to outside an element.
  *
- * @param target Element or elements to detect clicks outside of.
+ * @param target Element ref(s) to detect clicks outside of. Accepts a single ref/getter or array of refs/getters.
  * @param handler Callback invoked when a click outside is detected.
  * @param options Configuration options.
  * @returns An object with methods to control the listener.
  *
  * @see https://0.vuetifyjs.com/composables/system/use-click-outside
  *
- * @example
+ * @example Native element ref
  * ```ts
- * const popoverRef = ref<HTMLElement>()
- * const anchorRef = ref<HTMLElement>()
+ * const menuRef = useTemplateRef<HTMLElement>('menu')
  *
- * const { pause, resume, isPaused } = useClickOutside(
- *   () => [popoverRef.value, anchorRef.value],
- *   () => { isOpen.value = false },
- *   { enabled: () => isOpen.value }
+ * useClickOutside(menuRef, () => { isOpen.value = false })
+ * ```
+ *
+ * @example Component ref (e.g., Atom)
+ * ```ts
+ * const atomRef = useTemplateRef<AtomExpose>('atom')
+ *
+ * // Pass the exposed element TemplateRef via getter
+ * useClickOutside(
+ *   () => atomRef.value?.element,
+ *   () => { isOpen.value = false }
  * )
+ * ```
  *
- * // Pause detection
- * pause()
+ * @example Multiple targets
+ * ```ts
+ * const popoverRef = useTemplateRef<AtomExpose>('popover')
+ * const anchorRef = useTemplateRef<HTMLElement>('anchor')
  *
- * // Resume detection
- * resume()
+ * useClickOutside(
+ *   [() => popoverRef.value?.element, anchorRef],
+ *   () => { isOpen.value = false }
+ * )
+ * ```
+ *
+ * @example Ignoring elements (CSS selectors or refs)
+ * ```ts
+ * useClickOutside(
+ *   () => navRef.value?.element,
+ *   () => { isOpen.value = false },
+ *   { ignore: ['[data-app-bar]', '.toast-container'] }
+ * )
  * ```
  */
 export function useClickOutside (
-  target: MaybeRefOrGetter<HTMLElement | HTMLElement[] | null | undefined>,
+  target: ClickOutsideTarget | readonly ClickOutsideTarget[],
   handler: (event: Event) => void,
   options: UseClickOutsideOptions = {},
 ): UseClickOutsideReturn {
@@ -121,6 +149,7 @@ export function useClickOutside (
     capture = true,
     touchScrollThreshold = 30,
     detectIframe = false,
+    ignore = [],
   } = options
 
   const isPaused = shallowRef(false)
@@ -133,13 +162,51 @@ export function useClickOutside (
   let cleanupBlur: (() => void) | undefined
 
   /**
+   * Resolve target(s) to an array of HTMLElements.
+   * Handles nested refs (e.g., getter returning a TemplateRef).
+   */
+  function getTargets (): HTMLElement[] {
+    const sources = Array.isArray(target) ? target : [target]
+    return sources
+      .map(source => {
+        const value = toValue(source)
+        // Handle getters that return refs (e.g., () => atom.value?.element)
+        return isRef(value) ? value.value : value
+      })
+      .filter((el): el is HTMLElement => el != null)
+  }
+
+  /**
+   * Check if the event should be ignored based on ignore list.
+   */
+  function shouldIgnore (event: PointerEvent | FocusEvent): boolean {
+    const ignoreTargets = toValue(ignore)
+    if (ignoreTargets.length === 0) return false
+
+    const path = 'composedPath' in event ? event.composedPath() : []
+
+    return ignoreTargets.some(ignoreTarget => {
+      if (isString(ignoreTarget)) {
+        // CSS selector
+        return Array.from(document.querySelectorAll(ignoreTarget)).some(el => {
+          return el === event.target || path.includes(el)
+        })
+      }
+      // Element ref or getter
+      const value = toValue(ignoreTarget)
+      const el = isRef(value) ? value.value : value
+      return el && (el === event.target || path.includes(el))
+    })
+  }
+
+  /**
    * Check if the event target is outside all target elements.
    */
   function isOutside (eventTarget: EventTarget | null): boolean {
     if (!eventTarget) return false
     if (!(eventTarget instanceof Node)) return false
 
-    const targets = toArray(toValue(target)).filter(Boolean) as HTMLElement[]
+    const targets = getTargets()
     if (targets.length === 0) return false
 
     return targets.every(el => {
@@ -191,9 +258,28 @@ export function useClickOutside (
       if (dx >= touchScrollThreshold || dy >= touchScrollThreshold) return
     }
 
-    if (isOutside(pointerdownTarget) && isOutside(pointerupTarget)) {
+    if (isOutside(pointerdownTarget) && isOutside(pointerupTarget) && !shouldIgnore(event)) {
       handler(event)
     }
+  }
+
+  /**
+   * Check if an element is in the ignore list.
+   */
+  function isIgnored (el: Element | null): boolean {
+    if (!el) return false
+
+    const ignoreTargets = toValue(ignore)
+    if (ignoreTargets.length === 0) return false
+
+    return ignoreTargets.some(ignoreTarget => {
+      if (isString(ignoreTarget)) {
+        return el.matches(ignoreTarget) || !isNull(el.closest(ignoreTarget))
+      }
+      const value = toValue(ignoreTarget)
+      const ignoreEl = isRef(value) ? value.value : value
+      return ignoreEl && (ignoreEl === el || ignoreEl.contains(el))
+    })
   }
 
   /**
@@ -205,10 +291,9 @@ export function useClickOutside (
     if (event.defaultPrevented) return
 
     if (document.activeElement instanceof HTMLIFrameElement) {
-      const targets = toArray(toValue(target)).filter(Boolean) as HTMLElement[]
-      const iframeIsOutside = targets.every(el => !el.contains(document.activeElement))
+      const iframeIsOutside = getTargets().every(el => !el.contains(document.activeElement))
 
-      if (iframeIsOutside) {
+      if (iframeIsOutside && !isIgnored(document.activeElement)) {
         handler(event)
       }
     }
@@ -217,9 +302,10 @@ export function useClickOutside (
   function setup () {
     cleanupPointerDown = useDocumentEventListener('pointerdown', onPointerDown, capture)
     cleanupPointerUp = useDocumentEventListener('pointerup', onPointerUp, capture)
-    if (detectIframe) {
-      cleanupBlur = useWindowEventListener('blur', onBlur, capture)
-    }
+
+    if (!detectIframe) return
+
+    cleanupBlur = useWindowEventListener('blur', onBlur, capture)
   }
 
   function cleanup () {
