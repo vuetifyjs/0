@@ -1,5 +1,5 @@
 // Vuetify0
-import { createBreakpointsPlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
+import { createBreakpointsPlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, useStorage, useTheme, IN_BROWSER } from '@vuetify/v0'
 
 // Plugins
 import { createIconPlugin } from './icons'
@@ -37,18 +37,19 @@ export default function zero (app: App) {
     }),
   )
 
-  let savedTheme = 'light'
-  if (IN_BROWSER) {
-    const stored = localStorage.getItem('v0:theme')
-    if (stored) {
-      try {
-        savedTheme = JSON.parse(stored)
-      } catch {
-        // Stored value is not JSON, use as-is (legacy format)
-        savedTheme = stored
-      }
-    }
+  function getSystemTheme (): 'light' | 'dark' {
+    if (!IN_BROWSER) return 'light'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
+
+  function resolveTheme (preference: string | null | undefined): 'light' | 'dark' {
+    if (preference === 'light' || preference === 'dark') return preference
+    return getSystemTheme()
+  }
+
+  // Read initial preference via app context (storage plugin already installed)
+  const storedPreference = app.runWithContext(() => useStorage().get<string>('theme'))
+  const savedTheme = resolveTheme(storedPreference)
 
   app.use(
     createThemePlugin({
@@ -114,4 +115,19 @@ export default function zero (app: App) {
       },
     }),
   )
+
+  // Listen for system theme changes when using system preference
+  if (IN_BROWSER && storedPreference !== 'light' && storedPreference !== 'dark') {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', () => {
+      app.runWithContext(() => {
+        const storage = useStorage()
+        const stored = storage.get<string>('theme')
+        // Only auto-switch if user hasn't manually selected a theme
+        if (stored !== 'light' && stored !== 'dark') {
+          useTheme().select(getSystemTheme())
+        }
+      })
+    })
+  }
 }
