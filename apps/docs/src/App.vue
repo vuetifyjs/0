@@ -177,7 +177,6 @@
       padding: 0.5rem 0.75rem;
       border-bottom: thin solid var(--v0-divider);
       border-right: thin solid var(--v0-divider);
-      text-align: left;
     }
 
     th {
