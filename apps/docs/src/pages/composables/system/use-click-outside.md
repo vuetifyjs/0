@@ -11,6 +11,11 @@ features:
   github: /composables/useClickOutside/
 ---
 
+<script setup>
+import BasicExample from '@/examples/composables/use-click-outside/basic.vue'
+import BasicExampleRaw from '@/examples/composables/use-click-outside/basic.vue?raw'
+</script>
+
 # useClickOutside
 
 A composable for detecting clicks outside of specified element(s) with automatic cleanup.
@@ -21,101 +26,77 @@ A composable for detecting clicks outside of specified element(s) with automatic
 
 The `useClickOutside` composable detects when users click outside target elements. It uses two-phase detection (pointerdown → pointerup) to prevent false positives when dragging, and includes touch scroll handling for mobile.
 
-```vue UseClickOutside
-<script setup>
-  import { useClickOutside } from '@vuetify/v0'
-  import { ref, useTemplateRef } from 'vue'
+<DocsExample file="basic.vue" title="Dropdown Menu" :code="BasicExampleRaw">
+  <BasicExample />
+</DocsExample>
 
-  const isOpen = ref(true)
-  const menuRef = useTemplateRef('menu')
-
-  useClickOutside(menuRef, () => {
-    isOpen.value = false
-  })
-</script>
-
-<template>
-  <div class="relative">
-    <button @click="isOpen = true">Open Menu</button>
-
-    <div
-      v-if="isOpen"
-      ref="menu"
-      class="absolute mt-2 p-4 bg-white rounded shadow-lg"
-    >
-      Click outside to close
-    </div>
-  </div>
-</template>
-```
+## Examples
 
 ### With Component Refs
 
 When using component refs (like Atom), pass a getter that returns the exposed element:
 
-```vue ComponentRef
-<script setup>
-  import { Atom, useClickOutside } from '@vuetify/v0'
-  import { ref, useTemplateRef } from 'vue'
+```ts
+import { Atom, useClickOutside } from '@vuetify/v0'
+import { ref, useTemplateRef } from 'vue'
 
-  const isOpen = ref(true)
-  const popoverRef = useTemplateRef('popover')
+const isOpen = ref(true)
+const popoverRef = useTemplateRef<AtomExpose>('popover')
 
-  useClickOutside(
-    () => popoverRef.value?.element,
-    () => { isOpen.value = false }
-  )
-</script>
-
-<template>
-  <Atom v-if="isOpen" ref="popover" class="popover">
-    Popover content
-  </Atom>
-</template>
+useClickOutside(
+  () => popoverRef.value?.element,
+  () => { isOpen.value = false }
+)
 ```
 
 ### Multiple Targets
 
 Detect clicks outside multiple elements (e.g., anchor and popover):
 
-```vue MultipleTargets
-<script setup>
-  import { useClickOutside } from '@vuetify/v0'
-  import { ref, useTemplateRef } from 'vue'
+```ts
+import { useClickOutside } from '@vuetify/v0'
+import { ref, useTemplateRef } from 'vue'
 
-  const isOpen = ref(false)
-  const anchorRef = useTemplateRef('anchor')
-  const popoverRef = useTemplateRef('popover')
+const isOpen = ref(false)
+const anchorRef = useTemplateRef<HTMLElement>('anchor')
+const popoverRef = useTemplateRef<AtomExpose>('popover')
 
-  useClickOutside(
-    [anchorRef, () => popoverRef.value?.element],
-    () => { isOpen.value = false }
-  )
-</script>
-
-<template>
-  <button ref="anchor" @click="isOpen = !isOpen">Toggle</button>
-
-  <div v-if="isOpen" ref="popover">Popover</div>
-</template>
+useClickOutside(
+  [anchorRef, () => popoverRef.value?.element],
+  () => { isOpen.value = false }
+)
 ```
 
 ### Ignoring Elements
 
 Ignore specific elements via CSS selectors or refs:
 
-```vue IgnoreElements
-<script setup>
-  import { useClickOutside } from '@vuetify/v0'
-  import { ref, useTemplateRef } from 'vue'
+```ts
+import { useClickOutside } from '@vuetify/v0'
+import { useTemplateRef } from 'vue'
 
-  const isOpen = ref(true)
-  const menuRef = useTemplateRef('menu')
+const menuRef = useTemplateRef<HTMLElement>('menu')
 
-  useClickOutside(menuRef, () => { isOpen.value = false }, {
-    ignore: ['[data-app-bar]', '.toast-container']
-  })
-</script>
+useClickOutside(menuRef, close, {
+  ignore: ['[data-app-bar]', '.toast-container']
+})
+```
+
+### Pause and Resume
+
+Control detection programmatically:
+
+```ts
+const { pause, resume, stop, isPaused } = useClickOutside(menuRef, close)
+
+// Temporarily disable during animations
+pause()
+
+// Re-enable after animation
+resume()
+
+// Permanently stop and cleanup
+stop()
 ```
 
 ## Accessibility
@@ -186,22 +167,3 @@ useKeydown({ key: 'Escape', handler: close })
   - `pause()`: Pause detection (clears pending state)
   - `resume()`: Resume detection
   - `stop()`: Stop detection and clean up
-
-- **Example**
-  ```ts
-  const { pause, resume, stop } = useClickOutside(
-    menuRef,
-    () => { isOpen.value = false },
-    {
-      capture: true,
-      touchScrollThreshold: 30,
-      detectIframe: true,
-      ignore: ['.modal', buttonRef]
-    }
-  )
-
-  // Control detection
-  pause()   // Temporarily pause
-  resume()  // Resume after pause
-  stop()    // Permanently stop
-  ```
