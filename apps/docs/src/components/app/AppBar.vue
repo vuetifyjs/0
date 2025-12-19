@@ -8,7 +8,7 @@
   import { useAuthStore } from '@vuetify/one/stores/auth'
 
   // Utilities
-  import { toRef, watch } from 'vue'
+  import { onMounted, shallowRef, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -22,10 +22,10 @@
 
   const isHomePage = toRef(() => route.path === '/')
 
-  let auth: ReturnType<typeof useAuthStore> | null = null
-  if (!import.meta.env.SSR) {
-    auth = useAuthStore()
-  }
+  const auth = shallowRef<ReturnType<typeof useAuthStore> | null>(null)
+  onMounted(() => {
+    auth.value = useAuthStore()
+  })
   const permissions = usePermissions()
   const features = useFeatures()
   const { theme, icon: themeIcon, toggle: onClickTheme } = useThemeToggle()
@@ -123,11 +123,11 @@
 
       <client-only>
         <img
-          v-if="auth!.user?.picture"
+          v-if="auth?.user?.picture"
           alt="Vuetify One Avatar"
           class="rounded-full"
           height="28"
-          :src="auth!.user.picture"
+          :src="auth.user.picture"
           title="Vuetify One Avatar"
           width="28"
         >
