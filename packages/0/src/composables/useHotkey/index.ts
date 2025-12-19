@@ -11,7 +11,9 @@
  * - Input focus detection (skip when typing in inputs)
  * - Sequence timeout with automatic reset
  * - Key alias normalization
+ * - Pause/resume/stop functionality
  * - Automatic cleanup on scope disposal
+ * - SSR-safe (no-op when not in browser)
  *
  * Sibling to useKeydown - use useKeydown for simple exact key matching,
  * useHotkey for complex hotkey parsing with sequences and modifiers.
@@ -21,14 +23,14 @@
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
-import { onScopeDispose, toValue, watch } from 'vue'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { MaybeRefOrGetter } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface UseHotkeyOptions {
   /**
@@ -53,13 +55,40 @@ export interface UseHotkeyOptions {
   sequenceTimeout?: MaybeRefOrGetter<number>
 }
 
+export interface UseHotkeyReturn {
+  /**
+   * Whether the hotkey listener is currently active (listening for keys).
+   * False when paused, when keys is undefined, or in SSR.
+   */
+  readonly isActive: Readonly<Ref<boolean>>
+  /**
+   * Whether the hotkey listener is currently paused.
+   */
+  readonly isPaused: Readonly<Ref<boolean>>
+  /**
+   * Pause listening (stops responding to hotkeys but preserves configuration).
+   */
+  pause: () => void
+  /**
+   * Resume listening after pause.
+   */
+  resume: () => void
+  /**
+   * Stop listening and clean up permanently.
+   */
+  stop: () => void
+}
+
+// Cache platform detection at module level
+const isMac = IN_BROWSER && (navigator?.userAgent?.includes('Macintosh') ?? false)
+
 /**
  * A composable that listens for hotkey combinations and sequences.
  *
  * @param keys - The hotkey string (e.g., 'ctrl+k', 'g-h')
  * @param callback - The function to call when the hotkey is triggered
  * @param options - Configuration options
- * @returns A cleanup function to remove the listener
+ * @returns An object with state refs and control methods
  *
  * @see https://0.vuetifyjs.com/composables/system/use-hotkey
  *
@@ -68,22 +97,26 @@ export interface UseHotkeyOptions {
  * import { useHotkey } from '@vuetify/v0'
  *
  * // Simple combination
- * useHotkey('ctrl+k', () => console.log('Command palette opened'))
+ * const { isActive, pause, resume } = useHotkey('ctrl+k', () => {
+ *   console.log('Command palette opened')
+ * })
  *
  * // Key sequence (GitHub-style)
  * useHotkey('g-h', () => console.log('Go home'))
  *
  * // With options
  * useHotkey('escape', closeModal, { inputs: true })
+ *
+ * // Pause/resume control
+ * pause()  // Temporarily disable
+ * resume() // Re-enable
  * ```
  */
 export function useHotkey (
   keys: MaybeRefOrGetter<string | undefined>,
   callback: (e: KeyboardEvent) => void,
   options: UseHotkeyOptions = {},
-): () => void {
-  if (!IN_BROWSER) return () => {}
-
+): UseHotkeyReturn {
   const {
     event = 'keydown',
     inputs = false,
@@ -91,19 +124,22 @@ export function useHotkey (
     sequenceTimeout = 1000,
   } = options
 
-  const isMac = navigator?.userAgent?.includes('Macintosh') ?? false
-  let timeout = 0
+  const isPaused = shallowRef(false)
+  const cleanupRef = shallowRef<(() => void) | null>(null)
+  const isActive = toRef(() => cleanupRef.value !== null)
+
+  let sequenceTimer: ReturnType<typeof setTimeout> | undefined
   let keyGroups: string[] = []
   let isSequence = false
   let groupIndex = 0
-  let cleanup: (() => void) | null = null
 
   function isInputFocused (): boolean {
     if (toValue(inputs)) return false
 
-    const activeElement = document.activeElement as HTMLElement
+    const activeElement = document.activeElement as HTMLElement | null
+    if (!activeElement) return false
 
-    return !!activeElement && (
+    return (
       activeElement.tagName === 'INPUT' ||
       activeElement.tagName === 'TEXTAREA' ||
       activeElement.isContentEditable ||
@@ -113,7 +149,7 @@ export function useHotkey (
 
   function resetSequence () {
     groupIndex = 0
-    clearTimeout(timeout)
+    clearTimeout(sequenceTimer)
   }
 
   function handler (e: KeyboardEvent) {
@@ -121,7 +157,7 @@ export function useHotkey (
 
     if (!group || isInputFocused()) return
 
-    if (!matchesKeyGroup(e, group, isMac)) {
+    if (!matchesKeyGroup(e, group)) {
       if (isSequence) resetSequence()
       return
     }
@@ -133,7 +169,7 @@ export function useHotkey (
       return
     }
 
-    clearTimeout(timeout)
+    clearTimeout(sequenceTimer)
     groupIndex++
 
     if (groupIndex === keyGroups.length) {
@@ -142,43 +178,75 @@ export function useHotkey (
       return
     }
 
-    timeout = window.setTimeout(resetSequence, toValue(sequenceTimeout))
+    sequenceTimer = setTimeout(resetSequence, toValue(sequenceTimeout))
+  }
+
+  function setup () {
+    if (!IN_BROWSER || isPaused.value) return
+
+    const currentKeys = toValue(keys)
+    if (!currentKeys) return
+
+    const groups = splitKeySequence(currentKeys.toLowerCase())
+    if (groups.length === 0) return
+
+    isSequence = groups.length > 1
+    keyGroups = groups
+    resetSequence()
+
+    cleanupRef.value = useWindowEventListener(toValue(event), handler)
+  }
+
+  function teardown () {
+    if (cleanupRef.value) {
+      cleanupRef.value()
+      cleanupRef.value = null
+    }
+    clearTimeout(sequenceTimer)
+    keyGroups = []
+    isSequence = false
+    groupIndex = 0
+  }
+
+  function pause () {
+    isPaused.value = true
+    teardown()
+  }
+
+  function resume () {
+    isPaused.value = false
+    setup()
   }
 
   function stop () {
-    if (cleanup) {
-      cleanup()
-      cleanup = null
-    }
-    clearTimeout(timeout)
+    isPaused.value = true
+    teardown()
   }
 
-  watch(() => toValue(keys), newKeys => {
-    stop()
-
-    if (newKeys) {
-      const groups = splitKeySequence(newKeys.toLowerCase())
-      isSequence = groups.length > 1
-      keyGroups = groups
-      resetSequence()
-      cleanup = useWindowEventListener(toValue(event), handler)
-    }
+  watch(() => toValue(keys), () => {
+    if (isPaused.value) return
+    teardown()
+    setup()
   }, { immediate: true })
 
-  // Watch for changes in the event type to re-register the listener
-  watch(() => toValue(event), (newEvent, oldEvent) => {
-    if (oldEvent && keyGroups.length > 0) {
-      stop()
-      cleanup = useWindowEventListener(newEvent, handler)
-    }
+  watch(() => toValue(event), () => {
+    if (isPaused.value || !toValue(keys)) return
+    teardown()
+    setup()
   })
 
   onScopeDispose(stop, true)
 
-  return stop
+  return {
+    isActive: shallowReadonly(isActive),
+    isPaused: shallowReadonly(isPaused),
+    pause,
+    resume,
+    stop,
+  }
 }
 
-function matchesKeyGroup (e: KeyboardEvent, group: string, isMac: boolean): boolean {
+function matchesKeyGroup (e: KeyboardEvent, group: string): boolean {
   const { modifiers, actualKey } = parseKeyGroup(group)
 
   const expectCtrl = modifiers.ctrl || (!isMac && (modifiers.cmd || modifiers.meta))
@@ -201,7 +269,6 @@ interface ParsedKeyGroup {
 function parseKeyGroup (group: string): ParsedKeyGroup {
   const { keys: parts } = splitKeyCombination(group.toLowerCase())
 
-  // If the combination is invalid, return empty result
   if (parts.length === 0) {
     return {
       modifiers: Object.fromEntries(MODIFIERS.map(m => [m, false])),
