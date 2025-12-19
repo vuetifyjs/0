@@ -23,15 +23,15 @@ The `useClickOutside` composable detects when users click outside target element
 
 ```vue UseClickOutside
 <script setup>
-import { useClickOutside } from '@vuetify/v0'
-import { ref, useTemplateRef } from 'vue'
+  import { useClickOutside } from '@vuetify/v0'
+  import { ref, useTemplateRef } from 'vue'
 
-const isOpen = ref(true)
-const menuRef = useTemplateRef('menu')
+  const isOpen = ref(true)
+  const menuRef = useTemplateRef('menu')
 
-useClickOutside(menuRef, () => {
-  isOpen.value = false
-})
+  useClickOutside(menuRef, () => {
+    isOpen.value = false
+  })
 </script>
 
 <template>
@@ -55,16 +55,16 @@ When using component refs (like Atom), pass a getter that returns the exposed el
 
 ```vue ComponentRef
 <script setup>
-import { Atom, useClickOutside } from '@vuetify/v0'
-import { ref, useTemplateRef } from 'vue'
+  import { Atom, useClickOutside } from '@vuetify/v0'
+  import { ref, useTemplateRef } from 'vue'
 
-const isOpen = ref(true)
-const popoverRef = useTemplateRef('popover')
+  const isOpen = ref(true)
+  const popoverRef = useTemplateRef('popover')
 
-useClickOutside(
-  () => popoverRef.value?.element,
-  () => { isOpen.value = false }
-)
+  useClickOutside(
+    () => popoverRef.value?.element,
+    () => { isOpen.value = false }
+  )
 </script>
 
 <template>
@@ -80,21 +80,22 @@ Detect clicks outside multiple elements (e.g., anchor and popover):
 
 ```vue MultipleTargets
 <script setup>
-import { useClickOutside } from '@vuetify/v0'
-import { ref, useTemplateRef } from 'vue'
+  import { useClickOutside } from '@vuetify/v0'
+  import { ref, useTemplateRef } from 'vue'
 
-const isOpen = ref(false)
-const anchorRef = useTemplateRef('anchor')
-const popoverRef = useTemplateRef('popover')
+  const isOpen = ref(false)
+  const anchorRef = useTemplateRef('anchor')
+  const popoverRef = useTemplateRef('popover')
 
-useClickOutside(
-  [anchorRef, () => popoverRef.value?.element],
-  () => { isOpen.value = false }
-)
+  useClickOutside(
+    [anchorRef, () => popoverRef.value?.element],
+    () => { isOpen.value = false }
+  )
 </script>
 
 <template>
   <button ref="anchor" @click="isOpen = !isOpen">Toggle</button>
+
   <div v-if="isOpen" ref="popover">Popover</div>
 </template>
 ```
@@ -105,15 +106,15 @@ Ignore specific elements via CSS selectors or refs:
 
 ```vue IgnoreElements
 <script setup>
-import { useClickOutside } from '@vuetify/v0'
-import { ref, useTemplateRef } from 'vue'
+  import { useClickOutside } from '@vuetify/v0'
+  import { ref, useTemplateRef } from 'vue'
 
-const isOpen = ref(true)
-const menuRef = useTemplateRef('menu')
+  const isOpen = ref(true)
+  const menuRef = useTemplateRef('menu')
 
-useClickOutside(menuRef, () => { isOpen.value = false }, {
-  ignore: ['[data-app-bar]', '.toast-container']
-})
+  useClickOutside(menuRef, () => { isOpen.value = false }, {
+    ignore: ['[data-app-bar]', '.toast-container']
+  })
 </script>
 ```
 
