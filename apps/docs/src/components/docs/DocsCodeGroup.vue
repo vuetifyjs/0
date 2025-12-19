@@ -44,7 +44,7 @@
         :class="[
           tab.isSelected.value
             ? 'bg-primary text-on-primary'
-            : 'bg-surface-tint border border-divider text-on-surface-tint hover:bg-surface hover:border-transparent'
+            : 'bg-surface-tint border border-divider text-on-surface-tint hover:bg-surface'
         ]"
         @click="tab.toggle"
       >
