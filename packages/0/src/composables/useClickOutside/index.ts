@@ -15,15 +15,15 @@
  * Common use cases: closing popovers, dropdowns, modals, and menus.
  */
 
+// Utilities
+import { isRef, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
+import { isNull, isString } from '#v0/utilities'
+
 // Composables
 import {
   useDocumentEventListener,
   useWindowEventListener,
 } from '#v0/composables/useEventListener'
-
-// Utilities
-import { isRef, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
-import { isNull, isString } from '#v0/utilities'
 
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'
@@ -177,26 +177,30 @@ export function useClickOutside (
   }
 
   /**
-   * Check if the event should be ignored based on ignore list.
+   * Check if an element is in the ignore list.
    */
-  function shouldIgnore (event: PointerEvent | FocusEvent): boolean {
+  function isIgnored (el: Element | null): boolean {
+    if (!el) return false
+
     const ignoreTargets = toValue(ignore)
     if (ignoreTargets.length === 0) return false
 
-    const path = 'composedPath' in event ? event.composedPath() : []
-
     return ignoreTargets.some(ignoreTarget => {
       if (isString(ignoreTarget)) {
-        // CSS selector
-        return Array.from(document.querySelectorAll(ignoreTarget)).some(el => {
-          return el === event.target || path.includes(el)
-        })
+        return el.matches(ignoreTarget) || !isNull(el.closest(ignoreTarget))
       }
-      // Element ref or getter
       const value = toValue(ignoreTarget)
-      const el = isRef(value) ? value.value : value
-      return el && (el === event.target || path.includes(el))
+      const ignoreEl = isRef(value) ? value.value : value
+      return ignoreEl && (ignoreEl === el || ignoreEl.contains(el))
     })
+  }
+
+  /**
+   * Check if any element in the event path should be ignored.
+   */
+  function shouldIgnore (event: PointerEvent): boolean {
+    const path = event.composedPath()
+    return path.some(node => node instanceof Element && isIgnored(node))
   }
 
   /**
@@ -264,25 +268,6 @@ export function useClickOutside (
   }
 
   /**
-   * Check if an element is in the ignore list.
-   */
-  function isIgnored (el: Element | null): boolean {
-    if (!el) return false
-
-    const ignoreTargets = toValue(ignore)
-    if (ignoreTargets.length === 0) return false
-
-    return ignoreTargets.some(ignoreTarget => {
-      if (isString(ignoreTarget)) {
-        return el.matches(ignoreTarget) || !isNull(el.closest(ignoreTarget))
-      }
-      const value = toValue(ignoreTarget)
-      const ignoreEl = isRef(value) ? value.value : value
-      return ignoreEl && (ignoreEl === el || ignoreEl.contains(el))
-    })
-  }
-
-  /**
    * Handle window blur - detect focus moving to iframe.
    */
   function onBlur (event: FocusEvent) {
@@ -329,6 +314,7 @@ export function useClickOutside (
   }
 
   function stop () {
+    isPaused.value = true
     cleanup()
   }
 

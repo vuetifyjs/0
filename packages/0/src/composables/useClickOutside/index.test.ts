@@ -555,4 +555,222 @@ describe('useClickOutside', () => {
       })
     })
   })
+
+  describe('ignore option', () => {
+    it('ignores clicks on elements matching CSS selector', async () => {
+      const handler = vi.fn()
+      const ignoreElement = document.createElement('div')
+      ignoreElement.className = 'ignore-me'
+      container.append(ignoreElement)
+
+      useClickOutside(target, handler, {
+        ignore: ['.ignore-me'],
+      })
+
+      await nextTick()
+      simulatePointerClick(ignoreElement)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('ignores clicks on descendants of elements matching CSS selector', async () => {
+      const handler = vi.fn()
+      const ignoreParent = document.createElement('div')
+      ignoreParent.className = 'menu'
+      const ignoreChild = document.createElement('span')
+      ignoreParent.append(ignoreChild)
+      container.append(ignoreParent)
+
+      useClickOutside(target, handler, {
+        ignore: ['.menu'],
+      })
+
+      await nextTick()
+      simulatePointerClick(ignoreChild)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('ignores clicks on elements passed as refs', async () => {
+      const handler = vi.fn()
+      const ignoreEl = document.createElement('div')
+      container.append(ignoreEl)
+      const ignoreRef = ref<HTMLElement | null>(ignoreEl)
+
+      useClickOutside(target, handler, { ignore: [ignoreRef] })
+
+      await nextTick()
+      simulatePointerClick(ignoreEl)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('ignores clicks on descendants of elements passed as refs', async () => {
+      const handler = vi.fn()
+      const ignoreEl = document.createElement('div')
+      const child = document.createElement('span')
+      ignoreEl.append(child)
+      container.append(ignoreEl)
+
+      useClickOutside(target, handler, { ignore: [ignoreEl] })
+
+      await nextTick()
+      simulatePointerClick(child)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('supports multiple CSS selectors in ignore list', async () => {
+      const handler = vi.fn()
+      const ignoreA = document.createElement('div')
+      ignoreA.dataset.menu = 'true'
+      const ignoreB = document.createElement('div')
+      ignoreB.className = 'toast'
+      container.append(ignoreA, ignoreB)
+
+      useClickOutside(target, handler, {
+        ignore: ['[data-menu]', '.toast'],
+      })
+
+      await nextTick()
+
+      simulatePointerClick(ignoreA)
+      expect(handler).not.toHaveBeenCalled()
+
+      simulatePointerClick(ignoreB)
+      expect(handler).not.toHaveBeenCalled()
+
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('supports mixing CSS selectors and element refs', async () => {
+      const handler = vi.fn()
+      const selectorEl = document.createElement('div')
+      selectorEl.className = 'dialog'
+      const refEl = document.createElement('div')
+      container.append(selectorEl, refEl)
+
+      useClickOutside(target, handler, {
+        ignore: ['.dialog', refEl],
+      })
+
+      await nextTick()
+
+      simulatePointerClick(selectorEl)
+      expect(handler).not.toHaveBeenCalled()
+
+      simulatePointerClick(refEl)
+      expect(handler).not.toHaveBeenCalled()
+
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('supports getter functions in ignore list', async () => {
+      const handler = vi.fn()
+      const ignoreEl = document.createElement('div')
+      container.append(ignoreEl)
+
+      useClickOutside(target, handler, {
+        ignore: [() => ignoreEl],
+      })
+
+      await nextTick()
+      simulatePointerClick(ignoreEl)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('respects reactive ignore list changes', async () => {
+      const handler = vi.fn()
+      const ignoreEl = document.createElement('div')
+      ignoreEl.className = 'dynamic'
+      container.append(ignoreEl)
+      const ignoreList = ref<string[]>([])
+
+      useClickOutside(target, handler, { ignore: ignoreList })
+
+      await nextTick()
+
+      // Not ignored yet
+      simulatePointerClick(ignoreEl)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Add to ignore list
+      ignoreList.value = ['.dynamic']
+
+      simulatePointerClick(ignoreEl)
+      expect(handler).toHaveBeenCalledTimes(1) // Still 1 - now ignored
+    })
+
+    it('still triggers for non-ignored outside clicks', async () => {
+      const handler = vi.fn()
+      const ignoreEl = document.createElement('div')
+      ignoreEl.className = 'ignore'
+      container.append(ignoreEl)
+
+      useClickOutside(target, handler, {
+        ignore: ['.ignore'],
+      })
+
+      await nextTick()
+      simulatePointerClick(outside)
+
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('ignores iframe focus via CSS selector when detectIframe is true', async () => {
+      const handler = vi.fn()
+      useClickOutside(target, handler, {
+        detectIframe: true,
+        ignore: ['iframe'],
+      })
+
+      await nextTick()
+
+      const iframe = document.createElement('iframe')
+      container.append(iframe)
+
+      Object.defineProperty(document, 'activeElement', {
+        value: iframe,
+        configurable: true,
+      })
+      window.dispatchEvent(new FocusEvent('blur'))
+
+      expect(handler).not.toHaveBeenCalled()
+
+      Object.defineProperty(document, 'activeElement', {
+        value: document.body,
+        configurable: true,
+      })
+    })
+
+    it('ignores iframe focus via ref when detectIframe is true', async () => {
+      const handler = vi.fn()
+      const iframe = document.createElement('iframe')
+      container.append(iframe)
+      const iframeRef = ref<HTMLIFrameElement | null>(iframe)
+
+      useClickOutside(target, handler, {
+        detectIframe: true,
+        ignore: [iframeRef],
+      })
+
+      await nextTick()
+
+      Object.defineProperty(document, 'activeElement', {
+        value: iframe,
+        configurable: true,
+      })
+      window.dispatchEvent(new FocusEvent('blur'))
+
+      expect(handler).not.toHaveBeenCalled()
+
+      Object.defineProperty(document, 'activeElement', {
+        value: document.body,
+        configurable: true,
+      })
+    })
+  })
 })
