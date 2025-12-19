@@ -75,17 +75,40 @@
         color: inherit;
         text-decoration: none;
 
-        &::before {
+        &::before,
+        &::after {
           content: '#';
-          position: absolute;
-          left: -.75em;
-          opacity: 0;
           color: var(--v0-primary);
           transition: opacity 0.2s;
         }
+
+        &::before {
+          position: absolute;
+          left: -.75em;
+          opacity: 0;
+        }
+
+        &::after {
+          margin-left: 0.25em;
+          opacity: 0;
+        }
+
+        @media (min-width: 768px) {
+          &::after {
+            display: none;
+          }
+        }
+
+        @media (max-width: 767px) {
+          &::before {
+            display: none;
+          }
+        }
       }
 
-      &:hover > .header-anchor::before {
+      &:hover > .header-anchor::before,
+      &:hover > .header-anchor::after,
+      &:target > .header-anchor::after {
         opacity: 1;
       }
     }
