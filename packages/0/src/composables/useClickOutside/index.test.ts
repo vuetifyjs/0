@@ -794,4 +794,107 @@ describe('useClickOutside', () => {
       })
     })
   })
+
+  describe('edge cases', () => {
+    it('continues detection when handler throws', async () => {
+      const scope = effectScope()
+      const handler = vi.fn(() => {
+        throw new Error('handler error')
+      })
+
+      scope.run(() => {
+        useClickOutside(target, handler)
+      })
+
+      await nextTick()
+
+      // First click throws
+      expect(() => simulatePointerClick(outside)).toThrow('handler error')
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Subsequent clicks still work
+      expect(() => simulatePointerClick(outside)).toThrow('handler error')
+      expect(handler).toHaveBeenCalledTimes(2)
+
+      scope.stop()
+    })
+
+    it('handles stop() called from within handler', async () => {
+      const scope = effectScope()
+      let instance: ReturnType<typeof useClickOutside>
+      const handler = vi.fn(() => instance.stop())
+
+      scope.run(() => {
+        instance = useClickOutside(target, handler)
+      })
+
+      await nextTick()
+      simulatePointerClick(outside)
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect(instance!.isPaused.value).toBe(true)
+
+      // Subsequent clicks should not trigger
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+    })
+
+    it('guards against multiple pause calls', async () => {
+      const scope = effectScope()
+      let pause: () => void
+      let isPaused: ReturnType<typeof useClickOutside>['isPaused']
+
+      scope.run(() => {
+        const instance = useClickOutside(target, vi.fn())
+        pause = instance.pause
+        isPaused = instance.isPaused
+      })
+
+      await nextTick()
+
+      pause!()
+      expect(isPaused!.value).toBe(true)
+
+      // Second pause should be no-op
+      pause!()
+      expect(isPaused!.value).toBe(true)
+
+      scope.stop()
+    })
+
+    it('guards against multiple resume calls', async () => {
+      const scope = effectScope()
+      const handler = vi.fn()
+      let pause: () => void
+      let resume: () => void
+      let isPaused: ReturnType<typeof useClickOutside>['isPaused']
+
+      scope.run(() => {
+        const instance = useClickOutside(target, handler)
+        pause = instance.pause
+        resume = instance.resume
+        isPaused = instance.isPaused
+      })
+
+      await nextTick()
+
+      // Resume when already active should be no-op
+      resume!()
+      expect(isPaused!.value).toBe(false)
+
+      // Verify listeners still work (not duplicated)
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Normal pause/resume cycle
+      pause!()
+      resume!()
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(2)
+
+      scope.stop()
+    })
+  })
 })

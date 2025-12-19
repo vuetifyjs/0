@@ -13,6 +13,10 @@
  * - SSR-safe (no-op when not in browser)
  *
  * Common use cases: closing popovers, dropdowns, modals, and menus.
+ *
+ * Accessibility: This composable handles pointer interactions only. For accessible
+ * components (dialogs, popovers, menus), pair with `useKeydown` for Escape key
+ * dismissal per WCAG/APG requirements.
  */
 
 // Utilities
@@ -298,12 +302,14 @@ export function useClickOutside (
   }
 
   function pause () {
+    if (isPaused.value) return
     isPaused.value = true
     initialTarget = null
     cleanup()
   }
 
   function resume () {
+    if (!isPaused.value) return
     isPaused.value = false
     setup()
   }
