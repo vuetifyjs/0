@@ -17,7 +17,7 @@
 
 // Utilities
 import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
-import { isNull, isString } from '#v0/utilities'
+import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -36,11 +36,6 @@ export type ClickOutsideTarget = MaybeRefOrGetter<ClickOutsideElement>
 export type ClickOutsideIgnoreTarget = ClickOutsideTarget | string
 
 export interface UseClickOutsideOptions {
-  /**
-   * Whether the listener is active.
-   * @default true
-   */
-  enabled?: MaybeRefOrGetter<boolean>
   /**
    * Use capture phase for event listeners.
    * Ensures detection works even when inner elements call stopPropagation.
@@ -136,9 +131,9 @@ export interface UseClickOutsideReturn {
  * @example Ignoring elements (CSS selectors or refs)
  * ```ts
  * useClickOutside(
- *   () => navRef.value?.element,
- *   () => { isOpen.value = false },
- *   { ignore: ['[data-app-bar]', '.toast-container'] }
+ *  () => navRef.value?.element,
+ *  () => { isOpen.value = false },
+ *  { ignore: ['[data-app-bar]'] }
  * )
  * ```
  */
@@ -148,7 +143,6 @@ export function useClickOutside (
   options: UseClickOutsideOptions = {},
 ): UseClickOutsideReturn {
   const {
-    enabled = true,
     capture = true,
     touchScrollThreshold = 30,
     detectIframe = false,
@@ -176,7 +170,7 @@ export function useClickOutside (
         // Handle getters that return refs (e.g., () => atom.value?.element)
         return isRef(value) ? value.value : value
       })
-      .filter((el): el is HTMLElement => el != null)
+      .filter((el): el is HTMLElement => !isNullOrUndefined(el))
   }
 
   /**
@@ -236,7 +230,6 @@ export function useClickOutside (
    */
   function onPointerDown (event: PointerEvent) {
     if (isPaused.value) return
-    if (!toValue(enabled)) return
     if (event.defaultPrevented) return
 
     initialTarget = event.composedPath()[0] ?? event.target
@@ -248,7 +241,6 @@ export function useClickOutside (
    */
   function onPointerUp (event: PointerEvent) {
     if (isPaused.value) return
-    if (!toValue(enabled)) return
     if (event.defaultPrevented) return
     if (!initialTarget) return
 
@@ -276,7 +268,6 @@ export function useClickOutside (
   function onBlur (event: FocusEvent) {
     if (!IN_BROWSER) return
     if (isPaused.value) return
-    if (!toValue(enabled)) return
     if (event.defaultPrevented) return
 
     if (document.activeElement instanceof HTMLIFrameElement) {

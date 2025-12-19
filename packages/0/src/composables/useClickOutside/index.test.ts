@@ -247,37 +247,6 @@ describe('useClickOutside', () => {
     })
   })
 
-  describe('enabled option', () => {
-    it('respects enabled option', async () => {
-      const handler = vi.fn()
-      const enabled = ref(false)
-      useClickOutside(target, handler, { enabled })
-
-      await nextTick()
-      simulatePointerClick(outside)
-      expect(handler).not.toHaveBeenCalled()
-
-      enabled.value = true
-      await nextTick()
-      simulatePointerClick(outside)
-      expect(handler).toHaveBeenCalledTimes(1)
-    })
-
-    it('supports enabled as getter function', async () => {
-      const handler = vi.fn()
-      let enabled = false
-      useClickOutside(target, handler, { enabled: () => enabled })
-
-      await nextTick()
-      simulatePointerClick(outside)
-      expect(handler).not.toHaveBeenCalled()
-
-      enabled = true
-      simulatePointerClick(outside)
-      expect(handler).toHaveBeenCalledTimes(1)
-    })
-  })
-
   describe('two-phase detection', () => {
     it('requires both pointerdown and pointerup to trigger', async () => {
       const handler = vi.fn()
