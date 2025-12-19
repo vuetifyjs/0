@@ -115,11 +115,6 @@ useKeydown({ key: 'Escape', handler: close })
 
 ## API
 
-| Composable | Description |
-|---|---|
-| [useKeydown](/composables/system/use-keydown) | Keyboard event handling |
-| [useEventListener](/composables/system/use-event-listener) | General DOM event handling |
-
 ### `useClickOutside`
 
 - **Type**

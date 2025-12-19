@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-  import { ref, useTemplateRef, computed } from 'vue'
+  import { shallowRef, useTemplateRef, computed } from 'vue'
   import { useClickOutside } from '@vuetify/v0'
 
-  const isOpen = ref(false)
+  const isOpen = shallowRef(false)
   const buttonRef = useTemplateRef<HTMLElement>('button')
   const menuRef = useTemplateRef<HTMLElement>('menu')
 
@@ -35,8 +35,8 @@
     <div
       v-if="isOpen"
       ref="menu"
-      :style="menuStyle"
       class="fixed w-48 py-2 bg-surface border border-divider rounded shadow-lg z-50"
+      :style="menuStyle"
     >
       <div class="px-4 py-2 text-sm text-on-surface hover:bg-surface-tint cursor-pointer">
         Profile

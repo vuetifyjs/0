@@ -268,6 +268,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-click-outside': RouteRecordInfo<
+      '/composables/system/use-click-outside',
+      '/composables/system/use-click-outside',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-event-listener': RouteRecordInfo<
       '/composables/system/use-event-listener',
       '/composables/system/use-event-listener',
@@ -677,6 +684,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/selection/use-step.md': {
       routes:
         | '/composables/selection/use-step'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-click-outside.md': {
+      routes:
+        | '/composables/system/use-click-outside'
       views:
         | never
     }
