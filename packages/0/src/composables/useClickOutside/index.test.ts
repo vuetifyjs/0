@@ -385,6 +385,32 @@ describe('useClickOutside', () => {
 
       expect(handler).not.toHaveBeenCalled()
     })
+
+    it('does not trigger when blur event is prevented', async () => {
+      const handler = vi.fn()
+      useClickOutside(target, handler, { detectIframe: true })
+
+      await nextTick()
+
+      const iframe = document.createElement('iframe')
+      container.append(iframe)
+
+      Object.defineProperty(document, 'activeElement', {
+        value: iframe,
+        configurable: true,
+      })
+
+      const blurEvent = new FocusEvent('blur', { cancelable: true })
+      blurEvent.preventDefault()
+      window.dispatchEvent(blurEvent)
+
+      expect(handler).not.toHaveBeenCalled()
+
+      Object.defineProperty(document, 'activeElement', {
+        value: document.body,
+        configurable: true,
+      })
+    })
   })
 
   describe('target validation', () => {
@@ -649,6 +675,25 @@ describe('useClickOutside', () => {
       simulatePointerClick(ignoreEl)
 
       expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('handles getters that return refs in ignore list', async () => {
+      const handler = vi.fn()
+      const ignoreRef = ref<HTMLElement | null>(null)
+      const ignoreElement = document.createElement('div')
+      container.append(ignoreElement)
+
+      useClickOutside(target, handler, {
+        ignore: [() => ignoreRef],
+      })
+
+      await nextTick()
+      simulatePointerClick(ignoreElement)
+      expect(handler).toHaveBeenCalledTimes(1) // Not ignored yet
+
+      ignoreRef.value = ignoreElement
+      simulatePointerClick(ignoreElement)
+      expect(handler).toHaveBeenCalledTimes(1) // Now ignored
     })
 
     it('respects reactive ignore list changes', async () => {

@@ -203,8 +203,7 @@ export function useClickOutside (
   /**
    * Check if any element in the event path should be ignored.
    */
-  function shouldIgnore (event: PointerEvent): boolean {
-    const path = event.composedPath()
+  function shouldIgnore (path: EventTarget[]): boolean {
     return path.some(node => node instanceof Element && isIgnored(node))
   }
 
@@ -256,7 +255,8 @@ export function useClickOutside (
 
     if (!isValidTarget(pointerdownTarget)) return
 
-    const pointerupTarget = event.composedPath()[0] ?? event.target
+    const path = event.composedPath()
+    const pointerupTarget = path[0] ?? event.target
 
     if (event.pointerType === 'touch') {
       const dx = Math.abs(event.clientX - startPosition.x)
@@ -264,7 +264,7 @@ export function useClickOutside (
       if (dx >= touchScrollThreshold || dy >= touchScrollThreshold) return
     }
 
-    if (isOutside(pointerdownTarget) && isOutside(pointerupTarget) && !shouldIgnore(event)) {
+    if (isOutside(pointerdownTarget) && isOutside(pointerupTarget) && !shouldIgnore(path)) {
       handler(event)
     }
   }

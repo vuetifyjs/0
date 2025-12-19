@@ -150,15 +150,15 @@ useKeydown({ key: 'Escape', handler: close })
   }
 
   interface UseClickOutsideReturn {
-    isActive: Readonly<Ref<boolean>>
-    isPaused: Readonly<Ref<boolean>>
+    readonly isActive: Readonly<Ref<boolean>>
+    readonly isPaused: Readonly<Ref<boolean>>
     pause: () => void
     resume: () => void
     stop: () => void
   }
 
   function useClickOutside(
-    target: ClickOutsideTarget | ClickOutsideTarget[],
+    target: ClickOutsideTarget | readonly ClickOutsideTarget[],
     handler: (event: PointerEvent | FocusEvent) => void,
     options?: UseClickOutsideOptions
   ): UseClickOutsideReturn
