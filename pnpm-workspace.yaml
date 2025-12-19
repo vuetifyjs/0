@@ -20,7 +20,6 @@ catalog:
   '@vitest/coverage-v8': ^4.0.16
   '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.8.1
-  '@vuetify/one': ^2.9.2
   bumpp: ^10.3.2
   conventional-changelog-vuetify: ^2.0.2
   eslint: ^9.39.2

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
   import { useClipboard } from '@/composables/useClipboard'
-  import { useOneStore } from '@vuetify/one'
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
@@ -23,7 +22,6 @@
   const loading = shallowRef(false)
   const { copied, copy } = useClipboard()
 
-  const one = useOneStore()
   const route = useRoute()
 
   const link = toRef(() => route.path.split('/').slice(1).filter(Boolean).join('/'))
@@ -48,7 +46,7 @@
   })
 
   async function onClickCopy () {
-    if (!one.isSubscriber || loading.value) return
+    if (loading.value) return
 
     function replace (element: string, value: string) {
       const regexp = new RegExp(`<${element}[\\s\\S]*?>([\\s\\S]*?\\/>\n\n)?`, 'g')
@@ -128,11 +126,10 @@
     </a>
 
     <AppChip
-      :class="[{ 'cursor-not-allowed opacity-50': !one.isSubscriber }]"
       :color="copied ? 'text-success' : 'text-on-surface'"
       :icon="loading ? 'loading' : copied ? 'success' : 'markdown'"
       :text="loading ? 'Copying...' : copied ? 'Copied' : 'Copy Page as Markdown'"
-      :title="!one.isSubscriber ? 'Subscribe to Vuetify One to Unlock' : ''"
+      title="Copy Page as Markdown"
       @click="onClickCopy"
     />
   </div>

@@ -20,9 +20,6 @@ export default defineConfig({
       exclude: Features.LightDark,
     },
   },
-  ssr: {
-    noExternal: ['@vuetify/one'],
-  },
   ssgOptions: {
     dirStyle: 'nested',
     onFinished () {

@@ -35,7 +35,6 @@
   "dependencies": {
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
-    "@vuetify/one": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",

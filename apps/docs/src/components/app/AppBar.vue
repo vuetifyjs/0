@@ -5,10 +5,9 @@
   // Composables
   import { useAppStore } from '@/stores/app'
   import { useThemeToggle } from '@/composables/useThemeToggle'
-  import { useAuthStore } from '@vuetify/one/stores/auth'
 
   // Utilities
-  import { onMounted, shallowRef, toRef, watch } from 'vue'
+  import { toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -22,19 +21,10 @@
 
   const isHomePage = toRef(() => route.path === '/')
 
-  const auth = shallowRef<ReturnType<typeof useAuthStore> | null>(null)
-  onMounted(() => {
-    auth.value = useAuthStore()
-  })
-  const permissions = usePermissions()
   const features = useFeatures()
   const { theme, icon: themeIcon, toggle: onClickTheme } = useThemeToggle()
 
   const devmode = features.get('devmode')!
-
-  function onClickDevmode () {
-    devmode.toggle()
-  }
 
   watch(() => devmode.isSelected.value, isSelected => {
     storage.set('devmode', isSelected)
@@ -85,20 +75,6 @@
         <AppIcon :icon="themeIcon" />
       </button>
 
-      <!-- update when latest @vuetify/one is released -->
-      <button
-        v-if="permissions.can(auth?.user?.role ?? 'guest', 'use', 'devmode')"
-        :aria-label="devmode.isSelected.value ? 'Disable Developer Mode' : 'Enable Developer Mode'"
-        :aria-pressed="devmode.isSelected.value"
-        class="text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
-        :class="devmode.isSelected.value ? 'bg-red' : 'bg-gray-400'"
-        title="Developer Mode"
-        type="button"
-        @click="onClickDevmode"
-      >
-        <AppIcon icon="dev" />
-      </button>
-
       <a
         aria-label="Discord Community (opens in new tab)"
         class="bg-[#5661ea] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
@@ -120,18 +96,6 @@
       >
         <AppIcon icon="github" />
       </a>
-
-      <client-only>
-        <img
-          v-if="auth?.user?.picture"
-          alt="Vuetify One Avatar"
-          class="rounded-full"
-          height="28"
-          :src="auth.user.picture"
-          title="Vuetify One Avatar"
-          width="28"
-        >
-      </client-only>
     </div>
   </Atom>
 </template>
