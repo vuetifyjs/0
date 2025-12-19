@@ -14,6 +14,7 @@ declare module 'vue' {
     AppBanner: typeof import('./components/app/AppBanner.vue')['default']
     AppBar: typeof import('./components/app/AppBar.vue')['default']
     AppChip: typeof import('./components/app/AppChip.vue')['default']
+    AppCopyright: typeof import('./components/app/AppCopyright.vue')['default']
     AppDivider: typeof import('./components/app/AppDivider.vue')['default']
     AppFooter: typeof import('./components/app/AppFooter.vue')['default']
     AppHomeMain: typeof import('./components/app/AppHomeMain.vue')['default']
