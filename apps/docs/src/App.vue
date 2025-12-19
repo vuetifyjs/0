@@ -15,8 +15,6 @@
       { key: 'og:url', property: 'og:url', content: 'https://0.vuetifyjs.com' },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary' },
-      { key: 'twitter:title', name: 'twitter:title', content: 'Vuetify0' },
-      { key: 'twitter:description', name: 'twitter:description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'twitter:image', name: 'twitter:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
     ],
   })
