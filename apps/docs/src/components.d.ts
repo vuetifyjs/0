@@ -27,6 +27,7 @@ declare module 'vue' {
     DocsExample: typeof import('./components/docs/DocsExample.vue')['default']
     DocsLastCommit: typeof import('./components/docs/DocsLastCommit.vue')['default']
     DocsMarkup: typeof import('./components/docs/DocsMarkup.vue')['default']
+    DocsMermaid: typeof import('./components/docs/DocsMermaid.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
     DocsPageFeatures: typeof import('./components/docs/DocsPageFeatures.vue')['default']
     DocsToc: typeof import('./components/docs/DocsToc.vue')['default']
@@ -38,7 +39,6 @@ declare module 'vue' {
     HomeFooter: typeof import('./components/home/HomeFooter.vue')['default']
     HomeHero: typeof import('./components/home/HomeHero.vue')['default']
     HomeIntegrations: typeof import('./components/home/HomeIntegrations.vue')['default']
-    Mermaid: typeof import('./components/Mermaid.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
