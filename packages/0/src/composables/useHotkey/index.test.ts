@@ -31,7 +31,7 @@ describe('useHotkey', () => {
   }
 
   describe('basic functionality', () => {
-    it('calls callback when hotkey is pressed', async () => {
+    it('calls callback when hotkey is pressed', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -43,7 +43,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('does not call callback for non-matching key', async () => {
+    it('does not call callback for non-matching key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -55,21 +55,21 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('returns cleanup function', async () => {
+    it('stop() removes the listener', () => {
       const callback = vi.fn()
-      let cleanup: () => void
+      let stop: () => void
 
       scope.run(() => {
-        cleanup = useHotkey('a', callback)
+        ;({ stop } = useHotkey('a', callback))
       })
 
-      cleanup!()
+      stop!()
       window.dispatchEvent(createKeyboardEvent('a'))
 
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('cleans up on scope disposal', async () => {
+    it('cleans up on scope disposal', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -84,7 +84,7 @@ describe('useHotkey', () => {
   })
 
   describe('key combinations', () => {
-    it('handles ctrl+key', async () => {
+    it('handles ctrl+key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -96,7 +96,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles shift+key', async () => {
+    it('handles shift+key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -108,7 +108,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles alt+key', async () => {
+    it('handles alt+key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -120,7 +120,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('handles multiple modifiers', async () => {
+    it('handles multiple modifiers', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -132,7 +132,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('does not trigger without required modifier', async () => {
+    it('does not trigger without required modifier', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -146,7 +146,7 @@ describe('useHotkey', () => {
   })
 
   describe('key sequences', () => {
-    it('handles two-key sequence', async () => {
+    it('handles two-key sequence', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -160,7 +160,7 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
-    it('resets sequence on wrong key', async () => {
+    it('resets sequence on wrong key', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -174,7 +174,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('resets sequence on timeout', async () => {
+    it('resets sequence on timeout', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -188,7 +188,7 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('completes sequence before timeout', async () => {
+    it('completes sequence before timeout', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -204,7 +204,7 @@ describe('useHotkey', () => {
   })
 
   describe('options', () => {
-    it('prevents default when preventDefault is true', async () => {
+    it('prevents default when preventDefault is true', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -218,7 +218,7 @@ describe('useHotkey', () => {
       expect(preventDefaultSpy).toHaveBeenCalled()
     })
 
-    it('does not prevent default when preventDefault is false', async () => {
+    it('does not prevent default when preventDefault is false', () => {
       const callback = vi.fn()
 
       scope.run(() => {
@@ -271,6 +271,124 @@ describe('useHotkey', () => {
 
       window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).toHaveBeenCalledTimes(1) // listener removed
+    })
+  })
+
+  describe('pause/resume', () => {
+    it('pause() stops responding to hotkeys', () => {
+      const callback = vi.fn()
+      let pause: () => void
+
+      scope.run(() => {
+        ;({ pause } = useHotkey('a', callback))
+      })
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+
+      pause!()
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1) // still 1
+    })
+
+    it('resume() re-enables hotkeys after pause', () => {
+      const callback = vi.fn()
+      let pause: () => void
+      let resume: () => void
+
+      scope.run(() => {
+        ;({ pause, resume } = useHotkey('a', callback))
+      })
+
+      pause!()
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+
+      resume!()
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('isPaused reflects pause state', () => {
+      let isPaused: { value: boolean }
+      let pause: () => void
+      let resume: () => void
+
+      scope.run(() => {
+        ;({ isPaused, pause, resume } = useHotkey('a', vi.fn()))
+      })
+
+      expect(isPaused!.value).toBe(false)
+
+      pause!()
+      expect(isPaused!.value).toBe(true)
+
+      resume!()
+      expect(isPaused!.value).toBe(false)
+    })
+
+    it('isActive reflects listener state', async () => {
+      const keys = ref<string | undefined>('a')
+      let isActive: { value: boolean }
+      let pause: () => void
+      let resume: () => void
+
+      scope.run(() => {
+        ;({ isActive, pause, resume } = useHotkey(keys, vi.fn()))
+      })
+
+      expect(isActive!.value).toBe(true)
+
+      pause!()
+      expect(isActive!.value).toBe(false)
+
+      resume!()
+      expect(isActive!.value).toBe(true)
+
+      keys.value = undefined
+      await nextTick()
+      expect(isActive!.value).toBe(false)
+    })
+
+    it('changing keys while paused does not setup listener', async () => {
+      const callback = vi.fn()
+      const keys = ref('a')
+      let pause: () => void
+      let isActive: { value: boolean }
+
+      scope.run(() => {
+        ;({ pause, isActive } = useHotkey(keys, callback))
+      })
+
+      pause!()
+      keys.value = 'b'
+      await nextTick()
+
+      expect(isActive!.value).toBe(false)
+      window.dispatchEvent(createKeyboardEvent('b'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('resume after keys change uses new keys', async () => {
+      const callback = vi.fn()
+      const keys = ref('a')
+      let pause: () => void
+      let resume: () => void
+
+      scope.run(() => {
+        ;({ pause, resume } = useHotkey(keys, callback))
+      })
+
+      pause!()
+      keys.value = 'b'
+      await nextTick()
+      resume!()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+
+      window.dispatchEvent(createKeyboardEvent('b'))
+      expect(callback).toHaveBeenCalledTimes(1)
     })
   })
 })
