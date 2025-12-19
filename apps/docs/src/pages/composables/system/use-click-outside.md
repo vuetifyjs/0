@@ -146,7 +146,7 @@ useKeydown({ key: 'Escape', handler: close })
     capture?: boolean              // Use capture phase (default: true)
     touchScrollThreshold?: number  // Touch scroll threshold in px (default: 30)
     detectIframe?: boolean         // Detect iframe focus (default: false)
-    ignore?: MaybeRefOrGetter<(string | ClickOutsideTarget)[]>
+    ignore?: MaybeRefOrGetter<ClickOutsideIgnoreTarget[]>
   }
 
   interface UseClickOutsideReturn {
