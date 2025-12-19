@@ -15,6 +15,6 @@
   >
     <DocsLastCommit />
 
-    &copy; 2016-{{ (new Date()).getFullYear() }} Vuetify, LLC
+    <AppCopyright />
   </Atom>
 </template>

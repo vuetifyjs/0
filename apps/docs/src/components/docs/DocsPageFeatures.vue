@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import { useClipboard } from '@/composables/useClipboard'
   import { useOneStore } from '@vuetify/one'
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
@@ -19,7 +20,8 @@
   }>()
 
   const base = 'https://github.com/vuetifyjs/0'
-  const copied = shallowRef(false)
+  const loading = shallowRef(false)
+  const { copied, copy } = useClipboard()
 
   const one = useOneStore()
   const route = useRoute()
@@ -46,9 +48,7 @@
   })
 
   async function onClickCopy () {
-    if (!one.isSubscriber) return
-
-    let raw = ''
+    if (!one.isSubscriber || loading.value) return
 
     function replace (element: string, value: string) {
       const regexp = new RegExp(`<${element}[\\s\\S]*?>([\\s\\S]*?\\/>\n\n)?`, 'g')
@@ -57,21 +57,21 @@
     }
 
     try {
-      copied.value = true
+      loading.value = true
 
       const { request } = await import('@/plugins/octokit').then(m => m.default || m)
       const { data: { content } } = await request('GET /repos/vuetifyjs/0/contents/apps/docs/src/pages/{link}.md', {
         link: link.value,
       })
 
-      raw = atob(content)
+      let raw = atob(content)
       raw = replace('DocsPageFeatures', raw)
 
-      navigator.clipboard.writeText(raw)
+      await copy(raw)
     } catch (error) {
-      navigator.clipboard.writeText(String(error))
+      await copy(String(error))
     } finally {
-      setTimeout(() => (copied.value = false), 2000)
+      loading.value = false
     }
   }
 </script>
@@ -130,8 +130,8 @@
     <AppChip
       :class="[{ 'cursor-not-allowed opacity-50': !one.isSubscriber }]"
       :color="copied ? 'text-success' : 'text-on-surface'"
-      :icon="copied ? 'success' : 'markdown'"
-      :text="copied ? 'Copied' : 'Copy Page as Markdown'"
+      :icon="loading ? 'loading' : copied ? 'success' : 'markdown'"
+      :text="loading ? 'Copying...' : copied ? 'Copied' : 'Copy Page as Markdown'"
       :title="!one.isSubscriber ? 'Subscribe to Vuetify One to Unlock' : ''"
       @click="onClickCopy"
     />

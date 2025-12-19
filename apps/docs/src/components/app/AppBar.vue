@@ -1,13 +1,14 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useFeatures, usePermissions, useTheme, useStorage } from '@vuetify/v0'
+  import { Atom, useFeatures, usePermissions, useStorage } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'
+  import { useThemeToggle } from '@/composables/useThemeToggle'
   import { useAuthStore } from '@vuetify/one/stores/auth'
 
   // Utilities
-  import { computed, watch } from 'vue'
+  import { toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -19,7 +20,7 @@
   const storage = useStorage()
   const route = useRoute()
 
-  const isHomePage = computed(() => route.path === '/')
+  const isHomePage = toRef(() => route.path === '/')
 
   let auth: ReturnType<typeof useAuthStore> | null = null
   if (!import.meta.env.SSR) {
@@ -27,7 +28,7 @@
   }
   const permissions = usePermissions()
   const features = useFeatures()
-  const theme = useTheme()
+  const { theme, icon: themeIcon, toggle: onClickTheme } = useThemeToggle()
 
   const devmode = features.get('devmode')!
 
@@ -35,20 +36,11 @@
     devmode.toggle()
   }
 
-  function onClickTheme () {
-    theme.cycle(['light', 'dark'])
-  }
-
-  watch(() => theme.selectedId.value, id => {
-    storage.set('theme', id)
-  })
-
   watch(() => devmode.isSelected.value, isSelected => {
     storage.set('devmode', isSelected)
   })
 
-  const themeIcon = computed(() => theme.isDark.value ? 'theme-light' : 'theme-dark')
-  const src = computed(() => theme.isDark.value
+  const src = toRef(() => theme.isDark.value
     ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.png'
     : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png',
   )

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-  import { useTheme } from '@vuetify/v0'
+  import { useThemeToggle } from '@/composables/useThemeToggle'
 
-  const theme = useTheme()
+  const { icon: themeIcon, toggle: toggleTheme } = useThemeToggle()
 
   const links = [
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub' },
@@ -13,7 +13,7 @@
   <footer class="home-footer py-4 border-t">
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="text-sm opacity-60">
-        &copy; 2016-{{ (new Date()).getFullYear() }} Vuetify, LLC
+        <AppCopyright />
       </div>
 
       <div class="flex items-center gap-4">
@@ -34,9 +34,9 @@
         <button
           aria-label="Toggle theme"
           class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-tint transition-colors text-on-surface"
-          @click="theme.cycle(['light', 'dark'])"
+          @click="toggleTheme"
         >
-          <AppIcon :icon="theme.isDark.value ? 'theme-light' : 'theme-dark'" :size="20" />
+          <AppIcon :icon="themeIcon" :size="20" />
         </button>
       </div>
     </div>

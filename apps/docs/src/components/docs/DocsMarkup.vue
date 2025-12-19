@@ -1,10 +1,11 @@
 <script lang="ts" setup>
   // Composables
   import { useBin } from '@/composables/bin'
+  import { useClipboard } from '@/composables/useClipboard'
   import { usePlayground } from '@/composables/playground'
 
   // Utilities
-  import { ref, computed } from 'vue'
+  import { computed } from 'vue'
 
   const props = defineProps<{
     code: string // base64 encoded
@@ -22,18 +23,10 @@
     }
   })
 
-  const copied = ref(false)
+  const { copied, copy } = useClipboard()
 
-  async function copyCode () {
-    try {
-      await navigator.clipboard.writeText(decodedCode.value)
-      copied.value = true
-      setTimeout(() => {
-        copied.value = false
-      }, 2000)
-    } catch (error) {
-      console.error('Failed to copy code:', error)
-    }
+  function copyCode () {
+    copy(decodedCode.value)
   }
 
   function openInBin () {

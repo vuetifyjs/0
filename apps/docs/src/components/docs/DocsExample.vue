@@ -1,11 +1,12 @@
 <script lang="ts" setup>
   // Composables
-  import { usePlayground } from '@/composables/playground'
   import { useBin } from '@/composables/bin'
+  import { useClipboard } from '@/composables/useClipboard'
   import { useHighlighter } from '@/composables/useHighlighter'
+  import { usePlayground } from '@/composables/playground'
 
   // Utilities
-  import { ref, computed, onMounted, shallowRef, watch } from 'vue'
+  import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 
   const props = defineProps<{
     file?: string
@@ -15,23 +16,13 @@
 
   const showCode = ref(false)
   const highlightedCode = shallowRef<string>('')
-  const copied = ref(false)
+  const { copied, copy } = useClipboard()
   const { highlighter, getHighlighter } = useHighlighter()
 
   const fileName = computed(() => props.file?.split('/').pop() || '')
 
-  async function copyCode () {
-    if (!props.code) return
-
-    try {
-      await navigator.clipboard.writeText(props.code)
-      copied.value = true
-      setTimeout(() => {
-        copied.value = false
-      }, 2000)
-    } catch (error) {
-      console.error('Failed to copy code:', error)
-    }
+  function copyCode () {
+    if (props.code) copy(props.code)
   }
 
   async function highlight (code: string) {
