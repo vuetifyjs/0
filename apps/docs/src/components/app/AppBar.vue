@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import { Atom, useFeatures, usePermissions, useStorage } from '@vuetify/v0'
+  import { Atom, useFeatures, useStorage } from '@vuetify/v0'
 
   // Composables
   import { useAppStore } from '@/stores/app'

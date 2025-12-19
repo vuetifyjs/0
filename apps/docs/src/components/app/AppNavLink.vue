@@ -28,7 +28,7 @@
       :as
       class="font-semibold"
       :class="[
-        to ? 'hover:underline' : '',
+        to ? 'hover:underline hover:text-primary' : '',
         to && children.length === 0 ? 'opacity-70 hover:opacity-100' : '',
       ]"
       v-bind="props"

@@ -17,7 +17,7 @@
       <ul class="space-y-1">
         <li v-for="h2 in headings" :key="h2.id">
           <a
-            class="block py-1 hover:text-primary transition-colors truncate"
+            class="block py-1 hover:text-primary hover:underline transition-colors truncate"
             :class="selectedId === h2.id
               ? 'text-primary font-medium underline'
               : 'text-gray-600 dark:text-gray-300'"
@@ -30,7 +30,7 @@
           <ul v-if="h2.children.length > 0" class="ml-3 space-y-1">
             <li v-for="h3 in h2.children" :key="h3.id">
               <a
-                class="block py-1 hover:text-primary transition-colors truncate text-xs"
+                class="block py-1 hover:text-primary hover:underline transition-colors truncate text-xs"
                 :class="selectedId === h3.id
                   ? 'text-primary font-medium underline'
                   : 'text-gray-500 dark:text-gray-400'"
