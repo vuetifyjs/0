@@ -146,6 +146,7 @@ export const useAppStore = defineStore('app', {
           {
             name: 'System',
             children: [
+              { name: 'useClickOutside', to: '/composables/system/use-click-outside' },
               { name: 'useEventListener', to: '/composables/system/use-event-listener' },
               { name: 'useIntersectionObserver', to: '/composables/system/use-intersection-observer' },
               { name: 'useKeydown', to: '/composables/system/use-keydown' },
