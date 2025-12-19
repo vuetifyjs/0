@@ -16,8 +16,11 @@
  */
 
 // Utilities
-import { isRef, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
+import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 import { isNull, isString } from '#v0/utilities'
+
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Composables
 import {
@@ -271,6 +274,7 @@ export function useClickOutside (
    * Handle window blur - detect focus moving to iframe.
    */
   function onBlur (event: FocusEvent) {
+    if (!IN_BROWSER) return
     if (isPaused.value) return
     if (!toValue(enabled)) return
     if (event.defaultPrevented) return
@@ -319,6 +323,8 @@ export function useClickOutside (
   }
 
   setup()
+
+  onScopeDispose(stop, true)
 
   return {
     isActive: shallowReadonly(isActive),

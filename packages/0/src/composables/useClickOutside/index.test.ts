@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { ref, nextTick } from 'vue'
+import { effectScope, ref, nextTick } from 'vue'
 import { useClickOutside } from './index'
 
 /**
@@ -766,6 +766,58 @@ describe('useClickOutside', () => {
       window.dispatchEvent(new FocusEvent('blur'))
 
       expect(handler).not.toHaveBeenCalled()
+
+      Object.defineProperty(document, 'activeElement', {
+        value: document.body,
+        configurable: true,
+      })
+    })
+  })
+
+  describe('lifecycle cleanup', () => {
+    it('cleans up listeners on scope disposal', async () => {
+      const handler = vi.fn()
+      const scope = effectScope()
+
+      scope.run(() => {
+        useClickOutside(target, handler)
+      })
+
+      await nextTick()
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1) // Not called again after disposal
+    })
+
+    it('cleans up iframe listeners on scope disposal', async () => {
+      const handler = vi.fn()
+      const scope = effectScope()
+      const iframe = document.createElement('iframe')
+      container.append(iframe)
+
+      scope.run(() => {
+        useClickOutside(target, handler, { detectIframe: true })
+      })
+
+      await nextTick()
+
+      // Trigger iframe focus detection
+      Object.defineProperty(document, 'activeElement', {
+        value: iframe,
+        configurable: true,
+      })
+      window.dispatchEvent(new FocusEvent('blur'))
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+
+      // Should not trigger after disposal
+      window.dispatchEvent(new FocusEvent('blur'))
+      expect(handler).toHaveBeenCalledTimes(1)
 
       Object.defineProperty(document, 'activeElement', {
         value: document.body,
