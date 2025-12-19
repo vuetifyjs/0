@@ -159,7 +159,7 @@ useKeydown({ key: 'Escape', handler: close })
 
   function useClickOutside(
     target: ClickOutsideTarget | ClickOutsideTarget[],
-    handler: (event: Event) => void,
+    handler: (event: PointerEvent | FocusEvent) => void,
     options?: UseClickOutsideOptions
   ): UseClickOutsideReturn
   ```

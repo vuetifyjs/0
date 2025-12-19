@@ -897,4 +897,176 @@ describe('useClickOutside', () => {
       scope.stop()
     })
   })
+
+  describe('empty targets', () => {
+    it('does not trigger handler when target array is empty', async () => {
+      const handler = vi.fn()
+      useClickOutside([], handler)
+
+      await nextTick()
+      simulatePointerClick(outside)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('shadow DOM', () => {
+    it('detects clicks inside shadow DOM as inside target', async () => {
+      const handler = vi.fn()
+      const host = document.createElement('div')
+      const shadow = host.attachShadow({ mode: 'open' })
+      const shadowChild = document.createElement('div')
+      shadow.append(shadowChild)
+      container.append(host)
+
+      useClickOutside(host, handler)
+
+      await nextTick()
+
+      // Click inside shadow DOM should not trigger (host contains shadow content)
+      simulatePointerClick(shadowChild)
+      expect(handler).not.toHaveBeenCalled()
+
+      // Click outside should trigger
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('uses composedPath for shadow DOM event targeting', async () => {
+      const handler = vi.fn()
+      const host = document.createElement('div')
+      const shadow = host.attachShadow({ mode: 'open' })
+      const shadowButton = document.createElement('button')
+      shadow.append(shadowButton)
+      container.append(host)
+
+      // Target is the shadow button's host
+      useClickOutside(host, handler)
+
+      await nextTick()
+
+      // Click on shadow button - composedPath should include it
+      simulatePointerClick(shadowButton)
+      expect(handler).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('nested refs', () => {
+    it('handles getters that return refs', async () => {
+      const handler = vi.fn()
+      const elementRef = ref<HTMLElement | null>(null)
+      function getterReturningRef () {
+        return elementRef
+      }
+
+      useClickOutside(getterReturningRef, handler)
+
+      await nextTick()
+      simulatePointerClick(outside)
+      expect(handler).not.toHaveBeenCalled() // No element yet
+
+      elementRef.value = target
+      await nextTick()
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles reactive target replacement', async () => {
+      const handler = vi.fn()
+      const targetRef = ref<HTMLElement | null>(null)
+      const element1 = document.createElement('div')
+      const element2 = document.createElement('div')
+      container.append(element1, element2)
+
+      useClickOutside(targetRef, handler)
+
+      // First target
+      targetRef.value = element1
+      await nextTick()
+      simulatePointerClick(element2)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Replace with second target
+      targetRef.value = element2
+      await nextTick()
+      simulatePointerClick(element1)
+      expect(handler).toHaveBeenCalledTimes(2) // element1 now outside
+
+      simulatePointerClick(element2)
+      expect(handler).toHaveBeenCalledTimes(2) // element2 still inside
+    })
+  })
+
+  describe('invalid CSS selectors', () => {
+    it('handles invalid CSS selector in ignore option gracefully', async () => {
+      const handler = vi.fn()
+
+      useClickOutside(target, handler, {
+        ignore: ['[invalid]]]'], // Malformed selector
+      })
+
+      await nextTick()
+
+      // Should not throw during matching - invalid selector is silently ignored
+      expect(() => simulatePointerClick(outside)).not.toThrow()
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('SSR safety', () => {
+    it('returns valid object structure', () => {
+      const handler = vi.fn()
+      const result = useClickOutside(target, handler)
+
+      expect(result).toMatchObject({
+        isActive: expect.any(Object),
+        isPaused: expect.any(Object),
+        pause: expect.any(Function),
+        resume: expect.any(Function),
+        stop: expect.any(Function),
+      })
+      expect(result.isActive.value).toBe(true)
+      expect(result.isPaused.value).toBe(false)
+    })
+
+    it('pause/resume/stop work without errors after stop', async () => {
+      const handler = vi.fn()
+      const { pause, resume, stop, isPaused } = useClickOutside(target, handler)
+
+      await nextTick()
+
+      // Verify stop works
+      stop()
+      expect(isPaused.value).toBe(true)
+
+      // Subsequent calls should be no-ops without throwing
+      expect(() => pause()).not.toThrow()
+      expect(() => stop()).not.toThrow()
+
+      // Resume after stop should work
+      resume()
+      expect(isPaused.value).toBe(false)
+
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('stop clears pending pointerdown state', async () => {
+      const handler = vi.fn()
+      const { stop, resume } = useClickOutside(target, handler)
+
+      await nextTick()
+
+      // Start a click outside
+      outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+
+      // Stop before pointerup
+      stop()
+      resume()
+
+      // Complete the click - should not trigger because state was cleared
+      outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      expect(handler).not.toHaveBeenCalled()
+    })
+  })
 })

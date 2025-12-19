@@ -23,9 +23,6 @@
 import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Composables
 import {
   useDocumentEventListener,
@@ -63,6 +60,9 @@ export interface UseClickOutsideOptions {
    * Elements to ignore when detecting outside clicks.
    * Accepts element refs, getters, or CSS selector strings.
    * Clicks on these elements (or their descendants) won't trigger the handler.
+   *
+   * Note: CSS selectors cannot match across Shadow DOM boundaries due to
+   * browser limitations. Use element refs instead when ignoring shadow hosts.
    */
   ignore?: MaybeRefOrGetter<ClickOutsideIgnoreTarget[]>
 }
@@ -143,7 +143,7 @@ export interface UseClickOutsideReturn {
  */
 export function useClickOutside (
   target: ClickOutsideTarget | readonly ClickOutsideTarget[],
-  handler: (event: Event) => void,
+  handler: (event: PointerEvent | FocusEvent) => void,
   options: UseClickOutsideOptions = {},
 ): UseClickOutsideReturn {
   const {
@@ -188,7 +188,11 @@ export function useClickOutside (
 
     return ignoreTargets.some(ignoreTarget => {
       if (isString(ignoreTarget)) {
-        return el.matches(ignoreTarget) || !isNull(el.closest(ignoreTarget))
+        try {
+          return el.matches(ignoreTarget) || !isNull(el.closest(ignoreTarget))
+        } catch {
+          return false
+        }
       }
       const value = toValue(ignoreTarget)
       const ignoreEl = isRef(value) ? value.value : value
@@ -225,7 +229,6 @@ export function useClickOutside (
   function isValidTarget (eventTarget: EventTarget | null): eventTarget is Element {
     if (!(eventTarget instanceof Element)) return false
     if (!eventTarget.isConnected) return false
-    if (!eventTarget.getRootNode().contains(eventTarget)) return false
     return true
   }
 
@@ -270,7 +273,6 @@ export function useClickOutside (
    * Handle window blur - detect focus moving to iframe.
    */
   function onBlur (event: FocusEvent) {
-    if (!IN_BROWSER) return
     if (isPaused.value) return
     if (event.defaultPrevented) return
 
@@ -316,6 +318,7 @@ export function useClickOutside (
 
   function stop () {
     isPaused.value = true
+    initialTarget = null
     cleanup()
   }
 
