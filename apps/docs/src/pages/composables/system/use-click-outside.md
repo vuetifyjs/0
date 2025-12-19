@@ -101,7 +101,11 @@ stop()
 
 ## Accessibility
 
-This composable handles pointer interactions only. For accessible components (dialogs, popovers, menus), pair with `useKeydown` for Escape key dismissal per WCAG/APG requirements:
+This composable handles pointer interactions only. For accessible overlays, you **must** implement additional patterns.
+
+### Keyboard Dismissal (Required)
+
+> **WCAG 2.1.2 Level A**: Without keyboard dismissal, click-outside creates a keyboard trap. This is a compliance failure.
 
 ```ts
 import { useClickOutside, useKeydown } from '@vuetify/v0'
@@ -109,8 +113,54 @@ import { useClickOutside, useKeydown } from '@vuetify/v0'
 // Pointer dismissal
 useClickOutside(menuRef, close)
 
-// Keyboard dismissal (required for accessibility)
+// Keyboard dismissal - REQUIRED for WCAG 2.1.2
 useKeydown({ key: 'Escape', handler: close })
+```
+
+### Focus Restoration
+
+Return focus to the trigger element after dismissal per APG dialog patterns:
+
+```ts
+import { nextTick } from 'vue'
+
+function close() {
+  isOpen.value = false
+  // Return focus to trigger for screen reader context
+  nextTick(() => buttonRef.value?.focus())
+}
+
+useClickOutside(menuRef, close)
+```
+
+### Mobile Screen Reader Support
+
+Mobile screen reader users (VoiceOver, TalkBack) cannot press Escape. Include a focusable close button within overlays:
+
+```vue
+<div ref="menu" role="menu">
+  <!-- Visually hidden close for screen readers -->
+  <button class="sr-only" @click="close" aria-label="Close menu">
+    Close
+  </button>
+  <!-- menu items -->
+</div>
+```
+
+The `sr-only` class hides content visually while keeping it accessible:
+
+```css
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 ```
 
 ## API

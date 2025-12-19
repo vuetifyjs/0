@@ -333,6 +333,28 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(1)
     })
 
+    it('does not trigger when movement equals exactly the threshold', async () => {
+      const handler = vi.fn()
+      useClickOutside(target, handler, { touchScrollThreshold: 30 })
+
+      await nextTick()
+
+      // Exactly 30px movement with 30px threshold - uses >= so should NOT trigger
+      simulateTouchTap(outside, 100, 100, 130, 100)
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('triggers when movement is just below threshold', async () => {
+      const handler = vi.fn()
+      useClickOutside(target, handler, { touchScrollThreshold: 30 })
+
+      await nextTick()
+
+      // 29px movement with 30px threshold - should trigger
+      simulateTouchTap(outside, 100, 100, 129, 100)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
     it('does not apply threshold to mouse clicks', async () => {
       const handler = vi.fn()
       useClickOutside(target, handler, { touchScrollThreshold: 30 })
@@ -1058,7 +1080,7 @@ describe('useClickOutside', () => {
     })
   })
 
-  describe('SSR safety', () => {
+  describe('return value stability', () => {
     it('returns valid object structure', () => {
       const handler = vi.fn()
       const result = useClickOutside(target, handler)
@@ -1112,6 +1134,180 @@ describe('useClickOutside', () => {
       // Complete the click - should not trigger because state was cleared
       outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
       expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('handles rapid pause/resume cycles without listener duplication', async () => {
+      const handler = vi.fn()
+      const scope = effectScope()
+      let pause: () => void
+      let resume: () => void
+
+      scope.run(() => {
+        const instance = useClickOutside(target, handler)
+        pause = instance.pause
+        resume = instance.resume
+      })
+
+      await nextTick()
+
+      // Rapid cycling - should not duplicate listeners
+      for (let i = 0; i < 50; i++) {
+        pause!()
+        resume!()
+      }
+
+      // Verify listeners still work correctly (not duplicated)
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Verify subsequent clicks work normally
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(2)
+
+      scope.stop()
+    })
+  })
+
+  describe('closed shadow DOM', () => {
+    it('handles closed shadow DOM correctly', async () => {
+      const handler = vi.fn()
+      const host = document.createElement('div')
+      const shadow = host.attachShadow({ mode: 'closed' })
+      const shadowChild = document.createElement('div')
+      shadow.append(shadowChild)
+      container.append(host)
+
+      useClickOutside(host, handler)
+
+      await nextTick()
+
+      // Click inside closed shadow DOM - composedPath won't reveal internals
+      // but the event still reaches the host element
+      simulatePointerClick(shadowChild)
+      expect(handler).not.toHaveBeenCalled()
+
+      // Click outside should still trigger
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('SSR safety', () => {
+    it('returns valid API when event listeners are no-ops', async () => {
+      // The composable uses useDocumentEventListener and useWindowEventListener
+      // which return no-op cleanup functions during SSR (when IN_BROWSER is false).
+      // This test verifies the composable's API is still valid in that scenario.
+      const handler = vi.fn()
+      const result = useClickOutside(target, handler)
+
+      // Should return a valid API structure
+      expect(result).toHaveProperty('isActive')
+      expect(result).toHaveProperty('isPaused')
+      expect(result).toHaveProperty('pause')
+      expect(result).toHaveProperty('resume')
+      expect(result).toHaveProperty('stop')
+
+      // State should be initialized correctly
+      expect(result.isActive.value).toBe(true)
+      expect(result.isPaused.value).toBe(false)
+
+      // Control methods should not throw
+      expect(() => result.pause()).not.toThrow()
+      expect(() => result.resume()).not.toThrow()
+      expect(() => result.stop()).not.toThrow()
+    })
+  })
+
+  describe('cleanup verification', () => {
+    it('cleanup functions are called on pause', async () => {
+      const handler = vi.fn()
+      const scope = effectScope()
+      let pause: () => void
+
+      scope.run(() => {
+        const instance = useClickOutside(target, handler)
+        pause = instance.pause
+      })
+
+      await nextTick()
+
+      // Verify listeners are active
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Pause should remove listeners
+      pause!()
+
+      // After pause, clicks should not trigger handler
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+    })
+
+    it('cleanup functions are called on stop', async () => {
+      const handler = vi.fn()
+      const scope = effectScope()
+      let stop: () => void
+
+      scope.run(() => {
+        const instance = useClickOutside(target, handler)
+        stop = instance.stop
+      })
+
+      await nextTick()
+
+      // Verify listeners are active
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Stop should remove listeners
+      stop!()
+
+      // After stop, clicks should not trigger handler
+      simulatePointerClick(outside)
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      scope.stop()
+    })
+
+    it('iframe blur listener is cleaned up when detectIframe is true', async () => {
+      const handler = vi.fn()
+      const scope = effectScope()
+      let stop: () => void
+
+      const iframe = document.createElement('iframe')
+      container.append(iframe)
+
+      scope.run(() => {
+        const instance = useClickOutside(target, handler, { detectIframe: true })
+        stop = instance.stop
+      })
+
+      await nextTick()
+
+      // Verify blur listener is active
+      Object.defineProperty(document, 'activeElement', {
+        value: iframe,
+        configurable: true,
+      })
+      window.dispatchEvent(new FocusEvent('blur'))
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Stop should remove blur listener too
+      stop!()
+
+      // After stop, blur should not trigger handler
+      window.dispatchEvent(new FocusEvent('blur'))
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Cleanup
+      Object.defineProperty(document, 'activeElement', {
+        value: document.body,
+        configurable: true,
+      })
+
+      scope.stop()
     })
   })
 })

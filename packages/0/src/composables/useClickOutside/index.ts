@@ -178,33 +178,59 @@ export function useClickOutside (
   }
 
   /**
-   * Check if an element is in the ignore list.
+   * Resolve ignore targets to a tuple of [selectors, elements].
+   * Called once per event to avoid repeated toValue() calls in hot path.
    */
-  function isIgnored (el: Element | null): boolean {
+  function resolveIgnoreTargets (): [string[], Element[]] {
+    const ignoreTargets = toValue(ignore)
+    if (ignoreTargets.length === 0) return [[], []]
+
+    const selectors: string[] = []
+    const elements: Element[] = []
+
+    for (const ignoreTarget of ignoreTargets) {
+      if (isString(ignoreTarget)) {
+        selectors.push(ignoreTarget)
+      } else {
+        const value = toValue(ignoreTarget)
+        // Handle getters that return refs (e.g., () => someRef)
+        const ignoreEl = isRef(value) ? value.value : value
+        if (ignoreEl) elements.push(ignoreEl)
+      }
+    }
+
+    return [selectors, elements]
+  }
+
+  /**
+   * Check if an element matches resolved ignore targets.
+   */
+  function isIgnored (el: Element | null, selectors: string[], elements: Element[]): boolean {
     if (!el) return false
 
-    const ignoreTargets = toValue(ignore)
-    if (ignoreTargets.length === 0) return false
-
-    return ignoreTargets.some(ignoreTarget => {
-      if (isString(ignoreTarget)) {
-        try {
-          return el.matches(ignoreTarget) || !isNull(el.closest(ignoreTarget))
-        } catch {
-          return false
-        }
+    for (const selector of selectors) {
+      try {
+        if (el.matches(selector) || !isNull(el.closest(selector))) return true
+      } catch {
+        // Invalid selector - silently ignore
       }
-      const value = toValue(ignoreTarget)
-      const ignoreEl = isRef(value) ? value.value : value
-      return ignoreEl && (ignoreEl === el || ignoreEl.contains(el))
-    })
+    }
+
+    for (const ignoreEl of elements) {
+      if (ignoreEl === el || ignoreEl.contains(el)) return true
+    }
+
+    return false
   }
 
   /**
    * Check if any element in the event path should be ignored.
    */
   function shouldIgnore (path: EventTarget[]): boolean {
-    return path.some(node => node instanceof Element && isIgnored(node))
+    const [selectors, elements] = resolveIgnoreTargets()
+    if (selectors.length === 0 && elements.length === 0) return false
+
+    return path.some(node => node instanceof Element && isIgnored(node, selectors, elements))
   }
 
   /**
@@ -278,8 +304,9 @@ export function useClickOutside (
 
     if (document.activeElement instanceof HTMLIFrameElement) {
       const iframeIsOutside = getTargets().every(el => !el.contains(document.activeElement))
+      const [selectors, elements] = resolveIgnoreTargets()
 
-      if (iframeIsOutside && !isIgnored(document.activeElement)) {
+      if (iframeIsOutside && !isIgnored(document.activeElement, selectors, elements)) {
         handler(event)
       }
     }
