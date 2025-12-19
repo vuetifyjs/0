@@ -1,28 +1,42 @@
 <script lang="ts" setup>
-  import { ref, useTemplateRef } from 'vue'
+  import { ref, useTemplateRef, computed } from 'vue'
   import { useClickOutside } from '@vuetify/v0'
 
   const isOpen = ref(false)
+  const buttonRef = useTemplateRef<HTMLElement>('button')
   const menuRef = useTemplateRef<HTMLElement>('menu')
 
-  useClickOutside(menuRef, () => {
+  useClickOutside([buttonRef, menuRef], () => {
     isOpen.value = false
+  })
+
+  const menuStyle = computed(() => {
+    const button = buttonRef.value
+    if (!button) return {}
+
+    const rect = button.getBoundingClientRect()
+    return {
+      top: `${rect.bottom + 8}px`,
+      left: `${rect.left}px`,
+    }
   })
 </script>
 
 <template>
-  <div class="relative inline-block">
-    <button
-      class="px-4 py-2 bg-primary text-on-primary rounded hover:opacity-90 transition-opacity"
-      @click="isOpen = !isOpen"
-    >
-      {{ isOpen ? 'Close' : 'Open' }} Menu
-    </button>
+  <button
+    ref="button"
+    class="px-4 py-2 bg-primary text-on-primary rounded hover:opacity-90 transition-opacity"
+    @click="isOpen = !isOpen"
+  >
+    {{ isOpen ? 'Close' : 'Open' }} Menu
+  </button>
 
+  <Teleport to="body">
     <div
       v-if="isOpen"
       ref="menu"
-      class="absolute top-full left-0 mt-2 w-48 py-2 bg-surface border border-divider rounded shadow-lg z-10"
+      :style="menuStyle"
+      class="fixed w-48 py-2 bg-surface border border-divider rounded shadow-lg z-50"
     >
       <div class="px-4 py-2 text-sm text-on-surface hover:bg-surface-tint cursor-pointer">
         Profile
@@ -34,5 +48,5 @@
         Sign out
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
