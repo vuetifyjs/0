@@ -1,10 +1,8 @@
 <script lang="ts" setup>
   import { Selection } from '@vuetify/v0'
   import { ref, shallowRef, onMounted, computed } from 'vue'
-  import { createHighlighterCore } from 'shiki/core'
-  import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+  import { useHighlighter } from '@/composables/useHighlighter'
   import { usePlayground } from '@/composables/playground'
-  import type { HighlighterCore } from 'shiki/core'
 
   const items = ref([
     { id: 1, label: 'Option A' },
@@ -13,8 +11,8 @@
   ])
 
   const selected = ref<number[]>([])
-  const highlighter = shallowRef<HighlighterCore | null>(null)
   const highlightedCode = shallowRef('')
+  const { getHighlighter } = useHighlighter()
 
   const code = `<script setup>
   import { Selection } from '@vuetify/v0'
@@ -49,19 +47,18 @@
   </Selection.Root>
 </template>`
 
-  onMounted(async () => {
-    highlighter.value = await createHighlighterCore({
-      themes: [
-        import('@shikijs/themes/github-light-default'),
-        import('@shikijs/themes/github-dark-default'),
-      ],
-      langs: [
-        import('@shikijs/langs/vue'),
-      ],
-      engine: createOnigurumaEngine(() => import('shiki/wasm')),
-    })
+  onMounted(() => {
+    // Defer syntax highlighting to idle time to avoid blocking main thread
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(highlight, { timeout: 2000 })
+    } else {
+      setTimeout(highlight, 100)
+    }
+  })
 
-    highlightedCode.value = highlighter.value.codeToHtml(code, {
+  async function highlight () {
+    const hl = await getHighlighter()
+    highlightedCode.value = hl.codeToHtml(code, {
       lang: 'vue',
       themes: {
         light: 'github-light-default',
@@ -69,7 +66,7 @@
       },
       defaultColor: false,
     })
-  })
+  }
 
   const playgroundUrl = computed(() => usePlayground(code))
 </script>
