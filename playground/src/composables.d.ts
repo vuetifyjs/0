@@ -38,6 +38,8 @@ declare global {
   const createFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').createFeatures
   const createFeaturesContext: typeof import('../../packages/0/src/composables/useFeatures/index').createFeaturesContext
   const createFeaturesPlugin: typeof import('../../packages/0/src/composables/useFeatures/index').createFeaturesPlugin
+  const createFilter: typeof import('../../packages/0/src/composables/useFilter/index').createFilter
+  const createFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').createFilterContext
   const createForm: typeof import('../../packages/0/src/composables/useForm/index').createForm
   const createFormContext: typeof import('../../packages/0/src/composables/useForm/index').createFormContext
   const createGroup: typeof import('../../packages/0/src/composables/useGroup/index').createGroup
@@ -174,6 +176,7 @@ declare global {
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useEventListener
   const useFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').useFeatures
   const useFilter: typeof import('../../packages/0/src/composables/useFilter/index').useFilter
+  const useFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').useFilterContext
   const useForm: typeof import('../../packages/0/src/composables/useForm/index').useForm
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index').useGroup
   const useHistory: typeof import('../../packages/0/src/composables/useTimeline/index')['useHistory']
@@ -261,7 +264,7 @@ declare global {
   export type { FeatureTicket, FeatureContext, FeatureOptions, FeatureContextOptions, FeaturePluginOptions } from '../../packages/0/src/composables/useFeatures/index'
   import('../../packages/0/src/composables/useFeatures/index')
   // @ts-ignore
-  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, UseFilterOptions, UseFilterResult } from '../../packages/0/src/composables/useFilter/index'
+  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, FilterOptions, FilterResult, FilterContext, FilterContextOptions } from '../../packages/0/src/composables/useFilter/index'
   import('../../packages/0/src/composables/useFilter/index')
   // @ts-ignore
   export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/useForm/index'
@@ -291,7 +294,7 @@ declare global {
   export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/useOverflow/index'
   import('../../packages/0/src/composables/useOverflow/index')
   // @ts-ignore
-  export type { PaginationItem, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/usePagination/index'
+  export type { PaginationTicket, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/usePagination/index'
   import('../../packages/0/src/composables/usePagination/index')
   // @ts-ignore
   export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
@@ -380,6 +383,8 @@ declare module 'vue' {
     readonly createFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']>
     readonly createFeaturesContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesContext']>
     readonly createFeaturesPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']>
+    readonly createFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['createFilter']>
+    readonly createFilterContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['createFilterContext']>
     readonly createForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createForm']>
     readonly createFormContext: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createFormContext']>
     readonly createGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroup']>
@@ -511,6 +516,7 @@ declare module 'vue' {
     readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
     readonly useFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['useFeatures']>
     readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
+    readonly useFilterContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilterContext']>
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>

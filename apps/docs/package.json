@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@octokit/openapi-types": "catalog:",
     "@shikijs/langs": "catalog:",
     "@shikijs/markdown-it": "catalog:",
     "@shikijs/themes": "catalog:",
@@ -40,6 +41,7 @@
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",
     "markdown-it-container": "catalog:",
+    "marked": "catalog:",
     "mermaid": "catalog:",
     "pinia": "catalog:",
     "swetrix": "catalog:",

@@ -31,6 +31,7 @@ declare module 'vue' {
     DocsMermaid: typeof import('./components/docs/DocsMermaid.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
     DocsPageFeatures: typeof import('./components/docs/DocsPageFeatures.vue')['default']
+    DocsReleases: typeof import('./components/docs/DocsReleases.vue')['default']
     DocsToc: typeof import('./components/docs/DocsToc.vue')['default']
     FaqList: typeof import('./components/docs/FaqList.vue')['default']
     HomeCta: typeof import('./components/home/HomeCta.vue')['default']

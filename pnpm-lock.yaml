@@ -12,6 +12,9 @@ catalogs:
     '@octokit/core':
       specifier: ^7.0.6
       version: 7.0.6
+    '@octokit/openapi-types':
+      specifier: ^27.0.0
+      version: 27.0.0
     '@shikijs/langs':
       specifier: ^3.20.0
       version: 3.20.0
@@ -90,6 +93,9 @@ catalogs:
     markdown-it-container:
       specifier: ^4.0.0
       version: 4.0.0
+    marked:
+      specifier: ^16.1.1
+      version: 16.4.2
     mermaid:
       specifier: ^11.12.2
       version: 11.12.2
@@ -250,6 +256,9 @@ importers:
       markdown-it-container:
         specifier: 'catalog:'
         version: 4.0.0
+      marked:
+        specifier: 'catalog:'
+        version: 16.4.2
       mermaid:
         specifier: 'catalog:'
         version: 11.12.2
@@ -263,6 +272,9 @@ importers:
         specifier: 'catalog:'
         version: 3.5.24(typescript@5.9.3)
     devDependencies:
+      '@octokit/openapi-types':
+        specifier: 'catalog:'
+        version: 27.0.0
       '@shikijs/langs':
         specifier: 'catalog:'
         version: 3.20.0
