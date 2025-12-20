@@ -1,21 +1,22 @@
 <script lang="ts" setup>
-  import { useHead } from '@unhead/vue'
+  import { injectHead, useHead } from '@unhead/vue'
+  import { InferSeoMetaPlugin } from '@unhead/addons'
   import { useScrollPersist } from './composables/useScrollPersist'
 
   useScrollPersist()
+
+  const head = injectHead()
+  head.use(InferSeoMetaPlugin())
 
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
-      { key: 'og:title', property: 'og:title', content: 'Vuetify0' },
-      { key: 'og:description', property: 'og:description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },
       { key: 'og:url', property: 'og:url', content: 'https://0.vuetifyjs.com' },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary' },
-      { key: 'twitter:image', name: 'twitter:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
     ],
   })
 </script>
