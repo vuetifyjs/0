@@ -9,7 +9,6 @@ catalog:
   '@mdi/js': npm:mdi-js-es@7.4.47
   '@octokit/core': ^7.0.6
   '@octokit/openapi-types': ^27.0.0
-  marked: ^16.1.1
   '@shikijs/langs': ^3.20.0
   '@shikijs/markdown-it': ^3.20.0
   '@shikijs/themes': ^3.20.0
@@ -36,6 +35,7 @@ catalog:
   markdown-it-anchor: ^9.2.0
   markdown-it-attrs: ^4.3.1
   markdown-it-container: ^4.0.0
+  marked: ^16.1.1
   mermaid: ^11.12.2
   pinia: ^3.0.4
   rollup-plugin-sass: ^1.15.3
@@ -62,7 +62,7 @@ catalog:
   vitest: ^4.0.16
   vue: 3.5.24
   vue-router: ^4.6.4
-  vue-tsc: ^3.1.8
+  vue-tsc: ^3.2.0
 
 catalogMode: strict
 
