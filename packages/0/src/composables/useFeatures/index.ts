@@ -12,6 +12,7 @@
  * - Auto-selection of enabled features
  * - Multi-select support for feature combinations
  * - Perfect for A/B testing, progressive rollout, feature toggles
+ * - Adapter pattern for external feature flag services
  *
  * Inheritance chain: useRegistry → createSelection → createGroup → createFeatures
  * Integrates with useTokens for token-based features.
@@ -28,6 +29,7 @@ import { createTokens } from '#v0/composables/useTokens'
 
 // Utilities
 import { isBoolean, isObject } from '#v0/utilities'
+import { onScopeDispose } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -36,15 +38,37 @@ import type { ID } from '#v0/types'
 import type { App } from 'vue'
 import type { TokenCollection, TokenValue } from '#v0/composables/useTokens'
 import type { RegistryOptions } from '#v0/composables/useRegistry'
+import type { FeaturesAdapterInterface, FeaturesAdapterFlags } from '#v0/composables/useFeatures/adapters'
+
+// Exports
+export type { FeaturesAdapterInterface, FeaturesAdapterFlags, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
+export { FeaturesAdapter } from '#v0/composables/useFeatures/adapters'
 
 export interface FeatureTicket extends GroupTicket<TokenValue> {}
 
 export interface FeatureContext<Z extends FeatureTicket = FeatureTicket> extends GroupContext<Z> {
-  /* Get the variation value of a feature, or a fallback if not set */
+  /**
+   * Get the variation value of a feature, or a fallback if not set.
+   *
+   * @param id The feature ID.
+   * @param fallback The fallback value if the feature has no variation.
+   */
   variation: (id: ID, fallback?: unknown) => unknown
+  /**
+   * Sync feature flags from an external source.
+   *
+   * @param flags The flags to sync, typically from an adapter.
+   *
+   * @remarks This updates existing flags and registers new ones.
+   * Use this when adapter flags change to update the registry.
+   */
+  sync: (flags: FeaturesAdapterFlags) => void
 }
 
 export interface FeatureOptions extends RegistryOptions {
+  /**
+   * Static feature flags to register.
+   */
   features?: Record<ID, boolean | TokenCollection>
 }
 
@@ -52,7 +76,14 @@ export interface FeatureContextOptions extends FeatureOptions {
   namespace?: string
 }
 
-export interface FeaturePluginOptions extends FeatureContextOptions {}
+export interface FeaturePluginOptions extends FeatureContextOptions {
+  /**
+   * Feature flag adapter for external services.
+   *
+   * @remarks Adapters provide dynamic flag values from external services.
+   */
+  adapter?: FeaturesAdapterInterface
+}
 
 /**
  * Creates a new features instance.
@@ -82,6 +113,7 @@ export function createFeatures<
   E extends FeatureContext<Z> = FeatureContext<Z>,
 > (_options: FeatureOptions = {}): E {
   const { features, ...options } = _options
+
   const tokens = createTokens(features, { flat: true })
   const registry = createGroup<Z, E>(options)
 
@@ -119,10 +151,37 @@ export function createFeatures<
     return ticket
   }
 
+  function sync (flags: FeaturesAdapterFlags): void {
+    for (const [id, value] of Object.entries(flags)) {
+      const existing = registry.get(id)
+
+      if (existing) {
+        // Update existing flag
+        const shouldSelect = isBoolean(value)
+          ? value === true
+          : isObject(value) && isBoolean(value.$value) && value.$value === true
+
+        // Update the value via upsert
+        registry.upsert(id, { value } as Partial<Z>)
+
+        // Update selection state
+        if (shouldSelect) {
+          registry.select(id)
+        } else {
+          registry.unselect(id)
+        }
+      } else {
+        // Register new flag
+        register({ id, value } as Partial<Z>)
+      }
+    }
+  }
+
   return {
     ...registry,
     variation,
     register,
+    sync,
     get size () {
       return registry.size
     },
@@ -201,13 +260,27 @@ export function createFeaturesPlugin<
   Z extends FeatureTicket = FeatureTicket,
   E extends FeatureContext<Z> = FeatureContext<Z>,
 > (_options: FeaturePluginOptions = {}) {
-  const { namespace = 'v0:features', ...options } = _options
+  const { namespace = 'v0:features', adapter, ...options } = _options
   const [, provideFeaturesContext, context] = createFeaturesContext<Z, E>({ ...options, namespace })
 
   return createPlugin({
     namespace,
     provide: (app: App) => {
       provideFeaturesContext(context, app)
+    },
+    setup: (_app: App) => {
+      if (!adapter) return
+
+      // Initialize adapter and sync initial flags
+      const initialFlags = adapter.setup((flags) => {
+        context.sync(flags)
+      })
+
+      context.sync(initialFlags)
+
+      if (adapter.dispose) {
+        onScopeDispose(() => adapter.dispose!(), true)
+      }
     },
   })
 }
