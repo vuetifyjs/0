@@ -39,7 +39,7 @@
 <template>
   <Atom
     :as
-    class="app-header flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1"
+    class="flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1 glass-surface"
   >
     <div class="flex items-center gap-1">
       <router-link to="/">
@@ -99,10 +99,3 @@
     </div>
   </Atom>
 </template>
-
-<style scoped>
-  .app-header {
-    background: color-mix(in srgb, var(--v0-surface) 70%, transparent);
-    backdrop-filter: blur(12px);
-  }
-</style>

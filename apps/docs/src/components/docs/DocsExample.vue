@@ -1,12 +1,12 @@
 <script lang="ts" setup>
   // Composables
-  import { useBin } from '@/composables/bin'
   import { useClipboard } from '@/composables/useClipboard'
-  import { useHighlighter } from '@/composables/useHighlighter'
+  import { useHighlightCode } from '@/composables/useHighlightCode'
+  import { useBin } from '@/composables/bin'
   import { usePlayground } from '@/composables/playground'
 
   // Utilities
-  import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+  import { computed, ref, toRef } from 'vue'
 
   const props = defineProps<{
     file?: string
@@ -15,40 +15,14 @@
   }>()
 
   const showCode = ref(false)
-  const highlightedCode = shallowRef<string>('')
   const { copied, copy } = useClipboard()
-  const { highlighter, getHighlighter } = useHighlighter()
+  const { highlightedCode } = useHighlightCode(toRef(() => props.code))
 
   const fileName = computed(() => props.file?.split('/').pop() || '')
 
   function copyCode () {
     if (props.code) copy(props.code)
   }
-
-  async function highlight (code: string) {
-    if (!code) return
-
-    const hl = highlighter.value ?? await getHighlighter()
-
-    highlightedCode.value = hl.codeToHtml(code, {
-      lang: 'vue',
-      themes: {
-        light: 'github-light-default',
-        dark: 'github-dark-default',
-      },
-      defaultColor: false,
-    })
-  }
-
-  onMounted(async () => {
-    if (props.code) {
-      await highlight(props.code)
-    }
-  })
-
-  watch(() => props.code, async code => {
-    if (code) await highlight(code)
-  })
 </script>
 
 <template>
@@ -99,13 +73,11 @@
         >
           <AppIcon icon="vuetify-bin" />
         </a>
-        <button
-          class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
+        <AppIconButton
+          :icon="!copied ? 'copy' : 'success'"
           title="Copy code"
           @click="copyCode"
-        >
-          <AppIcon :icon="!copied ? 'copy' : 'success'" />
-        </button>
+        />
       </div>
       <div
         class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto"

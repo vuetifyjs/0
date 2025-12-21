@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+  // Utilities
   import mermaid from 'mermaid'
   import { computed, onMounted, ref, watch } from 'vue'
+  import { decodeBase64 } from '@/utilities/decodeBase64'
 
   mermaid.initialize({
     startOnLoad: false,
@@ -40,13 +42,7 @@
     code: string // base64 encoded
   }>()
 
-  const decodedCode = computed(() => {
-    try {
-      return atob(props.code)
-    } catch {
-      return props.code
-    }
-  })
+  const decodedCode = computed(() => decodeBase64(props.code))
 
   const svg = ref('')
   const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`

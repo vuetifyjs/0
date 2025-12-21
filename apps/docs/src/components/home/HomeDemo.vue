@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   import { Selection } from '@vuetify/v0'
-  import { ref, shallowRef, onMounted, computed } from 'vue'
-  import { useHighlighter } from '@/composables/useHighlighter'
+  import { ref, onMounted, computed } from 'vue'
+  import { useHighlightCode } from '@/composables/useHighlightCode'
   import { usePlayground } from '@/composables/playground'
 
   const items = ref([
@@ -11,8 +11,6 @@
   ])
 
   const selected = ref<number[]>([])
-  const highlightedCode = shallowRef('')
-  const { getHighlighter } = useHighlighter()
 
   const code = `<script setup>
   import { Selection } from '@vuetify/v0'
@@ -47,26 +45,16 @@
   </Selection.Root>
 </template>`
 
+  const { highlightedCode, highlight } = useHighlightCode(code, { immediate: false })
+
   onMounted(() => {
     // Defer syntax highlighting to idle time to avoid blocking main thread
     if ('requestIdleCallback' in window) {
-      requestIdleCallback(highlight, { timeout: 2000 })
+      requestIdleCallback(() => highlight(), { timeout: 2000 })
     } else {
-      setTimeout(highlight, 100)
+      setTimeout(() => highlight(), 100)
     }
   })
-
-  async function highlight () {
-    const hl = await getHighlighter()
-    highlightedCode.value = hl.codeToHtml(code, {
-      lang: 'vue',
-      themes: {
-        light: 'github-light-default',
-        dark: 'github-dark-default',
-      },
-      defaultColor: false,
-    })
-  }
 
   const playgroundUrl = computed(() => usePlayground(code))
 </script>

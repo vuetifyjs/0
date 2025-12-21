@@ -4,6 +4,10 @@ export default defineConfig({
   presets: [
     presetWind3(),
   ],
+  shortcuts: {
+    'glass-surface': '[background:color-mix(in_srgb,var(--v0-surface)_70%,transparent)] backdrop-blur-12',
+    'glass-warning': '[background:color-mix(in_srgb,var(--v0-warning)_70%,transparent)] backdrop-blur-12',
+  },
   theme: {
     colors: {
       'primary': 'var(--v0-primary)',

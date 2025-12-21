@@ -44,18 +44,13 @@
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div
+      <HomeFeatureCard
         v-for="feature in features"
         :key="feature.title"
-        class="feature-card p-6 rounded-xl border bg-surface/30 hover:bg-surface/50 transition-colors"
-      >
-        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-on-primary">
-          <AppIcon :icon="feature.icon" :size="20" />
-        </div>
-
-        <h3 class="text-lg font-semibold mb-2">{{ feature.title }}</h3>
-        <p class="opacity-60 text-sm leading-relaxed">{{ feature.description }}</p>
-      </div>
+        :description="feature.description"
+        :icon="feature.icon"
+        :title="feature.title"
+      />
     </div>
   </section>
 </template>
