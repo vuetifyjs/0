@@ -5,7 +5,6 @@ import 'virtual:uno.css'
 import { ViteSSG } from 'vite-ssg'
 import routerOptions from './plugins/router'
 import pinia from './plugins/pinia'
-import { initHighlighter } from './composables/useHighlighter'
 
 export const createApp = ViteSSG(
   App,
@@ -21,8 +20,6 @@ export const createApp = ViteSSG(
       pinia.state.value = initialState.pinia || {}
 
     if (!import.meta.env.SSR) {
-      // Pre-initialize syntax highlighter during idle time
-      initHighlighter()
       // Workaround for https://github.com/vitejs/vite/issues/11804
       router.onError((err, to) => {
         if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {

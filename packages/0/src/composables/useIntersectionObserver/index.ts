@@ -19,13 +19,15 @@
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Globals
 import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
 
 // Types
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
+
+export type MaybeRef<T> = T | Ref<T> | Readonly<Ref<T>> | ShallowRef<T> | Readonly<ShallowRef<T>>
 
 export interface IntersectionObserverEntry {
   boundingClientRect: DOMRectReadOnly
@@ -39,6 +41,7 @@ export interface IntersectionObserverEntry {
 
 export interface IntersectionObserverOptions {
   immediate?: boolean
+  once?: boolean
   root?: Element | null
   rootMargin?: string
   threshold?: number | number[]
@@ -116,18 +119,19 @@ export interface UseIntersectionObserverReturn {
  * ```
  */
 export function useIntersectionObserver (
-  target: Ref<Element | undefined>,
+  target: MaybeRef<Element | null | undefined>,
   callback: (entries: IntersectionObserverEntry[]) => void,
   options: IntersectionObserverOptions = {},
 ): UseIntersectionObserverReturn {
   const { isHydrated } = useHydration()
+  const targetRef = isRef(target) ? target : shallowRef(target)
   const observer = shallowRef<IntersectionObserver>()
   const isPaused = shallowRef(false)
   const isIntersecting = shallowRef(false)
   const isActive = toRef(() => !!observer.value)
 
   function setup () {
-    if (!isHydrated.value || !SUPPORTS_INTERSECTION_OBSERVER || !target.value || isPaused.value) return
+    if (!isHydrated.value || !SUPPORTS_INTERSECTION_OBSERVER || !targetRef.value || isPaused.value) return
 
     observer.value = new IntersectionObserver(entries => {
       const transformedEntries: IntersectionObserverEntry[] = entries.map(entry => ({
@@ -144,23 +148,27 @@ export function useIntersectionObserver (
       if (latestEntry) isIntersecting.value = latestEntry.isIntersecting
 
       callback(transformedEntries)
+
+      if (options.once && latestEntry?.isIntersecting) {
+        stop()
+      }
     }, {
       root: options.root || null,
       rootMargin: options.rootMargin || '0px',
       threshold: options.threshold || 0,
     })
 
-    observer.value.observe(target.value)
+    observer.value.observe(targetRef.value)
 
     if (options.immediate) {
-      const rect = target.value.getBoundingClientRect()
+      const rect = targetRef.value.getBoundingClientRect()
       const syntheticEntry: IntersectionObserverEntry = {
         boundingClientRect: rect,
         intersectionRatio: 0,
         intersectionRect: new DOMRect(0, 0, 0, 0),
         isIntersecting: false,
         rootBounds: null,
-        target: target.value,
+        target: targetRef.value,
         time: performance.now(),
       }
 
@@ -168,7 +176,7 @@ export function useIntersectionObserver (
     }
   }
 
-  watch([isHydrated, target], () => {
+  watch([isHydrated, targetRef], () => {
     cleanup()
     setup()
   }, { immediate: true })
@@ -243,7 +251,7 @@ export interface UseElementIntersectionReturn extends UseIntersectionObserverRet
  * ```
  */
 export function useElementIntersection (
-  target: Ref<Element | undefined>,
+  target: MaybeRef<Element | null | undefined>,
   options: IntersectionObserverOptions = {},
 ): UseElementIntersectionReturn {
   const isIntersecting = shallowRef(false)

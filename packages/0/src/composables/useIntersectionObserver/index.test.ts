@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, nextTick } from 'vue'
+import { ref, shallowRef, readonly, nextTick, type Ref } from 'vue'
 
 const mockIsHydrated = ref(false)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -173,6 +173,127 @@ describe('useIntersectionObserver', () => {
         threshold: [0, 0.5, 1],
       },
     )
+  })
+
+  it('should accept readonly refs (useTemplateRef compatibility)', async () => {
+    mockIsHydrated.value = true
+    // Simulates useTemplateRef return type
+    const target = readonly(shallowRef<Element | null>(element)) as Readonly<Ref<Element | null>>
+    const callback = vi.fn()
+
+    useIntersectionObserver(target, callback)
+    await nextTick()
+
+    expect(globalThis.IntersectionObserver).toHaveBeenCalled()
+    expect(mockObserver.observe).toHaveBeenCalledWith(element)
+  })
+
+  it('should accept shallowRef targets', async () => {
+    mockIsHydrated.value = true
+    const target = shallowRef<Element | null>(element)
+    const callback = vi.fn()
+
+    useIntersectionObserver(target, callback)
+    await nextTick()
+
+    expect(globalThis.IntersectionObserver).toHaveBeenCalled()
+    expect(mockObserver.observe).toHaveBeenCalledWith(element)
+  })
+
+  it('should handle null target values', async () => {
+    mockIsHydrated.value = true
+
+    const target = ref<Element | null>(null)
+    const callback = vi.fn()
+
+    const { isActive } = useIntersectionObserver(target, callback)
+    await nextTick()
+
+    // Observer should not be active when target is null
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should stop observing after first intersection when once option is true', async () => {
+    // Set up mock to capture callback BEFORE hydration triggers setup
+    let observerCallback: (entries: any[]) => void
+    const localMockObserver = {
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    globalThis.IntersectionObserver = vi.fn(function (this: any, cb: any) {
+      observerCallback = cb
+      return localMockObserver
+    }) as any
+    window.IntersectionObserver = globalThis.IntersectionObserver
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    const { isActive } = useIntersectionObserver(target, callback, { once: true })
+
+    // Trigger hydration to create observer
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(isActive.value).toBe(true)
+    expect(localMockObserver.observe).toHaveBeenCalledWith(element)
+
+    // Simulate intersection
+    observerCallback!([{
+      boundingClientRect: {} as DOMRectReadOnly,
+      intersectionRatio: 1,
+      intersectionRect: {} as DOMRectReadOnly,
+      isIntersecting: true,
+      rootBounds: null,
+      target: element,
+      time: 0,
+    }])
+
+    expect(callback).toHaveBeenCalled()
+    expect(localMockObserver.disconnect).toHaveBeenCalled()
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should not stop when once is true but not intersecting', async () => {
+    // Set up mock to capture callback BEFORE hydration triggers setup
+    let observerCallback: (entries: any[]) => void
+    const localMockObserver = {
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    globalThis.IntersectionObserver = vi.fn(function (this: any, cb: any) {
+      observerCallback = cb
+      return localMockObserver
+    }) as any
+    window.IntersectionObserver = globalThis.IntersectionObserver
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    const { isActive } = useIntersectionObserver(target, callback, { once: true })
+
+    // Trigger hydration to create observer
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(localMockObserver.observe).toHaveBeenCalledWith(element)
+
+    // Simulate non-intersection
+    observerCallback!([{
+      boundingClientRect: {} as DOMRectReadOnly,
+      intersectionRatio: 0,
+      intersectionRect: {} as DOMRectReadOnly,
+      isIntersecting: false,
+      rootBounds: null,
+      target: element,
+      time: 0,
+    }])
+
+    expect(callback).toHaveBeenCalled()
+    expect(localMockObserver.disconnect).not.toHaveBeenCalled()
+    expect(isActive.value).toBe(true)
   })
 })
 

@@ -21,6 +21,9 @@ export default defineConfig({
         manualChunks: id => {
           if (id.includes('mermaid')) return 'mermaid'
           if (id.includes('shiki') || id.includes('@shikijs')) return 'shiki'
+          if (id.includes('katex')) return 'katex'
+          if (id.includes('octokit')) return 'octokit'
+          if (id.includes('marked')) return 'marked'
         },
       },
     },
