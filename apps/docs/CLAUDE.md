@@ -64,13 +64,18 @@ src/
 │   ├── app/          # App shell (AppHeader, AppDrawer, etc.)
 │   ├── docs/         # Doc components (DocsExample, DocsToc, etc.)
 │   └── home/         # Homepage components
-├── composables/      # App-specific (useHighlighter, useToc, etc.)
+├── composables/      # App-specific composables
 ├── examples/         # Live examples loaded by DocsExample
+│   ├── components/   # examples/components/{component}/
+│   └── composables/  # examples/composables/{composable}/
 ├── layouts/          # Page layouts
 ├── pages/            # File-based routing (.vue and .md)
-│   ├── components/   # Component docs
-│   ├── composables/  # Composable docs
-│   └── guide/        # Getting started
+│   ├── components/   # disclosure, primitives, providers, semantic
+│   ├── composables/  # foundation, forms, plugins, registration, selection, system, transformers, utilities
+│   ├── guide/        # How-to guides
+│   ├── introduction/ # Getting started, FAQ, contributing
+│   ├── storybook/    # Storybook embed
+│   └── utilities/    # Utility docs
 ├── plugins/          # Vue plugins
 ├── stores/           # Pinia stores
 └── utilities/        # Helpers
@@ -93,11 +98,27 @@ src/
 | `DocsCodeGroup` | Tabbed code examples |
 | `DocsMermaid` | Mermaid diagram renderer |
 | `DocsPageFeatures` | Renders frontmatter features badge |
+| `DocsBackToTop` | Scroll-to-top button |
+| `DocsBackmatter` | Page footer with last commit info |
+| `DocsNavigator` | Prev/next page navigation |
+| `DocsReleases` | Release changelog display |
 
 ## Conventions
 
 - UnoCSS utilities for all styling
-- Examples in `src/examples/{category}/{component}/`
 - Prefer markdown for documentation pages
+- Examples: `src/examples/components/{component}/` or `src/examples/composables/{composable}/`
 - Component docs: `pages/components/{category}/{component}.md`
 - Composable docs: `pages/composables/{category}/{composable}.md`
+
+## App Composables
+
+| Composable | Purpose |
+|------------|---------|
+| `useHighlighter` | Shiki code highlighting |
+| `useHighlightCode` | Code block highlighting |
+| `useToc` | Table of contents generation |
+| `useScrollSpy` | Active section tracking |
+| `useScrollPersist` | Scroll position persistence |
+| `useClipboard` | Copy to clipboard |
+| `useThemeToggle` | Dark/light mode toggle |
