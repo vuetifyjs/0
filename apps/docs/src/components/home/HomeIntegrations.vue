@@ -27,7 +27,7 @@
       <div
         v-for="integration in integrations"
         :key="integration.name"
-        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-surface/30"
+        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-surface"
       >
         <div class="inline-flex text-on-surface">
           <AppIcon :icon="integration.icon" :size="18" />

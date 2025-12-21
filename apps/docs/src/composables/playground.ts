@@ -3,7 +3,7 @@
  *
  * @remarks
  * Uses the 'vuetify0' template in Vuetify Play which provides:
- * - UnoCSS runtime with Wind3 preset
+ * - UnoCSS runtime with Wind4 preset
  * - Import map for @vuetify/v0
  * - Proper main.ts setup
  */

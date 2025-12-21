@@ -15,13 +15,13 @@ pnpm preview   # Preview build
 - **SSG**: vite-ssg (generates static HTML)
 - **Routing**: unplugin-vue-router (file-based)
 - **Markdown**: unplugin-vue-markdown + Shiki + Mermaid
-- **Styling**: UnoCSS with `presetWind3()` (Tailwind v3 syntax)
+- **Styling**: UnoCSS with `presetWind4()` (Tailwind v4 syntax, integrated reset)
 - **State**: Pinia
 - **PWA**: vite-plugin-pwa
 
 ## UnoCSS Theme
 
-Uses `presetWind3()` with custom theme colors mapped to CSS variables:
+Uses `presetWind4()` with custom theme colors mapped to CSS variables:
 
 ```ts
 // Available color utilities: text-primary, bg-surface, border-divider, etc.

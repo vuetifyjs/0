@@ -71,7 +71,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch h-[500px] md:h-[350px]">
       <!-- Code -->
-      <div class="demo-code rounded-xl border overflow-hidden bg-surface/30 flex flex-col">
+      <div class="demo-code rounded-xl border overflow-hidden bg-surface flex flex-col">
         <div class="px-4 py-2 bg-surface-tint text-xs font-medium border-b flex items-center justify-between">
           <span>Selection.vue</span>
           <router-link
@@ -91,7 +91,7 @@
       </div>
 
       <!-- Live Demo -->
-      <div class="demo-preview p-4 md:p-8 rounded-xl border bg-surface/30 flex flex-col">
+      <div class="demo-preview p-4 md:p-8 rounded-xl border bg-surface flex flex-col">
         <a
           class="text-xs font-medium text-primary hover:underline flex gap-1 justify-center md:justify-end mb-8 md:mb-0"
           :href="playgroundUrl"

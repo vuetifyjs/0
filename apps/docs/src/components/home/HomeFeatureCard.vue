@@ -9,8 +9,8 @@
 </script>
 
 <template>
-  <div class="p-6 rounded-xl border bg-surface/30 hover:bg-surface/50 transition-colors">
-    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-on-primary">
+  <div class="p-6 rounded-xl border bg-surface hover:bg-surface transition-colors">
+    <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mb-4 text-on-primary">
       <AppIcon :icon :size="20" />
     </div>
 
