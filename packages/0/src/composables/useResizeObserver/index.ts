@@ -39,6 +39,7 @@ export interface ResizeObserverEntry {
 
 export interface ResizeObserverOptions {
   immediate?: boolean
+  once?: boolean
   box?: 'content-box' | 'border-box'
 }
 
@@ -131,6 +132,10 @@ export function useResizeObserver (
       }))
 
       callback(transformedEntries)
+
+      if (options.once) {
+        stop()
+      }
     })
 
     observer.value.observe(target.value, {

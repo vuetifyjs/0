@@ -41,6 +41,7 @@ export interface MutationObserverRecord {
 
 export interface UseMutationObserverOptions {
   immediate?: boolean
+  once?: boolean
   childList?: boolean
   attributes?: boolean
   characterData?: boolean
@@ -157,6 +158,10 @@ export function useMutationObserver (
       }))
 
       callback(transformedEntries)
+
+      if (options.once) {
+        stop()
+      }
     })
 
     observer.value.observe(target.value, observerOptions)
@@ -182,6 +187,10 @@ export function useMutationObserver (
       }
 
       callback([syntheticEntry])
+
+      if (options.once) {
+        stop()
+      }
     }
   }
 
