@@ -5,9 +5,6 @@ import { shallowRef } from 'vue'
 import { createHighlighterCore } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
-// Globals
-import { IN_BROWSER } from '@vuetify/v0/constants'
-
 // Types
 import type { HighlighterCore } from 'shiki/core'
 
@@ -30,21 +27,6 @@ async function createSharedHighlighter (): Promise<HighlighterCore> {
 
   highlighter.value = await highlighterPromise
   return highlighter.value
-}
-
-/**
- * Pre-initialize the shared highlighter during idle time.
- * Call this early in app lifecycle to warm up the highlighter
- * before any code examples need it.
- */
-export function initHighlighter (): void {
-  if (!IN_BROWSER) return
-
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(() => createSharedHighlighter(), { timeout: 3000 })
-  } else {
-    setTimeout(() => createSharedHighlighter(), 100)
-  }
 }
 
 export function useHighlighter () {

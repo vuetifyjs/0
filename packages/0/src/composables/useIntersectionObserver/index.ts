@@ -125,12 +125,14 @@ export function useIntersectionObserver (
 ): UseIntersectionObserverReturn {
   const { isHydrated } = useHydration()
   const targetRef = isRef(target) ? target : shallowRef(target)
-  const observer = shallowRef<IntersectionObserver>()
+  const observer = shallowRef<IntersectionObserver | null>()
   const isPaused = shallowRef(false)
   const isIntersecting = shallowRef(false)
   const isActive = toRef(() => !!observer.value)
 
   function setup () {
+    // null = permanently stopped, undefined = not yet created
+    if (observer.value === null) return
     if (!isHydrated.value || !SUPPORTS_INTERSECTION_OBSERVER || !targetRef.value || isPaused.value) return
 
     observer.value = new IntersectionObserver(entries => {
@@ -208,6 +210,7 @@ export function useIntersectionObserver (
 
   function stop () {
     cleanup()
+    observer.value = null
   }
 
   onScopeDispose(stop, true)
