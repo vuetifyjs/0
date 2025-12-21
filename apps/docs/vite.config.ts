@@ -15,6 +15,16 @@ import type { ViteSSGOptions } from 'vite-ssg'
 import { Features } from 'lightningcss'
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: id => {
+          if (id.includes('mermaid')) return 'mermaid'
+          if (id.includes('shiki') || id.includes('@shikijs')) return 'shiki'
+        },
+      },
+    },
+  },
   css: {
     lightningcss: {
       exclude: Features.LightDark,
@@ -36,7 +46,7 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
-    VueDevTools(),
+    process.env.NODE_ENV !== 'production' && VueDevTools(),
     await Markdown(),
     Components({
       dirs: ['src/components'],
@@ -63,6 +73,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: ['**/mermaid-*.js'],
       },
     }),
   ],

@@ -1,12 +1,12 @@
 <script lang="ts" setup>
   import { onMounted } from 'vue'
   import { useAppStore } from '@/stores/app'
-  import octokit from '@/plugins/octokit'
 
   const app = useAppStore()
 
   onMounted(async () => {
     try {
+      const octokit = await import('@/plugins/octokit').then(m => m.default)
       const { data = [] } = await octokit.request('GET /repos/{owner}/{repo}/commits', {
         owner: 'vuetifyjs',
         repo: '0',

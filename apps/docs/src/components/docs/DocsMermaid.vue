@@ -1,42 +1,53 @@
 <script lang="ts" setup>
   // Utilities
-  import mermaid from 'mermaid'
-  import { computed, onMounted, ref, watch } from 'vue'
+  import { computed, onMounted, ref, shallowRef, watch } from 'vue'
   import { decodeBase64 } from '@/utilities/decodeBase64'
 
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: 'base',
-    themeVariables: {
-      // Node styling
-      primaryColor: '#e0e7ff',
-      primaryTextColor: '#1e1b4b',
-      primaryBorderColor: '#6366f1',
-      lineColor: '#6366f1',
-      // Subgraph styling
-      secondaryColor: '#f5f3ff',
-      secondaryBorderColor: '#a5b4fc',
-      tertiaryColor: '#f5f3ff',
-      tertiaryBorderColor: '#a5b4fc',
-      // Background
-      background: 'transparent',
-      mainBkg: '#e0e7ff',
-      nodeBorder: '#6366f1',
-      clusterBkg: '#f5f3ff',
-      clusterBorder: '#c7d2fe',
-      // Text
-      fontFamily: 'inherit',
-      fontSize: '14px',
-    },
-    flowchart: {
-      htmlLabels: false,
-      curve: 'basis',
-      padding: 16,
-      nodeSpacing: 50,
-      rankSpacing: 50,
-      useMaxWidth: true,
-    },
-  })
+  // Types
+  import type Mermaid from 'mermaid'
+
+  const mermaid = shallowRef<typeof Mermaid>()
+
+  async function loadMermaid () {
+    if (mermaid.value) return mermaid.value
+
+    const { default: m } = await import('mermaid')
+    m.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        // Node styling
+        primaryColor: '#e0e7ff',
+        primaryTextColor: '#1e1b4b',
+        primaryBorderColor: '#6366f1',
+        lineColor: '#6366f1',
+        // Subgraph styling
+        secondaryColor: '#f5f3ff',
+        secondaryBorderColor: '#a5b4fc',
+        tertiaryColor: '#f5f3ff',
+        tertiaryBorderColor: '#a5b4fc',
+        // Background
+        background: 'transparent',
+        mainBkg: '#e0e7ff',
+        nodeBorder: '#6366f1',
+        clusterBkg: '#f5f3ff',
+        clusterBorder: '#c7d2fe',
+        // Text
+        fontFamily: 'inherit',
+        fontSize: '14px',
+      },
+      flowchart: {
+        htmlLabels: false,
+        curve: 'basis',
+        padding: 16,
+        nodeSpacing: 50,
+        rankSpacing: 50,
+        useMaxWidth: true,
+      },
+    })
+    mermaid.value = m
+    return m
+  }
 
   const props = defineProps<{
     code: string // base64 encoded
@@ -50,7 +61,8 @@
   async function render () {
     if (!decodedCode.value) return
     try {
-      const { svg: rendered } = await mermaid.render(id, decodedCode.value)
+      const m = await loadMermaid()
+      const { svg: rendered } = await m.render(id, decodedCode.value)
       svg.value = rendered
     } catch (error) {
       console.error('Mermaid render error:', error)

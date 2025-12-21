@@ -35,6 +35,8 @@ import {
   mdiWeatherSunny,
 } from '@mdi/js'
 
+// Aliases use token reference syntax to avoid duplicating icon paths
+
 // Types
 import type { App } from 'vue'
 
@@ -52,10 +54,10 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'menu': mdiMenu,
     'left': mdiChevronLeft,
     'right': mdiChevronRight,
-    'up': mdiChevronUp,
-    'down': mdiChevronDown,
     'chevron-up': mdiChevronUp,
     'chevron-down': mdiChevronDown,
+    'up': '{chevron-up}',
+    'down': '{chevron-down}',
     'open-in-new': mdiOpenInNew,
     'tag': mdiTagOutline,
     'success': mdiCheck,

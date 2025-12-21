@@ -1,7 +1,7 @@
 import { IN_BROWSER } from '@vuetify/v0/constants'
-import * as Swetrix from 'swetrix'
 
-function initAnalytics () {
+async function initAnalytics () {
+  const Swetrix = await import('swetrix')
   Swetrix.init('zBsmiQsAi0Bj', {
     apiURL: 'https://swetrix-api.vuetifyjs.com/log',
   })
