@@ -1,20 +1,12 @@
 <script lang="ts" setup>
-  import { ref, useTemplateRef } from 'vue'
-  import { useIntersectionObserver } from '@vuetify/v0'
+  import { ref, onMounted } from 'vue'
 
   const stats = ref({
     stars: '—',
     downloads: '—',
   })
-  const statsRef = useTemplateRef<HTMLElement>('stats')
 
-  useIntersectionObserver(statsRef, entries => {
-    if (!entries[0]?.isIntersecting) return
-
-    fetchStats()
-  }, { once: true })
-
-  async function fetchStats () {
+  onMounted(async () => {
     try {
       const [ghRes, npmRes] = await Promise.all([
         fetch('https://api.github.com/repos/vuetifyjs/0'),
@@ -33,7 +25,7 @@
     } catch (error) {
       console.warn('Failed to fetch stats:', error)
     }
-  }
+  })
 
   function formatNumber (num: number): string {
     if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`
@@ -81,7 +73,7 @@
     </div>
 
     <client-only>
-      <div ref="stats" class="grid grid-cols-3 md:flex gap-4 md:gap-12 justify-center text-center">
+      <div class="grid grid-cols-3 md:flex gap-4 md:gap-12 justify-center text-center">
         <div>
           <div class="text-2xl md:text-3xl font-bold">{{ stats.stars }}</div>
           <div class="text-sm opacity-60">GitHub Stars</div>

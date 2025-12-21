@@ -19,7 +19,7 @@
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
 
 // Globals
 import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
@@ -176,10 +176,17 @@ export function useIntersectionObserver (
     }
   }
 
-  watch([isHydrated, () => targetRef.value], () => {
+  watchEffect(() => {
+    // Track reactive dependencies
+    const hydrated = isHydrated.value
+    const target = targetRef.value
+
     cleanup()
-    setup()
-  }, { immediate: true })
+
+    if (hydrated && target) {
+      setup()
+    }
+  })
 
   function cleanup () {
     if (observer.value) {
