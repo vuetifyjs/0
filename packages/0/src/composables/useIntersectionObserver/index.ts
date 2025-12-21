@@ -176,7 +176,7 @@ export function useIntersectionObserver (
     }
   }
 
-  watch([isHydrated, targetRef], () => {
+  watch([isHydrated, () => targetRef.value], () => {
     cleanup()
     setup()
   }, { immediate: true })
