@@ -16,7 +16,7 @@
  */
 
 // Utilities
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
@@ -113,11 +113,13 @@ export function useResizeObserver (
   options: ResizeObserverOptions = {},
 ): UseResizeObserverReturn {
   const { isHydrated } = useHydration()
-  const observer = shallowRef<ResizeObserver>()
+  const observer = shallowRef<ResizeObserver | null>()
   const isPaused = shallowRef(false)
   const isActive = toRef(() => !!observer.value)
 
   function setup () {
+    // null = permanently stopped, undefined = not yet created
+    if (observer.value === null) return
     if (!isHydrated.value || !SUPPORTS_OBSERVER || !target.value || isPaused.value) return
 
     observer.value = new ResizeObserver(entries => {
@@ -156,10 +158,17 @@ export function useResizeObserver (
     }
   }
 
-  watch([isHydrated, target], () => {
+  watchEffect(() => {
+    // Track reactive dependencies
+    const hydrated = isHydrated.value
+    const el = target.value
+
     cleanup()
-    setup()
-  }, { immediate: true })
+
+    if (hydrated && el) {
+      setup()
+    }
+  })
 
   function cleanup () {
     if (observer.value) {
@@ -182,6 +191,7 @@ export function useResizeObserver (
 
   function stop () {
     cleanup()
+    observer.value = null
   }
 
   onScopeDispose(stop, true)
