@@ -245,7 +245,7 @@
       <!-- Body -->
       <div
         v-if="renderedBody"
-        class="px-4 py-4 prose prose-sm max-w-none [&_img]:max-w-full [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 [&_pre]:bg-pre [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-surface-tint [&_code]:px-1 [&_code]:rounded [&_pre_code]:bg-transparent [&_pre_code]:p-0"
+        class="px-4 py-4 prose prose-sm max-w-none [&_img]:max-w-full [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_a]:underline-offset-2 [&_pre]:bg-pre [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-surface-tint [&_code]:px-1 [&_code]:rounded [&_pre_code]:bg-transparent [&_pre_code]:p-0"
         v-html="renderedBody"
       />
 
