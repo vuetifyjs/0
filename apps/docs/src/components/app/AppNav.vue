@@ -43,6 +43,7 @@
           v-else
           :children="nav.children"
           class="px-4"
+          :new="nav.new"
           :to="nav.to || ''"
         >
           {{ nav.name }}

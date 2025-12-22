@@ -10,6 +10,7 @@ interface Commit {
 export interface NavItemLink {
   name: string
   to: string
+  new?: string // ISO date - shows "NEW" badge if within 30 days
   children?: NavItem[]
 }
 
