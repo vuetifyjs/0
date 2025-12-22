@@ -741,14 +741,14 @@ describe('useClickOutside', () => {
       expect(handler).not.toHaveBeenCalled()
     })
 
-    it('handles getters that return refs in ignore list', async () => {
+    it('handles reactive refs in ignore list', async () => {
       const handler = vi.fn()
       const ignoreRef = ref<HTMLElement | null>(null)
       const ignoreElement = document.createElement('div')
       container.append(ignoreElement)
 
       useClickOutside(target, handler, {
-        ignore: [() => ignoreRef],
+        ignore: [ignoreRef],
       })
 
       await nextTick()
@@ -1095,26 +1095,7 @@ describe('useClickOutside', () => {
     })
   })
 
-  describe('nested refs', () => {
-    it('handles getters that return refs', async () => {
-      const handler = vi.fn()
-      const elementRef = ref<HTMLElement | null>(null)
-      function getterReturningRef () {
-        return elementRef
-      }
-
-      useClickOutside(getterReturningRef, handler)
-
-      await nextTick()
-      simulatePointerClick(outside)
-      expect(handler).not.toHaveBeenCalled() // No element yet
-
-      elementRef.value = target
-      await nextTick()
-      simulatePointerClick(outside)
-      expect(handler).toHaveBeenCalledTimes(1)
-    })
-
+  describe('dynamic target replacement', () => {
     it('handles reactive target replacement', async () => {
       const handler = vi.fn()
       const targetRef = ref<HTMLElement | null>(null)

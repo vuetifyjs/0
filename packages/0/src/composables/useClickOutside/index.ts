@@ -20,6 +20,7 @@
  */
 
 // Types
+import type { MaybeArray } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
 // Composables
@@ -31,9 +32,9 @@ import {
 import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
 
 // Utilities
-import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
-export type ClickOutsideElement = HTMLElement | Ref<HTMLElement | null | undefined> | null | undefined
+export type ClickOutsideElement = HTMLElement | null | undefined
 export type ClickOutsideTarget = MaybeRefOrGetter<ClickOutsideElement>
 export type ClickOutsideIgnoreTarget = ClickOutsideTarget | string
 
@@ -143,7 +144,7 @@ export interface UseClickOutsideReturn {
  * ```
  */
 export function useClickOutside (
-  target: ClickOutsideTarget | readonly ClickOutsideTarget[],
+  target: MaybeArray<ClickOutsideTarget>,
   handler: (event: PointerEvent | FocusEvent) => void,
   options: UseClickOutsideOptions = {},
 ): UseClickOutsideReturn {
@@ -165,16 +166,11 @@ export function useClickOutside (
 
   /**
    * Resolve target(s) to an array of HTMLElements.
-   * Handles nested refs (e.g., getter returning a TemplateRef).
    */
   function getTargets (): HTMLElement[] {
     const sources = Array.isArray(target) ? target : [target]
     return sources
-      .map(source => {
-        const value = toValue(source)
-        // Handle getters that return refs (e.g., () => atom.value?.element)
-        return isRef(value) ? value.value : value
-      })
+      .map(source => toValue(source))
       .filter((el): el is HTMLElement => !isNullOrUndefined(el))
   }
 
@@ -193,9 +189,7 @@ export function useClickOutside (
       if (isString(ignoreTarget)) {
         selectors.push(ignoreTarget)
       } else {
-        const value = toValue(ignoreTarget)
-        // Handle getters that return refs (e.g., () => someRef)
-        const ignoreEl = isRef(value) ? value.value : value
+        const ignoreEl = toValue(ignoreTarget)
         if (ignoreEl) elements.push(ignoreEl)
       }
     }
