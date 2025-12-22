@@ -1,12 +1,12 @@
-// Utilities
-import { isFunction } from '#v0/utilities'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
+import type { LogLevel } from '../types'
 
 // Types
 import type { LoggerAdapter } from './adapter'
-import type { LogLevel } from '../types'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+// Utilities
+import { isFunction } from '#v0/utilities'
 
 /**
  * Vuetify0.x logger adapter implementation

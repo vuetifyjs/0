@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, shallowRef, readonly, nextTick, type Ref } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick, readonly, ref, type Ref, shallowRef } from 'vue'
 
 const mockIsHydrated = ref(false)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -13,7 +13,7 @@ vi.mock('#v0/constants/globals', () => ({
   SUPPORTS_INTERSECTION_OBSERVER: true,
 }))
 
-import { useIntersectionObserver, useElementIntersection } from './index'
+import { useElementIntersection, useIntersectionObserver } from './index'
 
 describe('useIntersectionObserver', () => {
   let mockObserver: any

@@ -11,17 +11,17 @@
  */
 
 <script lang="ts">
+  // Types
+  import type { AtomProps } from '#v0/components/Atom'
+
   // Components
   import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { useExpansionPanelItem } from './ExpansionPanelItem.vue'
 
   // Utilities
   import { toRef } from 'vue'
 
-  // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  // Composables
+  import { useExpansionPanelItem } from './ExpansionPanelItem.vue'
 
   export interface ExpansionPanelHeaderProps extends AtomProps {
     /** Namespace for retrieving the parent ExpansionPanelItem context (default: 'v0:expansion-panel') */

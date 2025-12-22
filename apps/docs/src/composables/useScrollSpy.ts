@@ -14,9 +14,9 @@
  * Designed to be extractable to @vuetify/v0 in the future.
  */
 
+import type { Ref } from 'vue'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 import { computed, onScopeDispose, shallowReactive, shallowRef } from 'vue'
-import type { Ref } from 'vue'
 
 export interface ScrollSpyOptions {
   /**

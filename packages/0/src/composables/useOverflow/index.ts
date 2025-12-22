@@ -16,20 +16,20 @@
  * Use uniform mode (itemWidth option) for same-width items like Pagination buttons.
  */
 
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+// Types
+import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+
 // Factories
 import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
 
+import { createTrinity } from '#v0/composables/createTrinity'
 // Composables
 import { useElementSize } from '#v0/composables/useResizeObserver'
 
+import { isUndefined } from '#v0/utilities'
 // Utilities
 import { computed, shallowRef, toRef, toValue } from 'vue'
-import { isUndefined } from '#v0/utilities'
-
-// Types
-import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 export interface OverflowOptions {
   /**

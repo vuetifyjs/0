@@ -1,8 +1,8 @@
-import { defineConfig } from 'tsdown/config'
 import { fileURLToPath } from 'node:url'
-import pkg from './package.json' with { type: 'json' }
-
+import { defineConfig } from 'tsdown/config'
 import Vue from 'unplugin-vue/rolldown'
+
+import pkg from './package.json' with { type: 'json' }
 
 const at = fileURLToPath(new URL('../src', import.meta.url))
 const v0 = fileURLToPath(new URL('../../0/src', import.meta.url))

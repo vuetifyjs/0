@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import 'virtual:uno.css'
-
 import { registerPlugins } from './plugins'
+
+import 'virtual:uno.css'
 
 const app = createApp(App)
 

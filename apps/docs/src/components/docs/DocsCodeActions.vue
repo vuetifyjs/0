@@ -1,8 +1,8 @@
 <script lang="ts" setup>
   // Composables
   import { useBin } from '@/composables/bin'
-  import { useClipboard } from '@/composables/useClipboard'
   import { usePlayground } from '@/composables/playground'
+  import { useClipboard } from '@/composables/useClipboard'
 
   const props = defineProps<{
     code: string

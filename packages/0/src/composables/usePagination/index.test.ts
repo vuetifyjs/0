@@ -1,9 +1,9 @@
+// Utilities
+import { describe, expect, it } from 'vitest'
+
+import { shallowRef } from 'vue'
 // Composables
 import { createPagination } from './index'
-
-// Utilities
-import { describe, it, expect } from 'vitest'
-import { shallowRef } from 'vue'
 
 describe('usePagination', () => {
   describe('navigation', () => {

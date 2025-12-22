@@ -63,11 +63,11 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Composables
-  import { useGroupRoot } from './GroupRoot.vue'
-
   // Utilities
   import { onUnmounted, toRef, toValue } from 'vue'
+
+  // Composables
+  import { useGroupRoot } from './GroupRoot.vue'
 
   defineOptions({ name: 'GroupItem' })
 

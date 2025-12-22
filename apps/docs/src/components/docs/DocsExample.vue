@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-  // Composables
-  import { useClipboard } from '@/composables/useClipboard'
-  import { useHighlightCode } from '@/composables/useHighlightCode'
-  import { useBin } from '@/composables/bin'
-  import { usePlayground } from '@/composables/playground'
-
   // Utilities
   import { computed, ref, toRef } from 'vue'
+  import { useBin } from '@/composables/bin'
+  import { usePlayground } from '@/composables/playground'
+  // Composables
+  import { useClipboard } from '@/composables/useClipboard'
+
+  import { useHighlightCode } from '@/composables/useHighlightCode'
 
   const props = defineProps<{
     file?: string

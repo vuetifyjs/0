@@ -1,8 +1,8 @@
+// Utilities
+import { describe, expect, it, vi } from 'vitest'
+
 // Composables
 import { createRegistryContext, useRegistry } from './index'
-
-// Utilities
-import { describe, it, expect, vi } from 'vitest'
 
 describe('useRegistry', () => {
   describe('registration', () => {
@@ -273,8 +273,8 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Catalog management', () => {
-    it('Catalogs tickets with duplicate values', () => {
+  describe('catalog management', () => {
+    it('should catalog tickets with duplicate values', () => {
       const registry = useRegistry()
       registry.onboard([{ id: 'item-1', value: 'value-1' }, { id: 'item-2', value: 'value-2' }, { id: 'dupe-item-1', value: 'value-1', valueIsIndex: true }])
       const ids = registry.browse('value-1')
@@ -295,7 +295,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Event emission', () => {
+  describe('event emission', () => {
     it('should not emit events when events option is disabled', () => {
       const registry = useRegistry({ events: false })
       const listener = vi.fn()
@@ -420,7 +420,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Cache management', () => {
+  describe('cache management', () => {
     it('should cache keys, values, and entries', () => {
       const registry = useRegistry()
       registry.register({ id: 'item-1' })
@@ -491,7 +491,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Seek functionality', () => {
+  describe('seek functionality', () => {
     it('should seek first ticket without predicate', () => {
       const registry = useRegistry()
       registry.register({ id: 'item-1', value: 'a' })
@@ -569,7 +569,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Dispose functionality', () => {
+  describe('dispose functionality', () => {
     it('should clear collection and listeners on dispose', () => {
       const registry = useRegistry({ events: true })
       const listener = vi.fn()
@@ -595,7 +595,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Edge cases', () => {
+  describe('edge cases', () => {
     it('should handle registering duplicate IDs by returning existing ticket', () => {
       const registry = useRegistry()
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -665,7 +665,7 @@ describe('useRegistry', () => {
   })
 })
 
-describe('Batch operations', () => {
+describe('batch operations', () => {
   it('should return the value from the batched function', () => {
     const registry = useRegistry()
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import { shallowRef, computed } from 'vue'
   import { useVirtual } from '@vuetify/v0'
+  import { computed, shallowRef } from 'vue'
 
   const items = shallowRef(
     Array.from({ length: 10_000 }, (_, i) => ({

@@ -1,5 +1,5 @@
-// Composables
-import { createPlugin, createTokensContext } from '@vuetify/v0'
+// Types
+import type { App } from 'vue'
 
 // Icons
 import {
@@ -15,6 +15,7 @@ import {
   mdiClose,
   mdiCog,
   mdiContentCopy,
+  mdiContrastCircle,
   mdiDevTo,
   mdiDownload,
   mdiFolderZipOutline,
@@ -24,6 +25,7 @@ import {
   mdiLayersTriple,
   mdiMagnify,
   mdiMenu,
+  mdiMonitor,
   mdiOpenInNew,
   mdiPencil,
   mdiPuzzle,
@@ -37,8 +39,8 @@ import {
 
 // Aliases use token reference syntax to avoid duplicating icon paths
 
-// Types
-import type { App } from 'vue'
+// Composables
+import { createPlugin, createTokensContext } from '@vuetify/v0'
 
 export const [useIconContext, provideIconContext, context] = createTokensContext({
   namespace: 'v0:icons',
@@ -63,6 +65,8 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'success': mdiCheck,
     'theme-light': mdiWeatherSunny,
     'theme-dark': mdiWeatherNight,
+    'theme-high-contrast': mdiContrastCircle,
+    'theme-system': mdiMonitor,
     'book': mdiBookOpenPageVariant,
     'layers': mdiLayersTriple,
     'puzzle': mdiPuzzle,

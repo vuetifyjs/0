@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { h, type Component } from 'vue'
+import { describe, expect, it } from 'vitest'
+import { type Component, h } from 'vue'
 import { Atom } from './index'
 
-describe('Atom', () => {
+describe('atom', () => {
   describe('rendering modes', () => {
     it('renders as div by default', () => {
       const wrapper = mount(Atom, {

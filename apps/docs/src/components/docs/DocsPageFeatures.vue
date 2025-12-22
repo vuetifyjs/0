@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-  import { useClipboard } from '@/composables/useClipboard'
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
+  import { useClipboard } from '@/composables/useClipboard'
 
   const props = defineProps<{
     frontmatter?: {

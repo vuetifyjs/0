@@ -1,9 +1,9 @@
+// Utilities
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { inject, provide } from 'vue'
 // Composables
 import { createQueue, createQueueContext, useQueue } from './index'
-
-// Utilities
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { provide, inject } from 'vue'
 
 vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')

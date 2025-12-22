@@ -17,6 +17,9 @@
  * Perfect for large data sets, chat apps, and infinite scroll implementations.
  */
 
+// Types
+import type { ComputedRef, Ref, ShallowRef } from 'vue'
+
 // Composables
 import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
@@ -28,9 +31,6 @@ import { clamp, isFunction, isNumber } from '#v0/utilities'
 
 // Vue
 import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
-
-// Types
-import type { ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'

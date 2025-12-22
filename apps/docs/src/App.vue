@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-  import { injectHead, useHead } from '@unhead/vue'
   import { InferSeoMetaPlugin } from '@unhead/addons'
+  import { injectHead, useHead } from '@unhead/vue'
   import { useScrollPersist } from './composables/useScrollPersist'
 
   useScrollPersist()

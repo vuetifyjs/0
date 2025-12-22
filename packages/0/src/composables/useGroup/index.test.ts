@@ -1,9 +1,9 @@
+// Utilities
+import { describe, expect, it } from 'vitest'
+
+import { ref } from 'vue'
 // Composables
 import { createGroup } from './index'
-
-// Utilities
-import { describe, it, expect } from 'vitest'
-import { ref } from 'vue'
 
 describe('useGroup', () => {
   describe('single ID selection', () => {

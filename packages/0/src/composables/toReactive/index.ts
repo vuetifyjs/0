@@ -14,11 +14,11 @@
  * Perfect for creating reactive versions of plain objects while automatically unwrapping refs.
  */
 
-// Utilities
-import { isRef, reactive, unref } from 'vue'
-
 // Types
 import type { MaybeRef, UnwrapNestedRefs } from 'vue'
+
+// Utilities
+import { isRef, reactive, unref } from 'vue'
 
 /**
  * Converts a `MaybeRef` to a `UnwrapNestedRefs`.

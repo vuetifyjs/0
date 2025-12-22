@@ -12,18 +12,18 @@
  * - Provides smooth scroll navigation
  */
 
-// Composables
-import { useScrollSpy } from './useScrollSpy'
-import { useRoute } from 'vue-router'
+// Types
+import type { Ref } from 'vue'
+// Globals
+import { IN_BROWSER } from '@vuetify/v0/constants'
 
 // Utilities
 import { nextTick, onScopeDispose, shallowRef, watch } from 'vue'
 
-// Globals
-import { IN_BROWSER } from '@vuetify/v0/constants'
+import { useRoute } from 'vue-router'
 
-// Types
-import type { Ref } from 'vue'
+// Composables
+import { useScrollSpy } from './useScrollSpy'
 
 export interface TocHeading {
   id: string

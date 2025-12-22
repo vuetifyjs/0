@@ -16,20 +16,20 @@
  * including useSelection, useForm, useTimeline, and more.
  */
 
-// Factories
-import { createContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
-// Composables
-import { useLogger } from '#v0/composables/useLogger'
-
-// Utilities
-import { genId, isUndefined } from '#v0/utilities'
-
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 // Types
 import type { ID } from '#v0/types'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
+
 import type { App } from 'vue'
+
+// Factories
+import { createContext } from '#v0/composables/createContext'
+
+import { createTrinity } from '#v0/composables/createTrinity'
+// Composables
+import { useLogger } from '#v0/composables/useLogger'
+// Utilities
+import { genId, isUndefined } from '#v0/utilities'
 
 export interface RegistryTicket<V = unknown> {
   /** The unique identifier. Is randomly generated if not provided. */
@@ -962,7 +962,7 @@ export function useRegistry<
     // Fast path: simple first/last without predicate or offset
     if (!predicate && isUndefined(from)) {
       const tickets = values()
-      return direction === 'first' ? tickets[0] : tickets[tickets.length - 1]
+      return direction === 'first' ? tickets[0] : tickets.at(-1)
     }
 
     const tickets = values()

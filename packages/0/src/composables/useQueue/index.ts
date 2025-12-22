@@ -14,22 +14,22 @@
  * expires or is removed, the next ticket in the queue automatically becomes active.
  */
 
-// Factories
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createTrinity } from '#v0/composables/createTrinity'
-
-// Composables
-import { useRegistry } from '#v0/composables/useRegistry'
-
-// Utilities
-import { onScopeDispose } from 'vue'
-import { genId, isUndefined } from '#v0/utilities'
-
+import type { ContextTrinity } from '#v0/composables/createTrinity'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
+
 import type { ID } from '#v0/types'
+
 import type { App } from 'vue'
+// Factories
+import { createContext, useContext } from '#v0/composables/createContext'
+
+import { createTrinity } from '#v0/composables/createTrinity'
+// Composables
+import { useRegistry } from '#v0/composables/useRegistry'
+import { genId, isUndefined } from '#v0/utilities'
+// Utilities
+import { onScopeDispose } from 'vue'
 
 export interface QueueTicket<V = unknown> extends RegistryTicket<V> {
   /**

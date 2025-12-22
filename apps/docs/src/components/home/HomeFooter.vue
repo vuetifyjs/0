@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
-  const { icon: themeIcon, toggle: toggleTheme } = useThemeToggle()
+  const { icon: themeIcon, title: themeTitle, toggle: toggleTheme } = useThemeToggle()
 
   const links = [
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub' },
@@ -32,8 +32,9 @@
         <div class="w-px h-5 bg-divider" />
 
         <button
-          aria-label="Toggle theme"
+          :aria-label="themeTitle"
           class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-tint transition-colors text-on-surface"
+          :title="themeTitle"
           @click="toggleTheme"
         >
           <AppIcon :icon="themeIcon" :size="20" />

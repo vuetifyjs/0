@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { ref, nextTick, computed, watch } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { computed, nextTick, ref, watch } from 'vue'
 
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: true,
 }))
 
-import { useEventListener, useWindowEventListener, useDocumentEventListener } from './index'
+import { useDocumentEventListener, useEventListener, useWindowEventListener } from './index'
 
 describe('useEventListener', () => {
   let mockElement: HTMLElement

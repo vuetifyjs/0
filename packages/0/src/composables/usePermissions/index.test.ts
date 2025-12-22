@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { createPermissions, createPermissionsPlugin } from './index'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { Vuetify0PermissionAdapter } from './adapters/v0'
+import { createPermissions, createPermissionsPlugin } from './index'
 
 describe('usePermissions', () => {
   describe('createPermissions', () => {
@@ -155,7 +155,7 @@ describe('usePermissions', () => {
     })
   })
 
-  describe('Vuetify0PermissionAdapter', () => {
+  describe('vuetify0PermissionAdapter', () => {
     let adapter: Vuetify0PermissionAdapter
 
     beforeEach(() => {

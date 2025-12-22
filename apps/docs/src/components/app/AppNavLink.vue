@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-  // Components
-  import { Atom } from '@vuetify/v0'
-  import { RouterLink } from 'vue-router'
-
   // Types
   import type { AtomProps } from '@vuetify/v0'
   import type { RouterLinkProps } from 'vue-router'
+
   import type { NavItem } from '@/stores/app'
+  // Components
+  import { Atom } from '@vuetify/v0'
+  import { RouterLink } from 'vue-router'
 
   export interface ComponentProps extends AtomProps, Partial<RouterLinkProps> {
     children?: NavItem[]

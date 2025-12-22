@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getCurrentInstance, onMounted, onScopeDispose } from 'vue'
-import { createBreakpoints, useBreakpoints, createBreakpointsPlugin } from './index'
 import { useHydration } from '../useHydration'
+import { createBreakpoints, createBreakpointsPlugin, useBreakpoints } from './index'
 
 // Mock Vue functions
 vi.mock('vue', async () => {
@@ -447,7 +447,7 @@ describe('useBreakpoints', () => {
     })
   })
 
-  describe('SSR safety', () => {
+  describe('sSR safety', () => {
     it('should initialize with default values in SSR mode', () => {
       const context = createBreakpoints()
 

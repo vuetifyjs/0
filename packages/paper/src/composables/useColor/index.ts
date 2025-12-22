@@ -1,8 +1,8 @@
-// Composables
-import { useContrast } from '#paper/composables/useContrast'
-
 // Types
 import type { ThemeProvider } from '#paper/composables/useTheme'
+
+// Composables
+import { useContrast } from '#paper/composables/useContrast'
 import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { inject, shallowRef, toRef } from 'vue'
 

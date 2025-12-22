@@ -1,14 +1,14 @@
+import { mount } from '@vue/test-utils'
+
+// Utilities
+import { describe, expect, it } from 'vitest'
+import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 // Components
 import { ExpansionPanel } from './index'
 
-// Utilities
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { h, ref, nextTick, createSSRApp, defineComponent } from 'vue'
-import { renderToString } from 'vue/server-renderer'
-
-describe('ExpansionPanel', () => {
-  describe('Root', () => {
+describe('expansionPanel', () => {
+  describe('root', () => {
     describe('v-model binding', () => {
       it('should update v-model when panel is clicked (single mode)', async () => {
         const selected = ref<string>()
@@ -170,7 +170,7 @@ describe('ExpansionPanel', () => {
     })
   })
 
-  describe('Item', () => {
+  describe('item', () => {
     describe('registration lifecycle', () => {
       it('should register with parent on mount', () => {
         const wrapper = mount(ExpansionPanel.Root, {
@@ -345,8 +345,8 @@ describe('ExpansionPanel', () => {
     })
   })
 
-  describe('Activator', () => {
-    describe('ARIA attributes', () => {
+  describe('activator', () => {
+    describe('aRIA attributes', () => {
       it('should set correct ARIA attributes when not expanded', () => {
         const wrapper = mount(ExpansionPanel.Root, {
           slots: {
@@ -593,8 +593,8 @@ describe('ExpansionPanel', () => {
     })
   })
 
-  describe('Content', () => {
-    describe('ARIA attributes', () => {
+  describe('content', () => {
+    describe('aRIA attributes', () => {
       it('should set correct ARIA attributes', () => {
         const wrapper = mount(ExpansionPanel.Root, {
           slots: {
@@ -748,7 +748,7 @@ describe('ExpansionPanel', () => {
     })
   })
 
-  describe('Integration', () => {
+  describe('integration', () => {
     it('should have matching ARIA relationship between Activator and Content', () => {
       const wrapper = mount(ExpansionPanel.Root, {
         slots: {
@@ -817,7 +817,7 @@ describe('ExpansionPanel', () => {
     })
   })
 
-  describe('SSR/Hydration', () => {
+  describe('sSR/Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

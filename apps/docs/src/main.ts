@@ -1,9 +1,9 @@
+import { ViteSSG } from 'vite-ssg'
 import App from './App.vue'
 import { registerPlugins } from './plugins'
-import 'virtual:uno.css'
-import { ViteSSG } from 'vite-ssg'
-import routerOptions from './plugins/router'
 import pinia from './plugins/pinia'
+import routerOptions from './plugins/router'
+import 'virtual:uno.css'
 
 export const createApp = ViteSSG(
   App,

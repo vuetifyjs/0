@@ -1,4 +1,4 @@
-import { presetWind4, defineConfig } from 'unocss'
+import { defineConfig, presetWind4 } from 'unocss'
 
 const isStorybook = process.env.STORYBOOK === '1'
 

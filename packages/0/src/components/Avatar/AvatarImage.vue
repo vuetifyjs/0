@@ -42,11 +42,11 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Composables
-  import { useAvatarRoot } from './AvatarRoot.vue'
-
   // Utilities
   import { onUnmounted, toRef } from 'vue'
+
+  // Composables
+  import { useAvatarRoot } from './AvatarRoot.vue'
 
   defineOptions({
     name: 'AvatarImage',

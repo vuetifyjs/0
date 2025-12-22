@@ -1,17 +1,17 @@
 <script setup lang="ts">
+  // Types
+  import type { AtomProps } from '@vuetify/v0'
+
   // Components
   import { Atom, useFeatures, useStorage } from '@vuetify/v0'
+  // Utilities
+  import { toRef, watch } from 'vue'
+
+  import { useRoute } from 'vue-router'
+  import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Composables
   import { useAppStore } from '@/stores/app'
-  import { useThemeToggle } from '@/composables/useThemeToggle'
-
-  // Utilities
-  import { toRef, watch } from 'vue'
-  import { useRoute } from 'vue-router'
-
-  // Types
-  import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'header' } = defineProps<AtomProps>()
 
@@ -22,7 +22,7 @@
   const isHomePage = toRef(() => route.path === '/')
 
   const features = useFeatures()
-  const { theme, icon: themeIcon, toggle: onClickTheme } = useThemeToggle()
+  const { theme, icon: themeIcon, title: themeTitle, toggle: onClickTheme } = useThemeToggle()
 
   const devmode = features.get('devmode')!
 
@@ -66,9 +66,9 @@
 
     <div class="flex align-center items-center gap-3">
       <button
-        aria-label="Toggle Theme"
+        :aria-label="themeTitle"
         class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded opacity-90 hover:opacity-100 transition-all border"
-        title="Toggle Theme"
+        :title="themeTitle"
         type="button"
         @click="onClickTheme"
       >

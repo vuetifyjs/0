@@ -1,3 +1,16 @@
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+
+import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
+import type { LogLevel } from '#v0/composables/useLogger/types'
+
+// Types
+import type { App } from 'vue'
+
+// Composables
+import { createContext, useContext } from '#v0/composables/createContext'
+
+import { createPlugin } from '#v0/composables/createPlugin'
+
 /**
  * @module useLogger
  *
@@ -17,25 +30,12 @@
  */
 // Factories
 import { createTrinity } from '#v0/composables/createTrinity'
-
-// Composables
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-
-// Utilities
-import { getCurrentInstance, shallowRef } from 'vue'
-
 // Adapters
 import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
-
 // Globals
 import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
-
-// Types
-import type { App } from 'vue'
-import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
-import type { LogLevel } from '#v0/composables/useLogger/types'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
+// Utilities
+import { getCurrentInstance, shallowRef } from 'vue'
 
 // Exports
 export type { LoggerAdapter } from '#v0/composables/useLogger/adapters'

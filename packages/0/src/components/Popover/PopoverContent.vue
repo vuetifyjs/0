@@ -39,11 +39,11 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Context
-  import { usePopoverContext } from './PopoverRoot.vue'
-
   // Utilities
   import { onMounted, toRef, toValue, useTemplateRef, watch } from 'vue'
+
+  // Context
+  import { usePopoverContext } from './PopoverRoot.vue'
 
   defineOptions({ name: 'PopoverContent' })
 

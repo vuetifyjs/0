@@ -7,19 +7,19 @@
  */
 
 <script lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { useLocale } from '#v0/composables/useLocale'
-  import { usePaginationRoot, usePaginationControls } from './PaginationRoot.vue'
-
-  // Utilities
-  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
-  import { genId } from '#v0/utilities'
-
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+
+  // Components
+  import { Atom } from '#v0/components/Atom'
+  // Composables
+  import { useLocale } from '#v0/composables/useLocale'
+
+  import { genId } from '#v0/utilities'
+  // Utilities
+  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
+
+  import { usePaginationControls, usePaginationRoot } from './PaginationRoot.vue'
 
   export interface PaginationNextProps extends AtomProps {
     /** Namespace for dependency injection */

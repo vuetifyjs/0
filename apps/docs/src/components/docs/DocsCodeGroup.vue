@@ -3,7 +3,7 @@
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
 
   // Utilities
-  import { useSlots, computed, watch, toValue, type VNode } from 'vue'
+  import { computed, toValue, useSlots, type VNode, watch } from 'vue'
 
   const slots = useSlots()
 

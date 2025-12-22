@@ -1,6 +1,6 @@
-import { ref } from 'vue'
-import { describe, it, expect } from 'vitest'
 import type { Primitive } from './index'
+import { describe, expect, it } from 'vitest'
+import { ref } from 'vue'
 import { useFilter } from './index'
 
 describe('useFilter', () => {
@@ -12,13 +12,13 @@ describe('useFilter', () => {
     { name: 'apple juice', color: 'apple green', type: 'juice' },
   ])
 
-  it('filters by default (mode: some)', () => {
+  it('should filter by default (mode: some)', () => {
     const { items: filtered } = useFilter('apple', items)
     expect(filtered.value).toHaveLength(3)
     expect(filtered.value.every(i => i.name.includes('apple'))).toBe(true)
   })
 
-  it('filters using keys (mode: some)', () => {
+  it('should filter using keys (mode: some)', () => {
     const { items: filtered } = useFilter('yellow', items, {
       keys: ['color'],
     })
@@ -26,7 +26,7 @@ describe('useFilter', () => {
     expect(filtered.value[0]?.name).toBe('banana')
   })
 
-  it('mode: every (all keys must match query)', () => {
+  it('should require all keys to match query with mode: every', () => {
     const { items: filtered } = useFilter('apple', items, {
       keys: ['name', 'color'],
       mode: 'every',
@@ -36,7 +36,7 @@ describe('useFilter', () => {
     }])
   })
 
-  it('mode: union (any query matches any field)', () => {
+  it('should match any query to any field with mode: union', () => {
     const { items: filtered } = useFilter(['banana', 'orange'], items, {
       keys: ['name', 'color'],
       mode: 'union',
@@ -45,7 +45,7 @@ describe('useFilter', () => {
     expect(filtered.value.map(i => i.name)).toEqual(expect.arrayContaining(['carrot', 'banana']))
   })
 
-  it('mode: intersection (all queries must be present)', () => {
+  it('should require all queries to be present with mode: intersection', () => {
     const { items: filtered } = useFilter(['apple', 'red'], items, {
       keys: ['name', 'color'],
       mode: 'intersection',
@@ -54,18 +54,18 @@ describe('useFilter', () => {
     expect(filtered.value[0]?.color).toBe('red')
   })
 
-  it('returns all items if query is empty', () => {
+  it('should return all items if query is empty', () => {
     const { items: filtered } = useFilter('', items)
     expect(filtered.value).toHaveLength(5)
   })
 
-  it('can handle primitive items', () => {
+  it('should handle primitive items', () => {
     const prim = ref(['apple', 'banana', 'carrot', 'apple pie'])
     const { items: filtered } = useFilter('apple', prim)
     expect(filtered.value).toEqual(['apple', 'apple pie'])
   })
 
-  it('works with getter functions for query', () => {
+  it('should work with getter functions for query', () => {
     const searchTerm = ref('apple')
     const { items: filtered } = useFilter(() => searchTerm.value, items)
     expect(filtered.value).toHaveLength(3)
@@ -75,7 +75,7 @@ describe('useFilter', () => {
     expect(filtered.value[0]?.name).toBe('banana')
   })
 
-  it('works with array getter functions for query', () => {
+  it('should work with array getter functions for query', () => {
     const searchTerms = ref(['banana', 'orange'])
     const { items: filtered } = useFilter(() => searchTerms.value, items, {
       keys: ['name', 'color'],
@@ -88,13 +88,13 @@ describe('useFilter', () => {
     expect(filtered.value).toHaveLength(3)
   })
 
-  it('handles case-insensitive filtering', () => {
+  it('should handle case-insensitive filtering', () => {
     const { items: filtered } = useFilter('APPLE', items)
     expect(filtered.value).toHaveLength(3)
     expect(filtered.value.every(i => i.name.toLowerCase().includes('apple'))).toBe(true)
   })
 
-  it('handles numeric values in filter', () => {
+  it('should handle numeric values in filter', () => {
     const numItems = ref([
       { id: 1, name: 'item1' },
       { id: 2, name: 'item2' },
@@ -105,25 +105,25 @@ describe('useFilter', () => {
     expect(filtered.value.map(i => i.id)).toEqual(expect.arrayContaining([1, 12]))
   })
 
-  it('handles empty items array', () => {
+  it('should handle empty items array', () => {
     const emptyItems = ref<Array<{ name: string }>>([])
     const { items: filtered } = useFilter('test', emptyItems)
     expect(filtered.value).toHaveLength(0)
   })
 
-  it('handles whitespace-only queries', () => {
+  it('should handle whitespace-only queries', () => {
     const { items: filtered } = useFilter('   ', items)
     expect(filtered.value).toHaveLength(5)
   })
 
-  it('handles multiple whitespace queries in array', () => {
+  it('should handle multiple whitespace queries in array', () => {
     const { items: filtered } = useFilter(['  ', '  ', 'apple'], items, {
       mode: 'union',
     })
     expect(filtered.value).toHaveLength(3)
   })
 
-  it('uses custom filter function when provided', () => {
+  it('should use custom filter function when provided', () => {
     function customFilter (query: Primitive | Primitive[], item: any) {
       const q = Array.isArray(query) ? query[0] : query
       return item.name.startsWith(q!) as boolean
@@ -137,12 +137,12 @@ describe('useFilter', () => {
     expect(filtered.value.every(i => i.name.startsWith('app'))).toBe(true)
   })
 
-  it('handles objects without specified keys', () => {
+  it('should handle objects without specified keys', () => {
     const { items: filtered } = useFilter('fruit', items)
     expect(filtered.value).toHaveLength(3)
   })
 
-  it('mode every requires all keys to match', () => {
+  it('should require all keys to match with mode every', () => {
     const { items: filtered } = useFilter('fruit', items, {
       keys: ['name', 'type'],
       mode: 'every',
@@ -150,7 +150,7 @@ describe('useFilter', () => {
     expect(filtered.value).toHaveLength(0)
   })
 
-  it('handles boolean values in items', () => {
+  it('should handle boolean values in items', () => {
     const boolItems = ref([
       { name: 'item1', active: true },
       { name: 'item2', active: false },
@@ -160,7 +160,7 @@ describe('useFilter', () => {
     expect(filtered.value[0]?.active).toBe(true)
   })
 
-  it('reactively updates when items change', () => {
+  it('should reactively update when items change', () => {
     const dynamicItems = ref([
       { name: 'apple', color: 'red', type: 'fruit' },
     ])

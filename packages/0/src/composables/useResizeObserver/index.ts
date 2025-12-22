@@ -15,8 +15,8 @@
  * Perfect for responsive components and size-based rendering.
  */
 
-// Utilities
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
+// Types
+import type { Ref } from 'vue'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
@@ -24,8 +24,8 @@ import { useHydration } from '#v0/composables/useHydration'
 // Globals
 import { SUPPORTS_OBSERVER } from '#v0/constants/globals'
 
-// Types
-import type { Ref } from 'vue'
+// Utilities
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
 
 export interface ResizeObserverEntry {
   contentRect: {

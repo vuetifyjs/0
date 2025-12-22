@@ -52,11 +52,11 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Composables
-  import { useSelectionRoot } from './SelectionRoot.vue'
-
   // Utilities
   import { onUnmounted, toRef, toValue } from 'vue'
+
+  // Composables
+  import { useSelectionRoot } from './SelectionRoot.vue'
 
   defineOptions({ name: 'SelectionItem' })
 

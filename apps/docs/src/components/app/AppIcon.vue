@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-  // Composables
-  import { useIconContext } from '@/plugins/icons'
-
   // Utilities
   import { toArray } from '@vuetify/v0'
+
   import { toRef } from 'vue'
+  // Composables
+  import { useIconContext } from '@/plugins/icons'
 
   export interface AppIconProps {
     icon: string

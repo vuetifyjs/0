@@ -4,9 +4,12 @@ import storybook from 'eslint-plugin-storybook'
 export default vuetify({
   vue: true,
   perfectionist: {
-    import: false,
+    import: true,
   },
   autoimports: false,
+  test: {
+    runner: 'vitest',
+  },
 },
 {
   rules: {
@@ -22,6 +25,16 @@ export default vuetify({
     'unicorn/no-array-callback-reference': 'off',
     'unicorn/no-unreadable-array-destructuring': 'off',
     'func-style': ['error', 'declaration'],
+  },
+},
+{
+  files: ['**/*.test.ts'],
+  rules: {
+    'vitest/prefer-lowercase-title': 'error',
+    'vitest/prefer-hooks-in-order': 'error',
+    'vitest/prefer-hooks-on-top': 'error',
+    'vitest/max-nested-describe': ['error', { max: 3 }],
+    'vitest/consistent-test-it': ['error', { fn: 'it' }],
   },
 },
 {

@@ -1,18 +1,18 @@
 <script setup lang="ts">
+  // Types
+  import type { AtomProps } from '@vuetify/v0'
+
   // Vuetify0
   import { Atom, useBreakpoints } from '@vuetify/v0'
-
-  // Composables
-  import { useRoute } from 'vue-router'
 
   // Utilities
   import { watch } from 'vue'
 
+  // Composables
+  import { useRoute } from 'vue-router'
+
   // Stores
   import { useAppStore } from '@/stores/app'
-
-  // Types
-  import type { AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
 

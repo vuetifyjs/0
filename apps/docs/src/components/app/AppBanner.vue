@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  // Components
-  import { Atom } from '@vuetify/v0'
-
   // Types
   import type { AtomProps } from '@vuetify/v0'
+
+  // Components
+  import { Atom } from '@vuetify/v0'
 
   const { as = 'header' } = defineProps<AtomProps>()
 </script>

@@ -14,32 +14,32 @@
  * Integrates with createSingle for locale selection and useTokens for message resolution.
  */
 
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+// Types
+import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
+import type { TokenCollection } from '#v0/composables/useTokens'
+
+import type { ID } from '#v0/types'
+import type { App } from 'vue'
+
+import type { LocaleAdapter } from './adapters'
+
+import { createContext, useContext } from '#v0/composables/createContext'
+
 // Factories
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
-import { createContext, useContext } from '#v0/composables/createContext'
-
-// Composables
-import { createSingle } from '#v0/composables/useSingle'
-import { createTokens } from '#v0/composables/useTokens'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
-
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
-
+// Composables
+import { createSingle } from '#v0/composables/useSingle'
+import { createTokens } from '#v0/composables/useTokens'
+import { isString } from '#v0/utilities'
 // Utilities
 import { getCurrentInstance } from 'vue'
-import { isString } from '#v0/utilities'
-
-// Types
-import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
-import type { ID } from '#v0/types'
-import type { TokenCollection } from '#v0/composables/useTokens'
-import type { LocaleAdapter } from './adapters'
-import type { App } from 'vue'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 
 // Exports
 export type { LocaleAdapter } from '#v0/composables/useLocale/adapters'

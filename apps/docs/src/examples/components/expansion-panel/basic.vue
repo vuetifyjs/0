@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-  import { ref } from 'vue'
   import { ExpansionPanel } from '@vuetify/v0'
+  import { ref } from 'vue'
 
   const panels = [
     { id: 'panel-1', title: 'Panel 1', content: 'This is the content for panel 1.' },

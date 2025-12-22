@@ -1,9 +1,9 @@
-// Factories
-import { createContext, useContext, provideContext } from './index'
-
 // Utilities
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { provide, inject } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { inject, provide } from 'vue'
+// Factories
+import { createContext, provideContext, useContext } from './index'
 
 vi.mock('vue', () => ({
   provide: vi.fn(),

@@ -1,8 +1,8 @@
+// Utilities
+import { describe, expect, it } from 'vitest'
+
 // Composables
 import { createStep } from './index'
-
-// Utilities
-import { describe, it, expect } from 'vitest'
 
 describe('useStep', () => {
   describe('first', () => {

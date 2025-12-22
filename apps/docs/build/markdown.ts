@@ -1,11 +1,11 @@
-import Markdown from 'unplugin-vue-markdown/vite'
-import Attrs from 'markdown-it-attrs'
-import Anchor from 'markdown-it-anchor'
-import Container from 'markdown-it-container'
+import type { HighlighterGeneric } from 'shiki/types'
 import { fromHighlighter } from '@shikijs/markdown-it/core'
+import Anchor from 'markdown-it-anchor'
+import Attrs from 'markdown-it-attrs'
+import Container from 'markdown-it-container'
 import { createHighlighterCore } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
-import type { HighlighterGeneric } from 'shiki/types'
+import Markdown from 'unplugin-vue-markdown/vite'
 
 export default async function MarkdownPlugin () {
   const highlighter = await createHighlighterCore({

@@ -1,10 +1,10 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
-import Vue from 'unplugin-vue/rolldown'
-import Components from 'unplugin-vue-components/vite'
-import AutoImport from 'unplugin-auto-import/vite'
 import UnocssVitePlugin from 'unocss/vite'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import Vue from 'unplugin-vue/rolldown'
+import { defineConfig } from 'vite'
 import VueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vitejs.dev/config/

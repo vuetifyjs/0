@@ -6,8 +6,8 @@ export type { StepRootProps, StepRootSlotProps } from './StepRoot.vue'
 export { provideStepRoot, useStepRoot } from './StepRoot.vue'
 export { default as StepRoot } from './StepRoot.vue'
 
-import Root from './StepRoot.vue'
 import Item from './StepItem.vue'
+import Root from './StepRoot.vue'
 
 /**
  * Step component with sub-components for building stepper navigation.
