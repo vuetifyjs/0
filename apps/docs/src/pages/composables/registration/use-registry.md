@@ -53,7 +53,7 @@ console.log(registry.size) // 3
     clear: () => void
     has: (id: ID) => boolean
     keys: () => ID[]
-    browse: (value: unknown) => ID | ID[] | undefined
+    browse: (value: unknown) => ID[] | undefined
     lookup: (index: number) => ID | undefined
     get: (id: ID) => Z | undefined
     upsert: (id: ID, patch?: Partial<Z>) => Z
@@ -243,17 +243,14 @@ console.log(registry.size) // 3
 
 - **Type**
   ```ts
-  function browse(value: unknown): ID | ID[] | undefined
+  function browse(value: unknown): ID[] | undefined
   ```
 
 - **Details**
   Searches the registry for item(s) whose value matches the provided value argument.
 
-  If exactly one item matches, browse returns that item’s ID directly.
-  If multiple items have the same value, browse returns an array of matching IDs, preserving their registration order.
+  Returns an array of matching IDs, preserving their registration order.
   If no match is found, it returns undefined.
-
-  This allows both quick single lookups and detection of duplicates. For consistency, if you expect possible duplicates, always handle both single-ID and array return types in your code.
 
 - **Example**
   ```ts
@@ -263,10 +260,10 @@ console.log(registry.size) // 3
   registry.register({ id: '3', value: 'Red' }) // Duplicate value
 
   console.log(registry.browse('Red'))
-  // ['1', '3']  <-- Multiple matches return array
+  // ['1', '3']  <-- Multiple matches
 
   console.log(registry.browse('Blue'))
-  // '2'  <-- Single match returns ID
+  // ['2']  <-- Single match (still an array)
 
   console.log(registry.browse('Green'))
   // undefined  <-- No matches

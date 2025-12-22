@@ -196,7 +196,7 @@ describe('useRegistry', () => {
       const registry = useRegistry()
       registry.register({ id: 'item-1', index: 2, value: 'value-1' })
       registry.register({ id: 'item-2', index: 3, value: 'value-2' })
-      registry.register({ id: 'item-3', index: 4, valueIsIndex: true })
+      registry.register({ id: 'item-3', index: 4 })
 
       expect(registry.lookup(2)).toBe('item-1')
       expect(registry.get('item-1')?.index).toBe(2)
@@ -206,6 +206,42 @@ describe('useRegistry', () => {
       expect(registry.lookup(3)).toBeUndefined()
       expect(registry.get('item-1')?.index).toBe(0)
       expect(registry.get('item-3')?.value).toBe(2)
+      // Verify catalog is updated after reindex for valueIsIndex tickets
+      expect(registry.browse(2)).toEqual(['item-3'])
+    })
+
+    it('should partially reindex from dirty index when unregistering', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'item-1' }) // valueIsIndex: true, value: 0
+      registry.register({ id: 'item-2' }) // valueIsIndex: true, value: 1
+      registry.register({ id: 'item-3' }) // valueIsIndex: true, value: 2
+
+      // Unregister from middle triggers partial reindex
+      registry.unregister('item-1')
+
+      // Remaining items should have updated indexes and values
+      expect(registry.get('item-2')?.index).toBe(0)
+      expect(registry.get('item-2')?.value).toBe(0)
+      expect(registry.get('item-3')?.index).toBe(1)
+      expect(registry.get('item-3')?.value).toBe(1)
+
+      // Catalog should be updated correctly
+      expect(registry.browse(0)).toEqual(['item-2'])
+      expect(registry.browse(1)).toEqual(['item-3'])
+    })
+
+    it('should trigger lazy reindex via browse when needed', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'item-1' }) // valueIsIndex: true
+      registry.register({ id: 'item-2' }) // valueIsIndex: true
+      registry.register({ id: 'item-3' }) // valueIsIndex: true
+
+      // Offboard sets needsReindex but doesn't immediately reindex
+      registry.offboard(['item-1'])
+
+      // browse() should trigger lazy reindex when indexDependentCount > 0
+      expect(registry.browse(0)).toEqual(['item-2'])
+      expect(registry.browse(1)).toEqual(['item-3'])
     })
 
     it('should clear the entire registry', () => {
@@ -247,6 +283,15 @@ describe('useRegistry', () => {
       registry.unregister('dupe-item-1')
       const idsAfterUnregister = registry.browse('value-1')
       expect(idsAfterUnregister).toEqual(['item-1'])
+    })
+
+    it('should return undefined when browsing non-existent value', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'item-1', value: 'exists' })
+
+      expect(registry.browse('non-existent')).toBeUndefined()
+      expect(registry.browse(999)).toBeUndefined()
+      expect(registry.browse(null)).toBeUndefined()
     })
   })
 
