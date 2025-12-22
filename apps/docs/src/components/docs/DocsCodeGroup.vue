@@ -71,7 +71,6 @@
 .docs-code-group__content :deep(pre) {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-  padding-top: 1rem;
 }
 
 .docs-code-group__content :deep(.shiki) {
