@@ -33,7 +33,7 @@ The Avatar component provides a robust image loading system with automatic fallb
 ## Anatomy
 
 ```vue Anatomy
-<script lang="ts" setup>
+<script setup lang="ts">
   import { Avatar } from '@vuetify/v0'
 </script>
 
@@ -77,7 +77,7 @@ The root component that manages image loading state and fallback logic.
 - **Example**
 
   ```vue AvatarRoot
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Avatar } from '@vuetify/v0'
   </script>
 
@@ -139,7 +139,7 @@ Image component that registers with the Avatar context and manages loading state
 - **Example**
 
   ```vue AvatarImage
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Avatar } from '@vuetify/v0'
   </script>
 
@@ -189,7 +189,7 @@ Fallback content component shown when no images are loaded.
 - **Example**
 
   ```vue AvatarFallback
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Avatar } from '@vuetify/v0'
   </script>
 

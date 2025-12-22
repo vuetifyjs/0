@@ -33,7 +33,7 @@ The Single component is a specialization of Selection that enforces single-selec
 ## Anatomy
 
 ```vue Anatomy
-<script lang="ts" setup>
+<script setup lang="ts">
   import { Single } from '@vuetify/v0'
 </script>
 
@@ -124,7 +124,7 @@ The root component that manages single-selection state.
 - **Example**
 
   ```vue SingleRoot
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Single } from '@vuetify/v0'
   </script>
 
@@ -205,7 +205,7 @@ Individual selectable items that register with the Single context.
 - **Example**
 
   ```vue SingleItem
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Single } from '@vuetify/v0'
   </script>
 

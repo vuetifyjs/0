@@ -61,13 +61,13 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 
 ```vue UseLocale
 <script setup lang="ts">
-import { useLocale } from '@vuetify/v0'
+  import { useLocale } from '@vuetify/v0'
 
-const locale = useLocale()
+  const locale = useLocale()
 
-function changeLocale(id: string) {
-  locale.select(id)
-}
+  function changeLocale(id: string) {
+    locale.select(id)
+  }
 </script>
 
 <template>

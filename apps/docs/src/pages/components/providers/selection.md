@@ -39,7 +39,7 @@ The Selection component provides a wrapper and item pattern for managing selecti
 ## Anatomy
 
 ```vue Anatomy
-<script lang="ts" setup>
+<script setup lang="ts">
   import { Selection } from '@vuetify/v0'
 </script>
 
@@ -134,7 +134,7 @@ The root component that manages selection state and provides context to items.
 - **Example**
 
   ```vue SelectionRoot
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Selection } from '@vuetify/v0'
   </script>
 
@@ -224,7 +224,7 @@ Individual selectable items that register with the Selection context.
 - **Example**
 
   ```vue SelectionItem
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Selection } from '@vuetify/v0'
   </script>
 

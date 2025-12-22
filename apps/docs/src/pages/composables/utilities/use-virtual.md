@@ -198,19 +198,19 @@ Most performant option. Specify a fixed `itemHeight`:
 
 ```vue UseVirtual
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import { useVirtual } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+  import { useVirtual } from '@vuetify/v0'
 
-const items = shallowRef(Array.from({ length: 10000 }, (_, i) => ({
-  id: i,
-  name: `Item ${i + 1}`,
-})))
+  const items = shallowRef(Array.from({ length: 10000 }, (_, i) => ({
+    id: i,
+    name: `Item ${i + 1}`,
+  })))
 
-const { element, items: virtualItems, offset, size, scroll } =
-  useVirtual(items, {
-    itemHeight: 80,
-    overscan: 5
-  })
+  const { element, items: virtualItems, offset, size, scroll } =
+    useVirtual(items, {
+      itemHeight: 80,
+      overscan: 5
+    })
 </script>
 
 <template>
@@ -241,31 +241,31 @@ For variable item heights, use `itemHeight: null` and measure each item:
 
 ```vue UseVirtual
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import { useVirtual, useResizeObserver } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+  import { useVirtual, useResizeObserver } from '@vuetify/v0'
 
-const items = shallowRef(Array.from({ length: 1000 }, (_, i) => ({
-  id: i,
-  text: i % 3 === 0 ? 'Short' : 'A longer message that wraps...'
-})))
+  const items = shallowRef(Array.from({ length: 1000 }, (_, i) => ({
+    id: i,
+    text: i % 3 === 0 ? 'Short' : 'A longer message that wraps...'
+  })))
 
-const { element, items: virtualItems, offset, size, scroll, resize } =
-  useVirtual(items, { itemHeight: null })
+  const { element, items: virtualItems, offset, size, scroll, resize } =
+    useVirtual(items, { itemHeight: null })
 
-function setupItemResize(el: Element | undefined, index: number) {
-  if (!el) return
-  const { stop } = useResizeObserver(
-    shallowRef(el),
-    entries => {
-      const entry = entries[0]
-      if (entry) {
-        resize(index, entry.contentRect.height)
-      }
-    },
-    { immediate: true }
-  )
-  return stop
-}
+  function setupItemResize(el: Element | undefined, index: number) {
+    if (!el) return
+    const { stop } = useResizeObserver(
+      shallowRef(el),
+      entries => {
+        const entry = entries[0]
+        if (entry) {
+          resize(index, entry.contentRect.height)
+        }
+      },
+      { immediate: true }
+    )
+    return stop
+  }
 </script>
 
 <template>
@@ -296,16 +296,16 @@ Perfect for chat applications where new messages appear at the bottom:
 
 ```vue UseVirtual
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import { useVirtual } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+  import { useVirtual } from '@vuetify/v0'
 
-const messages = shallowRef([...])
+  const messages = shallowRef([...])
 
-const { element, items: virtualItems, offset, size, scroll } =
-  useVirtual(messages, {
-    itemHeight: 80,
-    direction: 'reverse', // Scroll anchored to bottom
-  })
+  const { element, items: virtualItems, offset, size, scroll } =
+    useVirtual(messages, {
+      itemHeight: 80,
+      direction: 'reverse', // Scroll anchored to bottom
+    })
 </script>
 ```
 
@@ -320,23 +320,23 @@ Maintain scroll position when prepending items (e.g., loading older messages):
 
 ```vue UseVirtual
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import { useVirtual } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+  import { useVirtual } from '@vuetify/v0'
 
-const messages = shallowRef([...])
+  const messages = shallowRef([...])
 
-const { element, items: virtualItems, offset, size, scroll } =
-  useVirtual(messages, {
-    itemHeight: 80,
-    anchor: 'start', // Maintain position relative to first visible item
-    anchorSmooth: true, // Smooth transition
-  })
+  const { element, items: virtualItems, offset, size, scroll } =
+    useVirtual(messages, {
+      itemHeight: 80,
+      anchor: 'start', // Maintain position relative to first visible item
+      anchorSmooth: true, // Smooth transition
+    })
 
-async function loadOlder() {
-  const olderMessages = await fetchOlderMessages()
-  messages.value = [...olderMessages, ...messages.value]
-  // Scroll position maintained automatically!
-}
+  async function loadOlder() {
+    const olderMessages = await fetchOlderMessages()
+    messages.value = [...olderMessages, ...messages.value]
+    // Scroll position maintained automatically!
+  }
 </script>
 ```
 
@@ -346,45 +346,45 @@ Load more data when scrolling near edges:
 
 ```vue UseVirtual
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import { useVirtual } from '@vuetify/v0'
+  import { shallowRef } from 'vue'
+  import { useVirtual } from '@vuetify/v0'
 
-const items = shallowRef([...])
+  const items = shallowRef([...])
 
-const { element, items: virtualItems, offset, size, scroll, state, reset } =
-  useVirtual(items, {
-    itemHeight: 50,
+  const { element, items: virtualItems, offset, size, scroll, state, reset } =
+    useVirtual(items, {
+      itemHeight: 50,
 
-    onStartReached: async (distance) => {
-      if (state.value === 'loading') return
+      onStartReached: async (distance) => {
+        if (state.value === 'loading') return
 
-      state.value = 'loading'
-      const olderItems = await loadOlderItems()
+        state.value = 'loading'
+        const olderItems = await loadOlderItems()
 
-      if (olderItems.length === 0) {
-        state.value = 'empty'
-      } else {
-        items.value = [...olderItems, ...items.value]
-        state.value = 'ok'
-      }
-    },
-    startThreshold: 200, // Trigger when within 200px of top
+        if (olderItems.length === 0) {
+          state.value = 'empty'
+        } else {
+          items.value = [...olderItems, ...items.value]
+          state.value = 'ok'
+        }
+      },
+      startThreshold: 200, // Trigger when within 200px of top
 
-    onEndReached: async (distance) => {
-      if (state.value === 'loading') return
+      onEndReached: async (distance) => {
+        if (state.value === 'loading') return
 
-      state.value = 'loading'
-      const newerItems = await loadNewerItems()
+        state.value = 'loading'
+        const newerItems = await loadNewerItems()
 
-      if (newerItems.length === 0) {
-        state.value = 'empty'
-      } else {
-        items.value = [...items.value, ...newerItems]
-        state.value = 'ok'
-      }
-    },
-    endThreshold: 200, // Trigger when within 200px of bottom
-  })
+        if (newerItems.length === 0) {
+          state.value = 'empty'
+        } else {
+          items.value = [...items.value, ...newerItems]
+          state.value = 'ok'
+        }
+      },
+      endThreshold: 200, // Trigger when within 200px of bottom
+    })
 </script>
 ```
 

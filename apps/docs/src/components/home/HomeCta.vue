@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   import { usePlayground } from '@/composables/playground'
 
-  const starterCode = `<script setup>
+  const starterCode = `<script setup lang="ts">
 import { Selection } from '@vuetify/v0'
 import { ref } from 'vue'
 

@@ -65,7 +65,7 @@ export interface UseTocReturn {
  *
  * @example
  * ```vue
- * <script setup>
+ * <script setup lang="ts">
  * import { useToc } from '@/composables/useToc'
  *
  * const { headings, selectedId, scrollTo } = useToc()

@@ -22,47 +22,47 @@ A composable for handling keyboard events with automatic cleanup and customizabl
 The `useKeydown` composable registers keyboard event handlers on the document with automatic cleanup when the component is unmounted. It supports multiple key handlers, preventDefault, and stopPropagation options.
 
 ```vue UseKeydown
-<script setup>
-import { useKeydown } from '@vuetify/v0'
-import { ref } from 'vue'
+<script setup lang="ts">
+  import { useKeydown } from '@vuetify/v0'
+  import { ref } from 'vue'
 
-const modalOpen = ref(false)
-const searchQuery = ref('')
+  const modalOpen = ref(false)
+  const searchQuery = ref('')
 
-// Handle Escape key to close modal
-useKeydown({
-  key: 'Escape',
-  handler: () => {
-    modalOpen.value = false
-  },
-  preventDefault: true
-})
+  // Handle Escape key to close modal
+  useKeydown({
+    key: 'Escape',
+    handler: () => {
+      modalOpen.value = false
+    },
+    preventDefault: true
+  })
 
-// Handle Ctrl+K for search
-useKeydown({
-  key: 'k',
-  handler: (event) => {
-    if (event.ctrlKey || event.metaKey) {
-      modalOpen.value = true
-      searchQuery.value = ''
+  // Handle Ctrl+K for search
+  useKeydown({
+    key: 'k',
+    handler: (event) => {
+      if (event.ctrlKey || event.metaKey) {
+        modalOpen.value = true
+        searchQuery.value = ''
+      }
+    },
+    preventDefault: true
+  })
+
+  // Handle Arrow keys for navigation
+  useKeydown([
+    {
+      key: 'ArrowUp',
+      handler: () => navigatePrevious(),
+      preventDefault: true
+    },
+    {
+      key: 'ArrowDown',
+      handler: () => navigateNext(),
+      preventDefault: true
     }
-  },
-  preventDefault: true
-})
-
-// Handle Arrow keys for navigation
-useKeydown([
-  {
-    key: 'ArrowUp',
-    handler: () => navigatePrevious(),
-    preventDefault: true
-  },
-  {
-    key: 'ArrowDown',
-    handler: () => navigateNext(),
-    preventDefault: true
-  }
-])
+  ])
 </script>
 
 <template>

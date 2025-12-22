@@ -22,7 +22,7 @@ A composable for conditionally managing Vue effect scopes based on reactive bool
 The `useToggleScope` composable wraps Vue's `effectScope` API to create and destroy reactive effect scopes based on a boolean condition. When the condition becomes true, a new scope is created and your callback runs. When false, the scope is stopped and all effects are cleaned up automatically.
 
 ```vue UseToggleScope
-<script setup>
+<script setup lang="ts">
   import { useToggleScope } from '@vuetify/v0'
   import { shallowRef, watch } from 'vue'
 

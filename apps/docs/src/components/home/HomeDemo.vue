@@ -12,7 +12,7 @@
 
   const selected = ref<number[]>([])
 
-  const code = `<script setup>
+  const code = `<script setup lang="ts">
   import { Selection } from '@vuetify/v0'
   import { ref } from 'vue'
 

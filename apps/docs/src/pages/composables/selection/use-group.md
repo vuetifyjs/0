@@ -81,50 +81,50 @@ console.log(group.selectedIds.has('parent')) // true
 ### Tri-State Checkbox Tree Example
 
 ```vue UseGroup
-<script setup>
-import { createGroup } from '@vuetify/v0'
-import { computed, ref, watchEffect } from 'vue'
+<script setup lang="ts">
+  import { createGroup } from '@vuetify/v0'
+  import { computed, ref, watchEffect } from 'vue'
 
-const group = createGroup()
+  const group = createGroup()
 
-const parent = group.register({ id: 'parent', value: 'All Items' })
-const children = group.onboard([
-  { id: 'child-1', value: 'Item 1' },
-  { id: 'child-2', value: 'Item 2' },
-  { id: 'child-3', value: 'Item 3' },
-])
+  const parent = group.register({ id: 'parent', value: 'All Items' })
+  const children = group.onboard([
+    { id: 'child-1', value: 'Item 1' },
+    { id: 'child-2', value: 'Item 2' },
+    { id: 'child-3', value: 'Item 3' },
+  ])
 
-// Compute parent state based on children
-const allSelected = computed(() => children.every(c => c.isSelected.value))
-const someSelected = computed(() => children.some(c => c.isSelected.value) && !allSelected.value)
+  // Compute parent state based on children
+  const allSelected = computed(() => children.every(c => c.isSelected.value))
+  const someSelected = computed(() => children.some(c => c.isSelected.value) && !allSelected.value)
 
-// Sync parent state with children
-watchEffect(() => {
-  if (allSelected.value) {
-    group.select('parent')
-  } else if (someSelected.value) {
-    group.mix('parent')
-  } else {
-    group.unselect('parent')
-    group.unmix('parent')
+  // Sync parent state with children
+  watchEffect(() => {
+    if (allSelected.value) {
+      group.select('parent')
+    } else if (someSelected.value) {
+      group.mix('parent')
+    } else {
+      group.unselect('parent')
+      group.unmix('parent')
+    }
+  })
+
+  // Parent checkbox ref for indeterminate property
+  const parentCheckbox = ref()
+  watchEffect(() => {
+    if (parentCheckbox.value) {
+      parentCheckbox.value.indeterminate = parent.isMixed.value
+    }
+  })
+
+  function toggleParent() {
+    if (parent.isSelected.value) {
+      group.unselect(children.map(c => c.id))
+    } else {
+      group.select(children.map(c => c.id))
+    }
   }
-})
-
-// Parent checkbox ref for indeterminate property
-const parentCheckbox = ref()
-watchEffect(() => {
-  if (parentCheckbox.value) {
-    parentCheckbox.value.indeterminate = parent.isMixed.value
-  }
-})
-
-function toggleParent() {
-  if (parent.isSelected.value) {
-    group.unselect(children.map(c => c.id))
-  } else {
-    group.select(children.map(c => c.id))
-  }
-}
 </script>
 
 <template>

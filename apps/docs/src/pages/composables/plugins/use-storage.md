@@ -40,17 +40,17 @@ Once the plugin is installed, use the `useStorage` composable in any component:
 
 ```vue UseStorage
 <script setup lang="ts">
-import { useStorage } from '@vuetify/v0'
+  import { useStorage } from '@vuetify/v0'
 
-const storage = useStorage()
+  const storage = useStorage()
 
-// Get a reactive ref for a storage key
-const username = storage.get('username', 'Guest')
+  // Get a reactive ref for a storage key
+  const username = storage.get('username', 'Guest')
 
-// Update the value (automatically persists to storage)
-function updateUsername(name: string) {
-  username.value = name
-}
+  // Update the value (automatically persists to storage)
+  function updateUsername(name: string) {
+    username.value = name
+  }
 </script>
 
 <template>

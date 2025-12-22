@@ -327,29 +327,29 @@ pagination.next()
 
 ```vue UsePagination
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { createPagination } from '@vuetify/v0'
+  import { computed, ref } from 'vue'
+  import { createPagination } from '@vuetify/v0'
 
-interface Item {
-  id: number
-  name: string
-}
+  interface Item {
+    id: number
+    name: string
+  }
 
-const allItems = ref<Item[]>([
-  { id: 1, name: 'Item 1' },
-  { id: 2, name: 'Item 2' },
-  // ... more items
-])
+  const allItems = ref<Item[]>([
+    { id: 1, name: 'Item 1' },
+    { id: 2, name: 'Item 2' },
+    // ... more items
+  ])
 
-const pagination = createPagination({
-  size: () => allItems.value.length,
-  itemsPerPage: 10,
-  visible: 5,
-})
+  const pagination = createPagination({
+    size: () => allItems.value.length,
+    itemsPerPage: 10,
+    visible: 5,
+  })
 
-const displayedItems = computed(() =>
-  allItems.value.slice(pagination.pageStart.value, pagination.pageStop.value)
-)
+  const displayedItems = computed(() =>
+    allItems.value.slice(pagination.pageStart.value, pagination.pageStop.value)
+  )
 </script>
 
 <template>

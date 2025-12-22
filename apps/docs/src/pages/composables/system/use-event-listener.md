@@ -22,32 +22,32 @@ A composable for handling DOM events with automatic cleanup on component unmount
 The `useEventListener` composable attaches event listeners to DOM elements (Window, Document, or HTMLElement) with automatic cleanup when the component is unmounted. It supports reactive targets, multiple events, and multiple handlers.
 
 ```vue UseEventListener
-<script setup>
-import { useEventListener, useWindowEventListener, useDocumentEventListener } from '@vuetify/v0'
-import { ref, useTemplateRef } from 'vue'
+<script setup lang="ts">
+  import { useEventListener, useWindowEventListener, useDocumentEventListener } from '@vuetify/v0'
+  import { ref, useTemplateRef } from 'vue'
 
-// Track window dimensions
-const windowSize = ref({ width: window.innerWidth, height: window.innerHeight })
-useWindowEventListener('resize', () => {
-  windowSize.value = {
-    width: window.innerWidth,
-    height: window.innerHeight
-  }
-})
+  // Track window dimensions
+  const windowSize = ref({ width: window.innerWidth, height: window.innerHeight })
+  useWindowEventListener('resize', () => {
+    windowSize.value = {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }
+  })
 
-// Handle keyboard shortcuts
-useDocumentEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.key === 's') {
-    e.preventDefault()
-    console.log('Save shortcut triggered')
-  }
-})
+  // Handle keyboard shortcuts
+  useDocumentEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault()
+      console.log('Save shortcut triggered')
+    }
+  })
 
-// Element-specific listener
-const button = useTemplateRef('button')
-useEventListener(button, 'click', () => {
-  console.log('Button clicked!')
-})
+  // Element-specific listener
+  const button = useTemplateRef('button')
+  useEventListener(button, 'click', () => {
+    console.log('Button clicked!')
+  })
 </script>
 
 <template>
@@ -215,16 +215,16 @@ watch(
 Works seamlessly with Vue's `useTemplateRef`:
 
 ```vue UseEventListener
-<script setup>
-import { useTemplateRef } from 'vue'
-import { useEventListener } from '@vuetify/v0'
+<script setup lang="ts">
+  import { useTemplateRef } from 'vue'
+  import { useEventListener } from '@vuetify/v0'
 
-const button = useTemplateRef('btn')
+  const button = useTemplateRef('btn')
 
-// Waits for template ref to be available (flush: 'post')
-useEventListener(button, 'click', () => {
-  console.log('Button clicked')
-})
+  // Waits for template ref to be available (flush: 'post')
+  useEventListener(button, 'click', () => {
+    console.log('Button clicked')
+  })
 </script>
 
 <template>

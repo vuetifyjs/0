@@ -33,7 +33,7 @@ The Step component extends Single with navigation methods for moving through a s
 ## Anatomy
 
 ```vue Anatomy
-<script lang="ts" setup>
+<script setup lang="ts">
   import { Step } from '@vuetify/v0'
 </script>
 
@@ -140,7 +140,7 @@ The root component that manages step navigation state.
 - **Example**
 
   ```vue StepRoot
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Step } from '@vuetify/v0'
   </script>
 
@@ -227,7 +227,7 @@ Individual step items that register with the Step context.
 - **Example**
 
   ```vue StepItem
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { Step } from '@vuetify/v0'
   </script>
 

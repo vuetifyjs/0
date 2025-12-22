@@ -45,7 +45,7 @@ app.mount('#app')
 Now in any component, access current feature flags and variations:
 
 ```vue UseFeatures
-<script lang="ts" setup>
+<script setup lang="ts">
   import { useFeatures } from '@vuetify/v0'
 
   const features = useFeatures()
@@ -64,7 +64,7 @@ Now in any component, access current feature flags and variations:
 Optionally register features at runtime:
 
 ```vue UseFeatures
-<script lang="ts" setup>
+<script setup lang="ts">
   import { useFeatures } from '@vuetify/v0'
 
   const features = useFeatures()
@@ -167,7 +167,7 @@ Optionally register features at runtime:
   ```
   ```vue UseFeatures
   <!-- Component.vue -->
-  <script lang="ts" setup>
+  <script setup lang="ts">
     import { useFeatures } from '@vuetify/v0'
 
     const features = useFeatures()

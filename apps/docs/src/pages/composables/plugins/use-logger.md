@@ -45,14 +45,14 @@ Once the plugin is installed, use the `useLogger` composable in any component:
 
 ```vue UseLogger
 <script setup lang="ts">
-import { useLogger } from '@vuetify/v0'
+  import { useLogger } from '@vuetify/v0'
 
-const logger = useLogger()
+  const logger = useLogger()
 
-logger.info('Component mounted')
-logger.debug('Debug information', { userId: 123 })
-logger.warn('Warning message')
-logger.error('Error occurred', new Error('Something went wrong'))
+  logger.info('Component mounted')
+  logger.debug('Debug information', { userId: 123 })
+  logger.warn('Warning message')
+  logger.error('Error occurred', new Error('Something went wrong'))
 </script>
 
 <template>

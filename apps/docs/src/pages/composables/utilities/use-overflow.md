@@ -268,7 +268,7 @@ const visibleItems = items.slice(startIndex)
 ### Vue Component Example
 
 ```vue UseOverflow
-<script lang="ts" setup>
+<script setup lang="ts">
   import { ref, useTemplateRef } from 'vue'
   import { createOverflow } from '@vuetify/v0'
 

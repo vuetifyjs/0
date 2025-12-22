@@ -337,30 +337,30 @@ A practical example of a searchable user list:
 
 ```vue UseFilter
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useFilter } from '@vuetify/v0'
+  import { ref } from 'vue'
+  import { useFilter } from '@vuetify/v0'
 
-interface User {
-  id: number
-  name: string
-  email: string
-  department: string
-}
+  interface User {
+    id: number
+    name: string
+    email: string
+    department: string
+  }
 
-const users = ref<User[]>([
-  { id: 1, name: 'Alice Johnson', email: 'alice@company.com', department: 'Engineering' },
-  { id: 2, name: 'Bob Smith', email: 'bob@company.com', department: 'Marketing' },
-  { id: 3, name: 'Charlie Brown', email: 'charlie@company.com', department: 'Engineering' },
-  { id: 4, name: 'Diana Prince', email: 'diana@company.com', department: 'Sales' },
-])
+  const users = ref<User[]>([
+    { id: 1, name: 'Alice Johnson', email: 'alice@company.com', department: 'Engineering' },
+    { id: 2, name: 'Bob Smith', email: 'bob@company.com', department: 'Marketing' },
+    { id: 3, name: 'Charlie Brown', email: 'charlie@company.com', department: 'Engineering' },
+    { id: 4, name: 'Diana Prince', email: 'diana@company.com', department: 'Sales' },
+  ])
 
-const searchQuery = ref('')
-const searchFields = ref<string[]>(['name', 'email', 'department'])
+  const searchQuery = ref('')
+  const searchFields = ref<string[]>(['name', 'email', 'department'])
 
-const { items: filteredUsers } = useFilter(searchQuery, users, {
-  keys: searchFields.value,
-  mode: 'some'
-})
+  const { items: filteredUsers } = useFilter(searchQuery, users, {
+    keys: searchFields.value,
+    mode: 'some'
+  })
 </script>
 
 <template>
@@ -451,24 +451,24 @@ export const [useSearchFilter, provideSearchFilter, searchFilter] = createFilter
 ```vue
 <!-- Parent component -->
 <script setup lang="ts">
-import { provideSearchFilter } from './search-filter'
+  import { provideSearchFilter } from './search-filter'
 
-// Provide the filter context to descendants
-provideSearchFilter()
+  // Provide the filter context to descendants
+  provideSearchFilter()
 </script>
 ```
 
 ```vue
 <!-- Child component -->
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useSearchFilter } from './search-filter'
+  import { ref } from 'vue'
+  import { useSearchFilter } from './search-filter'
 
-const filter = useSearchFilter()
-const query = ref('')
-const products = ref([...])
+  const filter = useSearchFilter()
+  const query = ref('')
+  const products = ref([...])
 
-const { items: filtered } = filter.apply(query, products)
+  const { items: filtered } = filter.apply(query, products)
 </script>
 ```
 

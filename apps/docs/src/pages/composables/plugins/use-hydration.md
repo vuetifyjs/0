@@ -41,9 +41,9 @@ Once the plugin is installed, use the `useHydration` composable in any component
 
 ```vue UseHydration
 <script setup lang="ts">
-import { useHydration } from '@vuetify/v0'
+  import { useHydration } from '@vuetify/v0'
 
-const hydration = useHydration()
+  const hydration = useHydration()
 </script>
 
 <template>

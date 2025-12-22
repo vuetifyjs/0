@@ -23,39 +23,39 @@ The `useTheme` composable provides comprehensive theme management capabilities, 
 First, install the theme plugin in your application:
 
 ```ts
-  import { createApp } from 'vue'
-  import { createThemePlugin } from '@vuetify/v0'
-  import App from './App.vue'
+import { createApp } from 'vue'
+import { createThemePlugin } from '@vuetify/v0'
+import App from './App.vue'
 
-  const app = createApp(App)
+const app = createApp(App)
 
-  app.use(
-    createThemePlugin({
-      default: 'light',
-      themes: {
-        light: {
-          dark: false,
-          colors: {
-            primary: '#3b82f6',
-            secondary: '#8b5cf6',
-            background: '#ffffff',
-            surface: '#f5f5f5',
-          },
-        },
-        dark: {
-          dark: true,
-          colors: {
-            primary: '#60a5fa',
-            secondary: '#a78bfa',
-            background: '#1e293b',
-            surface: '#334155',
-          },
+app.use(
+  createThemePlugin({
+    default: 'light',
+    themes: {
+      light: {
+        dark: false,
+        colors: {
+          primary: '#3b82f6',
+          secondary: '#8b5cf6',
+          background: '#ffffff',
+          surface: '#f5f5f5',
         },
       },
-    })
-  )
+      dark: {
+        dark: true,
+        colors: {
+          primary: '#60a5fa',
+          secondary: '#a78bfa',
+          background: '#1e293b',
+          surface: '#334155',
+        },
+      },
+    },
+  })
+)
 
-  app.mount('#app')
+app.mount('#app')
 ```
 
 ## Usage
@@ -63,23 +63,23 @@ First, install the theme plugin in your application:
 Once the plugin is installed, use the `useTheme` composable in any component:
 
 ```vue UseTheme
-  <script setup lang="ts">
-    import { useTheme } from '@vuetify/v0'
+<script setup lang="ts">
+  import { useTheme } from '@vuetify/v0'
 
-    const theme = useTheme()
+  const theme = useTheme()
 
-    function toggleTheme() {
-      theme.cycle(['light', 'dark'])
-    }
-  </script>
+  function toggleTheme() {
+    theme.cycle(['light', 'dark'])
+  }
+</script>
 
-  <template>
-    <div>
-      <h1>Current Theme: {{ theme.selectedId }}</h1>
-      <p>Dark mode: {{ theme.isDark ? 'enabled' : 'disabled' }}</p>
-      <button @click="toggleTheme">Toggle Theme</button>
-    </div>
-  </template>
+<template>
+  <div>
+    <h1>Current Theme: {{ theme.selectedId }}</h1>
+    <p>Dark mode: {{ theme.isDark ? 'enabled' : 'disabled' }}</p>
+    <button @click="toggleTheme">Toggle Theme</button>
+  </div>
+</template>
 ```
 
 ## API

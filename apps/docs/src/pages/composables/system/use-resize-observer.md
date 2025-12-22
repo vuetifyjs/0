@@ -22,19 +22,19 @@ A composable for detecting element size changes using the Resize Observer API wi
 The `useResizeObserver` composable wraps the Resize Observer API to detect when an element's dimensions change. It's useful for responsive components, charts, virtualized lists, and aspect ratio maintenance.
 
 ```vue UseResizeObserver
-<script setup>
-import { useResizeObserver } from '@vuetify/v0'
-import { ref, useTemplateRef } from 'vue'
+<script setup lang="ts">
+  import { useResizeObserver } from '@vuetify/v0'
+  import { ref, useTemplateRef } from 'vue'
 
-const container = useTemplateRef('container')
-const width = ref(0)
-const height = ref(0)
+  const container = useTemplateRef('container')
+  const width = ref(0)
+  const height = ref(0)
 
-useResizeObserver(container, (entries) => {
-  const entry = entries[0]
-  width.value = entry.contentRect.width
-  height.value = entry.contentRect.height
-})
+  useResizeObserver(container, (entries) => {
+    const entry = entries[0]
+    width.value = entry.contentRect.width
+    height.value = entry.contentRect.height
+  })
 </script>
 
 <template>
@@ -229,19 +229,19 @@ element.value = document.querySelector('.new-target')
 Works seamlessly with Vue's template refs:
 
 ```vue UseResizeObserver
-<script setup>
-import { useTemplateRef } from 'vue'
-import { useResizeObserver } from '@vuetify/v0'
+<script setup lang="ts">
+  import { useTemplateRef } from 'vue'
+  import { useResizeObserver } from '@vuetify/v0'
 
-const panel = useTemplateRef('panel')
+  const panel = useTemplateRef('panel')
 
-useResizeObserver(
-  panel,
-  ([entry]) => {
-    const { width, height } = entry.contentRect
-    console.log('Panel resized:', width, 'x', height)
-  }
-)
+  useResizeObserver(
+    panel,
+    ([entry]) => {
+      const { width, height } = entry.contentRect
+      console.log('Panel resized:', width, 'x', height)
+    }
+  )
 </script>
 
 <template>

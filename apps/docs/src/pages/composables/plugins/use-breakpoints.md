@@ -52,9 +52,9 @@ Once the plugin is installed, use the `useBreakpoints` composable in any compone
 
 ```vue UseBreakpoints
 <script setup lang="ts">
-import { useBreakpoints } from '@vuetify/v0'
+  import { useBreakpoints } from '@vuetify/v0'
 
-const breakpoints = useBreakpoints()
+  const breakpoints = useBreakpoints()
 </script>
 
 <template>

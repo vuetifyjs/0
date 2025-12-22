@@ -49,17 +49,17 @@ Perfect for Vue components with v-model:
 
 ```vue UseProxyModel
 <script setup lang="ts">
-import { createSelection, useProxyModel } from '@vuetify/v0'
+  import { createSelection, useProxyModel } from '@vuetify/v0'
 
-const model = defineModel<string>()
-const selection = createSelection({ events: true })
+  const model = defineModel<string>()
+  const selection = createSelection({ events: true })
 
-selection.onboard([
-  { id: '1', value: 'Option 1' },
-  { id: '2', value: 'Option 2' },
-])
+  selection.onboard([
+    { id: '1', value: 'Option 1' },
+    { id: '2', value: 'Option 2' },
+  ])
 
-useProxyModel(selection, model)
+  useProxyModel(selection, model)
 </script>
 
 <template>

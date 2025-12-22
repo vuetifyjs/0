@@ -22,19 +22,19 @@ A composable for detecting when elements enter or leave the viewport using the I
 The `useIntersectionObserver` composable wraps the Intersection Observer API to detect when elements become visible in the viewport. It's useful for lazy loading images, infinite scroll, entrance animations, and performance optimizations.
 
 ```vue UseIntersectionObserver
-<script setup>
-import { useIntersectionObserver } from '@vuetify/v0'
-import { ref, useTemplateRef } from 'vue'
+<script setup lang="ts">
+  import { useIntersectionObserver } from '@vuetify/v0'
+  import { ref, useTemplateRef } from 'vue'
 
-const target = useTemplateRef('target')
-const isVisible = ref(false)
+  const target = useTemplateRef('target')
+  const isVisible = ref(false)
 
-useIntersectionObserver(target, (entries) => {
-  isVisible.value = entries[0].isIntersecting
-}, {
-  threshold: 0.5, // Trigger when 50% visible
-  rootMargin: '0px'
-})
+  useIntersectionObserver(target, (entries) => {
+    isVisible.value = entries[0].isIntersecting
+  }, {
+    threshold: 0.5, // Trigger when 50% visible
+    rootMargin: '0px'
+  })
 </script>
 
 <template>
@@ -235,18 +235,18 @@ element.value = document.querySelector('.new-target')
 Works seamlessly with Vue's template refs:
 
 ```vue UseIntersectionObserver
-<script setup>
-import { useTemplateRef } from 'vue'
-import { useIntersectionObserver } from '@vuetify/v0'
+<script setup lang="ts">
+  import { useTemplateRef } from 'vue'
+  import { useIntersectionObserver } from '@vuetify/v0'
 
-const section = useTemplateRef('section')
+  const section = useTemplateRef('section')
 
-const { isIntersecting } = useIntersectionObserver(
-  section,
-  ([entry]) => {
-    console.log('Section visibility:', entry.isIntersecting)
-  }
-)
+  const { isIntersecting } = useIntersectionObserver(
+    section,
+    ([entry]) => {
+      console.log('Section visibility:', entry.isIntersecting)
+    }
+  )
 </script>
 
 <template>

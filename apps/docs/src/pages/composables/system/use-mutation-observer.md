@@ -22,25 +22,25 @@ A composable for detecting DOM changes using the Mutation Observer API with auto
 The `useMutationObserver` composable wraps the Mutation Observer API to detect changes to the DOM tree. It's useful for monitoring attribute changes, child element modifications, and character data updates.
 
 ```vue UseMutationObserver
-<script setup>
-import { useMutationObserver } from '@vuetify/v0'
-import { ref, useTemplateRef } from 'vue'
+<script setup lang="ts">
+  import { useMutationObserver } from '@vuetify/v0'
+  import { ref, useTemplateRef } from 'vue'
 
-const target = useTemplateRef('target')
-const mutationCount = ref(0)
+  const target = useTemplateRef('target')
+  const mutationCount = ref(0)
 
-useMutationObserver(target, (mutations) => {
-  mutationCount.value += mutations.length
-  mutations.forEach(mutation => {
-    console.log('Type:', mutation.type)
-    console.log('Added nodes:', mutation.addedNodes)
-    console.log('Removed nodes:', mutation.removedNodes)
+  useMutationObserver(target, (mutations) => {
+    mutationCount.value += mutations.length
+    mutations.forEach(mutation => {
+      console.log('Type:', mutation.type)
+      console.log('Added nodes:', mutation.addedNodes)
+      console.log('Removed nodes:', mutation.removedNodes)
+    })
+  }, {
+    childList: true,
+    attributes: true,
+    attributeOldValue: true
   })
-}, {
-  childList: true,
-  attributes: true,
-  attributeOldValue: true
-})
 </script>
 
 <template>
@@ -212,22 +212,22 @@ element.value = document.querySelector('.new-target')
 Works seamlessly with Vue's template refs:
 
 ```vue UseMutationObserver
-<script setup>
-import { useTemplateRef } from 'vue'
-import { useMutationObserver } from '@vuetify/v0'
+<script setup lang="ts">
+  import { useTemplateRef } from 'vue'
+  import { useMutationObserver } from '@vuetify/v0'
 
-const content = useTemplateRef('content')
+  const content = useTemplateRef('content')
 
-useMutationObserver(
-  content,
-  (mutations) => {
-    console.log('DOM changed:', mutations.length, 'mutations')
-  },
-  {
-    childList: true,
-    subtree: true
-  }
-)
+  useMutationObserver(
+    content,
+    (mutations) => {
+      console.log('DOM changed:', mutations.length, 'mutations')
+    },
+    {
+      childList: true,
+      subtree: true
+    }
+  )
 </script>
 
 <template>

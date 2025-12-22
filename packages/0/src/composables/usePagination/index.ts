@@ -286,7 +286,7 @@ export function createPaginationContext (_options: PaginationContextOptions = {}
  *
  * @example
  * ```vue
- * <script setup>
+ * <script setup lang="ts">
  *  import { usePagination } from '@vuetify/v0'
  *
  *  const pagination = usePagination()

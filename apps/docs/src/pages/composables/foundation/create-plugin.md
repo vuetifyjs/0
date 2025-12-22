@@ -68,7 +68,7 @@ Now, whenever your application starts, the plugin is registered and the context 
   <div>{{ context.app }}</div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
   import { useMyContext } from './path/to/plugin'
 
   const context = useMyContext()
