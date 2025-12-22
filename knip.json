@@ -129,6 +129,7 @@
     "type": true
   },
   "ignoreBinaries": [
+    "conventional-github-releaser",
     "http-server"
   ]
 }
