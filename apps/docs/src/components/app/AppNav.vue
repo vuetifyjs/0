@@ -1,12 +1,12 @@
 <script setup lang="ts">
   // Types
-  import type { AtomProps } from '@vuetify/v0'
+  import type { AtomExpose, AtomProps } from '@vuetify/v0'
 
   // Vuetify0
-  import { Atom, useBreakpoints } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useClickOutside } from '@vuetify/v0'
 
   // Utilities
-  import { watch } from 'vue'
+  import { useTemplateRef, watch } from 'vue'
 
   // Composables
   import { useRoute } from 'vue-router'
@@ -19,6 +19,17 @@
   const app = useAppStore()
   const breakpoints = useBreakpoints()
   const route = useRoute()
+  const navRef = useTemplateRef<AtomExpose>('nav')
+
+  useClickOutside(
+    () => navRef.value?.element,
+    () => {
+      if (app.drawer && breakpoints.isMobile.value) {
+        app.drawer = false
+      }
+    },
+    { ignore: ['[data-app-bar]'] },
+  )
 
   watch(route, () => {
     if (app.drawer && breakpoints.isMobile.value) {
@@ -29,6 +40,7 @@
 
 <template>
   <Atom
+    ref="nav"
     :as
     class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-solid border-divider z-1 glass-surface"
     :class="app.drawer && '!translate-x-0'"

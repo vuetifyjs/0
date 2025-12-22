@@ -44,7 +44,7 @@ export type EventHandler<E = Event> = (event: E) => void
 export function useEventListener<E extends keyof WindowEventMap> (
   target: Window,
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: Window, event: WindowEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: Window, event: WindowEventMap[E]) => void>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction
 
@@ -63,7 +63,7 @@ export function useEventListener<E extends keyof WindowEventMap> (
 export function useEventListener<E extends keyof DocumentEventMap> (
   target: Document,
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: Document, event: DocumentEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: Document, event: DocumentEventMap[E]) => void>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction
 
@@ -82,7 +82,7 @@ export function useEventListener<E extends keyof DocumentEventMap> (
 export function useEventListener<E extends keyof HTMLElementEventMap> (
   target: MaybeRefOrGetter<HTMLElement | null | undefined>,
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: HTMLElement, event: HTMLElementEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: HTMLElement, event: HTMLElementEventMap[E]) => void>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction
 
@@ -182,7 +182,7 @@ export function useEventListener (
  */
 export function useWindowEventListener<E extends keyof WindowEventMap> (
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: Window, event: WindowEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: Window, event: WindowEventMap[E]) => void>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction {
   return IN_BROWSER ? useEventListener(window, event, listener, options) : () => {}
@@ -201,7 +201,7 @@ export function useWindowEventListener<E extends keyof WindowEventMap> (
  */
 export function useDocumentEventListener<E extends keyof DocumentEventMap> (
   event: MaybeRefOrGetter<MaybeArray<E>>,
-  listener: MaybeRef<MaybeArray<(this: Document, event: DocumentEventMap[E]) => any>>,
+  listener: MaybeRef<MaybeArray<(this: Document, event: DocumentEventMap[E]) => void>>,
   options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
 ): CleanupFunction {
   return IN_BROWSER ? useEventListener(document, event, listener, options) : () => {}

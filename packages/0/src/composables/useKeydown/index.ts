@@ -56,6 +56,10 @@ export interface UseKeydownReturn {
  * ```ts
  * import { useKeydown } from '@vuetify/v0'
  *
+ * // Single handler
+ * useKeydown({ key: 'Escape', handler: () => console.log('Escape pressed') })
+ *
+ * // Multiple handlers
  * const { isActive, start, stop } = useKeydown([
  *   { key: 'Enter', handler: () => console.log('Enter pressed') },
  *   { key: 'Escape', handler: () => console.log('Escape pressed'), preventDefault: true },
