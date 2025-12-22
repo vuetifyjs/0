@@ -34,12 +34,9 @@ The Group component is a specialization of Selection that enforces multi-selecti
 
 ## Anatomy
 
-```vue Anatomy playground
-<script setup lang="ts">
-import { ref } from 'vue'
-import { Group } from '@vuetify/v0'
-
-const selected = ref<string[]>([])
+```vue Anatomy
+<script lang="ts" setup>
+  import { Group } from '@vuetify/v0'
 </script>
 
 <template>
@@ -154,13 +151,10 @@ The root component that manages multi-selection state with batch operations.
 
 - **Example**
 
-  ```vue GroupRoot playground
-<script setup lang="ts">
-import { ref } from 'vue'
-import { Group } from '@vuetify/v0'
-
-const selected = ref<string[]>([])
-</script>
+  ```vue GroupRoot
+  <script lang="ts" setup>
+    import { Group } from '@vuetify/v0'
+  </script>
 
   <template>
     <Group.Root v-model="selected" v-slot="{ attrs, toggleAll, isMixed, isAllSelected }">
@@ -253,10 +247,10 @@ Individual group items that register with the Group context. Supports tri-state 
 
 - **Example**
 
-  ```vue GroupItem playground
-<script setup lang="ts">
-import { Group } from '@vuetify/v0'
-</script>
+  ```vue GroupItem
+  <script lang="ts" setup>
+    import { Group } from '@vuetify/v0'
+  </script>
 
   <template>
     <!-- Simple usage with attrs spread -->

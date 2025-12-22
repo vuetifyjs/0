@@ -325,7 +325,7 @@ pagination.next()
 
 ### Vue Component Example
 
-```vue UsePagination playground
+```vue UsePagination
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { createPagination } from '@vuetify/v0'

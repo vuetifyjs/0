@@ -80,8 +80,8 @@ console.log(group.selectedIds.has('parent')) // true
 
 ### Tri-State Checkbox Tree Example
 
-```vue UseGroup playground
-<script setup lang="ts">
+```vue UseGroup
+<script setup>
 import { createGroup } from '@vuetify/v0'
 import { computed, ref, watchEffect } from 'vue'
 

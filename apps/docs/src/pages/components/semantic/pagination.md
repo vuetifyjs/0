@@ -32,9 +32,9 @@ The Pagination component provides a compound component pattern for building page
 
 ## Anatomy
 
-```vue Anatomy playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
+```vue Anatomy
+<script lang="ts" setup>
+  import { Pagination } from '@vuetify/v0'
 </script>
 
 <template>
@@ -109,18 +109,8 @@ The root component that manages pagination state and provides context to child c
 
   **Example:**
 
-  ```vue PaginationRoot playground
-<script setup lang="ts">
-import { ref } from 'vue'
-import { Pagination } from '@vuetify/v0'
-
-const page = ref(1)
-function onPageChange(value: number) {
-  console.log('Page changed:', value)
-}
-</script>
-
-<template>
+  ```vue PaginationRoot
+  <template>
     <Pagination.Root
       v-model="page"
       :size="200"
@@ -239,10 +229,10 @@ Individual page number button.
 
 - **Example**
 
-  ```vue PaginationItem playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
-</script>
+  ```vue PaginationItem
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
 
   <template>
     <!-- Simple usage -->
@@ -314,10 +304,10 @@ Displays ellipsis to indicate hidden page numbers.
 
 - **Example**
 
-  ```vue PaginationEllipsis playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
-</script>
+  ```vue PaginationEllipsis
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
 
   <template>
     <!-- Uses default "..." from Root -->
@@ -392,10 +382,10 @@ Button to navigate to the first page.
 
 - **Example**
 
-  ```vue PaginationFirst playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
-</script>
+  ```vue PaginationFirst
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
 
   <template>
     <!-- Simple usage -->
@@ -477,10 +467,10 @@ Button to navigate to the previous page.
 
 - **Example**
 
-  ```vue PaginationPrev playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
-</script>
+  ```vue PaginationPrev
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
 
   <template>
     <!-- Simple usage -->
@@ -562,10 +552,10 @@ Button to navigate to the next page.
 
 - **Example**
 
-  ```vue PaginationNext playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
-</script>
+  ```vue PaginationNext
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
 
   <template>
     <!-- Simple usage -->
@@ -637,13 +627,10 @@ Visually-hidden live region that announces page changes to screen readers. Uses 
 
 - **Example**
 
-  ```vue PaginationStatus playground
-<script setup lang="ts">
-import { ref } from 'vue'
-import { Pagination } from '@vuetify/v0'
-
-const page = ref(1)
-</script>
+  ```vue PaginationStatus
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
 
   <template>
     <Pagination.Root v-model="page" :size="200" v-slot="{ items }">
@@ -739,10 +726,10 @@ Button to navigate to the last page.
 
 - **Example**
 
-  ```vue PaginationLast playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
-</script>
+  ```vue PaginationLast
+  <script lang="ts" setup>
+    import { Pagination } from '@vuetify/v0'
+  </script>
 
   <template>
     <!-- Simple usage -->
@@ -772,10 +759,10 @@ Examples of common Pagination structures:
 
 Use the **as** prop to render pagination items as `RouterLink` components.
 
-```vue RouterLink playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
-import { RouterLink } from 'vue-router'
+```vue RouterLink
+<script lang="ts" setup>
+  import { Pagination } from '@vuetify/v0'
+  import { RouterLink } from 'vue-router'
 </script>
 
 <template>
@@ -808,9 +795,9 @@ import { RouterLink } from 'vue-router'
 
 Pagination example with nav, ul, and li elements.
 
-```vue UnorderedList playground
-<script setup lang="ts">
-import { Pagination } from '@vuetify/v0'
+```vue UnorderedList
+<script lang="ts" setup>
+  import { Pagination } from '@vuetify/v0'
 </script>
 
 <template>

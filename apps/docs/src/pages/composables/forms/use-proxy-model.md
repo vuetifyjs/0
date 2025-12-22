@@ -47,7 +47,7 @@ console.log(model.value) // 'Banana'
 
 Perfect for Vue components with v-model:
 
-```vue UseProxyModel playground
+```vue UseProxyModel
 <script setup lang="ts">
 import { createSelection, useProxyModel } from '@vuetify/v0'
 
