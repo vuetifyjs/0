@@ -1,10 +1,3 @@
-/**
- * @module constants/htmlElements
- *
- * @remarks
- * HTML element constants and utilities for polymorphic component rendering.
- */
-
 const selfClosingTags = [
   'area',
   'base',
@@ -91,18 +84,7 @@ export const COMMON_ELEMENTS = {
 } as const
 
 /**
- * Checks if an HTML element is self-closing (void element)
- *
- * @param tag The HTML element tag name to check
- * @returns True if the element is self-closing
- *
- * @example
- * ```ts
- * isSelfClosingTag('img')    // true
- * isSelfClosingTag('input')  // true
- * isSelfClosingTag('div')    // false
- * isSelfClosingTag('span')   // false
- * ```
+ * Check if an element is self-closing
  */
 export function isSelfClosingTag (tag: keyof HTMLElementTagNameMap): boolean {
   return SELF_CLOSING_TAGS.has(tag.toLowerCase() as any)
