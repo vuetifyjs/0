@@ -27,9 +27,12 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 
 ## Anatomy
 
-```vue Anatomy
-<script lang="ts" setup>
-  import { Popover } from '@vuetify/v0'
+```vue Anatomy playground
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Popover } from '@vuetify/v0'
+
+const isOpen = ref(false)
 </script>
 
 <template>
@@ -97,13 +100,13 @@ The root component that manages popover state and provides context.
 
 - **Example**
 
-  ```vue PopoverRoot
-  <script lang="ts" setup>
-    import { Popover } from '@vuetify/v0'
-    import { ref } from 'vue'
+  ```vue PopoverRoot playground
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Popover } from '@vuetify/v0'
 
-    const isOpen = ref(false)
-  </script>
+const isOpen = ref(false)
+</script>
 
   <template>
     <Popover.Root v-model="isOpen" v-slot="{ isSelected, toggle }">
@@ -155,10 +158,10 @@ The anchor button or element that triggers the popover. Uses the native popover 
 
 - **Example**
 
-  ```vue PopoverAnchor
-  <script lang="ts" setup>
-    import { Popover } from '@vuetify/v0'
-  </script>
+  ```vue PopoverAnchor playground
+<script setup lang="ts">
+import { Popover } from '@vuetify/v0'
+</script>
 
   <template>
     <!-- Simple usage -->
@@ -214,10 +217,10 @@ The popover content container with CSS anchor positioning.
 
 - **Example**
 
-  ```vue PopoverContent
-  <script lang="ts" setup>
-    import { Popover } from '@vuetify/v0'
-  </script>
+  ```vue PopoverContent playground
+<script setup lang="ts">
+import { Popover } from '@vuetify/v0'
+</script>
 
   <template>
     <!-- Basic positioning -->

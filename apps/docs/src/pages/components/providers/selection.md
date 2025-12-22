@@ -38,9 +38,12 @@ The Selection component provides a wrapper and item pattern for managing selecti
 
 ## Anatomy
 
-```vue Anatomy
-<script lang="ts" setup>
-  import { Selection } from '@vuetify/v0'
+```vue Anatomy playground
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Selection } from '@vuetify/v0'
+
+const selected = ref()
 </script>
 
 <template>
@@ -133,10 +136,13 @@ The root component that manages selection state and provides context to items.
 
 - **Example**
 
-  ```vue SelectionRoot
-  <script lang="ts" setup>
-    import { Selection } from '@vuetify/v0'
-  </script>
+  ```vue SelectionRoot playground
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Selection } from '@vuetify/v0'
+
+const selected = ref()
+</script>
 
   <template>
     <!-- Simple usage with attrs -->
@@ -223,10 +229,10 @@ Individual selectable items that register with the Selection context.
 
 - **Example**
 
-  ```vue SelectionItem
-  <script lang="ts" setup>
-    import { Selection } from '@vuetify/v0'
-  </script>
+  ```vue SelectionItem playground
+<script setup lang="ts">
+import { Selection } from '@vuetify/v0'
+</script>
 
   <template>
     <!-- Simple usage with attrs spread -->

@@ -32,9 +32,12 @@ The Single component is a specialization of Selection that enforces single-selec
 
 ## Anatomy
 
-```vue Anatomy
-<script lang="ts" setup>
-  import { Single } from '@vuetify/v0'
+```vue Anatomy playground
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Single } from '@vuetify/v0'
+
+const selected = ref()
 </script>
 
 <template>
@@ -123,10 +126,13 @@ The root component that manages single-selection state.
 
 - **Example**
 
-  ```vue SingleRoot
-  <script lang="ts" setup>
-    import { Single } from '@vuetify/v0'
-  </script>
+  ```vue SingleRoot playground
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Single } from '@vuetify/v0'
+
+const selected = ref()
+</script>
 
   <template>
     <Single.Root v-model="selected" v-slot="{ attrs, isDisabled }">
@@ -204,10 +210,10 @@ Individual selectable items that register with the Single context.
 
 - **Example**
 
-  ```vue SingleItem
-  <script lang="ts" setup>
-    import { Single } from '@vuetify/v0'
-  </script>
+  ```vue SingleItem playground
+<script setup lang="ts">
+import { Single } from '@vuetify/v0'
+</script>
 
   <template>
     <!-- Simple usage with attrs spread -->

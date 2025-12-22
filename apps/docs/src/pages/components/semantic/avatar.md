@@ -32,9 +32,9 @@ The Avatar component provides a robust image loading system with automatic fallb
 
 ## Anatomy
 
-```vue Anatomy
-<script lang="ts" setup>
-  import { Avatar } from '@vuetify/v0'
+```vue Anatomy playground
+<script setup lang="ts">
+import { Avatar } from '@vuetify/v0'
 </script>
 
 <template>
@@ -76,10 +76,10 @@ The root component that manages image loading state and fallback logic.
 
 - **Example**
 
-  ```vue AvatarRoot
-  <script lang="ts" setup>
-    import { Avatar } from '@vuetify/v0'
-  </script>
+  ```vue AvatarRoot playground
+<script setup lang="ts">
+import { Avatar } from '@vuetify/v0'
+</script>
 
   <template>
     <Avatar.Root class="w-12 h-12 rounded-full overflow-hidden">
@@ -138,10 +138,10 @@ Image component that registers with the Avatar context and manages loading state
 
 - **Example**
 
-  ```vue AvatarImage
-  <script lang="ts" setup>
-    import { Avatar } from '@vuetify/v0'
-  </script>
+  ```vue AvatarImage playground
+<script setup lang="ts">
+import { Avatar } from '@vuetify/v0'
+</script>
 
   <template>
     <!-- Simple usage -->
@@ -188,10 +188,10 @@ Fallback content component shown when no images are loaded.
 
 - **Example**
 
-  ```vue AvatarFallback
-  <script lang="ts" setup>
-    import { Avatar } from '@vuetify/v0'
-  </script>
+  ```vue AvatarFallback playground
+<script setup lang="ts">
+import { Avatar } from '@vuetify/v0'
+</script>
 
   <template>
     <!-- Text initials -->
@@ -221,7 +221,11 @@ The Avatar component uses a priority-based system to determine which content to 
 4. The highest-priority loaded image is displayed
 5. If all images fail, the fallback is shown
 
-```vue PriorityExample
+```vue PriorityExample playground
+<script setup lang="ts">
+import { Avatar } from '@vuetify/v0'
+</script>
+
 <template>
   <Avatar.Root>
     <!-- High-res preferred when available -->

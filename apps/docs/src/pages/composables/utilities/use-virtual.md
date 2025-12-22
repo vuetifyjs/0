@@ -166,6 +166,14 @@ interface ScrollToOptions {
 The virtual list requires a specific template structure:
 
 ```vue UseVirtual
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import { useVirtual } from '@vuetify/v0'
+
+const data = shallowRef(Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`))
+const { element, items, offset, size, scroll } = useVirtual(data, { itemHeight: 80 })
+</script>
+
 <template>
   <div
     ref="element"
@@ -196,7 +204,7 @@ The virtual list requires a specific template structure:
 
 Most performant option. Specify a fixed `itemHeight`:
 
-```vue UseVirtual
+```vue UseVirtual playground
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual } from '@vuetify/v0'
@@ -239,7 +247,7 @@ const { element, items: virtualItems, offset, size, scroll } =
 
 For variable item heights, use `itemHeight: null` and measure each item:
 
-```vue UseVirtual
+```vue UseVirtual playground
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual, useResizeObserver } from '@vuetify/v0'
@@ -294,7 +302,7 @@ function setupItemResize(el: Element | undefined, index: number) {
 
 Perfect for chat applications where new messages appear at the bottom:
 
-```vue UseVirtual
+```vue UseVirtual playground
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual } from '@vuetify/v0'
@@ -318,7 +326,7 @@ const { element, items: virtualItems, offset, size, scroll } =
 
 Maintain scroll position when prepending items (e.g., loading older messages):
 
-```vue UseVirtual
+```vue UseVirtual playground
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { useVirtual } from '@vuetify/v0'

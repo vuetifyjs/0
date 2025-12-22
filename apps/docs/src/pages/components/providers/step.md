@@ -32,9 +32,12 @@ The Step component extends Single with navigation methods for moving through a s
 
 ## Anatomy
 
-```vue Anatomy
-<script lang="ts" setup>
-  import { Step } from '@vuetify/v0'
+```vue Anatomy playground
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Step } from '@vuetify/v0'
+
+const currentStep = ref()
 </script>
 
 <template>
@@ -139,10 +142,13 @@ The root component that manages step navigation state.
 
 - **Example**
 
-  ```vue StepRoot
-  <script lang="ts" setup>
-    import { Step } from '@vuetify/v0'
-  </script>
+  ```vue StepRoot playground
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Step } from '@vuetify/v0'
+
+const currentStep = ref()
+</script>
 
   <template>
     <Step.Root v-model="currentStep" v-slot="{ attrs, prev, next, first, last }">
@@ -226,10 +232,10 @@ Individual step items that register with the Step context.
 
 - **Example**
 
-  ```vue StepItem
-  <script lang="ts" setup>
-    import { Step } from '@vuetify/v0'
-  </script>
+  ```vue StepItem playground
+<script setup lang="ts">
+import { Step } from '@vuetify/v0'
+</script>
 
   <template>
     <!-- Step indicator with attrs spread -->
