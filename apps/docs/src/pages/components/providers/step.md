@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'E: Step'
   github: /components/Step/
+  renderless: true
 ---
 
 <script setup>

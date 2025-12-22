@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'E: Selection'
   github: /components/Selection/
+  renderless: true
 ---
 
 <script setup>

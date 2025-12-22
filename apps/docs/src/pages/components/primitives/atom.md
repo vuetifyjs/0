@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'E: Atom'
   github: /components/Atom/
+  renderless: false
 ---
 
 <script setup>

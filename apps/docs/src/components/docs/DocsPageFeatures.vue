@@ -2,6 +2,7 @@
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
   import { useClipboard } from '@/composables/useClipboard'
+  import metrics from '@/data/metrics.json'
 
   const props = defineProps<{
     frontmatter?: {
@@ -13,7 +14,8 @@
       features: {
         github: string
         label: string
-        performance?: number
+        renderless?: boolean
+        ssrSafe?: boolean
       }
     }
   }>()
@@ -45,6 +47,71 @@
     return `${base}/labels/${original}`
   })
 
+  // Extract name from github path (e.g., /composables/useRegistry/ -> useRegistry)
+  const itemName = toRef(() => {
+    const github = props.frontmatter?.features?.github
+    if (!github) return null
+
+    // Match composables: /composables/useRegistry/
+    const composableMatch = github.match(/\/composables\/([^/]+)\/?$/)
+    if (composableMatch) return composableMatch[1]
+
+    // Match components: /components/Atom/
+    const componentMatch = github.match(/\/components\/([^/]+)\/?$/)
+    if (componentMatch) return componentMatch[1]
+
+    return null
+  })
+
+  // Get metrics for this item
+  const itemMetrics = toRef(() => {
+    const name = itemName.value
+    if (!name) return null
+    return (metrics as Record<string, any>)[name] || null
+  })
+
+  // Coverage data
+  const coverage = toRef(() => {
+    const m = itemMetrics.value
+    if (!m?.coverage) return null
+
+    const overall = m.coverage.overall
+    return {
+      value: overall,
+      label: `${overall}% coverage`,
+      color: overall >= 80 ? 'text-success' : (overall >= 60 ? 'text-warning' : 'text-error'),
+    }
+  })
+
+  // Benchmark data (fastest operation)
+  const benchmark = toRef(() => {
+    const m = itemMetrics.value
+    if (!m?.benchmarks?._fastest) return null
+
+    return {
+      label: m.benchmarks._fastest.hzLabel,
+      title: m.benchmarks._fastest.name,
+    }
+  })
+
+  // GitHub links for test/bench files
+  const testFileLink = toRef(() => {
+    const github = props.frontmatter?.features?.github
+    if (!github || !itemMetrics.value?.coverage) return null
+    return `${base}/blob/master/packages/0/src${github}index.test.ts`
+  })
+
+  const benchFileLink = toRef(() => {
+    const github = props.frontmatter?.features?.github
+    if (!github || !itemMetrics.value?.benchmarks) return null
+    return `${base}/blob/master/packages/0/src${github}index.bench.ts`
+  })
+
+  // Static badges from frontmatter
+  // renderless: true = "Renderless", false = "Renders element", undefined = no chip
+  const renderless = toRef(() => props.frontmatter?.features?.renderless)
+  const ssrSafe = toRef(() => props.frontmatter?.features?.ssrSafe ?? false)
+
   async function onClickCopy () {
     if (loading.value) return
 
@@ -75,62 +142,123 @@
 </script>
 
 <template>
-  <div class="my-2 inline-flex gap-2 flex-wrap mb-8">
-    <a
-      :href="edit"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
+  <div class="my-2 flex flex-col gap-2 mb-8">
+    <!-- Action chips -->
+    <div class="inline-flex gap-2 flex-wrap">
+      <a
+        :href="edit"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <AppChip
+          color="text-info"
+          icon="pencil"
+          text="Edit this page"
+        />
+      </a>
+
+      <a
+        href="https://issues.vuetifyjs.com/?repo=vuetify0&type=bug"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <AppChip
+          color="text-error"
+          icon="bug"
+          text="Report a Bug"
+        />
+      </a>
+
+      <a
+        v-if="label"
+        :href="label"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <AppChip
+          color="text-warning"
+          icon="alert"
+          text="Open issues"
+        />
+      </a>
+
+      <a
+        v-if="github"
+        :href="github"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <AppChip
+          icon="github"
+          text="View on GitHub"
+        />
+      </a>
+
       <AppChip
+        :color="copied ? 'text-success' : 'text-on-surface'"
+        :icon="loading ? 'loading' : copied ? 'success' : 'markdown'"
+        :text="loading ? 'Copying...' : copied ? 'Copied' : 'Copy Page as Markdown'"
+        title="Copy Page as Markdown"
+        @click="onClickCopy"
+      />
+    </div>
+
+    <!-- Metric chips -->
+    <div
+      v-if="coverage || benchmark || renderless !== undefined || ssrSafe"
+      class="inline-flex gap-2 flex-wrap"
+    >
+      <a
+        v-if="coverage"
+        :href="testFileLink"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <AppChip
+          :color="coverage.color"
+          icon="test"
+          :text="coverage.label"
+          :title="`Statement: ${itemMetrics?.coverage?.statements}%, Functions: ${itemMetrics?.coverage?.functions}%, Branches: ${itemMetrics?.coverage?.branches}%`"
+        />
+      </a>
+
+      <a
+        v-if="benchmark"
+        :href="benchFileLink"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <AppChip
+          color="text-accent"
+          icon="benchmark"
+          :text="benchmark.label"
+          :title="benchmark.title"
+        />
+      </a>
+
+      <AppChip
+        v-if="renderless === true"
+        color="text-secondary"
+        icon="renderless"
+        text="Renderless"
+        title="Component renders no DOM element by default"
+      />
+
+      <AppChip
+        v-if="renderless === false"
+        color="text-secondary"
+        icon="layers"
+        text="Renders element"
+        title="Component renders a DOM element by default"
+      />
+
+      <AppChip
+        v-if="ssrSafe"
         color="text-info"
-        icon="pencil"
-        text="Edit this page"
+        icon="ssr"
+        text="SSR Safe"
+        title="Safe for server-side rendering"
       />
-    </a>
-
-    <a
-      href="https://issues.vuetifyjs.com/?repo=vuetify0&type=bug"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <AppChip
-        color="text-error"
-        icon="bug"
-        text="Report a Bug"
-      />
-    </a>
-
-    <a
-      v-if="label"
-      :href="label"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <AppChip
-        color="text-warning"
-        icon="alert"
-        text="Open issues"
-      />
-    </a>
-
-    <a
-      v-if="github"
-      :href="github"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      <AppChip
-        icon="github"
-        text="View on GitHub"
-      />
-    </a>
-
-    <AppChip
-      :color="copied ? 'text-success' : 'text-on-surface'"
-      :icon="loading ? 'loading' : copied ? 'success' : 'markdown'"
-      :text="loading ? 'Copying...' : copied ? 'Copied' : 'Copy Page as Markdown'"
-      title="Copy Page as Markdown"
-      @click="onClickCopy"
-    />
+    </div>
   </div>
 </template>

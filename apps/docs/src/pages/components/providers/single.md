@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'E: Single'
   github: /components/Single/
+  renderless: true
 ---
 
 <script setup>

@@ -1,0 +1,399 @@
+{
+  "Atom": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "ExpansionPanel": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "createContext": {
+    "coverage": {
+      "statements": 100,
+      "functions": 0,
+      "branches": 100,
+      "overall": 70
+    }
+  },
+  "createPlugin": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 0,
+      "overall": 80
+    }
+  },
+  "createTrinity": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "toArray": {
+    "coverage": {
+      "statements": 100,
+      "functions": 0,
+      "branches": 100,
+      "overall": 70
+    }
+  },
+  "toReactive": {
+    "coverage": {
+      "statements": 93.2,
+      "functions": 100,
+      "branches": 100,
+      "overall": 96.6
+    }
+  },
+  "useBreakpoints": {
+    "coverage": {
+      "statements": 83.3,
+      "functions": 40,
+      "branches": 75,
+      "overall": 68.7
+    }
+  },
+  "useEventListener": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "useFeatures": {
+    "coverage": {
+      "statements": 95.8,
+      "functions": 0,
+      "branches": 100,
+      "overall": 67.9
+    }
+  },
+  "useFilter": {
+    "coverage": {
+      "statements": 82.2,
+      "functions": 92.9,
+      "branches": 75,
+      "overall": 84
+    }
+  },
+  "useForm": {
+    "coverage": {
+      "statements": 89.9,
+      "functions": 100,
+      "branches": 76.5,
+      "overall": 90.3
+    }
+  },
+  "useGroup": {
+    "coverage": {
+      "statements": 87.8,
+      "functions": 84.2,
+      "branches": 75,
+      "overall": 84.2
+    }
+  },
+  "useHydration": {
+    "coverage": {
+      "statements": 90.9,
+      "functions": 50,
+      "branches": 100,
+      "overall": 80.5
+    }
+  },
+  "useIntersectionObserver": {
+    "coverage": {
+      "statements": 87.8,
+      "functions": 80,
+      "branches": 100,
+      "overall": 87.9
+    }
+  },
+  "useKeydown": {
+    "coverage": {
+      "statements": 90.9,
+      "functions": 100,
+      "branches": 100,
+      "overall": 95.5
+    }
+  },
+  "useLocale": {
+    "coverage": {
+      "statements": 75,
+      "functions": 50,
+      "branches": 75,
+      "overall": 67.5
+    }
+  },
+  "useLogger": {
+    "coverage": {
+      "statements": 75,
+      "functions": 9.1,
+      "branches": 90.5,
+      "overall": 58.3
+    }
+  },
+  "useMutationObserver": {
+    "coverage": {
+      "statements": 97.2,
+      "functions": 57.1,
+      "branches": 100,
+      "overall": 85.7
+    }
+  },
+  "useOverflow": {
+    "coverage": {
+      "statements": 94.4,
+      "functions": 100,
+      "branches": 87.5,
+      "overall": 94.7
+    }
+  },
+  "usePagination": {
+    "coverage": {
+      "statements": 87.7,
+      "functions": 100,
+      "branches": 75,
+      "overall": 88.9
+    }
+  },
+  "usePermissions": {
+    "coverage": {
+      "statements": 85,
+      "functions": 0,
+      "branches": 84.6,
+      "overall": 59.4
+    }
+  },
+  "useProxyModel": {
+    "coverage": {
+      "statements": 91.8,
+      "functions": 100,
+      "branches": 100,
+      "overall": 95.9
+    }
+  },
+  "useProxyRegistry": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "useQueue": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "useRegistry": {
+    "coverage": {
+      "statements": 97.5,
+      "functions": 100,
+      "branches": 97.6,
+      "overall": 98.3
+    },
+    "benchmarks": {
+      "registration": {
+        "name": "register 1000 items (index values)",
+        "hz": 4806,
+        "hzLabel": "4.8k ops/s",
+        "mean": 0.20807957084019482,
+        "meanLabel": "208.1μs",
+        "rme": 11.4
+      },
+      "lookup operations": {
+        "name": "lookup by index",
+        "hz": 3945,
+        "hzLabel": "3.9k ops/s",
+        "mean": 0.2535121490116445,
+        "meanLabel": "253.5μs",
+        "rme": 11.8
+      },
+      "management operations": {
+        "name": "clear operations",
+        "hz": 5176,
+        "hzLabel": "5.2k ops/s",
+        "mean": 0.193204713292109,
+        "meanLabel": "193.2μs",
+        "rme": 4.6
+      },
+      "_fastest": {
+        "name": "clear operations",
+        "hz": 5176,
+        "hzLabel": "5.2k ops/s"
+      }
+    }
+  },
+  "useResizeObserver": {
+    "coverage": {
+      "statements": 92.9,
+      "functions": 100,
+      "branches": 100,
+      "overall": 96.5
+    }
+  },
+  "useSelection": {
+    "coverage": {
+      "statements": 96.9,
+      "functions": 100,
+      "branches": 92.6,
+      "overall": 97
+    }
+  },
+  "useSingle": {
+    "coverage": {
+      "statements": 75,
+      "functions": 100,
+      "branches": 63.6,
+      "overall": 80.2
+    }
+  },
+  "useStep": {
+    "coverage": {
+      "statements": 78.9,
+      "functions": 0,
+      "branches": 80,
+      "overall": 55.5
+    }
+  },
+  "useStorage": {
+    "coverage": {
+      "statements": 74.4,
+      "functions": 100,
+      "branches": 41.7,
+      "overall": 75.5
+    }
+  },
+  "useTheme": {
+    "coverage": {
+      "statements": 97.3,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.7
+    }
+  },
+  "useTimeline": {
+    "coverage": {
+      "statements": 82.5,
+      "functions": 0,
+      "branches": 60,
+      "overall": 53.3
+    }
+  },
+  "useToggleScope": {
+    "coverage": {
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
+    }
+  },
+  "useTokens": {
+    "coverage": {
+      "statements": 83.5,
+      "functions": 0,
+      "branches": 96.6,
+      "overall": 61.1
+    },
+    "benchmarks": {
+      "registration operations": {
+        "name": "resolve operations",
+        "hz": 24749,
+        "hzLabel": "24.7k ops/s",
+        "mean": 0.040404906407085175,
+        "meanLabel": "40.4μs",
+        "rme": 13.1
+      },
+      "_fastest": {
+        "name": "resolve operations",
+        "hz": 24749,
+        "hzLabel": "24.7k ops/s"
+      }
+    }
+  },
+  "useVirtual": {
+    "coverage": {
+      "statements": 84.5,
+      "functions": 88.9,
+      "branches": 92.6,
+      "overall": 87.4
+    },
+    "benchmarks": {
+      "initialization": {
+        "name": "initialize with 1,000 items",
+        "hz": 11223,
+        "hzLabel": "11.2k ops/s",
+        "mean": 0.08910268193157518,
+        "meanLabel": "89.1μs",
+        "rme": 5.6
+      },
+      "offset calculation (rebuild)": {
+        "name": "rebuild offsets for 1,000 items",
+        "hz": 8811,
+        "hzLabel": "8.8k ops/s",
+        "mean": 0.11349963163867248,
+        "meanLabel": "113.5μs",
+        "rme": 6.7
+      },
+      "binary search (findIndex)": {
+        "name": "binary search in 10,000 offsets - middle",
+        "hz": 1261,
+        "hzLabel": "1.3k ops/s",
+        "mean": 0.7930758050713188,
+        "meanLabel": "793.1μs",
+        "rme": 8.1
+      },
+      "scroll operations": {
+        "name": "handle scroll event (1,000 items)",
+        "hz": 4581,
+        "hzLabel": "4.6k ops/s",
+        "mean": 0.21829916499344773,
+        "meanLabel": "218.3μs",
+        "rme": 4.7
+      },
+      "scrollToIndex operations": {
+        "name": "scroll to various indices (10,000 items)",
+        "hz": 940,
+        "hzLabel": "940 ops/s",
+        "mean": 1.0638862574468089,
+        "meanLabel": "1.06ms",
+        "rme": 10.9
+      },
+      "item resize operations": {
+        "name": "resize single item",
+        "hz": 11135,
+        "hzLabel": "11.1k ops/s",
+        "mean": 0.08980940409483847,
+        "meanLabel": "89.8μs",
+        "rme": 9.7
+      },
+      "computed items": {
+        "name": "access computed items (1,000 total)",
+        "hz": 11274,
+        "hzLabel": "11.3k ops/s",
+        "mean": 0.0887027372715917,
+        "meanLabel": "88.7μs",
+        "rme": 8.8
+      },
+      "_fastest": {
+        "name": "access computed items (1,000 total)",
+        "hz": 11274,
+        "hzLabel": "11.3k ops/s"
+      }
+    }
+  }
+}

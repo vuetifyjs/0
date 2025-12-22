@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'E: Group'
   github: /components/Group/
+  renderless: true
 ---
 
 <script setup>
