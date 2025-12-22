@@ -19,9 +19,8 @@
  * dismissal per WCAG/APG requirements.
  */
 
-// Utilities
-import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
-import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
+// Types
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 // Composables
 import {
@@ -29,8 +28,10 @@ import {
   useWindowEventListener,
 } from '#v0/composables/useEventListener'
 
-// Types
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
+
+// Utilities
+import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
 export type ClickOutsideElement = HTMLElement | Ref<HTMLElement | null | undefined> | null | undefined
 export type ClickOutsideTarget = MaybeRefOrGetter<ClickOutsideElement>

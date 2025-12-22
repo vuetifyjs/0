@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-  import { shallowRef, useTemplateRef, computed, nextTick, watch } from 'vue'
   import { useClickOutside, useKeydown } from '@vuetify/v0'
+  import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
   const isOpen = shallowRef(false)
   const buttonRef = useTemplateRef<HTMLElement>('button')

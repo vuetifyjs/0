@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { effectScope, ref, nextTick } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { effectScope, nextTick, ref } from 'vue'
 import { useClickOutside } from './index'
 
 /**
@@ -312,7 +312,6 @@ describe('useClickOutside', () => {
       // Should not trigger because pointerup was inside
       expect(handler).not.toHaveBeenCalled()
     })
-
   })
 
   describe('touch scroll threshold', () => {
@@ -1270,7 +1269,7 @@ describe('useClickOutside', () => {
     })
   })
 
-  describe('SSR safety', () => {
+  describe('sSR safety', () => {
     it('returns valid API when event listeners are no-ops', async () => {
       // The composable uses useDocumentEventListener and useWindowEventListener
       // which return no-op cleanup functions during SSR (when IN_BROWSER is false).
