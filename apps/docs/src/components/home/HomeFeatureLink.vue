@@ -22,10 +22,9 @@
   <Atom
     :as="isInternal ? 'router-link' : 'a'"
     class="group flex items-center gap-5 p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-all cursor-pointer"
-    :href="!isInternal ? to : undefined"
-    :rel="!isInternal ? 'noopener noreferrer' : undefined"
-    :target="!isInternal ? '_blank' : undefined"
-    :to="isInternal ? to : undefined"
+    v-bind="isInternal
+      ? { to }
+      : { href: to, target: '_blank', rel: 'noopener noreferrer' }"
   >
     <div class="w-12 h-12 shrink-0 rounded-lg bg-primary flex items-center justify-center text-on-primary group-hover:bg-primary transition-colors">
       <AppIcon :icon :size="22" />
