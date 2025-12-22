@@ -40,6 +40,8 @@
       <img
         alt="Vuetify0 Logo"
         class="mx-auto"
+        decoding="async"
+        fetchpriority="high"
         height="56"
         src="https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg"
         width="200"
