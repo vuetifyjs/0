@@ -17,13 +17,6 @@ A composable that extends `useSelection` to enforce single-item selection. Autom
 
 <DocsPageFeatures :frontmatter />
 
-<Mermaid code="
-flowchart TD
-useRegistry --> useSelection
-useSelection --> useSingle
-useSingle --> useStep
-" />
-
 ## Usage
 
 The `useSingle` composable is used when you have a **collection of items** but want to allow **only one** to be selected at any time.
@@ -45,6 +38,16 @@ console.log(single.selectedValue) // 'Apple'
 // Selecting a new item automatically clears the previous selection
 single.select('banana')
 console.log(single.selectedId) // 'banana' (replaces apple)
+```
+
+## Architecture
+
+The `useSingle` composable is comprised of the following hierarchy:
+
+```mermaid
+flowchart TD
+  useRegistry --> useSelection
+  useSelection --> useSingle
 ```
 
 ## API

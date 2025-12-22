@@ -1,9 +1,9 @@
-// Composables
-import { useResizeObserver, useElementSize } from './index'
-
 // Utilities
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, nextTick } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { nextTick, ref } from 'vue'
+// Composables
+import { useElementSize, useResizeObserver } from './index'
 
 const mockIsHydrated = ref(false)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -139,12 +139,116 @@ describe('useResizeObserver', () => {
     resume()
     expect(isPaused.value).toBe(false)
   })
+
+  it('should stop observing after first resize when once option is true', async () => {
+    // Set up mock to capture callback BEFORE hydration triggers setup
+    let observerCallback: (entries: any[]) => void
+    const localMockObserver = {
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    globalThis.ResizeObserver = vi.fn(function (this: any, cb: any) {
+      observerCallback = cb
+      return localMockObserver
+    }) as any
+    window.ResizeObserver = globalThis.ResizeObserver
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    const { isActive } = useResizeObserver(target, callback, { once: true })
+
+    // Trigger hydration to create observer
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(isActive.value).toBe(true)
+    expect(localMockObserver.observe).toHaveBeenCalledWith(element, { box: 'content-box' })
+
+    // Simulate resize
+    observerCallback!([{
+      contentRect: {
+        width: 200,
+        height: 100,
+        top: 0,
+        left: 0,
+      },
+      target: element,
+    }])
+
+    expect(callback).toHaveBeenCalledWith([{
+      contentRect: {
+        width: 200,
+        height: 100,
+        top: 0,
+        left: 0,
+      },
+      target: element,
+    }])
+    expect(localMockObserver.disconnect).toHaveBeenCalled()
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should stop observing after first resize even with multiple entries when once is true', async () => {
+    // Set up mock to capture callback BEFORE hydration triggers setup
+    let observerCallback: (entries: any[]) => void
+    const localMockObserver = {
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    globalThis.ResizeObserver = vi.fn(function (this: any, cb: any) {
+      observerCallback = cb
+      return localMockObserver
+    }) as any
+    window.ResizeObserver = globalThis.ResizeObserver
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    const { isActive } = useResizeObserver(target, callback, { once: true })
+
+    // Trigger hydration to create observer
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(isActive.value).toBe(true)
+
+    // Simulate multiple resize entries
+    observerCallback!([
+      {
+        contentRect: {
+          width: 200,
+          height: 100,
+          top: 0,
+          left: 0,
+        },
+        target: element,
+      },
+      {
+        contentRect: {
+          width: 250,
+          height: 125,
+          top: 0,
+          left: 0,
+        },
+        target: element,
+      },
+    ])
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(localMockObserver.disconnect).toHaveBeenCalled()
+    expect(isActive.value).toBe(false)
+  })
 })
 
 describe('useElementSize', () => {
   let element: HTMLDivElement
 
   beforeEach(() => {
+    mockIsHydrated.value = false
+
     element = document.createElement('div')
     element.getBoundingClientRect = vi.fn(() => ({
       width: 150,

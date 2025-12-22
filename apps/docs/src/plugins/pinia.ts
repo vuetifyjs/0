@@ -1,5 +1,5 @@
-import { createPinia } from 'pinia'
 import type { PiniaPluginContext } from 'pinia'
+import { createPinia } from 'pinia'
 
 const pinia = createPinia()
 

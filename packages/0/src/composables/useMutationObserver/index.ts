@@ -15,8 +15,8 @@
  * Perfect for detecting DOM changes and responding to mutations.
  */
 
-// Utilities
-import { computed, onScopeDispose, shallowReadonly, shallowRef, watch } from 'vue'
+// Types
+import type { Ref } from 'vue'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
@@ -24,8 +24,8 @@ import { useHydration } from '#v0/composables/useHydration'
 // Globals
 import { SUPPORTS_MUTATION_OBSERVER } from '#v0/constants/globals'
 
-// Types
-import type { Ref } from 'vue'
+// Utilities
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
 
 export interface MutationObserverRecord {
   type: 'attributes' | 'childList' | 'characterData'
@@ -41,6 +41,7 @@ export interface MutationObserverRecord {
 
 export interface UseMutationObserverOptions {
   immediate?: boolean
+  once?: boolean
   childList?: boolean
   attributes?: boolean
   characterData?: boolean
@@ -126,9 +127,9 @@ export function useMutationObserver (
   options: UseMutationObserverOptions = {},
 ): UseMutationObserverReturn {
   const { isHydrated } = useHydration()
-  const observer = shallowRef<MutationObserver>()
+  const observer = shallowRef<MutationObserver | null>()
   const isPaused = shallowRef(false)
-  const isActive = computed(() => !!observer.value)
+  const isActive = toRef(() => !!observer.value)
 
   const observerOptions = {
     childList: options.childList ?? true,
@@ -141,6 +142,8 @@ export function useMutationObserver (
   }
 
   function setup () {
+    // null = permanently stopped, undefined = not yet created
+    if (observer.value === null) return
     if (!isHydrated.value || !SUPPORTS_MUTATION_OBSERVER || !target.value || isPaused.value) return
 
     observer.value = new MutationObserver(mutations => {
@@ -157,6 +160,10 @@ export function useMutationObserver (
       }))
 
       callback(transformedEntries)
+
+      if (options.once) {
+        stop()
+      }
     })
 
     observer.value.observe(target.value, observerOptions)
@@ -182,13 +189,24 @@ export function useMutationObserver (
       }
 
       callback([syntheticEntry])
+
+      if (options.once) {
+        stop()
+      }
     }
   }
 
-  watch([isHydrated, target], () => {
+  watchEffect(() => {
+    // Track reactive dependencies
+    const hydrated = isHydrated.value
+    const el = target.value
+
     cleanup()
-    setup()
-  }, { immediate: true })
+
+    if (hydrated && el) {
+      setup()
+    }
+  })
 
   function cleanup () {
     if (observer.value) {
@@ -209,6 +227,7 @@ export function useMutationObserver (
 
   function stop () {
     cleanup()
+    observer.value = null
   }
 
   onScopeDispose(stop, true)

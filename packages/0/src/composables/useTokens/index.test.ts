@@ -1,13 +1,13 @@
-// Composables
-import { createTokensContext, createTokens } from './index'
-
-// Utilities
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { defineComponent, ref, nextTick, computed } from 'vue'
-
 // Types
 import type { TokenCollection } from './index'
+
+import { mount } from '@vue/test-utils'
+// Utilities
+import { describe, expect, it, vi } from 'vitest'
+import { computed, defineComponent, nextTick, ref } from 'vue'
+
+// Composables
+import { createTokens, createTokensContext } from './index'
 
 describe('createTokensContext', () => {
   describe('basic functionality', () => {
@@ -633,7 +633,7 @@ describe('useTokens edge cases', () => {
     })
   })
 
-  describe('W3C Design Tokens format', () => {
+  describe('w3C Design Tokens format', () => {
     it('should handle $type metadata', () => {
       const tokens: TokenCollection = {
         fontSize: {

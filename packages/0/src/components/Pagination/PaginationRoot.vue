@@ -20,27 +20,27 @@
  */
 
 <script lang="ts">
+  // Types
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+
+  import type { PaginationContext, PaginationTicket } from '#v0/composables/usePagination'
+  import type { RegistryContext } from '#v0/composables/useRegistry'
   // Components
   import { Atom } from '#v0/components/Atom'
-
   // Composables
   import { createContext } from '#v0/composables/createContext'
+  import { useLocale } from '#v0/composables/useLocale'
+
   import { createOverflow } from '#v0/composables/useOverflow'
   import { createPagination } from '#v0/composables/usePagination'
-  import { useLocale } from '#v0/composables/useLocale'
-  import { useRegistry } from '#v0/composables/useRegistry'
 
-  // Utilities
-  import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
-  import { isNullOrUndefined } from '#v0/utilities'
+  import { useRegistry } from '#v0/composables/useRegistry'
 
   // Constants
   import { IN_BROWSER } from '#v0/constants/globals'
-
-  // Types
-  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
-  import type { RegistryContext } from '#v0/composables/useRegistry'
-  import type { PaginationContext, PaginationTicket } from '#v0/composables/usePagination'
+  import { isNullOrUndefined } from '#v0/utilities'
+  // Utilities
+  import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })

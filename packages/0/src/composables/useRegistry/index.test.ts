@@ -1,8 +1,8 @@
+// Utilities
+import { describe, expect, it, vi } from 'vitest'
+
 // Composables
 import { createRegistryContext, useRegistry } from './index'
-
-// Utilities
-import { describe, it, expect, vi } from 'vitest'
 
 describe('useRegistry', () => {
   describe('registration', () => {
@@ -196,7 +196,7 @@ describe('useRegistry', () => {
       const registry = useRegistry()
       registry.register({ id: 'item-1', index: 2, value: 'value-1' })
       registry.register({ id: 'item-2', index: 3, value: 'value-2' })
-      registry.register({ id: 'item-3', index: 4, valueIsIndex: true })
+      registry.register({ id: 'item-3', index: 4 })
 
       expect(registry.lookup(2)).toBe('item-1')
       expect(registry.get('item-1')?.index).toBe(2)
@@ -206,6 +206,42 @@ describe('useRegistry', () => {
       expect(registry.lookup(3)).toBeUndefined()
       expect(registry.get('item-1')?.index).toBe(0)
       expect(registry.get('item-3')?.value).toBe(2)
+      // Verify catalog is updated after reindex for valueIsIndex tickets
+      expect(registry.browse(2)).toEqual(['item-3'])
+    })
+
+    it('should partially reindex from dirty index when unregistering', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'item-1' }) // valueIsIndex: true, value: 0
+      registry.register({ id: 'item-2' }) // valueIsIndex: true, value: 1
+      registry.register({ id: 'item-3' }) // valueIsIndex: true, value: 2
+
+      // Unregister from middle triggers partial reindex
+      registry.unregister('item-1')
+
+      // Remaining items should have updated indexes and values
+      expect(registry.get('item-2')?.index).toBe(0)
+      expect(registry.get('item-2')?.value).toBe(0)
+      expect(registry.get('item-3')?.index).toBe(1)
+      expect(registry.get('item-3')?.value).toBe(1)
+
+      // Catalog should be updated correctly
+      expect(registry.browse(0)).toEqual(['item-2'])
+      expect(registry.browse(1)).toEqual(['item-3'])
+    })
+
+    it('should trigger lazy reindex via browse when needed', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'item-1' }) // valueIsIndex: true
+      registry.register({ id: 'item-2' }) // valueIsIndex: true
+      registry.register({ id: 'item-3' }) // valueIsIndex: true
+
+      // Offboard sets needsReindex but doesn't immediately reindex
+      registry.offboard(['item-1'])
+
+      // browse() should trigger lazy reindex when indexDependentCount > 0
+      expect(registry.browse(0)).toEqual(['item-2'])
+      expect(registry.browse(1)).toEqual(['item-3'])
     })
 
     it('should clear the entire registry', () => {
@@ -237,8 +273,8 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Catalog management', () => {
-    it('Catalogs tickets with duplicate values', () => {
+  describe('catalog management', () => {
+    it('should catalog tickets with duplicate values', () => {
       const registry = useRegistry()
       registry.onboard([{ id: 'item-1', value: 'value-1' }, { id: 'item-2', value: 'value-2' }, { id: 'dupe-item-1', value: 'value-1', valueIsIndex: true }])
       const ids = registry.browse('value-1')
@@ -248,9 +284,18 @@ describe('useRegistry', () => {
       const idsAfterUnregister = registry.browse('value-1')
       expect(idsAfterUnregister).toEqual(['item-1'])
     })
+
+    it('should return undefined when browsing non-existent value', () => {
+      const registry = useRegistry()
+      registry.register({ id: 'item-1', value: 'exists' })
+
+      expect(registry.browse('non-existent')).toBeUndefined()
+      expect(registry.browse(999)).toBeUndefined()
+      expect(registry.browse(null)).toBeUndefined()
+    })
   })
 
-  describe('Event emission', () => {
+  describe('event emission', () => {
     it('should not emit events when events option is disabled', () => {
       const registry = useRegistry({ events: false })
       const listener = vi.fn()
@@ -260,7 +305,7 @@ describe('useRegistry', () => {
       registry.register({ id: 'test' })
 
       expect(listener).not.toHaveBeenCalled()
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('events are disabled'))
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
 
       warnSpy.mockRestore()
     })
@@ -356,7 +401,7 @@ describe('useRegistry', () => {
 
       registry.on('register:ticket', vi.fn())
 
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('events are disabled'))
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
 
       warnSpy.mockRestore()
     })
@@ -375,7 +420,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Cache management', () => {
+  describe('cache management', () => {
     it('should cache keys, values, and entries', () => {
       const registry = useRegistry()
       registry.register({ id: 'item-1' })
@@ -446,7 +491,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Seek functionality', () => {
+  describe('seek functionality', () => {
     it('should seek first ticket without predicate', () => {
       const registry = useRegistry()
       registry.register({ id: 'item-1', value: 'a' })
@@ -524,7 +569,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Dispose functionality', () => {
+  describe('dispose functionality', () => {
     it('should clear collection and listeners on dispose', () => {
       const registry = useRegistry({ events: true })
       const listener = vi.fn()
@@ -550,7 +595,7 @@ describe('useRegistry', () => {
     })
   })
 
-  describe('Edge cases', () => {
+  describe('edge cases', () => {
     it('should handle registering duplicate IDs by returning existing ticket', () => {
       const registry = useRegistry()
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -620,7 +665,7 @@ describe('useRegistry', () => {
   })
 })
 
-describe('Batch operations', () => {
+describe('batch operations', () => {
   it('should return the value from the batched function', () => {
     const registry = useRegistry()
 

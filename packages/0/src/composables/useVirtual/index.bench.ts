@@ -1,11 +1,11 @@
-// Composables
-import { useVirtual } from './index'
+// Utilities
+import { bench, describe, vi } from 'vitest'
 
 // Vue
 import { ref } from 'vue'
 
-// Utilities
-import { bench, describe, vi } from 'vitest'
+// Composables
+import { useVirtual } from './index'
 
 // Mock useResizeObserver to avoid lifecycle hook warnings
 vi.mock('#v0/composables/useResizeObserver', () => ({

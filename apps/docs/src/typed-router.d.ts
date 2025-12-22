@@ -443,6 +443,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/releases': RouteRecordInfo<
+      '/releases',
+      '/releases',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/storybook/': RouteRecordInfo<
       '/storybook/',
       '/storybook',
@@ -834,6 +841,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/introduction/getting-started.md': {
       routes:
         | '/introduction/getting-started'
+      views:
+        | never
+    }
+    'src/pages/releases.md': {
+      routes:
+        | '/releases'
       views:
         | never
     }

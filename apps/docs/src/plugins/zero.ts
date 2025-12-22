@@ -1,11 +1,11 @@
+// Types
+import type { App } from 'vue'
+
 // Vuetify0
-import { createBreakpointsPlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, useStorage, useTheme, IN_BROWSER } from '@vuetify/v0'
+import { createBreakpointsPlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
 
 // Plugins
 import { createIconPlugin } from './icons'
-
-// Types
-import type { App } from 'vue'
 
 export default function zero (app: App) {
   app.use(createIconPlugin())
@@ -42,8 +42,9 @@ export default function zero (app: App) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
 
-  function resolveTheme (preference: string | null | undefined): 'light' | 'dark' {
-    if (preference === 'light' || preference === 'dark') return preference
+  function resolveTheme (preference: string | null | undefined): 'light' | 'dark' | 'high-contrast' {
+    if (preference === 'light' || preference === 'dark' || preference === 'high-contrast') return preference
+    // 'system' or unknown/null preference resolves to system theme
     return getSystemTheme()
   }
 
@@ -56,7 +57,7 @@ export default function zero (app: App) {
       default: savedTheme,
       target: 'html',
       themes: {
-        light: {
+        'light': {
           dark: false,
           colors: {
             'primary': '#3b82f6',
@@ -84,7 +85,7 @@ export default function zero (app: App) {
             'on-surface-variant': '#f5f5f5',
           },
         },
-        dark: {
+        'dark': {
           dark: true,
           colors: {
             'primary': '#c4b5fd',
@@ -112,22 +113,37 @@ export default function zero (app: App) {
             'on-surface-variant': '#1a1a1a',
           },
         },
+        'high-contrast': {
+          dark: true,
+          colors: {
+            'primary': '#ffff00',
+            'secondary': '#00ffff',
+            'accent': '#ff00ff',
+            'error': '#ff0000',
+            'info': '#00ffff',
+            'success': '#00ff00',
+            'warning': '#ffff00',
+            'background': '#000000',
+            'surface': '#000000',
+            'surface-tint': '#1a1a1a',
+            'surface-variant': '#000000',
+            'divider': '#ffffff',
+            'pre': '#0a0a0a',
+            'on-primary': '#000000',
+            'on-secondary': '#000000',
+            'on-accent': '#000000',
+            'on-error': '#000000',
+            'on-info': '#000000',
+            'on-success': '#000000',
+            'on-warning': '#000000',
+            'on-background': '#ffffff',
+            'on-surface': '#ffffff',
+            'on-surface-variant': '#ffffff',
+          },
+        },
       },
     }),
   )
 
-  // Listen for system theme changes when using system preference
-  if (IN_BROWSER && ['light', 'dark'].includes(themePreference.value)) {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', () => {
-      app.runWithContext(() => {
-        const storage = useStorage()
-        const stored = storage.get<string>('theme')
-        // Only auto-switch if user hasn't manually selected a theme
-        if (['light', 'dark'].includes(stored.value)) {
-          useTheme().select(getSystemTheme())
-        }
-      })
-    })
-  }
+  // System theme change listener is handled by useThemeToggle composable
 }

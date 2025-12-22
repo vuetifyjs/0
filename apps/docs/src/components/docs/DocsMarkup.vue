@@ -1,10 +1,7 @@
 <script lang="ts" setup>
-  // Composables
-  import { useBin } from '@/composables/bin'
-  import { usePlayground } from '@/composables/playground'
-
   // Utilities
-  import { ref, computed } from 'vue'
+  import { computed } from 'vue'
+  import { decodeBase64 } from '@/utilities/decodeBase64'
 
   const props = defineProps<{
     code: string // base64 encoded
@@ -13,38 +10,7 @@
     playground?: boolean
   }>()
 
-  const decodedCode = computed(() => {
-    try {
-      return atob(props.code)
-    } catch (error) {
-      console.error('Failed to decode base64 code:', error)
-      return props.code
-    }
-  })
-
-  const copied = ref(false)
-
-  async function copyCode () {
-    try {
-      await navigator.clipboard.writeText(decodedCode.value)
-      copied.value = true
-      setTimeout(() => {
-        copied.value = false
-      }, 2000)
-    } catch (error) {
-      console.error('Failed to copy code:', error)
-    }
-  }
-
-  function openInBin () {
-    const url = useBin(decodedCode.value, props.language || 'markdown', props.title)
-    window.open(url, '_blank')
-  }
-
-  function openInPlayground () {
-    const url = usePlayground(decodedCode.value)
-    window.open(url, '_blank')
-  }
+  const decodedCode = computed(() => decodeBase64(props.code))
 </script>
 
 <template>
@@ -55,36 +21,17 @@
     >
       {{ language }}
     </span>
-    <div class="absolute top-3 right-3 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-      <button
-        v-if="playground"
-        aria-label="Open in Vuetify Play"
-        class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
-        title="Open in Vuetify Play"
-        type="button"
-        @click="openInPlayground"
-      >
-        <AppIcon icon="vuetify-play" />
-      </button>
-      <button
-        aria-label="Open in Vuetify Bin"
-        class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
-        title="Open in Vuetify Bin"
-        type="button"
-        @click="openInBin"
-      >
-        <AppIcon icon="vuetify-bin" />
-      </button>
-      <button
-        :aria-label="!copied ? 'Copy code' : 'Copied'"
-        class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
-        :title="!copied ? 'Copy code' : 'Copied'"
-        type="button"
-        @click="copyCode"
-      >
-        <AppIcon :icon="!copied ? 'copy' : 'success'" />
-      </button>
-    </div>
+
+    <DocsCodeActions
+      bin
+      class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+      :code="decodedCode"
+      :language
+      :playground
+      show-copy
+      :title
+    />
+
     <slot />
   </div>
 </template>

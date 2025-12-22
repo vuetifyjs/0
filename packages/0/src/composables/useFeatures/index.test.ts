@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
+import { describe, expect, it } from 'vitest'
 import { createApp } from 'vue'
+import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
 
 describe('createFeatures', () => {
   describe('basic functionality', () => {

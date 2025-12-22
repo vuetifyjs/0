@@ -1,11 +1,12 @@
-// Composables
-import { createPlugin, createTokensContext } from '@vuetify/v0'
+// Types
+import type { App } from 'vue'
 
 // Icons
 import {
   mdiAlert,
   mdiBookOpenPageVariant,
   mdiBug,
+  mdiCalendar,
   mdiCheck,
   mdiChevronDown,
   mdiChevronLeft,
@@ -14,24 +15,32 @@ import {
   mdiClose,
   mdiCog,
   mdiContentCopy,
+  mdiContrastCircle,
   mdiDevTo,
+  mdiDownload,
+  mdiFolderZipOutline,
   mdiKeyboard,
   mdiLanguageMarkdown,
   mdiLanguageTypescript,
   mdiLayersTriple,
+  mdiMagnify,
   mdiMenu,
+  mdiMonitor,
   mdiOpenInNew,
   mdiPencil,
   mdiPuzzle,
   mdiRobot,
+  mdiShareVariant,
   mdiShieldCheck,
   mdiTagOutline,
   mdiWeatherNight,
   mdiWeatherSunny,
 } from '@mdi/js'
 
-// Types
-import type { App } from 'vue'
+// Aliases use token reference syntax to avoid duplicating icon paths
+
+// Composables
+import { createPlugin, createTokensContext } from '@vuetify/v0'
 
 export const [useIconContext, provideIconContext, context] = createTokensContext({
   namespace: 'v0:icons',
@@ -47,19 +56,28 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'menu': mdiMenu,
     'left': mdiChevronLeft,
     'right': mdiChevronRight,
-    'up': mdiChevronUp,
-    'down': mdiChevronDown,
+    'chevron-up': mdiChevronUp,
+    'chevron-down': mdiChevronDown,
+    'up': '{chevron-up}',
+    'down': '{chevron-down}',
     'open-in-new': mdiOpenInNew,
     'tag': mdiTagOutline,
     'success': mdiCheck,
     'theme-light': mdiWeatherSunny,
     'theme-dark': mdiWeatherNight,
+    'theme-high-contrast': mdiContrastCircle,
+    'theme-system': mdiMonitor,
     'book': mdiBookOpenPageVariant,
     'layers': mdiLayersTriple,
     'puzzle': mdiPuzzle,
     'shield': mdiShieldCheck,
     'typescript': mdiLanguageTypescript,
     'keyboard': mdiKeyboard,
+    'search': mdiMagnify,
+    'calendar': mdiCalendar,
+    'share': mdiShareVariant,
+    'download': mdiDownload,
+    'folder-zip': mdiFolderZipOutline,
     'tailwind': 'M12 6C9.33 6 7.67 7.33 7 10C8 8.67 9.17 8.17 10.5 8.5C11.26 8.69 11.81 9.24 12.41 9.85C13.39 10.85 14.5 12 17 12C19.67 12 21.33 10.67 22 8C21 9.33 19.83 9.83 18.5 9.5C17.74 9.31 17.2 8.76 16.59 8.15C15.61 7.15 14.5 6 12 6M7 12C4.33 12 2.67 13.33 2 16C3 14.67 4.17 14.17 5.5 14.5C6.26 14.69 6.8 15.24 7.41 15.85C8.39 16.85 9.5 18 12 18C14.67 18 16.33 16.67 17 14C16 15.33 14.83 15.83 13.5 15.5C12.74 15.31 12.2 14.76 11.59 14.15C10.61 13.15 9.5 12 7 12Z',
     'unocss': 'M12.8602 18.3991c0-3.0761 2.4938-5.5699 5.5699-5.5699S24 15.323 24 18.3991c0 3.0762-2.4938 5.5699-5.5699 5.5699s-5.5699-2.4937-5.5699-5.5699ZM12.8602 5.6009c0-3.0762 2.4938-5.57 5.5699-5.57S24 2.5248 24 5.601v5.0129a.557.557 0 0 1-.557.5569H13.4172a.557.557 0 0 1-.557-.5569v-5.013ZM11.1398 18.3991c0 3.0762-2.4937 5.5699-5.5699 5.5699C2.4937 23.969 0 21.4753 0 18.3991v-5.0129a.557.557 0 0 1 .557-.557h10.0258a.557.557 0 0 1 .557.557v5.0129Z',
     'mcp': mdiRobot,

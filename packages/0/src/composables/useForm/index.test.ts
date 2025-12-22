@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import { createForm } from './index'
 
@@ -145,8 +145,8 @@ describe('useForm validateOn functionality', () => {
   })
 })
 
-describe('Use form validations', () => {
-  it('Should successfully validate when no rules are provided', async () => {
+describe('use form validations', () => {
+  it('should successfully validate when no rules are provided', async () => {
     const form = createForm({ validateOn: 'submit' })
     const ticket = form.register({
       id: 'test',

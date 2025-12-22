@@ -14,18 +14,18 @@
  * Perfect for safely managing event listeners in Vue components.
  */
 
-// Utilities
-import { onScopeDispose, watch, toValue, unref } from 'vue'
+// Types
+import type { MaybeArray } from '#v0/types'
+
+import type { MaybeRef, MaybeRefOrGetter } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
-
-// Types
-import type { MaybeArray } from '#v0/types'
-import type { MaybeRef, MaybeRefOrGetter } from 'vue'
+// Utilities
+import { onScopeDispose, toValue, unref, watch } from 'vue'
 export type CleanupFunction = () => void
 export type EventHandler<E = Event> = (event: E) => void
 

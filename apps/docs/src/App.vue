@@ -1,23 +1,22 @@
 <script lang="ts" setup>
-  import { useHead } from '@unhead/vue'
+  import { InferSeoMetaPlugin } from '@unhead/addons'
+  import { injectHead, useHead } from '@unhead/vue'
   import { useScrollPersist } from './composables/useScrollPersist'
 
   useScrollPersist()
+
+  const head = injectHead()
+  head.use(InferSeoMetaPlugin())
 
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
-      { key: 'og:title', property: 'og:title', content: 'Vuetify0' },
-      { key: 'og:description', property: 'og:description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },
       { key: 'og:url', property: 'og:url', content: 'https://0.vuetifyjs.com' },
       { key: 'og:image', property: 'og:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
       { key: 'twitter:card', name: 'twitter:card', content: 'summary' },
-      { key: 'twitter:title', name: 'twitter:title', content: 'Vuetify0' },
-      { key: 'twitter:description', name: 'twitter:description', content: 'Headless components and composables for building modern applications and design systems' },
-      { key: 'twitter:image', name: 'twitter:image', content: 'https://cdn.vuetifyjs.com/docs/images/one/logos/vzero-logo-og.png' },
     ],
   })
 </script>
@@ -31,7 +30,7 @@
 
 <style>
   .mesh-bg {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: -1;
     background:
@@ -75,17 +74,40 @@
         color: inherit;
         text-decoration: none;
 
-        &::before {
+        &::before,
+        &::after {
           content: '#';
-          position: absolute;
-          left: -.75em;
-          opacity: 0;
           color: var(--v0-primary);
           transition: opacity 0.2s;
         }
+
+        &::before {
+          position: absolute;
+          left: -.75em;
+          opacity: 0;
+        }
+
+        &::after {
+          margin-left: 0.25em;
+          opacity: 0;
+        }
+
+        @media (min-width: 768px) {
+          &::after {
+            display: none;
+          }
+        }
+
+        @media (max-width: 767px) {
+          &::before {
+            display: none;
+          }
+        }
       }
 
-      &:hover > .header-anchor::before {
+      &:hover > .header-anchor::before,
+      &:hover > .header-anchor::after,
+      &:target > .header-anchor::after {
         opacity: 1;
       }
     }
@@ -156,7 +178,6 @@
       padding: 0.5rem 0.75rem;
       border-bottom: thin solid var(--v0-divider);
       border-right: thin solid var(--v0-divider);
-      text-align: left;
     }
 
     th {

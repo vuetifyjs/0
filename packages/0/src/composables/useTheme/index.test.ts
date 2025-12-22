@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { createTheme, createThemePlugin, useTheme } from './index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createApp, nextTick } from 'vue'
+import { createTheme, createThemePlugin, useTheme } from './index'
 
 // Mock IN_BROWSER global
 vi.mock('#v0/constants/globals', () => ({
@@ -497,6 +497,9 @@ describe('createThemePlugin', () => {
   })
 
   it('should use custom adapter prefix', async () => {
+    const setupFn = vi.fn()
+    const updateFn = vi.fn()
+
     const app = createApp({
       template: '<div>Test</div>',
     })
@@ -507,8 +510,8 @@ describe('createThemePlugin', () => {
         adapter: {
           prefix: 'custom',
           stylesheetId: 'custom-theme-styles',
-          setup: vi.fn(),
-          update: vi.fn(),
+          setup: setupFn,
+          update: updateFn,
           generate: () => '',
         },
         themes: {
@@ -523,6 +526,8 @@ describe('createThemePlugin', () => {
     app.mount(container)
 
     await nextTick()
+
+    expect(setupFn).toHaveBeenCalled()
 
     app.unmount()
   })
@@ -577,7 +582,7 @@ describe('useTheme', () => {
   })
 })
 
-describe('ThemeAdapter', () => {
+describe('themeAdapter', () => {
   it('should generate CSS with correct format', () => {
     createTheme({
       themes: {

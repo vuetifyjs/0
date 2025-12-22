@@ -53,7 +53,7 @@ console.log(registry.size) // 3
     clear: () => void
     has: (id: ID) => boolean
     keys: () => ID[]
-    browse: (value: unknown) => ID | ID[] | undefined
+    browse: (value: unknown) => ID[] | undefined
     lookup: (index: number) => ID | undefined
     get: (id: ID) => Z | undefined
     upsert: (id: ID, patch?: Partial<Z>) => Z
@@ -82,7 +82,7 @@ console.log(registry.size) // 3
   - `clear()`: Clears the entire registry, removing all registered items.
   - `has(id: ID)`: Checks if an item with the given ID exists in the registry.
   - `keys()`: Returns an array of all registered IDs.
-  - `browse(value: unknown)`: Searches for an ID by its value. Returns a single ID if found, or an array of IDs if multiple items match.
+  - `browse(value: unknown)`: Searches for IDs by value. Returns an array of matching IDs, or `undefined` if no match found.
   - `lookup(index: number)`: Looks up an ID by its index number.
   - `get(id: ID)`: Retrieves a ticket by its ID, returning `undefined` if not found.
   - `upsert(id: ID, patch?: Partial<Z>)`: Creates or updates a ticket by its ID. If the ID does not exist, it creates a new ticket; if it does exist, it updates the existing ticket with the provided patch.
@@ -243,17 +243,14 @@ console.log(registry.size) // 3
 
 - **Type**
   ```ts
-  function browse(value: unknown): ID | ID[] | undefined
+  function browse(value: unknown): ID[] | undefined
   ```
 
 - **Details**
   Searches the registry for item(s) whose value matches the provided value argument.
 
-  If exactly one item matches, browse returns that item’s ID directly.
-  If multiple items have the same value, browse returns an array of matching IDs, preserving their registration order.
+  Returns an array of matching IDs, preserving their registration order.
   If no match is found, it returns undefined.
-
-  This allows both quick single lookups and detection of duplicates. For consistency, if you expect possible duplicates, always handle both single-ID and array return types in your code.
 
 - **Example**
   ```ts
@@ -263,10 +260,10 @@ console.log(registry.size) // 3
   registry.register({ id: '3', value: 'Red' }) // Duplicate value
 
   console.log(registry.browse('Red'))
-  // ['1', '3']  <-- Multiple matches return array
+  // ['1', '3']  <-- Multiple matches
 
   console.log(registry.browse('Blue'))
-  // '2'  <-- Single match returns ID
+  // ['2']  <-- Single match (still an array)
 
   console.log(registry.browse('Green'))
   // undefined  <-- No matches

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { ref, isReactive } from 'vue'
+import { describe, expect, it } from 'vitest'
+import { isReactive, ref } from 'vue'
 import { toReactive } from './index'
 
 describe('toReactive', () => {
@@ -146,7 +146,7 @@ describe('toReactive', () => {
     expect(result.inner.value).toBe(2)
   })
 
-  describe('Map support', () => {
+  describe('map support', () => {
     it('should handle Map get and set operations', () => {
       const mapRef = ref(new Map([['key1', 'value1'], ['key2', 'value2']]))
       const result = toReactive(mapRef)
@@ -223,7 +223,7 @@ describe('toReactive', () => {
     })
   })
 
-  describe('Set support', () => {
+  describe('set support', () => {
     it('should handle Set add and has operations', () => {
       const setRef = ref(new Set(['a', 'b']))
       const result = toReactive(setRef)

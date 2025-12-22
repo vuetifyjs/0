@@ -1,9 +1,9 @@
-import { defineConfig } from 'tsdown/config'
 import { fileURLToPath } from 'node:url'
 import sass from 'rollup-plugin-sass'
-import pkg from './package.json' with { type: 'json' }
-
+import { defineConfig } from 'tsdown/config'
 import Vue from 'unplugin-vue/rolldown'
+
+import pkg from './package.json' with { type: 'json' }
 
 const v0 = fileURLToPath(new URL('../../0/src', import.meta.url))
 const paper = fileURLToPath(new URL('../src', import.meta.url))

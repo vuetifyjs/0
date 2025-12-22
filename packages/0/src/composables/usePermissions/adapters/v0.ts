@@ -1,12 +1,12 @@
-// Adapters
-import { PermissionAdapter } from './adapter'
-
-// Utilities
-import { isFunction } from '#v0/utilities'
+import type { ID } from '#v0/types'
 
 // Types
 import type { PermissionContext, PermissionTicket } from '..'
-import type { ID } from '#v0/types'
+
+// Utilities
+import { isFunction } from '#v0/utilities'
+// Adapters
+import { PermissionAdapter } from './adapter'
 
 export class Vuetify0PermissionAdapter extends PermissionAdapter {
   constructor () {

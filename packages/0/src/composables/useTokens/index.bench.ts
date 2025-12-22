@@ -1,10 +1,10 @@
-// Composables
-import { createTokens } from './index'
-
 // Utilities
 import { bench, describe } from 'vitest'
 
 import TOKENS from './fixtures/tokens'
+
+// Composables
+import { createTokens } from './index'
 
 describe('createTokens benchmarks', () => {
   describe('registration operations', () => {

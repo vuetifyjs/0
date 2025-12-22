@@ -1,9 +1,9 @@
+// Utilities
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { nextTick, ref } from 'vue'
 // Composables
 import { useMutationObserver } from './index'
-
-// Utilities
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, nextTick } from 'vue'
 
 const mockIsHydrated = ref(false)
 vi.mock('#v0/composables/useHydration', () => ({
@@ -188,5 +188,109 @@ describe('useMutationObserver', () => {
 
     stop()
     expect(mockObserver.disconnect).toHaveBeenCalled()
+  })
+
+  it('should stop observing after first mutation when once is true', async () => {
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    let observerCallback: Function | undefined
+
+    globalThis.MutationObserver = vi.fn(function (this: any, cb: Function) {
+      observerCallback = cb
+      return mockObserver
+    }) as any
+
+    const { isActive } = useMutationObserver(target, callback, { once: true })
+
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(globalThis.MutationObserver).toHaveBeenCalled()
+    expect(isActive.value).toBe(true)
+
+    // Simulate a mutation
+    const mockMutation = {
+      type: 'childList',
+      target: element,
+      addedNodes: document.createElement('div').childNodes,
+      removedNodes: document.createElement('div').childNodes,
+      previousSibling: null,
+      nextSibling: null,
+      attributeName: null,
+      attributeNamespace: null,
+      oldValue: null,
+    }
+
+    observerCallback?.([mockMutation])
+    await nextTick()
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(mockObserver.disconnect).toHaveBeenCalled()
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should stop observing after immediate callback when once and immediate are both true', async () => {
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    const { isActive } = useMutationObserver(target, callback, { once: true, immediate: true })
+
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(mockObserver.disconnect).toHaveBeenCalled()
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should continue observing when once is false', async () => {
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    let observerCallback: Function | undefined
+
+    globalThis.MutationObserver = vi.fn(function (this: any, cb: Function) {
+      observerCallback = cb
+      return mockObserver
+    }) as any
+
+    const { isActive } = useMutationObserver(target, callback, { once: false })
+
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(globalThis.MutationObserver).toHaveBeenCalled()
+    expect(isActive.value).toBe(true)
+
+    // Reset mocks after setup phase
+    vi.clearAllMocks()
+
+    // Simulate multiple mutations
+    const mockMutation = {
+      type: 'childList',
+      target: element,
+      addedNodes: document.createElement('div').childNodes,
+      removedNodes: document.createElement('div').childNodes,
+      previousSibling: null,
+      nextSibling: null,
+      attributeName: null,
+      attributeNamespace: null,
+      oldValue: null,
+    }
+
+    observerCallback?.([mockMutation])
+    await nextTick()
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(mockObserver.disconnect).not.toHaveBeenCalled()
+    expect(isActive.value).toBe(true)
+
+    // Second mutation should still be observed
+    observerCallback?.([mockMutation])
+    await nextTick()
+
+    expect(callback).toHaveBeenCalledTimes(2)
+    expect(isActive.value).toBe(true)
   })
 })

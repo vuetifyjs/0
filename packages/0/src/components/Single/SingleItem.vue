@@ -52,11 +52,11 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  // Composables
-  import { useSingleRoot } from './SingleRoot.vue'
-
   // Utilities
   import { onUnmounted, toRef, toValue } from 'vue'
+
+  // Composables
+  import { useSingleRoot } from './SingleRoot.vue'
 
   defineOptions({ name: 'SingleItem' })
 

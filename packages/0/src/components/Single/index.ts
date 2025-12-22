@@ -6,8 +6,8 @@ export type { SingleRootProps, SingleRootSlotProps } from './SingleRoot.vue'
 export { provideSingleRoot, useSingleRoot } from './SingleRoot.vue'
 export { default as SingleRoot } from './SingleRoot.vue'
 
-import Root from './SingleRoot.vue'
 import Item from './SingleItem.vue'
+import Root from './SingleRoot.vue'
 
 /**
  * Single component with sub-components for building single-selection interfaces.

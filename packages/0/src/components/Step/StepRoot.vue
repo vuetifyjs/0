@@ -8,12 +8,12 @@
  */
 
 <script lang="ts">
-  // Composables
-  import { createContext } from '#v0/composables/createContext'
+  import type { StepContext, StepTicket } from '#v0/composables/useStep'
 
   // Types
   import type { ID } from '#v0/types'
-  import type { StepContext, StepTicket } from '#v0/composables/useStep'
+  // Composables
+  import { createContext } from '#v0/composables/createContext'
 
   export interface StepRootProps {
     /** Namespace for dependency injection (must match StepItem namespace) */

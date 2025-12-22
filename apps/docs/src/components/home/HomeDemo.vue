@@ -1,10 +1,8 @@
 <script lang="ts" setup>
   import { Selection } from '@vuetify/v0'
-  import { ref, shallowRef, onMounted, computed } from 'vue'
-  import { createHighlighterCore } from 'shiki/core'
-  import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+  import { computed, onMounted, ref } from 'vue'
   import { usePlayground } from '@/composables/playground'
-  import type { HighlighterCore } from 'shiki/core'
+  import { useHighlightCode } from '@/composables/useHighlightCode'
 
   const items = ref([
     { id: 1, label: 'Option A' },
@@ -13,8 +11,6 @@
   ])
 
   const selected = ref<number[]>([])
-  const highlighter = shallowRef<HighlighterCore | null>(null)
-  const highlightedCode = shallowRef('')
 
   const code = `<script setup>
   import { Selection } from '@vuetify/v0'
@@ -49,26 +45,15 @@
   </Selection.Root>
 </template>`
 
-  onMounted(async () => {
-    highlighter.value = await createHighlighterCore({
-      themes: [
-        import('@shikijs/themes/github-light-default'),
-        import('@shikijs/themes/github-dark-default'),
-      ],
-      langs: [
-        import('@shikijs/langs/vue'),
-      ],
-      engine: createOnigurumaEngine(() => import('shiki/wasm')),
-    })
+  const { highlightedCode, highlight } = useHighlightCode(code, { immediate: false })
 
-    highlightedCode.value = highlighter.value.codeToHtml(code, {
-      lang: 'vue',
-      themes: {
-        light: 'github-light-default',
-        dark: 'github-dark-default',
-      },
-      defaultColor: false,
-    })
+  onMounted(() => {
+    // Defer syntax highlighting to idle time to avoid blocking main thread
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => highlight(), { timeout: 2000 })
+    } else {
+      setTimeout(() => highlight(), 100)
+    }
   })
 
   const playgroundUrl = computed(() => usePlayground(code))
@@ -86,7 +71,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch h-[500px] md:h-[350px]">
       <!-- Code -->
-      <div class="demo-code rounded-xl border overflow-hidden bg-surface/30 flex flex-col">
+      <div class="demo-code rounded-xl border overflow-hidden bg-surface flex flex-col">
         <div class="px-4 py-2 bg-surface-tint text-xs font-medium border-b flex items-center justify-between">
           <span>Selection.vue</span>
           <router-link
@@ -106,7 +91,7 @@
       </div>
 
       <!-- Live Demo -->
-      <div class="demo-preview p-4 md:p-8 rounded-xl border bg-surface/30 flex flex-col">
+      <div class="demo-preview p-4 md:p-8 rounded-xl border bg-surface flex flex-col">
         <a
           class="text-xs font-medium text-primary hover:underline flex gap-1 justify-center md:justify-end mb-8 md:mb-0"
           :href="playgroundUrl"

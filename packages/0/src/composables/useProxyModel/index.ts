@@ -13,17 +13,17 @@
  * Bridges the gap between selection composables and Vue's v-model.
  */
 
-// Utilities
-import { watch, toValue, onScopeDispose } from 'vue'
-import { isFunction, isUndefined } from '#v0/utilities'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
+import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+import type { ID } from '#v0/types'
 
 // Types
 import type { Ref } from 'vue'
-import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
-import type { ID } from '#v0/types'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+import { isFunction, isUndefined } from '#v0/utilities'
+// Utilities
+import { onScopeDispose, toValue, watch } from 'vue'
 
 export interface ProxyModelOptions {
   multiple?: boolean
@@ -124,7 +124,8 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
     registryWatch.resume()
   }, { flush: 'sync', deep: multiple })
 
-  function onRegister (ticket: Z) {
+  function onRegister (data: unknown) {
+    const ticket = data as Z
     if (!pending.has(ticket.value) || ticket.disabled) return
     registryWatch.pause()
     modelWatch.pause()

@@ -1,18 +1,18 @@
-// Adapters
-import { ThemeAdapter } from './adapter'
-
-// Utilities
-import { watch, onScopeDispose } from 'vue'
-import { isNull, isString } from '#v0/utilities'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
+import type { ID } from '#v0/types'
 
 // Types
 import type { App } from 'vue'
-import type { ThemeAdapterSetupContext } from './adapter'
 import type { Colors } from '../index'
-import type { ID } from '#v0/types'
+
+import type { ThemeAdapterSetupContext } from './adapter'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+import { isNull, isString } from '#v0/utilities'
+// Utilities
+import { onScopeDispose, watch } from 'vue'
+// Adapters
+import { ThemeAdapter } from './adapter'
 
 export interface Vuetify0ThemeOptions {
   cspNonce?: string

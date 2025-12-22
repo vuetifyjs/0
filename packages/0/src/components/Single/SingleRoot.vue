@@ -8,12 +8,12 @@
  */
 
 <script lang="ts">
-  // Composables
-  import { createContext } from '#v0/composables/createContext'
+  import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
 
   // Types
   import type { ID } from '#v0/types'
-  import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
+  // Composables
+  import { createContext } from '#v0/composables/createContext'
 
   export interface SingleRootProps {
     /** Namespace for dependency injection (must match SingleItem namespace) */

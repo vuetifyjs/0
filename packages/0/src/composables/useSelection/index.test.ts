@@ -1,9 +1,9 @@
+// Utilities
+import { describe, expect, it } from 'vitest'
+
+import { ref } from 'vue'
 // Composables
 import { createSelection, createSelectionContext } from './index'
-
-// Utilities
-import { describe, it, expect } from 'vitest'
-import { ref } from 'vue'
 
 describe('createSelectionContext', () => {
   it('should return a trinity tuple', () => {

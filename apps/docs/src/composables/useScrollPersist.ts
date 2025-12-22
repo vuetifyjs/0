@@ -14,11 +14,11 @@
 // Composables
 import { createStorage, useWindowEventListener } from '@vuetify/v0'
 
-// Utilities
-import { useRouter } from 'vue-router'
-
 // Globals
 import { IN_BROWSER } from '@vuetify/v0/constants'
+
+// Utilities
+import { useRouter } from 'vue-router'
 
 // Types
 interface ScrollPosition {

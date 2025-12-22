@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  // Components
-  import { Atom } from '@vuetify/v0'
-
   // Types
   import type { AtomProps } from '@vuetify/v0'
+
+  // Components
+  import { Atom } from '@vuetify/v0'
 
   const { as = 'header' } = defineProps<AtomProps>()
 </script>
@@ -11,7 +11,7 @@
 <template>
   <Atom
     :as
-    class="app-banner flex items-center justify-center h-[24px] fixed left-0 top-0 right-0 px-3 text-xs gap-2 text-on-warning z-1"
+    class="flex items-center justify-center h-[24px] fixed left-0 top-0 right-0 px-3 text-xs gap-2 text-on-warning z-1 glass-warning"
   >
     <AppIcon icon="alert" :size="14" />
 
@@ -20,10 +20,3 @@
     </div>
   </Atom>
 </template>
-
-<style scoped>
-  .app-banner {
-    background: color-mix(in srgb, var(--v0-warning) 70%, transparent);
-    backdrop-filter: blur(12px);
-  }
-</style>

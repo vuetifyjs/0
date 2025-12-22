@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-dark.png">
-    <img alt="Vuetify One Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-light.png" height="150">
+    <img alt="Vuetify Zero Logo" src="https://vuetifyjs.b-cdn.net/docs/images/logos/vzero-logo-light.png" height="150">
   </picture>
 </div>
 
@@ -13,7 +13,7 @@
     <img src="https://img.shields.io/npm/dm/@vuetify/v0.svg" alt="Downloads">
   </a>
   <br>
-  <a href="https://github.com/vuetifyjs/@vuetify/v0/blob/master/LICENSE.md">
+  <a href="https://github.com/vuetifyjs/0/blob/master/LICENSE.md">
     <img src="https://img.shields.io/npm/l/@vuetify/v0.svg" alt="License">
   </a>
   <a href="https://community.vuetifyjs.com">
@@ -23,9 +23,29 @@
 
 # @vuetify/v0
 
-Core foundational package from providing components and composables for building modern applications. `@vuetify/v0` is the foundational layer of the Vuetify ecosystem, offering lightweight, headless building blocks with TypeScript support and accessibility features built-in that serve as building blocks for higher-order UI libraries and custom design systems.
+Headless Vue 3 UI primitives and composables for building modern applications and design systems. `@vuetify/v0` is the foundation of the Vuetify ecosystem, offering lightweight, unstyled building blocks with full TypeScript support and accessibility features built-in.
 
-## 🚀 Installation
+> **Note:** This package is in early development (pre-1.0). APIs may change between minor versions.
+
+## Repository Structure
+
+This is a **pnpm monorepo** containing:
+
+| Package | Description |
+|---------|-------------|
+| [`@vuetify/v0`](./packages/0) | Core headless components and composables |
+| [`@vuetify/paper`](./packages/paper) | Styling and layout primitives |
+| [`apps/docs`](./apps/docs) | Documentation site ([0.vuetifyjs.com](https://0.vuetifyjs.com)) |
+| [`apps/storybook`](./apps/storybook) | Component stories and visual testing |
+| [`playground`](./playground) | Interactive development environment |
+
+## Requirements
+
+- **Node.js** >= 22
+- **pnpm** >= 10.6
+- **Vue** >= 3.3.0
+
+## Installation
 
 ```bash
 npm install @vuetify/v0@latest
@@ -37,88 +57,146 @@ yarn add @vuetify/v0
 bun add @vuetify/v0
 ```
 
-## 📦 What's Included
+## Exports
+
+The package provides tree-shakeable subpath exports:
+
+```ts
+import { ... } from '@vuetify/v0'            // Everything
+import { ... } from '@vuetify/v0/components' // Components only
+import { ... } from '@vuetify/v0/composables' // Composables only
+import { ... } from '@vuetify/v0/utilities'  // Utilities only
+import { ... } from '@vuetify/v0/types'      // Types only
+import { ... } from '@vuetify/v0/constants'  // Constants only
+```
+
+## What's Included
 
 ### Components
 
-- **`Atom`** - Base element wrapper with renderless capabilities
-- **`Avatar`** - User avatar component
-- **`Popover`** - CSS anchor-positioned popup components
+| Component | Description |
+|-----------|-------------|
+| **Atom** | Polymorphic base element. Renders as any HTML element via `as` prop with renderless mode support |
+| **Avatar** | Image with fallback display. Compound component with Root, Image, and Fallback sub-components |
+| **ExpansionPanel** | Accordion/collapsible panels. Supports single (accordion) or multi-expand modes |
+| **Group** | Multi-selection with tri-state support. Provides `selectAll`, `unselectAll`, `toggleAll` |
+| **Pagination** | Page navigation with ellipsis. Root, Item, First, Prev, Next, Last, Ellipsis sub-components |
+| **Popover** | CSS anchor-positioned popup. Root, Anchor, and Content sub-components |
+| **Selection** | Generic single/multi-selection. Configurable via `multiple` prop |
+| **Single** | Single-selection specialization of Selection |
+| **Step** | Navigation/stepper with first, last, next, prev controls |
 
 ### Composables
 
 #### Factories
 
-- **`createContext`** - Context factory with type safety
-- **`createPlugin`** - Vue plugin factory
-- **`createTrinity`** - Trinity pattern factory
+Core factories that provide the foundation for all other composables:
 
-#### Registration
+- **`createContext`** - Type-safe Vue dependency injection wrapper
+- **`createPlugin`** - Vue plugin factory with context provision
+- **`createTrinity`** - Context triple pattern: `[use, provide, default]`
 
-- **`useRegistry`** - Component registration and retrieval system
-- **`useProxyRegistry`** - Make any registry reactive
-- **`useQueue`** - Registry for managing ordered items
-- **`useTimeline`** - Registry for managing timeline items
-- **`useTokens`** - Design token system
+#### Registry
+
+Base data structures that most other composables build upon:
+
+- **`useRegistry`** - Enhanced Map with indexing, caching, and event support
+- **`useProxyRegistry`** - Convert registry Map to reactive object
+- **`useQueue`** - FIFO queue with timeout management (notifications/toasts)
+- **`useTimeline`** - Bounded undo/redo history
+- **`useTokens`** - Design token registry with alias resolution
 
 #### Selection
 
-- **`useFilter`** - Collection filtering utilities
-- **`useSelection`** - Selection management
-- **`useGroup`** - Selection group management
-- **`useSingle`** - Single selection utilities
-- **`useStep`** - Step navigation logic
+Selection management composables built on `useRegistry`:
 
-#### Forms
+- **`useSelection`** - Base selection with Set-based tracking
+- **`useGroup`** - Multi-selection with tri-state/mixed support
+- **`useSingle`** - Single-selection specialization
+- **`useStep`** - Navigation through items (first, last, next, prev)
 
-- **`useForm`** - Form validation and state management
-- **`useProxyModel`** - Proxy registry for Vue reactive models
+#### Forms & Data
 
-#### System
-- **`useEventListener`** - Event listener utilities
-- **`useIntersectionObserver`** - Intersection observer utilities
+- **`useForm`** - Form validation and state management with async rules
+- **`useProxyModel`** - Bridge selection context to component v-model
+- **`useFilter`** - Reactive array filtering with multiple modes
+
+#### Layout & Measurement
+
+- **`usePagination`** - Lightweight page navigation (non-registry based)
+- **`useOverflow`** - Container overflow measurement for item capacity
+- **`useVirtual`** - Virtual scrolling for large lists
+
+#### Observers & Events
+
+- **`useEventListener`** - Lifecycle-managed event listeners
+- **`useIntersectionObserver`** - Intersection observer with auto-cleanup
 - **`useKeydown`** - Keyboard event handling
 - **`useMutationObserver`** - DOM mutation observation
 - **`useResizeObserver`** - Resize observer utilities
 
+#### System
 
-#### Plugins
+Plugin-capable composables following the trinity pattern:
 
 - **`useBreakpoints`** - Responsive breakpoint detection
-- **`useFeatures`** - Feature detection utilities
+- **`useFeatures`** - Feature flags with variations
 - **`useHydration`** - SSR hydration helpers
-- **`useLocale`** - Internationalization support
-- **`useLogger`** - Development logging utilities
-- **`usePermissions`** - User permission management
-- **`useStorage`** - Local/session storage utilities
-- **`useTheme`** - Theme switching and CSS variable management
+- **`useLocale`** - Internationalization with message interpolation
+- **`useLogger`** - Logging adapter (consola/pino/custom)
+- **`usePermissions`** - RBAC/ABAC permission system
+- **`useStorage`** - Storage adapter (localStorage/sessionStorage/memory)
+- **`useTheme`** - Theme management with CSS variable injection
 
-### Transformers
+#### Utilities
 
+- **`useToggleScope`** - Conditional effect scope management
 - **`toArray`** - Array transformation utilities
 - **`toReactive`** - Reactive object conversion
 
-## 🏗️ Design Principles
+## Design Principles
 
 - **Headless First**: Components provide logic and accessibility without imposed styling
 - **Slot-Driven**: Maximum flexibility through comprehensive slot APIs
-- **CSS Variables**: All styling configurable via CSS custom properties
-- **TypeScript Native**: Full type safety with excellent developer experience
-- **Minimal Dependencies**: Lightweight with only essential peer dependencies
+- **CSS Variables**: All styling configurable via `--v0-*` custom properties
+- **TypeScript Native**: Full type safety with generics for extensibility
+- **Minimal Dependencies**: Only Vue 3.3+ required (markdown libraries optional)
 - **Composable Architecture**: Reusable logic through Vue 3 composables
 
-## 📚 API Reference
+## Documentation
 
-For detailed API documentation, type definitions, and examples, visit our [documentation site](https://0.vuetifyjs.com) or explore the TypeScript definitions included in this package.
+For detailed API documentation, examples, and guides, visit [0.vuetifyjs.com](https://0.vuetifyjs.com).
 
-## 🤝 Contributing
+## Development
 
-We are not currently accepting contributions to this package, check back later.
+```bash
+# Install dependencies
+pnpm install
 
-## 📄 License
+# Start playground
+pnpm dev
 
-MIT License
+# Start documentation site
+pnpm dev:docs
+
+# Run tests
+pnpm test
+
+# Type check
+pnpm typecheck
+
+# Lint
+pnpm lint
+```
+
+## Contributing
+
+We are not currently accepting external contributions. Check back later or join our [Discord community](https://community.vuetifyjs.com) for updates.
+
+## License
+
+[MIT License](./LICENSE.md)
 
 ---
 
-Built with ❤️ for the Vue ecosystem. Part of the Vuetify family.
+Built with care for the Vue ecosystem. Part of the [Vuetify](https://vuetifyjs.com) family.

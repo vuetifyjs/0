@@ -52,6 +52,7 @@ export const useAppStore = defineStore('app', {
         ],
       },
       { divider: true },
+      { name: 'Release Notes', to: '/releases' },
       { name: 'Storybook', to: '/storybook' },
       {
         name: 'Guide',

@@ -18,16 +18,12 @@
 </script>
 
 <template>
-  <button
+  <a
     v-if="show"
-    class="block ms-auto text-sm text-primary mt-16 underline cursor-pointer bg-transparent border-0"
-    type="button"
-    @click="scrollToTop"
+    class="inline-flex items-center ms-auto text-sm text-primary mt-16 hover:underline cursor-pointer"
+    href="#"
+    @click.prevent="scrollToTop"
   >
-    <span class="inline-flex align-center">
-      Back to Top
-
-      <AppIcon icon="up" />
-    </span>
-  </button>
+    Back to Top ↑
+  </a>
 </template>

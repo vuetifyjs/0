@@ -3,7 +3,7 @@
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
 
   // Utilities
-  import { useSlots, computed, watch, toValue, type VNode } from 'vue'
+  import { computed, toValue, useSlots, type VNode, watch } from 'vue'
 
   const slots = useSlots()
 
@@ -44,7 +44,7 @@
         :class="[
           tab.isSelected.value
             ? 'bg-primary text-on-primary'
-            : 'bg-surface-tint border border-divider text-on-surface-tint hover:bg-surface hover:border-transparent'
+            : 'bg-surface-tint border border-divider text-on-surface-tint hover:bg-surface'
         ]"
         @click="tab.toggle"
       >
@@ -71,7 +71,6 @@
 .docs-code-group__content :deep(pre) {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-  padding-top: 1rem;
 }
 
 .docs-code-group__content :deep(.shiki) {

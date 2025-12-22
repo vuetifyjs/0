@@ -15,19 +15,19 @@
  * within a range, making it efficient for large page counts.
  */
 
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+// Vue
+import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+
 // Factories
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
-// Utilities
-import { computed, isRef, shallowRef, toValue } from 'vue'
 import { isNaN, range } from '#v0/utilities'
 
-// Vue
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
-
-// Types
-import type { ContextTrinity } from '#v0/composables/createTrinity'
+// Utilities
+import { computed, isRef, shallowRef, toValue } from 'vue'
 
 export type PaginationTicket =
   | { type: 'page', value: number }

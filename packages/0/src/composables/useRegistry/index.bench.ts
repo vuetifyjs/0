@@ -1,8 +1,8 @@
-// Composables
-import { useRegistry } from './index'
-
 // Utitilties
 import { bench, describe } from 'vitest'
+
+// Composables
+import { useRegistry } from './index'
 
 describe('useRegistry benchmarks', () => {
   describe('registration', () => {

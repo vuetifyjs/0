@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { mockUseHydrationContext, mockProvideHydrationContext, mockUseContext } = vi.hoisted(() => {
   return {
@@ -26,7 +26,7 @@ vi.mock('vue', async () => {
   }
 })
 
-import { createHydration, useHydration, createHydrationPlugin } from './index'
+import { createHydration, createHydrationPlugin, useHydration } from './index'
 
 describe('useHydration', () => {
   beforeEach(() => {

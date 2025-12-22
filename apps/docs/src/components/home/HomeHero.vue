@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { ref, onMounted } from 'vue'
+  import { onMounted, ref } from 'vue'
 
   const stats = ref({
     stars: '—',
@@ -40,6 +40,8 @@
       <img
         alt="Vuetify0 Logo"
         class="mx-auto"
+        decoding="async"
+        fetchpriority="high"
         height="56"
         src="https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg"
         width="200"
@@ -72,27 +74,25 @@
       </router-link>
     </div>
 
-    <client-only>
-      <div class="grid grid-cols-3 md:flex gap-4 md:gap-12 justify-center text-center">
-        <div>
-          <div class="text-2xl md:text-3xl font-bold">{{ stats.stars }}</div>
-          <div class="text-sm opacity-60">GitHub Stars</div>
-        </div>
-
-        <div class="hidden md:block w-px bg-divider" />
-
-        <div>
-          <div class="text-2xl md:text-3xl font-bold">{{ stats.downloads }}</div>
-          <div class="text-sm opacity-60">Monthly Downloads</div>
-        </div>
-
-        <div class="hidden md:block w-px bg-divider" />
-
-        <div>
-          <div class="text-2xl md:text-3xl font-bold">40+</div>
-          <div class="text-sm opacity-60">Composables</div>
-        </div>
+    <div class="grid grid-cols-3 md:flex gap-4 md:gap-12 justify-center text-center">
+      <div>
+        <div class="text-2xl md:text-3xl font-bold">{{ stats.stars }}</div>
+        <div class="text-sm opacity-60">GitHub Stars</div>
       </div>
-    </client-only>
+
+      <div class="hidden md:block w-px bg-divider" />
+
+      <div>
+        <div class="text-2xl md:text-3xl font-bold">{{ stats.downloads }}</div>
+        <div class="text-sm opacity-60">Monthly Downloads</div>
+      </div>
+
+      <div class="hidden md:block w-px bg-divider" />
+
+      <div>
+        <div class="text-2xl md:text-3xl font-bold">40+</div>
+        <div class="text-sm opacity-60">Composables</div>
+      </div>
+    </div>
   </section>
 </template>

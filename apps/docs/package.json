@@ -9,12 +9,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@octokit/openapi-types": "catalog:",
     "@shikijs/langs": "catalog:",
     "@shikijs/markdown-it": "catalog:",
     "@shikijs/themes": "catalog:",
     "@types/markdown-it-attrs": "catalog:",
     "@unhead/vue": "catalog:",
-    "@unocss/reset": "catalog:",
+    "beasties": "catalog:",
     "lightningcss": "catalog:",
     "markdown-it-anchor": "catalog:",
     "markdown-it-attrs": "catalog:",
@@ -35,11 +36,12 @@
   "dependencies": {
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
-    "@vuetify/one": "catalog:",
+    "@unhead/addons": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",
     "markdown-it-container": "catalog:",
+    "marked": "catalog:",
     "mermaid": "catalog:",
     "pinia": "catalog:",
     "swetrix": "catalog:",

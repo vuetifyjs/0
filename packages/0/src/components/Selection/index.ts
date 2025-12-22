@@ -5,8 +5,8 @@ export type { SelectionRootProps, SelectionRootSlotProps } from './SelectionRoot
 export { provideSelectionRoot, useSelectionRoot } from './SelectionRoot.vue'
 export { default as SelectionRoot } from './SelectionRoot.vue'
 
-import Root from './SelectionRoot.vue'
 import Item from './SelectionItem.vue'
+import Root from './SelectionRoot.vue'
 
 /**
  * Selection component with sub-components for managing item selection state.

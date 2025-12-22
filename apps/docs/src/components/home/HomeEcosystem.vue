@@ -52,7 +52,7 @@
         <router-link
           v-for="component in components"
           :key="component.name"
-          class="component-card p-4 rounded-xl border bg-surface/30 hover:bg-surface/50 hover:border-primary/50 transition-all group"
+          class="component-card p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-all group"
           :to="component.to"
         >
           <div class="font-semibold mb-1 group-hover:text-primary transition-colors">
@@ -94,14 +94,14 @@
         <div
           v-for="composable in composables"
           :key="composable.name"
-          class="composable-chip px-4 py-2 rounded-lg border bg-surface/30 hover:bg-surface/50 transition-colors"
+          class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 transition-colors"
         >
           <span class="font-mono text-sm">{{ composable.name }}</span>
           <span class="text-xs opacity-60 ml-2 hidden sm:inline">{{ composable.category }}</span>
         </div>
 
         <router-link
-          class="composable-chip px-4 py-2 rounded-lg border bg-surface/30 hover:bg-surface/50 hover:border-primary/50 transition-colors"
+          class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-colors"
           to="/composables"
         >
           <span class="font-mono text-sm text-primary">...</span>

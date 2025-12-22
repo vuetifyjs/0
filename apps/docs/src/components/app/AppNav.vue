@@ -1,18 +1,18 @@
 <script setup lang="ts">
+  // Types
+  import type { AtomExpose, AtomProps } from '@vuetify/v0'
+
   // Vuetify0
   import { Atom, useBreakpoints, useClickOutside } from '@vuetify/v0'
-
-  // Composables
-  import { useRoute } from 'vue-router'
 
   // Utilities
   import { useTemplateRef, watch } from 'vue'
 
+  // Composables
+  import { useRoute } from 'vue-router'
+
   // Stores
   import { useAppStore } from '@/stores/app'
-
-  // Types
-  import type { AtomExpose, AtomProps } from '@vuetify/v0'
 
   const { as = 'nav' } = defineProps<AtomProps>()
 
@@ -42,7 +42,7 @@
   <Atom
     ref="nav"
     :as
-    class="app-nav flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-solid border-divider z-1"
+    class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-solid border-divider z-1 glass-surface"
     :class="app.drawer && '!translate-x-0'"
   >
     <ul class="flex gap-2 flex-col">
@@ -63,10 +63,3 @@
     </ul>
   </Atom>
 </template>
-
-<style scoped>
-  .app-nav {
-    background: color-mix(in srgb, var(--v0-surface) 70%, transparent);
-    backdrop-filter: blur(12px);
-  }
-</style>

@@ -1,10 +1,10 @@
 // Composables
 import { createSelection } from '#v0/composables/useSelection'
-import { useProxyModel } from './index'
-
 // Utilities
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import { ref } from 'vue'
+import { useProxyModel } from './index'
 
 describe('useProxyModel', () => {
   it('should sync model when selection changes', () => {

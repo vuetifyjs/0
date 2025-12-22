@@ -1,12 +1,12 @@
-// Utilities
-import { isObject, isUndefined } from '#v0/utilities'
-
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
+import type { ID } from '#v0/types'
 
 // Types
 import type { LocaleAdapter } from './adapter'
-import type { ID } from '#v0/types'
+
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+// Utilities
+import { isObject, isUndefined } from '#v0/utilities'
 
 /**
  * Vuetify0.x locale adapter implementation

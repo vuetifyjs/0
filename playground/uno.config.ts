@@ -1,10 +1,21 @@
-import { presetWind3, defineConfig } from 'unocss'
+import { defineConfig, presetWind4 } from 'unocss'
 
 const isStorybook = process.env.STORYBOOK === '1'
 
 export default defineConfig({
   presets: [
-    presetWind3(),
+    presetWind4(),
+  ],
+  // Wind4: opacity modifiers (bg-surface/50) don't work with CSS variables
+  preflights: [
+    {
+      getCSS: () => `
+        button:not(:disabled),
+        [role="button"]:not(:disabled) {
+          cursor: pointer;
+        }
+      `,
+    },
   ],
   content: {
     pipeline: {

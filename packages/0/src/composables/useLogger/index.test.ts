@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { createLogger, createLoggerPlugin } from './index'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Vuetify0LoggerAdapter } from './adapters/v0'
+import { createLogger, createLoggerPlugin } from './index'
 
 describe('useLogger', () => {
   beforeEach(() => {
@@ -88,7 +88,7 @@ describe('useLogger', () => {
     })
   })
 
-  describe('Vuetify0LoggerAdapter', () => {
+  describe('vuetify0LoggerAdapter', () => {
     it('should format messages with prefix and level', () => {
       const adapter = new Vuetify0LoggerAdapter({ prefix: 'test' })
 

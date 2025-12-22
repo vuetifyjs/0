@@ -31,11 +31,11 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Context
-  import { usePopoverContext } from './PopoverRoot.vue'
-
   // Utilities
   import { toRef, toValue } from 'vue'
+
+  // Context
+  import { usePopoverContext } from './PopoverRoot.vue'
 
   defineOptions({ name: 'PopoverAnchor' })
 

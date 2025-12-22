@@ -8,22 +8,22 @@
  * Key features:
  * - Queries DOM for heading elements
  * - Builds hierarchical structure (h3s nested under h2s)
- * - Re-scans on route changes
+ * - Re-scans on route changes (debounced for performance)
  * - Provides smooth scroll navigation
  */
 
-// Composables
-import { useScrollSpy } from './useScrollSpy'
-import { useRoute } from 'vue-router'
-
-// Utilities
-import { nextTick, shallowRef, watch } from 'vue'
-
+// Types
+import type { Ref } from 'vue'
 // Globals
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
-// Types
-import type { Ref } from 'vue'
+// Utilities
+import { nextTick, onScopeDispose, shallowRef, watch } from 'vue'
+
+import { useRoute } from 'vue-router'
+
+// Composables
+import { useScrollSpy } from './useScrollSpy'
 
 export interface TocHeading {
   id: string
@@ -97,6 +97,9 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
   const headings = shallowRef<TocHeading[]>([])
   const scrollSpy = useScrollSpy()
 
+  let scanTimeoutId: ReturnType<typeof setTimeout> | null = null
+  let scanRafId: number | null = null
+
   function scan () {
     if (!IN_BROWSER || !container) return
 
@@ -133,6 +136,27 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     headings.value = result
   }
 
+  /**
+   * Debounced scan that waits for DOM to settle before scanning.
+   * Cancels any pending scan when called again.
+   */
+  function debouncedScan () {
+    // Cancel any pending scan
+    if (scanTimeoutId) {
+      clearTimeout(scanTimeoutId)
+      scanTimeoutId = null
+    }
+    if (scanRafId) {
+      cancelAnimationFrame(scanRafId)
+      scanRafId = null
+    }
+
+    // Wait for next tick, then use rAF for optimal timing
+    scanTimeoutId = setTimeout(() => {
+      scanRafId = requestAnimationFrame(scan)
+    }, 50)
+  }
+
   function scrollTo (id: string) {
     if (!IN_BROWSER) return
 
@@ -148,13 +172,16 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     () => route.path,
     () => {
       if (!IN_BROWSER) return
-
-      nextTick(() => {
-        requestAnimationFrame(scan)
-      })
+      nextTick(debouncedScan)
     },
     { immediate: true },
   )
+
+  // Cleanup pending operations on dispose
+  onScopeDispose(() => {
+    if (scanTimeoutId) clearTimeout(scanTimeoutId)
+    if (scanRafId) cancelAnimationFrame(scanRafId)
+  })
 
   return {
     headings,

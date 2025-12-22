@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
 import Vue from 'unplugin-vue/rolldown'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   resolve: {

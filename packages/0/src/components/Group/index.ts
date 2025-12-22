@@ -6,8 +6,8 @@ export type { GroupRootProps, GroupRootSlotProps } from './GroupRoot.vue'
 export { provideGroupRoot, useGroupRoot } from './GroupRoot.vue'
 export { default as GroupRoot } from './GroupRoot.vue'
 
-import Root from './GroupRoot.vue'
 import Item from './GroupItem.vue'
+import Root from './GroupRoot.vue'
 
 /**
  * Group component with sub-components for multi-selection.

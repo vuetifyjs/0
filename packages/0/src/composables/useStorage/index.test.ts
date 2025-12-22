@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { createStorage } from './index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
+import { createStorage } from './index'
 
 describe('useStorage', () => {
   let mockAdapter: any

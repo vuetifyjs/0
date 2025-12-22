@@ -1,11 +1,11 @@
-import Markdown from 'unplugin-vue-markdown/vite'
-import Attrs from 'markdown-it-attrs'
-import Anchor from 'markdown-it-anchor'
-import Container from 'markdown-it-container'
+import type { HighlighterGeneric } from 'shiki/types'
 import { fromHighlighter } from '@shikijs/markdown-it/core'
+import Anchor from 'markdown-it-anchor'
+import Attrs from 'markdown-it-attrs'
+import Container from 'markdown-it-container'
 import { createHighlighterCore } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
-import type { HighlighterGeneric } from 'shiki/types'
+import Markdown from 'unplugin-vue-markdown/vite'
 
 export default async function MarkdownPlugin () {
   const highlighter = await createHighlighterCore({
@@ -43,8 +43,8 @@ export default async function MarkdownPlugin () {
           .replace(/^-+|-+$/g, ''),
       })
       md.use(Container, 'code-group', {
-        render (tokens: any[], idx: number) {
-          return tokens[idx].nesting === 1
+        render (tokens: any[], index: number) {
+          return tokens[index].nesting === 1
             ? '<DocsCodeGroup>\n'
             : '</DocsCodeGroup>\n'
         },
@@ -61,25 +61,29 @@ export default async function MarkdownPlugin () {
 
       // Wrap code blocks with DocsMarkup component
       const defaultFence = md.renderer.rules.fence!
-      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
-        const token = tokens[idx]
+      md.renderer.rules.fence = (tokens, index, options, env, self) => {
+        const token = tokens[index]
         const code = token.content.trim()
         // Parse fence info - can be "lang", "lang playground", or "lang filename"
         const info = token.info?.trim() || ''
         const [lang, ...rest] = info.split(/\s+/)
-        const playgroundIdx = rest.indexOf('playground')
-        const playground = playgroundIdx !== -1
-        if (playground) rest.splice(playgroundIdx, 1)
-        const title = rest.join(' ')
-        const highlighted = defaultFence(tokens, idx, options, env, self)
-        // Base64 encode to avoid escaping issues
+
         const encodedCode = Buffer.from(code).toString('base64')
+
+        if (lang === 'mermaid') return `<DocsMermaid code="${encodedCode}" />`
+
+        const playgroundIndex = rest.indexOf('playground')
+        const playground = playgroundIndex !== -1
+        if (playground) rest.splice(playgroundIndex, 1)
+        const title = rest.join(' ')
+        const highlighted = defaultFence(tokens, index, options, env, self)
+        // Base64 encode to avoid escaping issues
         const titleAttr = title ? ` title="${title}"` : ''
         const playgroundAttr = playground ? ' playground' : ''
         return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${playgroundAttr}>${highlighted}</DocsMarkup>`
       }
-      md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
-        const t = tokens[idx]
+      md.renderer.rules.link_open = (tokens, index, options, env, self) => {
+        const t = tokens[index]
         const classes = t.attrGet('class') || ''
         const isHeaderAnchor = /\bheader-anchor\b/.test(classes)
 
@@ -98,21 +102,21 @@ export default async function MarkdownPlugin () {
         } else if (!isHeaderAnchor) {
           t.attrSet('data-sfx', '→')
         }
-        let html = self.renderToken(tokens, idx, options)
+        let html = self.renderToken(tokens, index, options)
         const pfx = t.attrGet('data-pfx')
         if (pfx) html += pfx
         return html
       }
-      md.renderer.rules.link_close = (tokens, idx, options, env, self) => {
-        for (let i = idx - 1; i >= 0; i--) {
+      md.renderer.rules.link_close = (tokens, index, options, env, self) => {
+        for (let i = index - 1; i >= 0; i--) {
           const open = tokens[i]
           if (open.type === 'link_open') {
             const sfx = open.attrGet && open.attrGet('data-sfx')
-            const close = self.renderToken(tokens, idx, options)
+            const close = self.renderToken(tokens, index, options)
             return (sfx || '') + close
           }
         }
-        return self.renderToken(tokens, idx, options)
+        return self.renderToken(tokens, index, options)
       }
     },
   })

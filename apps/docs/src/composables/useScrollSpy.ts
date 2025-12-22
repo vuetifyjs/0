@@ -6,7 +6,7 @@
  * based on viewport intersection.
  *
  * Key features:
- * - Uses IntersectionObserver for viewport detection
+ * - Uses a single IntersectionObserver for all elements (performance optimized)
  * - Configurable root margin for intersection zone
  * - Automatic cleanup on scope dispose
  * - SSR-safe
@@ -14,10 +14,9 @@
  * Designed to be extractable to @vuetify/v0 in the future.
  */
 
-import { useIntersectionObserver } from '@vuetify/v0'
+import type { Ref } from 'vue'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 import { computed, onScopeDispose, shallowReactive, shallowRef } from 'vue'
-import type { Ref } from 'vue'
 
 export interface ScrollSpyOptions {
   /**
@@ -67,6 +66,9 @@ export interface ScrollSpyReturn {
  * Creates a scroll spy instance that tracks which element is currently
  * in the active viewport zone.
  *
+ * Uses a single IntersectionObserver for all registered elements,
+ * which is significantly more performant than per-element observers.
+ *
  * @param options Configuration options
  * @returns Scroll spy controls and state
  *
@@ -91,38 +93,52 @@ export function useScrollSpy (options: ScrollSpyOptions = {}): ScrollSpyReturn {
 
   const selectedId = shallowRef<string>()
   const elements = shallowReactive(new Map<string, Element>())
-  const observers = new Map<string, ReturnType<typeof useIntersectionObserver>>()
+  // Reverse lookup: Element -> id
+  const elementToId = new WeakMap<Element, string>()
 
   const size = computed(() => elements.size)
 
-  function register (id: string, element: Element) {
-    if (!IN_BROWSER) return
-    if (elements.has(id)) {
-      unregister(id)
-    }
+  let observer: IntersectionObserver | null = null
 
-    elements.set(id, element)
+  function getObserver (): IntersectionObserver {
+    if (observer) return observer
 
-    const elementRef = shallowRef(element)
-    const observer = useIntersectionObserver(
-      elementRef,
+    observer = new IntersectionObserver(
       entries => {
-        const entry = entries.at(-1)
-        if (entry?.isIntersecting) {
-          selectedId.value = id
+        // Find the entry that is intersecting and highest on the page
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = elementToId.get(entry.target)
+            if (id) {
+              selectedId.value = id
+            }
+          }
         }
       },
       { rootMargin, threshold, root },
     )
 
-    observers.set(id, observer)
+    return observer
+  }
+
+  function register (id: string, element: Element) {
+    if (!IN_BROWSER) return
+
+    // If already registered, unregister first
+    if (elements.has(id)) {
+      unregister(id)
+    }
+
+    elements.set(id, element)
+    elementToId.set(element, id)
+    getObserver().observe(element)
   }
 
   function unregister (id: string) {
-    const observer = observers.get(id)
-    if (observer) {
-      observer.stop()
-      observers.delete(id)
+    const element = elements.get(id)
+    if (element) {
+      observer?.unobserve(element)
+      elementToId.delete(element)
     }
     elements.delete(id)
 
@@ -132,9 +148,15 @@ export function useScrollSpy (options: ScrollSpyOptions = {}): ScrollSpyReturn {
   }
 
   function clear () {
-    for (const id of elements.keys()) {
-      unregister(id)
+    if (observer) {
+      observer.disconnect()
+      observer = null
     }
+    for (const element of elements.values()) {
+      elementToId.delete(element)
+    }
+    elements.clear()
+    selectedId.value = undefined
   }
 
   onScopeDispose(clear)

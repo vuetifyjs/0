@@ -1,8 +1,24 @@
-import { presetWind3, defineConfig } from 'unocss'
+import { defineConfig, presetWind4 } from 'unocss'
 
 export default defineConfig({
   presets: [
-    presetWind3(),
+    presetWind4(),
+  ],
+  // Wind4 uses color-mix with oklch - opacity modifiers (bg-surface/50)
+  // don't work with CSS variables. Use color-mix shortcuts instead.
+  shortcuts: {
+    'glass-surface': '[background:color-mix(in_srgb,var(--v0-surface)_70%,transparent)] backdrop-blur-12',
+    'glass-warning': '[background:color-mix(in_srgb,var(--v0-warning)_70%,transparent)] backdrop-blur-12',
+  },
+  preflights: [
+    {
+      getCSS: () => `
+        button:not(:disabled),
+        [role="button"]:not(:disabled) {
+          cursor: pointer;
+        }
+      `,
+    },
   ],
   theme: {
     colors: {
