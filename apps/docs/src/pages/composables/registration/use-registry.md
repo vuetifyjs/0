@@ -82,7 +82,7 @@ console.log(registry.size) // 3
   - `clear()`: Clears the entire registry, removing all registered items.
   - `has(id: ID)`: Checks if an item with the given ID exists in the registry.
   - `keys()`: Returns an array of all registered IDs.
-  - `browse(value: unknown)`: Searches for an ID by its value. Returns a single ID if found, or an array of IDs if multiple items match.
+  - `browse(value: unknown)`: Searches for IDs by value. Returns an array of matching IDs, or `undefined` if no match found.
   - `lookup(index: number)`: Looks up an ID by its index number.
   - `get(id: ID)`: Retrieves a ticket by its ID, returning `undefined` if not found.
   - `upsert(id: ID, patch?: Partial<Z>)`: Creates or updates a ticket by its ID. If the ID does not exist, it creates a new ticket; if it does exist, it updates the existing ticket with the provided patch.

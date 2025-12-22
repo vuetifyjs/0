@@ -1,6 +1,8 @@
 /**
  * @module useRegistry
  *
+ * @see https://0.vuetifyjs.com/composables/registration/use-registry
+ *
  * @remarks
  * A foundational composable for managing collections of items (tickets) with:
  * - Unique ID-based access
@@ -47,6 +49,9 @@ export interface RegistryTicket<V = unknown> {
    */
   valueIsIndex: boolean
 }
+
+/** Callback signature for registry event listeners */
+export type RegistryEventCallback = (data: unknown) => void
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /**
@@ -371,7 +376,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * registry.register({ id: 'ticket-id' }) // Console: Ticket registered: { id: 'ticket-id', ... }
    * ```
   */
-  on: (event: string, cb: Function) => void
+  on: (event: string, cb: RegistryEventCallback) => void
   /**
    * Stop listening for registry events
    *
@@ -401,7 +406,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * })
    * ```
   */
-  off: (event: string, cb: Function) => void
+  off: (event: string, cb: RegistryEventCallback) => void
   /**
    * Emit an event with data
    *
@@ -605,7 +610,7 @@ export function useRegistry<
   const catalog = new Map<unknown, ID[]>()
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
-  const listeners = new Map<string, Set<Function>>()
+  const listeners = new Map<string, Set<RegistryEventCallback>>()
 
   const events = options?.events ?? false
 
@@ -622,9 +627,9 @@ export function useRegistry<
     for (const cb of cbs) cb(data)
   }
 
-  function on (event: string, cb: Function) {
+  function on (event: string, cb: RegistryEventCallback) {
     if (!events) {
-      logger.warn(`Attempted to register event listener for "${event}" but events are disabled.`)
+      logger.warn(`Events are disabled. Initialize with \`useRegistry({ events: true })\` to enable.`)
       return
     }
 
@@ -632,12 +637,16 @@ export function useRegistry<
     listeners.get(event)!.add(cb)
   }
 
-  function off (event: string, cb: Function) {
+  function off (event: string, cb: RegistryEventCallback) {
+    if (!events) {
+      logger.warn(`Events are disabled. Initialize with \`useRegistry({ events: true })\` to enable.`)
+      return
+    }
     listeners.get(event)?.delete(cb)
   }
 
   function dispose () {
-    if (listeners.size > 0) listeners.clear()
+    listeners.clear()
     clear()
   }
 
@@ -761,9 +770,9 @@ export function useRegistry<
   }
 
   function clear () {
-    if (collection.size > 0) collection.clear()
-    if (catalog.size > 0) catalog.clear()
-    if (directory.size > 0) directory.clear()
+    collection.clear()
+    catalog.clear()
+    directory.clear()
     invalidate()
     indexDependentCount = 0
     needsReindex = false
@@ -773,7 +782,7 @@ export function useRegistry<
 
   function invalidate () {
     if (batching) return
-    if (cache.size > 0) cache.clear()
+    cache.clear()
   }
 
   function queueEmit (event: string, data: unknown) {
@@ -793,7 +802,7 @@ export function useRegistry<
     try {
       const result = fn()
 
-      if (cache.size > 0) cache.clear()
+      cache.clear()
 
       for (const { event, data } of pendingEmits) {
         emit(event, data)
@@ -810,8 +819,8 @@ export function useRegistry<
     const startIndex = minDirtyIndex === Infinity ? 0 : minDirtyIndex
 
     if (startIndex === 0) {
-      if (catalog.size > 0) catalog.clear()
-      if (directory.size > 0) directory.clear()
+      catalog.clear()
+      directory.clear()
     }
 
     invalidate()
@@ -854,7 +863,7 @@ export function useRegistry<
     const id = registration.id ?? genId()
 
     if (has(id)) {
-      logger.warn(`Ticket with id "${id}" already exists in the registry. Skipping registration.`)
+      logger.warn(`Ticket "${id}" already exists. Use \`upsert()\` to update or check \`has()\` before registering.`)
 
       return get(id)!
     }
@@ -934,10 +943,8 @@ export function useRegistry<
 
     invalidate()
 
-    if (events) {
-      for (const ticket of removed) {
-        emit('unregister:ticket', ticket)
-      }
+    for (const ticket of removed) {
+      queueEmit('unregister:ticket', ticket)
     }
 
     needsReindex = true
@@ -951,6 +958,12 @@ export function useRegistry<
     if (collection.size === 0) return undefined
 
     if (needsReindex) reindex()
+
+    // Fast path: simple first/last without predicate or offset
+    if (!predicate && isUndefined(from)) {
+      const tickets = values()
+      return direction === 'first' ? tickets[0] : tickets[tickets.length - 1]
+    }
 
     const tickets = values()
     const index = isUndefined(from) ? undefined : Math.max(0, Math.min(from, tickets.length - 1))

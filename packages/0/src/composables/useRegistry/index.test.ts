@@ -305,7 +305,7 @@ describe('useRegistry', () => {
       registry.register({ id: 'test' })
 
       expect(listener).not.toHaveBeenCalled()
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('events are disabled'))
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
 
       warnSpy.mockRestore()
     })
@@ -401,7 +401,7 @@ describe('useRegistry', () => {
 
       registry.on('register:ticket', vi.fn())
 
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('events are disabled'))
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
 
       warnSpy.mockRestore()
     })
