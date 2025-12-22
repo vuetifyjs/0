@@ -245,6 +245,25 @@ describe('useClickOutside', () => {
       simulatePointerClick(outside)
       expect(handler).toHaveBeenCalledTimes(1)
     })
+
+    it('handles target becoming null between pointerdown and pointerup', async () => {
+      const handler = vi.fn()
+      const targetRef = ref<HTMLElement | null>(target)
+      useClickOutside(targetRef, handler)
+
+      await nextTick()
+
+      // Start click outside
+      outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+
+      // Target disappears mid-interaction
+      targetRef.value = null
+
+      // Complete click - no targets means nothing is "outside"
+      outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+
+      expect(handler).not.toHaveBeenCalled()
+    })
   })
 
   describe('two-phase detection', () => {
@@ -293,6 +312,7 @@ describe('useClickOutside', () => {
       // Should not trigger because pointerup was inside
       expect(handler).not.toHaveBeenCalled()
     })
+
   })
 
   describe('touch scroll threshold', () => {
@@ -373,6 +393,29 @@ describe('useClickOutside', () => {
         clientX: 200,
         clientY: 200,
         pointerType: 'mouse',
+      }))
+
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not apply threshold to pen/stylus clicks', async () => {
+      const handler = vi.fn()
+      useClickOutside(target, handler, { touchScrollThreshold: 30 })
+
+      await nextTick()
+
+      // Large pen movement - should still trigger (threshold only for touch)
+      outside.dispatchEvent(new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientX: 100,
+        clientY: 100,
+        pointerType: 'pen',
+      }))
+      outside.dispatchEvent(new PointerEvent('pointerup', {
+        bubbles: true,
+        clientX: 200,
+        clientY: 200,
+        pointerType: 'pen',
       }))
 
       expect(handler).toHaveBeenCalledTimes(1)
@@ -962,6 +1005,41 @@ describe('useClickOutside', () => {
       expect(handler).toHaveBeenCalledTimes(2)
 
       scope.stop()
+    })
+
+    it('handles rapid successive clicks correctly', async () => {
+      const handler = vi.fn()
+      useClickOutside(target, handler)
+
+      await nextTick()
+
+      // Rapid fire 10 clicks with no delay
+      for (let i = 0; i < 10; i++) {
+        simulatePointerClick(outside)
+      }
+
+      expect(handler).toHaveBeenCalledTimes(10)
+    })
+
+    it('clears initialTarget between rapid clicks', async () => {
+      const handler = vi.fn()
+      useClickOutside(target, handler)
+
+      await nextTick()
+
+      // Start first click
+      outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Immediately start second click - initialTarget should have been cleared
+      outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+      outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      expect(handler).toHaveBeenCalledTimes(2)
+
+      // Verify pointerup without prior pointerdown doesn't trigger
+      outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+      expect(handler).toHaveBeenCalledTimes(2)
     })
   })
 
