@@ -3,7 +3,7 @@ import { effectScope, nextTick, onScopeDispose, ref, watch } from 'vue'
 import { useToggleScope } from './index'
 
 describe('useToggleScope', () => {
-  it('starts scope when source is initially true', async () => {
+  it('should start scope when source is initially true', async () => {
     const source = ref(true)
     const fn = vi.fn()
 
@@ -15,7 +15,7 @@ describe('useToggleScope', () => {
     expect(fn).toHaveBeenCalledTimes(1)
   })
 
-  it('does not start scope when source is initially false', async () => {
+  it('should not start scope when source is initially false', async () => {
     const source = ref(false)
     const fn = vi.fn()
 
@@ -27,7 +27,7 @@ describe('useToggleScope', () => {
     expect(fn).not.toHaveBeenCalled()
   })
 
-  it('starts scope when source changes from false to true', async () => {
+  it('should start scope when source changes from false to true', async () => {
     const source = ref(false)
     const fn = vi.fn()
 
@@ -43,7 +43,7 @@ describe('useToggleScope', () => {
     expect(fn).toHaveBeenCalledTimes(1)
   })
 
-  it('stops scope when source changes from true to false', async () => {
+  it('should stop scope when source changes from true to false', async () => {
     const source = ref(true)
     const cleanup = vi.fn()
 
@@ -61,7 +61,7 @@ describe('useToggleScope', () => {
     expect(cleanup).toHaveBeenCalledTimes(1)
   })
 
-  it('handles rapid toggling', async () => {
+  it('should handle rapid toggling', async () => {
     const source = ref(false)
     const fn = vi.fn()
     const cleanup = vi.fn()
@@ -92,7 +92,7 @@ describe('useToggleScope', () => {
     expect(cleanup).toHaveBeenCalledTimes(2)
   })
 
-  it('prevents duplicate scope creation when already active', async () => {
+  it('should prevent duplicate scope creation when already active', async () => {
     const source = ref(true)
     const fn = vi.fn()
 
@@ -109,7 +109,7 @@ describe('useToggleScope', () => {
     expect(fn).toHaveBeenCalledTimes(1)
   })
 
-  it('cleans up when parent scope is disposed', async () => {
+  it('should clean up when parent scope is disposed', async () => {
     const source = ref(true)
     const cleanup = vi.fn()
     const scope = effectScope()
@@ -128,7 +128,7 @@ describe('useToggleScope', () => {
     expect(cleanup).toHaveBeenCalledTimes(1)
   })
 
-  it('provides controls when function expects parameter', async () => {
+  it('should provide controls when function expects parameter', async () => {
     const source = ref(true)
     const fn = vi.fn()
     let receivedControls: any
@@ -154,7 +154,7 @@ describe('useToggleScope', () => {
     expect(fn).toHaveBeenCalledTimes(2)
   })
 
-  it('does not provide controls when function has no parameters', async () => {
+  it('should not provide controls when function has no parameters', async () => {
     const source = ref(true)
     const fn = vi.fn()
 
@@ -167,7 +167,7 @@ describe('useToggleScope', () => {
     expect(fn).toHaveBeenCalledWith() // No arguments
   })
 
-  it('returns control object with isActive', async () => {
+  it('should return control object with isActive', async () => {
     const source = ref(false)
     const fn = vi.fn()
 
@@ -187,7 +187,7 @@ describe('useToggleScope', () => {
     expect(controls.isActive.value).toBe(false)
   })
 
-  it('allows manual start and stop via controls', async () => {
+  it('should allow manual start and stop via controls', async () => {
     const source = ref(false)
     const fn = vi.fn()
 
@@ -209,7 +209,7 @@ describe('useToggleScope', () => {
     expect(controls.isActive.value).toBe(false)
   })
 
-  it('reset method stops and restarts scope', async () => {
+  it('should stop and restart scope with reset method', async () => {
     const source = ref(true)
     const fn = vi.fn()
     const cleanup = vi.fn()
@@ -232,7 +232,7 @@ describe('useToggleScope', () => {
     expect(controls.isActive.value).toBe(true)
   })
 
-  it('isActive is readonly', async () => {
+  it('should have readonly isActive', async () => {
     const source = ref(true)
 
     const controls = effectScope().run(() => {
@@ -254,7 +254,7 @@ describe('useToggleScope', () => {
     warnSpy.mockRestore()
   })
 
-  it('prevents duplicate start calls', async () => {
+  it('should prevent duplicate start calls', async () => {
     const source = ref(false)
     const fn = vi.fn()
 
@@ -272,7 +272,7 @@ describe('useToggleScope', () => {
     expect(fn).toHaveBeenCalledTimes(1)
   })
 
-  it('handles deactivation when scope is undefined', async () => {
+  it('should handle deactivation when scope is undefined', async () => {
     const source = ref(false)
     const fn = vi.fn()
 
@@ -290,7 +290,7 @@ describe('useToggleScope', () => {
     expect(fn).not.toHaveBeenCalled()
   })
 
-  it('handles multiple activations after deactivation', async () => {
+  it('should handle multiple activations after deactivation', async () => {
     const source = ref(false)
     const fn = vi.fn()
     const cleanup = vi.fn()
@@ -326,7 +326,7 @@ describe('useToggleScope', () => {
     expect(cleanup).toHaveBeenCalledTimes(2)
   })
 
-  it('works with computed sources', async () => {
+  it('should work with computed sources', async () => {
     const count = ref(0)
     function source () {
       return count.value > 0
@@ -349,7 +349,7 @@ describe('useToggleScope', () => {
     // Cleanup should have run
   })
 
-  it('cleans up reactive effects created inside scoped function', async () => {
+  it('should clean up reactive effects created inside scoped function', async () => {
     const source = ref(true)
     const effect = vi.fn()
     const inner = ref(0)

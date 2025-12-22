@@ -124,7 +124,8 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
     registryWatch.resume()
   }, { flush: 'sync', deep: multiple })
 
-  function onRegister (ticket: Z) {
+  function onRegister (data: unknown) {
+    const ticket = data as Z
     if (!pending.has(ticket.value) || ticket.disabled) return
     registryWatch.pause()
     modelWatch.pause()

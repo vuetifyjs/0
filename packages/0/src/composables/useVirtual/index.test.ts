@@ -102,7 +102,7 @@ describe('useVirtual', () => {
     vi.clearAllMocks()
   })
 
-  it('creates a virtual context with required properties', () => {
+  it('should create a virtual context with required properties', () => {
     const items = ref([1, 2, 3, 4, 5])
     const virtual = useVirtual(items)
 
@@ -116,7 +116,7 @@ describe('useVirtual', () => {
     expect(virtual).toHaveProperty('resize')
   })
 
-  it('handles empty items array', () => {
+  it('should handle empty items array', () => {
     const items = ref<number[]>([])
     const virtual = useVirtual(items)
 
@@ -125,7 +125,7 @@ describe('useVirtual', () => {
     expect(virtual.size.value).toBe(0)
   })
 
-  it('renders initial visible items with fixed height', async () => {
+  it('should render initial visible items with fixed height', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -139,7 +139,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value.length).toBeGreaterThan(0)
   })
 
-  it('updates visible range when items change', async () => {
+  it('should update visible range when items change', async () => {
     const items = ref([1, 2, 3])
     const virtual = useVirtual(items, { itemHeight: 50 })
 
@@ -157,7 +157,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value.length).toBeGreaterThanOrEqual(initialLength)
   })
 
-  it('handles item resize', async () => {
+  it('should handle item resize', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: 50 })
 
@@ -174,7 +174,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value).toBeDefined()
   })
 
-  it('handles scroll events', async () => {
+  it('should handle scroll events', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: 50 })
 
@@ -192,7 +192,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value).toBeDefined()
   })
 
-  it('handles scrollend events', async () => {
+  it('should handle scrollend events', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: 50 })
 
@@ -221,7 +221,7 @@ describe('useVirtual', () => {
     expect(mockContainer.scrollTop).toBeGreaterThanOrEqual(0)
   })
 
-  it('calculates padding correctly', async () => {
+  it('should calculate padding correctly', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: 50 })
 
@@ -235,7 +235,7 @@ describe('useVirtual', () => {
     expect(virtual.size.value).toBeGreaterThanOrEqual(0)
   })
 
-  it('works with dynamic heights (null itemHeight)', async () => {
+  it('should work with dynamic heights (null itemHeight)', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: null })
 
@@ -247,7 +247,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value).toBeDefined()
   })
 
-  it('includes index in computed items', async () => {
+  it('should include index in computed items', async () => {
     const items = ref([{ id: 1 }, { id: 2 }, { id: 3 }])
     const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -264,7 +264,7 @@ describe('useVirtual', () => {
     expect(typeof firstItem!.index).toBe('number')
   })
 
-  it('handles force recalculation', async () => {
+  it('should handle force recalculation', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: 50 })
 
@@ -279,7 +279,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value).toBeDefined()
   })
 
-  it('parses string itemHeight', async () => {
+  it('should parse string itemHeight', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: '50' })
 
@@ -290,7 +290,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value).toBeDefined()
   })
 
-  it('parses string container height', async () => {
+  it('should parse string container height', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: 50, height: '600' })
 
@@ -301,7 +301,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value).toBeDefined()
   })
 
-  it('respects custom overscan option', async () => {
+  it('should respect custom overscan option', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
     const virtual = useVirtual(items, { itemHeight: 50, height: 500, overscan: 10 })
 
@@ -315,7 +315,7 @@ describe('useVirtual', () => {
     expect(virtual.items.value.length).toBeGreaterThan(10)
   })
 
-  it('uses default overscan when not specified', async () => {
+  it('should use default overscan when not specified', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
     const virtualDefault = useVirtual(items, { itemHeight: 50, height: 500 })
     const virtualExplicit = useVirtual(items, { itemHeight: 50, height: 500, overscan: 5 })
@@ -342,7 +342,7 @@ describe('useVirtual', () => {
       expect(mockContainer.scrollTop).toBe(5000)
     })
 
-    it('maintains scroll position at bottom when new items added in reverse mode', async () => {
+    it('should maintain scroll position at bottom when new items added in reverse mode', async () => {
       const items = ref(Array.from({ length: 10 }, (_, i) => ({ id: i, text: `Message ${i}` })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 500, direction: 'reverse' })
 
@@ -364,7 +364,7 @@ describe('useVirtual', () => {
   })
 
   describe('scroll anchoring', () => {
-    it('maintains scroll position when prepending items with anchor="start"', async () => {
+    it('should maintain scroll position when prepending items with anchor="start"', async () => {
       const items = ref(Array.from({ length: 20 }, (_, i) => ({ id: i, text: `Item ${i}` })))
       const virtual = useVirtual(items, {
         itemHeight: 50,
@@ -394,7 +394,7 @@ describe('useVirtual', () => {
       expect(mockContainer.scrollTop).toBeGreaterThanOrEqual(scrollBefore)
     })
 
-    it('maintains scroll position at end with anchor="end"', async () => {
+    it('should maintain scroll position at end with anchor="end"', async () => {
       const items = ref(Array.from({ length: 20 }, (_, i) => ({ id: i, text: `Item ${i}` })))
       const virtual = useVirtual(items, {
         itemHeight: 50,
@@ -507,7 +507,7 @@ describe('useVirtual', () => {
       expect(lastCall[0]).toBe(50)
     })
 
-    it('does not call edge callbacks when outside threshold', async () => {
+    it('should not call edge callbacks when outside threshold', async () => {
       const onStartReached = vi.fn()
       const onEndReached = vi.fn()
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
@@ -538,14 +538,14 @@ describe('useVirtual', () => {
   })
 
   describe('state management', () => {
-    it('initializes with ok state', () => {
+    it('should initialize with ok state', () => {
       const items = ref(Array.from({ length: 10 }, (_, i) => i))
       const virtual = useVirtual(items, { itemHeight: 50 })
 
       expect(virtual.state.value).toBe('ok')
     })
 
-    it('resets state and scroll position', async () => {
+    it('should reset state and scroll position', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
       const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
 
@@ -569,7 +569,7 @@ describe('useVirtual', () => {
       expect(virtual.state.value).toBe('ok')
     })
 
-    it('resets to bottom for reverse direction', async () => {
+    it('should reset to bottom for reverse direction', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
       const virtual = useVirtual(items, {
         itemHeight: 50,
