@@ -1,14 +1,14 @@
-// Types
-import type { App } from 'vue'
-
-// Imports
-import { defineAsyncComponent } from 'vue'
+// Components
 import DocsCodeGroup from '@/components/docs/DocsCodeGroup.vue'
 import DocsExample from '@/components/docs/DocsExample.vue'
-// Components
 import DocsNavigator from '@/components/docs/DocsNavigator.vue'
-
 import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
+
+// Utilities
+import { defineAsyncComponent } from 'vue'
+
+// Types
+import type { App } from 'vue'
 
 export default function app (app: App) {
   app.component('DocsPageFeatures', DocsPageFeatures)

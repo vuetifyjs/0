@@ -1,6 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/vue3-vite'
+// Framework
 import { ExpansionPanel } from '@vuetify/v0'
+
+// Utilities
 import { ref } from 'vue'
+
+// Types
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 const meta: Meta<typeof ExpansionPanel.Root> = {
   title: 'Components/ExpansionPanel',

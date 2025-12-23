@@ -1,3 +1,4 @@
+// Utilities
 import { defineStore } from 'pinia'
 
 // Minimal type for commit data we actually use

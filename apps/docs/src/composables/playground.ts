@@ -8,8 +8,9 @@
  * - Proper main.ts setup
  */
 
-// Utilities
 import { strFromU8, strToU8, zlibSync } from 'fflate'
+
+// Utilities
 import { version as vueVersion } from 'vue'
 
 function utoa (data: string): string {

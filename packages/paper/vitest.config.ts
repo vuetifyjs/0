@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vitest/config'
 

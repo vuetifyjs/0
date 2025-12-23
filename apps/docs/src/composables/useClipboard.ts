@@ -1,3 +1,4 @@
+// Utilities
 import { shallowRef } from 'vue'
 
 export function useClipboard (timeout = 2000) {

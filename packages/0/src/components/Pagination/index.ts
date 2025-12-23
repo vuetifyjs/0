@@ -1,23 +1,24 @@
-export type { PaginationEllipsisProps, PaginationEllipsisSlotProps } from './PaginationEllipsis.vue'
 export { default as PaginationEllipsis } from './PaginationEllipsis.vue'
-export type { PaginationFirstProps, PaginationFirstSlotProps } from './PaginationFirst.vue'
 export { default as PaginationFirst } from './PaginationFirst.vue'
-export type { PaginationItemProps, PaginationItemSlotProps } from './PaginationItem.vue'
 export { default as PaginationItem } from './PaginationItem.vue'
-export type { PaginationLastProps, PaginationLastSlotProps } from './PaginationLast.vue'
-
 export { default as PaginationLast } from './PaginationLast.vue'
-
-export type { PaginationNextProps, PaginationNextSlotProps } from './PaginationNext.vue'
 export { default as PaginationNext } from './PaginationNext.vue'
-export type { PaginationPrevProps, PaginationPrevSlotProps } from './PaginationPrev.vue'
 export { default as PaginationPrev } from './PaginationPrev.vue'
-export type { PaginationRootProps, PaginationRootSlotProps } from './PaginationRoot.vue'
 export { providePaginationControls, providePaginationItems, providePaginationRoot, usePaginationControls, usePaginationItems, usePaginationRoot } from './PaginationRoot.vue'
-export { default as PaginationRoot } from './PaginationRoot.vue'
-export type { PaginationStatusProps, PaginationStatusSlotProps } from './PaginationStatus.vue'
-export { default as PaginationStatus } from './PaginationStatus.vue'
 
+export { default as PaginationRoot } from './PaginationRoot.vue'
+
+export { default as PaginationStatus } from './PaginationStatus.vue'
+export type { PaginationEllipsisProps, PaginationEllipsisSlotProps } from './PaginationEllipsis.vue'
+export type { PaginationFirstProps, PaginationFirstSlotProps } from './PaginationFirst.vue'
+export type { PaginationItemProps, PaginationItemSlotProps } from './PaginationItem.vue'
+export type { PaginationLastProps, PaginationLastSlotProps } from './PaginationLast.vue'
+export type { PaginationNextProps, PaginationNextSlotProps } from './PaginationNext.vue'
+export type { PaginationPrevProps, PaginationPrevSlotProps } from './PaginationPrev.vue'
+export type { PaginationRootProps, PaginationRootSlotProps } from './PaginationRoot.vue'
+export type { PaginationStatusProps, PaginationStatusSlotProps } from './PaginationStatus.vue'
+
+// Components
 import Ellipsis from './PaginationEllipsis.vue'
 import First from './PaginationFirst.vue'
 import Item from './PaginationItem.vue'

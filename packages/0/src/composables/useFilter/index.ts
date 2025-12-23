@@ -15,17 +15,17 @@
  * Filters arrays based on query strings with configurable matching strategies.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-// Types
-import type { App, ComputedRef, MaybeRef, MaybeRefOrGetter, ShallowRef } from 'vue'
-
-// Factories
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
-import { isObject } from '#v0/utilities'
 // Utilities
+import { isObject } from '#v0/utilities'
 import { computed, isRef, toRef, toValue } from 'vue'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { App, ComputedRef, MaybeRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 
 export type Primitive = string | number | boolean
 export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>

@@ -1,17 +1,16 @@
-import type { ID } from '#v0/types'
-
-// Types
-import type { App } from 'vue'
-import type { Colors } from '../index'
-
-import type { ThemeAdapterSetupContext } from './adapter'
-
 // Globals
 import { IN_BROWSER } from '#v0/constants/globals'
-import { isNull, isString } from '#v0/utilities'
+
 // Utilities
+import { isNull, isString } from '#v0/utilities'
 import { onScopeDispose, watch } from 'vue'
-// Adapters
+
+// Types
+import type { ID } from '#v0/types'
+import type { Colors } from '../index'
+import type { ThemeAdapterSetupContext } from './adapter'
+import type { App } from 'vue'
+
 import { ThemeAdapter } from './adapter'
 
 export interface Vuetify0ThemeOptions {

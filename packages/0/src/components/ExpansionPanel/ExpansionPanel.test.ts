@@ -1,10 +1,10 @@
-import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import { renderToString } from 'vue/server-renderer'
 
 // Utilities
-import { describe, expect, it } from 'vitest'
+import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
-import { renderToString } from 'vue/server-renderer'
-// Components
+
 import { ExpansionPanel } from './index'
 
 describe('expansionPanel', () => {

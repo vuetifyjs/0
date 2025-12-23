@@ -15,17 +15,17 @@
  * Perfect for lazy loading, infinite scroll, and visibility detection.
  */
 
-// Types
-import type { Ref, ShallowRef } from 'vue'
+// Globals
+import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
 
-// Globals
-import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
-
 // Utilities
 import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
+
+// Types
+import type { Ref, ShallowRef } from 'vue'
 
 export type MaybeRef<T> = T | Ref<T> | Readonly<Ref<T>> | ShallowRef<T> | Readonly<ShallowRef<T>>
 

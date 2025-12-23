@@ -1,5 +1,8 @@
-import type { PiniaPluginContext } from 'pinia'
+// Utilities
 import { createPinia } from 'pinia'
+
+// Types
+import type { PiniaPluginContext } from 'pinia'
 
 const pinia = createPinia()
 

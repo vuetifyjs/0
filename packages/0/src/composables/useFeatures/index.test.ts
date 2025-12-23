@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
+
+// Utilities
 import { createApp } from 'vue'
+
 import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
 
 describe('createFeatures', () => {

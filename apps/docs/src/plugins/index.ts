@@ -1,11 +1,11 @@
-// Types
-import type { App } from 'vue'
 // Components
 import DocsMarkup from '@/components/docs/DocsMarkup.vue'
+
+// Types
+import type { App } from 'vue'
+
 import _app from './app'
-
 import zero from './zero'
-
 // Plugins
 import './analytics'
 

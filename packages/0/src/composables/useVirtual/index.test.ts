@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Utilities
 import { nextTick, ref } from 'vue'
+
 import { useVirtual } from './index'
 
 // Mock useHydration

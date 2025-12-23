@@ -1,6 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/vue3-vite'
+// Framework
 import { Popover } from '@vuetify/v0'
+
+// Utilities
 import { ref } from 'vue'
+
+// Types
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 const meta: Meta<typeof Popover.Root> = {
   title: 'Components/Popover',

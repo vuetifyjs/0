@@ -4,7 +4,7 @@ import storybook from 'eslint-plugin-storybook'
 export default vuetify({
   vue: true,
   perfectionist: {
-    import: true,
+    import: false,
   },
   autoimports: false,
   test: {
@@ -25,6 +25,42 @@ export default vuetify({
     'unicorn/no-array-callback-reference': 'off',
     'unicorn/no-unreadable-array-destructuring': 'off',
     'func-style': ['error', 'declaration'],
+    'perfectionist/sort-exports': 'off',
+    'perfectionist/sort-imports': ['error', {
+      type: 'natural',
+      order: 'asc',
+      ignoreCase: true,
+      newlinesBetween: 'always',
+      groups: [
+        'builtin',
+        'external',
+        { newlinesBetween: 'always', commentAbove: 'Framework' },
+        'framework',
+        { newlinesBetween: 'always', commentAbove: 'Components' },
+        'components',
+        { newlinesBetween: 'always', commentAbove: 'Composables' },
+        'composables',
+        { newlinesBetween: 'always', commentAbove: 'Adapters' },
+        'adapters',
+        { newlinesBetween: 'always', commentAbove: 'Utilities' },
+        'utilities',
+        { newlinesBetween: 'always', commentAbove: 'Types' },
+        'type',
+        { newlinesBetween: 'always' },
+        'internal',
+        'sibling',
+        'index',
+      ],
+      customGroups: {
+        value: {
+          framework: '^@vuetify/v0',
+          adapters: '/adapters',
+          components: ['/components/', String.raw`\.vue$`],
+          composables: ['/composables/', '/use[A-Z]'],
+          utilities: ['/utilities', '/utils', '/helpers', '^vue$', '^vue-router$', '^pinia$', '^@vue/'],
+        },
+      },
+    }],
   },
 },
 {

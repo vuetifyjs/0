@@ -11,7 +11,7 @@
  * allowing plugins to safely provide dependency injection contexts at the application level.
  */
 
-// Utilities
+// Types
 import type { App } from 'vue'
 
 export interface PluginOptions {

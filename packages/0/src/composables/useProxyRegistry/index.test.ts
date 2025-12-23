@@ -1,9 +1,11 @@
-// Composables
-import { useRegistry } from '#v0/composables/useRegistry'
-// Utilities
 import { describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { useRegistry } from '#v0/composables/useRegistry'
+
+// Utilities
 import { effectScope } from 'vue'
+
 import { useProxyRegistry } from './index'
 
 describe('useProxyRegistry', () => {

@@ -15,25 +15,22 @@
  * Each field is registered with validation rules and tracks its own state independently.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-// Types
-import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
-
-import type { ID } from '#v0/types'
-
-import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
-// Factories
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
-
 import { createTrinity } from '#v0/composables/createTrinity'
-
 // Transformers
 import { toArray } from '#v0/composables/toArray'
-// Composables
 import { useRegistry } from '#v0/composables/useRegistry'
-import { isString } from '#v0/utilities'
+
 // Utilities
+import { isString } from '#v0/utilities'
 import { computed, shallowRef, toValue } from 'vue'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
+import type { ID } from '#v0/types'
+import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type FormValidationResult = string | true | Promise<string | true>
 

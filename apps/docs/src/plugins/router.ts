@@ -1,6 +1,8 @@
-import type { RouterOptions } from 'vue-router'
 import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
+
+// Types
+import type { RouterOptions } from 'vue-router'
 
 const routerOptions: Omit<RouterOptions, 'history'> = {
   routes: setupLayouts(routes),

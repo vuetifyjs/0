@@ -17,25 +17,22 @@
  * Integrates with useTokens for token-based features.
  */
 
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
+import { createGroup } from '#v0/composables/useGroup'
+import { createTokens } from '#v0/composables/useTokens'
+
+// Utilities
+import { isBoolean, isObject } from '#v0/utilities'
+
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
 import type { RegistryOptions } from '#v0/composables/useRegistry'
-
 import type { TokenCollection, TokenValue } from '#v0/composables/useTokens'
 import type { ID } from '#v0/types'
-
 import type { App } from 'vue'
-
-// Factories
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
-// Composables
-import { createGroup } from '#v0/composables/useGroup'
-import { createTokens } from '#v0/composables/useTokens'
-// Utilities
-import { isBoolean, isObject } from '#v0/utilities'
 
 export interface FeatureTicket extends GroupTicket<TokenValue> {}
 

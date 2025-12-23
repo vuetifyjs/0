@@ -17,20 +17,18 @@
  * Perfect for large data sets, chat apps, and infinite scroll implementations.
  */
 
-// Types
-import type { ComputedRef, Ref, ShallowRef } from 'vue'
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
 
 // Composables
 import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
-
 // Utilities
 import { clamp, isFunction, isNumber } from '#v0/utilities'
-
-// Vue
 import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
+
+// Types
+import type { ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'

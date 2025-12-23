@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Adapters
 import { Vuetify0LocaleAdapter } from './adapters/v0'
+
 import { createLocale, createLocalePlugin } from './index'
 
 describe('useLocale', () => {

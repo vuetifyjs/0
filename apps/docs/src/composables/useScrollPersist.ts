@@ -11,9 +11,8 @@
  * - SSR-safe
  */
 
-// Composables
+// Framework
 import { createStorage, useWindowEventListener } from '@vuetify/v0'
-
 // Globals
 import { IN_BROWSER } from '@vuetify/v0/constants'
 

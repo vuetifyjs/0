@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Utilities
 import { nextTick } from 'vue'
+
 import { createStorage } from './index'
 
 describe('useStorage', () => {

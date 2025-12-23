@@ -1,8 +1,10 @@
-import type { ID } from '#v0/types'
-// Types
-import type { App, ComputedRef, Ref } from 'vue'
-import type { Colors } from '..'
+// Utilities
 import { isUndefined } from '#v0/utilities'
+
+// Types
+import type { ID } from '#v0/types'
+import type { Colors } from '..'
+import type { App, ComputedRef, Ref } from 'vue'
 
 export interface ThemeAdapterSetupContext {
   colors: ComputedRef<Record<string, Colors>>

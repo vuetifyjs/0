@@ -16,26 +16,22 @@
  * Built on useTokens for flexible permission configuration.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
-// Types
-import type { TokenContext, TokenOptions, TokenTicket } from '#v0/composables/useTokens'
-import type { ID } from '#v0/types'
-
-import type { App } from 'vue'
-
-// Factories
 import { createContext, useContext } from '#v0/composables/createContext'
-
 import { createPlugin } from '#v0/composables/createPlugin'
-
 import { createTrinity } from '#v0/composables/createTrinity'
 // Transformers
 import { toArray } from '#v0/composables/toArray'
+import { createTokens } from '#v0/composables/useTokens'
+
 // Adapters
 import { Vuetify0PermissionAdapter } from '#v0/composables/usePermissions/adapters'
-// Composables
-import { createTokens } from '#v0/composables/useTokens'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
+import type { TokenContext, TokenOptions, TokenTicket } from '#v0/composables/useTokens'
+import type { ID } from '#v0/types'
+import type { App } from 'vue'
 
 // Exports
 export { PermissionAdapter } from '#v0/composables/usePermissions/adapters'

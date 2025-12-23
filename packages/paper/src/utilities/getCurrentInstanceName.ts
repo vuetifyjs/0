@@ -1,5 +1,6 @@
-import { getCurrentInstance } from 'vue'
+// Utilities
 import { toKebabCase } from './helpers'
+import { getCurrentInstance } from 'vue'
 
 export function getCurrentInstanceName () {
   const vm = getCurrentInstance()?.type

@@ -17,25 +17,23 @@
  * Perfect for responsive layouts and conditional rendering based on screen size.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-// Types
-import type { App, ShallowRef } from 'vue'
-// Factories
-import { createContext, useContext } from '#v0/composables/createContext'
-
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
-
-// Composables
-import { useWindowEventListener } from '#v0/composables/useEventListener'
-import { useHydration } from '#v0/composables/useHydration'
-
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
-import { isNumber, mergeDeep } from '#v0/utilities'
+// Composables
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
+import { useWindowEventListener } from '#v0/composables/useEventListener'
+import { useHydration } from '#v0/composables/useHydration'
+
 // Utilities
+import { isNumber, mergeDeep } from '#v0/utilities'
 import { onScopeDispose, readonly, shallowRef, watch } from 'vue'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { App, ShallowRef } from 'vue'
 
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 

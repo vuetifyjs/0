@@ -19,20 +19,19 @@
  * dismissal per WCAG/APG requirements.
  */
 
-// Types
-import type { MaybeArray } from '#v0/types'
-import type { MaybeRefOrGetter, Ref } from 'vue'
-
 // Composables
 import {
   useDocumentEventListener,
   useWindowEventListener,
 } from '#v0/composables/useEventListener'
 
-import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
-
 // Utilities
+import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
+
+// Types
+import type { MaybeArray } from '#v0/types'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export type ClickOutsideElement = HTMLElement | null | undefined
 export type ClickOutsideTarget = MaybeRefOrGetter<ClickOutsideElement>

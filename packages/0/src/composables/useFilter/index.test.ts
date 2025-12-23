@@ -1,6 +1,11 @@
-import type { Primitive } from './index'
 import { describe, expect, it } from 'vitest'
+
+// Utilities
 import { ref } from 'vue'
+
+// Types
+import type { Primitive } from './index'
+
 import { useFilter } from './index'
 
 describe('useFilter', () => {

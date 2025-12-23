@@ -1,6 +1,9 @@
-import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+
+// Utilities
+import { mount } from '@vue/test-utils'
 import { type Component, h } from 'vue'
+
 import { Atom } from './index'
 
 describe('atom', () => {

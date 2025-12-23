@@ -16,17 +16,17 @@
  * Essential for composables that need to behave differently during SSR vs client-side.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-// Types
-import type { App, ShallowRef } from 'vue'
-// Factories
+// Framework
 import { createContext, useContext } from '#v0/composables/createContext'
-
 import { createPlugin } from '#v0/composables/createPlugin'
-
 import { createTrinity } from '#v0/composables/createTrinity'
+
 // Utilities
 import { getCurrentInstance, shallowReadonly, shallowRef } from 'vue'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { App, ShallowRef } from 'vue'
 
 export interface HydrationContext {
   isHydrated: Readonly<ShallowRef<boolean>>

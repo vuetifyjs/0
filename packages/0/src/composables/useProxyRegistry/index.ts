@@ -14,12 +14,12 @@
  * Perfect for exposing registry data as reactive computed properties.
  */
 
-// Types
-import type { RegistryContext, RegistryTicket } from '#v0/composables/useRegistry'
-
-import type { ID } from '#v0/types'
 // Utilities
 import { onScopeDispose, reactive, shallowReactive } from 'vue'
+
+// Types
+import type { RegistryContext, RegistryTicket } from '#v0/composables/useRegistry'
+import type { ID } from '#v0/types'
 
 export interface ProxyRegistryOptions {
   deep?: boolean

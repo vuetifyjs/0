@@ -1,3 +1,4 @@
+// Framework
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
 async function initAnalytics () {

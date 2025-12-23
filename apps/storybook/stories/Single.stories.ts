@@ -1,6 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/vue3-vite'
+// Framework
 import { Single } from '@vuetify/v0'
+
+// Utilities
 import { ref } from 'vue'
+
+// Types
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 const meta: Meta<typeof Single.Root> = {
   title: 'Components/Single',

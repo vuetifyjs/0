@@ -15,12 +15,12 @@
  * - **Dynamic key**: `createContext()` or `createContext({ suffix: 'item' })` - key provided at runtime
  */
 
+// Utilities
+import { isObject, isString, isSymbol, isUndefined } from '#v0/utilities'
+import { inject, provide } from 'vue'
+
 // Types
 import type { App, InjectionKey } from 'vue'
-import { isObject, isString, isSymbol, isUndefined } from '#v0/utilities'
-
-// Utilities
-import { inject, provide } from 'vue'
 
 export type ContextKey<Z> = InjectionKey<Z> | string
 

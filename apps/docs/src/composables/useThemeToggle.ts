@@ -1,4 +1,7 @@
+// Framework
 import { IN_BROWSER, useStorage, useTheme } from '@vuetify/v0'
+
+// Utilities
 import { shallowRef, toRef, watch } from 'vue'
 
 const PREFERENCE_ORDER = ['system', 'light', 'dark', 'high-contrast'] as const

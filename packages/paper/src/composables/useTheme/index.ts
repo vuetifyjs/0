@@ -1,6 +1,9 @@
-import type { Ref } from 'vue'
+// Utilities
 import { toKebabCase } from '#paper/utilities/helpers'
 import { computed, provide, ref, watchEffect } from 'vue'
+
+// Types
+import type { Ref } from 'vue'
 
 export interface Theme {
   dark: boolean

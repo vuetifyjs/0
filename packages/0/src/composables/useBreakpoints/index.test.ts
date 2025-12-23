@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getCurrentInstance, onMounted, onScopeDispose } from 'vue'
+
+// Composables
 import { useHydration } from '../useHydration'
+
+// Utilities
+import { getCurrentInstance, onMounted, onScopeDispose } from 'vue'
+
 import { createBreakpoints, createBreakpointsPlugin, useBreakpoints } from './index'
 
 // Mock Vue functions

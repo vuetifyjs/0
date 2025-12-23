@@ -13,17 +13,16 @@
  * Bridges the gap between selection composables and Vue's v-model.
  */
 
-import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
-import type { ID } from '#v0/types'
+import { toArray } from '#v0/composables/toArray'
+
+// Utilities
+import { isFunction, isUndefined } from '#v0/utilities'
+import { onScopeDispose, toValue, watch } from 'vue'
 
 // Types
+import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+import type { ID } from '#v0/types'
 import type { Ref } from 'vue'
-
-// Transformers
-import { toArray } from '#v0/composables/toArray'
-import { isFunction, isUndefined } from '#v0/utilities'
-// Utilities
-import { onScopeDispose, toValue, watch } from 'vue'
 
 export interface ProxyModelOptions {
   multiple?: boolean

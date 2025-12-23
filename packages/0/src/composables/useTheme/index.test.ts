@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Utilities
 import { createApp, nextTick } from 'vue'
+
 import { createTheme, createThemePlugin, useTheme } from './index'
 
 // Mock IN_BROWSER global

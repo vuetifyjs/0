@@ -14,25 +14,25 @@
  * Uses adapter pattern to abstract storage implementation details.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
-// Types
-import type { App, Ref } from 'vue'
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
 
-// Factories
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
-
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Adapters
 import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
 
-// Globals
-import { IN_BROWSER } from '#v0/constants/globals'
-import { isNullOrUndefined } from '#v0/utilities'
 // Utilities
+import { isNullOrUndefined } from '#v0/utilities'
 import { ref, watch } from 'vue'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
+import type { App, Ref } from 'vue'
 
 export interface StorageContext {
   /** Check if a key exists in storage */

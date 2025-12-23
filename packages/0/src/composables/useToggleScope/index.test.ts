@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
+
+// Utilities
 import { effectScope, nextTick, onScopeDispose, ref, watch } from 'vue'
+
 import { useToggleScope } from './index'
 
 describe('useToggleScope', () => {

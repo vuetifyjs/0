@@ -1,3 +1,4 @@
+// Utilities
 import { ref } from 'vue'
 
 function getLuminance (r: number, g: number, b: number): number {

@@ -1,5 +1,8 @@
 import { ViteSSG } from 'vite-ssg'
+
+// Components
 import App from './App.vue'
+
 import { registerPlugins } from './plugins'
 import pinia from './plugins/pinia'
 import routerOptions from './plugins/router'

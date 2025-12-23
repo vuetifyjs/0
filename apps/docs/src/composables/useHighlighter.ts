@@ -1,12 +1,12 @@
-// Types
-import type { HighlighterCore } from 'shiki/core'
-
 // Shiki
 import { createHighlighterCore } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 
-// Composables
+// Utilities
 import { shallowRef } from 'vue'
+
+// Types
+import type { HighlighterCore } from 'shiki/core'
 
 let highlighterPromise: Promise<HighlighterCore> | null = null
 const highlighter = shallowRef<HighlighterCore | null>(null)

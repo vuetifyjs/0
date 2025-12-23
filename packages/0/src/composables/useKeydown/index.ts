@@ -13,14 +13,14 @@
  * Simplified wrapper around useEventListener for keyboard interactions.
  */
 
-// Types
-import type { MaybeRefOrGetter, Ref } from 'vue'
-
 // Composables
 import { useDocumentEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
 import { onScopeDispose, toRef, toValue } from 'vue'
+
+// Types
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface KeyHandler {
   key: string

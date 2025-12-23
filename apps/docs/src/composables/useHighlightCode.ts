@@ -1,8 +1,8 @@
-// Utilities
-import { type MaybeRefOrGetter, onMounted, shallowRef, toValue, watch } from 'vue'
-
 // Composables
 import { useHighlighter } from './useHighlighter'
+
+// Utilities
+import { type MaybeRefOrGetter, onMounted, shallowRef, toValue, watch } from 'vue'
 
 export interface UseHighlightCodeOptions {
   /** Language for syntax highlighting. Defaults to 'vue' */

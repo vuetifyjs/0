@@ -16,20 +16,17 @@
  * including useSelection, useForm, useTimeline, and more.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-// Types
-import type { ID } from '#v0/types'
-
-import type { App } from 'vue'
-
-// Factories
 import { createContext } from '#v0/composables/createContext'
-
 import { createTrinity } from '#v0/composables/createTrinity'
-// Composables
 import { useLogger } from '#v0/composables/useLogger'
+
 // Utilities
 import { genId, isUndefined } from '#v0/utilities'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { ID } from '#v0/types'
+import type { App } from 'vue'
 
 export interface RegistryTicket<V = unknown> {
   /** The unique identifier. Is randomly generated if not provided. */

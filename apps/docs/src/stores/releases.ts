@@ -1,5 +1,8 @@
-import type { components as octokitComponents } from '@octokit/openapi-types'
+// Utilities
 import { defineStore } from 'pinia'
+
+// Types
+import type { components as octokitComponents } from '@octokit/openapi-types'
 
 type GitHubRelease = octokitComponents['schemas']['release']
 

@@ -1,18 +1,19 @@
-export type { ExpansionPanelActivatorProps, ExpansionPanelActivatorSlotProps } from './ExpansionPanelActivator.vue'
 export { default as ExpansionPanelActivator } from './ExpansionPanelActivator.vue'
-export type { ExpansionPanelContentProps, ExpansionPanelContentSlotProps } from './ExpansionPanelContent.vue'
 export { default as ExpansionPanelContent } from './ExpansionPanelContent.vue'
-export type { ExpansionPanelHeaderProps, ExpansionPanelHeaderSlotProps } from './ExpansionPanelHeader.vue'
-
 export { default as ExpansionPanelHeader } from './ExpansionPanelHeader.vue'
-export type { ExpansionPanelItemContext, ExpansionPanelItemProps, ExpansionPanelItemSlotProps } from './ExpansionPanelItem.vue'
-
 export { provideExpansionPanelItem, useExpansionPanelItem } from './ExpansionPanelItem.vue'
 export { default as ExpansionPanelItem } from './ExpansionPanelItem.vue'
-export type { ExpansionPanelOptionsContext, ExpansionPanelRootProps, ExpansionPanelRootSlotProps } from './ExpansionPanelRoot.vue'
+
 export { provideExpansionPanelSelection, useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 export { default as ExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
+export type { ExpansionPanelActivatorProps, ExpansionPanelActivatorSlotProps } from './ExpansionPanelActivator.vue'
+export type { ExpansionPanelContentProps, ExpansionPanelContentSlotProps } from './ExpansionPanelContent.vue'
+export type { ExpansionPanelHeaderProps, ExpansionPanelHeaderSlotProps } from './ExpansionPanelHeader.vue'
+export type { ExpansionPanelItemContext, ExpansionPanelItemProps, ExpansionPanelItemSlotProps } from './ExpansionPanelItem.vue'
+export type { ExpansionPanelOptionsContext, ExpansionPanelRootProps, ExpansionPanelRootSlotProps } from './ExpansionPanelRoot.vue'
+
+// Components
 import Activator from './ExpansionPanelActivator.vue'
 import Content from './ExpansionPanelContent.vue'
 import Header from './ExpansionPanelHeader.vue'

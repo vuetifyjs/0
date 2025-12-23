@@ -1,11 +1,9 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 // Types
+import type { PluginOptions } from './index'
 import type { App } from 'vue'
 
-import type { PluginOptions } from './index'
-
-// Utilities
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-// Factories
 import { createPlugin } from './index'
 
 describe('createPlugin', () => {

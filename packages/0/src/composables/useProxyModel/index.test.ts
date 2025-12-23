@@ -1,9 +1,11 @@
-// Composables
-import { createSelection } from '#v0/composables/useSelection'
-// Utilities
 import { describe, expect, it } from 'vitest'
 
+// Composables
+import { createSelection } from '#v0/composables/useSelection'
+
+// Utilities
 import { ref } from 'vue'
+
 import { useProxyModel } from './index'
 
 describe('useProxyModel', () => {

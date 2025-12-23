@@ -1,16 +1,19 @@
-import type { ViteSSGOptions } from 'vite-ssg'
 import { fileURLToPath, URL } from 'node:url'
+
 import { Features } from 'lightningcss'
 import UnocssVitePlugin from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
 import VueRouter from 'unplugin-vue-router/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
-
 import { VitePWA } from 'vite-plugin-pwa'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import generateSitemap from 'vite-ssg-sitemap'
+
+// Types
+import type { ViteSSGOptions } from 'vite-ssg'
+
 import Markdown from './build/markdown'
 import pkg from './package.json' with { type: 'json' }
 

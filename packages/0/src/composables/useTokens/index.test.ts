@@ -1,12 +1,12 @@
+import { describe, expect, it, vi } from 'vitest'
+
+// Utilities
+import { mount } from '@vue/test-utils'
+import { computed, defineComponent, nextTick, ref } from 'vue'
+
 // Types
 import type { TokenCollection } from './index'
 
-import { mount } from '@vue/test-utils'
-// Utilities
-import { describe, expect, it, vi } from 'vitest'
-import { computed, defineComponent, nextTick, ref } from 'vue'
-
-// Composables
 import { createTokens, createTokensContext } from './index'
 
 describe('createTokensContext', () => {

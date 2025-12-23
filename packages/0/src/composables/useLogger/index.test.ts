@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Adapters
 import { Vuetify0LoggerAdapter } from './adapters/v0'
+
 import { createLogger, createLoggerPlugin } from './index'
 
 describe('useLogger', () => {

@@ -1,5 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/vue3-vite'
+// Framework
 import { Atom } from '@vuetify/v0'
+
+// Types
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
 const meta: Meta<typeof Atom> = {
   title: 'Components/Atom',

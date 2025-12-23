@@ -1,8 +1,8 @@
-// Utilities
 import { describe, expect, it } from 'vitest'
 
+// Utilities
 import { ref } from 'vue'
-// Composables
+
 import { createGroup } from './index'
 
 describe('useGroup', () => {

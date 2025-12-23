@@ -1,10 +1,12 @@
-// Types
-import type { ThemeProvider } from '#paper/composables/useTheme'
-
 // Composables
 import { useContrast } from '#paper/composables/useContrast'
+
+// Utilities
 import { getCurrentInstanceName } from '#paper/utilities/getCurrentInstanceName'
 import { inject, shallowRef, toRef } from 'vue'
+
+// Types
+import type { ThemeProvider } from '#paper/composables/useTheme'
 
 export interface ColorProps {
   bgColor?: string

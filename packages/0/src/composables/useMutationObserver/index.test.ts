@@ -1,8 +1,8 @@
-// Utilities
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Utilities
 import { nextTick, ref } from 'vue'
-// Composables
+
 import { useMutationObserver } from './index'
 
 const mockIsHydrated = ref(false)

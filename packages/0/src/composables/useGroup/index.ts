@@ -19,26 +19,23 @@
  * Extended by: useFeatures
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
-
-import type { ID } from '#v0/types'
-// Types
-import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
-
-// Factories
+// Composables
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
-
 // Transformers
 import { toArray } from '#v0/composables/toArray'
-
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
-// Composables
 import { createSelection } from '#v0/composables/useSelection'
-import { genId, isUndefined } from '#v0/utilities'
+
 // Utilities
+import { genId, isUndefined } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
+import type { ID } from '#v0/types'
+import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
 
 export interface GroupTicket<V = unknown> extends SelectionTicket<V> {
   /** Whether the ticket should start in mixed/indeterminate state */

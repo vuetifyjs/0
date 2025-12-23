@@ -1,8 +1,8 @@
-// Utilities
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Utilities
 import { nextTick, ref, shallowRef } from 'vue'
-// Composables
+
 import { createOverflow, createOverflowContext, useOverflow } from './index'
 
 const mockIsHydrated = ref(true)

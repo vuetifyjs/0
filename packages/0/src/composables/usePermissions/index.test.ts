@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+
+// Adapters
 import { Vuetify0PermissionAdapter } from './adapters/v0'
+
 import { createPermissions, createPermissionsPlugin } from './index'
 
 describe('usePermissions', () => {

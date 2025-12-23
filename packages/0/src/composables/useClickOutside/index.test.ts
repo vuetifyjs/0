@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Utilities
 import { effectScope, nextTick, ref } from 'vue'
+
 import { useClickOutside } from './index'
 
 /**

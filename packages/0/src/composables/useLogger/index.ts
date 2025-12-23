@@ -1,16 +1,9 @@
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-
-import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
-import type { LogLevel } from '#v0/composables/useLogger/types'
-
-// Types
-import type { App } from 'vue'
+// Globals
+import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
 
 // Composables
 import { createContext, useContext } from '#v0/composables/createContext'
-
 import { createPlugin } from '#v0/composables/createPlugin'
-
 /**
  * @module useLogger
  *
@@ -28,23 +21,28 @@ import { createPlugin } from '#v0/composables/createPlugin'
  *
  * Uses adapter pattern to abstract logging implementation.
  */
-// Factories
 import { createTrinity } from '#v0/composables/createTrinity'
+
 // Adapters
 import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
-// Globals
-import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
+
 // Utilities
 import { getCurrentInstance, shallowRef } from 'vue'
 
-// Exports
-export type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
+import type { LogLevel } from '#v0/composables/useLogger/types'
+import type { App } from 'vue'
 
+// Exports
 export {
   ConsolaLoggerAdapter,
   PinoLoggerAdapter,
   Vuetify0LoggerAdapter,
 } from '#v0/composables/useLogger/adapters'
+
+export type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
 export type { LogLevel } from '#v0/composables/useLogger/types'
 

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
+
+// Utilities
 import { isReactive, ref } from 'vue'
+
 import { toReactive } from './index'
 
 describe('toReactive', () => {

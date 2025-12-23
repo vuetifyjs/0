@@ -16,21 +16,18 @@
  * Used by useTheme, useLocale, and useFeatures for token-based configuration.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-// Types
-import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
-
-import type { App } from 'vue'
 import { createContext, useContext } from '#v0/composables/createContext'
-
-// Factories
 import { createTrinity } from '#v0/composables/createTrinity'
-
 import { useLogger } from '#v0/composables/useLogger'
-// Composables
 import { useRegistry } from '#v0/composables/useRegistry'
+
 // Utilities
 import { isObject, isString, isUndefined } from '#v0/utilities'
+
+// Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
+import type { App } from 'vue'
 
 export interface TokenAlias<T = unknown> {
   [key: string]: unknown

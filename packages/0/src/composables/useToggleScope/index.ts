@@ -17,11 +17,11 @@
  * by only running reactive effects when needed.
  */
 
+// Utilities
+import { effectScope, onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+
 // Types
 import type { EffectScope, Ref, WatchSource } from 'vue'
-
-// Composables
-import { effectScope, onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 export interface ToggleScopeControls {
   /**

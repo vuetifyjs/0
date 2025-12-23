@@ -1,10 +1,8 @@
-// Utilities
 import { bench, describe, vi } from 'vitest'
 
-// Vue
+// Utilities
 import { ref } from 'vue'
 
-// Composables
 import { useVirtual } from './index'
 
 // Mock useResizeObserver to avoid lifecycle hook warnings

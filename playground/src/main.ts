@@ -1,5 +1,9 @@
-import { createApp } from 'vue'
+// Components
 import App from './App.vue'
+
+// Utilities
+import { createApp } from 'vue'
+
 import { registerPlugins } from './plugins'
 
 import 'virtual:uno.css'

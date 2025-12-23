@@ -1,8 +1,8 @@
-// Utilities
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Utilities
 import { inject, provide } from 'vue'
-// Factories
+
 import { createContext, provideContext, useContext } from './index'
 
 vi.mock('vue', () => ({

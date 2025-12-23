@@ -14,22 +14,20 @@
  * Extends useRegistry and serves as the base for useSingle, useGroup, useStep, and useFeatures.
  */
 
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
+// Composables
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+import { useRegistry } from '#v0/composables/useRegistry'
 
-import type { ID } from '#v0/types'
+// Utilities
+import { genId, isUndefined } from '#v0/utilities'
+import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Types
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
+import type { ID } from '#v0/types'
 import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
-// Factories
-import { createContext, useContext } from '#v0/composables/createContext'
-
-import { createTrinity } from '#v0/composables/createTrinity'
-// Composables
-import { useRegistry } from '#v0/composables/useRegistry'
-import { genId, isUndefined } from '#v0/utilities'
-// Utilities
-import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 export interface SelectionTicket<V = unknown> extends RegistryTicket<V> {
   /** Disabled state of the ticket */

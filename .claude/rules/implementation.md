@@ -8,7 +8,7 @@ Technical patterns used throughout `packages/0/src/`.
 
 ## Utilities First
 
-Before writing new helpers, check `#v0/utilities/helpers`. Use these instead of creating duplicates:
+Before writing new helpers, check `#v0/utilities`. Use these instead of creating duplicates:
 
 | Helper | Purpose |
 |--------|---------|
@@ -99,7 +99,7 @@ Uses iterative stack (not recursive) for performance.
 ```ts
 import { ID } from '#v0/types'
 import { useRegistry } from '#v0/composables/useRegistry'
-import { isObject, genId } from '#v0/utilities/helpers'
+import { isObject, genId } from '#v0/utilities'
 ```
 
 ## File Organization

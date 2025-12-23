@@ -15,17 +15,17 @@
  * Perfect for detecting DOM changes and responding to mutations.
  */
 
-// Types
-import type { Ref } from 'vue'
+// Globals
+import { SUPPORTS_MUTATION_OBSERVER } from '#v0/constants/globals'
 
 // Composables
 import { useHydration } from '#v0/composables/useHydration'
 
-// Globals
-import { SUPPORTS_MUTATION_OBSERVER } from '#v0/constants/globals'
-
 // Utilities
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
+
+// Types
+import type { Ref } from 'vue'
 
 export interface MutationObserverRecord {
   type: 'attributes' | 'childList' | 'characterData'

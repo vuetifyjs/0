@@ -1,8 +1,8 @@
-// Utilities
 import { describe, expect, it } from 'vitest'
 
+// Utilities
 import { shallowRef } from 'vue'
-// Composables
+
 import { createPagination } from './index'
 
 describe('usePagination', () => {

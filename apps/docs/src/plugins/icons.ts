@@ -1,6 +1,3 @@
-// Types
-import type { App } from 'vue'
-
 // Icons
 import {
   mdiAlert,
@@ -41,10 +38,12 @@ import {
   mdiWeatherSunny,
 } from '@mdi/js'
 
-// Aliases use token reference syntax to avoid duplicating icon paths
-
-// Composables
+// Framework
 import { createPlugin, createTokensContext } from '@vuetify/v0'
+
+// Aliases use token reference syntax to avoid duplicating icon paths
+// Types
+import type { App } from 'vue'
 
 export const [useIconContext, provideIconContext, context] = createTokensContext({
   namespace: 'v0:icons',

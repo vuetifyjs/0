@@ -1,3 +1,4 @@
+// Types
 import type { ID } from '#v0/types'
 import type { PermissionContext, PermissionTicket } from '..'
 
