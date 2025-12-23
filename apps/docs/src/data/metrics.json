@@ -63,6 +63,14 @@
       "overall": 68.7
     }
   },
+  "useClickOutside": {
+    "coverage": {
+      "statements": 93.3,
+      "functions": 100,
+      "branches": 100,
+      "overall": 96.7
+    }
+  },
   "useEventListener": {
     "coverage": {
       "statements": 100,
@@ -85,6 +93,37 @@
       "functions": 92.9,
       "branches": 75,
       "overall": 84
+    },
+    "benchmarks": {
+      "primitive filtering": {
+        "name": "filter 10000 primitives (single query)",
+        "hz": 15138551,
+        "hzLabel": "15.1M ops/s",
+        "mean": 0.00006605651940810482,
+        "meanLabel": "66ns",
+        "rme": 0.8
+      },
+      "object filtering": {
+        "name": "filter 1000 objects (specific keys)",
+        "hz": 15230873,
+        "hzLabel": "15.2M ops/s",
+        "mean": 0.00006565611767032655,
+        "meanLabel": "66ns",
+        "rme": 0.3
+      },
+      "filter modes": {
+        "name": "mode: every",
+        "hz": 15256606,
+        "hzLabel": "15.3M ops/s",
+        "mean": 0.00006554537883451803,
+        "meanLabel": "66ns",
+        "rme": 0.3
+      },
+      "_fastest": {
+        "name": "mode: every",
+        "hz": 15256606,
+        "hzLabel": "15.3M ops/s"
+      }
     }
   },
   "useForm": {
@@ -209,32 +248,32 @@
     "benchmarks": {
       "registration": {
         "name": "register 1000 items (index values)",
-        "hz": 4806,
-        "hzLabel": "4.8k ops/s",
-        "mean": 0.20807957084019482,
-        "meanLabel": "208.1μs",
-        "rme": 11.4
+        "hz": 5039,
+        "hzLabel": "5.0k ops/s",
+        "mean": 0.19844789563492277,
+        "meanLabel": "198.4μs",
+        "rme": 10.9
       },
       "lookup operations": {
         "name": "lookup by index",
-        "hz": 3945,
-        "hzLabel": "3.9k ops/s",
-        "mean": 0.2535121490116445,
-        "meanLabel": "253.5μs",
-        "rme": 11.8
+        "hz": 4062,
+        "hzLabel": "4.1k ops/s",
+        "mean": 0.24620505760709688,
+        "meanLabel": "246.2μs",
+        "rme": 11.5
       },
       "management operations": {
         "name": "clear operations",
-        "hz": 5176,
-        "hzLabel": "5.2k ops/s",
-        "mean": 0.193204713292109,
-        "meanLabel": "193.2μs",
-        "rme": 4.6
+        "hz": 5349,
+        "hzLabel": "5.3k ops/s",
+        "mean": 0.18695798392524113,
+        "meanLabel": "187.0μs",
+        "rme": 4.3
       },
       "_fastest": {
         "name": "clear operations",
-        "hz": 5176,
-        "hzLabel": "5.2k ops/s"
+        "hz": 5349,
+        "hzLabel": "5.3k ops/s"
       }
     }
   },
@@ -312,16 +351,16 @@
     "benchmarks": {
       "registration operations": {
         "name": "resolve operations",
-        "hz": 24749,
-        "hzLabel": "24.7k ops/s",
-        "mean": 0.040404906407085175,
-        "meanLabel": "40.4μs",
-        "rme": 13.1
+        "hz": 23629,
+        "hzLabel": "23.6k ops/s",
+        "mean": 0.04232135559084138,
+        "meanLabel": "42.3μs",
+        "rme": 13.2
       },
       "_fastest": {
         "name": "resolve operations",
-        "hz": 24749,
-        "hzLabel": "24.7k ops/s"
+        "hz": 23629,
+        "hzLabel": "23.6k ops/s"
       }
     }
   },
@@ -335,64 +374,64 @@
     "benchmarks": {
       "initialization": {
         "name": "initialize with 1,000 items",
-        "hz": 11223,
-        "hzLabel": "11.2k ops/s",
-        "mean": 0.08910268193157518,
-        "meanLabel": "89.1μs",
-        "rme": 5.6
+        "hz": 10706,
+        "hzLabel": "10.7k ops/s",
+        "mean": 0.09340139391109473,
+        "meanLabel": "93.4μs",
+        "rme": 6.3
       },
       "offset calculation (rebuild)": {
         "name": "rebuild offsets for 1,000 items",
-        "hz": 8811,
-        "hzLabel": "8.8k ops/s",
-        "mean": 0.11349963163867248,
-        "meanLabel": "113.5μs",
-        "rme": 6.7
+        "hz": 8740,
+        "hzLabel": "8.7k ops/s",
+        "mean": 0.11442181578947677,
+        "meanLabel": "114.4μs",
+        "rme": 6.1
       },
       "binary search (findIndex)": {
         "name": "binary search in 10,000 offsets - middle",
-        "hz": 1261,
-        "hzLabel": "1.3k ops/s",
-        "mean": 0.7930758050713188,
-        "meanLabel": "793.1μs",
-        "rme": 8.1
+        "hz": 1179,
+        "hzLabel": "1.2k ops/s",
+        "mean": 0.848048162711861,
+        "meanLabel": "848.0μs",
+        "rme": 8.6
       },
       "scroll operations": {
         "name": "handle scroll event (1,000 items)",
-        "hz": 4581,
-        "hzLabel": "4.6k ops/s",
-        "mean": 0.21829916499344773,
-        "meanLabel": "218.3μs",
-        "rme": 4.7
+        "hz": 4502,
+        "hzLabel": "4.5k ops/s",
+        "mean": 0.22212857637655878,
+        "meanLabel": "222.1μs",
+        "rme": 7.3
       },
       "scrollToIndex operations": {
         "name": "scroll to various indices (10,000 items)",
-        "hz": 940,
-        "hzLabel": "940 ops/s",
-        "mean": 1.0638862574468089,
-        "meanLabel": "1.06ms",
-        "rme": 10.9
+        "hz": 1353,
+        "hzLabel": "1.4k ops/s",
+        "mean": 0.7393257385524393,
+        "meanLabel": "739.3μs",
+        "rme": 5.4
       },
       "item resize operations": {
         "name": "resize single item",
-        "hz": 11135,
-        "hzLabel": "11.1k ops/s",
-        "mean": 0.08980940409483847,
-        "meanLabel": "89.8μs",
-        "rme": 9.7
+        "hz": 11798,
+        "hzLabel": "11.8k ops/s",
+        "mean": 0.08476288559322664,
+        "meanLabel": "84.8μs",
+        "rme": 8.1
       },
       "computed items": {
         "name": "access computed items (1,000 total)",
-        "hz": 11274,
-        "hzLabel": "11.3k ops/s",
-        "mean": 0.0887027372715917,
-        "meanLabel": "88.7μs",
-        "rme": 8.8
+        "hz": 11472,
+        "hzLabel": "11.5k ops/s",
+        "mean": 0.0871713507670683,
+        "meanLabel": "87.2μs",
+        "rme": 8.3
       },
       "_fastest": {
-        "name": "access computed items (1,000 total)",
-        "hz": 11274,
-        "hzLabel": "11.3k ops/s"
+        "name": "resize single item",
+        "hz": 11798,
+        "hzLabel": "11.8k ops/s"
       }
     }
   }
