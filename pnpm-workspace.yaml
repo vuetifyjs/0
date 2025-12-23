@@ -24,6 +24,7 @@ catalog:
   beasties: ^0.3.5
   bumpp: ^10.3.2
   conventional-changelog-vuetify: ^2.0.2
+  conventional-github-releaser: ^3.1.5
   eslint: ^9.39.2
   eslint-config-vuetify: 4.2.1-beta.1
   eslint-plugin-storybook: ^10.1.10
