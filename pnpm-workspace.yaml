@@ -67,6 +67,8 @@ catalog:
 
 catalogMode: strict
 
+minimumReleaseAge: 4320
+
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
