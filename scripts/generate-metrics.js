@@ -71,6 +71,18 @@ function formatTime (ms) {
   return `${ms.toFixed(2)}ms`
 }
 
+/**
+ * Determine performance tier based on mean execution time
+ * @param {number} ms - Mean time in milliseconds
+ * @returns {'blazing' | 'fast' | 'good' | null}
+ */
+function getTier (ms) {
+  if (ms < 0.001) return 'blazing' // < 1μs
+  if (ms < 0.1) return 'fast' // < 100μs
+  if (ms < 1) return 'good' // < 1ms
+  return null
+}
+
 function main () {
   /** @type {Record<string, { coverage?: object, benchmarks?: object }>} */
   const metrics = {}
@@ -150,6 +162,9 @@ function main () {
           name: fastestOverall.name,
           hz: Math.round(fastestOverall.hz),
           hzLabel: formatHz(fastestOverall.hz),
+          mean: fastestOverall.mean,
+          meanLabel: formatTime(fastestOverall.mean),
+          tier: getTier(fastestOverall.mean),
         }
       }
     }

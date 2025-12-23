@@ -83,14 +83,27 @@
     }
   })
 
+  // Tier display config
+  const tierConfig = {
+    blazing: { icon: 'benchmark-blazing', color: 'text-success' },
+    fast: { icon: 'benchmark-fast', color: 'text-info' },
+    good: { icon: 'benchmark-good', color: 'text-warning' },
+  } as const
+
   // Benchmark data (fastest operation)
   const benchmark = toRef(() => {
     const m = itemMetrics.value
     if (!m?.benchmarks?._fastest) return null
 
+    const fastest = m.benchmarks._fastest
+    const tier = fastest.tier as keyof typeof tierConfig | null
+    const config = tier ? tierConfig[tier] : null
+
     return {
-      label: m.benchmarks._fastest.hzLabel,
-      title: m.benchmarks._fastest.name,
+      label: fastest.meanLabel,
+      title: `${fastest.hzLabel} — ${fastest.name}`,
+      icon: config?.icon ?? 'benchmark',
+      color: config?.color ?? 'text-accent',
     }
   })
 
@@ -229,8 +242,8 @@
         target="_blank"
       >
         <AppChip
-          color="text-accent"
-          icon="benchmark"
+          :color="benchmark.color"
+          :icon="benchmark.icon"
           :text="benchmark.label"
           :title="benchmark.title"
         />
