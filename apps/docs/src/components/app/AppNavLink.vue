@@ -6,7 +6,8 @@
   import type { NavItem } from '@/stores/app'
   // Components
   import { Atom } from '@vuetify/v0'
-  import { RouterLink } from 'vue-router'
+  import { computed } from 'vue'
+  import { RouterLink, useRoute } from 'vue-router'
 
   export interface ComponentProps extends AtomProps, Partial<RouterLinkProps> {
     new?: string
@@ -18,8 +19,12 @@
     activeClass = 'underline text-primary opacity-100!',
     new: newDate,
     children = [],
+    to,
     ...props
   } = defineProps<ComponentProps>()
+
+  const route = useRoute()
+  const isActive = computed(() => to && route.path === to)
 
   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
   const isNew = (date: string | undefined) => date && Date.now() - new Date(date).getTime() <= THIRTY_DAYS
@@ -30,12 +35,14 @@
     <Atom
       v-if="to"
       :active-class
+      :aria-current="isActive ? 'page' : undefined"
       :as
       class="font-semibold inline-flex items-center gap-1"
       :class="[
         to ? 'hover:underline hover:text-primary' : '',
         to && children.length === 0 ? 'opacity-70 hover:opacity-100' : '',
       ]"
+      :to
       v-bind="props"
     >
       <slot />

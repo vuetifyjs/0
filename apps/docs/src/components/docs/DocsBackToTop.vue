@@ -18,12 +18,12 @@
 </script>
 
 <template>
-  <a
+  <button
     v-if="show"
-    class="inline-flex items-center ms-auto text-sm text-primary mt-16 hover:underline cursor-pointer"
-    href="#"
-    @click.prevent="scrollToTop"
+    class="inline-flex items-center ms-auto text-sm text-primary mt-16 hover:underline cursor-pointer bg-transparent border-none font-inherit"
+    type="button"
+    @click="scrollToTop"
   >
     Back to Top ↑
-  </a>
+  </button>
 </template>

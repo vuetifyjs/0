@@ -1,6 +1,6 @@
 <script lang="ts" setup>
   // Utilities
-  import { computed, ref, toRef } from 'vue'
+  import { computed, ref, toRef, useId } from 'vue'
   import { useBin } from '@/composables/bin'
   import { usePlayground } from '@/composables/playground'
   // Composables
@@ -14,6 +14,7 @@
     code?: string
   }>()
 
+  const uid = useId()
   const showCode = ref(false)
   const { copied, copy } = useClipboard()
   const { highlightedCode } = useHighlightCode(toRef(() => props.code))
@@ -50,6 +51,8 @@
 
     <div class="border-t border-divider bg-surface-tint">
       <button
+        :aria-controls="code ? `${uid}-code` : undefined"
+        :aria-expanded="showCode"
         class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
         @click="showCode = !showCode"
       >
@@ -61,6 +64,7 @@
 
     <div
       v-if="showCode && highlightedCode"
+      :id="code ? `${uid}-code` : undefined"
       class="relative bg-pre"
     >
       <div class="absolute top-3 right-3 flex gap-1">

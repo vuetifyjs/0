@@ -24,7 +24,7 @@
 
     <DocsCodeActions
       bin
-      class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+      class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
       :code="decodedCode"
       :language
       :playground
