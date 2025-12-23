@@ -311,7 +311,7 @@ describe('createTokensContext reactivity in components', () => {
     })
 
     const wrapper = mount(ParentComponent)
-    const testComponent = wrapper.findComponent(TestComponent)
+    const testComponent = wrapper.findComponent(TestComponent as any)
 
     expect(testComponent.vm.resolvedPrimary).toBe('#1976d2')
     expect(testComponent.vm.resolvedAccent).toBe('#1976d2')
@@ -362,7 +362,7 @@ describe('createTokensContext reactivity in components', () => {
     })
 
     const wrapper = mount(ParentComponent)
-    const testComponent = wrapper.findComponent(TestComponent)
+    const testComponent = wrapper.findComponent(TestComponent as any)
 
     // Initial values - should resolve primary
     expect(testComponent.vm.currentTokenValue).toBe('#1976d2')
@@ -417,7 +417,7 @@ describe('createTokensContext reactivity in components', () => {
     })
 
     const wrapper = mount(ParentComponent)
-    const testComponent = wrapper.findComponent(TestComponent)
+    const testComponent = wrapper.findComponent(TestComponent as any)
 
     expect(testComponent.vm.primaryItem?.id).toBe('colors.primary')
     expect(testComponent.vm.primaryItem?.value).toBe('#1976d2')
@@ -480,7 +480,7 @@ describe('createTokensContext reactivity in components', () => {
     })
 
     const wrapper = mount(ParentComponent)
-    const testComponent = wrapper.findComponent(TestComponent)
+    const testComponent = wrapper.findComponent(TestComponent as any)
 
     expect(testComponent.vm.primaryColor).toBe('#1976d2')
     expect(testComponent.vm.smallSpacing).toBe('8px')
