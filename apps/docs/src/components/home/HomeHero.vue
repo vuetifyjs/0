@@ -39,12 +39,11 @@
     <router-link class="inline-block mb-8" to="/">
       <img
         alt="Vuetify0 Logo"
-        class="mx-auto"
+        class="mx-auto h-[164px]"
         decoding="async"
         fetchpriority="high"
-        height="56"
+        height="164"
         src="https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg"
-        width="200"
       >
     </router-link>
 
