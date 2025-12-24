@@ -24,12 +24,12 @@ describe('useFilter benchmarks', () => {
 
     bench('filter 1000 primitives (single query)', () => {
       const filter = createFilter()
-      filter.apply('item-50', items1k)
+      filter.apply('item-50', items1k).items.value
     })
 
     bench('filter 10000 primitives (single query)', () => {
       const filter = createFilter()
-      filter.apply('item-50', items10k)
+      filter.apply('item-50', items10k).items.value
     })
   })
 
@@ -39,22 +39,22 @@ describe('useFilter benchmarks', () => {
 
     bench('filter 1000 objects (all keys)', () => {
       const filter = createFilter()
-      filter.apply('user', items1k)
+      filter.apply('user', items1k).items.value
     })
 
     bench('filter 1000 objects (specific keys)', () => {
       const filter = createFilter({ keys: ['name'] })
-      filter.apply('user', items1k)
+      filter.apply('user', items1k).items.value
     })
 
     bench('filter 10000 objects (all keys)', () => {
       const filter = createFilter()
-      filter.apply('user', items10k)
+      filter.apply('user', items10k).items.value
     })
 
     bench('filter 10000 objects (specific keys)', () => {
       const filter = createFilter({ keys: ['name'] })
-      filter.apply('user', items10k)
+      filter.apply('user', items10k).items.value
     })
   })
 
@@ -63,22 +63,124 @@ describe('useFilter benchmarks', () => {
 
     bench('mode: some (default)', () => {
       const filter = createFilter({ mode: 'some' })
-      filter.apply('user', items)
+      filter.apply('user', items).items.value
     })
 
     bench('mode: every', () => {
       const filter = createFilter({ mode: 'every' })
-      filter.apply('user', items)
+      filter.apply('user', items).items.value
     })
 
     bench('mode: union (multiple queries)', () => {
       const filter = createFilter({ mode: 'union' })
-      filter.apply(['user', 'example'], items)
+      filter.apply(['user', 'example'], items).items.value
     })
 
     bench('mode: intersection (multiple queries)', () => {
       const filter = createFilter({ mode: 'intersection' })
-      filter.apply(['user', 'example'], items)
+      filter.apply(['user', 'example'], items).items.value
+    })
+  })
+
+  describe('union/intersection scaling', () => {
+    const items10k = generateObjects(10_000)
+
+    bench('union: 2 queries, 10k items', () => {
+      const filter = createFilter({ mode: 'union', keys: ['name', 'email'] })
+      filter.apply(['user', 'example'], items10k).items.value
+    })
+
+    bench('union: 5 queries, 10k items', () => {
+      const filter = createFilter({ mode: 'union', keys: ['name', 'email'] })
+      filter.apply(['user', 'example', 'id', 'test', 'data'], items10k).items.value
+    })
+
+    bench('union: 10 queries, 10k items', () => {
+      const filter = createFilter({ mode: 'union', keys: ['name', 'email'] })
+      filter.apply(['user', 'example', 'id', 'test', 'data', 'foo', 'bar', 'baz', 'qux', 'quux'], items10k).items.value
+    })
+
+    bench('intersection: 2 queries, 10k items', () => {
+      const filter = createFilter({ mode: 'intersection', keys: ['name', 'email'] })
+      filter.apply(['user', 'example'], items10k).items.value
+    })
+
+    bench('intersection: 5 queries, 10k items', () => {
+      const filter = createFilter({ mode: 'intersection', keys: ['name', 'email'] })
+      filter.apply(['user', 'example', 'id', 'test', 'data'], items10k).items.value
+    })
+  })
+
+  describe('early vs late match scenarios', () => {
+    // Create items where 'first' is in item 0, 'last' is in item 999
+    const items = Array.from({ length: 1000 }, (_, i) => ({
+      id: `id-${i}`,
+      name: i === 0 ? 'first-match' : i === 999 ? 'last-match' : `user-${i}`,
+      email: `user${i}@example.com`,
+    }))
+
+    bench('union: early match (first item)', () => {
+      const filter = createFilter({ mode: 'union', keys: ['name'] })
+      filter.apply(['first-match'], items).items.value
+    })
+
+    bench('union: late match (last item)', () => {
+      const filter = createFilter({ mode: 'union', keys: ['name'] })
+      filter.apply(['last-match'], items).items.value
+    })
+
+    bench('union: no match', () => {
+      const filter = createFilter({ mode: 'union', keys: ['name'] })
+      filter.apply(['nonexistent', 'notfound'], items).items.value
+    })
+
+    bench('intersection: early match (first item)', () => {
+      const filter = createFilter({ mode: 'intersection', keys: ['name'] })
+      filter.apply(['first'], items).items.value
+    })
+
+    bench('intersection: early fail (no match for one query)', () => {
+      const filter = createFilter({ mode: 'intersection', keys: ['name'] })
+      filter.apply(['user', 'nonexistent'], items).items.value
+    })
+  })
+
+  describe('fast paths', () => {
+    const primitives = generatePrimitives(1000)
+    const objects = generateObjects(1000)
+
+    bench('primitives: union 2 queries', () => {
+      const filter = createFilter({ mode: 'union' })
+      filter.apply(['item', 'test'], primitives).items.value
+    })
+
+    bench('primitives: intersection 2 queries', () => {
+      const filter = createFilter({ mode: 'intersection' })
+      filter.apply(['item', '50'], primitives).items.value
+    })
+
+    bench('single key: union 2 queries', () => {
+      const filter = createFilter({ mode: 'union', keys: ['name'] })
+      filter.apply(['user', 'example'], objects).items.value
+    })
+
+    bench('single key: intersection 2 queries', () => {
+      const filter = createFilter({ mode: 'intersection', keys: ['name'] })
+      filter.apply(['user', '50'], objects).items.value
+    })
+  })
+
+  describe('reused filter instance', () => {
+    const items10k = generateObjects(10_000)
+    const unionFilter = createFilter({ mode: 'union', keys: ['name', 'email'] })
+    const intersectionFilter = createFilter({ mode: 'intersection', keys: ['name', 'email'] })
+
+    bench('reused union filter', () => {
+      unionFilter.apply(['user', 'example'], items10k).items.value
+    })
+
+    bench('reused intersection filter', () => {
+      intersectionFilter.apply(['user', 'example'], items10k).items.value
     })
   })
 })

@@ -66,43 +66,98 @@ export interface FilterContextOptions extends FilterOptions {
   namespace?: string
 }
 
+type NonEmptyArray<T> = [T, ...T[]]
+
+/** Filter a single normalized string value against queries */
+function filterSingleValue (value: string, queries: NonEmptyArray<string>, mode: FilterMode): boolean {
+  const [firstQuery] = queries
+  if (mode === 'some' || mode === 'every') {
+    return value.includes(firstQuery)
+  }
+  if (mode === 'union') {
+    for (const q of queries) {
+      if (value.includes(q)) return true
+    }
+    return false
+  }
+  // intersection: all queries must match the single value
+  for (const q of queries) {
+    if (!value.includes(q)) return false
+  }
+  return true
+}
+
+/** Filter multiple string values against queries */
+function filterMultipleValues (stringValues: string[], queries: NonEmptyArray<string>, mode: FilterMode): boolean {
+  const [firstQuery] = queries
+
+  if (mode === 'some') {
+    for (const val of stringValues) {
+      if (val.includes(firstQuery)) return true
+    }
+    return false
+  }
+
+  if (mode === 'every') {
+    for (const val of stringValues) {
+      if (!val.includes(firstQuery)) return false
+    }
+    return true
+  }
+
+  // intersection: ALL queries must match (each can match different fields)
+  for (const q of queries) {
+    let queryMatched = false
+    for (const val of stringValues) {
+      if (val.includes(q)) {
+        queryMatched = true
+        break
+      }
+    }
+    if (!queryMatched) return false
+  }
+  return true
+}
+
 function defaultFilter (
   query: Primitive | Primitive[],
   item: FilterItem,
   keys?: string[],
   mode: FilterMode = 'some',
 ): boolean {
-  const queries = Array.isArray(query) ? query.map(q => String(q).toLowerCase()) : [String(query).toLowerCase()]
+  const queries: NonEmptyArray<string> = Array.isArray(query)
+    ? query.map(q => String(q).toLowerCase()) as NonEmptyArray<string>
+    : [String(query).toLowerCase()]
 
-  function match (value: unknown, q: string) {
-    return String(value).toLowerCase().includes(q)
+  // Fast path: primitive item (string, number, boolean)
+  if (!isObject(item)) {
+    return filterSingleValue(String(item).toLowerCase(), queries, mode)
   }
 
-  const values = isObject(item)
-    ? (keys?.length
-        ? keys.map(k => item[k])
-        : Object.values(item))
-    : [item]
-
-  const stringValues = values.map(v => String(v).toLowerCase())
-
-  if (mode === 'some') {
-    return stringValues.some(val => match(val, queries[0]!))
+  // Fast path: single key lookup
+  if (keys?.length === 1) {
+    const key = keys[0]
+    return filterSingleValue(String(item[key!]).toLowerCase(), queries, mode)
   }
 
-  if (mode === 'every') {
-    return stringValues.every(val => match(val, queries[0]!))
-  }
+  // Multi-value path: object with multiple keys or all keys
+  const rawValues = keys?.length
+    ? keys.map(k => item[k])
+    : Object.values(item)
 
+  // Union mode: inline normalization with early exit
   if (mode === 'union') {
-    return queries.some(q => stringValues.some(val => match(val, q)))
+    for (const q of queries) {
+      for (const rawValue of rawValues) {
+        if (String(rawValue).toLowerCase().includes(q)) return true
+      }
+    }
+    return false
   }
 
-  if (mode === 'intersection') {
-    return queries.every(q => stringValues.some(val => match(val, q)))
-  }
-
-  return false
+  // Pre-normalize for other modes
+  const stringValues = rawValues.map(v => String(v).toLowerCase())
+  return filterMultipleValues(stringValues, queries, mode)
 }
 
 /**
