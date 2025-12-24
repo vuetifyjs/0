@@ -110,7 +110,7 @@ export default function zero (app: App) {
             'on-warning': '#1a1a1a',
             'on-background': '#e0e0e0',
             'on-surface': '#e0e0e0',
-            'on-surface-variant': '#1a1a1a',
+            'on-surface-variant': '#a0a0a0',
           },
         },
         'high-contrast': {
