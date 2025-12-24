@@ -3,8 +3,8 @@
   import { toArray } from '@vuetify/v0'
 
   import { toRef } from 'vue'
-  // Composables
-  import { useIconContext } from '@/plugins/icons'
+  // Context (use directly instead of inject to avoid provide/inject issues)
+  import { context as icons } from '@/plugins/icons'
 
   export interface AppIconProps {
     icon: string
@@ -15,8 +15,6 @@
     size = 18,
     ...props
   } = defineProps<AppIconProps>()
-
-  const icons = useIconContext()
 
   const icon = toRef(() => {
     const array: [string, number][] = []

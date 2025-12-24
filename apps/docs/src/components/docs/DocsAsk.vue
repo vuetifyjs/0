@@ -1,0 +1,118 @@
+<script lang="ts" setup>
+  import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+
+  import { useAsk } from '@/composables/useAsk'
+
+  import DocsAskInput from './DocsAskInput.vue'
+  import DocsAskSheet from './DocsAskSheet.vue'
+
+  const {
+    messages,
+    isOpen,
+    isLoading,
+    error,
+    ask,
+    clear,
+    close,
+    open,
+    stop,
+  } = useAsk()
+
+  const inputRef = ref<InstanceType<typeof DocsAskInput> | null>(null)
+  const sheetRef = ref<InstanceType<typeof DocsAskSheet> | null>(null)
+
+  const hasMessages = computed(() => messages.value.length > 0)
+
+  async function handleSubmit (question: string) {
+    await ask(question)
+  }
+
+  async function handleReopen () {
+    open()
+    await nextTick()
+    sheetRef.value?.focus()
+  }
+
+  // Keyboard shortcut: Cmd/Ctrl + K to focus input
+  function handleKeydown (e: KeyboardEvent) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault()
+      if (isOpen.value) {
+        close()
+      } else {
+        inputRef.value?.focus()
+      }
+    }
+
+    // Escape to close sheet
+    if (e.key === 'Escape' && isOpen.value) {
+      e.preventDefault()
+      close()
+    }
+  }
+
+  onMounted(() => {
+    document.addEventListener('keydown', handleKeydown)
+  })
+
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeydown)
+  })
+</script>
+
+<template>
+  <!-- Floating input (visible when sheet is closed) -->
+  <DocsAskInput
+    v-show="!isOpen"
+    ref="inputRef"
+    :has-messages="hasMessages"
+    @reopen="handleReopen"
+    @submit="handleSubmit"
+  />
+
+  <!-- Backdrop -->
+  <Transition name="fade">
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 bg-black/30 z-40"
+      @click="close"
+    />
+  </Transition>
+
+  <!-- Chat sheet -->
+  <Transition name="slide">
+    <DocsAskSheet
+      v-if="isOpen"
+      ref="sheetRef"
+      :error="error"
+      :is-loading="isLoading"
+      :messages="messages"
+      @clear="clear"
+      @close="close"
+      @stop="stop"
+      @submit="handleSubmit"
+    />
+  </Transition>
+</template>
+
+<style scoped>
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.2s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: transform 0.3s ease;
+  }
+
+  .slide-enter-from,
+  .slide-leave-to {
+    transform: translateX(100%);
+  }
+</style>
