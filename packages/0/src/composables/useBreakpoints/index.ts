@@ -30,7 +30,7 @@ import { useWindowEventListener } from '#v0/composables/useEventListener'
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { isNumber, mergeDeep } from '#v0/utilities'
+import { isNull, isNumber, mergeDeep } from '#v0/utilities'
 import { onScopeDispose, readonly, shallowRef, watch } from 'vue'
 
 // Types
@@ -295,7 +295,7 @@ export function createBreakpointsPlugin<
     setup: (app: App) => {
       app.mixin({
         mounted () {
-          if (this.$parent !== null) return
+          if (!isNull(this.$parent)) return
 
           const hydration = useHydration()
 

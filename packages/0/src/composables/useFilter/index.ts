@@ -23,6 +23,9 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { isObject } from '#v0/utilities'
 import { computed, isRef, toRef, toValue } from 'vue'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App, ComputedRef, MaybeRef, MaybeRefOrGetter, ShallowRef } from 'vue'
@@ -72,7 +75,7 @@ function defaultFilter (
   keys?: string[],
   mode: FilterMode = 'some',
 ): boolean {
-  const queries = Array.isArray(query) ? query.map(q => String(q).toLowerCase()) : [String(query).toLowerCase()]
+  const queries = toArray(query).map(q => String(q).toLowerCase())
 
   function match (value: unknown, q: string) {
     return String(value).toLowerCase().includes(q)
@@ -145,7 +148,7 @@ export function createFilter<
     const filteredItems = computed(() => {
       const q = toValue(queryRef)
       query.value = q
-      const queries = (Array.isArray(q) ? q : [q]).filter(q => String(q).trim())
+      const queries = toArray(q).filter(q => String(q).trim())
 
       if (queries.length === 0) return itemsRef.value
 

@@ -19,6 +19,9 @@ import { useDocumentEventListener } from '#v0/composables/useEventListener'
 // Utilities
 import { onScopeDispose, toRef, toValue } from 'vue'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'
 
@@ -77,7 +80,7 @@ export function useKeydown (handlers: MaybeRefOrGetter<KeyHandler[] | KeyHandler
 
   function onKeydown (event: KeyboardEvent) {
     const handlerList = toValue(handlers)
-    const keyHandlers = Array.isArray(handlerList) ? handlerList : [handlerList]
+    const keyHandlers = toArray(handlerList)
 
     const handler = keyHandlers.find(h => h.key === event.key)
     if (handler) {

@@ -22,6 +22,7 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
+import { isNull } from '#v0/utilities'
 import { getCurrentInstance, shallowReadonly, shallowRef } from 'vue'
 
 // Types
@@ -150,7 +151,7 @@ export function createHydrationPlugin<
     setup: (app: App) => {
       app.mixin({
         mounted () {
-          if (this.$parent !== null) return
+          if (!isNull(this.$parent)) return
 
           context.hydrate()
         },

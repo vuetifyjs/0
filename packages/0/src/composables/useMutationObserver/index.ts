@@ -22,6 +22,7 @@ import { SUPPORTS_MUTATION_OBSERVER } from '#v0/constants/globals'
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
+import { isNull } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
 
 // Types
@@ -143,7 +144,7 @@ export function useMutationObserver (
 
   function setup () {
     // null = permanently stopped, undefined = not yet created
-    if (observer.value === null) return
+    if (isNull(observer.value)) return
     if (!isHydrated.value || !SUPPORTS_MUTATION_OBSERVER || !target.value || isPaused.value) return
 
     observer.value = new MutationObserver(mutations => {

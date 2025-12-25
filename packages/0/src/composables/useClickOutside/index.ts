@@ -29,6 +29,9 @@ import {
 import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
+// Transformers
+import { toArray } from '#v0/composables/toArray'
+
 // Types
 import type { MaybeArray } from '#v0/types'
 import type { MaybeRefOrGetter, Ref } from 'vue'
@@ -167,7 +170,7 @@ export function useClickOutside (
    * Resolve target(s) to an array of HTMLElements.
    */
   function getTargets (): HTMLElement[] {
-    const sources = Array.isArray(target) ? target : [target]
+    const sources = toArray(target)
     return sources
       .map(source => toValue(source))
       .filter((el): el is HTMLElement => !isNullOrUndefined(el))
