@@ -13,11 +13,12 @@
  * Bridges the gap between selection composables and Vue's v-model.
  */
 
-import { toArray } from '#v0/composables/toArray'
-
 // Utilities
 import { isFunction, isUndefined } from '#v0/utilities'
 import { onScopeDispose, toValue, watch } from 'vue'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'

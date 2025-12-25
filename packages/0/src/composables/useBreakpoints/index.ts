@@ -20,10 +20,12 @@
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
-// Composables
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
+
+// Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 import { useHydration } from '#v0/composables/useHydration'
 

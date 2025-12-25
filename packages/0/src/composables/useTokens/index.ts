@@ -16,8 +16,11 @@
  * Used by useTheme, useLocale, and useFeatures for token-based configuration.
  */
 
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
+
+// Composables
 import { useLogger } from '#v0/composables/useLogger'
 import { useRegistry } from '#v0/composables/useRegistry'
 

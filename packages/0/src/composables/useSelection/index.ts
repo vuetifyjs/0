@@ -14,9 +14,11 @@
  * Extends useRegistry and serves as the base for useSingle, useGroup, useStep, and useFeatures.
  */
 
-// Composables
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
+
+// Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities

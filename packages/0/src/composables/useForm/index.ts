@@ -15,16 +15,19 @@
  * Each field is registered with validation rules and tracks its own state independently.
  */
 
-// Composables
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
-// Transformers
-import { toArray } from '#v0/composables/toArray'
+
+// Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { isString } from '#v0/utilities'
 import { computed, shallowRef, toValue } from 'vue'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'

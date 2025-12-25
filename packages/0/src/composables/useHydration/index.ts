@@ -16,7 +16,7 @@
  * Essential for composables that need to behave differently during SSR vs client-side.
  */
 
-// Framework
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
