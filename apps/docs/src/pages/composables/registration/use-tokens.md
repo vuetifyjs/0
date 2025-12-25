@@ -51,6 +51,23 @@ const features = useTokens({
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
+## Architecture
+
+Token resolution handles primitives, aliases, and references with cycle detection:
+
+```mermaid
+flowchart TD
+  A[Token Input] --> B{Is Alias?}
+  B -->|Yes| C[Extract $value]
+  B -->|No| D{Is Reference?}
+  D -->|Yes| E[Resolve Path]
+  E --> F{Cycle?}
+  F -->|Yes| G[Error]
+  F -->|No| B
+  D -->|No| H[Return Value]
+  C --> D
+```
+
 ## API
 
 
