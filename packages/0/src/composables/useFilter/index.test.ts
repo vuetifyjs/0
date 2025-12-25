@@ -177,4 +177,120 @@ describe('useFilter', () => {
 
     expect(filtered.value).toHaveLength(2)
   })
+
+  // Edge case tests for optimized union/intersection modes
+  describe('union mode edge cases', () => {
+    it('should match when last query matches last field', () => {
+      const testItems = ref([
+        { a: 'no', b: 'match', c: 'here' },
+        { a: 'found', b: 'it', c: 'last' },
+      ])
+      const { items: filtered } = useFilter(['notfound', 'last'], testItems, {
+        mode: 'union',
+        keys: ['a', 'b', 'c'],
+      })
+      expect(filtered.value).toHaveLength(1)
+      expect(filtered.value[0]?.c).toBe('last')
+    })
+
+    it('should handle single-character queries', () => {
+      const testItems = ref([{ name: 'a' }, { name: 'ab' }, { name: 'b' }])
+      const { items: filtered } = useFilter(['a'], testItems, { mode: 'union' })
+      expect(filtered.value).toHaveLength(2)
+    })
+
+    it('should handle large query arrays', () => {
+      const testItems = ref([{ name: 'target' }])
+      const queries = Array.from({ length: 100 }, (_, i) => `query${i}`)
+      queries.push('target')
+      const { items: filtered } = useFilter(queries, testItems, { mode: 'union' })
+      expect(filtered.value).toHaveLength(1)
+    })
+
+    it('should return empty when no queries match', () => {
+      const { items: filtered } = useFilter(['xyz', '123'], items, {
+        mode: 'union',
+        keys: ['name'],
+      })
+      expect(filtered.value).toHaveLength(0)
+    })
+
+    it('should handle primitive items with multiple queries', () => {
+      const prim = ref(['apple', 'banana', 'cherry', 'date'])
+      const { items: filtered } = useFilter(['apple', 'cherry'], prim, { mode: 'union' })
+      expect(filtered.value).toEqual(['apple', 'cherry'])
+    })
+
+    it('should handle single key with multiple queries', () => {
+      const { items: filtered } = useFilter(['red', 'yellow'], items, {
+        mode: 'union',
+        keys: ['color'],
+      })
+      expect(filtered.value).toHaveLength(2)
+      expect(filtered.value.map(i => i.color)).toEqual(expect.arrayContaining(['red', 'yellow']))
+    })
+  })
+
+  describe('intersection mode edge cases', () => {
+    it('should fail when any query has no match', () => {
+      const testItems = ref([
+        { name: 'apple', color: 'red' },
+      ])
+      const { items: filtered } = useFilter(['apple', 'blue'], testItems, {
+        mode: 'intersection',
+        keys: ['name', 'color'],
+      })
+      expect(filtered.value).toHaveLength(0)
+    })
+
+    it('should allow queries to match different fields', () => {
+      const { items: filtered } = useFilter(['apple', 'red'], items, {
+        mode: 'intersection',
+        keys: ['name', 'color'],
+      })
+      expect(filtered.value).toHaveLength(1)
+      expect(filtered.value[0]?.name).toBe('apple')
+      expect(filtered.value[0]?.color).toBe('red')
+    })
+
+    it('should behave like some mode with single query', () => {
+      const { items: intersection } = useFilter(['apple'], items, { mode: 'intersection' })
+      const { items: some } = useFilter('apple', items, { mode: 'some' })
+      expect(intersection.value).toEqual(some.value)
+    })
+
+    it('should handle primitive items with multiple queries', () => {
+      const prim = ref(['apple pie', 'banana split', 'apple banana'])
+      const { items: filtered } = useFilter(['apple', 'banana'], prim, { mode: 'intersection' })
+      expect(filtered.value).toEqual(['apple banana'])
+    })
+
+    it('should handle single key with multiple queries (all must match same field)', () => {
+      const testItems = ref([
+        { name: 'apple pie delicious' },
+        { name: 'apple cake' },
+        { name: 'banana pie' },
+      ])
+      const { items: filtered } = useFilter(['apple', 'pie'], testItems, {
+        mode: 'intersection',
+        keys: ['name'],
+      })
+      expect(filtered.value).toHaveLength(1)
+      expect(filtered.value[0]?.name).toBe('apple pie delicious')
+    })
+
+    it('should handle large query arrays where all must match', () => {
+      const testItems = ref([{ name: 'abc def ghi jkl mno' }])
+      const queries = ['abc', 'def', 'ghi', 'jkl', 'mno']
+      const { items: filtered } = useFilter(queries, testItems, { mode: 'intersection' })
+      expect(filtered.value).toHaveLength(1)
+    })
+
+    it('should return empty when one query in large array fails', () => {
+      const testItems = ref([{ name: 'abc def ghi jkl' }])
+      const queries = ['abc', 'def', 'ghi', 'jkl', 'xyz']
+      const { items: filtered } = useFilter(queries, testItems, { mode: 'intersection' })
+      expect(filtered.value).toHaveLength(0)
+    })
+  })
 })
