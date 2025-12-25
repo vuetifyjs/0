@@ -43,6 +43,7 @@ console.log(selection.has('apple')) // true
 
 ```mermaid
 flowchart TD
+  useRegistry --> useSelection
   useSelection --> useSingle
   useSelection --> useGroup
   useSingle --> useStep
