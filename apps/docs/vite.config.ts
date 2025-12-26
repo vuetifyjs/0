@@ -15,6 +15,7 @@ import generateSitemap from 'vite-ssg-sitemap'
 import type { ViteSSGOptions } from 'vite-ssg'
 
 import copyMarkdownPlugin from './build/copy-markdown'
+import generateLlmsFullPlugin from './build/generate-llms-full'
 import Markdown from './build/markdown'
 import pkg from './package.json' with { type: 'json' }
 
@@ -63,6 +64,7 @@ export default defineConfig({
     UnocssVitePlugin(),
     Layouts(),
     copyMarkdownPlugin(),
+    generateLlmsFullPlugin(),
     VitePWA({
       injectRegister: 'script-defer',
       registerType: 'autoUpdate',
