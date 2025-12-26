@@ -1,6 +1,9 @@
 <script lang="ts" setup>
+  // Composables
   import { useWindowEventListener } from '@vuetify/v0'
-  import { onMounted, ref } from 'vue'
+
+  // Utilities
+  import { onMounted, shallowRef, useTemplateRef } from 'vue'
 
   const props = defineProps<{
     hasMessages?: boolean
@@ -11,11 +14,11 @@
     reopen: []
   }>()
 
-  const inputRef = ref<HTMLInputElement | null>(null)
-  const question = ref('')
-  const isNearBottom = ref(false)
+  const inputRef = useTemplateRef<HTMLInputElement>('input')
+  const question = shallowRef('')
+  const isNearBottom = shallowRef(false)
 
-  function handleSubmit () {
+  function onSubmit () {
     const q = question.value.trim()
     if (!q) return
 
@@ -27,13 +30,13 @@
     inputRef.value?.focus()
   }
 
-  function handleFocus () {
-    if (props.hasMessages) {
-      emit('reopen')
-    }
+  function onFocus () {
+    if (!props.hasMessages) return
+
+    emit('reopen')
   }
 
-  function checkScroll () {
+  function onScroll () {
     const scrollTop = window.scrollY
     const windowHeight = window.innerHeight
     const docHeight = document.documentElement.scrollHeight
@@ -41,10 +44,10 @@
     isNearBottom.value = distanceFromBottom < 200
   }
 
-  useWindowEventListener('scroll', checkScroll, { passive: true })
+  useWindowEventListener('scroll', onScroll, { passive: true })
 
   onMounted(() => {
-    checkScroll()
+    onScroll()
   })
 
   defineExpose({ focus })
@@ -58,7 +61,7 @@
     >
       <form
         class="glass-surface rounded-full shadow-lg border border-divider flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 hover:border-primary/50 focus-within:border-primary focus-within:hover:border-primary transition-colors"
-        @submit.prevent="handleSubmit"
+        @submit.prevent="onSubmit"
       >
         <AppIcon
           class="shrink-0 text-on-surface opacity-60"
@@ -67,13 +70,13 @@
         />
 
         <input
-          ref="inputRef"
+          ref="input"
           v-model="question"
           aria-label="Ask a question about this page"
           class="flex-1 bg-transparent border-none outline-none text-sm text-on-surface placeholder:text-gray-400 dark:placeholder:text-gray-500"
           placeholder="Ask a question..."
           type="text"
-          @focus="handleFocus"
+          @focus="onFocus"
         >
 
         <kbd

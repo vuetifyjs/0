@@ -1,10 +1,14 @@
 <script lang="ts" setup>
-  import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
-
-  import { useAsk } from '@/composables/useAsk'
-
+  // Components
   import DocsAskInput from './DocsAskInput.vue'
   import DocsAskSheet from './DocsAskSheet.vue'
+
+  // Composables
+  import { useAsk } from '@/composables/useAsk'
+  import { useDocumentEventListener } from '@vuetify/v0'
+
+  // Utilities
+  import { toRef, nextTick, useTemplateRef } from 'vue'
 
   const {
     messages,
@@ -18,23 +22,23 @@
     stop,
   } = useAsk()
 
-  const inputRef = ref<InstanceType<typeof DocsAskInput> | null>(null)
-  const sheetRef = ref<InstanceType<typeof DocsAskSheet> | null>(null)
+  const inputRef = useTemplateRef<InstanceType<typeof DocsAskInput>>('input')
+  const sheetRef = useTemplateRef<InstanceType<typeof DocsAskSheet>>('sheet')
 
-  const hasMessages = computed(() => messages.value.length > 0)
+  const hasMessages = toRef(() => messages.value.length > 0)
 
-  async function handleSubmit (question: string) {
+  async function onSubmit (question: string) {
     await ask(question)
   }
 
-  async function handleReopen () {
+  async function onReopen () {
     open()
     await nextTick()
     sheetRef.value?.focus()
   }
 
   // Keyboard shortcut: Cmd/Ctrl + K to focus input
-  function handleKeydown (e: KeyboardEvent) {
+  function onKeydown (e: KeyboardEvent) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault()
       if (isOpen.value) {
@@ -51,23 +55,17 @@
     }
   }
 
-  onMounted(() => {
-    document.addEventListener('keydown', handleKeydown)
-  })
-
-  onUnmounted(() => {
-    document.removeEventListener('keydown', handleKeydown)
-  })
+  useDocumentEventListener('keydown', onKeydown)
 </script>
 
 <template>
   <!-- Floating input (visible when sheet is closed) -->
   <DocsAskInput
     v-show="!isOpen"
-    ref="inputRef"
+    ref="input"
     :has-messages="hasMessages"
-    @reopen="handleReopen"
-    @submit="handleSubmit"
+    @reopen="onReopen"
+    @submit="onSubmit"
   />
 
   <!-- Backdrop -->
@@ -83,14 +81,14 @@
   <Transition name="slide">
     <DocsAskSheet
       v-if="isOpen"
-      ref="sheetRef"
+      ref="sheet"
       :error="error"
       :is-loading="isLoading"
       :messages="messages"
       @clear="clear"
       @close="close"
       @stop="stop"
-      @submit="handleSubmit"
+      @submit="onSubmit"
     />
   </Transition>
 </template>

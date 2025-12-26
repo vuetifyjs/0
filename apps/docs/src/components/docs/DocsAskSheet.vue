@@ -1,13 +1,16 @@
 <script lang="ts" setup>
-  import { nextTick, ref, watch } from 'vue'
-
+  // Components
   import AppIcon from '@/components/app/AppIcon.vue'
   import DocsAskMessage from './DocsAskMessage.vue'
 
+  // Utilities
+  import { nextTick, shallowRef, useTemplateRef, watch } from 'vue'
+
+  // Types
   import type { Message } from '@/composables/useAsk'
 
   const props = defineProps<{
-    messages: Message[]
+    messages: readonly Message[]
     isLoading: boolean
     error: string | null
   }>()
@@ -19,24 +22,24 @@
     stop: []
   }>()
 
-  const messagesRef = ref<HTMLElement | null>(null)
-  const inputRef = ref<HTMLTextAreaElement | null>(null)
-  const question = ref('')
-  const isFullscreen = ref(false)
+  const messagesRef = useTemplateRef<HTMLElement | null>('messages')
+  const textareaRef = useTemplateRef<HTMLTextAreaElement | null>('textarea')
+  const question = shallowRef('')
+  const isFullscreen = shallowRef(false)
 
   // Auto-scroll to bottom on new messages
   watch(
     () => props.messages,
     async () => {
       await nextTick()
-      if (messagesRef.value) {
-        messagesRef.value.scrollTop = messagesRef.value.scrollHeight
-      }
+      if (!messagesRef.value) return
+
+      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
     },
     { deep: true },
   )
 
-  function handleSubmit () {
+  function onSubmit () {
     const q = question.value.trim()
     if (!q || props.isLoading) return
 
@@ -45,18 +48,18 @@
     resizeTextarea()
   }
 
-  function handleKeydown (e: KeyboardEvent) {
+  function onKeydown (e: KeyboardEvent) {
     // Submit on Enter (without Shift)
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSubmit()
+      onSubmit()
     }
   }
 
   function resizeTextarea () {
-    if (!inputRef.value) return
-    inputRef.value.style.height = 'auto'
-    inputRef.value.style.height = `${Math.min(inputRef.value.scrollHeight, 120)}px`
+    if (!textareaRef.value) return
+    textareaRef.value.style.height = 'auto'
+    textareaRef.value.style.height = `${Math.min(textareaRef.value.scrollHeight, 120)}px`
   }
 
   function toggleFullscreen () {
@@ -64,7 +67,7 @@
   }
 
   function focus () {
-    inputRef.value?.focus()
+    textareaRef.value?.focus()
   }
 
   defineExpose({ focus })
@@ -75,7 +78,7 @@
     aria-labelledby="ask-ai-title"
     aria-modal="true"
     :class="[
-      'fixed top-0 right-0 h-full bg-background border-l border-divider shadow-xl z-50 flex flex-col transition-all duration-300',
+      'fixed top-0 right-0 h-full bg-background border-l border-divider shadow-xl z-50 flex flex-col',
       isFullscreen ? 'w-full max-w-full' : 'w-full max-w-md',
     ]"
     role="dialog"
@@ -120,7 +123,7 @@
 
     <!-- Messages -->
     <div
-      ref="messagesRef"
+      ref="messages"
       class="flex-1 overflow-y-auto p-4 space-y-4"
     >
       <!-- Empty state -->
@@ -155,10 +158,10 @@
     <footer class="shrink-0 p-4 border-t border-divider bg-surface">
       <form
         class="flex items-end gap-2"
-        @submit.prevent="handleSubmit"
+        @submit.prevent="onSubmit"
       >
         <textarea
-          ref="inputRef"
+          ref="textarea"
           v-model="question"
           aria-label="Ask a follow-up question"
           class="flex-1 rounded-lg bg-surface-variant px-4 py-2.5 text-sm text-on-surface border-none outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none min-h-[42px] max-h-[120px]"
@@ -166,7 +169,7 @@
           placeholder="Ask a question..."
           rows="1"
           @input="resizeTextarea"
-          @keydown="handleKeydown"
+          @keydown="onKeydown"
         />
 
         <button

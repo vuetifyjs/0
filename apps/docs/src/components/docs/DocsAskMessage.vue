@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-  import { computed, toRef } from 'vue'
-
+  // Composables
   import { useMarkdown } from '@/composables/useMarkdown'
+
+  // Utilities
+  import { toRef } from 'vue'
 
   const props = defineProps<{
     role: 'user' | 'assistant'
@@ -9,12 +11,12 @@
     isStreaming?: boolean
   }>()
 
-  const isUser = computed(() => props.role === 'user')
-  const { html } = useMarkdown(toRef(() => props.role === 'assistant' ? props.content : undefined))
+  const isUser = toRef(() => props.role === 'user')
+  const isAssistant = toRef(() => props.role === 'assistant')
+  const { html } = useMarkdown(toRef(() => isAssistant.value ? props.content : undefined))
 </script>
 
 <template>
-  <!-- User message: bubble aligned right -->
   <div
     v-if="isUser"
     class="flex justify-end"
@@ -24,7 +26,6 @@
     </div>
   </div>
 
-  <!-- Assistant message: plain text -->
   <div
     v-else
     class="text-sm leading-relaxed text-on-surface"

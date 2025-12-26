@@ -4,16 +4,15 @@
  * @remarks
  * Chat state management for the AI Q&A feature.
  * Handles message history, streaming responses, and UI state.
+ * Fetches page context on-demand when a question is asked.
  */
 
 // Framework
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
-// Composables
-import { usePageContext } from './usePageContext'
-
 // Utilities
 import { readonly, shallowRef } from 'vue'
+import { useRoute } from 'vue-router'
 
 // Types
 import type { Ref, ShallowRef } from 'vue'
@@ -27,7 +26,7 @@ export interface Message {
 
 export interface UseAskReturn {
   /** Chat message history */
-  messages: Readonly<ShallowRef<Message[]>>
+  messages: Readonly<ShallowRef<readonly Message[]>>
   /** Whether the sheet is open */
   isOpen: Readonly<Ref<boolean>>
   /** Whether a response is being generated */
@@ -48,11 +47,64 @@ export interface UseAskReturn {
   stop: () => void
 }
 
+interface PageContext {
+  path: string
+  title: string
+  content: string
+}
+
 const API_URL = `${import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'}/docs/ask`
 
 let messageId = 0
 function createId () {
   return `msg-${++messageId}-${Date.now()}`
+}
+
+/** Fetch and parse markdown for a given path */
+async function fetchPageContext (path: string): Promise<PageContext> {
+  if (!IN_BROWSER || path === '/' || path === '') {
+    return { path, title: '', content: '' }
+  }
+
+  try {
+    // Try direct path first, then index.md fallback
+    let response = await fetch(`${path}.md`)
+    if (!response.ok) {
+      response = await fetch(`${path}/index.md`)
+    }
+    if (!response.ok) {
+      return { path, title: '', content: '' }
+    }
+
+    const markdown = await response.text()
+
+    // Parse frontmatter
+    const match = markdown.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
+    const yamlStr = match?.[1] ?? ''
+    const content = match?.[2]?.trim() ?? markdown
+
+    // Extract title from frontmatter
+    let title = ''
+    for (const line of yamlStr.split('\n')) {
+      if (line.startsWith('title:')) {
+        title = line.slice(6).trim().replace(/^['"](.*)['"]$/, '$1')
+        // Take first part before " - "
+        const dashIdx = title.indexOf(' - ')
+        if (dashIdx > 0) title = title.slice(0, dashIdx)
+        break
+      }
+    }
+
+    // Fallback to first h1
+    if (!title) {
+      const h1Match = content.match(/^# (.+)$/m)
+      title = h1Match?.[1]?.trim() ?? ''
+    }
+
+    return { path, title, content }
+  } catch {
+    return { path, title: '', content: '' }
+  }
 }
 
 /**
@@ -74,7 +126,7 @@ function createId () {
  * ```
  */
 export function useAsk (): UseAskReturn {
-  const { context } = usePageContext()
+  const route = useRoute()
 
   const messages: ShallowRef<Message[]> = shallowRef([])
   const isOpen = shallowRef(false)
@@ -137,12 +189,15 @@ export function useAsk (): UseAskReturn {
     abortController = new AbortController()
 
     try {
+      // Fetch page context on-demand
+      const context = await fetchPageContext(route.path)
+
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: question.trim(),
-          context: context.value,
+          context,
         }),
         signal: abortController.signal,
       })
