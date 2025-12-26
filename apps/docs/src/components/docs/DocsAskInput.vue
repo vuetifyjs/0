@@ -65,7 +65,7 @@
       >
         <AppIcon
           class="shrink-0 text-on-surface opacity-60"
-          icon="chat"
+          icon="create"
           size="14"
         />
 

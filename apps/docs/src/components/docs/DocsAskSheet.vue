@@ -84,9 +84,9 @@
     role="dialog"
   >
     <!-- Header -->
-    <header class="shrink-0 px-4 py-3 border-b border-divider flex items-center justify-between bg-surface">
+    <header class="shrink-0 px-4 py-2 border-b border-divider flex items-center justify-between bg-surface">
       <div class="flex items-center gap-2">
-        <AppIcon class="text-primary" icon="chat" />
+        <AppIcon class="text-primary" icon="create" />
         <span id="ask-ai-title" class="font-medium">Ask AI</span>
       </div>
 
