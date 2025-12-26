@@ -7,7 +7,7 @@
 <template>
   <aside
     v-if="headings.length > 0"
-    class="hidden xl:block fixed right-4 top-25 w-[200px] max-h-[calc(100vh-96px)] overflow-y-auto text-sm"
+    class="hidden xl:block fixed right-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
   >
     <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide">
       On this page

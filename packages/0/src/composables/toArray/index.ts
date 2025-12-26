@@ -10,7 +10,7 @@
  */
 
 // Utilities
-import { isNullOrUndefined } from '#v0/utilities'
+import { isArray, isNullOrUndefined } from '#v0/utilities'
 
 /**
  * Converts a value to an array.
@@ -32,5 +32,5 @@ import { isNullOrUndefined } from '#v0/utilities'
  * ```
  */
 export function toArray<Z> (value: Z | Z[]): Z[] {
-  return isNullOrUndefined(value) ? [] : (Array.isArray(value) ? value : [value])
+  return isNullOrUndefined(value) ? [] : (isArray(value) ? value : [value])
 }

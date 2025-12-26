@@ -92,15 +92,17 @@
 
       <!-- Live Demo -->
       <div class="demo-preview p-4 md:p-8 rounded-xl border bg-surface flex flex-col">
-        <a
-          class="text-xs font-medium text-primary hover:underline flex gap-1 justify-center md:justify-end mb-8 md:mb-0"
-          :href="playgroundUrl"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          <AppIcon icon="vuetify-play" :size="14" />
-          Open in Vuetify Play
-        </a>
+        <div class="text-center md:text-end mb-8 lg:mb-0">
+          <a
+            class="text-xs font-medium text-primary hover:underline inline-flex gap-1"
+            :href="playgroundUrl"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <AppIcon icon="vuetify-play" :size="14" />
+            Open in Vuetify Play
+          </a>
+        </div>
 
         <div class="flex-1 flex flex-col justify-center">
           <Selection.Root v-model="selected" multiple>

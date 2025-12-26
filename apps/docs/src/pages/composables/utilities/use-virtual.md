@@ -26,21 +26,43 @@ Virtual scrolling composable for efficiently rendering large lists by only rende
 
 The `useVirtual` composable enables high-performance rendering of large datasets (thousands or millions of items) by only rendering the items currently visible in the viewport plus a small overscan buffer. This dramatically reduces DOM nodes and improves performance.
 
-**Key Features:**
-- Renders only visible items (viewport + overscan)
-- Dynamic or fixed item heights
-- SSR-safe (checks `IN_BROWSER`)
-- Bidirectional scrolling (forward/reverse for chat apps)
-- Scroll anchoring (maintains position across data changes)
-- Edge detection for infinite scroll
-- iOS momentum and elastic scrolling
-- Configurable overscan (extra items rendered for smooth scrolling)
-
 ## Usage
 
 <DocsExample file="basic.vue" title="Virtual List" :code="VirtualListExampleRaw">
   <VirtualListExample />
 </DocsExample>
+
+## Architecture
+
+The rendering pipeline transforms scroll events into visible item ranges:
+
+```mermaid
+flowchart LR
+  subgraph Inputs
+    A[scroll event]
+    B[viewport height]
+    C[item height]
+  end
+
+  subgraph Calculate
+    D[visible range]
+    E[overscan buffer]
+    F[offset position]
+  end
+
+  subgraph Output
+    G[sliced items]
+    H[transform style]
+  end
+
+  A --> D
+  B --> D
+  C --> D
+  D --> E
+  E --> F
+  F --> G
+  F --> H
+```
 
 ## API
 

@@ -15,6 +15,7 @@
  * within a range, making it efficient for large page counts.
  */
 
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 

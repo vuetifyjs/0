@@ -116,4 +116,13 @@
     color: var(--v0-on-surface) !important;
     fill: var(--v0-on-surface) !important;
   }
+
+  .docs-mermaid :deep(.flowchart-link) {
+    stroke: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid :deep(.marker) {
+    fill: var(--v0-primary) !important;
+    stroke: var(--v0-primary) !important;
+  }
 </style>

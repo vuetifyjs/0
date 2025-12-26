@@ -17,9 +17,12 @@
  * Integrates with createSingle for selection and useTokens for color resolution.
  */
 
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
+
+// Composables
 import { createSingle } from '#v0/composables/useSingle'
 import { createTokens } from '#v0/composables/useTokens'
 

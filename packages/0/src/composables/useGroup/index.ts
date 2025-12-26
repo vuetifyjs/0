@@ -19,17 +19,20 @@
  * Extended by: useFeatures
  */
 
-// Composables
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
-// Transformers
-import { toArray } from '#v0/composables/toArray'
+
+// Composables
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 import { createSelection } from '#v0/composables/useSelection'
 
 // Utilities
 import { genId, isUndefined } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'

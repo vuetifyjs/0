@@ -37,6 +37,21 @@ console.log(selection.selectedValues) // ComputedRef<Set> { value: Set(2) { 'App
 console.log(selection.has('apple')) // true
 ```
 
+## Architecture
+
+`useSelection` extends `useRegistry` and is the base for all selection patterns:
+
+```mermaid
+flowchart TD
+  useRegistry --> useSelection
+  useSelection --> useSingle
+  useSelection --> useGroup
+  useSingle --> useStep
+  useSingle --> useTheme
+  useSingle --> useLocale
+  useGroup --> useFeatures
+```
+
 ## API
 
 

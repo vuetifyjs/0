@@ -12,9 +12,11 @@
  * Inheritance chain: useRegistry → useSelection → useSingle
  */
 
-// Composables
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
+
+// Composables
 import { createSelection } from '#v0/composables/useSelection'
 
 // Utilities

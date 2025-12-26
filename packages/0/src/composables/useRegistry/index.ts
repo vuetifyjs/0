@@ -16,12 +16,15 @@
  * including useSelection, useForm, useTimeline, and more.
  */
 
+// Foundational
 import { createContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
+
+// Composables
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { genId, isUndefined } from '#v0/utilities'
+import { clamp, genId, isUndefined } from '#v0/utilities'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -963,7 +966,7 @@ export function useRegistry<
     }
 
     const tickets = values()
-    const index = isUndefined(from) ? undefined : Math.max(0, Math.min(from, tickets.length - 1))
+    const index = isUndefined(from) ? undefined : clamp(from, 0, tickets.length - 1)
 
     if (direction === 'last') {
       const start = isUndefined(index) ? tickets.length - 1 : index

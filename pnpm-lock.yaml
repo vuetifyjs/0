@@ -54,9 +54,6 @@ catalogs:
     '@vuetify/github-releaser':
       specifier: ^4.0.3
       version: 4.0.3
-    beasties:
-      specifier: ^0.3.5
-      version: 0.3.5
     bumpp:
       specifier: ^10.3.2
       version: 10.3.2
@@ -296,9 +293,6 @@ importers:
       '@unhead/vue':
         specifier: 'catalog:'
         version: 2.0.19(vue@3.5.24(typescript@5.9.3))
-      beasties:
-        specifier: 'catalog:'
-        version: 0.3.5
       lightningcss:
         specifier: 'catalog:'
         version: 1.30.2
@@ -9508,6 +9502,7 @@ snapshots:
       picocolors: 1.1.1
       postcss: 8.5.6
       postcss-media-query-parser: 0.2.3
+    optional: true
 
   before-after-hook@3.0.2: {}
 
@@ -9863,13 +9858,15 @@ snapshots:
       domhandler: 5.0.3
       domutils: 3.2.2
       nth-check: 2.1.1
+    optional: true
 
   css-tree@3.1.0:
     dependencies:
       mdn-data: 2.12.2
       source-map-js: 1.2.1
 
-  css-what@7.0.0: {}
+  css-what@7.0.0:
+    optional: true
 
   css.escape@1.5.1: {}
 
@@ -10177,12 +10174,15 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
       entities: 4.5.0
+    optional: true
 
-  domelementtype@2.3.0: {}
+  domelementtype@2.3.0:
+    optional: true
 
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
+    optional: true
 
   dompurify@3.3.1:
     optionalDependencies:
@@ -10193,6 +10193,7 @@ snapshots:
       dom-serializer: 2.0.0
       domelementtype: 2.3.0
       domhandler: 5.0.3
+    optional: true
 
   dot-case@3.0.4:
     dependencies:
@@ -10974,6 +10975,7 @@ snapshots:
       domhandler: 5.0.3
       domutils: 3.2.2
       entities: 6.0.1
+    optional: true
 
   http-cache-semantics@4.2.0: {}
 
@@ -11983,7 +11985,8 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postcss-media-query-parser@0.2.3: {}
+  postcss-media-query-parser@0.2.3:
+    optional: true
 
   postcss-selector-parser@7.1.1:
     dependencies:

@@ -121,6 +121,18 @@ describe('useFilter', () => {
     expect(filtered.value).toHaveLength(5)
   })
 
+  it('should return all items when query is null or undefined', () => {
+    // Test null query (cast to bypass type check - runtime safety test)
+    const nullQuery = ref(null as unknown as string)
+    const { items: filtered } = useFilter(nullQuery, items)
+    expect(filtered.value).toHaveLength(5)
+
+    // Test undefined query
+    const undefinedQuery = ref(undefined as unknown as string)
+    const { items: filtered2 } = useFilter(undefinedQuery, items)
+    expect(filtered2.value).toHaveLength(5)
+  })
+
   it('should handle multiple whitespace queries in array', () => {
     const { items: filtered } = useFilter(['  ', '  ', 'apple'], items, {
       mode: 'union',

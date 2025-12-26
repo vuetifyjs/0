@@ -51,6 +51,18 @@ const features = useTokens({
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
+## Architecture
+
+`useTokens` extends `useRegistry` and powers token-based systems:
+
+```mermaid
+flowchart TD
+  useTokens --> useTheme
+  useTokens --> useLocale
+  useTokens --> useFeatures
+  useTokens --> usePermissions
+```
+
 ## API
 
 

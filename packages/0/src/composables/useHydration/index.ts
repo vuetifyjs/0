@@ -16,12 +16,13 @@
  * Essential for composables that need to behave differently during SSR vs client-side.
  */
 
-// Framework
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
+import { isNull } from '#v0/utilities'
 import { getCurrentInstance, shallowReadonly, shallowRef } from 'vue'
 
 // Types
@@ -150,7 +151,7 @@ export function createHydrationPlugin<
     setup: (app: App) => {
       app.mixin({
         mounted () {
-          if (this.$parent !== null) return
+          if (!isNull(this.$parent)) return
 
           context.hydrate()
         },

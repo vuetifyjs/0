@@ -16,15 +16,19 @@
  * Built on useTokens for flexible permission configuration.
  */
 
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
-// Transformers
-import { toArray } from '#v0/composables/toArray'
+
+// Composables
 import { createTokens } from '#v0/composables/useTokens'
 
 // Adapters
 import { Vuetify0PermissionAdapter } from '#v0/composables/usePermissions/adapters'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'

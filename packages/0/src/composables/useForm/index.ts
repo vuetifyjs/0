@@ -15,16 +15,19 @@
  * Each field is registered with validation rules and tracks its own state independently.
  */
 
-// Composables
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
-// Transformers
-import { toArray } from '#v0/composables/toArray'
+
+// Composables
 import { useRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
-import { isString } from '#v0/utilities'
+import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { computed, shallowRef, toValue } from 'vue'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -123,7 +126,7 @@ export function createForm<
     for (const ticket of registry.values()) {
       hasFields = true
       if (ticket.isValid.value === false) return false
-      if (ticket.isValid.value === null) return null
+      if (isNull(ticket.isValid.value)) return null
     }
     return hasFields ? true : null
   })
@@ -153,7 +156,7 @@ export function createForm<
   }
 
   function register (registration: Partial<Z>): Z {
-    const model = shallowRef(registration.value == null ? '' : toValue(registration.value))
+    const model = shallowRef(isNullOrUndefined(registration.value) ? '' : toValue(registration.value))
     const rules = registration.rules || []
     const errors = shallowRef<string[]>([])
     const isValidating = shallowRef(false)

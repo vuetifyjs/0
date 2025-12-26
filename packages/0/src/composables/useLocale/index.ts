@@ -14,12 +14,12 @@
  * Integrates with createSingle for locale selection and useTokens for message resolution.
  */
 
-// Composables
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
-// Transformers
-import { toArray } from '#v0/composables/toArray'
+
+// Composables
 import { createSingle } from '#v0/composables/useSingle'
 import { createTokens } from '#v0/composables/useTokens'
 
@@ -29,6 +29,9 @@ import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 // Utilities
 import { isString } from '#v0/utilities'
 import { getCurrentInstance } from 'vue'
+
+// Transformers
+import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'

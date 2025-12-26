@@ -16,9 +16,11 @@
  * Use uniform mode (itemWidth option) for same-width items like Pagination buttons.
  */
 
-// Composables
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
+
+// Composables
 import { useElementSize } from '#v0/composables/useResizeObserver'
 
 // Utilities

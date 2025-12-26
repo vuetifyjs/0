@@ -34,6 +34,21 @@ const ticket3 = registry.register()
 console.log(registry.size) // 3
 ```
 
+## Architecture
+
+`useRegistry` is the foundation for specialized registration systems:
+
+```mermaid
+flowchart TD
+  useRegistry --> useSelection
+  useRegistry --> useTokens
+  useRegistry --> useForm
+  useRegistry --> useQueue
+  useRegistry --> useTimeline
+```
+
+Each branch extends the base ticket pattern with domain-specific capabilities. See individual composable docs for their extension hierarchies.
+
 ## API
 
 ### `useRegistry`

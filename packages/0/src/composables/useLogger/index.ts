@@ -1,9 +1,3 @@
-// Globals
-import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
-
-// Composables
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
 /**
  * @module useLogger
  *
@@ -21,6 +15,13 @@ import { createPlugin } from '#v0/composables/createPlugin'
  *
  * Uses adapter pattern to abstract logging implementation.
  */
+
+// Globals
+import { __LOGGER_ENABLED__, IN_BROWSER } from '#v0/constants/globals'
+
+// Foundational
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Adapters
