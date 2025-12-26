@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs'
 import { glob } from 'node:fs/promises'
 import { basename, dirname, relative } from 'node:path'
 
-import type { Plugin } from 'vite'
+// Types
+import type { Plugin, ViteDevServer } from 'vite'
 
 const BASE_URL = 'https://0.vuetifyjs.com'
 
@@ -54,63 +55,78 @@ function stripVueComponents (content: string): string {
     .replace(/\n{3,}/g, '\n\n')
 }
 
+async function generateLlmsContent (): Promise<string> {
+  const files: Array<{ path: string, order: number, title: string, content: string }> = []
+
+  for await (const file of glob('src/pages/**/*.md')) {
+    try {
+      const raw = readFileSync(file, 'utf8')
+      const content = stripVueComponents(stripFrontmatter(raw))
+      const urlPath = getUrlPath(file)
+
+      files.push({
+        path: urlPath,
+        order: getCategoryOrder(file),
+        title: getTitle(file),
+        content,
+      })
+    } catch {
+      // Skip files that can't be read
+    }
+  }
+
+  // Sort by category order, then path
+  files.sort((a, b) => {
+    if (a.order !== b.order) return a.order - b.order
+    return a.path.localeCompare(b.path)
+  })
+
+  // Build llms-full.txt
+  const sections = [
+    '# @vuetify/v0 - Complete Documentation',
+    '',
+    '> Headless Vue 3 UI primitives and composables for building modern applications and design systems.',
+    '',
+    '---',
+    '',
+  ]
+
+  for (const file of files) {
+    sections.push(`# ${file.title}`, `URL: ${BASE_URL}${file.path}`, '', file.content, '', '---', '')
+  }
+
+  return sections.join('\n')
+}
+
 export default function generateLlmsFullPlugin (): Plugin {
   return {
     name: 'generate-llms-full',
+    configureServer (server: ViteDevServer) {
+      server.middlewares.use(async (req, res, next) => {
+        if (req.url !== '/llms-full.txt') return next()
+
+        try {
+          const content = await generateLlmsContent()
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          res.end(content)
+        } catch (error) {
+          console.error('[generate-llms-full] Error generating content:', error)
+          res.statusCode = 500
+          res.end('Error generating llms-full.txt')
+        }
+      })
+    },
     apply: (config, { command }) => command === 'build' && !config.build?.ssr,
     async generateBundle () {
-      const files: Array<{ path: string, order: number, title: string, content: string }> = []
-
-      for await (const file of glob('src/pages/**/*.md')) {
-        try {
-          const raw = readFileSync(file, 'utf-8')
-          const content = stripVueComponents(stripFrontmatter(raw))
-          const urlPath = getUrlPath(file)
-
-          files.push({
-            path: urlPath,
-            order: getCategoryOrder(file),
-            title: getTitle(file),
-            content,
-          })
-        } catch {
-          // Skip files that can't be read
-        }
-      }
-
-      // Sort by category order, then path
-      files.sort((a, b) => {
-        if (a.order !== b.order) return a.order - b.order
-        return a.path.localeCompare(b.path)
-      })
-
-      // Build llms-full.txt
-      const sections = [
-        '# @vuetify/v0 - Complete Documentation',
-        '',
-        '> Headless Vue 3 UI primitives and composables for building modern applications and design systems.',
-        '',
-        '---',
-        '',
-      ]
-
-      for (const file of files) {
-        sections.push(`# ${file.title}`)
-        sections.push(`URL: ${BASE_URL}${file.path}`)
-        sections.push('')
-        sections.push(file.content)
-        sections.push('')
-        sections.push('---')
-        sections.push('')
-      }
+      const content = await generateLlmsContent()
 
       this.emitFile({
         type: 'asset',
         fileName: 'llms-full.txt',
-        source: sections.join('\n'),
+        source: content,
       })
 
-      console.log(`[generate-llms-full] Generated llms-full.txt from ${files.length} pages`)
+      console.log('[generate-llms-full] Generated llms-full.txt')
     },
   }
 }
