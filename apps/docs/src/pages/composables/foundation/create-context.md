@@ -8,7 +8,7 @@ meta:
 features:
   category: Factory
   label: 'E: createContext'
-  github: /factories/createContext/
+  github: /composables/createContext/
 ---
 
 # createContext

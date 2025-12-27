@@ -8,7 +8,7 @@ meta:
 features:
   category: Factory
   label: 'E: createPlugin'
-  github: /factories/createPlugin/
+  github: /composables/createPlugin/
 ---
 
 # createPlugin

@@ -8,7 +8,7 @@ meta:
 features:
   category: Factory
   label: 'E: createTrinity'
-  github: /factories/createTrinity/
+  github: /composables/createTrinity/
 ---
 
 # createTrinity
