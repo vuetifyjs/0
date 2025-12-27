@@ -163,11 +163,12 @@ describe('createTokensContext', () => {
     })
 
     it('should return undefined for non-existent tokens', () => {
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const context = createTokensContext({ namespace: 'test', tokens: {} })[2]
 
       expect(context.resolve('nonexistent')).toBeUndefined()
       expect(context.resolve('{nonexistent}')).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
 
       warnSpy.mockRestore()
     })
@@ -1124,11 +1125,15 @@ describe('useTokens registry integration', () => {
         accent: { $value: '{primary}' },
       }
       const context = createTokens(tokens)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       context.unregister('primary')
 
       expect(context.collection.has('primary')).toBe(false)
       expect(context.resolve('accent')).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Alias not found'))
+
+      warnSpy.mockRestore()
     })
   })
 })
@@ -1142,11 +1147,12 @@ describe('useTokens edge cases', () => {
       }
 
       const context = createTokens(tokens)
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       // Should return undefined and not cause stack overflow
       const result = context.resolve('a')
       expect(result).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
 
       warnSpy.mockRestore()
     })
@@ -1159,11 +1165,12 @@ describe('useTokens edge cases', () => {
       }
 
       const context = createTokens(tokens)
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       // Should return undefined and not cause stack overflow
       const result = context.resolve('a')
       expect(result).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
 
       warnSpy.mockRestore()
     })
@@ -2021,10 +2028,14 @@ describe('resolve edge cases', () => {
       }
 
       const context = createTokens(tokens)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       // Trying to access colors.primary.foo where primary is a string
       const result = context.resolve('colors.primary.foo')
       expect(result).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
+
+      warnSpy.mockRestore()
     })
 
     it('should fail when path tries to access segment on number primitive', () => {
@@ -2035,9 +2046,13 @@ describe('resolve edge cases', () => {
       }
 
       const context = createTokens(tokens)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const result = context.resolve('metrics.count.value')
       expect(result).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
+
+      warnSpy.mockRestore()
     })
 
     it('should fail when accessing nested path through boolean', () => {
@@ -2048,9 +2063,13 @@ describe('resolve edge cases', () => {
       }
 
       const context = createTokens(tokens)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const result = context.resolve('flags.enabled.state')
       expect(result).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Path not found'))
+
+      warnSpy.mockRestore()
     })
 
     it('should handle object with $value when continuing path', () => {
@@ -2132,10 +2151,11 @@ describe('resolve edge cases', () => {
       }
 
       const context = createTokens(tokens)
-      const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const result = context.resolve('a')
       expect(result).toBeUndefined()
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Circular alias detected'))
 
       warnSpy.mockRestore()
     })
@@ -3622,13 +3642,16 @@ describe('cache invalidation scenarios', () => {
     }
 
     const context = createTokensContext({ namespace: 'test', tokens })[2]
-    const warnSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const first = context.resolve('a')
     const second = context.resolve('a')
 
     expect(first).toBeUndefined()
     expect(second).toBeUndefined()
+    // Each resolve call triggers circular detection warning (cache stores undefined
+    // which doesn't early-return since cache check uses !isUndefined)
+    expect(warnSpy).toHaveBeenCalledTimes(2)
 
     warnSpy.mockRestore()
   })

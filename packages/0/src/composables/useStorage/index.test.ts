@@ -9,8 +9,8 @@ vi.mock('vue', async () => {
   const actual = await vi.importActual('vue')
   return {
     ...actual,
-    provide: vi.fn((actual as any).provide),
-    inject: vi.fn((actual as any).inject),
+    provide: vi.fn(),
+    inject: vi.fn(),
   }
 })
 

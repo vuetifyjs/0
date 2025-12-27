@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useHydration } from '../useHydration'
 
 // Utilities
-import { getCurrentInstance, onMounted, onScopeDispose } from 'vue'
+import { getCurrentInstance, onMounted, onScopeDispose, shallowRef } from 'vue'
 
 import { createBreakpoints, createBreakpointsPlugin, useBreakpoints } from './index'
 
@@ -65,7 +65,7 @@ describe('useBreakpoints', () => {
 
     // Mock hydration
     mockUseHydration.mockReturnValue({
-      isHydrated: { value: true, [Symbol.for('v-frag')]: true } as any,
+      isHydrated: shallowRef(true),
       hydrate: vi.fn(),
     })
   })
