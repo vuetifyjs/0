@@ -83,7 +83,7 @@ Creates a pagination instance.
     last: () => void
     next: () => void
     prev: () => void
-    goto: (value: number) => void
+    select: (value: number) => void
   }
 
   function createPagination(options?: PaginationOptions): PaginationContext
@@ -113,7 +113,7 @@ Creates a pagination instance.
   - `last()`: Go to last page
   - `next()`: Go to next page
   - `prev()`: Go to previous page
-  - `goto(page)`: Go to specific page
+  - `select(page)`: Go to specific page
 
 ### createPaginationContext
 
@@ -167,7 +167,7 @@ console.log(pagination.pages) // 10
 pagination.next()
 console.log(pagination.page.value) // 2
 
-pagination.goto(5)
+pagination.select(5)
 console.log(pagination.page.value) // 5
 
 pagination.last()
@@ -369,7 +369,7 @@ pagination.next()
       <button
         v-else
         :class="{ active: pagination.page.value === item.value }"
-        @click="pagination.goto(item.value as number)"
+        @click="pagination.select(item.value as number)"
       >
         {{ item.value }}
       </button>
@@ -389,4 +389,4 @@ pagination.next()
 - `pageStop` is clamped to `size` on the last page (won't exceed total items)
 - The `items` array maintains a consistent length equal to `visible` when there are enough pages
 - Ellipsis is only shown when there are more pages than can be displayed
-- Navigation methods (`next`, `prev`, `goto`) automatically clamp to valid page range
+- Navigation methods (`next`, `prev`, `select`) automatically clamp to valid page range

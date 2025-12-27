@@ -95,8 +95,9 @@ The `useKeydown` composable registers keyboard event handlers on the document wi
   function useKeydown(
     handlers: KeyHandler | KeyHandler[]
   ): {
-    startListening: () => void
-    stopListening: () => void
+    readonly isActive: Readonly<Ref<boolean>>
+    start: () => void
+    stop: () => void
   }
   ```
 
@@ -114,12 +115,13 @@ The `useKeydown` composable registers keyboard event handlers on the document wi
 
 - **Returns**
 
-  - `startListening()`: Manually start listening for keyboard events
-  - `stopListening()`: Manually stop listening for keyboard events
+  - `isActive`: Readonly ref indicating whether the listener is currently active
+  - `start()`: Manually start listening for keyboard events
+  - `stop()`: Manually stop listening for keyboard events
 
 - **Example**
   ```ts
-  const { startListening, stopListening } = useKeydown({
+  const { isActive, start, stop } = useKeydown({
     key: 'Enter',
     handler: (event) => {
       console.log('Enter pressed!', event)
@@ -128,6 +130,7 @@ The `useKeydown` composable registers keyboard event handlers on the document wi
   })
 
   // Manually control listening
-  stopListening()
-  startListening()
+  stop()
+  start()
+  console.log(isActive.value) // true
   ```
