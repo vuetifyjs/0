@@ -7,4 +7,5 @@ export const SUPPORTS_MUTATION_OBSERVER = IN_BROWSER && 'MutationObserver' in wi
 
 export const version = __VERSION__
 
+/* v8 ignore next -- build-time constant, __DEV__ short-circuits in tests */
 export const __LOGGER_ENABLED__ = __DEV__ || __VITE_LOGGER_ENABLED__ === 'true'

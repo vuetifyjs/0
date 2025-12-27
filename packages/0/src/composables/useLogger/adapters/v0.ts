@@ -70,6 +70,7 @@ export class Vuetify0LoggerAdapter implements LoggerAdapter {
 
     const now = new Date()
 
+    /* v8 ignore next -- defensive fallback, toTimeString always returns valid format */
     return now.toTimeString().split(' ')[0] ?? ''
   }
 
@@ -86,6 +87,7 @@ export class Vuetify0LoggerAdapter implements LoggerAdapter {
       silent: '',
     }
 
+    /* v8 ignore next -- LogLevel union is exhaustive */
     return styles[level] || ''
   }
 

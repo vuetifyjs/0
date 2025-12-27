@@ -91,11 +91,13 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
   upsert (styles: string): void {
     if (!IN_BROWSER) return
 
-    let styleEl = document.querySelector(`#${this.stylesheetId}`) as HTMLStyleElement | null
+    const selector = this.stylesheetId.startsWith('#') ? this.stylesheetId : `#${this.stylesheetId}`
+    const id = this.stylesheetId.startsWith('#') ? this.stylesheetId.slice(1) : this.stylesheetId
+    let styleEl = document.querySelector(selector) as HTMLStyleElement | null
 
     if (!styleEl) {
       styleEl = document.createElement('style')
-      styleEl.id = this.stylesheetId.startsWith('#') ? this.stylesheetId.slice(1) : this.stylesheetId
+      styleEl.id = id
 
       if (this.cspNonce) styleEl.setAttribute('nonce', this.cspNonce)
 
