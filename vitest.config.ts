@@ -8,7 +8,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['packages/0/src/**/*.ts'],
+      include: ['packages/0/src/**/*.ts', 'packages/0/src/**/*.vue'],
       exclude: [
         '**/*.test.ts',
         '**/*.spec.ts',
@@ -20,6 +20,7 @@ export default defineConfig({
         // Barrel re-exports only (not implementation files)
         'packages/0/src/index.ts',
         'packages/0/src/*/index.ts',
+        'packages/0/src/components/*/index.ts',
         'packages/0/src/*/*/adapters/index.ts',
       ],
     },

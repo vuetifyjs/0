@@ -1,74 +1,74 @@
 {
   "Atom": {
     "coverage": {
-      "statements": 0,
-      "functions": null,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Avatar": {
     "coverage": {
       "statements": 100,
-      "functions": null,
+      "functions": 100,
       "branches": 0,
-      "overall": 60
+      "overall": 80
     }
   },
   "ExpansionPanel": {
     "coverage": {
       "statements": 100,
-      "functions": null,
-      "branches": 0,
-      "overall": 60
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Group": {
     "coverage": {
       "statements": 100,
-      "functions": null,
-      "branches": 0,
-      "overall": 60
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Pagination": {
     "coverage": {
-      "statements": 100,
-      "functions": null,
-      "branches": 0,
-      "overall": 60
+      "statements": 89.5,
+      "functions": 83.3,
+      "branches": 100,
+      "overall": 89.7
     }
   },
   "Popover": {
     "coverage": {
       "statements": 100,
-      "functions": null,
-      "branches": 0,
-      "overall": 60
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Selection": {
     "coverage": {
       "statements": 100,
-      "functions": null,
-      "branches": 0,
-      "overall": 60
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Single": {
     "coverage": {
       "statements": 100,
-      "functions": null,
-      "branches": 0,
-      "overall": 60
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Step": {
     "coverage": {
       "statements": 100,
-      "functions": null,
-      "branches": 0,
-      "overall": 60
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createContext": {
