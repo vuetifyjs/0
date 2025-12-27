@@ -282,6 +282,9 @@ export function isNaN (item: unknown): item is number {
  * mergeDeep({ arr: [1, 2] }, { arr: [3] }) // { arr: [3] }
  * ```
  */
+// Keys that could lead to prototype pollution
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
 /* #__NO_SIDE_EFFECTS__ */
 export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<T>[]): T {
   if (sources.length === 0) return target
@@ -291,22 +294,23 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
   // Ensure both target and source are objects before attempting to merge
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
-      // Check if the key exists in the source and is an own property
-      if (Object.prototype.hasOwnProperty.call(source, key)) {
-        const sourceValue = source[key]
-        const targetValue = (target as Record<string, unknown>)[key]
+      // Skip prototype pollution vectors and non-own properties
+      if (UNSAFE_KEYS.has(key)) continue
+      if (!Object.prototype.hasOwnProperty.call(source, key)) continue
 
-        if (isObject(sourceValue)) {
-          if (!isObject(targetValue)) {
-            // If targetValue is not an object, initialize it as an empty object
-            Object.assign(target, { [key]: {} })
-          }
-          // Recursively merge
-          mergeDeep(targetValue as object, sourceValue as object)
-        } else {
-          // Directly assign primitive values or arrays
-          Object.assign(target, { [key]: sourceValue })
+      const sourceValue = source[key]
+      const targetValue = (target as Record<string, unknown>)[key]
+
+      if (isObject(sourceValue)) {
+        if (!isObject(targetValue)) {
+          // If targetValue is not an object, initialize it as an empty object
+          Object.assign(target, { [key]: {} })
         }
+        // Recursively merge using fresh reference from target
+        mergeDeep((target as Record<string, unknown>)[key] as object, sourceValue as object)
+      } else {
+        // Directly assign primitive values or arrays
+        Object.assign(target, { [key]: sourceValue })
       }
     }
   }
