@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   // Utilities
   import { computed, ref, toRef, useId } from 'vue'
-  import { useBin } from '@/composables/bin'
+  import { getBinUrl } from '@/composables/bin'
   import { usePlayground } from '@/composables/playground'
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -70,7 +70,7 @@
       <div class="absolute top-3 right-3 flex gap-1">
         <a
           class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
-          :href="useBin(code!, 'vue', title || fileName)"
+          :href="getBinUrl(code!, 'vue', title || fileName)"
           rel="noopener"
           target="_blank"
           title="Open in Vuetify Bin"

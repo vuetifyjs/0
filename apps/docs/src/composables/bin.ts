@@ -9,7 +9,7 @@ function compressAndEncode (str: string) {
   return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-const languageMap: Record<string, string> = {
+const BIN_LANGUAGE_MAP: Record<string, string> = {
   js: 'javascript',
   ts: 'typescript',
   vue: 'vue',
@@ -22,9 +22,9 @@ const languageMap: Record<string, string> = {
   bash: 'shell',
 }
 
-export function useBin (code: string, language: string, title?: string) {
+export function getBinUrl (code: string, language: string, title?: string) {
   const hash = compressAndEncode(code)
-  const lang = languageMap[language] ?? language
+  const lang = BIN_LANGUAGE_MAP[language] ?? language
   const params = new URLSearchParams({ code: hash, lang })
   if (title) params.set('title', title)
   return `https://bin.vuetifyjs.com?${params}`

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  //
+  import DocsAsk from '@/components/docs/DocsAsk.vue'
 </script>
 
 <template>
@@ -8,4 +8,6 @@
   <AppBar />
   <AppMain />
   <AppFooter />
+
+  <DocsAsk />
 </template>
