@@ -6,6 +6,9 @@
 </div>
 
 <p align="center">
+  <a href="https://codecov.io/github/vuetifyjs/0">
+    <img src="https://img.shields.io/codecov/c/github/vuetifyjs/0" alt="Coverage">
+  </a>
   <a href="https://www.npmjs.com/package/@vuetify/v0">
     <img src="https://img.shields.io/npm/dt/@vuetify/v0.svg" alt="Downloads">
   </a>
