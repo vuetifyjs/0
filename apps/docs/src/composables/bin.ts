@@ -1,7 +1,7 @@
 // Utilities
 import { zlibSync } from 'fflate'
 
-export function compressAndEncode (str: string) {
+function compressAndEncode (str: string) {
   const u8 = new TextEncoder().encode(str)
   const compressed = zlibSync(u8)
   const binary = String.fromCodePoint(...compressed)
@@ -9,7 +9,7 @@ export function compressAndEncode (str: string) {
   return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-export const BIN_LANGUAGE_MAP: Record<string, string> = {
+const BIN_LANGUAGE_MAP: Record<string, string> = {
   js: 'javascript',
   ts: 'typescript',
   vue: 'vue',
