@@ -40,8 +40,9 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>) {
       renderer: {
         code ({ text, lang }) {
           const language = lang || 'text'
+          let highlighted: string
           try {
-            return hl.codeToHtml(text, {
+            highlighted = hl.codeToHtml(text, {
               lang: language,
               themes: {
                 light: 'github-light-default',
@@ -51,8 +52,13 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>) {
             })
           } catch {
             // Fallback for unsupported languages
-            return `<pre class="shiki"><code>${escapeHtml(text)}</code></pre>`
+            highlighted = `<pre class="shiki"><code>${escapeHtml(text)}</code></pre>`
           }
+
+          // Encode code for DocsMarkup component mounting (browser-safe base64)
+          const encodedCode = btoa(text)
+
+          return `<div data-markup data-code="${encodedCode}" data-language="${escapeHtml(language)}">${highlighted}</div>`
         },
       },
     })

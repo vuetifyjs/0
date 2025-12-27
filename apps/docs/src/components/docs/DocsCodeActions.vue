@@ -1,6 +1,6 @@
 <script lang="ts" setup>
   // Composables
-  import { useBin } from '@/composables/bin'
+  import { getBinUrl } from '@/composables/bin'
   import { usePlayground } from '@/composables/playground'
   import { useClipboard } from '@/composables/useClipboard'
 
@@ -20,7 +20,7 @@
   }
 
   function openInBin () {
-    const url = useBin(props.code, props.language || 'markdown', props.title)
+    const url = getBinUrl(props.code, props.language || 'markdown', props.title)
     window.open(url, '_blank')
   }
 

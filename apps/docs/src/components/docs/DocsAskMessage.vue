@@ -1,9 +1,12 @@
 <script lang="ts" setup>
+  // Components
+  import DocsMarkup from './DocsMarkup.vue'
+
   // Composables
   import { useMarkdown } from '@/composables/useMarkdown'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { getCurrentInstance, h, nextTick, render, toRef, useTemplateRef, watch } from 'vue'
 
   const props = defineProps<{
     role: 'user' | 'assistant'
@@ -14,6 +17,39 @@
   const isUser = toRef(() => props.role === 'user')
   const isAssistant = toRef(() => props.role === 'assistant')
   const { html } = useMarkdown(toRef(() => isAssistant.value ? props.content : undefined))
+
+  const contentRef = useTemplateRef<HTMLElement>('content')
+  const appContext = getCurrentInstance()?.appContext
+
+  watch(html, async () => {
+    await nextTick()
+    mountMarkupComponents()
+  })
+
+  function mountMarkupComponents () {
+    if (!contentRef.value) return
+
+    const placeholders = contentRef.value.querySelectorAll<HTMLElement>('[data-markup]')
+    for (const el of placeholders) {
+      const code = el.dataset.code
+      const language = el.dataset.language
+      if (!code) continue
+
+      // Get the highlighted content to pass as slot
+      const highlighted = el.innerHTML
+
+      // Create wrapper for the component
+      const wrapper = document.createElement('div')
+      el.replaceWith(wrapper)
+
+      // Mount DocsMarkup with app context for icons/plugins
+      const vnode = h(DocsMarkup, { code, language }, {
+        default: () => h('div', { innerHTML: highlighted }),
+      })
+      vnode.appContext = appContext ?? null
+      render(vnode, wrapper)
+    }
+  }
 </script>
 
 <template>
@@ -33,6 +69,7 @@
     <!-- Rendered markdown -->
     <div
       v-if="html"
+      ref="content"
       class="markdown-content"
       v-html="html"
     />
@@ -121,5 +158,12 @@
     padding-left: 1em;
     margin: 0.5em 0;
     opacity: 0.8;
+  }
+  .markdown-content :deep(.docs-markup) {
+    margin: 0.5em 0;
+  }
+  .markdown-content :deep(.docs-markup pre) {
+    padding-top: 2.5rem;
+    padding-right: 5rem;
   }
 </style>
