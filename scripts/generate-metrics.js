@@ -72,15 +72,48 @@ function formatTime (ms) {
 }
 
 /**
- * Determine performance tier based on mean execution time
- * @param {number} ms - Mean time in milliseconds
- * @returns {'blazing' | 'fast' | 'good' | null}
+ * Detect complexity from benchmark name
+ * @param {string} name - Benchmark name
+ * @returns {'O(1)' | 'O(n)' | 'O(n²)'}
  */
-function getTier (ms) {
-  if (ms < 0.001) return 'blazing' // < 1μs
-  if (ms < 0.1) return 'fast' // < 100μs
-  if (ms < 1) return 'good' // < 1ms
-  return null
+function detectComplexity (name) {
+  const lower = name.toLowerCase()
+
+  // O(1) indicators: single item operations
+  if (/single|one\s+(item|query|key)/.test(lower)) return 'O(1)'
+
+  // O(n²) indicators: nested operations
+  if (/nested|recursive|all.*all/.test(lower)) return 'O(n²)'
+
+  // O(n) indicators: batch operations with item counts
+  if (/\d+[,\d]*\s*(items?|objects?|entries|elements)/.test(lower)) return 'O(n)'
+  if (/all\s+(items?|keys?)/.test(lower)) return 'O(n)'
+
+  // Default to O(n) for safety
+  return 'O(n)'
+}
+
+/**
+ * Determine performance tier based on throughput and complexity
+ * @param {number} hz - Operations per second
+ * @param {string} name - Benchmark name for complexity detection
+ * @returns {'blazing' | 'fast' | 'good'}
+ */
+function getTier (hz, name) {
+  const complexity = detectComplexity(name)
+
+  // Thresholds based on complexity
+  const thresholds = {
+    'O(1)': { blazing: 100_000, fast: 10_000 },
+    'O(n)': { blazing: 10_000, fast: 1000 },
+    'O(n²)': { blazing: 1000, fast: 100 },
+  }
+
+  const { blazing, fast } = thresholds[complexity]
+
+  if (hz >= blazing) return 'blazing'
+  if (hz >= fast) return 'fast'
+  return 'good'
 }
 
 function main () {
@@ -170,7 +203,7 @@ function main () {
           hzLabel: formatHz(fastestOverall.hz),
           mean: fastestOverall.mean,
           meanLabel: formatTime(fastestOverall.mean),
-          tier: getTier(fastestOverall.mean),
+          tier: getTier(fastestOverall.hz, fastestOverall.name),
         }
       }
     }

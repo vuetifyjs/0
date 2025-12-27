@@ -4,6 +4,8 @@
 
 <template>
   <section id="backmatter">
+    <DocsBenchmarks />
+
     <DocsBackToTop />
 
     <DocsNavigator />

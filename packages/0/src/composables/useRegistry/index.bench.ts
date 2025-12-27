@@ -6,7 +6,7 @@ import { useRegistry } from './index'
 
 describe('useRegistry benchmarks', () => {
   describe('registration', () => {
-    bench('register 1000 items (explicit values)', () => {
+    bench('Register 1,000 items (explicit values)', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -14,7 +14,7 @@ describe('useRegistry benchmarks', () => {
       }
     })
 
-    bench('register 1000 items (index values)', () => {
+    bench('Register 1,000 items (index values)', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -22,7 +22,7 @@ describe('useRegistry benchmarks', () => {
       }
     })
 
-    bench('onboard 1000 items (explicit values)', () => {
+    bench('Onboard 1,000 items (explicit values)', () => {
       const registry = useRegistry()
       const items = Array.from({ length: 1000 }, (_, i) => ({
         id: `item-${i}`,
@@ -32,7 +32,7 @@ describe('useRegistry benchmarks', () => {
       registry.onboard(items)
     })
 
-    bench('unregister 1000 items (explicit values)', () => {
+    bench('Register and unregister 1,000 items (explicit values)', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -44,7 +44,7 @@ describe('useRegistry benchmarks', () => {
       }
     })
 
-    bench('unregister 1000 items (index values)', () => {
+    bench('Register and unregister 1,000 items (index values)', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -56,7 +56,7 @@ describe('useRegistry benchmarks', () => {
       }
     })
 
-    bench('offboard 1000 items (explicit values)', () => {
+    bench('Register and offboard 1,000 items (explicit values)', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -67,7 +67,7 @@ describe('useRegistry benchmarks', () => {
       registry.offboard(ids)
     })
 
-    bench('offboard 1000 items (index values)', () => {
+    bench('Register and offboard 1,000 items (index values)', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -80,7 +80,7 @@ describe('useRegistry benchmarks', () => {
   })
 
   describe('lookup operations', () => {
-    bench('get by id', () => {
+    bench('Register and get 1,000 items by id', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -92,7 +92,7 @@ describe('useRegistry benchmarks', () => {
       }
     })
 
-    bench('lookup by index', () => {
+    bench('Register and lookup 1,000 items by index', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -104,7 +104,7 @@ describe('useRegistry benchmarks', () => {
       }
     })
 
-    bench('browse by value', () => {
+    bench('Register and browse 1,000 items by value', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -116,7 +116,7 @@ describe('useRegistry benchmarks', () => {
       }
     })
 
-    bench('has operations', () => {
+    bench('Register and check existence of 1,000 items', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -130,7 +130,7 @@ describe('useRegistry benchmarks', () => {
   })
 
   describe('management operations', () => {
-    bench('clear operations', () => {
+    bench('Register 1,000 items then clear', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {
@@ -140,7 +140,7 @@ describe('useRegistry benchmarks', () => {
       registry.clear()
     })
 
-    bench('reindex operations', () => {
+    bench('Register 1,000 items then reindex', () => {
       const registry = useRegistry()
 
       for (let i = 0; i < 1000; i++) {

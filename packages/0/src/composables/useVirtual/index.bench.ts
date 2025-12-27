@@ -33,24 +33,24 @@ vi.mock('#v0/constants/globals', async () => {
 
 describe('useVirtual benchmarks', () => {
   describe('initialization', () => {
-    bench('initialize with 1,000 items', () => {
+    bench('Initialize with 1,000 items', () => {
       const items = ref(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i })))
       useVirtual(items, { itemHeight: 50, height: 600 })
     })
 
-    bench('initialize with 10,000 items', () => {
+    bench('Initialize with 10,000 items', () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i })))
       useVirtual(items, { itemHeight: 50, height: 600 })
     })
 
-    bench('initialize with 100,000 items', () => {
+    bench('Initialize with 100,000 items', () => {
       const items = ref(Array.from({ length: 100_000 }, (_, i) => ({ id: i, value: i })))
       useVirtual(items, { itemHeight: 50, height: 600 })
     })
   })
 
   describe('offset calculation (rebuild)', () => {
-    bench('rebuild offsets for 1,000 items', () => {
+    bench('Initialize and replace 1,000 items', () => {
       const items = ref(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i })))
       useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -58,14 +58,14 @@ describe('useVirtual benchmarks', () => {
       items.value = Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i * 2 }))
     })
 
-    bench('rebuild offsets for 10,000 items', () => {
+    bench('Initialize and replace 10,000 items', () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i })))
       useVirtual(items, { itemHeight: 50, height: 600 })
 
       items.value = Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i * 2 }))
     })
 
-    bench('rebuild offsets with mixed heights', () => {
+    bench('Resize first 100 items with variable heights (1,000 items)', () => {
       const items = ref(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -77,7 +77,7 @@ describe('useVirtual benchmarks', () => {
   })
 
   describe('binary search (findIndex)', () => {
-    bench('binary search in 10,000 offsets - start', () => {
+    bench('Scroll to start position (10,000 items)', () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -91,7 +91,7 @@ describe('useVirtual benchmarks', () => {
       virtual.scroll()
     })
 
-    bench('binary search in 10,000 offsets - middle', () => {
+    bench('Scroll to middle position (10,000 items)', () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -104,7 +104,7 @@ describe('useVirtual benchmarks', () => {
       virtual.scroll()
     })
 
-    bench('binary search in 10,000 offsets - end', () => {
+    bench('Scroll to end position (10,000 items)', () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -119,7 +119,7 @@ describe('useVirtual benchmarks', () => {
   })
 
   describe('scroll operations', () => {
-    bench('handle scroll event (1,000 items)', () => {
+    bench('Process 100 scroll events (1,000 items)', () => {
       const items = ref(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -136,7 +136,7 @@ describe('useVirtual benchmarks', () => {
       }
     })
 
-    bench('handle scroll event (10,000 items)', () => {
+    bench('Process 100 scroll events (10,000 items)', () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -155,7 +155,7 @@ describe('useVirtual benchmarks', () => {
   })
 
   describe('scrollToIndex operations', () => {
-    bench('scroll to various indices (10,000 items)', () => {
+    bench('Call scrollTo() 5 times (10,000 items)', () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -175,14 +175,14 @@ describe('useVirtual benchmarks', () => {
   })
 
   describe('item resize operations', () => {
-    bench('resize single item', () => {
+    bench('Resize single item (1,000 items)', () => {
       const items = ref(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
       virtual.resize(100, 150)
     })
 
-    bench('resize multiple items sequentially', () => {
+    bench('Resize 100 items sequentially (1,000 items)', () => {
       const items = ref(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -191,7 +191,7 @@ describe('useVirtual benchmarks', () => {
       }
     })
 
-    bench('dynamic heights (no initial height)', () => {
+    bench('Resize 100 items without initial height (1,000 items)', () => {
       const items = ref(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: null, height: 600 })
 
@@ -202,7 +202,7 @@ describe('useVirtual benchmarks', () => {
   })
 
   describe('computed items', () => {
-    bench('access computed items (1,000 total)', () => {
+    bench('Access computed items 100 times (1,000 items)', () => {
       const items = ref(Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 
@@ -219,7 +219,7 @@ describe('useVirtual benchmarks', () => {
       }
     })
 
-    bench('access computed items (10,000 total)', () => {
+    bench('Access computed items 100 times (10,000 items)', () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => ({ id: i, value: i })))
       const virtual = useVirtual(items, { itemHeight: 50, height: 600 })
 

@@ -29,6 +29,7 @@ declare module 'vue' {
     DocsAskSheet: typeof import('./components/docs/DocsAskSheet.vue')['default']
     DocsBackmatter: typeof import('./components/docs/DocsBackmatter.vue')['default']
     DocsBackToTop: typeof import('./components/docs/DocsBackToTop.vue')['default']
+    DocsBenchmarks: typeof import('./components/docs/DocsBenchmarks.vue')['default']
     DocsCodeActions: typeof import('./components/docs/DocsCodeActions.vue')['default']
     DocsCodeGroup: typeof import('./components/docs/DocsCodeGroup.vue')['default']
     DocsExample: typeof import('./components/docs/DocsExample.vue')['default']

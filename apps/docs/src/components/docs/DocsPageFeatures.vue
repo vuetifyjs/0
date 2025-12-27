@@ -83,11 +83,11 @@
     }
   })
 
-  // Tier display config
+  // Tier display config (temperature metaphor: blazing hot → warm → cool)
   const tierConfig = {
-    blazing: { icon: 'benchmark-blazing', color: 'text-success' },
-    fast: { icon: 'benchmark-fast', color: 'text-info' },
-    good: { icon: 'benchmark-good', color: 'text-warning' },
+    blazing: { icon: 'benchmark-blazing', color: 'text-error', label: 'Blazing Fast' },
+    fast: { icon: 'benchmark-fast', color: 'text-warning', label: 'Fast' },
+    good: { icon: 'benchmark-good', color: 'text-info', label: 'Good' },
   } as const
 
   // Benchmark data (fastest operation)
@@ -100,8 +100,8 @@
     const config = tier ? tierConfig[tier] : null
 
     return {
-      label: fastest.meanLabel,
-      title: `${fastest.hzLabel} — ${fastest.name}`,
+      label: config?.label ?? 'Benchmarked',
+      title: 'This feature includes performance benchmarking',
       icon: config?.icon ?? 'benchmark',
       color: config?.color ?? 'text-accent',
     }
@@ -112,12 +112,6 @@
     const github = props.frontmatter?.features?.github
     if (!github || !itemMetrics.value?.coverage) return null
     return `${base}/blob/master/packages/0/src${github}index.test.ts`
-  })
-
-  const benchFileLink = toRef(() => {
-    const github = props.frontmatter?.features?.github
-    if (!github || !itemMetrics.value?.benchmarks) return null
-    return `${base}/blob/master/packages/0/src${github}index.bench.ts`
   })
 
   // Static badges from frontmatter
@@ -237,9 +231,7 @@
 
       <a
         v-if="benchmark"
-        :href="benchFileLink"
-        rel="noopener noreferrer"
-        target="_blank"
+        href="#benchmarks"
       >
         <AppChip
           :color="benchmark.color"
