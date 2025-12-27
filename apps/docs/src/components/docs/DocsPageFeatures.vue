@@ -231,7 +231,7 @@
           :color="coverage.color"
           icon="test"
           :text="coverage.label"
-          :title="`Statement: ${itemMetrics?.coverage?.statements}%, Functions: ${itemMetrics?.coverage?.functions}%, Branches: ${itemMetrics?.coverage?.branches}%`"
+          :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
         />
       </a>
 
