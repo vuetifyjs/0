@@ -110,12 +110,18 @@ function main () {
       // Use highest coverage file if multiple (e.g., index.ts vs helpers.ts)
       if (!metrics[name]?.coverage || statements.pct > metrics[name].coverage.statements) {
         metrics[name] = metrics[name] || {}
+
+        // When v8 doesn't detect functions (total=0), use statements+branches only
+        // This avoids penalizing files where v8 instrumentation fails
+        const overall = functions.total === 0
+          ? Math.round((statements.pct * 0.6 + branches.pct * 0.4) * 10) / 10
+          : Math.round((statements.pct * 0.5 + functions.pct * 0.3 + branches.pct * 0.2) * 10) / 10
+
         metrics[name].coverage = {
           statements: statements.pct,
-          functions: functions.pct,
+          functions: functions.total === 0 ? null : functions.pct,
           branches: branches.pct,
-          // Overall score (weighted average)
-          overall: Math.round((statements.pct * 0.5 + functions.pct * 0.3 + branches.pct * 0.2) * 10) / 10,
+          overall,
         }
       }
     }

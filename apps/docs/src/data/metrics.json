@@ -18,9 +18,9 @@
   "createContext": {
     "coverage": {
       "statements": 100,
-      "functions": 0,
+      "functions": null,
       "branches": 100,
-      "overall": 70
+      "overall": 100
     }
   },
   "createPlugin": {
@@ -42,9 +42,9 @@
   "toArray": {
     "coverage": {
       "statements": 100,
-      "functions": 0,
+      "functions": null,
       "branches": 100,
-      "overall": 70
+      "overall": 100
     }
   },
   "toReactive": {
@@ -82,17 +82,17 @@
   "useFeatures": {
     "coverage": {
       "statements": 95.8,
-      "functions": 0,
+      "functions": null,
       "branches": 100,
-      "overall": 67.9
+      "overall": 97.5
     }
   },
   "useFilter": {
     "coverage": {
       "statements": 82.2,
       "functions": 92.9,
-      "branches": 75,
-      "overall": 84
+      "branches": 71.4,
+      "overall": 83.3
     },
     "benchmarks": {
       "primitive filtering": {
@@ -212,9 +212,9 @@
   "usePermissions": {
     "coverage": {
       "statements": 85,
-      "functions": 0,
+      "functions": null,
       "branches": 84.6,
-      "overall": 59.4
+      "overall": 84.8
     }
   },
   "useProxyModel": {
@@ -310,9 +310,9 @@
   "useStep": {
     "coverage": {
       "statements": 78.9,
-      "functions": 0,
+      "functions": null,
       "branches": 80,
-      "overall": 55.5
+      "overall": 79.3
     }
   },
   "useStorage": {
@@ -334,9 +334,9 @@
   "useTimeline": {
     "coverage": {
       "statements": 82.5,
-      "functions": 0,
+      "functions": null,
       "branches": 60,
-      "overall": 53.3
+      "overall": 73.5
     }
   },
   "useToggleScope": {
@@ -349,10 +349,10 @@
   },
   "useTokens": {
     "coverage": {
-      "statements": 83.5,
-      "functions": 0,
+      "statements": 97.6,
+      "functions": null,
       "branches": 96.6,
-      "overall": 61.1
+      "overall": 97.2
     },
     "benchmarks": {
       "registration operations": {
