@@ -8,7 +8,7 @@ meta:
 features:
   category: Utility
   label: 'U: toReactive'
-  github: /utilities/toReactive/
+  github: /composables/toReactive/
 ---
 
 # toReactive
