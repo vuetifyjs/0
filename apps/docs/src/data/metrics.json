@@ -1,18 +1,74 @@
 {
   "Atom": {
     "coverage": {
+      "statements": 0,
+      "functions": null,
+      "branches": 0,
+      "overall": 0
+    }
+  },
+  "Avatar": {
+    "coverage": {
       "statements": 100,
-      "functions": 100,
-      "branches": 100,
-      "overall": 100
+      "functions": null,
+      "branches": 0,
+      "overall": 60
     }
   },
   "ExpansionPanel": {
     "coverage": {
       "statements": 100,
-      "functions": 100,
-      "branches": 100,
-      "overall": 100
+      "functions": null,
+      "branches": 0,
+      "overall": 60
+    }
+  },
+  "Group": {
+    "coverage": {
+      "statements": 100,
+      "functions": null,
+      "branches": 0,
+      "overall": 60
+    }
+  },
+  "Pagination": {
+    "coverage": {
+      "statements": 100,
+      "functions": null,
+      "branches": 0,
+      "overall": 60
+    }
+  },
+  "Popover": {
+    "coverage": {
+      "statements": 100,
+      "functions": null,
+      "branches": 0,
+      "overall": 60
+    }
+  },
+  "Selection": {
+    "coverage": {
+      "statements": 100,
+      "functions": null,
+      "branches": 0,
+      "overall": 60
+    }
+  },
+  "Single": {
+    "coverage": {
+      "statements": 100,
+      "functions": null,
+      "branches": 0,
+      "overall": 60
+    }
+  },
+  "Step": {
+    "coverage": {
+      "statements": 100,
+      "functions": null,
+      "branches": 0,
+      "overall": 60
     }
   },
   "createContext": {
@@ -57,10 +113,10 @@
   },
   "useBreakpoints": {
     "coverage": {
-      "statements": 83.3,
-      "functions": 40,
-      "branches": 75,
-      "overall": 68.7
+      "statements": 94.9,
+      "functions": 80,
+      "branches": 91.7,
+      "overall": 89.8
     }
   },
   "useClickOutside": {
@@ -89,10 +145,10 @@
   },
   "useFilter": {
     "coverage": {
-      "statements": 82.2,
+      "statements": 95.6,
       "functions": 92.9,
-      "branches": 71.4,
-      "overall": 83.3
+      "branches": 100,
+      "overall": 95.7
     },
     "benchmarks": {
       "primitive filtering": {
@@ -131,18 +187,18 @@
   },
   "useForm": {
     "coverage": {
-      "statements": 89.9,
+      "statements": 100,
       "functions": 100,
-      "branches": 76.5,
-      "overall": 90.3
+      "branches": 100,
+      "overall": 100
     }
   },
   "useGroup": {
     "coverage": {
-      "statements": 87.8,
-      "functions": 84.2,
-      "branches": 75,
-      "overall": 84.2
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "useHydration": {
@@ -155,10 +211,10 @@
   },
   "useIntersectionObserver": {
     "coverage": {
-      "statements": 87.8,
-      "functions": 80,
+      "statements": 100,
+      "functions": 100,
       "branches": 100,
-      "overall": 87.9
+      "overall": 100
     }
   },
   "useKeydown": {
@@ -171,18 +227,18 @@
   },
   "useLocale": {
     "coverage": {
-      "statements": 75,
-      "functions": 50,
-      "branches": 75,
-      "overall": 67.5
+      "statements": 95,
+      "functions": 100,
+      "branches": 95,
+      "overall": 96.5
     }
   },
   "useLogger": {
     "coverage": {
-      "statements": 75,
-      "functions": 9.1,
-      "branches": 90.5,
-      "overall": 58.3
+      "statements": 94.2,
+      "functions": 100,
+      "branches": 100,
+      "overall": 97.1
     }
   },
   "useMutationObserver": {
@@ -203,18 +259,18 @@
   },
   "usePagination": {
     "coverage": {
-      "statements": 87.7,
+      "statements": 96.9,
       "functions": 100,
-      "branches": 75,
-      "overall": 88.9
+      "branches": 91.7,
+      "overall": 96.8
     }
   },
   "usePermissions": {
     "coverage": {
-      "statements": 85,
+      "statements": 95,
       "functions": null,
-      "branches": 84.6,
-      "overall": 84.8
+      "branches": 100,
+      "overall": 97
     }
   },
   "useProxyModel": {
@@ -301,26 +357,26 @@
   },
   "useSingle": {
     "coverage": {
-      "statements": 75,
+      "statements": 100,
       "functions": 100,
-      "branches": 63.6,
-      "overall": 80.2
+      "branches": 100,
+      "overall": 100
     }
   },
   "useStep": {
     "coverage": {
-      "statements": 78.9,
+      "statements": 97.4,
       "functions": null,
-      "branches": 80,
-      "overall": 79.3
+      "branches": 100,
+      "overall": 98.4
     }
   },
   "useStorage": {
     "coverage": {
-      "statements": 74.4,
+      "statements": 97.7,
       "functions": 100,
-      "branches": 41.7,
-      "overall": 75.5
+      "branches": 100,
+      "overall": 98.9
     }
   },
   "useTheme": {
@@ -333,10 +389,10 @@
   },
   "useTimeline": {
     "coverage": {
-      "statements": 82.5,
+      "statements": 97.5,
       "functions": null,
-      "branches": 60,
-      "overall": 73.5
+      "branches": 100,
+      "overall": 98.5
     }
   },
   "useToggleScope": {
@@ -349,10 +405,10 @@
   },
   "useTokens": {
     "coverage": {
-      "statements": 97.6,
+      "statements": 98.8,
       "functions": null,
-      "branches": 96.6,
-      "overall": 97.2
+      "branches": 100,
+      "overall": 99.3
     },
     "benchmarks": {
       "registration operations": {
@@ -375,10 +431,10 @@
   },
   "useVirtual": {
     "coverage": {
-      "statements": 84.5,
-      "functions": 88.9,
+      "statements": 88.7,
+      "functions": 100,
       "branches": 92.6,
-      "overall": 87.4
+      "overall": 92.9
     },
     "benchmarks": {
       "initialization": {
