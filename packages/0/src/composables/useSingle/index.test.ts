@@ -1,8 +1,21 @@
-// Utilities
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Composables
-import { createSingle } from './index'
+// Utilities
+import { inject, provide } from 'vue'
+
+import { createSingle, createSingleContext, useSingle } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('useSingle', () => {
   describe('single selection enforcement', () => {
@@ -390,5 +403,134 @@ describe('useSingle', () => {
       // item-3 should still be selected
       expect(single.selectedId.value).toBe('item-3')
     })
+  })
+})
+
+describe('createSingleContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createSingleContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useSingleContext
+    expect(typeof result[1]).toBe('function') // provideSingleContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, provideSingleContext, context] = createSingleContext()
+
+    provideSingleContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:single', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, provideSingleContext, context] = createSingleContext({
+      namespace: 'my-tabs',
+    })
+
+    provideSingleContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-tabs', context)
+  })
+
+  it('should create a functional single selection context', () => {
+    const [,, context] = createSingleContext()
+
+    context.onboard([
+      { id: 'tab-1', value: 'Tab 1' },
+      { id: 'tab-2', value: 'Tab 2' },
+    ])
+
+    context.select('tab-1')
+    expect(context.selectedId.value).toBe('tab-1')
+
+    context.select('tab-2')
+    expect(context.selectedId.value).toBe('tab-2')
+    expect(context.selectedIds.size).toBe(1)
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideSingleContext] = createSingleContext()
+    const customContext = createSingle({ mandatory: true })
+
+    provideSingleContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:single', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, provideSingleContext, context] = createSingleContext()
+
+    provideSingleContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:single', context)
+    expect(mockProvide).not.toHaveBeenCalled()
+  })
+
+  it('should pass options to createSingle', () => {
+    const [,, context] = createSingleContext({
+      mandatory: true,
+    })
+
+    context.onboard([
+      { id: 'item-1', value: 'Item 1' },
+    ])
+
+    context.select('item-1')
+    context.unselect('item-1')
+
+    // Should still be selected due to mandatory
+    expect(context.selectedId.value).toBe('item-1')
+  })
+})
+
+describe('useSingle consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createSingle()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useSingle()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:single', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createSingle()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useSingle('my-tabs')
+
+    expect(mockInject).toHaveBeenCalledWith('my-tabs', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useSingle()).toThrow(
+      'Context "v0:single" not found. Ensure it\'s provided by an ancestor.',
+    )
+  })
+
+  it('should throw with custom namespace in error message', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useSingle('custom-single')).toThrow(
+      'Context "custom-single" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

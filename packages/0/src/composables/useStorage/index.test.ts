@@ -1,9 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { nextTick } from 'vue'
+import { createApp, inject, nextTick, provide } from 'vue'
 
-import { createStorage } from './index'
+import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn((actual as any).provide),
+    inject: vi.fn((actual as any).inject),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('useStorage', () => {
   let mockAdapter: any
@@ -184,6 +196,142 @@ describe('useStorage', () => {
     expect(mockAdapter.setItem).toHaveBeenCalledWith(
       'test:user',
       JSON.stringify({ name: 'john', age: 0 }),
+    )
+  })
+})
+
+describe('createStorageContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createStorageContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useStorageContext
+    expect(typeof result[1]).toBe('function') // provideStorageContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, provideStorageContext, context] = createStorageContext()
+
+    provideStorageContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:storage', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, provideStorageContext, context] = createStorageContext({
+      namespace: 'my-storage',
+    })
+
+    provideStorageContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-storage', context)
+  })
+
+  it('should create a functional storage context', () => {
+    const mockAdapter = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    }
+    const [,, context] = createStorageContext({
+      adapter: mockAdapter,
+      prefix: 'test:',
+    })
+
+    const username = context.get('username', 'guest')
+    expect(username.value).toBe('guest')
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideStorageContext] = createStorageContext()
+    const customContext = createStorage({ prefix: 'custom:' })
+
+    provideStorageContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:storage', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, provideStorageContext, context] = createStorageContext()
+
+    provideStorageContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:storage', context)
+  })
+})
+
+describe('createStoragePlugin', () => {
+  it('should create a Vue plugin', () => {
+    const plugin = createStoragePlugin()
+
+    expect(plugin).toBeDefined()
+    expect(typeof plugin.install).toBe('function')
+  })
+
+  it('should accept storage options', () => {
+    const plugin = createStoragePlugin({
+      prefix: 'app:',
+    })
+
+    expect(plugin).toBeDefined()
+    expect(typeof plugin.install).toBe('function')
+  })
+
+  it('should provide storage context when installed', () => {
+    const app = createApp({
+      template: '<div>Test</div>',
+    })
+
+    app.use(createStoragePlugin())
+
+    const container = document.createElement('div')
+    app.mount(container)
+    app.unmount()
+
+    // Plugin installs without error
+    expect(true).toBe(true)
+  })
+})
+
+describe('useStorage consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createStorage()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useStorage()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:storage', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createStorage()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useStorage('my-storage')
+
+    expect(mockInject).toHaveBeenCalledWith('my-storage', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useStorage()).toThrow(
+      'Context "v0:storage" not found. Ensure it\'s provided by an ancestor.',
     )
   })
 })

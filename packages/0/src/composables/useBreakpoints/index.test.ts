@@ -30,16 +30,16 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 // Mock helpers
-vi.mock('#v0/utilities', () => ({
-  mergeDeep: vi.fn((defaults, options) => ({
-    ...defaults,
-    ...options,
-  })),
-  isNumber: vi.fn(value => typeof value === 'number'),
-  isString: vi.fn(value => typeof value === 'string'),
-  isObject: vi.fn(value => value !== null && typeof value === 'object'),
-  isUndefined: vi.fn(value => value === undefined),
-}))
+vi.mock('#v0/utilities', async importOriginal => {
+  const actual = await importOriginal()
+  return {
+    ...actual as any,
+    mergeDeep: vi.fn((defaults, options) => ({
+      ...defaults,
+      ...options,
+    })),
+  }
+})
 
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
 const mockOnMounted = vi.mocked(onMounted)
@@ -503,6 +503,73 @@ describe('useBreakpoints', () => {
 
       expect(context.name.value).toBe('md')
       expect(context.md.value).toBe(true)
+    })
+  })
+
+  describe('plugin mixin behavior', () => {
+    it('should register mixin on app.mixin during install', () => {
+      const plugin = createBreakpointsPlugin()
+      const mockApp = {
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mixin: vi.fn(),
+      }
+
+      plugin.install(mockApp as any)
+
+      // Mixin should be registered
+      expect(mockApp.mixin).toHaveBeenCalled()
+      const mixinArg = mockApp.mixin.mock.calls[0]![0]
+      expect(mixinArg).toHaveProperty('mounted')
+    })
+
+    it('should skip mixin mounted logic when component has parent', () => {
+      const plugin = createBreakpointsPlugin()
+      let registeredMixin: any
+
+      const mockApp = {
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mixin: vi.fn((mixin: any) => {
+          registeredMixin = mixin
+        }),
+      }
+
+      plugin.install(mockApp as any)
+
+      // Call mounted with a parent
+      const mockComponentWithParent = {
+        $parent: {},
+      }
+
+      // Mounted should return early when $parent exists
+      expect(() => registeredMixin.mounted.call(mockComponentWithParent)).not.toThrow()
+    })
+
+    it('should setup resize listener for root component', () => {
+      const plugin = createBreakpointsPlugin()
+      let registeredMixin: any
+
+      const mockApp = {
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mixin: vi.fn((mixin: any) => {
+          registeredMixin = mixin
+        }),
+      }
+
+      plugin.install(mockApp as any)
+
+      // Call mounted for root component (no parent)
+      const mockRootComponent = {
+        $parent: null,
+      }
+
+      // Mounted should run for root component
+      expect(() => registeredMixin.mounted.call(mockRootComponent)).not.toThrow()
+
+      // useHydration and onScopeDispose should have been called
+      expect(mockUseHydration).toHaveBeenCalled()
     })
   })
 })

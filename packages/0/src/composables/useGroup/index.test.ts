@@ -1,9 +1,21 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { ref } from 'vue'
+import { inject, provide, ref } from 'vue'
 
-import { createGroup } from './index'
+import { createGroup, createGroupContext, useGroup } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('useGroup', () => {
   describe('single ID selection', () => {
@@ -938,5 +950,109 @@ describe('useGroup', () => {
         expect(group.isAllSelected.value).toBe(true)
       })
     })
+  })
+})
+
+describe('createGroupContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createGroupContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useGroupContext
+    expect(typeof result[1]).toBe('function') // provideGroupContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, provideGroupContext, context] = createGroupContext()
+
+    provideGroupContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:group', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, provideGroupContext, context] = createGroupContext({
+      namespace: 'my-selection',
+    })
+
+    provideGroupContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-selection', context)
+  })
+
+  it('should create a functional group context', () => {
+    const [,, context] = createGroupContext()
+
+    context.onboard([
+      { id: 'item-1', value: 'Item 1' },
+      { id: 'item-2', value: 'Item 2' },
+      { id: 'item-3', value: 'Item 3' },
+    ])
+
+    context.selectAll()
+    expect(context.selectedIds.size).toBe(3)
+
+    context.unselectAll()
+    expect(context.selectedIds.size).toBe(0)
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideGroupContext] = createGroupContext()
+    const customContext = createGroup({ mandatory: true })
+
+    provideGroupContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:group', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, provideGroupContext, context] = createGroupContext()
+
+    provideGroupContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:group', context)
+  })
+})
+
+describe('useGroup consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createGroup()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useGroup()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:group', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createGroup()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useGroup('my-selection')
+
+    expect(mockInject).toHaveBeenCalledWith('my-selection', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useGroup()).toThrow(
+      'Context "v0:group" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

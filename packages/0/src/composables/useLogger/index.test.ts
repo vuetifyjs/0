@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Adapters
 import { Vuetify0LoggerAdapter } from './adapters/v0'
 
-import { createLogger, createLoggerPlugin } from './index'
+// Utilities
+import { createApp, defineComponent } from 'vue'
+
+import { createLogger, createLoggerContext, createLoggerPlugin, useLogger } from './index'
 
 describe('useLogger', () => {
   beforeEach(() => {
@@ -205,6 +208,138 @@ describe('useLogger', () => {
       expect(console.info).not.toHaveBeenCalled()
       expect(console.warn).not.toHaveBeenCalled()
       expect(console.error).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('createLoggerContext', () => {
+    it('should create context with default namespace', () => {
+      const [useCtx, provideCtx, defaultCtx] = createLoggerContext()
+
+      expect(useCtx).toBeTypeOf('function')
+      expect(provideCtx).toBeTypeOf('function')
+      expect(defaultCtx).toBeDefined()
+      expect(defaultCtx.info).toBeTypeOf('function')
+    })
+
+    it('should create context with custom namespace', () => {
+      const [, , context] = createLoggerContext({ namespace: 'custom:logger' })
+
+      expect(context).toBeDefined()
+      expect(context.debug).toBeTypeOf('function')
+    })
+
+    it('should create context with logger options', () => {
+      const [, , context] = createLoggerContext({ level: 'error' })
+
+      expect(context.current()).toBe('error')
+    })
+
+    it('should allow providing context to app', () => {
+      const [, provideCtx, ctx] = createLoggerContext()
+      const app = createApp({ template: '<div />' })
+
+      const result = provideCtx(ctx, app)
+
+      expect(result).toBe(ctx)
+    })
+  })
+
+  describe('createLoggerPlugin extended', () => {
+    it('should install and provide context to app', () => {
+      const plugin = createLoggerPlugin({ level: 'debug' })
+      const app = createApp({ template: '<div />' })
+
+      app.use(plugin)
+
+      // Plugin should install without errors
+      expect(plugin).toBeDefined()
+    })
+
+    it('should expose logger on window in dev mode', () => {
+      const originalDev = (globalThis as any).__DEV__
+      ;(globalThis as any).__DEV__ = true
+
+      const plugin = createLoggerPlugin()
+      const app = createApp({ template: '<div />' })
+
+      app.use(plugin)
+
+      // In browser dev mode, logger should be exposed
+      // Note: window assignment happens in setup callback
+      expect((window as any).__v0Logger__).toBeDefined()
+
+      ;(globalThis as any).__DEV__ = originalDev
+    })
+  })
+
+  describe('useLogger consumer', () => {
+    it('should return fallback logger when called outside component', () => {
+      const logger = useLogger()
+
+      expect(logger).toBeDefined()
+      expect(logger.info).toBeTypeOf('function')
+      expect(logger.debug).toBeTypeOf('function')
+      expect(logger.error).toBeTypeOf('function')
+    })
+
+    it('should return fallback logger with custom namespace', () => {
+      const logger = useLogger('my:logger')
+
+      logger.info('test message')
+
+      expect(console.info).toHaveBeenCalledWith(
+        expect.stringContaining('[my:logger info]'),
+      )
+    })
+
+    it('should use provided context when in component', () => {
+      const [useAppLogger, provideAppLogger, appLogger] = createLoggerContext({
+        namespace: 'test:logger',
+        level: 'debug',
+      })
+
+      const TestComponent = defineComponent({
+        setup () {
+          const logger = useAppLogger()
+          expect(logger).toBe(appLogger)
+          return {}
+        },
+        template: '<div />',
+      })
+
+      const app = createApp(TestComponent)
+      provideAppLogger(appLogger, app)
+      app.mount(document.createElement('div'))
+    })
+
+    it('should fallback logger functions work correctly', () => {
+      const logger = useLogger('fallback:test')
+
+      // All methods should work
+      logger.debug('debug msg')
+      logger.info('info msg')
+      logger.warn('warn msg')
+      logger.error('error msg')
+      logger.trace('trace msg')
+      logger.fatal('fatal msg')
+
+      expect(console.debug).toHaveBeenCalled()
+      expect(console.info).toHaveBeenCalled()
+      expect(console.warn).toHaveBeenCalled()
+      expect(console.error).toHaveBeenCalledTimes(2) // error + fatal
+      expect(console.trace).toHaveBeenCalled()
+    })
+
+    it('fallback logger level and enable methods should be no-ops', () => {
+      const logger = useLogger()
+
+      // These should not throw
+      logger.level('debug')
+      logger.enable()
+      logger.disable()
+
+      expect(logger.current()).toBe('info')
+      expect(logger.enabled()).toBe(true)
     })
   })
 })

@@ -1,9 +1,21 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { shallowRef } from 'vue'
+import { inject, provide, shallowRef } from 'vue'
 
-import { createPagination } from './index'
+import { createPagination, createPaginationContext, usePagination } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('usePagination', () => {
   describe('navigation', () => {
@@ -457,5 +469,106 @@ describe('usePagination', () => {
       expect(pagination.items.value.length).toBeLessThan(20)
       expect(pagination.page.value).toBe(500_000)
     })
+  })
+})
+
+describe('createPaginationContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createPaginationContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // usePaginationContext
+    expect(typeof result[1]).toBe('function') // providePaginationContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, providePaginationContext, context] = createPaginationContext()
+
+    providePaginationContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:pagination', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, providePaginationContext, context] = createPaginationContext({
+      namespace: 'my-pagination',
+    })
+
+    providePaginationContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-pagination', context)
+  })
+
+  it('should create a functional pagination context', () => {
+    const [,, context] = createPaginationContext({
+      size: 100,
+      itemsPerPage: 10,
+    })
+
+    expect(context.page.value).toBe(1)
+    expect(context.first).toBeDefined()
+    expect(context.last).toBeDefined()
+    expect(context.next).toBeDefined()
+    expect(context.prev).toBeDefined()
+  })
+
+  it('should allow providing custom context', () => {
+    const [, providePaginationContext] = createPaginationContext()
+    const customContext = createPagination({ size: 50 })
+
+    providePaginationContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:pagination', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, providePaginationContext, context] = createPaginationContext()
+
+    providePaginationContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:pagination', context)
+  })
+})
+
+describe('usePagination consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createPagination()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = usePagination()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:pagination', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createPagination()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = usePagination('my-pagination')
+
+    expect(mockInject).toHaveBeenCalledWith('my-pagination', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => usePagination()).toThrow(
+      'Context "v0:pagination" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

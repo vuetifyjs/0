@@ -3,7 +3,24 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Adapters
 import { Vuetify0LocaleAdapter } from './adapters/v0'
 
-import { createLocale, createLocalePlugin } from './index'
+// Utilities
+import { getCurrentInstance, inject, provide } from 'vue'
+
+import { createLocale, createLocaleContext, createLocalePlugin, useLocale } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+    getCurrentInstance: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
+const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
 
 describe('useLocale', () => {
   describe('createLocale', () => {
@@ -349,5 +366,120 @@ describe('useLocale', () => {
       expect(locale.t('simple')).toBe('Simple text')
       expect(locale.t('withRef')).toBe('Text with Simple text')
     })
+  })
+})
+
+describe('createLocaleContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createLocaleContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useLocaleContext
+    expect(typeof result[1]).toBe('function') // provideLocaleContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, provideLocaleContext, context] = createLocaleContext()
+
+    provideLocaleContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:locale', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, provideLocaleContext, context] = createLocaleContext({
+      namespace: 'my-locale',
+    })
+
+    provideLocaleContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-locale', context)
+  })
+
+  it('should create a functional locale context', () => {
+    const [,, context] = createLocaleContext({
+      messages: {
+        en: { hello: 'Hello' },
+        es: { hello: 'Hola' },
+      },
+      default: 'en',
+    })
+
+    expect(context.t('hello')).toBe('Hello')
+    context.select('es')
+    expect(context.t('hello')).toBe('Hola')
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideLocaleContext] = createLocaleContext()
+    const customContext = createLocale()
+
+    provideLocaleContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:locale', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, provideLocaleContext, context] = createLocaleContext()
+
+    provideLocaleContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:locale', context)
+  })
+})
+
+describe('useLocale consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return fallback when not in component instance', () => {
+    mockGetCurrentInstance.mockReturnValue(null)
+
+    const result = useLocale()
+
+    // Should return fallback without calling inject
+    expect(result).toBeDefined()
+    expect(typeof result.t).toBe('function')
+    expect(mockInject).not.toHaveBeenCalled()
+  })
+
+  it('should inject context when in component instance', () => {
+    const mockContext = createLocale()
+    mockGetCurrentInstance.mockReturnValue({} as any)
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useLocale()
+
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createLocale()
+    mockGetCurrentInstance.mockReturnValue({} as any)
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useLocale('my-locale')
+
+    expect(result).toBe(mockContext)
+  })
+
+  it('should return fallback when context is not provided', () => {
+    mockGetCurrentInstance.mockReturnValue({} as any)
+    mockInject.mockReturnValue(undefined)
+
+    // useLocale uses useContext with fallback, so it returns the fallback instead of throwing
+    const result = useLocale()
+    expect(result).toBeDefined()
+    expect(typeof result.t).toBe('function')
   })
 })

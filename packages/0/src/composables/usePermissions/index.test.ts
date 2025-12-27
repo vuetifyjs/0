@@ -1,9 +1,24 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
 import { Vuetify0PermissionAdapter } from './adapters/v0'
 
-import { createPermissions, createPermissionsPlugin } from './index'
+// Utilities
+import { inject, provide } from 'vue'
+
+import { createPermissions, createPermissionsContext, createPermissionsPlugin, usePermissions } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('usePermissions', () => {
   describe('createPermissions', () => {
@@ -279,5 +294,110 @@ describe('usePermissions', () => {
       // Undefined condition should default to true
       expect(permissions.can('user', 'read', 'posts')).toBe(true)
     })
+  })
+})
+
+describe('createPermissionsContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createPermissionsContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // usePermissionsContext
+    expect(typeof result[1]).toBe('function') // providePermissionsContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, providePermissionsContext, context] = createPermissionsContext()
+
+    providePermissionsContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:permissions', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, providePermissionsContext, context] = createPermissionsContext({
+      namespace: 'my-permissions',
+    })
+
+    providePermissionsContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-permissions', context)
+  })
+
+  it('should create a functional permissions context', () => {
+    const [,, context] = createPermissionsContext({
+      permissions: {
+        admin: [['read', 'users']],
+        editor: [['write', 'posts']],
+      },
+    })
+
+    expect(context.can('admin', 'read', 'users')).toBe(true)
+    expect(context.can('admin', 'write', 'users')).toBe(false)
+    expect(context.can('editor', 'write', 'posts')).toBe(true)
+  })
+
+  it('should allow providing custom context', () => {
+    const [, providePermissionsContext] = createPermissionsContext()
+    const customContext = createPermissions({
+      permissions: {
+        admin: [['read', 'all']],
+      },
+    })
+
+    providePermissionsContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:permissions', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, providePermissionsContext, context] = createPermissionsContext()
+
+    providePermissionsContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:permissions', context)
+  })
+})
+
+describe('usePermissions consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createPermissions()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = usePermissions()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:permissions', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createPermissions()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = usePermissions('my-permissions')
+
+    expect(mockInject).toHaveBeenCalledWith('my-permissions', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => usePermissions()).toThrow(
+      'Context "v0:permissions" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

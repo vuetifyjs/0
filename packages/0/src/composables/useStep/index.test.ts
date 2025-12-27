@@ -1,8 +1,21 @@
-// Utilities
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Composables
-import { createStep } from './index'
+// Utilities
+import { inject, provide } from 'vue'
+
+import { createStep, createStepContext, useStep } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('useStep', () => {
   describe('first', () => {
@@ -756,5 +769,141 @@ describe('useStep', () => {
       // Should stay at step-4 (boundary, no wrapping)
       expect(stepper.selectedId.value).toBe('step-4')
     })
+  })
+})
+
+describe('createStepContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createStepContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useStepContext
+    expect(typeof result[1]).toBe('function') // provideStepContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, provideStepContext, context] = createStepContext()
+
+    provideStepContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:step', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, provideStepContext, context] = createStepContext({
+      namespace: 'my-wizard',
+    })
+
+    provideStepContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-wizard', context)
+  })
+
+  it('should create a functional step context with navigation', () => {
+    const [,, context] = createStepContext()
+
+    context.onboard([
+      { id: 'step-1', value: 'Step 1' },
+      { id: 'step-2', value: 'Step 2' },
+      { id: 'step-3', value: 'Step 3' },
+    ])
+
+    context.first()
+    expect(context.selectedId.value).toBe('step-1')
+
+    context.next()
+    expect(context.selectedId.value).toBe('step-2')
+
+    context.last()
+    expect(context.selectedId.value).toBe('step-3')
+
+    context.prev()
+    expect(context.selectedId.value).toBe('step-2')
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideStepContext] = createStepContext()
+    const customContext = createStep({ circular: true })
+
+    provideStepContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:step', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, provideStepContext, context] = createStepContext()
+
+    provideStepContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:step', context)
+    expect(mockProvide).not.toHaveBeenCalled()
+  })
+
+  it('should pass options to createStep', () => {
+    const [,, context] = createStepContext({
+      circular: true,
+    })
+
+    context.onboard([
+      { id: 'step-1', value: 'Step 1' },
+      { id: 'step-2', value: 'Step 2' },
+    ])
+
+    context.last()
+    context.next()
+
+    // Should wrap to first due to circular
+    expect(context.selectedId.value).toBe('step-1')
+  })
+})
+
+describe('useStep consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createStep()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useStep()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:step', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createStep()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useStep('my-wizard')
+
+    expect(mockInject).toHaveBeenCalledWith('my-wizard', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useStep()).toThrow(
+      'Context "v0:step" not found. Ensure it\'s provided by an ancestor.',
+    )
+  })
+
+  it('should throw with custom namespace in error message', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useStep('custom-stepper')).toThrow(
+      'Context "custom-stepper" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

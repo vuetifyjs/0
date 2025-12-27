@@ -1,9 +1,21 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { nextTick } from 'vue'
+import { inject, nextTick, provide } from 'vue'
 
-import { createForm } from './index'
+import { createForm, createFormContext, useForm } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('useForm validateOn functionality', () => {
   it('should default to submit validation only', () => {
@@ -568,5 +580,101 @@ describe('useForm edge cases', () => {
 
       expect(field.disabled).toBe(false)
     })
+  })
+})
+
+describe('createFormContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createFormContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useFormContext
+    expect(typeof result[1]).toBe('function') // provideFormContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, provideFormContext, context] = createFormContext()
+
+    provideFormContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:form', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, provideFormContext, context] = createFormContext({
+      namespace: 'my-form',
+    })
+
+    provideFormContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-form', context)
+  })
+
+  it('should create a default form context', () => {
+    const [,, context] = createFormContext()
+
+    // Context should exist with at least validateOn property
+    expect(context).toBeDefined()
+    expect(context.validateOn).toBe('submit')
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideFormContext] = createFormContext()
+    const customContext = createForm({ validateOn: 'change' })
+
+    provideFormContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:form', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, provideFormContext, context] = createFormContext()
+
+    provideFormContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:form', context)
+  })
+})
+
+describe('useForm consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createForm()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useForm()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:form', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createForm()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useForm('my-form')
+
+    expect(mockInject).toHaveBeenCalledWith('my-form', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useForm()).toThrow(
+      'Context "v0:form" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

@@ -345,4 +345,67 @@ describe('useElementIntersection', () => {
     expect(isIntersecting.value).toBe(false)
     expect(intersectionRatio.value).toBe(0)
   })
+
+  it('should reset values when paused', async () => {
+    // Set up mock to capture callback BEFORE hydration triggers setup
+    let observerCallback: (entries: any[]) => void
+    const localMockObserver = {
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    globalThis.IntersectionObserver = vi.fn(function (this: any, cb: any) {
+      observerCallback = cb
+      return localMockObserver
+    }) as any
+    window.IntersectionObserver = globalThis.IntersectionObserver
+
+    const target = ref<Element | null>(element)
+    const { isIntersecting, intersectionRatio, pause, isPaused } = useElementIntersection(target)
+
+    // Trigger hydration to create observer
+    mockIsHydrated.value = true
+    await nextTick()
+
+    // Simulate intersection
+    observerCallback!([{
+      isIntersecting: true,
+      intersectionRatio: 0.75,
+      target: element,
+      boundingClientRect: element.getBoundingClientRect(),
+      intersectionRect: element.getBoundingClientRect(),
+      rootBounds: null,
+      time: performance.now(),
+    }])
+    await nextTick()
+
+    expect(isIntersecting.value).toBe(true)
+    expect(intersectionRatio.value).toBe(0.75)
+    expect(isPaused.value).toBe(false)
+
+    // Pause should reset values
+    pause()
+    await nextTick()
+
+    expect(isIntersecting.value).toBe(false)
+    expect(intersectionRatio.value).toBe(0)
+    expect(isPaused.value).toBe(true)
+  })
+
+  it('should resume correctly after pause', async () => {
+    mockIsHydrated.value = true
+    await nextTick()
+
+    const target = ref<Element | null>(element)
+    const { isIntersecting, pause, resume, isPaused } = useElementIntersection(target)
+
+    // Pause
+    pause()
+    expect(isPaused.value).toBe(true)
+    expect(isIntersecting.value).toBe(false)
+
+    // Resume
+    resume()
+    expect(isPaused.value).toBe(false)
+  })
 })

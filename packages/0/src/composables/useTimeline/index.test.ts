@@ -1,6 +1,21 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createTimeline } from './index'
+// Utilities
+import { inject, provide } from 'vue'
+
+import { createTimeline, createTimelineContext, useTimeline } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('createTimeline', () => {
   it('should register to the timeline buffer', () => {
@@ -266,5 +281,109 @@ describe('createTimeline', () => {
     // Verify 'a' is in overflow by undoing
     timeline.undo()
     expect(timeline.values().map(t => t.value)).toEqual(['A', 'B'])
+  })
+})
+
+describe('createTimelineContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createTimelineContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useTimelineContext
+    expect(typeof result[1]).toBe('function') // provideTimelineContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, provideTimelineContext, context] = createTimelineContext()
+
+    provideTimelineContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:timeline', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, provideTimelineContext, context] = createTimelineContext({
+      namespace: 'my-history',
+    })
+
+    provideTimelineContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-history', context)
+  })
+
+  it('should create a functional timeline context', () => {
+    const [,, context] = createTimelineContext({ size: 3 })
+
+    context.register({ id: 'a', value: 'A' })
+    context.register({ id: 'b', value: 'B' })
+
+    expect(context.size).toBe(2)
+    expect(context.values().map(t => t.value)).toEqual(['A', 'B'])
+
+    context.undo()
+    expect(context.values().map(t => t.value)).toEqual(['A'])
+
+    context.redo()
+    expect(context.values().map(t => t.value)).toEqual(['A', 'B'])
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideTimelineContext] = createTimelineContext()
+    const customContext = createTimeline({ size: 10 })
+
+    provideTimelineContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:timeline', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, provideTimelineContext, context] = createTimelineContext()
+
+    provideTimelineContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:timeline', context)
+  })
+})
+
+describe('useTimeline consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createTimeline()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useTimeline()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:timeline', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createTimeline()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useTimeline('my-history')
+
+    expect(mockInject).toHaveBeenCalledWith('my-history', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useTimeline()).toThrow(
+      'Context "v0:timeline" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })

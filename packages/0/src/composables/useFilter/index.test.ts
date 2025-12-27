@@ -1,12 +1,24 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { ref } from 'vue'
+import { inject, provide, ref } from 'vue'
 
 // Types
 import type { Primitive } from './index'
 
-import { useFilter } from './index'
+import { createFilter, createFilterContext, useFilter, useFilterContext } from './index'
+
+vi.mock('vue', async () => {
+  const actual = await vi.importActual('vue')
+  return {
+    ...actual,
+    provide: vi.fn(),
+    inject: vi.fn(),
+  }
+})
+
+const mockProvide = vi.mocked(provide)
+const mockInject = vi.mocked(inject)
 
 describe('useFilter', () => {
   const items = ref([
@@ -188,5 +200,140 @@ describe('useFilter', () => {
     dynamicItems.value.push({ name: 'apple pie', color: 'brown', type: 'dessert' })
 
     expect(filtered.value).toHaveLength(2)
+  })
+})
+
+describe('createFilter', () => {
+  it('should create a filter context with apply method', () => {
+    const filter = createFilter({
+      keys: ['name'],
+      mode: 'some',
+    })
+
+    expect(filter.apply).toBeDefined()
+    expect(typeof filter.apply).toBe('function')
+    expect(filter.mode).toBe('some')
+    expect(filter.keys).toEqual(['name'])
+  })
+
+  it('should filter items using apply method', () => {
+    const filter = createFilter({
+      keys: ['name'],
+    })
+    const items = ref([
+      { name: 'apple', type: 'fruit' },
+      { name: 'banana', type: 'fruit' },
+      { name: 'carrot', type: 'vegetable' },
+    ])
+
+    const result = filter.apply('apple', items)
+    expect(result.items.value).toHaveLength(1)
+    expect(result.items.value[0]?.name).toBe('apple')
+  })
+
+  it('should default to mode some', () => {
+    const filter = createFilter()
+    expect(filter.mode).toBe('some')
+  })
+})
+
+describe('createFilterContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return a trinity tuple', () => {
+    const result = createFilterContext()
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function') // useFilterContext
+    expect(typeof result[1]).toBe('function') // provideFilterContext
+    expect(result[2]).toBeDefined() // default context
+  })
+
+  it('should create context with default namespace', () => {
+    const [, provideFilterContext, context] = createFilterContext()
+
+    provideFilterContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:filter', context)
+  })
+
+  it('should create context with custom namespace', () => {
+    const [, provideFilterContext, context] = createFilterContext({
+      namespace: 'my-search',
+    })
+
+    provideFilterContext(context)
+
+    expect(mockProvide).toHaveBeenCalledWith('my-search', context)
+  })
+
+  it('should create a functional filter context', () => {
+    const [,, context] = createFilterContext({
+      keys: ['name'],
+    })
+    const items = ref([
+      { name: 'apple' },
+      { name: 'banana' },
+    ])
+
+    const result = context.apply('apple', items)
+    expect(result.items.value).toHaveLength(1)
+  })
+
+  it('should allow providing custom context', () => {
+    const [, provideFilterContext] = createFilterContext()
+    const customContext = createFilter({ mode: 'every' })
+
+    provideFilterContext(customContext)
+
+    expect(mockProvide).toHaveBeenCalledWith('v0:filter', customContext)
+  })
+
+  it('should provide context at app level when app is passed', () => {
+    const mockApp = {
+      provide: vi.fn(),
+    } as any
+    const [, provideFilterContext, context] = createFilterContext()
+
+    provideFilterContext(context, mockApp)
+
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:filter', context)
+  })
+})
+
+describe('useFilterContext consumer', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should inject context with default namespace', () => {
+    const mockContext = createFilter()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useFilterContext()
+
+    expect(mockInject).toHaveBeenCalledWith('v0:filter', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should inject context with custom namespace', () => {
+    const mockContext = createFilter()
+    mockInject.mockReturnValue(mockContext)
+
+    const result = useFilterContext('my-search')
+
+    expect(mockInject).toHaveBeenCalledWith('my-search', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useFilterContext()).toThrow(
+      'Context "v0:filter" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })
