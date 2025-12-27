@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'U: usePagination'
   github: /composables/usePagination/
+related:
+  - /composables/utilities/use-filter
+  - /components/semantic/pagination
 ---
 
 # usePagination
@@ -390,3 +393,5 @@ pagination.next()
 - The `items` array maintains a consistent length equal to `visible` when there are enough pages
 - Ellipsis is only shown when there are more pages than can be displayed
 - Navigation methods (`next`, `prev`, `select`) automatically clamp to valid page range
+
+<DocsRelated :frontmatter />

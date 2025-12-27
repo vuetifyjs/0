@@ -5,6 +5,8 @@ meta:
     content: Learn how to contribute to Vuetify0. Setup local development, submit pull requests, write tests, and follow coding conventions for Vue 3 composables.
   - name: keywords
     content: vuetify0, contributing, open source, pull request, development, testing, Vue 3
+related:
+  - /introduction/getting-started
 ---
 
 # Contributing
@@ -215,3 +217,5 @@ describe('useSelection', () => {
 - [GitHub Issues](https://github.com/vuetifyjs/0/issues) - Bug reports and feature requests
 
 Thank you for contributing!
+
+<DocsRelated :frontmatter />

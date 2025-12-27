@@ -10,6 +10,9 @@ features:
   label: 'E: Step'
   github: /components/Step/
   renderless: true
+related:
+  - /composables/selection/use-step
+  - /components/providers/single
 ---
 
 <script setup>
@@ -271,3 +274,5 @@ The Step component provides several navigation methods:
 | `step(count)` | Step forward (positive) or backward (negative) by count |
 
 All navigation methods automatically skip disabled items.
+
+<DocsRelated :frontmatter />

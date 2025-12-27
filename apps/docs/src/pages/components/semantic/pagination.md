@@ -10,6 +10,8 @@ features:
   label: 'P: Pagination'
   github: /components/Pagination/
   renderless: false
+related:
+  - /composables/utilities/use-pagination
 ---
 
 <script setup>
@@ -836,3 +838,5 @@ Pagination example with nav, ul, and li elements.
   </Pagination.Root>
 </template>
 ```
+
+<DocsRelated :frontmatter />

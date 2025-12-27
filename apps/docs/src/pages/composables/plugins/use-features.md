@@ -9,6 +9,8 @@ features:
   category: Plugin
   label: 'E: useFeatures'
   github: /composables/useFeatures/
+related:
+  - /composables/registration/use-tokens
 ---
 
 # useFeatures
@@ -255,3 +257,5 @@ Optionally register features at runtime:
   ```
 
   See [createTrinity](/composables/foundation/create-trinity) for more details on the trinity pattern.
+
+<DocsRelated :frontmatter />

@@ -10,6 +10,8 @@ features:
   category: Composable
   label: 'E: useProxyRegistry'
   github: /composables/useProxyRegistry/
+related:
+- /composables/registration/use-registry
 ---
 
 # useProxyRegistry
@@ -106,3 +108,5 @@ console.log(proxy.keys) // [id1, id2]
   registry.register({ value: 'First' })  // Logs: Registry has 1 items
   registry.register({ value: 'Second' }) // Logs: Registry has 2 items
   ```
+
+<DocsRelated :frontmatter />

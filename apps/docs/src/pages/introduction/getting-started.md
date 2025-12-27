@@ -5,6 +5,10 @@ meta:
     content: Get started with Vuetify0 headless UI primitives for Vue 3. Install, configure, and build your own design system with unstyled, accessible components.
   - name: keywords
     content: vuetify0, getting started, installation, Vue 3, headless ui, composables, npm, pnpm
+related:
+  - /guide
+  - /composables
+  - /components
 ---
 
 # Get started with Vuetify0
@@ -105,3 +109,5 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 - [Explore Components](/components/) - See all available components
 - [Browse Composables](/composables/) - Dive into the composables API
 - [View Examples](https://github.com/vuetifyjs/0/tree/master/playground) - Check out the playground
+
+<DocsRelated :frontmatter />

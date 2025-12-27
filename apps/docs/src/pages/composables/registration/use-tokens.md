@@ -10,6 +10,10 @@ features:
   category: Composable
   label: 'E: useTokens'
   github: /composables/useTokens/
+related:
+- /composables/registration/use-registry
+- /composables/plugins/use-theme
+- /guide/theming
 ---
 
 # useTokens
@@ -224,3 +228,5 @@ flowchart TD
 
   console.log(tokens.resolve('fontSize.base')) // '16px'
   ```
+
+<DocsRelated :frontmatter />

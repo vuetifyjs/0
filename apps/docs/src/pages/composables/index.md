@@ -5,13 +5,55 @@ meta:
     content: Type-safe Vue 3 composables for headless UI. Selection, forms, theming, tokens, and state management primitives for building custom design systems.
   - name: keywords
     content: composables, Vue 3, headless ui, primitives, selection, forms, theming, state management, TypeScript
+related:
+  - /guide/framework-core
+  - /components
 ---
 
 # Composables
 
-Reusable pieces of logic that can be shared across components, providing encapsulated functionality and state management.
+v0 composables are the building blocks for headless UI. Components wrap these composables—you can use either approach.
 
 <DocsPageFeatures :frontmatter />
+
+## Composable Hierarchy
+
+```
+createContext ─── Type-safe provide/inject
+      │
+      └──► createTrinity ─── [use, provide, context] tuple
+                │
+                └──► createPlugin ─── Vue plugin factory
+
+useRegistry ─── Base collection management
+      │
+      ├──► useSelection ─── + selectedIds Set
+      │         │
+      │         ├──► useSingle ─── Single selection
+      │         │         │
+      │         │         └──► useStep ─── + navigation
+      │         │
+      │         └──► useGroup ─── + tri-state, batch ops
+      │
+      ├──► useTokens ─── + alias resolution
+      │
+      └──► useForm ─── + validation
+```
+
+## Choosing a Composable
+
+| Need | Use | Category |
+| - | - | - |
+| Radio buttons, tabs | `useSingle` | selection |
+| Checkboxes, multi-select | `useGroup` | selection |
+| Wizard, stepper | `useStep` | selection |
+| Form validation | `useForm` | forms |
+| Design tokens | `useTokens` | registration |
+| Dark/light mode | `useTheme` | plugins |
+| i18n, RTL | `useLocale` | plugins |
+| Filter/search | `useFilter` | utilities |
+| Pagination | `usePagination` | utilities |
+| Large lists | `useVirtual` | utilities |
 
 ## Foundation
 
@@ -102,3 +144,5 @@ Value transformation utilities.
 | - | - |
 | [toArray](/composables/transformers/to-array) | Convert any value to an array |
 | [toReactive](/composables/transformers/to-reactive) | Convert MaybeRef objects to reactive proxies |
+
+<DocsRelated :frontmatter />

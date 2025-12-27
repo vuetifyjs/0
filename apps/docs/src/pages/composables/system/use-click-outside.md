@@ -9,6 +9,8 @@ features:
   category: Composable
   label: 'E: useClickOutside'
   github: /composables/useClickOutside/
+related:
+  - /composables/system/use-event-listener
 ---
 
 <script setup>
@@ -212,3 +214,5 @@ The `sr-only` class hides content visually while keeping it accessible:
   - `pause()`: Pause detection (clears pending state)
   - `resume()`: Resume detection
   - `stop()`: Stop detection and clean up
+
+<DocsRelated :frontmatter />

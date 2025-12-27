@@ -9,6 +9,8 @@ features:
   category: Plugin
   label: 'E: useLocale'
   github: /composables/useLocale/
+related:
+  - /guide/accessibility
 ---
 
 # useLocale
@@ -133,3 +135,5 @@ interface LocaleContext extends SingleContext {
 - `select(id)`: Select a specific locale by ID
 - `selectedId`: Currently selected locale ID
 - `selectedItem`: Currently selected locale ticket with metadata
+
+<DocsRelated :frontmatter />

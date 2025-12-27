@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'E: useGroup'
   github: /composables/useGroup/
+related:
+  - /composables/selection/use-selection
+  - /components/providers/group
 ---
 
 # useGroup
@@ -576,3 +579,5 @@ console.log(ticket.isMixed.value) // false
   group.toggleAll()
   console.log(group.isNoneSelected.value) // true
   ```
+
+<DocsRelated :frontmatter />

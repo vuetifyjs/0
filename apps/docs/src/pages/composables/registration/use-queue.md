@@ -10,6 +10,9 @@ features:
   category: Composable
   label: 'E: useQueue'
   github: /composables/useQueue/
+related:
+- /composables/registration/use-registry
+- /composables/registration/use-timeline
 ---
 
 # useQueue
@@ -258,3 +261,5 @@ console.log(queue.size) // 3
 
   console.log(queue.has(item.id)) // false
   ```
+
+<DocsRelated :frontmatter />

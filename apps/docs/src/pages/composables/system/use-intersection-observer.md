@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'E: useIntersectionObserver'
   github: /composables/useIntersectionObserver/
+related:
+  - /composables/system/use-resize-observer
+  - /composables/system/use-mutation-observer
 ---
 
 # useIntersectionObserver
@@ -314,3 +317,5 @@ pause()
 performHeavyWork()
 resume()
 ```
+
+<DocsRelated :frontmatter />

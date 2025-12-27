@@ -10,6 +10,8 @@ features:
   category: Plugin
   label: 'E: useBreakpoints'
   github: /composables/useBreakpoints/
+related:
+  - /guide/plugins
 ---
 
 # useBreakpoints
@@ -166,3 +168,5 @@ interface BreakpointsContext {
 **Methods:**
 
 - `update()`: Manually trigger breakpoint recalculation (automatically called on resize)
+
+<DocsRelated :frontmatter />

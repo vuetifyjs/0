@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'E: useTimeline'
   github: /composables/useTimeline/
+related:
+- /composables/registration/use-registry
+- /composables/registration/use-queue
 ---
 
 # useTimeline
@@ -164,3 +167,5 @@ console.log(timeline.size) // 3
   console.log(redone.id) // 'b'
   console.log(timeline.size) // 2
   ```
+
+<DocsRelated :frontmatter />

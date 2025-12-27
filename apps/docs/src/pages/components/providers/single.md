@@ -10,6 +10,9 @@ features:
   label: 'E: Single'
   github: /components/Single/
   renderless: true
+related:
+  - /composables/selection/use-single
+  - /components/providers/selection
 ---
 
 <script setup>
@@ -233,3 +236,5 @@ Individual selectable items that register with the Single context.
     </Single.Item>
   </template>
   ```
+
+<DocsRelated :frontmatter />

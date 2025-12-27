@@ -10,6 +10,9 @@ features:
   label: 'E: Group'
   github: /components/Group/
   renderless: true
+related:
+  - /composables/selection/use-group
+  - /components/providers/selection
 ---
 
 <script setup>
@@ -283,3 +286,5 @@ Individual group items that register with the Group context. Supports tri-state 
     </Group.Item>
   </template>
   ```
+
+<DocsRelated :frontmatter />

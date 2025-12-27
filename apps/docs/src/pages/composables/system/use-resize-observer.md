@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'E: useResizeObserver'
   github: /composables/useResizeObserver/
+related:
+  - /composables/system/use-intersection-observer
+  - /composables/system/use-mutation-observer
 ---
 
 # useResizeObserver
@@ -370,3 +373,5 @@ const visibleItems = computed(() => {
   return Math.ceil(height.value / itemHeight)
 })
 ```
+
+<DocsRelated :frontmatter />

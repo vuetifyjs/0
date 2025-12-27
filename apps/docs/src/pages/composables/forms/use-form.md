@@ -9,6 +9,8 @@ features:
   category: Composable
   label: 'E: useForm'
   github: /composables/useForm/
+related:
+  - /composables/registration/use-registry
 ---
 
 # useForm
@@ -108,3 +110,5 @@ Each registered field returns a `FormTicket` with:
 - `reset()`: Reset field to initial value
 - `rules`: Array of validation functions
 - `disabled`: Whether field is disabled
+
+<DocsRelated :frontmatter />

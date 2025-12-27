@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'E: useProxyModel'
   github: /composables/useProxyModel/
+related:
+  - /composables/selection/use-selection
+  - /composables/selection/use-single
 ---
 
 # useProxyModel
@@ -209,3 +212,5 @@ stop()
 model.value = 'New Value'
 // selection.selectedIds unchanged
 ```
+
+<DocsRelated :frontmatter />

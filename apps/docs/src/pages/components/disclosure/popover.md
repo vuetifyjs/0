@@ -10,6 +10,8 @@ features:
   label: 'E: Popover'
   github: /components/Popover/
   renderless: true
+related:
+  - /components/disclosure/expansion-panel
 ---
 
 <script setup>
@@ -253,3 +255,5 @@ The Popover component uses the CSS Anchor Positioning API for positioning. The `
 | `bottom right` | Position below and to the right |
 
 The `positionTry` prop provides fallback positioning when the primary position doesn't fit.
+
+<DocsRelated :frontmatter />

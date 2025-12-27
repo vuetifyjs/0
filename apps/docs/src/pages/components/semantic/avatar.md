@@ -10,6 +10,8 @@ features:
   label: 'E: Avatar'
   github: /components/Avatar/
   renderless: false
+related:
+  - /components/primitives/atom
 ---
 
 <script setup>
@@ -234,3 +236,5 @@ The Avatar component uses a priority-based system to determine which content to 
   </Avatar.Root>
 </template>
 ```
+
+<DocsRelated :frontmatter />

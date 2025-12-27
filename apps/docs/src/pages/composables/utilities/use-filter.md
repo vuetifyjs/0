@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'E: useFilter'
   github: /composables/useFilter/
+related:
+  - /composables/utilities/use-pagination
+  - /composables/utilities/use-virtual
 ---
 
 # useFilter
@@ -491,3 +494,5 @@ const { items } = filter.apply(query, products)
 - When using arrays of queries, individual empty values are filtered out before processing
 - The `customFilter` function receives the full query parameter (single value or array) and must handle it accordingly
 - Filtering is reactive: changes to the query or items array automatically update the filtered results
+
+<DocsRelated :frontmatter />

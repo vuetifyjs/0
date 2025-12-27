@@ -9,6 +9,8 @@ features:
   category: Plugin
   label: 'E: useStorage'
   github: /composables/useStorage/
+related:
+  - /guide/plugins
 ---
 
 # useStorage
@@ -116,3 +118,5 @@ interface StorageContext {
 - `set(key, value)`: Set a value for a storage key
 - `remove(key)`: Remove a key from storage and stop its watcher
 - `clear()`: Clear all keys from storage and stop all watchers
+
+<DocsRelated :frontmatter />

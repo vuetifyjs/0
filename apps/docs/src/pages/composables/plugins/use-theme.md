@@ -10,6 +10,9 @@ features:
   category: Plugin
   label: 'E: useTheme'
   github: /composables/useTheme/
+related:
+  - /composables/registration/use-tokens
+  - /guide/theming
 ---
 
 # useTheme
@@ -654,3 +657,5 @@ Pass your adapter to the theme plugin or context:
       })
     }
    ```
+
+<DocsRelated :frontmatter />

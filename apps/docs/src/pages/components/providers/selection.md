@@ -10,6 +10,10 @@ features:
   label: 'E: Selection'
   github: /components/Selection/
   renderless: true
+related:
+  - /composables/selection/use-selection
+  - /components/providers/single
+  - /components/providers/group
 ---
 
 <script setup>
@@ -272,3 +276,5 @@ Individual selectable items that register with the Selection context.
 <DocsExample file="disabled.vue" :code="DisabledExampleRaw">
   <DisabledExample />
 </DocsExample>
+
+<DocsRelated :frontmatter />

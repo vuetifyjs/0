@@ -10,6 +10,8 @@ features:
   label: 'E: Atom'
   github: /components/Atom/
   renderless: false
+related:
+  - /guide/components
 ---
 
 <script setup>
@@ -71,3 +73,5 @@ The base component for dynamic element rendering.
   - Forwards all attributes using `v-bind`
   - Slot props include all passed attributes
   - Used as the foundation for Avatar, Popover, and other components
+
+<DocsRelated :frontmatter />

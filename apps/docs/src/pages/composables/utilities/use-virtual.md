@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'C: useVirtual'
   github: /composables/useVirtual/
+related:
+  - /composables/utilities/use-filter
+  - /composables/utilities/use-overflow
 ---
 
 <script setup>
@@ -546,7 +549,4 @@ virtual.items.value.forEach(item => {
 })
 ```
 
-## See Also
-
-- [useResizeObserver](/composables/system/use-resize-observer) - For measuring dynamic item heights
-- [useIntersectionObserver](/composables/system/use-intersection-observer) - Alternative approach for lazy loading
+<DocsRelated :frontmatter />

@@ -9,6 +9,8 @@ features:
   category: Composable
   label: 'E: useKeydown'
   github: /composables/useKeydown/
+related:
+  - /composables/system/use-event-listener
 ---
 
 # useKeydown
@@ -134,3 +136,5 @@ The `useKeydown` composable registers keyboard event handlers on the document wi
   start()
   console.log(isActive.value) // true
   ```
+
+<DocsRelated :frontmatter />

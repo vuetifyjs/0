@@ -9,6 +9,10 @@ features:
   category: Factory
   label: 'E: createTrinity'
   github: /composables/createTrinity/
+related:
+  - /composables/foundation/create-context
+  - /composables/foundation/create-plugin
+  - /guide/framework-core
 ---
 
 # createTrinity
@@ -109,3 +113,5 @@ export const [useUser, provideUser, defaultUserContext] = createUserContext()
     context
   )
   ```
+
+<DocsRelated :frontmatter />

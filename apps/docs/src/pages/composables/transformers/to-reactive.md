@@ -9,6 +9,8 @@ features:
   category: Transformer
   label: 'E: toReactive'
   github: /composables/toReactive/
+related:
+  - /composables/transformers/to-array
 ---
 
 # toReactive
@@ -54,3 +56,5 @@ console.log(rstate.name) // 'John' (no .value needed)
   - **Objects/Arrays**: Unwraps nested refs automatically
 
   **Z** represents the type of the object being converted.
+
+<DocsRelated :frontmatter />

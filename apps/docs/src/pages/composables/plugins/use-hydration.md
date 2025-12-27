@@ -11,6 +11,8 @@ features:
   category: Plugin
   label: 'E: useHydration'
   github: /composables/useHydration/
+related:
+  - /guide/plugins
 ---
 
 # useHydration
@@ -98,3 +100,5 @@ app.mixin({
   }
 })
 ```
+
+<DocsRelated :frontmatter />

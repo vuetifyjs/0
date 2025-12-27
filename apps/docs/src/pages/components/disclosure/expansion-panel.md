@@ -10,6 +10,8 @@ features:
   label: 'E: ExpansionPanel'
   github: /components/ExpansionPanel/
   renderless: false
+related:
+  - /components/disclosure/popover
 ---
 
 <script setup>
@@ -502,3 +504,5 @@ The content container for an expansion panel. Must be used within `ExpansionPane
 <DocsExample file="accordion.vue" title="Accordion (Single Panel)" :code="AccordionExampleRaw">
   <AccordionExample />
 </DocsExample>
+
+<DocsRelated :frontmatter />

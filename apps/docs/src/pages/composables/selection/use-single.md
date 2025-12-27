@@ -9,6 +9,10 @@ features:
   category: Composable
   label: 'E: useSingle'
   github: /composables/useSingle/
+related:
+  - /composables/selection/use-selection
+  - /composables/selection/use-step
+  - /components/providers/single
 ---
 
 # useSingle
@@ -160,3 +164,5 @@ flowchart TD
   single.select('banana')
   console.log(single.selectedValue) // 'Banana'
   ```
+
+<DocsRelated :frontmatter />

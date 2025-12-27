@@ -9,6 +9,11 @@ features:
   category: Composable
   label: 'E: useSelection'
   github: /composables/useSelection/
+related:
+  - /composables/registration/use-registry
+  - /composables/selection/use-single
+  - /composables/selection/use-group
+  - /components/providers/selection
 ---
 
 # useSelection
@@ -304,3 +309,5 @@ flowchart TD
   // If somehow empty, mandate() will auto-select first available
   selection.mandate()
   ```
+
+<DocsRelated :frontmatter />

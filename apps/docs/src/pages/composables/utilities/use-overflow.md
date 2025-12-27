@@ -9,6 +9,8 @@ features:
   category: Composable
   label: 'U: useOverflow'
   github: /composables/useOverflow/
+related:
+  - /composables/utilities/use-virtual
 ---
 
 # useOverflow
@@ -313,3 +315,5 @@ const visibleItems = items.slice(startIndex)
 - Uniform-width mode is more efficient as it doesn't require individual measurements
 - The `total` computed includes gaps between measured items
 - Use `reverse: true` for breadcrumb-style components where trailing items take priority
+
+<DocsRelated :frontmatter />

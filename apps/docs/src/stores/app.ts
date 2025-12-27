@@ -59,17 +59,15 @@ export const useAppStore = defineStore('app', {
       {
         name: 'Guide',
         to: '/guide',
-        // children: [
-        //   { name: 'Features', to: '/guide/features' },
-        //   { name: 'Structure', to: '/guide/structure' },
-        //   { name: 'Framework core', to: '/guide/framework-core' },
-        //   { name: 'Composables', to: '/guide/composables' },
-        //   { name: 'Components', to: '/guide/components' },
-        //   { name: 'Utilities', to: '/guide/utilities' },
-        //   { name: 'Plugins', to: '/guide/plugins' },
-        //   { name: 'Theming', to: '/guide/theming' },
-        //   { name: 'Accessibility', to: '/guide/accessibility' },
-        // ],
+        children: [
+          { name: 'Structure', to: '/guide/structure' },
+          { name: 'Framework Core', to: '/guide/framework-core' },
+          { name: 'Components', to: '/guide/components' },
+          { name: 'Plugins', to: '/guide/plugins' },
+          { name: 'Theming', to: '/guide/theming' },
+          { name: 'Utilities', to: '/guide/utilities' },
+          { name: 'Accessibility', to: '/guide/accessibility' },
+        ],
       },
       { divider: true },
       {

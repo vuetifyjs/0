@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'E: useEventListener'
   github: /composables/useEventListener/
+related:
+  - /composables/system/use-keydown
+  - /composables/system/use-click-outside
 ---
 
 # useEventListener
@@ -272,3 +275,5 @@ useEventListener(element, ['click', 'dblclick'], [handler1, handler2])
 ```
 
 All combinations are automatically managed and cleaned up together.
+
+<DocsRelated :frontmatter />

@@ -9,6 +9,8 @@ features:
   category: Plugin
   label: 'E: usePermissions'
   github: /composables/usePermissions/
+related:
+  - /composables/registration/use-tokens
 ---
 
 # usePermissions
@@ -263,3 +265,5 @@ const permissions = {
   ],
 }
 ```
+
+<DocsRelated :frontmatter />

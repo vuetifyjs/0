@@ -9,6 +9,9 @@ features:
   category: Composable
   label: 'E: useStep'
   github: /composables/useStep/
+related:
+  - /composables/selection/use-single
+  - /components/providers/step
 ---
 
 # useStep
@@ -217,3 +220,5 @@ carousel.prev()   // Wraps to slide3
   steps.step(-1)  // Move back 1 step
   console.log(steps.selectedId.value) // 's2'
   ```
+
+<DocsRelated :frontmatter />

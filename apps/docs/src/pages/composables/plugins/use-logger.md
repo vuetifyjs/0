@@ -10,6 +10,8 @@ features:
   category: Plugin
   label: 'E: useLogger'
   github: /composables/useLogger/
+related:
+  - /guide/plugins
 ---
 
 # useLogger
@@ -134,3 +136,5 @@ interface LoggerAdapter {
   fatal?: (message: string, ...args: unknown[]) => void
 }
 ```
+
+<DocsRelated :frontmatter />

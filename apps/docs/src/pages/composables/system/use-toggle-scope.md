@@ -9,6 +9,8 @@ features:
   category: Composable
   label: 'E: useToggleScope'
   github: /composables/useToggleScope/
+related:
+  - /composables/system/use-event-listener
 ---
 
 # useToggleScope
@@ -394,3 +396,5 @@ useToggleScope(debouncedEnabled, () => {
   // Won't thrash on rapid toggles
 })
 ```
+
+<DocsRelated :frontmatter />
