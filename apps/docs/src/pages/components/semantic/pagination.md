@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'P: Pagination'
   github: /components/Pagination/
+  renderless: false
 ---
 
 <script setup>

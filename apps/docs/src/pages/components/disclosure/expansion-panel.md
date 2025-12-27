@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'E: ExpansionPanel'
   github: /components/ExpansionPanel/
+  renderless: false
 ---
 
 <script setup>

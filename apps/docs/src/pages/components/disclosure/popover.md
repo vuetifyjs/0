@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'E: Popover'
   github: /components/Popover/
+  renderless: true
 ---
 
 <script setup>

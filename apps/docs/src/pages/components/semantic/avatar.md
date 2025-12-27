@@ -9,6 +9,7 @@ features:
   category: Component
   label: 'E: Avatar'
   github: /components/Avatar/
+  renderless: false
 ---
 
 <script setup>
