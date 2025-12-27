@@ -24,6 +24,14 @@
   const loading = shallowRef(false)
   const { copied, copy } = useClipboard()
 
+  function scrollToAnchor (id: string) {
+    const el = document.querySelector(`#${id}`)
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY - 80
+      window.scrollTo({ top, behavior: 'smooth' })
+    }
+  }
+
   const route = useRoute()
 
   const link = toRef(() => route.path.split('/').slice(1).filter(Boolean).join('/'))
@@ -232,6 +240,7 @@
       <a
         v-if="benchmark"
         href="#benchmarks"
+        @click.prevent="scrollToAnchor('benchmarks')"
       >
         <AppChip
           :color="benchmark.color"

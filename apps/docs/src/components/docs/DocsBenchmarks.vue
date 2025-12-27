@@ -65,6 +65,14 @@
     }
     return `https://github.com/vuetifyjs/0/blob/master/packages/0/src/components/${name}/index.bench.ts`
   })
+
+  function scrollToAnchor (id: string) {
+    const el = document.querySelector(`#${id}`)
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY - 80
+      window.scrollTo({ top, behavior: 'smooth' })
+    }
+  }
 </script>
 
 <template>
@@ -76,6 +84,7 @@
       <a
         class="header-anchor"
         href="#benchmarks"
+        @click.prevent="scrollToAnchor('benchmarks')"
       >Benchmarks</a>
     </h2>
 
