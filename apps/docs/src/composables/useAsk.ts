@@ -115,13 +115,13 @@ async function fetchPageContext (path: string): Promise<PageContext> {
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useAsk } from '@/composables/useAsk'
+ *  import { useAsk } from '@/composables/useAsk'
  *
- * const { messages, isOpen, ask, open, close } = useAsk()
+ *  const { messages, isOpen, ask, open, close } = useAsk()
  *
- * async function handleSubmit(question: string) {
- *   await ask(question)
- * }
+ *  async function handleSubmit(question: string) {
+ *    await ask(question)
+ *  }
  * </script>
  * ```
  */
