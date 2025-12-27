@@ -43,7 +43,11 @@
       el.replaceWith(wrapper)
 
       // Mount DocsMarkup with app context for icons/plugins
-      const vnode = h(DocsMarkup, { code, language }, {
+      const vnode = h(DocsMarkup, {
+        code,
+        language,
+        playground: language === 'vue',
+      }, {
         default: () => h('div', { innerHTML: highlighted }),
       })
       vnode.appContext = appContext ?? null
