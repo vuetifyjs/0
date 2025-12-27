@@ -3,6 +3,9 @@
   import AppIcon from '@/components/app/AppIcon.vue'
   import DocsAskMessage from './DocsAskMessage.vue'
 
+  // Composables
+  import { getBinUrl } from '@/composables/bin'
+
   // Utilities
   import { nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
@@ -66,6 +69,16 @@
     isFullscreen.value = !isFullscreen.value
   }
 
+  function openInBin () {
+    const markdown = props.messages
+      .map(msg => msg.role === 'user'
+        ? `**User:** ${msg.content}`
+        : `**Assistant:**\n\n${msg.content}`)
+      .join('\n\n---\n\n')
+    const url = getBinUrl(markdown, 'markdown', 'Ask AI Conversation')
+    window.open(url, '_blank')
+  }
+
   function focus () {
     textareaRef.value?.focus()
   }
@@ -91,6 +104,16 @@
       </div>
 
       <div class="flex items-center gap-1">
+        <button
+          v-if="messages.length > 0"
+          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
+          title="Open in Bin"
+          type="button"
+          @click="openInBin"
+        >
+          <AppIcon icon="vuetify-bin" size="18" />
+        </button>
+
         <button
           v-if="messages.length > 0"
           class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
