@@ -82,7 +82,7 @@
         <kbd
           v-if="!question"
           class="shrink-0 px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant text-[10px] font-mono inline-flex items-center"
-        >Ctrl+K</kbd>
+        >Ctrl+/</kbd>
 
         <button
           aria-label="Send question"

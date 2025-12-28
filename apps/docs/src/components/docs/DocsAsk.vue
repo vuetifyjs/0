@@ -37,9 +37,9 @@
     sheetRef.value?.focus()
   }
 
-  // Keyboard shortcut: Cmd/Ctrl + K to focus input
+  // Keyboard shortcut: Cmd/Ctrl + / to focus input
   function onKeydown (e: KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    if ((e.metaKey || e.ctrlKey) && e.key === '/') {
       e.preventDefault()
       if (isOpen.value) {
         close()

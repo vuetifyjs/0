@@ -68,16 +68,16 @@
       </button>
 
       <button
-        aria-label="Search (Ctrl+P)"
+        aria-label="Search (Ctrl+K)"
         class="hidden md:inline-flex items-center gap-1.5 glass-surface rounded-full shadow-lg border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 transition-colors"
-        title="Search (Ctrl+P)"
+        title="Search (Ctrl+K)"
         type="button"
         @click="openSearch"
       >
         <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
           <AppIcon icon="search" size="12" />
         </span>
-        <kbd class="shrink-0 px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant text-[10px] font-mono inline-flex items-center">Ctrl+P</kbd>
+        <kbd class="shrink-0 px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant text-[10px] font-mono inline-flex items-center">Ctrl+K</kbd>
       </button>
     </div>
 

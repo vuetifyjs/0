@@ -42,7 +42,7 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault()
       isOpen.value ? close() : open()
     }

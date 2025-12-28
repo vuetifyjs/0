@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  //
+  import DocsSearch from '@/components/docs/DocsSearch.vue'
 </script>
 
 <template>
@@ -7,4 +7,6 @@
   <AppBar />
   <AppHomeMain />
   <HomeFooter />
+
+  <DocsSearch />
 </template>
