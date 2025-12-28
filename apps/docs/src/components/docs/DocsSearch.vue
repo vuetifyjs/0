@@ -33,10 +33,10 @@
     selected?.scrollIntoView({ block: 'nearest' })
   })
 
-  function navigate () {
-    const selected = getSelected()
-    if (selected) {
-      router.push(selected.path)
+  function navigate (path?: string) {
+    const target = path ?? getSelected()?.path
+    if (target) {
+      router.push(target)
       close()
     }
   }
@@ -141,7 +141,7 @@
                 ]"
                 :data-selected="getFlatIndex(groupIndex, itemIndex) === selectedIndex"
                 type="button"
-                @click="navigate"
+                @click="navigate(result.path)"
                 @mouseenter="onHover(getFlatIndex(groupIndex, itemIndex))"
               >
                 <span class="font-medium">{{ result.title }}</span>
