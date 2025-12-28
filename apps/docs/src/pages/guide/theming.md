@@ -50,7 +50,7 @@ app.use(createTheme({
 
 ### 2. Use in Components
 
-```vue
+```vue playground
 <script setup>
 import { useTheme } from '@vuetify/v0'
 
@@ -129,7 +129,7 @@ app.use(createTheme({
 
 ### Manual Toggle
 
-```vue
+```vue playground
 <script setup>
 import { useTheme } from '@vuetify/v0'
 
@@ -194,8 +194,7 @@ tokens.register({ id: 'shadow-sm', value: '0 1px 2px rgba(0,0,0,0.1)' })
 
 Override theme for a subtree:
 
-```vue
-<script setup>
+```ts
 import { provideTheme } from '@vuetify/v0'
 
 // Override theme for this component's descendants
@@ -203,7 +202,6 @@ provideTheme({
   primary: '#E91E63',  // Pink instead of blue
   secondary: '#9C27B0'
 })
-</script>
 ```
 
 ## Best Practices

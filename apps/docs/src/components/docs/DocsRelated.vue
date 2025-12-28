@@ -29,11 +29,11 @@
           .join(' ')
         : segments[0].charAt(0).toUpperCase() + segments[0].slice(1)
 
-      // Extract name (e.g., "use-theme" -> "Use Theme")
-      const name = segments.at(-1)!
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
+      // Extract name (e.g., "use-theme" -> "useTheme")
+      const slug = segments.at(-1)!
+      const name = slug.includes('-')
+        ? slug.split('-').map((word, i) => i === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join('')
+        : slug.charAt(0).toUpperCase() + slug.slice(1)
 
       return { to: path, category, name }
     })

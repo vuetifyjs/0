@@ -13,7 +13,7 @@
 - [Utilities](https://0.vuetifyjs.com/guide/utilities): Utility functions and helpers
 - [Accessibility](https://0.vuetifyjs.com/guide/accessibility): A11y considerations
 - [Features](https://0.vuetifyjs.com/guide/features): Feature flags system
-- [Framework Core](https://0.vuetifyjs.com/guide/framework-core): Core framework concepts
+- [Core](https://0.vuetifyjs.com/guide/core): Core framework concepts
 
 ## Components
 

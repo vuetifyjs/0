@@ -61,7 +61,8 @@ export const useAppStore = defineStore('app', {
         to: '/guide',
         children: [
           { name: 'Structure', to: '/guide/structure' },
-          { name: 'Framework Core', to: '/guide/framework-core' },
+          { name: 'Core', to: '/guide/core' },
+          { name: 'Composables', to: '/guide/composables' },
           { name: 'Components', to: '/guide/components' },
           { name: 'Plugins', to: '/guide/plugins' },
           { name: 'Theming', to: '/guide/theming' },

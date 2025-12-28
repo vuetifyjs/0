@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: composables, Vue 3, headless ui, primitives, selection, forms, theming, state management, TypeScript
 related:
-  - /guide/framework-core
+  - /guide/core
   - /components
 ---
 

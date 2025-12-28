@@ -6,9 +6,9 @@ meta:
   - name: keywords
     content: vuetify0, architecture, structure, modular design, components, composables, utilities, Vue 3
 related:
-  - /guide/framework-core
+  - /guide/core
+  - /guide/composables
   - /guide/components
-  - /composables
 ---
 
 # Structure

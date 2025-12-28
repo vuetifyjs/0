@@ -380,16 +380,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/guide/features': RouteRecordInfo<
-      '/guide/features',
-      '/guide/features',
+    '/guide/composables': RouteRecordInfo<
+      '/guide/composables',
+      '/guide/composables',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/framework-core': RouteRecordInfo<
-      '/guide/framework-core',
-      '/guide/framework-core',
+    '/guide/core': RouteRecordInfo<
+      '/guide/core',
+      '/guide/core',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/features': RouteRecordInfo<
+      '/guide/features',
+      '/guide/features',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -790,15 +797,21 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/guide/features.md': {
+    'src/pages/guide/composables.md': {
       routes:
-        | '/guide/features'
+        | '/guide/composables'
       views:
         | never
     }
-    'src/pages/guide/framework-core.md': {
+    'src/pages/guide/core.md': {
       routes:
-        | '/guide/framework-core'
+        | '/guide/core'
+      views:
+        | never
+    }
+    'src/pages/guide/features.md': {
+      routes:
+        | '/guide/features'
       views:
         | never
     }

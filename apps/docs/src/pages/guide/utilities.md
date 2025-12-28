@@ -123,7 +123,7 @@ const virtual = useVirtual({
 })
 ```
 
-```vue
+```vue playground
 <template>
   <div ref="container" style="height: 400px; overflow: auto;">
     <div :style="{ height: `${virtual.totalHeight}px`, position: 'relative' }">
@@ -171,7 +171,7 @@ overflow.overflow.value  // Number of items that don't fit
 
 ### Use Case: Responsive Chips
 
-```vue
+```vue playground
 <template>
   <div ref="container" class="flex gap-2">
     <span v-for="tag in visibleTags" :key="tag" class="chip">

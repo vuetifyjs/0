@@ -49,7 +49,7 @@ For understanding the system architecture.
 | Guide | What You'll Learn |
 | - | - |
 | [Structure](/guide/structure) | Package organization, imports, file conventions |
-| [Framework Core](/guide/framework-core) | Trinity, Context, Registry patterns |
+| [Core](/guide/core) | Trinity, Context, Registry patterns |
 | [Components](/guide/components) | Component categories, Atom primitive, slot props |
 | [Plugins](/guide/plugins) | Using and creating Vue plugins |
 
@@ -69,9 +69,9 @@ For building production UIs.
 
 | Pattern | Use Case | Guide |
 | - | - | - |
-| `createContext` | Share state across component tree | [Framework Core](/guide/framework-core) |
+| `createContext` | Share state across component tree | [Core](/guide/core) |
 | `useSelection` | Multi-select, toggles, radio groups | [Composables](/composables/selection/use-selection) |
-| `useRegistry` | Dynamic child registration | [Framework Core](/guide/framework-core) |
+| `useRegistry` | Dynamic child registration | [Core](/guide/core) |
 | `Atom` component | Polymorphic base element | [Components](/guide/components) |
 | `useTheme` | Theme switching, CSS variables | [Theming](/guide/theming) |
 

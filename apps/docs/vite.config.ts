@@ -16,6 +16,7 @@ import type { ViteSSGOptions } from 'vite-ssg'
 
 import copyMarkdownPlugin from './build/copy-markdown'
 import generateLlmsFullPlugin from './build/generate-llms-full'
+import generateSearchIndexPlugin from './build/generate-search-index'
 import Markdown from './build/markdown'
 import pkg from './package.json' with { type: 'json' }
 
@@ -65,6 +66,7 @@ export default defineConfig({
     Layouts(),
     copyMarkdownPlugin(),
     generateLlmsFullPlugin(),
+    generateSearchIndexPlugin(),
     VitePWA({
       injectRegister: 'script-defer',
       registerType: 'autoUpdate',

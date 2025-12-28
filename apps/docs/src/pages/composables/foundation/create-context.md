@@ -12,7 +12,7 @@ features:
 related:
   - /composables/foundation/create-trinity
   - /composables/foundation/create-plugin
-  - /guide/framework-core
+  - /guide/core
 ---
 
 # createContext

@@ -6,8 +6,8 @@ meta:
   - name: keywords
     content: vuetify0, components, headless ui, compound pattern, accessibility, v-model, Vue 3, unstyled
 related:
-  - /guide/framework-core
-  - /composables
+  - /guide/core
+  - /guide/composables
   - /guide/accessibility
 ---
 
@@ -37,7 +37,7 @@ v0 components are Vue wrappers around composables. Composables hold logic, compo
 
 The `Atom` component is a polymorphic base element supporting any HTML tag:
 
-```vue
+```vue playground
 <template>
   <!-- Render as button -->
   <Atom as="button" @click="handleClick">Click me</Atom>
@@ -63,7 +63,7 @@ The `Atom` component is a polymorphic base element supporting any HTML tag:
 
 Every component exposes `attrs` in its default slot. Spread onto your element for behavior and accessibility:
 
-```vue
+```vue playground
 <template>
   <Selection.Root>
     <Selection.Item v-for="item in items" v-slot="{ attrs, isSelected, toggle }">

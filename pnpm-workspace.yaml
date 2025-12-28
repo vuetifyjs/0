@@ -21,9 +21,9 @@ catalog:
   '@vitest/coverage-v8': ^4.0.16
   '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.8.1
+  '@vuetify/github-releaser': ^4.0.3
   bumpp: ^10.3.2
   conventional-changelog-vuetify: ^2.0.2
-  '@vuetify/github-releaser': ^4.0.3
   eslint: ^9.39.2
   eslint-config-vuetify: 4.2.1-beta.1
   eslint-plugin-storybook: ^10.1.10
@@ -37,6 +37,7 @@ catalog:
   markdown-it-container: ^4.0.0
   marked: ^16.1.1
   mermaid: ^11.12.2
+  minisearch: ^7.2.0
   pinia: ^3.0.4
   rollup-plugin-sass: ^1.15.3
   sass: ^1.93.3

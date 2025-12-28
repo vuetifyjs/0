@@ -1,5 +1,5 @@
 ---
-title: Framework Core - Foundation Systems for Vue 3
+title: Core - Foundation Systems for Vue 3
 meta:
   - name: description
     content: Explore Vuetify0's core architecture including createContext, createTrinity, and createPlugin factories. Build scalable Vue 3 apps with type-safe dependency injection.
@@ -12,7 +12,7 @@ related:
   - /composables/registration/use-registry
 ---
 
-# Framework Core
+# Core
 
 v0's core architecture provides type-safe dependency injection and composable patterns. This page explains **how v0 works**. For creating plugins, see [Plugins Guide](/guide/plugins).
 

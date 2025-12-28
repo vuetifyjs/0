@@ -8,6 +8,8 @@
   import { toRef, watch } from 'vue'
 
   import { useRoute } from 'vue-router'
+
+  import { useSearch } from '@/composables/useSearch'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Composables
@@ -23,6 +25,7 @@
 
   const features = useFeatures()
   const { theme, icon: themeIcon, title: themeTitle, toggle: onClickTheme } = useThemeToggle()
+  const { open: openSearch } = useSearch()
 
   const devmode = features.get('devmode')!
 
@@ -42,7 +45,7 @@
     class="flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1 glass-surface"
     data-app-bar
   >
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-2">
       <router-link to="/">
         <img
           alt="Vuetify0 Logo"
@@ -63,9 +66,23 @@
       >
         <AppIcon :icon="app.drawer ? 'close' : 'menu'" />
       </button>
+
+      <button
+        aria-label="Search (Ctrl+P)"
+        class="hidden md:inline-flex items-center gap-1.5 glass-surface rounded-full shadow-lg border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 transition-colors"
+        title="Search (Ctrl+P)"
+        type="button"
+        @click="openSearch"
+      >
+        <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
+          <AppIcon icon="search" size="12" />
+        </span>
+        <kbd class="shrink-0 px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant text-[10px] font-mono inline-flex items-center">Ctrl+P</kbd>
+      </button>
     </div>
 
     <div class="flex align-center items-center gap-3">
+
       <button
         :aria-label="themeTitle"
         class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded opacity-90 hover:opacity-100 transition-all border"

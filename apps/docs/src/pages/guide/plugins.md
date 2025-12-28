@@ -6,7 +6,7 @@ meta:
   - name: keywords
     content: vuetify0, plugins, createPlugin, extensions, Vue 3, dependency injection, global features
 related:
-  - /guide/framework-core
+  - /guide/core
   - /composables/foundation/create-plugin
   - /composables/plugins/use-theme
   - /composables/plugins/use-locale
@@ -161,7 +161,7 @@ app.use(createLoggerPlugin({ adapter: sentryAdapter }))
 
 ## Consuming Plugins
 
-```vue
+```vue playground
 <script setup>
 import { useTheme, useLocale } from '@vuetify/v0'
 

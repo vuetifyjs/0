@@ -20,7 +20,7 @@ v0 provides ARIA attributes out-of-the-box through the `attrs` pattern. You prov
 
 Every v0 component exposes an `attrs` object containing all accessibility attributes. Spread it onto your elements:
 
-```vue
+```vue playground
 <script setup>
 import { Selection } from '@vuetify/v0'
 </script>
