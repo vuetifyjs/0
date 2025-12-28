@@ -30,6 +30,7 @@
     "vite-plugin-vue-layouts-next": "catalog:",
     "vite-ssg": "catalog:",
     "vite-ssg-sitemap": "catalog:",
+    "vue-component-meta": "catalog:",
     "vue-router": "catalog:"
   },
   "dependencies": {

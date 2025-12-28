@@ -15,6 +15,7 @@ import generateSitemap from 'vite-ssg-sitemap'
 import type { ViteSSGOptions } from 'vite-ssg'
 
 import copyMarkdownPlugin from './build/copy-markdown'
+import generateApiPlugin from './build/generate-api'
 import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
 import generateSearchIndexPlugin from './build/generate-search-index'
@@ -66,6 +67,7 @@ export default defineConfig({
     UnocssVitePlugin(),
     Layouts(),
     copyMarkdownPlugin(),
+    generateApiPlugin(),
     generateLlmsFullPlugin(),
     generateSearchIndexPlugin(),
     generateNavPlugin(),

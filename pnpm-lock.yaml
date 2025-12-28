@@ -171,6 +171,9 @@ catalogs:
     vue:
       specifier: 3.5.24
       version: 3.5.24
+    vue-component-meta:
+      specifier: ^3.2.1
+      version: 3.2.1
     vue-router:
       specifier: ^4.6.4
       version: 4.6.4
@@ -344,6 +347,9 @@ importers:
       vite-ssg-sitemap:
         specifier: 'catalog:'
         version: 0.10.0
+      vue-component-meta:
+        specifier: 'catalog:'
+        version: 3.2.1(typescript@5.9.3)
       vue-router:
         specifier: 'catalog:'
         version: 4.6.4(vue@3.5.24(typescript@5.9.3))
@@ -2780,6 +2786,9 @@ packages:
 
   '@vue/language-core@3.2.0':
     resolution: {integrity: sha512-CHIuDtZ04CIElAgEuLbwmq3p7QcmYoVPmBPqtdvWJCflZE5W3KHT/5DRBvDv1r2TteCjN02uYHiaAEWq9hQNiA==}
+
+  '@vue/language-core@3.2.1':
+    resolution: {integrity: sha512-g6oSenpnGMtpxHGAwKuu7HJJkNZpemK/zg3vZzZbJ6cnnXq1ssxuNrXSsAHYM3NvH8p4IkTw+NLmuxyeYz4r8A==}
 
   '@vue/reactivity@3.5.24':
     resolution: {integrity: sha512-BM8kBhtlkkbnyl4q+HiF5R5BL0ycDPfihowulm02q3WYp2vxgPcJuZO866qa/0u3idbMntKEtVNuAUp5bw4teg==}
@@ -6520,6 +6529,14 @@ packages:
       typescript:
         optional: true
 
+  vue-component-meta@3.2.1:
+    resolution: {integrity: sha512-LmiIxCeyazn4w9Te6rg2uj59/HO7OCWkoQWrixtGin/LrrazGSYlScM68kpXUDIIUa7dfBqNzMUEL3516bpgPQ==}
+    peerDependencies:
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   vue-component-type-helpers@2.2.12:
     resolution: {integrity: sha512-YbGqHZ5/eW4SnkPNR44mKVc6ZKQoRs/Rux1sxC6rdwXb4qpbOSYfDr9DsTHolOTGmIKgM9j141mZbBeg05R1pw==}
 
@@ -9261,6 +9278,16 @@ snapshots:
       typescript: 5.9.3
 
   '@vue/language-core@3.2.0':
+    dependencies:
+      '@volar/language-core': 2.4.27
+      '@vue/compiler-dom': 3.5.26
+      '@vue/shared': 3.5.26
+      alien-signals: 3.1.1
+      muggle-string: 0.4.1
+      path-browserify: 1.0.1
+      picomatch: 4.0.3
+
+  '@vue/language-core@3.2.1':
     dependencies:
       '@volar/language-core': 2.4.27
       '@vue/compiler-dom': 3.5.26
@@ -13557,6 +13584,14 @@ snapshots:
       '@vue/language-core': 2.2.12(typescript@5.9.3)
       path-browserify: 1.0.1
       vue-component-type-helpers: 2.2.12
+    optionalDependencies:
+      typescript: 5.9.3
+
+  vue-component-meta@3.2.1(typescript@5.9.3):
+    dependencies:
+      '@volar/typescript': 2.4.27
+      '@vue/language-core': 3.2.1
+      path-browserify: 1.0.1
     optionalDependencies:
       typescript: 5.9.3
 
