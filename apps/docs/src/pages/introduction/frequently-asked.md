@@ -5,6 +5,8 @@ meta:
     content: Find answers to common questions about Vuetify0 headless UI. Learn about accessibility, SSR support, styling approaches, and differences from Vuetify.
   - name: keywords
     content: vuetify0, faq, frequently asked questions, Vue 3, headless ui, accessibility, SSR
+features:
+  order: 2
 related:
   - /introduction/getting-started
   - /guide
