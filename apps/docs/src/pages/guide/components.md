@@ -97,7 +97,8 @@ Components emit data attributes for CSS styling:
 ```css
 [data-selected] { background: var(--primary); }
 [data-disabled] { opacity: 0.5; }
-[data-expanded] { /* expanded state */ }
+[data-mixed] { /* tri-state checkbox */ }
+[data-popover-open] { /* popover is visible */ }
 ```
 
 ## Component Reference

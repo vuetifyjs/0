@@ -118,20 +118,18 @@ Virtual scrolling for large datasets:
 ```ts
 import { useVirtual } from '@vuetify/v0'
 
-const container = ref<HTMLElement>()
 const items = ref(Array.from({ length: 10000 }, (_, i) => `Item ${i}`))
 
-const virtual = useVirtual({
-  container,
-  items,
+// useVirtual takes items as first arg, options as second
+const virtual = useVirtual(items, {
   itemHeight: 40
 })
 ```
 
 ```vue playground
 <template>
-  <div ref="container" style="height: 400px; overflow: auto;">
-    <div :style="{ height: `${virtual.height}px`, paddingTop: `${virtual.offset}px` }">
+  <div ref="virtual.element" style="height: 400px; overflow: auto;">
+    <div :style="{ height: `${virtual.size}px`, paddingTop: `${virtual.offset}px` }">
       <div
         v-for="item in virtual.items"
         :key="item.index"
@@ -147,11 +145,8 @@ const virtual = useVirtual({
 ### Variable Height
 
 ```ts
-const virtual = useVirtual({
-  container,
-  items,
-  estimateHeight: 40,  // Initial estimate
-  getItemHeight: (item, index) => item.type === 'header' ? 60 : 40
+const virtual = useVirtual(items, {
+  height: 400  // Container height (or use element ref)
 })
 ```
 
@@ -255,9 +250,7 @@ const query = ref('')
 const filter = createFilter()
 const { items: filtered } = filter.apply(query, items)
 
-const virtual = useVirtual({
-  container,
-  items: filtered,
+const virtual = useVirtual(filtered, {
   itemHeight: 40
 })
 ```

@@ -32,18 +32,24 @@ app.use(
     default: 'light',
     themes: {
       light: {
-        primary: '#1976D2',
-        secondary: '#424242',
-        background: '#FFFFFF',
-        surface: '#FFFFFF',
-        error: '#B00020'
+        dark: false,
+        colors: {
+          primary: '#1976D2',
+          secondary: '#424242',
+          background: '#FFFFFF',
+          surface: '#FFFFFF',
+          error: '#B00020'
+        }
       },
       dark: {
-        primary: '#2196F3',
-        secondary: '#616161',
-        background: '#121212',
-        surface: '#1E1E1E',
-        error: '#CF6679'
+        dark: true,
+        colors: {
+          primary: '#2196F3',
+          secondary: '#616161',
+          background: '#121212',
+          surface: '#1E1E1E',
+          error: '#CF6679'
+        }
       }
     }
   })
@@ -88,7 +94,8 @@ theme.cycle()            // Cycle through themes
 theme.select('dark')     // Select specific theme
 
 // Access theme values
-theme.colors.value       // Current theme's color map
+theme.colors.value                          // Map of all theme colors
+theme.colors.value[theme.selectedId.value]  // Current theme's colors
 ```
 
 ## CSS Variables
@@ -187,8 +194,10 @@ provideTheme({
   default: 'custom',
   themes: {
     custom: {
-      primary: '#E91E63',  // Pink instead of blue
-      secondary: '#9C27B0'
+      colors: {
+        primary: '#E91E63',  // Pink instead of blue
+        secondary: '#9C27B0'
+      }
     }
   }
 })
@@ -201,12 +210,12 @@ provideTheme({
 ```ts
 // Good - semantic
 themes: {
-  light: { primary: '#1976D2', error: '#B00020' }
+  light: { colors: { primary: '#1976D2', error: '#B00020' } }
 }
 
 // Avoid - literal
 themes: {
-  light: { blue: '#1976D2', red: '#B00020' }
+  light: { colors: { blue: '#1976D2', red: '#B00020' } }
 }
 ```
 
@@ -217,10 +226,12 @@ Always define contrast colors for accessibility:
 ```ts
 themes: {
   light: {
-    primary: '#1976D2',
-    'on-primary': '#FFFFFF',  // White text on primary
-    surface: '#FFFFFF',
-    'on-surface': '#212121'   // Dark text on surface
+    colors: {
+      primary: '#1976D2',
+      'on-primary': '#FFFFFF',  // White text on primary
+      surface: '#FFFFFF',
+      'on-surface': '#212121'   // Dark text on surface
+    }
   }
 }
 ```

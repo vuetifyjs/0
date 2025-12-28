@@ -23,11 +23,13 @@ Every v0 component exposes an `attrs` object containing all accessibility attrib
 ```vue playground
 <script setup>
 import { Selection } from '@vuetify/v0'
+
+const items = ['Apple', 'Banana', 'Cherry']
 </script>
 
 <template>
   <Selection.Root v-slot="{ attrs }">
-    <div v-bind="attrs.root">
+    <div v-bind="attrs">
       <Selection.Item v-for="item in items" :key="item" v-slot="{ attrs }">
         <button v-bind="attrs">{{ item }}</button>
       </Selection.Item>
@@ -87,12 +89,13 @@ v0 does **not** provide roving tabindex. This keeps the library headless - imple
 | Tabs | Arrow keys, Home/End |
 
 ```ts
-function onKeydown(e: KeyboardEvent) {
+// You implement navigation logic - v0 provides selection state
+function onKeydown(e: KeyboardEvent, ids: string[], currentIndex: number) {
   switch (e.key) {
-    case 'ArrowDown': selection.select(next()); break
-    case 'ArrowUp': selection.select(prev()); break
-    case 'Home': selection.first(); break
-    case 'End': selection.last(); break
+    case 'ArrowDown': selection.select(ids[currentIndex + 1]); break
+    case 'ArrowUp': selection.select(ids[currentIndex - 1]); break
+    case 'Home': selection.select(ids[0]); break
+    case 'End': selection.select(ids[ids.length - 1]); break
   }
 }
 ```

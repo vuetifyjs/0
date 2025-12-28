@@ -21,19 +21,19 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 
 ```
 @vuetify/v0 (packages/0/src/)
-├── components/       # Vue component wrappers
-├── composables/      # Core logic
-│   ├── foundation/   # createContext, createTrinity, createPlugin
-│   ├── registration/ # useRegistry, useTokens, useQueue, useTimeline
-│   ├── selection/    # useSelection, useSingle, useGroup, useStep
-│   ├── forms/        # useForm, useProxyModel
-│   ├── system/       # Browser API wrappers
-│   ├── plugins/      # App-level features (theme, locale, etc.)
-│   ├── utilities/    # useFilter, usePagination, useVirtual, useOverflow
-│   └── transformers/ # toArray, toReactive
+├── components/       # Vue component wrappers (one folder per component)
+├── composables/      # Core logic (flat structure, one folder per composable)
+│   ├── createContext/
+│   ├── useRegistry/
+│   ├── useSelection/
+│   └── ...           # All composables at same level
+├── constants/        # Shared constants (IN_BROWSER, etc.)
 ├── types/            # Shared TypeScript types
+├── utilities/        # Helper functions
 └── index.ts          # Public exports
 ```
+
+> Note: Composables are organized in a flat directory structure. The categories below are logical groupings for documentation purposes.
 
 ## Composable Categories
 

@@ -120,9 +120,10 @@ Every registered item is a "ticket":
 
 ```ts
 interface RegistryTicket {
-  id: ID           // Unique identifier
-  index: number    // Position in registry
-  value: unknown   // Associated data
+  id: ID              // Unique identifier
+  index: number       // Position in registry
+  value: unknown      // Associated data
+  valueIsIndex: boolean // True if value wasn't explicitly set
 }
 ```
 
@@ -169,7 +170,7 @@ const tabs = createSingle({ mandatory: true })
 
 tabs.select('tab-1')
 tabs.select('tab-2')  // tab-1 auto-unselected
-tabs.selectedId       // 'tab-2'
+tabs.selectedId.value // 'tab-2'
 ```
 
 ### useGroup
@@ -181,7 +182,7 @@ const checkboxes = createGroup()
 
 checkboxes.select(['a', 'b'])
 checkboxes.selectAll()
-checkboxes.isMixed  // true when some (not all) selected
+checkboxes.isMixed.value  // true when some (not all) selected
 ```
 
 ### useStep

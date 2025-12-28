@@ -190,20 +190,19 @@ const visibleItems = computed(() => {
 
 ## TypeScript
 
-All composables are fully typed:
+All composables are fully typed. The value type is inferred from registration:
 
 ```ts
 interface MyItem {
   id: string
   label: string
-  disabled?: boolean
 }
 
-const selection = createSelection<MyItem>()
-selection.register({ id: '1', value: { id: '1', label: 'First' } })
+const selection = createSelection()
+selection.register({ id: '1', value: { id: '1', label: 'First' } as MyItem })
 
-// Type-safe access
-const item = selection.get('1')
-item?.value.label // string
+// Type-safe access via ticket
+const ticket = selection.get('1')
+ticket?.value  // MyItem
 ```
 
