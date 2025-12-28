@@ -62,7 +62,7 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 ### Named Imports
 
 ```ts
-import { useSelection, createTheme, Atom } from '@vuetify/v0'
+import { useSelection, createThemePlugin, Atom } from '@vuetify/v0'
 ```
 
 ### Compound Components

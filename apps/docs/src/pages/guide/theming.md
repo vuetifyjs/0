@@ -148,19 +148,6 @@ const theme = useTheme()
 </template>
 ```
 
-### Persistence
-
-Theme choice persists to localStorage by default. Override with storage option:
-
-```ts
-app.use(
-  createThemePlugin({
-    storage: 'sessionStorage',  // or false to disable
-    themes: { ... }
-  })
-)
-```
-
 ## Design Tokens with useTokens
 
 For fine-grained token management beyond colors:

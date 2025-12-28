@@ -27,21 +27,24 @@ Standalone helpers for common UI patterns. These composables don't depend on con
 | [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling for large lists |
 | [useOverflow](/composables/utilities/use-overflow) | Compute visible item capacity |
 
-## useFilter
+## createFilter
 
 Filter arrays based on search queries:
 
 ```ts
-import { useFilter } from '@vuetify/v0'
+import { createFilter } from '@vuetify/v0'
 
 const items = ref(['Apple', 'Banana', 'Cherry'])
-const filter = useFilter(items)
+const query = ref('')
 
-filter.query.value = 'an'
-filter.filtered.value  // ['Banana']
+const filter = createFilter()
+const { items: filtered } = filter.apply(query, items)
+
+query.value = 'an'
+filtered.value  // ['Banana']
 ```
 
-### With Custom Accessor
+### With Object Keys
 
 ```ts
 const users = ref([
@@ -49,19 +52,21 @@ const users = ref([
   { name: 'Bob', email: 'bob@example.com' }
 ])
 
-const filter = useFilter(users, {
-  accessor: (user) => `${user.name} ${user.email}`
+const filter = createFilter({
+  keys: ['name', 'email']
 })
 
-filter.query.value = 'alice'
-filter.filtered.value  // [{ name: 'Alice', ... }]
+const query = ref('alice')
+const { items: filtered } = filter.apply(query, users)
+filtered.value  // [{ name: 'Alice', ... }]
 ```
 
-### With Debounce
+### Filter Modes
 
 ```ts
-const filter = useFilter(items, {
-  debounce: 300  // Wait 300ms after typing stops
+const filter = createFilter({
+  mode: 'intersection',  // 'some' | 'every' | 'union' | 'intersection'
+  keys: ['name', 'tags']
 })
 ```
 
@@ -227,25 +232,32 @@ config.debug  // Reactive access
 
 ```ts
 // Filter + Paginate
-const filter = useFilter(items)
-const pagination = usePagination({
-  total: computed(() => filter.filtered.value.length),
-  perPage: 10
+const query = ref('')
+const filter = createFilter()
+const { items: filtered } = filter.apply(query, items)
+
+const pagination = createPagination({
+  size: () => filtered.value.length,
+  itemsPerPage: 10
 })
 
 const displayedItems = computed(() => {
-  const start = (pagination.current.value - 1) * 10
-  return filter.filtered.value.slice(start, start + 10)
+  const start = pagination.pageStart.value
+  const end = pagination.pageStop.value
+  return filtered.value.slice(start, end)
 })
 ```
 
 ### Virtual + Filter
 
 ```ts
-const filter = useFilter(items)
+const query = ref('')
+const filter = createFilter()
+const { items: filtered } = filter.apply(query, items)
+
 const virtual = useVirtual({
   container,
-  items: filter.filtered,
+  items: filtered,
   itemHeight: 40
 })
 ```

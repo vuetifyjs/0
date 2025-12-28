@@ -132,13 +132,13 @@ For component tree sharing:
 // Parent
 import { createSelectionContext } from '@vuetify/v0'
 
-const [useSelection, provideSelection] = createSelectionContext({
+const [useTabSelection, provideTabSelection] = createSelectionContext({
   namespace: 'tabs'
 })
-provideSelection({ multiple: false })
+provideTabSelection({ multiple: false })
 
 // Child
-const selection = useSelection('tabs')
+const selection = useTabSelection()
 selection.select('home')
 ```
 
@@ -162,13 +162,17 @@ app.use(createThemePlugin({
 Build complex behavior by combining primitives:
 
 ```ts
-import { createSelection, useFilter, createPagination } from '@vuetify/v0'
+import { createSelection, createFilter, createPagination } from '@vuetify/v0'
 
 // Filterable, paginated selection
 const items = ref([...])
-const filter = useFilter(items)
+const query = ref('')
+
+const filter = createFilter()
+const { items: filtered } = filter.apply(query, items)
+
 const pagination = createPagination({
-  size: () => filter.filtered.value.length,
+  size: () => filtered.value.length,
   itemsPerPage: 10
 })
 const selection = createSelection({ multiple: true })
@@ -177,7 +181,7 @@ const selection = createSelection({ multiple: true })
 const visibleItems = computed(() => {
   const start = pagination.pageStart.value
   const end = pagination.pageStop.value
-  return filter.filtered.value.slice(start, end)
+  return filtered.value.slice(start, end)
 })
 ```
 
