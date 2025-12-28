@@ -57,7 +57,7 @@ The `Atom` component is a polymorphic base element supporting any HTML tag:
 | Mode | Usage | Output |
 | - | - | - |
 | Element | `as="button"` | `<button>` with slot content |
-| Renderless | `as={null}` or `renderless` | Slot only, no wrapper |
+| Renderless | `:as="null"` or `renderless` | Slot only, no wrapper |
 
 ## Slot Props Pattern
 

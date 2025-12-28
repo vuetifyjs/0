@@ -144,14 +144,14 @@ const theme = useTheme()
 </template>
 ```
 
-## Design Tokens with useTokens
+## Design Tokens with createTokens
 
 For fine-grained token management beyond colors:
 
 ```ts
-import { useTokens } from '@vuetify/v0'
+import { createTokens } from '@vuetify/v0'
 
-const tokens = useTokens()
+const tokens = createTokens()
 
 // Register tokens
 tokens.register({ id: 'spacing-sm', value: '0.5rem' })

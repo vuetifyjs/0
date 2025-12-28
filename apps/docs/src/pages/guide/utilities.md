@@ -22,10 +22,10 @@ Standalone helpers for common UI patterns. These composables don't depend on con
 
 | Utility | Purpose |
 | - | - |
-| [useFilter](/composables/utilities/use-filter) | Filter arrays with search queries |
-| [usePagination](/composables/utilities/use-pagination) | Page navigation state |
+| [createFilter](/composables/utilities/use-filter) | Filter arrays with search queries |
+| [createPagination](/composables/utilities/use-pagination) | Page navigation state |
 | [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling for large lists |
-| [useOverflow](/composables/utilities/use-overflow) | Compute visible item capacity |
+| [createOverflow](/composables/utilities/use-overflow) | Compute visible item capacity |
 
 ## createFilter
 
@@ -150,23 +150,23 @@ const virtual = useVirtual(items, {
 })
 ```
 
-## useOverflow
+## createOverflow
 
 Compute how many items fit in a container:
 
 ```ts
-import { useOverflow } from '@vuetify/v0'
+import { createOverflow } from '@vuetify/v0'
 
 const container = ref<HTMLElement>()
 
-const overflow = useOverflow({
+const overflow = createOverflow({
   container,
   itemWidth: 100,
   gap: 8
 })
 
-overflow.capacity.value     // Number of items that fit
-overflow.isOverflowing.value // Boolean: items exceed capacity
+overflow.capacity.value       // Number of items that fit
+overflow.isOverflowing.value  // Boolean: items exceed capacity
 ```
 
 ### Use Case: Responsive Chips
@@ -177,8 +177,8 @@ overflow.isOverflowing.value // Boolean: items exceed capacity
     <span v-for="tag in visibleTags" :key="tag" class="chip">
       {{ tag }}
     </span>
-    <span v-if="overflow.isOverflowing" class="chip">
-      +{{ tags.length - overflow.capacity }}
+    <span v-if="overflow.isOverflowing.value" class="chip">
+      +{{ tags.length - overflow.capacity.value }}
     </span>
   </div>
 </template>

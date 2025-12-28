@@ -40,17 +40,17 @@ app.mount('#app')
 ```ts
 app.use(
   createThemePlugin({
-    defaultTheme: 'dark',
+    default: 'dark',
     themes: {
-      light: { primary: '#1976D2' },
-      dark: { primary: '#2196F3' }
+      light: { dark: false, colors: { primary: '#1976D2' } },
+      dark: { dark: true, colors: { primary: '#2196F3' } }
     }
   })
 )
 
 app.use(
   createLocalePlugin({
-    defaultLocale: 'en',
+    default: 'en',
     messages: { en: { hello: 'Hello' } }
   })
 )
@@ -128,6 +128,7 @@ export function createAnalyticsPlugin(options: AnalyticsOptions) {
 
 // Usage
 app.use(createAnalyticsPlugin({ apiKey: 'xxx', debug: true }))
+```
 
 ### Plugin with Adapter Pattern
 

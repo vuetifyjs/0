@@ -71,7 +71,8 @@ import { useSelection, createThemePlugin, Atom } from '@vuetify/v0'
 import { Selection, ExpansionPanel } from '@vuetify/v0'
 
 // Usage: Selection.Root, Selection.Item
-// Usage: ExpansionPanel.Root, ExpansionPanel.Activator, ExpansionPanel.Content
+// Usage: ExpansionPanel.Root, ExpansionPanel.Item, ExpansionPanel.Header,
+//        ExpansionPanel.Activator, ExpansionPanel.Content
 ```
 
 ## File Conventions
