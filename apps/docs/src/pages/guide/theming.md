@@ -185,15 +185,14 @@ tokens.register({ id: 'shadow-sm', value: '0 1px 2px rgba(0,0,0,0.1)' })
 Override theme for a subtree using the trinity pattern:
 
 ```ts
-import { createThemeContext } from '@vuetify/v0'
+import { createThemeContext, createTheme } from '@vuetify/v0'
 
-const [useTheme, provideTheme] = createThemeContext()
-
-// Override theme for this component's descendants
-provideTheme({
+// Create a custom theme context with options
+const [useTheme, provideTheme] = createThemeContext({
   default: 'custom',
   themes: {
     custom: {
+      dark: false,
       colors: {
         primary: '#E91E63',  // Pink instead of blue
         secondary: '#9C27B0'
@@ -201,6 +200,9 @@ provideTheme({
     }
   }
 })
+
+// Provide to descendants
+provideTheme()
 ```
 
 ## Best Practices

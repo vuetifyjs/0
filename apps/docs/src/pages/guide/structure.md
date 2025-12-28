@@ -93,8 +93,7 @@ components/
 └── Selection/
     ├── SelectionRoot.vue     # Container component
     ├── SelectionItem.vue     # Child component
-    ├── Selection.ts          # Compound export
-    ├── index.ts              # Re-exports
+    ├── index.ts              # Compound export + re-exports
     └── index.test.ts         # Colocated tests
 ```
 

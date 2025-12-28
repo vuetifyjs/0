@@ -168,6 +168,11 @@ Auto-clears previous selection:
 ```ts
 const tabs = createSingle({ mandatory: true })
 
+tabs.onboard([
+  { id: 'tab-1', value: 'Home' },
+  { id: 'tab-2', value: 'About' },
+])
+
 tabs.select('tab-1')
 tabs.select('tab-2')  // tab-1 auto-unselected
 tabs.selectedId.value // 'tab-2'
@@ -179,6 +184,12 @@ Multi-select with tri-state:
 
 ```ts
 const checkboxes = createGroup()
+
+checkboxes.onboard([
+  { id: 'a', value: 'Option A' },
+  { id: 'b', value: 'Option B' },
+  { id: 'c', value: 'Option C' },
+])
 
 checkboxes.select(['a', 'b'])
 checkboxes.selectAll()
@@ -192,9 +203,15 @@ Sequential navigation:
 ```ts
 const wizard = createStep({ circular: false })
 
+wizard.onboard([
+  { id: 'step-1', value: 'Step 1' },
+  { id: 'step-2', value: 'Step 2' },
+  { id: 'step-3', value: 'Step 3' },
+])
+
+wizard.first()  // Select first step
 wizard.next()   // Move forward
 wizard.prev()   // Move backward
-wizard.first()  // Jump to start
 wizard.last()   // Jump to end
 ```
 

@@ -208,15 +208,15 @@ toArray(undefined)     // []
 
 ### toReactive
 
-Convert MaybeRef objects to reactive proxies:
+Convert ref objects to reactive proxies:
 
 ```ts
 import { toReactive } from '@vuetify/v0'
 
-const props = defineProps<{ config?: { debug: boolean } }>()
+const configRef = ref({ debug: false })
 
-// Works whether config is reactive or plain object
-const config = toReactive(() => props.config ?? { debug: false })
+// Unwraps the ref and returns a reactive object
+const config = toReactive(configRef)
 
 config.debug  // Reactive access
 ```
