@@ -65,22 +65,22 @@ const filter = useFilter(items, {
 })
 ```
 
-## usePagination
+## createPagination
 
 Pagination state management:
 
 ```ts
-import { usePagination } from '@vuetify/v0'
+import { createPagination } from '@vuetify/v0'
 
-const pagination = usePagination({
-  total: 100,
-  perPage: 10
+const pagination = createPagination({
+  size: 100,
+  itemsPerPage: 10
 })
 
-pagination.current.value  // 1
-pagination.totalPages     // 10
-pagination.hasNext        // true
-pagination.hasPrev        // false
+pagination.page.value     // 1
+pagination.pages          // 10
+pagination.isFirst.value  // true
+pagination.isLast.value   // false
 
 pagination.next()         // Go to page 2
 pagination.prev()         // Go to page 1
@@ -89,21 +89,21 @@ pagination.first()        // Go to page 1
 pagination.last()         // Go to page 10
 ```
 
-### With Reactive Total
+### With Reactive Size
 
 ```ts
 const items = ref([...])
 
-const pagination = usePagination({
-  total: computed(() => items.value.length),
-  perPage: 20
+const pagination = createPagination({
+  size: () => items.value.length,
+  itemsPerPage: 20
 })
 ```
 
-### Page Range
+### Page Items
 
 ```ts
-pagination.range  // [1, 2, 3, 4, 5] for current page context
+pagination.items.value  // [{ type: 'page', value: 1 }, { type: 'page', value: 2 }, ...]
 ```
 
 ## useVirtual

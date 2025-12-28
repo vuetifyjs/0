@@ -14,7 +14,7 @@ related:
 
 # Plugins
 
-v0 plugins are Vue plugins built with `createPlugin`. They provide app-wide singletons for features like theming, locale, and logging. For understanding the underlying architecture, see [Framework Core](/guide/framework-core).
+v0 plugins are Vue plugins built with `createPlugin`. They provide app-wide singletons for features like theming, locale, and logging. For understanding the underlying architecture, see [Core](/guide/core).
 
 <DocsPageFeatures :frontmatter />
 
@@ -24,13 +24,13 @@ v0 plugins are Vue plugins built with `createPlugin`. They provide app-wide sing
 
 ```ts
 import { createApp } from 'vue'
-import { createTheme, createLocale } from '@vuetify/v0'
+import { createThemePlugin, createLocalePlugin } from '@vuetify/v0'
 
 const app = createApp(App)
 
 // Install plugins
-app.use(createTheme())
-app.use(createLocale())
+app.use(createThemePlugin())
+app.use(createLocalePlugin())
 
 app.mount('#app')
 ```
@@ -38,31 +38,35 @@ app.mount('#app')
 ### With Options
 
 ```ts
-app.use(createTheme({
-  defaultTheme: 'dark',
-  themes: {
-    light: { primary: '#1976D2' },
-    dark: { primary: '#2196F3' }
-  }
-}))
+app.use(
+  createThemePlugin({
+    defaultTheme: 'dark',
+    themes: {
+      light: { primary: '#1976D2' },
+      dark: { primary: '#2196F3' }
+    }
+  })
+)
 
-app.use(createLocale({
-  defaultLocale: 'en',
-  messages: { en: { hello: 'Hello' } }
-}))
+app.use(
+  createLocalePlugin({
+    defaultLocale: 'en',
+    messages: { en: { hello: 'Hello' } }
+  })
+)
 ```
 
 ## Available Plugins
 
 | Plugin | Purpose | Composable |
 | - | - | - |
-| `createTheme` | CSS variable theming, dark mode | [useTheme](/composables/plugins/use-theme) |
-| `createLocale` | i18n, RTL support | [useLocale](/composables/plugins/use-locale) |
-| `createLogger` | Structured logging | [useLogger](/composables/plugins/use-logger) |
-| `createStorage` | Reactive localStorage/sessionStorage | [useStorage](/composables/plugins/use-storage) |
-| `createPermissions` | Role-based access control | [usePermissions](/composables/plugins/use-permissions) |
-| `createBreakpoints` | Responsive breakpoint detection | [useBreakpoints](/composables/plugins/use-breakpoints) |
-| `createHydration` | SSR hydration management | [useHydration](/composables/plugins/use-hydration) |
+| `createThemePlugin` | CSS variable theming, dark mode | [useTheme](/composables/plugins/use-theme) |
+| `createLocalePlugin` | i18n, RTL support | [useLocale](/composables/plugins/use-locale) |
+| `createLoggerPlugin` | Structured logging | [useLogger](/composables/plugins/use-logger) |
+| `createStoragePlugin` | Reactive localStorage/sessionStorage | [useStorage](/composables/plugins/use-storage) |
+| `createPermissionsPlugin` | Role-based access control | [usePermissions](/composables/plugins/use-permissions) |
+| `createBreakpointsPlugin` | Responsive breakpoint detection | [useBreakpoints](/composables/plugins/use-breakpoints) |
+| `createHydrationPlugin` | SSR hydration management | [useHydration](/composables/plugins/use-hydration) |
 
 ## Creating Custom Plugins
 
@@ -169,12 +173,16 @@ const theme = useTheme()
 const locale = useLocale()
 
 // Theme API
-theme.toggle()
-theme.current.value  // 'light' | 'dark'
+theme.cycle()              // Cycle through themes
+theme.select('dark')       // Select specific theme
+theme.selectedItem.value   // Current theme ticket
+theme.selectedId.value     // 'light' | 'dark'
+theme.isDark.value         // boolean
 
 // Locale API
 locale.t('hello')
-locale.current.value  // 'en'
+locale.selectedItem.value  // Current locale ticket
+locale.selectedId.value    // 'en'
 </script>
 ```
 
@@ -202,8 +210,9 @@ const adapter = options.adapter ?? defaultAdapter
 ```ts
 // Define what consumers get
 interface ThemeContext {
-  current: Ref<string>
-  toggle: () => void
+  selectedId: ComputedRef<string>
+  select: (id: string) => void
+  cycle: () => void
 }
 ```
 
@@ -211,7 +220,7 @@ interface ThemeContext {
 
 ```ts
 const theme = useTheme()
-// useTheme throws if createTheme wasn't installed
+// useTheme throws if createThemePlugin isn't installed
 // This is intentional - fail fast
 ```
 

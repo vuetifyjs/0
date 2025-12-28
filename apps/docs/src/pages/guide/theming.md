@@ -23,29 +23,31 @@ v0 theming uses CSS custom properties for runtime theme switching. The theme plu
 
 ```ts
 import { createApp } from 'vue'
-import { createTheme } from '@vuetify/v0'
+import { createThemePlugin } from '@vuetify/v0'
 
 const app = createApp(App)
 
-app.use(createTheme({
-  defaultTheme: 'light',
-  themes: {
-    light: {
-      primary: '#1976D2',
-      secondary: '#424242',
-      background: '#FFFFFF',
-      surface: '#FFFFFF',
-      error: '#B00020'
-    },
-    dark: {
-      primary: '#2196F3',
-      secondary: '#616161',
-      background: '#121212',
-      surface: '#1E1E1E',
-      error: '#CF6679'
+app.use(
+  createThemePlugin({
+    defaultTheme: 'light',
+    themes: {
+      light: {
+        primary: '#1976D2',
+        secondary: '#424242',
+        background: '#FFFFFF',
+        surface: '#FFFFFF',
+        error: '#B00020'
+      },
+      dark: {
+        primary: '#2196F3',
+        secondary: '#616161',
+        background: '#121212',
+        surface: '#1E1E1E',
+        error: '#CF6679'
+      }
     }
-  }
-}))
+  })
+)
 ```
 
 ### 2. Use in Components
@@ -58,8 +60,8 @@ const theme = useTheme()
 </script>
 
 <template>
-  <button @click="theme.toggle()">
-    Current: {{ theme.current }}
+  <button @click="theme.cycle()">
+    Current: {{ theme.selectedId }}
   </button>
 </template>
 
@@ -77,12 +79,13 @@ const theme = useTheme()
 const theme = useTheme()
 
 // Read current theme
-theme.current.value      // 'light' | 'dark'
+theme.selectedId.value   // 'light' | 'dark'
+theme.selectedItem.value // Current theme ticket
 theme.isDark.value       // boolean
 
 // Switch themes
-theme.toggle()           // Toggle light/dark
-theme.set('dark')        // Set specific theme
+theme.cycle()            // Cycle through themes
+theme.select('dark')     // Select specific theme
 
 // Access theme values
 theme.colors.value       // Current theme's color map
@@ -121,10 +124,12 @@ v0 injects variables with the `--v0-` prefix:
 ### Automatic System Detection
 
 ```ts
-app.use(createTheme({
-  defaultTheme: 'system',  // Follow OS preference
-  themes: { light: {...}, dark: {...} }
-}))
+app.use(
+  createThemePlugin({
+    defaultTheme: 'system',  // Follow OS preference
+    themes: { light: {...}, dark: {...} }
+  })
+)
 ```
 
 ### Manual Toggle
@@ -137,7 +142,7 @@ const theme = useTheme()
 </script>
 
 <template>
-  <button @click="theme.toggle()">
+  <button @click="theme.cycle()">
     {{ theme.isDark ? '☀️ Light' : '🌙 Dark' }}
   </button>
 </template>
@@ -148,10 +153,12 @@ const theme = useTheme()
 Theme choice persists to localStorage by default. Override with storage option:
 
 ```ts
-app.use(createTheme({
-  storage: 'sessionStorage',  // or false to disable
-  themes: { ... }
-}))
+app.use(
+  createThemePlugin({
+    storage: 'sessionStorage',  // or false to disable
+    themes: { ... }
+  })
+)
 ```
 
 ## Design Tokens with useTokens
