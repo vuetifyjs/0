@@ -266,4 +266,3 @@ const permissions = {
 }
 ```
 
-<DocsRelated :frontmatter />

@@ -276,4 +276,3 @@ useEventListener(element, ['click', 'dblclick'], [handler1, handler2])
 
 All combinations are automatically managed and cleaned up together.
 
-<DocsRelated :frontmatter />

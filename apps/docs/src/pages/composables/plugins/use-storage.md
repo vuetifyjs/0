@@ -119,4 +119,3 @@ interface StorageContext {
 - `remove(key)`: Remove a key from storage and stop its watcher
 - `clear()`: Clear all keys from storage and stop all watchers
 
-<DocsRelated :frontmatter />

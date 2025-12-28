@@ -287,4 +287,3 @@ Individual group items that register with the Group context. Supports tri-state 
   </template>
   ```
 
-<DocsRelated :frontmatter />

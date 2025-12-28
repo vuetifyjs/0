@@ -275,4 +275,3 @@ The Step component provides several navigation methods:
 
 All navigation methods automatically skip disabled items.
 
-<DocsRelated :frontmatter />

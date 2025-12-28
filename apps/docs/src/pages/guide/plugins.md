@@ -215,4 +215,3 @@ const theme = useTheme()
 // This is intentional - fail fast
 ```
 
-<DocsRelated :frontmatter />

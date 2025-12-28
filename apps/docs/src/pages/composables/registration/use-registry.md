@@ -617,4 +617,3 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 - **Details**
   Creates a new registry context with the trinity pattern, returning a tuple of `[useContext, provideContext, defaultContext]`. The context can be extended with additional methods by specifying a custom type for `E`.
 
-<DocsRelated :frontmatter />

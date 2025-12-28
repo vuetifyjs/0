@@ -109,4 +109,3 @@ console.log(proxy.keys) // [id1, id2]
   registry.register({ value: 'Second' }) // Logs: Registry has 2 items
   ```
 
-<DocsRelated :frontmatter />

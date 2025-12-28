@@ -92,4 +92,3 @@ export { useContext }
 
   A simple wrapper function for providing context. It uses Vue's `provide` API to make the context available to descendant components. If an `app` instance is provided, it will register the context at the application level, making it available globally.
 
-<DocsRelated :frontmatter />

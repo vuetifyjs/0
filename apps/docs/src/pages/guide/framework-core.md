@@ -217,4 +217,3 @@ wizard.last()   // Jump to end
 | Standalone logic | Direct factory call |
 | Testing | Trinity's third element |
 
-<DocsRelated :frontmatter />

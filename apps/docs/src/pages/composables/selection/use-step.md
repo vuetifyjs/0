@@ -221,4 +221,3 @@ carousel.prev()   // Wraps to slide3
   console.log(steps.selectedId.value) // 's2'
   ```
 
-<DocsRelated :frontmatter />

@@ -130,4 +130,3 @@ it('passes accessibility audit', async () => {
 
 v0's `useLocale` handles RTL and translated labels. See [useLocale](/composables/plugins/use-locale) for accessibility label translations.
 
-<DocsRelated :frontmatter />

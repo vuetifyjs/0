@@ -15,5 +15,6 @@ export default function app (app: App) {
   app.component('DocsNavigator', DocsNavigator)
   app.component('DocsExample', DocsExample)
   app.component('DocsCodeGroup', DocsCodeGroup)
+  app.component('DocsRelated', defineAsyncComponent(() => import('@/components/docs/DocsRelated.vue')))
   app.component('DocsMermaid', defineAsyncComponent(() => import('@/components/docs/DocsMermaid.vue')))
 }

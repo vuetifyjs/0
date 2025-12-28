@@ -218,4 +218,3 @@ describe('useSelection', () => {
 
 Thank you for contributing!
 
-<DocsRelated :frontmatter />

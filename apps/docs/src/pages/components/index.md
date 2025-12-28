@@ -53,4 +53,3 @@ Components for showing/hiding content.
 | [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
 | [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
 
-<DocsRelated :frontmatter />

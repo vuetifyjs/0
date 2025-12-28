@@ -237,4 +237,3 @@ The Avatar component uses a priority-based system to determine which content to 
 </template>
 ```
 
-<DocsRelated :frontmatter />

@@ -316,4 +316,3 @@ const visibleItems = items.slice(startIndex)
 - The `total` computed includes gaps between measured items
 - Use `reverse: true` for breadcrumb-style components where trailing items take priority
 
-<DocsRelated :frontmatter />

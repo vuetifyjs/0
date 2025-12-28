@@ -839,4 +839,3 @@ Pagination example with nav, ul, and li elements.
 </template>
 ```
 
-<DocsRelated :frontmatter />

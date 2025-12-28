@@ -168,4 +168,3 @@ console.log(timeline.size) // 3
   console.log(timeline.size) // 2
   ```
 
-<DocsRelated :frontmatter />

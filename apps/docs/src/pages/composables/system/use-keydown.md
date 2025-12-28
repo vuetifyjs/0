@@ -137,4 +137,3 @@ The `useKeydown` composable registers keyboard event handlers on the document wi
   console.log(isActive.value) // true
   ```
 
-<DocsRelated :frontmatter />

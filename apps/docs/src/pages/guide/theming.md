@@ -246,4 +246,3 @@ themes: {
 }
 ```
 
-<DocsRelated :frontmatter />

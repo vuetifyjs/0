@@ -82,4 +82,3 @@ Have a question that isn't answered here? Join our [Discord community](https://c
 
 <FaqList :items="faqs" />
 
-<DocsRelated :frontmatter />

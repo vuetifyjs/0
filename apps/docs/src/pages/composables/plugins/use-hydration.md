@@ -101,4 +101,3 @@ app.mixin({
 })
 ```
 
-<DocsRelated :frontmatter />

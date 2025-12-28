@@ -114,4 +114,3 @@ export const [useUser, provideUser, defaultUserContext] = createUserContext()
   )
   ```
 
-<DocsRelated :frontmatter />

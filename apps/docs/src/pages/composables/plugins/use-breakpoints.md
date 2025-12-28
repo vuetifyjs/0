@@ -169,4 +169,3 @@ interface BreakpointsContext {
 
 - `update()`: Manually trigger breakpoint recalculation (automatically called on resize)
 
-<DocsRelated :frontmatter />

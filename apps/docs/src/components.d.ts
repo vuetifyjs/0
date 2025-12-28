@@ -34,6 +34,7 @@ declare module 'vue' {
     DocsCodeGroup: typeof import('./components/docs/DocsCodeGroup.vue')['default']
     DocsExample: typeof import('./components/docs/DocsExample.vue')['default']
     DocsLastCommit: typeof import('./components/docs/DocsLastCommit.vue')['default']
+    DocsMarkdownWrapper: typeof import('./components/docs/DocsMarkdownWrapper.vue')['default']
     DocsMarkup: typeof import('./components/docs/DocsMarkup.vue')['default']
     DocsMermaid: typeof import('./components/docs/DocsMermaid.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']

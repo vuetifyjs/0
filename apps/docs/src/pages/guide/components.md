@@ -121,4 +121,3 @@ Components emit data attributes for CSS styling:
 - [ExpansionPanel](/components/disclosure/expansion-panel) - Accordion pattern
 - [Popover](/components/disclosure/popover) - Floating content
 
-<DocsRelated :frontmatter />

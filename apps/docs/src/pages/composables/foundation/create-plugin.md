@@ -108,4 +108,3 @@ Now, whenever your application starts, the plugin is registered and the context 
 - **Options**
   - `app: App` - The Vue application instance.
 
-<DocsRelated :frontmatter />

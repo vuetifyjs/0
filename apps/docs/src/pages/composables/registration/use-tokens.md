@@ -229,4 +229,3 @@ flowchart TD
   console.log(tokens.resolve('fontSize.base')) // '16px'
   ```
 
-<DocsRelated :frontmatter />

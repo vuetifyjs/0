@@ -215,4 +215,3 @@ The `sr-only` class hides content visually while keeping it accessible:
   - `resume()`: Resume detection
   - `stop()`: Stop detection and clean up
 
-<DocsRelated :frontmatter />

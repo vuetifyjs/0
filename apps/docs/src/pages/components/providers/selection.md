@@ -277,4 +277,3 @@ Individual selectable items that register with the Selection context.
   <DisabledExample />
 </DocsExample>
 
-<DocsRelated :frontmatter />

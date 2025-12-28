@@ -256,4 +256,3 @@ The Popover component uses the CSS Anchor Positioning API for positioning. The `
 
 The `positionTry` prop provides fallback positioning when the primary position doesn't fit.
 
-<DocsRelated :frontmatter />

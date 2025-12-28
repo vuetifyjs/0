@@ -394,4 +394,3 @@ pagination.next()
 - Ellipsis is only shown when there are more pages than can be displayed
 - Navigation methods (`next`, `prev`, `select`) automatically clamp to valid page range
 
-<DocsRelated :frontmatter />

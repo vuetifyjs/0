@@ -326,4 +326,3 @@ performBulkDOMUpdates()
 resume()
 ```
 
-<DocsRelated :frontmatter />

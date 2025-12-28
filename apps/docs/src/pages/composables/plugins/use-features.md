@@ -258,4 +258,3 @@ Optionally register features at runtime:
 
   See [createTrinity](/composables/foundation/create-trinity) for more details on the trinity pattern.
 
-<DocsRelated :frontmatter />

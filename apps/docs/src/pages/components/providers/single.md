@@ -237,4 +237,3 @@ Individual selectable items that register with the Single context.
   </template>
   ```
 
-<DocsRelated :frontmatter />

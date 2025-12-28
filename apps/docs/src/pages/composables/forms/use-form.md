@@ -111,4 +111,3 @@ Each registered field returns a `FormTicket` with:
 - `rules`: Array of validation functions
 - `disabled`: Whether field is disabled
 
-<DocsRelated :frontmatter />

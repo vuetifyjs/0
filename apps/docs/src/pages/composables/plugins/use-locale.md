@@ -136,4 +136,3 @@ interface LocaleContext extends SingleContext {
 - `selectedId`: Currently selected locale ID
 - `selectedItem`: Currently selected locale ticket with metadata
 
-<DocsRelated :frontmatter />

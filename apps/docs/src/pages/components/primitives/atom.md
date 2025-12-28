@@ -74,4 +74,3 @@ The base component for dynamic element rendering.
   - Slot props include all passed attributes
   - Used as the foundation for Avatar, Popover, and other components
 
-<DocsRelated :frontmatter />

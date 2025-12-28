@@ -658,4 +658,3 @@ Pass your adapter to the theme plugin or context:
     }
    ```
 
-<DocsRelated :frontmatter />

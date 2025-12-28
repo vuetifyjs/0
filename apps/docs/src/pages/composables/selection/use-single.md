@@ -165,4 +165,3 @@ flowchart TD
   console.log(single.selectedValue) // 'Banana'
   ```
 
-<DocsRelated :frontmatter />

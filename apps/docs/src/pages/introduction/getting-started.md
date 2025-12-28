@@ -110,4 +110,3 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 - [Browse Composables](/composables/) - Dive into the composables API
 - [View Examples](https://github.com/vuetifyjs/0/tree/master/playground) - Check out the playground
 
-<DocsRelated :frontmatter />

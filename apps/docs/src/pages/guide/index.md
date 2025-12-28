@@ -75,4 +75,3 @@ For building production UIs.
 | `Atom` component | Polymorphic base element | [Components](/guide/components) |
 | `useTheme` | Theme switching, CSS variables | [Theming](/guide/theming) |
 
-<DocsRelated :frontmatter />

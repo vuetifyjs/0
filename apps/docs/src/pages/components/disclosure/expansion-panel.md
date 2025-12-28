@@ -505,4 +505,3 @@ The content container for an expansion panel. Must be used within `ExpansionPane
   <AccordionExample />
 </DocsExample>
 
-<DocsRelated :frontmatter />

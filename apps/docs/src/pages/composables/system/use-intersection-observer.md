@@ -318,4 +318,3 @@ performHeavyWork()
 resume()
 ```
 
-<DocsRelated :frontmatter />
