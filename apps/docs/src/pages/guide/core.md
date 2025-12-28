@@ -43,7 +43,7 @@ provideTheme()              // Use defaults
 provideTheme(customTheme)   // Provide custom
 
 // 3. defaultTheme - Direct access without DI
-defaultTheme.toggle()
+defaultTheme.cycle()  // Cycle through themes
 ```
 
 ### Why Three Elements?

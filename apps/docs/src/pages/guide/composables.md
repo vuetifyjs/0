@@ -133,9 +133,10 @@ For component tree sharing:
 import { createSelectionContext } from '@vuetify/v0'
 
 const [useTabSelection, provideTabSelection] = createSelectionContext({
-  namespace: 'tabs'
+  namespace: 'tabs',
+  multiple: false  // Options go here, not in provideTabSelection
 })
-provideTabSelection({ multiple: false })
+provideTabSelection()
 
 // Child
 const selection = useTabSelection()
@@ -151,10 +152,12 @@ import { createApp } from 'vue'
 import { createThemePlugin } from '@vuetify/v0'
 
 const app = createApp(App)
-app.use(createThemePlugin({
-  defaultTheme: 'light',
-  themes: { light: {...}, dark: {...} }
-}))
+app.use(
+  createThemePlugin({
+    default: 'light',
+    themes: { light: {...}, dark: {...} }
+  })
+)
 ```
 
 ## Composing Composables

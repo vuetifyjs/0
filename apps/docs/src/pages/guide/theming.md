@@ -29,7 +29,7 @@ const app = createApp(App)
 
 app.use(
   createThemePlugin({
-    defaultTheme: 'light',
+    default: 'light',
     themes: {
       light: {
         primary: '#1976D2',
@@ -121,17 +121,6 @@ v0 injects variables with the `--v0-` prefix:
 
 ## Dark Mode
 
-### Automatic System Detection
-
-```ts
-app.use(
-  createThemePlugin({
-    defaultTheme: 'system',  // Follow OS preference
-    themes: { light: {...}, dark: {...} }
-  })
-)
-```
-
 ### Manual Toggle
 
 ```vue playground
@@ -162,10 +151,10 @@ tokens.register({ id: 'spacing-sm', value: '0.5rem' })
 tokens.register({ id: 'spacing-md', value: '1rem' })
 tokens.register({ id: 'radius-sm', value: '4px' })
 
-// Aliases
-tokens.alias('gap', 'spacing-md')  // gap resolves to 1rem
+// Aliases use {path} syntax in the value
+tokens.register({ id: 'gap', value: '{spacing-md}' })
 
-// Lookup
+// Lookup resolves aliases
 tokens.resolve('gap')  // '1rem'
 ```
 
@@ -186,15 +175,22 @@ tokens.register({ id: 'shadow-sm', value: '0 1px 2px rgba(0,0,0,0.1)' })
 
 ## Scoped Themes
 
-Override theme for a subtree:
+Override theme for a subtree using the trinity pattern:
 
 ```ts
-import { provideTheme } from '@vuetify/v0'
+import { createThemeContext } from '@vuetify/v0'
+
+const [useTheme, provideTheme] = createThemeContext()
 
 // Override theme for this component's descendants
 provideTheme({
-  primary: '#E91E63',  // Pink instead of blue
-  secondary: '#9C27B0'
+  default: 'custom',
+  themes: {
+    custom: {
+      primary: '#E91E63',  // Pink instead of blue
+      secondary: '#9C27B0'
+    }
+  }
 })
 ```
 

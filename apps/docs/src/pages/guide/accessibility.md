@@ -38,13 +38,13 @@ import { Selection } from '@vuetify/v0'
 
 ### What's Included in `attrs`
 
-| Composable | ARIA Attributes Provided |
+| Component | ARIA Attributes Provided |
 | - | - |
-| useSelection | `role`, `aria-selected`, `tabindex`, `id`, `data-selected` |
-| useGroup | `role="checkbox"`, `aria-checked` (true/false/mixed) |
-| ExpansionPanel | `aria-expanded`, `aria-controls`, `aria-labelledby` |
-| Pagination | `role="navigation"`, `aria-label`, `aria-current="page"` |
-| Popover | `aria-haspopup`, `aria-expanded`, `aria-controls` |
+| Selection.Item | `aria-selected`, `aria-disabled`, `data-selected`, `data-disabled` |
+| Group.Item | `role="checkbox"`, `aria-checked`, `aria-disabled`, `data-selected`, `data-disabled`, `data-mixed` |
+| ExpansionPanel.Activator | `id`, `role`, `tabindex`, `aria-expanded`, `aria-controls`, `aria-disabled` |
+| Pagination.Root | `aria-label`, `role="navigation"` (when not using `<nav>`) |
+| Popover.Anchor | `popovertarget`, `data-popover-open` (uses native popover API) |
 
 ## Developer Responsibilities
 

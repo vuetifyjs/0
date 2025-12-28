@@ -85,8 +85,10 @@ Every component exposes `attrs` in its default slot. Spread onto your element fo
 | - | - |
 | Selection.Item | `attrs`, `isSelected`, `toggle`, `select`, `unselect` |
 | Group.Item | `attrs`, `isSelected`, `isMixed`, `toggle` |
-| ExpansionPanel.Activator | `attrs`, `isExpanded`, `toggle` |
-| Popover | `attrs.activator`, `attrs.content`, `isOpen` |
+| ExpansionPanel.Activator | `attrs`, `isSelected`, `toggle` |
+| Popover.Root | `id`, `isSelected`, `toggle` |
+| Popover.Anchor | `attrs`, `isOpen` |
+| Popover.Content | `attrs`, `isOpen` |
 
 ### Data Attributes
 

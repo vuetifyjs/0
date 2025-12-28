@@ -131,13 +131,13 @@ const virtual = useVirtual({
 ```vue playground
 <template>
   <div ref="container" style="height: 400px; overflow: auto;">
-    <div :style="{ height: `${virtual.totalHeight}px`, position: 'relative' }">
+    <div :style="{ height: `${virtual.height}px`, paddingTop: `${virtual.offset}px` }">
       <div
-        v-for="item in virtual.visibleItems"
+        v-for="item in virtual.items"
         :key="item.index"
-        :style="{ position: 'absolute', top: `${item.offset}px`, height: '40px' }"
+        style="height: 40px"
       >
-        {{ item.data }}
+        {{ item.raw }}
       </div>
     </div>
   </div>
@@ -170,8 +170,8 @@ const overflow = useOverflow({
   gap: 8
 })
 
-overflow.capacity.value  // Number of items that fit
-overflow.overflow.value  // Number of items that don't fit
+overflow.capacity.value     // Number of items that fit
+overflow.isOverflowing.value // Boolean: items exceed capacity
 ```
 
 ### Use Case: Responsive Chips
@@ -182,8 +182,8 @@ overflow.overflow.value  // Number of items that don't fit
     <span v-for="tag in visibleTags" :key="tag" class="chip">
       {{ tag }}
     </span>
-    <span v-if="overflow.overflow > 0" class="chip">
-      +{{ overflow.overflow }}
+    <span v-if="overflow.isOverflowing" class="chip">
+      +{{ tags.length - overflow.capacity }}
     </span>
   </div>
 </template>

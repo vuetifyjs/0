@@ -40,11 +40,11 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 | Category | Purpose | Key Exports |
 | - | - | - |
 | **foundation** | Core factories | `createContext`, `createTrinity`, `createPlugin` |
-| **registration** | Collection management | `useRegistry`, `useTokens`, `useQueue`, `useTimeline` |
+| **registration** | Collection management | `useRegistry`, `useTokens`, `useQueue`, `useTimeline`, `useProxyRegistry` |
 | **selection** | Selection state | `useSelection`, `useSingle`, `useGroup`, `useStep` |
 | **forms** | Form handling | `useForm`, `useProxyModel` |
-| **system** | Browser APIs | `useEventListener`, `useKeydown`, `useResizeObserver` |
-| **plugins** | App features | `useTheme`, `useLocale`, `useLogger`, `useStorage` |
+| **system** | Browser APIs | `useEventListener`, `useKeydown`, `useResizeObserver`, `useClickOutside`, `useIntersectionObserver`, `useMutationObserver`, `useToggleScope` |
+| **plugins** | App features | `useTheme`, `useLocale`, `useLogger`, `useStorage`, `useBreakpoints`, `useFeatures`, `useHydration`, `usePermissions` |
 | **utilities** | UI helpers | `useFilter`, `usePagination`, `useVirtual`, `useOverflow` |
 | **transformers** | Value transforms | `toArray`, `toReactive` |
 
