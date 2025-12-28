@@ -1,34 +1,9 @@
 <script lang="ts" setup>
-  import { computed, onMounted, shallowRef, watch } from 'vue'
+  import { computed } from 'vue'
   import { useRoute } from 'vue-router'
+  import componentApis from 'virtual:component-api'
 
-  interface ApiProp {
-    name: string
-    type: string
-    required: boolean
-    default?: string
-    description?: string
-  }
-
-  interface ApiEvent {
-    name: string
-    type: string
-    description?: string
-  }
-
-  interface ApiSlot {
-    name: string
-    type?: string
-    description?: string
-  }
-
-  interface ComponentApi {
-    name: string
-    description?: string
-    props: ApiProp[]
-    events: ApiEvent[]
-    slots: ApiSlot[]
-  }
+  import type { ComponentApi } from '../../../build/generate-api'
 
   const props = defineProps<{
     /** Override component name prefix (otherwise extracted from route) */
@@ -36,8 +11,6 @@
   }>()
 
   const route = useRoute()
-  const apis = shallowRef<ComponentApi[]>([])
-  const loading = shallowRef(false)
 
   // Extract component name from route: /components/{category}/{slug} -> PascalCase
   const componentPrefix = computed(() => {
@@ -54,43 +27,23 @@
       .join('')
   })
 
-  async function fetchApis () {
+  // Find all components matching prefix (e.g., Selection -> SelectionRoot, SelectionItem)
+  const apis = computed(() => {
     const prefix = componentPrefix.value
-    if (!prefix) return
+    if (!prefix) return []
 
-    loading.value = true
+    const allApis = componentApis as Record<string, ComponentApi>
 
-    try {
-      const response = await fetch('/api/components.json')
-      if (!response.ok) {
-        apis.value = []
-        return
-      }
-
-      const allApis: Record<string, ComponentApi> = await response.json()
-
-      // Find all components matching prefix (e.g., Selection -> SelectionRoot, SelectionItem)
-      const matching = Object.entries(allApis)
-        .filter(([name]) => name.startsWith(prefix))
-        .map(([, api]) => api)
-        .toSorted((a, b) => {
-          // Sort: Root first, then alphabetically
-          if (a.name.endsWith('Root')) return -1
-          if (b.name.endsWith('Root')) return 1
-          return a.name.localeCompare(b.name)
-        })
-
-      apis.value = matching
-    } catch {
-      apis.value = []
-    } finally {
-      loading.value = false
-    }
-  }
-
-  // Fetch on mount and when component name changes
-  onMounted(fetchApis)
-  watch(componentPrefix, fetchApis)
+    return Object.entries(allApis)
+      .filter(([name]) => name.startsWith(prefix))
+      .map(([, api]) => api)
+      .toSorted((a, b) => {
+        // Sort: Root first, then alphabetically
+        if (a.name.endsWith('Root')) return -1
+        if (b.name.endsWith('Root')) return 1
+        return a.name.localeCompare(b.name)
+      })
+  })
 
   function scrollToAnchor (id: string) {
     const el = document.querySelector(`#${id}`)

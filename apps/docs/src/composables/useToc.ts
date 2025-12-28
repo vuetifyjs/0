@@ -170,6 +170,7 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     }
   }
 
+  // Watch for route changes
   watch(
     () => route.path,
     () => {
@@ -179,10 +180,26 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     { immediate: true },
   )
 
+  // Watch for dynamically added headings (e.g., from async components like DocsApi)
+  let observer: MutationObserver | null = null
+  if (IN_BROWSER && container) {
+    const observeTarget = container instanceof Document ? container.body : container
+    observer = new MutationObserver(mutations => {
+      const hasNewHeadings = mutations.some(m =>
+        Array.from(m.addedNodes).some(
+          node => node instanceof Element && (node.matches?.(selector) || node.querySelector?.(selector)),
+        ),
+      )
+      if (hasNewHeadings) debouncedScan()
+    })
+    observer.observe(observeTarget, { childList: true, subtree: true })
+  }
+
   // Cleanup pending operations on dispose
   onScopeDispose(() => {
     if (scanTimeoutId) clearTimeout(scanTimeoutId)
     if (scanRafId) cancelAnimationFrame(scanRafId)
+    observer?.disconnect()
   })
 
   return {

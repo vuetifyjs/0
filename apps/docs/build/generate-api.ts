@@ -3,6 +3,8 @@
  *
  * - Components: Uses vue-component-meta to extract props, events, slots
  * - Composables: TODO - will use ts-morph for interface extraction
+ *
+ * Provides a virtual module `virtual:component-api` for SSG compatibility.
  */
 
 import { readdir } from 'node:fs/promises'
@@ -12,12 +14,15 @@ import { fileURLToPath } from 'node:url'
 import { createChecker } from 'vue-component-meta'
 
 // Types
-import type { Plugin, ViteDevServer } from 'vite'
+import type { Plugin } from 'vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '../../..')
 const COMPONENTS_DIR = resolve(ROOT, 'packages/0/src/components')
 const TSCONFIG = resolve(ROOT, 'tsconfig.json')
+
+const VIRTUAL_MODULE_ID = 'virtual:component-api'
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
 
 // Vue internal props to filter out
 const VUE_INTERNALS = new Set([
@@ -150,89 +155,40 @@ async function generateComponentApis (): Promise<Record<string, ComponentApi>> {
 }
 
 export default function generateApiPlugin (): Plugin {
-  let isBuild = false
-  let apiCache: Record<string, ComponentApi> | null = null
+  let apiData: Record<string, ComponentApi> | null = null
+  let apiPromise: Promise<Record<string, ComponentApi>> | null = null
+
+  async function getApiData () {
+    if (apiData) return apiData
+    if (!apiPromise) {
+      apiPromise = generateComponentApis()
+    }
+    apiData = await apiPromise
+    console.log(`[generate-api] Extracted API for ${Object.keys(apiData).length} components`)
+    return apiData
+  }
 
   return {
     name: 'generate-api',
 
-    config (_, { command }) {
-      isBuild = command === 'build'
-    },
-
-    configureServer (server: ViteDevServer) {
-      server.middlewares.use(async (req, res, next) => {
-        if (!req.url?.startsWith('/api/components/')) return next()
-
-        const componentName = req.url.replace('/api/components/', '').replace('.json', '')
-
-        try {
-          if (!apiCache) {
-            apiCache = await generateComponentApis()
-          }
-
-          const api = apiCache[componentName]
-          if (!api) {
-            res.statusCode = 404
-            res.end('Not found')
-            return
-          }
-
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify(api))
-        } catch (error) {
-          console.error('[generate-api] Error:', error)
-          res.statusCode = 500
-          res.end('Error generating API')
-        }
-      })
-
-      // Also serve index of all components
-      server.middlewares.use(async (req, res, next) => {
-        if (req.url !== '/api/components.json') return next()
-
-        try {
-          if (!apiCache) {
-            apiCache = await generateComponentApis()
-          }
-
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify(apiCache))
-        } catch (error) {
-          console.error('[generate-api] Error:', error)
-          res.statusCode = 500
-          res.end('Error generating API index')
-        }
-      })
-    },
-
-    async generateBundle (_, bundle) {
-      if (!isBuild || Object.keys(bundle).some(k => k.includes('main.mjs'))) return
-
-      const apis = await generateComponentApis()
-
-      // Emit individual component API files
-      for (const [name, api] of Object.entries(apis)) {
-        this.emitFile({
-          type: 'asset',
-          fileName: `api/components/${name}.json`,
-          source: JSON.stringify(api),
-        })
+    resolveId (id) {
+      if (id === VIRTUAL_MODULE_ID) {
+        return RESOLVED_VIRTUAL_MODULE_ID
       }
+    },
 
-      // Emit index
-      this.emitFile({
-        type: 'asset',
-        fileName: 'api/components.json',
-        source: JSON.stringify(apis),
-      })
-
-      console.log(`[generate-api] Generated API for ${Object.keys(apis).length} components`)
+    async load (id) {
+      if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+        const data = await getApiData()
+        return `export default ${JSON.stringify(data)}`
+      }
     },
 
     buildEnd () {
       // Clean up checker on build end
       checker = null
+      apiData = null
+      apiPromise = null
     },
   }
 }
