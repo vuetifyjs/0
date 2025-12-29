@@ -112,6 +112,8 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 | `useFilter` | Array filtering |
 | `usePermissions` | RBAC/ABAC on `useTokens` |
 | `useLocale` | i18n with interpolation |
+| `useBreakpoints` | Responsive breakpoint detection |
+| `useLogger` | Pluggable logging with adapters |
 
 ## Proxy Utilities
 
@@ -122,8 +124,9 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 
 - **`useToggleScope`**: Conditional effect scope management
 - **Observers**: `useResizeObserver`, `useIntersectionObserver`, `useMutationObserver`
-- **Events**: `useEventListener`, `useKeydown`
+- **Events**: `useEventListener`, `useKeydown`, `useClickOutside`
 - **Storage**: `useStorage` (localStorage/sessionStorage/memory adapters)
+- **Hydration**: `useHydration` (SSR hydration state)
 - **Transformers**: `toReactive`, `toArray`
 
 ## Trinity Pattern

@@ -62,7 +62,7 @@ features:
 src/
 ├── components/
 │   ├── app/          # App shell (AppHeader, AppDrawer, etc.)
-│   ├── docs/         # Doc components (DocsExample, DocsToc, etc.)
+│   ├── docs/         # Doc components (DocsExample, DocsApi, DocsToc, etc.)
 │   └── home/         # Homepage components
 ├── composables/      # App-specific composables
 ├── examples/         # Live examples loaded by DocsExample
@@ -70,6 +70,7 @@ src/
 │   └── composables/  # examples/composables/{composable}/
 ├── layouts/          # Page layouts
 ├── pages/            # File-based routing (.vue and .md)
+│   ├── api/          # Dynamic API reference pages ([name].vue)
 │   ├── components/   # disclosure, primitives, providers, semantic
 │   ├── composables/  # foundation, forms, plugins, registration, selection, system, transformers, utilities
 │   ├── guide/        # How-to guides
@@ -79,6 +80,13 @@ src/
 ├── plugins/          # Vue plugins
 ├── stores/           # Pinia stores
 └── utilities/        # Helpers
+
+build/
+├── api-names.ts      # Shared API name discovery for SSG routes
+├── generate-api.ts   # virtual:api - component/composable API extraction
+├── generate-nav.ts   # virtual:nav - navigation structure
+├── generate-search-index.ts  # Search index generation
+└── markdown.ts       # Markdown processing
 ```
 
 ## Path Aliases
@@ -94,6 +102,8 @@ src/
 |-----------|---------|
 | `DocsExample` | Live examples from `examples/` with code |
 | `DocsMarkup` | Syntax-highlighted code blocks |
+| `DocsApi` | Auto-generated API tables with inline/links toggle |
+| `DocsApiLinks` | Card grid linking to dedicated API pages |
 | `DocsToc` | Auto-generated table of contents |
 | `DocsCodeGroup` | Tabbed code examples |
 | `DocsMermaid` | Mermaid diagram renderer |
@@ -122,3 +132,13 @@ src/
 | `useScrollPersist` | Scroll position persistence |
 | `useClipboard` | Copy to clipboard |
 | `useThemeToggle` | Dark/light mode toggle |
+| `useAsk` | AI Q&A chat with page context |
+
+## Virtual Modules
+
+| Module | Purpose |
+|--------|---------|
+| `virtual:api` | Component/composable API data extracted at build time |
+| `virtual:nav` | Navigation structure generated from pages |
+
+Import via `import data from 'virtual:api'`. Types in `vite-env.d.ts`.

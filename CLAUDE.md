@@ -31,6 +31,8 @@ pnpm build:all        # Everything
 # Quality
 pnpm test             # Watch mode
 pnpm test:run         # CI mode
+pnpm test:bench       # Run benchmarks
+pnpm metrics          # Generate performance metrics
 pnpm typecheck        # All packages
 pnpm lint             # Lint
 pnpm lint:fix         # Auto-fix
