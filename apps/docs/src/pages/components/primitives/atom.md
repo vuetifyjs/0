@@ -33,44 +33,4 @@ The Atom component provides dynamic element rendering and is used as the foundat
   <BasicExample />
 </DocsExample>
 
-## API
-
-### Atom
-
-The base component for dynamic element rendering.
-
-- **Props**
-
-  ```ts
-  interface AtomProps {
-    as?: DOMElement | null
-    renderless?: boolean
-  }
-  ```
-
-  - `as`: Element or component to render as (default: `'div'`)
-  - `renderless`: Render only slot content without wrapper (default: `false`)
-
-- **Slots**
-
-  ```ts
-  interface AtomSlots<T> {
-    default: (props: T) => any
-  }
-  ```
-
-- **Expose**
-
-  ```ts
-  interface AtomExpose {
-    element: TemplateRef<HTMLElement | null>
-  }
-  ```
-
-- **Details**
-
-  - Automatically handles self-closing tags (img, input, hr, br, etc.)
-  - Forwards all attributes using `v-bind`
-  - Slot props include all passed attributes
-  - Used as the foundation for Avatar, Popover, and other components
-
+<DocsApi />

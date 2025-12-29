@@ -30,30 +30,5 @@ const valueAsArray = toArray(value)
 console.log(valueAsArray) // ['Example Value']
 ```
 
-## API
 
-
-| Composable | Description |
-|---|---|
-| [toReactive](/composables/transformers/to-reactive) | Convert MaybeRef to reactive |
-| [useEventListener](/composables/system/use-event-listener) | Accepts single or array of events |
-### `toArray`
-
-- **Type**
-
-  ```ts
-  function toArray<Z> (value: Z | Z[]): Z[]
-  ```
-
-- **Details**
-
-  Converts a value to an array. If the value is `null` or `undefined`, returns an empty array. If the value is already an array, returns it as-is. Otherwise, wraps the value in an array.
-
-- **Example**
-  ```ts
-  toArray('hello') // ['hello']
-  toArray([1, 2, 3]) // [1, 2, 3]
-  toArray(null) // []
-  toArray(undefined) // []
-  ```
-
+<DocsApi />

@@ -1,5 +1,7 @@
 ---
 title: Theming Guide - Design Tokens and CSS Variables
+features:
+  order: 6
 meta:
   - name: description
     content: Customize your design system with Vuetify0's theming. Manage colors, design tokens, and CSS variables with useTokens and useTheme composables for Vue 3.

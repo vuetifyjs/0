@@ -44,75 +44,8 @@ console.log(filtered.value)
 // ]
 ```
 
-## API
 
-| Composable | Description |
-|---|---|
-| [useSelection](/composables/selection/use-selection) | Selection system for collections |
-| [useRegistry](/composables/registration/use-registry) | Base registry system for managing items |
-| [useProxyModel](/composables/forms/use-proxy-model) | Two-way binding for filtered selections |
-
-- **Type**
-
-  ```ts
-  export type Primitive = string | number | boolean
-  export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>
-  export type FilterItem = Primitive | Record<string, any>
-  export type FilterMode = 'some' | 'every' | 'union' | 'intersection'
-  export type FilterFunction = (query: Primitive | Primitive[], item: FilterItem) => boolean
-
-  export interface FilterOptions {
-    customFilter?: FilterFunction
-    keys?: string[]
-    mode?: FilterMode
-  }
-
-  export interface FilterResult<Z extends FilterItem = FilterItem> {
-    items: ComputedRef<Z[]>
-  }
-
-  export interface FilterContext<Z extends FilterItem = FilterItem> {
-    mode: FilterMode
-    keys: string[] | undefined
-    customFilter: FilterFunction | undefined
-    query: ShallowRef<Primitive | Primitive[]>
-    apply: <T extends Z>(query: FilterQuery, items: MaybeRef<T[]>) => FilterResult<T>
-  }
-
-  // Direct usage
-  function useFilter<Z extends FilterItem>(
-    query: FilterQuery,
-    items: MaybeRef<Z[]>,
-    options?: FilterOptions
-  ): FilterResult<Z>
-
-  // Context creation
-  function createFilter<Z extends FilterItem>(options?: FilterOptions): FilterContext<Z>
-  function createFilterContext<Z extends FilterItem>(options?: FilterContextOptions): ContextTrinity<FilterContext<Z>>
-  function useFilterContext<Z extends FilterItem>(namespace?: string): FilterContext<Z>
-  ```
-
-- **Details**
-
-  The `useFilter` composable accepts a query (string, number, boolean, or array), an array of items to filter, and optional configuration. It returns a reactive `items` computed property containing the filtered results.
-
-  **Filter Modes:**
-  - `some` (default): Match if ANY field contains the query
-  - `every`: Match if ALL fields contain the query
-  - `union`: Match if ANY query matches ANY field (OR logic for multiple queries)
-  - `intersection`: Match if ALL queries match at least one field (AND logic for multiple queries)
-
-- **Parameters**
-
-  - `query`: The search query (reactive). Can be a single value or array of values.
-  - `items`: The array to filter (reactive or static).
-  - `options.keys`: Array of object keys to filter by. If omitted, all values are searched.
-  - `options.mode`: Filter mode (`'some'`, `'every'`, `'union'`, `'intersection'`).
-  - `options.customFilter`: Custom filter function for advanced use cases.
-
-- **Returns**
-
-  - `items`: Computed property containing filtered items.
+<DocsApi />
 
 ## Examples
 

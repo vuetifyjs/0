@@ -165,53 +165,5 @@ The `sr-only` class hides content visually while keeping it accessible:
 }
 ```
 
-## API
 
-### `useClickOutside`
-
-- **Type**
-  ```ts
-  interface UseClickOutsideOptions {
-    capture?: boolean              // Use capture phase (default: true)
-    touchScrollThreshold?: number  // Touch scroll threshold in px (default: 30)
-    detectIframe?: boolean         // Detect iframe focus (default: false)
-    ignore?: MaybeRefOrGetter<ClickOutsideIgnoreTarget[]>
-  }
-
-  interface UseClickOutsideReturn {
-    readonly isActive: Readonly<Ref<boolean>>
-    readonly isPaused: Readonly<Ref<boolean>>
-    pause: () => void
-    resume: () => void
-    stop: () => void
-  }
-
-  function useClickOutside(
-    target: ClickOutsideTarget | readonly ClickOutsideTarget[],
-    handler: (event: PointerEvent | FocusEvent) => void,
-    options?: UseClickOutsideOptions
-  ): UseClickOutsideReturn
-  ```
-
-- **Details**
-
-  Uses two-phase detection (pointerdown → pointerup) to prevent false positives when users drag from inside to outside an element. Touch interactions that move more than the threshold are treated as scrolls, not clicks.
-
-- **Parameters**
-
-  - `target`: Element ref(s) to detect clicks outside of
-  - `handler`: Callback invoked when a click outside is detected
-  - `options`:
-    - `capture`: Use capture phase for event listeners (default: true)
-    - `touchScrollThreshold`: Pixel threshold for touch scroll detection (default: 30)
-    - `detectIframe`: Detect focus moving to iframes outside target (default: false)
-    - `ignore`: Elements or CSS selectors to ignore
-
-- **Returns**
-
-  - `isActive`: Whether detection is currently active
-  - `isPaused`: Whether detection is paused
-  - `pause()`: Pause detection (clears pending state)
-  - `resume()`: Resume detection
-  - `stop()`: Stop detection and clean up
-
+<DocsApi />

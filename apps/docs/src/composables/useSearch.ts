@@ -196,7 +196,7 @@ export function useSearch (): UseSearchReturn {
   }
 
   function getSelected (): SearchResult | undefined {
-    return results.value[selectedIndex.value]
+    return groupedResults.value.flatMap(g => g.items)[selectedIndex.value]
   }
 
   function selectPrev () {

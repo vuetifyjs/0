@@ -31,29 +31,5 @@ const rstate = toReactive(state)
 console.log(rstate.name) // 'John' (no .value needed)
 ```
 
-## API
 
-
-| Composable | Description |
-|---|---|
-| [toArray](/composables/transformers/to-array) | Convert value to array |
-| [useProxyModel](/composables/forms/use-proxy-model) | Two-way binding with transformation |
-### `toReactive`
-
-- **Type**
-
-  ```ts
-  function toReactive<Z extends object> (
-    objectRef: MaybeRef<Z>
-  ): UnwrapNestedRefs<Z>
-  ```
-
-- **Details**
-
-  Converts a `MaybeRef` to a reactive proxy that automatically unwraps ref values. Provides special handling for:
-  - **Map**: Unwraps ref values when accessing via `get()`, and updates existing refs when using `set()`
-  - **Set**: Unwraps ref values during iteration
-  - **Objects/Arrays**: Unwraps nested refs automatically
-
-  **Z** represents the type of the object being converted.
-
+<DocsApi />

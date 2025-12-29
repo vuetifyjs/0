@@ -59,58 +59,5 @@ function createUserContext() {
 export const [useUser, provideUser, defaultUserContext] = createUserContext()
 ```
 
-## API
 
-### `createTrinity`{ #create-trinity }
-
-- **Type**
-  ```ts
-  type ContextTrinity<Z = unknown> = readonly [
-    () => Z,
-    (context: Z, app?: App) => Z,
-    Z,
-  ]
-
-  function createTrinity<Z>(
-    useContext: () => Z,
-    provideContext: (context: Z, app?: App) => Z,
-    context: Z
-  ): ContextTrinity<Z>
-  ```
-
-- **Details**
-
-  Creates a readonly 3-item tuple (trinity) containing:
-  1. A context consumer function (useContext)
-  2. A context provider function (provideContext)
-  3. The default context instance
-
-  This pattern provides a clean and type-safe way to create sharable singleton state across components.
-
-- **Parameters**
-
-  - `useContext`: Function to access/consume the context
-  - `provideContext`: Function to provide the context to the application or component tree
-  - `context`: The actual context object instance
-
-- **Returns**
-
-  A readonly tuple `[useContext, provideContext, context]`
-
-- **Example**
-  ```ts
-  const [_useAuth, _provideAuth] = createContext<AuthContext>('auth')
-
-  const context: AuthContext = {
-    user: ref(null),
-    login: async (credentials) => { /* ... */ },
-    logout: () => { /* ... */ }
-  }
-
-  export const [useAuth, provideAuth, context] = createTrinity<AuthContext>(
-    _useAuth,
-    _provideAuth,
-    context
-  )
-  ```
-
+<DocsApi />

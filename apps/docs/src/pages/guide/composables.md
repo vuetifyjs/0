@@ -1,5 +1,7 @@
 ---
 title: Composables Guide - Headless Logic for Vue 3
+features:
+  order: 3
 meta:
   - name: description
     content: Learn how to use Vuetify0 composables for headless UI logic. Understand when to use composables vs components, and how to build custom UI with type-safe primitives.

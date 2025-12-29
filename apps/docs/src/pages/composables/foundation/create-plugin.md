@@ -79,32 +79,5 @@ Now, whenever your application starts, the plugin is registered and the context 
 </script>
 ```
 
-## API
 
-### `createPlugin`{ #create-plugin }
-
-- **Type**
-
-  ```ts
-  export interface PluginOptions {
-    namespace: string
-    provide: (app: App) => void
-    setup?: (app: App) => void
-  }
-
-  export interface Plugin {
-    install: (app: App, ...options: any[]) => void
-  }
-
-  function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions): Z
-  ```
-
--  **Details**
-  - `namespace: string` - The namespace for the context being provided.
-  - `provide: (app: App) => void` - A function that takes the Vue application instance and provides the context using Vue's Provide/Inject system.
-  - `setup?: (app: App) => void` - An optional function for any additional setup that needs to be done when the plugin is installed.
-  - `install: (app: App, ...options: any[]) => void` - The install method that Vue calls when the plugin is used. It runs the `provide` and `setup` functions with the application instance.
-
-- **Options**
-  - `app: App` - The Vue application instance.
-
+<DocsApi />

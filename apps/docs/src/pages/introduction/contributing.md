@@ -5,6 +5,8 @@ meta:
     content: Learn how to contribute to Vuetify0. Setup local development, submit pull requests, write tests, and follow coding conventions for Vue 3 composables.
   - name: keywords
     content: vuetify0, contributing, open source, pull request, development, testing, Vue 3
+features:
+  order: 3
 related:
   - /introduction/getting-started
 ---
