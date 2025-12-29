@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-  // Types
-  import type Mermaid from 'mermaid'
   // Utilities
+  import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 
-  import { decodeBase64 } from '@/utilities/decodeBase64'
+  // Types
+  import type Mermaid from 'mermaid'
 
   const mermaid = shallowRef<typeof Mermaid>()
 

@@ -1,7 +1,10 @@
 <script setup lang="ts">
+  // Framework
   import { ExpansionPanel } from '@vuetify/v0'
-  import { computed } from 'vue'
+
+  // Utilities
   import { processLinks } from '@/utilities/processLinks'
+  import { computed } from 'vue'
 
   interface FaqItem {
     id: string

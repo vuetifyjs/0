@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Types
   import type { ComponentApi, ComposableApi } from '../../../build/generate-api'
 
   defineProps<{

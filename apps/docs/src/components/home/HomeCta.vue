@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Composables
   import { usePlayground } from '@/composables/playground'
 
   const starterCode = `<script setup lang="ts">

@@ -1,6 +1,9 @@
 <script lang="ts" setup>
-  import { shallowRef } from 'vue'
+  // Components
   import DocsToc from '../docs/DocsToc.vue'
+
+  // Utilities
+  import { shallowRef } from 'vue'
 
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
 </script>

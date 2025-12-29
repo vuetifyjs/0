@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Framework
   import { Avatar } from '@vuetify/v0'
 </script>
 

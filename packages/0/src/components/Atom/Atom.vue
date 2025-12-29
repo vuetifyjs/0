@@ -21,14 +21,15 @@
    * rendering capabilities.
    */
 
+  import { isSelfClosingTag } from '#v0/constants/htmlElements'
+
+  // Utilities
+  import { isNull, isString } from '#v0/utilities'
+  import { toRef, useAttrs, useTemplateRef } from 'vue'
+
   // Types
   import type { DOMElement } from '#v0/types'
   import type { TemplateRef } from 'vue'
-  import { isSelfClosingTag } from '#v0/constants/htmlElements'
-
-  import { isNull, isString } from '#v0/utilities'
-  // Utilities
-  import { toRef, useAttrs, useTemplateRef } from 'vue'
 
   /**
    * Props for the Atom component

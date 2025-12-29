@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   // Components
-  import AppIcon from '@/components/app/AppIcon.vue'
   import DocsAskMessage from './DocsAskMessage.vue'
+  import AppIcon from '@/components/app/AppIcon.vue'
 
   // Composables
   import { getBinUrl } from '@/composables/bin'

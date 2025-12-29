@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Components
   import Playground from './Playground.vue'
 </script>
 

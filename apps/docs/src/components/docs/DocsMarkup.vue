@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   // Utilities
-  import { computed } from 'vue'
   import { decodeBase64 } from '@/utilities/decodeBase64'
+  import { computed } from 'vue'
 
   const props = defineProps<{
     code: string // base64 encoded

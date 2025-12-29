@@ -1,9 +1,9 @@
 <script setup lang="ts">
+  // Framework
+  import { Atom } from '@vuetify/v0'
+
   // Types
   import type { AtomProps } from '@vuetify/v0'
-
-  // Components
-  import { Atom } from '@vuetify/v0'
 
   const { as = 'footer' } = defineProps<AtomProps>()
 </script>

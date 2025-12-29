@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  // Composables
+  // Framework
   import { useWindowEventListener } from '@vuetify/v0'
 
   // Utilities

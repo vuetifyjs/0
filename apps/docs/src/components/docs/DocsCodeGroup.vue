@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  // Composables
+  // Framework
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
 
   // Utilities

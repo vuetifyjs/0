@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
   const panels = [

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Utilities
   import { onMounted, ref } from 'vue'
 
   const stats = ref({

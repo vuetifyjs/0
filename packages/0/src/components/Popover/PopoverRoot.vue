@@ -8,12 +8,12 @@
  */
 
 <script lang="ts">
+  // Foundational
+  import { createContext } from '#v0/composables/createContext'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-
   import type { ShallowRef } from 'vue'
-  // Composables
-  import { createContext } from '#v0/composables/createContext'
 
   export interface PopoverContext {
     isSelected: ShallowRef<boolean>

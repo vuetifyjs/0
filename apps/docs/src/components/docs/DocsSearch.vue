@@ -1,6 +1,11 @@
 <script lang="ts" setup>
-  import { useSearch } from '@/composables/useSearch'
+  // Framework
   import { useDocumentEventListener } from '@vuetify/v0'
+
+  // Composables
+  import { useSearch } from '@/composables/useSearch'
+
+  // Utilities
   import { nextTick, useTemplateRef, watch } from 'vue'
   import { useRouter } from 'vue-router'
 

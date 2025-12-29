@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Components
   import DocsAsk from '@/components/docs/DocsAsk.vue'
   import DocsSearch from '@/components/docs/DocsSearch.vue'
 </script>

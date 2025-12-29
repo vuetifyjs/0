@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+  // Framework
+  import { Atom } from '@vuetify/v0'
+
   // Types
   import type { AtomProps } from '@vuetify/v0'
-
-  // Components
-  import { Atom } from '@vuetify/v0'
 
   export interface AppIconButtonProps extends AtomProps {
     icon: string

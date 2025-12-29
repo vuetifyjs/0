@@ -1,5 +1,8 @@
 <script lang="ts" setup>
+  // Framework
   import { IN_BROWSER, useDocumentEventListener, useWindowEventListener } from '@vuetify/v0'
+
+  // Utilities
   import { shallowRef } from 'vue'
 
   const show = shallowRef(false)

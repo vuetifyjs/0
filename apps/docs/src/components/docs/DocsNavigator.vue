@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+  // Utilities
   import { computed } from 'vue'
   import { useRoute } from 'vue-router'
+
   import { useAppStore } from '@/stores/app'
 
   const app = useAppStore()

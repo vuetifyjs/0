@@ -1,7 +1,11 @@
 <script lang="ts" setup>
+  // Composables
+  import { useClipboard } from '@/composables/useClipboard'
+
+  // Utilities
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
-  import { useClipboard } from '@/composables/useClipboard'
+
   import metrics from '@/data/metrics.json'
 
   const props = defineProps<{

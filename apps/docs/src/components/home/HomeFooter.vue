@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Composables
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
   const { icon: themeIcon, title: themeTitle, toggle: toggleTheme } = useThemeToggle()

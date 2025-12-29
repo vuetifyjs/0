@@ -1,15 +1,14 @@
 <script setup lang="ts">
-  // Types
-  import type { AtomExpose, AtomProps } from '@vuetify/v0'
-
-  // Vuetify0
+  // Framework
+// Vuetify0
   import { Atom, useBreakpoints, useClickOutside } from '@vuetify/v0'
 
   // Utilities
   import { useTemplateRef, watch } from 'vue'
-
-  // Composables
   import { useRoute } from 'vue-router'
+
+  // Types
+  import type { AtomExpose, AtomProps } from '@vuetify/v0'
 
   // Stores
   import { useAppStore } from '@/stores/app'

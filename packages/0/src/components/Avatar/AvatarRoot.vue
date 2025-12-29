@@ -8,12 +8,12 @@
  */
 
 <script lang="ts">
+  // Foundational
+  import { createContext } from '#v0/composables/createContext'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-
   import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
-  // Composables
-  import { createContext } from '#v0/composables/createContext'
 
   export interface AvatarRootProps extends AtomProps {
     /** Namespace for dependency injection */

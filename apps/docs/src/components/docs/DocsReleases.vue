@@ -1,14 +1,17 @@
 <script setup lang="ts">
+  import { Marked } from 'marked'
+
+  // Framework
   // Vuetify0
   import { Popover, useFilter } from '@vuetify/v0'
 
-  // Utilities
-  import { Marked } from 'marked'
-  import { computed, onBeforeMount, shallowRef, toRef, watch } from 'vue'
-
-  import { useRoute, useRouter } from 'vue-router'
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
+
+  // Utilities
+  import { computed, onBeforeMount, shallowRef, toRef, watch } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+
   import { type Release, useReleasesStore } from '@/stores/releases'
 
   const reactions: Record<string, string> = {
@@ -93,7 +96,6 @@
   function onSearch (query: string) {
     if (timeout) clearTimeout(timeout)
     timeout = setTimeout(() => {
-      // eslint-disable-next-line unicorn/no-array-callback-reference
       store.find(query)
     }, 500)
   }

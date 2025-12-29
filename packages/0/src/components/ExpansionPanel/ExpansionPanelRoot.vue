@@ -11,21 +11,23 @@
  */
 
 <script lang="ts">
-  import type { AtomProps } from '#v0/components/Atom'
-
-  import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
-  // Types
-  import type { ID } from '#v0/types'
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Composables
+  // Foundational
   import { createContext } from '#v0/composables/createContext'
 
+  // Composables
   import { useProxyModel } from '#v0/composables/useProxyModel'
   import { createSelection } from '#v0/composables/useSelection'
+
   // Utilities
   import { type Ref, toRef } from 'vue'
+
+  // Types
+  import type { AtomProps } from '#v0/components/Atom'
+  import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+  import type { ID } from '#v0/types'
 
   export interface ExpansionPanelOptionsContext {
     /** Disabled state of the entire expansion panel */

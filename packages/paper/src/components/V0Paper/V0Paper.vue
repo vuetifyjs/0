@@ -1,26 +1,26 @@
 <script lang="ts">
-  import type { BorderProps } from '#paper/composables/useBorder'
-
-  import type { ColorProps } from '#paper/composables/useColor'
-  import type { DimensionProps } from '#paper/composables/useDimensions'
-  import type { ElevationProps } from '#paper/composables/useElevation'
-  import type { RoundedProps } from '#paper/composables/useRounded'
-  import type { SpacingProps } from '#paper/composables/useSpacing'
-  // Types
-  import type { AtomProps } from '@vuetify/v0'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
   // Composables
   import { useBorder } from '#paper/composables/useBorder'
-
   import { useColor } from '#paper/composables/useColor'
   import { useDimensions } from '#paper/composables/useDimensions'
   import { useElevation } from '#paper/composables/useElevation'
   import { useRounded } from '#paper/composables/useRounded'
   import { useSpacing } from '#paper/composables/useSpacing'
-  // Components
-  import { Atom } from '@vuetify/v0'
+
   // Utilities
   import { toRef } from 'vue'
+
+  // Types
+  import type { BorderProps } from '#paper/composables/useBorder'
+  import type { ColorProps } from '#paper/composables/useColor'
+  import type { DimensionProps } from '#paper/composables/useDimensions'
+  import type { ElevationProps } from '#paper/composables/useElevation'
+  import type { RoundedProps } from '#paper/composables/useRounded'
+  import type { SpacingProps } from '#paper/composables/useSpacing'
+  import type { AtomProps } from '@vuetify/v0'
 
   interface V0PaperPropsBase {
     fontSize?: string

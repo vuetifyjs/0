@@ -8,12 +8,12 @@
  */
 
 <script lang="ts">
-  import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+  // Foundational
+  import { createContext } from '#v0/composables/createContext'
 
   // Types
+  import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
   import type { ID } from '#v0/types'
-  // Composables
-  import { createContext } from '#v0/composables/createContext'
 
   export interface SelectionRootProps {
     /** Namespace for dependency injection (must match SelectionItem namespace) */

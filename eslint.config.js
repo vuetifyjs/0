@@ -19,7 +19,7 @@ export default vuetify({
   },
 },
 {
-  files: ['**/*.ts'],
+  files: ['**/*.ts', '**/*.vue'],
   rules: {
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     'unicorn/no-array-callback-reference': 'off',

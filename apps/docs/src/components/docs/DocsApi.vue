@@ -1,11 +1,17 @@
 <script lang="ts" setup>
-  import { useStorage } from '@vuetify/v0'
-  import { computed, ref, shallowReactive, useId } from 'vue'
-  import { useRoute } from 'vue-router'
   import apiData from 'virtual:api'
 
+  // Framework
+  import { useStorage } from '@vuetify/v0'
+
+  // Composables
   import { useHighlighter } from '@/composables/useHighlighter'
 
+  // Utilities
+  import { computed, ref, shallowReactive, useId } from 'vue'
+  import { useRoute } from 'vue-router'
+
+  // Types
   import type { ApiData, ApiMethod, ApiProperty } from '../../../build/generate-api'
 
   type ExampleState = { html: string, code: string }

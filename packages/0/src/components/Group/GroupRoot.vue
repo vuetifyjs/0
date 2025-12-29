@@ -8,12 +8,12 @@
  */
 
 <script lang="ts">
-  import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
+  // Foundational
+  import { createContext } from '#v0/composables/createContext'
 
   // Types
+  import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
   import type { ID } from '#v0/types'
-  // Composables
-  import { createContext } from '#v0/composables/createContext'
 
   export interface GroupRootProps {
     /** Namespace for dependency injection (must match GroupItem namespace) */
@@ -62,8 +62,8 @@
 </script>
 
 <script lang="ts" setup generic="T = unknown">
-  import { createGroup } from '#v0/composables/useGroup'
   // Composables
+  import { createGroup } from '#v0/composables/useGroup'
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities

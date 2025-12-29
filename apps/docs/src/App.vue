@@ -1,6 +1,8 @@
 <script lang="ts" setup>
   import { InferSeoMetaPlugin } from '@unhead/addons'
   import { injectHead, useHead } from '@unhead/vue'
+
+  // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
 
   useScrollPersist()
@@ -73,6 +75,8 @@
       > .header-anchor {
         color: inherit;
         text-decoration: none;
+        display: inline-flex;
+        align-items: center;
 
         &::before,
         &::after {

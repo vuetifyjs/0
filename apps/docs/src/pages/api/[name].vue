@@ -1,10 +1,14 @@
 <script lang="ts" setup>
-  import { computed, ref, shallowReactive, useId } from 'vue'
-  import { useRoute } from 'vue-router'
   import apiData from 'virtual:api'
 
+  // Composables
   import { useHighlighter } from '@/composables/useHighlighter'
 
+  // Utilities
+  import { computed, ref, shallowReactive, useId } from 'vue'
+  import { useRoute } from 'vue-router'
+
+  // Types
   import type { ApiData, ApiMethod, ApiProperty, ComponentApi, ComposableApi } from '../../../build/generate-api'
 
   type ExampleState = { html: string, code: string }

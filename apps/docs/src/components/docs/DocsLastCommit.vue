@@ -1,5 +1,7 @@
 <script lang="ts" setup>
+  // Utilities
   import { onMounted } from 'vue'
+
   import { useAppStore } from '@/stores/app'
 
   const app = useAppStore()

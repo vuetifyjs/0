@@ -17,18 +17,18 @@
  */
 
 <script lang="ts">
-  // Types
-  import type { AtomProps } from '#v0/components/Atom'
-
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { usePaginationRoot } from './PaginationRoot.vue'
+
   // Composables
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
   import { shallowRef, toRef, watch } from 'vue'
 
-  import { usePaginationRoot } from './PaginationRoot.vue'
+  // Types
+  import type { AtomProps } from '#v0/components/Atom'
 
   export interface PaginationStatusProps extends AtomProps {
     /** Namespace for dependency injection */

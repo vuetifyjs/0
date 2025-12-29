@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  // Components
+  // Framework
   import { Atom } from '@vuetify/v0'
 
   // Utilities

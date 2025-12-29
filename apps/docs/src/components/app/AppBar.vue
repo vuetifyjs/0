@@ -1,18 +1,18 @@
 <script setup lang="ts">
-  // Types
-  import type { AtomProps } from '@vuetify/v0'
-
-  // Components
+  // Framework
   import { Atom, useFeatures, useStorage } from '@vuetify/v0'
-  // Utilities
-  import { toRef, watch } from 'vue'
 
-  import { useRoute } from 'vue-router'
-
+  // Composables
   import { useSearch } from '@/composables/useSearch'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
-  // Composables
+  // Utilities
+  import { toRef, watch } from 'vue'
+  import { useRoute } from 'vue-router'
+
+  // Types
+  import type { AtomProps } from '@vuetify/v0'
+
   import { useAppStore } from '@/stores/app'
 
   const { as = 'header' } = defineProps<AtomProps>()

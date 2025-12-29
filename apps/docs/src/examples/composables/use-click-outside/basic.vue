@@ -1,5 +1,8 @@
 <script lang="ts" setup>
+  // Framework
   import { useClickOutside, useKeydown } from '@vuetify/v0'
+
+  // Utilities
   import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
   const isOpen = shallowRef(false)

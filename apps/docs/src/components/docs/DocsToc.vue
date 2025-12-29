@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Composables
   import { useToc } from '@/composables/useToc'
 
   const { headings, selectedId, scrollTo } = useToc()

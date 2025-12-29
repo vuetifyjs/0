@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-  // Utilities
+  // Framework
   import { toArray } from '@vuetify/v0'
 
+  // Utilities
   import { toRef } from 'vue'
-  // Composables
+
   import { useIconContext } from '@/plugins/icons'
 
   export interface AppIconProps {

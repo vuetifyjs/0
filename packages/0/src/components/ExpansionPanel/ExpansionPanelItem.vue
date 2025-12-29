@@ -11,20 +11,20 @@
  */
 
 <script lang="ts">
-  // Types
-  import type { AtomProps } from '#v0/components/Atom'
-
-  import type { SelectionTicket } from '#v0/composables/useSelection'
-  import type { MaybeRef, Ref } from 'vue'
-
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
-  // Composables
+  // Foundational
   import { createContext } from '#v0/composables/createContext'
+
   // Utilities
   import { onBeforeUnmount, toRef, toValue } from 'vue'
-  import { useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
+
+  // Types
+  import type { AtomProps } from '#v0/components/Atom'
+  import type { SelectionTicket } from '#v0/composables/useSelection'
+  import type { MaybeRef, Ref } from 'vue'
 
   export interface ExpansionPanelItemProps<V = unknown> extends AtomProps {
     /** Unique identifier for the panel item (auto-generated if not provided) */

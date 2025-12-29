@@ -1,11 +1,13 @@
 <script lang="ts" setup>
+  // Framework
+  import { useDocumentEventListener } from '@vuetify/v0'
+
   // Components
   import DocsAskInput from './DocsAskInput.vue'
   import DocsAskSheet from './DocsAskSheet.vue'
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
-  import { useDocumentEventListener } from '@vuetify/v0'
 
   // Utilities
   import { toRef, nextTick, useTemplateRef } from 'vue'

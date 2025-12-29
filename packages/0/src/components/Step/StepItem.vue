@@ -52,11 +52,11 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
+  // Components
+  import { useStepRoot } from './StepRoot.vue'
+
   // Utilities
   import { onUnmounted, toRef, toValue } from 'vue'
-
-  // Composables
-  import { useStepRoot } from './StepRoot.vue'
 
   defineOptions({ name: 'StepItem' })
 

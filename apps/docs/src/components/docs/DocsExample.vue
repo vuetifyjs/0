@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-  // Utilities
-  import { computed, ref, toRef, useId } from 'vue'
+  // Composables
   import { getBinUrl } from '@/composables/bin'
   import { usePlayground } from '@/composables/playground'
-  // Composables
   import { useClipboard } from '@/composables/useClipboard'
-
   import { useHighlightCode } from '@/composables/useHighlightCode'
+
+  // Utilities
+  import { computed, ref, toRef, useId } from 'vue'
 
   const props = defineProps<{
     file?: string

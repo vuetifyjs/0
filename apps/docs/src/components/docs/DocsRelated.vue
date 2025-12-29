@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  // Utilities
   import { toRef } from 'vue'
 
   function scrollToAnchor (id: string) {

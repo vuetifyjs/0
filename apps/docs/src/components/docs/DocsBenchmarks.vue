@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+  // Utilities
   import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
+
   import metrics from '@/data/metrics.json'
 
   interface BenchmarkEntry {

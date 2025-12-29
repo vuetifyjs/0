@@ -1,8 +1,13 @@
 <script lang="ts" setup>
+  // Framework
   import { Selection } from '@vuetify/v0'
-  import { computed, onMounted, ref } from 'vue'
+
+  // Composables
   import { usePlayground } from '@/composables/playground'
   import { useHighlightCode } from '@/composables/useHighlightCode'
+
+  // Utilities
+  import { computed, onMounted, ref } from 'vue'
 
   const items = ref([
     { id: 1, label: 'Option A' },
