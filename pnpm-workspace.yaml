@@ -46,6 +46,7 @@ catalog:
   shiki: ^3.20.0
   storybook: ^10.1.9
   swetrix: ^3.7.2
+  ts-morph: ^27.0.2
   tsdown: ^0.16.1
   typescript: 5.9.3
   unocss: ^66.5.10

@@ -47,6 +47,21 @@
               >
                 {{ h3.text }}
               </a>
+
+              <ul v-if="h3.children.length > 0" class="ml-3 space-y-0.5">
+                <li v-for="h4 in h3.children" :key="h4.id">
+                  <a
+                    class="block py-0.5 hover:text-primary hover:underline transition-colors truncate text-xs"
+                    :class="selectedId === h4.id
+                      ? 'text-primary font-medium underline'
+                      : 'text-gray-400 dark:text-gray-500'"
+                    :href="`#${h4.id}`"
+                    @click.prevent="scrollTo(h4.id)"
+                  >
+                    {{ h4.text }}
+                  </a>
+                </li>
+              </ul>
             </li>
           </ul>
         </li>

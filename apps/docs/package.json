@@ -19,6 +19,7 @@
     "markdown-it-anchor": "catalog:",
     "markdown-it-attrs": "catalog:",
     "shiki": "catalog:",
+    "ts-morph": "catalog:",
     "unocss": "catalog:",
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",

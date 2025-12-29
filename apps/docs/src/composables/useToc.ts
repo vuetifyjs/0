@@ -30,14 +30,14 @@ import type { Ref } from 'vue'
 export interface TocHeading {
   id: string
   text: string
-  level: 2 | 3
+  level: 2 | 3 | 4
   children: TocHeading[]
 }
 
 export interface UseTocOptions {
   /**
    * CSS selector for heading elements.
-   * @default 'h2[id], h3[id]'
+   * @default 'h2[id], h3[id], h4[id]'
    */
   selector?: string
 
@@ -91,7 +91,7 @@ export interface UseTocReturn {
  */
 export function useToc (options: UseTocOptions = {}): UseTocReturn {
   const {
-    selector = 'h2[id], h3[id]',
+    selector = 'h2[id], h3[id], h4[id]',
     container = IN_BROWSER ? document : undefined,
   } = options
 
@@ -110,11 +110,12 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     const elements = container.querySelectorAll(selector)
     const result: TocHeading[] = []
     let currentH2: TocHeading | null = null
+    let currentH3: TocHeading | null = null
 
     for (const el of elements) {
       const id = el.id
       const text = el.textContent?.trim() ?? ''
-      const level = el.tagName === 'H2' ? 2 : 3
+      const level = el.tagName === 'H2' ? 2 : (el.tagName === 'H3' ? 3 : 4)
 
       if (!id || !text) continue
 
@@ -122,15 +123,32 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
 
       const heading: TocHeading = { id, text, level, children: [] }
 
-      if (level === 2) {
-        result.push(heading)
-        currentH2 = heading
-      } else if (level === 3) {
-        if (currentH2) {
-          currentH2.children.push(heading)
-        } else {
-          // h3 without preceding h2, treat as top-level
+      switch (level) {
+        case 2: {
           result.push(heading)
+          currentH2 = heading
+          currentH3 = null
+          break
+        }
+        case 3: {
+          if (currentH2) {
+            currentH2.children.push(heading)
+          } else {
+            // h3 without preceding h2, treat as top-level
+            result.push(heading)
+          }
+          currentH3 = heading
+          break
+        }
+        case 4: {
+          if (currentH3) {
+            currentH3.children.push(heading)
+          } else if (currentH2) {
+            currentH2.children.push(heading)
+          } else {
+            result.push(heading)
+          }
+          break
         }
       }
     }
