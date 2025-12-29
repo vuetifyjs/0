@@ -3,31 +3,30 @@
 
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
+  import { useParams } from '@/composables/useRoute'
 
   // Utilities
   import { computed } from 'vue'
-  import { useRoute } from 'vue-router'
 
   // Types
   import type { ApiData, ComponentApi, ComposableApi } from '../../../build/generate-api'
 
-  const route = useRoute()
+  const params = useParams<{ name: string }>()
   const data = apiData as ApiData
   const { toKebab } = useApiHelpers()
 
-  const slug = computed(() => (route.params as { name?: string }).name)
-
   const itemName = computed(() => {
-    if (!slug.value) return null
+    const slug = params.value.name
+    if (!slug) return null
 
-    const pascalName = slug.value.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
+    const pascalName = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
     if (pascalName in data.components) return pascalName
 
-    const camelName = slug.value.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+    const camelName = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
     if (camelName in data.composables) return camelName
 
     const matchingComponent = Object.keys(data.components).find(name =>
-      name.toLowerCase() === slug.value!.replace(/-/g, '').toLowerCase(),
+      name.toLowerCase() === slug.replace(/-/g, '').toLowerCase(),
     )
     if (matchingComponent) return matchingComponent
 
@@ -85,7 +84,7 @@
         <h1 class="text-2xl font-bold mb-4">API Not Found</h1>
 
         <p class="text-on-surface-variant mb-8">
-          No API documentation found for <code class="bg-surface-tint px-2 py-1 rounded">{{ slug }}</code>
+          No API documentation found for <code class="bg-surface-tint px-2 py-1 rounded">{{ params.name }}</code>
         </p>
 
         <router-link
