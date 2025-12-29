@@ -78,74 +78,8 @@ Perfect for Vue components with v-model:
 </template>
 ```
 
-## API
 
-| Composable | Description |
-|---|---|
-| [useSelection](/composables/selection/use-selection) | Selection system for syncing |
-| [useForm](/composables/forms/use-form) | Form validation system |
-
-### `useProxyModel`
-
-- **Type**
-
-  ```ts
-  interface ProxyModelOptions {
-    /** Whether to treat the model as an array (multi-select) */
-    multiple?: boolean
-    /** Transform function applied when setting model value */
-    transformIn?: (val: unknown) => unknown
-    /** Transform function applied when getting model value */
-    transformOut?: (val: unknown) => unknown
-  }
-
-  function useProxyModel<Z extends SelectionTicket> (
-    registry: SelectionContext<Z>,
-    model: Ref<unknown>,
-    options?: ProxyModelOptions,
-  ): () => void
-  ```
-
-- **Details**
-
-  - `registry`: The selection context to bind to. Must have `events: true` to enable registration event handling.
-  - `model`: The ref to sync (from `defineModel()`, `ref()`, or `shallowRef()`).
-  - `options.multiple`: Explicitly set array mode (multi-select). If not provided, inferred from `model.value` type.
-  - `options.transformIn`: Custom function to transform values when setting the model.
-  - `options.transformOut`: Custom function to transform values when reading the model.
-
-  **Returns**: A function to stop the sync (like Vue's `watch()`).
-
-  The composable uses synchronous watchers with pause/resume to:
-  - **Model → Registry**: When model changes, updates `selectedIds` via `browse()` lookups
-  - **Registry → Model**: When selection changes, updates model with values from `selectedValues`
-  - **Late Registration**: Auto-selects items that register after initial sync
-  - **Deep Watching**: Arrays are watched deeply for mutations like `push()`, `splice()`, etc.
-
-### Single vs Multiple Modes
-
-The composable supports both single-select and multi-select modes:
-
-**Single mode** (default):
-- Setting a new value clears the previous selection first
-- Getting returns a single value (not an array)
-- Use `options.multiple: false` or provide non-array initial value
-
-**Multiple mode**:
-- Setting a new array merges the selections (adds/removes as needed)
-- Getting returns an array of all selected values
-- Arrays are watched deeply for mutations
-- Use `options.multiple: true` or provide array initial value
-
-```ts
-// Single mode
-const model = ref<string>()
-useProxyModel(selection, model)
-
-// Multiple mode
-const model = ref<string[]>([])
-useProxyModel(selection, model, { multiple: true })
-```
+<DocsApi />
 
 ## Examples
 

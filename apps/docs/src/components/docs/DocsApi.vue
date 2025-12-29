@@ -140,7 +140,7 @@
   <!-- Component API -->
   <div
     v-if="componentApis.length > 0"
-    class="markdown-body mt-8"
+    class="markdown-body mt-8 mb-12"
   >
     <h2 id="api-reference">
       <a
@@ -265,7 +265,7 @@
   <!-- Composable API -->
   <div
     v-else-if="composableApi"
-    class="markdown-body mt-8"
+    class="markdown-body mt-8 mb-12"
   >
     <h2 id="api-reference">
       <a

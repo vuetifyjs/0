@@ -60,26 +60,8 @@ Once the plugin is installed, use the `useHydration` composable in any component
 </template>
 ```
 
-## API
 
-
-| Composable | Description |
-|---|---|
-| [useStorage](/composables/plugins/use-storage) | Storage system |
-| [createPlugin](/composables/foundation/create-plugin) | Plugin creation pattern |
-### Hydration Context
-
-The `useHydration()` composable returns a context with the following properties and methods:
-
-```ts
-interface HydrationContext {
-  isHydrated: Readonly<ShallowRef<boolean>>
-  hydrate: () => void
-}
-```
-
-- `isHydrated`: Reactive boolean indicating whether the application has been hydrated
-- `hydrate()`: Manually trigger hydration (typically called automatically by the plugin)
+<DocsApi />
 
 ## How Hydration Works
 

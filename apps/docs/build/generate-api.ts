@@ -247,7 +247,7 @@ function extractInterfaceMembers (
 
   if (!iface) return { methods, properties }
 
-  // Handle interface
+  // Handle interface with getProperties
   if ('getProperties' in iface) {
     for (const prop of iface.getProperties()) {
       const name = prop.getName()

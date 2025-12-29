@@ -84,55 +84,5 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 </template>
 ```
 
-## API
 
-
-| Composable | Description |
-|---|---|
-| [useTokens](/composables/registration/use-tokens) | Token management |
-| [createPlugin](/composables/foundation/create-plugin) | Plugin creation pattern |
-### Plugin Options
-
-- **Type**
-
-  ```ts
-  interface LocalePluginOptions {
-    adapter?: LocaleAdapter
-    default?: ID
-    fallback?: ID
-    messages?: Record<ID, TokenCollection>
-  }
-
-  interface LocaleAdapter {
-    t: (message: string, ...params: unknown[]) => string
-    n: (value: number, locale: ID | undefined, ...params: unknown[]) => string
-  }
-  ```
-
-- **Details**
-
-  - `adapter`: Custom locale adapter for translation and formatting (default: `Vuetify0LocaleAdapter`)
-  - `default`: ID of the default locale to activate on load
-  - `fallback`: ID of the fallback locale when keys are not found
-  - `messages`: Record of locale definitions with translation keys and values
-
-### Locale Context
-
-The `useLocale()` composable returns a context with the following properties and methods:
-
-```ts
-interface LocaleContext extends SingleContext {
-  t: (key: string, ...params: unknown[]) => string
-  n: (value: number) => string
-  select: (id: ID) => void
-  selectedId: Ref<ID | null>
-  selectedItem: ComputedRef<LocaleTicket | null>
-}
-```
-
-- `t(key, ...params)`: Translate a message key with optional variable replacement
-- `n(value)`: Format a number according to the current locale
-- `select(id)`: Select a specific locale by ID
-- `selectedId`: Currently selected locale ID
-- `selectedItem`: Currently selected locale ticket with metadata
-
+<DocsApi />
