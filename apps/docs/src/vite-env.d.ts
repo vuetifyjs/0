@@ -8,3 +8,17 @@ declare module '*.md' {
   const Component: ComponentOptions
   export default Component
 }
+
+declare module 'virtual:api' {
+  // Types
+  import type { ApiData } from '../build/generate-api'
+  const data: ApiData
+  export default data
+}
+
+declare module 'virtual:nav' {
+  // Types
+  import type { NavItem } from '../build/generate-nav'
+  const data: NavItem[]
+  export default data
+}

@@ -37,6 +37,20 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<false> },
       | never
     >,
+    '/api/': RouteRecordInfo<
+      '/api/',
+      '/api',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/api/[name]': RouteRecordInfo<
+      '/api/[name]',
+      '/api/:name',
+      { name: ParamValue<true> },
+      { name: ParamValue<false> },
+      | never
+    >,
     '/components/': RouteRecordInfo<
       '/components/',
       '/components',
@@ -500,6 +514,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/[...path].vue': {
       routes:
         | '/[...path]'
+      views:
+        | never
+    }
+    'src/pages/api/index.md': {
+      routes:
+        | '/api/'
+      views:
+        | never
+    }
+    'src/pages/api/[name].vue': {
+      routes:
+        | '/api/[name]'
       views:
         | never
     }

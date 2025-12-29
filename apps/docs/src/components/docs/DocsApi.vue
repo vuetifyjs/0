@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import { useStorage } from '@vuetify/v0'
   import { computed, ref, shallowReactive, useId } from 'vue'
   import { useRoute } from 'vue-router'
   import apiData from 'virtual:api'
@@ -18,6 +19,14 @@
   const data = apiData as ApiData
   const { highlighter, getHighlighter } = useHighlighter()
   const uid = useId()
+  const storage = useStorage()
+
+  // API display mode preference (inline vs links)
+  const apiMode = storage.get<'inline' | 'links'>('api-display', 'inline')
+
+  function toggleApiMode () {
+    apiMode.value = apiMode.value === 'inline' ? 'links' : 'inline'
+  }
 
   // Track expanded examples and their highlighted HTML + raw code
   const expandedExamples = ref<Set<string>>(new Set())
@@ -142,16 +151,32 @@
     v-if="componentApis.length > 0"
     class="markdown-body mt-8 mb-12"
   >
-    <h2 id="api-reference">
-      <a
-        class="header-anchor"
-        href="#api-reference"
-        @click.prevent="scrollToAnchor('api-reference')"
-      >API Reference</a>
-    </h2>
+    <div class="flex items-center justify-between gap-4">
+      <h2 id="api-reference" class="!mb-0">
+        <a
+          class="header-anchor"
+          href="#api-reference"
+          @click.prevent="scrollToAnchor('api-reference')"
+        >API Reference</a>
+      </h2>
+      <button
+        class="text-sm text-primary hover:underline whitespace-nowrap"
+        @click="toggleApiMode"
+      >
+        {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
+      </button>
+    </div>
 
+    <!-- Links mode -->
+    <DocsApiLinks
+      v-if="apiMode === 'links'"
+      :component-apis="componentApis"
+    />
+
+    <!-- Inline mode -->
     <template
       v-for="api in componentApis"
+      v-else
       :key="api.name"
     >
       <h3 :id="toKebab(api.name)">
@@ -267,194 +292,211 @@
     v-else-if="composableApi"
     class="markdown-body mt-8 mb-12"
   >
-    <h2 id="api-reference">
-      <a
-        class="header-anchor"
-        href="#api-reference"
-        @click.prevent="scrollToAnchor('api-reference')"
-      >API Reference</a>
-    </h2>
-
-    <!-- Options -->
-    <template v-if="composableApi.options.length > 0">
-      <h3 id="options" class="mt-8">
+    <div class="flex items-center justify-between gap-4">
+      <h2 id="api-reference" class="!mb-0">
         <a
           class="header-anchor"
-          href="#options"
-          @click.prevent="scrollToAnchor('options')"
-        >Options</a>
-      </h3>
-      <div class="space-y-4">
-        <div
-          v-for="opt in composableApi.options"
-          :key="opt.name"
-          class="border border-divider rounded-lg overflow-hidden"
-        >
-          <div class="px-4 py-3 bg-surface-variant/30">
-            <h4
-              :id="opt.name"
-              class="!my-0"
-            >
-              <a
-                class="header-anchor"
-                :href="`#${opt.name}`"
-                @click.prevent="scrollToAnchor(opt.name)"
-              ><code class="text-sm font-semibold">{{ opt.name }}</code></a>
-              <span
-                v-if="opt.required"
-                class="text-error text-xs ml-2"
-              >required</span>
-            </h4>
-            <code class="text-xs text-primary mt-1 block font-mono">{{ opt.type }}</code>
-            <p
-              v-if="opt.description"
-              class="text-sm text-on-surface-variant mt-1"
-            >{{ opt.description }}</p>
-            <p
-              v-if="opt.default"
-              class="text-xs text-on-surface-variant mt-1"
-            >
-              Default: <code class="text-xs">{{ opt.default }}</code>
-            </p>
+          href="#api-reference"
+          @click.prevent="scrollToAnchor('api-reference')"
+        >API Reference</a>
+      </h2>
+      <button
+        class="text-sm text-primary hover:underline whitespace-nowrap"
+        @click="toggleApiMode"
+      >
+        {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
+      </button>
+    </div>
+
+    <!-- Links mode -->
+    <DocsApiLinks
+      v-if="apiMode === 'links'"
+      :composable-api="composableApi"
+    />
+
+    <!-- Inline mode -->
+    <template v-else>
+      <!-- Options -->
+      <template v-if="composableApi.options.length > 0">
+        <h3 id="options" class="mt-8">
+          <a
+            class="header-anchor"
+            href="#options"
+            @click.prevent="scrollToAnchor('options')"
+          >Options</a>
+        </h3>
+        <div class="space-y-4">
+          <div
+            v-for="opt in composableApi.options"
+            :key="opt.name"
+            class="border border-divider rounded-lg overflow-hidden"
+          >
+            <div class="px-4 py-3 bg-surface-variant/30">
+              <h4
+                :id="opt.name"
+                class="!my-0"
+              >
+                <a
+                  class="header-anchor"
+                  :href="`#${opt.name}`"
+                  @click.prevent="scrollToAnchor(opt.name)"
+                ><code class="text-sm font-semibold">{{ opt.name }}</code></a>
+                <span
+                  v-if="opt.required"
+                  class="text-error text-xs ml-2"
+                >required</span>
+              </h4>
+              <code class="text-xs text-primary mt-1 block font-mono">{{ opt.type }}</code>
+              <p
+                v-if="opt.description"
+                class="text-sm text-on-surface-variant mt-1"
+              >{{ opt.description }}</p>
+              <p
+                v-if="opt.default"
+                class="text-xs text-on-surface-variant mt-1"
+              >
+                Default: <code class="text-xs">{{ opt.default }}</code>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </template>
+      </template>
 
-    <!-- Properties -->
-    <template v-if="composableApi.properties.length > 0">
-      <h3 id="properties" class="mt-8">
-        <a
-          class="header-anchor"
-          href="#properties"
-          @click.prevent="scrollToAnchor('properties')"
-        >Properties</a>
-      </h3>
-      <div class="space-y-4">
-        <div
-          v-for="prop in composableApi.properties"
-          :key="prop.name"
-          class="border border-divider rounded-lg overflow-hidden"
-        >
-          <div class="px-4 py-3 bg-surface-variant/30">
-            <h4
-              :id="prop.name"
-              class="!my-0"
-            >
-              <a
-                class="header-anchor"
-                :href="`#${prop.name}`"
-                @click.prevent="scrollToAnchor(prop.name)"
-              ><code class="text-sm font-semibold">{{ prop.name }}</code></a>
-            </h4>
-            <code class="text-xs text-primary mt-1 block font-mono">{{ formatSignature(prop) }}</code>
-            <p
-              v-if="prop.description"
-              class="text-sm text-on-surface-variant mt-1"
-            >{{ prop.description }}</p>
-          </div>
+      <!-- Properties -->
+      <template v-if="composableApi.properties.length > 0">
+        <h3 id="properties" class="mt-8">
+          <a
+            class="header-anchor"
+            href="#properties"
+            @click.prevent="scrollToAnchor('properties')"
+          >Properties</a>
+        </h3>
+        <div class="space-y-4">
           <div
-            v-if="prop.example"
-            class="border-t border-divider bg-surface-tint"
+            v-for="prop in composableApi.properties"
+            :key="prop.name"
+            class="border border-divider rounded-lg overflow-hidden"
           >
-            <button
-              :aria-controls="`${uid}-prop-${prop.name}`"
-              :aria-expanded="expandedExamples.has(`prop-${prop.name}`)"
-              class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
-              @click="toggleExample(`prop-${prop.name}`, prop.example)"
-            >
-              <span v-if="expandedExamples.has(`prop-${prop.name}`)">Hide code example</span>
-              <span v-else>Show code example</span>
-            </button>
-          </div>
-          <div
-            v-if="expandedExamples.has(`prop-${prop.name}`) && highlightedExamples[`prop-${prop.name}`]"
-            :id="`${uid}-prop-${prop.name}`"
-            class="relative bg-pre"
-          >
-            <DocsCodeActions
-              bin
-              class="absolute top-3 right-3 z-10"
-              :code="highlightedExamples[`prop-${prop.name}`].code"
-              language="typescript"
-              show-copy
-              :title="prop.name"
-            />
+            <div class="px-4 py-3 bg-surface-variant/30">
+              <h4
+                :id="prop.name"
+                class="!my-0"
+              >
+                <a
+                  class="header-anchor"
+                  :href="`#${prop.name}`"
+                  @click.prevent="scrollToAnchor(prop.name)"
+                ><code class="text-sm font-semibold">{{ prop.name }}</code></a>
+              </h4>
+              <code class="text-xs text-primary mt-1 block font-mono">{{ formatSignature(prop) }}</code>
+              <p
+                v-if="prop.description"
+                class="text-sm text-on-surface-variant mt-1"
+              >{{ prop.description }}</p>
+            </div>
             <div
-              class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
-              v-html="highlightedExamples[`prop-${prop.name}`].html"
-            />
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <!-- Methods -->
-    <template v-if="composableApi.methods.length > 0">
-      <h3 id="methods" class="mt-8">
-        <a
-          class="header-anchor"
-          href="#methods"
-          @click.prevent="scrollToAnchor('methods')"
-        >Methods</a>
-      </h3>
-      <div class="space-y-4">
-        <div
-          v-for="method in composableApi.methods"
-          :key="method.name"
-          class="border border-divider rounded-lg overflow-hidden"
-        >
-          <div class="px-4 py-3 bg-surface-variant/30">
-            <h4
-              :id="method.name"
-              class="!my-0"
+              v-if="prop.example"
+              class="border-t border-divider bg-surface-tint"
             >
-              <a
-                class="header-anchor"
-                :href="`#${method.name}`"
-                @click.prevent="scrollToAnchor(method.name)"
-              ><code class="text-sm font-semibold">{{ method.name }}</code></a>
-            </h4>
-            <code class="text-xs text-primary mt-1 block font-mono">{{ formatSignature(method) }}</code>
-            <p
-              v-if="method.description"
-              class="text-sm text-on-surface-variant mt-1"
-            >{{ method.description }}</p>
-          </div>
-          <div
-            v-if="method.example"
-            class="border-t border-divider bg-surface-tint"
-          >
-            <button
-              :aria-controls="`${uid}-method-${method.name}`"
-              :aria-expanded="expandedExamples.has(`method-${method.name}`)"
-              class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
-              @click="toggleExample(`method-${method.name}`, method.example)"
-            >
-              <span v-if="expandedExamples.has(`method-${method.name}`)">Hide code example</span>
-              <span v-else>Show code example</span>
-            </button>
-          </div>
-          <div
-            v-if="expandedExamples.has(`method-${method.name}`) && highlightedExamples[`method-${method.name}`]"
-            :id="`${uid}-method-${method.name}`"
-            class="relative bg-pre"
-          >
-            <DocsCodeActions
-              bin
-              class="absolute top-3 right-3 z-10"
-              :code="highlightedExamples[`method-${method.name}`].code"
-              language="typescript"
-              show-copy
-              :title="method.name"
-            />
+              <button
+                :aria-controls="`${uid}-prop-${prop.name}`"
+                :aria-expanded="expandedExamples.has(`prop-${prop.name}`)"
+                class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
+                @click="toggleExample(`prop-${prop.name}`, prop.example)"
+              >
+                <span v-if="expandedExamples.has(`prop-${prop.name}`)">Hide code example</span>
+                <span v-else>Show code example</span>
+              </button>
+            </div>
             <div
-              class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
-              v-html="highlightedExamples[`method-${method.name}`].html"
-            />
+              v-if="expandedExamples.has(`prop-${prop.name}`) && highlightedExamples[`prop-${prop.name}`]"
+              :id="`${uid}-prop-${prop.name}`"
+              class="relative bg-pre"
+            >
+              <DocsCodeActions
+                bin
+                class="absolute top-3 right-3 z-10"
+                :code="highlightedExamples[`prop-${prop.name}`].code"
+                language="typescript"
+                show-copy
+                :title="prop.name"
+              />
+              <div
+                class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
+                v-html="highlightedExamples[`prop-${prop.name}`].html"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </template>
+
+      <!-- Methods -->
+      <template v-if="composableApi.methods.length > 0">
+        <h3 id="methods" class="mt-8">
+          <a
+            class="header-anchor"
+            href="#methods"
+            @click.prevent="scrollToAnchor('methods')"
+          >Methods</a>
+        </h3>
+        <div class="space-y-4">
+          <div
+            v-for="method in composableApi.methods"
+            :key="method.name"
+            class="border border-divider rounded-lg overflow-hidden"
+          >
+            <div class="px-4 py-3 bg-surface-variant/30">
+              <h4
+                :id="method.name"
+                class="!my-0"
+              >
+                <a
+                  class="header-anchor"
+                  :href="`#${method.name}`"
+                  @click.prevent="scrollToAnchor(method.name)"
+                ><code class="text-sm font-semibold">{{ method.name }}</code></a>
+              </h4>
+              <code class="text-xs text-primary mt-1 block font-mono">{{ formatSignature(method) }}</code>
+              <p
+                v-if="method.description"
+                class="text-sm text-on-surface-variant mt-1"
+              >{{ method.description }}</p>
+            </div>
+            <div
+              v-if="method.example"
+              class="border-t border-divider bg-surface-tint"
+            >
+              <button
+                :aria-controls="`${uid}-method-${method.name}`"
+                :aria-expanded="expandedExamples.has(`method-${method.name}`)"
+                class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
+                @click="toggleExample(`method-${method.name}`, method.example)"
+              >
+                <span v-if="expandedExamples.has(`method-${method.name}`)">Hide code example</span>
+                <span v-else>Show code example</span>
+              </button>
+            </div>
+            <div
+              v-if="expandedExamples.has(`method-${method.name}`) && highlightedExamples[`method-${method.name}`]"
+              :id="`${uid}-method-${method.name}`"
+              class="relative bg-pre"
+            >
+              <DocsCodeActions
+                bin
+                class="absolute top-3 right-3 z-10"
+                :code="highlightedExamples[`method-${method.name}`].code"
+                language="typescript"
+                show-copy
+                :title="method.name"
+              />
+              <div
+                class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
+                v-html="highlightedExamples[`method-${method.name}`].html"
+              />
+            </div>
+          </div>
+        </div>
+      </template>
     </template>
   </div>
 </template>

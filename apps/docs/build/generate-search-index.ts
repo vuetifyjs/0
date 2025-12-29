@@ -3,6 +3,8 @@ import { glob } from 'node:fs/promises'
 import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { getApiNamesGrouped, toKebab } from './api-names'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
 
@@ -145,6 +147,38 @@ function getTitleFromPath (filePath: string): string {
     .join(' ')
 }
 
+async function generateApiSearchDocuments (startId: number): Promise<SearchDocument[]> {
+  const documents: SearchDocument[] = []
+  const apiNames = await getApiNamesGrouped()
+  let id = startId
+
+  // Add component API documents
+  for (const comp of apiNames.components) {
+    documents.push({
+      id: String(id++),
+      title: `${comp.name} API`,
+      category: 'API',
+      path: `/api/${toKebab(comp.name)}`,
+      headings: ['Props', 'Events', 'Slots'],
+      content: `API reference for ${comp.name} component. Props, events, and slots documentation.`,
+    })
+  }
+
+  // Add composable API documents
+  for (const comp of apiNames.composables) {
+    documents.push({
+      id: String(id++),
+      title: `${comp.name} API`,
+      category: 'API',
+      path: `/api/${toKebab(comp.name)}`,
+      headings: ['Options', 'Properties', 'Methods'],
+      content: `API reference for ${comp.name} composable. Options, properties, and methods documentation.`,
+    })
+  }
+
+  return documents
+}
+
 async function generateSearchIndex (): Promise<SearchDocument[]> {
   const documents: SearchDocument[] = []
   let id = 0
@@ -180,6 +214,10 @@ async function generateSearchIndex (): Promise<SearchDocument[]> {
       // Skip files that can't be read
     }
   }
+
+  // Add API documents
+  const apiDocuments = await generateApiSearchDocuments(id)
+  documents.push(...apiDocuments)
 
   // Sort by category then title
   documents.sort((a, b) => {

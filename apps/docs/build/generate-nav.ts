@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url'
 // Types
 import type { Plugin, ViteDevServer } from 'vite'
 
+import { getApiNamesGrouped } from './api-names'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
 
@@ -276,11 +278,60 @@ async function generateNav (): Promise<NavItem[]> {
     nav.push(sectionItem)
   }
 
+  // Add API section
+  const apiNames = await getApiNamesGrouped()
+
+  // Group components by their folder (Avatar, Selection, etc.)
+  const componentGroups = new Map<string, { name: string, slug: string }[]>()
+  for (const comp of apiNames.components) {
+    const group = comp.group || 'Other'
+    if (!componentGroups.has(group)) componentGroups.set(group, [])
+    componentGroups.get(group)!.push({ name: comp.name, slug: comp.slug })
+  }
+
+  const apiSection: NavItemLink = {
+    name: 'API',
+    to: '/api',
+    children: [
+      {
+        name: 'Components',
+        children: Array.from(componentGroups.entries())
+          .toSorted((a, b) => a[0].localeCompare(b[0]))
+          .flatMap(([, items]) =>
+            items.toSorted((a, b) => a.name.localeCompare(b.name))
+              .map(item => ({ name: item.name, to: `/api/${item.slug}` })),
+          ),
+      },
+      {
+        name: 'Composables',
+        children: apiNames.composables
+          .toSorted((a, b) => a.name.localeCompare(b.name))
+          .map(item => ({ name: item.name, to: `/api/${item.slug}` })),
+      },
+    ],
+  }
+
+  nav.push({ divider: true }, apiSection)
+
   return nav
 }
 
+const VIRTUAL_MODULE_ID = 'virtual:nav'
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
+
 export default function generateNavPlugin (): Plugin {
   let isBuild = false
+  let navData: NavItem[] | null = null
+  let navPromise: Promise<NavItem[]> | null = null
+
+  async function getNavData () {
+    if (navData) return navData
+    if (!navPromise) {
+      navPromise = generateNav()
+    }
+    navData = await navPromise
+    return navData
+  }
 
   return {
     name: 'generate-nav',
@@ -289,12 +340,25 @@ export default function generateNavPlugin (): Plugin {
       isBuild = command === 'build'
     },
 
+    resolveId (id) {
+      if (id === VIRTUAL_MODULE_ID) {
+        return RESOLVED_VIRTUAL_MODULE_ID
+      }
+    },
+
+    async load (id) {
+      if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+        const nav = await getNavData()
+        return `export default ${JSON.stringify(nav)}`
+      }
+    },
+
     configureServer (server: ViteDevServer) {
       server.middlewares.use(async (req, res, next) => {
         if (req.url !== '/nav.json') return next()
 
         try {
-          const nav = await generateNav()
+          const nav = await getNavData()
           res.setHeader('Content-Type', 'application/json')
           res.end(JSON.stringify(nav))
         } catch (error) {
@@ -308,7 +372,7 @@ export default function generateNavPlugin (): Plugin {
     async generateBundle (_, bundle) {
       if (!isBuild || Object.keys(bundle).some(k => k.includes('main.mjs'))) return
 
-      const nav = await generateNav()
+      const nav = await getNavData()
 
       this.emitFile({
         type: 'asset',
@@ -317,6 +381,11 @@ export default function generateNavPlugin (): Plugin {
       })
 
       console.log(`[generate-nav] Generated nav with ${nav.length} items`)
+    },
+
+    buildEnd () {
+      navData = null
+      navPromise = null
     },
   }
 }

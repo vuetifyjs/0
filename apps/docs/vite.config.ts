@@ -14,6 +14,7 @@ import generateSitemap from 'vite-ssg-sitemap'
 // Types
 import type { ViteSSGOptions } from 'vite-ssg'
 
+import { getApiSlugs } from './build/api-names'
 import copyMarkdownPlugin from './build/copy-markdown'
 import generateApiPlugin from './build/generate-api'
 import generateLlmsFullPlugin from './build/generate-llms-full'
@@ -43,6 +44,11 @@ export default defineConfig({
   },
   ssgOptions: {
     dirStyle: 'nested',
+    async includedRoutes (paths) {
+      const apiSlugs = await getApiSlugs()
+      const apiRoutes = apiSlugs.map(slug => `/api/${slug}`)
+      return [...paths, ...apiRoutes]
+    },
     onFinished () {
       generateSitemap({
         hostname: 'https://0.vuetifyjs.com',

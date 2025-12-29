@@ -60,10 +60,106 @@ function createId () {
   return `msg-${++messageId}-${Date.now()}`
 }
 
+/** Convert kebab-case slug to API name (PascalCase or camelCase) */
+function slugToApiName (slug: string): { pascal: string, camel: string } {
+  const pascal = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
+  const camel = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+  return { pascal, camel }
+}
+
+interface ApiMember {
+  name: string
+  type: string
+  required?: boolean
+  default?: string
+  description?: string
+}
+
+function formatApiSection (title: string, items: ApiMember[], includeRequired = false): string[] {
+  if (!items?.length) return []
+
+  const lines = [`## ${title}\n`]
+  for (const item of items) {
+    const required = includeRequired && item.required ? ' (required)' : ''
+    const defaultVal = item.default ? ` = ${item.default}` : ''
+    lines.push(`- **${item.name}**: \`${item.type}\`${required}${defaultVal}`)
+    if (item.description) lines.push(`  ${item.description}`)
+  }
+  lines.push('')
+  return lines
+}
+
+/** Format API data as readable content for context */
+function formatApiContent (api: Record<string, unknown>): string {
+  const kind = api.kind as string
+  const name = api.name as string
+
+  const header = [`# ${name} API\n`]
+
+  let sections: string[] = []
+  if (kind === 'component') {
+    sections = [
+      ...formatApiSection('Props', api.props as ApiMember[], true),
+      ...formatApiSection('Events', api.events as ApiMember[]),
+      ...formatApiSection('Slots', api.slots as ApiMember[]),
+    ]
+  } else if (kind === 'composable') {
+    sections = [
+      ...formatApiSection('Options', api.options as ApiMember[], true),
+      ...formatApiSection('Properties', api.properties as ApiMember[]),
+      ...formatApiSection('Methods', api.methods as ApiMember[]),
+    ]
+  }
+
+  return [...header, ...sections].join('\n')
+}
+
+/** Fetch API context for /api/* routes */
+async function fetchApiContext (path: string): Promise<PageContext> {
+  try {
+    const slug = path.replace(/^\/api\//, '')
+    if (!slug) {
+      return { path, title: 'API Reference', content: 'API documentation for @vuetify/v0 components and composables.' }
+    }
+
+    const response = await fetch('/api.json')
+    if (!response.ok) {
+      return { path, title: '', content: '' }
+    }
+
+    const data = await response.json() as {
+      components: Record<string, Record<string, unknown>>
+      composables: Record<string, Record<string, unknown>>
+    }
+
+    const { pascal, camel } = slugToApiName(slug)
+
+    // Try component first, then composable
+    const api = data.components[pascal] ?? data.composables[camel]
+    if (!api) {
+      return { path, title: '', content: '' }
+    }
+
+    const name = (api as { name?: string }).name ?? pascal
+    return {
+      path,
+      title: `${name} API`,
+      content: formatApiContent(api),
+    }
+  } catch {
+    return { path, title: '', content: '' }
+  }
+}
+
 /** Fetch and parse markdown for a given path */
 async function fetchPageContext (path: string): Promise<PageContext> {
   if (!IN_BROWSER || path === '/' || path === '') {
     return { path, title: '', content: '' }
+  }
+
+  // Handle API routes specially
+  if (path.startsWith('/api')) {
+    return fetchApiContext(path)
   }
 
   try {

@@ -24,6 +24,7 @@ declare module 'vue' {
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
     DocsApi: typeof import('./components/docs/DocsApi.vue')['default']
+    DocsApiLinks: typeof import('./components/docs/DocsApiLinks.vue')['default']
     DocsAsk: typeof import('./components/docs/DocsAsk.vue')['default']
     DocsAskInput: typeof import('./components/docs/DocsAskInput.vue')['default']
     DocsAskMessage: typeof import('./components/docs/DocsAskMessage.vue')['default']

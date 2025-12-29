@@ -1,3 +1,5 @@
+import navData from 'virtual:nav'
+
 // Utilities
 import { defineStore } from 'pinia'
 
@@ -29,7 +31,7 @@ function flattenRoutes (nav: NavItem): string[] {
 export const useAppStore = defineStore('app', {
   state: () => ({
     drawer: false,
-    nav: [] as NavItem[],
+    nav: navData as NavItem[],
     stats: {
       commit: null as Commit | null,
       tag: null,
@@ -46,20 +48,6 @@ export const useAppStore = defineStore('app', {
       }
 
       return pages
-    },
-  },
-  actions: {
-    async loadNav () {
-      if (this.nav.length > 0) return
-
-      try {
-        const response = await fetch('/nav.json')
-        if (response.ok) {
-          this.nav = await response.json()
-        }
-      } catch {
-        console.error('[app] Failed to load nav')
-      }
     },
   },
 })

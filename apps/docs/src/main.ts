@@ -6,7 +6,6 @@ import App from './App.vue'
 import { registerPlugins } from './plugins'
 import pinia from './plugins/pinia'
 import routerOptions from './plugins/router'
-import { useAppStore } from './stores/app'
 import 'virtual:uno.css'
 
 export const createApp = ViteSSG(
@@ -16,10 +15,6 @@ export const createApp = ViteSSG(
     app.use(pinia)
 
     registerPlugins(app)
-
-    // Load nav data
-    const appStore = useAppStore(pinia)
-    await appStore.loadNav()
 
     if (import.meta.env.SSR)
       initialState.pinia = pinia.state.value

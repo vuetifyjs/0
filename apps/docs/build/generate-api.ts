@@ -324,16 +324,28 @@ function extractComposableApi (filePath: string, composableName: string): Compos
       }
     }
 
-    // Find Options interface (e.g., RegistryOptions, SelectionOptions)
-    // Try both with and without trailing 's' (useTokens -> TokenOptions, not TokensOptions)
+    // Build list of possible interface name patterns
+    // For useRegistry -> Registry, RegistryOptions, RegistryContext
+    // For createContext -> CreateContext, Context, Plugin, etc.
     const baseName = composableName.replace(/^use/, '')
     const baseNameSingular = baseName.replace(/s$/, '')
+
+    // For create* functions, also try PascalCase of full name and just the second word
+    const isCreate = composableName.startsWith('create')
+    const pascalName = composableName.charAt(0).toUpperCase() + composableName.slice(1)
+    const secondWord = isCreate ? composableName.replace(/^create/, '') : null
+
+    // Find Options interface with multiple naming patterns
     const optionsInterface = sourceFile.getInterface(`${baseName}Options`)
       ?? sourceFile.getInterface(`${baseNameSingular}Options`)
+      ?? (isCreate ? sourceFile.getInterface(`${pascalName}Options`) : undefined)
+      ?? (secondWord ? sourceFile.getInterface(`${secondWord}Options`) : undefined)
 
-    // Find Context interface (e.g., RegistryContext, SelectionContext)
+    // Find Context interface with multiple naming patterns
     const contextInterface = sourceFile.getInterface(`${baseName}Context`)
       ?? sourceFile.getInterface(`${baseNameSingular}Context`)
+      ?? (isCreate ? sourceFile.getInterface(`${pascalName}Context`) : undefined)
+      ?? (secondWord ? sourceFile.getInterface(`${secondWord}Context`) : undefined)
 
     const options = extractOptionsMembers(optionsInterface)
     const { methods, properties } = extractInterfaceMembers(contextInterface)
@@ -431,6 +443,35 @@ export default function generateApiPlugin (): Plugin {
         const data = await getApiData()
         return `export default ${JSON.stringify(data)}`
       }
+    },
+
+    configureServer (server) {
+      // Serve api.json in dev mode
+      server.middlewares.use(async (req, res, next) => {
+        if (req.url !== '/api.json') return next()
+
+        try {
+          const data = await getApiData()
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify(data))
+        } catch (error) {
+          console.error('[generate-api] Error:', error)
+          res.statusCode = 500
+          res.end('Error generating API data')
+        }
+      })
+    },
+
+    async generateBundle (_, bundle) {
+      // Emit api.json for runtime access (DocsAsk context)
+      if (Object.keys(bundle).some(k => k.includes('main.mjs'))) return
+
+      const data = await getApiData()
+      this.emitFile({
+        type: 'asset',
+        fileName: 'api.json',
+        source: JSON.stringify(data),
+      })
     },
 
     buildEnd () {
