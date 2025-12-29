@@ -2,40 +2,37 @@
   import apiData from 'virtual:api'
 
   // Composables
-  import { useHighlighter } from '@/composables/useHighlighter'
+  import { useApiHelpers } from '@/composables/useApiHelpers'
 
   // Utilities
-  import { computed, ref, shallowReactive, useId } from 'vue'
+  import { computed } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
-  import type { ApiData, ApiMethod, ApiProperty, ComponentApi, ComposableApi } from '../../../build/generate-api'
-
-  type ExampleState = { html: string, code: string }
+  import type { ApiData, ComponentApi, ComposableApi } from '../../../build/generate-api'
 
   const route = useRoute()
   const data = apiData as ApiData
-  const { highlighter, getHighlighter } = useHighlighter()
-  const uid = useId()
+  const {
+    uid,
+    expandedExamples,
+    highlightedExamples,
+    scrollToAnchor,
+    toKebab,
+    toggleExample,
+    formatSignature,
+  } = useApiHelpers()
 
-  // Track expanded examples and their highlighted HTML + raw code
-  const expandedExamples = ref<Set<string>>(new Set())
-  const highlightedExamples = shallowReactive<Record<string, ExampleState>>({})
-
-  // Convert kebab-case slug to name
   const itemName = computed(() => {
     const slug = route.params.name as string
     if (!slug) return null
 
-    // Try PascalCase first (for components)
     const pascalName = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
     if (pascalName in data.components) return pascalName
 
-    // Try camelCase (for composables like use-registry -> useRegistry)
     const camelName = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
     if (camelName in data.composables) return camelName
 
-    // Check if it matches any component that starts with this prefix
     const matchingComponent = Object.keys(data.components).find(name =>
       name.toLowerCase() === slug.replace(/-/g, '').toLowerCase(),
     )
@@ -44,11 +41,9 @@
     return null
   })
 
-  // Determine if this is a component or composable
   const isComponent = computed(() => itemName.value && itemName.value in data.components)
   const isComposable = computed(() => itemName.value && itemName.value in data.composables)
 
-  // Get component APIs (handles compound components)
   const componentApis = computed<ComponentApi[]>(() => {
     if (!isComponent.value || !itemName.value) return []
 
@@ -63,70 +58,14 @@
       })
   })
 
-  // Get composable API
   const composableApi = computed<ComposableApi | null>(() => {
     if (!isComposable.value || !itemName.value) return null
     return data.composables[itemName.value] || null
   })
-
-  function scrollToAnchor (id: string) {
-    const el = document.querySelector(`#${id}`)
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 80
-      window.scrollTo({ top, behavior: 'smooth' })
-    }
-  }
-
-  function toKebab (str: string): string {
-    return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
-  }
-
-  async function toggleExample (key: string, code?: string) {
-    if (expandedExamples.value.has(key)) {
-      expandedExamples.value.delete(key)
-    } else {
-      expandedExamples.value.add(key)
-      if (code && !highlightedExamples[key]) {
-        const hl = highlighter.value ?? await getHighlighter()
-        highlightedExamples[key] = {
-          code,
-          html: hl.codeToHtml(code, {
-            lang: 'typescript',
-            themes: {
-              light: 'github-light-default',
-              dark: 'github-dark-default',
-            },
-            defaultColor: false,
-          }),
-        }
-      }
-    }
-  }
-
-  function formatSignature (item: ApiMethod | ApiProperty): string {
-    const type = item.type
-    const arrowMatch = type.match(/^\((.*?)\)\s*=>\s*(.+)$/)
-    if (arrowMatch) {
-      const [, params, returnType] = arrowMatch
-      const simplifiedParams = params
-        .split(',')
-        .map(p => p.trim())
-        .filter(Boolean)
-        .map(p => {
-          const [name, pType] = p.split(':').map(s => s.trim())
-          const simpleType = pType?.replace(/import\([^)]+\)\./g, '') || ''
-          return simpleType ? `${name}: ${simpleType}` : name
-        })
-        .join(', ')
-      return `(${simplifiedParams}) => ${returnType.replace(/import\([^)]+\)\./g, '')}`
-    }
-    return type.replace(/import\([^)]+\)\./g, '')
-  }
 </script>
 
 <template>
   <article>
-    <!-- Not Found -->
     <template v-if="!itemName || (!isComponent && !isComposable)">
       <div class="text-center py-16">
         <div class="text-6xl font-bold opacity-10 mb-4">404</div>
@@ -143,7 +82,6 @@
       </div>
     </template>
 
-    <!-- Component API -->
     <template v-else-if="componentApis.length > 0">
       <div class="markdown-body">
         <h1>{{ itemName }} API</h1>
@@ -160,7 +98,6 @@
             >{{ api.name }}</a>
           </h2>
 
-          <!-- Props -->
           <template v-if="api.props.length > 0">
             <h3 :id="`${toKebab(api.name)}-props`">
               <a
@@ -207,7 +144,6 @@
             </table>
           </template>
 
-          <!-- Events -->
           <template v-if="api.events.length > 0">
             <h3 :id="`${toKebab(api.name)}-events`">
               <a
@@ -237,7 +173,6 @@
             </table>
           </template>
 
-          <!-- Slots -->
           <template v-if="api.slots.length > 0">
             <h3 :id="`${toKebab(api.name)}-slots`">
               <a
@@ -279,12 +214,11 @@
       </div>
     </template>
 
-    <!-- Composable API -->
     <template v-else-if="composableApi">
       <div class="markdown-body">
         <h1>{{ composableApi.name }} API</h1>
         <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
-        <!-- Options -->
+
         <template v-if="composableApi.options.length > 0">
           <h2 id="options">
             <a
@@ -330,7 +264,6 @@
           </div>
         </template>
 
-        <!-- Properties -->
         <template v-if="composableApi.properties.length > 0">
           <h2 id="properties" class="mt-8">
             <a
@@ -398,7 +331,6 @@
           </div>
         </template>
 
-        <!-- Methods -->
         <template v-if="composableApi.methods.length > 0">
           <h2 id="methods" class="mt-8">
             <a

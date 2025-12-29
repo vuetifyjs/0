@@ -5,40 +5,38 @@
   import { useStorage } from '@vuetify/v0'
 
   // Composables
-  import { useHighlighter } from '@/composables/useHighlighter'
+  import { useApiHelpers } from '@/composables/useApiHelpers'
 
   // Utilities
-  import { computed, ref, shallowReactive, useId } from 'vue'
+  import { computed } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
-  import type { ApiData, ApiMethod, ApiProperty } from '../../../build/generate-api'
-
-  type ExampleState = { html: string, code: string }
+  import type { ApiData } from '../../../build/generate-api'
 
   const props = defineProps<{
-    /** Override name (otherwise extracted from route) */
     name?: string
   }>()
 
   const route = useRoute()
   const data = apiData as ApiData
-  const { highlighter, getHighlighter } = useHighlighter()
-  const uid = useId()
   const storage = useStorage()
+  const {
+    uid,
+    expandedExamples,
+    highlightedExamples,
+    scrollToAnchor,
+    toKebab,
+    toggleExample,
+    formatSignature,
+  } = useApiHelpers()
 
-  // API display mode preference (inline vs links)
   const apiMode = storage.get<'inline' | 'links'>('api-display', 'inline')
 
   function toggleApiMode () {
     apiMode.value = apiMode.value === 'inline' ? 'links' : 'inline'
   }
 
-  // Track expanded examples and their highlighted HTML + raw code
-  const expandedExamples = ref<Set<string>>(new Set())
-  const highlightedExamples = shallowReactive<Record<string, ExampleState>>({})
-
-  // Detect page type from route
   const pageType = computed(() => {
     const path = route.path
     if (path.includes('/components/')) return 'component'
@@ -46,7 +44,6 @@
     return null
   })
 
-  // Extract name from route
   const itemName = computed(() => {
     if (props.name) return props.name
 
@@ -55,15 +52,11 @@
     if (!match) return null
 
     const slug = match[2]
-
-    // Components: kebab-case -> PascalCase (expansion-panel -> ExpansionPanel)
-    // Composables: kebab-case -> camelCase (use-registry -> useRegistry)
     return match[1] === 'components'
       ? slug.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')
       : slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
   })
 
-  // Get component APIs (handles compound components like Selection -> SelectionRoot, SelectionItem)
   const componentApis = computed(() => {
     if (pageType.value !== 'component') return []
 
@@ -80,7 +73,6 @@
       })
   })
 
-  // Get composable API
   const composableApi = computed(() => {
     if (pageType.value !== 'composable') return null
 
@@ -89,70 +81,9 @@
 
     return data.composables[name] || null
   })
-
-  function scrollToAnchor (id: string) {
-    const el = document.querySelector(`#${id}`)
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 80
-      window.scrollTo({ top, behavior: 'smooth' })
-    }
-  }
-
-  function toKebab (str: string): string {
-    return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
-  }
-
-  async function toggleExample (key: string, code?: string) {
-    if (expandedExamples.value.has(key)) {
-      expandedExamples.value.delete(key)
-    } else {
-      expandedExamples.value.add(key)
-      // Highlight on first expand
-      if (code && !highlightedExamples[key]) {
-        const hl = highlighter.value ?? await getHighlighter()
-        highlightedExamples[key] = {
-          code,
-          html: hl.codeToHtml(code, {
-            lang: 'typescript',
-            themes: {
-              light: 'github-light-default',
-              dark: 'github-dark-default',
-            },
-            defaultColor: false,
-          }),
-        }
-      }
-    }
-  }
-
-  // Format method signature for display
-  function formatSignature (item: ApiMethod | ApiProperty): string {
-    const type = item.type
-    // For arrow functions, extract params and return type
-    const arrowMatch = type.match(/^\((.*?)\)\s*=>\s*(.+)$/)
-    if (arrowMatch) {
-      const [, params, returnType] = arrowMatch
-      // Simplify parameter types - just show names with basic types
-      const simplifiedParams = params
-        .split(',')
-        .map(p => p.trim())
-        .filter(Boolean)
-        .map(p => {
-          const [name, pType] = p.split(':').map(s => s.trim())
-          // Simplify complex types
-          const simpleType = pType?.replace(/import\([^)]+\)\./g, '') || ''
-          return simpleType ? `${name}: ${simpleType}` : name
-        })
-        .join(', ')
-      return `(${simplifiedParams}) => ${returnType.replace(/import\([^)]+\)\./g, '')}`
-    }
-    // Remove import() references for cleaner display
-    return type.replace(/import\([^)]+\)\./g, '')
-  }
 </script>
 
 <template>
-  <!-- Component API -->
   <div
     v-if="componentApis.length > 0"
     class="markdown-body mt-8 mb-12"
@@ -173,13 +104,11 @@
       </button>
     </div>
 
-    <!-- Links mode -->
     <DocsApiLinks
       v-if="apiMode === 'links'"
       :component-apis="componentApis"
     />
 
-    <!-- Inline mode -->
     <template
       v-for="api in componentApis"
       v-else
@@ -193,7 +122,6 @@
         >{{ api.name }}</a>
       </h3>
 
-      <!-- Props -->
       <template v-if="api.props.length > 0">
         <h4>Props</h4>
         <table>
@@ -234,7 +162,6 @@
         </table>
       </template>
 
-      <!-- Events -->
       <template v-if="api.events.length > 0">
         <h4>Events</h4>
         <table>
@@ -258,7 +185,6 @@
         </table>
       </template>
 
-      <!-- Slots -->
       <template v-if="api.slots.length > 0">
         <h4>Slots</h4>
         <table>
@@ -293,7 +219,6 @@
     </template>
   </div>
 
-  <!-- Composable API -->
   <div
     v-else-if="composableApi"
     class="markdown-body mt-8 mb-12"
@@ -314,15 +239,12 @@
       </button>
     </div>
 
-    <!-- Links mode -->
     <DocsApiLinks
       v-if="apiMode === 'links'"
       :composable-api="composableApi"
     />
 
-    <!-- Inline mode -->
     <template v-else>
-      <!-- Options -->
       <template v-if="composableApi.options.length > 0">
         <h3 id="options" class="mt-8">
           <a
@@ -368,7 +290,6 @@
         </div>
       </template>
 
-      <!-- Properties -->
       <template v-if="composableApi.properties.length > 0">
         <h3 id="properties" class="mt-8">
           <a
@@ -436,7 +357,6 @@
         </div>
       </template>
 
-      <!-- Methods -->
       <template v-if="composableApi.methods.length > 0">
         <h3 id="methods" class="mt-8">
           <a

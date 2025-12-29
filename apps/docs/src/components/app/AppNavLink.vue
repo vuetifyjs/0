@@ -29,7 +29,10 @@
   const isActive = computed(() => to && route.path === to)
 
   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
-  const isNew = (date: string | undefined) => date && Date.now() - new Date(date).getTime() <= THIRTY_DAYS
+
+  function isNew (date: string | undefined) {
+    return date && Date.now() - new Date(date).getTime() <= THIRTY_DAYS
+  }
 </script>
 
 <template>
