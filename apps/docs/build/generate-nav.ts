@@ -54,6 +54,12 @@ const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootP
   composables: { order: 6, hasSubcategories: true },
 }
 
+// Subcategory ordering within sections
+const SUBCATEGORY_ORDER: Record<string, string[]> = {
+  components: ['primitives', 'providers', 'semantic', 'disclosure'],
+  composables: ['foundation', 'registration', 'selection', 'forms', 'system', 'plugins', 'utilities', 'transformers'],
+}
+
 // Standalone pages that appear between sections
 const STANDALONE: Record<string, { order: number, name: string }> = {
   'releases.md': { order: 1, name: 'Release Notes' },
@@ -232,9 +238,17 @@ async function generateNav (): Promise<NavItem[]> {
         subcategories.get(subcategory)!.push(page)
       }
 
-      // Sort subcategories and their children
+      // Sort subcategories by configured order, then alphabetically
+      const order = SUBCATEGORY_ORDER[section] ?? []
       const sortedSubcategories = Array.from(subcategories.entries())
-        .toSorted((a, b) => a[0].localeCompare(b[0]))
+        .toSorted((a, b) => {
+          const aIdx = order.indexOf(a[0])
+          const bIdx = order.indexOf(b[0])
+          if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx
+          if (aIdx !== -1) return -1
+          if (bIdx !== -1) return 1
+          return a[0].localeCompare(b[0])
+        })
 
       for (const [subcategory, subPages] of sortedSubcategories) {
         const sortedPages = subPages.toSorted((a, b) => {

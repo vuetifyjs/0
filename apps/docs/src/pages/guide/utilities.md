@@ -1,5 +1,7 @@
 ---
 title: Utilities Guide - Helper Functions for Vue 3
+features:
+  order: 7
 meta:
   - name: description
     content: Discover Vuetify0's utility functions for common development tasks. Type guards, transformers, and helpers that enhance code reusability in Vue 3 applications.
