@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import { onMounted, onUnmounted, ref } from 'vue'
   import { InferSeoMetaPlugin } from '@unhead/addons'
   import { injectHead, useHead } from '@unhead/vue'
 
@@ -6,6 +7,15 @@
   import { useScrollPersist } from './composables/useScrollPersist'
 
   useScrollPersist()
+
+  const showBottomMesh = ref(false)
+
+  function onScroll () {
+    showBottomMesh.value = window.scrollY > 200
+  }
+
+  onMounted(() => window.addEventListener('scroll', onScroll, { passive: true }))
+  onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
   const head = injectHead()
   head.use(InferSeoMetaPlugin())
@@ -24,7 +34,8 @@
 </script>
 
 <template>
-  <div aria-hidden="true" class="mesh-bg" />
+  <div aria-hidden="true" class="mesh-bg mesh-bg-top" />
+  <div aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
   <main class="min-h-screen pt-[72px] text-on-background">
     <router-view />
   </main>
@@ -32,17 +43,35 @@
 
 <style>
   .mesh-bg {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: -1;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  .mesh-bg-top {
     background:
       radial-gradient(at 40% 20%, color-mix(in srgb, var(--v0-accent) 40%, transparent) 0px, transparent 50%),
       radial-gradient(at 80% 0%, color-mix(in srgb, var(--v0-info) 35%, transparent) 0px, transparent 50%),
       radial-gradient(at 0% 50%, color-mix(in srgb, var(--v0-error) 25%, transparent) 0px, transparent 50%),
       radial-gradient(at 80% 50%, color-mix(in srgb, var(--v0-success) 30%, transparent) 0px, transparent 50%),
       radial-gradient(at 20% 80%, color-mix(in srgb, var(--v0-warning) 20%, transparent) 0px, transparent 50%);
-    filter: blur(80px);
-    pointer-events: none;
+  }
+
+  .mesh-bg-bottom {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+    background:
+      radial-gradient(at 60% 80%, color-mix(in srgb, var(--v0-accent) 40%, transparent) 0px, transparent 50%),
+      radial-gradient(at 20% 100%, color-mix(in srgb, var(--v0-info) 35%, transparent) 0px, transparent 50%),
+      radial-gradient(at 100% 50%, color-mix(in srgb, var(--v0-error) 25%, transparent) 0px, transparent 50%),
+      radial-gradient(at 20% 50%, color-mix(in srgb, var(--v0-success) 30%, transparent) 0px, transparent 50%),
+      radial-gradient(at 80% 20%, color-mix(in srgb, var(--v0-warning) 20%, transparent) 0px, transparent 50%);
+
+    &.visible {
+      opacity: 1;
+    }
   }
 
   #app > main {

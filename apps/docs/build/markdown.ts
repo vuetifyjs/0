@@ -99,6 +99,8 @@ export default async function MarkdownPlugin () {
 
         const href = t.attrGet('href') || ''
         if (/^https?:\/\//i.test(href)) {
+          t.attrSet('target', '_blank')
+          t.attrSet('rel', 'noopener noreferrer')
           t.attrSet('data-sfx', '↗')
         } else if (/#/.test(href) && !isHeaderAnchor) {
           t.attrSet('data-pfx', '#')
