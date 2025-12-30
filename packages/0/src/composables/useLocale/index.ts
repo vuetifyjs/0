@@ -27,8 +27,7 @@ import { createTokens } from '#v0/composables/useTokens'
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
 // Utilities
-import { isString } from '#v0/utilities'
-import { getCurrentInstance } from 'vue'
+import { instanceExists, isString } from '#v0/utilities'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -269,7 +268,7 @@ export function useLocale<
 > (namespace = 'v0:locale'): E {
   const fallback = createLocaleFallback<Z, E>()
 
-  if (!getCurrentInstance()) return fallback
+  if (!instanceExists()) return fallback
 
   try {
     return useContext<E>(namespace, fallback)
