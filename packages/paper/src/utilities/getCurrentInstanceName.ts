@@ -1,5 +1,7 @@
+// Framework
+import { instanceName } from '@vuetify/v0/utilities'
+
 // Utilities
-import { instanceName } from '#v0/utilities'
 import { toKebabCase } from './helpers'
 
 export function getCurrentInstanceName () {
