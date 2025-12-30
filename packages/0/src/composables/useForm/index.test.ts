@@ -508,7 +508,7 @@ describe('useForm edge cases', () => {
       // Wait for the async validation to complete
       await vi.waitFor(() => {
         expect(field.isValid.value).toBe(false)
-      })
+      }, { timeout: 500 })
       expect(field.errors.value).toEqual(['Must be longer than 10 characters'])
     })
 
@@ -523,12 +523,12 @@ describe('useForm edge cases', () => {
       field.value = 'short'
       await vi.waitFor(() => {
         expect(field.isValid.value).toBe(false)
-      })
+      }, { timeout: 500 })
 
       field.value = 'long enough value'
       await vi.waitFor(() => {
         expect(field.isValid.value).toBe(true)
-      })
+      }, { timeout: 500 })
       expect(field.errors.value).toEqual([])
     })
   })
@@ -586,6 +586,7 @@ describe('useForm edge cases', () => {
 describe('createFormContext', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.resetAllMocks()
   })
 
   it('should return a trinity tuple', () => {
