@@ -28,10 +28,13 @@ export function useApiHelpers () {
   }
 
   async function toggleExample (key: string, code?: string) {
-    if (expandedExamples.value.has(key)) {
-      expandedExamples.value.delete(key)
+    const newSet = new Set(expandedExamples.value)
+    if (newSet.has(key)) {
+      newSet.delete(key)
+      expandedExamples.value = newSet
     } else {
-      expandedExamples.value.add(key)
+      newSet.add(key)
+      expandedExamples.value = newSet
       if (code && !highlightedExamples[key]) {
         const hl = highlighter.value ?? await getHighlighter()
         highlightedExamples[key] = {

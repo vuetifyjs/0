@@ -81,7 +81,7 @@
 
         <kbd
           v-if="!question"
-          class="shrink-0 px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant text-[10px] font-mono inline-flex items-center"
+          class="shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono inline-flex items-center"
         >Ctrl+/</kbd>
 
         <button

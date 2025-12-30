@@ -16,10 +16,11 @@
 <template>
   <div class="docs-markup relative my-4 group">
     <span
-      v-if="language && language !== 'text'"
-      class="absolute top-3 left-3 z-10 px-1.5 py-0.5 rounded text-xs font-mono uppercase opacity-50 bg-surface-tint"
+      v-if="title || (language && language !== 'text')"
+      class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
+      :class="{ 'uppercase': !title }"
     >
-      {{ language }}
+      {{ title || language }}
     </span>
 
     <DocsCodeActions

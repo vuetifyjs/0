@@ -19,11 +19,13 @@ v0 theming uses CSS custom properties for runtime theme switching. The theme plu
 
 <DocsPageFeatures :frontmatter />
 
+> **No default colors.** v0 is unopinionated—you define all theme colors. The examples below show common patterns, but the color names and values are entirely yours.
+
 ## Quick Start
 
 ### 1. Install Plugin
 
-```ts
+```ts main.ts
 import { createApp } from 'vue'
 import { createThemePlugin } from '@vuetify/v0'
 
@@ -40,8 +42,8 @@ app.use(
           secondary: '#424242',
           background: '#FFFFFF',
           surface: '#FFFFFF',
-          error: '#B00020'
-        }
+          error: '#B00020',
+        },
       },
       dark: {
         dark: true,
@@ -50,11 +52,11 @@ app.use(
           secondary: '#616161',
           background: '#121212',
           surface: '#1E1E1E',
-          error: '#CF6679'
-        }
-      }
-    }
-  })
+          error: '#CF6679',
+        },
+      },
+    },
+  }),
 )
 ```
 
@@ -62,9 +64,9 @@ app.use(
 
 ```vue playground
 <script setup>
-import { useTheme } from '@vuetify/v0'
+  import { useTheme } from '@vuetify/v0'
 
-const theme = useTheme()
+  const theme = useTheme()
 </script>
 
 <template>
@@ -74,10 +76,10 @@ const theme = useTheme()
 </template>
 
 <style>
-.card {
-  background: var(--v0-surface);
-  color: var(--v0-on-surface);
-}
+  .card {
+    background: var(--v0-surface);
+    color: var(--v0-on-surface);
+  }
 </style>
 ```
 
@@ -128,21 +130,55 @@ v0 injects variables with the `--v0-` prefix:
 }
 ```
 
+### UnoCSS Integration
+
+Map v0 variables to UnoCSS theme colors for utility class support:
+
+```ts uno.config.ts
+import { defineConfig, presetUno } from 'unocss'
+
+export default defineConfig({
+  presets: [presetUno()],
+  theme: {
+    colors: {
+      primary: 'var(--v0-primary)',
+      secondary: 'var(--v0-secondary)',
+      background: 'var(--v0-background)',
+      surface: 'var(--v0-surface)',
+      error: 'var(--v0-error)',
+      'on-primary': 'var(--v0-on-primary)',
+      'on-surface': 'var(--v0-on-surface)',
+    },
+  },
+})
+```
+
+Now use standard utilities:
+
+```html
+<button class="bg-primary text-on-primary">Click me</button>
+<div class="bg-surface text-on-surface border-error">Card</div>
+```
+
+Theme changes update automatically—the utilities reference CSS variables, not static values.
+
 ## Dark Mode
 
 ### Manual Toggle
 
 ```vue playground
 <script setup>
-import { useTheme } from '@vuetify/v0'
+  import { useTheme } from '@vuetify/v0'
 
-const theme = useTheme()
+  const theme = useTheme()
 </script>
 
 <template>
-  <button @click="theme.cycle()">
-    {{ theme.isDark ? '☀️ Light' : '🌙 Dark' }}
-  </button>
+  <div class="bg-background min-h-100vh">
+    <button @click="theme.cycle()">
+      {{ theme.isDark ? 'Light' : 'Dark' }}
+    </button>
+  </div>
 </template>
 ```
 
@@ -197,10 +233,10 @@ const [useTheme, provideTheme] = createThemeContext({
       dark: false,
       colors: {
         primary: '#E91E63',  // Pink instead of blue
-        secondary: '#9C27B0'
-      }
-    }
-  }
+        secondary: '#9C27B0',
+      },
+    },
+  },
 })
 
 // Provide to descendants
@@ -214,12 +250,12 @@ provideTheme()
 ```ts
 // Good - semantic
 themes: {
-  light: { colors: { primary: '#1976D2', error: '#B00020' } }
+  light: { colors: { primary: '#1976D2', error: '#B00020' } },
 }
 
 // Avoid - literal
 themes: {
-  light: { colors: { blue: '#1976D2', red: '#B00020' } }
+  light: { colors: { blue: '#1976D2', red: '#B00020' } },
 }
 ```
 
@@ -234,9 +270,9 @@ themes: {
       primary: '#1976D2',
       'on-primary': '#FFFFFF',  // White text on primary
       surface: '#FFFFFF',
-      'on-surface': '#212121'   // Dark text on surface
-    }
-  }
+      'on-surface': '#212121',   // Dark text on surface
+    },
+  },
 }
 ```
 
@@ -248,4 +284,3 @@ themes: {
   background: var(--v0-surface, #ffffff);
 }
 ```
-

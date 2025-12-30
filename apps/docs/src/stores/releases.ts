@@ -16,6 +16,7 @@ export interface Release extends GitHubRelease {
 interface State {
   releases: Release[]
   isLoading: boolean
+  error: string | null
   page: number
 }
 
@@ -25,6 +26,7 @@ export const useReleasesStore = defineStore('releases', {
   state: (): State => ({
     releases: [],
     isLoading: false,
+    error: null,
     page: 1,
   }),
 
@@ -40,15 +42,23 @@ export const useReleasesStore = defineStore('releases', {
     },
     async fetch () {
       this.isLoading = true
+      this.error = null
 
       let data: GitHubRelease[] = []
       try {
-        data = await fetch(`${url}/github/releases?page=${this.page}&repo=v0`, {
+        const res = await fetch(`${url}/github/releases?page=${this.page}&repo=v0`, {
           method: 'GET',
           credentials: 'include',
-        }).then(res => res.json())
+        })
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`)
+        }
+        data = await res.json()
       } catch (error: unknown) {
         console.error(error)
+        this.error = 'Failed to load releases. Please try again.'
+        this.isLoading = false
+        return
       }
 
       for (const release of data) {
@@ -66,24 +76,32 @@ export const useReleasesStore = defineStore('releases', {
       if (found) return found
 
       this.isLoading = true
+      this.error = null
 
-      let res: GitHubRelease | undefined
+      let data: GitHubRelease | undefined
 
       if (tag.length >= 6) {
         try {
-          res = await fetch(`${url}/github/releases/find?tag=${tag}&repo=v0`, {
+          const res = await fetch(`${url}/github/releases/find?tag=${tag}&repo=v0`, {
             method: 'GET',
             credentials: 'include',
-          }).then(res => res.json())
+          })
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`)
+          }
+          data = await res.json()
         } catch (error: unknown) {
           console.error(error)
+          this.error = 'Failed to find release. Please try again.'
+          this.isLoading = false
+          return
         }
       }
 
       this.isLoading = false
 
-      if (res) {
-        const formatted = this.format(res)
+      if (data) {
+        const formatted = this.format(data)
         this.releases.push(formatted)
         return formatted
       }

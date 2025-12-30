@@ -1,0 +1,207 @@
+---
+title: Nuxt 3 - SSR Integration Guide
+features:
+  order: 7
+meta:
+  - name: description
+    content: Integrate Vuetify0 with Nuxt 3. Configure SSR, auto-imports, theme persistence, and hydration handling for server-rendered Vue applications.
+  - name: keywords
+    content: vuetify0, nuxt 3, ssr, server side rendering, hydration, auto-imports, vue 3
+related:
+  - /introduction/getting-started
+  - /guide/theming
+  - /composables/plugins/use-hydration
+---
+
+# Nuxt 3
+
+v0 integrates with Nuxt 3 through standard Vue plugin registration. This guide covers SSR considerations, auto-imports, and theme persistence.
+
+<DocsPageFeatures :frontmatter />
+
+## Basic Setup
+
+See [Getting Started](/introduction/getting-started#nuxt-3) for the minimal plugin setup.
+
+## Auto-Imports
+
+Configure Nuxt to auto-import v0 composables:
+
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  build: {
+    transpile: ['@vuetify/v0'],
+  },
+  imports: {
+    imports: [
+      { from: '@vuetify/v0', name: 'useTheme' },
+      { from: '@vuetify/v0', name: 'useSelection' },
+      { from: '@vuetify/v0', name: 'useGroup' },
+      { from: '@vuetify/v0', name: 'useSingle' },
+      { from: '@vuetify/v0', name: 'useStep' },
+      { from: '@vuetify/v0', name: 'usePagination' },
+      { from: '@vuetify/v0', name: 'useForm' },
+      { from: '@vuetify/v0', name: 'useHydration' },
+      { from: '@vuetify/v0', name: 'useBreakpoints' },
+      { from: '@vuetify/v0', name: 'IN_BROWSER' },
+    ],
+  },
+})
+```
+
+## SSR Considerations
+
+### The `IN_BROWSER` Constant
+
+Guard browser-only code with `IN_BROWSER`:
+
+```ts
+import { IN_BROWSER } from '@vuetify/v0'
+
+if (IN_BROWSER) {
+  localStorage.setItem('key', 'value')
+  window.addEventListener('resize', handler)
+}
+```
+
+### Hydration State
+
+Use `useHydration` to defer browser-only rendering:
+
+```vue
+<script lang="ts" setup>
+  import { useHydration } from '@vuetify/v0'
+
+  const { isHydrated } = useHydration()
+</script>
+
+<template>
+  <div v-if="isHydrated">
+    <BrowserOnlyComponent />
+  </div>
+</template>
+```
+
+The hydration plugin:
+- Sets `isHydrated` to `false` during SSR
+- Flips to `true` after the root component mounts on client
+- Falls back gracefully if not installed
+
+### Theme SSR Integration
+
+The theme plugin automatically integrates with Nuxt's `@unhead/vue` to inject styles during SSR. No additional configuration required.
+
+## Theme Persistence
+
+For theme preference to persist across SSR requests, use cookies instead of localStorage:
+
+```ts plugins/v0.ts
+import { createHydrationPlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  const themeCookie = useCookie<'light' | 'dark'>('theme', {
+    default: () => 'light',
+  })
+
+  function resolveTheme(): 'light' | 'dark' {
+    if (themeCookie.value) return themeCookie.value
+    if (!IN_BROWSER) return 'light'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
+  }
+
+  nuxtApp.vueApp.use(createHydrationPlugin())
+  nuxtApp.vueApp.use(
+    createThemePlugin({
+      default: resolveTheme(),
+      themes: {
+        light: {
+          dark: false,
+          colors: {
+            primary: '#3b82f6',
+            surface: '#ffffff',
+            'on-primary': '#ffffff',
+            'on-surface': '#212121',
+          },
+        },
+        dark: {
+          dark: true,
+          colors: {
+            primary: '#60a5fa',
+            surface: '#1e1e1e',
+            'on-primary': '#1a1a1a',
+            'on-surface': '#e0e0e0',
+          },
+        },
+      },
+    }),
+  )
+})
+```
+
+To sync theme changes back to the cookie:
+
+```vue
+<script setup lang="ts">
+  import { useTheme } from '@vuetify/v0'
+  import { watch } from 'vue'
+
+  const theme = useTheme()
+  const themeCookie = useCookie('theme')
+
+  watch(() => theme.selectedId.value, (id) => {
+    themeCookie.value = id
+  })
+</script>
+```
+
+## SSR Compatibility Reference
+
+| Feature | SSR Support | Notes |
+| - | - | - |
+| Components | Full | All compound components work in SSR |
+| `useTheme` | Full | Auto-injects styles via Nuxt head manager |
+| `useHydration` | Full | Designed for SSR/client state sync |
+| `useBreakpoints` | Partial | Returns defaults on server, measures on client |
+| `useStorage` | Partial | Uses memory adapter on server |
+| `usePagination` | Full | Width-based calculation defers to client |
+| Observer composables | Partial | No-op on server, activate on client |
+
+## Common Patterns
+
+### Client-Only Components
+
+For components that can't render on the server:
+
+```vue
+<template>
+  <ClientOnly>
+    <ComplexVisualization />
+    <template #fallback>
+      <div class="skeleton" />
+    </template>
+  </ClientOnly>
+</template>
+```
+
+### Avoiding Hydration Mismatch
+
+Common causes:
+- Timestamps or random values during render
+- Conditional rendering based on browser state
+- Dynamic IDs without SSR-safe generation
+
+```vue
+<script setup lang="ts">
+import { useHydration } from '@vuetify/v0'
+
+const { isHydrated } = useHydration()
+
+// Bad: causes mismatch
+const time = new Date().toLocaleTimeString()
+
+// Good: defer to client
+const time = computed(() => isHydrated.value ? new Date().toLocaleTimeString() : '')
+</script>
+```

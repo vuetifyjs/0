@@ -51,11 +51,11 @@ filtered.value  // ['Banana']
 ```ts
 const users = ref([
   { name: 'Alice', email: 'alice@example.com' },
-  { name: 'Bob', email: 'bob@example.com' }
+  { name: 'Bob', email: 'bob@example.com' },
 ])
 
 const filter = createFilter({
-  keys: ['name', 'email']
+  keys: ['name', 'email'],
 })
 
 const query = ref('alice')
@@ -68,7 +68,7 @@ filtered.value  // [{ name: 'Alice', ... }]
 ```ts
 const filter = createFilter({
   mode: 'intersection',  // 'some' | 'every' | 'union' | 'intersection'
-  keys: ['name', 'tags']
+  keys: ['name', 'tags'],
 })
 ```
 
@@ -81,7 +81,7 @@ import { createPagination } from '@vuetify/v0'
 
 const pagination = createPagination({
   size: 100,
-  itemsPerPage: 10
+  itemsPerPage: 10,
 })
 
 pagination.page.value     // 1
@@ -103,7 +103,7 @@ const items = ref([...])
 
 const pagination = createPagination({
   size: () => items.value.length,
-  itemsPerPage: 20
+  itemsPerPage: 20,
 })
 ```
 
@@ -124,11 +124,11 @@ const items = ref(Array.from({ length: 10000 }, (_, i) => `Item ${i}`))
 
 // useVirtual takes items as first arg, options as second
 const virtual = useVirtual(items, {
-  itemHeight: 40
+  itemHeight: 40,
 })
 ```
 
-```vue playground
+```vue playground VirtualList.vue
 <template>
   <div ref="virtual.element" style="height: 400px; overflow: auto;">
     <div :style="{ height: `${virtual.size}px`, paddingTop: `${virtual.offset}px` }">
@@ -148,7 +148,7 @@ const virtual = useVirtual(items, {
 
 ```ts
 const virtual = useVirtual(items, {
-  height: 400  // Container height (or use element ref)
+  height: 400,  // Container height (or use element ref)
 })
 ```
 
@@ -164,7 +164,7 @@ const container = ref<HTMLElement>()
 const overflow = createOverflow({
   container,
   itemWidth: 100,
-  gap: 8
+  gap: 8,
 })
 
 overflow.capacity.value       // Number of items that fit
@@ -173,7 +173,7 @@ overflow.isOverflowing.value  // Boolean: items exceed capacity
 
 ### Use Case: Responsive Chips
 
-```vue playground
+```vue playground ResponsiveChips.vue
 <template>
   <div ref="container" class="flex gap-2">
     <span v-for="tag in visibleTags" :key="tag" class="chip">
@@ -235,7 +235,7 @@ const { items: filtered } = filter.apply(query, items)
 
 const pagination = createPagination({
   size: () => filtered.value.length,
-  itemsPerPage: 10
+  itemsPerPage: 10,
 })
 
 const displayedItems = computed(() => {
@@ -253,7 +253,7 @@ const filter = createFilter()
 const { items: filtered } = filter.apply(query, items)
 
 const virtual = useVirtual(filtered, {
-  itemHeight: 40
+  itemHeight: 40,
 })
 ```
 

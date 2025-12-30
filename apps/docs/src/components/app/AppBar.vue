@@ -77,7 +77,7 @@
         <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
           <AppIcon icon="search" size="12" />
         </span>
-        <kbd class="shrink-0 px-1.5 py-0.5 rounded bg-surface-variant text-on-surface-variant text-[10px] font-mono inline-flex items-center">Ctrl+K</kbd>
+        <kbd class="shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono inline-flex items-center">Ctrl+K</kbd>
       </button>
     </div>
 

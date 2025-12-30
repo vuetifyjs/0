@@ -6,10 +6,10 @@
   import type { AtomProps } from '@vuetify/v0'
 
   export interface AppIconButtonProps extends AtomProps {
-    'aria-label'?: string
-    'icon': string
-    'size'?: string | number
-    'title'?: string
+    ariaLabel?: string
+    icon: string
+    size?: string | number
+    title?: string
   }
 
   const props = defineProps<AppIconButtonProps>()
@@ -19,16 +19,16 @@
     size = 18,
   } = props
 
-  if (import.meta.env.DEV && !props['aria-label'] && !props.title) {
-    console.warn('[AppIconButton] Missing aria-label or title for icon:', props.icon)
+  if (import.meta.env.DEV && !props['ariaLabel'] && !props.title) {
+    console.warn('[AppIconButton] Missing ariaLabel or title for icon:', props.icon)
   }
 </script>
 
 <template>
   <Atom
-    :aria-label="props['aria-label']"
+    :aria-label="props['ariaLabel']"
     :as
-    class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
+    class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint"
     :title="props.title"
   >
     <AppIcon aria-hidden="true" :icon :size />

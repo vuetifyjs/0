@@ -92,7 +92,7 @@
   .docs-mermaid :deep(.node polygon) {
     rx: 8px;
     ry: 8px;
-    fill: var(--v0-pre) !important;
+    fill: var(--v0-surface) !important;
     stroke: var(--v0-divider) !important;
   }
 

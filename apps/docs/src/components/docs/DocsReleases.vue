@@ -9,7 +9,7 @@
   import { useClipboard } from '@/composables/useClipboard'
 
   // Utilities
-  import { computed, onBeforeMount, shallowRef, toRef, watch } from 'vue'
+  import { computed, onBeforeMount, onScopeDispose, shallowRef, toRef, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
   import { type Release, useReleasesStore } from '@/stores/releases'
@@ -117,17 +117,21 @@
   })
 
   watch(search, val => onSearch(val))
+
+  onScopeDispose(() => {
+    if (timeout) clearTimeout(timeout)
+  })
 </script>
 
 <template>
-  <div class="border border-divider rounded-lg my-6 overflow-hidden">
+  <div class="border border-divider rounded-lg my-6 overflow-hidden bg-surface">
     <!-- Release Selector -->
     <Popover.Root v-model="isOpen">
       <Popover.Anchor
         v-slot="{ isOpen: open }"
         class="w-full px-4 py-3 bg-surface-tint border-none font-inherit text-left cursor-pointer flex items-center gap-3 hover:bg-surface transition-colors"
       >
-        <AppIcon icon="search" :size="20" />
+        <AppIcon class="opacity-50" icon="search" :size="20" />
 
         <div v-if="model" class="flex items-center gap-2 flex-1">
           <span class="font-semibold">{{ model.tag_name }}</span>
@@ -162,7 +166,7 @@
 
       <!-- Dropdown -->
       <Popover.Content
-        class="bg-surface border border-divider rounded-lg max-h-80 overflow-auto shadow-lg w-[anchor-size(width)]"
+        class="bg-surface border-t border-divider rounded-b-lg max-h-80 overflow-auto shadow-lg w-[anchor-size(width)]"
         position-area="bottom"
       >
         <input
@@ -193,6 +197,14 @@
           </span>
         </button>
 
+        <div
+          v-if="store.error"
+          class="px-4 py-2 text-center text-error text-sm border-t border-divider"
+          role="alert"
+        >
+          {{ store.error }}
+        </div>
+
         <button
           class="w-full px-4 py-2 bg-transparent border-none border-t border-divider font-inherit text-center cursor-pointer hover:bg-surface-tint transition-colors text-primary font-medium"
           type="button"
@@ -206,7 +218,7 @@
     <!-- Release Content -->
     <div v-if="model?.author" class="border-t border-divider">
       <!-- Header -->
-      <div class="flex items-center justify-between px-4 py-3 bg-surface-tint border-b border-divider">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-divider">
         <div class="flex items-center gap-2 text-sm">
           <AppIcon class="opacity-50" icon="calendar" :size="16" />
           <span>{{ publishedOn }}</span>
@@ -214,7 +226,7 @@
 
         <div class="flex items-center gap-2">
           <button
-            class="p-1.5 rounded hover:bg-surface transition-colors inline-flex"
+            class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
             :title="copied ? 'Copied!' : 'Copy link'"
             type="button"
             @click="copyLink"
@@ -223,7 +235,7 @@
           </button>
 
           <a
-            class="p-1.5 rounded hover:bg-surface transition-colors inline-flex"
+            class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
             href="https://community.vuetifyjs.com/"
             rel="noopener"
             target="_blank"
@@ -233,7 +245,7 @@
           </a>
 
           <a
-            class="p-1.5 rounded hover:bg-surface transition-colors inline-flex"
+            class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
             :href="model.html_url"
             rel="noopener"
             target="_blank"
@@ -252,12 +264,12 @@
       />
 
       <!-- Assets -->
-      <div v-if="model.zipball_url && model.tarball_url" class="border-t border-divider px-4 py-4">
+      <div v-if="model.zipball_url && model.tarball_url" class="border-t border-divider p-3">
         <h3 class="text-lg font-semibold mb-3">Assets</h3>
 
         <div class="border border-divider rounded-lg overflow-hidden">
           <a
-            class="flex items-center gap-3 px-4 py-3 hover:bg-surface-tint transition-colors"
+            class="flex items-center gap-3 px-3 py-2 hover:bg-surface-tint transition-colors"
             :href="model.zipball_url"
             rel="noopener"
             target="_blank"
@@ -270,7 +282,7 @@
           <div class="border-t border-divider" />
 
           <a
-            class="flex items-center gap-3 px-4 py-3 hover:bg-surface-tint transition-colors"
+            class="flex items-center gap-3 px-3 py-2 hover:bg-surface-tint transition-colors"
             :href="model.tarball_url"
             rel="noopener"
             target="_blank"

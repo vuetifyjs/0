@@ -22,12 +22,14 @@ v0's core architecture provides type-safe dependency injection and composable pa
 
 ## Architecture Overview
 
-```
-createContext ─── Type-safe provide/inject wrapper
-      │
-      └──► createTrinity ─── [use, provide, context] tuple
-                │
-                └──► createPlugin ─── Vue plugin factory
+```mermaid
+flowchart TD
+    A[createContext] --> B[createTrinity]
+    B --> C[createPlugin]
+
+    A -.- A1["Type-safe provide/inject wrapper"]
+    B -.- B1["[use, provide, context] tuple"]
+    C -.- C1["Vue plugin factory"]
 ```
 
 ## The Trinity Pattern
@@ -35,7 +37,7 @@ createContext ─── Type-safe provide/inject wrapper
 The signature pattern of v0. Every composable returns a readonly 3-tuple:
 
 ```ts
-const [useTheme, provideTheme, defaultTheme] = createThemeContext()
+const [useTheme, provideTheme, theme] = createThemeContext()
 
 // 1. useTheme - Inject from ancestor
 const theme = useTheme()
@@ -44,8 +46,8 @@ const theme = useTheme()
 provideTheme()              // Use defaults
 provideTheme(customTheme)   // Provide custom
 
-// 3. defaultTheme - Direct access without DI
-defaultTheme.cycle()  // Cycle through themes
+// 3. theme - Direct access without DI
+theme.cycle()  // Cycle through themes
 ```
 
 ### Why Three Elements?
@@ -122,30 +124,34 @@ Every registered item is a "ticket":
 
 ```ts
 interface RegistryTicket {
-  id: ID              // Unique identifier
-  index: number       // Position in registry
-  value: unknown      // Associated data
-  valueIsIndex: boolean // True if value wasn't explicitly set
+  id: ID,              // Unique identifier
+  index: number,       // Position in registry
+  value: unknown,      // Associated data
+  valueIsIndex: boolean, // True if value wasn't explicitly set
 }
 ```
 
 ### Extension Chain
 
+```mermaid
+flowchart LR
+    R[useRegistry] --> S[useSelection]
+    R --> T[useTokens]
+    R --> F[useForm]
+    S --> Si[useSingle]
+    S --> G[useGroup]
+    Si --> St[useStep]
 ```
-useRegistry ─── Base collection management
-      │
-      ├──► useSelection ─── + selectedIds Set
-      │         │
-      │         ├──► useSingle ─── Single selection
-      │         │         │
-      │         │         └──► useStep ─── + navigation
-      │         │
-      │         └──► useGroup ─── + tri-state, batch ops
-      │
-      ├──► useTokens ─── + alias resolution
-      │
-      └──► useForm ─── + validation
-```
+
+| Composable | Extends | Adds |
+| - | - | - |
+| `useRegistry` | — | Base collection management |
+| `useSelection` | Registry | `selectedIds` Set |
+| `useSingle` | Selection | Single selection constraint |
+| `useGroup` | Selection | Tri-state, batch ops |
+| `useStep` | Single | Navigation (next/prev/first/last) |
+| `useTokens` | Registry | Alias resolution |
+| `useForm` | Registry | Validation |
 
 ## Selection System
 
@@ -236,4 +242,3 @@ wizard.last()   // Jump to end
 | App-wide singleton | `createPlugin` with `app.use()` |
 | Standalone logic | Direct factory call |
 | Testing | Trinity's third element |
-

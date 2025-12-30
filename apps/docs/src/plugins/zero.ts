@@ -68,7 +68,7 @@ export default function zero (app: App) {
             'success': '#22c55e',
             'warning': '#f59e0b',
             'background': '#f5f5f5',
-            'surface': '#fafafa',
+            'surface': '#FFFFFF',
             'surface-tint': '#f5f5f5',
             'surface-variant': '#212121',
             'divider': '#e0e0e0',

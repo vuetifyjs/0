@@ -92,7 +92,7 @@ v0 does **not** provide roving tabindex. This keeps the library headless - imple
 
 ```ts
 // You implement navigation logic - v0 provides selection state
-function onKeydown(e: KeyboardEvent, ids: string[], currentIndex: number) {
+function onKeydown (e: KeyboardEvent, ids: string[], currentIndex: number) {
   switch (e.key) {
     case 'ArrowDown': selection.select(ids[currentIndex + 1]); break
     case 'ArrowUp': selection.select(ids[currentIndex - 1]); break
@@ -106,7 +106,7 @@ function onKeydown(e: KeyboardEvent, ids: string[], currentIndex: number) {
 
 ### Automated Testing
 
-```ts
+```ts MyComponent.test.ts
 import { axe } from 'vitest-axe'
 
 it('passes accessibility audit', async () => {
@@ -134,4 +134,3 @@ it('passes accessibility audit', async () => {
 ## Internationalization
 
 v0's `useLocale` handles RTL and translated labels. See [useLocale](/composables/plugins/use-locale) for accessibility label translations.
-

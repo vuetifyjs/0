@@ -200,8 +200,8 @@
 
   /* Shiki theme switching */
   .shiki {
-    --shiki-light-bg: var(--v0-pre) !important;
-    --shiki-dark-bg: var(--v0-pre) !important;
+    --shiki-light-bg: var(--v0-surface) !important;
+    --shiki-dark-bg: var(--v0-surface) !important;
     background-color: var(--shiki-light-bg);
     border: thin solid var(--v0-divider);
     border-radius: 0.5rem;

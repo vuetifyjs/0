@@ -24,7 +24,7 @@ v0 plugins are Vue plugins built with `createPlugin`. They provide app-wide sing
 
 ### Basic Installation
 
-```ts
+```ts main.ts
 import { createApp } from 'vue'
 import { createThemePlugin, createLocalePlugin } from '@vuetify/v0'
 
@@ -45,16 +45,16 @@ app.use(
     default: 'dark',
     themes: {
       light: { dark: false, colors: { primary: '#1976D2' } },
-      dark: { dark: true, colors: { primary: '#2196F3' } }
-    }
-  })
+      dark: { dark: true, colors: { primary: '#2196F3' } },
+    },
+  }),
 )
 
 app.use(
   createLocalePlugin({
     default: 'en',
-    messages: { en: { hello: 'Hello' } }
-  })
+    messages: { en: { hello: 'Hello' } },
+  }),
 )
 ```
 
@@ -74,7 +74,7 @@ app.use(
 
 ### Basic Plugin
 
-```ts
+```ts plugins/analytics.ts
 import { createContext, createPlugin } from '@vuetify/v0'
 
 interface AnalyticsContext {
@@ -89,12 +89,12 @@ const [useAnalytics, provideAnalytics] = createContext<AnalyticsContext>('my:ana
 export function createAnalyticsPlugin() {
   const context: AnalyticsContext = {
     track: (event, data) => console.log('Track:', event, data),
-    identify: (userId) => console.log('Identify:', userId)
+    identify: (userId) => console.log('Identify:', userId),
   }
 
   return createPlugin({
     namespace: 'my:analytics',
-    provide: (app) => provideAnalytics(context, app)
+    provide: (app) => provideAnalytics(context, app),
   })
 }
 
@@ -103,7 +103,7 @@ export { useAnalytics }
 
 ### Plugin with Options
 
-```ts
+```ts plugins/analytics.ts
 interface AnalyticsOptions {
   apiKey: string
   debug?: boolean
@@ -119,12 +119,12 @@ export function createAnalyticsPlugin(options: AnalyticsOptions) {
     },
     identify: (userId) => {
       // Identify user
-    }
+    },
   }
 
   return createPlugin({
     namespace: 'my:analytics',
-    provide: (app) => provideAnalytics(context, app)
+    provide: (app) => provideAnalytics(context, app),
   })
 }
 
@@ -136,7 +136,7 @@ app.use(createAnalyticsPlugin({ apiKey: 'xxx', debug: true }))
 
 For extensible plugins that support multiple backends:
 
-```ts
+```ts plugins/logger.ts
 interface LoggerAdapter {
   log: (level: string, message: string) => void
 }
@@ -152,7 +152,7 @@ interface LoggerOptions {
 }
 
 const consoleAdapter: LoggerAdapter = {
-  log: (level, message) => console[level](message)
+  log: (level, message) => console[level](message),
 }
 
 const [useLogger, provideLogger] = createContext<LoggerContext>('my:logger')
@@ -163,12 +163,12 @@ export function createLoggerPlugin(options: LoggerOptions = {}) {
   const context: LoggerContext = {
     info: (msg) => adapter.log('info', msg),
     warn: (msg) => adapter.log('warn', msg),
-    error: (msg) => adapter.log('error', msg)
+    error: (msg) => adapter.log('error', msg),
   }
 
   return createPlugin({
     namespace: 'my:logger',
-    provide: (app) => provideLogger(context, app)
+    provide: (app) => provideLogger(context, app),
   })
 }
 
@@ -176,7 +176,7 @@ export function createLoggerPlugin(options: LoggerOptions = {}) {
 const sentryAdapter: LoggerAdapter = {
   log: (level, message) => {
     if (level === 'error') Sentry.captureMessage(message)
-  }
+  },
 }
 
 app.use(createLoggerPlugin({ adapter: sentryAdapter }))
@@ -184,24 +184,24 @@ app.use(createLoggerPlugin({ adapter: sentryAdapter }))
 
 ## Consuming Plugins
 
-```vue playground
+```vue
 <script setup>
-import { useTheme, useLocale } from '@vuetify/v0'
+  import { useTheme, useLocale } from '@vuetify/v0'
 
-const theme = useTheme()
-const locale = useLocale()
+  const theme = useTheme()
+  const locale = useLocale()
 
-// Theme API
-theme.cycle()              // Cycle through themes
-theme.select('dark')       // Select specific theme
-theme.selectedItem.value   // Current theme ticket
-theme.selectedId.value     // 'light' | 'dark'
-theme.isDark.value         // boolean
+  // Theme API
+  theme.cycle()              // Cycle through themes
+  theme.select('dark')       // Select specific theme
+  theme.selectedItem.value   // Current theme ticket
+  theme.selectedId.value     // 'light' | 'dark'
+  theme.isDark.value         // boolean
 
-// Locale API
-locale.t('hello')
-locale.selectedItem.value  // Current locale ticket
-locale.selectedId.value    // 'en'
+  // Locale API
+  locale.t('hello')
+  locale.selectedItem.value  // Current locale ticket
+  locale.selectedId.value    // 'en'
 </script>
 ```
 
@@ -242,4 +242,3 @@ const theme = useTheme()
 // useTheme throws if createThemePlugin isn't installed
 // This is intentional - fail fast
 ```
-

@@ -42,6 +42,8 @@ export interface UseSearchReturn {
   isOpen: Readonly<Ref<boolean>>
   /** Whether the search index is loading */
   isLoading: Readonly<Ref<boolean>>
+  /** Error message if search index failed to load */
+  error: Readonly<Ref<string | null>>
   /** Current search query */
   query: ShallowRef<string>
   /** Search results */
@@ -67,6 +69,7 @@ let miniSearch: MiniSearch<SearchDocument> | null = null
 let indexPromise: Promise<void> | null = null
 const isOpen = shallowRef(false)
 const isLoading = shallowRef(false)
+const error = shallowRef<string | null>(null)
 
 async function loadIndex (): Promise<void> {
   if (miniSearch) return
@@ -74,6 +77,7 @@ async function loadIndex (): Promise<void> {
 
   indexPromise = (async () => {
     try {
+      error.value = null
       const response = await fetch('/search-index.json')
       if (!response.ok) {
         throw new Error('Failed to load search index')
@@ -92,8 +96,9 @@ async function loadIndex (): Promise<void> {
       })
 
       miniSearch.addAll(docs)
-    } catch (error) {
-      console.error('[useSearch] Failed to load index:', error)
+    } catch (error_) {
+      console.error('[useSearch] Failed to load index:', error_)
+      error.value = 'Failed to load search index. Please try again.'
       miniSearch = null
     }
   })()
@@ -223,6 +228,7 @@ export function useSearch (): UseSearchReturn {
   return {
     isOpen: readonly(isOpen),
     isLoading: readonly(isLoading),
+    error: readonly(error),
     query,
     results,
     groupedResults,

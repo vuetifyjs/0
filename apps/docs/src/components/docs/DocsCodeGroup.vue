@@ -76,7 +76,7 @@
   <div class="docs-code-group my-4">
     <div
       aria-label="Code examples"
-      class="flex gap-1 px-3 pt-3 pb-0 bg-pre rounded-t-lg overflow-x-auto border-t border-x border-divider"
+      class="flex gap-1 px-3 pt-3 pb-0 bg-surface rounded-t-lg overflow-x-auto border-t border-x border-divider"
       role="tablist"
       @keydown="onKeydown"
     >
@@ -86,7 +86,7 @@
         :key="tab.id"
         :aria-controls="`${uid}-panel-${tab.id}`"
         :aria-selected="tab.isSelected.value"
-        class="px-2 py-1 text-xs font-medium rounded whitespace-nowrap inline-flex align-center line-height-relaxed"
+        class="px-2 py-1 text-xs font-medium rounded whitespace-nowrap inline-flex items-center line-height-relaxed"
         :class="[
           tab.isSelected.value
             ? 'bg-primary text-on-primary'

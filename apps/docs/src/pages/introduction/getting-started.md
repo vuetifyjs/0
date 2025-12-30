@@ -9,6 +9,7 @@ features:
   order: 1
 related:
   - /guide
+  - /guide/nuxt
   - /composables
   - /components
 ---
@@ -77,6 +78,239 @@ Import and use components directly - no plugin installation required:
 
 Components are completely unstyled. Add your own classes using Tailwind, UnoCSS, or plain CSS.
 
+## Styling
+
+v0 is style-agnostic. Choose your preferred CSS framework and map theme colors to v0's CSS variables.
+
+### UnoCSS
+
+[UnoCSS](https://unocss.dev) is our recommended choice for its speed and flexibility.
+
+#### 1. Install
+
+::: code-group
+
+```bash pnpm
+pnpm add -D unocss @unocss/preset-wind
+```
+
+```bash npm
+npm install -D unocss @unocss/preset-wind
+```
+
+```bash yarn
+yarn add -D unocss @unocss/preset-wind
+```
+
+```bash bun
+bun add -D unocss @unocss/preset-wind
+```
+
+:::
+
+#### 2. Configure
+
+```ts uno.config.ts
+import { defineConfig, presetWind } from 'unocss'
+
+export default defineConfig({
+  presets: [presetWind()],
+  theme: {
+    colors: {
+      primary: 'var(--v0-primary)',
+      surface: 'var(--v0-surface)',
+      'on-primary': 'var(--v0-on-primary)',
+      'on-surface': 'var(--v0-on-surface)',
+    },
+  },
+})
+```
+
+#### 3. Add Vite Plugin
+
+```ts vite.config.ts
+import UnoCSS from 'unocss/vite'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    UnoCSS(),
+  ],
+})
+```
+
+#### 4. Import Styles
+
+```ts main.ts
+import 'virtual:uno.css'
+```
+
+Now use utility classes in your components:
+
+```vue
+<template>
+  <button class="bg-primary text-on-primary px-4 py-2 rounded">
+    Click me
+  </button>
+</template>
+```
+
+### Tailwind CSS v4
+
+[Tailwind v4](https://tailwindcss.com) uses CSS-first configuration with native cascade layers.
+
+#### 1. Install
+
+::: code-group
+
+```bash pnpm
+pnpm add -D tailwindcss @tailwindcss/vite
+```
+
+```bash npm
+npm install -D tailwindcss @tailwindcss/vite
+```
+
+```bash yarn
+yarn add -D tailwindcss @tailwindcss/vite
+```
+
+```bash bun
+bun add -D tailwindcss @tailwindcss/vite
+```
+
+:::
+
+#### 2. Add Vite Plugin
+
+```ts vite.config.ts
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    tailwindcss(),
+  ],
+})
+```
+
+#### 3. Create Stylesheet
+
+```css src/styles/main.css
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--v0-primary);
+  --color-surface: var(--v0-surface);
+  --color-on-primary: var(--v0-on-primary);
+  --color-on-surface: var(--v0-on-surface);
+}
+```
+
+#### 4. Import Styles
+
+```ts main.ts
+import './styles/main.css'
+```
+
+Now use utility classes in your components:
+
+```vue
+<template>
+  <button class="bg-primary text-on-primary px-4 py-2 rounded">
+    Click me
+  </button>
+</template>
+```
+
+### CSS Modules
+
+Vue's built-in [CSS Modules](https://vuejs.org/api/sfc-css-features#css-modules) require zero configuration.
+
+```vue Button.vue
+<template>
+  <button :class="$style.btn">
+    Click me
+  </button>
+</template>
+
+<style module>
+  .btn {
+    background: var(--v0-primary);
+    color: var(--v0-on-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+  }
+</style>
+```
+
+Type-safe access via `useCssModule()`:
+
+```vue
+<script setup lang="ts">
+  import { useCssModule } from 'vue'
+
+  const $style = useCssModule()
+</script>
+
+<template>
+  <button :class="$style.btn">Click me</button>
+</template>
+```
+
+> For dark mode, custom themes, and design tokens, see the [Theming Guide](/guide/theming).
+
+## Nuxt 3
+
+v0 works with Nuxt 3 via a standard plugin.
+
+### 1. Create Plugin
+
+```ts plugins/v0.ts
+import { createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.vueApp.use(createHydrationPlugin())
+  nuxtApp.vueApp.use(
+    createThemePlugin({
+      default: 'light',
+      themes: {
+        light: {
+          dark: false,
+          colors: {
+            primary: '#3b82f6',
+            surface: '#ffffff',
+            'on-primary': '#ffffff',
+            'on-surface': '#212121',
+          },
+        },
+        dark: {
+          dark: true,
+          colors: {
+            primary: '#60a5fa',
+            surface: '#1e1e1e',
+            'on-primary': '#1a1a1a',
+            'on-surface': '#e0e0e0',
+          },
+        },
+      },
+    }),
+  )
+})
+```
+
+### 2. Configure Nuxt
+
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  build: {
+    transpile: ['@vuetify/v0'],
+  },
+})
+```
+
+> For auto-imports, SSR hydration, and theme persistence, see the [Nuxt Guide](/guide/nuxt).
+
 ## Exposed Exports
 
 The following export paths exist for the Vuetify0 framework:
@@ -108,7 +342,5 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 
 ## Next Steps
 
-- [Explore Components](/components/) - See all available components
-- [Browse Composables](/composables/) - Dive into the composables API
-- [View Examples](https://github.com/vuetifyjs/0/tree/master/playground) - Check out the playground
-
+- [Explore Components](/components/) See all available components
+- [Browse Composables](/composables/) Dive into the composables API

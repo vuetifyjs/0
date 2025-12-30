@@ -9,7 +9,7 @@
 </script>
 
 <template>
-  <div class="border cursor-pointer inline-flex items-center rounded-2xl px-2 text-xs py-1 gap-1 bg-surface-tint">
+  <div class="border cursor-pointer inline-flex items-center rounded-2xl px-2 text-xs py-1 gap-1 bg-surface hover:bg-surface-tint">
     <AppIcon
       v-if="icon"
       :class="color"

@@ -51,6 +51,7 @@ interface PageContext {
   path: string
   title: string
   content: string
+  loaded: boolean
 }
 
 const API_URL = `${import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'}/docs/ask`
@@ -132,12 +133,12 @@ async function fetchApiContext (path: string): Promise<PageContext> {
   try {
     const slug = path.replace(/^\/api\//, '')
     if (!slug) {
-      return { path, title: 'API Reference', content: 'API documentation for @vuetify/v0 components and composables.' }
+      return { path, title: 'API Reference', content: 'API documentation for @vuetify/v0 components and composables.', loaded: true }
     }
 
     const response = await fetch('/api.json')
     if (!response.ok) {
-      return { path, title: '', content: '' }
+      return { path, title: '', content: '', loaded: false }
     }
 
     const data = await response.json() as ApiJsonData
@@ -147,7 +148,7 @@ async function fetchApiContext (path: string): Promise<PageContext> {
     // Try component first, then composable
     const api = data.components[pascal] ?? data.composables[camel]
     if (!api) {
-      return { path, title: '', content: '' }
+      return { path, title: '', content: '', loaded: false }
     }
 
     const name = api.name ?? pascal
@@ -155,16 +156,17 @@ async function fetchApiContext (path: string): Promise<PageContext> {
       path,
       title: `${name} API`,
       content: formatApiContent(api),
+      loaded: true,
     }
   } catch {
-    return { path, title: '', content: '' }
+    return { path, title: '', content: '', loaded: false }
   }
 }
 
 /** Fetch and parse markdown for a given path */
 async function fetchPageContext (path: string): Promise<PageContext> {
   if (!IN_BROWSER || path === '/' || path === '') {
-    return { path, title: '', content: '' }
+    return { path, title: '', content: '', loaded: false }
   }
 
   // Handle API routes specially
@@ -179,7 +181,7 @@ async function fetchPageContext (path: string): Promise<PageContext> {
       response = await fetch(`${path}/index.md`)
     }
     if (!response.ok) {
-      return { path, title: '', content: '' }
+      return { path, title: '', content: '', loaded: false }
     }
 
     const markdown = await response.text()
@@ -207,9 +209,9 @@ async function fetchPageContext (path: string): Promise<PageContext> {
       title = h1Match?.[1]?.trim() ?? ''
     }
 
-    return { path, title, content }
+    return { path, title, content, loaded: true }
   } catch {
-    return { path, title: '', content: '' }
+    return { path, title: '', content: '', loaded: false }
   }
 }
 
@@ -297,6 +299,16 @@ export function useAsk (): UseAskReturn {
     try {
       // Fetch page context on-demand
       const context = await fetchPageContext(route.path)
+
+      // Warn if context failed to load - prepend notice to assistant message
+      if (!context.loaded && route.path !== '/') {
+        const updatedMessages = [...messages.value]
+        const lastMessage = updatedMessages.at(-1)
+        if (lastMessage?.role === 'assistant') {
+          lastMessage.content = '*Note: Page context unavailable. Response may be general.*\n\n'
+          messages.value = updatedMessages
+        }
+      }
 
       const response = await fetch(API_URL, {
         method: 'POST',

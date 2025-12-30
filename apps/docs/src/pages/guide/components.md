@@ -39,10 +39,16 @@ v0 components are Vue wrappers around composables. Composables hold logic, compo
 
 The `Atom` component is a polymorphic base element supporting any HTML tag:
 
-```vue playground
+```vue
+<script lang="ts" setup>
+  function onClick() {
+    console.log('clicked')
+  }
+</script>
+
 <template>
   <!-- Render as button -->
-  <Atom as="button" @click="handleClick">Click me</Atom>
+  <Atom as="button" @click="onClick">Click me</Atom>
 
   <!-- Render as link -->
   <Atom as="a" href="/path">Navigate</Atom>
@@ -66,6 +72,12 @@ The `Atom` component is a polymorphic base element supporting any HTML tag:
 Every component exposes `attrs` in its default slot. Spread onto your element for behavior and accessibility:
 
 ```vue playground
+<script setup lang="ts">
+  import { Selection } from '@vuetify/v0'
+
+  const items = ['Apple', 'Banana', 'Cherry']
+</script>
+
 <template>
   <Selection.Root>
     <Selection.Item v-for="item in items" v-slot="{ attrs, isSelected, toggle }">
@@ -107,22 +119,21 @@ Components emit data attributes for CSS styling:
 
 ### Primitives
 
-- [Atom](/components/primitives/atom) - Polymorphic base element
+- [Atom](/components/primitives/atom) Polymorphic base element
 
 ### Providers
 
-- [Selection](/components/providers/selection) - Multi-selection state
-- [Single](/components/providers/single) - Single-selection state
-- [Group](/components/providers/group) - Multi-select with tri-state
-- [Step](/components/providers/step) - Sequential navigation
+- [Selection](/components/providers/selection) Multi-selection state
+- [Single](/components/providers/single) Single-selection state
+- [Group](/components/providers/group) Multi-select with tri-state
+- [Step](/components/providers/step) Sequential navigation
 
 ### Semantic
 
-- [Avatar](/components/semantic/avatar) - Image with fallback
-- [Pagination](/components/semantic/pagination) - Page navigation
+- [Avatar](/components/semantic/avatar) Image with fallback
+- [Pagination](/components/semantic/pagination) Page navigation
 
 ### Disclosure
 
-- [ExpansionPanel](/components/disclosure/expansion-panel) - Accordion pattern
-- [Popover](/components/disclosure/popover) - Floating content
-
+- [ExpansionPanel](/components/disclosure/expansion-panel) Accordion pattern
+- [Popover](/components/disclosure/popover) Floating content

@@ -12,6 +12,7 @@
   const {
     isOpen,
     isLoading,
+    error,
     query,
     groupedResults,
     selectedIndex,
@@ -114,13 +115,21 @@
           </kbd>
         </div>
 
-        <div ref="results" class="max-h-80 overflow-y-auto">
+        <div ref="results" aria-live="polite" class="max-h-80 overflow-y-auto">
           <div
             v-if="isLoading"
             class="px-4 py-8 text-center text-on-surface-variant"
             role="status"
           >
             Loading search index...
+          </div>
+
+          <div
+            v-else-if="error"
+            class="px-4 py-8 text-center text-error"
+            role="alert"
+          >
+            {{ error }}
           </div>
 
           <div

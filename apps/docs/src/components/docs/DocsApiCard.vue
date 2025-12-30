@@ -25,7 +25,7 @@
 
 <template>
   <div class="border border-divider rounded-lg overflow-hidden">
-    <div class="px-4 py-3 bg-surface-variant/30">
+    <div class="px-4 py-3 bg-surface">
       <component
         :is="headingTag ?? 'h4'"
         :id="item.name"
@@ -53,7 +53,7 @@
 
       <p
         v-if="item.description"
-        class="text-sm text-on-surface-variant mt-1"
+        class="text-sm text-on-surface mt-1"
         :class="{ '!mb-0': kind !== 'option' }"
       >
         {{ item.description }}
@@ -61,18 +61,18 @@
 
       <p
         v-if="kind === 'option' && 'default' in item && item.default"
-        class="text-xs text-on-surface-variant mt-1"
+        class="text-xs text-on-surface mt-1 !mb-0"
       >
         Default: <code class="text-xs">{{ item.default }}</code>
       </p>
     </div>
 
     <template v-if="'example' in item && item.example">
-      <div class="border-t border-divider bg-surface-tint">
+      <div class="border-t border-divider bg-surface hover:bg-surface-tint">
         <button
           :aria-controls="`${uid}-${exampleKey}`"
           :aria-expanded="expandedExamples.has(exampleKey)"
-          class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
+          class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors"
           type="button"
           @click="toggleExample(exampleKey, item.example)"
         >

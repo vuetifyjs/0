@@ -136,7 +136,7 @@ import { createSelectionContext } from '@vuetify/v0'
 
 const [useTabSelection, provideTabSelection] = createSelectionContext({
   namespace: 'tabs',
-  multiple: false  // Options go here, not in provideTabSelection
+  multiple: false,
 })
 provideTabSelection()
 
@@ -149,7 +149,7 @@ selection.select('home')
 
 For app-wide singletons:
 
-```ts
+```ts main.ts
 import { createApp } from 'vue'
 import { createThemePlugin } from '@vuetify/v0'
 
@@ -157,8 +157,8 @@ const app = createApp(App)
 app.use(
   createThemePlugin({
     default: 'light',
-    themes: { light: {...}, dark: {...} }
-  })
+    themes: { light: {...}, dark: {...} },
+  }),
 )
 ```
 
@@ -166,7 +166,7 @@ app.use(
 
 Build complex behavior by combining primitives:
 
-```ts
+```ts composables/useDataTable.ts
 import { createSelection, createFilter, createPagination } from '@vuetify/v0'
 
 // Filterable, paginated selection
@@ -178,7 +178,7 @@ const { items: filtered } = filter.apply(query, items)
 
 const pagination = createPagination({
   size: () => filtered.value.length,
-  itemsPerPage: 10
+  itemsPerPage: 10,
 })
 const selection = createSelection({ multiple: true })
 
@@ -205,6 +205,5 @@ selection.register({ id: '1', value: { id: '1', label: 'First' } as MyItem })
 
 // Type-safe access via ticket
 const ticket = selection.get('1')
-ticket?.value  // MyItem
+ticket?.value // MyItem
 ```
-

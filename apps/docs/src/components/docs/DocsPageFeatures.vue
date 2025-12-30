@@ -44,6 +44,7 @@
 
   const base = 'https://github.com/vuetifyjs/0'
   const loading = shallowRef(false)
+  const copyError = shallowRef(false)
   const { copied, copy } = useClipboard()
 
   function scrollToAnchor (id: string) {
@@ -160,6 +161,7 @@
 
     try {
       loading.value = true
+      copyError.value = false
 
       const { request } = await import('@/plugins/octokit').then(m => m.default || m)
       const { data: { content } } = await request('GET /repos/vuetifyjs/0/contents/apps/docs/src/pages/{link}.md', {
@@ -171,7 +173,11 @@
 
       await copy(raw)
     } catch (error) {
-      await copy(String(error))
+      console.error('Failed to copy page:', error)
+      copyError.value = true
+      setTimeout(() => {
+        copyError.value = false
+      }, 3000)
     } finally {
       loading.value = false
     }
@@ -232,9 +238,9 @@
       </a>
 
       <AppChip
-        :color="copied ? 'text-success' : 'text-on-surface'"
-        :icon="loading ? 'loading' : copied ? 'success' : 'markdown'"
-        :text="loading ? 'Copying...' : copied ? 'Copied' : 'Copy Page as Markdown'"
+        :color="copyError ? 'text-error' : copied ? 'text-success' : 'text-on-surface'"
+        :icon="loading ? 'loading' : copyError ? 'alert' : copied ? 'success' : 'markdown'"
+        :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : copied ? 'Copied' : 'Copy Page as Markdown'"
         title="Copy Page as Markdown"
         @click="onClickCopy"
       />

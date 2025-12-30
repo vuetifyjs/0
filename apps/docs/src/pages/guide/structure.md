@@ -21,7 +21,7 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 
 ## Package Layout
 
-```
+```txt
 @vuetify/v0 (packages/0/src/)
 ├── components/       # Vue component wrappers (one folder per component)
 ├── composables/      # Core logic (flat structure, one folder per composable)
@@ -81,7 +81,7 @@ import { Selection, ExpansionPanel } from '@vuetify/v0'
 
 ### Composables
 
-```
+```txt
 composables/
 └── useSelection/
     ├── index.ts              # Main composable
@@ -90,7 +90,7 @@ composables/
 
 ### Components
 
-```
+```txt
 components/
 └── Selection/
     ├── SelectionRoot.vue     # Container component
@@ -128,4 +128,3 @@ flowchart TD
     Selection --> Group
     Single --> Step
 ```
-
