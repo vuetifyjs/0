@@ -115,7 +115,7 @@ export function createForm<
   }
 
   const isValidating = computed(() => {
-    for (const ticket of registry.collection.values()) {
+    for (const ticket of registry.values()) {
       if (ticket.isValidating.value) return true
     }
     return false

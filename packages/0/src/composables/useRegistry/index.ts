@@ -60,9 +60,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * @template ID The type of the ticket ID.
    * @template Z The type of the registry ticket.
    *
-   * @remarks Exposed for read-only access and advanced use cases. **Warning:** Direct mutation may cause inconsistencies in indexes, catalogs, and caches. Always prefer using the provided methods (`register`, `unregister`, etc.) to maintain internal consistency.
+   * @remarks Read-only view of the internal collection. Use `register`, `unregister`, `upsert`, and `clear` methods to modify.
    */
-  collection: Map<ID, Z>
+  collection: ReadonlyMap<ID, Z>
   /**
    * Clear the entire registry
    *
@@ -986,7 +986,7 @@ export function useRegistry<
   }
 
   return {
-    collection,
+    collection: collection as ReadonlyMap<ID, Z>,
     emit,
     on,
     off,
