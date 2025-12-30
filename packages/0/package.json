@@ -52,6 +52,9 @@
   },
   "devDependencies": {
     "@vue/test-utils": "catalog:",
+    "flagsmith": "catalog:",
+    "launchdarkly-js-client-sdk": "catalog:",
+    "posthog-js": "catalog:",
     "tsdown": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
