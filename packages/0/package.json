@@ -34,7 +34,21 @@
     }
   },
   "peerDependencies": {
+    "flagsmith": "^10.0.0",
+    "launchdarkly-js-client-sdk": "^3.0.0",
+    "posthog-js": "^1.0.0",
     "vue": ">=3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "flagsmith": {
+      "optional": true
+    },
+    "launchdarkly-js-client-sdk": {
+      "optional": true
+    },
+    "posthog-js": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@vue/test-utils": "catalog:",

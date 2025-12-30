@@ -1,0 +1,48 @@
+import { describe, expect, it, vi } from 'vitest'
+
+// Types
+import type { IFlagsmith } from 'flagsmith'
+
+import { FlagsmithFeatureAdapter } from './flagsmith'
+const mockFlagsmith = {
+  init: vi.fn(),
+  getAllFlags: vi.fn(),
+}
+
+describe('flagsmithFeatureAdapter', () => {
+  it('should initialize flagsmith with options', () => {
+    const options = { environmentID: 'test-env' }
+    const adapter = new FlagsmithFeatureAdapter(mockFlagsmith as unknown as IFlagsmith, options)
+
+    adapter.setup(vi.fn())
+
+    expect(mockFlagsmith.init).toHaveBeenCalledWith(expect.objectContaining(options))
+  })
+
+  it('should call onUpdate when flags change', () => {
+    let onChangeCallback: Function | undefined
+
+    mockFlagsmith.init.mockImplementation((options: any) => {
+      onChangeCallback = options.onChange
+      return Promise.resolve()
+    })
+
+    mockFlagsmith.getAllFlags.mockReturnValue({
+      'feature-a': { enabled: true, value: 'value-a' } as any,
+      'feature-b': { enabled: false, value: null } as any,
+    })
+
+    const adapter = new FlagsmithFeatureAdapter(mockFlagsmith as unknown as IFlagsmith, { environmentID: 'test-env' })
+    const onUpdate = vi.fn()
+
+    adapter.setup(onUpdate)
+
+    // Simulate flagsmith change
+    onChangeCallback?.({}, { isFromServer: true }, { error: null, isFetching: false, isLoading: false, source: 'server' })
+
+    expect(onUpdate).toHaveBeenCalledWith({
+      'feature-a': { $value: true, $variation: 'value-a' },
+      'feature-b': false,
+    })
+  })
+})
