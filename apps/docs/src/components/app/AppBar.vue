@@ -69,7 +69,7 @@
 
       <button
         aria-label="Search (Ctrl+K)"
-        class="hidden md:inline-flex items-center gap-1.5 glass-surface rounded-full shadow-lg border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 transition-colors"
+        class="hidden md:inline-flex items-center gap-1.5 glass-surface rounded-full border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 transition-colors"
         title="Search (Ctrl+K)"
         type="button"
         @click="openSearch"
