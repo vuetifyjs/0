@@ -446,7 +446,7 @@ describe('useVirtual', () => {
   })
 
   describe('edge detection', () => {
-    it.skip('calls onStartReached when scrolled near top', async () => {
+    it('calls onStartReached when scrolled near top', async () => {
       const onStartReached = vi.fn()
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
 
@@ -466,19 +466,17 @@ describe('useVirtual', () => {
 
       virtual.scroll()
 
-      // Flush all microtasks from RAF callbacks (scroll RAF + checkEdges RAF)
-      await new Promise<void>(resolve => {
-        queueMicrotask(() => queueMicrotask(() => queueMicrotask(() => queueMicrotask(() => resolve()))))
-      })
+      // Wait for RAF callbacks to complete
+      await vi.waitFor(() => {
+        expect(onStartReached).toHaveBeenCalled()
+      }, { timeout: 100 })
 
-      // Should trigger onStartReached (distance from start = scrollTop, which is <= 100 threshold)
-      expect(onStartReached).toHaveBeenCalled()
       // The last call should have distance = 50
       const lastCall = onStartReached.mock.calls.at(-1)!
       expect(lastCall[0]).toBe(50)
     })
 
-    it.skip('calls onEndReached when scrolled near bottom', async () => {
+    it('calls onEndReached when scrolled near bottom', async () => {
       const onEndReached = vi.fn()
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
 
@@ -498,13 +496,11 @@ describe('useVirtual', () => {
       mockContainer.scrollTop = 4450
       virtual.scroll()
 
-      // Flush all microtasks from RAF callbacks (scroll RAF + checkEdges RAF)
-      await new Promise<void>(resolve => {
-        queueMicrotask(() => queueMicrotask(() => queueMicrotask(() => resolve())))
-      })
+      // Wait for RAF callbacks to complete
+      await vi.waitFor(() => {
+        expect(onEndReached).toHaveBeenCalled()
+      }, { timeout: 100 })
 
-      // Should trigger onEndReached (distance from end = 50, which is <= 100 threshold)
-      expect(onEndReached).toHaveBeenCalled()
       // The last call should have distance = 50
       const lastCall = onEndReached.mock.calls.at(-1)!
       expect(lastCall[0]).toBe(50)
@@ -775,8 +771,8 @@ describe('useVirtual', () => {
       // Reset should scroll to the end in reverse mode
       reset()
 
-      // Verify reset was called (the function should not throw)
-      expect(true).toBe(true)
+      // In reverse mode, reset scrolls to totalHeight (100 items * 50px = 5000)
+      expect(mockContainer.scrollTop).toBe(5000)
     })
 
     it('should handle reset with empty items in reverse mode', async () => {
