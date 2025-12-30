@@ -1,6 +1,5 @@
 <script setup lang="ts">
   // Framework
-// Vuetify0
   import { Atom, useBreakpoints, useClickOutside } from '@vuetify/v0'
 
   // Utilities
