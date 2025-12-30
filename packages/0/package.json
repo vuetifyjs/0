@@ -32,7 +32,13 @@
     }
   },
   "peerDependencies": {
+    "flagsmith": "^10.0.0",
     "vue": ">=3.3.0"
+  },
+  "peerDependenciesMeta": {
+    "flagsmith": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@vue/test-utils": "catalog:",

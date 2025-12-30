@@ -390,6 +390,9 @@ importers:
 
   packages/0:
     dependencies:
+      flagsmith:
+        specifier: ^10.0.0
+        version: 10.0.0
       markdown:
         specifier: ^0.5.0
         version: 0.5.0
@@ -4047,6 +4050,9 @@ packages:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
 
+  flagsmith@10.0.0:
+    resolution: {integrity: sha512-JEO4V6nO6ic4ahi5uZRVBYKFil9IuRkLWemKZuFv3QVUCxluQfgymwiuPSs4/LqwFqQ+89SuubaawHxUxUPTzg==}
+
   flat-cache@4.0.1:
     resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
     engines: {node: '>=16'}
@@ -6637,6 +6643,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
@@ -10755,6 +10762,8 @@ snapshots:
     dependencies:
       locate-path: 6.0.0
       path-exists: 4.0.0
+
+  flagsmith@10.0.0: {}
 
   flat-cache@4.0.1:
     dependencies:

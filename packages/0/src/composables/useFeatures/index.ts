@@ -31,11 +31,18 @@ import { isBoolean, isObject } from '#v0/utilities'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { FeatureAdapter } from '#v0/composables/useFeatures/adapters'
 import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
 import type { RegistryOptions } from '#v0/composables/useRegistry'
 import type { TokenCollection, TokenValue } from '#v0/composables/useTokens'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
+
+export {
+  FlagsmithFeatureAdapter,
+} from '#v0/composables/useFeatures/adapters'
+
+export type { FeatureAdapter } from '#v0/composables/useFeatures/adapters'
 
 export interface FeatureTicket extends GroupTicket<TokenValue> {}
 
@@ -46,6 +53,7 @@ export interface FeatureContext<Z extends FeatureTicket = FeatureTicket> extends
 
 export interface FeatureOptions extends RegistryOptions {
   features?: Record<ID, boolean | TokenCollection>
+  adapter?: FeatureAdapter
 }
 
 export interface FeatureContextOptions extends FeatureOptions {
@@ -81,7 +89,7 @@ export function createFeatures<
   Z extends FeatureTicket = FeatureTicket,
   E extends FeatureContext<Z> = FeatureContext<Z>,
 > (_options: FeatureOptions = {}): E {
-  const { features, ...options } = _options
+  const { features, adapter, ...options } = _options
   const tokens = createTokens(features, { flat: true })
   const registry = createGroup<Z, E>(options)
 
@@ -119,7 +127,7 @@ export function createFeatures<
     return ticket
   }
 
-  return {
+  const context = {
     ...registry,
     variation,
     register,
@@ -127,6 +135,12 @@ export function createFeatures<
       return registry.size
     },
   } as E
+
+  if (adapter) {
+    adapter.init(context)
+  }
+
+  return context
 }
 
 /**
