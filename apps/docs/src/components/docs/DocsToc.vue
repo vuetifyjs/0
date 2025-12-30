@@ -5,7 +5,8 @@
   const { headings, selectedId, scrollTo } = useToc()
 
   function scrollToTop () {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
   }
 </script>
 
@@ -26,6 +27,7 @@
       <ul class="space-y-1">
         <li v-for="h2 in headings" :key="h2.id">
           <a
+            :aria-current="selectedId === h2.id ? 'location' : undefined"
             class="block py-1 hover:text-primary hover:underline transition-colors truncate"
             :class="selectedId === h2.id
               ? 'text-primary font-medium underline'
@@ -39,6 +41,7 @@
           <ul v-if="h2.children.length > 0" class="ml-3 space-y-1">
             <li v-for="h3 in h2.children" :key="h3.id">
               <a
+                :aria-current="selectedId === h3.id ? 'location' : undefined"
                 class="block py-1 hover:text-primary hover:underline transition-colors truncate text-xs"
                 :class="selectedId === h3.id
                   ? 'text-primary font-medium underline'
@@ -52,6 +55,7 @@
               <ul v-if="h3.children.length > 0" class="ml-3 space-y-0.5">
                 <li v-for="h4 in h3.children" :key="h4.id">
                   <a
+                    :aria-current="selectedId === h4.id ? 'location' : undefined"
                     class="block py-0.5 hover:text-primary hover:underline transition-colors truncate text-xs"
                     :class="selectedId === h4.id
                       ? 'text-primary font-medium underline'

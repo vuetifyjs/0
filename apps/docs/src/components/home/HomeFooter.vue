@@ -36,6 +36,7 @@
           :aria-label="themeTitle"
           class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-tint transition-colors text-on-surface"
           :title="themeTitle"
+          type="button"
           @click="toggleTheme"
         >
           <AppIcon :icon="themeIcon" :size="20" />

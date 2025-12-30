@@ -110,6 +110,7 @@
 
       <button
         class="text-sm text-primary hover:underline whitespace-nowrap"
+        type="button"
         @click="toggleApiMode"
       >
         {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
@@ -175,6 +176,7 @@
 
       <button
         class="text-sm text-primary hover:underline whitespace-nowrap"
+        type="button"
         @click="toggleApiMode"
       >
         {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}

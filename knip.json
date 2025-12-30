@@ -12,6 +12,7 @@
     "apps/docs": {
       "entry": [
         "src/components.d.ts",
+        "src/composables/*.ts",
         "src/main.ts",
         "build/**/*.ts",
         "src/examples/**/*.vue"

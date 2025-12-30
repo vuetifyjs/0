@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-  // Components
-  import DocsAsk from '@/components/docs/DocsAsk.vue'
-  import DocsSearch from '@/components/docs/DocsSearch.vue'
+  // Utilities
+  import { defineAsyncComponent } from 'vue'
+
+  // Lazy load modal components (behind user interaction)
+  const DocsAsk = defineAsyncComponent(() => import('@/components/docs/DocsAsk.vue'))
+  const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
 </script>
 
 <template>

@@ -35,7 +35,10 @@
     await nextTick()
     const container = resultsRef.value
     const selected = container?.querySelector('[data-selected="true"]') as HTMLElement | null
-    selected?.scrollIntoView({ block: 'nearest' })
+    if (selected) {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      selected.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion ? 'auto' : 'smooth' })
+    }
   })
 
   function navigate (path?: string) {
@@ -85,20 +88,26 @@
   <Transition name="fade">
     <div
       v-if="isOpen"
+      aria-labelledby="search-title"
+      aria-modal="true"
       class="fixed left-1/2 top-[20%] -translate-x-1/2 w-full max-w-xl z-50 px-4"
+      role="dialog"
     >
       <div class="glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
+        <h2 id="search-title" class="sr-only">Search Documentation</h2>
         <div class="flex items-center gap-3 px-4 py-3 border-b border-divider">
           <AppIcon
+            aria-hidden="true"
             class="text-on-surface-variant shrink-0"
             icon="search"
           />
           <input
             ref="input"
             v-model="query"
+            aria-label="Search documentation"
             class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-variant"
             placeholder="Search documentation..."
-            type="text"
+            type="search"
           >
           <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant text-xs font-mono">
             esc
@@ -109,6 +118,7 @@
           <div
             v-if="isLoading"
             class="px-4 py-8 text-center text-on-surface-variant"
+            role="status"
           >
             Loading search index...
           </div>
@@ -116,6 +126,7 @@
           <div
             v-else-if="!query.trim()"
             class="px-4 py-8 text-center text-on-surface-variant"
+            role="status"
           >
             Start typing to search
           </div>
@@ -123,6 +134,7 @@
           <div
             v-else-if="groupedResults.length === 0"
             class="px-4 py-8 text-center text-on-surface-variant"
+            role="status"
           >
             No results found for "{{ query }}"
           </div>

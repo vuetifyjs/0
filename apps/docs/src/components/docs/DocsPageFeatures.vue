@@ -8,6 +8,24 @@
 
   import metrics from '@/data/metrics.json'
 
+  interface MetricCoverage {
+    overall: number
+    statements: number
+    functions?: number
+    branches: number
+  }
+
+  interface MetricBenchmark {
+    tier: 'blazing' | 'fast' | 'good'
+  }
+
+  interface MetricEntry {
+    coverage?: MetricCoverage
+    benchmarks?: {
+      _fastest?: MetricBenchmark
+    }
+  }
+
   const props = defineProps<{
     frontmatter?: {
       meta: {
@@ -79,7 +97,7 @@
   const itemMetrics = toRef(() => {
     const name = itemName.value
     if (!name) return null
-    return (metrics as Record<string, any>)[name] || null
+    return (metrics as Record<string, MetricEntry>)[name] ?? null
   })
 
   // Coverage data

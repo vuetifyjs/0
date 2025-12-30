@@ -75,6 +75,22 @@ interface ApiMember {
   description?: string
 }
 
+interface ApiData {
+  kind: 'component' | 'composable'
+  name: string
+  props?: ApiMember[]
+  events?: ApiMember[]
+  slots?: ApiMember[]
+  options?: ApiMember[]
+  properties?: ApiMember[]
+  methods?: ApiMember[]
+}
+
+interface ApiJsonData {
+  components: Record<string, ApiData>
+  composables: Record<string, ApiData>
+}
+
 function formatApiSection (title: string, items: ApiMember[], includeRequired = false): string[] {
   if (!items?.length) return []
 
@@ -90,24 +106,21 @@ function formatApiSection (title: string, items: ApiMember[], includeRequired = 
 }
 
 /** Format API data as readable content for context */
-function formatApiContent (api: Record<string, unknown>): string {
-  const kind = api.kind as string
-  const name = api.name as string
-
-  const header = [`# ${name} API\n`]
+function formatApiContent (api: ApiData): string {
+  const header = [`# ${api.name} API\n`]
 
   let sections: string[] = []
-  if (kind === 'component') {
+  if (api.kind === 'component') {
     sections = [
-      ...formatApiSection('Props', api.props as ApiMember[], true),
-      ...formatApiSection('Events', api.events as ApiMember[]),
-      ...formatApiSection('Slots', api.slots as ApiMember[]),
+      ...formatApiSection('Props', api.props ?? [], true),
+      ...formatApiSection('Events', api.events ?? []),
+      ...formatApiSection('Slots', api.slots ?? []),
     ]
-  } else if (kind === 'composable') {
+  } else if (api.kind === 'composable') {
     sections = [
-      ...formatApiSection('Options', api.options as ApiMember[], true),
-      ...formatApiSection('Properties', api.properties as ApiMember[]),
-      ...formatApiSection('Methods', api.methods as ApiMember[]),
+      ...formatApiSection('Options', api.options ?? [], true),
+      ...formatApiSection('Properties', api.properties ?? []),
+      ...formatApiSection('Methods', api.methods ?? []),
     ]
   }
 
@@ -127,10 +140,7 @@ async function fetchApiContext (path: string): Promise<PageContext> {
       return { path, title: '', content: '' }
     }
 
-    const data = await response.json() as {
-      components: Record<string, Record<string, unknown>>
-      composables: Record<string, Record<string, unknown>>
-    }
+    const data = await response.json() as ApiJsonData
 
     const { pascal, camel } = slugToApiName(slug)
 
@@ -140,7 +150,7 @@ async function fetchApiContext (path: string): Promise<PageContext> {
       return { path, title: '', content: '' }
     }
 
-    const name = (api as { name?: string }).name ?? pascal
+    const name = api.name ?? pascal
     return {
       path,
       title: `${name} API`,

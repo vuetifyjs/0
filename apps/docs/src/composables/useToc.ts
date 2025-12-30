@@ -182,7 +182,8 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
 
     const el = document.querySelector(`#${CSS.escape(id)}`)
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' })
       // Update URL hash without triggering scroll
       history.replaceState(null, '', `#${id}`)
     }

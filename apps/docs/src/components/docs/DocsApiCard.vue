@@ -73,6 +73,7 @@
           :aria-controls="`${uid}-${exampleKey}`"
           :aria-expanded="expandedExamples.has(exampleKey)"
           class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
+          type="button"
           @click="toggleExample(exampleKey, item.example)"
         >
           <span v-if="expandedExamples.has(exampleKey)">Hide code example</span>
