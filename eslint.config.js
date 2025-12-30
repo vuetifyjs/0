@@ -100,5 +100,17 @@ export default vuetify({
     'pnpm/json-enforce-catalog': 'error',
   },
 },
+{
+  name: 'vuetify/no-v0-imports',
+  files: ['packages/paper/**/*.{ts,js,vue}', 'app/**/*.{ts,js,vue}'],
+  rules: {
+    'no-restricted-imports': ['error', {
+      patterns: [{
+        group: [String.raw`\#v0/**`],
+        message: 'Use @vuetify/v0 import',
+      }],
+    }],
+  },
+},
 ...storybook.configs['flat/recommended'],
 )
