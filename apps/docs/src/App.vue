@@ -1,21 +1,23 @@
 <script lang="ts" setup>
-  import { onMounted, onUnmounted, ref } from 'vue'
   import { InferSeoMetaPlugin } from '@unhead/addons'
   import { injectHead, useHead } from '@unhead/vue'
+
+  // Framework
+  import { useWindowEventListener } from '@vuetify/v0'
 
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
 
+  // Utilities
+  import { shallowRef } from 'vue'
+
   useScrollPersist()
 
-  const showBottomMesh = ref(false)
+  const showBottomMesh = shallowRef(false)
 
-  function onScroll () {
+  useWindowEventListener('scroll', () => {
     showBottomMesh.value = window.scrollY > 200
-  }
-
-  onMounted(() => window.addEventListener('scroll', onScroll, { passive: true }))
-  onUnmounted(() => window.removeEventListener('scroll', onScroll))
+  }, { passive: true })
 
   const head = injectHead()
   head.use(InferSeoMetaPlugin())
@@ -46,7 +48,6 @@
     position: fixed;
     inset: 0;
     z-index: -1;
-    filter: blur(80px);
     pointer-events: none;
   }
 
