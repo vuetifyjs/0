@@ -1,8 +1,9 @@
-// Utilities
 import { bench, describe } from 'vitest'
 
-// Composables
-import { createFilter } from './index'
+// Utilities
+import { ref } from 'vue'
+
+import { createFilter, useFilter } from './index'
 
 // Test data generators
 function generatePrimitives (count: number): string[] {
@@ -79,6 +80,51 @@ describe('useFilter benchmarks', () => {
     bench('Filter 1,000 objects with intersection mode (2 queries)', () => {
       const filter = createFilter({ mode: 'intersection' })
       filter.apply(['user', 'example'], items)
+    })
+  })
+
+  describe('reactive updates', () => {
+    const items = generateObjects(1000)
+    const itemsRef = ref(items)
+
+    bench('Reactive filter: access computed 100 times', () => {
+      const query = ref('user')
+      const { items: filtered } = useFilter(query, itemsRef)
+      for (let i = 0; i < 100; i++) {
+        void filtered.value
+      }
+    })
+
+    bench('Reactive filter: update query 10 times', () => {
+      const query = ref('user')
+      const { items: filtered } = useFilter(query, itemsRef)
+      for (let i = 0; i < 10; i++) {
+        query.value = `user-${i}`
+        void filtered.value
+      }
+    })
+  })
+
+  describe('native comparison', () => {
+    const items1k = generateObjects(1000)
+    const items10k = generateObjects(10_000)
+
+    bench('Native Array.filter 1,000 objects', () => {
+      const query = 'user'.toLowerCase()
+      items1k.filter(item =>
+        Object.values(item).some(v =>
+          String(v).toLowerCase().includes(query),
+        ),
+      )
+    })
+
+    bench('Native Array.filter 10,000 objects', () => {
+      const query = 'user'.toLowerCase()
+      items10k.filter(item =>
+        Object.values(item).some(v =>
+          String(v).toLowerCase().includes(query),
+        ),
+      )
     })
   })
 })

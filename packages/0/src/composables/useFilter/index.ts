@@ -77,10 +77,6 @@ function defaultFilter (
 ): boolean {
   const queries = toArray(query).map(q => String(q).toLowerCase())
 
-  function match (value: unknown, q: string) {
-    return String(value).toLowerCase().includes(q)
-  }
-
   const values = isObject(item)
     ? (keys?.length
         ? keys.map(k => item[k])
@@ -90,19 +86,22 @@ function defaultFilter (
   const stringValues = values.map(v => String(v).toLowerCase())
 
   if (mode === 'some') {
-    return stringValues.some(val => match(val, queries[0]!))
+    return stringValues.some(val => val.includes(queries[0]!))
   }
 
   if (mode === 'every') {
-    return stringValues.every(val => match(val, queries[0]!))
+    return stringValues.every(val => val.includes(queries[0]!))
   }
 
+  // For union/intersection, join values into single string for faster matching
+  const joined = stringValues.join('\u0000')
+
   if (mode === 'union') {
-    return queries.some(q => stringValues.some(val => match(val, q)))
+    return queries.some(q => joined.includes(q))
   }
 
   if (mode === 'intersection') {
-    return queries.every(q => stringValues.some(val => match(val, q)))
+    return queries.every(q => joined.includes(q))
   }
 
   return false
