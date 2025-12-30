@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Types
   import type { ComponentApi, ComposableApi } from '../../../build/generate-api'
 

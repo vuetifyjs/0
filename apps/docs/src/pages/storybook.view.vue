@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   definePage({
     meta: {
       layout: 'fullscreen',

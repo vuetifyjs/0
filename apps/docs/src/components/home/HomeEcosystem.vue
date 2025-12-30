@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   const components = [
     { name: 'Atom', to: '/components/primitives/atom', description: 'Base primitive element' },
     { name: 'Avatar', to: '/components/semantic/avatar', description: 'User avatars with fallback' },

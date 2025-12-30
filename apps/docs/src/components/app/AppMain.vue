@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Components
   import DocsToc from '../docs/DocsToc.vue'
 

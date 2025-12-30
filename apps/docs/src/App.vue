@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   import { InferSeoMetaPlugin } from '@unhead/addons'
   import { injectHead, useHead } from '@unhead/vue'
 

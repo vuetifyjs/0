@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   import apiData from 'virtual:api'
 
   // Framework

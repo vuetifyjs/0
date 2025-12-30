@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
 

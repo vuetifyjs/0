@@ -38,7 +38,7 @@
   }
 </script>
 
-<script lang="ts" setup>
+<script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
   // Composables
