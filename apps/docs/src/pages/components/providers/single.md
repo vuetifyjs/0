@@ -42,16 +42,10 @@ The Single component is a specialization of Selection that enforces single-selec
 </script>
 
 <template>
-  <Single.Root v-model="selected" v-slot="{ attrs }">
-    <div v-bind="attrs">
-      <Single.Item value="option-1" v-slot="{ attrs }">
-        <button v-bind="attrs">Option 1</button>
-      </Single.Item>
+  <Single.Root>
+    <Single.Item value="option-1" />
 
-      <Single.Item value="option-2" v-slot="{ attrs }">
-        <button v-bind="attrs">Option 2</button>
-      </Single.Item>
-    </div>
+    <Single.Item value="option-2" />
   </Single.Root>
 </template>
 ```

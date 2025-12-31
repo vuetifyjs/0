@@ -49,16 +49,10 @@ The Selection component provides a wrapper and item pattern for managing selecti
 </script>
 
 <template>
-  <Selection.Root v-model="selected" v-slot="{ attrs }">
-    <div v-bind="attrs">
-      <Selection.Item value="apple" v-slot="{ attrs }">
-        <button v-bind="attrs">Apple</button>
-      </Selection.Item>
+  <Selection.Root>
+    <Selection.Item value="apple" />
 
-      <Selection.Item value="banana" v-slot="{ attrs }">
-        <button v-bind="attrs">Banana</button>
-      </Selection.Item>
-    </div>
+    <Selection.Item value="banana" />
   </Selection.Root>
 </template>
 ```

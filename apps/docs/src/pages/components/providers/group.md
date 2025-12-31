@@ -44,16 +44,10 @@ The Group component is a specialization of Selection that enforces multi-selecti
 </script>
 
 <template>
-  <Group.Root v-model="selected" v-slot="{ attrs }">
-    <div v-bind="attrs">
-      <Group.Item value="apple" v-slot="{ attrs }">
-        <button v-bind="attrs">Apple</button>
-      </Group.Item>
+  <Group.Root>
+    <Group.Item value="apple" />
 
-      <Group.Item value="banana" v-slot="{ attrs }">
-        <button v-bind="attrs">Banana</button>
-      </Group.Item>
-    </div>
+    <Group.Item value="banana" />
   </Group.Root>
 </template>
 ```

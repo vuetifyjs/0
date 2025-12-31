@@ -36,14 +36,10 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 </script>
 
 <template>
-  <Popover.Root v-model="isOpen">
-    <Popover.Anchor>
-      <button>Toggle Popover</button>
-    </Popover.Anchor>
+  <Popover.Root>
+    <Popover.Anchor />
 
-    <Popover.Content>
-      <div>Popover content here</div>
-    </Popover.Content>
+    <Popover.Content />
   </Popover.Root>
 </template>
 ```

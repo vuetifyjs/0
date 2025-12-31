@@ -41,16 +41,14 @@ The Pagination component provides a compound component pattern for building page
 </script>
 
 <template>
-  <Pagination.Root v-slot="{ items }">
+  <Pagination.Root>
     <Pagination.First />
 
     <Pagination.Prev />
 
-    <template v-for="(item, index) in items" :key="index">
-      <Pagination.Ellipsis v-if="item.type === 'ellipsis'" />
+    <Pagination.Ellipsis />
 
-      <Pagination.Item v-else :value="item.value" />
-    </template>
+    <Pagination.Item />
 
     <Pagination.Next />
 

@@ -42,23 +42,10 @@ The Step component extends Single with navigation methods for moving through a s
 </script>
 
 <template>
-  <Step.Root v-model="currentStep" v-slot="{ prev, next, attrs }">
-    <div v-bind="attrs">
-      <Step.Item value="step-1" v-slot="{ isSelected, attrs }">
-        <div v-bind="attrs" v-show="isSelected">
-          Step 1 Content
-        </div>
-      </Step.Item>
+  <Step.Root>
+    <Step.Item value="step-1" />
 
-      <Step.Item value="step-2" v-slot="{ isSelected, attrs }">
-        <div v-bind="attrs" v-show="isSelected">
-          Step 2 Content
-        </div>
-      </Step.Item>
-
-      <button @click="prev">Previous</button>
-      <button @click="next">Next</button>
-    </div>
+    <Step.Item value="step-2" />
   </Step.Root>
 </template>
 ```

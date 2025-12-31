@@ -42,9 +42,9 @@ The Avatar component provides a robust image loading system with automatic fallb
 
 <template>
   <Avatar.Root>
-    <Avatar.Image src="/path/to/image.jpg" />
+    <Avatar.Image />
 
-    <Avatar.Fallback>JD</Avatar.Fallback>
+    <Avatar.Fallback />
   </Avatar.Root>
 </template>
 ```

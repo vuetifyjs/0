@@ -41,9 +41,7 @@ The Atom component provides dynamic element rendering and is used as the foundat
 </script>
 
 <template>
-  <Atom as="button" type="button">
-    Click me
-  </Atom>
+  <Atom />
 </template>
 ```
 
