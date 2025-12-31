@@ -39,7 +39,7 @@ The ExpansionPanel component provides a wrapper and item pattern for managing ex
 
 ## Anatomy
 
-```vue Anatomy
+```vue Anatomy playground
 <script setup lang="ts">
   import { ExpansionPanel } from '@vuetify/v0'
 </script>
@@ -57,7 +57,7 @@ The ExpansionPanel component provides a wrapper and item pattern for managing ex
 
 For instances where you need to wrap the activator in a heading element **(h3)** for semantic purposes and WAI-ARIA, use the [ExpansionPanel.Header](#expansionpanelheader) component:
 
-```vue AnatomyWithHeader
+```vue AnatomyWithHeader playground
 <script setup lang="ts">
   import { ExpansionPanel } from '@vuetify/v0'
 </script>

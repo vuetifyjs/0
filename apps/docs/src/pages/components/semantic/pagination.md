@@ -35,7 +35,7 @@ The Pagination component provides a compound component pattern for building page
 
 ## Anatomy
 
-```vue Anatomy
+```vue Anatomy playground
 <script setup lang="ts">
   import { Pagination } from '@vuetify/v0'
 </script>

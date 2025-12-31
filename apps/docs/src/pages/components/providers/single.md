@@ -36,7 +36,7 @@ The Single component is a specialization of Selection that enforces single-selec
 
 ## Anatomy
 
-```vue Anatomy
+```vue Anatomy playground
 <script setup lang="ts">
   import { Single } from '@vuetify/v0'
 </script>

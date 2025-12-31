@@ -43,7 +43,7 @@ The Selection component provides a wrapper and item pattern for managing selecti
 
 ## Anatomy
 
-```vue Anatomy
+```vue Anatomy playground
 <script setup lang="ts">
   import { Selection } from '@vuetify/v0'
 </script>

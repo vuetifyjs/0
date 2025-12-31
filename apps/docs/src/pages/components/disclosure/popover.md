@@ -30,7 +30,7 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 
 ## Anatomy
 
-```vue Anatomy
+```vue Anatomy playground
 <script setup lang="ts">
   import { Popover } from '@vuetify/v0'
 </script>

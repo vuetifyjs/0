@@ -35,7 +35,7 @@ The Avatar component provides a robust image loading system with automatic fallb
 
 ## Anatomy
 
-```vue Anatomy
+```vue Anatomy playground
 <script setup lang="ts">
   import { Avatar } from '@vuetify/v0'
 </script>

@@ -38,7 +38,7 @@ The Group component is a specialization of Selection that enforces multi-selecti
 
 ## Anatomy
 
-```vue Anatomy
+```vue Anatomy playground
 <script setup lang="ts">
   import { Group } from '@vuetify/v0'
 </script>

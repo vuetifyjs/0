@@ -36,7 +36,7 @@ The Step component extends Single with navigation methods for moving through a s
 
 ## Anatomy
 
-```vue Anatomy
+```vue Anatomy playground
 <script setup lang="ts">
   import { Step } from '@vuetify/v0'
 </script>
