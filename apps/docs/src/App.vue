@@ -53,7 +53,7 @@
 
   .mesh-bg-top {
     background:
-      radial-gradient(at 40% 20%, color-mix(in srgb, var(--v0-accent) 40%, transparent) 0px, transparent 50%),
+      radial-gradient(at 40% 20%, color-mix(in srgb, var(--v0-primary) 40%, transparent) 0px, transparent 50%),
       radial-gradient(at 80% 0%, color-mix(in srgb, var(--v0-info) 35%, transparent) 0px, transparent 50%),
       radial-gradient(at 0% 50%, color-mix(in srgb, var(--v0-error) 25%, transparent) 0px, transparent 50%),
       radial-gradient(at 80% 50%, color-mix(in srgb, var(--v0-success) 30%, transparent) 0px, transparent 50%),
@@ -64,7 +64,7 @@
     opacity: 0;
     transition: opacity 0.5s ease-out;
     background:
-      radial-gradient(at 60% 80%, color-mix(in srgb, var(--v0-accent) 40%, transparent) 0px, transparent 50%),
+      radial-gradient(at 60% 80%, color-mix(in srgb, var(--v0-primary) 40%, transparent) 0px, transparent 50%),
       radial-gradient(at 20% 100%, color-mix(in srgb, var(--v0-info) 35%, transparent) 0px, transparent 50%),
       radial-gradient(at 100% 50%, color-mix(in srgb, var(--v0-error) 25%, transparent) 0px, transparent 50%),
       radial-gradient(at 20% 50%, color-mix(in srgb, var(--v0-success) 30%, transparent) 0px, transparent 50%),

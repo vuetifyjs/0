@@ -218,6 +218,13 @@ async function fetchPageContext (path: string): Promise<PageContext> {
   }
 }
 
+// Module-level singleton state (shared across all useAsk calls)
+const messages: ShallowRef<Message[]> = shallowRef([])
+const isOpen = shallowRef(false)
+const isLoading = shallowRef(false)
+const error: ShallowRef<string | null> = shallowRef(null)
+let abortController: AbortController | null = null
+
 /**
  * Creates a chat instance for AI Q&A.
  *
@@ -238,13 +245,6 @@ async function fetchPageContext (path: string): Promise<PageContext> {
  */
 export function useAsk (): UseAskReturn {
   const route = useRoute()
-
-  const messages: ShallowRef<Message[]> = shallowRef([])
-  const isOpen = shallowRef(false)
-  const isLoading = shallowRef(false)
-  const error: ShallowRef<string | null> = shallowRef(null)
-
-  let abortController: AbortController | null = null
 
   function open () {
     isOpen.value = true

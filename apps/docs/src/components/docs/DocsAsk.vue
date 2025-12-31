@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useDocumentEventListener } from '@vuetify/v0'
+  import { useBreakpoints, useDocumentEventListener } from '@vuetify/v0'
 
   // Components
   import DocsAskInput from './DocsAskInput.vue'
@@ -10,7 +10,10 @@
   import { useAsk } from '@/composables/useAsk'
 
   // Utilities
-  import { toRef, nextTick, useTemplateRef } from 'vue'
+  import { computed, toRef, nextTick, useTemplateRef } from 'vue'
+
+  const breakpoints = useBreakpoints()
+  const isDesktop = computed(() => breakpoints.mdAndUp.value)
 
   const {
     messages,
@@ -70,17 +73,17 @@
     @submit="onSubmit"
   />
 
-  <!-- Backdrop -->
+  <!-- Backdrop (mobile only) -->
   <Transition name="fade">
     <div
-      v-if="isOpen"
+      v-if="isOpen && !isDesktop"
       class="fixed inset-0 bg-black/30 z-40"
       @click="close"
     />
   </Transition>
 
   <!-- Chat sheet -->
-  <Transition name="slide">
+  <Transition :name="isDesktop ? 'fade' : 'slide'">
     <DocsAskSheet
       v-if="isOpen"
       ref="sheet"

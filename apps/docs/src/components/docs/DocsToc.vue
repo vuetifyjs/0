@@ -1,7 +1,9 @@
 <script setup lang="ts">
   // Composables
+  import { useAsk } from '@/composables/useAsk'
   import { useToc } from '@/composables/useToc'
 
+  const { isOpen: isAskOpen } = useAsk()
   const { headings, selectedId, scrollTo } = useToc()
 
   function scrollToTop () {
@@ -12,7 +14,7 @@
 
 <template>
   <aside
-    v-if="headings.length > 0"
+    v-if="headings.length > 0 && !isAskOpen"
     class="hidden xl:block fixed right-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
   >
     <button
