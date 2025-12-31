@@ -24,9 +24,9 @@ Every v0 component exposes an `attrs` object containing all accessibility attrib
 
 ```vue playground
 <script setup>
-import { Selection } from '@vuetify/v0'
+  import { Selection } from '@vuetify/v0'
 
-const items = ['Apple', 'Banana', 'Cherry']
+  const items = ['Apple', 'Banana', 'Cherry']
 </script>
 
 <template>
