@@ -1,7 +1,9 @@
 // Icons
 import {
   mdiAlert,
+  mdiAlertOctagon,
   mdiBookOpenPageVariant,
+  mdiLightbulbOnOutline,
   mdiBug,
   mdiCalendar,
   mdiCheck,
@@ -63,6 +65,8 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'dev': mdiDevTo,
     'cog': mdiCog,
     'alert': mdiAlert,
+    'error': mdiAlertOctagon,
+    'lightbulb': mdiLightbulbOnOutline,
     'pencil': mdiPencil,
     'bug': mdiBug,
     'markdown': mdiLanguageMarkdown,

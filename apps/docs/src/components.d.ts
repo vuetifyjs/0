@@ -23,6 +23,7 @@ declare module 'vue' {
     AppMain: typeof import('./components/app/AppMain.vue')['default']
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
+    DocsAlert: typeof import('./components/docs/DocsAlert.vue')['default']
     DocsApi: typeof import('./components/docs/DocsApi.vue')['default']
     DocsApiCard: typeof import('./components/docs/DocsApiCard.vue')['default']
     DocsApiLinks: typeof import('./components/docs/DocsApiLinks.vue')['default']
