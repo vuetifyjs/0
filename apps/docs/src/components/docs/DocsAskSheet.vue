@@ -223,7 +223,7 @@
           ref="textarea"
           v-model="question"
           aria-label="Ask a follow-up question"
-          class="flex-1 rounded-lg bg-surface-variant px-4 py-2.5 text-base text-on-surface border-none outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none min-h-[42px] max-h-[120px]"
+          class="flex-1 rounded-lg bg-surface-tint px-4 py-2.5 text-base text-on-surface-tint border-none outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-on-surface-tint/60 resize-none min-h-[42px] max-h-[120px]"
           :disabled="isLoading"
           placeholder="Ask a question..."
           rows="1"

@@ -106,7 +106,7 @@
             ref="input"
             v-model="query"
             aria-label="Search documentation"
-            class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-tint"
             placeholder="Search the docs..."
             type="search"
           >
