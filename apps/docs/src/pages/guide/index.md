@@ -63,7 +63,10 @@ For building production UIs.
 | [Accessibility](/guide/accessibility) | ARIA patterns, keyboard nav, testing |
 | [Utilities](/guide/utilities) | Helper functions, type guards |
 
-**Recommendation**: New to v0? Start with Track A. Already building? Jump to Track B as needed.
+> [!TIP]
+> New to v0? Start with Track A. Already building? Jump to Track B as needed.
+
+> [!SUGGESTION] How do I migrate an existing styled component library to use v0's headless approach?
 
 ## Quick Reference
 

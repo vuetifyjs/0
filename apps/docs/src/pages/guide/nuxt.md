@@ -93,6 +93,9 @@ The theme plugin automatically integrates with Nuxt's `@unhead/vue` to inject st
 
 ## Theme Persistence
 
+> [!TIP]
+> Use cookies instead of localStorage for theme persistence. Cookies are available on the server, preventing flash of wrong theme.
+
 For theme preference to persist across SSR requests, use cookies instead of localStorage:
 
 ```ts plugins/v0.ts
@@ -206,3 +209,7 @@ Common causes:
   const time = computed(() => isHydrated.value ? new Date().toLocaleTimeString() : '')
 </script>
 ```
+
+> [!SUGGESTION] How do I debug hydration mismatches in my Nuxt components?
+
+> [!SUGGESTION] When should I use useHydration vs ClientOnly components?

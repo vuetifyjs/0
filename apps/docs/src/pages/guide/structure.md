@@ -35,7 +35,8 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 └── index.ts          # Public exports
 ```
 
-> Note: Composables are organized in a flat directory structure. The categories below are logical groupings for documentation purposes.
+> [!TIP]
+> Composables use a flat directory structure. The categories below are logical groupings for documentation purposes only.
 
 ## Composable Categories
 
@@ -128,3 +129,5 @@ flowchart TD
     Selection --> Group
     Single --> Step
 ```
+
+> [!SUGGESTION] When should I use useSelection vs useSingle vs useGroup for my use case?

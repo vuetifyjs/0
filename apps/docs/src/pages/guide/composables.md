@@ -47,6 +47,11 @@ selection.select('a')
 | Non-DOM contexts (stores, workers) | Accessibility attrs needed |
 | Maximum flexibility | Faster development |
 
+> [!TIP]
+> Components and composables are interchangeable. Every component uses a composable internally—you can always drop to the composable for more control.
+
+> [!SUGGESTION] How do I choose between composables and components for my use case?
+
 ## Categories
 
 ### Foundation
@@ -207,3 +212,5 @@ selection.register({ id: '1', value: { id: '1', label: 'First' } as MyItem })
 const ticket = selection.get('1')
 ticket?.value // MyItem
 ```
+
+> [!SUGGESTION] Which composables should I use for a data table with filtering and pagination?

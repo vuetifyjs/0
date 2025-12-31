@@ -70,6 +70,11 @@ app.use(
 | `createBreakpointsPlugin` | Responsive breakpoint detection | [useBreakpoints](/composables/plugins/use-breakpoints) |
 | `createHydrationPlugin` | SSR hydration management | [useHydration](/composables/plugins/use-hydration) |
 
+> [!TIP]
+> All plugins are optional. Only install what you need—v0 works without any plugins installed.
+
+> [!SUGGESTION] Which built-in plugins do I actually need? Can I use v0 without them?
+
 ## Creating Custom Plugins
 
 ### Basic Plugin

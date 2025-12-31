@@ -58,6 +58,9 @@ theme.cycle()  // Cycle through themes
 | `provideContext` | Provide from parent (defaults to built-in context) |
 | `defaultContext` | Standalone access, testing, outside Vue |
 
+> [!TIP]
+> The third element (`defaultContext`) is useful for unit testing without mounting Vue components.
+
 ## createContext
 
 Type-safe wrapper around Vue's provide/inject that **throws on missing context** (no silent undefined):
@@ -242,3 +245,5 @@ wizard.last()   // Jump to end
 | App-wide singleton | `createPlugin` with `app.use()` |
 | Standalone logic | Direct factory call |
 | Testing | Trinity's third element |
+
+> [!SUGGESTION] How do I handle scoped contexts for nested components without prop drilling?

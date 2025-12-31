@@ -29,6 +29,9 @@ Standalone helpers for common UI patterns. These composables don't depend on con
 | [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling for large lists |
 | [createOverflow](/composables/utilities/use-overflow) | Compute visible item capacity |
 
+> [!TIP]
+> These utilities are standalone—they don't require plugins or context. Use them anywhere, including outside Vue components.
+
 ## createFilter
 
 Filter arrays based on search queries:
@@ -256,4 +259,6 @@ const virtual = useVirtual(filtered, {
   itemHeight: 40,
 })
 ```
+
+> [!SUGGESTION] How do I combine filter, pagination, AND virtual scrolling together?
 

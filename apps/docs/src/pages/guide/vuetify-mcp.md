@@ -114,6 +114,8 @@ Manual configuration for each IDE:
 | `get_vuetify0_component_list` | List all headless components |
 | `get_vuetify0_component_guide` | Component documentation and examples |
 
+> [!SUGGESTION] Which Vuetify MCP tools should I use for building components?
+
 ## Authentication
 
 Some features require a Vuetify API key:

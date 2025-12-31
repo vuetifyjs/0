@@ -50,6 +50,9 @@ Every v0 component exposes an `attrs` object containing all accessibility attrib
 | Pagination.Root | `aria-label`, `role="navigation"` (when not using `<nav>`) |
 | Popover.Anchor | `popovertarget`, `data-popover-open` (uses native popover API) |
 
+> [!TIP]
+> Always spread the `attrs` object from slot props onto your interactive elements. Missing ARIA attributes break screen reader support.
+
 ## Developer Responsibilities
 
 v0 provides the ARIA plumbing. You must provide:
@@ -134,3 +137,7 @@ it('passes accessibility audit', async () => {
 ## Internationalization
 
 v0's `useLocale` handles RTL and translated labels. See [useLocale](/composables/plugins/use-locale) for accessibility label translations.
+
+> [!SUGGESTION] How do I implement arrow key navigation for a custom list component?
+
+> [!SUGGESTION] How do I integrate accessibility testing into my CI/CD pipeline?

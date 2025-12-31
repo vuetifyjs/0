@@ -19,7 +19,10 @@ v0 theming uses CSS custom properties for runtime theme switching. The theme plu
 
 <DocsPageFeatures :frontmatter />
 
-> **No default colors.** v0 is unopinionated—you define all theme colors. The examples below show common patterns, but the color names and values are entirely yours.
+> [!TIP]
+> v0 is unopinionated—you define all theme colors. The examples below show common patterns, but the color names and values are entirely yours.
+
+> [!SUGGESTION] How do I use v0 theming with Tailwind CSS instead of UnoCSS?
 
 ## Quick Start
 
@@ -181,6 +184,8 @@ Theme changes update automatically—the utilities reference CSS variables, not 
   </div>
 </template>
 ```
+
+> [!SUGGESTION] How can I sync theme selection to localStorage and restore it on page load?
 
 ## Design Tokens with createTokens
 

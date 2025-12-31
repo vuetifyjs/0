@@ -387,6 +387,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/ai-tools': RouteRecordInfo<
+      '/guide/ai-tools',
+      '/guide/ai-tools',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/components': RouteRecordInfo<
       '/guide/components',
       '/guide/components',
@@ -450,6 +457,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/vuetify-mcp': RouteRecordInfo<
+      '/guide/vuetify-mcp',
+      '/guide/vuetify-mcp',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/introduction/contributing': RouteRecordInfo<
       '/introduction/contributing',
       '/introduction/contributing',
@@ -474,6 +488,13 @@ declare module 'vue-router/auto-routes' {
     '/releases': RouteRecordInfo<
       '/releases',
       '/releases',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/roadmap': RouteRecordInfo<
+      '/roadmap',
+      '/roadmap',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -824,6 +845,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/ai-tools.md': {
+      routes:
+        | '/guide/ai-tools'
+      views:
+        | never
+    }
     'src/pages/guide/components.md': {
       routes:
         | '/guide/components'
@@ -878,6 +905,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/vuetify-mcp.md': {
+      routes:
+        | '/guide/vuetify-mcp'
+      views:
+        | never
+    }
     'src/pages/introduction/contributing.md': {
       routes:
         | '/introduction/contributing'
@@ -899,6 +932,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/releases.md': {
       routes:
         | '/releases'
+      views:
+        | never
+    }
+    'src/pages/roadmap.md': {
+      routes:
+        | '/roadmap'
       views:
         | never
     }

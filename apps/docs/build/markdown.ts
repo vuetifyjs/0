@@ -70,11 +70,22 @@ export default async function MarkdownPlugin () {
               // For suggestions, the rest of the line is the question
               const suggestion = match[2].trim()
               inlineToken.content = ''
+              inlineToken.children = []
               return `<DocsAlert type="${type}" suggestion="${encodeURIComponent(suggestion)}">`
             }
 
             // For other types, strip the marker and keep content
-            inlineToken.content = match[2]
+            const remainder = match[2]
+            inlineToken.content = remainder
+
+            // Also update the children array - find and update the first text token
+            if (inlineToken.children?.length) {
+              const firstChild = inlineToken.children[0]
+              if (firstChild?.type === 'text') {
+                firstChild.content = firstChild.content.replace(/^\[!(TIP|WARNING|ERROR)\]\s*/, '')
+              }
+            }
+
             return `<DocsAlert type="${type}">`
           }
         }
