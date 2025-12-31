@@ -194,8 +194,16 @@ async function generateComponentApis (): Promise<Record<string, ComponentApi>> {
   for (const file of files) {
     const api = extractComponentApi(file)
     if (api && api.props.length > 0) {
-      const name = file.split('/').pop()?.replace('.vue', '') || 'Unknown'
-      apis[name] = { ...api, name }
+      // Extract namespace from directory and sub-component from file
+      // e.g., /components/Step/StepRoot.vue → Step.Root
+      // e.g., /components/Atom/Atom.vue → Atom (standalone, no sub-component)
+      const parts = file.split('/')
+      const fileName = parts.pop()?.replace('.vue', '') || 'Unknown'
+      const namespace = parts.pop() || ''
+      const subComponent = fileName.replace(namespace, '')
+      const displayName = subComponent ? `${namespace}.${subComponent}` : namespace
+
+      apis[displayName] = { ...api, name: displayName }
     }
   }
 

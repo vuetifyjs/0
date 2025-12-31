@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/zero",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,7 +21,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:bench": "vitest --reporter=verbose bench --run",
-    "test:bench:json": "vitest bench --run --outputJson apps/docs/src/data/benchmarks.json",
+    "test:bench:json": "vitest bench --run --outputJson apps/docs/public/benchmarks.json",
     "bench": "vitest --reporter=default bench",
     "metrics": "pnpm test:coverage && pnpm test:bench:json && node scripts/generate-metrics.js",
     "typecheck": "pnpm --filter=\"./packages/*\" typecheck",

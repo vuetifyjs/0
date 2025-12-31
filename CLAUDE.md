@@ -49,6 +49,9 @@ pnpm repo:check       # knip + sherif
 
 ## General Conventions
 
+### Vue SFCs
+- Script tag attribute order: `<script setup lang="ts">` (setup before lang)
+
 ### TypeScript
 - Zero `any` types
 - `unknown` over `any` for unknowns

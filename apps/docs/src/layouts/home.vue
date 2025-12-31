@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Components
   import DocsSearch from '@/components/docs/DocsSearch.vue'
 </script>

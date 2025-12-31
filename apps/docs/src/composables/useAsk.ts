@@ -4,7 +4,7 @@
  * @remarks
  * Chat state management for the AI Q&A feature.
  * Handles message history, streaming responses, and UI state.
- * Fetches page context on-demand when a question is asked.
+ * Fetches dynamic page context (examples, API, benchmarks, related) on-demand.
  */
 
 // Framework
@@ -15,6 +15,8 @@ import { readonly, shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
 
 // Types
+import type { ApiData } from '../../build/generate-api'
+import type { ExamplesData } from '../../build/generate-examples'
 import type { Ref, ShallowRef } from 'vue'
 
 export interface Message {
@@ -47,11 +49,34 @@ export interface UseAskReturn {
   stop: () => void
 }
 
-interface PageContext {
+// Context types sent to API
+interface ApiContext {
+  name: string
+  kind: 'component' | 'composable'
+  props?: Array<{ name: string, type: string, required: boolean, default?: string, description?: string }>
+  events?: Array<{ name: string, type: string, description?: string }>
+  slots?: Array<{ name: string, type?: string, description?: string }>
+  options?: Array<{ name: string, type: string, required: boolean, default?: string, description?: string }>
+  methods?: Array<{ name: string, type: string, description?: string }>
+  properties?: Array<{ name: string, type: string, description?: string }>
+}
+
+interface BenchmarkSummary {
+  name: string
+  hz: number
+  mean: number
+}
+
+interface RelatedPage {
   path: string
   title: string
-  content: string
-  loaded: boolean
+}
+
+interface PageContext {
+  examples?: Record<string, string>
+  api?: ApiContext[]
+  benchmarks?: BenchmarkSummary[]
+  related?: RelatedPage[]
 }
 
 const API_URL = `${import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'}/docs/ask`
@@ -61,159 +86,214 @@ function createId () {
   return `msg-${++messageId}-${Date.now()}`
 }
 
-/** Convert kebab-case slug to API name (PascalCase or camelCase) */
-function slugToApiName (slug: string): { pascal: string, camel: string } {
-  const pascal = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
-  const camel = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
-  return { pascal, camel }
-}
+// Caches
+let examplesCache: ExamplesData | null = null
+let apiCache: ApiData | null = null
+let searchIndexCache: Array<{ path: string, title: string }> | null = null
+let benchmarksCache: Record<string, BenchmarkSummary[]> | null = null
 
-interface ApiMember {
-  name: string
-  type: string
-  required?: boolean
-  default?: string
-  description?: string
-}
-
-interface ApiData {
-  kind: 'component' | 'composable'
-  name: string
-  props?: ApiMember[]
-  events?: ApiMember[]
-  slots?: ApiMember[]
-  options?: ApiMember[]
-  properties?: ApiMember[]
-  methods?: ApiMember[]
-}
-
-interface ApiJsonData {
-  components: Record<string, ApiData>
-  composables: Record<string, ApiData>
-}
-
-function formatApiSection (title: string, items: ApiMember[], includeRequired = false): string[] {
-  if (!items?.length) return []
-
-  const lines = [`## ${title}\n`]
-  for (const item of items) {
-    const required = includeRequired && item.required ? ' (required)' : ''
-    const defaultVal = item.default ? ` = ${item.default}` : ''
-    lines.push(`- **${item.name}**: \`${item.type}\`${required}${defaultVal}`)
-    if (item.description) lines.push(`  ${item.description}`)
-  }
-  lines.push('')
-  return lines
-}
-
-/** Format API data as readable content for context */
-function formatApiContent (api: ApiData): string {
-  const header = [`# ${api.name} API\n`]
-
-  let sections: string[] = []
-  if (api.kind === 'component') {
-    sections = [
-      ...formatApiSection('Props', api.props ?? [], true),
-      ...formatApiSection('Events', api.events ?? []),
-      ...formatApiSection('Slots', api.slots ?? []),
-    ]
-  } else if (api.kind === 'composable') {
-    sections = [
-      ...formatApiSection('Options', api.options ?? [], true),
-      ...formatApiSection('Properties', api.properties ?? []),
-      ...formatApiSection('Methods', api.methods ?? []),
-    ]
-  }
-
-  return [...header, ...sections].join('\n')
-}
-
-/** Fetch API context for /api/* routes */
-async function fetchApiContext (path: string): Promise<PageContext> {
+async function getExamplesData (): Promise<ExamplesData> {
+  if (examplesCache) return examplesCache
   try {
-    const slug = path.replace(/^\/api\//, '')
-    if (!slug) {
-      return { path, title: 'API Reference', content: 'API documentation for @vuetify/v0 components and composables.', loaded: true }
-    }
-
-    const response = await fetch('/api.json')
-    if (!response.ok) {
-      return { path, title: '', content: '', loaded: false }
-    }
-
-    const data = await response.json() as ApiJsonData
-
-    const { pascal, camel } = slugToApiName(slug)
-
-    // Try component first, then composable
-    const api = data.components[pascal] ?? data.composables[camel]
-    if (!api) {
-      return { path, title: '', content: '', loaded: false }
-    }
-
-    const name = api.name ?? pascal
-    return {
-      path,
-      title: `${name} API`,
-      content: formatApiContent(api),
-      loaded: true,
-    }
+    const response = await fetch('/examples.json')
+    if (!response.ok) return {}
+    examplesCache = await response.json()
+    return examplesCache!
   } catch {
-    return { path, title: '', content: '', loaded: false }
+    return {}
   }
 }
 
-/** Fetch and parse markdown for a given path */
-async function fetchPageContext (path: string): Promise<PageContext> {
-  if (!IN_BROWSER || path === '/' || path === '') {
-    return { path, title: '', content: '', loaded: false }
-  }
-
-  // Handle API routes specially
-  if (path.startsWith('/api')) {
-    return fetchApiContext(path)
-  }
-
+async function getApiData (): Promise<ApiData> {
+  if (apiCache) return apiCache
   try {
-    // Try direct path first, then index.md fallback
-    let response = await fetch(`${path}.md`)
-    if (!response.ok) {
-      response = await fetch(`${path}/index.md`)
-    }
-    if (!response.ok) {
-      return { path, title: '', content: '', loaded: false }
-    }
+    const response = await fetch('/api.json')
+    if (!response.ok) return { components: {}, composables: {} }
+    apiCache = await response.json()
+    return apiCache!
+  } catch {
+    return { components: {}, composables: {} }
+  }
+}
 
-    const markdown = await response.text()
+async function getSearchIndex (): Promise<Array<{ path: string, title: string }>> {
+  if (searchIndexCache) return searchIndexCache
+  try {
+    const response = await fetch('/search-index.json')
+    if (!response.ok) return []
+    const data = await response.json()
+    searchIndexCache = data.map((d: { path: string, title: string }) => ({ path: d.path, title: d.title }))
+    return searchIndexCache!
+  } catch {
+    return []
+  }
+}
 
-    // Parse frontmatter
-    const match = markdown.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
-    const yamlStr = match?.[1] ?? ''
-    const content = match?.[2]?.trim() ?? markdown
+async function getBenchmarksData (): Promise<Record<string, BenchmarkSummary[]>> {
+  if (benchmarksCache) return benchmarksCache
+  try {
+    const response = await fetch('/benchmarks.json')
+    if (!response.ok) return {}
 
-    // Extract title from frontmatter
-    let title = ''
-    for (const line of yamlStr.split('\n')) {
-      if (line.startsWith('title:')) {
-        title = line.slice(6).trim().replace(/^['"](.*)['"]$/, '$1')
-        // Take first part before " - "
-        const dashIdx = title.indexOf(' - ')
-        if (dashIdx > 0) title = title.slice(0, dashIdx)
-        break
+    const data = await response.json()
+    const result: Record<string, BenchmarkSummary[]> = {}
+
+    for (const file of data.files || []) {
+      // Extract composable name from filepath
+      // e.g., ".../useFilter/index.bench.ts" -> "use-filter"
+      const match = file.filepath.match(/\/(use[A-Z][a-zA-Z]+)\//)
+      if (!match) continue
+
+      const composableName = match[1]
+        .replace(/([A-Z])/g, '-$1')
+        .toLowerCase()
+        .replace(/^-/, '')
+
+      const benchmarks: BenchmarkSummary[] = []
+      for (const group of file.groups || []) {
+        for (const bench of group.benchmarks || []) {
+          benchmarks.push({
+            name: bench.name,
+            hz: bench.hz,
+            mean: bench.mean,
+          })
+        }
+      }
+
+      if (benchmarks.length > 0) {
+        result[composableName] = benchmarks
       }
     }
 
-    // Fallback to first h1
-    if (!title) {
-      const h1Match = content.match(/^# (.+)$/m)
-      title = h1Match?.[1]?.trim() ?? ''
-    }
-
-    return { path, title, content, loaded: true }
+    benchmarksCache = result
+    return result
   } catch {
-    return { path, title: '', content: '', loaded: false }
+    return {}
   }
 }
+
+/** Extract the page slug from path for matching examples/api */
+function getPageSlug (path: string): string | null {
+  // /components/*/step -> step
+  // /composables/*/use-selection -> use-selection
+  const match = path.match(/\/(components|composables)\/[^/]+\/([^/]+)/)
+  return match?.[2] ?? null
+}
+
+/** Get API data for a page */
+function getApiForPage (path: string, apiData: ApiData): ApiContext[] | undefined {
+  const slug = getPageSlug(path)
+  if (!slug) return undefined
+
+  if (path.includes('/components/')) {
+    // Convert slug to PascalCase prefix: step -> Step
+    const prefix = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
+
+    const apis = Object.entries(apiData.components)
+      .filter(([name]) => name.startsWith(prefix))
+      .map(([, api]) => ({
+        name: api.name,
+        kind: 'component' as const,
+        props: api.props,
+        events: api.events,
+        slots: api.slots,
+      }))
+
+    return apis.length > 0 ? apis : undefined
+  }
+
+  if (path.includes('/composables/')) {
+    // Convert slug to camelCase: use-selection -> useSelection
+    const camelName = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+
+    const api = apiData.composables[camelName]
+    if (api) {
+      return [{
+        name: api.name,
+        kind: 'composable' as const,
+        options: api.options,
+        methods: api.methods,
+        properties: api.properties,
+      }]
+    }
+  }
+
+  return undefined
+}
+
+/** Get related pages with resolved titles */
+async function _getRelatedPages (frontmatterRelated: string[] | undefined): Promise<RelatedPage[] | undefined> {
+  if (!frontmatterRelated?.length) return undefined
+
+  const searchIndex = await getSearchIndex()
+  const related: RelatedPage[] = []
+
+  for (const relatedPath of frontmatterRelated) {
+    const doc = searchIndex.find(d => d.path === relatedPath)
+    if (doc) {
+      related.push({ path: doc.path, title: doc.title })
+    } else {
+      // Fallback: generate title from path
+      const title = relatedPath.split('/').pop()?.split('-').map(
+        p => p.charAt(0).toUpperCase() + p.slice(1),
+      ).join(' ') ?? relatedPath
+      related.push({ path: relatedPath, title })
+    }
+  }
+
+  return related.length > 0 ? related : undefined
+}
+
+/** Fetch all dynamic context for the current page */
+async function fetchPageContext (path: string): Promise<PageContext> {
+  if (!IN_BROWSER || path === '/' || path === '') {
+    return {}
+  }
+
+  const slug = getPageSlug(path)
+  if (!slug) return {}
+
+  const [examplesData, apiData, benchmarksData] = await Promise.all([
+    getExamplesData(),
+    getApiData(),
+    getBenchmarksData(),
+  ])
+
+  const context: PageContext = {}
+
+  // Get examples for this page
+  const examples = examplesData[slug]
+  if (examples && Object.keys(examples).length > 0) {
+    context.examples = examples
+  }
+
+  // Get API data
+  const api = getApiForPage(path, apiData)
+  if (api) {
+    context.api = api
+  }
+
+  // Get benchmarks (composables only)
+  if (path.includes('/composables/')) {
+    const benchmarks = benchmarksData[slug]
+    if (benchmarks) {
+      context.benchmarks = benchmarks
+    }
+  }
+
+  // TODO: Get related pages from frontmatter
+  // This requires access to the page's frontmatter which isn't easily available here
+  // For now, skip related - can be added later if needed
+
+  return context
+}
+
+// Module-level singleton state (shared across all useAsk calls)
+const messages: ShallowRef<Message[]> = shallowRef([])
+const isOpen = shallowRef(false)
+const isLoading = shallowRef(false)
+const error: ShallowRef<string | null> = shallowRef(null)
+let abortController: AbortController | null = null
 
 /**
  * Creates a chat instance for AI Q&A.
@@ -235,13 +315,6 @@ async function fetchPageContext (path: string): Promise<PageContext> {
  */
 export function useAsk (): UseAskReturn {
   const route = useRoute()
-
-  const messages: ShallowRef<Message[]> = shallowRef([])
-  const isOpen = shallowRef(false)
-  const isLoading = shallowRef(false)
-  const error: ShallowRef<string | null> = shallowRef(null)
-
-  let abortController: AbortController | null = null
 
   function open () {
     isOpen.value = true
@@ -292,30 +365,28 @@ export function useAsk (): UseAskReturn {
       timestamp: Date.now(),
     }
 
+    // Get conversation history (last 6 messages, excluding the new ones)
+    const history = messages.value
+      .filter(m => m.content.trim()) // Only include messages with content
+      .slice(-6)
+      .map(m => ({ role: m.role, content: m.content }))
+
     messages.value = [...messages.value, userMessage, assistantMessage]
 
     abortController = new AbortController()
 
     try {
-      // Fetch page context on-demand
+      // Fetch dynamic page context
       const context = await fetchPageContext(route.path)
-
-      // Warn if context failed to load - prepend notice to assistant message
-      if (!context.loaded && route.path !== '/') {
-        const updatedMessages = [...messages.value]
-        const lastMessage = updatedMessages.at(-1)
-        if (lastMessage?.role === 'assistant') {
-          lastMessage.content = '*Note: Page context unavailable. Response may be general.*\n\n'
-          messages.value = updatedMessages
-        }
-      }
 
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           question: question.trim(),
-          context,
+          path: route.path,
+          history: history.length > 0 ? history : undefined,
+          context: Object.keys(context).length > 0 ? context : undefined,
         }),
         signal: abortController.signal,
       })

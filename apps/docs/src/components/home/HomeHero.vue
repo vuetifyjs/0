@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Utilities
   import { onMounted, ref } from 'vue'
 

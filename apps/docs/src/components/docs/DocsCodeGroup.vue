@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Framework
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
 

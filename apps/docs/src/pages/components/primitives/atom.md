@@ -33,4 +33,16 @@ The Atom component provides dynamic element rendering and is used as the foundat
   <BasicExample />
 </DocsExample>
 
+## Anatomy
+
+```vue Anatomy playground
+<script setup lang="ts">
+  import { Atom } from '@vuetify/v0'
+</script>
+
+<template>
+  <Atom />
+</template>
+```
+
 <DocsApi />

@@ -100,6 +100,7 @@ build/
 
 | Component | Purpose |
 |-----------|---------|
+| `DocsAlert` | GitHub-style callouts (`> [!TIP]`, `> [!WARNING]`, `> [!ERROR]`, `> [!SUGGESTION]`) |
 | `DocsExample` | Live examples from `examples/` with code |
 | `DocsMarkup` | Syntax-highlighted code blocks |
 | `DocsApi` | Auto-generated API tables with inline/links toggle |
@@ -115,8 +116,11 @@ build/
 
 ## Conventions
 
+- **Always prefer @vuetify/v0 composables** over raw browser APIs or custom implementations. Check `mcp__vuetify-mcp__get_vuetify0_composable_list` before writing event listeners, observers, or state management.
 - UnoCSS utilities for all styling
 - Prefer markdown for documentation pages
+- **Callouts**: Use `> [!TIP]`, `> [!WARNING]`, `> [!ERROR]` for alerts. Use `> [!SUGGESTION] question` to prompt Ask AI.
+- **Vue code in markdown fences**: Indent `<script>` and `<style>` content by 2 spaces for visual alignment with `<template>`
 - Examples: `src/examples/components/{component}/` or `src/examples/composables/{composable}/`
 - Component docs: `pages/components/{category}/{component}.md`
 - Composable docs: `pages/composables/{category}/{composable}.md`

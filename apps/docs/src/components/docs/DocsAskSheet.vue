@@ -1,13 +1,17 @@
-<script lang="ts" setup>
+<script setup lang="ts">
+  // Framework
+  import { useBreakpoints } from '@vuetify/v0'
+
   // Components
   import DocsAskMessage from './DocsAskMessage.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Composables
   import { getBinUrl } from '@/composables/bin'
+  import { useClipboard } from '@/composables/useClipboard'
 
   // Utilities
-  import { nextTick, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { Message } from '@/composables/useAsk'
@@ -25,10 +29,14 @@
     stop: []
   }>()
 
+  const breakpoints = useBreakpoints()
+  const { copied, copy } = useClipboard()
+
   const messagesRef = useTemplateRef<HTMLElement | null>('messages')
   const textareaRef = useTemplateRef<HTMLTextAreaElement | null>('textarea')
   const question = shallowRef('')
-  const isFullscreen = shallowRef(false)
+
+  const isDesktop = computed(() => breakpoints.mdAndUp.value)
 
   // Auto-scroll to bottom on new messages
   watch(
@@ -65,18 +73,21 @@
     textareaRef.value.style.height = `${Math.min(textareaRef.value.scrollHeight, 120)}px`
   }
 
-  function toggleFullscreen () {
-    isFullscreen.value = !isFullscreen.value
-  }
-
-  function openInBin () {
-    const markdown = props.messages
+  function getConversationMarkdown () {
+    return props.messages
       .map(msg => msg.role === 'user'
         ? `**User:** ${msg.content}`
         : `**Assistant:**\n\n${msg.content}`)
       .join('\n\n---\n\n')
-    const url = getBinUrl(markdown, 'markdown', 'Ask AI Conversation')
+  }
+
+  function openInBin () {
+    const url = getBinUrl(getConversationMarkdown(), 'markdown', 'Ask AI Conversation')
     window.open(url, '_blank')
+  }
+
+  function copyConversation () {
+    copy(getConversationMarkdown())
   }
 
   function focus () {
@@ -88,19 +99,25 @@
 
 <template>
   <aside
-    aria-labelledby="ask-ai-title"
-    aria-modal="true"
+    :aria-modal="!isDesktop"
     :class="[
-      'fixed top-0 right-0 h-full bg-background border-l border-divider shadow-xl z-50 flex flex-col',
-      isFullscreen ? 'w-full max-w-full' : 'w-full max-w-md',
+      'bg-background flex flex-col z-50',
+      isDesktop
+        ? 'fixed right-4 top-23 w-[350px] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
+        : 'fixed inset-0',
     ]"
-    role="dialog"
+    :role="isDesktop ? 'complementary' : 'dialog'"
   >
     <!-- Header -->
-    <header class="shrink-0 px-4 py-2 border-b border-divider flex items-center justify-between bg-surface">
+    <header
+      :class="[
+        'shrink-0 px-4 py-2 border-b border-divider flex items-center justify-between bg-surface',
+        isDesktop ? 'rounded-t-lg' : '',
+      ]"
+    >
       <div class="flex items-center gap-2">
         <AppIcon class="text-primary" icon="create" />
-        <span id="ask-ai-title" class="font-medium">Ask AI</span>
+        <span class="font-medium">Ask AI</span>
       </div>
 
       <div class="flex items-center gap-1">
@@ -117,6 +134,16 @@
         <button
           v-if="messages.length > 0"
           class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
+          :title="copied ? 'Copied!' : 'Copy conversation'"
+          type="button"
+          @click="copyConversation"
+        >
+          <AppIcon :icon="copied ? 'success' : 'copy'" size="18" />
+        </button>
+
+        <button
+          v-if="messages.length > 0"
+          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
           title="Reset conversation"
           type="button"
           @click="emit('clear')"
@@ -124,16 +151,20 @@
           <AppIcon icon="restart" size="18" />
         </button>
 
+        <!-- Show TOC button on desktop -->
         <button
+          v-if="isDesktop"
           class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
-          :title="isFullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+          title="Show table of contents"
           type="button"
-          @click="toggleFullscreen"
+          @click="emit('close')"
         >
-          <AppIcon :icon="isFullscreen ? 'fullscreen-exit' : 'fullscreen'" size="18" />
+          <AppIcon icon="book" size="18" />
         </button>
 
+        <!-- Close button on mobile -->
         <button
+          v-if="!isDesktop"
           class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
           title="Close"
           type="button"
@@ -178,7 +209,12 @@
     </div>
 
     <!-- Input -->
-    <footer class="shrink-0 p-4 border-t border-divider bg-surface">
+    <footer
+      :class="[
+        'shrink-0 p-4 border-t border-divider bg-surface',
+        isDesktop ? 'rounded-b-lg' : '',
+      ]"
+    >
       <form
         class="flex items-end gap-2"
         @submit.prevent="onSubmit"
@@ -187,7 +223,7 @@
           ref="textarea"
           v-model="question"
           aria-label="Ask a follow-up question"
-          class="flex-1 rounded-lg bg-surface-variant px-4 py-2.5 text-sm text-on-surface border-none outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none min-h-[42px] max-h-[120px]"
+          class="flex-1 rounded-lg bg-surface-variant px-4 py-2.5 text-base text-on-surface border-none outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none min-h-[42px] max-h-[120px]"
           :disabled="isLoading"
           placeholder="Ask a question..."
           rows="1"

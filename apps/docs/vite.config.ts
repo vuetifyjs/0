@@ -17,6 +17,7 @@ import type { ViteSSGOptions } from 'vite-ssg'
 import { getApiSlugs } from './build/api-names'
 import copyMarkdownPlugin from './build/copy-markdown'
 import generateApiPlugin from './build/generate-api'
+import generateExamplesPlugin from './build/generate-examples'
 import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
 import generateSearchIndexPlugin from './build/generate-search-index'
@@ -75,6 +76,7 @@ export default defineConfig({
     Layouts(),
     copyMarkdownPlugin(),
     generateApiPlugin(),
+    generateExamplesPlugin(),
     generateLlmsFullPlugin(),
     generateSearchIndexPlugin(),
     generateNavPlugin(),

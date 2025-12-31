@@ -52,6 +52,48 @@ export default async function MarkdownPlugin () {
             : '</DocsCodeGroup>\n'
         },
       })
+
+      // GitHub-style callouts: > [!TIP], > [!WARNING], > [!ERROR], > [!SUGGESTION]
+      const defaultBlockquoteOpen = md.renderer.rules.blockquote_open
+      const defaultBlockquoteClose = md.renderer.rules.blockquote_close
+
+      md.renderer.rules.blockquote_open = (tokens, index, options, env, self) => {
+        // Look ahead: blockquote_open -> paragraph_open -> inline
+        const inlineToken = tokens[index + 2]
+        if (inlineToken?.type === 'inline' && inlineToken.content) {
+          const match = inlineToken.content.match(/^\[!(TIP|WARNING|ERROR|SUGGESTION)\]\s*(.*)/)
+          if (match) {
+            const type = match[1].toLowerCase()
+            env._calloutType = type
+
+            if (type === 'suggestion') {
+              // For suggestions, the rest of the line is the question
+              const suggestion = match[2].trim()
+              inlineToken.content = ''
+              return `<DocsAlert type="${type}" suggestion="${encodeURIComponent(suggestion)}">`
+            }
+
+            // For other types, strip the marker and keep content
+            inlineToken.content = match[2]
+            return `<DocsAlert type="${type}">`
+          }
+        }
+
+        return defaultBlockquoteOpen
+          ? defaultBlockquoteOpen(tokens, index, options, env, self)
+          : '<blockquote>'
+      }
+
+      md.renderer.rules.blockquote_close = (tokens, index, options, env, self) => {
+        if (env._calloutType) {
+          delete env._calloutType
+          return '</DocsAlert>'
+        }
+
+        return defaultBlockquoteClose
+          ? defaultBlockquoteClose(tokens, index, options, env, self)
+          : '</blockquote>'
+      }
       md.use(
         fromHighlighter(highlighter as HighlighterGeneric<any, any>, {
           themes: {
@@ -99,6 +141,8 @@ export default async function MarkdownPlugin () {
 
         const href = t.attrGet('href') || ''
         if (/^https?:\/\//i.test(href)) {
+          t.attrSet('target', '_blank')
+          t.attrSet('rel', 'noopener noreferrer')
           t.attrSet('data-sfx', '↗')
         } else if (/#/.test(href) && !isHeaderAnchor) {
           t.attrSet('data-pfx', '#')

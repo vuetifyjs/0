@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed } from 'vue'

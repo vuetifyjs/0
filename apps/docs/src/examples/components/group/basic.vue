@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Framework
   import { Group } from '@vuetify/v0'
 

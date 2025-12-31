@@ -186,8 +186,8 @@ overflow.isOverflowing.value  // Boolean: items exceed capacity
 </template>
 
 <script setup>
-const tags = ['Vue', 'React', 'Angular', 'Svelte', 'Solid']
-const visibleTags = computed(() => tags.slice(0, overflow.capacity.value))
+  const tags = ['Vue', 'React', 'Angular', 'Svelte', 'Solid']
+  const visibleTags = computed(() => tags.slice(0, overflow.capacity.value))
 </script>
 ```
 

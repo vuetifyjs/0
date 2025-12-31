@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Utilities
   import { computed } from 'vue'
   import { useRoute } from 'vue-router'

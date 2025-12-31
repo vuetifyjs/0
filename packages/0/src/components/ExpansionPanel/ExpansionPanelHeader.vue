@@ -38,7 +38,7 @@
   }
 </script>
 
-<script lang="ts" setup>
+<script setup lang="ts">
   defineOptions({ name: 'ExpansionPanelHeader' })
 
   defineSlots<{
