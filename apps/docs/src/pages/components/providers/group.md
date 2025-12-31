@@ -84,7 +84,7 @@ The Group component exposes select-all helpers through its slot props for implem
 |---|---|
 | [useGroup](/composables/selection/use-group) | The underlying composable used by Group |
 
-### GroupRoot
+### Group.Root
 
 The root component that manages multi-selection state with batch operations.
 
@@ -155,7 +155,7 @@ The root component that manages multi-selection state with batch operations.
 
 - **Example**
 
-  ```vue GroupRoot
+  ```vue Group.Root
   <script setup lang="ts">
     import { Group } from '@vuetify/v0'
   </script>
@@ -168,13 +168,13 @@ The root component that manages multi-selection state with batch operations.
           {{ isAllSelected ? '☑' : isMixed ? '☐' : '☐' }} Select All
         </button>
 
-        <!-- GroupItem components -->
+        <!-- Group.Item components -->
       </div>
     </Group.Root>
   </template>
   ```
 
-### GroupItem
+### Group.Item
 
 Individual group items that register with the Group context. Supports tri-state (selected, unselected, mixed) for checkbox-like behavior.
 
@@ -251,7 +251,7 @@ Individual group items that register with the Group context. Supports tri-state 
 
 - **Example**
 
-  ```vue GroupItem
+  ```vue Group.Item
   <script setup lang="ts">
     import { Group } from '@vuetify/v0'
   </script>

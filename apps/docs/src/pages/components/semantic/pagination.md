@@ -68,7 +68,7 @@ The Pagination component provides a compound component pattern for building page
 | [useOverflow](/composables/utilities/use-overflow) | Used for responsive auto-sizing of visible page buttons |
 | [usePagination](/composables/utilities/use-pagination) | The underlying composable used by Pagination |
 
-### PaginationRoot
+### Pagination.Root
 
 The root component that manages pagination state and provides context to child components. Supports responsive auto-sizing based on container width.
 
@@ -112,7 +112,7 @@ The root component that manages pagination state and provides context to child c
 
   **Example:**
 
-  ```vue PaginationRoot
+  ```vue Pagination.Root
   <template>
     <Pagination.Root
       v-model="page"
@@ -161,7 +161,7 @@ The root component that manages pagination state and provides context to child c
   - `first`, `last`, `next`, `prev`, `select`: Navigation methods
   - `attrs`: Object containing attributes to bind to the root element
 
-### PaginationItem
+### Pagination.Item
 
 Individual page number button.
 
@@ -232,7 +232,7 @@ Individual page number button.
 
 - **Example**
 
-  ```vue PaginationItem
+  ```vue Pagination.Item
   <script setup lang="ts">
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -261,7 +261,7 @@ Individual page number button.
   </template>
   ```
 
-### PaginationEllipsis
+### Pagination.Ellipsis
 
 Displays ellipsis to indicate hidden page numbers.
 
@@ -307,7 +307,7 @@ Displays ellipsis to indicate hidden page numbers.
 
 - **Example**
 
-  ```vue PaginationEllipsis
+  ```vue Pagination.Ellipsis
   <script setup lang="ts">
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -326,7 +326,7 @@ Displays ellipsis to indicate hidden page numbers.
   </template>
   ```
 
-### PaginationFirst
+### Pagination.First
 
 Button to navigate to the first page.
 
@@ -385,7 +385,7 @@ Button to navigate to the first page.
 
 - **Example**
 
-  ```vue PaginationFirst
+  ```vue Pagination.First
   <script setup lang="ts">
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -411,7 +411,7 @@ Button to navigate to the first page.
   </template>
   ```
 
-### PaginationPrev
+### Pagination.Prev
 
 Button to navigate to the previous page.
 
@@ -470,7 +470,7 @@ Button to navigate to the previous page.
 
 - **Example**
 
-  ```vue PaginationPrev
+  ```vue Pagination.Prev
   <script setup lang="ts">
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -496,7 +496,7 @@ Button to navigate to the previous page.
   </template>
   ```
 
-### PaginationNext
+### Pagination.Next
 
 Button to navigate to the next page.
 
@@ -555,7 +555,7 @@ Button to navigate to the next page.
 
 - **Example**
 
-  ```vue PaginationNext
+  ```vue Pagination.Next
   <script setup lang="ts">
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -581,7 +581,7 @@ Button to navigate to the next page.
   </template>
   ```
 
-### PaginationStatus
+### Pagination.Status
 
 Visually-hidden live region that announces page changes to screen readers. Uses `aria-live="polite"` to announce without interrupting the user.
 
@@ -630,7 +630,7 @@ Visually-hidden live region that announces page changes to screen readers. Uses 
 
 - **Example**
 
-  ```vue PaginationStatus
+  ```vue Pagination.Status
   <script setup lang="ts">
     import { Pagination } from '@vuetify/v0'
   </script>
@@ -670,7 +670,7 @@ Visually-hidden live region that announces page changes to screen readers. Uses 
   </style>
   ```
 
-### PaginationLast
+### Pagination.Last
 
 Button to navigate to the last page.
 
@@ -729,7 +729,7 @@ Button to navigate to the last page.
 
 - **Example**
 
-  ```vue PaginationLast
+  ```vue Pagination.Last
   <script setup lang="ts">
     import { Pagination } from '@vuetify/v0'
   </script>

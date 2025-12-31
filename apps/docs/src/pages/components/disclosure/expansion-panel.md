@@ -81,7 +81,7 @@ For instances where you need to wrap the activator in a heading element **(h3)**
 |---|---|
 | [useSelection](/composables/selection/use-selection) | The underlying composable used by ExpansionPanel |
 
-### ExpansionPanelRoot
+### ExpansionPanel.Root
 
 The root component that manages expansion state and provides context to items.
 
@@ -130,7 +130,7 @@ The root component that manages expansion state and provides context to items.
 
   **Example:**
 
-  ```vue ExpansionPanelRoot
+  ```vue ExpansionPanel.Root
   <template>
     <ExpansionPanel.Root
       v-model="model"
@@ -157,7 +157,7 @@ The root component that manages expansion state and provides context to items.
   - `unselect`: Collapse a panel by ID
   - `toggle`: Toggle a panel's expansion state by ID
 
-### ExpansionPanelItem
+### ExpansionPanel.Item
 
 Individual expansion panel items that register with the ExpansionPanel context and provide context to child components.
 
@@ -220,7 +220,7 @@ Individual expansion panel items that register with the ExpansionPanel context a
 
 - **Example**
 
-  ```vue ExpansionPanelItem
+  ```vue ExpansionPanel.Item
   <script setup lang="ts">
     import { ExpansionPanel } from '@vuetify/v0'
   </script>
@@ -240,7 +240,7 @@ Individual expansion panel items that register with the ExpansionPanel context a
   </template>
   ```
 
-### ExpansionPanelHeader
+### ExpansionPanel.Header
 
 Semantic heading wrapper for the expansion panel activator. Per WAI-ARIA accordion pattern, accordion triggers should be wrapped in heading elements to enable heading-based navigation for screen reader users.
 
@@ -282,7 +282,7 @@ Semantic heading wrapper for the expansion panel activator. Per WAI-ARIA accordi
 
 - **Example**
 
-  ```vue ExpansionPanelHeader
+  ```vue ExpansionPanel.Header
   <script setup lang="ts">
     import { ExpansionPanel } from '@vuetify/v0'
   </script>
@@ -300,9 +300,9 @@ Semantic heading wrapper for the expansion panel activator. Per WAI-ARIA accordi
   </template>
   ```
 
-### ExpansionPanelActivator
+### ExpansionPanel.Activator
 
-The activator component that triggers the expansion/collapse of a panel. Should be used within `ExpansionPanelHeader` for proper accessibility.
+The activator component that triggers the expansion/collapse of a panel. Should be used within `ExpansionPanel.Header` for proper accessibility.
 
 - **Props**
 
@@ -322,7 +322,7 @@ The activator component that triggers the expansion/collapse of a panel. Should 
 
 - **Context Requirements**
 
-  - Must be used within `ExpansionPanelItem`
+  - Must be used within `ExpansionPanel.Item`
   - Automatically inherits panel state from parent item context
   - Generates appropriate ARIA attributes for accessibility
 
@@ -374,7 +374,7 @@ The activator component that triggers the expansion/collapse of a panel. Should 
 
 - **Example**
 
-  ```vue ExpansionPanelActivator
+  ```vue ExpansionPanel.Activator
   <script setup lang="ts">
     import { ExpansionPanel } from '@vuetify/v0'
   </script>
@@ -406,9 +406,9 @@ The activator component that triggers the expansion/collapse of a panel. Should 
   </template>
   ```
 
-### ExpansionPanelContent
+### ExpansionPanel.Content
 
-The content container for an expansion panel. Must be used within `ExpansionPanelItem`. Visibility is controlled automatically via the `hidden` attribute.
+The content container for an expansion panel. Must be used within `ExpansionPanel.Item`. Visibility is controlled automatically via the `hidden` attribute.
 
 - **Props**
 
@@ -428,7 +428,7 @@ The content container for an expansion panel. Must be used within `ExpansionPane
 
 - **Context Requirements**
 
-  - Must be used within `ExpansionPanelItem`
+  - Must be used within `ExpansionPanel.Item`
   - Automatically inherits panel state from parent item context
 
 - **Slot Props**
@@ -464,7 +464,7 @@ The content container for an expansion panel. Must be used within `ExpansionPane
 
 - **Example**
 
-  ```vue ExpansionPanelContent
+  ```vue ExpansionPanel.Content
   <script setup lang="ts">
     import { ExpansionPanel } from '@vuetify/v0'
   </script>

@@ -58,7 +58,7 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 |---|---|
 | [createContext](/composables/foundation/create-context) | Context system for state sharing |
 
-### PopoverRoot
+### Popover.Root
 
 The root component that manages popover state and provides context.
 
@@ -100,7 +100,7 @@ The root component that manages popover state and provides context.
 
 - **Example**
 
-  ```vue PopoverRoot
+  ```vue Popover.Root
   <script setup lang="ts">
     import { Popover } from '@vuetify/v0'
     import { ref } from 'vue'
@@ -118,7 +118,7 @@ The root component that manages popover state and provides context.
   </template>
   ```
 
-### PopoverAnchor
+### Popover.Anchor
 
 The anchor button or element that triggers the popover. Uses the native popover API via `popovertarget`.
 
@@ -158,7 +158,7 @@ The anchor button or element that triggers the popover. Uses the native popover 
 
 - **Example**
 
-  ```vue PopoverAnchor
+  ```vue Popover.Anchor
   <script setup lang="ts">
     import { Popover } from '@vuetify/v0'
   </script>
@@ -176,7 +176,7 @@ The anchor button or element that triggers the popover. Uses the native popover 
   </template>
   ```
 
-### PopoverContent
+### Popover.Content
 
 The popover content container with CSS anchor positioning.
 
@@ -217,7 +217,7 @@ The popover content container with CSS anchor positioning.
 
 - **Example**
 
-  ```vue PopoverContent
+  ```vue Popover.Content
   <script setup lang="ts">
     import { Popover } from '@vuetify/v0'
   </script>

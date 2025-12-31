@@ -74,7 +74,7 @@ The Step component extends Single with navigation methods for moving through a s
 |---|---|
 | [useStep](/composables/selection/use-step) | The underlying composable used by Step |
 
-### StepRoot
+### Step.Root
 
 The root component that manages step navigation state.
 
@@ -143,7 +143,7 @@ The root component that manages step navigation state.
 
 - **Example**
 
-  ```vue StepRoot
+  ```vue Step.Root
   <script setup lang="ts">
     import { Step } from '@vuetify/v0'
   </script>
@@ -157,13 +157,13 @@ The root component that manages step navigation state.
         <button @click="next">Next</button>
         <button @click="last">Last</button>
 
-        <!-- StepItem components -->
+        <!-- Step.Item components -->
       </div>
     </Step.Root>
   </template>
   ```
 
-### StepItem
+### Step.Item
 
 Individual step items that register with the Step context.
 
@@ -230,7 +230,7 @@ Individual step items that register with the Step context.
 
 - **Example**
 
-  ```vue StepItem
+  ```vue Step.Item
   <script setup lang="ts">
     import { Step } from '@vuetify/v0'
   </script>

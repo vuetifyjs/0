@@ -59,7 +59,7 @@ The Avatar component provides a robust image loading system with automatic fallb
 |---|---|
 | [useSelection](/composables/selection/use-selection) | Base selection system for managing visibility |
 
-### AvatarRoot
+### Avatar.Root
 
 The root component that manages image loading state and fallback logic.
 
@@ -79,7 +79,7 @@ The root component that manages image loading state and fallback logic.
 
 - **Example**
 
-  ```vue AvatarRoot
+  ```vue Avatar.Root
   <script setup lang="ts">
     import { Avatar } from '@vuetify/v0'
   </script>
@@ -93,7 +93,7 @@ The root component that manages image loading state and fallback logic.
   </template>
   ```
 
-### AvatarImage
+### Avatar.Image
 
 Image component that registers with the Avatar context and manages loading state.
 
@@ -141,7 +141,7 @@ Image component that registers with the Avatar context and manages loading state
 
 - **Example**
 
-  ```vue AvatarImage
+  ```vue Avatar.Image
   <script setup lang="ts">
     import { Avatar } from '@vuetify/v0'
   </script>
@@ -161,7 +161,7 @@ Image component that registers with the Avatar context and manages loading state
   </template>
   ```
 
-### AvatarFallback
+### Avatar.Fallback
 
 Fallback content component shown when no images are loaded.
 
@@ -191,7 +191,7 @@ Fallback content component shown when no images are loaded.
 
 - **Example**
 
-  ```vue AvatarFallback
+  ```vue Avatar.Fallback
   <script setup lang="ts">
     import { Avatar } from '@vuetify/v0'
   </script>

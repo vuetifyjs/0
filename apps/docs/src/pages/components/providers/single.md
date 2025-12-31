@@ -68,7 +68,7 @@ The Single component is a specialization of Selection that enforces single-selec
 |---|---|
 | [useSingle](/composables/selection/use-single) | The underlying composable used by Single |
 
-### SingleRoot
+### Single.Root
 
 The root component that manages single-selection state.
 
@@ -127,7 +127,7 @@ The root component that manages single-selection state.
 
 - **Example**
 
-  ```vue SingleRoot
+  ```vue Single.Root
   <script setup lang="ts">
     import { Single } from '@vuetify/v0'
   </script>
@@ -135,13 +135,13 @@ The root component that manages single-selection state.
   <template>
     <Single.Root v-model="selected" v-slot="{ attrs, isDisabled }">
       <div v-bind="attrs" :class="{ 'opacity-50': isDisabled }">
-        <!-- SingleItem components -->
+        <!-- Single.Item components -->
       </div>
     </Single.Root>
   </template>
   ```
 
-### SingleItem
+### Single.Item
 
 Individual selectable items that register with the Single context.
 
@@ -208,7 +208,7 @@ Individual selectable items that register with the Single context.
 
 - **Example**
 
-  ```vue SingleItem
+  ```vue Single.Item
   <script setup lang="ts">
     import { Single } from '@vuetify/v0'
   </script>

@@ -75,7 +75,7 @@ The Selection component provides a wrapper and item pattern for managing selecti
 |---|---|
 | [useSelection](/composables/selection/use-selection) | The underlying composable used by Selection |
 
-### SelectionRoot
+### Selection.Root
 
 The root component that manages selection state and provides context to items.
 
@@ -138,7 +138,7 @@ The root component that manages selection state and provides context to items.
 
 - **Example**
 
-  ```vue SelectionRoot
+  ```vue Selection.Root
   <script setup lang="ts">
     import { Selection } from '@vuetify/v0'
   </script>
@@ -147,7 +147,7 @@ The root component that manages selection state and provides context to items.
     <!-- Simple usage with attrs -->
     <Selection.Root v-model="selected" v-slot="{ attrs }">
       <div v-bind="attrs">
-        <!-- SelectionItem components -->
+        <!-- Selection.Item components -->
       </div>
     </Selection.Root>
 
@@ -155,13 +155,13 @@ The root component that manages selection state and provides context to items.
     <Selection.Root v-model="selected" v-slot="{ isDisabled, multiple }">
       <div :class="{ 'opacity-50': isDisabled }">
         <p v-if="multiple">Select multiple items</p>
-        <!-- SelectionItem components -->
+        <!-- Selection.Item components -->
       </div>
     </Selection.Root>
   </template>
   ```
 
-### SelectionItem
+### Selection.Item
 
 Individual selectable items that register with the Selection context.
 
@@ -228,7 +228,7 @@ Individual selectable items that register with the Selection context.
 
 - **Example**
 
-  ```vue SelectionItem
+  ```vue Selection.Item
   <script setup lang="ts">
     import { Selection } from '@vuetify/v0'
   </script>
