@@ -258,6 +258,7 @@ Type-safe access via `useCssModule()`:
 </template>
 ```
 
+> [!TIP]
 > For dark mode, custom themes, and design tokens, see the [Theming Guide](/guide/theming).
 
 ## Nuxt 3
@@ -309,6 +310,7 @@ export default defineNuxtConfig({
 })
 ```
 
+> [!TIP]
 > For auto-imports, SSR hydration, and theme persistence, see the [Nuxt Guide](/guide/nuxt).
 
 ## Exposed Exports
