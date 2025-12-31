@@ -3,7 +3,7 @@
  *
  * Run after:
  *   pnpm test:coverage
- *   pnpm test:bench --outputJson coverage/benchmarks.json
+ *   pnpm test:bench:json
  *
  * Outputs: apps/docs/src/data/metrics.json
  */
@@ -16,7 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 
 const COVERAGE_PATH = resolve(ROOT, 'coverage/coverage-final.json')
-const BENCHMARKS_PATH = resolve(ROOT, 'apps/docs/src/data/benchmarks.json')
+const BENCHMARKS_PATH = resolve(ROOT, 'apps/docs/public/benchmarks.json')
 const OUTPUT_PATH = resolve(ROOT, 'apps/docs/src/data/metrics.json')
 
 /**
