@@ -86,9 +86,9 @@
   <aside
     :aria-modal="!isDesktop"
     :class="[
-      'flex flex-col z-50',
+      'flex flex-col z-50 bg-glass-surface',
       isDesktop
-        ? 'fixed right-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg bg-glass-surface'
+        ? 'fixed right-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
         : 'fixed inset-0',
     ]"
     :role="isDesktop ? 'complementary' : 'dialog'"
@@ -209,7 +209,7 @@
           ref="input"
           v-model="question"
           aria-label="Ask a follow-up question"
-          class="flex-1 bg-transparent border-none outline-none text-sm text-on-surface placeholder:text-on-surface-tint"
+          class="flex-1 bg-transparent border-none outline-none text-base text-on-surface placeholder:text-on-surface-tint"
           :disabled="isLoading"
           placeholder="Ask a question..."
           type="text"

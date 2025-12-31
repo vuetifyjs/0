@@ -73,7 +73,7 @@
           ref="input"
           v-model="question"
           aria-label="Ask a question about this page"
-          class="flex-1 bg-transparent border-none outline-none text-sm text-on-surface placeholder:text-on-surface-tint"
+          class="flex-1 bg-transparent border-none outline-none text-base text-on-surface placeholder:text-on-surface-tint"
           placeholder="Ask a question..."
           type="text"
           @focus="onFocus"
