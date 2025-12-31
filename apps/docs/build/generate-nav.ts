@@ -65,6 +65,7 @@ const SUBCATEGORY_ORDER: Record<string, string[]> = {
 // Standalone pages that appear between sections
 const STANDALONE: Record<string, { order: number, name: string }> = {
   'releases.md': { order: 1, name: 'Release Notes' },
+  'roadmap.md': { order: 1.1, name: 'Roadmap' },
   'storybook/index.md': { order: 1.5, name: 'Storybook' },
 }
 
@@ -208,11 +209,13 @@ async function generateNav (): Promise<NavItem[]> {
     const sectionPages = pages.get(section) ?? []
     if (sectionPages.length === 0 && section !== 'introduction') continue
 
-    // Add standalone pages that come before this section
+    // Add standalone pages that come before this section (grouped without dividers between them)
+    let addedStandalone = false
     while (standaloneIdx < standalonesSorted.length && standalonesSorted[standaloneIdx].order < config.order) {
-      if (nav.length > 0) nav.push({ divider: true })
+      if (!addedStandalone && nav.length > 0) nav.push({ divider: true })
       nav.push(standalonesSorted[standaloneIdx].item)
       standaloneIdx++
+      addedStandalone = true
     }
 
     // Add divider before major sections (except first)
