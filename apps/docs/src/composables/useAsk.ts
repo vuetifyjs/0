@@ -411,12 +411,13 @@ export function useAsk (): UseAskReturn {
 
         const chunk = decoder.decode(value, { stream: true })
 
-        // Update the assistant message content
-        const updatedMessages = [...messages.value]
-        const lastMessage = updatedMessages.at(-1)
+        // Update the assistant message content (immutable update)
+        const lastMessage = messages.value.at(-1)
         if (lastMessage?.role === 'assistant') {
-          lastMessage.content += chunk
-          messages.value = updatedMessages
+          messages.value = [
+            ...messages.value.slice(0, -1),
+            { ...lastMessage, content: lastMessage.content + chunk },
+          ]
         }
       }
     } catch (error_) {

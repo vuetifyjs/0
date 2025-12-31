@@ -42,7 +42,7 @@
     ref="nav"
     aria-label="Main navigation"
     :as
-    class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-solid border-divider z-1 glass-surface"
+    class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-solid border-divider z-1 bg-glass-surface"
     :class="app.drawer && '!translate-x-0'"
     :inert="!app.drawer && breakpoints.isMobile.value ? true : undefined"
   >

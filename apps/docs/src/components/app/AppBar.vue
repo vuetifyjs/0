@@ -42,7 +42,7 @@
 <template>
   <Atom
     :as
-    class="flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1 glass-surface"
+    class="flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1 bg-glass-surface"
     data-app-bar
   >
     <div class="flex items-center gap-2">
@@ -69,7 +69,7 @@
 
       <button
         aria-label="Search (Ctrl+K)"
-        class="hidden md:inline-flex items-center gap-1.5 glass-surface rounded-full border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 transition-colors"
+        class="hidden md:inline-flex items-center gap-1.5 bg-glass-surface rounded-full border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 transition-colors"
         title="Search (Ctrl+K)"
         type="button"
         @click="openSearch"

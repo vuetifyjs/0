@@ -15,8 +15,8 @@
 <template>
   <main
     :class="[
-      'pa-4 pb-6 ml-0 md:ml-[230px] relative z-0',
-      isAskOpen ? 'md:pr-[382px]' : 'xl:pr-[232px]',
+      'pa-4 pb-6 ml-0 md:ml-[230px] relative z-0 transition-[padding] duration-200',
+      isAskOpen ? 'xl:pr-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pr-[232px]',
     ]"
   >
     <div class="max-w-[688px] mx-auto pb-4">

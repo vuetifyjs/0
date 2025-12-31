@@ -13,7 +13,7 @@
   import { computed, toRef, nextTick, useTemplateRef } from 'vue'
 
   const breakpoints = useBreakpoints()
-  const isDesktop = computed(() => breakpoints.mdAndUp.value)
+  const isDesktop = computed(() => breakpoints.lgAndUp.value)
 
   const {
     messages,

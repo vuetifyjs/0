@@ -36,7 +36,7 @@
   const textareaRef = useTemplateRef<HTMLTextAreaElement | null>('textarea')
   const question = shallowRef('')
 
-  const isDesktop = computed(() => breakpoints.mdAndUp.value)
+  const isDesktop = computed(() => breakpoints.lgAndUp.value)
 
   // Auto-scroll to bottom on new messages
   watch(
@@ -101,9 +101,9 @@
   <aside
     :aria-modal="!isDesktop"
     :class="[
-      'bg-background flex flex-col z-50',
+      'flex flex-col z-50',
       isDesktop
-        ? 'fixed right-4 top-23 w-[350px] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
+        ? 'fixed right-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg bg-glass-surface'
         : 'fixed inset-0',
     ]"
     :role="isDesktop ? 'complementary' : 'dialog'"

@@ -60,7 +60,7 @@
       class="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 w-full max-w-sm px-4"
     >
       <form
-        class="glass-surface rounded-full shadow-lg border border-divider flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 hover:border-primary/50 focus-within:border-primary focus-within:hover:border-primary transition-colors"
+        class="bg-glass-surface rounded-full shadow-lg border border-divider flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 hover:border-primary/50 focus-within:border-primary focus-within:hover:border-primary transition-colors"
         @submit.prevent="onSubmit"
       >
         <AppIcon

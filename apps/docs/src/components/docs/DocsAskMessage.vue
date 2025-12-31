@@ -110,4 +110,28 @@
     padding-top: 2.5rem;
     padding-right: 5rem;
   }
+
+  /* Scale down headings for chat context */
+  .markdown-body :deep(h1) {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1em 0 0.5em;
+  }
+  .markdown-body :deep(h2) {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0.875em 0 0.375em;
+  }
+  .markdown-body :deep(h3) {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 0.75em 0 0.25em;
+  }
+  .markdown-body :deep(h4),
+  .markdown-body :deep(h5),
+  .markdown-body :deep(h6) {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0.5em 0 0.25em;
+  }
 </style>

@@ -94,7 +94,7 @@
       class="fixed left-1/2 top-[20%] -translate-x-1/2 w-full max-w-xl z-50 px-4"
       role="dialog"
     >
-      <div class="glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
+      <div class="bg-glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
         <h2 id="search-title" class="sr-only">Search Documentation</h2>
         <div class="flex items-center gap-3 px-4 py-3 border-b border-divider">
           <AppIcon

@@ -33,8 +33,8 @@ colors: {
 }
 
 // Custom shortcuts
-'glass-surface'  // 70% surface with backdrop blur
-'glass-warning'  // 70% warning with backdrop blur
+'bg-glass-surface'  // 70% surface with backdrop blur
+'bg-glass-warning'  // 70% warning with backdrop blur
 ```
 
 ## Page Frontmatter (Required)
