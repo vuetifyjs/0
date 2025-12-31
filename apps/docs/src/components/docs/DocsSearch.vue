@@ -106,8 +106,8 @@
             ref="input"
             v-model="query"
             aria-label="Search documentation"
-            class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-variant"
-            placeholder="Search documentation..."
+            class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            placeholder="Search the docs..."
             type="search"
           >
           <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant text-xs font-mono">
