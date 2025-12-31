@@ -24,7 +24,10 @@ export function useApiHelpers () {
   }
 
   function toKebab (str: string): string {
-    return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+    return str
+      .replace(/\./g, '-') // Handle dot notation (Step.Root → Step-Root)
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .toLowerCase()
   }
 
   async function toggleExample (key: string, code?: string) {
