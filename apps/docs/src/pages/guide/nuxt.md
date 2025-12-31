@@ -178,6 +178,7 @@ For components that can't render on the server:
 <template>
   <ClientOnly>
     <ComplexVisualization />
+
     <template #fallback>
       <div class="skeleton" />
     </template>
@@ -194,14 +195,14 @@ Common causes:
 
 ```vue
 <script setup lang="ts">
-import { useHydration } from '@vuetify/v0'
+  import { useHydration } from '@vuetify/v0'
 
-const { isHydrated } = useHydration()
+  const { isHydrated } = useHydration()
 
-// Bad: causes mismatch
-const time = new Date().toLocaleTimeString()
+  // Bad: causes mismatch
+  const time = new Date().toLocaleTimeString()
 
-// Good: defer to client
-const time = computed(() => isHydrated.value ? new Date().toLocaleTimeString() : '')
+  // Good: defer to client
+  const time = computed(() => isHydrated.value ? new Date().toLocaleTimeString() : '')
 </script>
 ```

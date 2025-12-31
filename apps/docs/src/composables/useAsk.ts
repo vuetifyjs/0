@@ -163,53 +163,56 @@ async function fetchApiContext (path: string): Promise<PageContext> {
   }
 }
 
-/** Fetch and parse markdown for a given path */
+interface SearchDocument {
+  id: string
+  title: string
+  category: string
+  path: string
+  headings: string[]
+  content: string
+}
+
+let searchIndexCache: SearchDocument[] | null = null
+
+/** Fetch the search index (cached) */
+async function getSearchIndex (): Promise<SearchDocument[]> {
+  if (searchIndexCache) return searchIndexCache
+
+  try {
+    const response = await fetch('/search-index.json')
+    if (!response.ok) return []
+    searchIndexCache = await response.json() as SearchDocument[]
+    return searchIndexCache
+  } catch {
+    return []
+  }
+}
+
+/** Fetch page context from search index */
 async function fetchPageContext (path: string): Promise<PageContext> {
   if (!IN_BROWSER || path === '/' || path === '') {
     return { path, title: '', content: '', loaded: false }
   }
 
-  // Handle API routes specially
+  // Handle API routes specially (uses api.json for detailed type info)
   if (path.startsWith('/api')) {
     return fetchApiContext(path)
   }
 
   try {
-    // Try direct path first, then index.md fallback
-    let response = await fetch(`${path}.md`)
-    if (!response.ok) {
-      response = await fetch(`${path}/index.md`)
-    }
-    if (!response.ok) {
+    const index = await getSearchIndex()
+    const doc = index.find(d => d.path === path)
+
+    if (!doc) {
       return { path, title: '', content: '', loaded: false }
     }
 
-    const markdown = await response.text()
-
-    // Parse frontmatter
-    const match = markdown.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
-    const yamlStr = match?.[1] ?? ''
-    const content = match?.[2]?.trim() ?? markdown
-
-    // Extract title from frontmatter
-    let title = ''
-    for (const line of yamlStr.split('\n')) {
-      if (line.startsWith('title:')) {
-        title = line.slice(6).trim().replace(/^['"](.*)['"]$/, '$1')
-        // Take first part before " - "
-        const dashIdx = title.indexOf(' - ')
-        if (dashIdx > 0) title = title.slice(0, dashIdx)
-        break
-      }
+    return {
+      path,
+      title: doc.title,
+      content: doc.content,
+      loaded: true,
     }
-
-    // Fallback to first h1
-    if (!title) {
-      const h1Match = content.match(/^# (.+)$/m)
-      title = h1Match?.[1]?.trim() ?? ''
-    }
-
-    return { path, title, content, loaded: true }
   } catch {
     return { path, title: '', content: '', loaded: false }
   }
