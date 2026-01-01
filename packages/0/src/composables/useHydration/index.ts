@@ -22,8 +22,8 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { isNull } from '#v0/utilities'
-import { getCurrentInstance, shallowReadonly, shallowRef } from 'vue'
+import { instanceExists, isNull } from '#v0/utilities'
+import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -188,7 +188,7 @@ export function useHydration<
 > (namespace = 'v0:hydration'): E {
   const fallback = createFallbackHydration<E>()
 
-  if (!getCurrentInstance()) return fallback
+  if (!instanceExists()) return fallback
 
   try {
     return useContext<E>(namespace, fallback)

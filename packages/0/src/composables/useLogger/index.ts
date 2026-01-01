@@ -28,7 +28,8 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
 // Utilities
-import { getCurrentInstance, shallowRef } from 'vue'
+import { instanceExists } from '#v0/utilities'
+import { shallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -316,8 +317,7 @@ export function useLogger<
   E extends LoggerContext = LoggerContext,
 > (namespace = 'v0:logger'): E {
   const fallback = createFallbackLogger<E>(namespace)
-
-  if (!getCurrentInstance()) return fallback
+  if (!instanceExists()) return fallback
 
   try {
     return useContext<E>(namespace, fallback)
