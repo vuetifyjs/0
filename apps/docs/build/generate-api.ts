@@ -7,6 +7,7 @@
  * Provides a virtual module `virtual:api` for SSG compatibility.
  */
 
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -26,6 +27,8 @@ const TSCONFIG = resolve(ROOT, 'tsconfig.json')
 
 const VIRTUAL_MODULE_ID = 'virtual:api'
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
+const API_CACHE_DIR = resolve(__dirname, '../node_modules/.cache')
+const API_CACHE_FILE = resolve(API_CACHE_DIR, 'api-cache.json')
 
 // Vue internal props to filter out
 const VUE_INTERNALS = new Set([
@@ -191,9 +194,14 @@ async function generateComponentApis (): Promise<Record<string, ComponentApi>> {
   const apis: Record<string, ComponentApi> = {}
   const files = await findComponentFiles()
 
-  for (const file of files) {
-    const api = extractComponentApi(file)
+  // Process all files in parallel for better performance
+  const results = await Promise.all(
+    files.map(file => Promise.resolve(extractComponentApi(file))),
+  )
+
+  for (const [index, api] of results.entries()) {
     if (api && api.props.length > 0) {
+      const file = files[index]
       // Extract namespace from directory and sub-component from file
       // e.g., /components/Step/StepRoot.vue → Step.Root
       // e.g., /components/Atom/Atom.vue → Atom (standalone, no sub-component)
@@ -423,14 +431,39 @@ export default function generateApiPlugin (): Plugin {
 
   async function getApiData () {
     if (apiData) return apiData
+
+    // Try to read from cache first (SSR build reuses client build cache)
+    if (existsSync(API_CACHE_FILE)) {
+      try {
+        apiData = JSON.parse(readFileSync(API_CACHE_FILE, 'utf8')) as ApiData
+        console.log(`[generate-api] Loaded API from cache`)
+        return apiData
+      } catch {
+        // Cache read failed, regenerate
+      }
+    }
+
     if (!apiPromise) {
       apiPromise = (async () => {
-        const [components, composables] = await Promise.all([
-          generateComponentApis(),
-          generateComposableApis(),
-        ])
-        console.log(`[generate-api] Extracted API for ${Object.keys(components).length} components, ${Object.keys(composables).length} composables`)
-        return { components, composables }
+        try {
+          const [components, composables] = await Promise.all([
+            generateComponentApis(),
+            generateComposableApis(),
+          ])
+          const data = { components, composables }
+          // Write to cache for subsequent builds (SSR reuses this)
+          try {
+            mkdirSync(API_CACHE_DIR, { recursive: true })
+            writeFileSync(API_CACHE_FILE, JSON.stringify(data))
+          } catch {
+            // Cache write failed, continue without caching
+          }
+          console.log(`[generate-api] Extracted API for ${Object.keys(components).length} components, ${Object.keys(composables).length} composables`)
+          return data
+        } catch (error) {
+          apiPromise = null
+          throw error
+        }
       })()
     }
     apiData = await apiPromise

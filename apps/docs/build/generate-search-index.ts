@@ -3,13 +3,14 @@ import { glob } from 'node:fs/promises'
 import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+// Types
+import type { Plugin, ViteDevServer } from 'vite'
+
 import { getApiNamesGrouped, toKebab } from './api-names'
+import { parseFrontmatter } from './frontmatter'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
-
-// Types
-import type { Plugin, ViteDevServer } from 'vite'
 
 export interface SearchDocument {
   id: string
@@ -18,57 +19,6 @@ export interface SearchDocument {
   path: string
   headings: string[]
   content: string
-}
-
-interface Frontmatter {
-  title?: string
-  features?: {
-    category?: string
-    label?: string
-  }
-}
-
-function parseFrontmatter (content: string): { frontmatter: Frontmatter, body: string } {
-  if (!content.startsWith('---')) {
-    return { frontmatter: {}, body: content }
-  }
-
-  const end = content.indexOf('---', 3)
-  if (end === -1) {
-    return { frontmatter: {}, body: content }
-  }
-
-  const frontmatterStr = content.slice(3, end).trim()
-  const body = content.slice(end + 3).trim()
-
-  // Simple YAML parser for our needs
-  const frontmatter: Frontmatter = {}
-  const lines = frontmatterStr.split('\n')
-  let currentKey = ''
-  const features: Frontmatter['features'] = {}
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    if (!trimmed || trimmed.startsWith('-')) continue
-
-    if (trimmed.startsWith('title:')) {
-      frontmatter.title = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
-    } else if (trimmed === 'features:') {
-      currentKey = 'features'
-    } else if (currentKey === 'features' && trimmed.startsWith('category:')) {
-      features.category = trimmed.slice(9).trim().replace(/^['"]|['"]$/g, '')
-    } else if (currentKey === 'features' && trimmed.startsWith('label:')) {
-      features.label = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
-    } else if (!line.startsWith(' ') && !line.startsWith('\t')) {
-      currentKey = ''
-    }
-  }
-
-  if (Object.keys(features).length > 0) {
-    frontmatter.features = features
-  }
-
-  return { frontmatter, body }
 }
 
 function extractHeadings (content: string): string[] {
@@ -232,6 +182,24 @@ async function generateSearchIndex (): Promise<SearchDocument[]> {
 
 export default function generateSearchIndexPlugin (): Plugin {
   let isBuild = false
+  let searchData: SearchDocument[] | null = null
+  let searchPromise: Promise<SearchDocument[]> | null = null
+
+  async function getSearchData () {
+    if (searchData) return searchData
+    if (!searchPromise) {
+      searchPromise = (async () => {
+        try {
+          return await generateSearchIndex()
+        } catch (error) {
+          searchPromise = null
+          throw error
+        }
+      })()
+    }
+    searchData = await searchPromise
+    return searchData
+  }
 
   return {
     name: 'generate-search-index',
@@ -245,7 +213,7 @@ export default function generateSearchIndexPlugin (): Plugin {
         if (req.url !== '/search-index.json') return next()
 
         try {
-          const documents = await generateSearchIndex()
+          const documents = await getSearchData()
           res.setHeader('Content-Type', 'application/json')
           res.end(JSON.stringify(documents))
         } catch (error) {
@@ -260,7 +228,7 @@ export default function generateSearchIndexPlugin (): Plugin {
       // Only emit during client build, not SSR
       if (!isBuild || Object.keys(bundle).some(k => k.includes('main.mjs'))) return
 
-      const documents = await generateSearchIndex()
+      const documents = await getSearchData()
 
       this.emitFile({
         type: 'asset',
@@ -269,6 +237,11 @@ export default function generateSearchIndexPlugin (): Plugin {
       })
 
       console.log(`[generate-search-index] Generated index with ${documents.length} documents`)
+    },
+
+    buildEnd () {
+      searchData = null
+      searchPromise = null
     },
   }
 }

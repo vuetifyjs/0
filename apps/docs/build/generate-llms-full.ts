@@ -1,10 +1,15 @@
 import { readFileSync } from 'node:fs'
 import { glob } from 'node:fs/promises'
-import { basename, dirname, relative } from 'node:path'
+import { basename, dirname, relative, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 // Types
 import type { Plugin, ViteDevServer } from 'vite'
 
+import { stripFrontmatter } from './frontmatter'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const PAGES_DIR = resolve(__dirname, '../src/pages')
 const BASE_URL = 'https://0.vuetifyjs.com'
 
 // Category order for sorting
@@ -17,14 +22,14 @@ const CATEGORY_ORDER: Record<string, number> = {
 }
 
 function getUrlPath (filePath: string): string {
-  return '/' + relative('src/pages', filePath)
+  return '/' + relative(PAGES_DIR, filePath)
     .replace(/\.md$/, '')
     .replace(/\/index$/, '')
     .replace(/^index$/, '')
 }
 
 function getCategoryOrder (filePath: string): number {
-  const rel = relative('src/pages', filePath)
+  const rel = relative(PAGES_DIR, filePath)
   const topLevel = dirname(rel).split('/')[0]
   return CATEGORY_ORDER[topLevel] ?? 50
 }
@@ -40,13 +45,6 @@ function getTitle (filePath: string): string {
     .join(' ')
 }
 
-function stripFrontmatter (content: string): string {
-  if (!content.startsWith('---')) return content
-  const end = content.indexOf('---', 3)
-  if (end === -1) return content
-  return content.slice(end + 3).trim()
-}
-
 function stripVueComponents (content: string): string {
   // Remove Vue component tags like <DocsPageFeatures /> or <SomeComponent>...</SomeComponent>
   return content
@@ -58,7 +56,7 @@ function stripVueComponents (content: string): string {
 async function generateLlmsContent (): Promise<string> {
   const files: Array<{ path: string, order: number, title: string, content: string }> = []
 
-  for await (const file of glob('src/pages/**/*.md')) {
+  for await (const file of glob(`${PAGES_DIR}/**/*.md`)) {
     try {
       const raw = readFileSync(file, 'utf8')
       const content = stripVueComponents(stripFrontmatter(raw))
@@ -99,14 +97,34 @@ async function generateLlmsContent (): Promise<string> {
 }
 
 export default function generateLlmsFullPlugin (): Plugin {
+  let llmsData: string | null = null
+  let llmsPromise: Promise<string> | null = null
+
+  async function getLlmsData () {
+    if (llmsData) return llmsData
+    if (!llmsPromise) {
+      llmsPromise = (async () => {
+        try {
+          return await generateLlmsContent()
+        } catch (error) {
+          llmsPromise = null
+          throw error
+        }
+      })()
+    }
+    llmsData = await llmsPromise
+    return llmsData
+  }
+
   return {
     name: 'generate-llms-full',
+
     configureServer (server: ViteDevServer) {
       server.middlewares.use(async (req, res, next) => {
         if (req.url !== '/llms-full.txt') return next()
 
         try {
-          const content = await generateLlmsContent()
+          const content = await getLlmsData()
           res.setHeader('Content-Type', 'text/plain; charset=utf-8')
           res.end(content)
         } catch (error) {
@@ -116,9 +134,11 @@ export default function generateLlmsFullPlugin (): Plugin {
         }
       })
     },
+
     apply: (config, { command }) => command === 'build' && !config.build?.ssr,
+
     async generateBundle () {
-      const content = await generateLlmsContent()
+      const content = await getLlmsData()
 
       this.emitFile({
         type: 'asset',
@@ -127,6 +147,11 @@ export default function generateLlmsFullPlugin (): Plugin {
       })
 
       console.log('[generate-llms-full] Generated llms-full.txt')
+    },
+
+    buildEnd () {
+      llmsData = null
+      llmsPromise = null
     },
   }
 }

@@ -71,9 +71,14 @@ export default function generateExamplesPlugin (): Plugin {
     if (examplesData) return examplesData
     if (!examplesPromise) {
       examplesPromise = (async () => {
-        const data = await generateExamplesData()
-        console.log(`[generate-examples] Found examples for ${Object.keys(data).length} pages`)
-        return data
+        try {
+          const data = await generateExamplesData()
+          console.log(`[generate-examples] Found examples for ${Object.keys(data).length} pages`)
+          return data
+        } catch (error) {
+          examplesPromise = null
+          throw error
+        }
       })()
     }
     examplesData = await examplesPromise

@@ -71,7 +71,7 @@ export default async function MarkdownPlugin () {
               const suggestion = match[2].trim()
               inlineToken.content = ''
               inlineToken.children = []
-              return `<DocsAlert type="${type}" suggestion="${encodeURIComponent(suggestion)}">`
+              return `<DocsAlert type="${type}" suggestion="${Buffer.from(suggestion).toString('base64')}">`
             }
 
             // For other types, strip the marker and keep content

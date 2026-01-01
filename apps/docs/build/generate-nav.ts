@@ -4,9 +4,11 @@ import { basename, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // Types
+import type { Frontmatter } from './frontmatter'
 import type { Plugin, ViteDevServer } from 'vite'
 
 import { getApiNamesGrouped } from './api-names'
+import { parseFrontmatter } from './frontmatter'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
@@ -29,16 +31,6 @@ export interface NavItemDivider {
 }
 
 export type NavItem = NavItemLink | NavItemCategory | NavItemDivider
-
-interface Frontmatter {
-  title?: string
-  features?: {
-    category?: string
-    label?: string
-    order?: number
-    hidden?: boolean
-  }
-}
 
 interface PageInfo {
   path: string
@@ -67,46 +59,6 @@ const STANDALONE: Record<string, { order: number, name: string }> = {
   'releases.md': { order: 1, name: 'Release Notes' },
   'roadmap.md': { order: 1.1, name: 'Roadmap' },
   'storybook/index.md': { order: 1.5, name: 'Storybook' },
-}
-
-function parseFrontmatter (content: string): Frontmatter {
-  if (!content.startsWith('---')) return {}
-
-  const end = content.indexOf('---', 3)
-  if (end === -1) return {}
-
-  const frontmatterStr = content.slice(3, end).trim()
-  const frontmatter: Frontmatter = {}
-  const lines = frontmatterStr.split('\n')
-  let currentKey = ''
-  const features: Frontmatter['features'] = {}
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    if (!trimmed || trimmed.startsWith('-')) continue
-
-    if (trimmed.startsWith('title:')) {
-      frontmatter.title = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
-    } else if (trimmed === 'features:') {
-      currentKey = 'features'
-    } else if (currentKey === 'features') {
-      if (trimmed.startsWith('label:')) {
-        features.label = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
-      } else if (trimmed.startsWith('order:')) {
-        features.order = Number.parseInt(trimmed.slice(6).trim(), 10)
-      } else if (trimmed.startsWith('hidden:')) {
-        features.hidden = trimmed.slice(7).trim() === 'true'
-      }
-    } else if (!line.startsWith(' ') && !line.startsWith('\t')) {
-      currentKey = ''
-    }
-  }
-
-  if (Object.keys(features).length > 0) {
-    frontmatter.features = features
-  }
-
-  return frontmatter
 }
 
 function getNavName (frontmatter: Frontmatter, filename: string): string {
@@ -160,7 +112,7 @@ async function generateNav (): Promise<NavItem[]> {
   for await (const file of glob(`${PAGES_DIR}/**/*.md`)) {
     const relPath = relative(PAGES_DIR, file)
     const content = readFileSync(file, 'utf8')
-    const frontmatter = parseFrontmatter(content)
+    const { frontmatter } = parseFrontmatter(content)
 
     // Skip hidden pages
     if (frontmatter.features?.hidden) continue
@@ -330,7 +282,14 @@ export default function generateNavPlugin (): Plugin {
   async function getNavData () {
     if (navData) return navData
     if (!navPromise) {
-      navPromise = generateNav()
+      navPromise = (async () => {
+        try {
+          return await generateNav()
+        } catch (error) {
+          navPromise = null
+          throw error
+        }
+      })()
     }
     navData = await navPromise
     return navData
