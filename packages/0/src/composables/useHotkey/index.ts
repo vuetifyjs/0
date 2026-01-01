@@ -2,7 +2,10 @@
  * @module useHotkey
  *
  * @remarks
- * Hotkey listener composable with key combination and sequence support.
+ * Hotkey registry composable with key combination and sequence support.
+ *
+ * Built on top of useRegistry for collection management, event emission,
+ * and context injection via the trinity pattern.
  *
  * Key features:
  * - Key combination support (`ctrl+k`, `shift+enter`)
@@ -11,130 +14,234 @@
  * - Input focus detection (skip when typing in inputs)
  * - Sequence timeout with automatic reset
  * - Key alias normalization
- * - Pause/resume/stop functionality
+ * - Per-hotkey pause/resume/stop functionality
+ * - Global pauseAll/resumeAll for entire registry
  * - Automatic cleanup on scope disposal
  * - SSR-safe (no-op when not in browser)
- *
- * Sibling to useKeydown - use useKeydown for simple exact key matching,
- * useHotkey for complex hotkey parsing with sequences and modifiers.
  */
 
+// Factories
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
+import { useRegistry } from '#v0/composables/useRegistry'
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
+import { onScopeDispose, shallowRef, toRef } from 'vue'
+import { genId } from '#v0/utilities'
 import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { ID } from '#v0/types'
+import type { App, Ref } from 'vue'
 
-export interface UseHotkeyOptions {
+export interface HotkeyTicket<V = unknown> extends RegistryTicket<V> {
   /**
-   * The keyboard event type to listen for.
+   * The hotkey pattern string (e.g., 'ctrl+k', 'g-h')
+   */
+  pattern: string
+  /**
+   * Callback function invoked when the hotkey is triggered
+   */
+  callback: (e: KeyboardEvent) => void
+  /**
+   * The keyboard event type to listen for
    * @default 'keydown'
    */
-  event?: MaybeRefOrGetter<'keydown' | 'keyup'>
+  event: 'keydown' | 'keyup'
   /**
-   * Whether to trigger the callback when an input element is focused.
+   * Whether to trigger when an input element is focused
    * @default false
    */
-  inputs?: MaybeRefOrGetter<boolean>
+  inputs: boolean
   /**
-   * Whether to prevent the default browser action.
+   * Whether to prevent the default browser action
    * @default true
    */
-  preventDefault?: MaybeRefOrGetter<boolean>
+  preventDefault: boolean
   /**
-   * Timeout in ms before a key sequence resets.
+   * Timeout in ms before a key sequence resets
    * @default 1000
    */
-  sequenceTimeout?: MaybeRefOrGetter<number>
-}
-
-export interface UseHotkeyReturn {
+  sequenceTimeout: number
   /**
-   * Whether the hotkey listener is currently active (listening for keys).
-   * False when paused, when keys is undefined, or in SSR.
+   * Parsed sequence of key groups (internal)
    */
-  readonly isActive: Readonly<Ref<boolean>>
+  keyGroups: string[]
   /**
-   * Whether the hotkey listener is currently paused.
+   * Whether this is a multi-key sequence (internal)
    */
-  readonly isPaused: Readonly<Ref<boolean>>
+  isSequence: boolean
   /**
-   * Pause listening (stops responding to hotkeys but preserves configuration).
+   * Current position in sequence (internal)
+   */
+  sequenceProgress: number
+  /**
+   * Sequence timeout timer (internal)
+   */
+  sequenceTimer?: ReturnType<typeof setTimeout>
+  /**
+   * Event listener cleanup function (internal)
+   */
+  cleanupRef: (() => void) | null
+  /**
+   * Whether this hotkey is currently paused
+   */
+  isPaused: boolean
+  /**
+   * Whether the hotkey listener is currently active
+   */
+  isActive: Readonly<Ref<boolean>>
+  /**
+   * Pause this hotkey (stops responding but preserves configuration)
    */
   pause: () => void
   /**
-   * Resume listening after pause.
+   * Resume this hotkey after pause
    */
   resume: () => void
   /**
-   * Stop listening and clean up permanently.
+   * Stop this hotkey and unregister it
    */
   stop: () => void
+}
+
+export interface HotkeyContext<Z extends HotkeyTicket = HotkeyTicket> extends Omit<RegistryContext<Z>, 'register'> {
+  /**
+   * Register a new hotkey
+   *
+   * @param ticket - Partial ticket with pattern and callback required
+   * @returns The registered ticket with controls
+   *
+   * @example
+   * ```ts
+   * const hotkeys = createHotkey()
+   *
+   * const ticket = hotkeys.register({
+   *   pattern: 'ctrl+k',
+   *   callback: (e) => console.log('triggered'),
+   * })
+   *
+   * // Use ticket controls
+   * ticket.pause()
+   * ticket.resume()
+   * ticket.stop()
+   * ```
+   */
+  register: (ticket: Partial<Z> & { pattern: string, callback: (e: KeyboardEvent) => void }) => Z
+  /**
+   * Unregister a hotkey by ID
+   *
+   * @param id - The ticket ID to unregister
+   * @returns The unregistered ticket or undefined
+   */
+  unregister: (id: ID) => Z | undefined
+  /**
+   * Pause all hotkeys in the registry
+   */
+  pauseAll: () => void
+  /**
+   * Resume all hotkeys in the registry
+   */
+  resumeAll: () => void
+  /**
+   * Whether all hotkeys are globally paused
+   */
+  isGloballyPaused: Readonly<Ref<boolean>>
+  /**
+   * Dispose of the registry and clean up all hotkeys
+   */
+  dispose: () => void
+}
+
+export interface HotkeyOptions extends RegistryOptions {
+  /**
+   * Default keyboard event type for hotkeys
+   * @default 'keydown'
+   */
+  event?: 'keydown' | 'keyup'
+  /**
+   * Default: whether to trigger when input is focused
+   * @default false
+   */
+  inputs?: boolean
+  /**
+   * Default: whether to prevent default browser action
+   * @default true
+   */
+  preventDefault?: boolean
+  /**
+   * Default sequence timeout in ms
+   * @default 1000
+   */
+  sequenceTimeout?: number
+}
+
+export interface HotkeyContextOptions extends HotkeyOptions {
+  namespace?: string
 }
 
 // Cache platform detection at module level
 const isMac = IN_BROWSER && (navigator?.userAgent?.includes('Macintosh') ?? false)
 
 /**
- * A composable that listens for hotkey combinations and sequences.
+ * Creates a new hotkey registry instance
  *
- * @param keys - The hotkey string (e.g., 'ctrl+k', 'g-h')
- * @param callback - The function to call when the hotkey is triggered
  * @param options - Configuration options
- * @returns An object with state refs and control methods
- *
- * @see https://0.vuetifyjs.com/composables/system/use-hotkey
+ * @returns A hotkey registry with register/unregister/pauseAll/resumeAll methods
  *
  * @example
  * ```ts
- * import { useHotkey } from '@vuetify/v0'
+ * import { createHotkey } from '@vuetify/v0'
  *
- * // Simple combination
- * const { isActive, pause, resume } = useHotkey('ctrl+k', () => {
- *   console.log('Command palette opened')
+ * const hotkeys = createHotkey()
+ *
+ * // Register a hotkey
+ * const ticket = hotkeys.register({
+ *   pattern: 'ctrl+k',
+ *   callback: (e) => console.log('Command palette'),
  * })
  *
- * // Key sequence (GitHub-style)
- * useHotkey('g-h', () => console.log('Go home'))
+ * // Register a sequence
+ * hotkeys.register({
+ *   pattern: 'g-h',
+ *   callback: () => console.log('Go home'),
+ * })
  *
- * // With options
- * useHotkey('escape', closeModal, { inputs: true })
+ * // Control individual hotkeys
+ * ticket.pause()
+ * ticket.resume()
+ * ticket.stop()
  *
- * // Pause/resume control
- * pause()  // Temporarily disable
- * resume() // Re-enable
+ * // Control all hotkeys
+ * hotkeys.pauseAll()
+ * hotkeys.resumeAll()
  * ```
  */
-export function useHotkey (
-  keys: MaybeRefOrGetter<string | undefined>,
-  callback: (e: KeyboardEvent) => void,
-  options: UseHotkeyOptions = {},
-): UseHotkeyReturn {
+export function createHotkey<
+  Z extends HotkeyTicket = HotkeyTicket,
+  E extends HotkeyContext<Z> = HotkeyContext<Z>,
+> (_options: HotkeyOptions = {}): E {
   const {
-    event = 'keydown',
-    inputs = false,
-    preventDefault = true,
-    sequenceTimeout = 1000,
-  } = options
+    event: defaultEvent = 'keydown',
+    inputs: defaultInputs = false,
+    preventDefault: defaultPreventDefault = true,
+    sequenceTimeout: defaultSequenceTimeout = 1000,
+    ...options
+  } = _options
 
-  const isPaused = shallowRef(false)
-  const cleanupRef = shallowRef<(() => void) | null>(null)
-  const isActive = toRef(() => cleanupRef.value !== null)
+  const registry = useRegistry<Z, RegistryContext<Z>>({ ...options, events: true })
+  const isGloballyPaused = shallowRef(false)
 
-  let sequenceTimer: ReturnType<typeof setTimeout> | undefined
-  let keyGroups: string[] = []
-  let isSequence = false
-  let groupIndex = 0
-
-  function isInputFocused (): boolean {
-    if (toValue(inputs)) return false
+  function isInputFocused (inputs: boolean): boolean {
+    if (inputs) return false
 
     const activeElement = document.activeElement as HTMLElement | null
     if (!activeElement) return false
@@ -147,118 +254,181 @@ export function useHotkey (
     )
   }
 
-  function resetSequence () {
-    groupIndex = 0
-    clearTimeout(sequenceTimer)
+  function resetSequence (ticket: Z) {
+    ticket.sequenceProgress = 0
+    if (ticket.sequenceTimer) {
+      clearTimeout(ticket.sequenceTimer)
+      ticket.sequenceTimer = undefined
+    }
   }
 
-  function handler (e: KeyboardEvent) {
-    const group = keyGroups[groupIndex]
+  function matchesKeyGroup (e: KeyboardEvent, group: string): boolean {
+    const { modifiers, actualKey } = parseKeyGroup(group)
 
-    if (!group || isInputFocused()) return
+    const expectCtrl = modifiers.ctrl || (!isMac && (modifiers.cmd || modifiers.meta))
+    const expectMeta = isMac && (modifiers.cmd || modifiers.meta)
 
-    if (!matchesKeyGroup(e, group)) {
-      if (isSequence) resetSequence()
-      return
+    return (
+      e.ctrlKey === expectCtrl &&
+      e.metaKey === expectMeta &&
+      e.shiftKey === modifiers.shift &&
+      e.altKey === modifiers.alt &&
+      e.key.toLowerCase() === actualKey?.toLowerCase()
+    )
+  }
+
+  function createHandler (ticket: Z) {
+    return function handler (e: KeyboardEvent) {
+      debugger
+      if (isGloballyPaused.value || ticket.isPaused) return
+
+      const group = ticket.keyGroups[ticket.sequenceProgress]
+
+      if (!group || isInputFocused(ticket.inputs)) return
+
+      if (!matchesKeyGroup(e, group)) {
+        if (ticket.isSequence) resetSequence(ticket)
+        return
+      }
+
+      if (ticket.preventDefault) e.preventDefault()
+
+      if (!ticket.isSequence) {
+        ticket.callback(e)
+        return
+      }
+
+      clearTimeout(ticket.sequenceTimer)
+      ticket.sequenceProgress++
+
+      if (ticket.sequenceProgress === ticket.keyGroups.length) {
+        ticket.callback(e)
+        resetSequence(ticket)
+        return
+      }
+
+      ticket.sequenceTimer = setTimeout(() => resetSequence(ticket), ticket.sequenceTimeout)
+    }
+  }
+
+  function setup (ticket: Z) {
+    if (!IN_BROWSER || ticket.isPaused) return
+
+    if (ticket.keyGroups.length === 0) return
+
+    ticket.cleanupRef = useWindowEventListener(ticket.event, createHandler(ticket))
+  }
+
+  function teardown (ticket: Z) {
+    if (ticket.cleanupRef) {
+      ticket.cleanupRef()
+      ticket.cleanupRef = null
+    }
+    resetSequence(ticket)
+  }
+
+  function register (registration: Partial<Z> & { pattern: string, callback: (e: KeyboardEvent) => void }): Z {
+    const id = registration.id ?? genId()
+    const pattern = registration.pattern.toLowerCase()
+    const keyGroups = splitKeySequence(pattern)
+
+    const isActiveRef = shallowRef(false)
+
+    const ticket: Partial<Z> = {
+      ...registration,
+      id,
+      pattern,
+      event: registration.event ?? defaultEvent,
+      inputs: registration.inputs ?? defaultInputs,
+      preventDefault: registration.preventDefault ?? defaultPreventDefault,
+      sequenceTimeout: registration.sequenceTimeout ?? defaultSequenceTimeout,
+      keyGroups,
+      isSequence: keyGroups.length > 1,
+      sequenceProgress: 0,
+      sequenceTimer: undefined,
+      cleanupRef: null,
+      isPaused: false,
+      isActive: toRef(() => isActiveRef.value),
+      pause: () => {
+        const t = registry.get(id)
+        if (t && !t.isPaused) {
+          t.isPaused = true
+          teardown(t)
+          isActiveRef.value = false
+        }
+      },
+      resume: () => {
+        const t = registry.get(id)
+        if (t && t.isPaused) {
+          t.isPaused = false
+          setup(t)
+          isActiveRef.value = t.cleanupRef !== null
+        }
+      },
+      stop: () => unregister(id),
     }
 
-    if (toValue(preventDefault)) e.preventDefault()
+    const registered = registry.register(ticket as Partial<Z>)
 
-    if (!isSequence) {
-      callback(e)
-      return
+    setup(registered)
+    isActiveRef.value = registered.cleanupRef !== null
+
+    return registered
+  }
+
+  function unregister (id: ID): Z | undefined {
+    const ticket = registry.get(id)
+    if (!ticket) return undefined
+
+    teardown(ticket)
+    registry.unregister(id)
+
+    return ticket
+  }
+
+  function pauseAll () {
+    isGloballyPaused.value = true
+    for (const ticket of registry.values()) {
+      teardown(ticket)
     }
+  }
 
-    clearTimeout(sequenceTimer)
-    groupIndex++
-
-    if (groupIndex === keyGroups.length) {
-      callback(e)
-      resetSequence()
-      return
+  function resumeAll () {
+    isGloballyPaused.value = false
+    for (const ticket of registry.values()) {
+      if (!ticket.isPaused) {
+        setup(ticket)
+      }
     }
-
-    sequenceTimer = setTimeout(resetSequence, toValue(sequenceTimeout))
   }
 
-  function setup () {
-    if (!IN_BROWSER || isPaused.value) return
-
-    const currentKeys = toValue(keys)
-    if (!currentKeys) return
-
-    const groups = splitKeySequence(currentKeys.toLowerCase())
-    if (groups.length === 0) return
-
-    isSequence = groups.length > 1
-    keyGroups = groups
-    resetSequence()
-
-    cleanupRef.value = useWindowEventListener(toValue(event), handler)
-  }
-
-  function teardown () {
-    if (cleanupRef.value) {
-      cleanupRef.value()
-      cleanupRef.value = null
+  function clear () {
+    for (const ticket of registry.values()) {
+      teardown(ticket)
     }
-    clearTimeout(sequenceTimer)
-    keyGroups = []
-    isSequence = false
-    groupIndex = 0
+    registry.clear()
   }
 
-  function pause () {
-    isPaused.value = true
-    teardown()
+  function dispose () {
+    clear()
+    registry.dispose()
   }
 
-  function resume () {
-    isPaused.value = false
-    setup()
-  }
-
-  function stop () {
-    isPaused.value = true
-    teardown()
-  }
-
-  watch(() => toValue(keys), () => {
-    if (isPaused.value) return
-    teardown()
-    setup()
-  }, { immediate: true })
-
-  watch(() => toValue(event), () => {
-    if (isPaused.value || !toValue(keys)) return
-    teardown()
-    setup()
-  })
-
-  onScopeDispose(stop, true)
+  onScopeDispose(dispose, true)
 
   return {
-    isActive: shallowReadonly(isActive),
-    isPaused: shallowReadonly(isPaused),
-    pause,
-    resume,
-    stop,
-  }
-}
-
-function matchesKeyGroup (e: KeyboardEvent, group: string): boolean {
-  const { modifiers, actualKey } = parseKeyGroup(group)
-
-  const expectCtrl = modifiers.ctrl || (!isMac && (modifiers.cmd || modifiers.meta))
-  const expectMeta = isMac && (modifiers.cmd || modifiers.meta)
-
-  return (
-    e.ctrlKey === expectCtrl &&
-    e.metaKey === expectMeta &&
-    e.shiftKey === modifiers.shift &&
-    e.altKey === modifiers.alt &&
-    e.key.toLowerCase() === actualKey?.toLowerCase()
-  )
+    ...registry,
+    register,
+    unregister,
+    pauseAll,
+    resumeAll,
+    isGloballyPaused: toRef(() => isGloballyPaused.value),
+    clear,
+    dispose,
+    get size () {
+      return registry.size
+    },
+  } as E
 }
 
 interface ParsedKeyGroup {
@@ -288,6 +458,63 @@ function parseKeyGroup (group: string): ParsedKeyGroup {
   }
 
   return { modifiers, actualKey }
+}
+
+/**
+ * Creates a new hotkey context with trinity pattern.
+ *
+ * @param options - Configuration options including namespace
+ * @returns A trinity tuple: [useHotkey, provideHotkey, defaultContext]
+ *
+ * @example
+ * ```ts
+ * import { createHotkeyContext } from '@vuetify/v0'
+ *
+ * export const [useHotkey, provideHotkey, context] = createHotkeyContext({
+ *   namespace: 'my-app:hotkeys',
+ * })
+ * ```
+ */
+export function createHotkeyContext<
+  Z extends HotkeyTicket = HotkeyTicket,
+  E extends HotkeyContext<Z> = HotkeyContext<Z>,
+> (_options: HotkeyContextOptions = {}): ContextTrinity<E> {
+  const { namespace = 'v0:hotkey', ...options } = _options
+  const [useHotkeyContext, _provideHotkeyContext] = createContext<E>(namespace)
+  const context = createHotkey<Z, E>(options)
+
+  function provideHotkeyContext (_context: E = context, app?: App): E {
+    return _provideHotkeyContext(_context, app)
+  }
+
+  return createTrinity<E>(useHotkeyContext, provideHotkeyContext, context)
+}
+
+/**
+ * Returns the current hotkey context from dependency injection.
+ *
+ * @param namespace - The namespace for the hotkey context. Defaults to 'v0:hotkey'.
+ * @returns The current hotkey context
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { useHotkey } from '@vuetify/v0'
+ *
+ *   const hotkeys = useHotkey()
+ *
+ *   hotkeys.register({
+ *     pattern: 'ctrl+s',
+ *     callback: () => save(),
+ *   })
+ * </script>
+ * ```
+ */
+export function useHotkey<
+  Z extends HotkeyTicket = HotkeyTicket,
+  E extends HotkeyContext<Z> = HotkeyContext<Z>,
+> (namespace = 'v0:hotkey'): E {
+  return useContext<E>(namespace)
 }
 
 // Re-export utilities for advanced usage

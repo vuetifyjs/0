@@ -12,6 +12,7 @@ declare global {
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index').DEFAULT_LIGHT
   const EffectScope: typeof import('vue').EffectScope
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals').IN_BROWSER
+  const MODIFIERS: typeof import('../../packages/0/src/composables/useHotkey/index').MODIFIERS
   const MemoryAdapter: typeof import('../../packages/0/src/composables/useStorage/index').MemoryAdapter
   const PermissionAdapter: typeof import('../../packages/0/src/composables/usePermissions/index').PermissionAdapter
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').PinoLoggerAdapter
@@ -38,10 +39,14 @@ declare global {
   const createFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').createFeatures
   const createFeaturesContext: typeof import('../../packages/0/src/composables/useFeatures/index').createFeaturesContext
   const createFeaturesPlugin: typeof import('../../packages/0/src/composables/useFeatures/index').createFeaturesPlugin
+  const createFilter: typeof import('../../packages/0/src/composables/useFilter/index').createFilter
+  const createFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').createFilterContext
   const createForm: typeof import('../../packages/0/src/composables/useForm/index').createForm
   const createFormContext: typeof import('../../packages/0/src/composables/useForm/index').createFormContext
   const createGroup: typeof import('../../packages/0/src/composables/useGroup/index').createGroup
   const createGroupContext: typeof import('../../packages/0/src/composables/useGroup/index').createGroupContext
+  const createHotkey: typeof import('../../packages/0/src/composables/useHotkey/index').createHotkey
+  const createHotkeyContext: typeof import('../../packages/0/src/composables/useHotkey/index').createHotkeyContext
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index').createHydration
   const createHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index').createHydrationContext
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index').createHydrationPlugin
@@ -113,9 +118,11 @@ declare global {
   const isString: typeof import('../../packages/0/src/utilities/helpers').isString
   const isSymbol: typeof import('../../packages/0/src/utilities/helpers').isSymbol
   const isUndefined: typeof import('../../packages/0/src/utilities/helpers').isUndefined
+  const keyAliasMap: typeof import('../../packages/0/src/composables/useHotkey/index').keyAliasMap
   const markRaw: typeof import('vue').markRaw
   const mergeDeep: typeof import('../../packages/0/src/utilities/helpers').mergeDeep
   const nextTick: typeof import('vue').nextTick
+  const normalizeKey: typeof import('../../packages/0/src/composables/useHotkey/index').normalizeKey
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
   const onBeforeUnmount: typeof import('vue').onBeforeUnmount
@@ -147,6 +154,8 @@ declare global {
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
+  const splitKeyCombination: typeof import('../../packages/0/src/composables/useHotkey/index').splitKeyCombination
+  const splitKeySequence: typeof import('../../packages/0/src/composables/useHotkey/index').splitKeySequence
   const toArray: typeof import('../../packages/0/src/composables/toArray/index').toArray
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers').toCamelCase
   const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers').toKebabCase
@@ -174,9 +183,11 @@ declare global {
   const useEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useEventListener
   const useFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').useFeatures
   const useFilter: typeof import('../../packages/0/src/composables/useFilter/index').useFilter
+  const useFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').useFilterContext
   const useForm: typeof import('../../packages/0/src/composables/useForm/index').useForm
   const useGroup: typeof import('../../packages/0/src/composables/useGroup/index').useGroup
   const useHistory: typeof import('../../packages/0/src/composables/useTimeline/index')['useHistory']
+  const useHotkey: typeof import('../../packages/0/src/composables/useHotkey/index').useHotkey
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index').useHydration
   const useHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index')['useHydrationContext']
   const useId: typeof import('vue').useId
@@ -261,7 +272,7 @@ declare global {
   export type { FeatureTicket, FeatureContext, FeatureOptions, FeatureContextOptions, FeaturePluginOptions } from '../../packages/0/src/composables/useFeatures/index'
   import('../../packages/0/src/composables/useFeatures/index')
   // @ts-ignore
-  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, UseFilterOptions, UseFilterResult } from '../../packages/0/src/composables/useFilter/index'
+  export type { Primitive, FilterQuery, FilterItem, FilterMode, FilterFunction, FilterOptions, FilterResult, FilterContext, FilterContextOptions } from '../../packages/0/src/composables/useFilter/index'
   import('../../packages/0/src/composables/useFilter/index')
   // @ts-ignore
   export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/useForm/index'
@@ -269,6 +280,9 @@ declare global {
   // @ts-ignore
   export type { GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/useGroup/index'
   import('../../packages/0/src/composables/useGroup/index')
+  // @ts-ignore
+  export type { HotkeyTicket, HotkeyContext, HotkeyOptions, HotkeyContextOptions } from '../../packages/0/src/composables/useHotkey/index'
+  import('../../packages/0/src/composables/useHotkey/index')
   // @ts-ignore
   export type { HydrationContext, HydrationOptions, HydrationContextOptions, HydrationPluginOptions } from '../../packages/0/src/composables/useHydration/index'
   import('../../packages/0/src/composables/useHydration/index')
@@ -291,7 +305,7 @@ declare global {
   export type { OverflowOptions, OverflowContext, OverflowContextOptions } from '../../packages/0/src/composables/useOverflow/index'
   import('../../packages/0/src/composables/useOverflow/index')
   // @ts-ignore
-  export type { PaginationItem, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/usePagination/index'
+  export type { PaginationTicket, PaginationContext, PaginationOptions, PaginationContextOptions } from '../../packages/0/src/composables/usePagination/index'
   import('../../packages/0/src/composables/usePagination/index')
   // @ts-ignore
   export type { PermissionTicket, PermissionContext, PermissionOptions, PermissionContextOptions, PermissionPluginOptions, PermissionAdapterInterface } from '../../packages/0/src/composables/usePermissions/index'
@@ -354,6 +368,7 @@ declare module 'vue' {
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
+    readonly MODIFIERS: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['MODIFIERS']>
     readonly MemoryAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['MemoryAdapter']>
     readonly PermissionAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['PermissionAdapter']>
     readonly PinoLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']>
@@ -380,10 +395,14 @@ declare module 'vue' {
     readonly createFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']>
     readonly createFeaturesContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesContext']>
     readonly createFeaturesPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeaturesPlugin']>
+    readonly createFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['createFilter']>
+    readonly createFilterContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['createFilterContext']>
     readonly createForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createForm']>
     readonly createFormContext: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createFormContext']>
     readonly createGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroup']>
     readonly createGroupContext: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroupContext']>
+    readonly createHotkey: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['createHotkey']>
+    readonly createHotkeyContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['createHotkeyContext']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationContext']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
@@ -455,9 +474,11 @@ declare module 'vue' {
     readonly isString: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isString']>
     readonly isSymbol: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isSymbol']>
     readonly isUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isUndefined']>
+    readonly keyAliasMap: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['keyAliasMap']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly mergeDeep: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
+    readonly normalizeKey: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['normalizeKey']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
     readonly onBeforeUnmount: UnwrapRef<typeof import('vue')['onBeforeUnmount']>
@@ -485,6 +506,8 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly splitKeyCombination: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['splitKeyCombination']>
+    readonly splitKeySequence: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['splitKeySequence']>
     readonly toArray: UnwrapRef<typeof import('../../packages/0/src/composables/toArray/index')['toArray']>
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']>
@@ -511,8 +534,10 @@ declare module 'vue' {
     readonly useEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useEventListener']>
     readonly useFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['useFeatures']>
     readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
+    readonly useFilterContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilterContext']>
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
+    readonly useHotkey: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['useHotkey']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
