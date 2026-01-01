@@ -66,7 +66,7 @@
     }
 
     if (nextIndex !== currentIndex) {
-      tabs[nextIndex].toggle()
+      // Manual activation: arrow keys only move focus, Enter/Space selects (native button behavior)
       document.querySelector<HTMLButtonElement>(`#${CSS.escape(`${uid}-tab-${tabs[nextIndex].id}`)}`)?.focus()
     }
   }

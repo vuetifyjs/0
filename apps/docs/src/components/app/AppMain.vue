@@ -14,6 +14,7 @@
 
 <template>
   <main
+    id="main-content"
     :class="[
       'pa-4 pb-6 ml-0 md:ml-[230px] relative z-0 transition-[padding] duration-200',
       isAskOpen ? 'xl:pr-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pr-[232px]',

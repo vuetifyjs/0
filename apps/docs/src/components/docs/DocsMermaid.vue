@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+  import { computed, onMounted, ref, shallowRef, useId, watch } from 'vue'
 
   // Types
   import type Mermaid from 'mermaid'
@@ -56,7 +56,7 @@
   const decodedCode = computed(() => decodeBase64(props.code))
 
   const svg = ref('')
-  const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`
+  const id = `mermaid-${useId()}`
 
   async function render () {
     if (!decodedCode.value) return

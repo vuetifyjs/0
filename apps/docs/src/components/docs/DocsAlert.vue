@@ -57,9 +57,13 @@
     }
   })
 
+  function decodeSuggestion (encoded: string): string {
+    return decodeURIComponent(escape(atob(encoded)))
+  }
+
   function onClick () {
     if (props.type === 'suggestion' && props.suggestion) {
-      ask(decodeURIComponent(props.suggestion))
+      ask(decodeSuggestion(props.suggestion))
     }
   }
 </script>
@@ -81,7 +85,7 @@
     </div>
 
     <div v-if="props.type === 'suggestion'" class="text-on-surface">
-      {{ props.suggestion ? decodeURIComponent(props.suggestion) : '' }}
+      {{ props.suggestion ? decodeSuggestion(props.suggestion) : '' }}
     </div>
 
     <div v-else class="docs-alert-content text-on-surface">

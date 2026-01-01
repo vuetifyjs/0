@@ -4,6 +4,9 @@ import { useHighlighter } from './useHighlighter'
 // Utilities
 import { type MaybeRefOrGetter, onMounted, onScopeDispose, shallowRef, toValue, watch } from 'vue'
 
+// Constants
+import { SHIKI_THEMES } from '@/constants/shiki'
+
 export interface UseHighlightCodeOptions {
   /** Language for syntax highlighting. Defaults to 'vue' */
   lang?: string
@@ -40,10 +43,7 @@ export function useHighlightCode (
 
     highlightedCode.value = hl.codeToHtml(value, {
       lang,
-      themes: {
-        light: 'github-light-default',
-        dark: 'github-dark-default',
-      },
+      themes: SHIKI_THEMES,
       defaultColor: false,
     })
   }

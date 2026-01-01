@@ -2,33 +2,33 @@
 import { useHighlighter } from '@/composables/useHighlighter'
 
 // Utilities
-import { ref, shallowReactive, useId } from 'vue'
+import { scrollToAnchor } from '@/utilities/scroll'
+import { toKebab } from '@/utilities/strings'
+import { ref, type Ref, shallowReactive, useId } from 'vue'
 
 // Types
 import type { ApiMethod, ApiProperty } from '../../build/generate-api'
 
+// Constants
+import { SHIKI_THEMES } from '@/constants/shiki'
+
 type ExampleState = { html: string, code: string }
 
-export function useApiHelpers () {
+export interface UseApiHelpersReturn {
+  uid: string
+  expandedExamples: Ref<Set<string>>
+  highlightedExamples: Record<string, ExampleState>
+  scrollToAnchor: typeof scrollToAnchor
+  toKebab: typeof toKebab
+  toggleExample: (key: string, code?: string) => Promise<void>
+  formatSignature: (item: ApiMethod | ApiProperty) => string
+}
+
+export function useApiHelpers (): UseApiHelpersReturn {
   const { highlighter, getHighlighter } = useHighlighter()
   const uid = useId()
   const expandedExamples = ref<Set<string>>(new Set())
   const highlightedExamples = shallowReactive<Record<string, ExampleState>>({})
-
-  function scrollToAnchor (id: string) {
-    const el = document.querySelector(`#${id}`)
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 80
-      window.scrollTo({ top, behavior: 'smooth' })
-    }
-  }
-
-  function toKebab (str: string): string {
-    return str
-      .replace(/\./g, '-') // Handle dot notation (Step.Root → Step-Root)
-      .replace(/([a-z])([A-Z])/g, '$1-$2')
-      .toLowerCase()
-  }
 
   async function toggleExample (key: string, code?: string) {
     const newSet = new Set(expandedExamples.value)
@@ -44,10 +44,7 @@ export function useApiHelpers () {
           code,
           html: hl.codeToHtml(code, {
             lang: 'typescript',
-            themes: {
-              light: 'github-light-default',
-              dark: 'github-dark-default',
-            },
+            themes: SHIKI_THEMES,
             defaultColor: false,
           }),
         }

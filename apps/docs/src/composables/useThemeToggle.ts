@@ -2,7 +2,10 @@
 import { IN_BROWSER, useStorage, useTheme } from '@vuetify/v0'
 
 // Utilities
-import { shallowRef, toRef, watch } from 'vue'
+import { onScopeDispose, type Ref, shallowRef, type ShallowRef, toRef, watch } from 'vue'
+
+// Types
+import type { UseThemeReturn } from '@vuetify/v0'
 
 const PREFERENCE_ORDER = ['system', 'light', 'dark', 'high-contrast'] as const
 const PREFERENCE_ICONS: Record<string, string> = {
@@ -20,6 +23,15 @@ const PREFERENCE_LABELS: Record<string, string> = {
 
 type ThemePreference = typeof PREFERENCE_ORDER[number]
 
+export interface UseThemeToggleReturn {
+  theme: UseThemeReturn
+  preference: ShallowRef<ThemePreference>
+  icon: Ref<string>
+  title: Ref<string>
+  toggle: () => void
+  isDark: UseThemeReturn['isDark']
+}
+
 function getSystemTheme (): 'light' | 'dark' {
   if (!IN_BROWSER) return 'light'
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -29,7 +41,7 @@ function getSystemTheme (): 'light' | 'dark' {
 const preference = shallowRef<ThemePreference>('system')
 let initialized = false
 
-export function useThemeToggle () {
+export function useThemeToggle (): UseThemeToggleReturn {
   const theme = useTheme()
   const storage = useStorage()
 
@@ -58,11 +70,13 @@ export function useThemeToggle () {
     // Listen for system theme changes when preference is 'system'
     if (IN_BROWSER) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      mediaQuery.addEventListener('change', () => {
+      function handleChange () {
         if (preference.value === 'system') {
           applyPreference('system')
         }
-      })
+      }
+      mediaQuery.addEventListener('change', handleChange)
+      onScopeDispose(() => mediaQuery.removeEventListener('change', handleChange))
     }
   }
 

@@ -12,12 +12,20 @@ import { Marked } from 'marked'
 import { useHighlighter } from './useHighlighter'
 
 // Utilities
-import { type MaybeRefOrGetter, onMounted, shallowRef, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, onMounted, shallowRef, type ShallowRef, toValue, watch } from 'vue'
+
+// Constants
+import { SHIKI_THEMES } from '@/constants/shiki'
+
+export interface UseMarkdownReturn {
+  html: ShallowRef<string>
+  render: (source?: string) => Promise<void>
+}
 
 /**
  * Provides reactive markdown rendering with syntax-highlighted code blocks.
  */
-export function useMarkdown (content: MaybeRefOrGetter<string | undefined>) {
+export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): UseMarkdownReturn {
   const { highlighter, getHighlighter } = useHighlighter()
   const html = shallowRef('')
 
@@ -44,10 +52,7 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>) {
           try {
             highlighted = hl.codeToHtml(text, {
               lang: language,
-              themes: {
-                light: 'github-light-default',
-                dark: 'github-dark-default',
-              },
+              themes: SHIKI_THEMES,
               defaultColor: false,
             })
           } catch {

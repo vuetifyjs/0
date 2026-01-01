@@ -7,14 +7,15 @@ import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import Markdown from 'unplugin-vue-markdown/vite'
 
 // Types
-import type { HighlighterGeneric } from 'shiki/types'
+import type Token from 'markdown-it/lib/token.mjs'
+import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
+
+// Constants
+import { SHIKI_THEME_IMPORTS, SHIKI_THEMES } from '../src/constants/shiki'
 
 export default async function MarkdownPlugin () {
   const highlighter = await createHighlighterCore({
-    themes: [
-      import('@shikijs/themes/github-light-default'),
-      import('@shikijs/themes/github-dark-default'),
-    ],
+    themes: SHIKI_THEME_IMPORTS,
     langs: [
       import('@shikijs/langs/javascript'),
       import('@shikijs/langs/typescript'),
@@ -46,7 +47,7 @@ export default async function MarkdownPlugin () {
           .replace(/^-+|-+$/g, ''),
       })
       md.use(Container, 'code-group', {
-        render (tokens: any[], index: number) {
+        render (tokens: Token[], index: number) {
           return tokens[index].nesting === 1
             ? '<DocsCodeGroup>\n'
             : '</DocsCodeGroup>\n'
@@ -106,11 +107,8 @@ export default async function MarkdownPlugin () {
           : '</blockquote>'
       }
       md.use(
-        fromHighlighter(highlighter as HighlighterGeneric<any, any>, {
-          themes: {
-            light: 'github-light-default',
-            dark: 'github-dark-default',
-          },
+        fromHighlighter(highlighter as HighlighterGeneric<BundledLanguage, BundledTheme>, {
+          themes: SHIKI_THEMES,
           defaultColor: false,
         }),
       )

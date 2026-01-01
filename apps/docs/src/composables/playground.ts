@@ -20,7 +20,7 @@ function utoa (data: string): string {
   return btoa(binary)
 }
 
-export function usePlayground (code: string) {
+export function usePlayground (code: string): string {
   const files: Record<string, string> = {
     'src/App.vue': code,
   }

@@ -3,6 +3,7 @@
   import { useClipboard } from '@/composables/useClipboard'
 
   // Utilities
+  import { scrollToAnchor } from '@/utilities/scroll'
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
@@ -46,14 +47,6 @@
   const loading = shallowRef(false)
   const copyError = shallowRef(false)
   const { copied, copy } = useClipboard()
-
-  function scrollToAnchor (id: string) {
-    const el = document.querySelector(`#${id}`)
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 80
-      window.scrollTo({ top, behavior: 'smooth' })
-    }
-  }
 
   const route = useRoute()
 

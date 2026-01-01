@@ -405,33 +405,40 @@ export function useAsk (): UseAskReturn {
 
       const decoder = new TextDecoder()
 
+      // Buffer chunks and batch updates at ~60fps for performance
+      let pendingContent = ''
+      let rafId: number | null = null
+
+      function flushPendingContent () {
+        rafId = null
+        if (!pendingContent) return
+
+        const lastMessage = messages.value.at(-1)
+        if (lastMessage?.role === 'assistant') {
+          messages.value = [
+            ...messages.value.slice(0, -1),
+            { ...lastMessage, content: lastMessage.content + pendingContent },
+          ]
+        }
+        pendingContent = ''
+      }
+
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
-        const chunk = decoder.decode(value, { stream: true })
+        pendingContent += decoder.decode(value, { stream: true })
 
-        // Update the assistant message content (immutable update)
-        const lastMessage = messages.value.at(-1)
-        if (lastMessage?.role === 'assistant') {
-          messages.value = [
-            ...messages.value.slice(0, -1),
-            { ...lastMessage, content: lastMessage.content + chunk },
-          ]
+        // Schedule update on next animation frame (batches rapid chunks)
+        if (!rafId) {
+          rafId = requestAnimationFrame(flushPendingContent)
         }
       }
 
-      // Flush any remaining bytes from the decoder
-      const remaining = decoder.decode()
-      if (remaining) {
-        const lastMessage = messages.value.at(-1)
-        if (lastMessage?.role === 'assistant') {
-          messages.value = [
-            ...messages.value.slice(0, -1),
-            { ...lastMessage, content: lastMessage.content + remaining },
-          ]
-        }
-      }
+      // Cancel pending frame and flush remaining content
+      if (rafId) cancelAnimationFrame(rafId)
+      pendingContent += decoder.decode()
+      flushPendingContent()
     } catch (error_) {
       if ((error_ as Error).name === 'AbortError') {
         // User cancelled - keep partial response

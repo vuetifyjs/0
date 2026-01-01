@@ -20,6 +20,7 @@
           v-for="col in columns"
           :key="String(col.key)"
           class="text-left"
+          scope="col"
         >
           {{ col.label }}
         </th>

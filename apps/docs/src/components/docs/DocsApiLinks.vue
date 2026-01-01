@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Utilities
+  import { toKebab } from '@/utilities/strings'
+
   // Types
   import type { ComponentApi, ComposableApi } from '../../../build/generate-api'
 
@@ -8,10 +11,6 @@
     /** Composable API to display */
     composableApi?: ComposableApi | null
   }>()
-
-  function toKebab (str: string): string {
-    return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
-  }
 </script>
 
 <template>

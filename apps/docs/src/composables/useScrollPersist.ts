@@ -25,7 +25,7 @@ interface ScrollPosition {
   top: number
 }
 
-export function useScrollPersist () {
+export function useScrollPersist (): void {
   if (!IN_BROWSER) return
 
   const router = useRouter()

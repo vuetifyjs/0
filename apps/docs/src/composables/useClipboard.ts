@@ -1,7 +1,13 @@
 // Utilities
-import { shallowRef } from 'vue'
+import { shallowRef, type ShallowRef } from 'vue'
 
-export function useClipboard (timeout = 2000) {
+export interface UseClipboardReturn {
+  copied: ShallowRef<boolean>
+  copy: (text: string) => Promise<boolean>
+  reset: () => void
+}
+
+export function useClipboard (timeout = 2000): UseClipboardReturn {
   const copied = shallowRef(false)
   let timeoutId: ReturnType<typeof setTimeout> | undefined
 
