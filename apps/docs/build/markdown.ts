@@ -7,8 +7,9 @@ import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import Markdown from 'unplugin-vue-markdown/vite'
 
 // Types
-import type Token from 'markdown-it/lib/token.mjs'
 import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
+
+interface MarkdownToken { nesting: number }
 
 // Constants
 import { SHIKI_THEME_IMPORTS, SHIKI_THEMES } from '../src/constants/shiki'
@@ -47,7 +48,7 @@ export default async function MarkdownPlugin () {
           .replace(/^-+|-+$/g, ''),
       })
       md.use(Container, 'code-group', {
-        render (tokens: Token[], index: number) {
+        render (tokens: MarkdownToken[], index: number) {
           return tokens[index].nesting === 1
             ? '<DocsCodeGroup>\n'
             : '</DocsCodeGroup>\n'
