@@ -3,7 +3,10 @@
   import { useWindowEventListener } from '@vuetify/v0'
 
   // Utilities
-  import { onMounted, shallowRef, useTemplateRef } from 'vue'
+  import { computed, onMounted, shallowRef, useTemplateRef } from 'vue'
+
+  // Stores
+  import { useAppStore } from '@/stores/app'
 
   const props = defineProps<{
     hasMessages?: boolean
@@ -14,9 +17,14 @@
     reopen: []
   }>()
 
+  const app = useAppStore()
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const question = shallowRef('')
   const isNearBottom = shallowRef(false)
+  const isMobile = shallowRef(true)
+
+  // Hide when near bottom, or when drawer is open on mobile (< 768px)
+  const isHidden = computed(() => isNearBottom.value || (app.drawer && isMobile.value))
 
   function onSubmit () {
     const q = question.value.trim()
@@ -44,10 +52,16 @@
     isNearBottom.value = distanceFromBottom < 200
   }
 
+  function updateMobile () {
+    isMobile.value = window.innerWidth < 768
+  }
+
   useWindowEventListener('scroll', onScroll, { passive: true })
+  useWindowEventListener('resize', updateMobile, { passive: true })
 
   onMounted(() => {
     onScroll()
+    updateMobile()
   })
 
   defineExpose({ focus })
@@ -56,7 +70,7 @@
 <template>
   <Transition name="fade">
     <div
-      v-show="!isNearBottom"
+      v-show="!isHidden"
       class="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 w-full max-w-sm px-4"
     >
       <form
