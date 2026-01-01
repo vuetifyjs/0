@@ -40,7 +40,7 @@ import { IN_BROWSER } from '#v0/constants/globals'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, Ref } from 'vue'
+import type { App, Ref, MaybeRefOrGetter } from 'vue'
 
 export interface HotkeyTicket<V = unknown> extends RegistryTicket<V> {
   /**
@@ -166,22 +166,22 @@ export interface HotkeyOptions extends RegistryOptions {
    * Default keyboard event type for hotkeys
    * @default 'keydown'
    */
-  event?: 'keydown' | 'keyup'
+  event?: MaybeRefOrGetter<'keydown' | 'keyup'>
   /**
    * Default: whether to trigger when input is focused
    * @default false
    */
-  inputs?: boolean
+  inputs?: MaybeRefOrGetter<boolean>
   /**
    * Default: whether to prevent default browser action
    * @default true
    */
-  preventDefault?: boolean
+  preventDefault?: MaybeRefOrGetter<boolean>
   /**
    * Default sequence timeout in ms
    * @default 1000
    */
-  sequenceTimeout?: number
+  sequenceTimeout?: MaybeRefOrGetter<number>
 }
 
 export interface HotkeyContextOptions extends HotkeyOptions {
