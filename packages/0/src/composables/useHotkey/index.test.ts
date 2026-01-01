@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { effectScope, ref, nextTick } from 'vue'
+import { effectScope } from 'vue'
 
-import { useHotkey } from './index'
+import { createHotkey, createHotkeyContext } from './index'
 import { splitKeyCombination, splitKeySequence } from './parsing'
 import { normalizeKey } from './aliases'
 
-describe('useHotkey', () => {
+describe('createHotkey', () => {
   let scope: ReturnType<typeof effectScope>
 
   beforeEach(() => {
@@ -35,7 +35,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('a', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('a'))
@@ -47,7 +48,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('a', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('b'))
@@ -55,15 +57,30 @@ describe('useHotkey', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it('stop() removes the listener', () => {
+    it('ticket.stop() removes the listener', () => {
       const callback = vi.fn()
-      let stop: () => void
 
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
       scope.run(() => {
-        ;({ stop } = useHotkey('a', callback))
+        const hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'a', callback })
       })
 
-      stop!()
+      ticket!.stop()
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('unregister() removes the listener', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        const ticket = hotkeys.register({ pattern: 'a', callback })
+        hotkeys.unregister(ticket.id)
+      })
+
       window.dispatchEvent(createKeyboardEvent('a'))
 
       expect(callback).not.toHaveBeenCalled()
@@ -73,13 +90,32 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('a', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback })
       })
 
       scope.stop()
       window.dispatchEvent(createKeyboardEvent('a'))
 
       expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('returns ticket with expected properties', () => {
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'ctrl+k', callback: vi.fn() })
+      })
+
+      expect(ticket!).toHaveProperty('id')
+      expect(ticket!).toHaveProperty('pattern', 'ctrl+k')
+      expect(ticket!).toHaveProperty('callback')
+      expect(ticket!).toHaveProperty('isActive')
+      expect(ticket!).toHaveProperty('isPaused', false)
+      expect(ticket!).toHaveProperty('pause')
+      expect(ticket!).toHaveProperty('resume')
+      expect(ticket!).toHaveProperty('stop')
     })
   })
 
@@ -88,7 +124,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('ctrl+k', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'ctrl+k', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
@@ -100,7 +137,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('shift+enter', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'shift+enter', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('Enter', { shiftKey: true }))
@@ -112,7 +150,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('alt+x', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'alt+x', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('x', { altKey: true }))
@@ -124,7 +163,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('ctrl+shift+k', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'ctrl+shift+k', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true, shiftKey: true }))
@@ -136,7 +176,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('ctrl+k', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'ctrl+k', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('k'))
@@ -150,7 +191,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('g-h', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('g'))
@@ -164,7 +206,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('g-h', callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('g'))
@@ -178,7 +221,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('g-h', callback, { sequenceTimeout: 500 })
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback, sequenceTimeout: 500 })
       })
 
       window.dispatchEvent(createKeyboardEvent('g'))
@@ -192,7 +236,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('g-h', callback, { sequenceTimeout: 500 })
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback, sequenceTimeout: 500 })
       })
 
       window.dispatchEvent(createKeyboardEvent('g'))
@@ -208,7 +253,8 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('a', callback, { preventDefault: true })
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, preventDefault: true })
       })
 
       const event = createKeyboardEvent('a')
@@ -222,7 +268,23 @@ describe('useHotkey', () => {
       const callback = vi.fn()
 
       scope.run(() => {
-        useHotkey('a', callback, { preventDefault: false })
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, preventDefault: false })
+      })
+
+      const event = createKeyboardEvent('a')
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
+      window.dispatchEvent(event)
+
+      expect(preventDefaultSpy).not.toHaveBeenCalled()
+    })
+
+    it('uses default options from createHotkey', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey({ preventDefault: false })
+        hotkeys.register({ pattern: 'a', callback })
       })
 
       const event = createKeyboardEvent('a')
@@ -233,163 +295,769 @@ describe('useHotkey', () => {
     })
   })
 
-  describe('reactive keys', () => {
-    it('updates when keys ref changes', async () => {
-      const callback = vi.fn()
-      const keys = ref('a')
+  describe('multiple hotkeys', () => {
+    it('supports multiple hotkeys in same registry', () => {
+      const callbackA = vi.fn()
+      const callbackB = vi.fn()
 
       scope.run(() => {
-        useHotkey(keys, callback)
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback: callbackA })
+        hotkeys.register({ pattern: 'b', callback: callbackB })
       })
 
       window.dispatchEvent(createKeyboardEvent('a'))
-      expect(callback).toHaveBeenCalledTimes(1)
-
-      keys.value = 'b'
-      await nextTick()
-
-      window.dispatchEvent(createKeyboardEvent('a'))
-      expect(callback).toHaveBeenCalledTimes(1) // still 1
+      expect(callbackA).toHaveBeenCalledTimes(1)
+      expect(callbackB).not.toHaveBeenCalled()
 
       window.dispatchEvent(createKeyboardEvent('b'))
-      expect(callback).toHaveBeenCalledTimes(2)
+      expect(callbackB).toHaveBeenCalledTimes(1)
     })
 
-    it('handles undefined keys', async () => {
-      const callback = vi.fn()
-      const keys = ref<string | undefined>('a')
+    it('tracks size correctly', () => {
+      let hotkeys: ReturnType<typeof createHotkey>
 
       scope.run(() => {
-        useHotkey(keys, callback)
+        hotkeys = createHotkey()
+        expect(hotkeys.size).toBe(0)
+
+        const ticket1 = hotkeys.register({ pattern: 'a', callback: vi.fn() })
+        expect(hotkeys.size).toBe(1)
+
+        hotkeys.register({ pattern: 'b', callback: vi.fn() })
+        expect(hotkeys.size).toBe(2)
+
+        hotkeys.unregister(ticket1.id)
+        expect(hotkeys.size).toBe(1)
       })
-
-      window.dispatchEvent(createKeyboardEvent('a'))
-      expect(callback).toHaveBeenCalledTimes(1)
-
-      keys.value = undefined
-      await nextTick()
-
-      window.dispatchEvent(createKeyboardEvent('a'))
-      expect(callback).toHaveBeenCalledTimes(1) // listener removed
     })
   })
 
-  describe('pause/resume', () => {
-    it('pause() stops responding to hotkeys', () => {
+  describe('pause/resume per-ticket', () => {
+    it('ticket.pause() stops responding to hotkeys', () => {
       const callback = vi.fn()
-      let pause: () => void
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
 
       scope.run(() => {
-        ;({ pause } = useHotkey('a', callback))
+        const hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'a', callback })
       })
 
       window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).toHaveBeenCalledTimes(1)
 
-      pause!()
+      ticket!.pause()
       window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).toHaveBeenCalledTimes(1) // still 1
     })
 
-    it('resume() re-enables hotkeys after pause', () => {
+    it('ticket.resume() re-enables hotkeys after pause', () => {
       const callback = vi.fn()
-      let pause: () => void
-      let resume: () => void
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
 
       scope.run(() => {
-        ;({ pause, resume } = useHotkey('a', callback))
+        const hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'a', callback })
       })
 
-      pause!()
+      ticket!.pause()
       window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).not.toHaveBeenCalled()
 
-      resume!()
+      ticket!.resume()
       window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
     it('isPaused reflects pause state', () => {
-      let isPaused: { value: boolean }
-      let pause: () => void
-      let resume: () => void
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
 
       scope.run(() => {
-        ;({ isPaused, pause, resume } = useHotkey('a', vi.fn()))
+        const hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'a', callback: vi.fn() })
       })
 
-      expect(isPaused!.value).toBe(false)
+      expect(ticket!.isPaused).toBe(false)
 
-      pause!()
-      expect(isPaused!.value).toBe(true)
+      ticket!.pause()
+      expect(ticket!.isPaused).toBe(true)
 
-      resume!()
-      expect(isPaused!.value).toBe(false)
+      ticket!.resume()
+      expect(ticket!.isPaused).toBe(false)
     })
 
-    it('isActive reflects listener state', async () => {
-      const keys = ref<string | undefined>('a')
-      let isActive: { value: boolean }
-      let pause: () => void
-      let resume: () => void
+    it('isActive reflects listener state', () => {
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
 
       scope.run(() => {
-        ;({ isActive, pause, resume } = useHotkey(keys, vi.fn()))
+        const hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'a', callback: vi.fn() })
       })
 
-      expect(isActive!.value).toBe(true)
+      expect(ticket!.isActive.value).toBe(true)
 
-      pause!()
-      expect(isActive!.value).toBe(false)
+      ticket!.pause()
+      expect(ticket!.isActive.value).toBe(false)
 
-      resume!()
-      expect(isActive!.value).toBe(true)
-
-      keys.value = undefined
-      await nextTick()
-      expect(isActive!.value).toBe(false)
+      ticket!.resume()
+      expect(ticket!.isActive.value).toBe(true)
     })
+  })
 
-    it('changing keys while paused does not setup listener', async () => {
-      const callback = vi.fn()
-      const keys = ref('a')
-      let pause: () => void
-      let isActive: { value: boolean }
+  describe('pauseAll/resumeAll', () => {
+    it('pauseAll() stops all hotkeys', () => {
+      const callbackA = vi.fn()
+      const callbackB = vi.fn()
+      let hotkeys: ReturnType<typeof createHotkey>
 
       scope.run(() => {
-        ;({ pause, isActive } = useHotkey(keys, callback))
+        hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback: callbackA })
+        hotkeys.register({ pattern: 'b', callback: callbackB })
       })
 
-      pause!()
-      keys.value = 'b'
-      await nextTick()
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callbackA).toHaveBeenCalledTimes(1)
 
-      expect(isActive!.value).toBe(false)
+      hotkeys!.pauseAll()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
       window.dispatchEvent(createKeyboardEvent('b'))
+      expect(callbackA).toHaveBeenCalledTimes(1) // still 1
+      expect(callbackB).not.toHaveBeenCalled()
+    })
+
+    it('resumeAll() re-enables all hotkeys', () => {
+      const callbackA = vi.fn()
+      const callbackB = vi.fn()
+      let hotkeys: ReturnType<typeof createHotkey>
+
+      scope.run(() => {
+        hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback: callbackA })
+        hotkeys.register({ pattern: 'b', callback: callbackB })
+        hotkeys.pauseAll()
+      })
+
+      hotkeys!.resumeAll()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      window.dispatchEvent(createKeyboardEvent('b'))
+      expect(callbackA).toHaveBeenCalledTimes(1)
+      expect(callbackB).toHaveBeenCalledTimes(1)
+    })
+
+    it('isGloballyPaused reflects global pause state', () => {
+      let hotkeys: ReturnType<typeof createHotkey>
+
+      scope.run(() => {
+        hotkeys = createHotkey()
+      })
+
+      expect(hotkeys!.isGloballyPaused.value).toBe(false)
+
+      hotkeys!.pauseAll()
+      expect(hotkeys!.isGloballyPaused.value).toBe(true)
+
+      hotkeys!.resumeAll()
+      expect(hotkeys!.isGloballyPaused.value).toBe(false)
+    })
+
+    it('resumeAll() respects per-ticket pause state', () => {
+      const callbackA = vi.fn()
+      const callbackB = vi.fn()
+      let hotkeys: ReturnType<typeof createHotkey>
+      let ticketA: ReturnType<ReturnType<typeof createHotkey>['register']>
+
+      scope.run(() => {
+        hotkeys = createHotkey()
+        ticketA = hotkeys.register({ pattern: 'a', callback: callbackA })
+        hotkeys.register({ pattern: 'b', callback: callbackB })
+
+        // Pause ticket A individually, then pause all
+        ticketA.pause()
+        hotkeys.pauseAll()
+      })
+
+      // Resume all - ticket A should still be paused
+      hotkeys!.resumeAll()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      window.dispatchEvent(createKeyboardEvent('b'))
+      expect(callbackA).not.toHaveBeenCalled() // individually paused
+      expect(callbackB).toHaveBeenCalledTimes(1) // resumed
+    })
+  })
+
+  describe('clear/dispose', () => {
+    it('clear() removes all hotkeys', () => {
+      const callbackA = vi.fn()
+      const callbackB = vi.fn()
+      let hotkeys: ReturnType<typeof createHotkey>
+
+      scope.run(() => {
+        hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback: callbackA })
+        hotkeys.register({ pattern: 'b', callback: callbackB })
+      })
+
+      hotkeys!.clear()
+      expect(hotkeys!.size).toBe(0)
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      window.dispatchEvent(createKeyboardEvent('b'))
+      expect(callbackA).not.toHaveBeenCalled()
+      expect(callbackB).not.toHaveBeenCalled()
+    })
+
+    it('dispose() cleans up everything', () => {
+      const callback = vi.fn()
+      let hotkeys: ReturnType<typeof createHotkey>
+
+      scope.run(() => {
+        hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback })
+      })
+
+      hotkeys!.dispose()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).not.toHaveBeenCalled()
     })
+  })
 
-    it('resume after keys change uses new keys', async () => {
+  describe('input focus detection', () => {
+    afterEach(() => {
+      document.body.innerHTML = ''
+    })
+
+    it('skips hotkeys when input is focused and inputs: false', () => {
       const callback = vi.fn()
-      const keys = ref('a')
-      let pause: () => void
-      let resume: () => void
 
       scope.run(() => {
-        ;({ pause, resume } = useHotkey(keys, callback))
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, inputs: false })
       })
 
-      pause!()
-      keys.value = 'b'
-      await nextTick()
-      resume!()
+      const input = document.createElement('input')
+      document.body.append(input)
+      input.focus()
 
       window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).not.toHaveBeenCalled()
 
-      window.dispatchEvent(createKeyboardEvent('b'))
+      input.blur()
+      window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).toHaveBeenCalledTimes(1)
     })
+
+    it('triggers hotkeys in inputs when inputs: true', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, inputs: true })
+      })
+
+      const input = document.createElement('input')
+      document.body.append(input)
+      input.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('skips hotkeys in textarea elements', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, inputs: false })
+      })
+
+      const textarea = document.createElement('textarea')
+      document.body.append(textarea)
+      textarea.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('skips hotkeys in contenteditable elements', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, inputs: false })
+      })
+
+      const editable = document.createElement('div')
+      editable.contentEditable = 'true'
+      document.body.append(editable)
+      editable.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('uses default inputs option from createHotkey', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey({ inputs: true })
+        hotkeys.register({ pattern: 'a', callback })
+      })
+
+      const input = document.createElement('input')
+      document.body.append(input)
+      input.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('event type option', () => {
+    function createKeyupEvent (key: string, options: Partial<KeyboardEvent> = {}): KeyboardEvent {
+      return new KeyboardEvent('keyup', {
+        key,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false,
+        altKey: false,
+        bubbles: true,
+        ...options,
+      })
+    }
+
+    it('responds to keydown by default', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('responds to keyup when specified', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, event: 'keyup' })
+      })
+
+      window.dispatchEvent(createKeyupEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not trigger keyup for keydown listeners', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, event: 'keydown' })
+      })
+
+      window.dispatchEvent(createKeyupEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('does not trigger keydown for keyup listeners', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback, event: 'keyup' })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('uses default event option from createHotkey', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey({ event: 'keyup' })
+        hotkeys.register({ pattern: 'a', callback })
+      })
+
+      window.dispatchEvent(createKeyupEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('sequence timeout edge cases', () => {
+    it('each sequence step resets timeout', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h-i', callback, sequenceTimeout: 500 })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      vi.advanceTimersByTime(400)
+
+      window.dispatchEvent(createKeyboardEvent('h'))
+      vi.advanceTimersByTime(400)
+
+      window.dispatchEvent(createKeyboardEvent('i'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('resets correctly after failed sequence attempt', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback, sequenceTimeout: 500 })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('x'))
+
+      vi.advanceTimersByTime(600)
+
+      window.dispatchEvent(createKeyboardEvent('h'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('can restart sequence after failure', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('x'))
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('h'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('uses per-hotkey sequence timeout', () => {
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey({ sequenceTimeout: 1000 })
+        hotkeys.register({ pattern: 'g-h', callback: callback1, sequenceTimeout: 300 })
+        hotkeys.register({ pattern: 'a-b', callback: callback2, sequenceTimeout: 2000 })
+      })
+
+      // Test short timeout (300ms)
+      window.dispatchEvent(createKeyboardEvent('g'))
+      vi.advanceTimersByTime(400)
+      window.dispatchEvent(createKeyboardEvent('h'))
+      expect(callback1).not.toHaveBeenCalled() // timeout expired
+
+      // Test long timeout (2000ms)
+      window.dispatchEvent(createKeyboardEvent('a'))
+      vi.advanceTimersByTime(1500)
+      window.dispatchEvent(createKeyboardEvent('b'))
+      expect(callback2).toHaveBeenCalledTimes(1) // still within timeout
+    })
+
+    it('sequence can be triggered multiple times', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('h'))
+      expect(callback).toHaveBeenCalledTimes(1)
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('h'))
+      expect(callback).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('multiple hotkey interactions', () => {
+    it('overlapping sequences trigger independently', () => {
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback: callback1 })
+        hotkeys.register({ pattern: 'g-h-i', callback: callback2 })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('h'))
+
+      expect(callback1).toHaveBeenCalledTimes(1)
+      expect(callback2).not.toHaveBeenCalled()
+
+      window.dispatchEvent(createKeyboardEvent('i'))
+      expect(callback2).toHaveBeenCalledTimes(1)
+    })
+
+    it('pausing one hotkey does not affect others', () => {
+      const callback1 = vi.fn()
+      const callback2 = vi.fn()
+      let ticket1: ReturnType<ReturnType<typeof createHotkey>['register']>
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        ticket1 = hotkeys.register({ pattern: 'a', callback: callback1 })
+        hotkeys.register({ pattern: 'b', callback: callback2 })
+      })
+
+      ticket1!.pause()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      window.dispatchEvent(createKeyboardEvent('b'))
+
+      expect(callback1).not.toHaveBeenCalled()
+      expect(callback2).toHaveBeenCalledTimes(1)
+    })
+
+    it('same key with different modifiers triggers correct hotkey', () => {
+      const callbackCtrl = vi.fn()
+      const callbackShift = vi.fn()
+      const callbackPlain = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'ctrl+k', callback: callbackCtrl })
+        hotkeys.register({ pattern: 'shift+k', callback: callbackShift })
+        hotkeys.register({ pattern: 'k', callback: callbackPlain })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+      expect(callbackCtrl).toHaveBeenCalledTimes(1)
+      expect(callbackShift).not.toHaveBeenCalled()
+      expect(callbackPlain).not.toHaveBeenCalled()
+
+      window.dispatchEvent(createKeyboardEvent('k', { shiftKey: true }))
+      expect(callbackShift).toHaveBeenCalledTimes(1)
+
+      window.dispatchEvent(createKeyboardEvent('k'))
+      expect(callbackPlain).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('callback arguments', () => {
+    it('passes KeyboardEvent to callback', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).toHaveBeenCalledWith(expect.any(KeyboardEvent))
+    })
+
+    it('callback receives correct key in event', () => {
+      let receivedKey: string | undefined
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({
+          pattern: 'k',
+          callback: e => {
+            receivedKey = e.key
+          },
+        })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k'))
+
+      expect(receivedKey).toBe('k')
+    })
+
+    it('callback receives modifier state in event', () => {
+      let ctrlKey: boolean | undefined
+      let shiftKey: boolean | undefined
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        hotkeys.register({
+          pattern: 'ctrl+shift+k',
+          callback: e => {
+            ctrlKey = e.ctrlKey
+            shiftKey = e.shiftKey
+          },
+        })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true, shiftKey: true }))
+
+      expect(ctrlKey).toBe(true)
+      expect(shiftKey).toBe(true)
+    })
+  })
+
+  describe('cleanup and memory management', () => {
+    it('clears event listeners when stopping ticket', () => {
+      const callback = vi.fn()
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'a', callback })
+      })
+
+      expect(ticket!.cleanupRef).not.toBeNull()
+
+      ticket!.stop()
+
+      expect(ticket!.cleanupRef).toBeNull()
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('clears sequence timers when unregistering', () => {
+      const callback = vi.fn()
+      let hotkeys: ReturnType<typeof createHotkey>
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
+
+      scope.run(() => {
+        hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'g-h', callback, sequenceTimeout: 500 })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      expect(ticket!.sequenceTimer).toBeDefined()
+
+      hotkeys!.unregister(ticket!.id)
+
+      vi.advanceTimersByTime(600)
+      window.dispatchEvent(createKeyboardEvent('h'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('clears sequence timers when clearing registry', () => {
+      const callback = vi.fn()
+      let hotkeys: ReturnType<typeof createHotkey>
+
+      scope.run(() => {
+        hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'g-h', callback, sequenceTimeout: 500 })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+
+      hotkeys!.clear()
+
+      vi.advanceTimersByTime(600)
+      window.dispatchEvent(createKeyboardEvent('h'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('does not leak listeners when pauseAll/resumeAll cycles', () => {
+      const callback = vi.fn()
+      let hotkeys: ReturnType<typeof createHotkey>
+
+      scope.run(() => {
+        hotkeys = createHotkey()
+        hotkeys.register({ pattern: 'a', callback })
+      })
+
+      for (let i = 0; i < 5; i++) {
+        hotkeys!.pauseAll()
+        hotkeys!.resumeAll()
+      }
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not leak listeners when pause/resume cycles on ticket', () => {
+      const callback = vi.fn()
+      let ticket: ReturnType<ReturnType<typeof createHotkey>['register']>
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        ticket = hotkeys.register({ pattern: 'a', callback })
+      })
+
+      for (let i = 0; i < 5; i++) {
+        ticket!.pause()
+        ticket!.resume()
+      }
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('invalid pattern handling', () => {
+    it('handles empty pattern gracefully', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        const ticket = hotkeys.register({ pattern: '', callback })
+        expect(ticket.keyGroups.length).toBe(0)
+        expect(ticket.isActive.value).toBe(false)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('normalizes pattern to lowercase', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        const hotkeys = createHotkey()
+        const ticket = hotkeys.register({ pattern: 'CTRL+K', callback })
+        expect(ticket.pattern).toBe('ctrl+k')
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+  })
+})
+
+describe('createHotkeyContext', () => {
+  it('returns trinity tuple', () => {
+    const scope = effectScope()
+
+    scope.run(() => {
+      const trinity = createHotkeyContext()
+
+      expect(trinity).toHaveLength(3)
+      expect(typeof trinity[0]).toBe('function') // useHotkey
+      expect(typeof trinity[1]).toBe('function') // provideHotkey
+      expect(typeof trinity[2]).toBe('object') // context
+    })
+
+    scope.stop()
+  })
+
+  it('context has registry methods', () => {
+    const scope = effectScope()
+
+    scope.run(() => {
+      const [,, context] = createHotkeyContext()
+
+      expect(context).toHaveProperty('register')
+      expect(context).toHaveProperty('unregister')
+      expect(context).toHaveProperty('pauseAll')
+      expect(context).toHaveProperty('resumeAll')
+      expect(context).toHaveProperty('size')
+    })
+
+    scope.stop()
   })
 })
 

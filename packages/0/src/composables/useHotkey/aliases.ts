@@ -1,4 +1,16 @@
 /**
+ * @module useHotkey/aliases
+ *
+ * @remarks
+ * Key alias normalization for consistent hotkey string parsing.
+ *
+ * Maps user-friendly aliases (e.g., 'esc', 'control', 'up') to canonical
+ * key names that match KeyboardEvent.key values (in lowercase).
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-hotkey
+ */
+
+/**
  * Key alias mapping for consistent key normalization across the hotkey system.
  *
  * Maps user-friendly aliases to canonical key names that match

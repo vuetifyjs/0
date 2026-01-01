@@ -1,3 +1,19 @@
+/**
+ * @module useHotkey/parsing
+ *
+ * @remarks
+ * Internal utilities for parsing hotkey strings into combinations and sequences.
+ *
+ * Key functions:
+ * - `splitKeyCombination()` - Parse simultaneous keys (e.g., 'ctrl+k')
+ * - `splitKeySequence()` - Parse sequential keys (e.g., 'g-h')
+ *
+ * Combination separators: `+`, `/`, `_` (simultaneous keys)
+ * Sequence separator: `-` (sequential combinations)
+ *
+ * @see https://0.vuetifyjs.com/composables/system/use-hotkey
+ */
+
 // Utilities
 import { normalizeKey } from './aliases'
 
