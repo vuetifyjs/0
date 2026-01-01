@@ -2,7 +2,7 @@
 import { useHighlighter } from '@/composables/useHighlighter'
 
 // Utilities
-import { scrollToAnchor } from '@/utilities/scroll'
+import { useScrollToAnchor } from '@/utilities/scroll'
 import { toKebab } from '@/utilities/strings'
 import { ref, type Ref, shallowReactive, useId } from 'vue'
 
@@ -18,7 +18,7 @@ export interface UseApiHelpersReturn {
   uid: string
   expandedExamples: Ref<Set<string>>
   highlightedExamples: Record<string, ExampleState>
-  scrollToAnchor: typeof scrollToAnchor
+  scrollToAnchor: (id: string, offset?: number) => void
   toKebab: typeof toKebab
   toggleExample: (key: string, code?: string) => Promise<void>
   formatSignature: (item: ApiMethod | ApiProperty) => string
@@ -26,6 +26,7 @@ export interface UseApiHelpersReturn {
 
 export function useApiHelpers (): UseApiHelpersReturn {
   const { highlighter, getHighlighter } = useHighlighter()
+  const { scrollToAnchor } = useScrollToAnchor()
   const uid = useId()
   const expandedExamples = ref<Set<string>>(new Set())
   const highlightedExamples = shallowReactive<Record<string, ExampleState>>({})

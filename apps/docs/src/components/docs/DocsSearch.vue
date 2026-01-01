@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useDocumentEventListener } from '@vuetify/v0'
+  import { useDocumentEventListener, usePrefersReducedMotion } from '@vuetify/v0'
 
   // Composables
   import { useSearch } from '@/composables/useSearch'
@@ -24,6 +24,7 @@
   const router = useRouter()
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
+  const { matches: prefersReducedMotion } = usePrefersReducedMotion()
 
   watch(isOpen, async opened => {
     if (opened) {
@@ -37,8 +38,7 @@
     const container = resultsRef.value
     const selected = container?.querySelector('[data-selected="true"]') as HTMLElement | null
     if (selected) {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      selected.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion ? 'auto' : 'smooth' })
+      selected.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
     }
   })
 

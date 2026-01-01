@@ -3,11 +3,13 @@
   import { useClipboard } from '@/composables/useClipboard'
 
   // Utilities
-  import { scrollToAnchor } from '@/utilities/scroll'
+  import { useScrollToAnchor } from '@/utilities/scroll'
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   import metrics from '@/data/metrics.json'
+
+  const { scrollToAnchor } = useScrollToAnchor()
 
   interface MetricCoverage {
     overall: number

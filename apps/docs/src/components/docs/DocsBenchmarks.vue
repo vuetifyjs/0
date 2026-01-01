@@ -1,10 +1,12 @@
 <script setup lang="ts">
   // Utilities
-  import { scrollToAnchor } from '@/utilities/scroll'
+  import { useScrollToAnchor } from '@/utilities/scroll'
   import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   import metrics from '@/data/metrics.json'
+
+  const { scrollToAnchor } = useScrollToAnchor()
 
   interface BenchmarkEntry {
     name: string

@@ -15,6 +15,7 @@
 // Globals
 
 // Framework
+import { usePrefersReducedMotion } from '@vuetify/v0'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
 // Composables
@@ -98,6 +99,7 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
   const route = useRoute()
   const headings = shallowRef<TocHeading[]>([])
   const scrollSpy = useScrollSpy()
+  const { matches: prefersReducedMotion } = usePrefersReducedMotion()
 
   let scanTimeoutId: ReturnType<typeof setTimeout> | null = null
   let scanRafId: number | null = null
@@ -182,8 +184,7 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
 
     const el = document.querySelector(`#${CSS.escape(id)}`)
     if (el) {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' })
+      el.scrollIntoView({ behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
       // Update URL hash without triggering scroll
       history.replaceState(null, '', `#${id}`)
     }

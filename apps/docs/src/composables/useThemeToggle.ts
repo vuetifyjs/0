@@ -1,8 +1,8 @@
 // Framework
-import { IN_BROWSER, useStorage, useTheme } from '@vuetify/v0'
+import { usePrefersDark, useStorage, useTheme } from '@vuetify/v0'
 
 // Utilities
-import { onScopeDispose, type Ref, shallowRef, type ShallowRef, toRef, watch } from 'vue'
+import { type Ref, shallowRef, type ShallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { UseThemeReturn } from '@vuetify/v0'
@@ -32,11 +32,6 @@ export interface UseThemeToggleReturn {
   isDark: UseThemeReturn['isDark']
 }
 
-function getSystemTheme (): 'light' | 'dark' {
-  if (!IN_BROWSER) return 'light'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
 // Shared singleton state - ensures all consumers see the same preference
 const preference = shallowRef<ThemePreference>('system')
 let initialized = false
@@ -44,6 +39,7 @@ let initialized = false
 export function useThemeToggle (): UseThemeToggleReturn {
   const theme = useTheme()
   const storage = useStorage()
+  const { matches: prefersDark } = usePrefersDark()
 
   // Initialize once on first use
   if (!initialized) {
@@ -55,29 +51,16 @@ export function useThemeToggle (): UseThemeToggleReturn {
       ? storedPreference.value as ThemePreference
       : 'system'
 
-    // Apply preference function
-    function applyPreference (pref: ThemePreference) {
-      const actualTheme = pref === 'system' ? getSystemTheme() : pref
-      theme.select(actualTheme)
-    }
-
-    // When preference changes, save it and apply the theme
-    watch(preference, pref => {
-      storage.set('theme', pref)
-      applyPreference(pref)
-    })
-
-    // Listen for system theme changes when preference is 'system'
-    if (IN_BROWSER) {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      function handleChange () {
-        if (preference.value === 'system') {
-          applyPreference('system')
-        }
-      }
-      mediaQuery.addEventListener('change', handleChange)
-      onScopeDispose(() => mediaQuery.removeEventListener('change', handleChange))
-    }
+    // Watch preference and system theme changes together
+    // When preference is 'system', react to prefersDark changes
+    watch(
+      [preference, prefersDark],
+      ([pref, isDark]) => {
+        storage.set('theme', pref)
+        const actualTheme = pref === 'system' ? (isDark ? 'dark' : 'light') : pref
+        theme.select(actualTheme)
+      },
+    )
   }
 
   const icon = toRef(() => PREFERENCE_ICONS[preference.value] ?? 'theme-system')

@@ -1,7 +1,9 @@
 <script setup lang="ts">
   // Utilities
-  import { scrollToAnchor } from '@/utilities/scroll'
+  import { useScrollToAnchor } from '@/utilities/scroll'
   import { toRef } from 'vue'
+
+  const { scrollToAnchor } = useScrollToAnchor()
 
   const props = defineProps<{
     frontmatter?: {
