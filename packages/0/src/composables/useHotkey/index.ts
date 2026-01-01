@@ -279,7 +279,6 @@ export function createHotkey<
 
   function createHandler (ticket: Z) {
     return function handler (e: KeyboardEvent) {
-      debugger
       if (isGloballyPaused.value || ticket.isPaused) return
 
       const group = ticket.keyGroups[ticket.sequenceProgress]
