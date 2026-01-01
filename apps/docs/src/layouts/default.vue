@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { useBreakpoints } from '@vuetify/v0'
+
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useSearch } from '@/composables/useSearch'
@@ -10,9 +13,16 @@
   const DocsAsk = defineAsyncComponent(() => import('@/components/docs/DocsAsk.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
 
+  const breakpoints = useBreakpoints()
   const { isOpen: isAskOpen } = useAsk()
   const { isOpen: isSearchOpen } = useSearch()
-  const isModalOpen = computed(() => isAskOpen.value || isSearchOpen.value)
+
+  // Ask sheet is only modal on mobile; on desktop it's a sidebar (role="complementary")
+  const isModalOpen = computed(() => {
+    if (isSearchOpen.value) return true
+    if (isAskOpen.value && !breakpoints.lgAndUp.value) return true
+    return false
+  })
 </script>
 
 <template>
