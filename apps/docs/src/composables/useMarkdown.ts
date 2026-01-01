@@ -12,6 +12,7 @@ import { Marked } from 'marked'
 import { useHighlighter } from './useHighlighter'
 
 // Utilities
+import { processLinks } from '@/utilities/processLinks'
 import { type MaybeRefOrGetter, onMounted, shallowRef, type ShallowRef, toValue, watch } from 'vue'
 
 // Constants
@@ -48,6 +49,13 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): Use
       renderer: {
         code ({ text, lang }) {
           const language = lang || 'text'
+
+          // Handle mermaid diagrams separately
+          if (language === 'mermaid') {
+            const encodedCode = btoa(unescape(encodeURIComponent(text)))
+            return `<div data-mermaid data-code="${encodedCode}"></div>`
+          }
+
           let highlighted: string
           try {
             highlighted = hl.codeToHtml(text, {
@@ -69,7 +77,7 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): Use
     })
 
     try {
-      html.value = await marked.parse(value)
+      html.value = processLinks(await marked.parse(value))
     } catch {
       // Ignore parse errors during streaming (incomplete markdown)
       // Keep the previous valid HTML state

@@ -228,6 +228,12 @@
     }
   }
 
+  /* DocsMarkup code block padding */
+  .docs-markup pre {
+    padding-top: 2.5rem;
+    padding-right: 5rem;
+  }
+
   /* Shiki theme switching */
   .shiki {
     --shiki-light-bg: var(--v0-surface) !important;

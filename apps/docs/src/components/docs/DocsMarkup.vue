@@ -36,10 +36,3 @@
     <slot />
   </div>
 </template>
-
-<style scoped>
-  .docs-markup :deep(pre) {
-    padding-top: 2.5rem;
-    padding-right: 5rem;
-  }
-</style>

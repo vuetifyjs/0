@@ -1,12 +1,13 @@
 <script setup lang="ts">
   // Components
   import DocsMarkup from './DocsMarkup.vue'
+  import DocsMermaid from './DocsMermaid.vue'
 
   // Composables
   import { useMarkdown } from '@/composables/useMarkdown'
 
   // Utilities
-  import { getCurrentInstance, h, nextTick, render, toRef, useTemplateRef, watch } from 'vue'
+  import { getCurrentInstance, h, nextTick, onBeforeUnmount, render, toRef, useTemplateRef, watch } from 'vue'
 
   const props = defineProps<{
     role: 'user' | 'assistant'
@@ -21,16 +22,42 @@
   const contentRef = useTemplateRef<HTMLElement>('content')
   const appContext = getCurrentInstance()?.appContext
 
+  // Track mounted wrappers for cleanup
+  const mountedWrappers = new Set<HTMLElement>()
+  let mermaidMounted = false
+
   watch(html, async () => {
     await nextTick()
-    mountMarkupComponents()
+    mountDynamicComponents()
+
+    // Mount mermaid immediately if not streaming (e.g., conversation history)
+    if (!props.isStreaming) {
+      mountMermaidComponents()
+    }
   })
 
-  function mountMarkupComponents () {
+  // Mount mermaid only after streaming completes (prevents re-initialization flicker)
+  watch(() => props.isStreaming, async (streaming, wasStreaming) => {
+    if (wasStreaming && !streaming && !mermaidMounted) {
+      await nextTick()
+      mountMermaidComponents()
+    }
+  })
+
+  // Cleanup rendered vnodes on unmount to prevent memory leaks
+  onBeforeUnmount(() => {
+    for (const wrapper of mountedWrappers) {
+      render(null, wrapper)
+    }
+    mountedWrappers.clear()
+  })
+
+  function mountDynamicComponents () {
     if (!contentRef.value) return
 
-    const placeholders = contentRef.value.querySelectorAll<HTMLElement>('[data-markup]')
-    for (const el of placeholders) {
+    // Mount DocsMarkup for code blocks
+    const markupPlaceholders = contentRef.value.querySelectorAll<HTMLElement>('[data-markup]')
+    for (const el of markupPlaceholders) {
       const code = el.dataset.code
       const language = el.dataset.language
       if (!code) continue
@@ -41,6 +68,7 @@
       // Create wrapper for the component
       const wrapper = document.createElement('div')
       el.replaceWith(wrapper)
+      mountedWrappers.add(wrapper)
 
       // Mount DocsMarkup with app context for icons/plugins
       const vnode = h(DocsMarkup, {
@@ -50,6 +78,28 @@
       }, {
         default: () => h('div', { innerHTML: highlighted }),
       })
+      vnode.appContext = appContext ?? null
+      render(vnode, wrapper)
+    }
+  }
+
+  function mountMermaidComponents () {
+    if (!contentRef.value || mermaidMounted) return
+
+    const mermaidPlaceholders = contentRef.value.querySelectorAll<HTMLElement>('[data-mermaid]')
+    if (mermaidPlaceholders.length === 0) return
+
+    mermaidMounted = true
+
+    for (const el of mermaidPlaceholders) {
+      const code = el.dataset.code
+      if (!code) continue
+
+      const wrapper = document.createElement('div')
+      el.replaceWith(wrapper)
+      mountedWrappers.add(wrapper)
+
+      const vnode = h(DocsMermaid, { code })
       vnode.appContext = appContext ?? null
       render(vnode, wrapper)
     }
@@ -103,12 +153,9 @@
   .delay-150 {
     animation-delay: 150ms;
   }
-  .markdown-body :deep(.docs-markup) {
+  .markdown-body :deep(.docs-markup),
+  .markdown-body :deep(.docs-mermaid) {
     margin: 0.5em 0;
-  }
-  .markdown-body :deep(.docs-markup pre) {
-    padding-top: 2.5rem;
-    padding-right: 5rem;
   }
 
   /* Scale down headings for chat context */
