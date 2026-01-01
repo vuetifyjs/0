@@ -310,6 +310,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-media-query': RouteRecordInfo<
+      '/composables/system/use-media-query',
+      '/composables/system/use-media-query',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-mutation-observer': RouteRecordInfo<
       '/composables/system/use-mutation-observer',
       '/composables/system/use-mutation-observer',
@@ -776,6 +783,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-keydown.md': {
       routes:
         | '/composables/system/use-keydown'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-media-query.md': {
+      routes:
+        | '/composables/system/use-media-query'
       views:
         | never
     }
