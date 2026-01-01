@@ -11,6 +11,7 @@ features:
   label: 'E: useTheme'
   github: /composables/useTheme/
 related:
+  - /composables/system/use-media-query
   - /composables/registration/use-tokens
   - /guide/theming
 ---
@@ -87,6 +88,94 @@ Once the plugin is installed, use the `useTheme` composable in any component:
 
 
 <DocsApi />
+
+## Recipes
+
+### System Theme Support
+
+Since `useTheme` is headless and doesn't assume theme names, system preference detection is handled by composing primitives. This gives you full control over theme names and behavior.
+
+> [!TIP]
+> Combine `useTheme` with `usePrefersDark` and `useStorage` to create a complete system-aware theme toggle.
+
+```ts
+// composables/useThemeToggle.ts
+import { usePrefersDark, useStorage, useTheme } from '@vuetify/v0'
+import { shallowRef, watch } from 'vue'
+
+type ThemePreference = 'system' | 'light' | 'dark'
+
+// Singleton state for consistent preference across components
+const preference = shallowRef<ThemePreference>('system')
+let initialized = false
+
+export function useThemeToggle() {
+  const theme = useTheme()
+  const storage = useStorage()
+  const { matches: prefersDark } = usePrefersDark()
+
+  if (!initialized) {
+    initialized = true
+
+    // Load stored preference
+    const stored = storage.get<string>('theme')
+    if (['system', 'light', 'dark'].includes(stored.value ?? '')) {
+      preference.value = stored.value as ThemePreference
+    }
+
+    // React to preference changes AND system theme changes
+    watch(
+      [preference, prefersDark],
+      ([pref, isDark]) => {
+        storage.set('theme', pref)
+        // Map preference to actual theme name
+        const actualTheme = pref === 'system'
+          ? (isDark ? 'dark' : 'light')
+          : pref
+        theme.select(actualTheme)
+      },
+    )
+  }
+
+  function toggle() {
+    const order: ThemePreference[] = ['system', 'light', 'dark']
+    const index = order.indexOf(preference.value)
+    preference.value = order[(index + 1) % order.length]
+  }
+
+  return {
+    preference,
+    isDark: theme.isDark,
+    toggle,
+  }
+}
+```
+
+Usage in a component:
+
+```vue
+<script setup lang="ts">
+  import { useThemeToggle } from '@/composables/useThemeToggle'
+
+  const { preference, isDark, toggle } = useThemeToggle()
+</script>
+
+<template>
+  <button @click="toggle">
+    {{ preference }} ({{ isDark ? 'dark' : 'light' }})
+  </button>
+</template>
+```
+
+**Why this pattern works:**
+
+- **No assumptions** - You define the theme names ("light", "dark", or custom)
+- **Reactive** - `usePrefersDark` updates when system preference changes
+- **Persistent** - `useStorage` remembers user choice
+- **SSR-safe** - All composables handle server-side rendering
+- **Flexible** - Extend with more themes (high-contrast, sepia, etc.)
+
+For a complete implementation with icons, labels, and multiple themes, see the [docs site source](https://github.com/vuetifyjs/0/blob/master/apps/docs/src/composables/useThemeToggle.ts).
 
 ## Adapter Pattern
 
