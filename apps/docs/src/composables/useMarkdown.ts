@@ -55,15 +55,20 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>) {
             highlighted = `<pre class="shiki"><code>${escapeHtml(text)}</code></pre>`
           }
 
-          // Encode code for DocsMarkup component mounting (browser-safe base64)
-          const encodedCode = btoa(text)
+          // Encode code for DocsMarkup component mounting (Unicode-safe base64)
+          const encodedCode = btoa(unescape(encodeURIComponent(text)))
 
           return `<div data-markup data-code="${encodedCode}" data-language="${escapeHtml(language)}">${highlighted}</div>`
         },
       },
     })
 
-    html.value = await marked.parse(value)
+    try {
+      html.value = await marked.parse(value)
+    } catch {
+      // Ignore parse errors during streaming (incomplete markdown)
+      // Keep the previous valid HTML state
+    }
   }
 
   onMounted(() => {

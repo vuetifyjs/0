@@ -420,6 +420,18 @@ export function useAsk (): UseAskReturn {
           ]
         }
       }
+
+      // Flush any remaining bytes from the decoder
+      const remaining = decoder.decode()
+      if (remaining) {
+        const lastMessage = messages.value.at(-1)
+        if (lastMessage?.role === 'assistant') {
+          messages.value = [
+            ...messages.value.slice(0, -1),
+            { ...lastMessage, content: lastMessage.content + remaining },
+          ]
+        }
+      }
     } catch (error_) {
       if ((error_ as Error).name === 'AbortError') {
         // User cancelled - keep partial response
