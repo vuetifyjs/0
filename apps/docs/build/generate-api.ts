@@ -234,6 +234,56 @@ function getProject () {
   return project
 }
 
+/**
+ * Resolve a path alias import to an absolute file path.
+ * Handles #v0/ alias used in the codebase.
+ */
+function resolveImportPath (importPath: string): string | null {
+  if (importPath.startsWith('#v0/')) {
+    return resolve(ROOT, 'packages/0/src', importPath.slice(4), 'index.ts')
+  }
+  return null
+}
+
+/**
+ * Get the interface declaration for a base interface referenced in an extends clause.
+ * Handles cross-file resolution by parsing imports and loading source files.
+ */
+function resolveBaseInterface (
+  sourceFile: ReturnType<Project['addSourceFileAtPath']>,
+  extendsClause: string,
+): InterfaceDeclaration | undefined {
+  const proj = getProject()
+
+  // Extract interface name from extends clause (e.g., "SingleContext<Z>" -> "SingleContext")
+  const interfaceName = extendsClause.replace(/<.*>$/, '')
+
+  // Find the import declaration for this interface
+  const importDecl = sourceFile.getImportDeclarations().find(decl => {
+    const namedImports = decl.getNamedImports()
+    return namedImports.some(ni => ni.getName() === interfaceName)
+  })
+
+  if (!importDecl) return undefined
+
+  const importPath = importDecl.getModuleSpecifierValue()
+  const resolvedPath = resolveImportPath(importPath)
+
+  if (!resolvedPath) return undefined
+
+  // Add the source file if not already added
+  let baseSourceFile = proj.getSourceFile(resolvedPath)
+  if (!baseSourceFile) {
+    try {
+      baseSourceFile = proj.addSourceFileAtPath(resolvedPath)
+    } catch {
+      return undefined
+    }
+  }
+
+  return baseSourceFile.getInterface(interfaceName)
+}
+
 function getJsDocInfo (node: JSDocableNode): { description?: string, example?: string } {
   const jsDocs = node.getJsDocs()
   if (jsDocs.length === 0) return {}
@@ -263,29 +313,52 @@ function extractInterfaceMembers (
 
   if (!iface) return { methods, properties }
 
-  // Handle interface with getProperties
+  // Handle interface with getProperties - walk inheritance chain
   if ('getProperties' in iface) {
-    for (const prop of iface.getProperties()) {
-      const name = prop.getName()
-      const type = prop.getType().getText(prop)
-      const { description, example } = getJsDocInfo(prop)
+    const seen = new Set<string>()
 
-      // Check if it's a function type
-      if (type.includes('=>') || type.startsWith('(')) {
+    // Recursive function to extract from interface and its base interfaces
+    function extractFromInterface (current: InterfaceDeclaration) {
+      // First, process base interfaces via extends clause
+      // We manually resolve because getBaseDeclarations() doesn't work across files
+      const extendsClauses = current.getExtends()
+      for (const ext of extendsClauses) {
+        const baseInterface = resolveBaseInterface(current.getSourceFile(), ext.getText())
+        if (baseInterface) {
+          extractFromInterface(baseInterface)
+        }
+      }
+
+      // Then process current interface's members
+      for (const prop of current.getProperties()) {
+        const name = prop.getName()
+        if (seen.has(name)) continue // Skip if already added by derived
+        seen.add(name)
+
+        const type = prop.getType().getText(prop)
+        const { description, example } = getJsDocInfo(prop)
+
+        if (type.includes('=>') || type.startsWith('(')) {
+          methods.push({ name, type, description, example })
+        } else {
+          properties.push({ name, type, description, example })
+        }
+      }
+
+      for (const method of current.getMethods()) {
+        const name = method.getName()
+        if (seen.has(name)) continue
+        seen.add(name)
+
+        const params = method.getParameters().map(p => `${p.getName()}: ${p.getType().getText(p)}`).join(', ')
+        const returnType = method.getReturnType().getText(method)
+        const type = `(${params}) => ${returnType}`
+        const { description, example } = getJsDocInfo(method)
         methods.push({ name, type, description, example })
-      } else {
-        properties.push({ name, type, description, example })
       }
     }
 
-    for (const method of iface.getMethods()) {
-      const name = method.getName()
-      const params = method.getParameters().map(p => `${p.getName()}: ${p.getType().getText(p)}`).join(', ')
-      const returnType = method.getReturnType().getText(method)
-      const type = `(${params}) => ${returnType}`
-      const { description, example } = getJsDocInfo(method)
-      methods.push({ name, type, description, example })
-    }
+    extractFromInterface(iface)
   }
 
   return { methods, properties }
@@ -298,24 +371,45 @@ function extractOptionsMembers (
 
   if (!iface) return options
 
-  for (const prop of iface.getProperties()) {
-    const name = prop.getName()
-    const type = prop.getType().getText(prop)
-    const { description } = getJsDocInfo(prop)
-    const required = !prop.hasQuestionToken()
+  const seen = new Set<string>()
 
-    // Try to extract default from JSDoc @default tag
-    const jsDocs = prop.getJsDocs()
-    let defaultValue: string | undefined
-    if (jsDocs.length > 0) {
-      const defaultTag = jsDocs[0].getTags().find(t => t.getTagName() === 'default')
-      if (defaultTag) {
-        defaultValue = defaultTag.getCommentText()?.trim()
+  // Recursive function to extract from interface and its base interfaces
+  function extractFromInterface (current: InterfaceDeclaration) {
+    // First, process base interfaces via extends clause
+    // We manually resolve because getBaseDeclarations() doesn't work across files
+    const extendsClauses = current.getExtends()
+    for (const ext of extendsClauses) {
+      const baseInterface = resolveBaseInterface(current.getSourceFile(), ext.getText())
+      if (baseInterface) {
+        extractFromInterface(baseInterface)
       }
     }
 
-    options.push({ name, type, required, default: defaultValue, description })
+    // Then process current interface's members
+    for (const prop of current.getProperties()) {
+      const name = prop.getName()
+      if (seen.has(name)) continue // Skip if already added by derived
+      seen.add(name)
+
+      const type = prop.getType().getText(prop)
+      const { description } = getJsDocInfo(prop)
+      const required = !prop.hasQuestionToken()
+
+      // Try to extract default from JSDoc @default tag
+      const jsDocs = prop.getJsDocs()
+      let defaultValue: string | undefined
+      if (jsDocs.length > 0) {
+        const defaultTag = jsDocs[0].getTags().find(t => t.getTagName() === 'default')
+        if (defaultTag) {
+          defaultValue = defaultTag.getCommentText()?.trim()
+        }
+      }
+
+      options.push({ name, type, required, default: defaultValue, description })
+    }
   }
+
+  extractFromInterface(iface)
 
   return options
 }
