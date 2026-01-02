@@ -39,5 +39,19 @@ provideContext({ isDisabled: shallowRef(false) })
 export { useContext }
 ```
 
+## Architecture
+
+`createContext` is the foundation for all dependency injection in Vuetify0:
+
+```mermaid
+flowchart TD
+  createContext --> createTrinity
+  createContext --> createPlugin
+  createTrinity --> useRegistry
+  createTrinity --> useTokens
+  useRegistry --> useSelection
+  useSelection --> useSingle
+  useSelection --> useGroup
+```
 
 <DocsApi />

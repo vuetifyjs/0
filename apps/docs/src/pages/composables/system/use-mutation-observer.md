@@ -55,6 +55,18 @@ The `useMutationObserver` composable wraps the Mutation Observer API to detect c
 </template>
 ```
 
+## Architecture
+
+`useMutationObserver` wraps the native MutationObserver API with Vue reactivity:
+
+```mermaid
+flowchart TD
+  MutationObserver["MutationObserver API"] --> useMutationObserver
+  useHydration --> useMutationObserver
+  useMutationObserver --> DOMSync["DOM Sync"]
+  useMutationObserver --> ContentChanges["Content Change Detection"]
+  useMutationObserver --> AttributeWatch["Attribute Watching"]
+```
 
 <DocsApi />
 

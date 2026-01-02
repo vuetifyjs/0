@@ -59,5 +59,25 @@ function createUserContext() {
 export const [useUser, provideUser, defaultUserContext] = createUserContext()
 ```
 
+## Architecture
+
+`createTrinity` builds on `createContext` to provide a standardized 3-tuple pattern:
+
+```mermaid
+flowchart LR
+  subgraph Trinity Tuple
+    A[useContext]
+    B[provideContext]
+    C[defaultContext]
+  end
+
+  createContext --> A
+  createContext --> B
+  Factory --> C
+
+  A --> Components
+  B --> App/Provider
+  C --> Fallback
+```
 
 <DocsApi />

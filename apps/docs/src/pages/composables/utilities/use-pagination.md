@@ -45,6 +45,18 @@ console.log(pagination.items.value)
 // ]
 ```
 
+## Architecture
+
+`usePagination` computes page state and navigation:
+
+```mermaid
+flowchart LR
+  size --> pages[total pages]
+  page --> items[visible items]
+  pages --> items
+  visible --> items
+  page --> pageStart/pageStop
+```
 
 <DocsApi />
 

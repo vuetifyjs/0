@@ -78,6 +78,26 @@ Perfect for Vue components with v-model:
 </template>
 ```
 
+## Architecture
+
+`useProxyModel` creates bidirectional sync between v-model refs and selection state:
+
+```mermaid
+flowchart LR
+  subgraph External
+    model[v-model ref]
+  end
+
+  subgraph Selection
+    selectedIds[selectedIds]
+    browse[browse]
+  end
+
+  model -- transformIn --> browse
+  browse --> select/unselect
+  select/unselect --> selectedIds
+  selectedIds -- transformOut --> model
+```
 
 <DocsApi />
 

@@ -31,5 +31,16 @@ const rstate = toReactive(state)
 console.log(rstate.name) // 'John' (no .value needed)
 ```
 
+## Architecture
+
+`toReactive` creates a Proxy that unwraps ref values:
+
+```mermaid
+flowchart LR
+  MaybeRef --> Proxy
+  Proxy -- get --> toValue
+  Proxy -- set --> ref.value
+  toValue --> unwrapped[plain value]
+```
 
 <DocsApi />

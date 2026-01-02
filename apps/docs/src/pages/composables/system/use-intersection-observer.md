@@ -50,6 +50,18 @@ The `useIntersectionObserver` composable wraps the Intersection Observer API to 
 </template>
 ```
 
+## Architecture
+
+`useIntersectionObserver` wraps the native IntersectionObserver API with Vue reactivity:
+
+```mermaid
+flowchart TD
+  IntersectionObserver["IntersectionObserver API"] --> useIntersectionObserver
+  useHydration --> useIntersectionObserver
+  useIntersectionObserver --> LazyLoading["Lazy Loading"]
+  useIntersectionObserver --> InfiniteScroll["Infinite Scroll"]
+  useIntersectionObserver --> Animations["Entrance Animations"]
+```
 
 <DocsApi />
 

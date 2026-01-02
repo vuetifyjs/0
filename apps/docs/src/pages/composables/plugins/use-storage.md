@@ -63,5 +63,16 @@ Once the plugin is installed, use the `useStorage` composable in any component:
 </template>
 ```
 
+## Architecture
+
+`useStorage` uses the plugin pattern with storage adapters:
+
+```mermaid
+flowchart LR
+  createStoragePlugin --> createContext
+  createContext --> StorageContext
+  StorageContext --> Adapter[LocalStorageAdapter/SessionStorageAdapter/MemoryAdapter]
+  Adapter --> storage[browser storage/memory]
+```
 
 <DocsApi />

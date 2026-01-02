@@ -80,5 +80,16 @@ Optionally register features at runtime:
 </script>
 ```
 
+## Architecture
+
+`useFeatures` extends `useGroup` for multi-selection and `useTokens` for variations:
+
+```mermaid
+flowchart TD
+  useRegistry --> useSelection
+  useSelection --> useGroup
+  useGroup --> useFeatures
+  useTokens --> useFeatures
+```
 
 <DocsApi />

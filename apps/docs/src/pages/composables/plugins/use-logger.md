@@ -64,5 +64,16 @@ Once the plugin is installed, use the `useLogger` composable in any component:
 </template>
 ```
 
+## Architecture
+
+`useLogger` uses the plugin pattern with a log adapter:
+
+```mermaid
+flowchart LR
+  createLoggerPlugin --> createContext
+  createContext --> LoggerContext
+  LoggerContext --> Adapter[ConsoleAdapter/PinoAdapter/ConsolaAdapter]
+  Adapter --> output[console/file/etc]
+```
 
 <DocsApi />

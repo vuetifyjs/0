@@ -48,6 +48,18 @@ The `useResizeObserver` composable wraps the Resize Observer API to detect when 
 </template>
 ```
 
+## Architecture
+
+`useResizeObserver` wraps the native ResizeObserver API with Vue reactivity:
+
+```mermaid
+flowchart TD
+  ResizeObserver["ResizeObserver API"] --> useResizeObserver
+  useHydration --> useResizeObserver
+  useResizeObserver --> useElementSize
+  useResizeObserver --> Charts["Responsive Charts"]
+  useResizeObserver --> VirtualLists["Virtual Lists"]
+```
 
 <DocsApi />
 

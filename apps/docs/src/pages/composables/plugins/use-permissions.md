@@ -101,6 +101,20 @@ Optionally register permissions at runtime:
 </script>
 ```
 
+## Architecture
+
+`usePermissions` uses `useTokens` for permission flattening and lookup:
+
+```mermaid
+flowchart LR
+  subgraph Registration
+    useTokens --> flatten[role.action.subject]
+  end
+
+  flatten --> can
+  can --> condition[evaluate condition]
+  condition --> result[boolean]
+```
 
 <DocsApi />
 

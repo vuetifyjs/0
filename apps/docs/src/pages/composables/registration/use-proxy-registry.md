@@ -39,5 +39,16 @@ console.log(proxy.size) // 2
 console.log(proxy.keys) // [id1, id2]
 ```
 
+## Architecture
+
+`useProxyRegistry` creates a reactive proxy over registry collections:
+
+```mermaid
+flowchart LR
+  useRegistry --> events[register/unregister events]
+  events --> useProxyRegistry
+  useProxyRegistry --> reactive[reactive object]
+  reactive --> template[Vue template]
+```
 
 <DocsApi />

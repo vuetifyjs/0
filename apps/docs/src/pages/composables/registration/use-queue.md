@@ -39,5 +39,16 @@ console.log(item2.isPaused) // true (waiting in queue)
 console.log(queue.size) // 3
 ```
 
+## Architecture
+
+`useQueue` extends `useRegistry` with FIFO ordering and timeout management:
+
+```mermaid
+flowchart TD
+  useRegistry --> useQueue
+  useQueue --> timeout[auto-timeout]
+  useQueue --> pause/resume
+  useQueue --> first[first item active]
+```
 
 <DocsApi />

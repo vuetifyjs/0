@@ -45,5 +45,16 @@ timeline.redo()
 console.log(timeline.size) // 3
 ```
 
+## Architecture
+
+`useTimeline` extends `useRegistry` with bounded history and overflow management:
+
+```mermaid
+flowchart TD
+  useRegistry --> useTimeline
+  useTimeline --> undo/redo
+  useTimeline --> overflow[overflow buffer]
+  useTimeline --> cursor[history cursor]
+```
 
 <DocsApi />

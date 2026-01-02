@@ -41,5 +41,16 @@ console.log(email.value) // ''
 console.log(email.errors.value) // []
 ```
 
+## Architecture
+
+`useForm` extends `useRegistry` with validation capabilities:
+
+```mermaid
+flowchart TD
+  useRegistry --> useForm
+  useForm --> validate[validate/validateAll]
+  useForm --> reset[reset/resetAll]
+  useForm --> errors[error collection]
+```
 
 <DocsApi />

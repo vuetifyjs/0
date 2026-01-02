@@ -84,5 +84,16 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 </template>
 ```
 
+## Architecture
+
+`useLocale` extends `useSingle` for locale selection with message interpolation:
+
+```mermaid
+flowchart TD
+  useRegistry --> useSelection
+  useSelection --> useSingle
+  useSingle --> useLocale
+  Adapter --> useLocale
+```
 
 <DocsApi />

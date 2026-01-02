@@ -50,6 +50,20 @@ group.unselect('apple')
 console.log(group.selectedIndexes.value) // Set {}
 ```
 
+## Architecture
+
+`useGroup` extends `useSelection` with multi-select and tri-state capabilities:
+
+```mermaid
+flowchart TD
+  useRegistry --> useSelection
+  useSelection --> useGroup
+  useGroup --> mixedIds[mixedIds Set]
+  useGroup --> selectedIds[selectedIds Set]
+```
+
+<DocsApi />
+
 ## Tri-State (Mixed/Indeterminate)
 
 Items can be in one of three states: **selected**, **mixed** (indeterminate), or **unselected**. This is useful for checkbox trees where a parent's state depends on its children.
@@ -168,6 +182,3 @@ For simpler "select all" checkbox patterns, `useGroup` provides context-level he
 - **`toggleAll()`**: Toggles between all selected and none selected
 
 See the [Group component](/components/group#select-all) for a complete example.
-
-
-<DocsApi />

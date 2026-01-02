@@ -41,6 +41,17 @@ console.log(overflow.capacity.value) // Number of items that fit
 console.log(overflow.isOverflowing.value) // true if items exceed container
 ```
 
+## Architecture
+
+`useOverflow` uses ResizeObserver to compute container capacity:
+
+```mermaid
+flowchart LR
+  ResizeObserver --> containerWidth
+  containerWidth --> capacity
+  itemWidths --> capacity
+  capacity --> isOverflowing
+```
 
 <DocsApi />
 

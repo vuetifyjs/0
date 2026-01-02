@@ -44,6 +44,17 @@ console.log(filtered.value)
 // ]
 ```
 
+## Architecture
+
+`useFilter` provides pure filtering logic with context support:
+
+```mermaid
+flowchart LR
+  query[query ref] --> filter
+  items[items ref] --> filter
+  options[mode/keys] --> filter
+  filter --> computed[filtered items]
+```
 
 <DocsApi />
 

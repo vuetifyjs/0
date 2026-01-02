@@ -75,5 +75,16 @@ The `useKeydown` composable registers keyboard event handlers on the document wi
 </template>
 ```
 
+## Architecture
+
+`useKeydown` builds on `useEventListener` for keyboard event handling:
+
+```mermaid
+flowchart TD
+  useEventListener --> useKeydown
+  useKeydown --> Shortcuts["Keyboard Shortcuts"]
+  useKeydown --> Navigation["Arrow Navigation"]
+  useKeydown --> Modals["Modal Dismissal"]
+```
 
 <DocsApi />

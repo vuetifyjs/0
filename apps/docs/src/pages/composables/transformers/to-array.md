@@ -30,5 +30,16 @@ const valueAsArray = toArray(value)
 console.log(valueAsArray) // ['Example Value']
 ```
 
+## Architecture
+
+`toArray` is a pure transformation utility:
+
+```mermaid
+flowchart LR
+  input[any value] --> check{is array?}
+  check -- yes --> output[return as-is]
+  check -- no --> wrap[wrap in array]
+  wrap --> output
+```
 
 <DocsApi />

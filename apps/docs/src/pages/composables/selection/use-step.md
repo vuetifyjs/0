@@ -56,5 +56,18 @@ carousel.next()   // Wraps to slide1
 carousel.prev()   // Wraps to slide3
 ```
 
+## Architecture
+
+`useStep` extends `useSingle` with directional navigation:
+
+```mermaid
+flowchart TD
+  useRegistry --> useSelection
+  useSelection --> useSingle
+  useSingle --> useStep
+  useStep --> first/last
+  useStep --> next/prev
+  useStep --> step
+```
 
 <DocsApi />

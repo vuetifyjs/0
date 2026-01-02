@@ -75,5 +75,19 @@ Once the plugin is installed, use the `useBreakpoints` composable in any compone
 </template>
 ```
 
+## Architecture
+
+`useBreakpoints` uses the plugin pattern with viewport observation:
+
+```mermaid
+flowchart LR
+  subgraph Plugin
+    createBreakpointsPlugin --> createBreakpointsContext
+  end
+
+  createBreakpointsContext --> useResizeObserver
+  useResizeObserver --> viewport[width/height]
+  viewport --> breakpoint[name/flags]
+```
 
 <DocsApi />

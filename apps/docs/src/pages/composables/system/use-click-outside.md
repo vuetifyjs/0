@@ -32,6 +32,20 @@ The `useClickOutside` composable detects when users click outside target element
   <BasicExample />
 </DocsExample>
 
+## Architecture
+
+`useClickOutside` builds on `useEventListener` for pointer and focus event detection:
+
+```mermaid
+flowchart TD
+  useEventListener --> useClickOutside
+  useClickOutside --> Dropdowns
+  useClickOutside --> Modals
+  useClickOutside --> Popovers
+```
+
+<DocsApi />
+
 ## Examples
 
 ### With Component Refs
@@ -164,6 +178,3 @@ The `sr-only` class hides content visually while keeping it accessible:
   border-width: 0;
 }
 ```
-
-
-<DocsApi />

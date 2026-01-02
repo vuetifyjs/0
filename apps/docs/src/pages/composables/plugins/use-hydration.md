@@ -60,6 +60,17 @@ Once the plugin is installed, use the `useHydration` composable in any component
 </template>
 ```
 
+## Architecture
+
+`useHydration` uses the plugin pattern with a simple boolean state:
+
+```mermaid
+flowchart LR
+  createHydrationPlugin --> createContext
+  createContext --> isHydrated[isHydrated ref]
+  app.mixin --> hydrate
+  hydrate --> isHydrated
+```
 
 <DocsApi />
 

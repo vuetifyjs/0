@@ -50,6 +50,18 @@ The `useToggleScope` composable wraps Vue's `effectScope` API to create and dest
 </template>
 ```
 
+## Architecture
+
+`useToggleScope` wraps Vue's effectScope for conditional reactive effect management:
+
+```mermaid
+flowchart TD
+  effectScope["Vue effectScope"] --> useToggleScope
+  useToggleScope --> FeatureFlags["Feature Flags"]
+  useToggleScope --> ConditionalPolling["Conditional Polling"]
+  useToggleScope --> DebugMode["Debug Mode"]
+```
+
 ### `useToggleScope`
 
 - **Type**

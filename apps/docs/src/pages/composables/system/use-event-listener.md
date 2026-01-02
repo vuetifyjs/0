@@ -61,6 +61,16 @@ The `useEventListener` composable attaches event listeners to DOM elements (Wind
 </template>
 ```
 
+## Architecture
+
+`useEventListener` is the foundational event composable that others build upon:
+
+```mermaid
+flowchart LR
+  useEventListener --> useClickOutside
+  useEventListener --> useKeydown
+  useEventListener --> Components["Custom Components"]
+```
 
 <DocsApi />
 

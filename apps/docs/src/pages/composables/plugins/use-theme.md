@@ -86,6 +86,19 @@ Once the plugin is installed, use the `useTheme` composable in any component:
 </template>
 ```
 
+## Architecture
+
+`useTheme` extends `useSingle` for theme selection and `useTokens` for color resolution:
+
+```mermaid
+flowchart TD
+  useRegistry --> useSelection
+  useSelection --> useSingle
+  useSingle --> useTheme
+  useTokens --> useTheme
+  useTheme --> Adapter[ThemeAdapter]
+  Adapter --> CSS[CSS Variables]
+```
 
 <DocsApi />
 

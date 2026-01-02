@@ -79,5 +79,23 @@ Now, whenever your application starts, the plugin is registered and the context 
 </script>
 ```
 
+## Architecture
+
+`createPlugin` wraps `createContext` for Vue plugin registration:
+
+```mermaid
+flowchart LR
+  subgraph Plugin
+    A[namespace]
+    B[provide]
+    C[setup]
+  end
+
+  createContext --> B
+  A --> install
+  B --> install
+  C --> install
+  install --> app.runWithContext
+```
 
 <DocsApi />
