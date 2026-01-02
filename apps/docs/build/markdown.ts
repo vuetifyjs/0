@@ -9,6 +9,9 @@ import Markdown from 'unplugin-vue-markdown/vite'
 // Types
 import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
 
+// Local
+import { createApiTransformer } from './shiki-api-transformer'
+
 interface MarkdownToken { nesting: number }
 
 // Constants
@@ -111,6 +114,7 @@ export default async function MarkdownPlugin () {
         fromHighlighter(highlighter as HighlighterGeneric<BundledLanguage, BundledTheme>, {
           themes: SHIKI_THEMES,
           defaultColor: false,
+          transformers: [createApiTransformer()],
         }),
       )
 
