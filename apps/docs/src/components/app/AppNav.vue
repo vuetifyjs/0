@@ -3,7 +3,7 @@
   import { Atom, useClickOutside, useWindowEventListener } from '@vuetify/v0'
 
   // Utilities
-  import { onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+  import { nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -27,6 +27,12 @@
 
   onMounted(updateMobile)
   useWindowEventListener('resize', updateMobile, { passive: true })
+
+  onMounted(async () => {
+    await nextTick()
+    const activeLink = navRef.value?.element?.querySelector('[aria-current="page"]')
+    activeLink?.scrollIntoView({ block: 'center' })
+  })
 
   useClickOutside(
     () => navRef.value?.element,
