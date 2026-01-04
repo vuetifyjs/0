@@ -72,7 +72,7 @@ export interface UseClickOutsideOptions {
   /**
    * Use bounding rect instead of DOM containment to detect outside clicks.
    * When true, checks if click coordinates are outside the element's bounding box.
-   * Useful for native `<dialog>` elements where backdrop clicks have the dialog as target.
+   * Useful for native <dialog> elements where backdrop clicks have the dialog as target.
    * @default false
    */
   bounds?: boolean
