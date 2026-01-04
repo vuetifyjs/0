@@ -69,6 +69,13 @@ export interface UseClickOutsideOptions {
    * browser limitations. Use element refs instead when ignoring shadow hosts.
    */
   ignore?: MaybeRefOrGetter<ClickOutsideIgnoreTarget[]>
+  /**
+   * Use bounding rect instead of DOM containment to detect outside clicks.
+   * When true, checks if click coordinates are outside the element's bounding box.
+   * Useful for native `<dialog>` elements where backdrop clicks have the dialog as target.
+   * @default false
+   */
+  bounds?: boolean
 }
 
 export interface UseClickOutsideReturn {
@@ -144,6 +151,18 @@ export interface UseClickOutsideReturn {
  *  { ignore: ['[data-app-bar]'] }
  * )
  * ```
+ *
+ * @example Native dialog with bounds detection
+ * ```ts
+ * // For native <dialog> elements, use bounds mode to detect backdrop clicks
+ * const dialogRef = useTemplateRef<HTMLDialogElement>('dialog')
+ *
+ * useClickOutside(
+ *   dialogRef,
+ *   () => { dialogRef.value?.close() },
+ *   { bounds: true }
+ * )
+ * ```
  */
 export function useClickOutside (
   target: MaybeArray<ClickOutsideTarget>,
@@ -155,6 +174,7 @@ export function useClickOutside (
     touchScrollThreshold = 30,
     detectIframe = false,
     ignore = [],
+    bounds = false,
   } = options
 
   const isPaused = shallowRef(false)
@@ -231,7 +251,7 @@ export function useClickOutside (
   }
 
   /**
-   * Check if the event target is outside all target elements.
+   * Check if the event target is outside all target elements (DOM containment).
    */
   function isOutside (eventTarget: EventTarget | null): boolean {
     if (!eventTarget) return false
@@ -242,6 +262,19 @@ export function useClickOutside (
 
     return targets.every(el => {
       return el !== eventTarget && !el.contains(eventTarget)
+    })
+  }
+
+  /**
+   * Check if coordinates are outside all target elements' bounding rects.
+   */
+  function isOutsideBounds (x: number, y: number): boolean {
+    const targets = getTargets()
+    if (targets.length === 0) return false
+
+    return targets.every(el => {
+      const { left, right, top, bottom } = el.getBoundingClientRect()
+      return x < left || x > right || y < top || y > bottom
     })
   }
 
@@ -287,7 +320,11 @@ export function useClickOutside (
       if (dx >= touchScrollThreshold || dy >= touchScrollThreshold) return
     }
 
-    if (isOutside(pointerdownTarget) && isOutside(pointerupTarget) && !shouldIgnore(path)) {
+    const clickIsOutside = bounds
+      ? isOutsideBounds(startPosition.x, startPosition.y) && isOutsideBounds(event.clientX, event.clientY)
+      : isOutside(pointerdownTarget) && isOutside(pointerupTarget)
+
+    if (clickIsOutside && !shouldIgnore(path)) {
       handler(event)
     }
   }

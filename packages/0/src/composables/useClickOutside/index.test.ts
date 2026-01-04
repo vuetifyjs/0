@@ -1279,6 +1279,184 @@ describe('useClickOutside', () => {
     })
   })
 
+  describe('bounds option', () => {
+    it('triggers when click coordinates are outside element bounds', async () => {
+      const handler = vi.fn()
+
+      // Mock getBoundingClientRect to return a fixed box
+      vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+        left: 100,
+        right: 200,
+        top: 100,
+        bottom: 200,
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        toJSON: () => ({}),
+      })
+
+      useClickOutside(target, handler, { bounds: true })
+
+      await nextTick()
+
+      // Click outside bounds (to the left)
+      simulatePointerClick(document.body, { clientX: 50, clientY: 150 })
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not trigger when click coordinates are inside element bounds', async () => {
+      const handler = vi.fn()
+
+      vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+        left: 100,
+        right: 200,
+        top: 100,
+        bottom: 200,
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        toJSON: () => ({}),
+      })
+
+      useClickOutside(target, handler, { bounds: true })
+
+      await nextTick()
+
+      // Click inside bounds
+      simulatePointerClick(document.body, { clientX: 150, clientY: 150 })
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('requires both pointerdown and pointerup to be outside bounds', async () => {
+      const handler = vi.fn()
+
+      vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+        left: 100,
+        right: 200,
+        top: 100,
+        bottom: 200,
+        width: 100,
+        height: 100,
+        x: 100,
+        y: 100,
+        toJSON: () => ({}),
+      })
+
+      useClickOutside(target, handler, { bounds: true })
+
+      await nextTick()
+
+      // Pointerdown inside, pointerup outside - should not trigger
+      document.body.dispatchEvent(new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientX: 150,
+        clientY: 150,
+        pointerType: 'mouse',
+      }))
+      document.body.dispatchEvent(new PointerEvent('pointerup', {
+        bubbles: true,
+        clientX: 50,
+        clientY: 150,
+        pointerType: 'mouse',
+      }))
+      expect(handler).not.toHaveBeenCalled()
+
+      // Pointerdown outside, pointerup inside - should not trigger
+      document.body.dispatchEvent(new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientX: 50,
+        clientY: 150,
+        pointerType: 'mouse',
+      }))
+      document.body.dispatchEvent(new PointerEvent('pointerup', {
+        bubbles: true,
+        clientX: 150,
+        clientY: 150,
+        pointerType: 'mouse',
+      }))
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('works with native dialog backdrop click pattern', async () => {
+      const handler = vi.fn()
+      const dialog = document.createElement('dialog')
+      container.append(dialog)
+
+      // Dialog box is centered, 200x100
+      vi.spyOn(dialog, 'getBoundingClientRect').mockReturnValue({
+        left: 300,
+        right: 500,
+        top: 200,
+        bottom: 300,
+        width: 200,
+        height: 100,
+        x: 300,
+        y: 200,
+        toJSON: () => ({}),
+      })
+
+      useClickOutside(dialog, handler, { bounds: true })
+
+      await nextTick()
+
+      // Click on "backdrop" area (outside dialog bounds but event target is dialog)
+      simulatePointerClick(dialog, { clientX: 100, clientY: 100 })
+      expect(handler).toHaveBeenCalledTimes(1)
+
+      // Click inside dialog content area
+      simulatePointerClick(dialog, { clientX: 400, clientY: 250 })
+      expect(handler).toHaveBeenCalledTimes(1) // Still 1, not triggered
+    })
+
+    it('checks bounds for all targets when multiple provided', async () => {
+      const handler = vi.fn()
+      const target2 = document.createElement('div')
+      container.append(target2)
+
+      vi.spyOn(target, 'getBoundingClientRect').mockReturnValue({
+        left: 0,
+        right: 100,
+        top: 0,
+        bottom: 100,
+        width: 100,
+        height: 100,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      })
+
+      vi.spyOn(target2, 'getBoundingClientRect').mockReturnValue({
+        left: 200,
+        right: 300,
+        top: 0,
+        bottom: 100,
+        width: 100,
+        height: 100,
+        x: 200,
+        y: 0,
+        toJSON: () => ({}),
+      })
+
+      useClickOutside([target, target2], handler, { bounds: true })
+
+      await nextTick()
+
+      // Click inside first target bounds
+      simulatePointerClick(document.body, { clientX: 50, clientY: 50 })
+      expect(handler).not.toHaveBeenCalled()
+
+      // Click inside second target bounds
+      simulatePointerClick(document.body, { clientX: 250, clientY: 50 })
+      expect(handler).not.toHaveBeenCalled()
+
+      // Click outside both targets bounds
+      simulatePointerClick(document.body, { clientX: 150, clientY: 50 })
+      expect(handler).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('cleanup verification', () => {
     it('cleanup functions are called on pause', async () => {
       const handler = vi.fn()
