@@ -34,8 +34,7 @@ pnpm test:run         # CI mode
 pnpm test:bench       # Run benchmarks
 pnpm metrics          # Generate performance metrics
 pnpm typecheck        # All packages
-pnpm lint             # Lint
-pnpm lint:fix         # Auto-fix
+pnpm lint:fix         # Always use lint:fix, not lint
 pnpm validate         # lint + typecheck + test
 
 # Release
