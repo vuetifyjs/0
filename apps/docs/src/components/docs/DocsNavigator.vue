@@ -23,7 +23,7 @@
   >
     <RouterLink
       v-if="prev && prev !== '/'"
-      class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 bg-surface hover:bg-surface-tint"
+      class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 bg-surface hover:border-primary hover:bg-surface-tint transition-colors"
       :to="prev"
       @click="($event.currentTarget as HTMLElement).blur()"
     >
@@ -42,7 +42,7 @@
 
     <RouterLink
       v-if="next && next !== '/'"
-      class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 text-end bg-surface hover:bg-surface-tint"
+      class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 text-end bg-surface hover:border-primary hover:bg-surface-tint transition-colors"
       :to="next"
       @click="($event.currentTarget as HTMLElement).blur()"
     >
