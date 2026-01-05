@@ -201,6 +201,72 @@ describe('useHotkey', () => {
 
       expect(callback).toHaveBeenCalledTimes(1)
     })
+
+    it('handles three-key sequence', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('g-i-t', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      expect(callback).not.toHaveBeenCalled()
+
+      window.dispatchEvent(createKeyboardEvent('i'))
+      expect(callback).not.toHaveBeenCalled()
+
+      window.dispatchEvent(createKeyboardEvent('t'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles three-key sequence with modifier on first key', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+g-i-t', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g', { ctrlKey: true }))
+      window.dispatchEvent(createKeyboardEvent('i'))
+      window.dispatchEvent(createKeyboardEvent('t'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('resets three-key sequence on wrong key at any position', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('g-i-t', callback)
+      })
+
+      // Wrong key at position 2
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('x'))
+      window.dispatchEvent(createKeyboardEvent('t'))
+      expect(callback).not.toHaveBeenCalled()
+
+      // Start over and complete correctly
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('i'))
+      window.dispatchEvent(createKeyboardEvent('t'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles timeout between any keys in three-key sequence', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('g-i-t', callback, { sequenceTimeout: 500 })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('i'))
+      vi.advanceTimersByTime(600) // Timeout between second and third
+      window.dispatchEvent(createKeyboardEvent('t'))
+
+      expect(callback).not.toHaveBeenCalled()
+    })
   })
 
   describe('options', () => {
@@ -230,6 +296,183 @@ describe('useHotkey', () => {
       window.dispatchEvent(event)
 
       expect(preventDefaultSpy).not.toHaveBeenCalled()
+    })
+
+    it('stops propagation when stopPropagation is true', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback, { stopPropagation: true })
+      })
+
+      const event = createKeyboardEvent('a')
+      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation')
+      window.dispatchEvent(event)
+
+      expect(stopPropagationSpy).toHaveBeenCalled()
+    })
+
+    it('does not stop propagation when stopPropagation is false', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback, { stopPropagation: false })
+      })
+
+      const event = createKeyboardEvent('a')
+      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation')
+      window.dispatchEvent(event)
+
+      expect(stopPropagationSpy).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('input focus detection', () => {
+    it('ignores hotkey when input is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const input = document.createElement('input')
+      document.body.append(input)
+      input.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      input.remove()
+    })
+
+    it('ignores hotkey when textarea is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const textarea = document.createElement('textarea')
+      document.body.append(textarea)
+      textarea.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      textarea.remove()
+    })
+
+    it('ignores hotkey when contentEditable element is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const div = document.createElement('div')
+      div.contentEditable = 'true'
+      document.body.append(div)
+      div.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      div.remove()
+    })
+
+    it('fires hotkey when inputs option is true even if input focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback, { inputs: true })
+      })
+
+      const input = document.createElement('input')
+      document.body.append(input)
+      input.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+      input.remove()
+    })
+
+    it('uses reactive inputs option', async () => {
+      const callback = vi.fn()
+      const inputs = ref(false)
+
+      scope.run(() => {
+        useHotkey('a', callback, { inputs })
+      })
+
+      const input = document.createElement('input')
+      document.body.append(input)
+      input.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+
+      inputs.value = true
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+
+      input.remove()
+    })
+  })
+
+  describe('event type option', () => {
+    it('listens to keyup when event option is keyup', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback, { event: 'keyup' })
+      })
+
+      const event = new KeyboardEvent('keyup', {
+        key: 'a',
+        bubbles: true,
+      })
+      window.dispatchEvent(event)
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not listen to keydown when event is keyup', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback, { event: 'keyup' })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('switches listener when event option changes reactively', async () => {
+      const callback = vi.fn()
+      const event = ref<'keydown' | 'keyup'>('keydown')
+
+      scope.run(() => {
+        useHotkey('a', callback, { event })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+
+      event.value = 'keyup'
+      await nextTick()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1) // still 1, not listening to keydown
+
+      const keyupEvent = new KeyboardEvent('keyup', {
+        key: 'a',
+        bubbles: true,
+      })
+      window.dispatchEvent(keyupEvent)
+      expect(callback).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -391,6 +634,55 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
   })
+
+  describe('SSR safety', () => {
+    it('isActive is false when keys is undefined', () => {
+      const callback = vi.fn()
+      let isActive: { value: boolean }
+
+      scope.run(() => {
+        ;({ isActive } = useHotkey(undefined, callback))
+      })
+
+      // No listener set up for undefined keys
+      expect(isActive!.value).toBe(false)
+    })
+
+    it('pause/resume/stop do not throw when keys is undefined', () => {
+      const callback = vi.fn()
+      let pause: () => void
+      let resume: () => void
+      let stop: () => void
+
+      scope.run(() => {
+        ;({ pause, resume, stop } = useHotkey(undefined, callback))
+      })
+
+      // These should not throw even with undefined keys
+      expect(() => pause!()).not.toThrow()
+      expect(() => resume!()).not.toThrow()
+      expect(() => stop!()).not.toThrow()
+    })
+
+    it('handles transition from undefined to defined keys', async () => {
+      const callback = vi.fn()
+      const keys = ref<string | undefined>(undefined)
+      let isActive: { value: boolean }
+
+      scope.run(() => {
+        ;({ isActive } = useHotkey(keys, callback))
+      })
+
+      expect(isActive!.value).toBe(false)
+
+      keys.value = 'a'
+      await nextTick()
+
+      expect(isActive!.value).toBe(true)
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+  })
 })
 
 describe('splitKeyCombination', () => {
@@ -433,6 +725,41 @@ describe('splitKeyCombination', () => {
       separators: ['+'],
     })
   })
+
+  describe('warnings', () => {
+    it('warns on empty combination', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      splitKeyCombination('')
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid hotkey combination'),
+      )
+      warnSpy.mockRestore()
+    })
+
+    it('warns on invalid leading separator', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      splitKeyCombination('+a')
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid hotkey combination'),
+      )
+      warnSpy.mockRestore()
+    })
+
+    it('warns on double plus separator', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      splitKeyCombination('ctrl++k')
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid hotkey combination'),
+      )
+      warnSpy.mockRestore()
+    })
+  })
 })
 
 describe('splitKeySequence', () => {
@@ -454,6 +781,45 @@ describe('splitKeySequence', () => {
 
   it('handles literal minus in combination', () => {
     expect(splitKeySequence('ctrl+-')).toEqual(['ctrl+-'])
+  })
+
+  it('splits three-key sequence', () => {
+    expect(splitKeySequence('g-i-t')).toEqual(['g', 'i', 't'])
+  })
+
+  describe('warnings', () => {
+    it('warns on empty sequence', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      splitKeySequence('')
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid hotkey sequence'),
+      )
+      warnSpy.mockRestore()
+    })
+
+    it('warns on invalid leading separator', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      splitKeySequence('-a')
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid hotkey sequence'),
+      )
+      warnSpy.mockRestore()
+    })
+
+    it('warns on invalid trailing separator', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      splitKeySequence('a-')
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid hotkey sequence'),
+      )
+      warnSpy.mockRestore()
+    })
   })
 })
 

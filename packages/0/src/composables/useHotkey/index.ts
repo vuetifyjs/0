@@ -24,7 +24,7 @@ import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
-import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
+import { splitKeyCombination, splitKeySequence, MODIFIERS, type Modifier } from './parsing'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
@@ -49,6 +49,11 @@ export interface UseHotkeyOptions {
    */
   preventDefault?: MaybeRefOrGetter<boolean>
   /**
+   * Whether to stop event propagation.
+   * @default false
+   */
+  stopPropagation?: MaybeRefOrGetter<boolean>
+  /**
    * Timeout in ms before a key sequence resets.
    * @default 1000
    */
@@ -66,7 +71,7 @@ export interface UseHotkeyReturn {
    */
   readonly isPaused: Readonly<Ref<boolean>>
   /**
-   * Pause listening (stops responding to hotkeys but preserves configuration).
+   * Pause listening (removes listener but keeps configuration).
    */
   pause: () => void
   /**
@@ -74,13 +79,13 @@ export interface UseHotkeyReturn {
    */
   resume: () => void
   /**
-   * Stop listening and clean up permanently.
+   * Stop listening and clean up (removes listener).
    */
   stop: () => void
 }
 
-// Cache platform detection at module level
-const isMac = IN_BROWSER && (navigator?.userAgent?.includes('Macintosh') ?? false)
+// Cache platform detection at module level (includes iOS/iPadOS for Apple keyboard support)
+const isMac = IN_BROWSER && /mac|iphone|ipad|ipod/i.test(navigator?.userAgent ?? '')
 
 /**
  * A composable that listens for hotkey combinations and sequences.
@@ -121,6 +126,7 @@ export function useHotkey (
     event = 'keydown',
     inputs = false,
     preventDefault = true,
+    stopPropagation = false,
     sequenceTimeout = 1000,
   } = options
 
@@ -162,6 +168,7 @@ export function useHotkey (
       return
     }
 
+    if (toValue(stopPropagation)) e.stopPropagation()
     if (toValue(preventDefault)) e.preventDefault()
 
     if (!isSequence) {
@@ -219,7 +226,6 @@ export function useHotkey (
   }
 
   function stop () {
-    isPaused.value = true
     teardown()
   }
 
@@ -246,41 +252,30 @@ export function useHotkey (
   }
 }
 
-function matchesKeyGroup (e: KeyboardEvent, group: string): boolean {
-  const { modifiers, actualKey } = parseKeyGroup(group)
-
-  const expectCtrl = modifiers.ctrl || (!isMac && (modifiers.cmd || modifiers.meta))
-  const expectMeta = isMac && (modifiers.cmd || modifiers.meta)
-
-  return (
-    e.ctrlKey === expectCtrl &&
-    e.metaKey === expectMeta &&
-    e.shiftKey === modifiers.shift &&
-    e.altKey === modifiers.alt &&
-    e.key.toLowerCase() === actualKey?.toLowerCase()
-  )
+interface ParsedKeyGroup {
+  modifiers: Record<Modifier, boolean>
+  actualKey: string | undefined
 }
 
-interface ParsedKeyGroup {
-  modifiers: Record<string, boolean>
-  actualKey: string | undefined
+function isModifier (key: string): key is Modifier {
+  return (MODIFIERS as readonly string[]).includes(key)
 }
 
 function parseKeyGroup (group: string): ParsedKeyGroup {
   const { keys: parts } = splitKeyCombination(group.toLowerCase())
 
+  const modifiers = Object.fromEntries(
+    MODIFIERS.map(m => [m, false]),
+  ) as Record<Modifier, boolean>
+
   if (parts.length === 0) {
-    return {
-      modifiers: Object.fromEntries(MODIFIERS.map(m => [m, false])),
-      actualKey: undefined,
-    }
+    return { modifiers, actualKey: undefined }
   }
 
-  const modifiers = Object.fromEntries(MODIFIERS.map(m => [m, false])) as Record<string, boolean>
   let actualKey: string | undefined
 
   for (const part of parts) {
-    if ((MODIFIERS as readonly string[]).includes(part)) {
+    if (isModifier(part)) {
       modifiers[part] = true
     } else {
       actualKey = part
@@ -288,6 +283,27 @@ function parseKeyGroup (group: string): ParsedKeyGroup {
   }
 
   return { modifiers, actualKey }
+}
+
+function matchesKeyGroup (e: KeyboardEvent, group: string): boolean {
+  const { modifiers, actualKey } = parseKeyGroup(group)
+
+  const expectCtrl = modifiers.ctrl || (!isMac && (modifiers.cmd || modifiers.meta))
+  const expectMeta = isMac && (modifiers.cmd || modifiers.meta)
+
+  const modifiersMatch = (
+    e.ctrlKey === expectCtrl &&
+    e.metaKey === expectMeta &&
+    e.shiftKey === modifiers.shift &&
+    e.altKey === modifiers.alt
+  )
+
+  // If no actual key specified, only match modifiers
+  if (actualKey === undefined) {
+    return modifiersMatch
+  }
+
+  return modifiersMatch && e.key.toLowerCase() === actualKey.toLowerCase()
 }
 
 // Re-export utilities for advanced usage
