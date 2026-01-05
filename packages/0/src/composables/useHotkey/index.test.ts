@@ -831,6 +831,45 @@ describe('useHotkey', () => {
       window.dispatchEvent(createKeyboardEvent('b'))
       expect(callback).toHaveBeenCalledTimes(1)
     })
+
+    it('stop() mid-sequence clears timer', () => {
+      const callback = vi.fn()
+      let stop: () => void
+
+      scope.run(() => {
+        ;({ stop } = useHotkey('g-h', callback, { sequenceTimeout: 500 }))
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      stop!()
+
+      vi.advanceTimersByTime(600)
+      window.dispatchEvent(createKeyboardEvent('h'))
+
+      expect(callback).not.toHaveBeenCalled()
+    })
+
+    it('pause() mid-sequence clears timer', () => {
+      const callback = vi.fn()
+      let pause: () => void
+      let resume: () => void
+
+      scope.run(() => {
+        ;({ pause, resume } = useHotkey('g-h', callback, { sequenceTimeout: 500 }))
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      pause!()
+
+      vi.advanceTimersByTime(600)
+      resume!()
+
+      // After resume, sequence should be reset - need to start fresh
+      window.dispatchEvent(createKeyboardEvent('g'))
+      window.dispatchEvent(createKeyboardEvent('h'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('SSR safety', () => {
@@ -921,6 +960,27 @@ describe('splitKeyCombination', () => {
     expect(splitKeyCombination('ctrl+-')).toEqual({
       keys: ['ctrl', '-'],
       separators: ['+'],
+    })
+  })
+
+  it('handles slash separator', () => {
+    expect(splitKeyCombination('ctrl/k')).toEqual({
+      keys: ['ctrl', 'k'],
+      separators: ['/'],
+    })
+  })
+
+  it('handles underscore separator', () => {
+    expect(splitKeyCombination('ctrl_k')).toEqual({
+      keys: ['ctrl', 'k'],
+      separators: ['_'],
+    })
+  })
+
+  it('handles mixed separators', () => {
+    expect(splitKeyCombination('ctrl+shift/k')).toEqual({
+      keys: ['ctrl', 'shift', 'k'],
+      separators: ['+', '/'],
     })
   })
 

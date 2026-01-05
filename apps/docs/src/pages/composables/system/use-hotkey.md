@@ -62,13 +62,15 @@ useHotkey('escape', () => {
 
 ## Key Combinations
 
-Combinations use `+` to join keys that must be pressed simultaneously:
+Combinations use `+`, `/`, or `_` to join keys that must be pressed simultaneously:
 
 ```ts
 useHotkey('ctrl+k', callback)       // Ctrl + K
 useHotkey('shift+enter', callback)  // Shift + Enter
 useHotkey('ctrl+shift+p', callback) // Ctrl + Shift + P
 useHotkey('alt+1', callback)        // Alt + 1
+useHotkey('ctrl/k', callback)       // Same as ctrl+k (/ separator)
+useHotkey('ctrl_k', callback)       // Same as ctrl+k (_ separator)
 ```
 
 ## Key Sequences
@@ -199,6 +201,7 @@ Common key aliases are supported for convenience:
 | `return` | `enter` |
 | `del` | `delete` |
 | `up`, `down`, `left`, `right` | `arrowup`, `arrowdown`, `arrowleft`, `arrowright` |
+| `minus`, `hyphen` | `-` |
 
 ## Related
 
