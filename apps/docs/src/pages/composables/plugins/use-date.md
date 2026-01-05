@@ -375,3 +375,10 @@ app.use(createDatePlugin({
   - Server: Returns epoch (1970-01-01T00:00:00) for deterministic rendering
 
   This is intentional to prevent hydration mismatches. For SSR apps needing current time, pass `Date.now()` explicitly and handle hydration via `<ClientOnly>` (Nuxt) or `v-if` + `onMounted` pattern.
+
+- **Timezone-dependent formatting**: `Intl.DateTimeFormat` uses the system timezone. Server environments (often UTC) and client browsers (user's local timezone) may produce different formatted strings, causing hydration mismatches.
+
+  **Solutions:**
+  - Set `TZ=UTC` environment variable on your server to match a consistent baseline
+  - Wrap formatted date output in `<ClientOnly>` (Nuxt) or render only after `onMounted`
+  - For critical date displays, serialize dates as ISO strings and format client-side only

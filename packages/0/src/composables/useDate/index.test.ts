@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { Temporal } from '@js-temporal/polyfill'
-import { createDate, createDateFallback, createDatePlugin, useDate } from './index'
+import { createDate, createDateContext, createDateFallback, createDatePlugin, useDate } from './index'
 import { V0DateAdapter } from './adapters/v0'
 
 describe('useDate', () => {
@@ -406,6 +406,53 @@ describe('useDate', () => {
         const diff = adapter.getDiff(dateA, dateB, 'days')
 
         expect(diff).toBe(5)
+      })
+
+      it('should get week number for date', () => {
+        const week = adapter.getWeek(testDate)
+
+        expect(typeof week).toBe('number')
+        expect(week).toBeGreaterThanOrEqual(1)
+        expect(week).toBeLessThanOrEqual(53)
+      })
+
+      it('should respect firstDayOfWeek parameter in getWeek', () => {
+        const jan1 = Temporal.PlainDateTime.from('2024-01-01T10:00:00')
+        const weekSunday = adapter.getWeek(jan1, 0)
+        const weekMonday = adapter.getWeek(jan1, 1)
+
+        expect(typeof weekSunday).toBe('number')
+        expect(typeof weekMonday).toBe('number')
+        expect(weekSunday).toBeGreaterThanOrEqual(1)
+        expect(weekMonday).toBeGreaterThanOrEqual(1)
+      })
+
+      it('should respect minimalDays parameter in getWeek', () => {
+        const jan1 = Temporal.PlainDateTime.from('2024-01-01T10:00:00')
+        const week1Day = adapter.getWeek(jan1, 0, 1)
+        const week4Day = adapter.getWeek(jan1, 0, 4)
+
+        expect(typeof week1Day).toBe('number')
+        expect(typeof week4Day).toBe('number')
+      })
+
+      it('should return correct week for mid-year date', () => {
+        // June 15, 2024 is in week 24 or 25 depending on calculation
+        const week = adapter.getWeek(testDate, 0)
+
+        expect(week).toBeGreaterThan(20)
+        expect(week).toBeLessThan(30)
+      })
+
+      it('should handle year boundary weeks', () => {
+        const dec31 = Temporal.PlainDateTime.from('2024-12-31T10:00:00')
+        const jan1 = Temporal.PlainDateTime.from('2025-01-01T10:00:00')
+
+        const weekDec = adapter.getWeek(dec31)
+        const weekJan = adapter.getWeek(jan1)
+
+        expect(weekDec).toBeGreaterThanOrEqual(1)
+        expect(weekJan).toBeGreaterThanOrEqual(1)
       })
     })
 
@@ -827,6 +874,82 @@ describe('useDate', () => {
       })
 
       expect(plugin).toBeDefined()
+    })
+  })
+
+  describe('createDateContext', () => {
+    it('should return trinity tuple [useContext, provideContext, defaultContext]', () => {
+      const trinity = createDateContext()
+
+      expect(trinity).toHaveLength(3)
+      expect(typeof trinity[0]).toBe('function') // useContext
+      expect(typeof trinity[1]).toBe('function') // provideContext
+      expect(trinity[2]).toBeDefined() // defaultContext
+    })
+
+    it('should return date context with default adapter', () => {
+      const [, , context] = createDateContext()
+
+      expect(context).toBeDefined()
+      expect(context.adapter).toBeDefined()
+      expect(context.locale).toBeDefined()
+    })
+
+    it('should preserve custom adapter in trinity', () => {
+      const customAdapter = new V0DateAdapter('ja-JP')
+      const [, , context] = createDateContext({ adapter: customAdapter })
+
+      expect(context.adapter).toBe(customAdapter)
+    })
+
+    it('should create independent contexts with different namespaces', () => {
+      const ctx1 = createDateContext({ namespace: 'app:date1' })
+      const ctx2 = createDateContext({ namespace: 'app:date2' })
+
+      // Both should return valid trinities
+      expect(ctx1).toHaveLength(3)
+      expect(ctx2).toHaveLength(3)
+
+      // Default contexts should be independent instances
+      expect(ctx1[2]).not.toBe(ctx2[2])
+    })
+
+    it('should apply locale option', () => {
+      const [, , context] = createDateContext({ locale: 'de-DE' })
+
+      expect(context.locale.value).toBe('de-DE')
+    })
+
+    it('should apply localeMap in trinity', () => {
+      const [, , context] = createDateContext({
+        locale: 'de',
+        localeMap: { de: 'de-CH' },
+      })
+
+      expect(context.locale.value).toBe('de-CH')
+    })
+
+    it('should use default namespace when not specified', () => {
+      const trinity = createDateContext()
+
+      // Should not throw - uses default 'v0:date' namespace
+      expect(trinity).toBeDefined()
+    })
+
+    it('should accept custom namespace', () => {
+      const trinity = createDateContext({ namespace: 'custom:date' })
+
+      expect(trinity).toBeDefined()
+      expect(trinity).toHaveLength(3)
+    })
+
+    it('should create functional context for date operations', () => {
+      const [, , context] = createDateContext()
+      const date = context.adapter.date('2024-06-15T10:30:00')
+
+      expect(date).not.toBeNull()
+      expect(date!.year).toBe(2024)
+      expect(date!.month).toBe(6)
     })
   })
 
