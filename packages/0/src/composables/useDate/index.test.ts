@@ -408,6 +408,76 @@ describe('useDate', () => {
         expect(diff).toBe(5)
       })
 
+      it('should get diff in hours', () => {
+        const dateA = Temporal.PlainDateTime.from('2024-06-15T15:00:00')
+        const dateB = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        const diff = adapter.getDiff(dateA, dateB, 'hours')
+
+        expect(diff).toBe(5)
+      })
+
+      it('should get diff in minutes', () => {
+        const dateA = Temporal.PlainDateTime.from('2024-06-15T10:45:00')
+        const dateB = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        const diff = adapter.getDiff(dateA, dateB, 'minutes')
+
+        expect(diff).toBe(45)
+      })
+
+      it('should get diff in seconds', () => {
+        const dateA = Temporal.PlainDateTime.from('2024-06-15T10:00:30')
+        const dateB = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        const diff = adapter.getDiff(dateA, dateB, 'seconds')
+
+        expect(diff).toBe(30)
+      })
+
+      it('should get diff in weeks', () => {
+        const dateA = Temporal.PlainDateTime.from('2024-06-22T10:00:00')
+        const dateB = Temporal.PlainDateTime.from('2024-06-01T10:00:00')
+        const diff = adapter.getDiff(dateA, dateB, 'weeks')
+
+        expect(diff).toBe(3)
+      })
+
+      it('should get diff in months', () => {
+        const dateA = Temporal.PlainDateTime.from('2024-09-15T10:00:00')
+        const dateB = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        const diff = adapter.getDiff(dateA, dateB, 'months')
+
+        expect(diff).toBe(3)
+      })
+
+      it('should get diff in years', () => {
+        const dateA = Temporal.PlainDateTime.from('2026-06-15T10:00:00')
+        const dateB = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        const diff = adapter.getDiff(dateA, dateB, 'years')
+
+        expect(diff).toBe(2)
+      })
+
+      it('should default to days when unit not specified', () => {
+        const dateA = Temporal.PlainDateTime.from('2024-06-20T10:00:00')
+        const dateB = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        const diff = adapter.getDiff(dateA, dateB)
+
+        expect(diff).toBe(5)
+      })
+
+      it('should accept string date for comparing parameter', () => {
+        const dateA = Temporal.PlainDateTime.from('2024-06-20T10:00:00')
+        const diff = adapter.getDiff(dateA, '2024-06-15T10:00:00', 'days')
+
+        expect(diff).toBe(5)
+      })
+
+      it('should return 0 for invalid string comparing parameter', () => {
+        const dateA = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
+        const diff = adapter.getDiff(dateA, 'invalid-date', 'days')
+
+        expect(diff).toBe(0)
+      })
+
       it('should get week number for date', () => {
         const week = adapter.getWeek(testDate)
 
