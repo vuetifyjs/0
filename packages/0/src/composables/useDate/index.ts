@@ -46,7 +46,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
-import { V0DateAdapter } from '#v0/composables/useDate/adapters'
+import { Vuetify0DateAdapter } from '#v0/composables/useDate/adapters'
 
 // Utilities
 import { getCurrentInstance, computed, watchEffect, onScopeDispose } from 'vue'
@@ -60,9 +60,9 @@ import type { Temporal } from '@js-temporal/polyfill'
 
 // Exports
 export type { DateAdapter } from '#v0/composables/useDate/adapters'
-export { V0DateAdapter } from '#v0/composables/useDate/adapters'
+export { Vuetify0DateAdapter } from '#v0/composables/useDate/adapters'
 
-/** The default date type when using V0DateAdapter */
+/** The default date type when using Vuetify0DateAdapter */
 type DefaultDateType = Temporal.PlainDateTime
 
 export interface DateContext<T = DefaultDateType> {
@@ -259,7 +259,7 @@ export function createDate<T = DefaultDateType> (
   const {
     localeMap = defaultLocaleMap,
     // Safe cast: overloads ensure T = DefaultDateType when adapter is undefined
-    adapter = new V0DateAdapter() as unknown as DateAdapter<T>,
+    adapter = new Vuetify0DateAdapter() as unknown as DateAdapter<T>,
     locale,
   } = _options
 
@@ -269,11 +269,11 @@ export function createDate<T = DefaultDateType> (
 /**
  * Creates a fallback date context for when useDate is called outside of a Vue component.
  *
- * @returns A fallback date context with V0DateAdapter.
+ * @returns A fallback date context with Vuetify0DateAdapter.
  * @internal
  */
 export function createDateFallback (): DateContext<DefaultDateType> {
-  const adapter = new V0DateAdapter()
+  const adapter = new Vuetify0DateAdapter()
 
   return {
     adapter,

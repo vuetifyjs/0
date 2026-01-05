@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { Temporal } from '@js-temporal/polyfill'
 import { createDate, createDateContext, createDateFallback, createDatePlugin, useDate } from './index'
-import { V0DateAdapter } from './adapters/v0'
+import { Vuetify0DateAdapter } from './adapters/v0'
 
 describe('useDate', () => {
-  describe('V0DateAdapter', () => {
-    let adapter: V0DateAdapter
+  describe('Vuetify0DateAdapter', () => {
+    let adapter: Vuetify0DateAdapter
 
     beforeEach(() => {
-      adapter = new V0DateAdapter('en-US')
+      adapter = new Vuetify0DateAdapter('en-US')
     })
 
     describe('construction and conversion', () => {
@@ -133,7 +133,7 @@ describe('useDate', () => {
       })
 
       it('should format with locale', () => {
-        const frAdapter = new V0DateAdapter('fr-FR')
+        const frAdapter = new Vuetify0DateAdapter('fr-FR')
         const month = frAdapter.format(testDate, 'month')
 
         expect(month.toLowerCase()).toContain('juin')
@@ -595,10 +595,10 @@ describe('useDate', () => {
       })
 
       it('should detect 12-hour cycle', () => {
-        const usAdapter = new V0DateAdapter('en-US')
+        const usAdapter = new Vuetify0DateAdapter('en-US')
         expect(usAdapter.is12HourCycleInCurrentLocale()).toBe(true)
 
-        const deAdapter = new V0DateAdapter('de-DE')
+        const deAdapter = new Vuetify0DateAdapter('de-DE')
         expect(deAdapter.is12HourCycleInCurrentLocale()).toBe(false)
       })
 
@@ -803,7 +803,7 @@ describe('useDate', () => {
 
     describe('cache management', () => {
       it('should handle many format calls without memory issues', () => {
-        const testAdapter = new V0DateAdapter('en-US')
+        const testAdapter = new Vuetify0DateAdapter('en-US')
         const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
 
         // Call format many times with different presets
@@ -828,7 +828,7 @@ describe('useDate', () => {
       })
 
       it('should reuse cached formatters for same locale and options', () => {
-        const testAdapter = new V0DateAdapter('en-US')
+        const testAdapter = new Vuetify0DateAdapter('en-US')
         const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
 
         // Call format multiple times with same parameters
@@ -842,8 +842,8 @@ describe('useDate', () => {
       })
 
       it('should create different formatters for different locales', () => {
-        const usAdapter = new V0DateAdapter('en-US')
-        const deAdapter = new V0DateAdapter('de-DE')
+        const usAdapter = new Vuetify0DateAdapter('en-US')
+        const deAdapter = new Vuetify0DateAdapter('de-DE')
         const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
 
         const usResult = usAdapter.format(testDate, 'month')
@@ -866,7 +866,7 @@ describe('useDate', () => {
     })
 
     it('should create date context with custom adapter', () => {
-      const customAdapter = new V0DateAdapter('de-DE')
+      const customAdapter = new Vuetify0DateAdapter('de-DE')
       const dateContext = createDate({ adapter: customAdapter })
 
       expect(dateContext.adapter).toBe(customAdapter)
@@ -930,7 +930,7 @@ describe('useDate', () => {
     })
 
     it('should accept custom adapter', () => {
-      const customAdapter = new V0DateAdapter('ja-JP')
+      const customAdapter = new Vuetify0DateAdapter('ja-JP')
       const plugin = createDatePlugin({
         adapter: customAdapter,
       })
@@ -966,7 +966,7 @@ describe('useDate', () => {
     })
 
     it('should preserve custom adapter in trinity', () => {
-      const customAdapter = new V0DateAdapter('ja-JP')
+      const customAdapter = new Vuetify0DateAdapter('ja-JP')
       const [, , context] = createDateContext({ adapter: customAdapter })
 
       expect(context.adapter).toBe(customAdapter)
@@ -1029,7 +1029,7 @@ describe('useDate', () => {
       const fallback = createDateFallback()
 
       expect(fallback).toBeDefined()
-      expect(fallback.adapter).toBeInstanceOf(V0DateAdapter)
+      expect(fallback.adapter).toBeInstanceOf(Vuetify0DateAdapter)
       expect(fallback.locale).toBeDefined()
       expect(fallback.locale.value).toBe('en-US')
     })
@@ -1046,7 +1046,7 @@ describe('useDate', () => {
 
   describe('locale synchronization', () => {
     it('should sync adapter locale with computed locale', () => {
-      const customAdapter = new V0DateAdapter('en-US')
+      const customAdapter = new Vuetify0DateAdapter('en-US')
       const dateContext = createDate({
         adapter: customAdapter,
         locale: 'de-DE',
@@ -1059,7 +1059,7 @@ describe('useDate', () => {
     })
 
     it('should apply localeMap when short code is provided', () => {
-      const customAdapter = new V0DateAdapter('en-US')
+      const customAdapter = new Vuetify0DateAdapter('en-US')
       const dateContext = createDate({
         adapter: customAdapter,
         locale: 'fr', // short code
@@ -1076,7 +1076,7 @@ describe('useDate', () => {
       const ctx = useDate()
 
       expect(ctx).toBeDefined()
-      expect(ctx.adapter).toBeInstanceOf(V0DateAdapter)
+      expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
       expect(ctx.locale.value).toBe('en-US')
     })
 
@@ -1084,7 +1084,7 @@ describe('useDate', () => {
       const ctx = useDate('custom:namespace')
 
       expect(ctx).toBeDefined()
-      expect(ctx.adapter).toBeInstanceOf(V0DateAdapter)
+      expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
     })
 
     it('should handle missing context gracefully', () => {
@@ -1092,7 +1092,7 @@ describe('useDate', () => {
       const ctx = useDate('nonexistent:namespace')
 
       expect(ctx).toBeDefined()
-      expect(ctx.adapter).toBeInstanceOf(V0DateAdapter)
+      expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
     })
   })
 })

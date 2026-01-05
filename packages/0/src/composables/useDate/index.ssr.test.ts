@@ -12,12 +12,12 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 // Import after mock is set up
-import { V0DateAdapter } from './adapters/v0'
+import { Vuetify0DateAdapter } from './adapters/v0'
 
 describe('useDate SSR', () => {
-  describe('V0DateAdapter in SSR mode', () => {
+  describe('Vuetify0DateAdapter in SSR mode', () => {
     it('should return epoch when date() called without arguments', () => {
-      const adapter = new V0DateAdapter('en-US')
+      const adapter = new Vuetify0DateAdapter('en-US')
       const date = adapter.date()
 
       expect(date).not.toBeNull()
@@ -30,7 +30,7 @@ describe('useDate SSR', () => {
     })
 
     it('should return epoch for null input', () => {
-      const adapter = new V0DateAdapter('en-US')
+      const adapter = new Vuetify0DateAdapter('en-US')
       const date = adapter.date(null)
 
       expect(date).not.toBeNull()
@@ -38,7 +38,7 @@ describe('useDate SSR', () => {
     })
 
     it('should return epoch for undefined input', () => {
-      const adapter = new V0DateAdapter('en-US')
+      const adapter = new Vuetify0DateAdapter('en-US')
       const date = adapter.date(undefined)
 
       expect(date).not.toBeNull()
@@ -46,7 +46,7 @@ describe('useDate SSR', () => {
     })
 
     it('should still parse explicit date values correctly', () => {
-      const adapter = new V0DateAdapter('en-US')
+      const adapter = new Vuetify0DateAdapter('en-US')
 
       // Explicit values should work normally in SSR
       const fromString = adapter.date('2024-06-15T10:30:00')
@@ -60,7 +60,7 @@ describe('useDate SSR', () => {
     })
 
     it('should format dates correctly in SSR', () => {
-      const adapter = new V0DateAdapter('en-US')
+      const adapter = new Vuetify0DateAdapter('en-US')
       const date = adapter.date('2024-06-15T10:30:00')!
 
       // Formatting should work in SSR
@@ -69,7 +69,7 @@ describe('useDate SSR', () => {
     })
 
     it('should perform date arithmetic in SSR', () => {
-      const adapter = new V0DateAdapter('en-US')
+      const adapter = new Vuetify0DateAdapter('en-US')
       const date = adapter.date('2024-06-15T10:30:00')!
 
       const nextDay = adapter.addDays(date, 1)

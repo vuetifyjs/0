@@ -1,5 +1,5 @@
 /**
- * @module V0DateAdapter
+ * @module Vuetify0DateAdapter
  *
  * @remarks
  * Default DateAdapter for v0, built on the Temporal API.
@@ -33,7 +33,7 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 /** Maximum cache size to prevent memory leaks */
 const MAX_CACHE_SIZE = 50
 
-export class V0DateAdapter implements DateAdapter<PlainDateTime> {
+export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   private _locale: string
 
   /** Cache for Intl.DateTimeFormat instances, keyed by locale + options */

@@ -2,4 +2,4 @@
 export type { DateAdapter } from './adapter'
 
 // Adapters
-export { V0DateAdapter } from './v0'
+export { Vuetify0DateAdapter } from './v0'
