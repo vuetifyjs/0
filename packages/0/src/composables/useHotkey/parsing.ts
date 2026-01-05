@@ -8,8 +8,8 @@ export const MODIFIERS = ['ctrl', 'shift', 'alt', 'meta', 'cmd'] as const
 export type Modifier = typeof MODIFIERS[number]
 
 export interface CombinationResult {
-  keys: string[]
-  separators: string[]
+  readonly keys: readonly string[]
+  readonly separators: readonly string[]
 }
 
 /**

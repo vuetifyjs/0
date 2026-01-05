@@ -157,21 +157,20 @@ export function useHotkey (
 
     // Check ARIA roles for custom text inputs
     const role = activeElement.getAttribute('role')
-    if (role === 'textbox' || role === 'searchbox') {
+    if (role === 'textbox' || role === 'searchbox' || role === 'combobox' || role === 'spinbutton') {
       return true
     }
 
     // Check native text inputs (not checkbox, radio, submit, etc.)
     if (activeElement.tagName === 'INPUT') {
       const type = (activeElement as HTMLInputElement).type?.toLowerCase()
-      const textTypes = ['text', 'email', 'password', 'search', 'tel', 'url', 'number']
+      const textTypes = ['text', 'email', 'password', 'search', 'tel', 'url', 'number', 'date', 'datetime-local', 'time', 'month', 'week']
       return textTypes.includes(type)
     }
 
     return (
       activeElement.tagName === 'TEXTAREA' ||
-      activeElement.isContentEditable ||
-      activeElement.contentEditable === 'true'
+      activeElement.isContentEditable
     )
   }
 

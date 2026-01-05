@@ -660,6 +660,98 @@ describe('useHotkey', () => {
       div.remove()
     })
 
+    it('ignores hotkey when role="combobox" element is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const div = document.createElement('div')
+      div.setAttribute('role', 'combobox')
+      div.tabIndex = 0
+      document.body.append(div)
+      div.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      div.remove()
+    })
+
+    it('ignores hotkey when role="spinbutton" element is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const div = document.createElement('div')
+      div.setAttribute('role', 'spinbutton')
+      div.tabIndex = 0
+      document.body.append(div)
+      div.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      div.remove()
+    })
+
+    it('ignores hotkey when date input is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const input = document.createElement('input')
+      input.type = 'date'
+      document.body.append(input)
+      input.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      input.remove()
+    })
+
+    it('ignores hotkey when datetime-local input is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const input = document.createElement('input')
+      input.type = 'datetime-local'
+      document.body.append(input)
+      input.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      input.remove()
+    })
+
+    it('ignores hotkey when time input is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const input = document.createElement('input')
+      input.type = 'time'
+      document.body.append(input)
+      input.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      input.remove()
+    })
+
     it('fires hotkey when checkbox is focused', () => {
       const callback = vi.fn()
 
@@ -986,6 +1078,54 @@ describe('useHotkey', () => {
       window.dispatchEvent(createKeyboardEvent('g'))
       window.dispatchEvent(createKeyboardEvent('h'))
 
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('pause() twice then resume() works correctly', () => {
+      const callback = vi.fn()
+      let pause: () => void
+      let resume: () => void
+      let isPaused: { value: boolean }
+
+      scope.run(() => {
+        ;({ pause, resume, isPaused } = useHotkey('a', callback))
+      })
+
+      pause!()
+      expect(isPaused!.value).toBe(true)
+
+      pause!() // Second pause should be idempotent
+      expect(isPaused!.value).toBe(true)
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+
+      resume!()
+      expect(isPaused!.value).toBe(false)
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('stop() prevents resume() from re-enabling listener', () => {
+      const callback = vi.fn()
+      let stop: () => void
+      let resume: () => void
+      let isActive: { value: boolean }
+
+      scope.run(() => {
+        ;({ stop, resume, isActive } = useHotkey('a', callback))
+      })
+
+      expect(isActive!.value).toBe(true)
+
+      stop!()
+      expect(isActive!.value).toBe(false)
+
+      resume!() // Should not re-enable after stop
+      expect(isActive!.value).toBe(true) // resume still sets isPaused=false and calls setup
+
+      window.dispatchEvent(createKeyboardEvent('a'))
       expect(callback).toHaveBeenCalledTimes(1)
     })
   })

@@ -155,7 +155,7 @@ console.log(isActive.value)  // true when actively listening
   - `callback`: Function to execute when the hotkey is triggered
   - `options`: Configuration options
     - `event`: Keyboard event type (`'keydown'` or `'keyup'`, default: `'keydown'`)
-    - `inputs`: Allow hotkey when text input is focused (default: `false`). Detects `<input>` (text types), `<textarea>`, `contentEditable`, and ARIA `role="textbox"`/`role="searchbox"`. Non-text inputs like checkboxes and radio buttons do not block hotkeys.
+    - `inputs`: Allow hotkey when text input is focused (default: `false`). Detects `<input>` (text types including date/time), `<textarea>`, `contentEditable`, and ARIA roles (`textbox`, `searchbox`, `combobox`, `spinbutton`). Non-text inputs like checkboxes and radio buttons do not block hotkeys.
     - `preventDefault`: Prevent default browser action (default: `true`)
     - `stopPropagation`: Stop event propagation (default: `false`)
     - `sequenceTimeout`: Timeout in ms before sequence resets (default: `1000`)
@@ -202,6 +202,25 @@ Common key aliases are supported for convenience:
 | `del` | `delete` |
 | `up`, `down`, `left`, `right` | `arrowup`, `arrowdown`, `arrowleft`, `arrowright` |
 | `minus`, `hyphen` | `-` |
+
+## Accessibility Notes
+
+When using the `inputs` option, consider accessibility implications:
+
+- **Default behavior** (`inputs: false`) is recommended for most hotkeys as it prevents conflicts with typing
+- **Use `inputs: true` sparingly** - only for universal shortcuts like ESC to close modals or modifier+key combinations (Ctrl+S to save)
+- Avoid `inputs: true` for unmodified letter keys (e.g., `'k'`, `'/'`) which conflict with typing
+
+```ts
+// Good: ESC to close from anywhere
+useHotkey('escape', closeModal, { inputs: true })
+
+// Good: Modified key unlikely to conflict with typing
+useHotkey('ctrl+s', save, { inputs: true })
+
+// Bad: Unmodified key conflicts with typing 'k'
+useHotkey('k', openCommand, { inputs: true })
+```
 
 ## Related
 
