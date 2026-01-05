@@ -13,7 +13,7 @@ export type { DialogTitleProps, DialogTitleSlotProps } from './DialogTitle.vue'
 export type { DialogActivatorProps, DialogActivatorSlotProps } from './DialogActivator.vue'
 
 // Components
-import Trigger from './DialogActivator.vue'
+import Activator from './DialogActivator.vue'
 import Close from './DialogClose.vue'
 import Content from './DialogContent.vue'
 import Description from './DialogDescription.vue'
@@ -33,9 +33,9 @@ import Title from './DialogTitle.vue'
  *
  * <template>
  *   <Dialog.Root>
- *     <Dialog.Trigger>
+ *     <Dialog.Activator>
  *       Open Dialog
- *     </Dialog.Trigger>
+ *     </Dialog.Activator>
  *
  *     <Dialog.Content>
  *       <Dialog.Title>Dialog Title</Dialog.Title>
@@ -63,7 +63,7 @@ export const Dialog = {
    *
    * <template>
    *   <Dialog.Root>
-   *     <Dialog.Trigger>Open</Dialog.Trigger>
+   *     <Dialog.Activator>Open</Dialog.Activator>
    *     <Dialog.Content>
    *       <Dialog.Title>Title</Dialog.Title>
    *       <Dialog.Close>Close</Dialog.Close>
@@ -74,9 +74,9 @@ export const Dialog = {
    */
   Root,
   /**
-   * Trigger component that opens the dialog.
+   * Activator component that opens the dialog.
    *
-   * @see https://0.vuetifyjs.com/components/dialog#dialogtrigger
+   * @see https://0.vuetifyjs.com/components/dialog#dialogactivator
    *
    * @example
    * ```vue
@@ -85,13 +85,13 @@ export const Dialog = {
    * </script>
    *
    * <template>
-   *   <Dialog.Trigger>
+   *   <Dialog.Activator>
    *     Open Dialog
-   *   </Dialog.Trigger>
+   *   </Dialog.Activator>
    * </template>
    * ```
    */
-  Trigger,
+  Activator,
   /**
    * Content container for the dialog using native `<dialog>` element.
    *

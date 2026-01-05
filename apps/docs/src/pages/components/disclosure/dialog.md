@@ -43,7 +43,7 @@ The Dialog component leverages the native `showModal()` API for proper modal beh
 
 <template>
   <Dialog.Root>
-    <Dialog.Trigger />
+    <Dialog.Activator />
 
     <Dialog.Content>
       <Dialog.Title />

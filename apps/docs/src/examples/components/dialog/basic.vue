@@ -6,9 +6,9 @@
 <template>
   <div class="flex justify-center">
     <Dialog.Root>
-      <Dialog.Trigger class="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium">
+      <Dialog.Activator class="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium">
         Click Me
-      </Dialog.Trigger>
+      </Dialog.Activator>
 
       <Dialog.Content class="m-auto rounded-xl bg-surface border border-divider max-w-md w-full">
         <div class="px-4 py-2 border-b border-divider">

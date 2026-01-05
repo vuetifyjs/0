@@ -51,7 +51,7 @@ describe('dialog', () => {
           },
           slots: {
             default: () => [
-              h(Dialog.Trigger, {}, () => 'Open'),
+              h(Dialog.Activator, {}, () => 'Open'),
               h(Dialog.Content, {}, () => 'Content'),
             ],
           },
@@ -59,7 +59,7 @@ describe('dialog', () => {
 
         expect(isOpen.value).toBe(false)
 
-        await wrapper.findComponent(Dialog.Trigger as any).trigger('click')
+        await wrapper.findComponent(Dialog.Activator as any).trigger('click')
         expect(isOpen.value).toBe(true)
       })
 
@@ -95,13 +95,13 @@ describe('dialog', () => {
         const wrapper = mount(Dialog.Root, {
           slots: {
             default: () => [
-              h(Dialog.Trigger, {}, () => 'Open'),
+              h(Dialog.Activator, {}, () => 'Open'),
               h(Dialog.Content, {}, () => 'Content'),
             ],
           },
         })
 
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         const content = wrapper.findComponent(Dialog.Content as any)
         expect(trigger.exists()).toBe(true)
         expect(content.exists()).toBe(true)
@@ -114,13 +114,13 @@ describe('dialog', () => {
           },
           slots: {
             default: () => [
-              h(Dialog.Trigger, { namespace: 'custom-dialog' }, () => 'Open'),
+              h(Dialog.Activator, { namespace: 'custom-dialog' }, () => 'Open'),
               h(Dialog.Content, { namespace: 'custom-dialog' }, () => 'Content'),
             ],
           },
         })
 
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         expect(trigger.exists()).toBe(true)
       })
     })
@@ -147,38 +147,38 @@ describe('dialog', () => {
     })
   })
 
-  describe('trigger', () => {
+  describe('activator', () => {
     describe('rendering', () => {
       it('should render as button by default', () => {
         const wrapper = mount(Dialog.Root, {
           slots: {
-            default: () => h(Dialog.Trigger, {}, () => 'Open'),
+            default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
         })
 
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         expect(trigger.element.tagName).toBe('BUTTON')
       })
 
       it('should render as custom element when as prop is provided', () => {
         const wrapper = mount(Dialog.Root, {
           slots: {
-            default: () => h(Dialog.Trigger, { as: 'div' }, () => 'Open'),
+            default: () => h(Dialog.Activator, { as: 'div' }, () => 'Open'),
           },
         })
 
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         expect(trigger.element.tagName).toBe('DIV')
       })
 
       it('should set type=button when as=button', () => {
         const wrapper = mount(Dialog.Root, {
           slots: {
-            default: () => h(Dialog.Trigger, {}, () => 'Open'),
+            default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
         })
 
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         expect(trigger.attributes('type')).toBe('button')
       })
     })
@@ -187,22 +187,22 @@ describe('dialog', () => {
       it('should have aria-haspopup=dialog', () => {
         const wrapper = mount(Dialog.Root, {
           slots: {
-            default: () => h(Dialog.Trigger, {}, () => 'Open'),
+            default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
         })
 
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         expect(trigger.attributes('aria-haspopup')).toBe('dialog')
       })
 
       it('should have aria-expanded=false when closed', () => {
         const wrapper = mount(Dialog.Root, {
           slots: {
-            default: () => h(Dialog.Trigger, {}, () => 'Open'),
+            default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
         })
 
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         expect(trigger.attributes('aria-expanded')).toBe('false')
       })
 
@@ -210,12 +210,12 @@ describe('dialog', () => {
         const wrapper = mount(Dialog.Root, {
           props: { modelValue: true },
           slots: {
-            default: () => h(Dialog.Trigger, {}, () => 'Open'),
+            default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
         })
 
         await nextTick()
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         expect(trigger.attributes('aria-expanded')).toBe('true')
       })
 
@@ -223,12 +223,12 @@ describe('dialog', () => {
         const wrapper = mount(Dialog.Root, {
           props: { modelValue: true },
           slots: {
-            default: () => h(Dialog.Trigger, {}, () => 'Open'),
+            default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
         })
 
         await nextTick()
-        const trigger = wrapper.findComponent(Dialog.Trigger as any)
+        const trigger = wrapper.findComponent(Dialog.Activator as any)
         expect(trigger.attributes('data-dialog-open')).toBe('')
       })
     })
@@ -238,13 +238,13 @@ describe('dialog', () => {
         const wrapper = mount(Dialog.Root, {
           slots: {
             default: () => [
-              h(Dialog.Trigger, {}, () => 'Open'),
+              h(Dialog.Activator, {}, () => 'Open'),
               h(Dialog.Content, {}, () => 'Content'),
             ],
           },
         })
 
-        await wrapper.findComponent(Dialog.Trigger as any).trigger('click')
+        await wrapper.findComponent(Dialog.Activator as any).trigger('click')
         await nextTick()
 
         expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
@@ -578,7 +578,7 @@ describe('dialog', () => {
         },
         slots: {
           default: () => [
-            h(Dialog.Trigger, {}, () => 'Open'),
+            h(Dialog.Activator, {}, () => 'Open'),
             h(Dialog.Content, {}, () => [
               h(Dialog.Title, {}, () => 'Dialog Title'),
               h(Dialog.Description, {}, () => 'Dialog Description'),
@@ -593,7 +593,7 @@ describe('dialog', () => {
       expect(isOpen).toBe(false)
 
       // Open via trigger
-      await wrapper.findComponent(Dialog.Trigger as any).trigger('click')
+      await wrapper.findComponent(Dialog.Activator as any).trigger('click')
       await nextTick()
       expect(isOpen).toBe(true)
       expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalled()
@@ -608,17 +608,17 @@ describe('dialog', () => {
       const wrapper = mount(defineComponent({
         render: () => [
           h(Dialog.Root, { namespace: 'dialog-1' }, () => [
-            h(Dialog.Trigger, { namespace: 'dialog-1' }, () => 'Open 1'),
+            h(Dialog.Activator, { namespace: 'dialog-1' }, () => 'Open 1'),
             h(Dialog.Content, { namespace: 'dialog-1' }, () => 'Content 1'),
           ]),
           h(Dialog.Root, { namespace: 'dialog-2' }, () => [
-            h(Dialog.Trigger, { namespace: 'dialog-2' }, () => 'Open 2'),
+            h(Dialog.Activator, { namespace: 'dialog-2' }, () => 'Open 2'),
             h(Dialog.Content, { namespace: 'dialog-2' }, () => 'Content 2'),
           ]),
         ],
       }))
 
-      const triggers = wrapper.findAllComponents(Dialog.Trigger as any)
+      const triggers = wrapper.findAllComponents(Dialog.Activator as any)
       expect(triggers).toHaveLength(2)
       expect(triggers[0]?.text()).toBe('Open 1')
       expect(triggers[1]?.text()).toBe('Open 2')
