@@ -11,6 +11,7 @@
   const firstItemRef = useTemplateRef<HTMLElement>('firstItem')
 
   function close () {
+    if (!isOpen.value) return
     isOpen.value = false
     nextTick(() => buttonRef.value?.focus())
   }
