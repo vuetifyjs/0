@@ -20,7 +20,7 @@ import { Temporal } from '@js-temporal/polyfill'
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Utilities
-import { isNullOrUndefined, isNumber, isString } from '#v0/utilities'
+import { isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'
 
 // Types
 import type { DateAdapter } from './adapter'
@@ -525,9 +525,9 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     unit?: string,
   ): number {
     const unitKey = (unit ?? 'days') as 'years' | 'months' | 'weeks' | 'days' | 'hours' | 'minutes' | 'seconds'
-    const comp = typeof comparing === 'string' ? this.date(comparing) : comparing
+    const comp = isString(comparing) ? this.date(comparing) : comparing
 
-    if (comp === null) return 0
+    if (isNull(comp)) return 0
 
     const duration = date.since(comp, { largestUnit: unitKey })
 
