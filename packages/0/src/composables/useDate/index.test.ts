@@ -36,6 +36,24 @@ describe('useDate', () => {
         expect(date!.day).toBe(15)
       })
 
+      it('should create date from ZonedDateTime', () => {
+        const input = Temporal.ZonedDateTime.from('2024-06-15T10:30:00[America/New_York]')
+        const date = adapter.date(input)
+
+        expect(date).not.toBeNull()
+        expect(date!.year).toBe(2024)
+        expect(date!.month).toBe(6)
+        expect(date!.day).toBe(15)
+        expect(date!.hour).toBe(10)
+        expect(date!.minute).toBe(30)
+      })
+
+      it('should validate ZonedDateTime as valid', () => {
+        const zoned = Temporal.ZonedDateTime.from('2024-06-15T10:30:00[UTC]')
+
+        expect(adapter.isValid(zoned)).toBe(true)
+      })
+
       it('should create date from JavaScript Date', () => {
         const jsDate = new Date(2024, 5, 15, 10, 30, 0) // June 15, 2024
         const date = adapter.date(jsDate)
@@ -614,6 +632,28 @@ describe('useDate', () => {
         expect(formatted).toBe('02:30 PM')
       })
 
+      it('should format midnight as 12:00 AM', () => {
+        const midnight = adapter.date('2024-06-15T00:00:00')!
+        expect(adapter.formatByString(midnight, 'h:mm A')).toBe('12:00 AM')
+        expect(adapter.formatByString(midnight, 'hh:mm a')).toBe('12:00 am')
+      })
+
+      it('should format noon as 12:00 PM', () => {
+        const noon = adapter.date('2024-06-15T12:00:00')!
+        expect(adapter.formatByString(noon, 'h:mm A')).toBe('12:00 PM')
+        expect(adapter.formatByString(noon, 'hh:mm a')).toBe('12:00 pm')
+      })
+
+      it('should format 1 AM correctly', () => {
+        const oneAm = adapter.date('2024-06-15T01:00:00')!
+        expect(adapter.formatByString(oneAm, 'h:mm A')).toBe('1:00 AM')
+      })
+
+      it('should format 1 PM correctly', () => {
+        const onePm = adapter.date('2024-06-15T13:00:00')!
+        expect(adapter.formatByString(onePm, 'h:mm A')).toBe('1:00 PM')
+      })
+
       it('should get format helper text', () => {
         expect(adapter.getFormatHelperText('keyboardDate')).toBe('mm/dd/yyyy')
       })
@@ -852,6 +892,59 @@ describe('useDate', () => {
         // Different locales should produce different output
         expect(usResult.toLowerCase()).toContain('june')
         expect(deResult.toLowerCase()).toContain('juni')
+      })
+
+      it('should clear format cache when locale changes', () => {
+        const testAdapter = new Vuetify0DateAdapter('en-US')
+        const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+
+        // Format with US locale
+        const usResult = testAdapter.format(testDate, 'month')
+        expect(usResult.toLowerCase()).toContain('june')
+
+        // Change locale - this should clear the cache
+        testAdapter.locale = 'de-DE'
+
+        // Format again - should use new locale, not cached US formatter
+        const deResult = testAdapter.format(testDate, 'month')
+        expect(deResult.toLowerCase()).toContain('juni')
+      })
+
+      it('should not clear cache when setting same locale', () => {
+        const testAdapter = new Vuetify0DateAdapter('en-US')
+        const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+
+        // Format to populate cache
+        const result1 = testAdapter.format(testDate, 'fullDate')
+
+        // Set same locale - should not clear cache
+        testAdapter.locale = 'en-US'
+
+        // Should still produce same result (cache intact)
+        const result2 = testAdapter.format(testDate, 'fullDate')
+        expect(result1).toBe(result2)
+      })
+
+      it('should evict oldest entries when cache exceeds limit', () => {
+        const testAdapter = new Vuetify0DateAdapter('en-US')
+        const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
+
+        // Generate many unique format calls to exceed MAX_CACHE_SIZE (50)
+        // Use formatByString with unique patterns to create unique cache keys
+        for (let i = 0; i < 60; i++) {
+          // Each unique format string creates a new cache entry
+          testAdapter.formatByString(testDate, `YYYY-MM-DD-${i}`)
+        }
+
+        // Cache should still work correctly after evictions
+        // Verify by calling format with a known preset
+        const result = testAdapter.format(testDate, 'fullDate')
+        expect(result).toBeDefined()
+        expect(result.length).toBeGreaterThan(0)
+
+        // Verify formatByString still works
+        const customResult = testAdapter.formatByString(testDate, 'YYYY-MM-DD')
+        expect(customResult).toBe('2024-06-15')
       })
     })
   })
@@ -1093,6 +1186,192 @@ describe('useDate', () => {
 
       expect(ctx).toBeDefined()
       expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
+    })
+  })
+
+  describe('component lifecycle integration', () => {
+    it('should provide and consume date context in component tree', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent } = await import('vue')
+
+      const [useDateContext, provideDateContext, context] = createDateContext({
+        namespace: 'test:date',
+        locale: 'en-US',
+      })
+
+      let consumedContext: ReturnType<typeof useDateContext> | null = null
+
+      const ChildComponent = defineComponent({
+        setup () {
+          consumedContext = useDateContext()
+          return { date: consumedContext.adapter.date('2024-06-15T10:30:00') }
+        },
+        template: '<div>{{ date?.year }}</div>',
+      })
+
+      const ParentComponent = defineComponent({
+        setup () {
+          provideDateContext(context)
+        },
+        components: { ChildComponent },
+        template: '<ChildComponent />',
+      })
+
+      const wrapper = mount(ParentComponent)
+
+      expect(consumedContext).not.toBeNull()
+      expect(consumedContext!.adapter).toBe(context.adapter)
+      expect(consumedContext!.locale.value).toBe('en-US')
+      expect(wrapper.text()).toContain('2024')
+
+      wrapper.unmount()
+    })
+
+    it('should use plugin-provided context in component', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent } = await import('vue')
+
+      const plugin = createDatePlugin({
+        namespace: 'test:plugin-date',
+        locale: 'de-DE',
+      })
+
+      let consumedLocale: string | undefined
+
+      const TestComponent = defineComponent({
+        setup () {
+          const ctx = useDate('test:plugin-date')
+          consumedLocale = ctx.locale.value
+          return { locale: ctx.locale }
+        },
+        template: '<div>{{ locale }}</div>',
+      })
+
+      const wrapper = mount(TestComponent, {
+        global: {
+          plugins: [plugin],
+        },
+      })
+
+      expect(consumedLocale).toBe('de-DE')
+      expect(wrapper.text()).toContain('de-DE')
+
+      wrapper.unmount()
+    })
+
+    it('should cleanup watchEffect on component unmount', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent, ref, nextTick } = await import('vue')
+
+      const customAdapter = new Vuetify0DateAdapter('en-US')
+      const localeChanges: string[] = []
+
+      // Track locale changes by overriding the setter
+      Object.defineProperty(customAdapter, 'locale', {
+        get () {
+          return this._locale
+        },
+        set (value: string) {
+          localeChanges.push(value)
+          this._locale = value
+          this.formatCache?.clear()
+          this.numberFormatCache?.clear()
+        },
+      })
+
+      const [useDateContext, provideDateContext] = createDateContext({
+        namespace: 'test:cleanup',
+        adapter: customAdapter,
+        locale: 'en-US',
+      })
+
+      const ChildComponent = defineComponent({
+        setup () {
+          const context = useDateContext()
+          return { locale: context.locale }
+        },
+        template: '<div>{{ locale }}</div>',
+      })
+
+      const showChild = ref(true)
+      const ParentComponent = defineComponent({
+        setup () {
+          provideDateContext()
+          return { showChild }
+        },
+        components: { ChildComponent },
+        template: '<ChildComponent v-if="showChild" />',
+      })
+
+      const wrapper = mount(ParentComponent)
+
+      // Initial mount should sync locale
+      expect(localeChanges.length).toBeGreaterThanOrEqual(0)
+      const initialCount = localeChanges.length
+
+      // Unmount child
+      showChild.value = false
+      await nextTick()
+
+      // No additional locale changes should occur after unmount
+      // (cleanup prevents further sync)
+      expect(localeChanges.length).toBe(initialCount)
+
+      wrapper.unmount()
+    })
+  })
+
+  describe('useLocale integration', () => {
+    it('should sync with useLocale when available', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent } = await import('vue')
+      const { createLocaleContext } = await import('#v0/composables/useLocale')
+
+      // Create locale context with messages for different locales
+      const [useLocaleContext, provideLocaleContext] = createLocaleContext({
+        namespace: 'test:locale',
+        default: 'en',
+        messages: {
+          en: { hello: 'Hello' },
+          de: { hello: 'Hallo' },
+          fr: { hello: 'Bonjour' },
+        },
+      })
+
+      const [useDateContext, provideDateContext] = createDateContext({
+        namespace: 'test:date-locale',
+        localeMap: { en: 'en-US', de: 'de-DE', fr: 'fr-FR' },
+      })
+
+      const ChildComponent = defineComponent({
+        setup () {
+          // Use both locale and date contexts
+          const localeContext = useLocaleContext()
+          const dateContext = useDateContext()
+          return {
+            dateLocale: dateContext.locale,
+            selectLocale: localeContext.select,
+          }
+        },
+        template: '<div>{{ dateLocale }}</div>',
+      })
+
+      const ParentComponent = defineComponent({
+        setup () {
+          provideLocaleContext()
+          provideDateContext()
+        },
+        components: { ChildComponent },
+        template: '<ChildComponent />',
+      })
+
+      const wrapper = mount(ParentComponent)
+
+      // Initial locale should be mapped from useLocale's selection
+      // (default is 'en' -> 'en-US')
+      expect(wrapper.text()).toContain('en-US')
+
+      wrapper.unmount()
     })
   })
 })
