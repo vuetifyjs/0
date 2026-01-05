@@ -1,15 +1,17 @@
 ---
-title: useHotkey Composable
+title: useHotkey - Hotkey Combinations and Sequences for Vue 3
 meta:
 - name: description
-  content: A composable for handling hotkey combinations and sequences with platform-aware
-    modifiers and automatic cleanup.
+  content: Handle hotkey combinations and sequences with platform-aware modifiers and automatic cleanup. Supports ctrl+k combinations, g-h sequences, and input focus detection.
 - name: keywords
-  content: useHotkey, hotkey, keyboard, shortcuts, sequences, combinations, composable, Vue
+  content: useHotkey, hotkey, keyboard, shortcuts, sequences, combinations, composable, Vue 3, ctrl+k, cmd+k
 features:
   category: Composable
   label: 'E: useHotkey'
   github: /composables/useHotkey/
+related:
+  - /composables/system/use-keydown
+  - /composables/system/use-event-listener
 ---
 
 # useHotkey
@@ -23,32 +25,32 @@ A composable for handling hotkey combinations and sequences with platform-aware 
 The `useHotkey` composable registers hotkey handlers on the window with automatic cleanup when the component is unmounted. It supports key combinations (`ctrl+k`), key sequences (`g-h`), and platform-aware modifier mapping.
 
 ```vue UseHotkey
-<script setup>
-import { useHotkey } from '@vuetify/v0'
-import { ref } from 'vue'
+<script setup lang="ts">
+  import { useHotkey } from '@vuetify/v0'
+  import { ref } from 'vue'
 
-const commandPaletteOpen = ref(false)
-const message = ref('')
+  const commandPaletteOpen = ref(false)
+  const message = ref('')
 
-// Simple key combination - Ctrl+K (Cmd+K on Mac)
-useHotkey('ctrl+k', () => {
-  commandPaletteOpen.value = true
-})
+  // Simple key combination - Ctrl+K (Cmd+K on Mac)
+  useHotkey('ctrl+k', () => {
+    commandPaletteOpen.value = true
+  })
 
-// Key sequence (GitHub-style) - press 'g' then 'h'
-useHotkey('g-h', () => {
-  message.value = 'Go home!'
-})
+  // Key sequence (GitHub-style) - press 'g' then 'h'
+  useHotkey('g-h', () => {
+    message.value = 'Go home!'
+  })
 
-// With multiple modifiers
-useHotkey('ctrl+shift+s', () => {
-  message.value = 'Save all!'
-})
+  // With multiple modifiers
+  useHotkey('ctrl+shift+s', () => {
+    message.value = 'Save all!'
+  })
 
-// Allow in inputs with the inputs option
-useHotkey('escape', () => {
-  commandPaletteOpen.value = false
-}, { inputs: true })
+  // Allow in inputs with the inputs option
+  useHotkey('escape', () => {
+    commandPaletteOpen.value = false
+  }, { inputs: true })
 </script>
 
 <template>
@@ -116,77 +118,6 @@ console.log(isPaused.value)  // true when paused
 console.log(isActive.value)  // true when actively listening
 ```
 
-## API
-
-### `useHotkey`
-
-- **Type**
-  ```ts
-  interface UseHotkeyOptions {
-    event?: MaybeRefOrGetter<'keydown' | 'keyup'>
-    inputs?: MaybeRefOrGetter<boolean>
-    preventDefault?: MaybeRefOrGetter<boolean>
-    stopPropagation?: MaybeRefOrGetter<boolean>
-    sequenceTimeout?: MaybeRefOrGetter<number>
-  }
-
-  interface UseHotkeyReturn {
-    readonly isActive: Readonly<Ref<boolean>>
-    readonly isPaused: Readonly<Ref<boolean>>
-    pause: () => void
-    resume: () => void
-    stop: () => void
-  }
-
-  function useHotkey(
-    keys: MaybeRefOrGetter<string | undefined>,
-    callback: (e: KeyboardEvent) => void,
-    options?: UseHotkeyOptions
-  ): UseHotkeyReturn
-  ```
-
-- **Details**
-
-  Registers a hotkey handler on the window. Automatically starts listening when called and stops on scope disposal.
-
-- **Parameters**
-
-  - `keys`: The hotkey string (e.g., `'ctrl+k'`, `'g-h'`) or a reactive reference. Set to `undefined` to disable.
-  - `callback`: Function to execute when the hotkey is triggered
-  - `options`: Configuration options
-    - `event`: Keyboard event type (`'keydown'` or `'keyup'`, default: `'keydown'`)
-    - `inputs`: Allow hotkey when text input is focused (default: `false`). Detects `<input>` (text types including date/time), `<textarea>`, `contentEditable`, and ARIA roles (`textbox`, `searchbox`, `combobox`, `spinbutton`). Non-text inputs like checkboxes and radio buttons do not block hotkeys.
-    - `preventDefault`: Prevent default browser action (default: `true`)
-    - `stopPropagation`: Stop event propagation (default: `false`)
-    - `sequenceTimeout`: Timeout in ms before sequence resets (default: `1000`)
-
-- **Returns**
-
-  - `isActive`: Whether the listener is currently active
-  - `isPaused`: Whether the listener is paused
-  - `pause()`: Temporarily disable the hotkey
-  - `resume()`: Re-enable after pause
-  - `stop()`: Permanently stop and cleanup
-
-- **Example**
-  ```ts
-  import { useHotkey } from '@vuetify/v0'
-  import { ref } from 'vue'
-
-  // Reactive keys
-  const keys = ref('ctrl+k')
-  const { isActive, pause, resume } = useHotkey(keys, (e) => {
-    console.log('Hotkey triggered!', e.key)
-  })
-
-  // Change hotkey dynamically
-  keys.value = 'ctrl+j'
-
-  // Disable temporarily
-  pause()
-  resume()
-  ```
-
 ## Key Aliases
 
 Common key aliases are supported for convenience:
@@ -222,9 +153,4 @@ useHotkey('ctrl+s', save, { inputs: true })
 useHotkey('k', openCommand, { inputs: true })
 ```
 
-## Related
-
-| Composable | Description |
-|---|---|
-| [useKeydown](/composables/system/use-keydown) | Simple key matching without parsing |
-| [useEventListener](/composables/system/use-event-listener) | General DOM event handling |
+<DocsApi />

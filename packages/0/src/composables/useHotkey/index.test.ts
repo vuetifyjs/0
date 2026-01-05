@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+// Utilities
 import { effectScope, ref, nextTick } from 'vue'
 
-import { useHotkey } from './index'
-import { splitKeyCombination, splitKeySequence } from './parsing'
 import { normalizeKey } from './aliases'
+import { splitKeyCombination, splitKeySequence } from './parsing'
+
+import { useHotkey } from './index'
 
 describe('useHotkey', () => {
   let scope: ReturnType<typeof effectScope>
@@ -1130,7 +1133,7 @@ describe('useHotkey', () => {
     })
   })
 
-  describe('SSR safety', () => {
+  describe('sSR safety', () => {
     it('isActive is false when keys is undefined', () => {
       const callback = vi.fn()
       let isActive: { value: boolean }

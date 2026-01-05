@@ -19,20 +19,21 @@
  * useHotkey for complex hotkey parsing with sequences and modifiers.
  */
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
+import { isNull, isUndefined } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
-import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
-
-// Constants
-import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
-import type { MaybeRefOrGetter, Ref } from 'vue'
 import type { Modifier } from './parsing'
-import { isNull, isUndefined } from '#v0/utilities'
+import type { MaybeRefOrGetter, Ref } from 'vue'
+
+import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
 
 export interface UseHotkeyOptions {
   /**
