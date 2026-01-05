@@ -73,7 +73,7 @@ export interface DateContext<T = DefaultDateType> {
 }
 
 /** Base options shared by all overloads */
-interface DateOptionsBase {
+export interface DateOptionsBase {
   /** Locale for formatting (defaults to useLocale's selected locale or 'en-US') */
   locale?: string
   /** Map from app locale IDs to adapter locale strings */
@@ -258,6 +258,7 @@ export function createDate<T = DefaultDateType> (
 ): DateContext<T> {
   const {
     localeMap = defaultLocaleMap,
+    // Safe cast: overloads ensure T = DefaultDateType when adapter is undefined
     adapter = new V0DateAdapter() as unknown as DateAdapter<T>,
     locale,
   } = _options
@@ -319,6 +320,7 @@ export function createDateContext<T = DefaultDateType> (
   const [useDateContext, _provideDateContext] = createContext<DateContext<T>>(namespace)
 
   // Preserve custom adapter if provided, otherwise use default
+  // Safe cast: discriminated union check ensures correct overload selection
   const context = 'adapter' in options && options.adapter !== undefined
     ? createDate(options as DateOptionsWithAdapter<T>)
     : createDate(options as DateOptionsDefault) as unknown as DateContext<T>
@@ -377,6 +379,7 @@ export function createDatePlugin<T = DefaultDateType> (
   const { namespace = 'v0:date', ...options } = _options
 
   // Preserve custom adapter if provided, otherwise use default
+  // Safe cast: discriminated union check ensures correct overload selection
   const [, provideDateContext, context] = 'adapter' in options && options.adapter !== undefined
     ? createDateContext({ namespace, ...options } as DateContextOptionsWithAdapter<T>)
     : createDateContext({ namespace, ...options } as DateContextOptionsDefault) as unknown as ContextTrinity<DateContext<T>>
@@ -418,13 +421,17 @@ export function useDate (namespace?: string): DateContext<DefaultDateType>
  * Use this overload when you've registered a custom adapter via plugin
  * and need the correct return type.
  *
+ * **Warning:** The type parameter `T` is not validated at runtime or compile-time.
+ * You are responsible for ensuring it matches the adapter type registered via
+ * `createDatePlugin` or `createDateContext`. Incorrect usage causes silent type mismatches.
+ *
  * @param namespace The namespace to look up.
  * @template T The expected date type from the registered adapter.
  * @returns The current date context.
  *
  * @example
  * ```ts
- * // When DateFnsAdapter was registered via createDatePlugin
+ * // Only safe if DateFnsAdapter was registered in 'app:date' namespace
  * const { adapter } = useDate<Date>('app:date')
  * ```
  */
@@ -432,6 +439,7 @@ export function useDate<T> (namespace: string): DateContext<T>
 
 // Implementation
 export function useDate<T = DefaultDateType> (namespace = 'v0:date'): DateContext<T> {
+  // Safe cast: fallback only used when T = DefaultDateType (first overload) or context missing
   const fallback = createDateFallback() as unknown as DateContext<T>
 
   if (!getCurrentInstance()) return fallback

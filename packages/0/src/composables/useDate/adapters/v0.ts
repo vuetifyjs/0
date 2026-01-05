@@ -34,7 +34,7 @@ const FORMAT_TOKEN_REGEX = /YYYY|YY|MMMM|MMM|MM|M|dddd|ddd|DD|D|HH|H|hh|h|mm|m|s
 const MAX_CACHE_SIZE = 50
 
 export class V0DateAdapter implements DateAdapter<PlainDateTime> {
-  locale: string
+  private _locale: string
 
   /** Cache for Intl.DateTimeFormat instances, keyed by locale + options */
   private formatCache = new Map<string, Intl.DateTimeFormat>()
@@ -43,7 +43,20 @@ export class V0DateAdapter implements DateAdapter<PlainDateTime> {
   private numberFormatCache = new Map<string, Intl.NumberFormat>()
 
   constructor (locale = 'en-US') {
-    this.locale = locale
+    this._locale = locale
+  }
+
+  /** Current locale. Setting a new locale clears format caches. */
+  get locale (): string {
+    return this._locale
+  }
+
+  set locale (value: string) {
+    if (this._locale !== value) {
+      this._locale = value
+      this.formatCache.clear()
+      this.numberFormatCache.clear()
+    }
   }
 
   // ============================================
