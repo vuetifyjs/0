@@ -70,7 +70,7 @@
     >
       <div class="absolute top-3 right-3 flex gap-1">
         <a
-          class="pa-1 inline-flex rounded opacity-90 hover:opacity-100 bg-surface-tint"
+          class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint"
           :href="getBinUrl(code!, 'vue', title || fileName)"
           rel="noopener"
           target="_blank"
