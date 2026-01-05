@@ -58,6 +58,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/dialog': RouteRecordInfo<
+      '/components/disclosure/dialog',
+      '/components/disclosure/dialog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/disclosure/expansion-panel': RouteRecordInfo<
       '/components/disclosure/expansion-panel',
       '/components/disclosure/expansion-panel',
@@ -567,6 +574,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/index.md': {
       routes:
         | '/components/'
+      views:
+        | never
+    }
+    'src/pages/components/disclosure/dialog.md': {
+      routes:
+        | '/components/disclosure/dialog'
       views:
         | never
     }
