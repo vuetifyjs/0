@@ -84,6 +84,14 @@ export interface UseHotkeyReturn {
   stop: () => void
 }
 
+/**
+ * Platform context for testing platform-specific behavior.
+ * @internal
+ */
+export interface PlatformContext {
+  isMac: boolean
+}
+
 // Cache platform detection at module level (includes iOS/iPadOS for Apple keyboard support)
 const isMac = IN_BROWSER && /mac|iphone|ipad|ipod/i.test(navigator?.userAgent ?? '')
 
@@ -121,7 +129,7 @@ export function useHotkey (
   keys: MaybeRefOrGetter<string | undefined>,
   callback: (e: KeyboardEvent) => void,
   options: UseHotkeyOptions = {},
-  _platform?: { isMac: boolean },
+  _platform?: PlatformContext,
 ): UseHotkeyReturn {
   const platformIsMac = _platform?.isMac ?? isMac
   const {
@@ -147,8 +155,20 @@ export function useHotkey (
     const activeElement = document.activeElement as HTMLElement | null
     if (!activeElement) return false
 
+    // Check ARIA roles for custom text inputs
+    const role = activeElement.getAttribute('role')
+    if (role === 'textbox' || role === 'searchbox') {
+      return true
+    }
+
+    // Check native text inputs (not checkbox, radio, submit, etc.)
+    if (activeElement.tagName === 'INPUT') {
+      const type = (activeElement as HTMLInputElement).type?.toLowerCase()
+      const textTypes = ['text', 'email', 'password', 'search', 'tel', 'url', 'number']
+      return textTypes.includes(type)
+    }
+
     return (
-      activeElement.tagName === 'INPUT' ||
       activeElement.tagName === 'TEXTAREA' ||
       activeElement.isContentEditable ||
       activeElement.contentEditable === 'true'
@@ -307,7 +327,3 @@ function matchesKeyGroup (e: KeyboardEvent, group: string, platformIsMac: boolea
 
   return modifiersMatch && e.key.toLowerCase() === actualKey.toLowerCase()
 }
-
-// Re-export utilities for advanced usage
-export { keyAliasMap, normalizeKey } from './aliases'
-export { MODIFIERS, splitKeyCombination, splitKeySequence } from './parsing'

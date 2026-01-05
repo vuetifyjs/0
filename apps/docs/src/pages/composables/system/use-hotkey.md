@@ -155,7 +155,7 @@ console.log(isActive.value)  // true when actively listening
   - `callback`: Function to execute when the hotkey is triggered
   - `options`: Configuration options
     - `event`: Keyboard event type (`'keydown'` or `'keyup'`, default: `'keydown'`)
-    - `inputs`: Allow hotkey when input/textarea is focused (default: `false`)
+    - `inputs`: Allow hotkey when text input is focused (default: `false`). Detects `<input>` (text types), `<textarea>`, `contentEditable`, and ARIA `role="textbox"`/`role="searchbox"`. Non-text inputs like checkboxes and radio buttons do not block hotkeys.
     - `preventDefault`: Prevent default browser action (default: `true`)
     - `stopPropagation`: Stop event propagation (default: `false`)
     - `sequenceTimeout`: Timeout in ms before sequence resets (default: `1000`)

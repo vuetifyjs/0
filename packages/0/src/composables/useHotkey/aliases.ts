@@ -4,7 +4,7 @@
  * Maps user-friendly aliases to canonical key names that match
  * KeyboardEvent.key values (in lowercase) where possible.
  */
-export const keyAliasMap: Record<string, string> = {
+export const keyAliasMap = {
   // Modifier aliases
   control: 'ctrl',
   command: 'cmd',
@@ -26,7 +26,7 @@ export const keyAliasMap: Record<string, string> = {
   // Symbol aliases
   minus: '-',
   hyphen: '-',
-}
+} as const
 
 /**
  * Normalizes a key string to its canonical form using the alias map.
@@ -34,7 +34,9 @@ export const keyAliasMap: Record<string, string> = {
  * @param key - The key string to normalize
  * @returns The canonical key name in lowercase
  */
+export type KeyAlias = keyof typeof keyAliasMap
+
 export function normalizeKey (key: string): string {
   const lowerKey = key.toLowerCase()
-  return keyAliasMap[lowerKey] ?? lowerKey
+  return keyAliasMap[lowerKey as KeyAlias] ?? lowerKey
 }

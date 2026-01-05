@@ -81,6 +81,22 @@ describe('useHotkey', () => {
 
       expect(callback).not.toHaveBeenCalled()
     })
+
+    it('propagates callback exceptions', () => {
+      const callback = vi.fn().mockImplementation(() => {
+        throw new Error('Test error')
+      })
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      expect(() => {
+        window.dispatchEvent(createKeyboardEvent('a'))
+      }).toThrow('Test error')
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('key combinations', () => {
@@ -358,6 +374,20 @@ describe('useHotkey', () => {
       expect(callback).toHaveBeenCalledTimes(1)
     })
 
+    it('handles same key in sequence', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a-a', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).not.toHaveBeenCalled()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
     it('resets sequence on wrong key', () => {
       const callback = vi.fn()
 
@@ -398,6 +428,20 @@ describe('useHotkey', () => {
       window.dispatchEvent(createKeyboardEvent('h'))
 
       expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('resets sequence at exact timeout boundary', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('g-h', callback, { sequenceTimeout: 500 })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('g'))
+      vi.advanceTimersByTime(500)
+      window.dispatchEvent(createKeyboardEvent('h'))
+
+      expect(callback).not.toHaveBeenCalled()
     })
 
     it('handles three-key sequence', () => {
@@ -576,6 +620,80 @@ describe('useHotkey', () => {
 
       expect(callback).not.toHaveBeenCalled()
       div.remove()
+    })
+
+    it('ignores hotkey when role="textbox" element is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const div = document.createElement('div')
+      div.setAttribute('role', 'textbox')
+      div.tabIndex = 0
+      document.body.append(div)
+      div.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      div.remove()
+    })
+
+    it('ignores hotkey when role="searchbox" element is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const div = document.createElement('div')
+      div.setAttribute('role', 'searchbox')
+      div.tabIndex = 0
+      document.body.append(div)
+      div.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).not.toHaveBeenCalled()
+      div.remove()
+    })
+
+    it('fires hotkey when checkbox is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const checkbox = document.createElement('input')
+      checkbox.type = 'checkbox'
+      document.body.append(checkbox)
+      checkbox.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+      checkbox.remove()
+    })
+
+    it('fires hotkey when radio button is focused', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('a', callback)
+      })
+
+      const radio = document.createElement('input')
+      radio.type = 'radio'
+      document.body.append(radio)
+      radio.focus()
+
+      window.dispatchEvent(createKeyboardEvent('a'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+      radio.remove()
     })
 
     it('fires hotkey when inputs option is true even if input focused', () => {
