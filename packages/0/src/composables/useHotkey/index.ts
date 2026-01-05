@@ -24,13 +24,15 @@ import { useWindowEventListener } from '#v0/composables/useEventListener'
 
 // Utilities
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
-import { splitKeyCombination, splitKeySequence, MODIFIERS, type Modifier } from './parsing'
+import { splitKeyCombination, splitKeySequence, MODIFIERS } from './parsing'
 
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Types
 import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { Modifier } from './parsing'
+import { isNull, isUndefined } from '#v0/utilities'
 
 export interface UseHotkeyOptions {
   /**
@@ -141,8 +143,8 @@ export function useHotkey (
   } = options
 
   const isPaused = shallowRef(false)
-  const cleanupRef = shallowRef<(() => void) | null>(null)
-  const isActive = toRef(() => cleanupRef.value !== null)
+  const cleanup = shallowRef<(() => void) | null>(null)
+  const isActive = toRef(() => !isNull(cleanup.value))
 
   let sequenceTimer: ReturnType<typeof setTimeout> | undefined
   let keyGroups: string[] = []
@@ -222,13 +224,13 @@ export function useHotkey (
     keyGroups = groups
     resetSequence()
 
-    cleanupRef.value = useWindowEventListener(toValue(event), handler)
+    cleanup.value = useWindowEventListener(toValue(event), handler)
   }
 
-  function teardown () {
-    if (cleanupRef.value) {
-      cleanupRef.value()
-      cleanupRef.value = null
+  function dispose () {
+    if (cleanup.value) {
+      cleanup.value()
+      cleanup.value = null
     }
     clearTimeout(sequenceTimer)
     keyGroups = []
@@ -238,7 +240,7 @@ export function useHotkey (
 
   function pause () {
     isPaused.value = true
-    teardown()
+    dispose()
   }
 
   function resume () {
@@ -247,18 +249,18 @@ export function useHotkey (
   }
 
   function stop () {
-    teardown()
+    dispose()
   }
 
   watch(() => toValue(keys), () => {
     if (isPaused.value) return
-    teardown()
+    dispose()
     setup()
   }, { immediate: true })
 
   watch(() => toValue(event), () => {
     if (isPaused.value || !toValue(keys)) return
-    teardown()
+    dispose()
     setup()
   })
 
@@ -320,9 +322,7 @@ function matchesKeyGroup (e: KeyboardEvent, group: string, platformIsMac: boolea
   )
 
   // If no actual key specified, only match modifiers
-  if (actualKey === undefined) {
-    return modifiersMatch
-  }
+  if (isUndefined(actualKey)) return modifiersMatch
 
   return modifiersMatch && e.key.toLowerCase() === actualKey.toLowerCase()
 }
