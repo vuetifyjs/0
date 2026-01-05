@@ -421,17 +421,24 @@ export function useDate (namespace?: string): DateContext<DefaultDateType>
  * Use this overload when you've registered a custom adapter via plugin
  * and need the correct return type.
  *
- * **Warning:** The type parameter `T` is not validated at runtime or compile-time.
- * You are responsible for ensuring it matches the adapter type registered via
- * `createDatePlugin` or `createDateContext`. Incorrect usage causes silent type mismatches.
+ * ### TYPE SAFETY WARNING
+ *
+ * The type parameter `T` is **not validated** at runtime or compile-time.
+ * Incorrect usage causes **silent runtime failures**. Only use when you
+ * control both plugin registration and consumption.
+ *
+ * For type-safe usage, prefer the first overload: `useDate()`.
  *
  * @param namespace The namespace to look up.
- * @template T The expected date type from the registered adapter.
+ * @template T The expected date type - caller must ensure correctness.
  * @returns The current date context.
  *
  * @example
  * ```ts
- * // Only safe if DateFnsAdapter was registered in 'app:date' namespace
+ * // SAFE: Type-safe default usage
+ * const { adapter } = useDate()
+ *
+ * // UNSAFE: Caller asserts type - will fail silently if wrong
  * const { adapter } = useDate<Date>('app:date')
  * ```
  */
