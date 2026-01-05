@@ -24,7 +24,7 @@ export const Default: Story = {
   render: args => ({
     components: {
       Root: Popover.Root,
-      Anchor: Popover.Anchor,
+      Activator: Popover.Activator,
       Content: Popover.Content,
     },
     setup () {
@@ -32,11 +32,11 @@ export const Default: Story = {
     },
     template: `
       <Root v-slot="{ isSelected }">
-        <Anchor>
+        <Activator>
           <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
             {{ isSelected ? 'Close' : 'Open' }} Popover
           </button>
-        </Anchor>
+        </Activator>
 
         <Content v-if="isSelected" class="mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 w-64">
           <h3 class="font-medium text-gray-900 mb-2">Popover Title</h3>
@@ -54,7 +54,7 @@ export const Controlled: Story = {
   render: args => ({
     components: {
       Root: Popover.Root,
-      Anchor: Popover.Anchor,
+      Activator: Popover.Activator,
       Content: Popover.Content,
     },
     setup () {
@@ -79,11 +79,11 @@ export const Controlled: Story = {
         </div>
 
         <Root v-model="isOpen">
-          <Anchor>
+          <Activator>
             <button class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition-colors">
               Controlled Popover
             </button>
-          </Anchor>
+          </Activator>
 
           <Content v-if="isOpen" class="mt-2 p-4 bg-white rounded-lg shadow-lg border border-gray-200 w-64">
             <p class="text-sm text-gray-600">
@@ -101,7 +101,7 @@ export const DropdownMenu: Story = {
   render: args => ({
     components: {
       Root: Popover.Root,
-      Anchor: Popover.Anchor,
+      Activator: Popover.Activator,
       Content: Popover.Content,
     },
     setup () {
@@ -115,12 +115,12 @@ export const DropdownMenu: Story = {
     },
     template: `
       <Root v-slot="{ isSelected, toggle }">
-        <Anchor>
+        <Activator>
           <button class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
             <span>Menu</span>
             <span class="transition-transform" :class="{ 'rotate-180': isSelected }">▼</span>
           </button>
-        </Anchor>
+        </Activator>
 
         <Content v-if="isSelected" class="mt-1 py-1 bg-white rounded-lg shadow-lg border border-gray-200 min-w-40">
           <button
@@ -143,7 +143,7 @@ export const TooltipStyle: Story = {
   render: args => ({
     components: {
       Root: Popover.Root,
-      Anchor: Popover.Anchor,
+      Activator: Popover.Activator,
       Content: Popover.Content,
     },
     setup () {
@@ -152,7 +152,7 @@ export const TooltipStyle: Story = {
     },
     template: `
       <Root v-model="isHovered">
-        <Anchor>
+        <Activator>
           <button
             @mouseenter="isHovered = true"
             @mouseleave="isHovered = false"
@@ -160,7 +160,7 @@ export const TooltipStyle: Story = {
           >
             Hover me
           </button>
-        </Anchor>
+        </Activator>
 
         <Content
           v-if="isHovered"
@@ -178,7 +178,7 @@ export const ProfileCard: Story = {
   render: args => ({
     components: {
       Root: Popover.Root,
-      Anchor: Popover.Anchor,
+      Activator: Popover.Activator,
       Content: Popover.Content,
     },
     setup () {
@@ -186,11 +186,11 @@ export const ProfileCard: Story = {
     },
     template: `
       <Root v-slot="{ isSelected }">
-        <Anchor>
+        <Activator>
           <button class="size-10 rounded-full bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-colors">
             JD
           </button>
-        </Anchor>
+        </Activator>
 
         <Content v-if="isSelected" class="mt-2 p-4 bg-white rounded-xl shadow-xl border border-gray-200 w-72">
           <div class="flex items-center gap-3 mb-3">
@@ -225,7 +225,7 @@ export const ConfirmationDialog: Story = {
   render: args => ({
     components: {
       Root: Popover.Root,
-      Anchor: Popover.Anchor,
+      Activator: Popover.Activator,
       Content: Popover.Content,
     },
     setup () {
@@ -233,11 +233,11 @@ export const ConfirmationDialog: Story = {
     },
     template: `
       <Root v-slot="{ isSelected, toggle }">
-        <Anchor>
+        <Activator>
           <button class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors">
             Delete Item
           </button>
-        </Anchor>
+        </Activator>
 
         <Content v-if="isSelected" class="mt-2 p-4 bg-white rounded-lg shadow-xl border border-gray-200 w-72">
           <h3 class="font-semibold text-gray-900 mb-2">Confirm Delete</h3>
@@ -269,7 +269,7 @@ export const InfoPopover: Story = {
   render: args => ({
     components: {
       Root: Popover.Root,
-      Anchor: Popover.Anchor,
+      Activator: Popover.Activator,
       Content: Popover.Content,
     },
     setup () {
@@ -279,11 +279,11 @@ export const InfoPopover: Story = {
       <div class="flex items-center gap-2">
         <span class="text-gray-700">Password requirements</span>
         <Root v-slot="{ isSelected }">
-          <Anchor>
+          <Activator>
             <button class="size-5 rounded-full bg-gray-200 text-gray-600 text-xs hover:bg-gray-300 transition-colors">
               ?
             </button>
-          </Anchor>
+          </Activator>
 
           <Content v-if="isSelected" class="mt-2 p-3 bg-gray-900 text-white text-sm rounded-lg shadow-lg w-64">
             <ul class="space-y-1 text-gray-200">

@@ -1,13 +1,13 @@
-export { default as PopoverAnchor } from './PopoverAnchor.vue'
+export { default as PopoverActivator } from './PopoverActivator.vue'
 export { default as PopoverContent } from './PopoverContent.vue'
 export { providePopoverContext, usePopoverContext } from './PopoverRoot.vue'
 export { default as PopoverRoot } from './PopoverRoot.vue'
-export type { PopoverAnchorProps, PopoverAnchorSlotProps } from './PopoverAnchor.vue'
+export type { PopoverActivatorProps, PopoverActivatorSlotProps } from './PopoverActivator.vue'
 export type { PopoverContentEmits, PopoverContentProps, PopoverContentSlotProps } from './PopoverContent.vue'
 export type { PopoverContext, PopoverRootProps, PopoverRootSlotProps } from './PopoverRoot.vue'
 
 // Components
-import Anchor from './PopoverAnchor.vue'
+import Activator from './PopoverActivator.vue'
 import Content from './PopoverContent.vue'
 import Root from './PopoverRoot.vue'
 
@@ -30,9 +30,9 @@ export const Popover = {
    *
    * <template>
    *   <Popover.Root>
-   *     <Popover.Anchor>
+   *     <Popover.Activator>
    *       Click to toggle
-   *     </Popover.Anchor>
+   *     </Popover.Activator>
    *
    *     <Popover.Content>
    *       Popover content goes here.
@@ -43,9 +43,9 @@ export const Popover = {
    */
   Root,
   /**
-   * Component for the anchor/trigger of a popover.
+   * Activator component that opens the popover.
    *
-   * @see https://0.vuetifyjs.com/components/popover#popoveranchor
+   * @see https://0.vuetifyjs.com/components/popover#popoveractivator
    *
    * @example
    * ```vue
@@ -54,13 +54,13 @@ export const Popover = {
    * </script>
    *
    * <template>
-   *   <Popover.Anchor>
+   *   <Popover.Activator>
    *     Click to toggle
-   *   </Popover.Anchor>
+   *   </Popover.Activator>
    * </template>
    * ```
    */
-  Anchor,
+  Activator,
   /**
    * Component for the content section of a popover.
    *

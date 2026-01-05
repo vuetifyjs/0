@@ -136,13 +136,13 @@ describe('popover', () => {
     })
   })
 
-  describe('anchor', () => {
+  describe('activator', () => {
     describe('rendering', () => {
       it('should render as button by default', () => {
         const wrapper = mount(Popover.Root, {
           slots: {
             default: () =>
-              h(Popover.Anchor, {}, () => 'Click me'),
+              h(Popover.Activator, {}, () => 'Click me'),
           },
         })
 
@@ -155,7 +155,7 @@ describe('popover', () => {
         mount(Popover.Root, {
           slots: {
             default: () =>
-              h(Popover.Anchor, {}, {
+              h(Popover.Activator, {}, {
                 default: (props: any) => {
                   anchorProps = props
                   return h('button', 'Click me')
@@ -182,7 +182,7 @@ describe('popover', () => {
           props: { id: 'test-popover' },
           slots: {
             default: () =>
-              h(Popover.Anchor, {}, {
+              h(Popover.Activator, {}, {
                 default: (props: any) => {
                   anchorProps = props
                   return h('button', 'Click me')
@@ -203,7 +203,7 @@ describe('popover', () => {
           props: { id: 'parent-id' },
           slots: {
             default: () =>
-              h(Popover.Anchor, { target: 'custom-target' }, {
+              h(Popover.Activator, { target: 'custom-target' }, {
                 default: (props: any) => {
                   anchorProps = props
                   return h('button', 'Click me')
@@ -226,7 +226,7 @@ describe('popover', () => {
           props: { modelValue: false },
           slots: {
             default: () =>
-              h(Popover.Anchor, {}, {
+              h(Popover.Activator, {}, {
                 default: (props: any) => {
                   anchorProps = props
                   return h('button', 'Click me')
@@ -248,7 +248,7 @@ describe('popover', () => {
           props: { modelValue: true },
           slots: {
             default: () =>
-              h(Popover.Anchor, {}, {
+              h(Popover.Activator, {}, {
                 default: (props: any) => {
                   anchorProps = props
                   return h('button', 'Click me')
@@ -435,7 +435,7 @@ describe('popover', () => {
           default: (props: any) => {
             rootProps = props
             return [
-              h(Popover.Anchor, {}, {
+              h(Popover.Activator, {}, {
                 default: (p: any) => {
                   anchorProps = p
                   return h('button', 'Toggle')
@@ -521,7 +521,7 @@ describe('popover', () => {
         render: () =>
           h(Popover.Root as any, { id: 'test-popover' }, {
             default: () => [
-              h(Popover.Anchor as any, {}, () => 'Toggle'),
+              h(Popover.Activator as any, {}, () => 'Toggle'),
               h(Popover.Content as any, {}, () => 'Content'),
             ],
           }),
@@ -541,7 +541,7 @@ describe('popover', () => {
         render: () =>
           h(Popover.Root as any, { id: 'test-popover', modelValue: true }, {
             default: () =>
-              h(Popover.Anchor as any, {}, () => 'Toggle'),
+              h(Popover.Activator as any, {}, () => 'Toggle'),
           }),
       }))
 
@@ -556,7 +556,7 @@ describe('popover', () => {
         render: () =>
           h(Popover.Root as any, { id: 'test-popover' }, {
             default: () => [
-              h(Popover.Anchor as any, {}, () => 'Toggle'),
+              h(Popover.Activator as any, {}, () => 'Toggle'),
               h(Popover.Content as any, {}, () => 'Content'),
             ],
           }),

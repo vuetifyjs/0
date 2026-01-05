@@ -3,7 +3,7 @@
  *
  * @remarks
  * Root component for popover contexts. Creates and provides popover context
- * to child PopoverAnchor and PopoverContent components. Manages open/closed
+ * to child PopoverActivator and PopoverContent components. Manages open/closed
  * state via v-model binding.
  */
 

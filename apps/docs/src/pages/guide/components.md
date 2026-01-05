@@ -106,7 +106,7 @@ Every component exposes `attrs` in its default slot. Spread onto your element fo
 | Group.Item | `attrs`, `isSelected`, `isMixed`, `toggle` |
 | ExpansionPanel.Activator | `attrs`, `isSelected`, `toggle` |
 | Popover.Root | `id`, `isSelected`, `toggle` |
-| Popover.Anchor | `attrs`, `isOpen` |
+| Popover.Activator | `attrs`, `isOpen` |
 | Popover.Content | `attrs`, `isOpen` |
 
 ### Data Attributes

@@ -1,8 +1,8 @@
 /**
- * @module PopoverAnchor
+ * @module PopoverActivator
  *
  * @remarks
- * Anchor/trigger component for popovers. Provides the element that triggers
+ * Activator/trigger component for popovers. Provides the element that triggers
  * the popover content to show/hide. Uses the native popover API via popovertarget.
  */
 
@@ -10,12 +10,12 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface PopoverAnchorProps extends AtomProps {
+  export interface PopoverActivatorProps extends AtomProps {
     /** Target popover ID (defaults to parent PopoverRoot id) */
     target?: string
   }
 
-  export interface PopoverAnchorSlotProps {
+  export interface PopoverActivatorSlotProps {
     /** Whether the popover is currently open */
     isOpen: boolean
     /** Attributes to bind to the anchor element */
@@ -36,13 +36,13 @@
   // Utilities
   import { toRef, toValue } from 'vue'
 
-  defineOptions({ name: 'PopoverAnchor' })
+  defineOptions({ name: 'PopoverActivator' })
 
   defineSlots<{
-    default: (props: PopoverAnchorSlotProps) => any
+    default: (props: PopoverActivatorSlotProps) => any
   }>()
 
-  const { as = 'button', ...props } = defineProps<PopoverAnchorProps>()
+  const { as = 'button', ...props } = defineProps<PopoverActivatorProps>()
 
   const context = usePopoverContext()
 
@@ -52,7 +52,7 @@
     anchorName: `--${toValue(popovertarget)}`,
   }))
 
-  const slotProps = toRef((): PopoverAnchorSlotProps => ({
+  const slotProps = toRef((): PopoverActivatorSlotProps => ({
     isOpen: context.isSelected.value,
     attrs: {
       'popovertarget': toValue(popovertarget),

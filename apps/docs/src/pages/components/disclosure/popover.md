@@ -37,7 +37,7 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 
 <template>
   <Popover.Root>
-    <Popover.Anchor />
+    <Popover.Activator />
 
     <Popover.Content />
   </Popover.Root>

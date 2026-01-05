@@ -127,7 +127,7 @@
   <div class="border border-divider rounded-lg my-6 overflow-hidden bg-surface">
     <!-- Release Selector -->
     <Popover.Root v-model="isOpen">
-      <Popover.Anchor
+      <Popover.Activator
         v-slot="{ isOpen: open }"
         class="w-full px-4 py-3 bg-surface-tint border-none font-inherit text-left cursor-pointer flex items-center gap-3 hover:bg-surface transition-colors"
       >
@@ -162,7 +162,7 @@
           v-if="store.isLoading"
           class="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin opacity-50"
         />
-      </Popover.Anchor>
+      </Popover.Activator>
 
       <!-- Dropdown -->
       <Popover.Content
