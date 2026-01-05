@@ -143,6 +143,204 @@ describe('useHotkey', () => {
 
       expect(callback).not.toHaveBeenCalled()
     })
+
+    it('handles modifier-only hotkey', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('Control', { ctrlKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles multiple modifiers without key', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+shift', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('Shift', { ctrlKey: true, shiftKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not trigger modifier-only with extra modifier', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('Control', { ctrlKey: true, shiftKey: true }))
+
+      expect(callback).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('platform-aware modifiers', () => {
+    it('cmd maps to metaKey on Mac', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('cmd+k', callback, {}, { isMac: true })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { metaKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('cmd maps to ctrlKey on non-Mac', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('cmd+k', callback, {}, { isMac: false })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('meta maps to metaKey on Mac', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('meta+k', callback, {}, { isMac: true })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { metaKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('meta maps to ctrlKey on non-Mac', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('meta+k', callback, {}, { isMac: false })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('ctrl always maps to ctrlKey regardless of platform', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+k', callback, {}, { isMac: true })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('cmd on Mac does not trigger with ctrlKey', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('cmd+k', callback, {}, { isMac: true })
+      })
+
+      window.dispatchEvent(createKeyboardEvent('k', { ctrlKey: true }))
+
+      expect(callback).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('key aliases integration', () => {
+    it('handles arrow key aliases', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('up', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('ArrowUp'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles escape alias', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('esc', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('Escape'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles space alias', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('space', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent(' '))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles return alias for enter', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('return', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('Enter'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles delete alias', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('del', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('Delete'))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles alias in combination', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('ctrl+return', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('Enter', { ctrlKey: true }))
+
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
+
+    it('handles arrow keys in sequence', () => {
+      const callback = vi.fn()
+
+      scope.run(() => {
+        useHotkey('up-down', callback)
+      })
+
+      window.dispatchEvent(createKeyboardEvent('ArrowUp'))
+      expect(callback).not.toHaveBeenCalled()
+
+      window.dispatchEvent(createKeyboardEvent('ArrowDown'))
+      expect(callback).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('key sequences', () => {

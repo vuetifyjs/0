@@ -1,8 +1,10 @@
 // Utilities
 import { normalizeKey } from './aliases'
 
+// Constants
 export const MODIFIERS = ['ctrl', 'shift', 'alt', 'meta', 'cmd'] as const
 
+// Types
 export type Modifier = typeof MODIFIERS[number]
 
 export interface CombinationResult {

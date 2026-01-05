@@ -121,7 +121,9 @@ export function useHotkey (
   keys: MaybeRefOrGetter<string | undefined>,
   callback: (e: KeyboardEvent) => void,
   options: UseHotkeyOptions = {},
+  _platform?: { isMac: boolean },
 ): UseHotkeyReturn {
+  const platformIsMac = _platform?.isMac ?? isMac
   const {
     event = 'keydown',
     inputs = false,
@@ -163,7 +165,7 @@ export function useHotkey (
 
     if (!group || isInputFocused()) return
 
-    if (!matchesKeyGroup(e, group)) {
+    if (!matchesKeyGroup(e, group, platformIsMac)) {
       if (isSequence) resetSequence()
       return
     }
@@ -285,11 +287,11 @@ function parseKeyGroup (group: string): ParsedKeyGroup {
   return { modifiers, actualKey }
 }
 
-function matchesKeyGroup (e: KeyboardEvent, group: string): boolean {
+function matchesKeyGroup (e: KeyboardEvent, group: string, platformIsMac: boolean): boolean {
   const { modifiers, actualKey } = parseKeyGroup(group)
 
-  const expectCtrl = modifiers.ctrl || (!isMac && (modifiers.cmd || modifiers.meta))
-  const expectMeta = isMac && (modifiers.cmd || modifiers.meta)
+  const expectCtrl = modifiers.ctrl || (!platformIsMac && (modifiers.cmd || modifiers.meta))
+  const expectMeta = platformIsMac && (modifiers.cmd || modifiers.meta)
 
   const modifiersMatch = (
     e.ctrlKey === expectCtrl &&
