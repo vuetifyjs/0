@@ -7,14 +7,14 @@
  * Provides fuzzy matching with category grouping.
  *
  * Leverages @vuetify/v0 composables:
- * - useKeydown for keyboard navigation
+ * - useHotkey for keyboard navigation
  * - useToggleScope for conditional keyboard handler activation
  */
 
 import MiniSearch from 'minisearch'
 
 // Framework
-import { IN_BROWSER, useKeydown, useToggleScope } from '@vuetify/v0'
+import { IN_BROWSER, useHotkey, useToggleScope } from '@vuetify/v0'
 
 // Utilities
 import { computed, readonly, shallowRef, watch } from 'vue'
@@ -218,11 +218,9 @@ export function useSearch (): UseSearchReturn {
 
   // Keyboard navigation - only active when modal is open
   useToggleScope(() => isOpen.value, () => {
-    useKeydown([
-      { key: 'Escape', handler: close, preventDefault: true },
-      { key: 'ArrowUp', handler: selectPrev, preventDefault: true },
-      { key: 'ArrowDown', handler: selectNext, preventDefault: true },
-    ])
+    useHotkey('escape', close, { inputs: true })
+    useHotkey('up', selectPrev, { inputs: true })
+    useHotkey('down', selectNext, { inputs: true })
   })
 
   return {

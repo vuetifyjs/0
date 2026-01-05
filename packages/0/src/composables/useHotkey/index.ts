@@ -15,8 +15,7 @@
  * - Automatic cleanup on scope disposal
  * - SSR-safe (no-op when not in browser)
  *
- * Sibling to useKeydown - use useKeydown for simple exact key matching,
- * useHotkey for complex hotkey parsing with sequences and modifiers.
+ * Builds on useEventListener for lifecycle-managed keyboard events.
  */
 
 // Constants

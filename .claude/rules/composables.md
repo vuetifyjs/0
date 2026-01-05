@@ -124,7 +124,7 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 
 - **`useToggleScope`**: Conditional effect scope management
 - **Observers**: `useResizeObserver`, `useIntersectionObserver`, `useMutationObserver`
-- **Events**: `useEventListener`, `useKeydown`, `useClickOutside`
+- **Events**: `useEventListener`, `useHotkey`, `useClickOutside`
 - **Storage**: `useStorage` (localStorage/sessionStorage/memory adapters)
 - **Hydration**: `useHydration` (SSR hydration state)
 - **Transformers**: `toReactive`, `toArray`

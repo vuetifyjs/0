@@ -68,7 +68,7 @@ The `useEventListener` composable attaches event listeners to DOM elements (Wind
 ```mermaid
 flowchart LR
   useEventListener --> useClickOutside
-  useEventListener --> useKeydown
+  useEventListener --> useHotkey
   useEventListener --> Components["Custom Components"]
 ```
 

@@ -104,8 +104,8 @@ Browser API wrappers with automatic lifecycle cleanup.
 | Name | Description |
 | - | - |
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
+| [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
 | [useIntersectionObserver](/composables/system/use-intersection-observer) | Intersection Observer API for visibility detection |
-| [useKeydown](/composables/system/use-keydown) | Handle keyboard events with automatic cleanup |
 | [useMutationObserver](/composables/system/use-mutation-observer) | Mutation Observer API for DOM change detection |
 | [useResizeObserver](/composables/system/use-resize-observer) | Resize Observer API for element size changes |
 | [useToggleScope](/composables/system/use-toggle-scope) | Conditional effect scope management |

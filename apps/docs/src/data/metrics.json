@@ -241,14 +241,6 @@
       "overall": 100
     }
   },
-  "useKeydown": {
-    "coverage": {
-      "statements": 91.3,
-      "functions": 100,
-      "branches": 100,
-      "overall": 95.7
-    }
-  },
   "useLocale": {
     "coverage": {
       "statements": 95.5,
