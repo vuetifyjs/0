@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useClickOutside, useKeydown } from '@vuetify/v0'
+  import { useClickOutside, useHotkey } from '@vuetify/v0'
 
   // Utilities
   import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
@@ -16,7 +16,7 @@
   }
 
   useClickOutside([buttonRef, menuRef], close)
-  useKeydown({ key: 'Escape', handler: close })
+  useHotkey('escape', close, { inputs: true })
 
   watch(isOpen, open => {
     if (open) {

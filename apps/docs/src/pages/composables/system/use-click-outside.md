@@ -124,13 +124,13 @@ This composable handles pointer interactions only. For accessible overlays, you 
 > **WCAG 2.1.2 Level A**: Without keyboard dismissal, click-outside creates a keyboard trap. This is a compliance failure.
 
 ```ts
-import { useClickOutside, useKeydown } from '@vuetify/v0'
+import { useClickOutside, useHotkey } from '@vuetify/v0'
 
 // Pointer dismissal
 useClickOutside(menuRef, close)
 
 // Keyboard dismissal - REQUIRED for WCAG 2.1.2
-useKeydown({ key: 'Escape', handler: close })
+useHotkey('escape', close, { inputs: true })
 ```
 
 ### Focus Restoration

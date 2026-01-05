@@ -15,7 +15,7 @@
  * Common use cases: closing popovers, dropdowns, modals, and menus.
  *
  * Accessibility: This composable handles pointer interactions only. For accessible
- * components (dialogs, popovers, menus), pair with `useKeydown` for Escape key
+ * components (dialogs, popovers, menus), pair with `useHotkey` for Escape key
  * dismissal per WCAG/APG requirements.
  */
 

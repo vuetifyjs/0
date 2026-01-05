@@ -133,8 +133,8 @@ Selection management composables built on `useRegistry`:
 #### Observers & Events
 
 - **`useEventListener`** - Lifecycle-managed event listeners
+- **`useHotkey`** - Hotkey combinations and sequences
 - **`useIntersectionObserver`** - Intersection observer with auto-cleanup
-- **`useKeydown`** - Keyboard event handling
 - **`useMutationObserver`** - DOM mutation observation
 - **`useResizeObserver`** - Resize observer utilities
 

@@ -67,7 +67,7 @@
 ## Composables - System
 
 - [useEventListener](https://0.vuetifyjs.com/composables/system/use-event-listener): Lifecycle-managed event listeners
-- [useKeydown](https://0.vuetifyjs.com/composables/system/use-keydown): Keyboard event handling
+- [useHotkey](https://0.vuetifyjs.com/composables/system/use-hotkey): Hotkey combinations and sequences
 - [useResizeObserver](https://0.vuetifyjs.com/composables/system/use-resize-observer): Resize observation
 - [useIntersectionObserver](https://0.vuetifyjs.com/composables/system/use-intersection-observer): Intersection observation
 - [useMutationObserver](https://0.vuetifyjs.com/composables/system/use-mutation-observer): DOM mutation observation
