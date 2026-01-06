@@ -23,7 +23,7 @@ import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
 import { isNull } from '#v0/utilities'
-import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
+import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { Ref, ShallowRef } from 'vue'
@@ -179,17 +179,32 @@ export function useIntersectionObserver (
     }
   }
 
-  watchEffect(() => {
-    // Track reactive dependencies
-    const hydrated = isHydrated.value
-    const target = targetRef.value
+  // Watch target changes - only cleanup/setup when element actually changes
+  watch(
+    () => targetRef.value,
+    (el, oldEl) => {
+      // Only cleanup if we had a previous element
+      if (oldEl) cleanup()
 
-    cleanup()
+      if (isHydrated.value && el) {
+        setup()
+      }
+    },
+    { immediate: true },
+  )
 
-    if (hydrated && target) {
-      setup()
-    }
-  })
+  // Handle initial hydration - setup once when hydrated if target exists
+  if (!isHydrated.value) {
+    const stopHydrationWatch = watch(
+      () => isHydrated.value,
+      hydrated => {
+        if (hydrated && targetRef.value && !observer.value) {
+          setup()
+          stopHydrationWatch()
+        }
+      },
+    )
+  }
 
   function cleanup () {
     if (observer.value) {

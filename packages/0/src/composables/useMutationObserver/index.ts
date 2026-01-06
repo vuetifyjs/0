@@ -23,7 +23,7 @@ import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
 import { isNull } from '#v0/utilities'
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, watchEffect } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { Ref } from 'vue'
@@ -197,17 +197,32 @@ export function useMutationObserver (
     }
   }
 
-  watchEffect(() => {
-    // Track reactive dependencies
-    const hydrated = isHydrated.value
-    const el = target.value
+  // Watch target changes - only cleanup/setup when element actually changes
+  watch(
+    () => target.value,
+    (el, oldEl) => {
+      // Only cleanup if we had a previous element
+      if (oldEl) cleanup()
 
-    cleanup()
+      if (isHydrated.value && el) {
+        setup()
+      }
+    },
+    { immediate: true },
+  )
 
-    if (hydrated && el) {
-      setup()
-    }
-  })
+  // Handle initial hydration - setup once when hydrated if target exists
+  if (!isHydrated.value) {
+    const stopHydrationWatch = watch(
+      () => isHydrated.value,
+      hydrated => {
+        if (hydrated && target.value && !observer.value) {
+          setup()
+          stopHydrationWatch()
+        }
+      },
+    )
+  }
 
   function cleanup () {
     if (observer.value) {
