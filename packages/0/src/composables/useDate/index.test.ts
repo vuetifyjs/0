@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, expectTypeOf } from 'vitest'
 import { Temporal } from '@js-temporal/polyfill'
 import { createDate, createDateContext, createDateFallback, createDatePlugin, useDate } from './index'
 import { Vuetify0DateAdapter } from './adapters/v0'
+import type { DateAdapter, DateContext } from './index'
 
 describe('useDate', () => {
   describe('Vuetify0DateAdapter', () => {
@@ -91,6 +92,21 @@ describe('useDate', () => {
         expect(date).toBeNull()
       })
 
+      it('should create Feb 29 in leap year', () => {
+        const date = adapter.date('2024-02-29T10:30:00')
+
+        expect(date).not.toBeNull()
+        expect(date!.year).toBe(2024)
+        expect(date!.month).toBe(2)
+        expect(date!.day).toBe(29)
+      })
+
+      it('should return null for Feb 29 in non-leap year', () => {
+        const date = adapter.date('2023-02-29T10:30:00')
+
+        expect(date).toBeNull()
+      })
+
       it('should convert to JavaScript Date', () => {
         const temporal = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
         const jsDate = adapter.toJsDate(temporal)
@@ -155,6 +171,16 @@ describe('useDate', () => {
         const month = frAdapter.format(testDate, 'month')
 
         expect(month.toLowerCase()).toContain('juin')
+      })
+
+      it('should handle invalid locale gracefully', () => {
+        // Intl.DateTimeFormat falls back to default locale for invalid codes
+        const invalidAdapter = new Vuetify0DateAdapter('invalid-XX')
+        const date = invalidAdapter.date('2024-06-15T10:30:00')!
+
+        // Should not throw, Intl falls back gracefully
+        expect(() => invalidAdapter.format(date, 'fullDate')).not.toThrow()
+        expect(invalidAdapter.format(date, 'year')).toBe('2024')
       })
     })
 
@@ -1373,6 +1399,59 @@ describe('useDate', () => {
 
       wrapper.unmount()
     })
+
+    it('should sync adapter locale dynamically when context created in component', async () => {
+      const { mount } = await import('@vue/test-utils')
+      const { defineComponent, nextTick } = await import('vue')
+      const { createLocalePlugin, useLocale } = await import('#v0/composables/useLocale')
+
+      // Locale plugin provides context at app level
+      const localePlugin = createLocalePlugin({
+        default: 'en',
+        messages: {
+          en: { hello: 'Hello' },
+          de: { hello: 'Hallo' },
+        },
+      })
+
+      let selectLocaleFn: ((id: string) => void) | null = null
+
+      const TestComponent = defineComponent({
+        setup () {
+          const localeContext = useLocale()
+          // Create date context INSIDE component for dynamic sync
+          const dateContext = createDate({
+            localeMap: { en: 'en-US', de: 'de-DE' },
+          })
+
+          selectLocaleFn = localeContext.select
+
+          return {
+            dateLocale: dateContext.locale,
+            adapterLocale: () => dateContext.adapter.locale,
+          }
+        },
+        template: '<div>{{ dateLocale }} - {{ adapterLocale() }}</div>',
+      })
+
+      const wrapper = mount(TestComponent, {
+        global: {
+          plugins: [localePlugin],
+        },
+      })
+
+      // Initial locale should be mapped from useLocale's selection
+      expect(wrapper.text()).toContain('en-US')
+
+      // Change locale dynamically
+      selectLocaleFn!('de')
+      await nextTick()
+
+      // Adapter locale should sync via watchEffect (context created in component)
+      expect(wrapper.text()).toContain('de-DE')
+
+      wrapper.unmount()
+    })
   })
 
   describe('type safety (compile-time)', () => {
@@ -1385,6 +1464,13 @@ describe('useDate', () => {
       const customAdapter = new Vuetify0DateAdapter()
       const customCtx = createDate({ adapter: customAdapter })
       expectTypeOf(customCtx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
+
+      // Mock adapter with different type: verifies generic inference (type-only)
+      const mockDateAdapter = {} as DateAdapter<Date>
+      const mockCtx = createDate({ adapter: mockDateAdapter })
+      // Type assertions only - mock adapter has no runtime implementation
+      expectTypeOf(mockCtx.adapter).toEqualTypeOf<DateAdapter<Date>>()
+      expectTypeOf(mockCtx).toEqualTypeOf<DateContext<Date>>()
 
       // Context trinity returns correct type
       const [, , ctx] = createDateContext()

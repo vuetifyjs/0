@@ -13,8 +13,49 @@ vi.mock('#v0/constants/globals', () => ({
 
 // Import after mock is set up
 import { Vuetify0DateAdapter } from './adapters/v0'
+import { useDate, createDateFallback } from './index'
 
 describe('useDate SSR', () => {
+  describe('useDate outside component in SSR', () => {
+    it('should return fallback context when called outside component', () => {
+      // In SSR without getCurrentInstance(), useDate should return fallback
+      const ctx = useDate()
+
+      expect(ctx).toBeDefined()
+      expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
+      expect(ctx.locale.value).toBe('en-US')
+    })
+
+    it('should return fallback with custom namespace outside component', () => {
+      const ctx = useDate('custom:namespace')
+
+      expect(ctx).toBeDefined()
+      expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
+    })
+
+    it('should return epoch from fallback adapter in SSR', () => {
+      const ctx = useDate()
+      const date = ctx.adapter.date()
+
+      // In SSR, date() without args returns epoch
+      expect(date).not.toBeNull()
+      expect(date!.year).toBe(1970)
+      expect(date!.month).toBe(1)
+      expect(date!.day).toBe(1)
+    })
+
+    it('createDateFallback should work in SSR', () => {
+      const fallback = createDateFallback()
+
+      expect(fallback.adapter).toBeInstanceOf(Vuetify0DateAdapter)
+      expect(fallback.locale.value).toBe('en-US')
+
+      // Should use epoch for current date in SSR
+      const date = fallback.adapter.date()
+      expect(date!.year).toBe(1970)
+    })
+  })
+
   describe('Vuetify0DateAdapter in SSR mode', () => {
     it('should return epoch when date() called without arguments', () => {
       const adapter = new Vuetify0DateAdapter('en-US')

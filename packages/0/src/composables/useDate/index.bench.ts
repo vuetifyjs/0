@@ -114,5 +114,30 @@ describe('useDate benchmarks', () => {
         _date = adapter.setDate(_date, 1)
       })
     })
+
+    describe('locale switching', () => {
+      bench('locale change + reformat', () => {
+        const localAdapter = new Vuetify0DateAdapter('en-US')
+        localAdapter.locale = 'de-DE'
+        localAdapter.format(testDate, 'fullDate')
+      })
+
+      bench('toggle locale 10 times', () => {
+        const localAdapter = new Vuetify0DateAdapter('en-US')
+
+        for (let i = 0; i < 10; i++) {
+          localAdapter.locale = i % 2 === 0 ? 'de-DE' : 'en-US'
+          localAdapter.format(testDate, 'fullDate')
+        }
+      })
+
+      bench('cache eviction (60 unique formats)', () => {
+        const localAdapter = new Vuetify0DateAdapter('en-US')
+
+        for (let i = 0; i < 60; i++) {
+          localAdapter.formatByString(testDate, `YYYY-MM-DD-${i}`)
+        }
+      })
+    })
   })
 })
