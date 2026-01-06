@@ -1,80 +1,37 @@
 <script setup lang="ts">
-  // Framework
-  import { useClickOutside, useHotkey } from '@vuetify/v0'
-
-  // Utilities
-  import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
+  import { useClickOutside } from '@vuetify/v0'
+  import { shallowRef, useTemplateRef } from 'vue'
 
   const isOpen = shallowRef(false)
-  const buttonRef = useTemplateRef<HTMLElement>('button')
-  const menuRef = useTemplateRef<HTMLElement>('menu')
-  const firstItemRef = useTemplateRef<HTMLElement>('firstItem')
+  const menu = useTemplateRef('menu')
 
-  function close () {
-    if (!isOpen.value) return
+  useClickOutside(menu, () => {
     isOpen.value = false
-    nextTick(() => buttonRef.value?.focus())
-  }
-
-  useClickOutside([buttonRef, menuRef], close)
-  useHotkey('escape', close, { inputs: true })
-
-  watch(isOpen, open => {
-    if (open) {
-      nextTick(() => firstItemRef.value?.focus())
-    }
-  })
-
-  const menuStyle = computed(() => {
-    const button = buttonRef.value
-    if (!button) return {}
-
-    const rect = button.getBoundingClientRect()
-    return {
-      top: `${rect.bottom + 8}px`,
-      left: `${rect.left}px`,
-    }
   })
 </script>
 
 <template>
-  <button
-    ref="button"
-    :aria-expanded="isOpen"
-    aria-haspopup="menu"
-    class="px-4 py-2 bg-primary text-on-primary rounded hover:opacity-90 transition-opacity"
-    @click="isOpen = !isOpen"
-  >
-    {{ isOpen ? 'Close' : 'Open' }} Menu
-  </button>
+  <div ref="menu" class="inline-block">
+    <button
+      class="px-4 py-2 bg-primary text-on-primary rounded"
+      @click="isOpen = !isOpen"
+    >
+      {{ isOpen ? 'Close' : 'Open' }} Menu
+    </button>
 
-  <Teleport to="body">
     <div
       v-if="isOpen"
-      ref="menu"
-      class="fixed w-48 py-2 bg-surface border border-divider rounded shadow-lg z-50"
-      role="menu"
-      :style="menuStyle"
+      class="absolute mt-2 w-48 py-2 bg-surface border border-divider rounded shadow-lg"
     >
-      <button
-        ref="firstItem"
-        class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-tint"
-        role="menuitem"
-      >
+      <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Profile
       </button>
-      <button
-        class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-tint"
-        role="menuitem"
-      >
+      <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Settings
       </button>
-      <button
-        class="w-full text-left px-4 py-2 text-sm text-on-surface hover:bg-surface-tint"
-        role="menuitem"
-      >
+      <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Sign out
       </button>
     </div>
-  </Teleport>
+  </div>
 </template>

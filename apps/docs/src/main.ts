@@ -39,6 +39,15 @@ export const createApp = ViteSSG(
 
       router.isReady().then(() => {
         localStorage.removeItem('vuetify:dynamic-reload')
+
+        // Preload Shiki highlighter on idle to avoid lag on first "Show Code" click
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => {
+            import('./composables/useHighlighter').then(({ useHighlighter }) => {
+              useHighlighter().getHighlighter()
+            })
+          })
+        }
       })
     }
   },

@@ -1,5 +1,5 @@
 ---
-title: createTokens Composable
+title: createTokens - Design Token Management for Vue 3
 meta:
 - name: description
   content: A utility for managing design tokens with support for hierarchical collections,

@@ -1,5 +1,5 @@
 ---
-title: useBreakpoints Composable
+title: useBreakpoints - Responsive Viewport Detection for Vue 3
 meta:
 - name: description
   content: A composable for responsive design that detects viewport dimensions and

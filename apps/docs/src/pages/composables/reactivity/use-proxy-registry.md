@@ -1,5 +1,5 @@
 ---
-title: useProxyRegistry Composable
+title: useProxyRegistry - Reactive Registry Wrapper for Vue 3
 meta:
 - name: description
   content: A reactive proxy wrapper for registry collections that automatically updates

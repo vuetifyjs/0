@@ -1,8 +1,5 @@
 <script setup lang="ts">
-  // Framework
   import { Pagination } from '@vuetify/v0'
-
-  // Utilities
   import { shallowRef } from 'vue'
 
   const model = shallowRef(4)

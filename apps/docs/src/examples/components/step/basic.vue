@@ -1,8 +1,5 @@
 <script setup lang="ts">
-  // Framework
   import { Step } from '@vuetify/v0'
-
-  // Utilities
   import { ref } from 'vue'
 
   const current = ref('step1')

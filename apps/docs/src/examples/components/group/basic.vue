@@ -1,8 +1,5 @@
 <script setup lang="ts">
-  // Framework
   import { Group } from '@vuetify/v0'
-
-  // Utilities
   import { ref } from 'vue'
 
   const selected = ref(['apple', 'banana'])

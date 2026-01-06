@@ -1,20 +1,11 @@
 <script setup lang="ts">
-  // Framework
-  import { useMediaQuery, usePrefersDark, usePrefersReducedMotion } from '@vuetify/v0'
-
-  // Utilities
+  import { useMediaQuery } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
-  // Static query
   const { matches: isLandscape } = useMediaQuery('(orientation: landscape)')
 
-  // Dynamic query with reactive threshold
   const minWidth = shallowRef(768)
   const { matches: isWide } = useMediaQuery(() => `(min-width: ${minWidth.value}px)`)
-
-  // Convenience composables
-  const { matches: prefersDark } = usePrefersDark()
-  const { matches: prefersReducedMotion } = usePrefersReducedMotion()
 </script>
 
 <template>
@@ -35,23 +26,7 @@
       <span>Width >= {{ minWidth }}px: <strong>{{ isWide }}</strong></span>
     </div>
 
-    <div class="flex items-center gap-3">
-      <span
-        class="w-3 h-3 rounded-full"
-        :class="prefersDark ? 'bg-success' : 'bg-error'"
-      />
-      <span>Prefers dark mode: <strong>{{ prefersDark }}</strong></span>
-    </div>
-
-    <div class="flex items-center gap-3">
-      <span
-        class="w-3 h-3 rounded-full"
-        :class="prefersReducedMotion ? 'bg-success' : 'bg-error'"
-      />
-      <span>Prefers reduced motion: <strong>{{ prefersReducedMotion }}</strong></span>
-    </div>
-
-    <div class="flex items-center gap-4 mt-4 pt-4 border-t border-divider">
+    <div class="flex items-center gap-4 pt-4 border-t border-divider">
       <label class="text-sm">Min width threshold:</label>
       <input
         v-model.number="minWidth"

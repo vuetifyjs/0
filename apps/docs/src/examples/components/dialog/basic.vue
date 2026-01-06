@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  // Framework
   import { Dialog } from '@vuetify/v0'
 </script>
 

@@ -86,6 +86,17 @@ export default vuetify({
   },
 },
 {
+  files: ['apps/docs/src/examples/**/*.vue'],
+  rules: {
+    'perfectionist/sort-imports': ['error', {
+      type: 'natural',
+      order: 'asc',
+      ignoreCase: true,
+      newlinesBetween: 'always',
+    }],
+  },
+},
+{
   name: 'pnpm/pnpm-workspace-yaml',
   files: ['pnpm-workspace.yaml'],
   rules: {

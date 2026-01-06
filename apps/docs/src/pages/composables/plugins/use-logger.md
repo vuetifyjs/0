@@ -1,5 +1,5 @@
 ---
-title: useLogger Composable
+title: useLogger - Adapter-Based Logging for Vue 3
 meta:
 - name: description
   content: A composable for application logging with configurable adapters, log levels,

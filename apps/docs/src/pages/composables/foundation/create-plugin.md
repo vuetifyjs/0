@@ -21,7 +21,7 @@ This composable allows you to create a Vue plugin with specific functionality th
 
 <DocsPageFeatures :frontmatter />
 
-## Usage { id="usage" }
+## Usage
 
 Use in conjunction with the [createContext](/composables/foundation/create-context "createContext Documentation") composable to make [Vue plugins](https://vuejs.org/guide/reusability/plugins "Vue Plugins Documentation") that work seemlessly with [Vue Provide / Inject](https://vuejs.org/guide/components/provide-inject "Vue Provide / Inject Documentation").
 

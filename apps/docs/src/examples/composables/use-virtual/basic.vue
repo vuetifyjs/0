@@ -1,8 +1,5 @@
 <script setup lang="ts">
-  // Framework
   import { useVirtual } from '@vuetify/v0'
-
-  // Utilities
   import { computed, shallowRef } from 'vue'
 
   const items = shallowRef(

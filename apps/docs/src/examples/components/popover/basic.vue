@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  // Framework
   import { Popover } from '@vuetify/v0'
 </script>
 

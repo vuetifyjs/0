@@ -1,8 +1,5 @@
 <script setup lang="ts">
-  // Framework
   import { Single } from '@vuetify/v0'
-
-  // Utilities
   import { ref } from 'vue'
 
   const selected = ref('medium')

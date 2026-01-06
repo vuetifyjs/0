@@ -1,5 +1,5 @@
 ---
-title: createRegistry Composable
+title: createRegistry - Item Registration and Indexing for Vue 3
 meta:
 - name: description
   content: A foundational composable for building registration-based systems, managing

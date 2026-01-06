@@ -1,5 +1,5 @@
 ---
-title: createQueue Composable
+title: createQueue - Time-Based FIFO Collections for Vue 3
 meta:
 - name: description
   content: A queue composable for managing time-based collections with automatic timeout-based

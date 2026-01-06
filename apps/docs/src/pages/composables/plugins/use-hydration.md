@@ -1,5 +1,5 @@
 ---
-title: useHydration Composable
+title: useHydration - SSR Hydration State for Vue 3
 meta:
 - name: description
   content: A composable for managing SSR hydration state, controlling when components
