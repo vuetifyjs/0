@@ -50,6 +50,7 @@ Components for showing/hiding content.
 
 | Name | Description |
 | - | - |
+| [Dialog](/components/disclosure/dialog) | Modal dialog with focus management |
 | [ExpansionPanel](/components/disclosure/expansion-panel) | Accordion-style collapsible panels |
 | [Popover](/components/disclosure/popover) | CSS anchor-positioned popup content |
 

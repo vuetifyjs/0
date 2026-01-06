@@ -12,48 +12,9 @@ related:
 
 # Composables
 
-v0 composables are the building blocks for headless UI. Components wrap these composables—you can use either approach.
+Type-safe composables for headless UI. Components wrap these composables—you can use either approach.
 
 <DocsPageFeatures :frontmatter />
-
-## Composable Hierarchy
-
-```
-createContext ─── Type-safe provide/inject
-      │
-      └──► createTrinity ─── [use, provide, context] tuple
-                │
-                └──► createPlugin ─── Vue plugin factory
-
-useRegistry ─── Base collection management
-      │
-      ├──► useSelection ─── + selectedIds Set
-      │         │
-      │         ├──► useSingle ─── Single selection
-      │         │         │
-      │         │         └──► useStep ─── + navigation
-      │         │
-      │         └──► useGroup ─── + tri-state, batch ops
-      │
-      ├──► useTokens ─── + alias resolution
-      │
-      └──► useForm ─── + validation
-```
-
-## Choosing a Composable
-
-| Need | Use | Category |
-| - | - | - |
-| Radio buttons, tabs | `useSingle` | selection |
-| Checkboxes, multi-select | `useGroup` | selection |
-| Wizard, stepper | `useStep` | selection |
-| Form validation | `useForm` | forms |
-| Design tokens | `useTokens` | registration |
-| Dark/light mode | `useTheme` | plugins |
-| i18n, RTL | `useLocale` | plugins |
-| Filter/search | `useFilter` | utilities |
-| Pagination | `usePagination` | utilities |
-| Large lists | `useVirtual` | utilities |
 
 ## Foundation
 
@@ -103,9 +64,11 @@ Browser API wrappers with automatic lifecycle cleanup.
 
 | Name | Description |
 | - | - |
+| [useClickOutside](/composables/system/use-click-outside) | Detect clicks outside an element |
 | [useEventListener](/composables/system/use-event-listener) | Handle DOM events with automatic cleanup |
 | [useHotkey](/composables/system/use-hotkey) | Handle hotkey combinations and sequences |
 | [useIntersectionObserver](/composables/system/use-intersection-observer) | Intersection Observer API for visibility detection |
+| [useMediaQuery](/composables/system/use-media-query) | Reactive CSS media query matching |
 | [useMutationObserver](/composables/system/use-mutation-observer) | Mutation Observer API for DOM change detection |
 | [useResizeObserver](/composables/system/use-resize-observer) | Resize Observer API for element size changes |
 | [useToggleScope](/composables/system/use-toggle-scope) | Conditional effect scope management |
