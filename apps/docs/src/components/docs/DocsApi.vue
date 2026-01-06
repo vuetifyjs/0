@@ -97,7 +97,7 @@
 <template>
   <div
     v-if="componentApis.length > 0"
-    class="mt-8 mb-12"
+    class="mt-8 mb-12 markdown-body"
   >
     <div class="markdown-body flex items-center justify-between gap-4">
       <DocsHeaderAnchor
@@ -116,6 +116,8 @@
         {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
       </button>
     </div>
+
+    The following API details are for all variations of the <strong>{{ itemName }}</strong> component.
 
     <DocsApiLinks
       v-if="apiMode === 'links'"
@@ -165,7 +167,7 @@
     v-else-if="composableApi"
     class="markdown-body mt-8 mb-12"
   >
-    <div class="flex items-center justify-between gap-4">
+    <div class="flex items-center justify-between gap-4 markdown-body">
       <DocsHeaderAnchor
         id="api-reference"
         class="!mb-0"
@@ -182,6 +184,8 @@
         {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
       </button>
     </div>
+
+    The following API details are for the <strong>{{ itemName }}</strong> composable.
 
     <DocsApiLinks
       v-if="apiMode === 'links'"
