@@ -809,6 +809,67 @@ describe('pagination', () => {
     })
   })
 
+  describe('responsive visible calculation', () => {
+    it('should use default visible count before item width is measured', async () => {
+      // This tests the race condition where:
+      // 1. Container has width (ResizeObserver fires)
+      // 2. Items haven't registered yet, so itemWidth is still 0
+      // 3. Pagination should show default items (not 0) until measurement completes
+      let slotProps: any
+
+      const wrapper = mount(Pagination.Root, {
+        props: {
+          size: 200,
+          itemsPerPage: 10,
+          // No totalVisible - rely on auto-calculation
+        },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', props.items.map((item: any) =>
+              item.type === 'page'
+                ? h(Pagination.Item, { key: `page-${item.value}`, value: item.value }, () => item.value)
+                : h(Pagination.Ellipsis, { key: `ellipsis-${item.value}` }, () => item.value),
+            ))
+          },
+        },
+      })
+
+      await nextTick()
+
+      // Before any measurement, should have items (not 0)
+      // The default fallback is 7 when totalVisible isn't set and measurement hasn't happened
+      expect(slotProps.items.length).toBeGreaterThan(0)
+
+      wrapper.unmount()
+    })
+
+    it('should respect explicit totalVisible regardless of measurement state', async () => {
+      let slotProps: any
+
+      const wrapper = mount(Pagination.Root, {
+        props: {
+          size: 200,
+          itemsPerPage: 10,
+          totalVisible: 5,
+        },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      // With explicit totalVisible, should show exactly that many items
+      expect(slotProps.items.length).toBe(5)
+
+      wrapper.unmount()
+    })
+  })
+
   describe('sSR/Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({

@@ -30,10 +30,10 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Composables
+  import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
   import { createOverflow } from '#v0/composables/useOverflow'
   import { createPagination } from '#v0/composables/usePagination'
-  import { createRegistry } from '#v0/composables/useRegistry'
 
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
@@ -41,8 +41,8 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { RegistryContext } from '#v0/composables/createRegistry'
   import type { PaginationContext, PaginationTicket } from '#v0/composables/usePagination'
-  import type { RegistryContext } from '#v0/composables/useRegistry'
 
   export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })
@@ -146,13 +146,16 @@
     const root = overflow.container.value
     if (!el || !root) return
 
-    const rootStyle = getComputedStyle(root)
-    const style = getComputedStyle(el)
-    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
-    const gapX = Number.parseFloat(rootStyle.gap) || 0
+    // Use rAF to ensure layout has settled after DOM updates
+    requestAnimationFrame(() => {
+      const rootStyle = getComputedStyle(root)
+      const style = getComputedStyle(el)
+      const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
+      const gapX = Number.parseFloat(rootStyle.gap) || 0
 
-    itemWidth.value = el.offsetWidth + marginX
-    itemGap.value = gapX
+      itemWidth.value = el.offsetWidth + marginX
+      itemGap.value = gapX
+    })
   }, { flush: 'post' })
 
   const visible = computed(() => {

@@ -319,8 +319,11 @@ describe('createOverflow', () => {
     expect(result.capacity.value).toBe(0)
   })
 
-  it('should fall back to variable mode when itemWidth is 0', async () => {
-    const result = createOverflow({ itemWidth: 0, reserved: 0 })
+  it('should return Infinity when itemWidth option provided but value is 0 (not measured yet)', async () => {
+    // When itemWidth is provided but value is 0, it means measurement hasn't happened yet
+    // This is the case for PaginationRoot where itemWidth is a ref that starts at 0
+    const itemWidth = shallowRef(0)
+    const result = createOverflow({ itemWidth, reserved: 0 })
 
     const container = document.createElement('div')
     result.container.value = container
@@ -329,20 +332,12 @@ describe('createOverflow', () => {
     resizeCallback?.([{ contentRect: { width: 200, height: 50 } }])
     await nextTick()
 
-    const el = document.createElement('div')
-    Object.defineProperty(el, 'offsetWidth', { value: 50 })
-    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
-      marginLeft: '0px',
-      marginRight: '0px',
-    } as CSSStyleDeclaration)
+    // Before measurement, capacity should be Infinity (show all/default)
+    expect(result.capacity.value).toBe(Infinity)
 
-    result.measure(0, el)
-    result.measure(1, el)
-    result.measure(2, el)
-
-    // Falls back to variable mode, measures 3 items of 50px each = 150px
-    // 200px available, so all 3 fit
-    expect(result.capacity.value).toBe(3)
+    // After measurement, capacity should be calculated
+    itemWidth.value = 50
+    expect(result.capacity.value).toBe(4) // 200px / 50px = 4 items
   })
 
   describe('reverse mode', () => {

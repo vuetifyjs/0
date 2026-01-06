@@ -180,16 +180,17 @@ export function createOverflow<
     if (available <= 0) return 0
 
     const g = toValue(gap)
-    const uniformWidth = toValue(itemWidth)
+    const uniformWidth = toValue(itemWidth) ?? 0
 
     // Uniform mode: calculate how many items of fixed width fit
-    if (uniformWidth && uniformWidth > 0) {
+    // If itemWidth option was provided but value is 0, not measured yet - show all
+    if (itemWidth !== undefined && uniformWidth <= 0) return Infinity
+    if (uniformWidth > 0) {
       // First item: uniformWidth, subsequent: uniformWidth + gap
       // available >= w + (n-1)(w+g) => n <= (available - w) / (w+g) + 1
-      const first = uniformWidth
       const subsequent = uniformWidth + g
-      if (available < first) return 0
-      return Math.max(1, Math.floor((available - first) / subsequent) + 1)
+      if (available < uniformWidth) return 0
+      return Math.max(1, Math.floor((available - uniformWidth) / subsequent) + 1)
     }
 
     // Variable mode: sum measured widths until overflow
