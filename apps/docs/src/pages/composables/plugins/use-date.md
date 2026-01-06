@@ -105,7 +105,7 @@ const isSameMonth = adapter.isSameMonth(today, inFiveDays)
 
 - **Details**
 
-  - `adapter`: Custom date adapter (default: `V0DateAdapter` using Temporal API)
+  - `adapter`: Custom date adapter (default: `Vuetify0DateAdapter` using Temporal API)
   - `locale`: Default locale for formatting (default: 'en-US' or from `useLocale`)
   - `localeMap`: Mapping from short locale codes to Intl locale strings
   - `namespace`: Context namespace for dependency injection (default: 'v0:date')
@@ -277,10 +277,8 @@ The `formatByString()` method supports these tokens:
 
 - **Type**
   ```ts
-  function createDateContext<
-    T extends Temporal.PlainDateTime = Temporal.PlainDateTime,
-    E extends DateContext<T> = DateContext<T>
-  > (options: DateContextOptions<T>): ContextTrinity<E>
+  function createDateContext (options?: DateContextOptionsDefault): ContextTrinity<DateContext<Temporal.PlainDateTime>>
+  function createDateContext<T> (options: DateContextOptionsWithAdapter<T>): ContextTrinity<DateContext<T>>
   ```
 
 - **Details**

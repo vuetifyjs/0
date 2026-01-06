@@ -78,7 +78,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
    * hydration via `<ClientOnly>` (Nuxt) or `v-if` + `onMounted` pattern.
    */
   date (value?: unknown): PlainDateTime | null {
-    if (value == null) {
+    if (isNullOrUndefined(value)) {
       // SSR safety: Temporal.Now requires browser environment
       return IN_BROWSER
         ? Temporal.Now.plainDateTimeISO()
@@ -190,7 +190,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   }
 
   isValid (date: unknown): boolean {
-    if (date == null) return false
+    if (isNullOrUndefined(date)) return false
 
     if (date instanceof Temporal.PlainDateTime) return true
     if (date instanceof Temporal.PlainDate) return true

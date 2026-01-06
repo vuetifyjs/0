@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, expectTypeOf } from 'vitest'
 import { Temporal } from '@js-temporal/polyfill'
 import { createDate, createDateContext, createDateFallback, createDatePlugin, useDate } from './index'
 import { Vuetify0DateAdapter } from './adapters/v0'
@@ -1372,6 +1372,40 @@ describe('useDate', () => {
       expect(wrapper.text()).toContain('en-US')
 
       wrapper.unmount()
+    })
+  })
+
+  describe('type safety (compile-time)', () => {
+    it('should infer correct types for overloads', () => {
+      // Default adapter: returns DateContext<Temporal.PlainDateTime>
+      const defaultCtx = createDate()
+      expectTypeOf(defaultCtx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
+
+      // Custom adapter with explicit type: infers T from adapter
+      const customAdapter = new Vuetify0DateAdapter()
+      const customCtx = createDate({ adapter: customAdapter })
+      expectTypeOf(customCtx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
+
+      // Context trinity returns correct type
+      const [, , ctx] = createDateContext()
+      expectTypeOf(ctx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
+
+      // useDate returns default type
+      const usedCtx = useDate()
+      expectTypeOf(usedCtx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
+    })
+
+    // Type-level tests: these verify TypeScript rejects invalid calls
+    // The @ts-expect-error comments ensure these FAIL to compile if removed
+    it('should reject invalid overload usage at compile time', () => {
+      // @ts-expect-error - T provided without adapter should fail
+      createDate<Date>()
+
+      // @ts-expect-error - T provided without adapter should fail
+      createDateContext<Date>()
+
+      // @ts-expect-error - T provided without adapter should fail
+      createDatePlugin<Date>()
     })
   })
 })

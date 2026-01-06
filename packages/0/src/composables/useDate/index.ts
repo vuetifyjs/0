@@ -86,9 +86,9 @@ export interface DateOptionsWithAdapter<T> extends DateOptionsBase {
   adapter: DateAdapter<T>
 }
 
-/** Options when using the default V0DateAdapter */
+/** Options when using the default Vuetify0DateAdapter */
 export interface DateOptionsDefault extends DateOptionsBase {
-  /** When omitted, V0DateAdapter is used */
+  /** When omitted, Vuetify0DateAdapter is used */
   adapter?: undefined
 }
 
@@ -214,7 +214,7 @@ function createDateInternal<T> (
 }
 
 /**
- * Creates a new date context with the default V0DateAdapter.
+ * Creates a new date context with the default Vuetify0DateAdapter.
  *
  * @param options Optional locale configuration.
  * @returns A date context using Temporal.PlainDateTime.
@@ -282,7 +282,7 @@ export function createDateFallback (): DateContext<DefaultDateType> {
 }
 
 /**
- * Creates a new date context trinity with the default V0DateAdapter.
+ * Creates a new date context trinity with the default Vuetify0DateAdapter.
  *
  * @param options Optional locale and namespace configuration.
  * @returns A trinity [useContext, provideContext, defaultContext].
@@ -333,7 +333,7 @@ export function createDateContext<T = DefaultDateType> (
 }
 
 /**
- * Creates a new date plugin with the default V0DateAdapter.
+ * Creates a new date plugin with the default Vuetify0DateAdapter.
  *
  * @param options Optional locale and namespace configuration.
  * @returns A Vue plugin.
@@ -378,8 +378,7 @@ export function createDatePlugin<T = DefaultDateType> (
 ) {
   const { namespace = 'v0:date', ...options } = _options
 
-  // Preserve custom adapter if provided, otherwise use default
-  // Safe cast: discriminated union check ensures correct overload selection
+  // Type narrowing required for overload resolution (cannot be extracted without losing type safety)
   const [, provideDateContext, context] = 'adapter' in options && options.adapter !== undefined
     ? createDateContext({ namespace, ...options } as DateContextOptionsWithAdapter<T>)
     : createDateContext({ namespace, ...options } as DateContextOptionsDefault) as unknown as ContextTrinity<DateContext<T>>
@@ -396,7 +395,7 @@ export function createDatePlugin<T = DefaultDateType> (
  * Returns the current date context.
  *
  * When called inside a component with a provided date context (via plugin or provider),
- * returns that context. Otherwise, returns a fallback context with V0DateAdapter.
+ * returns that context. Otherwise, returns a fallback context with Vuetify0DateAdapter.
  *
  * @param namespace The namespace to look up (defaults to 'v0:date').
  * @returns The current date context.

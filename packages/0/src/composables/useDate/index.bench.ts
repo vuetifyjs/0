@@ -1,10 +1,10 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { bench, describe } from 'vitest'
-import { V0DateAdapter } from './adapters/v0'
+import { Vuetify0DateAdapter } from './adapters/v0'
 
 describe('useDate benchmarks', () => {
-  describe('V0DateAdapter', () => {
-    const adapter = new V0DateAdapter()
+  describe('Vuetify0DateAdapter', () => {
+    const adapter = new Vuetify0DateAdapter()
     const testDate = Temporal.PlainDateTime.from('2024-06-15T10:30:00')
 
     describe('construction', () => {
