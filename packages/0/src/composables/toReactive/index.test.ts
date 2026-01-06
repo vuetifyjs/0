@@ -224,6 +224,44 @@ describe('toReactive', () => {
 
       expect(collected).toEqual([['a', 1], ['b', 2]])
     })
+
+    it('should handle Map forEach with callback', () => {
+      const mapRef = ref(new Map([['a', 1], ['b', 2]]))
+      const result = toReactive(mapRef)
+
+      const collected: Array<[any, any]> = []
+      // eslint-disable-next-line unicorn/no-array-for-each -- testing forEach method
+      result.forEach((value: any, key: any) => {
+        collected.push([key, value])
+      })
+
+      expect(collected).toEqual([['a', 1], ['b', 2]])
+    })
+
+    it('should handle Map Symbol.iterator', () => {
+      const mapRef = ref(new Map([['a', 1], ['b', 2]]))
+      const result = toReactive(mapRef)
+
+      const collected: Array<[any, any]> = []
+      for (const [key, value] of result) {
+        collected.push([key, value])
+      }
+
+      expect(collected).toEqual([['a', 1], ['b', 2]])
+    })
+
+    it('should unwrap ref values when iterating Map with Symbol.iterator', () => {
+      const refValue = ref('wrapped')
+      const mapRef = ref(new Map([['key', refValue]]))
+      const result = toReactive(mapRef)
+
+      const collected: Array<[any, any]> = []
+      for (const [key, value] of result) {
+        collected.push([key, value])
+      }
+
+      expect(collected).toEqual([['key', 'wrapped']])
+    })
   })
 
   describe('set support', () => {
@@ -285,6 +323,35 @@ describe('toReactive', () => {
       }
 
       expect(collected).toEqual(['a', 'b'])
+    })
+
+    it('should handle Set forEach with callback', () => {
+      const setRef = ref(new Set(['a', 'b']))
+      const result = toReactive(setRef)
+
+      const collected: Array<[any, any]> = []
+      // eslint-disable-next-line unicorn/no-array-for-each -- testing forEach method
+      result.forEach((value: any, value2: any) => {
+        collected.push([value, value2])
+      })
+
+      expect(collected).toEqual([['a', 'a'], ['b', 'b']])
+    })
+
+    it('should handle Set forEach with thisArg', () => {
+      const setRef = ref(new Set([1, 2, 3]))
+      const result = toReactive(setRef)
+
+      const context = { multiplier: 2 }
+      const collected: number[] = []
+
+      /* eslint-disable unicorn/no-array-for-each, unicorn/no-array-method-this-argument -- testing forEach method with thisArg */
+      result.forEach(function (this: typeof context, value: number) {
+        collected.push(value * this.multiplier)
+      }, context)
+      /* eslint-enable unicorn/no-array-for-each, unicorn/no-array-method-this-argument */
+
+      expect(collected).toEqual([2, 4, 6])
     })
 
     it('should handle Set with ref values', () => {

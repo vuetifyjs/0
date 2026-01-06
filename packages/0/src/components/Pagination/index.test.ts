@@ -728,6 +728,319 @@ describe('pagination', () => {
     })
   })
 
+  describe('prev', () => {
+    it('should expose slot props', async () => {
+      let prevProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Prev, {}, {
+              default: (props: any) => {
+                prevProps = props
+                return h('button', 'Prev')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(prevProps).toBeDefined()
+      expect(typeof prevProps.isDisabled).toBe('boolean')
+      expect(typeof prevProps.prev).toBe('function')
+    })
+
+    it('should be disabled when on first page', async () => {
+      let prevProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, modelValue: 1, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Prev, {}, {
+              default: (props: any) => {
+                prevProps = props
+                return h('button', 'Prev')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(prevProps.isDisabled).toBe(true)
+      expect(prevProps.attrs['data-disabled']).toBe(true)
+    })
+
+    it('should be enabled when not on first page', async () => {
+      let prevProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, modelValue: 5, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Prev, {}, {
+              default: (props: any) => {
+                prevProps = props
+                return h('button', 'Prev')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(prevProps.isDisabled).toBe(false)
+    })
+
+    it('should navigate to previous page', async () => {
+      const page = ref(5)
+      let prevProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'renderless': true,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: number) => {
+            page.value = v
+          },
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Prev, {}, {
+              default: (props: any) => {
+                prevProps = props
+                return h('button', 'Prev')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      prevProps.prev()
+      await nextTick()
+
+      expect(page.value).toBe(4)
+    })
+
+    it('should not navigate when disabled', async () => {
+      const page = ref(1)
+      let prevProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'renderless': true,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: number) => {
+            page.value = v
+          },
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Prev, {}, {
+              default: (props: any) => {
+                prevProps = props
+                return h('button', 'Prev')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // Should be disabled on first page
+      expect(prevProps.isDisabled).toBe(true)
+
+      // Calling prev() when disabled should not change page
+      prevProps.prev()
+      await nextTick()
+
+      expect(page.value).toBe(1)
+    })
+
+    it('should register with controls registry', async () => {
+      const wrapper = mount(Pagination.Root, {
+        props: { size: 100, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Prev, {}, {
+              default: (props: any) => h('button', { ...props.attrs }, 'Prev'),
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // The button should be rendered with proper attributes
+      const button = wrapper.find('button')
+      expect(button.exists()).toBe(true)
+      expect(button.attributes('type')).toBe('button')
+    })
+  })
+
+  describe('last', () => {
+    it('should expose slot props', async () => {
+      let lastProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Last, {}, {
+              default: (props: any) => {
+                lastProps = props
+                return h('button', 'Last')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(lastProps).toBeDefined()
+      expect(typeof lastProps.isDisabled).toBe('boolean')
+      expect(typeof lastProps.last).toBe('function')
+      expect(lastProps.attrs['aria-label']).toBeDefined()
+    })
+
+    it('should be disabled when on last page', async () => {
+      let lastProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, itemsPerPage: 10, modelValue: 10, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Last, {}, {
+              default: (props: any) => {
+                lastProps = props
+                return h('button', 'Last')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(lastProps.isDisabled).toBe(true)
+      expect(lastProps.attrs['data-disabled']).toBe(true)
+    })
+
+    it('should be enabled when not on last page', async () => {
+      let lastProps: any
+
+      mount(Pagination.Root, {
+        props: { size: 100, modelValue: 5, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Last, {}, {
+              default: (props: any) => {
+                lastProps = props
+                return h('button', 'Last')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      expect(lastProps.isDisabled).toBe(false)
+    })
+
+    it('should navigate to last page', async () => {
+      const page = ref(1)
+      let lastProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'renderless': true,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: number) => {
+            page.value = v
+          },
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Last, {}, {
+              default: (props: any) => {
+                lastProps = props
+                return h('button', 'Last')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      lastProps.last()
+      await nextTick()
+
+      expect(page.value).toBe(10)
+    })
+
+    it('should not navigate when disabled', async () => {
+      const page = ref(10)
+      let lastProps: any
+
+      mount(Pagination.Root, {
+        props: {
+          'size': 100,
+          'itemsPerPage': 10,
+          'renderless': true,
+          'modelValue': page.value,
+          'onUpdate:modelValue': (v: number) => {
+            page.value = v
+          },
+        },
+        slots: {
+          default: () =>
+            h(Pagination.Last, {}, {
+              default: (props: any) => {
+                lastProps = props
+                return h('button', 'Last')
+              },
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // Should be disabled on last page
+      expect(lastProps.isDisabled).toBe(true)
+
+      // Calling last() when disabled should not change page
+      lastProps.last()
+      await nextTick()
+
+      expect(page.value).toBe(10)
+    })
+
+    it('should register with controls registry', async () => {
+      const wrapper = mount(Pagination.Root, {
+        props: { size: 100, renderless: true },
+        slots: {
+          default: () =>
+            h(Pagination.Last, {}, {
+              default: (props: any) => h('button', { ...props.attrs }, 'Last'),
+            }),
+        },
+      })
+
+      await nextTick()
+
+      // The button should be rendered with proper attributes
+      const button = wrapper.find('button')
+      expect(button.exists()).toBe(true)
+      expect(button.attributes('type')).toBe('button')
+    })
+  })
+
   describe('integration', () => {
     it('should render full pagination with navigation', async () => {
       const page = ref(1)

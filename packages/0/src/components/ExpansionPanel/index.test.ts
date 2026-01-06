@@ -748,6 +748,127 @@ describe('expansionPanel', () => {
     })
   })
 
+  describe('header', () => {
+    it('should render as h3 by default', () => {
+      const wrapper = mount(ExpansionPanel.Root, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Header, {}, () => h(ExpansionPanel.Activator, {}, () => 'Title')),
+            ),
+        },
+      })
+
+      const header = wrapper.findComponent(ExpansionPanel.Header as any)
+      expect(header.element.tagName).toBe('H3')
+    })
+
+    it('should render as custom element when as prop is provided', () => {
+      const wrapper = mount(ExpansionPanel.Root, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Header, { as: 'h2' }, () => h(ExpansionPanel.Activator, {}, () => 'Title')),
+            ),
+        },
+      })
+
+      const header = wrapper.findComponent(ExpansionPanel.Header as any)
+      expect(header.element.tagName).toBe('H2')
+    })
+
+    it('should expose correct slot props', () => {
+      let slotProps: any
+
+      mount(ExpansionPanel.Root, {
+        props: {
+          modelValue: 'value-1',
+        },
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'item-1', value: 'value-1' },
+              () =>
+                h(ExpansionPanel.Header, {}, {
+                  default: (props: any) => {
+                    slotProps = props
+                    return h(ExpansionPanel.Activator, {}, () => 'Title')
+                  },
+                }),
+            ),
+        },
+      })
+
+      expect(slotProps).toBeDefined()
+      expect(slotProps.isSelected).toBe(true)
+      expect(slotProps.attrs['data-selected']).toBe(true)
+    })
+
+    it('should expose isSelected=false when panel is collapsed', () => {
+      let slotProps: any
+
+      mount(ExpansionPanel.Root, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'item-1', value: 'value-1' },
+              () =>
+                h(ExpansionPanel.Header, {}, {
+                  default: (props: any) => {
+                    slotProps = props
+                    return h(ExpansionPanel.Activator, {}, () => 'Title')
+                  },
+                }),
+            ),
+        },
+      })
+
+      expect(slotProps.isSelected).toBe(false)
+      expect(slotProps.attrs['data-selected']).toBeUndefined()
+    })
+
+    it('should support renderless mode', () => {
+      const wrapper = mount(ExpansionPanel.Root, {
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'item-1', value: 'value-1' },
+              () => h(ExpansionPanel.Header, { renderless: true }, () => h('h4', { class: 'custom' }, 'Title')),
+            ),
+        },
+      })
+
+      expect(wrapper.find('h3').exists()).toBe(false)
+      expect(wrapper.find('h4.custom').exists()).toBe(true)
+    })
+
+    it('should use custom namespace for context', () => {
+      const wrapper = mount(ExpansionPanel.Root, {
+        props: {
+          namespace: 'custom-panel',
+        },
+        slots: {
+          default: () =>
+            h(
+              ExpansionPanel.Item as any,
+              { id: 'item-1', value: 'value-1', namespace: 'custom-panel' },
+              () => h(ExpansionPanel.Header, { namespace: 'custom-panel' }, () => h(ExpansionPanel.Activator, { namespace: 'custom-panel' }, () => 'Title')),
+            ),
+        },
+      })
+
+      const header = wrapper.findComponent(ExpansionPanel.Header as any)
+      expect(header.exists()).toBe(true)
+    })
+  })
+
   describe('integration', () => {
     it('should have matching ARIA relationship between Activator and Content', () => {
       const wrapper = mount(ExpansionPanel.Root, {

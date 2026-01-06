@@ -571,5 +571,62 @@ describe('useBreakpoints', () => {
       // useHydration and onScopeDispose should have been called
       expect(mockUseHydration).toHaveBeenCalled()
     })
+
+    it('should register cleanup on scope dispose', () => {
+      const plugin = createBreakpointsPlugin()
+      let registeredMixin: any
+
+      const mockApp = {
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mixin: vi.fn((mixin: any) => {
+          registeredMixin = mixin
+        }),
+      }
+
+      plugin.install(mockApp as any)
+
+      const mockRootComponent = {
+        $parent: null,
+      }
+
+      registeredMixin.mounted.call(mockRootComponent)
+
+      // onScopeDispose should have been called to register cleanup
+      expect(mockOnScopeDispose).toHaveBeenCalled()
+      expect(mockOnScopeDispose.mock.calls[0]![1]).toBe(true) // Second arg is true for onUnmounted
+    })
+
+    it('should call cleanup function when scope is disposed', () => {
+      const plugin = createBreakpointsPlugin()
+      let registeredMixin: any
+      let cleanupFn: (() => void) | undefined
+
+      mockOnScopeDispose.mockImplementation((fn: () => void) => {
+        cleanupFn = fn
+      })
+
+      const mockApp = {
+        runWithContext: vi.fn((callback: () => void) => callback()),
+        provide: vi.fn(),
+        mixin: vi.fn((mixin: any) => {
+          registeredMixin = mixin
+        }),
+      }
+
+      plugin.install(mockApp as any)
+
+      const mockRootComponent = {
+        $parent: null,
+      }
+
+      registeredMixin.mounted.call(mockRootComponent)
+
+      // Cleanup should have been registered
+      expect(cleanupFn).toBeDefined()
+
+      // Calling cleanup should not throw
+      expect(() => cleanupFn!()).not.toThrow()
+    })
   })
 })
