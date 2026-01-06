@@ -105,10 +105,18 @@ export interface ApiProperty {
   example?: string
 }
 
+export interface ApiFunction {
+  name: string
+  signature: string
+  description?: string
+  example?: string
+}
+
 export interface ComposableApi {
   kind: 'composable'
   name: string
   description?: string
+  functions: ApiFunction[]
   options: ApiOption[]
   methods: ApiMethod[]
   properties: ApiProperty[]
@@ -414,6 +422,39 @@ function extractOptionsMembers (
   return options
 }
 
+function extractExportedFunctions (
+  sourceFile: ReturnType<Project['addSourceFileAtPath']>,
+): ApiFunction[] {
+  const functions: ApiFunction[] = []
+  const seen = new Set<string>()
+
+  // Get all exported function declarations
+  for (const fn of sourceFile.getFunctions()) {
+    if (!fn.isExported()) continue
+
+    const name = fn.getName()
+    if (!name || seen.has(name)) continue
+    seen.add(name)
+
+    // Build signature from parameters and return type
+    const params = fn.getParameters().map(p => {
+      const paramName = p.getName()
+      const paramType = p.getType().getText(p)
+      const optional = p.isOptional() ? '?' : ''
+      return `${paramName}${optional}: ${paramType}`
+    }).join(', ')
+
+    const returnType = fn.getReturnType().getText(fn)
+    const signature = `(${params}) => ${returnType}`
+
+    const { description, example } = getJsDocInfo(fn)
+
+    functions.push({ name, signature, description, example })
+  }
+
+  return functions
+}
+
 function extractComposableApi (filePath: string, composableName: string): ComposableApi | null {
   try {
     const proj = getProject()
@@ -437,26 +478,33 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     // Build list of possible interface name patterns
     // For useRegistry -> Registry, RegistryOptions, RegistryContext
     // For createContext -> CreateContext, Context, Plugin, etc.
+    // Also try UseRegistryOptions pattern (some composables use this)
     const baseName = composableName.replace(/^use/, '')
     const baseNameSingular = baseName.replace(/s$/, '')
 
     // For create* functions, also try PascalCase of full name and just the second word
     const isCreate = composableName.startsWith('create')
+    const isUse = composableName.startsWith('use')
     const pascalName = composableName.charAt(0).toUpperCase() + composableName.slice(1)
     const secondWord = isCreate ? composableName.replace(/^create/, '') : null
 
     // Find Options interface with multiple naming patterns
+    // Try: RegistryOptions, UseRegistryOptions, etc.
     const optionsInterface = sourceFile.getInterface(`${baseName}Options`)
       ?? sourceFile.getInterface(`${baseNameSingular}Options`)
+      ?? (isUse ? sourceFile.getInterface(`${pascalName}Options`) : undefined)
       ?? (isCreate ? sourceFile.getInterface(`${pascalName}Options`) : undefined)
       ?? (secondWord ? sourceFile.getInterface(`${secondWord}Options`) : undefined)
 
-    // Find Context interface with multiple naming patterns
+    // Find Context/Return interface with multiple naming patterns
+    // Try: RegistryContext, UseRegistryReturn, etc.
     const contextInterface = sourceFile.getInterface(`${baseName}Context`)
       ?? sourceFile.getInterface(`${baseNameSingular}Context`)
+      ?? (isUse ? sourceFile.getInterface(`${pascalName}Return`) : undefined)
       ?? (isCreate ? sourceFile.getInterface(`${pascalName}Context`) : undefined)
       ?? (secondWord ? sourceFile.getInterface(`${secondWord}Context`) : undefined)
 
+    const functions = extractExportedFunctions(sourceFile)
     const options = extractOptionsMembers(optionsInterface)
     const { methods, properties } = extractInterfaceMembers(contextInterface)
 
@@ -464,7 +512,7 @@ function extractComposableApi (filePath: string, composableName: string): Compos
     proj.removeSourceFile(sourceFile)
 
     // Only return if we found meaningful content
-    if (options.length === 0 && methods.length === 0 && properties.length === 0) {
+    if (functions.length === 0 && options.length === 0 && methods.length === 0 && properties.length === 0) {
       return null
     }
 
@@ -472,6 +520,7 @@ function extractComposableApi (filePath: string, composableName: string): Compos
       kind: 'composable',
       name: composableName,
       description,
+      functions,
       options,
       methods,
       properties,

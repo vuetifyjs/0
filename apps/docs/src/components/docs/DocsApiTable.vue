@@ -38,7 +38,7 @@
           :class="{ 'text-sm': col.small }"
         >
           <template v-if="col.key === 'name'">
-            <code>{{ item.name }}</code>
+            <span class="font-mono font-medium text-primary">{{ item.name }}</span>
 
             <span
               v-if="showRequired && 'required' in item && item.required"
@@ -47,7 +47,7 @@
           </template>
 
           <template v-else-if="item[col.key]">
-            <code v-if="col.code" class="text-xs">{{ item[col.key] }}</code>
+            <code v-if="col.code" class="text-xs bg-surface-variant px-1.5 py-0.5 rounded">{{ item[col.key] }}</code>
 
             <template v-else>{{ item[col.key] }}</template>
           </template>

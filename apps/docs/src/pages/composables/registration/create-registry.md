@@ -27,9 +27,9 @@ A foundational composable for building registration-based systems, managing coll
 The `useRegistry` composable provides a powerful interface for managing collections of items in a registration-based system. It allows you to register, unregister, and look up items efficiently, while maintaining an index for quick access.
 
 ```ts
-import { useRegistry } from '@vuetify/v0'
+import { createRegistry } from '@vuetify/v0'
 
-const registry = useRegistry()
+const registry = createRegistry()
 
 const ticket1 = registry.register()
 const ticket2 = registry.register()

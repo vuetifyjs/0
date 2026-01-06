@@ -26,9 +26,9 @@ A composable that extends `useSelection` to enforce single-item selection. Autom
 The `useSingle` composable is used when you have a **collection of items** but want to allow **only one** to be selected at any time.
 
 ```ts
-import { useSingle } from '@vuetify/v0'
+import { createSingle } from '@vuetify/v0'
 
-const single = useSingle()
+const single = createSingle()
 
 // Register items first
 single.register({ id: 'apple', value: 'Apple' })

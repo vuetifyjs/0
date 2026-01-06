@@ -19,21 +19,25 @@
     const slug = params.value.name
     if (!slug) return null
 
+    // Convert slug to PascalCase for component prefix matching
+    // e.g., "popover" → "Popover", "expansion-panel" → "ExpansionPanel"
     const pascalName = slug.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('')
-    if (pascalName in data.components) return pascalName
 
+    // Check if any component starts with this prefix (e.g., "Popover.Root", "Popover.Content")
+    const hasComponentPrefix = Object.keys(data.components).some(name => name.startsWith(`${pascalName}.`) || name === pascalName)
+    if (hasComponentPrefix) return pascalName
+
+    // Check composables with camelCase name
     const camelName = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
     if (camelName in data.composables) return camelName
-
-    const matchingComponent = Object.keys(data.components).find(name =>
-      name.toLowerCase() === slug.replace(/-/g, '').toLowerCase(),
-    )
-    if (matchingComponent) return matchingComponent
 
     return null
   })
 
-  const isComponent = computed(() => itemName.value && itemName.value in data.components)
+  const isComponent = computed(() => {
+    if (!itemName.value) return false
+    return Object.keys(data.components).some(name => name.startsWith(`${itemName.value}.`) || name === itemName.value)
+  })
   const isComposable = computed(() => itemName.value && itemName.value in data.composables)
 
   const componentApis = computed<ComponentApi[]>(() => {

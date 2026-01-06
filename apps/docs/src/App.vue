@@ -41,6 +41,9 @@
   <main class="min-h-screen pt-[72px] text-on-background">
     <router-view />
   </main>
+
+  <!-- API hover popovers for code blocks -->
+  <DocsApiHover />
 </template>
 
 <style>

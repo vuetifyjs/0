@@ -36,7 +36,7 @@
           :href="`#${item.name}`"
           @click.prevent="scrollToAnchor(item.name)"
         >
-          <code class="text-sm font-semibold">{{ item.name }}</code>
+          <span class="text-sm font-semibold font-mono text-primary">{{ item.name }}</span>
 
           <span
             v-if="kind === 'option' && 'required' in item && item.required"
@@ -47,7 +47,7 @@
         </a>
       </component>
 
-      <code class="text-xs text-primary mt-1 block font-mono">
+      <code class="text-xs mt-1 inline-block font-mono bg-surface-variant px-1.5 py-0.5 rounded">
         {{ kind === 'option' ? item.type : formatSignature(item as ApiProperty | ApiMethod) }}
       </code>
 
@@ -61,9 +61,9 @@
 
       <p
         v-if="kind === 'option' && 'default' in item && item.default"
-        class="text-xs text-on-surface mt-1 !mb-0"
+        class="text-xs text-on-surface-variant mt-2 !mb-0"
       >
-        Default: <code class="text-xs">{{ item.default }}</code>
+        Default: <code class="text-xs bg-surface-variant px-1.5 py-0.5 rounded">{{ item.default }}</code>
       </p>
     </div>
 

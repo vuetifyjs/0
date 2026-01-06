@@ -26,9 +26,9 @@ A queue composable for managing time-based collections with automatic timeout-ba
 The `useQueue` composable provides a powerful interface for managing time-based queues. Built on top of `useRegistry`, it automatically manages timeouts for items, ensuring only the first item in the queue is active at any time. When an item expires or is removed, the next item in the queue automatically becomes active.
 
 ```ts
-import { useQueue } from '@vuetify/v0'
+import { createQueue } from '@vuetify/v0'
 
-const queue = useQueue()
+const queue = createQueue()
 
 const item1 = queue.register({ value: 'First' })
 const item2 = queue.register({ value: 'Second' })

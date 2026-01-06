@@ -7,6 +7,9 @@ import { type MaybeRefOrGetter, onMounted, onScopeDispose, shallowRef, toValue, 
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
 
+// Transformers
+import { createApiTransformer } from '../../build/shiki-api-transformer'
+
 export interface UseHighlightCodeOptions {
   /** Language for syntax highlighting. Defaults to 'vue' */
   lang?: string
@@ -45,6 +48,7 @@ export function useHighlightCode (
       lang,
       themes: SHIKI_THEMES,
       defaultColor: false,
+      transformers: [createApiTransformer()],
     })
   }
 
