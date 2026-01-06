@@ -97,9 +97,9 @@
 <template>
   <div
     v-if="componentApis.length > 0"
-    class="markdown-body mt-8 mb-12"
+    class="mt-8 mb-12"
   >
-    <div class="flex items-center justify-between gap-4">
+    <div class="markdown-body flex items-center justify-between gap-4">
       <DocsHeaderAnchor
         id="api-reference"
         class="!mb-0"
