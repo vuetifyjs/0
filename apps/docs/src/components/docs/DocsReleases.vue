@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { Marked } from 'marked'
+  import { markedEmoji } from 'marked-emoji'
 
   // Framework
   // Vuetify0
@@ -14,14 +15,38 @@
 
   import { type Release, useReleasesStore } from '@/stores/releases'
 
-  const reactions: Record<string, string> = {
-    '+1': '\uD83D\uDC4D',
-    'hooray': '\uD83C\uDF89',
-    'rocket': '\uD83D\uDE80',
-    'laugh': '\uD83D\uDE02',
-    'heart': '\u2764\uFE0F',
-    'eyes': '\uD83D\uDC40',
+  const emojis: Record<string, string> = {
+    '+1': '👍',
+    '-1': '👎',
+    'rocket': '🚀',
+    'tada': '🎉',
+    'sparkles': '✨',
+    'bug': '🐛',
+    'memo': '📝',
+    'fire': '🔥',
+    'warning': '⚠️',
+    'boom': '💥',
+    'wrench': '🔧',
+    'hammer': '🔨',
+    'gear': '⚙️',
+    'package': '📦',
+    'lock': '🔒',
+    'key': '🔑',
+    'zap': '⚡',
+    'bulb': '💡',
+    'star': '⭐',
+    'heart': '❤️',
+    'hooray': '🎉',
+    'laugh': '😂',
+    'eyes': '👀',
+    'check': '✅',
+    'x': '❌',
+    'arrow_up': '⬆️',
+    'arrow_down': '⬇️',
+    'microscope': '🔬',
   }
+
+  const reactions = emojis
 
   const route = useRoute()
   const router = useRouter()
@@ -46,6 +71,8 @@
       },
     },
   })
+
+  marked.use(markedEmoji({ emojis, renderer: token => token.emoji }))
 
   const tag = computed(() => route.query.version as string | undefined)
 
