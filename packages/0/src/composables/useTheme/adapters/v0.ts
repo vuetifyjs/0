@@ -39,9 +39,12 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
     target?: string | HTMLElement | null,
   ): void {
     if (IN_BROWSER) {
+      // Inject styles synchronously to prevent flash of unstyled content
+      this.update(context.colors.value, context.isDark.value)
+
       const stopWatch = watch([context.colors, context.isDark], ([colors, isDark]) => {
         this.update(colors, isDark)
-      }, { immediate: true })
+      })
 
       onScopeDispose(stopWatch, true)
 
@@ -55,11 +58,16 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
 
       if (!targetEl) return
 
+      // Set data-theme synchronously to prevent flash
+      if (context.selectedId.value) {
+        targetEl.dataset.theme = String(context.selectedId.value)
+      }
+
       const stopTheme = watch(context.selectedId, id => {
         if (!id) return
 
         targetEl.dataset.theme = String(id)
-      }, { immediate: true })
+      })
 
       onScopeDispose(stopTheme, true)
     } else {
