@@ -39,7 +39,6 @@
 - [useTokens](https://0.vuetifyjs.com/composables/registration/use-tokens): Design token registry with alias resolution
 - [useQueue](https://0.vuetifyjs.com/composables/registration/use-queue): FIFO queue with timeout management
 - [useTimeline](https://0.vuetifyjs.com/composables/registration/use-timeline): Bounded undo/redo system
-- [useProxyRegistry](https://0.vuetifyjs.com/composables/registration/use-proxy-registry): Registry to reactive object conversion
 
 ## Composables - Selection
 
@@ -51,7 +50,11 @@
 ## Composables - Forms
 
 - [useForm](https://0.vuetifyjs.com/composables/forms/use-form): Form validation and state management
-- [useProxyModel](https://0.vuetifyjs.com/composables/forms/use-proxy-model): Bridges selection context to v-model
+
+## Composables - Reactivity
+
+- [useProxyModel](https://0.vuetifyjs.com/composables/reactivity/use-proxy-model): Bridges selection context to v-model
+- [useProxyRegistry](https://0.vuetifyjs.com/composables/reactivity/use-proxy-registry): Registry to reactive object conversion
 
 ## Composables - Plugins
 

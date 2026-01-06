@@ -51,7 +51,7 @@ const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootP
 // Subcategory ordering within sections
 const SUBCATEGORY_ORDER: Record<string, string[]> = {
   components: ['primitives', 'providers', 'semantic', 'disclosure'],
-  composables: ['foundation', 'registration', 'selection', 'forms', 'system', 'plugins', 'utilities', 'transformers'],
+  composables: ['foundation', 'registration', 'selection', 'forms', 'reactivity', 'system', 'plugins', 'utilities', 'transformers'],
 }
 
 // Standalone pages that appear between sections

@@ -104,7 +104,6 @@ Core factories that provide the foundation for all other composables:
 Base data structures that most other composables build upon:
 
 - **`useRegistry`** - Enhanced Map with indexing, caching, and event support
-- **`useProxyRegistry`** - Convert registry Map to reactive object
 - **`useQueue`** - FIFO queue with timeout management (notifications/toasts)
 - **`useTimeline`** - Bounded undo/redo history
 - **`useTokens`** - Design token registry with alias resolution
@@ -121,8 +120,12 @@ Selection management composables built on `useRegistry`:
 #### Forms & Data
 
 - **`useForm`** - Form validation and state management with async rules
-- **`useProxyModel`** - Bridge selection context to component v-model
 - **`useFilter`** - Reactive array filtering with multiple modes
+
+#### Reactivity
+
+- **`useProxyModel`** - Bridge selection context to component v-model
+- **`useProxyRegistry`** - Convert registry Map to reactive object
 
 #### Layout & Measurement
 

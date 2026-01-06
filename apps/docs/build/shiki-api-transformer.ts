@@ -4,6 +4,10 @@
  *
  * Marks potential API references at build time. Client-side component
  * validates against actual API data and handles display.
+ *
+ * NOTE: This module is imported client-side, so no Node.js APIs allowed.
+ * Lists must be manually maintained. Run `pnpm dev:docs` to verify new
+ * composables/components get hover treatment.
  */
 
 // Types
@@ -14,6 +18,7 @@ import type { ShikiTransformer } from 'shiki'
 const COMPONENT_PATTERN = /^([A-Z][a-zA-Z]*)(?:\.([A-Z][a-zA-Z]*))?$/
 
 // v0 component namespaces - only these get API hover treatment
+// Sync with: packages/0/src/components/
 const V0_COMPONENTS = new Set([
   'Atom',
   'Avatar',
@@ -27,39 +32,54 @@ const V0_COMPONENTS = new Set([
   'Step',
 ])
 
-// v0 composables with API entries (whitelist approach)
+// v0 composables with API entries
+// Sync with: packages/0/src/composables/
 const V0_COMPOSABLES = new Set([
+  // Foundation
   'createContext',
   'createPlugin',
-  'useBreakpoints',
-  'useClickOutside',
-  'useFeatures',
-  'useFilter',
-  'useForm',
-  'useGroup',
-  'useHydration',
-  'useIntersectionObserver',
-  'useKeydown',
-  'useLocale',
-  'useLogger',
-  'useMediaQuery',
-  'useMutationObserver',
-  'useOverflow',
-  'usePagination',
-  'usePermissions',
-  'useProxyModel',
-  'useProxyRegistry',
+  'createTrinity',
+  // Registration
+  'createRegistry',
   'useQueue',
-  'useRegistry',
-  'useResizeObserver',
-  'useSelection',
-  'useSingle',
-  'useStep',
-  'useStorage',
-  'useTheme',
   'useTimeline',
   'useTokens',
+  // Selection
+  'createSelection',
+  'createSingle',
+  'createGroup',
+  'createStep',
+  // Forms
+  'useForm',
+  // Reactivity
+  'useProxyModel',
+  'useProxyRegistry',
+  // System
+  'useClickOutside',
+  'useEventListener',
+  'useHotkey',
+  'useIntersectionObserver',
+  'useMediaQuery',
+  'useMutationObserver',
+  'useResizeObserver',
+  'useToggleScope',
+  // Plugins
+  'useBreakpoints',
+  'useFeatures',
+  'useHydration',
+  'useLocale',
+  'useLogger',
+  'usePermissions',
+  'useStorage',
+  'useTheme',
+  // Utilities
+  'useFilter',
+  'useOverflow',
+  'usePagination',
   'useVirtual',
+  // Transformers
+  'toArray',
+  'toReactive',
 ])
 
 // Trinity return values that map to their factory function
@@ -107,9 +127,14 @@ function resolveComposable (name: string): { apiName: string } | null {
 
   if (!base) return null
 
-  const useVersion = `use${base}`
+  // Check if the create* version exists directly
+  const createVersion = `create${base}`
+  if (V0_COMPOSABLES.has(createVersion)) {
+    return { apiName: createVersion }
+  }
 
-  // Only valid if the use* version exists in our whitelist
+  // Check if the use* version exists
+  const useVersion = `use${base}`
   if (V0_COMPOSABLES.has(useVersion)) {
     return { apiName: useVersion }
   }

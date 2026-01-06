@@ -43,9 +43,10 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 | Category | Purpose | Key Exports |
 | - | - | - |
 | **foundation** | Core factories | `createContext`, `createTrinity`, `createPlugin` |
-| **registration** | Collection management | `useRegistry`, `useTokens`, `useQueue`, `useTimeline`, `useProxyRegistry` |
+| **registration** | Collection management | `useRegistry`, `useTokens`, `useQueue`, `useTimeline` |
 | **selection** | Selection state | `useSelection`, `useSingle`, `useGroup`, `useStep` |
-| **forms** | Form handling | `useForm`, `useProxyModel` |
+| **forms** | Form handling | `useForm` |
+| **reactivity** | Reactive proxies | `useProxyModel`, `useProxyRegistry` |
 | **system** | Browser APIs | `useEventListener`, `useHotkey`, `useResizeObserver`, `useClickOutside`, `useIntersectionObserver`, `useMutationObserver`, `useToggleScope` |
 | **plugins** | App features | `useTheme`, `useLocale`, `useLogger`, `useStorage`, `useBreakpoints`, `useFeatures`, `useHydration`, `usePermissions` |
 | **utilities** | UI helpers | `useFilter`, `usePagination`, `useVirtual`, `useOverflow` |

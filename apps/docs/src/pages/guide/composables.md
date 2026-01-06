@@ -93,7 +93,15 @@ Form state and validation:
 | Composable | Purpose |
 | - | - |
 | [createForm](/composables/forms/create-form) | Validation, dirty tracking |
-| [useProxyModel](/composables/forms/use-proxy-model) | v-model bridge |
+
+### Reactivity
+
+Reactive proxy utilities:
+
+| Composable | Purpose |
+| - | - |
+| [useProxyModel](/composables/reactivity/use-proxy-model) | v-model bridge |
+| [useProxyRegistry](/composables/reactivity/use-proxy-registry) | Registry to reactive object |
 
 ### Plugins
 

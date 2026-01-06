@@ -115,7 +115,7 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 | `useBreakpoints` | Responsive breakpoint detection |
 | `useLogger` | Pluggable logging with adapters |
 
-## Proxy Utilities
+## Reactivity
 
 - **`useProxyModel`**: Bridges selection ↔ v-model
 - **`useProxyRegistry`**: Registry Map → reactive object

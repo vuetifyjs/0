@@ -53,7 +53,6 @@ Detailed API reference for each composable including options, properties, and me
 | Composable | Description |
 | - | - |
 | [createRegistry](/api/create-registry) | Foundation for registration systems |
-| [useProxyRegistry](/api/use-proxy-registry) | Proxy-based registry with reactivity |
 | [createQueue](/api/create-queue) | Time-based queue management |
 | [createTimeline](/api/create-timeline) | Bounded undo/redo system |
 | [createTokens](/api/create-tokens) | Design token management |
@@ -72,7 +71,13 @@ Detailed API reference for each composable including options, properties, and me
 | Composable | Description |
 | - | - |
 | [createForm](/api/create-form) | Form state and validation |
+
+### Reactivity
+
+| Composable | Description |
+| - | - |
 | [useProxyModel](/api/use-proxy-model) | Bridge selection to v-model |
+| [useProxyRegistry](/api/use-proxy-registry) | Proxy-based registry with reactivity |
 
 ### System
 

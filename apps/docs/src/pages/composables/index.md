@@ -33,7 +33,6 @@ Collection management and data structure primitives.
 | Name | Description |
 | - | - |
 | [createRegistry](/composables/registration/create-registry) | Foundation for registration-based systems |
-| [useProxyRegistry](/composables/registration/use-proxy-registry) | Proxy-based registry with automatic reactivity |
 | [createQueue](/composables/registration/create-queue) | Time-based queue management with automatic timeouts |
 | [createTimeline](/composables/registration/create-timeline) | Bounded undo/redo system with fixed-size history |
 | [createTokens](/composables/registration/create-tokens) | Design token management system |
@@ -56,7 +55,15 @@ Form state management and model binding utilities.
 | Name | Description |
 | - | - |
 | [createForm](/composables/forms/create-form) | Form state management and validation |
-| [useProxyModel](/composables/forms/use-proxy-model) | Bridge selection context to v-model binding |
+
+## Reactivity
+
+Reactive proxy utilities for bridging state.
+
+| Name | Description |
+| - | - |
+| [useProxyModel](/composables/reactivity/use-proxy-model) | Bridge selection context to v-model binding |
+| [useProxyRegistry](/composables/reactivity/use-proxy-registry) | Proxy-based registry with automatic reactivity |
 
 ## System
 
