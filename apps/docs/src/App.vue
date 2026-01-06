@@ -237,6 +237,12 @@
     padding-right: 5rem;
   }
 
+  /* DocsMarkup line wrap toggle */
+  .docs-markup--wrap pre code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
   /* Shiki theme switching */
   .shiki {
     --shiki-light-bg: var(--v0-surface) !important;

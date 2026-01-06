@@ -11,7 +11,10 @@
     playground?: boolean
     bin?: boolean
     showCopy?: boolean
+    showWrap?: boolean
   }>()
+
+  const wrap = defineModel<boolean>('wrap', { default: false })
 
   const { copied, copy } = useClipboard()
 
@@ -48,6 +51,15 @@
       title="Open in Vuetify Bin"
       type="button"
       @click="openInBin"
+    />
+
+    <AppIconButton
+      v-if="showWrap"
+      :aria-label="wrap ? 'Disable line wrap' : 'Enable line wrap'"
+      :icon="wrap ? 'nowrap' : 'wrap'"
+      :title="wrap ? 'Disable line wrap' : 'Enable line wrap'"
+      type="button"
+      @click="wrap = !wrap"
     />
 
     <AppIconButton
