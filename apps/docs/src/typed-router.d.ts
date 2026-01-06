@@ -135,9 +135,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/forms/use-form': RouteRecordInfo<
-      '/composables/forms/use-form',
-      '/composables/forms/use-form',
+    '/composables/forms/create-form': RouteRecordInfo<
+      '/composables/forms/create-form',
+      '/composables/forms/create-form',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -226,6 +226,34 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/registration/create-queue': RouteRecordInfo<
+      '/composables/registration/create-queue',
+      '/composables/registration/create-queue',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/registration/create-registry': RouteRecordInfo<
+      '/composables/registration/create-registry',
+      '/composables/registration/create-registry',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/registration/create-timeline': RouteRecordInfo<
+      '/composables/registration/create-timeline',
+      '/composables/registration/create-timeline',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/registration/create-tokens': RouteRecordInfo<
+      '/composables/registration/create-tokens',
+      '/composables/registration/create-tokens',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/registration/use-proxy-registry': RouteRecordInfo<
       '/composables/registration/use-proxy-registry',
       '/composables/registration/use-proxy-registry',
@@ -233,58 +261,30 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/registration/use-queue': RouteRecordInfo<
-      '/composables/registration/use-queue',
-      '/composables/registration/use-queue',
+    '/composables/selection/create-group': RouteRecordInfo<
+      '/composables/selection/create-group',
+      '/composables/selection/create-group',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/composables/registration/use-registry': RouteRecordInfo<
-      '/composables/registration/use-registry',
-      '/composables/registration/use-registry',
+    '/composables/selection/create-selection': RouteRecordInfo<
+      '/composables/selection/create-selection',
+      '/composables/selection/create-selection',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/composables/registration/use-timeline': RouteRecordInfo<
-      '/composables/registration/use-timeline',
-      '/composables/registration/use-timeline',
+    '/composables/selection/create-single': RouteRecordInfo<
+      '/composables/selection/create-single',
+      '/composables/selection/create-single',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/composables/registration/use-tokens': RouteRecordInfo<
-      '/composables/registration/use-tokens',
-      '/composables/registration/use-tokens',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/selection/use-group': RouteRecordInfo<
-      '/composables/selection/use-group',
-      '/composables/selection/use-group',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/selection/use-selection': RouteRecordInfo<
-      '/composables/selection/use-selection',
-      '/composables/selection/use-selection',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/selection/use-single': RouteRecordInfo<
-      '/composables/selection/use-single',
-      '/composables/selection/use-single',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/selection/use-step': RouteRecordInfo<
-      '/composables/selection/use-step',
-      '/composables/selection/use-step',
+    '/composables/selection/create-step': RouteRecordInfo<
+      '/composables/selection/create-step',
+      '/composables/selection/create-step',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -643,9 +643,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/forms/use-form.md': {
+    'src/pages/composables/forms/create-form.md': {
       routes:
-        | '/composables/forms/use-form'
+        | '/composables/forms/create-form'
       views:
         | never
     }
@@ -721,57 +721,57 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/registration/create-queue.md': {
+      routes:
+        | '/composables/registration/create-queue'
+      views:
+        | never
+    }
+    'src/pages/composables/registration/create-registry.md': {
+      routes:
+        | '/composables/registration/create-registry'
+      views:
+        | never
+    }
+    'src/pages/composables/registration/create-timeline.md': {
+      routes:
+        | '/composables/registration/create-timeline'
+      views:
+        | never
+    }
+    'src/pages/composables/registration/create-tokens.md': {
+      routes:
+        | '/composables/registration/create-tokens'
+      views:
+        | never
+    }
     'src/pages/composables/registration/use-proxy-registry.md': {
       routes:
         | '/composables/registration/use-proxy-registry'
       views:
         | never
     }
-    'src/pages/composables/registration/use-queue.md': {
+    'src/pages/composables/selection/create-group.md': {
       routes:
-        | '/composables/registration/use-queue'
+        | '/composables/selection/create-group'
       views:
         | never
     }
-    'src/pages/composables/registration/use-registry.md': {
+    'src/pages/composables/selection/create-selection.md': {
       routes:
-        | '/composables/registration/use-registry'
+        | '/composables/selection/create-selection'
       views:
         | never
     }
-    'src/pages/composables/registration/use-timeline.md': {
+    'src/pages/composables/selection/create-single.md': {
       routes:
-        | '/composables/registration/use-timeline'
+        | '/composables/selection/create-single'
       views:
         | never
     }
-    'src/pages/composables/registration/use-tokens.md': {
+    'src/pages/composables/selection/create-step.md': {
       routes:
-        | '/composables/registration/use-tokens'
-      views:
-        | never
-    }
-    'src/pages/composables/selection/use-group.md': {
-      routes:
-        | '/composables/selection/use-group'
-      views:
-        | never
-    }
-    'src/pages/composables/selection/use-selection.md': {
-      routes:
-        | '/composables/selection/use-selection'
-      views:
-        | never
-    }
-    'src/pages/composables/selection/use-single.md': {
-      routes:
-        | '/composables/selection/use-single'
-      views:
-        | never
-    }
-    'src/pages/composables/selection/use-step.md': {
-      routes:
-        | '/composables/selection/use-step'
+        | '/composables/selection/create-step'
       views:
         | never
     }

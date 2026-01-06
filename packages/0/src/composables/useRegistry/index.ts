@@ -1058,8 +1058,3 @@ export function createRegistryContext<
 
   return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
 }
-
-/**
- * @deprecated Use `createRegistry` instead. This alias will be removed in a future version.
- */
-export const useRegistry = createRegistry
