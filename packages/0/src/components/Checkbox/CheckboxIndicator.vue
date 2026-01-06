@@ -44,9 +44,12 @@
       'role': 'checkbox'
       'aria-checked': boolean | 'mixed'
       'aria-disabled': boolean | undefined
+      'aria-label': string | undefined
       'tabindex': 0 | undefined
       'data-state': 'checked' | 'unchecked' | 'indeterminate'
-      'data-disabled': '' | undefined
+      'data-disabled': true | undefined
+      'onClick': () => void
+      'onKeydown': (e: KeyboardEvent) => void
     }
   }
 </script>
@@ -70,7 +73,7 @@
   } = defineProps<CheckboxIndicatorProps>()
 
   // Inject context from Checkbox.Root
-  const root = useCheckboxRoot('v0:checkbox:root')
+  const root = useCheckboxRoot()
 
   const isChecked = computed(() => toValue(root.isChecked))
   const isMixed = computed(() => toValue(root.isMixed))
@@ -81,6 +84,20 @@
     if (isMixed.value) return 'indeterminate'
     return isChecked.value ? 'checked' : 'unchecked'
   })
+
+  // Interaction handlers
+  function onClick () {
+    if (isDisabled.value) return
+    root.toggle()
+  }
+
+  function onKeydown (e: KeyboardEvent) {
+    if (isDisabled.value) return
+    if (e.key === ' ') {
+      e.preventDefault()
+      root.toggle()
+    }
+  }
 
   const slotProps = toRef((): CheckboxIndicatorSlotProps<V> => ({
     id: root.id,
@@ -98,9 +115,12 @@
       'role': 'checkbox',
       'aria-checked': isMixed.value ? 'mixed' : isChecked.value,
       'aria-disabled': isDisabled.value || undefined,
+      'aria-label': root.label || undefined,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
-      'data-disabled': isDisabled.value ? '' : undefined,
+      'data-disabled': isDisabled.value ? true : undefined,
+      'onClick': onClick,
+      'onKeydown': onKeydown,
     },
   }))
 </script>

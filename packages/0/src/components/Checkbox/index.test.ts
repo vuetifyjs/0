@@ -243,7 +243,7 @@ describe('checkbox', () => {
         expect(indicatorProps.isDisabled).toBe(true)
         expect(indicatorProps.attrs['aria-disabled']).toBe(true)
         expect(indicatorProps.attrs.tabindex).toBeUndefined()
-        expect(indicatorProps.attrs['data-disabled']).toBe('')
+        expect(indicatorProps.attrs['data-disabled']).toBe(true)
       })
 
       it('should not toggle when disabled', async () => {

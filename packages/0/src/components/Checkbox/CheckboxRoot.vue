@@ -82,7 +82,7 @@
     unmix: () => void
   }
 
-  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext>()
+  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext>('v0:checkbox:root')
 </script>
 
 <script lang="ts" setup generic="V = unknown">
@@ -205,7 +205,7 @@
     unmix,
   }
 
-  provideCheckboxRoot('v0:checkbox:root', context)
+  provideCheckboxRoot(context)
 
   const slotProps = toRef((): CheckboxRootSlotProps<V> => ({
     id: String(id),

@@ -54,6 +54,7 @@
     toggleAll: () => void
     /** Attributes to bind to the root element */
     attrs: {
+      'role': 'group'
       'aria-multiselectable': true
     }
   }
@@ -72,7 +73,7 @@
   defineOptions({ name: 'CheckboxGroup' })
 
   defineSlots<{
-    default: (props: CheckboxGroupSlotProps) => any
+    default: (props: CheckboxGroupSlotProps) => unknown
   }>()
 
   defineEmits<{
@@ -111,6 +112,7 @@
     unselectAll: group.unselectAll,
     toggleAll: group.toggleAll,
     attrs: {
+      'role': 'group',
       'aria-multiselectable': true,
     },
   }))
