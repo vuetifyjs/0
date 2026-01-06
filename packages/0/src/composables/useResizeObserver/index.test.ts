@@ -282,3 +282,103 @@ describe('useElementSize', () => {
     expect(height.value).toBe(0)
   })
 })
+
+describe('useResizeObserver SSR', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('should return valid API during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useResizeObserver: useResizeObserverSSR } = await import('./index')
+    const target = ref<Element | undefined>(undefined)
+    const callback = vi.fn()
+
+    const result = useResizeObserverSSR(target, callback)
+
+    expect(result).toHaveProperty('isActive')
+    expect(result).toHaveProperty('isPaused')
+    expect(result).toHaveProperty('pause')
+    expect(result).toHaveProperty('resume')
+    expect(result).toHaveProperty('stop')
+    expect(result.isActive.value).toBe(false)
+  })
+
+  it('should not create observer during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: true },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useResizeObserver: useResizeObserverSSR } = await import('./index')
+
+    const element = document.createElement('div')
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    const { isActive } = useResizeObserverSSR(target, callback)
+
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should not throw when pause/resume/stop called during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useResizeObserver: useResizeObserverSSR } = await import('./index')
+    const target = ref<Element | undefined>(undefined)
+    const callback = vi.fn()
+
+    const { pause, resume, stop } = useResizeObserverSSR(target, callback)
+
+    expect(() => pause()).not.toThrow()
+    expect(() => resume()).not.toThrow()
+    expect(() => stop()).not.toThrow()
+  })
+
+  it('useElementSize should return zero dimensions during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useElementSize: useElementSizeSSR } = await import('./index')
+    const element = document.createElement('div')
+    const target = ref<Element | undefined>(element)
+
+    const { width, height } = useElementSizeSSR(target)
+
+    expect(width.value).toBe(0)
+    expect(height.value).toBe(0)
+  })
+})

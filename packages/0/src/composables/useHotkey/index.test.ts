@@ -1368,3 +1368,96 @@ describe('normalizeKey', () => {
     expect(normalizeKey('F1')).toBe('f1')
   })
 })
+
+describe('useHotkey SSR', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('should return valid API during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { useHotkey: useHotkeySSR } = await import('./index')
+    const callback = vi.fn()
+
+    const result = useHotkeySSR('a', callback)
+
+    expect(result).toHaveProperty('isActive')
+    expect(result).toHaveProperty('isPaused')
+    expect(result).toHaveProperty('pause')
+    expect(result).toHaveProperty('resume')
+    expect(result).toHaveProperty('stop')
+    expect(result.isActive.value).toBe(false)
+  })
+
+  it('should not attach event listeners during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const originalAddEventListener = window.addEventListener
+    const addEventListenerSpy = vi.fn()
+    window.addEventListener = addEventListenerSpy
+
+    const { useHotkey: useHotkeySSR } = await import('./index')
+    const callback = vi.fn()
+
+    const scope = effectScope()
+    scope.run(() => {
+      useHotkeySSR('a', callback)
+    })
+
+    expect(addEventListenerSpy).not.toHaveBeenCalled()
+
+    scope.stop()
+    window.addEventListener = originalAddEventListener
+  })
+
+  it('should not throw when pause/resume/stop called during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { useHotkey: useHotkeySSR } = await import('./index')
+    const callback = vi.fn()
+
+    const scope = effectScope()
+    let pause: () => void
+    let resume: () => void
+    let stop: () => void
+
+    scope.run(() => {
+      ;({ pause, resume, stop } = useHotkeySSR('a', callback))
+    })
+
+    expect(() => pause!()).not.toThrow()
+    expect(() => resume!()).not.toThrow()
+    expect(() => stop!()).not.toThrow()
+
+    scope.stop()
+  })
+
+  it('should not access window during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const originalWindow = globalThis.window
+    delete (globalThis as any).window
+
+    const { useHotkey: useHotkeySSR } = await import('./index')
+    const callback = vi.fn()
+
+    expect(() => {
+      const scope = effectScope()
+      scope.run(() => {
+        useHotkeySSR('ctrl+k', callback)
+      })
+      scope.stop()
+    }).not.toThrow()
+
+    globalThis.window = originalWindow
+  })
+})

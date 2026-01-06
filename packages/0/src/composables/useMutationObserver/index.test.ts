@@ -294,3 +294,81 @@ describe('useMutationObserver', () => {
     expect(isActive.value).toBe(true)
   })
 })
+
+describe('useMutationObserver SSR', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('should return valid API during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_MUTATION_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useMutationObserver: useMutationObserverSSR } = await import('./index')
+    const target = { value: undefined }
+    const callback = vi.fn()
+
+    const result = useMutationObserverSSR(target as any, callback)
+
+    expect(result).toHaveProperty('isActive')
+    expect(result).toHaveProperty('isPaused')
+    expect(result).toHaveProperty('pause')
+    expect(result).toHaveProperty('resume')
+    expect(result).toHaveProperty('stop')
+    expect(result.isActive.value).toBe(false)
+  })
+
+  it('should not create observer during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_MUTATION_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: true },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useMutationObserver: useMutationObserverSSR } = await import('./index')
+
+    const element = document.createElement('div')
+    const target = { value: element }
+    const callback = vi.fn()
+
+    const { isActive } = useMutationObserverSSR(target as any, callback)
+
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should not throw when pause/resume/stop called during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_MUTATION_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useMutationObserver: useMutationObserverSSR } = await import('./index')
+    const target = { value: undefined }
+    const callback = vi.fn()
+
+    const { pause, resume, stop } = useMutationObserverSSR(target as any, callback)
+
+    expect(() => pause()).not.toThrow()
+    expect(() => resume()).not.toThrow()
+    expect(() => stop()).not.toThrow()
+  })
+})

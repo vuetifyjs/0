@@ -409,3 +409,105 @@ describe('useElementIntersection', () => {
     expect(isPaused.value).toBe(false)
   })
 })
+
+describe('useIntersectionObserver SSR', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  it('should return valid API during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_INTERSECTION_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useIntersectionObserver: useIntersectionObserverSSR } = await import('./index')
+    const target = ref<Element | undefined>(undefined)
+    const callback = vi.fn()
+
+    const result = useIntersectionObserverSSR(target, callback)
+
+    expect(result).toHaveProperty('isActive')
+    expect(result).toHaveProperty('isIntersecting')
+    expect(result).toHaveProperty('isPaused')
+    expect(result).toHaveProperty('pause')
+    expect(result).toHaveProperty('resume')
+    expect(result).toHaveProperty('stop')
+    expect(result.isActive.value).toBe(false)
+    expect(result.isIntersecting.value).toBe(false)
+  })
+
+  it('should not create observer during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_INTERSECTION_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: true },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useIntersectionObserver: useIntersectionObserverSSR } = await import('./index')
+
+    const element = document.createElement('div')
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    const { isActive } = useIntersectionObserverSSR(target, callback)
+
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should not throw when pause/resume/stop called during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_INTERSECTION_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useIntersectionObserver: useIntersectionObserverSSR } = await import('./index')
+    const target = ref<Element | undefined>(undefined)
+    const callback = vi.fn()
+
+    const { pause, resume, stop } = useIntersectionObserverSSR(target, callback)
+
+    expect(() => pause()).not.toThrow()
+    expect(() => resume()).not.toThrow()
+    expect(() => stop()).not.toThrow()
+  })
+
+  it('useElementIntersection should return default values during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      SUPPORTS_INTERSECTION_OBSERVER: false,
+    }))
+
+    vi.doMock('#v0/composables/useHydration', () => ({
+      useHydration: () => ({
+        isHydrated: { value: false },
+        hydrate: vi.fn(),
+      }),
+    }))
+
+    const { useElementIntersection: useElementIntersectionSSR } = await import('./index')
+    const element = document.createElement('div')
+    const target = ref<Element | undefined>(element)
+
+    const { isIntersecting, intersectionRatio } = useElementIntersectionSSR(target)
+
+    expect(isIntersecting.value).toBe(false)
+    expect(intersectionRatio.value).toBe(0)
+  })
+})

@@ -335,3 +335,91 @@ describe('useStorage consumer', () => {
     )
   })
 })
+
+describe('useStorage SSR', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.clearAllMocks()
+  })
+
+  it('should use MemoryAdapter during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { createStorage } = await import('./index')
+    const storage = createStorage()
+
+    const username = storage.get('username', 'guest')
+    expect(username.value).toBe('guest')
+
+    username.value = 'john'
+    expect(storage.get('username').value).toBe('john')
+  })
+
+  it('should not access window.localStorage during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const originalWindow = globalThis.window
+    const originalLocalStorage = originalWindow?.localStorage
+
+    // Remove localStorage to ensure it's not accessed
+    if (originalWindow) {
+      Object.defineProperty(originalWindow, 'localStorage', {
+        get: () => {
+          throw new Error('localStorage accessed during SSR')
+        },
+        configurable: true,
+      })
+    }
+
+    const { createStorage } = await import('./index')
+
+    expect(() => {
+      const storage = createStorage()
+      storage.get('key', 'default')
+      storage.set('key', 'value')
+      storage.remove('key')
+      storage.clear()
+    }).not.toThrow()
+
+    // Restore localStorage
+    if (originalWindow && originalLocalStorage) {
+      Object.defineProperty(originalWindow, 'localStorage', {
+        value: originalLocalStorage,
+        configurable: true,
+      })
+    }
+  })
+
+  it('createStorageContext should work during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { createStorageContext } = await import('./index')
+    const [,, context] = createStorageContext()
+
+    expect(() => {
+      context.get('key', 'default')
+      context.set('key', 'value')
+      context.has('key')
+      context.remove('key')
+      context.clear()
+    }).not.toThrow()
+  })
+
+  it('createStoragePlugin should work during SSR', async () => {
+    vi.doMock('#v0/constants/globals', () => ({
+      IN_BROWSER: false,
+    }))
+
+    const { createStoragePlugin } = await import('./index')
+    const plugin = createStoragePlugin()
+
+    expect(plugin).toBeDefined()
+    expect(typeof plugin.install).toBe('function')
+  })
+})
