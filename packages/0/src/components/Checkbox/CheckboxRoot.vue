@@ -2,10 +2,12 @@
  * @module CheckboxRoot
  *
  * @remarks
- * Root component for checkbox groups with tri-state support. Creates
- * and provides checkbox context to child CheckboxIndicator components.
- * Supports batch operations (selectAll, unselectAll, toggleAll) and
- * mixed/indeterminate states.
+ * Root component for individual checkboxes with dual-mode support:
+ * - **Standalone mode**: Uses v-model for boolean state
+ * - **Group mode**: Registers with parent Checkbox.Group for multi-selection
+ *
+ * Automatically detects parent group context and adapts behavior accordingly.
+ * Provides checkbox context to child Checkbox.Indicator components.
  */
 
 <script lang="ts">
@@ -13,107 +15,210 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Types
-  import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
-  import type { ID } from '#v0/types'
+  import type { MaybeRef } from 'vue'
+
+  export interface CheckboxRootContext {
+    /** Unique identifier */
+    id: string
+    /** Optional display label */
+    label?: string
+    /** Value associated with this checkbox */
+    value: unknown
+    /** Whether this checkbox is currently checked */
+    isChecked: MaybeRef<boolean>
+    /** Whether this checkbox is in a mixed/indeterminate state */
+    isMixed: MaybeRef<boolean>
+    /** Whether this checkbox is disabled */
+    isDisabled: MaybeRef<boolean>
+    /** Check this checkbox */
+    check: () => void
+    /** Uncheck this checkbox */
+    uncheck: () => void
+    /** Toggle this checkbox's state */
+    toggle: () => void
+    /** Set this checkbox to mixed/indeterminate state (group mode only) */
+    mix: () => void
+    /** Clear mixed/indeterminate state (group mode only) */
+    unmix: () => void
+  }
 
   export interface CheckboxRootProps {
-    /** Namespace for dependency injection (must match CheckboxIndicator namespace) */
-    namespace?: string
-    /** Disables the entire checkbox group */
+    /** Unique identifier (auto-generated if not provided) */
+    id?: string
+    /** Optional display label (passed through to slot) */
+    label?: string
+    /** Value associated with this checkbox (used in group mode) */
+    value?: unknown
+    /** Disables this checkbox */
     disabled?: boolean
-    /** Auto-select non-disabled items on registration */
-    enroll?: boolean
-    /**
-     * Controls mandatory checkbox behavior:
-     * - false (default): No mandatory enforcement
-     * - true: Prevents deselecting the last selected item
-     * - `force`: Automatically selects the first non-disabled item on registration
-     */
-    mandatory?: boolean | 'force'
+    /** Sets the indeterminate state */
+    indeterminate?: MaybeRef<boolean>
+    /** Namespace for group dependency injection */
+    namespace?: string
   }
 
-  export interface CheckboxRootSlotProps {
-    /** Whether the checkbox group is disabled */
-    isDisabled: boolean
-    /** Whether no items are currently selected */
-    isNoneSelected: boolean
-    /** Whether all selectable (non-disabled) items are selected */
-    isAllSelected: boolean
-    /** Whether some but not all selectable items are selected */
+  export interface CheckboxRootSlotProps<V = unknown> {
+    /** Unique identifier */
+    id: string
+    /** Optional display label */
+    label?: string
+    /** Value associated with this checkbox */
+    value: V | undefined
+    /** Whether this checkbox is currently checked */
+    isChecked: boolean
+    /** Whether this checkbox is in a mixed/indeterminate state */
     isMixed: boolean
-    /** Select an item by ID */
-    select: (id: ID | ID[]) => void
-    /** Unselect an item by ID */
-    unselect: (id: ID | ID[]) => void
-    /** Toggle an item's selection state by ID */
-    toggle: (id: ID | ID[]) => void
-    /** Select all selectable (non-disabled) items */
-    selectAll: () => void
-    /** Unselect all items (respects mandatory option) */
-    unselectAll: () => void
-    /** Toggle between all selected and none selected */
-    toggleAll: () => void
-    /** Attributes to bind to the root element */
-    attrs: {
-      'aria-multiselectable': true
-    }
+    /** Whether this checkbox is disabled */
+    isDisabled: boolean
+    /** Check this checkbox */
+    check: () => void
+    /** Uncheck this checkbox */
+    uncheck: () => void
+    /** Toggle this checkbox's state */
+    toggle: () => void
+    /** Set this checkbox to mixed/indeterminate state (group mode only) */
+    mix: () => void
+    /** Clear mixed/indeterminate state (group mode only) */
+    unmix: () => void
   }
 
-  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<GroupContext<GroupTicket>>()
+  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext>()
 </script>
 
-<script lang="ts" setup generic="T = unknown">
-  // Composables
-  import { createGroup } from '#v0/composables/useGroup'
-  import { useProxyModel } from '#v0/composables/useProxyModel'
+<script lang="ts" setup generic="V = unknown">
+  // Components
+  import { useCheckboxGroup } from './CheckboxGroup.vue'
 
   // Utilities
-  import { toRef, toValue } from 'vue'
+  import { genId } from '#v0/utilities'
+  import { computed, onUnmounted, toRef, toValue } from 'vue'
+
+  // Types
+  import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
 
   defineOptions({ name: 'CheckboxRoot' })
 
   defineSlots<{
-    default: (props: CheckboxRootSlotProps) => any
-  }>()
-
-  defineEmits<{
-    'update:model-value': [value: T | T[]]
+    default: (props: CheckboxRootSlotProps<V>) => unknown
   }>()
 
   const {
-    namespace = 'v0:checkbox',
+    id = genId(),
+    label,
+    value,
     disabled = false,
-    enroll = false,
-    mandatory = false,
+    indeterminate = false,
+    namespace = 'v0:checkbox:group',
   } = defineProps<CheckboxRootProps>()
 
-  const model = defineModel<T | T[]>()
+  // Dual-mode: try to inject group context, null if standalone
+  let group: GroupContext<GroupTicket> | null = null
+  try {
+    group = useCheckboxGroup(namespace)
+  } catch {
+    // No group context, standalone mode
+  }
 
-  const group = createGroup({
-    disabled: toRef(() => disabled),
-    enroll,
-    mandatory,
-    events: true,
+  const model = defineModel<boolean>()
+
+  // Group mode: register with parent
+  const ticket = group?.register({ id, value, disabled, indeterminate })
+
+  // Unified state computations
+  const isChecked = computed(() => {
+    if (ticket) return toValue(ticket.isSelected)
+    return model.value ?? false
   })
 
-  useProxyModel(group, model, { multiple: true })
+  const isMixed = computed(() => {
+    if (ticket) return toValue(ticket.isMixed)
+    return false
+  })
 
-  provideCheckboxRoot(namespace, group)
+  const isDisabled = computed(() => {
+    if (group && ticket) {
+      return toValue(ticket.disabled) || toValue(group.disabled)
+    }
+    return disabled
+  })
 
-  const slotProps = toRef((): CheckboxRootSlotProps => ({
-    isDisabled: toValue(group.disabled),
-    isNoneSelected: group.isNoneSelected.value,
-    isAllSelected: group.isAllSelected.value,
-    isMixed: group.isMixed.value,
-    select: group.select,
-    unselect: group.unselect,
-    toggle: group.toggle,
-    selectAll: group.selectAll,
-    unselectAll: group.unselectAll,
-    toggleAll: group.toggleAll,
-    attrs: {
-      'aria-multiselectable': true,
-    },
+  // Actions
+  function toggle () {
+    if (isDisabled.value) return
+
+    if (ticket) {
+      ticket.toggle()
+    } else {
+      model.value = !model.value
+    }
+  }
+
+  function check () {
+    if (isDisabled.value) return
+
+    if (ticket) {
+      ticket.select()
+    } else {
+      model.value = true
+    }
+  }
+
+  function uncheck () {
+    if (isDisabled.value) return
+
+    if (ticket) {
+      ticket.unselect()
+    } else {
+      model.value = false
+    }
+  }
+
+  function mix () {
+    if (isDisabled.value || !ticket) return
+    ticket.mix()
+  }
+
+  function unmix () {
+    if (isDisabled.value || !ticket) return
+    ticket.unmix()
+  }
+
+  // Cleanup
+  onUnmounted(() => {
+    if (ticket && group) {
+      group.unregister(ticket.id)
+    }
+  })
+
+  // Provide context for Checkbox.Indicator
+  const context: CheckboxRootContext = {
+    id: String(id),
+    label,
+    value,
+    isChecked,
+    isMixed,
+    isDisabled,
+    check,
+    uncheck,
+    toggle,
+    mix,
+    unmix,
+  }
+
+  provideCheckboxRoot('v0:checkbox:root', context)
+
+  const slotProps = toRef((): CheckboxRootSlotProps<V> => ({
+    id: String(id),
+    label,
+    value: value as V | undefined,
+    isChecked: isChecked.value,
+    isMixed: isMixed.value,
+    isDisabled: isDisabled.value,
+    check,
+    uncheck,
+    toggle,
+    mix,
+    unmix,
   }))
 </script>
 

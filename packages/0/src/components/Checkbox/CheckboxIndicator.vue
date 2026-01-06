@@ -2,41 +2,19 @@
  * @module CheckboxIndicator
  *
  * @remarks
- * Checkbox component with dual-mode support:
- * - **Standalone mode**: Uses v-model for boolean state
- * - **Group mode**: Registers with parent CheckboxRoot for multi-selection
- *
- * Automatically detects parent context and adapts behavior accordingly.
- * Provides proper ARIA attributes for accessibility including tri-state support.
+ * Visual indicator component for checkboxes. Must be used within a
+ * Checkbox.Root component which provides the checkbox state and actions.
+ * Renders as a button by default with proper ARIA attributes.
  */
 
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
 
-  // Utilities
-  import { genId } from '#v0/utilities'
-  import { computed, inject, onUnmounted, toRef, toValue } from 'vue'
-
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
-  import type { MaybeRef } from 'vue'
 
-  export interface CheckboxIndicatorProps extends AtomProps {
-    /** Unique identifier (auto-generated if not provided) */
-    id?: string
-    /** Optional display label (passed through to slot) */
-    label?: string
-    /** Value associated with this checkbox (used in group mode) */
-    value?: unknown
-    /** Disables this checkbox */
-    disabled?: boolean
-    /** Sets the indeterminate state (group mode only) */
-    indeterminate?: MaybeRef<boolean>
-    /** Namespace for dependency injection */
-    namespace?: string
-  }
+  export interface CheckboxIndicatorProps extends AtomProps {}
 
   export interface CheckboxIndicatorSlotProps<V = unknown> {
     /** Unique identifier */
@@ -57,9 +35,9 @@
     uncheck: () => void
     /** Toggle this checkbox's state */
     toggle: () => void
-    /** Set this checkbox to mixed/indeterminate state (group mode only) */
+    /** Set this checkbox to mixed/indeterminate state */
     mix: () => void
-    /** Clear mixed/indeterminate state (group mode only) */
+    /** Clear mixed/indeterminate state */
     unmix: () => void
     /** Attributes to bind to the checkbox element */
     attrs: {
@@ -74,6 +52,12 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
+  // Components
+  import { useCheckboxRoot } from './CheckboxRoot.vue'
+
+  // Utilities
+  import { computed, toRef, toValue } from 'vue'
+
   defineOptions({ name: 'CheckboxIndicator' })
 
   defineSlots<{
@@ -83,38 +67,14 @@
   const {
     as = 'button',
     renderless,
-    id = genId(),
-    label,
-    value,
-    disabled = false,
-    indeterminate = false,
-    namespace = 'v0:checkbox',
   } = defineProps<CheckboxIndicatorProps>()
 
-  // Dual-mode: try to inject group context, null if standalone
-  const group = inject<GroupContext<GroupTicket> | null>(namespace, null)
-  const model = defineModel<boolean>()
+  // Inject context from Checkbox.Root
+  const root = useCheckboxRoot('v0:checkbox:root')
 
-  // Group mode: register with parent
-  const ticket = group?.register({ id, value, disabled, indeterminate })
-
-  // Unified state computations
-  const isChecked = computed(() => {
-    if (ticket) return toValue(ticket.isSelected)
-    return model.value ?? false
-  })
-
-  const isMixed = computed(() => {
-    if (ticket) return toValue(ticket.isMixed)
-    return false
-  })
-
-  const isDisabled = computed(() => {
-    if (group && ticket) {
-      return toValue(ticket.disabled) || toValue(group.disabled)
-    }
-    return disabled
-  })
+  const isChecked = computed(() => toValue(root.isChecked))
+  const isMixed = computed(() => toValue(root.isMixed))
+  const isDisabled = computed(() => toValue(root.isDisabled))
 
   // State helpers
   const dataState = computed(() => {
@@ -122,66 +82,18 @@
     return isChecked.value ? 'checked' : 'unchecked'
   })
 
-  // Actions
-  function toggle () {
-    if (isDisabled.value) return
-
-    if (ticket) {
-      ticket.toggle()
-    } else {
-      model.value = !model.value
-    }
-  }
-
-  function check () {
-    if (isDisabled.value) return
-
-    if (ticket) {
-      ticket.select()
-    } else {
-      model.value = true
-    }
-  }
-
-  function uncheck () {
-    if (isDisabled.value) return
-
-    if (ticket) {
-      ticket.unselect()
-    } else {
-      model.value = false
-    }
-  }
-
-  function mix () {
-    if (isDisabled.value || !ticket) return
-    ticket.mix()
-  }
-
-  function unmix () {
-    if (isDisabled.value || !ticket) return
-    ticket.unmix()
-  }
-
-  // Cleanup
-  onUnmounted(() => {
-    if (ticket && group) {
-      group.unregister(ticket.id)
-    }
-  })
-
   const slotProps = toRef((): CheckboxIndicatorSlotProps<V> => ({
-    id: String(id),
-    label,
-    value: value as V | undefined,
+    id: root.id,
+    label: root.label,
+    value: root.value as V | undefined,
     isChecked: isChecked.value,
     isMixed: isMixed.value,
     isDisabled: isDisabled.value,
-    check,
-    uncheck,
-    toggle,
-    mix,
-    unmix,
+    check: root.check,
+    uncheck: root.uncheck,
+    toggle: root.toggle,
+    mix: root.mix,
+    unmix: root.unmix,
     attrs: {
       'role': 'checkbox',
       'aria-checked': isMixed.value ? 'mixed' : isChecked.value,
