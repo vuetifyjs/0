@@ -12,6 +12,9 @@ import type { ApiMethod, ApiProperty } from '../../build/generate-api'
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
 
+// Transformers
+import { createApiTransformer } from '../../build/shiki-api-transformer'
+
 type ExampleState = { html: string, code: string }
 
 export interface UseApiHelpersReturn {
@@ -47,6 +50,7 @@ export function useApiHelpers (): UseApiHelpersReturn {
             lang: 'typescript',
             themes: SHIKI_THEMES,
             defaultColor: false,
+            transformers: [createApiTransformer()],
           }),
         }
       }

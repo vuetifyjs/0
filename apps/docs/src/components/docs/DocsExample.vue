@@ -17,9 +17,16 @@
   const uid = useId()
   const showCode = ref(false)
   const { copied, copy } = useClipboard()
-  const { highlightedCode } = useHighlightCode(toRef(() => props.code))
+  const { highlightedCode, highlight } = useHighlightCode(toRef(() => props.code), { immediate: false })
 
   const fileName = computed(() => props.file?.split('/').pop() || '')
+
+  function toggleCode () {
+    showCode.value = !showCode.value
+    if (showCode.value && !highlightedCode.value && props.code) {
+      highlight(props.code)
+    }
+  }
 
   function copyCode () {
     if (props.code) copy(props.code)
@@ -55,7 +62,7 @@
         :aria-expanded="showCode"
         class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
         type="button"
-        @click="showCode = !showCode"
+        @click="toggleCode"
       >
         <span v-if="showCode">Hide code</span>
         <span v-else>Show code</span>

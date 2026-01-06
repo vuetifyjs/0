@@ -21,12 +21,16 @@ A composable for building reactive forms with validation, field registration, an
 
 ## Usage
 
-The `useForm` composable provides a powerful interface for managing form state, validation, and submission. It extends the registry pattern to handle form-specific requirements like validation rules, error states, and field lifecycle management.
+The form composables provide a powerful interface for managing form state, validation, and submission. Built on the registry pattern, they handle form-specific requirements like validation rules, error states, and field lifecycle management.
+
+### Creating a Form
+
+Use `createForm` to create a new form instance:
 
 ```ts
-import { useForm } from '@vuetify/v0'
+import { createForm } from '@vuetify/v0'
 
-const form = useForm()
+const form = createForm()
 
 const email = form.register({
   id: 'email',
@@ -39,6 +43,17 @@ const email = form.register({
 
 console.log(email.value) // ''
 console.log(email.errors.value) // []
+```
+
+### Injecting a Form Context
+
+Use `useForm` to inject an existing form context (typically provided by a parent component):
+
+```ts
+import { useForm } from '@vuetify/v0'
+
+// Injects the form context provided by an ancestor
+const form = useForm()
 ```
 
 ## Architecture

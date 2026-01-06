@@ -26,6 +26,7 @@ declare module 'vue' {
     DocsAlert: typeof import('./components/docs/DocsAlert.vue')['default']
     DocsApi: typeof import('./components/docs/DocsApi.vue')['default']
     DocsApiCard: typeof import('./components/docs/DocsApiCard.vue')['default']
+    DocsApiHover: typeof import('./components/docs/DocsApiHover.vue')['default']
     DocsApiLinks: typeof import('./components/docs/DocsApiLinks.vue')['default']
     DocsApiTable: typeof import('./components/docs/DocsApiTable.vue')['default']
     DocsAsk: typeof import('./components/docs/DocsAsk.vue')['default']

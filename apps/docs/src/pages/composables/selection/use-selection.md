@@ -27,9 +27,9 @@ A composable for managing the selection of items in a collection with automatic 
 useSelection extends the functionality of useRegistry to manage selection states for a collection of items. It is reactive, supports both single and multi-select patterns, and provides helper properties for working with selected IDs, values, and items.
 
 ```ts
-import { useSelection } from '@vuetify/v0'
+import { createSelection } from '@vuetify/v0'
 
-const selection = useSelection()
+const selection = createSelection()
 
 selection.register({ id: 'apple', value: 'Apple' })
 selection.register({ id: 'banana', value: 'Banana' })

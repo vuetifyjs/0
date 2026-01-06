@@ -21,10 +21,13 @@ export interface ApiNameInfo {
 }
 
 /**
- * Convert PascalCase or camelCase to kebab-case
+ * Convert PascalCase, camelCase, or dot notation to kebab-case
  */
 export function toKebab (str: string): string {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+  return str
+    .replace(/\./g, '-')
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .toLowerCase()
 }
 
 /**
@@ -43,7 +46,9 @@ export function toCamel (str: string): string {
 }
 
 /**
- * Discover all component names from the packages/0/src/components directory
+ * Discover all component names from the packages/0/src/components directory.
+ * Returns one entry per component folder (e.g., Avatar, Popover) since
+ * the API page displays all sub-components together.
  */
 async function getComponentNames (): Promise<ApiNameInfo[]> {
   const names: ApiNameInfo[] = []
@@ -53,16 +58,15 @@ async function getComponentNames (): Promise<ApiNameInfo[]> {
     const dirPath = resolve(COMPONENTS_DIR, dir)
     const entries = await readdir(dirPath).catch(() => [])
 
-    for (const entry of entries) {
-      if (entry.endsWith('.vue')) {
-        const name = entry.replace('.vue', '')
-        names.push({
-          name,
-          slug: toKebab(name),
-          kind: 'component',
-          group: dir,
-        })
-      }
+    // Only include if the folder has .vue files
+    const hasVueFiles = entries.some(entry => entry.endsWith('.vue'))
+    if (hasVueFiles) {
+      names.push({
+        name: dir,
+        slug: toKebab(dir),
+        kind: 'component',
+        group: dir,
+      })
     }
   }
 
@@ -70,7 +74,8 @@ async function getComponentNames (): Promise<ApiNameInfo[]> {
 }
 
 /**
- * Discover all composable names from the packages/0/src/composables directory
+ * Discover all composable names from the packages/0/src/composables directory.
+ * Only includes directories that have an index.ts file.
  */
 async function getComposableNames (): Promise<ApiNameInfo[]> {
   const names: ApiNameInfo[] = []
@@ -79,6 +84,12 @@ async function getComposableNames (): Promise<ApiNameInfo[]> {
   for (const dir of dirs) {
     // Composable directories start with 'use' or 'create'
     if (!dir.startsWith('use') && !dir.startsWith('create')) continue
+
+    // Only include if the directory has an index.ts file
+    const dirPath = resolve(COMPOSABLES_DIR, dir)
+    const entries = await readdir(dirPath).catch(() => [])
+    const hasIndexTs = entries.includes('index.ts')
+    if (!hasIndexTs) continue
 
     names.push({
       name: dir,
