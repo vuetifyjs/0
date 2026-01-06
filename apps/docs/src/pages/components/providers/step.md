@@ -51,18 +51,3 @@ The Step component extends Single with navigation methods for moving through a s
 ```
 
 <DocsApi />
-
-## Navigation
-
-The Step component provides several navigation methods:
-
-| Method | Description |
-|---|---|
-| `first()` | Go to the first non-disabled item |
-| `last()` | Go to the last non-disabled item |
-| `next()` | Go to the next non-disabled item |
-| `prev()` | Go to the previous non-disabled item |
-| `step(count)` | Step forward (positive) or backward (negative) by count |
-
-All navigation methods automatically skip disabled items.
-

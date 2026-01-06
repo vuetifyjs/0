@@ -19,12 +19,6 @@ related:
 <script setup>
 import BasicExample from '@/examples/components/selection/basic.vue'
 import BasicExampleRaw from '@/examples/components/selection/basic.vue?raw'
-import SingleExample from '@/examples/components/selection/single.vue'
-import SingleExampleRaw from '@/examples/components/selection/single.vue?raw'
-import MandatoryExample from '@/examples/components/selection/mandatory.vue'
-import MandatoryExampleRaw from '@/examples/components/selection/mandatory.vue?raw'
-import DisabledExample from '@/examples/components/selection/disabled.vue'
-import DisabledExampleRaw from '@/examples/components/selection/disabled.vue?raw'
 </script>
 
 # Selection
@@ -58,24 +52,3 @@ The Selection component provides a wrapper and item pattern for managing selecti
 ```
 
 <DocsApi />
-
-## Examples
-
-### Single Selection
-
-<DocsExample file="single.vue" :code="SingleExampleRaw">
-  <SingleExample />
-</DocsExample>
-
-### Mandatory Selection
-
-<DocsExample file="mandatory.vue" :code="MandatoryExampleRaw">
-  <MandatoryExample />
-</DocsExample>
-
-### Disabled Items
-
-<DocsExample file="disabled.vue" :code="DisabledExampleRaw">
-  <DisabledExample />
-</DocsExample>
-

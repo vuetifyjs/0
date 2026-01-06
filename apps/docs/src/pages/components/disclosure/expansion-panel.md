@@ -17,10 +17,6 @@ related:
 <script setup>
 import BasicExample from '@/examples/components/expansion-panel/basic.vue'
 import BasicExampleRaw from '@/examples/components/expansion-panel/basic.vue?raw'
-import AccordionExample from '@/examples/components/expansion-panel/accordion.vue'
-import AccordionExampleRaw from '@/examples/components/expansion-panel/accordion.vue?raw'
-import CollapsibleExample from '@/examples/components/expansion-panel/basic.vue'
-import CollapsibleExampleRaw from '@/examples/components/expansion-panel/basic.vue?raw'
 </script>
 
 # ExpansionPanel
@@ -76,14 +72,3 @@ For instances where you need to wrap the activator in a heading element **(h3)**
 ```
 
 <DocsApi />
-
-## Examples
-
-<DocsExample file="collapsible.vue" title="Collapsible (Multi Panel)" :code="CollapsibleExampleRaw">
-  <CollapsibleExample />
-</DocsExample>
-
-<DocsExample file="accordion.vue" title="Accordion (Single Panel)" :code="AccordionExampleRaw">
-  <AccordionExample />
-</DocsExample>
-

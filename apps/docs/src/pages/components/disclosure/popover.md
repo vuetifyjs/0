@@ -15,7 +15,8 @@ related:
 ---
 
 <script setup>
-  //
+import BasicExample from '@/examples/components/popover/basic.vue'
+import BasicExampleRaw from '@/examples/components/popover/basic.vue?raw'
 </script>
 
 # Popover
@@ -27,6 +28,10 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
 ## Usage
 
 The Popover component leverages the CSS Anchor Positioning API to create popovers, tooltips, and dropdown menus without JavaScript-based positioning. It provides v-model support for open/closed state management.
+
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
+  <BasicExample />
+</DocsExample>
 
 ## Anatomy
 
@@ -45,21 +50,3 @@ The Popover component leverages the CSS Anchor Positioning API to create popover
 ```
 
 <DocsApi />
-
-## Positioning
-
-The Popover component uses the CSS Anchor Positioning API for positioning. The `positionArea` prop accepts standard CSS values:
-
-| Value | Description |
-|---|---|
-| `top` | Position above the anchor |
-| `bottom` | Position below the anchor |
-| `left` | Position to the left of the anchor |
-| `right` | Position to the right of the anchor |
-| `top left` | Position above and to the left |
-| `top right` | Position above and to the right |
-| `bottom left` | Position below and to the left |
-| `bottom right` | Position below and to the right |
-
-The `positionTry` prop provides fallback positioning when the primary position doesn't fit.
-

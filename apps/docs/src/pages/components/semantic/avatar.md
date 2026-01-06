@@ -50,27 +50,3 @@ The Avatar component provides a robust image loading system with automatic fallb
 ```
 
 <DocsApi />
-
-## Priority System
-
-The Avatar component uses a priority-based system to determine which content to display:
-
-1. Images register with a `priority` value (default: `0`)
-2. Fallbacks register with the lowest implicit priority
-3. When an image loads successfully, it becomes selectable
-4. The highest-priority loaded image is displayed
-5. If all images fail, the fallback is shown
-
-```vue PriorityExample
-<template>
-  <Avatar.Root>
-    <!-- High-res preferred when available -->
-    <Avatar.Image src="/high-res.jpg" :priority="10" />
-    <!-- Low-res as backup -->
-    <Avatar.Image src="/low-res.jpg" :priority="1" />
-    <!-- Fallback if both fail -->
-    <Avatar.Fallback>JD</Avatar.Fallback>
-  </Avatar.Root>
-</template>
-```
-
