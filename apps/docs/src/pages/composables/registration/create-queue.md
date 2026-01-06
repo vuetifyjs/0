@@ -51,4 +51,4 @@ flowchart TD
   useQueue --> first[first item active]
 ```
 
-<DocsApi />
+<DocsApi name="useQueue" />

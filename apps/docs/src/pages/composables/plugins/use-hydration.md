@@ -21,22 +21,6 @@ The `useHydration` composable provides SSR hydration state management, allowing 
 
 <DocsPageFeatures :frontmatter />
 
-## Installation
-
-First, install the hydration plugin in your application:
-
-```ts
-import { createApp } from 'vue'
-import { createHydrationPlugin } from '@vuetify/v0'
-import App from './App.vue'
-
-const app = createApp(App)
-
-app.use(createHydrationPlugin())
-
-app.mount('#app')
-```
-
 ## Usage
 
 Once the plugin is installed, use the `useHydration` composable in any component:
@@ -73,24 +57,3 @@ flowchart LR
 ```
 
 <DocsApi />
-
-## How Hydration Works
-
-The hydration plugin automatically detects when the root component has mounted and marks the application as hydrated:
-
-1. During SSR, `isHydrated` is `false`
-2. When the root component mounts on the client, the plugin calls `hydrate()`
-3. `isHydrated` becomes `true`, signaling that browser APIs are safe to use
-4. Components that depend on hydration state can now activate browser-only features
-
-The plugin uses a Vue mixin to detect the root component mount:
-
-```ts
-app.mixin({
-  mounted() {
-    if (this.$parent !== null) return // Skip child components
-    context.hydrate() // Only hydrate on root mount
-  }
-})
-```
-

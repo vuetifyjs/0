@@ -67,4 +67,4 @@ flowchart TD
   useTokens --> usePermissions
 ```
 
-<DocsApi />
+<DocsApi name="useTokens" />

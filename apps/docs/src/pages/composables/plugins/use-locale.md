@@ -19,44 +19,6 @@ The `useLocale` composable provides comprehensive internationalization (i18n) ca
 
 <DocsPageFeatures :frontmatter />
 
-## Installation
-
-First, install the locale plugin in your application:
-
-```ts
-import { createApp } from 'vue'
-import { createLocalePlugin } from '@vuetify/v0'
-import App from './App.vue'
-
-const app = createApp(App)
-
-app.use(
-  createLocalePlugin({
-    default: 'en',
-    fallback: 'en',
-    messages: {
-      en: {
-        hello: 'Hello',
-        welcome: 'Welcome, {name}!',
-        greeting: 'Hello, {0}! You have {1} messages.',
-      },
-      es: {
-        hello: 'Hola',
-        welcome: '¡Bienvenido, {name}!',
-        greeting: '¡Hola, {0}! Tienes {1} mensajes.',
-      },
-      fr: {
-        hello: 'Bonjour',
-        welcome: 'Bienvenue, {name}!',
-        greeting: 'Bonjour, {0}! Vous avez {1} messages.',
-      },
-    },
-  })
-)
-
-app.mount('#app')
-```
-
 ## Usage
 
 Once the plugin is installed, use the `useLocale` composable in any component:

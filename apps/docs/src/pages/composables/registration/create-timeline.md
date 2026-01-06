@@ -57,4 +57,4 @@ flowchart TD
   useTimeline --> cursor[history cursor]
 ```
 
-<DocsApi />
+<DocsApi name="useTimeline" />

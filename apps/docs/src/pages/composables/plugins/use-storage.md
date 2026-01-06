@@ -19,23 +19,6 @@ The `useStorage` composable provides reactive storage management with support fo
 
 <DocsPageFeatures :frontmatter />
 
-## Installation
-
-First, install the storage plugin in your application:
-
-```ts
-import { createApp } from 'vue'
-import { createStoragePlugin } from '@vuetify/v0'
-import App from './App.vue'
-
-const app = createApp(App)
-
-// Use default settings (localStorage in browser, memory in SSR)
-app.use(createStoragePlugin())
-
-app.mount('#app')
-```
-
 ## Usage
 
 Once the plugin is installed, use the `useStorage` composable in any component:
