@@ -69,6 +69,7 @@
     positionTry,
   }))
 
+  /* v8 ignore start -- browser popover API */
   onMounted(() => {
     if (context.isSelected.value) {
       ref.value?.element?.showPopover()
@@ -85,6 +86,7 @@
       element.hidePopover?.()
     }
   })
+  /* v8 ignore stop */
 
   function onBeforeToggle (e: ToggleEvent) {
     context.isSelected.value = e.newState === 'open'

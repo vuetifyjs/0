@@ -73,6 +73,7 @@
   // Watch for page changes and update text after a small delay
   // This ensures screen readers detect the content change
   // @see https://tetralogical.com/blog/2024/05/01/why-are-my-live-regions-not-working/
+  /* v8 ignore start -- watch fires after mount, setTimeout callback requires timer */
   watch(() => pagination.page.value, (page, prevPage) => {
     // Skip initial render (no previous value means first mount)
     if (prevPage === undefined) return
@@ -85,6 +86,7 @@
       )
     }, 100)
   })
+  /* v8 ignore stop */
 
   const slotProps = toRef((): PaginationStatusSlotProps => ({
     page: pagination.page.value,

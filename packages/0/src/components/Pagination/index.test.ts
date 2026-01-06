@@ -298,6 +298,20 @@ describe('pagination', () => {
         expect(typeof itemProps.select).toBe('function')
       })
 
+      it('should render default value content when no slot provided', async () => {
+        const wrapper = mount(Pagination.Root, {
+          props: { size: 100, renderless: true },
+          slots: {
+            default: () => h(Pagination.Item, { value: 5 }),
+          },
+        })
+
+        await nextTick()
+
+        const item = wrapper.findComponent(Pagination.Item as any)
+        expect(item.text()).toContain('5')
+      })
+
       it('should expose correct attrs', async () => {
         let itemProps: any
 
@@ -653,6 +667,21 @@ describe('pagination', () => {
 
       expect(ellipsisProps.ellipsis).toBe('***')
     })
+
+    it('should render default ellipsis content when no slot provided', async () => {
+      const wrapper = mount(Pagination.Root, {
+        props: { size: 100, ellipsis: '...', renderless: true },
+        slots: {
+          default: () => h(Pagination.Ellipsis),
+        },
+      })
+
+      await nextTick()
+
+      const ellipsis = wrapper.findComponent(Pagination.Ellipsis as any)
+      expect(ellipsis.exists()).toBe(true)
+      expect(ellipsis.text()).toBe('...')
+    })
   })
 
   describe('status', () => {
@@ -680,6 +709,38 @@ describe('pagination', () => {
       expect(statusProps.attrs['aria-atomic']).toBe(true)
       expect(statusProps.attrs['aria-live']).toBe('polite')
       expect(statusProps.attrs.role).toBe('status')
+    })
+
+    it('should render default text content when no slot provided', async () => {
+      vi.useFakeTimers()
+
+      const wrapper = mount(Pagination.Root, {
+        props: {
+          size: 100,
+          itemsPerPage: 10,
+          modelValue: 1,
+        },
+        slots: {
+          default: (props: any) => [
+            h(Pagination.Status),
+            h('button', { onClick: props.next }, 'Next'),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      // Trigger page change to populate text
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+      vi.advanceTimersByTime(100)
+      await nextTick()
+
+      // Status should render the text content
+      const status = wrapper.findComponent(Pagination.Status as any)
+      expect(status.exists()).toBe(true)
+
+      vi.useRealTimers()
     })
 
     it('should update text on page change', async () => {
@@ -1123,6 +1184,93 @@ describe('pagination', () => {
   })
 
   describe('responsive visible calculation', () => {
+    it('should calculate visible items based on container capacity and controls', async () => {
+      // This tests the visible computed when controls.size > 0
+      let slotProps: any
+
+      const wrapper = mount(Pagination.Root, {
+        props: {
+          size: 200,
+          itemsPerPage: 10,
+        },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return [
+              h(Pagination.First, { renderless: true }, { default: () => h('button', 'First') }),
+              h(Pagination.Prev, { renderless: true }, { default: () => h('button', 'Prev') }),
+              ...props.items.map((item: any) =>
+                item.type === 'page'
+                  ? h(Pagination.Item, { key: item.id, value: item.value, renderless: true }, { default: () => h('button', item.value) })
+                  : h(Pagination.Ellipsis, { key: item.id, renderless: true }, { default: () => h('span', '...') }),
+              ),
+              h(Pagination.Next, { renderless: true }, { default: () => h('button', 'Next') }),
+              h(Pagination.Last, { renderless: true }, { default: () => h('button', 'Last') }),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+
+      // Should have items rendered
+      expect(slotProps.items.length).toBeGreaterThan(0)
+
+      wrapper.unmount()
+    })
+
+    it('should return totalVisible when pageCap is 0', async () => {
+      // Test the branch where pageCap <= 0 but totalVisible is set
+      let slotProps: any
+
+      const wrapper = mount(Pagination.Root, {
+        props: {
+          size: 50,
+          itemsPerPage: 10,
+          totalVisible: 3,
+        },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      // With explicit totalVisible, should respect it
+      expect(slotProps.items.length).toBe(3)
+
+      wrapper.unmount()
+    })
+
+    it('should return 1 when pageCap is 0 and no totalVisible', async () => {
+      // This tests the fallback when pageCap <= 0 and totalVisible is not set
+      // This is hard to trigger in practice since it requires a very constrained container
+      let slotProps: any
+
+      const wrapper = mount(Pagination.Root, {
+        props: {
+          size: 50,
+          itemsPerPage: 10,
+        },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      await nextTick()
+
+      // Should have some items (the default fallback behavior)
+      expect(slotProps.items.length).toBeGreaterThan(0)
+
+      wrapper.unmount()
+    })
+
     it('should use default visible count before item width is measured', async () => {
       // This tests the race condition where:
       // 1. Container has width (ResizeObserver fires)

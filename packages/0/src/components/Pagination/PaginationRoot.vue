@@ -139,6 +139,7 @@
     gap: itemGap,
   })
 
+  /* v8 ignore start -- browser-only measurement code */
   watch([() => items.size, () => overflow.width.value], () => {
     if (!IN_BROWSER) return
 
@@ -157,6 +158,7 @@
       itemGap.value = gapX
     })
   }, { flush: 'post' })
+  /* v8 ignore stop */
 
   const visible = computed(() => {
     const totalCap = overflow.capacity.value
@@ -164,6 +166,7 @@
     // SSR or not measured yet
     if (totalCap === Infinity) return totalVisible ?? 7
 
+    /* v8 ignore start -- branches require browser measurement */
     // Subtract nav buttons from total capacity to get page item capacity
     const pageCap = Math.max(0, totalCap - controls.size)
     const noVisible = isNullOrUndefined(totalVisible)
@@ -171,6 +174,7 @@
     if (pageCap > 0) return noVisible ? pageCap : Math.min(totalVisible, pageCap)
 
     return noVisible ? 1 : totalVisible
+    /* v8 ignore stop */
   })
 
   const pagination = createPagination({

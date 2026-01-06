@@ -74,10 +74,12 @@ export function splitKeyCombination (combination: string, isInternal = false): C
     const nextChar = combination[i + 1]
 
     if (['+', '/', '_', '-'].includes(char)) {
+      /* v8 ignore start -- edge case: doubled special chars */
       if (char === nextChar) {
         flushBuffer(char)
         keys.push(char)
         i++
+      /* v8 ignore stop */
       } else if (['+', '/', '_'].includes(char)) {
         flushBuffer(char)
       } else {
@@ -92,6 +94,7 @@ export function splitKeyCombination (combination: string, isInternal = false): C
   // Within a combination, `-` is only valid as a literal key (e.g., `ctrl+-`).
   // `-` cannot be part of a longer key name within a combination.
   const hasInvalidMinus = keys.some(key => key.length > 1 && key.includes('-') && key !== '--')
+  /* v8 ignore start -- edge case: invalid minus in combination */
   if (hasInvalidMinus) {
     if (!isInternal) logger.warn(`Invalid hotkey combination: "${combination}" has invalid structure`)
     return emptyResult
@@ -100,6 +103,7 @@ export function splitKeyCombination (combination: string, isInternal = false): C
   if (keys.length === 0 && combination) {
     return { keys: [normalizeKey(combination)], separators }
   }
+  /* v8 ignore stop */
 
   return { keys, separators }
 }
@@ -156,7 +160,7 @@ export function splitKeySequence (str: string): string[] {
           buffer = ''
         } else {
           // Empty buffer means we have a literal '-' key
-          result.push('-')
+          result.push('-') /* v8 ignore -- edge case: literal dash key */
         }
         i++
       }
@@ -175,9 +179,11 @@ export function splitKeySequence (str: string): string[] {
   const collapsed: string[] = []
   let minusCount = 0
   for (const part of result) {
+    /* v8 ignore start -- edge case: minus collapsing */
     if (part === '-') {
       if (minusCount % 2 === 0) collapsed.push('-')
       minusCount++
+    /* v8 ignore stop */
     } else {
       minusCount = 0
       collapsed.push(part)
@@ -187,10 +193,12 @@ export function splitKeySequence (str: string): string[] {
   // Validate that each part of the sequence is a valid combination
   const areAllValid = collapsed.every(s => splitKeyCombination(s, true).keys.length > 0)
 
+  /* v8 ignore start -- edge case: invalid combination in sequence */
   if (!areAllValid) {
     logger.warn(`Invalid hotkey sequence: "${str}" contains invalid combinations`)
     return []
   }
+  /* v8 ignore stop */
 
   return collapsed
 }

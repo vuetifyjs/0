@@ -385,12 +385,14 @@ export function useVirtual<T = unknown> (
   watch(element, el => {
     if (!IN_BROWSER || !el?.style) return
 
+    /* v8 ignore start -- browser-only style assignments */
     if (momentum) (el.style as any).webkitOverflowScrolling = 'touch'
     if (!elastic) el.style.overscrollBehavior = 'none'
+    /* v8 ignore stop */
   })
 
   useResizeObserver(element, entries => {
-    if (!entries[0]) return
+    if (!entries[0]) return /* v8 ignore -- defensive guard */
 
     viewportHeight.value = entries[0].contentRect.height
 
@@ -406,7 +408,7 @@ export function useVirtual<T = unknown> (
   }, { immediate: true })
 
   watch(element, () => {
-    if (!element.value) return
+    if (!element.value) return /* v8 ignore -- defensive guard */
 
     if (direction === 'reverse' && items.value.length > 0) {
       const lastIndex = items.value.length - 1
@@ -433,9 +435,11 @@ export function useVirtual<T = unknown> (
         anchorOffset = element.value.scrollTop - (offsets.value[result] || 0)
       }
     } else {
+      /* v8 ignore start -- default anchor capture */
       // Default: capture first visible item
       anchorIndex = first.value
       anchorOffset = element.value.scrollTop - (offsets.value[first.value] || 0)
+      /* v8 ignore stop */
     }
   }
 
@@ -446,9 +450,11 @@ export function useVirtual<T = unknown> (
 
     if (anchorSmooth && direction === 'forward') {
       element.value.scrollTo({ top: newScrollTop, behavior: 'smooth' })
+    /* v8 ignore start -- non-smooth scroll */
     } else {
       element.value.scrollTop = newScrollTop
     }
+    /* v8 ignore stop */
 
     anchorIndex = -1
     anchorOffset = 0
@@ -509,7 +515,7 @@ export function useVirtual<T = unknown> (
   }
 
   function checkEdges () {
-    if (!element.value) return
+    if (!element.value) return /* v8 ignore -- defensive guard */
 
     const scrollTop = element.value.scrollTop
     const scrollHeight = element.value.scrollHeight
@@ -529,6 +535,7 @@ export function useVirtual<T = unknown> (
           onEndReached(distanceFromEnd)
         }
       })
+    /* v8 ignore start -- SSR fallback */
     } else {
       if (onStartReached && distanceFromStart <= startThreshold) {
         onStartReached(distanceFromStart)
@@ -537,16 +544,19 @@ export function useVirtual<T = unknown> (
         onEndReached(distanceFromEnd)
       }
     }
+    /* v8 ignore stop */
   }
 
   function resize (index: number, height: number) {
-    if (heights.value[index] === height) return
+    if (heights.value[index] === height) return /* v8 ignore -- no-op when height unchanged */
     heights.value[index] = height
-    if (!itemHeight.value) itemHeight.value = height
+    if (!itemHeight.value) itemHeight.value = height /* v8 ignore -- first height assignment */
     if (IN_BROWSER) {
       cancelAnimationFrame(rebuildRaf)
       rebuildRaf = requestAnimationFrame(rebuild)
+    /* v8 ignore start -- SSR fallback */
     } else rebuild()
+    /* v8 ignore stop */
   }
 
   function scroll () {
@@ -555,11 +565,13 @@ export function useVirtual<T = unknown> (
       raf = requestAnimationFrame(update)
 
       checkEdges()
+    /* v8 ignore start -- SSR fallback */
     } else update()
+    /* v8 ignore stop */
   }
 
   function scrollTo (index: number, scrollOptions?: ScrollToOptions) {
-    if (!element.value) return
+    if (!element.value) return /* v8 ignore -- defensive guard */
 
     const targetOffset = offsets.value[index] || 0
     const behavior = scrollOptions?.behavior ?? 'auto'

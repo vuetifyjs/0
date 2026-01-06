@@ -85,7 +85,7 @@
     :renderless
   >
     <slot v-bind="slotProps">
-      {{ resolvedEllipsis }}
+      {{ resolvedEllipsis }}<!-- v8 ignore -- template fallback -->
     </slot>
   </Atom>
 </template>

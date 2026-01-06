@@ -398,6 +398,153 @@ describe('dialog', () => {
         expect(onClose).toHaveBeenCalled()
       })
     })
+
+    describe('click outside', () => {
+      it('should close dialog when clicking outside with closeOnClickOutside=true', async () => {
+        const isOpen = ref(true)
+
+        // Create an outside element to click on (must be connected to DOM)
+        const outsideEl = document.createElement('div')
+        outsideEl.id = 'outside-click-target'
+        document.body.append(outsideEl)
+
+        // Mock getBoundingClientRect on HTMLDialogElement prototype before mounting
+        const originalGetBoundingClientRect = HTMLDialogElement.prototype.getBoundingClientRect
+        HTMLDialogElement.prototype.getBoundingClientRect = vi.fn(() => ({
+          left: 100,
+          right: 300,
+          top: 100,
+          bottom: 300,
+          width: 200,
+          height: 200,
+          x: 100,
+          y: 100,
+          toJSON: () => ({}),
+        }))
+
+        const wrapper = mount(Dialog.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          attachTo: document.body,
+          slots: {
+            default: () => h(Dialog.Content, { closeOnClickOutside: true }, () => h('div', { class: 'inner' }, 'Content')),
+          },
+        })
+
+        await nextTick()
+
+        const content = wrapper.findComponent(Dialog.Content as any)
+        expect(content.exists()).toBe(true)
+
+        // Simulate pointer click on outside element (at 0,0 which is outside dialog bounds 100-300)
+        const pointerdownEvent = new PointerEvent('pointerdown', {
+          bubbles: true,
+          clientX: 0,
+          clientY: 0,
+        })
+        const pointerupEvent = new PointerEvent('pointerup', {
+          bubbles: true,
+          clientX: 0,
+          clientY: 0,
+        })
+
+        // Dispatch events from the outside element so composedPath returns an Element
+        outsideEl.dispatchEvent(pointerdownEvent)
+        outsideEl.dispatchEvent(pointerupEvent)
+
+        await nextTick()
+
+        // Dialog should have closed
+        expect(isOpen.value).toBe(false)
+
+        wrapper.unmount()
+        outsideEl.remove()
+        HTMLDialogElement.prototype.getBoundingClientRect = originalGetBoundingClientRect
+      })
+
+      it('should not close dialog when closeOnClickOutside=false', async () => {
+        const isOpen = ref(true)
+
+        const outsideEl = document.createElement('div')
+        outsideEl.id = 'outside'
+        document.body.append(outsideEl)
+
+        const wrapper = mount(Dialog.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          attachTo: document.body,
+          slots: {
+            default: () => h(Dialog.Content, { closeOnClickOutside: false }, () => 'Content'),
+          },
+        })
+
+        await nextTick()
+
+        const content = wrapper.findComponent(Dialog.Content as any)
+        expect(content.exists()).toBe(true)
+
+        // Click outside - should not close
+        outsideEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+        outsideEl.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+
+        await nextTick()
+
+        // Dialog should still be open
+        expect(isOpen.value).toBe(true)
+
+        wrapper.unmount()
+        outsideEl.remove()
+      })
+
+      it('should setup useClickOutside handler when dialog opens', async () => {
+        const isOpen = ref(false)
+
+        const outsideEl = document.createElement('div')
+        outsideEl.id = 'outside'
+        document.body.append(outsideEl)
+
+        const wrapper = mount(Dialog.Root, {
+          props: {
+            'modelValue': isOpen.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              isOpen.value = v as boolean
+            },
+          },
+          attachTo: document.body,
+          slots: {
+            default: () => [
+              h(Dialog.Activator, {}, () => 'Open'),
+              h(Dialog.Content, { closeOnClickOutside: true }, () => h('p', 'Dialog content')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Open the dialog
+        await wrapper.findComponent(Dialog.Activator as any).trigger('click')
+        await nextTick()
+
+        expect(isOpen.value).toBe(true)
+
+        // Click outside to close
+        outsideEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+        outsideEl.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }))
+
+        await nextTick()
+
+        wrapper.unmount()
+        outsideEl.remove()
+      })
+    })
   })
 
   describe('close', () => {

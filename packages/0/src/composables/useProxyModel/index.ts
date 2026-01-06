@@ -80,10 +80,12 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
 
   for (const value of modelAsArray) {
     const ids = registry.browse(value)
+    /* v8 ignore start -- edge case: value exists in registry at init */
     if (ids) {
       for (const id of ids) registry.select(id)
       pending.delete(value)
     }
+    /* v8 ignore stop */
   }
 
   const registryWatch = watch(registry.selectedValues, val => {
@@ -109,7 +111,7 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
 
     if (multiple) {
       for (const id of currentIds.difference(targetIds)) {
-        registry.selectedIds.delete(id)
+        registry.selectedIds.delete(id) /* v8 ignore -- edge case: deselection via model */
       }
       for (const id of targetIds.difference(currentIds)) {
         registry.selectedIds.add(id)

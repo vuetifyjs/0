@@ -76,7 +76,7 @@
 
   watch(context.isOpen, isOpen => {
     const element = contentRef.value?.element as HTMLDialogElement | undefined
-    if (!element) return
+    if (!element) return /* v8 ignore -- defensive guard */
 
     if (isOpen) {
       element.showModal?.()
@@ -87,6 +87,7 @@
 
   useToggleScope(
     () => closeOnClickOutside && context.isOpen.value,
+    /* v8 ignore start -- callback tested via useClickOutside */
     () => {
       useClickOutside(
         () => contentRef.value?.element,
@@ -94,6 +95,7 @@
         { bounds: true },
       )
     },
+    /* v8 ignore stop */
   )
 
   function onCancel (e: Event) {

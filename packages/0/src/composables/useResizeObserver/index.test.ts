@@ -281,6 +281,43 @@ describe('useElementSize', () => {
     expect(width.value).toBe(0)
     expect(height.value).toBe(0)
   })
+
+  it('should reset dimensions to zero when pause is called', async () => {
+    let observerCallback: ((entries: any[]) => void) | null = null
+    const localMockObserver = {
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }
+
+    globalThis.ResizeObserver = vi.fn(function (this: any, cb: any) {
+      observerCallback = cb
+      return localMockObserver
+    }) as any
+    window.ResizeObserver = globalThis.ResizeObserver
+
+    const target = ref<Element | undefined>(element)
+    const { width, height, pause } = useElementSize(target)
+
+    // Trigger hydration
+    mockIsHydrated.value = true
+    await nextTick()
+
+    // Simulate resize to set dimensions
+    observerCallback!([{
+      contentRect: { width: 200, height: 100 },
+      target: element,
+    }])
+
+    expect(width.value).toBe(200)
+    expect(height.value).toBe(100)
+
+    // Pause should reset dimensions to 0
+    pause()
+
+    expect(width.value).toBe(0)
+    expect(height.value).toBe(0)
+  })
 })
 
 describe('useResizeObserver SSR', () => {
