@@ -19,7 +19,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { useRegistry } from '#v0/composables/useRegistry'
+import { createRegistry } from '#v0/composables/useRegistry'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -125,7 +125,7 @@ export function createTimeline<
   E extends TimelineContext<Z> = TimelineContext<Z>,
 > (_options: TimelineOptions = {}): E {
   const { size = 10, ...options } = _options
-  const registry = useRegistry<Z, E>(options)
+  const registry = createRegistry<Z, E>(options)
 
   const stack: Z[] = []
   const overflow: Z[] = []

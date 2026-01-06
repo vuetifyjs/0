@@ -11,7 +11,7 @@ features:
   github: /components/Selection/
   renderless: true
 related:
-  - /composables/selection/use-selection
+  - /composables/selection/create-selection
   - /components/providers/single
   - /components/providers/group
 ---

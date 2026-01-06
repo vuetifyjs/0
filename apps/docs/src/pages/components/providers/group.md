@@ -11,7 +11,7 @@ features:
   github: /components/Group/
   renderless: true
 related:
-  - /composables/selection/use-group
+  - /composables/selection/create-group
   - /components/providers/selection
 ---
 

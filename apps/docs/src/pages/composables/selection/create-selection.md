@@ -1,22 +1,22 @@
 ---
-title: useSelection - Item Selection State for Vue 3
+title: createSelection - Item Selection State for Vue 3
 meta:
 - name: description
   content: Manage item selection in collections with automatic indexing. Supports single and multi-select patterns, mandatory selection, enrollment, and lifecycle management.
 - name: keywords
-  content: useSelection, selection, composable, Vue 3, state management, multi-select, mandatory
+  content: createSelection, selection, composable, Vue 3, state management, multi-select, mandatory
 features:
   category: Composable
-  label: 'E: useSelection'
+  label: 'E: createSelection'
   github: /composables/useSelection/
 related:
-  - /composables/registration/use-registry
-  - /composables/selection/use-single
-  - /composables/selection/use-group
+  - /composables/registration/create-registry
+  - /composables/selection/create-single
+  - /composables/selection/create-group
   - /components/providers/selection
 ---
 
-# useSelection
+# createSelection
 
 A composable for managing the selection of items in a collection with automatic indexing and lifecycle management.
 

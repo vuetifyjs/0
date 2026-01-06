@@ -13,7 +13,7 @@ import { bench, describe } from 'vitest'
 // Types
 import type { RegistryContext, RegistryTicket } from './index'
 
-import { useRegistry } from './index'
+import { createRegistry } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -37,7 +37,7 @@ const ITEMS_10K: BenchmarkItem[] = Array.from({ length: 10_000 }, (_, i) => ({
 
 // Pre-populated registries for READ-ONLY benchmarks only
 function createPopulatedRegistry (count: number): RegistryContext<RegistryTicket> {
-  const registry = useRegistry()
+  const registry = createRegistry()
   const items = count === 1000 ? ITEMS_1K : ITEMS_10K
   registry.onboard(items.slice(0, count))
   return registry
@@ -55,23 +55,23 @@ const LOOKUP_INDEX_10K = 5000
 // BENCHMARKS
 // =============================================================================
 
-describe('useRegistry benchmarks', () => {
+describe('createRegistry benchmarks', () => {
   // ===========================================================================
   // INITIALIZATION - Measures setup/creation cost
   // Fresh fixture per iteration (required - we're measuring creation itself)
   // ===========================================================================
   describe('initialization', () => {
     bench('Create empty registry', () => {
-      useRegistry()
+      createRegistry()
     })
 
     bench('Onboard 1,000 items', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard(ITEMS_1K)
     })
 
     bench('Onboard 10,000 items', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard(ITEMS_10K)
     })
   })
@@ -135,12 +135,12 @@ describe('useRegistry benchmarks', () => {
     })
 
     bench('Register single item', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'single', value: 'test' })
     })
 
     bench('Register then unregister single item', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'temp', value: 'test' })
       registry.unregister('temp')
     })
@@ -153,25 +153,25 @@ describe('useRegistry benchmarks', () => {
   // ===========================================================================
   describe('batch operations', () => {
     bench('Onboard then clear 1,000 items', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard(ITEMS_1K)
       registry.clear()
     })
 
     bench('Onboard then clear 10,000 items', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard(ITEMS_10K)
       registry.clear()
     })
 
     bench('Onboard then reindex 1,000 items', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard(ITEMS_1K)
       registry.reindex()
     })
 
     bench('Onboard then reindex 10,000 items', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard(ITEMS_10K)
       registry.reindex()
     })
@@ -180,13 +180,13 @@ describe('useRegistry benchmarks', () => {
     const halfIds10k = ITEMS_10K.slice(0, 5000).map(i => i.id)
 
     bench('Onboard 1,000 then offboard 500 items', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard(ITEMS_1K)
       registry.offboard(halfIds1k)
     })
 
     bench('Onboard 10,000 then offboard 5,000 items', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard(ITEMS_10K)
       registry.offboard(halfIds10k)
     })

@@ -11,7 +11,7 @@ related:
   - /guide/plugins
   - /composables/foundation/create-context
   - /composables/foundation/create-trinity
-  - /composables/registration/use-registry
+  - /composables/registration/create-registry
 ---
 
 # Core

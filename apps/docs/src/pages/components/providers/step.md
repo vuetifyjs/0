@@ -11,7 +11,7 @@ features:
   github: /components/Step/
   renderless: true
 related:
-  - /composables/selection/use-step
+  - /composables/selection/create-step
   - /components/providers/single
 ---
 

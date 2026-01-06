@@ -22,7 +22,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { useLogger } from '#v0/composables/useLogger'
-import { useRegistry } from '#v0/composables/useRegistry'
+import { createRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { isObject, isString, isUndefined } from '#v0/utilities'
@@ -159,7 +159,7 @@ export function createTokens<
   options: TokenOptions = {},
 ): E {
   const logger = useLogger()
-  const registry = useRegistry<Z, E>(options)
+  const registry = createRegistry<Z, E>(options)
 
   const cache = new Map<string, unknown | undefined>()
 

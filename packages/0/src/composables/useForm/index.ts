@@ -20,7 +20,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { useRegistry } from '#v0/composables/useRegistry'
+import { createRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
@@ -103,7 +103,7 @@ export function createForm<
   Z extends FormTicket = FormTicket,
   E extends FormContext<Z> = FormContext<Z>,
 > (options?: FormOptions): E {
-  const registry = useRegistry<Z, E>(options)
+  const registry = createRegistry<Z, E>(options)
   const validateOn = options?.validateOn || 'submit'
 
   function parse (value: string): string[] {

@@ -11,7 +11,7 @@ features:
   github: /components/Single/
   renderless: true
 related:
-  - /composables/selection/use-single
+  - /composables/selection/create-single
   - /components/providers/selection
 ---
 

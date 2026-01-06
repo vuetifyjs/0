@@ -33,7 +33,7 @@
   import { useLocale } from '#v0/composables/useLocale'
   import { createOverflow } from '#v0/composables/useOverflow'
   import { createPagination } from '#v0/composables/usePagination'
-  import { useRegistry } from '#v0/composables/useRegistry'
+  import { createRegistry } from '#v0/composables/useRegistry'
 
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
@@ -126,8 +126,8 @@
   const page = defineModel<number>({ default: 1 })
 
   const locale = useLocale()
-  const controls = useRegistry()
-  const items = useRegistry()
+  const controls = createRegistry()
+  const items = createRegistry()
 
   const atom = useTemplateRef<AtomExpose>('atom')
   const itemWidth = shallowRef(0)

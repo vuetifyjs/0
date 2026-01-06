@@ -70,10 +70,10 @@ Collection management primitives:
 
 | Composable | Purpose |
 | - | - |
-| [useRegistry](/composables/registration/use-registry) | Base collection with lookup |
-| [useTokens](/composables/registration/use-tokens) | Design token aliases |
-| [useQueue](/composables/registration/use-queue) | Time-based queue |
-| [useTimeline](/composables/registration/use-timeline) | Undo/redo history |
+| [createRegistry](/composables/registration/create-registry) | Base collection with lookup |
+| [createTokens](/composables/registration/create-tokens) | Design token aliases |
+| [createQueue](/composables/registration/create-queue) | Time-based queue |
+| [createTimeline](/composables/registration/create-timeline) | Undo/redo history |
 
 ### Selection
 
@@ -81,10 +81,10 @@ State management for selection patterns:
 
 | Composable | Purpose |
 | - | - |
-| [useSelection](/composables/selection/use-selection) | Multi-select base |
-| [useSingle](/composables/selection/use-single) | Radio, tabs, accordion |
-| [useGroup](/composables/selection/use-group) | Checkboxes, tri-state |
-| [useStep](/composables/selection/use-step) | Wizard, stepper, carousel |
+| [createSelection](/composables/selection/create-selection) | Multi-select base |
+| [createSingle](/composables/selection/create-single) | Radio, tabs, accordion |
+| [createGroup](/composables/selection/create-group) | Checkboxes, tri-state |
+| [createStep](/composables/selection/create-step) | Wizard, stepper, carousel |
 
 ### Forms
 
@@ -92,7 +92,7 @@ Form state and validation:
 
 | Composable | Purpose |
 | - | - |
-| [useForm](/composables/forms/use-form) | Validation, dirty tracking |
+| [createForm](/composables/forms/create-form) | Validation, dirty tracking |
 | [useProxyModel](/composables/forms/use-proxy-model) | v-model bridge |
 
 ### Plugins

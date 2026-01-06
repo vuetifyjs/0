@@ -11,7 +11,7 @@ features:
   label: 'E: useProxyRegistry'
   github: /composables/useProxyRegistry/
 related:
-- /composables/registration/use-registry
+- /composables/registration/create-registry
 ---
 
 # useProxyRegistry

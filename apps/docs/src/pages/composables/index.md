@@ -71,11 +71,11 @@ Collection management and data structure primitives.
 
 | Name | Description |
 | - | - |
-| [useRegistry](/composables/registration/use-registry) | Foundation for registration-based systems |
+| [createRegistry](/composables/registration/create-registry) | Foundation for registration-based systems |
 | [useProxyRegistry](/composables/registration/use-proxy-registry) | Proxy-based registry with automatic reactivity |
-| [useQueue](/composables/registration/use-queue) | Time-based queue management with automatic timeouts |
-| [useTimeline](/composables/registration/use-timeline) | Bounded undo/redo system with fixed-size history |
-| [useTokens](/composables/registration/use-tokens) | Design token management system |
+| [createQueue](/composables/registration/create-queue) | Time-based queue management with automatic timeouts |
+| [createTimeline](/composables/registration/create-timeline) | Bounded undo/redo system with fixed-size history |
+| [createTokens](/composables/registration/create-tokens) | Design token management system |
 
 ## Selection
 
@@ -83,10 +83,10 @@ State management for single and multi-selection patterns.
 
 | Name | Description |
 | - | - |
-| [useSelection](/composables/selection/use-selection) | General selection state management |
-| [useSingle](/composables/selection/use-single) | Single-selection with automatic deselection |
-| [useGroup](/composables/selection/use-group) | Multi-selection with tri-state support |
-| [useStep](/composables/selection/use-step) | Sequential navigation for wizards and steppers |
+| [createSelection](/composables/selection/create-selection) | General selection state management |
+| [createSingle](/composables/selection/create-single) | Single-selection with automatic deselection |
+| [createGroup](/composables/selection/create-group) | Multi-selection with tri-state support |
+| [createStep](/composables/selection/create-step) | Sequential navigation for wizards and steppers |
 
 ## Forms
 
@@ -94,7 +94,7 @@ Form state management and model binding utilities.
 
 | Name | Description |
 | - | - |
-| [useForm](/composables/forms/use-form) | Form state management and validation |
+| [createForm](/composables/forms/create-form) | Form state management and validation |
 | [useProxyModel](/composables/forms/use-proxy-model) | Bridge selection context to v-model binding |
 
 ## System

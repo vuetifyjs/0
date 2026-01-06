@@ -1,22 +1,22 @@
 ---
-title: useTokens Composable
+title: createTokens Composable
 meta:
 - name: description
   content: A utility for managing design tokens with support for hierarchical collections,
     aliases, and token resolution across your application's design system.
 - name: keywords
-  content: useTokens, design tokens, tokens, aliases, composable, Vue
+  content: createTokens, design tokens, tokens, aliases, composable, Vue
 features:
   category: Composable
-  label: 'E: useTokens'
+  label: 'E: createTokens'
   github: /composables/useTokens/
 related:
-- /composables/registration/use-registry
+- /composables/registration/create-registry
 - /composables/plugins/use-theme
 - /guide/theming
 ---
 
-# useTokens
+# createTokens
 
 A utility for managing design tokens with support for hierarchical collections, aliases, and token resolution across your application's design system. Inspired by [Design Tokens](https://www.designtokens.org/tr/drafts/format/#design-token).
 

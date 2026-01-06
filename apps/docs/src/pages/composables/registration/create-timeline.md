@@ -1,20 +1,20 @@
 ---
-title: useTimeline - Bounded Undo/Redo System for Vue 3
+title: createTimeline - Bounded Undo/Redo System for Vue 3
 meta:
 - name: description
-  content: Bounded undo/redo system with fixed-size history. Built on useRegistry for state management with automatic overflow handling and time-travel debugging for Vue 3.
+  content: Bounded undo/redo system with fixed-size history. Built on createRegistry for state management with automatic overflow handling and time-travel debugging for Vue 3.
 - name: keywords
-  content: useTimeline, timeline, undo, redo, history, time travel, Vue 3, state management, registry
+  content: createTimeline, timeline, undo, redo, history, time travel, Vue 3, state management, registry
 features:
   category: Composable
-  label: 'E: useTimeline'
+  label: 'E: createTimeline'
   github: /composables/useTimeline/
 related:
-- /composables/registration/use-registry
-- /composables/registration/use-queue
+- /composables/registration/create-registry
+- /composables/registration/create-queue
 ---
 
-# useTimeline
+# createTimeline
 
 A bounded undo/redo system that manages a fixed-size timeline of registered items with automatic overflow handling and history management.
 

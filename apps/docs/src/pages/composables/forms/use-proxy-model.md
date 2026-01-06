@@ -10,8 +10,8 @@ features:
   label: 'E: useProxyModel'
   github: /composables/useProxyModel/
 related:
-  - /composables/selection/use-selection
-  - /composables/selection/use-single
+  - /composables/selection/create-selection
+  - /composables/selection/create-single
 ---
 
 # useProxyModel

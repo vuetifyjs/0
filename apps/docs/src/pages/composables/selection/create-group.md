@@ -1,20 +1,20 @@
 ---
-title: useGroup - Multi-Selection with Tri-State Support
+title: createGroup - Multi-Selection with Tri-State Support
 meta:
 - name: description
   content: Multi-selection composable with tri-state support. Manage checkbox trees with indeterminate states, batch operations, and select-all patterns for Vue 3 apps.
 - name: keywords
-  content: useGroup, selection, group selection, composable, Vue 3, indeterminate, tri-state, checkbox tree, select all
+  content: createGroup, selection, group selection, composable, Vue 3, indeterminate, tri-state, checkbox tree, select all
 features:
   category: Composable
-  label: 'E: useGroup'
+  label: 'E: createGroup'
   github: /composables/useGroup/
 related:
-  - /composables/selection/use-selection
+  - /composables/selection/create-selection
   - /components/providers/group
 ---
 
-# useGroup
+# createGroup
 
 The `useGroup` composable is designed to manage a group of related components, allowing for shared state and behavior across them. It supports tri-state (mixed/indeterminate) for checkbox trees and similar use cases where items can be selected, unselected, or in a mixed state.
 

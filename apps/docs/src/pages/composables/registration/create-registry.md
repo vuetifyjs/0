@@ -1,22 +1,22 @@
 ---
-title: useRegistry Composable
+title: createRegistry Composable
 meta:
 - name: description
   content: A foundational composable for building registration-based systems, managing
     collections of registered items with automatic indexing, and lifecycle management.
 - name: keywords
-  content: useRegistry, registry, composable, Vue, state management
+  content: createRegistry, registry, composable, Vue, state management
 features:
   category: Composable
-  label: 'E: useRegistry'
+  label: 'E: createRegistry'
   github: /composables/useRegistry/
 related:
-- /composables/selection/use-selection
-- /composables/registration/use-tokens
-- /composables/forms/use-form
+- /composables/selection/create-selection
+- /composables/registration/create-tokens
+- /composables/forms/create-form
 ---
 
-# useRegistry
+# createRegistry
 
 A foundational composable for building registration-based systems, managing collections of registered items with automatic indexing, and lifecycle management.
 

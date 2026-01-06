@@ -1,20 +1,20 @@
 ---
-title: useStep - Sequential Navigation for Vue 3
+title: createStep - Sequential Navigation for Vue 3
 meta:
 - name: description
   content: Navigate sequential steps with first, last, next, and prev methods. Build form wizards, carousels, and guided flows with circular navigation and disabled item skipping.
 - name: keywords
-  content: useStep, step navigation, wizard, stepper, carousel, multi-step form, Vue 3, composable
+  content: createStep, step navigation, wizard, stepper, carousel, multi-step form, Vue 3, composable
 features:
   category: Composable
-  label: 'E: useStep'
+  label: 'E: createStep'
   github: /composables/useStep/
 related:
-  - /composables/selection/use-single
+  - /composables/selection/create-single
   - /components/providers/step
 ---
 
-# useStep
+# createStep
 
 A composable for managing navigation through multi-step processes like forms, wizards, or onboarding flows, with support for step tracking, completion, and navigation controls.
 

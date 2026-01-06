@@ -1,21 +1,21 @@
 ---
-title: useQueue Composable
+title: createQueue Composable
 meta:
 - name: description
   content: A queue composable for managing time-based collections with automatic timeout-based
     removal, pause/resume functionality, and FIFO ordering.
 - name: keywords
-  content: useQueue, queue, composable, Vue, timeout, FIFO
+  content: createQueue, queue, composable, Vue, timeout, FIFO
 features:
   category: Composable
-  label: 'E: useQueue'
+  label: 'E: createQueue'
   github: /composables/useQueue/
 related:
-- /composables/registration/use-registry
-- /composables/registration/use-timeline
+- /composables/registration/create-registry
+- /composables/registration/create-timeline
 ---
 
-# useQueue
+# createQueue
 
 A queue composable for managing time-based collections with automatic timeout-based removal, pause/resume functionality, and FIFO (First In, First Out) ordering.
 

@@ -303,16 +303,16 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/system/use-intersection-observer': RouteRecordInfo<
-      '/composables/system/use-intersection-observer',
-      '/composables/system/use-intersection-observer',
+    '/composables/system/use-hotkey': RouteRecordInfo<
+      '/composables/system/use-hotkey',
+      '/composables/system/use-hotkey',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/composables/system/use-keydown': RouteRecordInfo<
-      '/composables/system/use-keydown',
-      '/composables/system/use-keydown',
+    '/composables/system/use-intersection-observer': RouteRecordInfo<
+      '/composables/system/use-intersection-observer',
+      '/composables/system/use-intersection-observer',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -787,15 +787,15 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/system/use-intersection-observer.md': {
+    'src/pages/composables/system/use-hotkey.md': {
       routes:
-        | '/composables/system/use-intersection-observer'
+        | '/composables/system/use-hotkey'
       views:
         | never
     }
-    'src/pages/composables/system/use-keydown.md': {
+    'src/pages/composables/system/use-intersection-observer.md': {
       routes:
-        | '/composables/system/use-keydown'
+        | '/composables/system/use-intersection-observer'
       views:
         | never
     }

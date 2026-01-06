@@ -12,7 +12,7 @@ features:
   github: /composables/useTheme/
 related:
   - /composables/system/use-media-query
-  - /composables/registration/use-tokens
+  - /composables/registration/create-tokens
   - /guide/theming
 ---
 

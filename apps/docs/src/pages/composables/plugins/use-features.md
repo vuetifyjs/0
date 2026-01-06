@@ -10,7 +10,7 @@ features:
   label: 'E: useFeatures'
   github: /composables/useFeatures/
 related:
-  - /composables/registration/use-tokens
+  - /composables/registration/create-tokens
 ---
 
 # useFeatures

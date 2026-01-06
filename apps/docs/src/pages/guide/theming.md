@@ -9,7 +9,7 @@ meta:
     content: vuetify0, theming, design tokens, CSS variables, colors, useTheme, useTokens, dark mode, Vue 3
 related:
   - /composables/plugins/use-theme
-  - /composables/registration/use-tokens
+  - /composables/registration/create-tokens
   - /guide/accessibility
 ---
 

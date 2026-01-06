@@ -73,8 +73,8 @@ For building production UIs.
 | Pattern | Use Case | Guide |
 | - | - | - |
 | `createContext` | Share state across component tree | [Core](/guide/core) |
-| `useSelection` | Multi-select, toggles, radio groups | [Composables](/composables/selection/use-selection) |
-| `useRegistry` | Dynamic child registration | [Core](/guide/core) |
+| `createSelection` | Multi-select, toggles, radio groups | [Composables](/composables/selection/create-selection) |
+| `createRegistry` | Dynamic child registration | [Core](/guide/core) |
 | `Atom` component | Polymorphic base element | [Components](/guide/components) |
 | `useTheme` | Theme switching, CSS variables | [Theming](/guide/theming) |
 

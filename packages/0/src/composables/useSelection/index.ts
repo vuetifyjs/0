@@ -19,7 +19,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { useRegistry } from '#v0/composables/useRegistry'
+import { createRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { genId, isUndefined } from '#v0/utilities'
@@ -147,7 +147,7 @@ export function createSelection<
     multiple = false,
     ...options
   } = _options
-  const registry = useRegistry<Z, E>(options)
+  const registry = createRegistry<Z, E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
 
   const selectedItems = computed(() => {

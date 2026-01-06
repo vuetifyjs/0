@@ -1,21 +1,21 @@
 ---
-title: useSingle - Single-Selection State for Vue 3
+title: createSingle - Single-Selection State for Vue 3
 meta:
 - name: description
-  content: Single-item selection with automatic deselection. Extends useSelection for radio buttons, tabs, and exclusive choice patterns. Base for useTheme and useLocale.
+  content: Single-item selection with automatic deselection. Extends createSelection for radio buttons, tabs, and exclusive choice patterns. Base for createTheme and createLocale.
 - name: keywords
-  content: useSingle, single selection, radio button, tabs, exclusive, composable, Vue 3, state management
+  content: createSingle, single selection, radio button, tabs, exclusive, composable, Vue 3, state management
 features:
   category: Composable
-  label: 'E: useSingle'
+  label: 'E: createSingle'
   github: /composables/useSingle/
 related:
-  - /composables/selection/use-selection
-  - /composables/selection/use-step
+  - /composables/selection/create-selection
+  - /composables/selection/create-step
   - /components/providers/single
 ---
 
-# useSingle
+# createSingle
 
 A composable that extends `useSelection` to enforce single-item selection. Automatically clears the previous selection before selecting a new item, ensuring only one item is selected at any time.
 

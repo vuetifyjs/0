@@ -72,9 +72,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1' })
    * registry.register({ id: 'ticket-2' })
@@ -97,9 +97,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-id' })
    *
@@ -116,9 +116,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1' })
    * registry.register({ id: 'ticket-2' })
@@ -137,9 +137,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1', value: 'common-value' })
    * registry.register({ id: 'ticket-2', value: 'common-value' })
@@ -160,7 +160,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1' })
    * registry.register({ id: 'ticket-2' })
@@ -180,9 +180,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-id', value: 'some-value' })
    *
@@ -201,9 +201,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * // Insert a new ticket
    * const ticket = registry.upsert('ticket-id', { value: 'initial-value' })
@@ -222,9 +222,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1', value: 'value-1' })
    * registry.register({ id: 'ticket-2', value: 'value-2' })
@@ -242,9 +242,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1', value: 'value-1' })
    * registry.register({ id: 'ticket-2', value: 'value-2' })
@@ -263,9 +263,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * const ticket = registry.register()
    *
@@ -283,9 +283,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-id' })
    *
@@ -302,9 +302,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1' })
    * registry.register({ id: 'ticket-2' })
@@ -326,9 +326,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1', value: 'apple' })
    * registry.register({ id: 'ticket-2', value: 'banana' })
@@ -365,9 +365,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry({ events: true })
+   * const registry = createRegistry({ events: true })
    *
    * registry.on('register:ticket', (ticket) => {
    *   console.log('Ticket registered:', ticket)
@@ -389,9 +389,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * @example
    * ```ts
    * import { onScopeDispose } from 'vue'
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry({ events: true })
+   * const registry = createRegistry({ events: true })
    *
    * function onRegister(ticket) {
    *   console.log('Ticket registered:', ticket)
@@ -418,9 +418,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry({ events: true })
+   * const registry = createRegistry({ events: true })
    *
    * registry.on('custom-event', (data) => {
    *   console.log('Custom event received:', data)
@@ -440,9 +440,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * @example
    * ```ts
    * import { onScopeDispose } from 'vue'
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry({ events: true })
+   * const registry = createRegistry({ events: true })
    *
    * registry.register({ id: 'ticket-id' })
    *
@@ -462,9 +462,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * const tickets = registry.onboard([
    *   { id: 'ticket-1', value: 'value-1' },
@@ -485,9 +485,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.onboard([
    *   { id: 'ticket-1', value: 'value-1' },
@@ -510,9 +510,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry()
+   * const registry = createRegistry()
    *
    * registry.register({ id: 'ticket-1' })
    * registry.register({ id: 'ticket-2' })
@@ -532,9 +532,9 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry({ events: true })
+   * const registry = createRegistry({ events: true })
    *
    * // Without batch: N invalidations + N events
    * // With batch: 1 invalidation + N events (after all registrations)
@@ -559,9 +559,9 @@ export interface RegistryOptions {
    *
    * @example
    * ```ts
-   * import { useRegistry } from '@vuetify/v0'
+   * import { createRegistry } from '@vuetify/v0'
    *
-   * const registry = useRegistry({ events: true })
+   * const registry = createRegistry({ events: true })
    *
    * registry.on('register:ticket', (ticket) => {
    *   console.log('Ticket registered:', ticket)
@@ -585,13 +585,13 @@ export interface RegistryContextOptions extends RegistryOptions {
  * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
  * @returns A new registry instance.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-registry#use-registry
+ * @see https://0.vuetifyjs.com/composables/registration/create-registry#create-registry
  *
  * @example
  * ```ts
- * import { useRegistry } from '@vuetify/v0'
+ * import { createRegistry } from '@vuetify/v0'
  *
- * const registry = useRegistry()
+ * const registry = createRegistry()
  *
  * const ticket1 = registry.register({ id: 'user-1', value: { name: 'John' } })
  * const ticket2 = registry.register({ id: 'user-2', value: { name: 'Jane' } })
@@ -600,7 +600,7 @@ export interface RegistryContextOptions extends RegistryOptions {
  * console.log(registry.get('user-1')) // { id: 'user-1', index: 0, value: { name: 'John' }, ... }
  * ```
  */
-export function useRegistry<
+export function createRegistry<
   Z extends RegistryTicket = RegistryTicket,
   E extends RegistryContext<Z> = RegistryContext<Z>,
 > (options?: RegistryOptions): E {
@@ -629,7 +629,7 @@ export function useRegistry<
 
   function on (event: string, cb: RegistryEventCallback) {
     if (!events) {
-      logger.warn(`Events are disabled. Initialize with \`useRegistry({ events: true })\` to enable.`)
+      logger.warn(`Events are disabled. Initialize with \`createRegistry({ events: true })\` to enable.`)
       return
     }
 
@@ -639,7 +639,7 @@ export function useRegistry<
 
   function off (event: string, cb: RegistryEventCallback) {
     if (!events) {
-      logger.warn(`Events are disabled. Initialize with \`useRegistry({ events: true })\` to enable.`)
+      logger.warn(`Events are disabled. Initialize with \`createRegistry({ events: true })\` to enable.`)
       return
     }
     listeners.get(event)?.delete(cb)
@@ -1023,7 +1023,7 @@ export function useRegistry<
  * @template E The type of registry context that extends RegistryContext<Z>. Use this when extending the registry with additional methods.
  * @returns A new registry context.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-registry#create-registry-context
+ * @see https://0.vuetifyjs.com/composables/registration/create-registry#create-registry-context
  *
  * @example
  * ```ts
@@ -1050,7 +1050,7 @@ export function createRegistryContext<
   const { namespace = 'v0:registry', ...options } = _options
   const [useRegistryContext, _provideRegistryContext] = createContext<E>(namespace)
 
-  const context = useRegistry<Z, E>(options)
+  const context = createRegistry<Z, E>(options)
 
   function provideRegistryContext (_context: E = context, app?: App): E {
     return _provideRegistryContext(_context, app)
@@ -1058,3 +1058,8 @@ export function createRegistryContext<
 
   return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
 }
+
+/**
+ * @deprecated Use `createRegistry` instead. This alias will be removed in a future version.
+ */
+export const useRegistry = createRegistry

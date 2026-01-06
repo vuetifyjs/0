@@ -19,7 +19,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { useRegistry } from '#v0/composables/useRegistry'
+import { createRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { genId, isUndefined } from '#v0/utilities'
@@ -277,7 +277,7 @@ export function createQueue<
   E extends QueueContext<Z> = QueueContext<Z>,
 > (_options: QueueOptions = {}): E {
   const { timeout: _timeout = 3000, ...options } = _options
-  const registry = useRegistry<Z, E>({ ...options, events: true })
+  const registry = createRegistry<Z, E>({ ...options, events: true })
   const timeouts = new Map<ID, ReturnType<typeof setTimeout>>()
 
   function startTimeout (ticket: Z) {

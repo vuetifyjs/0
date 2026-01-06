@@ -10,7 +10,7 @@ features:
   label: 'E: usePermissions'
   github: /composables/usePermissions/
 related:
-  - /composables/registration/use-tokens
+  - /composables/registration/create-tokens
 ---
 
 # usePermissions

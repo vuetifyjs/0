@@ -2,12 +2,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Composables
-import { createRegistryContext, useRegistry } from './index'
+import { createRegistry, createRegistryContext, useRegistry } from './index'
 
-describe('useRegistry', () => {
+describe('createRegistry', () => {
   describe('registration', () => {
     it('should register an item with nothing', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const ticket = registry.register()
 
       expect(ticket).toBeDefined()
@@ -17,7 +17,7 @@ describe('useRegistry', () => {
     })
 
     it('should upsert an item', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const ticket = registry.upsert('item-1', { value: 'value-1' })
 
       expect(ticket).toBeDefined()
@@ -27,7 +27,7 @@ describe('useRegistry', () => {
     })
 
     it('should register an item with a custom id', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const ticket = registry.register({ id: 'test-id' })
 
       expect(ticket).toBeDefined()
@@ -37,7 +37,7 @@ describe('useRegistry', () => {
     })
 
     it('should register an item with a custom value', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const ticket = registry.register({ value: 'test-value' })
 
       expect(ticket).toBeDefined()
@@ -47,7 +47,7 @@ describe('useRegistry', () => {
     })
 
     it('should unregister an item by id', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const ticket = registry.register()
 
       expect(registry.collection.size).toBe(1)
@@ -58,7 +58,7 @@ describe('useRegistry', () => {
     })
 
     it('should onboard multiple items at once', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const tickets = registry.onboard([
         { id: 'item-1', value: 'value-1' },
         { id: 'item-2', value: 'value-2' },
@@ -76,7 +76,7 @@ describe('useRegistry', () => {
     })
 
     it('should offboard multiple items at once', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard([
         { id: 'item-1', value: 'value-1' },
         { id: 'item-2', value: 'value-2' },
@@ -94,7 +94,7 @@ describe('useRegistry', () => {
     })
 
     it('should skip non-existent ids when offboarding', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard([
         { id: 'item-1', value: 'value-1' },
         { id: 'item-2', value: 'value-2' },
@@ -106,7 +106,7 @@ describe('useRegistry', () => {
     })
 
     it('should update indexes correctly after offboard', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard([
         { id: 'item-1', value: 'value-1' },
         { id: 'item-2', value: 'value-2' },
@@ -122,7 +122,7 @@ describe('useRegistry', () => {
     })
 
     it('should emit events for each offboarded item', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       registry.onboard([
@@ -138,7 +138,7 @@ describe('useRegistry', () => {
     })
 
     it('should not remove an item if unregistering a non-existent id', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const tickets = registry.onboard([
         { id: 'item-1', value: 1, valueIsIndex: true },
         { id: 'item-2', value: 'value-2' },
@@ -153,7 +153,7 @@ describe('useRegistry', () => {
 
   describe('collection management', () => {
     it('should find an item by id', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'find-me' })
 
       const found = registry.get('find-me')
@@ -163,7 +163,7 @@ describe('useRegistry', () => {
     })
 
     it('should lookup an items ID by index', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'lookup-me', index: 1 })
 
       const found = registry.lookup(1)
@@ -173,7 +173,7 @@ describe('useRegistry', () => {
     })
 
     it('should browse an items ID by value', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'browse-me', value: 'test-value' })
 
       const found = registry.browse('test-value')
@@ -183,7 +183,7 @@ describe('useRegistry', () => {
     })
 
     it('should return if an item exists in the collection', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
 
       expect(registry.has('exists-me')).toBe(false)
 
@@ -193,7 +193,7 @@ describe('useRegistry', () => {
     })
 
     it('should reset a directory and catalog', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', index: 2, value: 'value-1' })
       registry.register({ id: 'item-2', index: 3, value: 'value-2' })
       registry.register({ id: 'item-3', index: 4 })
@@ -211,7 +211,7 @@ describe('useRegistry', () => {
     })
 
     it('should partially reindex from dirty index when unregistering', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1' }) // valueIsIndex: true, value: 0
       registry.register({ id: 'item-2' }) // valueIsIndex: true, value: 1
       registry.register({ id: 'item-3' }) // valueIsIndex: true, value: 2
@@ -231,7 +231,7 @@ describe('useRegistry', () => {
     })
 
     it('should trigger lazy reindex via browse when needed', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1' }) // valueIsIndex: true
       registry.register({ id: 'item-2' }) // valueIsIndex: true
       registry.register({ id: 'item-3' }) // valueIsIndex: true
@@ -245,7 +245,7 @@ describe('useRegistry', () => {
     })
 
     it('should clear the entire registry', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register()
 
       expect(registry.collection.size).toBe(1)
@@ -256,7 +256,7 @@ describe('useRegistry', () => {
     })
 
     it('should update an existing item', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const ticket = registry.register({ id: 'update-me', value: 'initial' })
 
       expect(ticket.value).toBe('initial')
@@ -275,7 +275,7 @@ describe('useRegistry', () => {
 
   describe('catalog management', () => {
     it('should catalog tickets with duplicate values', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.onboard([{ id: 'item-1', value: 'value-1' }, { id: 'item-2', value: 'value-2' }, { id: 'dupe-item-1', value: 'value-1', valueIsIndex: true }])
       const ids = registry.browse('value-1')
       expect(ids).toEqual(['item-1', 'dupe-item-1'])
@@ -286,7 +286,7 @@ describe('useRegistry', () => {
     })
 
     it('should return undefined when browsing non-existent value', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', value: 'exists' })
 
       expect(registry.browse('non-existent')).toBeUndefined()
@@ -297,7 +297,7 @@ describe('useRegistry', () => {
 
   describe('event emission', () => {
     it('should not emit events when events option is disabled', () => {
-      const registry = useRegistry({ events: false })
+      const registry = createRegistry({ events: false })
       const listener = vi.fn()
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
@@ -311,7 +311,7 @@ describe('useRegistry', () => {
     })
 
     it('should emit register:ticket event when enabled', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       registry.on('register:ticket', listener)
@@ -322,7 +322,7 @@ describe('useRegistry', () => {
     })
 
     it('should emit unregister:ticket event when enabled', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       const ticket = registry.register({ id: 'test-id' })
@@ -334,7 +334,7 @@ describe('useRegistry', () => {
     })
 
     it('should emit update:ticket event when upserting existing ticket', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       registry.register({ id: 'test-id', value: 'initial' })
@@ -346,7 +346,7 @@ describe('useRegistry', () => {
     })
 
     it('should emit clear:registry event when clearing', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       registry.register({ id: 'test-id' })
@@ -357,7 +357,7 @@ describe('useRegistry', () => {
     })
 
     it('should emit reindex:registry event when reindexing', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       registry.onboard([
@@ -372,7 +372,7 @@ describe('useRegistry', () => {
     })
 
     it('should remove event listener with off', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       registry.on('register:ticket', listener)
@@ -385,7 +385,7 @@ describe('useRegistry', () => {
     })
 
     it('should support custom events with emit', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       registry.on('custom-event', listener)
@@ -396,7 +396,7 @@ describe('useRegistry', () => {
     })
 
     it('should warn when attempting to register listener without events enabled', () => {
-      const registry = useRegistry({ events: false })
+      const registry = createRegistry({ events: false })
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       registry.on('register:ticket', vi.fn())
@@ -407,7 +407,7 @@ describe('useRegistry', () => {
     })
 
     it('should support multiple listeners for same event', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener1 = vi.fn()
       const listener2 = vi.fn()
 
@@ -422,7 +422,7 @@ describe('useRegistry', () => {
 
   describe('cache management', () => {
     it('should cache keys, values, and entries', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1' })
       registry.register({ id: 'item-2' })
 
@@ -440,7 +440,7 @@ describe('useRegistry', () => {
     })
 
     it('should invalidate cache on register', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1' })
 
       const keys1 = registry.keys()
@@ -453,7 +453,7 @@ describe('useRegistry', () => {
     })
 
     it('should invalidate cache on unregister', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1' })
       registry.register({ id: 'item-2' })
 
@@ -467,7 +467,7 @@ describe('useRegistry', () => {
     })
 
     it('should invalidate cache on clear', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1' })
 
       const keys1 = registry.keys()
@@ -480,7 +480,7 @@ describe('useRegistry', () => {
     })
 
     it('should invalidate cache on upsert', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1' })
 
       const keys1 = registry.keys()
@@ -493,7 +493,7 @@ describe('useRegistry', () => {
 
   describe('seek functionality', () => {
     it('should seek first ticket without predicate', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', value: 'a' })
       registry.register({ id: 'item-2', value: 'b' })
       registry.register({ id: 'item-3', value: 'c' })
@@ -503,7 +503,7 @@ describe('useRegistry', () => {
     })
 
     it('should seek last ticket without predicate', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', value: 'a' })
       registry.register({ id: 'item-2', value: 'b' })
       registry.register({ id: 'item-3', value: 'c' })
@@ -513,7 +513,7 @@ describe('useRegistry', () => {
     })
 
     it('should seek first ticket with predicate', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', value: 'apple' })
       registry.register({ id: 'item-2', value: 'banana' })
       registry.register({ id: 'item-3', value: 'cherry' })
@@ -523,7 +523,7 @@ describe('useRegistry', () => {
     })
 
     it('should seek last ticket with predicate', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', value: 'apple' })
       registry.register({ id: 'item-2', value: 'banana' })
       registry.register({ id: 'item-3', value: 'apricot' })
@@ -533,7 +533,7 @@ describe('useRegistry', () => {
     })
 
     it('should seek from specific index', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', value: 'a' })
       registry.register({ id: 'item-2', value: 'b' })
       registry.register({ id: 'item-3', value: 'c' })
@@ -543,7 +543,7 @@ describe('useRegistry', () => {
     })
 
     it('should return undefined when no ticket matches predicate', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', value: 'a' })
 
       const found = registry.seek('first', undefined, ticket => ticket.value === 'z')
@@ -551,13 +551,13 @@ describe('useRegistry', () => {
     })
 
     it('should return undefined for empty registry', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const found = registry.seek('first')
       expect(found).toBeUndefined()
     })
 
     it('should clamp from index to valid range', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1' })
       registry.register({ id: 'item-2' })
 
@@ -571,7 +571,7 @@ describe('useRegistry', () => {
 
   describe('dispose functionality', () => {
     it('should clear collection and listeners on dispose', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const listener = vi.fn()
 
       registry.register({ id: 'item-1' })
@@ -587,7 +587,7 @@ describe('useRegistry', () => {
     })
 
     it('should not throw when disposing registry without events', () => {
-      const registry = useRegistry({ events: false })
+      const registry = createRegistry({ events: false })
       registry.register({ id: 'item-1' })
 
       expect(() => registry.dispose()).not.toThrow()
@@ -597,7 +597,7 @@ describe('useRegistry', () => {
 
   describe('edge cases', () => {
     it('should handle registering duplicate IDs by returning existing ticket', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const ticket1 = registry.register({ id: 'duplicate', value: 'first' })
@@ -612,7 +612,7 @@ describe('useRegistry', () => {
     })
 
     it('should handle null value in browse', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       registry.register({ id: 'item-1', value: null })
 
       const found = registry.browse(null)
@@ -620,7 +620,7 @@ describe('useRegistry', () => {
     })
 
     it('should handle complex objects as values', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
       const obj1 = { nested: { data: 'test' } }
       const obj2 = { nested: { data: 'test' } }
 
@@ -632,7 +632,7 @@ describe('useRegistry', () => {
     })
 
     it('should maintain index integrity after multiple operations', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
 
       registry.register({ id: 'item-1' })
       registry.register({ id: 'item-2' })
@@ -646,7 +646,7 @@ describe('useRegistry', () => {
     })
 
     it('should handle size property correctly', () => {
-      const registry = useRegistry()
+      const registry = createRegistry()
 
       expect(registry.size).toBe(0)
 
@@ -667,7 +667,7 @@ describe('useRegistry', () => {
 
 describe('batch operations', () => {
   it('should return the value from the batched function', () => {
-    const registry = useRegistry()
+    const registry = createRegistry()
 
     const result = registry.batch(() => {
       registry.register({ id: 'item-1' })
@@ -679,7 +679,7 @@ describe('batch operations', () => {
   })
 
   it('should defer event emission until batch completes', () => {
-    const registry = useRegistry({ events: true })
+    const registry = createRegistry({ events: true })
     const listener = vi.fn()
     const callOrder: string[] = []
 
@@ -708,7 +708,7 @@ describe('batch operations', () => {
   })
 
   it('should only invalidate cache once at end of batch', () => {
-    const registry = useRegistry()
+    const registry = createRegistry()
     registry.register({ id: 'initial' })
 
     const keys1 = registry.keys()
@@ -729,7 +729,7 @@ describe('batch operations', () => {
   })
 
   it('should handle nested batch calls correctly', () => {
-    const registry = useRegistry({ events: true })
+    const registry = createRegistry({ events: true })
     const listener = vi.fn()
 
     registry.on('register:ticket', listener)
@@ -751,7 +751,7 @@ describe('batch operations', () => {
   })
 
   it('should cleanup batching state on error', () => {
-    const registry = useRegistry({ events: true })
+    const registry = createRegistry({ events: true })
     const listener = vi.fn()
 
     registry.on('register:ticket', listener)
@@ -770,7 +770,7 @@ describe('batch operations', () => {
   })
 
   it('should batch multiple different operations', () => {
-    const registry = useRegistry({ events: true })
+    const registry = createRegistry({ events: true })
     const registerListener = vi.fn()
     const unregisterListener = vi.fn()
     const updateListener = vi.fn()
@@ -794,7 +794,7 @@ describe('batch operations', () => {
   })
 
   it('should work with onboard and offboard in batch', () => {
-    const registry = useRegistry({ events: true })
+    const registry = createRegistry({ events: true })
     const listener = vi.fn()
 
     registry.on('register:ticket', listener)
@@ -814,7 +814,7 @@ describe('batch operations', () => {
   })
 
   it('should maintain correct state during batch', () => {
-    const registry = useRegistry()
+    const registry = createRegistry()
 
     registry.batch(() => {
       registry.register({ id: 'item-1', value: 'a' })
@@ -868,5 +868,11 @@ describe('createRegistryContext', () => {
 
     expect(context1.size).toBe(1)
     expect(context2.size).toBe(0)
+  })
+})
+
+describe('useRegistry (deprecated alias)', () => {
+  it('should be an alias for createRegistry', () => {
+    expect(useRegistry).toBe(createRegistry)
   })
 })

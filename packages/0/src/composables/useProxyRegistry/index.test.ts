@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Composables
-import { useRegistry } from '#v0/composables/useRegistry'
+import { createRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { effectScope } from 'vue'
@@ -11,7 +11,7 @@ import { useProxyRegistry } from './index'
 describe('useProxyRegistry', () => {
   describe('basic functionality', () => {
     it('should create reactive objects for registry data', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       expect(proxy.keys).toEqual([])
@@ -21,7 +21,7 @@ describe('useProxyRegistry', () => {
     })
 
     it('should update properties when items are registered', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       const ticket1 = registry.register({ value: 'Item 1' })
@@ -33,7 +33,7 @@ describe('useProxyRegistry', () => {
     })
 
     it('should update properties when items are unregistered', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       const ticket1 = registry.register({ value: 'Item 1' })
@@ -47,7 +47,7 @@ describe('useProxyRegistry', () => {
     })
 
     it('should update entries property correctly', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       const ticket = registry.register({ value: 'Item 1' })
@@ -58,14 +58,14 @@ describe('useProxyRegistry', () => {
 
   describe('reactivity options', () => {
     it('should use shallow reactivity by default', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       expect(proxy.keys).toBeDefined()
     })
 
     it('should support deep reactivity option', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy = useProxyRegistry(registry, { deep: true })
 
       const ticket = registry.register({ value: { nested: 'data' } })
@@ -76,7 +76,7 @@ describe('useProxyRegistry', () => {
 
   describe('multiple updates', () => {
     it('should handle rapid register/unregister operations', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       for (let i = 0; i < 10; i++) {
@@ -94,7 +94,7 @@ describe('useProxyRegistry', () => {
     })
 
     it('should handle bulk operations via onboard', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy = useProxyRegistry(registry)
 
       registry.onboard([
@@ -110,7 +110,7 @@ describe('useProxyRegistry', () => {
 
   describe('multiple proxies', () => {
     it('should support multiple proxy instances on same registry', () => {
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       const proxy1 = useProxyRegistry(registry)
       const proxy2 = useProxyRegistry(registry)
 
@@ -124,7 +124,7 @@ describe('useProxyRegistry', () => {
   describe('cleanup', () => {
     it('should remove event listeners on scope disposal', () => {
       const scope = effectScope()
-      const registry = useRegistry({ events: true })
+      const registry = createRegistry({ events: true })
       vi.spyOn(registry, 'off')
 
       scope.run(() => {

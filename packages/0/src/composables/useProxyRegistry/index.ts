@@ -44,9 +44,9 @@ export interface ProxyRegistryContext<Z extends RegistryTicket = RegistryTicket>
  *
  * @example
  * ```ts
- * import { useRegistry, useProxyRegistry } from '@vuetify/v0'
+ * import { createRegistry, useProxyRegistry } from '@vuetify/v0'
  *
- * const registry = useRegistry({ events: true })
+ * const registry = createRegistry({ events: true })
  * const proxy = useProxyRegistry(registry)
  *
  * registry.register({ value: 'Item 1' })
