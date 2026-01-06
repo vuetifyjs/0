@@ -59,24 +59,6 @@
     return data.composables[itemName.value] || null
   })
 
-  const propsColumns = [
-    { key: 'name' as const, label: 'Name' },
-    { key: 'type' as const, label: 'Type', code: true },
-    { key: 'default' as const, label: 'Default', code: true, fallback: '—' },
-    { key: 'description' as const, label: 'Description', small: true },
-  ]
-
-  const eventsColumns = [
-    { key: 'name' as const, label: 'Name' },
-    { key: 'type' as const, label: 'Payload', code: true },
-    { key: 'description' as const, label: 'Description', small: true },
-  ]
-
-  const slotsColumns = [
-    { key: 'name' as const, label: 'Name' },
-    { key: 'type' as const, label: 'Slot Props', code: true, fallback: '—' },
-    { key: 'description' as const, label: 'Description', small: true },
-  ]
 </script>
 
 <template>
@@ -122,11 +104,15 @@
               Props
             </DocsHeaderAnchor>
 
-            <DocsApiTable
-              :columns="propsColumns"
-              :items="api.props"
-              show-required
-            />
+            <div class="space-y-4">
+              <DocsApiCard
+                v-for="prop in api.props"
+                :key="prop.name"
+                heading-tag="h4"
+                :item="prop"
+                kind="prop"
+              />
+            </div>
           </template>
 
           <template v-if="api.events.length > 0">
@@ -134,10 +120,15 @@
               Events
             </DocsHeaderAnchor>
 
-            <DocsApiTable
-              :columns="eventsColumns"
-              :items="api.events"
-            />
+            <div class="space-y-4">
+              <DocsApiCard
+                v-for="event in api.events"
+                :key="event.name"
+                heading-tag="h4"
+                :item="event"
+                kind="event"
+              />
+            </div>
           </template>
 
           <template v-if="api.slots.length > 0">
@@ -145,10 +136,15 @@
               Slots
             </DocsHeaderAnchor>
 
-            <DocsApiTable
-              :columns="slotsColumns"
-              :items="api.slots"
-            />
+            <div class="space-y-4">
+              <DocsApiCard
+                v-for="slot in api.slots"
+                :key="slot.name"
+                heading-tag="h4"
+                :item="slot"
+                kind="slot"
+              />
+            </div>
           </template>
         </template>
       </div>

@@ -74,24 +74,6 @@
     return data.composables[name] || null
   })
 
-  const propsColumns = [
-    { key: 'name' as const, label: 'Name' },
-    { key: 'type' as const, label: 'Type', code: true },
-    { key: 'default' as const, label: 'Default', code: true, fallback: '—' },
-    { key: 'description' as const, label: 'Description', small: true },
-  ]
-
-  const eventsColumns = [
-    { key: 'name' as const, label: 'Name' },
-    { key: 'type' as const, label: 'Payload', code: true },
-    { key: 'description' as const, label: 'Description', small: true },
-  ]
-
-  const slotsColumns = [
-    { key: 'name' as const, label: 'Name' },
-    { key: 'type' as const, label: 'Slot Props', code: true, fallback: '—' },
-    { key: 'description' as const, label: 'Description', small: true },
-  ]
 </script>
 
 <template>
@@ -129,36 +111,59 @@
       v-else
       :key="api.name"
     >
-      <DocsHeaderAnchor :id="toKebab(api.name)">
+      <DocsHeaderAnchor :id="toKebab(api.name)" class="mt-8">
         {{ api.name }}
       </DocsHeaderAnchor>
 
       <template v-if="api.props.length > 0">
-        <h4>Props</h4>
+        <DocsHeaderAnchor :id="`${toKebab(api.name)}-props`">
+          Props
+        </DocsHeaderAnchor>
 
-        <DocsApiTable
-          :columns="propsColumns"
-          :items="api.props"
-          show-required
-        />
+        <div class="space-y-4">
+          <DocsApiCard
+            v-for="prop in api.props"
+            :key="prop.name"
+            :item="prop"
+            kind="prop"
+          />
+        </div>
       </template>
 
       <template v-if="api.events.length > 0">
-        <h4>Events</h4>
+        <DocsHeaderAnchor
+          :id="`${toKebab(api.name)}-events`"
+          class="mt-8"
+        >
+          Events
+        </DocsHeaderAnchor>
 
-        <DocsApiTable
-          :columns="eventsColumns"
-          :items="api.events"
-        />
+        <div class="space-y-4">
+          <DocsApiCard
+            v-for="event in api.events"
+            :key="event.name"
+            :item="event"
+            kind="event"
+          />
+        </div>
       </template>
 
       <template v-if="api.slots.length > 0">
-        <h4>Slots</h4>
+        <DocsHeaderAnchor
+          :id="`${toKebab(api.name)}-slots`"
+          class="mt-8"
+        >
+          Slots
+        </DocsHeaderAnchor>
 
-        <DocsApiTable
-          :columns="slotsColumns"
-          :items="api.slots"
-        />
+        <div class="space-y-4">
+          <DocsApiCard
+            v-for="slot in api.slots"
+            :key="slot.name"
+            :item="slot"
+            kind="slot"
+          />
+        </div>
       </template>
     </template>
   </div>

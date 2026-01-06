@@ -142,13 +142,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/forms/use-proxy-model': RouteRecordInfo<
-      '/composables/forms/use-proxy-model',
-      '/composables/forms/use-proxy-model',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/composables/foundation/create-context': RouteRecordInfo<
       '/composables/foundation/create-context',
       '/composables/foundation/create-context',
@@ -226,6 +219,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/reactivity/use-proxy-model': RouteRecordInfo<
+      '/composables/reactivity/use-proxy-model',
+      '/composables/reactivity/use-proxy-model',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/reactivity/use-proxy-registry': RouteRecordInfo<
+      '/composables/reactivity/use-proxy-registry',
+      '/composables/reactivity/use-proxy-registry',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/registration/create-queue': RouteRecordInfo<
       '/composables/registration/create-queue',
       '/composables/registration/create-queue',
@@ -250,13 +257,6 @@ declare module 'vue-router/auto-routes' {
     '/composables/registration/create-tokens': RouteRecordInfo<
       '/composables/registration/create-tokens',
       '/composables/registration/create-tokens',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/registration/use-proxy-registry': RouteRecordInfo<
-      '/composables/registration/use-proxy-registry',
-      '/composables/registration/use-proxy-registry',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -649,12 +649,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/forms/use-proxy-model.md': {
-      routes:
-        | '/composables/forms/use-proxy-model'
-      views:
-        | never
-    }
     'src/pages/composables/foundation/create-context.md': {
       routes:
         | '/composables/foundation/create-context'
@@ -721,6 +715,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/reactivity/use-proxy-model.md': {
+      routes:
+        | '/composables/reactivity/use-proxy-model'
+      views:
+        | never
+    }
+    'src/pages/composables/reactivity/use-proxy-registry.md': {
+      routes:
+        | '/composables/reactivity/use-proxy-registry'
+      views:
+        | never
+    }
     'src/pages/composables/registration/create-queue.md': {
       routes:
         | '/composables/registration/create-queue'
@@ -742,12 +748,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/registration/create-tokens.md': {
       routes:
         | '/composables/registration/create-tokens'
-      views:
-        | never
-    }
-    'src/pages/composables/registration/use-proxy-registry.md': {
-      routes:
-        | '/composables/registration/use-proxy-registry'
       views:
         | never
     }

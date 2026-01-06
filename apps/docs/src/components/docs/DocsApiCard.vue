@@ -3,11 +3,13 @@
   import { useApiHelpers } from '@/composables/useApiHelpers'
 
   // Types
-  import type { ApiMethod, ApiOption, ApiProperty } from '../../../build/generate-api'
+  import type { ApiEvent, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '../../../build/generate-api'
+
+  type ApiItem = ApiOption | ApiProperty | ApiMethod | ApiProp | ApiEvent | ApiSlot
 
   const props = defineProps<{
-    item: ApiOption | ApiProperty | ApiMethod
-    kind: 'option' | 'property' | 'method'
+    item: ApiItem
+    kind: 'option' | 'property' | 'method' | 'prop' | 'event' | 'slot'
     headingTag?: 'h3' | 'h4'
   }>()
 
@@ -39,7 +41,7 @@
           <span class="text-sm font-semibold font-mono text-primary">{{ item.name }}</span>
 
           <span
-            v-if="kind === 'option' && 'required' in item && item.required"
+            v-if="(kind === 'option' || kind === 'prop') && 'required' in item && item.required"
             class="text-error text-xs ml-2"
           >
             required
@@ -47,8 +49,11 @@
         </a>
       </component>
 
-      <code class="text-xs mt-1 inline-block font-mono bg-surface-variant px-1.5 py-0.5 rounded">
-        {{ kind === 'option' ? item.type : formatSignature(item as ApiProperty | ApiMethod) }}
+      <code
+        v-if="item.type"
+        class="text-xs mt-1 inline-block font-mono bg-surface-variant px-1.5 py-0.5 rounded"
+      >
+        {{ ['option', 'prop', 'event', 'slot'].includes(kind) ? item.type : formatSignature(item as ApiProperty | ApiMethod) }}
       </code>
 
       <p
@@ -60,7 +65,7 @@
       </p>
 
       <p
-        v-if="kind === 'option' && 'default' in item && item.default"
+        v-if="(kind === 'option' || kind === 'prop') && 'default' in item && item.default"
         class="text-xs text-on-surface-variant mt-2 !mb-0"
       >
         Default: <code class="text-xs bg-surface-variant px-1.5 py-0.5 rounded">{{ item.default }}</code>
