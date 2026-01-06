@@ -278,6 +278,99 @@ describe('checkbox', () => {
       })
     })
 
+    describe('keyboard interaction', () => {
+      it('should toggle on Space key press', async () => {
+        const checked = ref(false)
+        let indicatorProps: any
+
+        mount(Checkbox.Root, {
+          props: {
+            'modelValue': checked.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              checked.value = value as boolean
+            },
+          },
+          slots: {
+            default: () =>
+              h(Checkbox.Indicator as any, {}, {
+                default: (props: any) => {
+                  indicatorProps = props
+                  return 'Checkbox'
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        indicatorProps.attrs.onKeydown({ key: ' ', preventDefault: () => {} })
+        await nextTick()
+
+        expect(checked.value).toBe(true)
+      })
+
+      it('should not toggle on Enter key press', async () => {
+        const checked = ref(false)
+        let indicatorProps: any
+
+        mount(Checkbox.Root, {
+          props: {
+            'modelValue': checked.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              checked.value = value as boolean
+            },
+          },
+          slots: {
+            default: () =>
+              h(Checkbox.Indicator as any, {}, {
+                default: (props: any) => {
+                  indicatorProps = props
+                  return 'Checkbox'
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        indicatorProps.attrs.onKeydown({ key: 'Enter', preventDefault: () => {} })
+        await nextTick()
+
+        expect(checked.value).toBe(false)
+      })
+
+      it('should not toggle on Space when disabled', async () => {
+        const checked = ref(false)
+        let indicatorProps: any
+
+        mount(Checkbox.Root, {
+          props: {
+            'disabled': true,
+            'modelValue': checked.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              checked.value = value as boolean
+            },
+          },
+          slots: {
+            default: () =>
+              h(Checkbox.Indicator as any, {}, {
+                default: (props: any) => {
+                  indicatorProps = props
+                  return 'Checkbox'
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        indicatorProps.attrs.onKeydown({ key: ' ', preventDefault: () => {} })
+        await nextTick()
+
+        expect(checked.value).toBe(false)
+      })
+    })
+
     describe('slot props', () => {
       it('should expose all required slot props on Root', async () => {
         let rootProps: any

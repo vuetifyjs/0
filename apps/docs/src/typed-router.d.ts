@@ -86,6 +86,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/providers/checkbox': RouteRecordInfo<
+      '/components/providers/checkbox',
+      '/components/providers/checkbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/providers/group': RouteRecordInfo<
       '/components/providers/group',
       '/components/providers/group',
@@ -612,6 +619,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/primitives/atom.md': {
       routes:
         | '/components/primitives/atom'
+      views:
+        | never
+    }
+    'src/pages/components/providers/checkbox.md': {
+      routes:
+        | '/components/providers/checkbox'
       views:
         | never
     }

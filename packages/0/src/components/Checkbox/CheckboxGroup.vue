@@ -73,7 +73,7 @@
   defineOptions({ name: 'CheckboxGroup' })
 
   defineSlots<{
-    default: (props: CheckboxGroupSlotProps) => unknown
+    default: (props: CheckboxGroupSlotProps) => any
   }>()
 
   defineEmits<{

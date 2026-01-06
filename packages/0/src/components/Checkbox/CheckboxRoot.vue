@@ -15,7 +15,7 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Types
-  import type { MaybeRef } from 'vue'
+  import type { MaybeRef, Ref } from 'vue'
 
   export interface CheckboxRootContext {
     /** Unique identifier */
@@ -25,11 +25,11 @@
     /** Value associated with this checkbox */
     value: unknown
     /** Whether this checkbox is currently checked */
-    isChecked: MaybeRef<boolean>
+    isChecked: Readonly<Ref<boolean>>
     /** Whether this checkbox is in a mixed/indeterminate state */
-    isMixed: MaybeRef<boolean>
+    isMixed: Readonly<Ref<boolean>>
     /** Whether this checkbox is disabled */
-    isDisabled: MaybeRef<boolean>
+    isDisabled: Readonly<Ref<boolean>>
     /** Check this checkbox */
     check: () => void
     /** Uncheck this checkbox */
@@ -99,7 +99,11 @@
   defineOptions({ name: 'CheckboxRoot' })
 
   defineSlots<{
-    default: (props: CheckboxRootSlotProps<V>) => unknown
+    default: (props: CheckboxRootSlotProps<V>) => any
+  }>()
+
+  defineEmits<{
+    'update:modelValue': [value: boolean]
   }>()
 
   const {
