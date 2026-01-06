@@ -44,6 +44,7 @@ catalog:
   sass-embedded: ^1.93.3
   sherif: ^1.9.0
   shiki: ^3.20.0
+  simple-git-hooks: ^2.13.1
   storybook: ^10.1.9
   swetrix: ^3.7.2
   ts-morph: ^27.0.2
@@ -74,6 +75,7 @@ minimumReleaseAge: 4320
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
+  - simple-git-hooks
   - unrs-resolver
 
 overrides:

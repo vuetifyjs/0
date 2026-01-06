@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Composables
-import { createRegistry, createRegistryContext, useRegistry } from './index'
+import { createRegistry, createRegistryContext } from './index'
 
 describe('createRegistry', () => {
   describe('registration', () => {
@@ -868,11 +868,5 @@ describe('createRegistryContext', () => {
 
     expect(context1.size).toBe(1)
     expect(context2.size).toBe(0)
-  })
-})
-
-describe('useRegistry (deprecated alias)', () => {
-  it('should be an alias for createRegistry', () => {
-    expect(useRegistry).toBe(createRegistry)
   })
 })

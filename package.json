@@ -40,7 +40,11 @@
     "release:prepare": "pnpm validate && pnpm build",
     "release:patch": "bumpp patch -r",
     "release:minor": "bumpp minor -r",
-    "release:major": "bumpp major -r"
+    "release:major": "bumpp major -r",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint:fix && pnpm typecheck && pnpm test:run && pnpm repo:check"
   },
   "devDependencies": {
     "@tsconfig/node22": "catalog:",
@@ -57,6 +61,7 @@
     "happy-dom": "catalog:",
     "knip": "catalog:",
     "sherif": "catalog:",
+    "simple-git-hooks": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
