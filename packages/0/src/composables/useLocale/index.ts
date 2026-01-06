@@ -20,7 +20,7 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createSingle } from '#v0/composables/useSingle'
+import { createSingle } from '#v0/composables/createSingle'
 import { createTokens } from '#v0/composables/useTokens'
 
 // Adapters
@@ -33,8 +33,8 @@ import { instanceExists, isString } from '#v0/utilities'
 import { toArray } from '#v0/composables/toArray'
 
 // Types
+import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 import type { TokenCollection } from '#v0/composables/useTokens'
 import type { ID } from '#v0/types'
 import type { LocaleAdapter } from './adapters'

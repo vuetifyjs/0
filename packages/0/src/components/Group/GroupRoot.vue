@@ -12,7 +12,7 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Types
-  import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
+  import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
   import type { ID } from '#v0/types'
 
   export interface GroupRootProps {
@@ -63,7 +63,7 @@
 
 <script lang="ts" setup generic="T = unknown">
   // Composables
-  import { createGroup } from '#v0/composables/useGroup'
+  import { createGroup } from '#v0/composables/createGroup'
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities

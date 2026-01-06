@@ -13,7 +13,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+  import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
 
   export interface AvatarRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -35,7 +35,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { createSelection } from '#v0/composables/useSelection'
+  import { createSelection } from '#v0/composables/createSelection'
 
   defineOptions({ name: 'AvatarRoot' })
 

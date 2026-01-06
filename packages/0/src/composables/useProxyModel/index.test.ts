@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 // Composables
-import { createSelection } from '#v0/composables/useSelection'
+import { createSelection } from '#v0/composables/createSelection'
 
 // Utilities
 import { ref } from 'vue'

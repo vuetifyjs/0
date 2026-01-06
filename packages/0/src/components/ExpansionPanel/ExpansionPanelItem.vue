@@ -23,7 +23,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { SelectionTicket } from '#v0/composables/useSelection'
+  import type { SelectionTicket } from '#v0/composables/createSelection'
   import type { MaybeRef, Ref } from 'vue'
 
   export interface ExpansionPanelItemProps<V = unknown> extends AtomProps {

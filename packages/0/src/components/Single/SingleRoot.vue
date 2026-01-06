@@ -12,7 +12,7 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Types
-  import type { SingleContext, SingleTicket } from '#v0/composables/useSingle'
+  import type { SingleContext, SingleTicket } from '#v0/composables/createSingle'
   import type { ID } from '#v0/types'
 
   export interface SingleRootProps {
@@ -51,8 +51,8 @@
 
 <script lang="ts" setup generic="T = unknown">
   // Composables
+  import { createSingle } from '#v0/composables/createSingle'
   import { useProxyModel } from '#v0/composables/useProxyModel'
-  import { createSingle } from '#v0/composables/useSingle'
 
   // Utilities
   import { toRef, toValue } from 'vue'

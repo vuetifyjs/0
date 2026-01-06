@@ -17,14 +17,14 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createSelection } from '#v0/composables/useSelection'
+import { createSelection } from '#v0/composables/createSelection'
 
 // Utilities
 import { computed } from 'vue'
 
 // Types
+import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/useSelection'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef } from 'vue'
 

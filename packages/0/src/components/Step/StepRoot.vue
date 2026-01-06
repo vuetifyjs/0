@@ -12,7 +12,7 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Types
-  import type { StepContext, StepTicket } from '#v0/composables/useStep'
+  import type { StepContext, StepTicket } from '#v0/composables/createStep'
   import type { ID } from '#v0/types'
 
   export interface StepRootProps {
@@ -61,8 +61,8 @@
 
 <script lang="ts" setup generic="T = unknown">
   // Composables
+  import { createStep } from '#v0/composables/createStep'
   import { useProxyModel } from '#v0/composables/useProxyModel'
-  import { createStep } from '#v0/composables/useStep'
 
   // Utilities
   import { toRef, toValue } from 'vue'

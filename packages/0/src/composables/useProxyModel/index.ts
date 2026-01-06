@@ -21,7 +21,7 @@ import { onScopeDispose, toValue, watch } from 'vue'
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
 import type { ID } from '#v0/types'
 import type { Ref } from 'vue'
 

@@ -12,7 +12,7 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Types
-  import type { SelectionContext, SelectionTicket } from '#v0/composables/useSelection'
+  import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
   import type { ID } from '#v0/types'
 
   export interface SelectionRootProps {
@@ -55,8 +55,8 @@
 
 <script lang="ts" setup generic="T = unknown">
   // Composables
+  import { createSelection } from '#v0/composables/createSelection'
   import { useProxyModel } from '#v0/composables/useProxyModel'
-  import { createSelection } from '#v0/composables/useSelection'
 
   // Utilities
   import { toRef, toValue } from 'vue'

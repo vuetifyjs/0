@@ -19,15 +19,15 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createRegistry } from '#v0/composables/useRegistry'
+import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { genId, isUndefined } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Types
+import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
 

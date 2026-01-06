@@ -18,15 +18,15 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createSingle } from '#v0/composables/useSingle'
+import { createSingle } from '#v0/composables/createSingle'
 
 // Utilities
 import { isUndefined } from '#v0/utilities'
 import { toValue } from 'vue'
 
 // Types
+import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket } from '#v0/composables/useSingle'
 import type { App } from 'vue'
 
 export interface StepTicket<V = unknown> extends SingleTicket<V> {}

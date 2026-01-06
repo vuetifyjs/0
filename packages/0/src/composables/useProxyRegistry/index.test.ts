@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 // Composables
-import { createRegistry } from '#v0/composables/useRegistry'
+import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
 import { effectScope } from 'vue'

@@ -21,15 +21,15 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
+import { createRegistry } from '#v0/composables/createRegistry'
 import { useLogger } from '#v0/composables/useLogger'
-import { createRegistry } from '#v0/composables/useRegistry'
 
 // Utilities
 import { isObject, isString, isUndefined } from '#v0/utilities'
 
 // Types
+import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { RegistryContext, RegistryContextOptions, RegistryOptions, RegistryTicket } from '#v0/composables/useRegistry'
 import type { App } from 'vue'
 
 export interface TokenAlias<T = unknown> {
