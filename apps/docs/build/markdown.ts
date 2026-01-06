@@ -141,6 +141,10 @@ export default async function MarkdownPlugin () {
         const playgroundAttr = playground ? ' playground' : ''
         return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${playgroundAttr}>${highlighted}</DocsMarkup>`
       }
+      // Wrap tables in scrollable container for mobile
+      md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'
+      md.renderer.rules.table_close = () => '</table></div>'
+
       md.renderer.rules.link_open = (tokens, index, options, env, self) => {
         const t = tokens[index]
         const classes = t.attrGet('class') || ''
