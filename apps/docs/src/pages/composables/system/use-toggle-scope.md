@@ -117,6 +117,8 @@ flowchart TD
   start() // Starts the scope
   ```
 
+<DocsApi />
+
 ## Use Cases
 
 ### Feature Flags
