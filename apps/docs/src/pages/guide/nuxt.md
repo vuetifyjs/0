@@ -210,6 +210,65 @@ Common causes:
 </script>
 ```
 
-> [!SUGGESTION] How do I debug hydration mismatches in my Nuxt components?
+### Debugging Hydration Mismatches
 
-> [!SUGGESTION] When should I use useHydration vs ClientOnly components?
+When you see hydration warnings in the console:
+
+1. **Enable Vue's hydration mismatch details** in `nuxt.config.ts`:
+
+```ts nuxt.config.ts
+export default defineNuxtConfig({
+  vue: {
+    propsDestructure: true,
+  },
+  vite: {
+    define: {
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true,
+    },
+  },
+})
+```
+
+2. **Check the console** for detailed mismatch info showing expected vs actual HTML.
+
+3. **Common fixes**:
+   - Wrap browser-dependent content in `<ClientOnly>` or `v-if="isHydrated"`
+   - Use `useId()` from Vue for SSR-safe unique IDs
+   - Avoid `new Date()`, `Math.random()`, or `window` access during initial render
+   - Ensure v-for keys are deterministic (not index-based for dynamic lists)
+
+### useHydration vs ClientOnly
+
+| Approach | Use When |
+| - | - |
+| `useHydration` | Content can render on server with placeholder, then update on client |
+| `<ClientOnly>` | Component cannot render on server at all (canvas, WebGL, etc.) |
+
+**useHydration** - Renders on both server and client, with reactive `isHydrated` flag:
+
+```vue
+<script setup lang="ts">
+  import { useHydration } from '@vuetify/v0'
+  const { isHydrated } = useHydration()
+</script>
+
+<template>
+  <!-- Shows placeholder on server, real time on client -->
+  <span>{{ isHydrated ? new Date().toLocaleTimeString() : '--:--:--' }}</span>
+</template>
+```
+
+**ClientOnly** - Skips server rendering entirely:
+
+```vue
+<template>
+  <ClientOnly>
+    <CanvasVisualization />
+    <template #fallback>
+      <div class="skeleton h-64" />
+    </template>
+  </ClientOnly>
+</template>
+```
+
+**Rule of thumb**: Prefer `useHydration` when possible—it provides better SEO and faster perceived load. Use `<ClientOnly>` only when the component truly cannot exist on the server.

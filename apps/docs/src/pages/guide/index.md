@@ -63,10 +63,65 @@ For building production UIs.
 | [Accessibility](/guide/accessibility) | ARIA patterns, keyboard nav, testing |
 | [Utilities](/guide/utilities) | Helper functions, type guards |
 
+### Track C: Real-World Application
+
+See v0 patterns in production.
+
+| Guide | What You'll Learn |
+| - | - |
+| [Building This Documentation](/guide/building-docs) | How this site uses v0, UnoCSS, and vite-ssg |
+
 > [!TIP]
 > New to v0? Start with Track A. Already building? Jump to Track B as needed.
 
-> [!SUGGESTION] How do I migrate an existing styled component library to use v0's headless approach?
+## Migrating to Headless
+
+If you have an existing styled component library and want to adopt v0's headless approach:
+
+### Strategy
+
+1. **Keep your styled components** - They become thin wrappers around v0 logic
+2. **Replace internal state** - Swap custom selection/toggle logic for v0 composables
+3. **Expose v0's API** - Let consumers access the underlying composable if needed
+
+### Example: Styled Tabs Component
+
+**Before** (custom state management):
+
+```vue
+<script setup lang="ts">
+  import { shallowRef } from 'vue'
+
+  const activeTab = shallowRef(0)
+  function selectTab(index: number) { activeTab.value = index }
+</script>
+```
+
+**After** (v0-powered):
+
+```vue
+<script setup lang="ts">
+  import { shallowRef } from 'vue'
+  import { createSingle } from '@vuetify/v0'
+
+  const tabs = shallowRef(createSingle({ mandatory: true }))
+
+  // Expose for advanced consumers
+  defineExpose({ tabs })
+</script>
+
+<template>
+  <div class="my-tabs">
+    <slot :tabs="tabs" />
+  </div>
+</template>
+```
+
+### Benefits
+
+- **Less code to maintain** - v0 handles edge cases (keyboard nav, ARIA, etc.)
+- **Consistent patterns** - All your components use the same selection/toggle primitives
+- **Incremental adoption** - Migrate one component at a time
 
 ## Quick Reference
 

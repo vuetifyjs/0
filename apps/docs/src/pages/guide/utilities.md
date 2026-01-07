@@ -260,5 +260,64 @@ const virtual = useVirtual(filtered, {
 })
 ```
 
-> [!SUGGESTION] How do I combine filter, pagination, AND virtual scrolling together?
+### Filter + Pagination + Virtual
+
+For large datasets that need all three utilities working together:
+
+```ts
+import { shallowRef, computed } from 'vue'
+import { createFilter, createPagination, useVirtual } from '@vuetify/v0'
+
+// Source data
+const items = shallowRef(Array.from({ length: 10000 }, (_, i) => ({
+  id: i,
+  name: `Item ${i}`,
+})))
+
+// 1. Filter first
+const query = shallowRef('')
+const filter = createFilter({ keys: ['name'] })
+const { items: filtered } = filter.apply(query, items)
+
+// 2. Paginate the filtered results
+const pagination = createPagination({
+  size: () => filtered.value.length,
+  itemsPerPage: 100,
+})
+
+// 3. Get current page slice
+const pageItems = computed(() => {
+  const start = pagination.pageStart.value
+  const end = pagination.pageStop.value
+  return filtered.value.slice(start, end)
+})
+
+// 4. Virtual scroll the current page
+const virtual = useVirtual(pageItems, { itemHeight: 40 })
+```
+
+```vue
+<template>
+  <input v-model="query" placeholder="Search..." />
+
+  <div ref="virtual.element" style="height: 400px; overflow: auto;">
+    <div :style="{ height: `${virtual.size}px`, paddingTop: `${virtual.offset}px` }">
+      <div v-for="item in virtual.items" :key="item.raw.id" style="height: 40px">
+        {{ item.raw.name }}
+      </div>
+    </div>
+  </div>
+
+  <Pagination :pagination="pagination" />
+</template>
+```
+
+```mermaid
+flowchart LR
+    A[All Items] --> B[Filtered]
+    B --> C[Paginated]
+    C --> D[Virtualized]
+```
+
+Each layer is reactive—changing the search query refilters, which updates pagination, which updates the virtual list.
 

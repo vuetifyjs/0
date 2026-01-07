@@ -133,9 +133,36 @@ v0 injects variables with the `--v0-` prefix:
 }
 ```
 
+### Tailwind CSS v4 Integration
+
+Map v0 variables to Tailwind theme colors in your CSS:
+
+```css app.css
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--v0-primary);
+  --color-secondary: var(--v0-secondary);
+  --color-background: var(--v0-background);
+  --color-surface: var(--v0-surface);
+  --color-error: var(--v0-error);
+  --color-on-primary: var(--v0-on-primary);
+  --color-on-surface: var(--v0-on-surface);
+}
+```
+
+Now use standard utilities:
+
+```html
+<button class="bg-primary text-on-primary">Click me</button>
+<div class="bg-surface text-on-surface border-error">Card</div>
+```
+
+Theme changes update automatically—the utilities reference CSS variables, not static values.
+
 ### UnoCSS Integration
 
-Map v0 variables to UnoCSS theme colors for utility class support:
+Map v0 variables to UnoCSS theme colors:
 
 ```ts uno.config.ts
 import { defineConfig, presetUno } from 'unocss'
@@ -155,15 +182,6 @@ export default defineConfig({
   },
 })
 ```
-
-Now use standard utilities:
-
-```html
-<button class="bg-primary text-on-primary">Click me</button>
-<div class="bg-surface text-on-surface border-error">Card</div>
-```
-
-Theme changes update automatically—the utilities reference CSS variables, not static values.
 
 ## Dark Mode
 
@@ -185,7 +203,71 @@ Theme changes update automatically—the utilities reference CSS variables, not 
 </template>
 ```
 
-> [!SUGGESTION] How can I sync theme selection to localStorage and restore it on page load?
+### localStorage Persistence
+
+Use `useStorage` to persist theme selection across page loads. The key is installing the storage plugin first, then reading the stored preference during theme plugin setup:
+
+```ts main.ts
+import { createApp } from 'vue'
+import {
+  createStoragePlugin,
+  createThemePlugin,
+  useStorage,
+  IN_BROWSER,
+} from '@vuetify/v0'
+
+const app = createApp(App)
+
+// Install storage plugin first
+app.use(createStoragePlugin())
+
+// Helper to resolve system preference
+function getSystemTheme(): 'light' | 'dark' {
+  if (!IN_BROWSER) return 'light'
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+// Read stored preference using app context
+const storedTheme = app.runWithContext(() => useStorage().get<string>('theme'))
+const initialTheme = storedTheme.value === 'dark' ? 'dark' : storedTheme.value === 'light' ? 'light' : getSystemTheme()
+
+app.use(
+  createThemePlugin({
+    default: initialTheme,
+    themes: {
+      light: { dark: false, colors: { /* ... */ } },
+      dark: { dark: true, colors: { /* ... */ } },
+    },
+  }),
+)
+```
+
+Then sync theme changes back to storage:
+
+```vue ThemeToggle.vue
+<script setup lang="ts">
+  import { useStorage, useTheme } from '@vuetify/v0'
+  import { watch } from 'vue'
+
+  const storage = useStorage()
+  const theme = useTheme()
+  const storedTheme = storage.get<string>('theme')
+
+  // Persist changes to storage
+  watch(() => theme.selectedId.value, id => {
+    storedTheme.value = id
+  })
+</script>
+
+<template>
+  <button @click="theme.cycle()">
+    {{ theme.isDark ? 'Light' : 'Dark' }}
+  </button>
+</template>
+```
+
+> [!TIP]
+> For SSR apps, use cookies instead of localStorage—see [Nuxt Theme Persistence](/guide/nuxt#theme-persistence).
 
 ## Design Tokens with createTokens
 

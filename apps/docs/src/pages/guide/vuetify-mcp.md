@@ -114,7 +114,30 @@ Manual configuration for each IDE:
 | `get_vuetify0_component_list` | List all headless components |
 | `get_vuetify0_component_guide` | Component documentation and examples |
 
-> [!SUGGESTION] Which Vuetify MCP tools should I use for building components?
+### Workflow: Building Components
+
+When building components with AI assistance, use these tools in order:
+
+| Step | Tool | Purpose |
+| - | - | - |
+| 1 | `get_vuetify0_composable_list` | See what primitives are available |
+| 2 | `get_vuetify0_composable_guide` | Get detailed docs for chosen composable |
+| 3 | `get_vuetify0_component_guide` | See reference implementation patterns |
+
+**Example prompt flow:**
+
+```txt
+1. "List v0 composables" → get_vuetify0_composable_list
+2. "Show me createSelection docs" → get_vuetify0_composable_guide(selection, createSelection)
+3. "How does the Selection component use it?" → get_vuetify0_component_guide(Selection)
+```
+
+For Vuetify 3 styled components:
+
+| Step | Tool | Purpose |
+| - | - | - |
+| 1 | `get_component_api_by_version` | Get props, events, slots for a component |
+| 2 | `get_feature_guide` | Understand theming, i18n, or other features |
 
 ## Authentication
 
