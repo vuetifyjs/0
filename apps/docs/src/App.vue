@@ -234,7 +234,12 @@
   /* DocsMarkup code block padding */
   .docs-markup pre {
     padding-top: 2.5rem;
-    padding-right: 5rem;
+  }
+
+  @media (max-width: 768px) {
+    .docs-markup pre {
+      padding-right: 5rem;
+    }
   }
 
   /* DocsMarkup line wrap toggle */
