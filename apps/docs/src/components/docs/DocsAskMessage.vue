@@ -5,10 +5,10 @@
 
   // Composables
   import { useMarkdown } from '@/composables/useMarkdown'
+  import { useRouterLinks } from '@/composables/useRouterLinks'
 
   // Utilities
   import { getCurrentInstance, h, nextTick, onBeforeUnmount, render, toRef, useTemplateRef, watch } from 'vue'
-  import { useRouter } from 'vue-router'
 
   const props = defineProps<{
     role: 'user' | 'assistant'
@@ -16,30 +16,14 @@
     isStreaming?: boolean
   }>()
 
-  const router = useRouter()
-
-  function onContentClick (e: MouseEvent) {
-    const target = e.target as HTMLElement
-    const anchor = target.closest('a')
-    if (!anchor) return
-
-    const href = anchor.getAttribute('href')
-    if (!href) return
-
-    // Let external links and anchors behave normally
-    if (anchor.hasAttribute('target') || href.startsWith('#')) return
-
-    // Internal link - use router
-    e.preventDefault()
-    router.push(href)
-  }
-
   const isUser = toRef(() => props.role === 'user')
   const isAssistant = toRef(() => props.role === 'assistant')
   const { html } = useMarkdown(toRef(() => isAssistant.value ? props.content : undefined))
 
   const contentRef = useTemplateRef<HTMLElement>('content')
   const appContext = getCurrentInstance()?.appContext
+
+  useRouterLinks(contentRef)
 
   // Track mounted wrappers for cleanup
   const mountedWrappers = new Set<HTMLElement>()
@@ -144,7 +128,6 @@
       v-if="html"
       ref="content"
       class="markdown-body"
-      @click="onContentClick"
       v-html="html"
     />
 
