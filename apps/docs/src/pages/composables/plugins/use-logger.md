@@ -20,6 +20,27 @@ The `useLogger` composable provides a flexible, adapter-based logging system for
 
 <DocsPageFeatures :frontmatter />
 
+## Installation
+
+Install the Logger plugin in your app's entry point:
+
+```ts main.ts
+import { createApp } from 'vue'
+import { createLoggerPlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createLoggerPlugin({
+    level: 'debug',
+    prefix: '[MyApp]',
+  })
+)
+
+app.mount('#app')
+```
+
 ## Usage
 
 Once the plugin is installed, use the `useLogger` composable in any component:

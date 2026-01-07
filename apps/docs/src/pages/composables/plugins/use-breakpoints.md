@@ -20,6 +20,34 @@ The `useBreakpoints` composable provides comprehensive responsive design capabil
 
 <DocsPageFeatures :frontmatter />
 
+## Installation
+
+Install the Breakpoints plugin in your app's entry point:
+
+```ts main.ts
+import { createApp } from 'vue'
+import { createBreakpointsPlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createBreakpointsPlugin({
+    mobileBreakpoint: 'sm',
+    breakpoints: {
+      xs: 0,
+      sm: 680,
+      md: 1024,
+      lg: 1280,
+      xl: 1920,
+      xxl: 2560,
+    },
+  })
+)
+
+app.mount('#app')
+```
+
 ## Usage
 
 Once the plugin is installed, use the `useBreakpoints` composable in any component:

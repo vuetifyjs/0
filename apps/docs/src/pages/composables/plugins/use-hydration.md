@@ -21,6 +21,22 @@ The `useHydration` composable provides SSR hydration state management, allowing 
 
 <DocsPageFeatures :frontmatter />
 
+## Installation
+
+Install the Hydration plugin in your app's entry point:
+
+```ts main.ts
+import { createApp } from 'vue'
+import { createHydrationPlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(createHydrationPlugin())
+
+app.mount('#app')
+```
+
 ## Usage
 
 Once the plugin is installed, use the `useHydration` composable in any component:

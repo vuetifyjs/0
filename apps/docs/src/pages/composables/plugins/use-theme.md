@@ -22,6 +22,40 @@ The `useTheme` composable provides comprehensive theme management capabilities, 
 
 <DocsPageFeatures :frontmatter />
 
+## Installation
+
+Install the Theme plugin in your app's entry point:
+
+```ts main.ts
+import { createApp } from 'vue'
+import { createThemePlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createThemePlugin({
+    default: 'light',
+    themes: {
+      light: {
+        dark: false,
+        colors: {
+          primary: '#3b82f6',
+        },
+      },
+      dark: {
+        dark: true,
+        colors: {
+          primary: '#675496',
+        },
+      },
+    },
+  })
+)
+
+app.mount('#app')
+```
+
 ## Usage
 
 Once the plugin is installed, use the `useTheme` composable in any component:
