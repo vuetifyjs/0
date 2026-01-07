@@ -120,11 +120,15 @@ it('passes accessibility audit', async () => {
 
 ### Manual Testing Checklist
 
+Use this checklist during manual QA:
+
+```markdown
 - [ ] Tab through all interactive elements
 - [ ] Verify focus visibility
 - [ ] Test with keyboard only (no mouse)
 - [ ] Check color contrast with DevTools
 - [ ] Validate with browser accessibility tree
+```
 
 ### Recommended Tools
 
