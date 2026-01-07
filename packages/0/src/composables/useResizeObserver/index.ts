@@ -109,7 +109,7 @@ export interface UseResizeObserverReturn {
  * ```
  */
 export function useResizeObserver (
-  target: Ref<Element | undefined>,
+  target: Ref<Element | null | undefined>,
   callback: (entries: ResizeObserverEntry[]) => void,
   options: ResizeObserverOptions = {},
 ): UseResizeObserverReturn {
@@ -256,7 +256,7 @@ export interface UseElementSizeReturn extends UseResizeObserverReturn {
  * })
  * ```
  */
-export function useElementSize (target: Ref<Element | undefined>): UseElementSizeReturn {
+export function useElementSize (target: Ref<Element | null | undefined>): UseElementSizeReturn {
   const width = shallowRef(0)
   const height = shallowRef(0)
 

@@ -123,7 +123,7 @@ export interface UseMutationObserverReturn {
  * ```
  */
 export function useMutationObserver (
-  target: Ref<Element | undefined>,
+  target: Ref<Element | null | undefined>,
   callback: (entries: MutationObserverRecord[]) => void,
   options: UseMutationObserverOptions = {},
 ): UseMutationObserverReturn {

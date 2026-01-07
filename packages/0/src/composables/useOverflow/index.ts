@@ -38,8 +38,9 @@ export interface OverflowOptions {
   /**
    * Container element to track. Can be a ref, getter, or MaybeRefOrGetter.
    * When provided, useOverflow tracks this element's width automatically.
+   * Accepts null for compatibility with Vue's useTemplateRef.
    */
-  container?: MaybeRefOrGetter<Element | undefined>
+  container?: MaybeRefOrGetter<Element | null | undefined>
   /** Gap between items in pixels */
   gap?: MaybeRefOrGetter<number>
   /** Reserved space in pixels (for nav buttons, ellipsis, etc) */
@@ -60,7 +61,7 @@ export interface OverflowOptions {
 
 export interface OverflowContext {
   /** Container element ref */
-  container: ShallowRef<Element | undefined>
+  container: ShallowRef<Element | null | undefined>
   /** Current container width */
   width: Readonly<ShallowRef<number>>
   /** How many items fit in available space */
@@ -134,7 +135,7 @@ export function createOverflow<
     reverse,
   } = options
 
-  const container = isUndefined(_container) ? shallowRef<Element | undefined>() : toRef(_container)
+  const container = isUndefined(_container) ? shallowRef<Element | null | undefined>() : toRef(_container)
   const widths = shallowRef<Map<number, number>>(new Map())
 
   const { width } = useElementSize(container)
