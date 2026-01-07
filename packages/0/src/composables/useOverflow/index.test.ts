@@ -14,6 +14,7 @@ vi.mock('#v0/composables/useHydration', () => ({
 }))
 
 vi.mock('#v0/constants/globals', () => ({
+  IN_BROWSER: true,
   SUPPORTS_OBSERVER: true,
 }))
 

@@ -16,6 +16,9 @@
  * Use uniform mode (itemWidth option) for same-width items like Pagination buttons.
  */
 
+// Globals
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
@@ -146,6 +149,9 @@ export function createOverflow<
       return
     }
 
+    /* v8 ignore start -- browser-only measurement code */
+    if (!IN_BROWSER) return
+
     const style = getComputedStyle(el)
     const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
     const w = (el as HTMLElement).offsetWidth + marginX
@@ -153,6 +159,7 @@ export function createOverflow<
     if (widths.value.get(index) !== w) {
       widths.value = new Map(widths.value).set(index, w)
     }
+    /* v8 ignore stop */
   }
 
   function reset () {
@@ -229,7 +236,8 @@ export function createOverflow<
  * Creates an overflow context with dependency injection support.
  *
  * @param options Configuration options including namespace
- * @returns Trinity tuple: [useContext, provideContext, defaultContext]
+ * @template E The type of the overflow context
+ * @returns Trinity tuple: [useOverflow, provideOverflow, defaultOverflow]
  *
  * @example
  * ```ts
@@ -270,7 +278,10 @@ export function createOverflowContext<
  * Returns the current overflow context from dependency injection.
  *
  * @param namespace The namespace for the overflow context. Defaults to `v0:overflow`.
+ * @template E The type of the overflow context
  * @returns The current overflow context.
+ *
+ * @throws An error if the overflow context is not found and no default is provided.
  *
  * @example
  * ```vue
