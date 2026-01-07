@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Dialog } from '@vuetify/v0'
+
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed, onMounted, ref, shallowRef, useId, watch } from 'vue'
@@ -75,54 +78,120 @@
 </script>
 
 <template>
-  <div
-    class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto"
-    v-html="svg"
-  />
+  <Dialog.Root>
+    <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer hover:opacity-80 transition-opacity">
+      <div v-html="svg" />
+    </Dialog.Activator>
+
+    <Dialog.Content class="docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider">
+      <div class="flex items-center justify-end p-2">
+        <Dialog.Title class="sr-only">
+          Diagram
+        </Dialog.Title>
+
+        <Dialog.Description class="sr-only">
+          Click outside or press Escape to close
+        </Dialog.Description>
+
+        <Dialog.Close aria-label="Close diagram" class="p-1.5 rounded-md bg-surface/50 hover:bg-surface border border-divider">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+          </svg>
+        </Dialog.Close>
+      </div>
+
+      <div
+        class="docs-mermaid flex justify-center p-4"
+        v-html="svg"
+      />
+    </Dialog.Content>
+  </Dialog.Root>
 </template>
 
-<style scoped>
-  .docs-mermaid :deep(svg) {
+<style>
+  .docs-mermaid svg {
     max-width: 100%;
     height: auto;
   }
 
   /* Rounded nodes */
-  .docs-mermaid :deep(.node rect),
-  .docs-mermaid :deep(.node polygon) {
+  .docs-mermaid .node rect,
+  .docs-mermaid .node polygon {
     rx: 8px;
     ry: 8px;
     fill: var(--v0-surface) !important;
     stroke: var(--v0-divider) !important;
   }
 
-  .docs-mermaid :deep(.node .label),
-  .docs-mermaid :deep(.nodeLabel) {
+  .docs-mermaid .node .label,
+  .docs-mermaid .nodeLabel {
     color: var(--v0-on-surface) !important;
     fill: var(--v0-on-surface) !important;
   }
 
   /* Rounded subgraphs */
-  .docs-mermaid :deep(.cluster rect) {
+  .docs-mermaid .cluster rect {
     rx: 12px;
     ry: 12px;
     fill: var(--v0-surface) !important;
     stroke: var(--v0-divider) !important;
   }
 
-  .docs-mermaid :deep(.cluster .nodeLabel),
-  .docs-mermaid :deep(.cluster .text-inner-tspan),
-  .docs-mermaid :deep(.cluster-label) {
+  .docs-mermaid .cluster .nodeLabel,
+  .docs-mermaid .cluster .text-inner-tspan,
+  .docs-mermaid .cluster-label {
     color: var(--v0-on-surface) !important;
     fill: var(--v0-on-surface) !important;
   }
 
-  .docs-mermaid :deep(.flowchart-link) {
+  .docs-mermaid .flowchart-link {
     stroke: var(--v0-primary) !important;
   }
 
-  .docs-mermaid :deep(.marker) {
+  .docs-mermaid .marker {
     fill: var(--v0-primary) !important;
     stroke: var(--v0-primary) !important;
+  }
+
+  /* Dialog expanded view */
+  .docs-mermaid-dialog {
+    min-width: min(800px, 90vw);
+    min-height: min(400px, 80vh);
+  }
+
+  .docs-mermaid-dialog .docs-mermaid {
+    width: 100%;
+    height: 100%;
+  }
+
+  .docs-mermaid-dialog .docs-mermaid svg {
+    width: 100%;
+    height: auto;
+    max-width: none;
+  }
+
+  /* Dialog open animation */
+  @keyframes dialog-open {
+    from {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes backdrop-fade {
+    from { background: rgb(0 0 0 / 0); }
+    to { background: rgb(0 0 0 / 0.5); }
+  }
+
+  .docs-mermaid-dialog[open] {
+    animation: dialog-open 150ms ease-out;
+  }
+
+  .docs-mermaid-dialog[open]::backdrop {
+    animation: backdrop-fade 150ms ease-out forwards;
   }
 </style>
