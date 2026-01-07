@@ -80,7 +80,7 @@
 <template>
   <Dialog.Root>
     <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer hover:opacity-80 transition-opacity">
-      <div v-html="svg" />
+      <div class="flex justify-center w-full" v-html="svg" />
     </Dialog.Activator>
 
     <Dialog.Content class="docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider">
@@ -156,12 +156,10 @@
   /* Dialog expanded view */
   .docs-mermaid-dialog {
     min-width: min(800px, 90vw);
-    min-height: min(400px, 80vh);
   }
 
   .docs-mermaid-dialog .docs-mermaid {
     width: 100%;
-    height: 100%;
   }
 
   .docs-mermaid-dialog .docs-mermaid svg {
