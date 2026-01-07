@@ -39,6 +39,7 @@
 
   // Position state
   const position = ref({ top: 0, left: 0 })
+  const flipBelow = shallowRef(false)
 
   function showPopover (target: HTMLElement) {
     // Cancel any pending hide
@@ -73,10 +74,12 @@
     target.classList.add('api-hover-valid')
     activeTarget.value = target
 
-    // Calculate position relative to viewport (above the element)
+    // Calculate position relative to viewport
     const rect = target.getBoundingClientRect()
     const popoverMaxWidth = 450
+    const popoverMaxHeight = 400
     const viewportWidth = window.innerWidth
+    const gap = 8
     const padding = 12
 
     // Clamp horizontal position to keep popover within viewport
@@ -85,8 +88,14 @@
       left = Math.max(padding, viewportWidth - popoverMaxWidth - padding + window.scrollX)
     }
 
+    // Flip below if not enough space above
+    const spaceAbove = rect.top - gap
+    flipBelow.value = spaceAbove < popoverMaxHeight
+
     position.value = {
-      top: rect.top + window.scrollY,
+      top: flipBelow.value
+        ? rect.bottom + window.scrollY + gap
+        : rect.top + window.scrollY,
       left,
     }
 
@@ -231,6 +240,7 @@
         v-if="isVisible && activeApi"
         ref="popoverEl"
         class="docs-api-hover-popover"
+        :class="{ 'popover-flipped': flipBelow }"
         :style="{
           top: `${position.top}px`,
           left: `${position.left}px`,
@@ -391,6 +401,10 @@
   font-size: 13px;
   line-height: 1.5;
   transform: translateY(calc(-100% - 8px));
+}
+
+.docs-api-hover-popover.popover-flipped {
+  transform: none;
 }
 
 .popover-header {
