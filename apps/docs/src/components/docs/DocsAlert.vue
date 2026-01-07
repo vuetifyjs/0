@@ -9,7 +9,7 @@
   import { computed } from 'vue'
 
   export interface DocsAlertProps {
-    type: 'tip' | 'warning' | 'error' | 'suggestion'
+    type: 'tip' | 'info' | 'warning' | 'error' | 'suggestion'
     suggestion?: string
   }
 
@@ -24,6 +24,13 @@
           icon: 'lightbulb',
           title: 'Tip',
           classes: 'bg-success/10 border-success/50 text-success',
+        }
+      }
+      case 'info': {
+        return {
+          icon: 'info',
+          title: 'Info',
+          classes: 'bg-info/10 border-info/50 text-info',
         }
       }
       case 'warning': {

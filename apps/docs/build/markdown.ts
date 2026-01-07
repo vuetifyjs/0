@@ -58,7 +58,7 @@ export default async function MarkdownPlugin () {
         },
       })
 
-      // GitHub-style callouts: > [!TIP], > [!WARNING], > [!ERROR], > [!SUGGESTION]
+      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!SUGGESTION]
       const defaultBlockquoteOpen = md.renderer.rules.blockquote_open
       const defaultBlockquoteClose = md.renderer.rules.blockquote_close
 
@@ -66,7 +66,7 @@ export default async function MarkdownPlugin () {
         // Look ahead: blockquote_open -> paragraph_open -> inline
         const inlineToken = tokens[index + 2]
         if (inlineToken?.type === 'inline' && inlineToken.content) {
-          const match = inlineToken.content.match(/^\[!(TIP|WARNING|ERROR|SUGGESTION)\]\s*(.*)/)
+          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|SUGGESTION)\]\s*(.*)/)
           if (match) {
             const type = match[1].toLowerCase()
             env._calloutType = type
@@ -87,7 +87,7 @@ export default async function MarkdownPlugin () {
             if (inlineToken.children?.length) {
               const firstChild = inlineToken.children[0]
               if (firstChild?.type === 'text') {
-                firstChild.content = firstChild.content.replace(/^\[!(TIP|WARNING|ERROR)\]\s*/, '')
+                firstChild.content = firstChild.content.replace(/^\[!(TIP|INFO|WARNING|ERROR)\]\s*/, '')
               }
             }
 

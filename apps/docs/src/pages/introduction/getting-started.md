@@ -20,6 +20,41 @@ Vuetify0 provides headless UI primitives and composables for Vue 3. Components a
 
 <DocsPageFeatures :frontmatter />
 
+## Vite Setup
+
+Create a new Vue project with Vite:
+
+::: code-group
+
+```bash pnpm
+pnpm create vue@latest
+```
+
+```bash npm
+npm create vue@latest
+```
+
+```bash yarn
+yarn create vue
+```
+
+```bash bun
+bun create vue@latest
+```
+
+:::
+
+v0 works out of the box with Vite. No special configuration required:
+
+```ts vite.config.ts
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [vue()],
+})
+```
+
 ## Installation
 
 Install `@vuetify/v0` with your preferred package manager:
@@ -43,6 +78,50 @@ bun add @vuetify/v0
 ```
 
 :::
+
+Create a plugin file to configure v0:
+
+```ts src/plugins/zero.ts
+import { createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
+import type { App } from 'vue'
+
+export default function zero (app: App) {
+  app.use(createHydrationPlugin())
+  app.use(
+    createThemePlugin({
+      default: 'light',
+      themes: {
+        light: {
+          dark: false,
+          colors: {
+            primary: '#3b82f6',
+            surface: '#ffffff',
+            'on-primary': '#ffffff',
+            'on-surface': '#212121',
+          },
+        },
+      },
+    }),
+  )
+}
+```
+
+Register the plugin in your app entry:
+
+```ts src/main.ts
+import { createApp } from 'vue'
+import App from './App.vue'
+import zero from './plugins/zero'
+
+const app = createApp(App)
+
+zero(app)
+
+app.mount('#app')
+```
+
+> [!INFO]
+> For additional plugins, theming options, and advanced configuration, see the [Guide](/guide).
 
 ## Requirements
 
