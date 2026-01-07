@@ -141,7 +141,3 @@ Use this checklist during manual QA:
 ## Internationalization
 
 v0's `useLocale` handles RTL and translated labels. See [useLocale](/composables/plugins/use-locale) for accessibility label translations.
-
-> [!SUGGESTION] How do I implement arrow key navigation for a custom list component?
-
-> [!SUGGESTION] How do I integrate accessibility testing into my CI/CD pipeline?
