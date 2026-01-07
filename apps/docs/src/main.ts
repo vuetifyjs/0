@@ -22,6 +22,11 @@ export const createApp = ViteSSG(
       pinia.state.value = initialState.pinia || {}
 
     if (!import.meta.env.SSR) {
+      // Reload on chunk load failures (stale cache after deploy)
+      window.addEventListener('vite:preloadError', () => {
+        window.location.reload()
+      })
+
       // Workaround for https://github.com/vitejs/vite/issues/11804
       router.onError((err, to) => {
         if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
