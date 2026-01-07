@@ -70,7 +70,7 @@ export default function zero (app: App) {
             'background': '#f5f5f5',
             'surface': '#FFFFFF',
             'surface-tint': '#f5f5f5',
-            'surface-variant': '#212121',
+            'surface-variant': '#eeeeee',
             'divider': '#e0e0e0',
             'pre': '{light.colors.surface-tint}',
             'on-primary': '#ffffff',
@@ -82,7 +82,7 @@ export default function zero (app: App) {
             'on-warning': '#1a1a1a',
             'on-background': '#212121',
             'on-surface': '#212121',
-            'on-surface-variant': '#f5f5f5',
+            'on-surface-variant': '#666666',
           },
         },
         'dark': {

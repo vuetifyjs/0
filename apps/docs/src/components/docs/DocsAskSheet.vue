@@ -136,20 +136,7 @@
           <AppIcon icon="restart" size="18" />
         </button>
 
-        <!-- Show TOC button on desktop -->
         <button
-          v-if="isDesktop"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-          title="Show table of contents"
-          type="button"
-          @click="emit('close')"
-        >
-          <AppIcon icon="book" size="18" />
-        </button>
-
-        <!-- Close button on mobile -->
-        <button
-          v-if="!isDesktop"
           class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           title="Close"
           type="button"
