@@ -39,6 +39,7 @@ catalog:
   marked-emoji: ^2.0.2
   mermaid: ^11.12.2
   minisearch: ^7.2.0
+  motion-v: ^1.7.5
   pinia: ^3.0.4
   rollup-plugin-sass: ^1.15.3
   sass: ^1.93.3
