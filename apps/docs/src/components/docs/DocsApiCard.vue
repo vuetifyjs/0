@@ -3,13 +3,13 @@
   import { useApiHelpers } from '@/composables/useApiHelpers'
 
   // Types
-  import type { ApiEvent, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '../../../build/generate-api'
+  import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '../../../build/generate-api'
 
-  type ApiItem = ApiOption | ApiProperty | ApiMethod | ApiProp | ApiEvent | ApiSlot
+  type ApiItem = ApiOption | ApiProperty | ApiMethod | ApiProp | ApiEvent | ApiSlot | ApiFunction
 
   const props = defineProps<{
     item: ApiItem
-    kind: 'option' | 'property' | 'method' | 'prop' | 'event' | 'slot'
+    kind: 'option' | 'property' | 'method' | 'prop' | 'event' | 'slot' | 'function'
     headingTag?: 'h3' | 'h4'
   }>()
 
@@ -50,10 +50,10 @@
       </component>
 
       <code
-        v-if="item.type"
+        v-if="item.type || ('signature' in item && item.signature)"
         class="text-xs mt-1 inline-block font-mono bg-surface-variant px-1.5 py-0.5 rounded"
       >
-        {{ ['option', 'prop', 'event', 'slot'].includes(kind) ? item.type : formatSignature(item as ApiProperty | ApiMethod) }}
+        {{ 'signature' in item ? item.signature : ['option', 'prop', 'event', 'slot'].includes(kind) ? item.type : formatSignature(item as ApiProperty | ApiMethod) }}
       </code>
 
       <p

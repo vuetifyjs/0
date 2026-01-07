@@ -198,6 +198,24 @@
     />
 
     <template v-else>
+      <template v-if="composableApi.functions.length > 0">
+        <DocsHeaderAnchor
+          id="functions"
+          class="mt-8"
+        >
+          Functions
+        </DocsHeaderAnchor>
+
+        <div class="space-y-4">
+          <DocsApiCard
+            v-for="fn in composableApi.functions"
+            :key="fn.name"
+            :item="fn"
+            kind="function"
+          />
+        </div>
+      </template>
+
       <template v-if="composableApi.options.length > 0">
         <DocsHeaderAnchor
           id="options"

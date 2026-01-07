@@ -38,9 +38,10 @@
       >
         <div class="font-semibold text-on-surface">{{ composableApi.name }}</div>
         <div class="text-sm text-on-surface-variant mt-1">
-          <template v-if="composableApi.options.length > 0">{{ composableApi.options.length }} option{{ composableApi.options.length === 1 ? '' : 's' }}</template>
-          <template v-if="composableApi.properties.length > 0"><template v-if="composableApi.options.length > 0">, </template>{{ composableApi.properties.length }} propert{{ composableApi.properties.length === 1 ? 'y' : 'ies' }}</template>
-          <template v-if="composableApi.methods.length > 0"><template v-if="composableApi.options.length > 0 || composableApi.properties.length > 0">, </template>{{ composableApi.methods.length }} method{{ composableApi.methods.length === 1 ? '' : 's' }}</template>
+          <template v-if="composableApi.functions.length > 0">{{ composableApi.functions.length }} function{{ composableApi.functions.length === 1 ? '' : 's' }}</template>
+          <template v-if="composableApi.options.length > 0"><template v-if="composableApi.functions.length > 0">, </template>{{ composableApi.options.length }} option{{ composableApi.options.length === 1 ? '' : 's' }}</template>
+          <template v-if="composableApi.properties.length > 0"><template v-if="composableApi.functions.length > 0 || composableApi.options.length > 0">, </template>{{ composableApi.properties.length }} propert{{ composableApi.properties.length === 1 ? 'y' : 'ies' }}</template>
+          <template v-if="composableApi.methods.length > 0"><template v-if="composableApi.functions.length > 0 || composableApi.options.length > 0 || composableApi.properties.length > 0">, </template>{{ composableApi.methods.length }} method{{ composableApi.methods.length === 1 ? '' : 's' }}</template>
         </div>
       </router-link>
     </template>

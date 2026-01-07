@@ -156,6 +156,25 @@
 
         <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
 
+        <template v-if="composableApi.functions.length > 0">
+          <DocsHeaderAnchor
+            id="functions"
+            tag="h2"
+          >
+            Functions
+          </DocsHeaderAnchor>
+
+          <div class="space-y-4">
+            <DocsApiCard
+              v-for="fn in composableApi.functions"
+              :key="fn.name"
+              heading-tag="h3"
+              :item="fn"
+              kind="function"
+            />
+          </div>
+        </template>
+
         <template v-if="composableApi.options.length > 0">
           <DocsHeaderAnchor
             id="options"
