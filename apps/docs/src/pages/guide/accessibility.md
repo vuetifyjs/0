@@ -18,7 +18,7 @@ v0 provides ARIA attributes out-of-the-box through the `attrs` pattern. You prov
 
 <DocsPageFeatures :frontmatter />
 
-## The `attrs` Pattern
+## The attrs Pattern
 
 Every v0 component exposes an `attrs` object containing all accessibility attributes. Spread it onto your elements:
 
@@ -40,7 +40,7 @@ Every v0 component exposes an `attrs` object containing all accessibility attrib
 </template>
 ```
 
-### What's Included in `attrs`
+### What's Included in attrs
 
 | Component | ARIA Attributes Provided |
 | - | - |
