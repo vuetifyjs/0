@@ -108,7 +108,7 @@
       <div class="flex items-center gap-1">
         <button
           v-if="messages.length > 0"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
+          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           title="Open in Bin"
           type="button"
           @click="openInBin"
@@ -118,7 +118,7 @@
 
         <button
           v-if="messages.length > 0"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
+          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           :title="copied ? 'Copied!' : 'Copy conversation'"
           type="button"
           @click="copyConversation"
@@ -128,7 +128,7 @@
 
         <button
           v-if="messages.length > 0"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
+          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           title="Reset conversation"
           type="button"
           @click="emit('clear')"
@@ -139,7 +139,7 @@
         <!-- Show TOC button on desktop -->
         <button
           v-if="isDesktop"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
+          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           title="Show table of contents"
           type="button"
           @click="emit('close')"
@@ -150,7 +150,7 @@
         <!-- Close button on mobile -->
         <button
           v-if="!isDesktop"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface"
+          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           title="Close"
           type="button"
           @click="emit('close')"
