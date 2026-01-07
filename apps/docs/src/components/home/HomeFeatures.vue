@@ -26,9 +26,9 @@
       description: 'Works seamlessly with Tailwind CSS, UnoCSS, or any utility-first framework. Style components your way.',
     },
     {
-      icon: 'vuetify-play',
-      title: 'Vuetify Play Support',
-      description: 'Prototype and share components instantly in Vuetify Play. Test ideas without local setup.',
+      icon: 'vapor',
+      title: 'Vapor Ready',
+      description: '100% compatible with Vue Vapor mode. Built for the future of Vue performance without the virtual DOM.',
     },
   ]
 </script>
