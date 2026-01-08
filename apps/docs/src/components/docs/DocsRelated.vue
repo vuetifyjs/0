@@ -25,11 +25,19 @@
           .join(' ')
         : segments[0].charAt(0).toUpperCase() + segments[0].slice(1)
 
-      // Extract name (e.g., "use-theme" -> "useTheme")
+      // Extract name from slug
       const slug = segments.at(-1)!
-      const name = slug.includes('-')
+      const acronyms = new Set(['ai', 'api', 'ssr', 'css', 'html', 'dom', 'url', 'uri', 'http', 'https', 'json', 'xml', 'svg', 'pdf'])
+      const isComposable = slug.startsWith('use-') || slug.startsWith('create-')
+
+      const name = isComposable
+        // Composables: camelCase (e.g., "use-theme" -> "useTheme")
         ? slug.split('-').map((word, i) => i === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join('')
-        : slug.charAt(0).toUpperCase() + slug.slice(1)
+        // Others: Title Case with spaces (e.g., "getting-started" -> "Getting Started")
+        : slug.split('-').map(word => {
+          if (acronyms.has(word.toLowerCase())) return word.toUpperCase()
+          return word.charAt(0).toUpperCase() + word.slice(1)
+        }).join(' ')
 
       return { to: path, category, name }
     })
