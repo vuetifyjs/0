@@ -72,7 +72,6 @@ declare module 'vue' {
     HomeFooter: typeof import('./components/home/HomeFooter.vue')['default']
     HomeHero: typeof import('./components/home/HomeHero.vue')['default']
     HomeIntegrations: typeof import('./components/home/HomeIntegrations.vue')['default']
-    HomeSponsor: typeof import('./components/home/HomeSponsor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
