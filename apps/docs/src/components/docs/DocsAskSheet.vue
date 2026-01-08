@@ -20,13 +20,15 @@
     messages: readonly Message[]
     isLoading: boolean
     error: string | null
+    fullscreen?: boolean
   }>()
 
   const emit = defineEmits<{
-    close: []
-    submit: [question: string]
-    clear: []
-    stop: []
+    'close': []
+    'submit': [question: string]
+    'clear': []
+    'stop': []
+    'update:fullscreen': [value: boolean]
   }>()
 
   const breakpoints = useBreakpoints()
@@ -87,9 +89,11 @@
     :aria-modal="!isDesktop"
     :class="[
       'flex flex-col z-50 bg-glass-surface',
-      isDesktop
-        ? 'fixed right-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
-        : 'fixed inset-0',
+      isDesktop && fullscreen
+        ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
+        : isDesktop
+          ? 'fixed right-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
+          : 'fixed inset-0',
     ]"
     :role="isDesktop ? 'complementary' : 'dialog'"
   >
@@ -105,44 +109,54 @@
         <span class="font-medium">Ask AI</span>
       </div>
 
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-0.5">
         <button
           v-if="messages.length > 0"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           title="Open in Bin"
           type="button"
           @click="openInBin"
         >
-          <AppIcon icon="vuetify-bin" size="18" />
+          <AppIcon icon="vuetify-bin" size="16" />
         </button>
 
         <button
           v-if="messages.length > 0"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           :title="copied ? 'Copied!' : 'Copy conversation'"
           type="button"
           @click="copyConversation"
         >
-          <AppIcon :icon="copied ? 'success' : 'copy'" size="18" />
+          <AppIcon :icon="copied ? 'success' : 'copy'" size="16" />
         </button>
 
         <button
           v-if="messages.length > 0"
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           title="Reset conversation"
           type="button"
           @click="emit('clear')"
         >
-          <AppIcon icon="restart" size="18" />
+          <AppIcon icon="restart" size="16" />
         </button>
 
         <button
-          class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+          v-if="isDesktop"
+          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+          :title="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+          type="button"
+          @click="emit('update:fullscreen', !fullscreen)"
+        >
+          <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
+        </button>
+
+        <button
+          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
           title="Close"
           type="button"
           @click="emit('close')"
         >
-          <AppIcon icon="close" size="18" />
+          <AppIcon icon="close" size="16" />
         </button>
       </div>
     </header>

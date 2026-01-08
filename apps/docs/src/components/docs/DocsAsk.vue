@@ -10,10 +10,21 @@
   import { useAsk } from '@/composables/useAsk'
 
   // Utilities
-  import { computed, toRef, nextTick, useTemplateRef } from 'vue'
+  import { computed, toRef, nextTick, shallowRef, useTemplateRef, watchEffect } from 'vue'
 
   const breakpoints = useBreakpoints()
   const isDesktop = computed(() => breakpoints.lgAndUp.value)
+  const fullscreen = shallowRef(false)
+
+  // Lock body scroll when fullscreen
+  watchEffect(onCleanup => {
+    if (fullscreen.value && isDesktop.value) {
+      document.body.style.overflow = 'hidden'
+      onCleanup(() => {
+        document.body.style.overflow = ''
+      })
+    }
+  })
 
   const {
     messages,
@@ -87,6 +98,7 @@
     <DocsAskSheet
       v-if="isOpen"
       ref="sheet"
+      v-model:fullscreen="fullscreen"
       :error="error"
       :is-loading="isLoading"
       :messages="messages"
