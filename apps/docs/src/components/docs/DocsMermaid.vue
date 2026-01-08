@@ -2,9 +2,14 @@
   // Framework
   import { Dialog } from '@vuetify/v0'
 
+  // Composables
+  import { useSettings } from '@/composables/useSettings'
+
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed, onMounted, ref, shallowRef, useId, watch } from 'vue'
+
+  const { prefersReducedMotion } = useSettings()
 
   // Types
   import type Mermaid from 'mermaid'
@@ -91,7 +96,7 @@
       </figure>
     </Dialog.Activator>
 
-    <Dialog.Content class="docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider">
+    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider', prefersReducedMotion && 'reduce-motion']">
       <div class="flex items-center justify-end p-2">
         <Dialog.Title as="span" class="sr-only">
           {{ decodedCaption || 'Diagram' }}
@@ -204,5 +209,14 @@
 
   .docs-mermaid-dialog[open]::backdrop {
     animation: backdrop-fade 150ms ease-out forwards;
+  }
+
+  .docs-mermaid-dialog.reduce-motion[open],
+  .docs-mermaid-dialog.reduce-motion[open]::backdrop {
+    animation: none;
+  }
+
+  .docs-mermaid-dialog.reduce-motion[open]::backdrop {
+    background: rgb(0 0 0 / 0.5);
   }
 </style>
