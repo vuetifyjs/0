@@ -97,7 +97,7 @@
 
       <!-- Live Demo -->
       <div class="demo-preview p-4 md:p-8 rounded-xl border bg-surface flex flex-col">
-        <div class="text-center md:text-end mb-8 lg:mb-0">
+        <div class="text-center md:text-end">
           <a
             class="text-xs font-medium text-primary hover:underline inline-flex gap-1"
             :href="playgroundUrl"

@@ -52,7 +52,7 @@ export default defineNuxtConfig({
 
 ## SSR Considerations
 
-### The `IN_BROWSER` Constant
+### The IN_BROWSER Constant
 
 Guard browser-only code with `IN_BROWSER`:
 

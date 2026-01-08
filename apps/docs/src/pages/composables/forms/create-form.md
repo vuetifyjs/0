@@ -8,7 +8,7 @@ meta:
 features:
   category: Composable
   label: 'E: createForm'
-  github: /composables/useForm/
+  github: /composables/createForm/
   level: 3
 related:
   - /composables/registration/create-registry

@@ -180,7 +180,7 @@
 </script>
 
 <template>
-  <div class="my-2 flex flex-col gap-2 mb-8">
+  <div class="mt-4 mb-8 flex flex-col gap-4">
     <!-- Action chips -->
     <div class="inline-flex gap-2 flex-wrap">
       <a
@@ -241,61 +241,65 @@
       />
     </div>
 
-    <!-- Metric chips -->
+    <!-- Inline metadata -->
     <div
       v-if="coverage || benchmark || renderless !== undefined || ssrSafe"
-      class="inline-flex gap-2 flex-wrap"
+      class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider"
     >
       <a
         v-if="coverage && testFileLink"
+        class="inline-flex items-center gap-1 hover:text-on-surface transition-colors"
         :href="testFileLink"
         rel="noopener noreferrer"
         target="_blank"
+        :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
       >
-        <AppChip
-          :color="coverage.color"
-          icon="test"
-          :text="coverage.label"
-          :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
-        />
+        <AppIcon :class="coverage.color" icon="test" size="1em" />
+        <span>{{ coverage.label }}</span>
       </a>
+
+      <span v-if="coverage && testFileLink && (benchmark || renderless !== undefined || ssrSafe)" class="mx-2 opacity-40">·</span>
 
       <a
         v-if="benchmark"
+        class="inline-flex items-center gap-1 hover:text-on-surface transition-colors"
         href="#benchmarks"
         @click.prevent="scrollToAnchor('benchmarks')"
       >
-        <AppChip
-          :color="benchmark.color"
-          :icon="benchmark.icon"
-          :text="benchmark.label"
-          :title="benchmark.title"
-        />
+        <AppIcon :class="benchmark.color" :icon="benchmark.icon" size="1em" />
+        <span>{{ benchmark.label }}</span>
       </a>
 
-      <AppChip
+      <span v-if="benchmark && (renderless !== undefined || ssrSafe)" class="mx-2 opacity-40">·</span>
+
+      <span
         v-if="renderless === true"
-        color="text-secondary"
-        icon="renderless"
-        text="Renderless"
+        class="inline-flex items-center gap-1"
         title="Component renders no DOM element by default"
-      />
+      >
+        <AppIcon class="text-secondary" icon="renderless" size="1em" />
+        <span>Renderless</span>
+      </span>
 
-      <AppChip
+      <span
         v-if="renderless === false"
-        color="text-secondary"
-        icon="layers"
-        text="Renders element"
+        class="inline-flex items-center gap-1"
         title="Component renders a DOM element by default"
-      />
+      >
+        <AppIcon class="text-secondary" icon="layers" size="1em" />
+        <span>Renders element</span>
+      </span>
 
-      <AppChip
+      <span v-if="renderless !== undefined && ssrSafe" class="mx-2 opacity-40">·</span>
+
+      <span
         v-if="ssrSafe"
-        color="text-info"
-        icon="ssr"
-        text="SSR Safe"
+        class="inline-flex items-center gap-1"
         title="Safe for server-side rendering"
-      />
+      >
+        <AppIcon class="text-info" icon="ssr" size="1em" />
+        <span>SSR Safe</span>
+      </span>
     </div>
   </div>
 </template>

@@ -9,7 +9,7 @@ meta:
 features:
   category: Composable
   label: 'E: createQueue'
-  github: /composables/useQueue/
+  github: /composables/createQueue/
   level: 3
 related:
 - /composables/registration/create-registry
