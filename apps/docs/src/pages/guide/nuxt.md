@@ -36,10 +36,10 @@ export default defineNuxtConfig({
   imports: {
     imports: [
       { from: '@vuetify/v0', name: 'useTheme' },
-      { from: '@vuetify/v0', name: 'useSelection' },
-      { from: '@vuetify/v0', name: 'useGroup' },
-      { from: '@vuetify/v0', name: 'useSingle' },
-      { from: '@vuetify/v0', name: 'useStep' },
+      { from: '@vuetify/v0', name: 'createSelection' },
+      { from: '@vuetify/v0', name: 'createGroup' },
+      { from: '@vuetify/v0', name: 'createSingle' },
+      { from: '@vuetify/v0', name: 'createStep' },
       { from: '@vuetify/v0', name: 'usePagination' },
       { from: '@vuetify/v0', name: 'useForm' },
       { from: '@vuetify/v0', name: 'useHydration' },

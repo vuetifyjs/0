@@ -9,7 +9,7 @@ meta:
 features:
   category: Composable
   label: 'E: createTokens'
-  github: /composables/useTokens/
+  github: /composables/createTokens/
   level: 3
 related:
 - /composables/registration/create-registry
@@ -25,13 +25,13 @@ A utility for managing design tokens with support for hierarchical collections, 
 
 ## Usage
 
-The `useTokens` composable allows you to define a collection of design tokens, which can be primitive values or aliases that reference other tokens. It provides a context for resolving these tokens, making it easy to access design values throughout your application.
+The `createTokens` composable allows you to define a collection of design tokens, which can be primitive values or aliases that reference other tokens. It provides a context for resolving these tokens, making it easy to access design values throughout your application.
 
 ```ts
-import { useTokens } from '@vuetify/v0'
+import { createTokens } from '@vuetify/v0'
 
 // Default behavior (depth = Infinity): fully flatten nested objects
-const tokens = useTokens({
+const tokens = createTokens({
   color: {
     primary: '#3b82f6',
     secondary: '#64748b',
@@ -47,7 +47,7 @@ tokens.resolve('color.primary') // '#3b82f6'
 tokens.resolve('color.info') // '#3b82f6' (alias resolved)
 tokens.resolve('radius.md') // '8px'
 
-const features = useTokens({
+const features = createTokens({
   dark: true,
   rtl: { value: true, variation: 'toggle' },
 }, { flat: true })
@@ -58,14 +58,14 @@ features.resolve('rtl') // { value: true, variation: 'toggle' }
 
 ## Architecture
 
-`useTokens` extends `useRegistry` and powers token-based systems:
+`createTokens` extends `createRegistry` and powers token-based systems:
 
 ```mermaid "Tokens Hierarchy"
 flowchart TD
-  useTokens --> useTheme
-  useTokens --> useLocale
-  useTokens --> useFeatures
-  useTokens --> usePermissions
+  createTokens --> useTheme
+  createTokens --> useLocale
+  createTokens --> useFeatures
+  createTokens --> usePermissions
 ```
 
-<DocsApi name="useTokens" />
+<DocsApi name="createTokens" />

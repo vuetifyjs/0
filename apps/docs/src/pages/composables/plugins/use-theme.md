@@ -19,7 +19,7 @@ related:
 
 # useTheme
 
-The `useTheme` composable provides comprehensive theme management capabilities, allowing you to register multiple themes, switch between them dynamically, and automatically generate CSS custom properties. Built on `useSingle` for single-theme selection and `useTokens` for design token alias resolution.
+The `useTheme` composable provides comprehensive theme management capabilities, allowing you to register multiple themes, switch between them dynamically, and automatically generate CSS custom properties. Built on `createSingle` for single-theme selection and `createTokens` for design token alias resolution.
 
 <DocsPageFeatures :frontmatter />
 
@@ -83,14 +83,14 @@ Once the plugin is installed, use the `useTheme` composable in any component:
 
 ## Architecture
 
-`useTheme` extends `useSingle` for theme selection and `useTokens` for color resolution:
+`useTheme` extends `createSingle` for theme selection and `createTokens` for color resolution:
 
 ```mermaid "Theme Hierarchy"
 flowchart TD
-  useRegistry --> useSelection
-  useSelection --> useSingle
-  useSingle --> useTheme
-  useTokens --> useTheme
+  createRegistry --> createSelection
+  createSelection --> createSingle
+  createSingle --> useTheme
+  createTokens --> useTheme
   useTheme --> Adapter[ThemeAdapter]
   Adapter --> CSS[CSS Variables]
 ```

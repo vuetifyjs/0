@@ -5,9 +5,9 @@ features:
   level: 2
 meta:
   - name: description
-    content: Customize your design system with Vuetify0's theming. Manage colors, design tokens, and CSS variables with useTokens and useTheme composables for Vue 3.
+    content: Customize your design system with Vuetify0's theming. Manage colors, design tokens, and CSS variables with createTokens and useTheme composables for Vue 3.
   - name: keywords
-    content: vuetify0, theming, design tokens, CSS variables, colors, useTheme, useTokens, dark mode, Vue 3
+    content: vuetify0, theming, design tokens, CSS variables, colors, useTheme, createTokens, dark mode, Vue 3
 related:
   - /composables/plugins/use-theme
   - /composables/registration/create-tokens

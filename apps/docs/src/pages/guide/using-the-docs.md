@@ -43,7 +43,7 @@ The docs are organized into distinct sections, each serving a specific purpose:
 |---------|---------|-------------|
 | <AppLink to="/guide" class="whitespace-nowrap"><AppIcon icon="book" :size="18" class="inline-block align-text-bottom mr-1" />**Guide**</AppLink> | Conceptual learning | Understanding architecture, patterns, best practices |
 | <AppLink to="/components" class="whitespace-nowrap"><AppIcon icon="layers" :size="18" class="inline-block align-text-bottom mr-1" />**Components**</AppLink> | Headless UI primitives | Building accessible interfaces (Dialog, Popover, Selection) |
-| <AppLink to="/composables" class="whitespace-nowrap"><AppIcon icon="puzzle" :size="18" class="inline-block align-text-bottom mr-1" />**Composables**</AppLink> | Logic building blocks | Adding behavior without UI (createContext, useSelection) |
+| <AppLink to="/composables" class="whitespace-nowrap"><AppIcon icon="puzzle" :size="18" class="inline-block align-text-bottom mr-1" />**Composables**</AppLink> | Logic building blocks | Adding behavior without UI (createContext, createSelection) |
 | <AppLink to="/api" class="whitespace-nowrap"><AppIcon icon="toc" :size="18" class="inline-block align-text-bottom mr-1" />**API**</AppLink> | Complete reference | Looking up props, events, slots, methods |
 | <AppLink to="/storybook" class="whitespace-nowrap"><AppIcon icon="test" :size="18" class="inline-block align-text-bottom mr-1" />**Storybook**</AppLink> | Visual playground | Exploring component variants interactively |
 
@@ -122,7 +122,7 @@ The search system uses **fuzzy matching**, so typos and partial words still find
 
 - `"creat contxt"` finds `createContext`
 - `"dialg"` finds `Dialog`
-- `"selec"` finds `Selection`, `useSelection`, `createSelection`
+- `"selec"` finds `Selection`, `createSelection`
 
 Results are grouped by category, with Guide pages prioritized. Maximum 20 results are shown per query.
 

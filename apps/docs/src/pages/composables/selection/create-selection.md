@@ -8,7 +8,7 @@ meta:
 features:
   category: Composable
   label: 'E: createSelection'
-  github: /composables/useSelection/
+  github: /composables/createSelection/
   level: 2
 related:
   - /composables/registration/create-registry
@@ -25,7 +25,7 @@ A composable for managing the selection of items in a collection with automatic 
 
 ## Usage
 
-useSelection extends the functionality of useRegistry to manage selection states for a collection of items. It is reactive, supports both single and multi-select patterns, and provides helper properties for working with selected IDs, values, and items.
+`createSelection` extends the functionality of `createRegistry` to manage selection states for a collection of items. It is reactive, supports both single and multi-select patterns, and provides helper properties for working with selected IDs, values, and items.
 
 ```ts
 import { createSelection } from '@vuetify/v0'
@@ -45,17 +45,17 @@ console.log(selection.has('apple')) // true
 
 ## Architecture
 
-`useSelection` extends `useRegistry` and is the base for all selection patterns:
+`createSelection` extends `createRegistry` and is the base for all selection patterns:
 
 ```mermaid "Selection Hierarchy"
 flowchart TD
-  useRegistry --> useSelection
-  useSelection --> useSingle
-  useSelection --> useGroup
-  useSingle --> useStep
-  useSingle --> useTheme
-  useSingle --> useLocale
-  useGroup --> useFeatures
+  createRegistry --> createSelection
+  createSelection --> createSingle
+  createSelection --> createGroup
+  createSingle --> createStep
+  createSingle --> useTheme
+  createSingle --> useLocale
+  createGroup --> useFeatures
 ```
 
 <DocsApi />

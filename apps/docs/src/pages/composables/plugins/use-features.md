@@ -83,14 +83,14 @@ Optionally register features at runtime:
 
 ## Architecture
 
-`useFeatures` extends `useGroup` for multi-selection and `useTokens` for variations:
+`useFeatures` extends `createGroup` for multi-selection and `createTokens` for variations:
 
 ```mermaid "Features Hierarchy"
 flowchart TD
-  useRegistry --> useSelection
-  useSelection --> useGroup
-  useGroup --> useFeatures
-  useTokens --> useFeatures
+  createRegistry --> createSelection
+  createSelection --> createGroup
+  createGroup --> useFeatures
+  createTokens --> useFeatures
 ```
 
 <DocsApi />

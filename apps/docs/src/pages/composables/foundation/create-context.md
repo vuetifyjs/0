@@ -48,11 +48,11 @@ export { useContext }
 flowchart TD
   createContext --> createTrinity
   createContext --> createPlugin
-  createTrinity --> useRegistry
-  createTrinity --> useTokens
-  useRegistry --> useSelection
-  useSelection --> useSingle
-  useSelection --> useGroup
+  createTrinity --> createRegistry
+  createTrinity --> createTokens
+  createRegistry --> createSelection
+  createSelection --> createSingle
+  createSelection --> createGroup
 ```
 
 <DocsApi />

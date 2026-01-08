@@ -27,8 +27,8 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 ├── components/       # Vue component wrappers (one folder per component)
 ├── composables/      # Core logic (flat structure, one folder per composable)
 │   ├── createContext/
-│   ├── useRegistry/
-│   ├── useSelection/
+│   ├── createRegistry/
+│   ├── createSelection/
 │   └── ...           # All composables at same level
 ├── constants/        # Shared constants (IN_BROWSER, etc.)
 ├── types/            # Shared TypeScript types
@@ -44,8 +44,8 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 | Category | Purpose | Key Exports |
 | - | - | - |
 | **foundation** | Core factories | `createContext`, `createTrinity`, `createPlugin` |
-| **registration** | Collection management | `useRegistry`, `useTokens`, `useQueue`, `useTimeline` |
-| **selection** | Selection state | `useSelection`, `useSingle`, `useGroup`, `useStep` |
+| **registration** | Collection management | `createRegistry`, `createTokens`, `useQueue`, `useTimeline` |
+| **selection** | Selection state | `createSelection`, `createSingle`, `createGroup`, `createStep` |
 | **forms** | Form handling | `useForm` |
 | **reactivity** | Reactive proxies | `useProxyModel`, `useProxyRegistry` |
 | **system** | Browser APIs | `useEventListener`, `useHotkey`, `useResizeObserver`, `useClickOutside`, `useIntersectionObserver`, `useMutationObserver`, `useToggleScope` |
@@ -67,7 +67,7 @@ Quick reference for v0's codebase organization. Use this when navigating the sou
 ### Named Imports
 
 ```ts
-import { useSelection, createThemePlugin, Atom } from '@vuetify/v0'
+import { createSelection, createThemePlugin, Atom } from '@vuetify/v0'
 ```
 
 ### Compound Components
@@ -86,7 +86,7 @@ import { Selection, ExpansionPanel } from '@vuetify/v0'
 
 ```txt
 composables/
-└── useSelection/
+└── createSelection/
     ├── index.ts              # Main composable
     └── index.test.ts         # Colocated tests
 ```
@@ -116,12 +116,12 @@ components/
 
 ```mermaid "Extension Hierarchy"
 flowchart TD
-    Registry[useRegistry]
-    Selection[useSelection]
-    Single[useSingle]
-    Step[useStep]
-    Group[useGroup]
-    Tokens[useTokens]
+    Registry[createRegistry]
+    Selection[createSelection]
+    Single[createSingle]
+    Step[createStep]
+    Group[createGroup]
+    Tokens[createTokens]
     Form[useForm]
 
     Registry --> Selection
@@ -132,4 +132,4 @@ flowchart TD
     Single --> Step
 ```
 
-> [!SUGGESTION] When should I use useSelection vs useSingle vs useGroup for my use case?
+> [!SUGGESTION] When should I use createSelection vs createSingle vs createGroup for my use case?

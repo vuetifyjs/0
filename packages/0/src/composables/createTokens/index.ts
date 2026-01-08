@@ -1,7 +1,7 @@
 /**
- * @module useTokens
+ * @module createTokens
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ * @see https://0.vuetifyjs.com/composables/registration/create-tokens
  *
  * @remarks
  * Design token registry with alias resolution and W3C Design Tokens format support.
@@ -64,11 +64,11 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * @returns True if the token is an alias, false otherwise.
    * @remarks An alias is a string that starts with "{" and ends with "}".
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-tokens#is-alias
+   * @see https://0.vuetifyjs.com/composables/registration/create-tokens#is-alias
    *
    * @example
    * ```ts
-   * const tokens = useTokens({
+   * const tokens = createTokens({
    *   colors: {
    *     primary: '#3b82f6',
    *     secondary: '{colors.primary}', // Alias reference
@@ -87,11 +87,11 @@ export interface TokenContext<Z extends TokenTicket> extends RegistryContext<Z> 
    * @returns The resolved value of the token or alias, or undefined if not found.
    * @remarks This function can resolve nested aliases and supports token paths using dot notation.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-tokens#resolve
+   * @see https://0.vuetifyjs.com/composables/registration/create-tokens#resolve
    *
    * @example
    * ```ts
-   * const tokens = useTokens({
+   * const tokens = createTokens({
    *   colors: {
    *     primary: '#3b82f6',
    *     secondary: '{colors.primary}', // Alias reference
@@ -134,13 +134,13 @@ export interface TokenContextOptions extends TokenOptions, RegistryContextOption
  * @returns A new token instance.
  *
  * @see https://www.designtokens.org/tr/drafts/format/
- * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ * @see https://0.vuetifyjs.com/composables/registration/create-tokens
  *
  * @example
  * ```ts
- * import { useTokens } from '@vuetify/v0'
+ * import { createTokens } from '@vuetify/v0'
  *
- * const tokens = useTokens({
+ * const tokens = createTokens({
  *   colors: {
  *     primary: '#3b82f6',
  *     secondary: '{colors.primary}', // Alias reference
@@ -278,7 +278,7 @@ export function createTokens<
  * @template E The type of the token context.
  * @returns A new token context.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ * @see https://0.vuetifyjs.com/composables/registration/create-tokens
  *
  * @example
  * ```ts
@@ -317,7 +317,7 @@ export function createTokensContext<
  * @param namespace The namespace for the tokens context. Defaults to `'v0:tokens'`.
  * @returns The current tokens instance.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-tokens
+ * @see https://0.vuetifyjs.com/composables/registration/create-tokens
  *
  * @example
  * ```vue

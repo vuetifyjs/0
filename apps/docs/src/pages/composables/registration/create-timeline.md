@@ -23,7 +23,7 @@ A bounded undo/redo system that manages a fixed-size timeline of registered item
 
 ## Usage
 
-The `useTimeline` composable extends `useRegistry` to provide undo/redo functionality with a bounded history. When the timeline reaches its size limit, older items are moved to an overflow buffer, allowing you to undo back to them while maintaining a fixed active timeline size.
+The `createTimeline` composable extends `createRegistry` to provide undo/redo functionality with a bounded history. When the timeline reaches its size limit, older items are moved to an overflow buffer, allowing you to undo back to them while maintaining a fixed active timeline size.
 
 ```ts
 import { createTimeline } from '@vuetify/v0'
@@ -48,11 +48,11 @@ console.log(timeline.size) // 3
 
 ## Architecture
 
-`useTimeline` extends `useRegistry` with bounded history and overflow management:
+`createTimeline` extends `createRegistry` with bounded history and overflow management:
 
 ```mermaid "Timeline Hierarchy"
 flowchart TD
-  useRegistry --> useTimeline
+  createRegistry --> useTimeline
   useTimeline --> undo/redo
   useTimeline --> overflow[overflow buffer]
   useTimeline --> cursor[history cursor]

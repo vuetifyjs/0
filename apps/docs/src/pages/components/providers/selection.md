@@ -30,7 +30,7 @@ A headless component for managing selection state in collections with support fo
 
 ## Usage
 
-The Selection component provides a wrapper and item pattern for managing selection state in collections. It uses the `useSelection` composable internally and provides full v-model support with automatic state synchronization.
+The Selection component provides a wrapper and item pattern for managing selection state in collections. It uses the `createSelection` composable internally and provides full v-model support with automatic state synchronization.
 
 <DocsExample file="basic.vue" title="Multi-selection" :code="BasicExampleRaw">
   <BasicExample />

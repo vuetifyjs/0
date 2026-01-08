@@ -9,7 +9,7 @@ meta:
 features:
   category: Composable
   label: 'E: createRegistry'
-  github: /composables/useRegistry/
+  github: /composables/createRegistry/
   level: 3
 related:
 - /composables/selection/create-selection
@@ -25,7 +25,7 @@ A foundational composable for building registration-based systems, managing coll
 
 ## Usage
 
-The `useRegistry` composable provides a powerful interface for managing collections of items in a registration-based system. It allows you to register, unregister, and look up items efficiently, while maintaining an index for quick access.
+The `createRegistry` composable provides a powerful interface for managing collections of items in a registration-based system. It allows you to register, unregister, and look up items efficiently, while maintaining an index for quick access.
 
 ```ts
 import { createRegistry } from '@vuetify/v0'
@@ -41,15 +41,15 @@ console.log(registry.size) // 3
 
 ## Architecture
 
-`useRegistry` is the foundation for specialized registration systems:
+`createRegistry` is the foundation for specialized registration systems:
 
 ```mermaid "Registry Hierarchy"
 flowchart TD
-  useRegistry --> useSelection
-  useRegistry --> useTokens
-  useRegistry --> useForm
-  useRegistry --> useQueue
-  useRegistry --> useTimeline
+  createRegistry --> createSelection
+  createRegistry --> createTokens
+  createRegistry --> createForm
+  createRegistry --> createQueue
+  createRegistry --> createTimeline
 ```
 
 Each branch extends the base ticket pattern with domain-specific capabilities. See individual composable docs for their extension hierarchies.

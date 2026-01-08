@@ -22,7 +22,7 @@ import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createTokens } from '#v0/composables/useTokens'
+import { createTokens } from '#v0/composables/createTokens'
 
 // Adapters
 import { Vuetify0PermissionAdapter } from '#v0/composables/usePermissions/adapters'
@@ -31,9 +31,9 @@ import { Vuetify0PermissionAdapter } from '#v0/composables/usePermissions/adapte
 import { toArray } from '#v0/composables/toArray'
 
 // Types
+import type { TokenContext, TokenOptions, TokenTicket } from '#v0/composables/createTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
-import type { TokenContext, TokenOptions, TokenTicket } from '#v0/composables/useTokens'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
 

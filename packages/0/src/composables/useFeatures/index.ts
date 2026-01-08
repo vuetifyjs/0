@@ -24,7 +24,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { createGroup } from '#v0/composables/createGroup'
-import { createTokens } from '#v0/composables/useTokens'
+import { createTokens } from '#v0/composables/createTokens'
 
 // Utilities
 import { isBoolean, isObject } from '#v0/utilities'
@@ -32,8 +32,8 @@ import { isBoolean, isObject } from '#v0/utilities'
 // Types
 import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
 import type { RegistryOptions } from '#v0/composables/createRegistry'
+import type { TokenCollection, TokenValue } from '#v0/composables/createTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { TokenCollection, TokenValue } from '#v0/composables/useTokens'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
 

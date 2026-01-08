@@ -407,13 +407,13 @@ The following export paths exist for the Vuetify0 framework:
 
 ```ts
 // Everything
-import { ExpansionPanel, useSelection } from '@vuetify/v0'
+import { ExpansionPanel, createSelection } from '@vuetify/v0'
 
 // Components only
 import { ExpansionPanel, Single, Group } from '@vuetify/v0/components'
 
 // Composables only
-import { useSelection, useTheme, useForm } from '@vuetify/v0/composables'
+import { createSelection, useTheme, useForm } from '@vuetify/v0/composables'
 
 // Utilities only
 import { isObject, isString } from '@vuetify/v0/utilities'

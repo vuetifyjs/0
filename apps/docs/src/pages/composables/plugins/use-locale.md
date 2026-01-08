@@ -16,7 +16,7 @@ related:
 
 # useLocale
 
-The `useLocale` composable provides comprehensive internationalization (i18n) capabilities, allowing you to manage multiple locales, switch between them dynamically, and translate messages with variable replacement and message linking. Built on `useSingle` for single-locale selection and supports custom adapters for integration with different i18n libraries.
+The `useLocale` composable provides comprehensive internationalization (i18n) capabilities, allowing you to manage multiple locales, switch between them dynamically, and translate messages with variable replacement and message linking. Built on `createSingle` for single-locale selection and supports custom adapters for integration with different i18n libraries.
 
 <DocsPageFeatures :frontmatter />
 
@@ -79,13 +79,13 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 
 ## Architecture
 
-`useLocale` extends `useSingle` for locale selection with message interpolation:
+`useLocale` extends `createSingle` for locale selection with message interpolation:
 
 ```mermaid "Locale Hierarchy"
 flowchart TD
-  useRegistry --> useSelection
-  useSelection --> useSingle
-  useSingle --> useLocale
+  createRegistry --> createSelection
+  createSelection --> createSingle
+  createSingle --> useLocale
   Adapter --> useLocale
 ```
 

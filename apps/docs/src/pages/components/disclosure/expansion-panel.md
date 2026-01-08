@@ -28,7 +28,7 @@ A component for creating accordion-style expansion panels with proper ARIA suppo
 
 ## Usage
 
-The ExpansionPanel component provides a wrapper and item pattern for managing expansion state in accordion-style interfaces. It uses the `useSelection` composable internally and provides full v-model support with automatic state synchronization.
+The ExpansionPanel component provides a wrapper and item pattern for managing expansion state in accordion-style interfaces. It uses the `createSelection` composable internally and provides full v-model support with automatic state synchronization.
 
 <DocsExample file="basic.vue" title="Basic ExpansionPanel" :code="BasicExampleRaw">
   <BasicExample />

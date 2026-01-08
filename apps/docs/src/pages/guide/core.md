@@ -105,10 +105,10 @@ useItem('v0:panel')               // Injects from 'v0:panel:item'
 
 ## Registry System
 
-`useRegistry` is the foundational data structure. All selection, forms, and token composables extend it.
+`createRegistry` is the foundational data structure. All selection, forms, and token composables extend it.
 
 ```ts
-const registry = useRegistry()
+const registry = createRegistry()
 
 // Register items
 const ticket = registry.register({ id: 'item-1', value: 'First' })
@@ -139,27 +139,27 @@ interface RegistryTicket {
 
 ```mermaid "Extension Chain"
 flowchart LR
-    R[useRegistry] --> S[useSelection]
-    R --> T[useTokens]
+    R[createRegistry] --> S[createSelection]
+    R --> T[createTokens]
     R --> F[useForm]
-    S --> Si[useSingle]
-    S --> G[useGroup]
-    Si --> St[useStep]
+    S --> Si[createSingle]
+    S --> G[createGroup]
+    Si --> St[createStep]
 ```
 
 | Composable | Extends | Adds |
 | - | - | - |
-| `useRegistry` | — | Base collection management |
-| `useSelection` | Registry | `selectedIds` Set |
-| `useSingle` | Selection | Single selection constraint |
-| `useGroup` | Selection | Tri-state, batch ops |
-| `useStep` | Single | Navigation (next/prev/first/last) |
-| `useTokens` | Registry | Alias resolution |
+| `createRegistry` | — | Base collection management |
+| `createSelection` | Registry | `selectedIds` Set |
+| `createSingle` | Selection | Single selection constraint |
+| `createGroup` | Selection | Tri-state, batch ops |
+| `createStep` | Single | Navigation (next/prev/first/last) |
+| `createTokens` | Registry | Alias resolution |
 | `useForm` | Registry | Validation |
 
 ## Selection System
 
-### useSelection
+### createSelection
 
 Base multi-selection with Set-based tracking:
 
@@ -173,7 +173,7 @@ selection.select('a')
 selection.selectedIds  // Set { 'a' }
 ```
 
-### useSingle
+### createSingle
 
 Auto-clears previous selection:
 
@@ -190,7 +190,7 @@ tabs.select('tab-2')  // tab-1 auto-unselected
 tabs.selectedId.value // 'tab-2'
 ```
 
-### useGroup
+### createGroup
 
 Multi-select with tri-state:
 
@@ -208,7 +208,7 @@ checkboxes.selectAll()
 checkboxes.isMixed.value  // true when some (not all) selected
 ```
 
-### useStep
+### createStep
 
 Sequential navigation:
 

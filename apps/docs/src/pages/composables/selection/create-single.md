@@ -8,7 +8,7 @@ meta:
 features:
   category: Composable
   label: 'E: createSingle'
-  github: /composables/useSingle/
+  github: /composables/createSingle/
   level: 2
 related:
   - /composables/selection/create-selection
@@ -18,13 +18,13 @@ related:
 
 # createSingle
 
-A composable that extends `useSelection` to enforce single-item selection. Automatically clears the previous selection before selecting a new item, ensuring only one item is selected at any time.
+A composable that extends `createSelection` to enforce single-item selection. Automatically clears the previous selection before selecting a new item, ensuring only one item is selected at any time.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-The `useSingle` composable is used when you have a **collection of items** but want to allow **only one** to be selected at any time.
+The `createSingle` composable is used when you have a **collection of items** but want to allow **only one** to be selected at any time.
 
 ```ts
 import { createSingle } from '@vuetify/v0'
@@ -47,12 +47,12 @@ console.log(single.selectedId) // 'banana' (replaces apple)
 
 ## Architecture
 
-The `useSingle` composable is comprised of the following hierarchy:
+The `createSingle` composable is comprised of the following hierarchy:
 
 ```mermaid "Single Selection Hierarchy"
 flowchart TD
-  useRegistry --> useSelection
-  useSelection --> useSingle
+  createRegistry --> createSelection
+  createSelection --> createSingle
 ```
 
 <DocsApi />

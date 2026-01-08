@@ -21,7 +21,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { createSingle } from '#v0/composables/createSingle'
-import { createTokens } from '#v0/composables/useTokens'
+import { createTokens } from '#v0/composables/createTokens'
 
 // Adapters
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
@@ -34,8 +34,8 @@ import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/createSingle'
+import type { TokenCollection } from '#v0/composables/createTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { TokenCollection } from '#v0/composables/useTokens'
 import type { ID } from '#v0/types'
 import type { LocaleAdapter } from './adapters'
 import type { App } from 'vue'

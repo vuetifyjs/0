@@ -28,9 +28,9 @@ The `useProxyRegistry` composable creates reactive objects that automatically sy
 **Important:** The registry must have `events: true` enabled for the proxy to receive updates.
 
 ```ts
-import { useRegistry, useProxyRegistry } from '@vuetify/v0'
+import { createRegistry, useProxyRegistry } from '@vuetify/v0'
 
-const registry = useRegistry({ events: true })
+const registry = createRegistry({ events: true })
 const proxy = useProxyRegistry(registry)
 
 registry.register({ value: 'Item 1' })
@@ -46,7 +46,7 @@ console.log(proxy.keys) // [id1, id2]
 
 ```mermaid "Proxy Registry Flow"
 flowchart LR
-  useRegistry --> events[register/unregister events]
+  createRegistry --> events[register/unregister events]
   events --> useProxyRegistry
   useProxyRegistry --> reactive[reactive object]
   reactive --> template[Vue template]

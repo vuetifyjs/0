@@ -59,11 +59,12 @@ const form = useForm()
 
 ## Architecture
 
-`useForm` extends `useRegistry` with validation capabilities:
+`createForm` extends `createRegistry` with validation capabilities:
 
 ```mermaid "Form Validation Flow"
 flowchart TD
-  useRegistry --> useForm
+  createRegistry --> createForm
+  createForm --> useForm
   useForm --> validate[validate/validateAll]
   useForm --> reset[reset/resetAll]
   useForm --> errors[error collection]

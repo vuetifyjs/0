@@ -24,7 +24,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { createSingle } from '#v0/composables/createSingle'
-import { createTokens } from '#v0/composables/useTokens'
+import { createTokens } from '#v0/composables/createTokens'
 
 // Adapters
 import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
@@ -35,9 +35,9 @@ import { computed, toRef } from 'vue'
 // Types
 import type { RegistryOptions } from '#v0/composables/createRegistry'
 import type { SingleContext, SingleTicket } from '#v0/composables/createSingle'
+import type { TokenCollection } from '#v0/composables/createTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
-import type { TokenCollection } from '#v0/composables/useTokens'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Ref } from 'vue'
 

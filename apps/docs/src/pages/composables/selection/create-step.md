@@ -8,7 +8,7 @@ meta:
 features:
   category: Composable
   label: 'E: createStep'
-  github: /composables/useStep/
+  github: /composables/createStep/
   level: 2
 related:
   - /composables/selection/create-single
@@ -23,7 +23,7 @@ A composable for managing navigation through multi-step processes like forms, wi
 
 ## Usage
 
-The `useStep` composable manages a list of steps and allows navigation between them with configurable circular (wrapping) or bounded (stopping at edges) behavior.
+The `createStep` composable manages a list of steps and allows navigation between them with configurable circular (wrapping) or bounded (stopping at edges) behavior.
 You register each step (with an `id` and value) in the order they should be navigated, then use the navigation methods to move
 
 ```ts
@@ -59,16 +59,16 @@ carousel.prev()   // Wraps to slide3
 
 ## Architecture
 
-`useStep` extends `useSingle` with directional navigation:
+`createStep` extends `createSingle` with directional navigation:
 
 ```mermaid "Step Navigation Hierarchy"
 flowchart TD
-  useRegistry --> useSelection
-  useSelection --> useSingle
-  useSingle --> useStep
-  useStep --> first/last
-  useStep --> next/prev
-  useStep --> step
+  createRegistry --> createSelection
+  createSelection --> createSingle
+  createSingle --> createStep
+  createStep --> first/last
+  createStep --> next/prev
+  createStep --> step
 ```
 
 <DocsApi />

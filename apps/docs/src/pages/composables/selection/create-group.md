@@ -8,7 +8,7 @@ meta:
 features:
   category: Composable
   label: 'E: createGroup'
-  github: /composables/useGroup/
+  github: /composables/createGroup/
   level: 2
 related:
   - /composables/selection/create-selection
@@ -17,13 +17,13 @@ related:
 
 # createGroup
 
-The `useGroup` composable is designed to manage a group of related components, allowing for shared state and behavior across them. It supports tri-state (mixed/indeterminate) for checkbox trees and similar use cases where items can be selected, unselected, or in a mixed state.
+The `createGroup` composable is designed to manage a group of related components, allowing for shared state and behavior across them. It supports tri-state (mixed/indeterminate) for checkbox trees and similar use cases where items can be selected, unselected, or in a mixed state.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-The `useGroup` composable manages a group of selectable items, letting you work with both their IDs and their position indexes.
+The `createGroup` composable manages a group of selectable items, letting you work with both their IDs and their position indexes.
 It supports selecting, unselecting, toggling, and reading the indexes of selected items.
 
 ```ts
@@ -53,14 +53,14 @@ console.log(group.selectedIndexes.value) // Set {}
 
 ## Architecture
 
-`useGroup` extends `useSelection` with multi-select and tri-state capabilities:
+`createGroup` extends `createSelection` with multi-select and tri-state capabilities:
 
 ```mermaid "Group Selection Hierarchy"
 flowchart TD
-  useRegistry --> useSelection
-  useSelection --> useGroup
-  useGroup --> mixedIds[mixedIds Set]
-  useGroup --> selectedIds[selectedIds Set]
+  createRegistry --> createSelection
+  createSelection --> createGroup
+  createGroup --> mixedIds[mixedIds Set]
+  createGroup --> selectedIds[selectedIds Set]
 ```
 
 <DocsApi />
