@@ -16,7 +16,8 @@
     "directory": "packages/0"
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && pnpm generate:web-types",
+    "generate:web-types": "tsx scripts/generate-web-types.ts",
     "typecheck": "vue-tsc --noEmit --incremental"
   },
   "publishConfig": {
@@ -37,9 +38,11 @@
   "devDependencies": {
     "@vue/test-utils": "catalog:",
     "tsdown": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:",
     "unplugin-vue": "catalog:",
-    "vue": "catalog:"
+    "vue": "catalog:",
+    "vue-component-meta": "catalog:"
   },
   "exports": {
     ".": {

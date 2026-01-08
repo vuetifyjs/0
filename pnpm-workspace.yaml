@@ -50,6 +50,7 @@ catalog:
   swetrix: ^3.7.2
   ts-morph: ^27.0.2
   tsdown: ^0.16.1
+  tsx: ^4.21.0
   typescript: 5.9.3
   unocss: ^66.5.10
   unplugin-auto-import: ^20.2.0
