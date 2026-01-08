@@ -19,6 +19,7 @@ export interface NavItemLink {
   to: string
   new?: string
   level?: 1 | 2 | 3
+  emphasized?: boolean
   children?: NavItem[]
 }
 
@@ -40,6 +41,7 @@ interface PageInfo {
   order: number
   hidden: boolean
   level?: 1 | 2 | 3
+  emphasized?: boolean
 }
 
 // Section configuration - defines structure and ordering
@@ -107,7 +109,10 @@ function titleCase (str: string): string {
 }
 
 function toNavLink (p: PageInfo): NavItemLink {
-  return { name: p.name, to: p.urlPath, level: p.level }
+  const link: NavItemLink = { name: p.name, to: p.urlPath }
+  if (p.level) link.level = p.level
+  if (p.emphasized) link.emphasized = p.emphasized
+  return link
 }
 
 function createSubcategoryComparator (order: string[]) {
@@ -134,6 +139,7 @@ function createPageInfo (relPath: string, file: string, name: string, frontmatte
     order: frontmatter.features?.order ?? 999,
     hidden: false,
     level: frontmatter.features?.level,
+    emphasized: frontmatter.features?.emphasized,
   }
 }
 

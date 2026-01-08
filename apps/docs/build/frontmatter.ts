@@ -11,6 +11,7 @@ export interface Frontmatter {
     order?: number
     hidden?: boolean
     level?: 1 | 2 | 3
+    emphasized?: boolean
   }
 }
 
@@ -67,6 +68,8 @@ export function parseFrontmatter (content: string): ParseResult {
         features.hidden = trimmed.slice(7).trim() === 'true'
       } else if (trimmed.startsWith('level:')) {
         features.level = Number.parseInt(trimmed.slice(6).trim(), 10) as 1 | 2 | 3
+      } else if (trimmed.startsWith('emphasized:')) {
+        features.emphasized = trimmed.slice(11).trim() === 'true'
       }
     }
   }

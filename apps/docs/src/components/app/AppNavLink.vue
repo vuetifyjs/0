@@ -13,6 +13,7 @@
 
   export interface ComponentProps extends AtomProps, Partial<RouterLinkProps> {
     new?: string
+    emphasized?: boolean
     children?: NavItem[]
   }
 
@@ -20,6 +21,7 @@
     as = RouterLink,
     activeClass = 'underline text-primary opacity-100!',
     new: newDate,
+    emphasized,
     children = [],
     to,
     ...props
@@ -51,7 +53,7 @@
       v-bind="props"
     >
       <slot />
-      <span v-if="isNew(newDate)" class="w-1.5 h-1.5 rounded-full bg-success" />
+      <span v-if="emphasized || isNew(newDate)" class="w-2 h-2 rounded-[2px] bg-success" />
     </Atom>
 
     <div v-else class="font-semibold">
@@ -67,6 +69,7 @@
         :key="'name' in child ? child.name : ''"
         :children="'children' in child ? child.children : undefined"
         class="text-sm"
+        :emphasized="'emphasized' in child ? child.emphasized : undefined"
         :new="'new' in child ? child.new : undefined"
         :to="'to' in child ? child.to : undefined"
       >
