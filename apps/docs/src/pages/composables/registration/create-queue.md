@@ -46,10 +46,10 @@ console.log(queue.size) // 3
 
 ```mermaid "Queue Hierarchy"
 flowchart TD
-  createRegistry --> useQueue
-  useQueue --> timeout[auto-timeout]
-  useQueue --> pause/resume
-  useQueue --> first[first item active]
+  createRegistry --> createQueue
+  createQueue --> timeout[auto-timeout]
+  createQueue --> pause/resume
+  createQueue --> first[first item active]
 ```
 
 <DocsApi name="useQueue" />

@@ -52,10 +52,10 @@ console.log(timeline.size) // 3
 
 ```mermaid "Timeline Hierarchy"
 flowchart TD
-  createRegistry --> useTimeline
-  useTimeline --> undo/redo
-  useTimeline --> overflow[overflow buffer]
-  useTimeline --> cursor[history cursor]
+  createRegistry --> createTimeline
+  createTimeline --> undo/redo
+  createTimeline --> overflow[overflow buffer]
+  createTimeline --> cursor[history cursor]
 ```
 
 <DocsApi name="useTimeline" />
