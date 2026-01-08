@@ -8,6 +8,7 @@
  * Key features:
  * - Skips external links, file downloads, and new-tab links
  * - Handles paths with query strings and hash fragments
+ * - Smooth scrolls to hash anchors (respects reduced motion preference)
  * - Automatically cleaned up on component unmount
  * - SSR-safe
  */
@@ -15,6 +16,9 @@
 // Framework
 import { useEventListener } from '@vuetify/v0'
 import { IN_BROWSER } from '@vuetify/v0/constants'
+
+// Composables
+import { useSettings } from './useSettings'
 
 // Utilities
 import { useRouter } from 'vue-router'
@@ -37,6 +41,7 @@ export function useRouterLinks (
   if (!IN_BROWSER) return
 
   const router = useRouter()
+  const { prefersReducedMotion } = useSettings()
 
   useEventListener(container, 'click', (e: MouseEvent) => {
     const anchor = (e.target as HTMLElement).closest('a')
@@ -45,13 +50,24 @@ export function useRouterLinks (
     const href = anchor.getAttribute('href')
     if (!href) return
 
-    // Skip: external links, file downloads, new tab links, anchor-only
+    // Skip: external links, file downloads, new tab links
     if (
       /^https?:\/\//i.test(href) ||
       DOWNLOAD_EXTENSIONS.test(href) ||
-      anchor.hasAttribute('target') ||
-      (href.startsWith('#') && !href.includes('/'))
+      anchor.hasAttribute('target')
     ) return
+
+    // Hash-only link - smooth scroll to anchor
+    if (href.startsWith('#') && !href.includes('/')) {
+      const id = href.slice(1)
+      const el = document.querySelector(`#${CSS.escape(id)}`)
+      if (el) {
+        e.preventDefault()
+        el.scrollIntoView({ behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
+        history.replaceState(null, '', href)
+      }
+      return
+    }
 
     // Internal link - use router
     if (href.startsWith('/')) {

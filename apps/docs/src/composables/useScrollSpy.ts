@@ -15,7 +15,9 @@
  */
 
 // Framework
+import { useWindowEventListener } from '@vuetify/v0'
 import { IN_BROWSER } from '@vuetify/v0/constants'
+import { isUndefined } from '@vuetify/v0/utilities'
 
 // Utilities
 import { computed, onScopeDispose, shallowReactive, shallowRef } from 'vue'
@@ -104,19 +106,36 @@ export function useScrollSpy (options: ScrollSpyOptions = {}): ScrollSpyReturn {
   const size = computed(() => elements.size)
 
   let observer: IntersectionObserver | null = null
+  const intersecting = new Set<Element>()
 
   function getObserver (): IntersectionObserver {
     if (observer) return observer
 
     observer = new IntersectionObserver(
       entries => {
-        // Find the entry that is intersecting and highest on the page
+        // Track which elements are currently intersecting
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            const id = elementToId.get(entry.target)
-            if (id) {
-              selectedId.value = id
+            intersecting.add(entry.target)
+          } else {
+            intersecting.delete(entry.target)
+          }
+        }
+
+        // Find the intersecting element highest on the page
+        if (intersecting.size > 0) {
+          let topmost: Element | null = null
+          let topmostY = Infinity
+          for (const el of intersecting) {
+            const y = el.getBoundingClientRect().top
+            if (y < topmostY) {
+              topmostY = y
+              topmost = el
             }
+          }
+          if (topmost) {
+            const id = elementToId.get(topmost)
+            if (id) selectedId.value = id
           }
         }
       },
@@ -161,8 +180,16 @@ export function useScrollSpy (options: ScrollSpyOptions = {}): ScrollSpyReturn {
       elementToId.delete(element)
     }
     elements.clear()
+    intersecting.clear()
     selectedId.value = undefined
   }
+
+  // Clear selection when scrolled to top
+  useWindowEventListener('scroll', () => {
+    if (window.scrollY === 0 && !isUndefined(selectedId.value)) {
+      selectedId.value = undefined
+    }
+  }, { passive: true })
 
   onScopeDispose(clear)
 
