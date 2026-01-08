@@ -124,3 +124,32 @@ jobs:
         run: pnpm install
       - name: Build packages
         run: pnpm build
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            docs:
+              - 'apps/docs/**'
+
+  docs-check:
+    needs: changes
+    if: ${{ needs.changes.outputs.docs == 'true' && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: vuetifyjs/setup-action@master
+      - run: pnpm run build:docs
+        env:
+          VITE_API_SERVER_URL: ${{ vars.API_SERVER_URL }}
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v2
+        with:
+          lycheeVersion: v0.22.0
+          args: --config lychee.toml './apps/docs/dist'
+          fail: true

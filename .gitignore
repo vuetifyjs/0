@@ -14,6 +14,9 @@ dist-ssr
 coverage
 *.local
 
+# lychee cache
+.lycheecache
+
 /cypress/videos/
 /cypress/screenshots/
 
