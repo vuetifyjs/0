@@ -81,6 +81,7 @@ import { ... } from '@vuetify/v0/constants'  // Constants only
 |-----------|-------------|
 | **Atom** | Polymorphic base element. Renders as any HTML element via `as` prop with renderless mode support |
 | **Avatar** | Image with fallback display. Compound component with Root, Image, and Fallback sub-components |
+| **Dialog** | Modal dialog using native `<dialog>`. Root, Activator, Content, Title, Description, Close sub-components |
 | **ExpansionPanel** | Accordion/collapsible panels. Supports single (accordion) or multi-expand modes |
 | **Group** | Multi-selection with tri-state support. Provides `selectAll`, `unselectAll`, `toggleAll` |
 | **Pagination** | Page navigation with ellipsis. Root, Item, First, Prev, Next, Last, Ellipsis sub-components |
@@ -103,19 +104,19 @@ Core factories that provide the foundation for all other composables:
 
 Base data structures that most other composables build upon:
 
-- **`useRegistry`** - Enhanced Map with indexing, caching, and event support
+- **`createRegistry`** - Enhanced Map with indexing, caching, and event support
 - **`useQueue`** - FIFO queue with timeout management (notifications/toasts)
 - **`useTimeline`** - Bounded undo/redo history
-- **`useTokens`** - Design token registry with alias resolution
+- **`createTokens`** - Design token registry with alias resolution
 
 #### Selection
 
-Selection management composables built on `useRegistry`:
+Selection management composables built on `createRegistry`:
 
-- **`useSelection`** - Base selection with Set-based tracking
-- **`useGroup`** - Multi-selection with tri-state/mixed support
-- **`useSingle`** - Single-selection specialization
-- **`useStep`** - Navigation through items (first, last, next, prev)
+- **`createSelection`** - Base selection with Set-based tracking
+- **`createGroup`** - Multi-selection with tri-state/mixed support
+- **`createSingle`** - Single-selection specialization
+- **`createStep`** - Navigation through items (first, last, next, prev)
 
 #### Forms & Data
 
@@ -135,9 +136,11 @@ Selection management composables built on `useRegistry`:
 
 #### Observers & Events
 
+- **`useClickOutside`** - Click outside detection with cleanup
 - **`useEventListener`** - Lifecycle-managed event listeners
 - **`useHotkey`** - Hotkey combinations and sequences
 - **`useIntersectionObserver`** - Intersection observer with auto-cleanup
+- **`useMediaQuery`** - Reactive CSS media query matching
 - **`useMutationObserver`** - DOM mutation observation
 - **`useResizeObserver`** - Resize observer utilities
 
