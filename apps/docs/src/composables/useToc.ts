@@ -15,7 +15,7 @@
 // Globals
 
 // Framework
-import { useMutationObserver } from '@vuetify/v0'
+import { useMutationObserver, useWindowEventListener } from '@vuetify/v0'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
 // Composables
@@ -23,7 +23,7 @@ import { useScrollSpy } from './useScrollSpy'
 import { useSettings } from './useSettings'
 
 // Utilities
-import { nextTick, onScopeDispose, shallowRef, toRef, watch } from 'vue'
+import { nextTick, onScopeDispose, shallowRef, toRef, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 
 // Types
@@ -180,16 +180,53 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     }, 50)
   }
 
+  // Prevents hash sync during programmatic scrolls and initial load
+  const isSyncing = shallowRef(false)
+  const isInitialLoad = shallowRef(true)
+  let initialLoadTimeoutId: ReturnType<typeof setTimeout> | null = null
+
+  // Allow hash sync after initial scroll settles
+  if (IN_BROWSER) {
+    initialLoadTimeoutId = setTimeout(() => {
+      isInitialLoad.value = false
+    }, 500)
+  }
+
   function scrollTo (id: string) {
     if (!IN_BROWSER) return
 
     const el = document.querySelector(`#${CSS.escape(id)}`)
-    if (el) {
-      el.scrollIntoView({ behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
-      // Update URL hash without triggering scroll
-      history.replaceState(null, '', `#${id}`)
+    if (!el) return
+
+    // Use instant scroll on initial load to avoid scroll spy catching intermediate headings
+    const behavior = prefersReducedMotion.value || isInitialLoad.value ? 'auto' : 'smooth'
+
+    isSyncing.value = true
+    el.scrollIntoView({ behavior })
+    history.replaceState(null, '', `#${id}`)
+
+    if (behavior === 'auto') {
+      nextTick(() => {
+        isSyncing.value = false
+      })
+    } else {
+      useWindowEventListener('scrollend', () => {
+        isSyncing.value = false
+      }, { once: true })
     }
   }
+
+  // Sync URL hash on user scroll
+  watchEffect(() => {
+    if (isSyncing.value || isInitialLoad.value) return
+
+    const id = scrollSpy.selectedId.value
+    if (id) {
+      history.replaceState(null, '', `#${id}`)
+    } else {
+      history.replaceState(null, '', location.pathname + location.search)
+    }
+  })
 
   // Watch for route changes
   watch(
@@ -223,6 +260,7 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
   onScopeDispose(() => {
     if (scanTimeoutId) clearTimeout(scanTimeoutId)
     if (scanRafId) cancelAnimationFrame(scanRafId)
+    if (initialLoadTimeoutId) clearTimeout(initialLoadTimeoutId)
   })
 
   return {
