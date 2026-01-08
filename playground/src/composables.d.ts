@@ -42,8 +42,8 @@ declare global {
   const createFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').createFilterContext
   const createForm: typeof import('../../packages/0/src/composables/useForm/index').createForm
   const createFormContext: typeof import('../../packages/0/src/composables/useForm/index').createFormContext
-  const createGroup: typeof import('../../packages/0/src/composables/useGroup/index').createGroup
-  const createGroupContext: typeof import('../../packages/0/src/composables/useGroup/index').createGroupContext
+  const createGroup: typeof import('../../packages/0/src/composables/createGroup/index').createGroup
+  const createGroupContext: typeof import('../../packages/0/src/composables/createGroup/index').createGroupContext
   const createHydration: typeof import('../../packages/0/src/composables/useHydration/index').createHydration
   const createHydrationContext: typeof import('../../packages/0/src/composables/useHydration/index').createHydrationContext
   const createHydrationPlugin: typeof import('../../packages/0/src/composables/useHydration/index').createHydrationPlugin
@@ -64,13 +64,14 @@ declare global {
   const createPlugin: typeof import('../../packages/0/src/composables/createPlugin/index').createPlugin
   const createQueue: typeof import('../../packages/0/src/composables/useQueue/index').createQueue
   const createQueueContext: typeof import('../../packages/0/src/composables/useQueue/index').createQueueContext
-  const createRegistryContext: typeof import('../../packages/0/src/composables/useRegistry/index').createRegistryContext
-  const createSelection: typeof import('../../packages/0/src/composables/useSelection/index').createSelection
-  const createSelectionContext: typeof import('../../packages/0/src/composables/useSelection/index').createSelectionContext
-  const createSingle: typeof import('../../packages/0/src/composables/useSingle/index').createSingle
-  const createSingleContext: typeof import('../../packages/0/src/composables/useSingle/index').createSingleContext
-  const createStep: typeof import('../../packages/0/src/composables/useStep/index').createStep
-  const createStepContext: typeof import('../../packages/0/src/composables/useStep/index').createStepContext
+  const createRegistry: typeof import('../../packages/0/src/composables/createRegistry/index').createRegistry
+  const createRegistryContext: typeof import('../../packages/0/src/composables/createRegistry/index').createRegistryContext
+  const createSelection: typeof import('../../packages/0/src/composables/createSelection/index').createSelection
+  const createSelectionContext: typeof import('../../packages/0/src/composables/createSelection/index').createSelectionContext
+  const createSingle: typeof import('../../packages/0/src/composables/createSingle/index').createSingle
+  const createSingleContext: typeof import('../../packages/0/src/composables/createSingle/index').createSingleContext
+  const createStep: typeof import('../../packages/0/src/composables/createStep/index').createStep
+  const createStepContext: typeof import('../../packages/0/src/composables/createStep/index').createStepContext
   const createStorage: typeof import('../../packages/0/src/composables/useStorage/index').createStorage
   const createStorageContext: typeof import('../../packages/0/src/composables/useStorage/index').createStorageContext
   const createStoragePlugin: typeof import('../../packages/0/src/composables/useStorage/index').createStoragePlugin
@@ -176,7 +177,7 @@ declare global {
   const useFilter: typeof import('../../packages/0/src/composables/useFilter/index').useFilter
   const useFilterContext: typeof import('../../packages/0/src/composables/useFilter/index').useFilterContext
   const useForm: typeof import('../../packages/0/src/composables/useForm/index').useForm
-  const useGroup: typeof import('../../packages/0/src/composables/useGroup/index').useGroup
+  const useGroup: typeof import('../../packages/0/src/composables/createGroup/index').useGroup
   const useHotkey: typeof import('../../packages/0/src/composables/useHotkey/index').useHotkey
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index').useHydration
   const useId: typeof import('vue').useId
@@ -198,11 +199,11 @@ declare global {
   const useRegistry: typeof import('../../packages/0/src/composables/useRegistry/index').useRegistry
   const useResizeObserver: typeof import('../../packages/0/src/composables/useResizeObserver/index').useResizeObserver
   const useRounded: typeof import('../../packages/paper/src/composables/useRounded/index').useRounded
-  const useSelection: typeof import('../../packages/0/src/composables/useSelection/index').useSelection
-  const useSingle: typeof import('../../packages/0/src/composables/useSingle/index').useSingle
+  const useSelection: typeof import('../../packages/0/src/composables/createSelection/index').useSelection
+  const useSingle: typeof import('../../packages/0/src/composables/createSingle/index').useSingle
   const useSlots: typeof import('vue').useSlots
   const useSpacing: typeof import('../../packages/paper/src/composables/useSpacing/index').useSpacing
-  const useStep: typeof import('../../packages/0/src/composables/useStep/index').useStep
+  const useStep: typeof import('../../packages/0/src/composables/createStep/index').useStep
   const useStorage: typeof import('../../packages/0/src/composables/useStorage/index').useStorage
   const useTemplateRef: typeof import('vue').useTemplateRef
   const useTheme: typeof import('../../packages/0/src/composables/useTheme/index').useTheme
@@ -271,8 +272,8 @@ declare global {
   export type { FormValidationResult, FormValidationRule, FormValue, FormTicket, FormContext, FormOptions, FormContextOptions } from '../../packages/0/src/composables/useForm/index'
   import('../../packages/0/src/composables/useForm/index')
   // @ts-ignore
-  export type { GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/useGroup/index'
-  import('../../packages/0/src/composables/useGroup/index')
+  export type { GroupTicket, GroupContext, GroupOptions, GroupContextOptions } from '../../packages/0/src/composables/createGroup/index'
+  import('../../packages/0/src/composables/createGroup/index')
   // @ts-ignore
   export type { UseHotkeyOptions, UseHotkeyReturn, PlatformContext } from '../../packages/0/src/composables/useHotkey/index'
   import('../../packages/0/src/composables/useHotkey/index')
@@ -313,20 +314,20 @@ declare global {
   export type { QueueTicket, QueueContext, QueueOptions, QueueContextOptions } from '../../packages/0/src/composables/useQueue/index'
   import('../../packages/0/src/composables/useQueue/index')
   // @ts-ignore
-  export type { RegistryTicket, RegistryEventCallback, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/useRegistry/index'
-  import('../../packages/0/src/composables/useRegistry/index')
+  export type { RegistryTicket, RegistryEventCallback, RegistryContext, RegistryOptions, RegistryContextOptions } from '../../packages/0/src/composables/createRegistry/index'
+  import('../../packages/0/src/composables/createRegistry/index')
   // @ts-ignore
   export type { ResizeObserverEntry, ResizeObserverOptions, UseResizeObserverReturn, UseElementSizeReturn } from '../../packages/0/src/composables/useResizeObserver/index'
   import('../../packages/0/src/composables/useResizeObserver/index')
   // @ts-ignore
-  export type { SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/useSelection/index'
-  import('../../packages/0/src/composables/useSelection/index')
+  export type { SelectionTicket, SelectionContext, SelectionOptions, SelectionContextOptions } from '../../packages/0/src/composables/createSelection/index'
+  import('../../packages/0/src/composables/createSelection/index')
   // @ts-ignore
-  export type { SingleTicket, SingleContext, SingleOptions, SingleContextOptions } from '../../packages/0/src/composables/useSingle/index'
-  import('../../packages/0/src/composables/useSingle/index')
+  export type { SingleTicket, SingleContext, SingleOptions, SingleContextOptions } from '../../packages/0/src/composables/createSingle/index'
+  import('../../packages/0/src/composables/createSingle/index')
   // @ts-ignore
-  export type { StepTicket, StepContext, StepOptions, StepContextOptions } from '../../packages/0/src/composables/useStep/index'
-  import('../../packages/0/src/composables/useStep/index')
+  export type { StepTicket, StepContext, StepOptions, StepContextOptions } from '../../packages/0/src/composables/createStep/index'
+  import('../../packages/0/src/composables/createStep/index')
   // @ts-ignore
   export type { StorageContext, StorageOptions, StorageContextOptions, StoragePluginOptions, StorageAdapter, StorageType } from '../../packages/0/src/composables/useStorage/index'
   import('../../packages/0/src/composables/useStorage/index')
@@ -391,8 +392,8 @@ declare module 'vue' {
     readonly createFilterContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['createFilterContext']>
     readonly createForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createForm']>
     readonly createFormContext: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['createFormContext']>
-    readonly createGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroup']>
-    readonly createGroupContext: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['createGroupContext']>
+    readonly createGroup: UnwrapRef<typeof import('../../packages/0/src/composables/createGroup/index')['createGroup']>
+    readonly createGroupContext: UnwrapRef<typeof import('../../packages/0/src/composables/createGroup/index')['createGroupContext']>
     readonly createHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydration']>
     readonly createHydrationContext: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationContext']>
     readonly createHydrationPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createHydrationPlugin']>
@@ -413,13 +414,14 @@ declare module 'vue' {
     readonly createPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/createPlugin/index')['createPlugin']>
     readonly createQueue: UnwrapRef<typeof import('../../packages/0/src/composables/useQueue/index')['createQueue']>
     readonly createQueueContext: UnwrapRef<typeof import('../../packages/0/src/composables/useQueue/index')['createQueueContext']>
-    readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['createRegistryContext']>
-    readonly createSelection: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['createSelection']>
-    readonly createSelectionContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['createSelectionContext']>
-    readonly createSingle: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['createSingle']>
-    readonly createSingleContext: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['createSingleContext']>
-    readonly createStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['createStep']>
-    readonly createStepContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['createStepContext']>
+    readonly createRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/createRegistry/index')['createRegistry']>
+    readonly createRegistryContext: UnwrapRef<typeof import('../../packages/0/src/composables/createRegistry/index')['createRegistryContext']>
+    readonly createSelection: UnwrapRef<typeof import('../../packages/0/src/composables/createSelection/index')['createSelection']>
+    readonly createSelectionContext: UnwrapRef<typeof import('../../packages/0/src/composables/createSelection/index')['createSelectionContext']>
+    readonly createSingle: UnwrapRef<typeof import('../../packages/0/src/composables/createSingle/index')['createSingle']>
+    readonly createSingleContext: UnwrapRef<typeof import('../../packages/0/src/composables/createSingle/index')['createSingleContext']>
+    readonly createStep: UnwrapRef<typeof import('../../packages/0/src/composables/createStep/index')['createStep']>
+    readonly createStepContext: UnwrapRef<typeof import('../../packages/0/src/composables/createStep/index')['createStepContext']>
     readonly createStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorage']>
     readonly createStorageContext: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStorageContext']>
     readonly createStoragePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['createStoragePlugin']>
@@ -525,7 +527,7 @@ declare module 'vue' {
     readonly useFilter: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilter']>
     readonly useFilterContext: UnwrapRef<typeof import('../../packages/0/src/composables/useFilter/index')['useFilterContext']>
     readonly useForm: UnwrapRef<typeof import('../../packages/0/src/composables/useForm/index')['useForm']>
-    readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/useGroup/index')['useGroup']>
+    readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/createGroup/index')['useGroup']>
     readonly useHotkey: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['useHotkey']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
@@ -544,14 +546,13 @@ declare module 'vue' {
     readonly useProxyModel: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyModel/index')['useProxyModel']>
     readonly useProxyRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useProxyRegistry/index')['useProxyRegistry']>
     readonly useQueue: UnwrapRef<typeof import('../../packages/0/src/composables/useQueue/index')['useQueue']>
-    readonly useRegistry: UnwrapRef<typeof import('../../packages/0/src/composables/useRegistry/index')['useRegistry']>
     readonly useResizeObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useResizeObserver/index')['useResizeObserver']>
     readonly useRounded: UnwrapRef<typeof import('../../packages/paper/src/composables/useRounded/index')['useRounded']>
-    readonly useSelection: UnwrapRef<typeof import('../../packages/0/src/composables/useSelection/index')['useSelection']>
-    readonly useSingle: UnwrapRef<typeof import('../../packages/0/src/composables/useSingle/index')['useSingle']>
+    readonly useSelection: UnwrapRef<typeof import('../../packages/0/src/composables/createSelection/index')['useSelection']>
+    readonly useSingle: UnwrapRef<typeof import('../../packages/0/src/composables/createSingle/index')['useSingle']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSpacing: UnwrapRef<typeof import('../../packages/paper/src/composables/useSpacing/index')['useSpacing']>
-    readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/useStep/index')['useStep']>
+    readonly useStep: UnwrapRef<typeof import('../../packages/0/src/composables/createStep/index')['useStep']>
     readonly useStorage: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['useStorage']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTheme: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['useTheme']>

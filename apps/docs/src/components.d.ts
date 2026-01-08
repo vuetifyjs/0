@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppAskInline: typeof import('./components/app/AppAskInline.vue')['default']
     AppBanner: typeof import('./components/app/AppBanner.vue')['default']
     AppBar: typeof import('./components/app/AppBar.vue')['default']
     AppChip: typeof import('./components/app/AppChip.vue')['default']
@@ -20,9 +21,13 @@ declare module 'vue' {
     AppHomeMain: typeof import('./components/app/AppHomeMain.vue')['default']
     AppIcon: typeof import('./components/app/AppIcon.vue')['default']
     AppIconButton: typeof import('./components/app/AppIconButton.vue')['default']
+    AppLevelChip: typeof import('./components/app/AppLevelChip.vue')['default']
+    AppLink: typeof import('./components/app/AppLink.vue')['default']
     AppMain: typeof import('./components/app/AppMain.vue')['default']
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
+    AppSkillFilter: typeof import('./components/app/AppSkillFilter.vue')['default']
+    AppThemeToggle: typeof import('./components/app/AppThemeToggle.vue')['default']
     DocsAlert: typeof import('./components/docs/DocsAlert.vue')['default']
     DocsApi: typeof import('./components/docs/DocsApi.vue')['default']
     DocsApiCard: typeof import('./components/docs/DocsApiCard.vue')['default']
@@ -59,6 +64,7 @@ declare module 'vue' {
     HomeFooter: typeof import('./components/home/HomeFooter.vue')['default']
     HomeHero: typeof import('./components/home/HomeHero.vue')['default']
     HomeIntegrations: typeof import('./components/home/HomeIntegrations.vue')['default']
+    HomeSponsor: typeof import('./components/home/HomeSponsor.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

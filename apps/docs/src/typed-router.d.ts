@@ -408,6 +408,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/building-docs': RouteRecordInfo<
+      '/guide/building-docs',
+      '/guide/building-docs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/components': RouteRecordInfo<
       '/guide/components',
       '/guide/components',
@@ -460,6 +467,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/theming': RouteRecordInfo<
       '/guide/theming',
       '/guide/theming',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/using-the-docs': RouteRecordInfo<
+      '/guide/using-the-docs',
+      '/guide/using-the-docs',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -877,6 +891,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/building-docs.md': {
+      routes:
+        | '/guide/building-docs'
+      views:
+        | never
+    }
     'src/pages/guide/components.md': {
       routes:
         | '/guide/components'
@@ -922,6 +942,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/theming.md': {
       routes:
         | '/guide/theming'
+      views:
+        | never
+    }
+    'src/pages/guide/using-the-docs.md': {
+      routes:
+        | '/guide/using-the-docs'
       views:
         | never
     }

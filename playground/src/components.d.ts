@@ -15,6 +15,7 @@ declare module 'vue' {
     AvatarFallback: typeof import('./../../packages/0/src/components/Avatar/AvatarFallback.vue')['default']
     AvatarImage: typeof import('./../../packages/0/src/components/Avatar/AvatarImage.vue')['default']
     AvatarRoot: typeof import('./../../packages/0/src/components/Avatar/AvatarRoot.vue')['default']
+    BreadcrumbsRoot: typeof import('./../../packages/0/src/components/Breadcrumbs/BreadcrumbsRoot.vue')['default']
     DialogActivator: typeof import('./../../packages/0/src/components/Dialog/DialogActivator.vue')['default']
     DialogClose: typeof import('./../../packages/0/src/components/Dialog/DialogClose.vue')['default']
     DialogContent: typeof import('./../../packages/0/src/components/Dialog/DialogContent.vue')['default']
