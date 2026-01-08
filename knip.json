@@ -62,6 +62,9 @@
         "src/**/*.bench.ts",
         "src/**/fixtures/**"
       ],
+      "ignoreDependencies": [
+        "tsx"
+      ],
       "paths": {
         "#v0/*": [
           "src/*"
@@ -130,6 +133,8 @@
     "type": true
   },
   "ignoreBinaries": [
-    "http-server"
+    "http-server",
+    "simple-git-hooks",
+    "tsx"
   ]
 }

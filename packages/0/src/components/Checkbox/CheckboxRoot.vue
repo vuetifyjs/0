@@ -94,7 +94,7 @@
   import { computed, onUnmounted, toRef, toValue } from 'vue'
 
   // Types
-  import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
+  import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
 
   defineOptions({ name: 'CheckboxRoot' })
 

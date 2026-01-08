@@ -1048,4 +1048,16 @@ describe('checkbox', () => {
       expect(html).toContain('data-disabled')
     })
   })
+
+  describe('error conditions', () => {
+    it('should throw when Indicator is used outside Root', () => {
+      expect(() => {
+        mount(Checkbox.Indicator as any, {
+          slots: {
+            default: () => 'Checkbox',
+          },
+        })
+      }).toThrow(/Context.*not found/i)
+    })
+  })
 })

@@ -1,7 +1,6 @@
 <script setup lang="ts">
   // Framework
   import { Checkbox } from '@vuetify/v0'
-
   // Utilities
   import { ref } from 'vue'
 
