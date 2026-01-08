@@ -424,6 +424,6 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 
 ## Next Steps
 
-- [Using the Docs](/guide/using-the-docs) Learn navigation tips, Ask AI, and skill filtering
-- [Explore Components](/components/) See all available components
-- [Browse Composables](/composables/) Dive into the composables API
+- [Using the Docs](/guide/using-the-docs) — Learn navigation tips, Ask AI, and skill filtering
+- [Explore Components](/components/) — See all available components
+- [Browse Composables](/composables/) — Dive into the composables API

@@ -66,9 +66,9 @@
       <tbody>
         <tr v-for="link in links" :key="link.to">
           <td>
-            <router-link class="v0-link" :to="link.to">
+            <AppLink :to="link.to">
               {{ link.name }}
-            </router-link>
+            </AppLink>
           </td>
           <td>{{ link.category }}</td>
         </tr>

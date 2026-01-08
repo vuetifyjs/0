@@ -15,6 +15,7 @@ import { createApiTransformer } from './shiki-api-transformer'
 interface MarkdownToken { nesting: number }
 
 // Constants
+import { EXTERNAL_LINK_SUFFIX } from '../src/constants/links'
 import { SHIKI_THEME_IMPORTS, SHIKI_THEMES } from '../src/constants/shiki'
 
 export default async function MarkdownPlugin () {
@@ -167,16 +168,9 @@ export default async function MarkdownPlugin () {
         if (/^https?:\/\//i.test(href)) {
           t.attrSet('target', '_blank')
           t.attrSet('rel', 'noopener noreferrer')
-          t.attrSet('data-sfx', '↗')
-        } else if (/#/.test(href) && !isHeaderAnchor) {
-          t.attrSet('data-pfx', '#')
-        } else if (!isHeaderAnchor) {
-          t.attrSet('data-sfx', '→')
+          t.attrSet('data-sfx', EXTERNAL_LINK_SUFFIX)
         }
-        let html = self.renderToken(tokens, index, options)
-        const pfx = t.attrGet('data-pfx')
-        if (pfx) html += pfx
-        return html
+        return self.renderToken(tokens, index, options)
       }
       md.renderer.rules.link_close = (tokens, index, options, env, self) => {
         for (let i = index - 1; i >= 0; i--) {
