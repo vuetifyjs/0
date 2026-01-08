@@ -2,9 +2,13 @@
   // Framework
   import { IN_BROWSER, useDocumentEventListener, useWindowEventListener } from '@vuetify/v0'
 
+  // Composables
+  import { useSettings } from '@/composables/useSettings'
+
   // Utilities
   import { shallowRef } from 'vue'
 
+  const { prefersReducedMotion } = useSettings()
   const show = shallowRef(false)
 
   function updateOverflow () {
@@ -16,7 +20,7 @@
   useDocumentEventListener('scroll', updateOverflow)
 
   function scrollToTop () {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
   }
 </script>
 
