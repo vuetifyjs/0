@@ -4,6 +4,7 @@
 
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
@@ -17,6 +18,8 @@
   import { useAppStore } from '@/stores/app'
 
   const { as = 'nav' } = defineProps<AtomProps>()
+
+  const { prefersReducedMotion } = useSettings()
 
   const app = useAppStore()
   const { filteredNav, selectedLevels } = useLevelFilterContext()
@@ -87,8 +90,11 @@
     ref="nav"
     aria-label="Main navigation"
     :as
-    class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 transition-transform duration-200 ease-in-out border-r border-solid border-divider z-10 bg-glass-surface"
-    :class="app.drawer && '!translate-x-0'"
+    class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 border-r border-solid border-divider z-10 bg-glass-surface"
+    :class="[
+      app.drawer && '!translate-x-0',
+      !prefersReducedMotion && 'transition-transform duration-200 ease-in-out',
+    ]"
     :inert="!app.drawer && isMobile ? true : undefined"
   >
     <ul class="flex gap-2 flex-col">

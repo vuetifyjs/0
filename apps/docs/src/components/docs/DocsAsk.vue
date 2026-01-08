@@ -8,23 +8,24 @@
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
+  import { useScrollLock } from '@/composables/useScrollLock'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, toRef, nextTick, shallowRef, useTemplateRef, watchEffect } from 'vue'
+  import { computed, toRef, nextTick, shallowRef, useTemplateRef } from 'vue'
 
   const breakpoints = useBreakpoints()
   const isDesktop = computed(() => breakpoints.lgAndUp.value)
   const fullscreen = shallowRef(false)
+  const { prefersReducedMotion } = useSettings()
 
-  // Lock body scroll when fullscreen
-  watchEffect(onCleanup => {
-    if (fullscreen.value && isDesktop.value) {
-      document.body.style.overflow = 'hidden'
-      onCleanup(() => {
-        document.body.style.overflow = ''
-      })
-    }
+  const fadeTransition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
+  const sheetTransition = toRef(() => {
+    if (prefersReducedMotion.value) return undefined
+    return isDesktop.value ? 'fade' : 'slide'
   })
+
+  useScrollLock(() => fullscreen.value && isDesktop.value)
 
   const {
     messages,
@@ -85,7 +86,7 @@
   />
 
   <!-- Backdrop (mobile only) -->
-  <Transition name="fade">
+  <Transition :name="fadeTransition">
     <div
       v-if="isOpen && !isDesktop"
       class="fixed inset-0 bg-black/30 z-40"
@@ -94,7 +95,7 @@
   </Transition>
 
   <!-- Chat sheet -->
-  <Transition :name="isDesktop ? 'fade' : 'slide'">
+  <Transition :name="sheetTransition">
     <DocsAskSheet
       v-if="isOpen"
       ref="sheet"

@@ -15,11 +15,12 @@
 // Globals
 
 // Framework
-import { useMutationObserver, usePrefersReducedMotion } from '@vuetify/v0'
+import { useMutationObserver } from '@vuetify/v0'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
 // Composables
 import { useScrollSpy } from './useScrollSpy'
+import { useSettings } from './useSettings'
 
 // Utilities
 import { nextTick, onScopeDispose, shallowRef, toRef, watch } from 'vue'
@@ -99,7 +100,7 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
   const route = useRoute()
   const headings = shallowRef<TocHeading[]>([])
   const scrollSpy = useScrollSpy()
-  const { matches: prefersReducedMotion } = usePrefersReducedMotion()
+  const { prefersReducedMotion } = useSettings()
 
   let scanTimeoutId: ReturnType<typeof setTimeout> | null = null
   let scanRafId: number | null = null

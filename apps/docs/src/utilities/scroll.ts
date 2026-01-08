@@ -1,11 +1,11 @@
-// Framework
-import { usePrefersReducedMotion } from '@vuetify/v0'
+// Composables
+import { useSettings } from '@/composables/useSettings'
 
 /**
  * Composable that provides a scroll-to-anchor function respecting reduced motion preferences.
  */
 export function useScrollToAnchor () {
-  const { matches: prefersReducedMotion } = usePrefersReducedMotion()
+  const { prefersReducedMotion } = useSettings()
 
   /**
    * Scroll to an element by ID with a fixed header offset

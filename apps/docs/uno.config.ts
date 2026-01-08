@@ -13,6 +13,10 @@ export default defineConfig({
   preflights: [
     {
       getCSS: () => `
+        html {
+          scrollbar-gutter: stable;
+        }
+
         button:not(:disabled),
         [role="button"]:not(:disabled) {
           cursor: pointer;

@@ -2,11 +2,17 @@
   // Framework
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
 
+  // Composables
+  import { useSettings, type PackageManager } from '@/composables/useSettings'
+
   // Utilities
   import { computed, toValue, useId, useSlots, type VNode, watch } from 'vue'
 
+  const PACKAGE_MANAGERS: PackageManager[] = ['pnpm', 'npm', 'yarn', 'bun']
+
   const slots = useSlots()
   const uid = useId()
+  const { packageManager } = useSettings()
 
   const single = createSingle({ mandatory: 'force', events: true })
   const proxy = useProxyRegistry(single)
@@ -29,6 +35,18 @@
     single.clear()
     for (const item of items) {
       single.register({ id: item.label, value: item.label })
+    }
+  }, { immediate: true })
+
+  // Select user's preferred package manager when preference or children change
+  watch([children, packageManager], ([items, pm]) => {
+    // Validate package manager preference
+    if (!PACKAGE_MANAGERS.includes(pm)) return
+
+    const labels = new Set(items.map(i => i.label.toLowerCase()))
+    const hasPackageManagers = PACKAGE_MANAGERS.some(p => labels.has(p))
+    if (hasPackageManagers && labels.has(pm)) {
+      single.select(pm)
     }
   }, { immediate: true })
 

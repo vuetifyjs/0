@@ -1,18 +1,18 @@
 <script setup lang="ts">
   // Composables
-  import { useThemeToggle } from '@/composables/useThemeToggle'
+  import { useSettings } from '@/composables/useSettings'
 
-  const { icon, title, toggle } = useThemeToggle()
+  const { toggle } = useSettings()
 </script>
 
 <template>
   <button
-    :aria-label="title"
+    aria-label="Open settings"
     class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-    :title="title"
+    title="Settings"
     type="button"
     @click="toggle"
   >
-    <AppIcon :icon />
+    <AppIcon icon="cog" />
   </button>
 </template>

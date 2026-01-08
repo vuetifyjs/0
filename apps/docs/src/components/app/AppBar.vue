@@ -4,6 +4,7 @@
 
   // Composables
   import { useSearch } from '@/composables/useSearch'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { toRef, watch } from 'vue'
@@ -26,6 +27,7 @@
   const features = useFeatures()
   const theme = useTheme()
   const { open: openSearch } = useSearch()
+  const { showSkillFilter, showThemeToggle, showSocialLinks } = useSettings()
 
   const devmode = features.get('devmode')!
 
@@ -78,16 +80,17 @@
           <AppIcon icon="search" size="12" />
         </span>
         <span class="text-sm text-gray-400 dark:text-gray-500">Search the docs...</span>
-        <kbd class="shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono inline-flex items-center">Ctrl+K</kbd>
+        <kbd class="shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono inline-flex items-center rounded-r-lg">Ctrl+K</kbd>
       </button>
     </div>
 
     <div class="flex align-center items-center gap-3">
-      <AppSkillFilter />
+      <AppSkillFilter v-if="showSkillFilter" />
 
-      <AppThemeToggle />
+      <AppThemeToggle v-if="showThemeToggle" />
 
       <a
+        v-if="showSocialLinks"
         aria-label="Discord Community (opens in new tab)"
         class="bg-[#5661ea] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://discord.gg/vK6T89eNP7"
@@ -99,6 +102,7 @@
       </a>
 
       <a
+        v-if="showSocialLinks"
         aria-label="GitHub Repository (opens in new tab)"
         class="bg-gray-800 text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://github.com/vuetifyjs/0"
@@ -108,6 +112,8 @@
       >
         <AppIcon icon="github" />
       </a>
+
+      <AppSettings />
     </div>
   </Atom>
 </template>

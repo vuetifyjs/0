@@ -1,9 +1,10 @@
 <script setup lang="ts">
   // Framework
-  import { useDocumentEventListener, usePrefersReducedMotion } from '@vuetify/v0'
+  import { useDocumentEventListener } from '@vuetify/v0'
 
   // Composables
   import { useSearch } from '@/composables/useSearch'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { nextTick, useTemplateRef, watch } from 'vue'
@@ -24,7 +25,7 @@
   const router = useRouter()
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
-  const { matches: prefersReducedMotion } = usePrefersReducedMotion()
+  const { prefersReducedMotion } = useSettings()
 
   watch(isOpen, async opened => {
     if (opened) {

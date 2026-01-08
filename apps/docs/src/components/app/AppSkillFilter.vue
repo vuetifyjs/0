@@ -18,7 +18,7 @@
   <Popover.Root class="hidden md:block">
     <Popover.Activator
       aria-label="Filter by skill level"
-      class="relative bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded opacity-90 hover:opacity-100 transition-all border cursor-pointer"
+      class="relative bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
       title="Filter by skill level"
     >
       <AppIcon icon="tune" />

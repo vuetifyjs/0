@@ -7,12 +7,15 @@
 
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
+  import { useThemeToggle } from './composables/useThemeToggle'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   useScrollPersist()
 
+  const { preference } = useThemeToggle()
+  const showMesh = toRef(() => preference.value !== 'high-contrast')
   const showBottomMesh = shallowRef(false)
 
   useWindowEventListener('scroll', () => {
@@ -36,8 +39,8 @@
 </script>
 
 <template>
-  <div aria-hidden="true" class="mesh-bg mesh-bg-top" />
-  <div aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
+  <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-top" />
+  <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
   <main class="min-h-screen pt-[72px] text-on-background">
     <router-view />
   </main>

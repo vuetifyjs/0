@@ -1,7 +1,10 @@
 <script setup lang="ts">
+  // Composables
+  import { useSettings } from '@/composables/useSettings'
+
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, ref } from 'vue'
+  import { computed } from 'vue'
 
   const props = defineProps<{
     code: string // base64 encoded
@@ -10,12 +13,12 @@
     playground?: boolean
   }>()
 
+  const { lineWrap } = useSettings()
   const decodedCode = computed(() => decodeBase64(props.code))
-  const wrap = ref(false)
 </script>
 
 <template>
-  <div class="docs-markup relative my-4 group" :class="{ 'docs-markup--wrap': wrap }">
+  <div class="docs-markup relative my-4 group" :class="{ 'docs-markup--wrap': lineWrap }">
     <span
       v-if="title || (language && language !== 'text')"
       class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
@@ -25,7 +28,7 @@
     </span>
 
     <DocsCodeActions
-      v-model:wrap="wrap"
+      v-model:wrap="lineWrap"
       bin
       class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
       :code="decodedCode"

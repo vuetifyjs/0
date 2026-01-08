@@ -1,14 +1,12 @@
 <script setup lang="ts">
-  // Framework
-  import { usePrefersReducedMotion } from '@vuetify/v0'
-
   // Composables
   import { useAsk } from '@/composables/useAsk'
+  import { useSettings } from '@/composables/useSettings'
   import { useToc } from '@/composables/useToc'
 
   const { isOpen: isAskOpen } = useAsk()
   const { headings, selectedId, scrollTo } = useToc()
-  const { matches: prefersReducedMotion } = usePrefersReducedMotion()
+  const { prefersReducedMotion } = useSettings()
 
   function scrollToTop () {
     window.scrollTo({ top: 0, behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })

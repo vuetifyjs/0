@@ -21,7 +21,7 @@ const PREFERENCE_LABELS: Record<string, string> = {
   'system': 'System',
 }
 
-type ThemePreference = typeof PREFERENCE_ORDER[number]
+export type ThemePreference = typeof PREFERENCE_ORDER[number]
 
 export interface UseThemeToggleReturn {
   theme: UseThemeReturn

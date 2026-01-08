@@ -1,6 +1,9 @@
 import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
 
+// Composables
+import { getPrefersReducedMotion } from '@/composables/useSettings'
+
 // Types
 import type { RouterOptions } from 'vue-router'
 
@@ -18,7 +21,8 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
           const el = document.querySelector(to.hash)
           if (el) {
             const top = el.getBoundingClientRect().top + window.scrollY - 80
-            resolve({ top, behavior: 'smooth' })
+            const behavior = getPrefersReducedMotion() ? 'auto' : 'smooth'
+            resolve({ top, behavior })
           } else {
             resolve({ top: 0 })
           }

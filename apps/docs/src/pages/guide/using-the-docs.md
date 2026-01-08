@@ -385,22 +385,61 @@ Navigate the entire documentation without touching a mouse:
 
 All keyboard shortcuts work with both `Ctrl` (Windows/Linux) and `Cmd` (Mac).
 
-## Theme & Accessibility
+## Settings
 
-Click the theme button to cycle through four modes: <AppThemeToggle />
+Click the settings button in the header to open the settings panel: <AppSettings />
 
-### Theme Modes
+The settings panel provides personalization options that persist across sessions.
 
-| Mode | Behavior |
-|------|----------|
-| <AppIcon icon="theme-system" :size="16" class="inline-block align-text-bottom" /> **System** | Follows your OS dark/light preference |
-| <AppIcon icon="theme-light" :size="16" class="inline-block align-text-bottom" /> **Light** | Always light theme |
-| <AppIcon icon="theme-dark" :size="16" class="inline-block align-text-bottom" /> **Dark** | Always dark theme |
-| <AppIcon icon="theme-high-contrast" :size="16" class="inline-block align-text-bottom" /> **High Contrast** | Enhanced visibility for accessibility |
+### Theme
 
-Your preference is saved and persists across sessions.
+Choose your preferred color scheme:
 
-### Accessibility Features
+<div class="max-w-xs mb-6">
+  <AppSettingsTheme />
+</div>
+
+### Skill Level
+
+Filter documentation pages by complexity. Selected levels appear in the navigation—pages outside your selection are hidden.
+
+<div class="max-w-xs mb-6">
+  <AppSettingsSkillLevel />
+</div>
+
+### Code Examples
+
+Toggle line wrapping for long lines in code blocks:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsLineWrap />
+</div>
+
+### Motion
+
+Control animations: follow your OS preference, force reduce, or enable full motion.
+
+<div class="max-w-xs mb-6">
+  <AppSettingsMotion />
+</div>
+
+### Package Manager
+
+Set your default for installation code examples:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsPackageManager />
+</div>
+
+### Header Buttons
+
+Toggle visibility of header controls to reduce clutter:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsHeaderButtons />
+</div>
+
+## Accessibility
 
 The documentation is built with accessibility in mind:
 
