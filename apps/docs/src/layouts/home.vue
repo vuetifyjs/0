@@ -14,10 +14,12 @@
 </script>
 
 <template>
-  <AppBanner />
-  <AppBar />
-  <AppHomeMain />
-  <HomeFooter />
+  <div>
+    <AppBanner />
+    <AppBar />
+    <AppHomeMain />
+    <HomeFooter />
 
-  <DocsSearch />
+    <DocsSearch />
+  </div>
 </template>

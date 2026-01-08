@@ -46,38 +46,40 @@
 </script>
 
 <template>
-  <a
-    class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
-    href="#main-content"
-  >
-    Skip to main content
-  </a>
+  <div>
+    <a
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-on-primary focus:rounded"
+      href="#main-content"
+    >
+      Skip to main content
+    </a>
 
-  <div :inert="isModalOpen || undefined">
-    <AppBanner />
-    <AppNav />
-    <AppBar />
-    <AppMain />
-    <AppFooter />
+    <div :inert="isModalOpen || undefined">
+      <AppBanner />
+      <AppNav />
+      <AppBar />
+      <AppMain />
+      <AppFooter />
+    </div>
+
+    <DocsAsk />
+
+    <DocsSearch />
+
+    <!-- Settings backdrop -->
+    <Transition :name="fadeTransition">
+      <div
+        v-if="isSettingsOpen"
+        class="fixed inset-0 bg-black/30 z-40"
+        @click="closeSettings"
+      />
+    </Transition>
+
+    <!-- Settings sheet -->
+    <Transition :name="slideTransition">
+      <AppSettingsSheet v-if="isSettingsOpen" />
+    </Transition>
   </div>
-
-  <DocsAsk />
-
-  <DocsSearch />
-
-  <!-- Settings backdrop -->
-  <Transition :name="fadeTransition">
-    <div
-      v-if="isSettingsOpen"
-      class="fixed inset-0 bg-black/30 z-40"
-      @click="closeSettings"
-    />
-  </Transition>
-
-  <!-- Settings sheet -->
-  <Transition :name="slideTransition">
-    <AppSettingsSheet v-if="isSettingsOpen" />
-  </Transition>
 </template>
 
 <style scoped>

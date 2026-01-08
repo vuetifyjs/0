@@ -8,12 +8,13 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { shallowRef, useTemplateRef } from 'vue'
+  import { shallowRef, toRef, useTemplateRef } from 'vue'
 
   const { isOpen: isAskOpen } = useAsk()
   const { prefersReducedMotion } = useSettings()
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
   const mainRef = useTemplateRef<HTMLElement>('main')
+  const pageTransition = toRef(() => prefersReducedMotion.value ? undefined : 'page')
 
   useRouterLinks(mainRef)
 </script>
@@ -30,7 +31,9 @@
   >
     <div class="max-w-[688px] mx-auto pb-4">
       <router-view v-slot="{ Component }">
-        <component :is="Component" ref="page" />
+        <Transition :name="pageTransition">
+          <component :is="Component" :key="$route.path" ref="page" />
+        </Transition>
       </router-view>
 
       <DocsBackmatter :frontmatter="page?.frontmatter" />
@@ -39,3 +42,18 @@
     <DocsToc />
   </main>
 </template>
+
+<style>
+  /* Hide-on-leave: leaving element disappears instantly, entering fades in */
+  .page-enter-active {
+    transition: opacity 0.15s ease;
+  }
+
+  .page-enter-from {
+    opacity: 0;
+  }
+
+  .page-leave-active {
+    display: none;
+  }
+</style>

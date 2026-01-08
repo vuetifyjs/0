@@ -7,12 +7,15 @@
 
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
+  import { useSettings } from './composables/useSettings'
   import { useThemeToggle } from './composables/useThemeToggle'
 
   // Utilities
   import { shallowRef, toRef } from 'vue'
 
   useScrollPersist()
+  const { prefersReducedMotion } = useSettings()
+  const pageTransition = toRef(() => prefersReducedMotion.value ? undefined : 'page')
 
   const { preference } = useThemeToggle()
   const showMesh = toRef(() => preference.value !== 'high-contrast')
@@ -42,7 +45,11 @@
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-top" />
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
   <main class="min-h-screen pt-[72px] text-on-background">
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <Transition :name="pageTransition">
+        <component :is="Component" :key="$route.meta.layout" />
+      </Transition>
+    </router-view>
   </main>
 
   <!-- API hover popovers for code blocks -->
