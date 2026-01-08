@@ -55,7 +55,7 @@ The `useToggleScope` composable wraps Vue's `effectScope` API to create and dest
 
 `useToggleScope` wraps Vue's effectScope for conditional reactive effect management:
 
-```mermaid
+```mermaid "Toggle Scope Hierarchy"
 flowchart TD
   effectScope["Vue effectScope"] --> useToggleScope
   useToggleScope --> FeatureFlags["Feature Flags"]

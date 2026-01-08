@@ -55,7 +55,7 @@ console.log(group.selectedIndexes.value) // Set {}
 
 `useGroup` extends `useSelection` with multi-select and tri-state capabilities:
 
-```mermaid
+```mermaid "Group Selection Hierarchy"
 flowchart TD
   useRegistry --> useSelection
   useSelection --> useGroup

@@ -53,7 +53,7 @@ The `useResizeObserver` composable wraps the Resize Observer API to detect when 
 
 `useResizeObserver` wraps the native ResizeObserver API with Vue reactivity:
 
-```mermaid
+```mermaid "Resize Observer Hierarchy"
 flowchart TD
   ResizeObserver["ResizeObserver API"] --> useResizeObserver
   useHydration --> useResizeObserver

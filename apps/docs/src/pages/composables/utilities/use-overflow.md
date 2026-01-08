@@ -46,7 +46,7 @@ console.log(overflow.isOverflowing.value) // true if items exceed container
 
 `useOverflow` uses ResizeObserver to compute container capacity:
 
-```mermaid
+```mermaid "Overflow Detection Flow"
 flowchart LR
   ResizeObserver --> containerWidth
   containerWidth --> capacity

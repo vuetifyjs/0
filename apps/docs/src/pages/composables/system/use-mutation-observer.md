@@ -60,7 +60,7 @@ The `useMutationObserver` composable wraps the Mutation Observer API to detect c
 
 `useMutationObserver` wraps the native MutationObserver API with Vue reactivity:
 
-```mermaid
+```mermaid "Mutation Observer Hierarchy"
 flowchart TD
   MutationObserver["MutationObserver API"] --> useMutationObserver
   useHydration --> useMutationObserver

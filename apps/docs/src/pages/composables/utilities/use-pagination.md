@@ -50,7 +50,7 @@ console.log(pagination.items.value)
 
 `usePagination` computes page state and navigation:
 
-```mermaid
+```mermaid "Pagination Flow"
 flowchart LR
   size --> pages[total pages]
   page --> items[visible items]

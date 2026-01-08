@@ -67,7 +67,7 @@ The `useHotkey` composable registers hotkey handlers on the window with automati
 
 `useHotkey` builds on `useEventListener` for keyboard event handling:
 
-```mermaid
+```mermaid "Hotkey Hierarchy"
 flowchart TD
   useEventListener --> useHotkey
   useHotkey --> Combinations["ctrl+k, cmd+s"]

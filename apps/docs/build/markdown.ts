@@ -129,7 +129,13 @@ export default async function MarkdownPlugin () {
 
         const encodedCode = Buffer.from(code).toString('base64')
 
-        if (lang === 'mermaid') return `<DocsMermaid code="${encodedCode}" />`
+        if (lang === 'mermaid') {
+          // Parse quoted caption: ```mermaid "Caption text"
+          const captionMatch = info.match(/^mermaid\s+"([^"]+)"/)
+          const caption = captionMatch?.[1]
+          const captionAttr = caption ? ` caption="${Buffer.from(caption).toString('base64')}"` : ''
+          return `<DocsMermaid code="${encodedCode}"${captionAttr} />`
+        }
 
         const playgroundIndex = rest.indexOf('playground')
         const playground = playgroundIndex !== -1

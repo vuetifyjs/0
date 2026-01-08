@@ -35,7 +35,7 @@ console.log(valueAsArray) // ['Example Value']
 
 `toArray` is a pure transformation utility:
 
-```mermaid
+```mermaid "Array Transformation"
 flowchart LR
   input[any value] --> check{is array?}
   check -- yes --> output[return as-is]

@@ -47,7 +47,7 @@ console.log(selection.has('apple')) // true
 
 `useSelection` extends `useRegistry` and is the base for all selection patterns:
 
-```mermaid
+```mermaid "Selection Hierarchy"
 flowchart TD
   useRegistry --> useSelection
   useSelection --> useSingle

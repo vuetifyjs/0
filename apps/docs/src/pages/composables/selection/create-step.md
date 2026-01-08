@@ -61,7 +61,7 @@ carousel.prev()   // Wraps to slide3
 
 `useStep` extends `useSingle` with directional navigation:
 
-```mermaid
+```mermaid "Step Navigation Hierarchy"
 flowchart TD
   useRegistry --> useSelection
   useSelection --> useSingle

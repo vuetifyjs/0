@@ -51,7 +51,7 @@ console.log(model.value) // 'Banana'
 
 `useProxyModel` creates bidirectional sync between v-model refs and selection state:
 
-```mermaid
+```mermaid "Proxy Model Flow"
 flowchart LR
   subgraph External
     model[v-model ref]

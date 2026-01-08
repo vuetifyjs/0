@@ -23,7 +23,7 @@ v0's core architecture provides type-safe dependency injection and composable pa
 
 ## Architecture Overview
 
-```mermaid
+```mermaid "Architecture Overview"
 flowchart TD
     A[createContext] --> B[createTrinity]
     B --> C[createPlugin]
@@ -137,7 +137,7 @@ interface RegistryTicket {
 
 ### Extension Chain
 
-```mermaid
+```mermaid "Extension Chain"
 flowchart LR
     R[useRegistry] --> S[useSelection]
     R --> T[useTokens]

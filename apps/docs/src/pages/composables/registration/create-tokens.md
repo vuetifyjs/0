@@ -60,7 +60,7 @@ features.resolve('rtl') // { value: true, variation: 'toggle' }
 
 `useTokens` extends `useRegistry` and powers token-based systems:
 
-```mermaid
+```mermaid "Tokens Hierarchy"
 flowchart TD
   useTokens --> useTheme
   useTokens --> useLocale

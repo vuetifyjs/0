@@ -36,7 +36,7 @@ console.log(rstate.name) // 'John' (no .value needed)
 
 `toReactive` creates a Proxy that unwraps ref values:
 
-```mermaid
+```mermaid "Reactive Proxy Flow"
 flowchart LR
   MaybeRef --> Proxy
   Proxy -- get --> toValue

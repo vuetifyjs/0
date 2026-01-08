@@ -80,7 +80,7 @@ Once the plugin is installed, use the `useBreakpoints` composable in any compone
 
 `useBreakpoints` uses the plugin pattern with viewport observation:
 
-```mermaid
+```mermaid "Breakpoints Plugin"
 flowchart LR
   subgraph Plugin
     createBreakpointsPlugin --> createBreakpointsContext

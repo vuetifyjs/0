@@ -44,7 +44,7 @@ export { useContext }
 
 `createContext` is the foundation for all dependency injection in Vuetify0:
 
-```mermaid
+```mermaid "Context Hierarchy"
 flowchart TD
   createContext --> createTrinity
   createContext --> createPlugin

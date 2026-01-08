@@ -69,7 +69,7 @@ Once the plugin is installed, use the `useLogger` composable in any component:
 
 `useLogger` uses the plugin pattern with a log adapter:
 
-```mermaid
+```mermaid "Logger Plugin"
 flowchart LR
   createLoggerPlugin --> createContext
   createContext --> LoggerContext

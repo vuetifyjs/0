@@ -85,7 +85,7 @@ Optionally register features at runtime:
 
 `useFeatures` extends `useGroup` for multi-selection and `useTokens` for variations:
 
-```mermaid
+```mermaid "Features Hierarchy"
 flowchart TD
   useRegistry --> useSelection
   useSelection --> useGroup

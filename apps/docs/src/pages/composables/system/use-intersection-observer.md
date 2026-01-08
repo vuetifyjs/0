@@ -55,7 +55,7 @@ The `useIntersectionObserver` composable wraps the Intersection Observer API to 
 
 `useIntersectionObserver` wraps the native IntersectionObserver API with Vue reactivity:
 
-```mermaid
+```mermaid "Intersection Observer Hierarchy"
 flowchart TD
   IntersectionObserver["IntersectionObserver API"] --> useIntersectionObserver
   useHydration --> useIntersectionObserver

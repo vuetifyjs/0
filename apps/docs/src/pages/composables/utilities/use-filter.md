@@ -49,7 +49,7 @@ console.log(filtered.value)
 
 `useFilter` provides pure filtering logic with context support:
 
-```mermaid
+```mermaid "Filter Flow"
 flowchart LR
   query[query ref] --> filter
   items[items ref] --> filter

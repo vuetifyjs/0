@@ -47,6 +47,11 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): Use
 
     marked.use({
       renderer: {
+        table ({ header, rows }) {
+          const thead = `<thead><tr>${header.map(cell => `<th${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</th>`).join('')}</tr></thead>`
+          const tbody = `<tbody>${rows.map(row => `<tr>${row.map(cell => `<td${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</td>`).join('')}</tr>`).join('')}</tbody>`
+          return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
+        },
         code ({ text, lang }) {
           const language = lang || 'text'
 

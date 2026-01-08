@@ -313,7 +313,7 @@ const virtual = useVirtual(pageItems, { itemHeight: 40 })
 </template>
 ```
 
-```mermaid
+```mermaid "Data Pipeline"
 flowchart LR
     A[All Items] --> B[Filtered]
     B --> C[Paginated]

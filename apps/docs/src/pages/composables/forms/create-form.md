@@ -61,7 +61,7 @@ const form = useForm()
 
 `useForm` extends `useRegistry` with validation capabilities:
 
-```mermaid
+```mermaid "Form Validation Flow"
 flowchart TD
   useRegistry --> useForm
   useForm --> validate[validate/validateAll]

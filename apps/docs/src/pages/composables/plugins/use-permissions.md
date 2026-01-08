@@ -106,7 +106,7 @@ Optionally register permissions at runtime:
 
 `usePermissions` uses `useTokens` for permission flattening and lookup:
 
-```mermaid
+```mermaid "Permissions Flow"
 flowchart LR
   subgraph Registration
     useTokens --> flatten[role.action.subject]

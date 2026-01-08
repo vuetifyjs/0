@@ -65,7 +65,7 @@ Once the plugin is installed, use the `useHydration` composable in any component
 
 `useHydration` uses the plugin pattern with a simple boolean state:
 
-```mermaid
+```mermaid "Hydration Plugin"
 flowchart LR
   createHydrationPlugin --> createContext
   createContext --> isHydrated[isHydrated ref]

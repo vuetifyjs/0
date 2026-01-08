@@ -43,7 +43,7 @@ console.log(registry.size) // 3
 
 `useRegistry` is the foundation for specialized registration systems:
 
-```mermaid
+```mermaid "Registry Hierarchy"
 flowchart TD
   useRegistry --> useSelection
   useRegistry --> useTokens

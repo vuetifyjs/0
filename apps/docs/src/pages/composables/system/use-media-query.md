@@ -38,7 +38,7 @@ The `useMediaQuery` composable wraps the browser's `matchMedia` API, providing r
 
 `useMediaQuery` wraps the browser's matchMedia API with Vue reactivity and SSR safety:
 
-```mermaid
+```mermaid "Media Query Hierarchy"
 flowchart TD
   matchMedia["matchMedia API"] --> useMediaQuery
   useHydration --> useMediaQuery

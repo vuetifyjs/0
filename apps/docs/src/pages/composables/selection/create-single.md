@@ -49,7 +49,7 @@ console.log(single.selectedId) // 'banana' (replaces apple)
 
 The `useSingle` composable is comprised of the following hierarchy:
 
-```mermaid
+```mermaid "Single Selection Hierarchy"
 flowchart TD
   useRegistry --> useSelection
   useSelection --> useSingle

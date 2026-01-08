@@ -44,7 +44,7 @@ console.log(queue.size) // 3
 
 `useQueue` extends `useRegistry` with FIFO ordering and timeout management:
 
-```mermaid
+```mermaid "Queue Hierarchy"
 flowchart TD
   useRegistry --> useQueue
   useQueue --> timeout[auto-timeout]

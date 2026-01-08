@@ -260,7 +260,7 @@ Architecture and flow diagrams use Mermaid. Click any diagram to open an expande
 
 **Horizontal flow** for pipelines and transformations:
 
-```mermaid
+```mermaid "Horizontal Flow"
 flowchart LR
   A[Input] --> B[Transform]
   B --> C[Output]
@@ -268,7 +268,7 @@ flowchart LR
 
 **Vertical flow** for hierarchies and dependencies:
 
-```mermaid
+```mermaid "Vertical Flow"
 flowchart TD
   A[Parent] --> B[Child A]
   A --> C[Child B]
@@ -277,7 +277,7 @@ flowchart TD
 
 **Subgraphs** group related concepts (from [useProxyModel](/composables/reactivity/use-proxy-model)):
 
-```mermaid
+```mermaid "Subgraph Example"
 flowchart LR
   subgraph External
     model[v-model ref]

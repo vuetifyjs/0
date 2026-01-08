@@ -44,7 +44,7 @@ console.log(proxy.keys) // [id1, id2]
 
 `useProxyRegistry` creates a reactive proxy over registry collections:
 
-```mermaid
+```mermaid "Proxy Registry Flow"
 flowchart LR
   useRegistry --> events[register/unregister events]
   events --> useProxyRegistry

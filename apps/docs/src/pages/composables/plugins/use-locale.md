@@ -81,7 +81,7 @@ Once the plugin is installed, use the `useLocale` composable in any component:
 
 `useLocale` extends `useSingle` for locale selection with message interpolation:
 
-```mermaid
+```mermaid "Locale Hierarchy"
 flowchart TD
   useRegistry --> useSelection
   useSelection --> useSingle

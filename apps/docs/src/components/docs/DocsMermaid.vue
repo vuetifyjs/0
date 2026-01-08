@@ -54,7 +54,10 @@
 
   const props = defineProps<{
     code: string // base64 encoded
+    caption?: string // base64 encoded
   }>()
+
+  const decodedCaption = computed(() => props.caption ? decodeBase64(props.caption) : undefined)
 
   const decodedCode = computed(() => decodeBase64(props.code))
 
@@ -80,13 +83,18 @@
 <template>
   <Dialog.Root>
     <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer hover:opacity-80 transition-opacity">
-      <div class="flex justify-center w-full" v-html="svg" />
+      <figure class="flex flex-col items-center w-full">
+        <div class="flex justify-center w-full" v-html="svg" />
+        <figcaption v-if="decodedCaption" class="mt-2 text-sm text-on-surface-variant italic">
+          {{ decodedCaption }}
+        </figcaption>
+      </figure>
     </Dialog.Activator>
 
     <Dialog.Content class="docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider">
       <div class="flex items-center justify-end p-2">
         <Dialog.Title as="span" class="sr-only">
-          Diagram
+          {{ decodedCaption || 'Diagram' }}
         </Dialog.Title>
 
         <Dialog.Description class="sr-only">
@@ -100,10 +108,15 @@
         </Dialog.Close>
       </div>
 
-      <div
-        class="docs-mermaid flex justify-center p-4"
-        v-html="svg"
-      />
+      <figure class="flex flex-col items-center">
+        <div
+          class="docs-mermaid flex justify-center p-4"
+          v-html="svg"
+        />
+        <figcaption v-if="decodedCaption" class="pb-4 text-sm text-on-surface-variant italic">
+          {{ decodedCaption }}
+        </figcaption>
+      </figure>
     </Dialog.Content>
   </Dialog.Root>
 </template>

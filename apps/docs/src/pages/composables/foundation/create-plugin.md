@@ -84,7 +84,7 @@ Now, whenever your application starts, the plugin is registered and the context 
 
 `createPlugin` wraps `createContext` for Vue plugin registration:
 
-```mermaid
+```mermaid "Plugin Architecture"
 flowchart LR
   subgraph Plugin
     A[namespace]

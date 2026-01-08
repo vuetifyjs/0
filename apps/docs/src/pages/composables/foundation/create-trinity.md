@@ -64,7 +64,7 @@ export const [useUser, provideUser, defaultUserContext] = createUserContext()
 
 `createTrinity` builds on `createContext` to provide a standardized 3-tuple pattern:
 
-```mermaid
+```mermaid "Trinity Pattern"
 flowchart LR
   subgraph Trinity Tuple
     A[useContext]

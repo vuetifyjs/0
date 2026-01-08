@@ -37,7 +37,7 @@ The `useClickOutside` composable detects when users click outside target element
 
 `useClickOutside` builds on `useEventListener` for pointer and focus event detection:
 
-```mermaid
+```mermaid "Click Outside Hierarchy"
 flowchart TD
   useEventListener --> useClickOutside
   useClickOutside --> Dropdowns

@@ -38,7 +38,7 @@ The `useVirtual` composable efficiently renders large lists by only mounting vis
 
 The rendering pipeline transforms scroll events into visible item ranges:
 
-```mermaid
+```mermaid "Virtual Rendering Pipeline"
 flowchart LR
   subgraph Inputs
     A[scroll event]

@@ -67,7 +67,7 @@ Once the plugin is installed, use the `useStorage` composable in any component:
 
 `useStorage` uses the plugin pattern with storage adapters:
 
-```mermaid
+```mermaid "Storage Plugin"
 flowchart LR
   createStoragePlugin --> createContext
   createContext --> StorageContext

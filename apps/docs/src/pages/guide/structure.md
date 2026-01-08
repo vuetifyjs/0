@@ -114,7 +114,7 @@ components/
 
 ## Extension Hierarchy
 
-```mermaid
+```mermaid "Extension Hierarchy"
 flowchart TD
     Registry[useRegistry]
     Selection[useSelection]

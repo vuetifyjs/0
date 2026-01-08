@@ -66,7 +66,7 @@ The `useEventListener` composable attaches event listeners to DOM elements (Wind
 
 `useEventListener` is the foundational event composable that others build upon:
 
-```mermaid
+```mermaid "Event Listener Hierarchy"
 flowchart LR
   useEventListener --> useClickOutside
   useEventListener --> useHotkey

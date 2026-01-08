@@ -85,7 +85,7 @@ Once the plugin is installed, use the `useTheme` composable in any component:
 
 `useTheme` extends `useSingle` for theme selection and `useTokens` for color resolution:
 
-```mermaid
+```mermaid "Theme Hierarchy"
 flowchart TD
   useRegistry --> useSelection
   useSelection --> useSingle

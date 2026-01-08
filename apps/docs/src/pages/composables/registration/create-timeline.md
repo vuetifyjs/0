@@ -50,7 +50,7 @@ console.log(timeline.size) // 3
 
 `useTimeline` extends `useRegistry` with bounded history and overflow management:
 
-```mermaid
+```mermaid "Timeline Hierarchy"
 flowchart TD
   useRegistry --> useTimeline
   useTimeline --> undo/redo
