@@ -1,5 +1,6 @@
 export * from './Atom'
 export * from './Avatar'
+export * from './Breadcrumbs'
 export * from './Dialog'
 export * from './ExpansionPanel'
 export * from './Group'
