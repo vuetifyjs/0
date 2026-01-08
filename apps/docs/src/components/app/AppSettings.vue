@@ -3,6 +3,13 @@
   import { useSettings } from '@/composables/useSettings'
 
   const { toggle } = useSettings()
+
+  let preloaded = false
+  function preload () {
+    if (preloaded) return
+    preloaded = true
+    import('@/components/app/AppSettingsSheet.vue')
+  }
 </script>
 
 <template>
@@ -12,6 +19,8 @@
     title="Settings"
     type="button"
     @click="toggle"
+    @focus="preload"
+    @mouseenter="preload"
   >
     <AppIcon icon="cog" />
   </button>

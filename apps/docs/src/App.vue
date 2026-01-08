@@ -168,12 +168,14 @@
     > h2 {
       font-size: 1.875rem;
       line-height: 2.25rem;
+      margin-top: 2rem;
       margin-bottom: 0.75rem;
     }
 
     > h3 {
       font-size: 1.5rem;
       line-height: 2rem;
+      margin-top: 1.5rem;
       margin-bottom: 0.5rem;
     }
 
@@ -217,7 +219,6 @@
       border-spacing: 0;
       border-radius: 0.5rem;
       border: thin solid var(--v0-divider);
-      margin-bottom: 1rem;
       overflow: hidden;
     }
 

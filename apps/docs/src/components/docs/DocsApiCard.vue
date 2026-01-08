@@ -102,7 +102,7 @@
         />
 
         <div
-          class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
+          class="[&_.shiki]:rounded-none [&_.shiki]:border-0 [&_.shiki]:m-0 [&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
           v-html="highlightedExamples[exampleKey]?.html ?? ''"
         />
       </div>
