@@ -2,12 +2,12 @@
  * @module ExpansionPanelRoot
  *
  * @remarks
- * Root component for managing expansion panel state using the useSelection composable.
+ * Root component for managing expansion panel state using the createSelection composable.
  * Provides context to child ExpansionPanelItem components and supports both single and
  * multi-expansion modes with v-model binding.
  *
- * Built on createSelectionContext from useSelection composable system. Supports mandatory
- * selection (prevent collapsing last item) and auto-enrollment of items on registration.
+ * Built on createSelection composable. Supports mandatory selection (prevent collapsing
+ * last item) and auto-enrollment of items on registration.
  */
 
 <script lang="ts">
