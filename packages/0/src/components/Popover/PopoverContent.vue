@@ -64,9 +64,15 @@
 
   const id = toRef(() => props.id ?? context.id)
   const style = toRef(() => ({
-    positionArea,
-    positionAnchor: `--${toValue(id)}`,
-    positionTry,
+    // Anchor positioning requires explicit position and unsetting UA margin
+    'position': 'fixed',
+    'margin': 'unset',
+    // Use both property names for browser compatibility
+    // inset-area was the original Chromium name, position-area is the standard
+    'inset-area': positionArea,
+    'position-area': positionArea,
+    'position-anchor': `--${toValue(id)}`,
+    'position-try-fallbacks': positionTry,
   }))
 
   /* v8 ignore start -- browser popover API */
