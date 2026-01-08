@@ -85,7 +85,7 @@
 
     <Dialog.Content class="docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider">
       <div class="flex items-center justify-end p-2">
-        <Dialog.Title class="sr-only">
+        <Dialog.Title as="span" class="sr-only">
           Diagram
         </Dialog.Title>
 
