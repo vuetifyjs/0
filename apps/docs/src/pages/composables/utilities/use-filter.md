@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: useFilter'
   github: /composables/useFilter/
+  level: 2
 related:
   - /composables/utilities/use-pagination
   - /composables/utilities/use-virtual

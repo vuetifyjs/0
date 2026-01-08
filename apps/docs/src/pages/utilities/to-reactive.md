@@ -9,6 +9,7 @@ features:
   category: Utility
   label: 'U: toReactive'
   github: /composables/toReactive/
+  level: 2
 ---
 
 # toReactive

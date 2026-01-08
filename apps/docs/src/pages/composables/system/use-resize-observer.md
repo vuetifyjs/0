@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: useResizeObserver'
   github: /composables/useResizeObserver/
+  level: 3
 related:
   - /composables/system/use-intersection-observer
   - /composables/system/use-mutation-observer

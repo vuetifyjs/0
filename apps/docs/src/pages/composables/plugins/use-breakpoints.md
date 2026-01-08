@@ -10,6 +10,7 @@ features:
   category: Plugin
   label: 'E: useBreakpoints'
   github: /composables/useBreakpoints/
+  level: 2
 related:
   - /guide/plugins
 ---

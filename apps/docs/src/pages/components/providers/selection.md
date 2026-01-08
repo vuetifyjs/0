@@ -10,6 +10,7 @@ features:
   label: 'E: Selection'
   github: /components/Selection/
   renderless: true
+  level: 2
 related:
   - /composables/selection/create-selection
   - /components/providers/single

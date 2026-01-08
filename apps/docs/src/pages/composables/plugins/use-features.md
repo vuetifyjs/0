@@ -9,6 +9,7 @@ features:
   category: Plugin
   label: 'E: useFeatures'
   github: /composables/useFeatures/
+  level: 2
 related:
   - /composables/registration/create-tokens
 ---

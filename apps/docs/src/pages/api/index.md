@@ -8,6 +8,7 @@ meta:
 features:
   category: API
   label: API Reference
+  level: 1
 related:
   - /components
   - /composables

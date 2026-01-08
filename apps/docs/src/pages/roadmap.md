@@ -5,6 +5,8 @@ meta:
     content: Track upcoming features, releases, and milestones for @vuetify/v0. See what's in progress and what's coming next.
   - name: keywords
     content: roadmap, timeline, milestones, releases, features, Vue 3, v0, headless ui
+features:
+  level: 1
 ---
 
 # Roadmap

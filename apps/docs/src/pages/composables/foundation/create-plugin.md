@@ -9,6 +9,7 @@ features:
   category: Factory
   label: 'E: createPlugin'
   github: /composables/createPlugin/
+  level: 3
 related:
   - /composables/foundation/create-context
   - /composables/foundation/create-trinity

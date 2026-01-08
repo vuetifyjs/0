@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: createSingle'
   github: /composables/useSingle/
+  level: 2
 related:
   - /composables/selection/create-selection
   - /composables/selection/create-step

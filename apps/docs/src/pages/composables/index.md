@@ -5,6 +5,8 @@ meta:
     content: Type-safe Vue 3 composables for headless UI. Selection, forms, theming, tokens, and state management primitives for building custom design systems.
   - name: keywords
     content: composables, Vue 3, headless ui, primitives, selection, forms, theming, state management, TypeScript
+features:
+  level: 1
 related:
   - /guide/core
   - /components

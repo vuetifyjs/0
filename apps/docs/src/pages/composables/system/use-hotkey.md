@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: useHotkey'
   github: /composables/useHotkey/
+  level: 2
 related:
   - /composables/system/use-keydown
   - /composables/system/use-event-listener

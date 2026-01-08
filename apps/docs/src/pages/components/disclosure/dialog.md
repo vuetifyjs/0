@@ -10,6 +10,7 @@ features:
   label: 'E: Dialog'
   github: /components/Dialog/
   renderless: false
+  level: 2
 related:
   - /components/disclosure/popover
   - /components/disclosure/expansion-panel

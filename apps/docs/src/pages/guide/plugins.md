@@ -2,6 +2,7 @@
 title: Plugins Guide - Extend Vuetify0 Functionality
 features:
   order: 5
+  level: 3
 meta:
   - name: description
     content: Extend Vuetify0 with plugins using createPlugin factory. Integrate third-party libraries, add global features, and enhance your Vue 3 application architecture.

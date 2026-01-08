@@ -10,6 +10,7 @@ features:
   label: 'P: Pagination'
   github: /components/Pagination/
   renderless: false
+  level: 2
 related:
   - /composables/utilities/use-pagination
 ---

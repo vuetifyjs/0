@@ -10,6 +10,7 @@ features:
   label: 'E: Atom'
   github: /components/Atom/
   renderless: false
+  level: 2
 related:
   - /guide/components
 ---

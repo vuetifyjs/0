@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'U: usePagination'
   github: /composables/usePagination/
+  level: 2
 related:
   - /composables/utilities/use-filter
   - /components/semantic/pagination

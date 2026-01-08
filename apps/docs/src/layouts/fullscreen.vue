@@ -1,5 +1,13 @@
 <script setup lang="ts">
-  //
+  // Composables
+  import { createLevelFilter } from '@/composables/useLevelFilter'
+
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
+  const app = useAppStore()
+  const levelFilter = createLevelFilter(() => app.nav)
+  levelFilter.provide()
 </script>
 
 <template>

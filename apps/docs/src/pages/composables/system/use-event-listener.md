@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: useEventListener'
   github: /composables/useEventListener/
+  level: 2
 related:
   - /composables/system/use-keydown
   - /composables/system/use-click-outside

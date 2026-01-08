@@ -5,6 +5,8 @@ meta:
     content: Comprehensive guide to building UI libraries with Vuetify0. Learn composables, components, theming, plugins, and accessibility patterns for Vue 3.
   - name: keywords
     content: vuetify0, guide, Vue 3, ui library, composables, theming, accessibility, design system
+features:
+  level: 1
 related:
   - /composables
   - /components

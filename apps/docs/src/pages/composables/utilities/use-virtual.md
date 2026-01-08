@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'C: useVirtual'
   github: /composables/useVirtual/
+  level: 2
 related:
   - /composables/utilities/use-filter
   - /composables/utilities/use-overflow

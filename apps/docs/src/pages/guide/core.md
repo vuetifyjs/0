@@ -2,6 +2,7 @@
 title: Core - Foundation Systems for Vue 3
 features:
   order: 2
+  level: 3
 meta:
   - name: description
     content: Explore Vuetify0's core architecture including createContext, createTrinity, and createPlugin factories. Build scalable Vue 3 apps with type-safe dependency injection.

@@ -9,6 +9,7 @@ features:
   category: Plugin
   label: 'E: usePermissions'
   github: /composables/usePermissions/
+  level: 2
 related:
   - /composables/registration/create-tokens
 ---

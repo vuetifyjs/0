@@ -9,6 +9,7 @@ features:
   category: Documentation
   label: 'Storybook'
   github: /apps/storybook/
+  level: 1
 ---
 
 # Storybook

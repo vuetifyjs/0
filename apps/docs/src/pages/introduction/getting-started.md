@@ -7,6 +7,7 @@ meta:
     content: vuetify0, getting started, installation, Vue 3, headless ui, composables, npm, pnpm
 features:
   order: 1
+  level: 1
 related:
   - /guide
   - /guide/nuxt

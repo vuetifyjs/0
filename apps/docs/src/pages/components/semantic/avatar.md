@@ -10,6 +10,7 @@ features:
   label: 'E: Avatar'
   github: /components/Avatar/
   renderless: false
+  level: 2
 related:
   - /components/primitives/atom
 ---

@@ -5,6 +5,8 @@ meta:
     content: Headless Vue 3 UI components with full accessibility. Selection, pagination, expansion panels, popovers, and more. Unstyled and fully customizable.
   - name: keywords
     content: components, headless ui, Vue 3, accessible, customizable, selection, pagination, expansion panel, popover
+features:
+  level: 1
 related:
   - /guide/components
   - /composables

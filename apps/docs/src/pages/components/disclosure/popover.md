@@ -10,6 +10,7 @@ features:
   label: 'E: Popover'
   github: /components/Popover/
   renderless: true
+  level: 2
 related:
   - /components/disclosure/expansion-panel
 ---

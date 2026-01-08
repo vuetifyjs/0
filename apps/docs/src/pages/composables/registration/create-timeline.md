@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: createTimeline'
   github: /composables/useTimeline/
+  level: 3
 related:
 - /composables/registration/create-registry
 - /composables/registration/create-queue

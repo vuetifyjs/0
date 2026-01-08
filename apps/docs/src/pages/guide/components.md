@@ -2,6 +2,7 @@
 title: Components Guide - Headless Vue 3 UI Primitives
 features:
   order: 4
+  level: 2
 meta:
   - name: description
     content: Build accessible, customizable Vue 3 components with Vuetify0. Learn the compound component pattern, context injection, and v-model integration for headless UI.

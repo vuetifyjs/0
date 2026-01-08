@@ -10,6 +10,7 @@ features:
   label: 'E: ExpansionPanel'
   github: /components/ExpansionPanel/
   renderless: false
+  level: 2
 related:
   - /components/disclosure/popover
 ---

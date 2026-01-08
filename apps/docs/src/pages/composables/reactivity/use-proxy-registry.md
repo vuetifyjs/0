@@ -10,6 +10,7 @@ features:
   category: Composable
   label: 'E: useProxyRegistry'
   github: /composables/useProxyRegistry/
+  level: 3
 related:
 - /composables/registration/create-registry
 ---

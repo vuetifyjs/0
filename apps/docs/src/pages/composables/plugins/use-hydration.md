@@ -11,6 +11,7 @@ features:
   category: Plugin
   label: 'E: useHydration'
   github: /composables/useHydration/
+  level: 2
 related:
   - /guide/plugins
 ---

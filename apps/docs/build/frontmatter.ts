@@ -10,6 +10,7 @@ export interface Frontmatter {
     label?: string
     order?: number
     hidden?: boolean
+    level?: 1 | 2 | 3
   }
 }
 
@@ -64,6 +65,8 @@ export function parseFrontmatter (content: string): ParseResult {
         features.order = Number.parseInt(trimmed.slice(6).trim(), 10)
       } else if (trimmed.startsWith('hidden:')) {
         features.hidden = trimmed.slice(7).trim() === 'true'
+      } else if (trimmed.startsWith('level:')) {
+        features.level = Number.parseInt(trimmed.slice(6).trim(), 10) as 1 | 2 | 3
       }
     }
   }

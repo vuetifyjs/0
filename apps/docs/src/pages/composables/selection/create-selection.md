@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: createSelection'
   github: /composables/useSelection/
+  level: 2
 related:
   - /composables/registration/create-registry
   - /composables/selection/create-single

@@ -8,6 +8,7 @@ meta:
 features:
   category: Guide
   label: 'Building Docs'
+  level: 2
 related:
   - /guide/theming
   - /guide/core

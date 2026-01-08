@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: createStep'
   github: /composables/useStep/
+  level: 2
 related:
   - /composables/selection/create-single
   - /components/providers/step

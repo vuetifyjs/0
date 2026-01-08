@@ -18,6 +18,7 @@ export interface NavItemLink {
   name: string
   to: string
   new?: string
+  level?: 1 | 2 | 3
   children?: NavItem[]
 }
 
@@ -38,6 +39,7 @@ interface PageInfo {
   name: string
   order: number
   hidden: boolean
+  level?: 1 | 2 | 3
 }
 
 // Section configuration - defines structure and ordering
@@ -104,6 +106,37 @@ function titleCase (str: string): string {
     .join(' ')
 }
 
+function toNavLink (p: PageInfo): NavItemLink {
+  return { name: p.name, to: p.urlPath, level: p.level }
+}
+
+function createSubcategoryComparator (order: string[]) {
+  return (a: [string, PageInfo[]], b: [string, PageInfo[]]) => {
+    const aIdx = order.indexOf(a[0])
+    const bIdx = order.indexOf(b[0])
+    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx
+    if (aIdx !== -1) return -1
+    if (bIdx !== -1) return 1
+    return a[0].localeCompare(b[0])
+  }
+}
+
+function comparePages (a: PageInfo, b: PageInfo) {
+  if (a.order !== b.order) return a.order - b.order
+  return a.name.localeCompare(b.name)
+}
+
+function createPageInfo (relPath: string, file: string, name: string, frontmatter: Frontmatter): PageInfo {
+  return {
+    path: relPath,
+    urlPath: getUrlPath(file),
+    name,
+    order: frontmatter.features?.order ?? 999,
+    hidden: false,
+    level: frontmatter.features?.level,
+  }
+}
+
 async function generateNav (): Promise<NavItem[]> {
   const pages = new Map<string, PageInfo[]>()
   const standalonePages: Array<{ item: NavItemLink, order: number }> = []
@@ -139,13 +172,7 @@ async function generateNav (): Promise<NavItem[]> {
     const name = getNavName(frontmatter, file)
     if (!name && parts.length === 2) continue // Skip section index files for now
 
-    const pageInfo: PageInfo = {
-      path: relPath,
-      urlPath: getUrlPath(file),
-      name,
-      order: frontmatter.features?.order ?? 999,
-      hidden: false,
-    }
+    const pageInfo = createPageInfo(relPath, file, name, frontmatter)
 
     const key = section
     if (!pages.has(key)) pages.set(key, [])
@@ -198,36 +225,23 @@ async function generateNav (): Promise<NavItem[]> {
       // Sort subcategories by configured order, then alphabetically
       const order = SUBCATEGORY_ORDER[section] ?? []
       const sortedSubcategories = Array.from(subcategories.entries())
-        .toSorted((a, b) => {
-          const aIdx = order.indexOf(a[0])
-          const bIdx = order.indexOf(b[0])
-          if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx
-          if (aIdx !== -1) return -1
-          if (bIdx !== -1) return 1
-          return a[0].localeCompare(b[0])
-        })
+        .toSorted(createSubcategoryComparator(order))
 
       for (const [subcategory, subPages] of sortedSubcategories) {
-        const sortedPages = subPages.toSorted((a, b) => {
-          if (a.order !== b.order) return a.order - b.order
-          return a.name.localeCompare(b.name)
-        })
+        const sortedPages = subPages.toSorted(comparePages)
 
         sectionItem.children!.push({
           name: titleCase(subcategory),
-          children: sortedPages.map(p => ({ name: p.name, to: p.urlPath })),
+          children: sortedPages.map(toNavLink),
         })
       }
     } else {
       // Flat list of children
       const sortedPages = sectionPages
-        .filter(p => p.name) // Skip index files
-        .toSorted((a, b) => {
-          if (a.order !== b.order) return a.order - b.order
-          return a.name.localeCompare(b.name)
-        })
+        .filter(p => p.name)
+        .toSorted(comparePages)
 
-      sectionItem.children = sortedPages.map(p => ({ name: p.name, to: p.urlPath }))
+      sectionItem.children = sortedPages.map(toNavLink)
     }
 
     nav.push(sectionItem)

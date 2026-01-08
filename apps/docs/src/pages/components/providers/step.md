@@ -10,6 +10,7 @@ features:
   label: 'E: Step'
   github: /components/Step/
   renderless: true
+  level: 2
 related:
   - /composables/selection/create-step
   - /components/providers/single

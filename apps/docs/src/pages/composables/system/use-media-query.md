@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: useMediaQuery'
   github: /composables/useMediaQuery/
+  level: 2
 related:
   - /composables/plugins/use-breakpoints
   - /composables/system/use-event-listener

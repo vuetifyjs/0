@@ -10,6 +10,7 @@ features:
   label: 'E: Single'
   github: /components/Single/
   renderless: true
+  level: 2
 related:
   - /composables/selection/create-single
   - /components/providers/selection

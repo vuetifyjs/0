@@ -9,6 +9,7 @@ features:
   category: Plugin
   label: 'E: useStorage'
   github: /composables/useStorage/
+  level: 2
 related:
   - /guide/plugins
 ---

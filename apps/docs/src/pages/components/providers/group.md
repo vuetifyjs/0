@@ -10,6 +10,7 @@ features:
   label: 'E: Group'
   github: /components/Group/
   renderless: true
+  level: 2
 related:
   - /composables/selection/create-group
   - /components/providers/selection

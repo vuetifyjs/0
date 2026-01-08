@@ -7,6 +7,7 @@ meta:
     content: vuetify0, faq, frequently asked questions, Vue 3, headless ui, accessibility, SSR
 features:
   order: 2
+  level: 1
 related:
   - /introduction/getting-started
   - /guide

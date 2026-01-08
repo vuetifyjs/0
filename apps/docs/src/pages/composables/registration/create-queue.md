@@ -10,6 +10,7 @@ features:
   category: Composable
   label: 'E: createQueue'
   github: /composables/useQueue/
+  level: 3
 related:
 - /composables/registration/create-registry
 - /composables/registration/create-timeline

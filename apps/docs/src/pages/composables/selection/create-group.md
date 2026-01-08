@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: createGroup'
   github: /composables/useGroup/
+  level: 2
 related:
   - /composables/selection/create-selection
   - /components/providers/group

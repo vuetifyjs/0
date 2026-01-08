@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'E: useClickOutside'
   github: /composables/useClickOutside/
+  level: 2
 related:
   - /composables/system/use-event-listener
 ---

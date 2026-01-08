@@ -10,6 +10,7 @@ features:
   category: Plugin
   label: 'E: useTheme'
   github: /composables/useTheme/
+  level: 2
 related:
   - /composables/system/use-media-query
   - /composables/registration/create-tokens

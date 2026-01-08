@@ -1,10 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, useFeatures, useStorage } from '@vuetify/v0'
+  import { Atom, useFeatures, useStorage, useTheme } from '@vuetify/v0'
 
   // Composables
   import { useSearch } from '@/composables/useSearch'
-  import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
   import { toRef, watch } from 'vue'
@@ -13,6 +12,7 @@
   // Types
   import type { AtomProps } from '@vuetify/v0'
 
+  // Stores
   import { useAppStore } from '@/stores/app'
 
   const { as = 'header' } = defineProps<AtomProps>()
@@ -24,7 +24,7 @@
   const isHomePage = toRef(() => route.path === '/')
 
   const features = useFeatures()
-  const { theme, icon: themeIcon, title: themeTitle, toggle: onClickTheme } = useThemeToggle()
+  const theme = useTheme()
   const { open: openSearch } = useSearch()
 
   const devmode = features.get('devmode')!
@@ -83,16 +83,9 @@
     </div>
 
     <div class="flex align-center items-center gap-3">
+      <AppSkillFilter />
 
-      <button
-        :aria-label="themeTitle"
-        class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded opacity-90 hover:opacity-100 transition-all border"
-        :title="themeTitle"
-        type="button"
-        @click="onClickTheme"
-      >
-        <AppIcon :icon="themeIcon" />
-      </button>
+      <AppThemeToggle />
 
       <a
         aria-label="Discord Community (opens in new tab)"

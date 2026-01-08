@@ -2,6 +2,7 @@
 title: Project Structure - Modular Architecture for Vue 3
 features:
   order: 1
+  level: 2
 meta:
   - name: description
     content: Understand Vuetify0's modular architecture separating components, composables, and utilities. Build scalable Vue 3 design systems with maximum flexibility.

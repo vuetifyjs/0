@@ -5,6 +5,8 @@ meta:
     content: Implement feature flags and variations in Vuetify0. Control UI features dynamically with boolean flags and token-based variations for flexible Vue 3 configuration.
   - name: keywords
     content: vuetify0, feature flags, variations, useFeatures, A/B testing, configuration, Vue 3
+features:
+  level: 2
 ---
 
 # Features

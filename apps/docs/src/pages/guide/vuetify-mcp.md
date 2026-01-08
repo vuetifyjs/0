@@ -3,6 +3,7 @@ title: Vuetify MCP - AI Assistant Integration
 features:
   label: Vuetify MCP
   order: 12
+  level: 1
 meta:
   - name: description
     content: Set up Vuetify MCP server to give AI assistants like Claude direct access to Vuetify and v0 APIs.

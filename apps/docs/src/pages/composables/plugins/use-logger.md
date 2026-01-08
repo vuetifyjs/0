@@ -10,6 +10,7 @@ features:
   category: Plugin
   label: 'E: useLogger'
   github: /composables/useLogger/
+  level: 2
 related:
   - /guide/plugins
 ---

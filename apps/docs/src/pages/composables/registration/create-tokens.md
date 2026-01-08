@@ -10,6 +10,7 @@ features:
   category: Composable
   label: 'E: createTokens'
   github: /composables/useTokens/
+  level: 3
 related:
 - /composables/registration/create-registry
 - /composables/plugins/use-theme

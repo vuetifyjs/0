@@ -2,6 +2,7 @@
 title: Nuxt 3 - SSR Integration Guide
 features:
   order: 7
+  level: 2
 meta:
   - name: description
     content: Integrate Vuetify0 with Nuxt 3. Configure SSR, auto-imports, theme persistence, and hydration handling for server-rendered Vue applications.

@@ -4,20 +4,27 @@
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
+  import { createLevelFilter } from '@/composables/useLevelFilter'
   import { useSearch } from '@/composables/useSearch'
 
   // Utilities
   import { computed, defineAsyncComponent } from 'vue'
 
+  // Stores
+  import { useAppStore } from '@/stores/app'
+
   // Lazy load modal components (behind user interaction)
   const DocsAsk = defineAsyncComponent(() => import('@/components/docs/DocsAsk.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
+
+  const app = useAppStore()
+  const levelFilter = createLevelFilter(() => app.nav)
+  levelFilter.provide()
 
   const breakpoints = useBreakpoints()
   const { isOpen: isAskOpen } = useAsk()
   const { isOpen: isSearchOpen } = useSearch()
 
-  // Ask sheet is only modal on mobile; on desktop it's a sidebar (role="complementary")
   const isModalOpen = computed(() => {
     if (isSearchOpen.value) return true
     if (isAskOpen.value && !breakpoints.lgAndUp.value) return true

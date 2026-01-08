@@ -9,6 +9,7 @@ features:
   category: Composable
   label: 'U: useOverflow'
   github: /composables/useOverflow/
+  level: 2
 related:
   - /composables/utilities/use-virtual
 ---

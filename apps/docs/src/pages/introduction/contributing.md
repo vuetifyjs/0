@@ -7,6 +7,7 @@ meta:
     content: vuetify0, contributing, open source, pull request, development, testing, Vue 3
 features:
   order: 3
+  level: 1
 related:
   - /introduction/getting-started
 ---

@@ -3,6 +3,7 @@ title: AI Tools - LLM-Friendly Documentation
 features:
   label: AI Tools
   order: 11
+  level: 1
 meta:
   - name: description
     content: Use llms.txt and llms-full.txt to provide AI assistants with comprehensive v0 documentation context.

@@ -9,6 +9,7 @@ features:
   category: Plugin
   label: 'E: useLocale'
   github: /composables/useLocale/
+  level: 2
 related:
   - /guide/accessibility
 ---

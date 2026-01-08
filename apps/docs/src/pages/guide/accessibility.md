@@ -2,6 +2,7 @@
 title: Accessibility Guide - WCAG and ARIA Best Practices
 features:
   order: 8
+  level: 2
 meta:
   - name: description
     content: Build accessible Vue 3 applications with Vuetify0. Learn ARIA patterns, keyboard navigation, focus management, and WCAG compliance for headless UI components.

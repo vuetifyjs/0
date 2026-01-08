@@ -10,6 +10,7 @@ features:
   category: Composable
   label: 'E: createRegistry'
   github: /composables/useRegistry/
+  level: 3
 related:
 - /composables/selection/create-selection
 - /composables/registration/create-tokens
