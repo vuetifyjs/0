@@ -202,7 +202,7 @@
       >
         <AppChip
           color="text-error"
-          icon="bug"
+          icon="vuetify-issues"
           text="Report a Bug"
         />
       </a>
@@ -247,7 +247,7 @@
       class="inline-flex gap-2 flex-wrap"
     >
       <a
-        v-if="coverage"
+        v-if="coverage && testFileLink"
         :href="testFileLink"
         rel="noopener noreferrer"
         target="_blank"
