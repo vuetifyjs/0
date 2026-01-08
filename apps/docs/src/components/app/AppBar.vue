@@ -85,12 +85,12 @@
     </div>
 
     <div class="flex align-center items-center gap-3">
-      <AppSkillFilter v-if="showSkillFilter" />
+      <AppSkillFilter v-if="!isHomePage && showSkillFilter" />
 
-      <AppThemeToggle v-if="showThemeToggle" />
+      <AppThemeToggle v-if="isHomePage || showThemeToggle" />
 
       <a
-        v-if="showSocialLinks"
+        v-if="isHomePage || showSocialLinks"
         aria-label="Discord Community (opens in new tab)"
         class="bg-[#5661ea] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://discord.gg/vK6T89eNP7"
@@ -102,7 +102,7 @@
       </a>
 
       <a
-        v-if="showSocialLinks"
+        v-if="isHomePage || showSocialLinks"
         aria-label="GitHub Repository (opens in new tab)"
         class="bg-gray-800 text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://github.com/vuetifyjs/0"
@@ -113,7 +113,7 @@
         <AppIcon icon="github" />
       </a>
 
-      <AppSettings />
+      <AppSettings v-if="!isHomePage" />
     </div>
   </Atom>
 </template>
