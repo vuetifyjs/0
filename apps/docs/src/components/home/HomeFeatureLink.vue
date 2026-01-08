@@ -4,6 +4,7 @@
 
   // Utilities
   import { toRef } from 'vue'
+  import { RouterLink } from 'vue-router'
 
   export interface HomeFeatureLinkProps {
     icon: string
@@ -20,7 +21,7 @@
 
 <template>
   <Atom
-    :as="isInternal ? 'router-link' : 'a'"
+    :as="isInternal ? RouterLink : 'a'"
     class="group flex items-center gap-5 p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-all cursor-pointer"
     v-bind="isInternal
       ? { to }
