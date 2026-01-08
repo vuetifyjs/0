@@ -542,6 +542,24 @@ describe('tabs', () => {
 
       expect(selected.value).toBe('tab-3')
     })
+
+    it('should wrap navigation when loop is enabled (default)', async () => {
+      const { selected, tab3Props } = await setupTabs()
+
+      // Select last tab
+      tab3Props.select()
+      await nextTick()
+      expect(selected.value).toBe('tab-3')
+
+      // Navigate right from last tab should wrap to first
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      Object.defineProperty(event, 'preventDefault', { value: () => {} })
+
+      tab3Props.attrs.onKeydown(event)
+      await nextTick()
+
+      expect(selected.value).toBe('tab-1')
+    })
   })
 
   describe('activation modes', () => {
