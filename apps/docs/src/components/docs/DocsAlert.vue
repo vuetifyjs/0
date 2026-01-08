@@ -85,19 +85,29 @@
     @keydown.enter="onClick"
     @keydown.space.prevent="onClick"
   >
-    <div class="flex items-center gap-2 font-semibold mb-1">
-      <AppIcon :icon="config.icon" :size="18" />
+    <template v-if="props.type === 'suggestion'">
+      <div class="flex items-center gap-2 font-semibold mb-1">
+        <AppIcon :icon="config.icon" :size="18" />
 
-      <span>{{ config.title }}</span>
-    </div>
+        <span>{{ config.title }}</span>
+      </div>
 
-    <div v-if="props.type === 'suggestion'" class="text-on-surface">
-      {{ props.suggestion ? decodeSuggestion(props.suggestion) : '' }}
-    </div>
+      <div class="text-on-surface">
+        {{ props.suggestion ? decodeSuggestion(props.suggestion) : '' }}
+      </div>
+    </template>
 
-    <div v-else class="docs-alert-content text-on-surface">
-      <slot />
-    </div>
+    <template v-else>
+      <div class="flex items-center gap-2 font-semibold mb-1">
+        <AppIcon :icon="config.icon" :size="18" />
+
+        <span>{{ config.title }}</span>
+      </div>
+
+      <div class="docs-alert-content text-on-surface">
+        <slot />
+      </div>
+    </template>
   </div>
 </template>
 
