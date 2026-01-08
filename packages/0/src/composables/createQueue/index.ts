@@ -1,5 +1,5 @@
 /**
- * @module useQueue
+ * @module createQueue
  *
  * @remarks
  * A queue composable for managing time-based collections with:
@@ -9,8 +9,8 @@
  * - Manual dismissal support
  * - Queue progression management
  *
- * Built on top of useRegistry, the queue automatically manages timeouts for tickets,
- * ensuring only the first ticket in the queue is active at any time. When an ticket
+ * Built on top of createRegistry, the queue automatically manages timeouts for tickets,
+ * ensuring only the first ticket in the queue is active at any time. When a ticket
  * expires or is removed, the next ticket in the queue automatically becomes active.
  */
 
@@ -71,7 +71,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * - Subsequent tickets are paused until they become first in queue
    * - Each ticket receives a `dismiss()` method for convenience
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-queue#register
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue#register
    *
    * @example
    * ```ts
@@ -99,7 +99,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * - If the removed ticket was first in queue, automatically resumes the next ticket
    * - Returns the unregistered ticket or `undefined` if not found
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-queue#unregister
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue#unregister
    *
    * @example
    * ```ts
@@ -127,7 +127,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * - Returns the paused ticket or `undefined` if no pausable ticket exists
    * - The timeout will not progress while paused
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-queue#pause
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue#pause
    *
    * @example
    * ```ts
@@ -152,7 +152,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * - Returns the resumed ticket or `undefined` if no resumable ticket exists
    * - The timeout will continue from its full duration (not from where it was paused)
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-queue#resume
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue#resume
    *
    * @example
    * ```ts
@@ -178,7 +178,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * - Clears all active timeouts
    * - Resets the queue to an empty state
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-queue#clear
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue#clear
    *
    * @example
    * ```ts
@@ -206,7 +206,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * - Should be called when the queue is no longer needed
    * - Automatically called on scope disposal
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-queue#dispose
+   * @see https://0.vuetifyjs.com/composables/registration/create-queue#dispose
    *
    * @example
    * ```ts
@@ -249,7 +249,7 @@ export interface QueueContextOptions extends QueueOptions {
  * @template E The type of queue context that extends QueueContext<Z>. Use this when extending the queue with additional methods.
  * @returns A new queue instance
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-queue
+ * @see https://0.vuetifyjs.com/composables/registration/create-queue
  *
  * @example
  * ```ts
@@ -406,7 +406,7 @@ export function createQueue<
  * @template E The type of the queue context.
  * @returns A new queue context.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-queue
+ * @see https://0.vuetifyjs.com/composables/registration/create-queue
  *
  * @example
  * ```ts
@@ -438,7 +438,7 @@ export function createQueueContext<
  * @param namespace The namespace for the queue context. Defaults to `'v0:queue'`.
  * @returns The current queue instance.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-queue
+ * @see https://0.vuetifyjs.com/composables/registration/create-queue
  *
  * @example
  * ```vue

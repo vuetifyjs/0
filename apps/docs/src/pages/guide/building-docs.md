@@ -117,13 +117,13 @@ The `AppNav` component uses v0 primitives for polymorphism and interaction:
 
 | Primitive | Role |
 | - | - |
-| [Atom](/components/atom) | Polymorphic element—renders as `<nav>` with ref access |
+| [Atom](/components/primitives/atom) | Polymorphic element—renders as `<nav>` with ref access |
 | [useClickOutside](/composables/system/use-click-outside) | Closes mobile drawer on outside click |
 | [useBreakpoints](/composables/plugins/use-breakpoints) | Tracks viewport for responsive behavior |
 
 ### Interactive Demos
 
-The homepage demo uses [Selection](/components/selection) to show v0's component pattern:
+The homepage demo uses [Selection](/components/providers/selection) to show v0's component pattern:
 
 ```vue
 <script setup lang="ts">
@@ -336,10 +336,10 @@ This documentation site demonstrates that v0's patterns scale from simple toggle
 | Pattern | Where Used |
 | - | - |
 | [createSingle](/composables/selection/create-single) + Registry | Tabbed code groups |
-| [Atom](/components/atom) polymorphism | Navigation, buttons, links |
+| [Atom](/components/primitives/atom) polymorphism | Navigation, buttons, links |
 | [useClickOutside](/composables/system/use-click-outside) | Mobile drawer dismissal |
 | [useStorage](/composables/plugins/use-storage) | User preferences |
-| [Selection](/components/selection) compound | Interactive demos |
+| [Selection](/components/providers/selection) compound | Interactive demos |
 | CSS variable theming | Entire design system |
 
 The same primitives you use for a checkbox work for an entire documentation platform.

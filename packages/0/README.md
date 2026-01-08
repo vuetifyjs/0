@@ -105,8 +105,8 @@ Core factories that provide the foundation for all other composables:
 Base data structures that most other composables build upon:
 
 - **`createRegistry`** - Enhanced Map with indexing, caching, and event support
-- **`useQueue`** - FIFO queue with timeout management (notifications/toasts)
-- **`useTimeline`** - Bounded undo/redo history
+- **`createQueue`** - FIFO queue with timeout management (notifications/toasts)
+- **`createTimeline`** - Bounded undo/redo history
 - **`createTokens`** - Design token registry with alias resolution
 
 #### Selection
@@ -120,7 +120,7 @@ Selection management composables built on `createRegistry`:
 
 #### Forms & Data
 
-- **`useForm`** - Form validation and state management with async rules
+- **`createForm`** - Form validation and state management with async rules
 - **`useFilter`** - Reactive array filtering with multiple modes
 
 #### Reactivity

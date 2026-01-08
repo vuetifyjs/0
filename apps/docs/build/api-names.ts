@@ -82,8 +82,8 @@ async function getComposableNames (): Promise<ApiNameInfo[]> {
   const dirs = await readdir(COMPOSABLES_DIR)
 
   for (const dir of dirs) {
-    // Composable directories start with 'use' or 'create'
-    if (!dir.startsWith('use') && !dir.startsWith('create')) continue
+    // Composable directories start with 'use', 'create', or 'to'
+    if (!dir.startsWith('use') && !dir.startsWith('create') && !dir.startsWith('to')) continue
 
     // Only include if the directory has an index.ts file
     const dirPath = resolve(COMPOSABLES_DIR, dir)

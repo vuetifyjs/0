@@ -1,5 +1,5 @@
 /**
- * @module useTimeline
+ * @module createTimeline
  *
  * @remarks
  * Bounded undo/redo system with overflow management.
@@ -11,7 +11,7 @@
  * - Automatic reindexing after operations
  * - Perfect for command pattern, history tracking
  *
- * Extends useRegistry with temporal navigation capabilities.
+ * Extends createRegistry with temporal navigation capabilities.
  */
 
 // Foundational
@@ -32,7 +32,7 @@ export interface TimelineContext<Z extends TimelineTicket> extends RegistryConte
    *
    * @return The removed ticket, or undefined if there are no tickets to undo.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-timeline#undo
+   * @see https://0.vuetifyjs.com/composables/registration/create-timeline#undo
    *
    * @example
    * ```ts
@@ -55,7 +55,7 @@ export interface TimelineContext<Z extends TimelineTicket> extends RegistryConte
    *
    * @returns The restored ticket, or undefined if there are no tickets to redo.
    *
-   * @see https://0.vuetifyjs.com/composables/registration/use-timeline#redo
+   * @see https://0.vuetifyjs.com/composables/registration/create-timeline#redo
    *
    * @example
    * ```ts
@@ -101,7 +101,7 @@ export interface TimelineContextOptions extends TimelineOptions {
  * @template E The type of the timeline context.
  * @returns A new timeline instance.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-timeline
+ * @see https://0.vuetifyjs.com/composables/registration/create-timeline
  *
  * @example
  * ```ts
@@ -197,7 +197,7 @@ export function createTimeline<
  * @template E The type of the timeline context.
  * @returns A new timeline context.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-timeline
+ * @see https://0.vuetifyjs.com/composables/registration/create-timeline
  *
  * @example
  * ```ts
@@ -238,7 +238,7 @@ export function createTimelineContext<
  * @param namespace The namespace for the timeline context. Defaults to `'v0:timeline'`.
  * @returns The current timeline instance.
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-timeline
+ * @see https://0.vuetifyjs.com/composables/registration/create-timeline
  *
  * @example
  * ```vue

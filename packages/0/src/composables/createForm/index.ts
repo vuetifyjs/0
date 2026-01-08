@@ -1,5 +1,5 @@
 /**
- * @module useForm
+ * @module createForm
  *
  * @remarks
  * Form validation composable with async rule support and multiple validation modes.
@@ -78,7 +78,7 @@ export interface FormContextOptions extends RegistryOptions {
  * @template E The type of the form context.
  * @returns A new form instance.
  *
- * @see https://0.vuetifyjs.com/composables/forms/use-form
+ * @see https://0.vuetifyjs.com/composables/forms/create-form
  *
  * @example
  * ```ts
@@ -252,7 +252,7 @@ export function createForm<
  * @template E The type of the form context.
  * @returns A new form context.
  *
- * @see https://0.vuetifyjs.com/composables/forms/use-form
+ * @see https://0.vuetifyjs.com/composables/forms/create-form
  *
  * @example
  * ```ts
@@ -297,7 +297,7 @@ export function createFormContext<
  * @param namespace The namespace for the form context. Defaults to `'v0:form'`.
  * @returns The current form instance.
  *
- * @see https://0.vuetifyjs.com/composables/forms/use-form
+ * @see https://0.vuetifyjs.com/composables/forms/create-form
  *
  * @example
  * ```vue
