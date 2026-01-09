@@ -11,8 +11,10 @@ vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: false,
 }))
 
+// Adapters
 // Import after mock is set up
 import { Vuetify0DateAdapter } from './adapters/v0'
+
 import { useDate, createDateFallback } from './index'
 
 describe('useDate SSR', () => {
@@ -56,7 +58,7 @@ describe('useDate SSR', () => {
     })
   })
 
-  describe('Vuetify0DateAdapter in SSR mode', () => {
+  describe('vuetify0DateAdapter in SSR mode', () => {
     it('should return epoch when date() called without arguments', () => {
       const adapter = new Vuetify0DateAdapter('en-US')
       const date = adapter.date()

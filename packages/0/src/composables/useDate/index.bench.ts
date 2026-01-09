@@ -1,5 +1,7 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { bench, describe } from 'vitest'
+
+// Adapters
 import { Vuetify0DateAdapter } from './adapters/v0'
 
 describe('useDate benchmarks', () => {

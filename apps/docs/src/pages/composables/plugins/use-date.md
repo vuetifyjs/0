@@ -368,15 +368,40 @@ app.use(createDatePlugin({
 
 - **parse() format parameter**: The `parse()` method's format parameter is currently ignored. The Temporal API doesn't provide built-in format parsing. The method delegates to `date()` which handles ISO 8601 strings. For custom format parsing, use a library like date-fns or luxon with a custom adapter.
 
-- **SSR Behavior**: When `adapter.date()` is called without arguments:
-  - Browser: Returns current time via `Temporal.Now.plainDateTimeISO()`
-  - Server: Returns epoch (1970-01-01T00:00:00) for deterministic rendering
+### SSR and Hydration
 
-  This is intentional to prevent hydration mismatches. For SSR apps needing current time, pass `Date.now()` explicitly and handle hydration via `<ClientOnly>` (Nuxt) or `v-if` + `onMounted` pattern.
+> [!WARNING]
+> Date formatting can cause hydration mismatches in SSR applications. Server and client environments may produce different formatted output due to timezone differences.
 
-- **Timezone-dependent formatting**: `Intl.DateTimeFormat` uses the system timezone. Server environments (often UTC) and client browsers (user's local timezone) may produce different formatted strings, causing hydration mismatches.
+**SSR Behavior for `adapter.date()`:**
+- Browser: Returns current time via `Temporal.Now.plainDateTimeISO()`
+- Server: Returns epoch (1970-01-01T00:00:00) for deterministic rendering
 
-  **Solutions:**
-  - Set `TZ=UTC` environment variable on your server to match a consistent baseline
-  - Wrap formatted date output in `<ClientOnly>` (Nuxt) or render only after `onMounted`
-  - For critical date displays, serialize dates as ISO strings and format client-side only
+This is intentional to prevent hydration mismatches. For SSR apps needing current time, pass `Date.now()` explicitly.
+
+**Timezone-dependent formatting:** `Intl.DateTimeFormat` uses the system timezone. Server environments (often UTC) and client browsers (user's local timezone) produce different formatted strings.
+
+**Solutions:**
+1. **Nuxt/SSR:** Wrap formatted dates in `<ClientOnly>`:
+   ```vue
+   <ClientOnly>
+     <span>{{ adapter.format(date, 'fullDate') }}</span>
+   </ClientOnly>
+   ```
+
+2. **Vue SSR:** Defer formatting until after hydration:
+   ```vue
+   <script setup lang="ts">
+     const { adapter } = useDate()
+     const isMounted = ref(false)
+     const date = adapter.date('2024-06-15T10:30:00')
+
+     onMounted(() => { isMounted.value = true })
+
+     const formatted = computed(() =>
+       isMounted.value ? adapter.format(date, 'fullDate') : date?.toString()
+     )
+   </script>
+   ```
+
+3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline

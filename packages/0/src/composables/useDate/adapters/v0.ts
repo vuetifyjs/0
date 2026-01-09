@@ -13,11 +13,10 @@
  * @see https://github.com/dmtrKovalenko/date-io
  */
 
-// Polyfill
-import { Temporal } from '@js-temporal/polyfill'
-
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
+// Polyfill
+import { Temporal } from '@js-temporal/polyfill'
 
 // Utilities
 import { isNull, isNullOrUndefined, isNumber, isString } from '#v0/utilities'

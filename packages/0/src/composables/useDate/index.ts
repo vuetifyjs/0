@@ -37,10 +37,11 @@
  * ```
  */
 
+// Foundational
+import { createContext, useContext } from '#v0/composables/createContext'
 // Factories
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
-import { createContext, useContext } from '#v0/composables/createContext'
 
 // Composables
 import { useLocale } from '#v0/composables/useLocale'
@@ -49,14 +50,14 @@ import { useLocale } from '#v0/composables/useLocale'
 import { Vuetify0DateAdapter } from '#v0/composables/useDate/adapters'
 
 // Utilities
-import { getCurrentInstance, computed, watchEffect, onScopeDispose } from 'vue'
-import { isNullOrUndefined } from '#v0/utilities'
+import { instanceExists, isNullOrUndefined } from '#v0/utilities'
+import { computed, watchEffect, onScopeDispose } from 'vue'
 
 // Types
-import type { DateAdapter } from '#v0/composables/useDate/adapters'
-import type { App, ComputedRef } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { DateAdapter } from '#v0/composables/useDate/adapters'
 import type { Temporal } from '@js-temporal/polyfill'
+import type { App, ComputedRef } from 'vue'
 
 // Exports
 export type { DateAdapter } from '#v0/composables/useDate/adapters'
@@ -178,7 +179,7 @@ function createDateInternal<T> (
   let localeContext: ReturnType<typeof useLocale> | null = null
 
   try {
-    if (getCurrentInstance()) {
+    if (instanceExists()) {
       localeContext = useLocale()
     }
   } catch {
@@ -193,7 +194,7 @@ function createDateInternal<T> (
   ))
 
   // Keep adapter locale in sync (only when in component scope)
-  if (getCurrentInstance()) {
+  if (instanceExists()) {
     const stop = watchEffect(() => {
       const loc = locale.value
 
@@ -448,7 +449,7 @@ export function useDate<T = DefaultDateType> (namespace = 'v0:date'): DateContex
   // Safe cast: fallback only used when T = DefaultDateType (first overload) or context missing
   const fallback = createDateFallback() as unknown as DateContext<T>
 
-  if (!getCurrentInstance()) return fallback
+  if (!instanceExists()) return fallback
 
   try {
     return useContext<DateContext<T>>(namespace, fallback)
