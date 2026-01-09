@@ -81,10 +81,10 @@
     v-if="componentApis.length > 0"
     class="mt-8 mb-12 markdown-body"
   >
-    <div class="markdown-body flex items-center justify-between gap-4">
+    <div class="markdown-body flex items-center justify-between gap-4 mb-3">
       <DocsHeaderAnchor
         id="api-reference"
-        class="!mb-0"
+        class="!my-0"
         tag="h2"
       >
         API Reference

@@ -120,6 +120,7 @@
         text-decoration: none;
         display: inline-flex;
         align-items: center;
+        align-self: center;
 
         &::before,
         &::after {
