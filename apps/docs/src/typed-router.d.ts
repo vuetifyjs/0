@@ -534,13 +534,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/utilities/to-reactive': RouteRecordInfo<
-      '/utilities/to-reactive',
-      '/utilities/to-reactive',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
   }
 
   /**
@@ -989,12 +982,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/storybook.view.vue': {
       routes:
         | '/storybook.view'
-      views:
-        | never
-    }
-    'src/pages/utilities/to-reactive.md': {
-      routes:
-        | '/utilities/to-reactive'
       views:
         | never
     }

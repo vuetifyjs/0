@@ -5,6 +5,7 @@
 
 export interface Frontmatter {
   title?: string
+  description?: string
   features?: {
     category?: string
     label?: string
@@ -42,19 +43,31 @@ export function parseFrontmatter (content: string): ParseResult {
   const frontmatter: Frontmatter = {}
   const lines = frontmatterStr.split('\n')
   let inFeatures = false
+  let inMeta = false
+  let currentMetaName = ''
   const features: NonNullable<Frontmatter['features']> = {}
 
   for (const line of lines) {
     const trimmed = line.trim()
-    if (!trimmed || trimmed.startsWith('-')) continue
+    if (!trimmed) continue
 
     // Check if we're entering/exiting a nested block
     if (!line.startsWith(' ') && !line.startsWith('\t')) {
       inFeatures = false
+      inMeta = false
     }
 
     if (trimmed.startsWith('title:')) {
       frontmatter.title = trimmed.slice(6).trim().replace(/^['"]|['"]$/g, '')
+    } else if (trimmed === 'meta:') {
+      inMeta = true
+    } else if (inMeta) {
+      // Handle meta array items like: - name: description
+      if (trimmed.startsWith('- name:')) {
+        currentMetaName = trimmed.slice(7).trim().replace(/^['"]|['"]$/g, '')
+      } else if (trimmed.startsWith('content:') && currentMetaName === 'description') {
+        frontmatter.description = trimmed.slice(8).trim().replace(/^['"]|['"]$/g, '')
+      }
     } else if (trimmed === 'features:') {
       inFeatures = true
     } else if (inFeatures) {

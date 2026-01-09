@@ -25,7 +25,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | File | Size | Purpose | Best For |
 | - | - | - | - |
 | <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | ~6 KB | Curated index with links | Quick context, navigation |
-| <a href="/llms-full.txt" target="_blank" class="v0-link" style="white-space: nowrap">llms-full.txt↗</a> | ~220 KB | Complete documentation | Deep understanding, code generation |
+| <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | ~220&nbsp;KB | Complete documentation | Deep understanding, code generation |
 
 > [!SUGGESTION] When should I use llms.txt vs llms-full.txt?
 
