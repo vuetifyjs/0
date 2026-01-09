@@ -1,5 +1,5 @@
 // Framework
-import { createBreakpointsPlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
+import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
 
 // Types
 import type { App } from 'vue'
@@ -34,6 +34,11 @@ export default function zero (app: App) {
     createLocalePlugin({
       default: 'en',
       fallback: 'en',
+    }),
+  )
+  app.use(
+    createDatePlugin({
+      locales: { en: 'en-US' },
     }),
   )
 

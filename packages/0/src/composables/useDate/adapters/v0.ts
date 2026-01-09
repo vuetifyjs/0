@@ -156,7 +156,14 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
       return Temporal.PlainDate.from(dateString).toPlainDateTime()
     }
 
-    // Handle full datetime strings
+    // Handle timezone-aware strings (e.g., "2024-06-15T10:30:00Z" or "2024-06-15T10:30:00+05:00")
+    // Convert to Instant first, then to PlainDateTime in UTC
+    if (dateString.includes('Z') || /[+-]\d{2}:\d{2}$/.test(dateString)) {
+      const instant = Temporal.Instant.from(dateString)
+      return instant.toZonedDateTimeISO('UTC').toPlainDateTime()
+    }
+
+    // Handle full datetime strings without timezone
     return Temporal.PlainDateTime.from(dateString)
   }
 

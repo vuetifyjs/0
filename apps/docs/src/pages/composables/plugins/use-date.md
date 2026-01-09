@@ -20,7 +20,18 @@ The `useDate` composable provides comprehensive date manipulation capabilities u
 
 ## Installation
 
-First, install the date plugin in your application:
+The default adapter uses the [Temporal API](https://tc39.es/proposal-temporal/docs/) via `@js-temporal/polyfill`. Install the polyfill first:
+
+```bash
+npm install @js-temporal/polyfill
+# or
+pnpm add @js-temporal/polyfill
+```
+
+> [!TIP]
+> The Temporal API is a Stage 3 TC39 proposal. Once browsers ship native support, the polyfill will no longer be required.
+
+Then install the date plugin in your application:
 
 ```ts
 import { createApp } from 'vue'
