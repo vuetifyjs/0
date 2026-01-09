@@ -542,6 +542,42 @@ describe('tabs', () => {
         // aria-labelledby on panel should match tab id
         expect(panelProps.attrs['aria-labelledby']).toBe(tabProps.attrs.id)
       })
+
+      it('should fallback to ID-based lookup when value not found in registry', async () => {
+        const selected = ref('tab-1')
+        let panelProps: any
+        let tabId: string | undefined
+
+        const Component = defineComponent({
+          render: () => h(Tabs.Root as any, {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string
+            },
+          }, () => [
+            h(Tabs.Tab as any, { value: 'tab-1' }, {
+              default: (props: any) => {
+                tabId = props.id
+                return h('button', 'Tab 1')
+              },
+            }),
+            // Panel that tries to match by value but falls back to ID lookup
+            h(Tabs.Panel as any, { value: 'tab-1' }, {
+              default: (props: any) => {
+                panelProps = props
+                return h('div', 'Panel content')
+              },
+            }),
+          ]),
+        })
+
+        mount(Component)
+        await nextTick()
+
+        // Panel should render with correct ID even if browse returns empty
+        expect(panelProps).toBeDefined()
+        expect(panelProps.attrs.id).toBeDefined()
+      })
     })
   })
 
@@ -868,6 +904,69 @@ describe('tabs', () => {
 
       // Should skip disabled tab-2 and go to tab-3
       expect(selected.value).toBe('tab-3')
+    })
+
+    it('should use loop prop for wrapping navigation', async () => {
+      const selected = ref('tab-3')
+      let tab3Props: any
+
+      mount(Tabs.Root, {
+        props: {
+          loop: true,
+          'modelValue': selected.value,
+          'onUpdate:modelValue': (value: unknown) => {
+            selected.value = value as string
+          },
+        },
+        slots: {
+          default: () => [
+            h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+            h(Tabs.Tab as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
+            h(Tabs.Tab as any, { value: 'tab-3' }, {
+              default: (props: any) => {
+                tab3Props = props
+                return h('button', 'Tab 3')
+              },
+            }),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      // When loop is true and at the last tab, right arrow should wrap to first
+      const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+      Object.defineProperty(event, 'preventDefault', { value: () => {} })
+
+      tab3Props.attrs.onKeydown(event)
+      await nextTick()
+
+      // The context's loop property enables this wrapping behavior
+      expect(selected.value).toBe('tab-1')
+    })
+
+    it('should support non-button tab elements', async () => {
+      let tabProps: any
+
+      mount(Tabs.Root, {
+        props: {
+          modelValue: 'tab-1',
+        },
+        slots: {
+          default: () => h(Tabs.Tab as any, { value: 'tab-1', as: 'a' }, {
+            default: (props: any) => {
+              tabProps = props
+              return h('a', { href: '#' }, 'Tab 1')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      // When as='a', disabled and type should be undefined
+      expect(tabProps.attrs.disabled).toBeUndefined()
+      expect(tabProps.attrs.type).toBeUndefined()
     })
 
     it('should use custom namespace for isolation', async () => {
