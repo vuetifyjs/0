@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Utilities
+  import { RouterLink } from 'vue-router'
+
   const integrations = [
     {
       name: 'Vite',
@@ -28,12 +31,12 @@
     {
       name: 'Vuetify Create',
       icon: 'vuetify-create',
-      href: 'https://github.com/vuetifyjs/create',
+      href: 'https://github.com/vuetifyjs/cli/tree/main/packages/create0',
     },
     {
       name: 'Vuetify MCP',
       icon: 'vuetify-mcp',
-      href: 'https://github.com/vuetifyjs/mcp',
+      to: '/guide/vuetify-mcp',
     },
   ]
 </script>
@@ -43,19 +46,21 @@
     <p class="text-center text-sm opacity-60 mb-6">Works with</p>
 
     <div class="flex flex-wrap justify-center gap-4 md:gap-6 max-w-[500px] mx-auto">
-      <a
+      <component
+        :is="integration.to ? RouterLink : 'a'"
         v-for="integration in integrations"
         :key="integration.name"
-        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-surface transition-colors hover:border-primary"
+        class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-surface transition-colors hover:border-primary cursor-pointer"
         :href="integration.href"
-        rel="noopener"
-        target="_blank"
+        :rel=" !integration.to ? 'noopener' : undefined"
+        :target=" !integration.to ? '_blank' : undefined"
+        :to="integration.to"
       >
         <div class="inline-flex text-on-surface">
           <AppIcon :icon="integration.icon" :size="18" />
         </div>
         <span class="text-sm font-medium">{{ integration.name }}</span>
-      </a>
+      </component>
     </div>
   </section>
 </template>

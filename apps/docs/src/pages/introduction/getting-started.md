@@ -21,9 +21,61 @@ Vuetify0 provides headless UI primitives and composables for Vue 3. Components a
 
 <DocsPageFeatures :frontmatter />
 
-## Vite Setup
+## Quick Start
 
-Create a new Vue project with Vite:
+The fastest way to start a new Vuetify0 project is with the CLI.
+
+### Vuetify Create
+
+Standalone scaffolding tool for Vuetify0 projects.
+
+::: code-group
+
+```bash pnpm
+pnpm create vuetify0
+```
+
+```bash npm
+npm create vuetify0
+```
+
+```bash yarn
+yarn create vuetify0
+```
+
+```bash bun
+bun create vuetify0
+```
+
+:::
+
+### Vuetify CLI
+
+Full-featured CLI with additional presets and options.
+
+::: code-group
+
+```bash pnpm
+pnpm dlx @vuetify/cli init --type vuetify0
+```
+
+```bash npm
+npx @vuetify/cli init --type vuetify0
+```
+
+```bash bun
+bunx @vuetify/cli init --type vuetify0
+```
+
+:::
+
+Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured.
+
+## Manual Setup
+
+To add v0 to an existing project, follow the steps below.
+
+### Create Vue Project
 
 ::: code-group
 
@@ -45,18 +97,7 @@ bun create vue@latest
 
 :::
 
-v0 works out of the box with Vite. No special configuration required:
-
-```ts vite.config.ts
-import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [vue()],
-})
-```
-
-## Installation
+### Installation
 
 Install `@vuetify/v0` with your preferred package manager:
 
