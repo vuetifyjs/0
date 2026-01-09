@@ -577,6 +577,8 @@ describe('tabs', () => {
         // Panel should render with correct ID even if browse returns empty
         expect(panelProps).toBeDefined()
         expect(panelProps.attrs.id).toBeDefined()
+        // Panel's aria-labelledby should reference the tab's ID
+        expect(panelProps.attrs['aria-labelledby']).toBe(tabId)
       })
     })
   })
@@ -912,7 +914,7 @@ describe('tabs', () => {
 
       mount(Tabs.Root, {
         props: {
-          loop: true,
+          'loop': true,
           'modelValue': selected.value,
           'onUpdate:modelValue': (value: unknown) => {
             selected.value = value as string
