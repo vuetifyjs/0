@@ -69,8 +69,8 @@
   const ticket = toRef(() => {
     // Try value-based lookup first
     const ids = tabs.browse(value)
-    if (ids?.length) {
-      return tabs.get(ids[0]) ?? null
+    if (ids?.length === 0) {
+      return tabs.get(ids[0]!) ?? null
     }
     // Fall back to ID-based lookup (for valueIsIndex cases)
     return tabs.get(value as string | number) ?? null
