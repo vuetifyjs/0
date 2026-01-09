@@ -22,7 +22,7 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -38,11 +38,14 @@
   export interface TabsListSlotProps {
     /** Current orientation */
     orientation: TabsOrientation
+    /** Whether the tabs instance is disabled */
+    isDisabled: boolean
     /** Attributes to bind to the tablist element */
     attrs: {
       'role': 'tablist'
       'aria-orientation': TabsOrientation
       'aria-label': string | undefined
+      'aria-disabled': boolean | undefined
     }
   }
 </script>
@@ -63,12 +66,16 @@
 
   const tabs = useTabsRoot(namespace)
 
+  const isDisabled = toRef(() => toValue(tabs.disabled))
+
   const slotProps = toRef((): TabsListSlotProps => ({
     orientation: tabs.orientation.value,
+    isDisabled: isDisabled.value,
     attrs: {
       'role': 'tablist',
       'aria-orientation': tabs.orientation.value,
       'aria-label': label,
+      'aria-disabled': isDisabled.value || undefined,
     },
   }))
 </script>
