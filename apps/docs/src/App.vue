@@ -179,6 +179,10 @@
       margin-bottom: 0.5rem;
     }
 
+    > :is(h1,h2,h3) + :is(h2,h3) {
+      margin-top: 0;
+    }
+
     blockquote {
       margin: 1rem 0;
       padding: 0.5rem 1rem;
