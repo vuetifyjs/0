@@ -44,8 +44,8 @@ The docs are organized into distinct sections, each serving a specific purpose:
 | <AppLink to="/guide" class="whitespace-nowrap"><AppIcon icon="book" :size="18" class="inline-block align-text-bottom mr-1" />**Guide**</AppLink> | Conceptual learning | Understanding architecture, patterns, best practices |
 | <AppLink to="/components" class="whitespace-nowrap"><AppIcon icon="layers" :size="18" class="inline-block align-text-bottom mr-1" />**Components**</AppLink> | Headless UI primitives | Building accessible interfaces (Dialog, Popover, Selection) |
 | <AppLink to="/composables" class="whitespace-nowrap"><AppIcon icon="puzzle" :size="18" class="inline-block align-text-bottom mr-1" />**Composables**</AppLink> | Logic building blocks | Adding behavior without UI (createContext, createSelection) |
-| <AppLink to="/api" class="whitespace-nowrap"><AppIcon icon="toc" :size="18" class="inline-block align-text-bottom mr-1" />**API**</AppLink> | Complete reference | Looking up props, events, slots, methods |
-| <AppLink to="/storybook" class="whitespace-nowrap"><AppIcon icon="test" :size="18" class="inline-block align-text-bottom mr-1" />**Storybook**</AppLink> | Visual playground | Exploring component variants interactively |
+| <AppLink to="/api" class="whitespace-nowrap"><AppIcon icon="beaker" :size="18" class="inline-block align-text-bottom mr-1" />**API**</AppLink> | Complete reference | Looking up props, events, slots, methods |
+<!-- | <AppLink to="/storybook" class="whitespace-nowrap"><AppIcon icon="test" :size="18" class="inline-block align-text-bottom mr-1" />**Storybook**</AppLink> | Visual playground | Exploring component variants interactively | -->
 
 Each component and composable page follows a consistent structure: overview, usage examples, anatomy, and API reference.
 
@@ -157,7 +157,7 @@ The AI has access to the entire v0 documentation via [llms-full.txt](/guide/ai-t
 |---------|-------------|
 | <AppIcon icon="book" :size="16" class="inline-block align-text-bottom" /> **Full docs** | Complete documentation available for cross-referencing |
 | <AppIcon icon="typescript" :size="16" class="inline-block align-text-bottom" /> **Examples** | Live Vue code from the page's interactive demos |
-| <AppIcon icon="toc" :size="16" class="inline-block align-text-bottom" /> **API specs** | Props, events, slots, and methods for the current component/composable |
+| <AppIcon icon="beaker" :size="16" class="inline-block align-text-bottom" /> **API specs** | Props, events, slots, and methods for the current component/composable |
 | <AppIcon icon="benchmark" :size="16" class="inline-block align-text-bottom" /> **Benchmarks** | Performance metrics (for composables) |
 | <AppIcon icon="chat" :size="16" class="inline-block align-text-bottom" /> **History** | Your last 6 messages in the conversation |
 
