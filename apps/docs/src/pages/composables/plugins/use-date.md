@@ -1,5 +1,5 @@
 ---
-title: useDate Composable
+title: useDate - Date management with Temporal API
 meta:
 - name: description
   content: A composable for date manipulation with adapter pattern, Temporal API support,
@@ -44,33 +44,21 @@ Once the plugin is installed, use the `useDate` composable in any component:
 
 ```vue UseDate
 <script setup lang="ts">
-import { useDate } from '@vuetify/v0'
+  import { useDate } from '@vuetify/v0'
 
-const { adapter, locale } = useDate()
+  const { adapter, locale } = useDate()
 
-// Create dates from various inputs
-const today = adapter.date()
-const fromString = adapter.date('2024-06-15T10:30:00')
-const fromTimestamp = adapter.date(Date.now())
+  // Create dates from various inputs
+  const today = adapter.date()
+  const fromString = adapter.date('2024-06-15T10:30:00')
+  const fromTimestamp = adapter.date(Date.now())
 
-// Format dates with presets
-const formatted = adapter.format(today, 'fullDate')
-const shortDate = adapter.format(today, 'shortDate')
+  // Format dates with presets
+  const formatted = adapter.format(today, 'fullDate')
+  const shortDate = adapter.format(today, 'shortDate')
 
-// Format with custom patterns
-const custom = adapter.formatByString(today, 'YYYY-MM-DD HH:mm')
-
-// Date navigation
-const nextMonth = adapter.getNextMonth(today)
-const startOfWeek = adapter.startOfWeek(today, 0) // 0 = Sunday
-
-// Date arithmetic
-const inFiveDays = adapter.addDays(today, 5)
-const twoMonthsAgo = adapter.addMonths(today, -2)
-
-// Comparisons
-const isAfter = adapter.isAfter(nextMonth, today)
-const isSameMonth = adapter.isSameMonth(today, inFiveDays)
+  // Format with custom patterns
+  const custom = adapter.formatByString(today, 'YYYY-MM-DD HH:mm')
 </script>
 
 <template>
@@ -83,46 +71,7 @@ const isSameMonth = adapter.isSameMonth(today, inFiveDays)
 </template>
 ```
 
-## API
-
-| Composable | Description |
-|---|---|
-| [useLocale](/composables/plugins/use-locale) | Locale management (auto-syncs with useDate) |
-| [createPlugin](/composables/foundation/create-plugin) | Plugin creation pattern |
-
-### Plugin Options
-
-- **Type**
-
-  ```ts
-  interface DatePluginOptions<T = Temporal.PlainDateTime> {
-    adapter?: DateAdapter<T>
-    locale?: string
-    localeMap?: Record<string, string>
-    namespace?: string
-  }
-  ```
-
-- **Details**
-
-  - `adapter`: Custom date adapter (default: `Vuetify0DateAdapter` using Temporal API)
-  - `locale`: Default locale for formatting (default: 'en-US' or from `useLocale`)
-  - `localeMap`: Mapping from short locale codes to Intl locale strings
-  - `namespace`: Context namespace for dependency injection (default: 'v0:date')
-
-### Date Context
-
-The `useDate()` composable returns a context with the following properties:
-
-```ts
-interface DateContext<T = Temporal.PlainDateTime> {
-  adapter: DateAdapter<T>
-  locale: ComputedRef<string | undefined>
-}
-```
-
-- `adapter`: The date adapter instance with all date manipulation methods
-- `locale`: Reactive current locale (syncs with `useLocale` if available)
+<DocsApi />
 
 ### DateAdapter Interface
 
@@ -273,35 +222,6 @@ The `formatByString()` method supports these tokens:
 | `A` | AM/PM | AM |
 | `a` | am/pm | am |
 
-### `createDateContext`
-
-- **Type**
-  ```ts
-  function createDateContext (options?: DateContextOptionsDefault): ContextTrinity<DateContext<Temporal.PlainDateTime>>
-  function createDateContext<T> (options: DateContextOptionsWithAdapter<T>): ContextTrinity<DateContext<T>>
-  ```
-
-- **Details**
-
-  Creates a date context using the [trinity pattern](/composables/foundation/create-trinity). Returns a readonly tuple of `[useDateContext, provideDateContext, context]` for dependency injection.
-
-- **Example**
-  ```ts
-  import { createDateContext } from '@vuetify/v0'
-
-  const [useAppDate, provideAppDate, dateContext] = createDateContext({
-    namespace: 'my-app:date',
-    locale: 'de-DE',
-  })
-
-  // In root component
-  provideAppDate()
-
-  // In any descendant component
-  const { adapter } = useAppDate()
-  const formatted = adapter.format(adapter.date(), 'fullDate')
-  ```
-
 ## Locale Integration
 
 When `useLocale` is available, `useDate` automatically syncs with the selected locale:
@@ -313,21 +233,25 @@ import { createLocalePlugin, createDatePlugin } from '@vuetify/v0'
 const app = createApp(App)
 
 // Install locale plugin first
-app.use(createLocalePlugin({
-  default: 'en',
-  messages: {
-    en: { /* ... */ },
-    de: { /* ... */ },
-  }
-}))
+app.use(
+  createLocalePlugin({
+    default: 'en',
+    messages: {
+      en: { /* ... */ },
+      de: { /* ... */ },
+    }
+  })
+)
 
 // Date plugin will auto-sync with locale
-app.use(createDatePlugin({
-  localeMap: {
-    en: 'en-US',  // Map short codes to Intl locales
-    de: 'de-DE',
-  }
-}))
+app.use(
+  createDatePlugin({
+    locales: {
+      en: 'en-US',  // Map short codes to Intl locales
+      de: 'de-DE',
+    }
+  })
+)
 ```
 
 When switching locales via `useLocale`, the date adapter automatically updates its formatting locale.
@@ -359,9 +283,11 @@ class DateFnsAdapter implements DateAdapter<Date> {
 }
 
 // Use with plugin
-app.use(createDatePlugin({
-  adapter: new DateFnsAdapter(),
-}))
+app.use(
+  createDatePlugin({
+    adapter: new DateFnsAdapter(),
+  })
+)
 ```
 
 ## Known Limitations
@@ -384,23 +310,28 @@ This is intentional to prevent hydration mismatches. For SSR apps needing curren
 **Solutions:**
 1. **Nuxt/SSR:** Wrap formatted dates in `<ClientOnly>`:
    ```vue
-   <ClientOnly>
-     <span>{{ adapter.format(date, 'fullDate') }}</span>
-   </ClientOnly>
+   <template>
+     <ClientOnly>
+      <span>{{ adapter.format(date, 'fullDate') }}</span>
+    </ClientOnly>
+   </template>
    ```
 
 2. **Vue SSR:** Defer formatting until after hydration:
    ```vue
    <script setup lang="ts">
+     import { useDate } from '@vuetify/v0'
+     import { shallowRef, onMounted, computed } from 'vue'
+
      const { adapter } = useDate()
-     const isMounted = ref(false)
+     const isMounted = shallowRef(false)
      const date = adapter.date('2024-06-15T10:30:00')
 
      onMounted(() => { isMounted.value = true })
 
      const formatted = computed(() =>
        isMounted.value ? adapter.format(date, 'fullDate') : date?.toString()
-     )
+     ))
    </script>
    ```
 

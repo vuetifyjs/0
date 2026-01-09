@@ -1,3 +1,10 @@
+/**
+ * @module DateAdapter
+ *
+ * @remarks
+ * Date adapter interfaces and implementations for date manipulation and formatting.
+ */
+
 // Types
 export type { DateAdapter } from './adapter'
 

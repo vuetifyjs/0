@@ -72,9 +72,9 @@ export interface DateContext<Z = DefaultDateType> {
 }
 
 /** Options for date composables */
-export interface DateOptions {
+export interface DateOptions<Z = DefaultDateType> {
   /** Custom date adapter instance (defaults to Vuetify0DateAdapter) */
-  adapter?: DateAdapter
+  adapter?: DateAdapter<Z>
   /** Locale for formatting (defaults to useLocale's selected locale or 'en-US') */
   locale?: string
   /** Short locale codes mapped to full Intl locale strings (e.g., { en: 'en-US' }) */
@@ -82,12 +82,12 @@ export interface DateOptions {
 }
 
 /** Context options with namespace */
-export interface DateContextOptions extends DateOptions {
+export interface DateContextOptions<Z = DefaultDateType> extends DateOptions<Z> {
   namespace?: string
 }
 
 /** Plugin options */
-export interface DatePluginOptions extends DateContextOptions {}
+export interface DatePluginOptions<Z = DefaultDateType> extends DateContextOptions<Z> {}
 
 /**
  * Default short locale codes mapped to full Intl locale strings.
@@ -129,11 +129,12 @@ const defaultLocales: Record<string, string> = {
  * ```
  */
 export function createDate<
-  E extends DateContext = DateContext,
-> (options: DateOptions = {}): E {
+  Z = DefaultDateType,
+  E extends DateContext<Z> = DateContext<Z>,
+> (options: DateOptions<Z> = {}): E {
   const {
     locales = defaultLocales,
-    adapter = new Vuetify0DateAdapter() as DateAdapter,
+    adapter = new Vuetify0DateAdapter() as unknown as DateAdapter<Z>,
     locale: initialLocale,
   } = options
 
@@ -171,7 +172,7 @@ export function createDate<
         adapter.locale = loc
       }
     })
-    onScopeDispose(stop, true)
+    onScopeDispose(stop)
   } else {
     // Outside component: sync once, no reactive watch
     const loc = locale.value
@@ -221,11 +222,12 @@ export function createDateFallback (): DateContext<DefaultDateType> {
  * ```
  */
 export function createDateContext<
-  E extends DateContext = DateContext,
-> (options: DateContextOptions = {}): ContextTrinity<E> {
+  Z = DefaultDateType,
+  E extends DateContext<Z> = DateContext<Z>,
+> (options: DateContextOptions<Z> = {}): ContextTrinity<E> {
   const { namespace = 'v0:date', ...dateOptions } = options
   const [useDateContext, _provideDateContext] = createContext<E>(namespace)
-  const context = createDate<E>(dateOptions)
+  const context = createDate<Z, E>(dateOptions)
 
   function provideDateContext (_context: E = context, app?: App): E {
     return _provideDateContext(_context, app)
@@ -256,10 +258,11 @@ export function createDateContext<
  * ```
  */
 export function createDatePlugin<
-  E extends DateContext = DateContext,
-> (options: DatePluginOptions = {}) {
+  Z = DefaultDateType,
+  E extends DateContext<Z> = DateContext<Z>,
+> (options: DatePluginOptions<Z> = {}) {
   const { namespace = 'v0:date', ...dateOptions } = options
-  const [, provideDateContext, context] = createDateContext<E>({ namespace, ...dateOptions })
+  const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...dateOptions })
 
   return createPlugin({
     namespace,
@@ -292,9 +295,10 @@ export function createDatePlugin<
  * ```
  */
 export function useDate<
-  E extends DateContext = DateContext,
+  Z = DefaultDateType,
+  E extends DateContext<Z> = DateContext<Z>,
 > (namespace = 'v0:date'): E {
-  const fallback = createDateFallback() as E
+  const fallback = createDateFallback() as unknown as E
 
   if (!instanceExists()) return fallback
 

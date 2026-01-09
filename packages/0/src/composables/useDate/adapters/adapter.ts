@@ -11,7 +11,10 @@
  * @see https://github.com/dmtrKovalenko/date-io
  */
 
-export interface DateAdapter<T = unknown> {
+// Types
+import type { Temporal } from '@js-temporal/polyfill'
+
+export interface DateAdapter<T = Temporal.PlainDateTime> {
   /** Current locale for formatting */
   locale?: string
 
@@ -29,10 +32,10 @@ export interface DateAdapter<T = unknown> {
   toISO: (date: T) => string
   /** Parse date string with custom format */
   parse: (value: string, format: string) => T | null
-  /** Check if value is a valid date */
-  isValid: (date: unknown) => boolean
-  /** Check if value is null */
-  isNull: (value: T | null) => boolean
+  /** Check if value is a valid date (type predicate for narrowing) */
+  isValid: (date: unknown) => date is T
+  /** Check if value is null (type predicate for narrowing) */
+  isNull: (value: T | null) => value is null
 
   // ============================================
   // Locale & Formatting

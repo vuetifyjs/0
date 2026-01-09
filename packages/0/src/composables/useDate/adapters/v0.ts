@@ -188,7 +188,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     }
   }
 
-  isValid (date: unknown): boolean {
+  isValid (date: unknown): date is PlainDateTime {
     if (isNullOrUndefined(date)) return false
 
     if (date instanceof Temporal.PlainDateTime) return true
@@ -218,7 +218,7 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
     return false
   }
 
-  isNull (value: PlainDateTime | null): boolean {
+  isNull (value: PlainDateTime | null): value is null {
     return isNullOrUndefined(value)
   }
 
