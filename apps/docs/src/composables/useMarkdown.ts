@@ -53,7 +53,7 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): Use
           return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
         },
         code ({ text, lang }) {
-          const language = lang || 'text'
+          const language = lang?.split(/\s+/)[0] || 'text'
 
           // Handle mermaid diagrams separately
           if (language === 'mermaid') {
