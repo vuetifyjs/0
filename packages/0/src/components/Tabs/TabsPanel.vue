@@ -5,6 +5,15 @@
  * Content panel associated with a tab. Matches with TabsTab via the `value`
  * prop. Provides ARIA tabpanel role and labelledby relationship with the
  * corresponding tab trigger.
+ *
+ * @example
+ * ```ts
+ * // Panel content is shown when its tab is selected
+ * h(Tabs.Panel, { value: 'profile', class: 'p-4' }, () => [
+ *   h('h3', 'Profile Settings'),
+ *   h('p', 'Manage your profile information.'),
+ * ])
+ * ```
  */
 
 <script lang="ts">
@@ -56,14 +65,15 @@
 
   const tabs = useTabsRoot(namespace)
 
-  // Find the ticket that matches this panel's value
+  // Find the ticket that matches this panel's value (O(1) lookup)
   const ticket = toRef(() => {
-    for (const t of tabs.values()) {
-      if (t.value === value || (t.valueIsIndex && t.id === value)) {
-        return t
-      }
+    // Try value-based lookup first
+    const ids = tabs.browse(value)
+    if (ids?.length) {
+      return tabs.get(ids[0]) ?? null
     }
-    return null
+    // Fall back to ID-based lookup (for valueIsIndex cases)
+    return tabs.get(value as string | number) ?? null
   })
 
   const isSelected = toRef(() => {

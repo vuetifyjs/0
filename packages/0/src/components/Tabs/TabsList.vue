@@ -5,6 +5,15 @@
  * Container component for tab triggers. Provides the `tablist` ARIA role
  * and orientation attribute for accessibility. Does not manage state -
  * purely structural.
+ *
+ * @example
+ * ```ts
+ * // Basic usage with label for accessibility
+ * h(Tabs.List, { label: 'Account settings' }, () => [
+ *   h(Tabs.Tab, { value: 'profile' }, () => 'Profile'),
+ *   h(Tabs.Tab, { value: 'password' }, () => 'Password'),
+ * ])
+ * ```
  */
 
 <script lang="ts">
