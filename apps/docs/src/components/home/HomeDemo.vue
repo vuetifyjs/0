@@ -96,7 +96,7 @@
       </div>
 
       <!-- Live Demo -->
-      <div class="demo-preview p-4 md:p-8 rounded-xl border bg-surface flex flex-col">
+      <div class="demo-preview px-4 py-1 rounded-xl border bg-surface flex flex-col">
         <div class="text-center md:text-end">
           <a
             class="text-xs font-medium text-primary hover:underline inline-flex gap-1"
