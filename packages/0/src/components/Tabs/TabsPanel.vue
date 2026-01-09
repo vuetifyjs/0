@@ -33,7 +33,7 @@
       'id': string
       'role': 'tabpanel'
       'aria-labelledby': string
-      'tabindex': 0
+      'tabindex': 0 | -1
       'hidden': boolean
       'data-selected': true | undefined
     }
@@ -82,7 +82,7 @@
       'id': panelId.value,
       'role': 'tabpanel',
       'aria-labelledby': tabId.value,
-      'tabindex': 0,
+      'tabindex': isSelected.value ? 0 : -1,
       'hidden': !isSelected.value,
       'data-selected': isSelected.value || undefined,
     },

@@ -68,6 +68,10 @@
     unselect: (id: ID) => void
     /** Toggle a tab's selection state by ID */
     toggle: (id: ID) => void
+    /** Attributes to bind to the root element */
+    attrs: {
+      'aria-multiselectable': false
+    }
   }
 
   export interface TabsContext extends StepContext<StepTicket> {
@@ -97,6 +101,10 @@
 
   defineSlots<{
     default: (props: TabsRootSlotProps) => any
+  }>()
+
+  defineEmits<{
+    'update:model-value': [value: T | T[]]
   }>()
 
   const {
@@ -145,6 +153,9 @@
     select: step.select,
     unselect: step.unselect,
     toggle: step.toggle,
+    attrs: {
+      'aria-multiselectable': false,
+    },
   }))
 </script>
 

@@ -375,6 +375,7 @@ describe('tabs', () => {
 
         expect(panelProps.isSelected).toBe(false)
         expect(panelProps.attrs.hidden).toBe(true)
+        expect(panelProps.attrs.tabindex).toBe(-1)
       })
     })
 
