@@ -47,6 +47,7 @@ catalog:
   shiki: ^3.20.0
   simple-git-hooks: ^2.13.1
   storybook: ^10.1.9
+  svg-pan-zoom: ^3.6.2
   swetrix: ^3.7.2
   ts-morph: ^27.0.2
   tsdown: ^0.16.1

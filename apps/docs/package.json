@@ -47,6 +47,7 @@
     "mermaid": "catalog:",
     "minisearch": "catalog:",
     "pinia": "catalog:",
+    "svg-pan-zoom": "catalog:",
     "swetrix": "catalog:",
     "vue": "catalog:"
   }

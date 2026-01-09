@@ -1,20 +1,26 @@
 <script setup lang="ts">
   // Framework
-  import { Dialog } from '@vuetify/v0'
+  import { Dialog, useResizeObserver } from '@vuetify/v0'
 
   // Composables
+  import { useClipboard } from '@/composables/useClipboard'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, onMounted, ref, shallowRef, useId, watch } from 'vue'
+  import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, watch } from 'vue'
 
   const { prefersReducedMotion } = useSettings()
+  const { copied, copy } = useClipboard()
 
   // Types
   import type Mermaid from 'mermaid'
+  import type { Instance as PanZoomInstance } from 'svg-pan-zoom'
 
   const mermaid = shallowRef<typeof Mermaid>()
+  const panZoomInstance = shallowRef<PanZoomInstance>()
+  const dialogSvgRef = ref<HTMLElement>()
+  const isOpen = ref(false)
 
   async function loadMermaid () {
     if (mermaid.value) return mermaid.value
@@ -57,6 +63,11 @@
     return m
   }
 
+  async function loadPanZoom () {
+    const { default: svgPanZoom } = await import('svg-pan-zoom')
+    return svgPanZoom
+  }
+
   const props = defineProps<{
     code: string // base64 encoded
     caption?: string // base64 encoded
@@ -81,12 +92,85 @@
     }
   }
 
+  async function initPanZoom () {
+    await nextTick()
+    const svgElement = dialogSvgRef.value?.querySelector('svg')
+    if (!svgElement) return
+
+    // Destroy previous instance if exists
+    if (panZoomInstance.value) {
+      panZoomInstance.value.destroy()
+      panZoomInstance.value = undefined
+    }
+
+    const svgPanZoom = await loadPanZoom()
+    panZoomInstance.value = svgPanZoom(svgElement, {
+      zoomEnabled: true,
+      controlIconsEnabled: false,
+      fit: true,
+      center: true,
+      minZoom: 0.5,
+      maxZoom: 10,
+      zoomScaleSensitivity: 0.3,
+    })
+  }
+
+  function zoomIn () {
+    panZoomInstance.value?.zoomIn()
+  }
+
+  function zoomOut () {
+    panZoomInstance.value?.zoomOut()
+  }
+
+  function resetZoom () {
+    panZoomInstance.value?.resetZoom()
+    panZoomInstance.value?.resetPan()
+    panZoomInstance.value?.fit()
+    panZoomInstance.value?.center()
+  }
+
+  function copySvg () {
+    copy(svg.value)
+  }
+
+  function downloadSvg () {
+    const blob = new Blob([svg.value], { type: 'image/svg+xml' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${decodedCaption.value || 'diagram'}.svg`
+    document.body.append(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  watch(isOpen, async open => {
+    if (open) {
+      await initPanZoom()
+    } else if (panZoomInstance.value) {
+      panZoomInstance.value.destroy()
+      panZoomInstance.value = undefined
+    }
+  })
+
+  // Update pan-zoom when container resizes (e.g., window resize while dialog open)
+  useResizeObserver(dialogSvgRef, () => {
+    if (panZoomInstance.value) {
+      panZoomInstance.value.resize()
+      panZoomInstance.value.fit()
+      panZoomInstance.value.center()
+    }
+  })
+
   onMounted(render)
+  onUnmounted(() => panZoomInstance.value?.destroy())
   watch(decodedCode, render)
 </script>
 
 <template>
-  <Dialog.Root>
+  <Dialog.Root v-model="isOpen">
     <Dialog.Activator class="docs-mermaid flex justify-center w-full my-4 overflow-x-auto cursor-pointer hover:opacity-80 transition-opacity">
       <figure class="flex flex-col items-center w-full">
         <div class="flex justify-center w-full" v-html="svg" />
@@ -97,28 +181,116 @@
     </Dialog.Activator>
 
     <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider', prefersReducedMotion && 'reduce-motion']">
-      <div class="flex items-center justify-end p-2">
+      <!-- Header toolbar -->
+      <div class="flex items-center justify-between gap-2 p-2 border-b border-divider">
         <Dialog.Title as="span" class="sr-only">
           {{ decodedCaption || 'Diagram' }}
         </Dialog.Title>
 
         <Dialog.Description class="sr-only">
-          Click outside or press Escape to close
+          Use controls to zoom and pan. Click outside or press Escape to close.
         </Dialog.Description>
 
-        <Dialog.Close aria-label="Close diagram" class="p-1.5 rounded-md bg-surface/50 hover:bg-surface border border-divider">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-          </svg>
-        </Dialog.Close>
+        <!-- Zoom controls - hidden on mobile -->
+        <div class="hidden sm:flex items-center gap-1">
+          <button
+            aria-label="Zoom out"
+            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            title="Zoom out"
+            type="button"
+            @click="zoomOut"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+            </svg>
+          </button>
+
+          <button
+            aria-label="Zoom in"
+            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            title="Zoom in"
+            type="button"
+            @click="zoomIn"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+            </svg>
+          </button>
+
+          <button
+            aria-label="Reset view"
+            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            title="Reset view"
+            type="button"
+            @click="resetZoom"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+            </svg>
+          </button>
+
+          <div class="w-px h-4 bg-divider mx-1" />
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex items-center gap-1">
+          <button
+            :aria-label="copied ? 'Copied!' : 'Copy SVG'"
+            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            :title="copied ? 'Copied!' : 'Copy SVG'"
+            type="button"
+            @click="copySvg"
+          >
+            <svg
+              v-if="!copied"
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+            </svg>
+            <svg
+              v-else
+              class="w-4 h-4 text-success"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+            </svg>
+          </button>
+
+          <button
+            aria-label="Download SVG"
+            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            title="Download SVG"
+            type="button"
+            @click="downloadSvg"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+            </svg>
+          </button>
+
+          <div class="w-px h-4 bg-divider mx-1" />
+
+          <Dialog.Close aria-label="Close diagram" class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider" title="Close">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
+            </svg>
+          </Dialog.Close>
+        </div>
       </div>
 
-      <figure class="flex flex-col items-center">
+      <!-- Diagram area -->
+      <figure>
         <div
-          class="docs-mermaid flex justify-center p-4"
+          ref="dialogSvgRef"
+          class="docs-mermaid docs-mermaid-panzoom"
           v-html="svg"
         />
-        <figcaption v-if="decodedCaption" class="pb-4 text-sm text-on-surface-variant italic">
+        <figcaption v-if="decodedCaption" class="pb-4 text-center text-sm text-on-surface-variant italic">
           {{ decodedCaption }}
         </figcaption>
       </figure>
@@ -172,18 +344,37 @@
   }
 
   /* Dialog expanded view */
-  .docs-mermaid-dialog {
-    min-width: min(800px, 90vw);
+  .docs-mermaid-dialog[open] {
+    width: min(90vw, 1200px);
+    height: min(80vh, 900px);
+    display: flex;
+    flex-direction: column;
   }
 
-  .docs-mermaid-dialog .docs-mermaid {
-    width: 100%;
+  .docs-mermaid-dialog figure {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
-  .docs-mermaid-dialog .docs-mermaid svg {
+  /* Pan-zoom enabled SVG container */
+  .docs-mermaid-panzoom {
+    flex: 1;
     width: 100%;
-    height: auto;
-    max-width: none;
+    min-height: 0;
+    overflow: hidden;
+    cursor: grab;
+  }
+
+  .docs-mermaid-panzoom:active {
+    cursor: grabbing;
+  }
+
+  .docs-mermaid-panzoom svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
   }
 
   /* Dialog open animation */
