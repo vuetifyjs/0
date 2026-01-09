@@ -436,13 +436,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/guide/features': RouteRecordInfo<
-      '/guide/features',
-      '/guide/features',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/guide/nuxt': RouteRecordInfo<
       '/guide/nuxt',
       '/guide/nuxt',
@@ -912,12 +905,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/core.md': {
       routes:
         | '/guide/core'
-      views:
-        | never
-    }
-    'src/pages/guide/features.md': {
-      routes:
-        | '/guide/features'
       views:
         | never
     }
