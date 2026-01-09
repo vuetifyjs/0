@@ -317,6 +317,135 @@ describe('tabs', () => {
         expect(tabProps.isDisabled).toBe(true)
         expect(tabProps.attrs['aria-disabled']).toBe(true)
       })
+
+      it('should allow selection after disabled prop changes to false', async () => {
+        const selected = ref<string>()
+        const disabled = ref(true)
+        let tabProps: any
+
+        // Pass the ref directly - component accepts MaybeRef<boolean>
+        mount(Tabs.Root, {
+          props: {
+            'mandatory': false,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => h(Tabs.Tab as any, { value: 'tab-1', disabled }, {
+              default: (props: any) => {
+                tabProps = props
+                return h('button', 'Tab 1')
+              },
+            }),
+          },
+        })
+
+        await nextTick()
+
+        // Initially disabled
+        expect(tabProps.isDisabled).toBe(true)
+        tabProps.attrs.onClick()
+        await nextTick()
+        expect(selected.value).toBeUndefined()
+
+        // Enable the tab
+        disabled.value = false
+        await nextTick()
+
+        // Now should allow selection
+        expect(tabProps.isDisabled).toBe(false)
+        tabProps.attrs.onClick()
+        await nextTick()
+        expect(selected.value).toBe('tab-1')
+      })
+
+      it('should retain selection when selected tab becomes disabled', async () => {
+        const selected = ref('tab-1')
+        const disabled = ref(false)
+        let tabProps: any
+
+        // Pass the ref directly - component accepts MaybeRef<boolean>
+        mount(Tabs.Root, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => h(Tabs.Tab as any, { value: 'tab-1', disabled }, {
+              default: (props: any) => {
+                tabProps = props
+                return h('button', 'Tab 1')
+              },
+            }),
+          },
+        })
+
+        await nextTick()
+
+        expect(tabProps.isSelected).toBe(true)
+        expect(tabProps.isDisabled).toBe(false)
+
+        // Disable the selected tab
+        disabled.value = true
+        await nextTick()
+
+        // Selection retained, but now disabled
+        expect(tabProps.isSelected).toBe(true)
+        expect(tabProps.isDisabled).toBe(true)
+      })
+
+      it('should skip newly disabled tab during keyboard navigation', async () => {
+        const selected = ref('tab-1')
+        const tab2Disabled = ref(false)
+        let tab1Props: any
+
+        // Pass the ref directly - component accepts MaybeRef<boolean>
+        mount(Tabs.Root, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => [
+              h(Tabs.Tab as any, { value: 'tab-1' }, {
+                default: (props: any) => {
+                  tab1Props = props
+                  return h('button', 'Tab 1')
+                },
+              }),
+              h(Tabs.Tab as any, { value: 'tab-2', disabled: tab2Disabled }, () => h('button', 'Tab 2')),
+              h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Navigate right - tab-2 is enabled
+        const event1 = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+        Object.defineProperty(event1, 'preventDefault', { value: () => {} })
+        tab1Props.attrs.onKeydown(event1)
+        await nextTick()
+        expect(selected.value).toBe('tab-2')
+
+        // Reset to tab-1 and disable tab-2
+        selected.value = 'tab-1'
+        tab2Disabled.value = true
+        await nextTick()
+
+        // Navigate right - should skip disabled tab-2
+        const event2 = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+        Object.defineProperty(event2, 'preventDefault', { value: () => {} })
+        tab1Props.attrs.onKeydown(event2)
+        await nextTick()
+        expect(selected.value).toBe('tab-3')
+      })
     })
   })
 
