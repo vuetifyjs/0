@@ -6,6 +6,16 @@
  * Provides complete ARIA attributes, roving tabindex, and keyboard
  * handling for accessibility. Supports both automatic and manual
  * activation modes.
+ *
+ * @example
+ * ```ts
+ * // Using slot props for conditional styling
+ * h(Tabs.Tab, { value: 'profile' }, {
+ *   default: ({ isSelected }) => h('button', {
+ *     class: isSelected ? 'border-b-2 border-blue-500' : ''
+ *   }, 'Profile')
+ * })
+ * ```
  */
 
 <script lang="ts">
@@ -14,7 +24,7 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { onBeforeUnmount, toRef, toValue } from 'vue'
+  import { nextTick, onBeforeUnmount, toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -87,6 +97,15 @@
     tabs.unregister(ticket.id)
   })
 
+  function focusSelectedTab (currentTarget: EventTarget | null) {
+    nextTick(() => {
+      const current = currentTarget as HTMLElement | null
+      const tablist = current?.closest('[role="tablist"]')
+      const selectedTab = tablist?.querySelector('[role="tab"][aria-selected="true"]') as HTMLElement | null
+      selectedTab?.focus()
+    })
+  }
+
   function onKeydown (e: KeyboardEvent) {
     const orientation = tabs.orientation.value
     const isHorizontal = orientation === 'horizontal'
@@ -98,6 +117,7 @@
     ) {
       e.preventDefault()
       tabs.next()
+      focusSelectedTab(e.currentTarget)
       return
     }
 
@@ -107,6 +127,7 @@
     ) {
       e.preventDefault()
       tabs.prev()
+      focusSelectedTab(e.currentTarget)
       return
     }
 
@@ -114,12 +135,14 @@
     if (e.key === 'Home') {
       e.preventDefault()
       tabs.first()
+      focusSelectedTab(e.currentTarget)
       return
     }
 
     if (e.key === 'End') {
       e.preventDefault()
       tabs.last()
+      focusSelectedTab(e.currentTarget)
       return
     }
 
