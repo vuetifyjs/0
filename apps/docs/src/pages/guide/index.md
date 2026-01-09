@@ -50,7 +50,6 @@ For understanding the system architecture.
 
 | Guide | What You'll Learn |
 | - | - |
-| [Structure](/guide/structure) | Package organization, imports, file conventions |
 | [Core](/guide/core) | Trinity, Context, Registry patterns |
 | [Components](/guide/components) | Component categories, Atom primitive, slot props |
 | [Plugins](/guide/plugins) | Using and creating Vue plugins |

@@ -68,10 +68,9 @@ Every page is tagged with a skill level to help you find content appropriate for
 The [Guide overview](/guide) defines three learning tracks for structured progression:
 
 **Track A: Core Concepts** — Understanding the system
-1. [Structure](/guide/structure) — Package organization and imports
-2. [Core](/guide/core) — Trinity, Context, and Registry patterns
-3. [Components](/guide/components) — Headless primitives and slot props
-4. [Plugins](/guide/plugins) — Vue plugin integration
+1. [Core](/guide/core) — Trinity, Context, and Registry patterns
+2. [Components](/guide/components) — Headless primitives and slot props
+3. [Plugins](/guide/plugins) — Vue plugin integration
 
 **Track B: Features & Polish** — Production-ready UIs
 1. [Theming](/guide/theming) — CSS variables and design tokens
