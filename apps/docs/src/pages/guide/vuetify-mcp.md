@@ -16,7 +16,7 @@ related:
 
 # Vuetify MCP
 
-Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/) server that gives AI assistants structured access to Vuetify and v0 APIs. Unlike [llms.txt](/guide/ai-tools), MCP provides real-time, queryable documentation.
+Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) server that gives AI assistants structured access to Vuetify and v0 APIs. Unlike [llms.txt](/guide/ai-tools), MCP provides real-time, queryable documentation.
 
 <DocsPageFeatures :frontmatter />
 
