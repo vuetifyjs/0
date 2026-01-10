@@ -13,7 +13,7 @@
 
   const headerButtons = [
     { key: 'showSkillFilter', label: 'Skill filter', icon: 'tune', model: showSkillFilter },
-    { key: 'showThemeToggle', label: 'Theme toggle', icon: 'theme-system', model: showThemeToggle },
+    { key: 'showThemeToggle', label: 'Theme toggle', icon: 'theme-settings', model: showThemeToggle },
     { key: 'showSocialLinks', label: 'Social links', icon: 'share', model: showSocialLinks },
   ]
 

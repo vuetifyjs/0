@@ -4,7 +4,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, ref, shallowRef, toRef, useId } from 'vue'
+  import { computed, ref, shallowRef, toRef, useId, watch } from 'vue'
 
   const props = defineProps<{
     file?: string
@@ -19,6 +19,11 @@
 
   // Local state initialized from global default, per-instance
   const lineWrap = shallowRef(defaultLineWrap.value)
+
+  // Sync when global setting changes
+  watch(defaultLineWrap, val => {
+    lineWrap.value = val
+  })
 
   const fileName = computed(() => props.file?.split('/').pop() || '')
 

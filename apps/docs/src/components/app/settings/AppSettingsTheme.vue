@@ -29,7 +29,7 @@
 <template>
   <section>
     <h3 class="flex items-center gap-2 text-sm font-medium text-on-surface-variant mb-3">
-      <AppIcon icon="theme-system" size="16" />
+      <AppIcon icon="theme-settings" size="16" />
       <span>Theme</span>
     </h3>
     <div aria-label="Theme" class="grid grid-cols-2 gap-2" role="radiogroup">

@@ -21,11 +21,11 @@
   const { showInlineApi: defaultInlineApi } = useSettings()
   const { toKebab } = useApiHelpers()
 
-  // Local state initialized from global default, resets on navigation
+  // Local state initialized from global default, syncs when global changes
   const showInlineApi = shallowRef(defaultInlineApi.value)
 
-  watch(() => route.path, () => {
-    showInlineApi.value = defaultInlineApi.value
+  watch(defaultInlineApi, val => {
+    showInlineApi.value = val
   })
 
   const pageType = computed(() => {

@@ -4,7 +4,7 @@
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, ref, shallowRef } from 'vue'
+  import { computed, ref, shallowRef, watch } from 'vue'
 
   const props = withDefaults(defineProps<{
     code: string // base64 encoded
@@ -21,6 +21,12 @@
 
   // Local state initialized from global default, per-instance
   const lineWrap = shallowRef(defaultLineWrap.value)
+
+  // Sync when global setting changes
+  watch(defaultLineWrap, val => {
+    lineWrap.value = val
+  })
+
   const decodedCode = computed(() => decodeBase64(props.code))
 
   // Collapse state
