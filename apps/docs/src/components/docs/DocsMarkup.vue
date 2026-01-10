@@ -60,17 +60,15 @@
       <slot />
     </div>
 
-    <div v-if="shouldCollapse && !expanded" class="docs-markup-fade" />
-
     <button
       v-if="shouldCollapse"
       :aria-expanded="expanded"
       class="docs-markup-expand"
+      :class="{ 'docs-markup-expand--collapsed': !expanded }"
       type="button"
       @click="expanded = !expanded"
     >
       <span class="i-lucide-chevron-down" :class="{ 'rotate-180': expanded }" />
-      <span>{{ expanded ? 'Show less' : 'Show more' }}</span>
     </button>
   </div>
 </template>
@@ -85,30 +83,30 @@
     overflow: hidden;
   }
 
-  .docs-markup-fade {
-    position: absolute;
-    bottom: 2.5rem;
-    left: 0;
-    right: 0;
-    height: 4rem;
-    background: linear-gradient(transparent, var(--v0-pre));
-    pointer-events: none;
-    border-radius: 0 0 0.5rem 0.5rem;
-  }
-
   .docs-markup-expand {
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.5rem;
-    font-size: 0.875rem;
+    padding: 0.25rem;
+    font-size: 1rem;
     color: var(--v0-on-surface-variant);
     background: var(--v0-surface-variant);
-    border-radius: 0 0 0.5rem 0.5rem;
+    border-radius: 0.25rem;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s, bottom 0.2s, right 0.2s;
+    z-index: 10;
+  }
+
+  .docs-markup-expand--collapsed {
+    bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .docs-markup-expand:not(.docs-markup-expand--collapsed) {
+    bottom: 0.5rem;
+    right: 0.5rem;
   }
 
   .docs-markup-expand:hover {
@@ -116,7 +114,7 @@
     color: var(--v0-on-surface);
   }
 
-  .docs-markup-expand span:first-child {
+  .docs-markup-expand span {
     transition: transform 0.3s ease;
   }
 </style>
