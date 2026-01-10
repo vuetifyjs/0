@@ -12,75 +12,63 @@ features:
   github: /composables/useDate/
 ---
 
+<script setup>
+import BasicExample from '@/examples/composables/use-date/basic.vue'
+import BasicExampleRaw from '@/examples/composables/use-date/basic.vue?raw'
+</script>
+
 # useDate
 
-The `useDate` composable provides comprehensive date manipulation capabilities using the adapter pattern. The default adapter uses the Temporal API for modern, immutable date operations with locale-aware formatting via `Intl.DateTimeFormat`. Integrates with `useLocale` for automatic locale synchronization.
+The `useDate` composable provides comprehensive date manipulation capabilities using the adapter pattern. The default adapter uses the [Temporal API](https://tc39.es/proposal-temporal/docs/) for modern, immutable date operations with locale-aware formatting via `Intl.DateTimeFormat`. Integrates with `useLocale` for automatic locale synchronization.
 
 <DocsPageFeatures :frontmatter />
 
 ## Installation
 
-The default adapter uses the [Temporal API](https://tc39.es/proposal-temporal/docs/) via `@js-temporal/polyfill`. Install the polyfill first:
+The default adapter requires the `@js-temporal/polyfill` package:
 
-```bash
-npm install @js-temporal/polyfill
-# or
+::: code-group
+
+```bash pnpm
 pnpm add @js-temporal/polyfill
 ```
 
+```bash npm
+npm install @js-temporal/polyfill
+```
+
+```bash yarn
+yarn add @js-temporal/polyfill
+```
+
+```bash bun
+bun add @js-temporal/polyfill
+```
+
+:::
+
 > [!TIP]
-> The Temporal API is a Stage 3 TC39 proposal. Once browsers ship native support, the polyfill will no longer be required.
+> The Temporal API is a Stage 3 [TC39 proposal](https://github.com/tc39/proposal-temporal). Once browsers ship native support, the polyfill will no longer be required.
 
 Then install the date plugin in your application:
 
-```ts
-import { createApp } from 'vue'
+```ts src/plugins/zero.ts
 import { createDatePlugin } from '@vuetify/v0'
-import App from './App.vue'
-
-const app = createApp(App)
 
 app.use(
   createDatePlugin({
     locale: 'en-US',
   })
 )
-
-app.mount('#app')
 ```
 
 ## Usage
 
 Once the plugin is installed, use the `useDate` composable in any component:
 
-```vue UseDate
-<script setup lang="ts">
-  import { useDate } from '@vuetify/v0'
-
-  const { adapter, locale } = useDate()
-
-  // Create dates from various inputs
-  const today = adapter.date()
-  const fromString = adapter.date('2024-06-15T10:30:00')
-  const fromTimestamp = adapter.date(Date.now())
-
-  // Format dates with presets
-  const formatted = adapter.format(today, 'fullDate')
-  const shortDate = adapter.format(today, 'shortDate')
-
-  // Format with custom patterns
-  const custom = adapter.formatByString(today, 'YYYY-MM-DD HH:mm')
-</script>
-
-<template>
-  <div>
-    <p>Current locale: {{ locale }}</p>
-    <p>Today: {{ formatted }}</p>
-    <p>Short: {{ shortDate }}</p>
-    <p>Custom: {{ custom }}</p>
-  </div>
-</template>
-```
+<DocsExample file="basic.vue" title="Date Formatting" :code="BasicExampleRaw">
+  <BasicExample />
+</DocsExample>
 
 <DocsApi />
 
@@ -93,87 +81,87 @@ interface DateAdapter<T> {
   locale?: string
 
   // Construction & Conversion
-  date(value?: unknown): T | null
-  toJsDate(value: T): Date
-  parseISO(dateString: string): T
-  toISO(date: T): string
-  parse(value: string, format: string): T | null
-  isValid(date: unknown): boolean
-  isNull(value: T | null): boolean
+  date (value?: unknown): T | null
+  toJsDate (value: T): Date
+  parseISO (dateString: string): T
+  toISO (date: T): string
+  parse (value: string, format: string): T | null
+  isValid (date: unknown): date is T  // Type predicate
+  isNull (value: T | null): value is null  // Type predicate
 
   // Formatting
-  format(date: T, formatString: string): string
-  formatByString(date: T, formatString: string): string
-  formatNumber(numberToFormat: string): string
-  getFormatHelperText(format: string): string
-  getMeridiemText(ampm: 'am' | 'pm'): string
+  format (date: T, formatString: string): string
+  formatByString (date: T, formatString: string): string
+  formatNumber (numberToFormat: string): string
+  getFormatHelperText (format: string): string
+  getMeridiemText (ampm: 'am' | 'pm'): string
 
   // Navigation
-  startOfDay(date: T): T
-  endOfDay(date: T): T
-  startOfWeek(date: T, firstDayOfWeek?: number): T
-  endOfWeek(date: T, firstDayOfWeek?: number): T
-  startOfMonth(date: T): T
-  endOfMonth(date: T): T
-  startOfYear(date: T): T
-  endOfYear(date: T): T
+  startOfDay (date: T): T
+  endOfDay (date: T): T
+  startOfWeek (date: T, firstDayOfWeek?: number): T
+  endOfWeek (date: T, firstDayOfWeek?: number): T
+  startOfMonth (date: T): T
+  endOfMonth (date: T): T
+  startOfYear (date: T): T
+  endOfYear (date: T): T
 
   // Arithmetic
-  addSeconds(date: T, amount: number): T
-  addMinutes(date: T, amount: number): T
-  addHours(date: T, amount: number): T
-  addDays(date: T, amount: number): T
-  addWeeks(date: T, amount: number): T
-  addMonths(date: T, amount: number): T
-  addYears(date: T, amount: number): T
+  addSeconds (date: T, amount: number): T
+  addMinutes (date: T, amount: number): T
+  addHours (date: T, amount: number): T
+  addDays (date: T, amount: number): T
+  addWeeks (date: T, amount: number): T
+  addMonths (date: T, amount: number): T
+  addYears (date: T, amount: number): T
 
   // Comparison
-  isAfter(date: T, comparing: T): boolean
-  isAfterDay(date: T, comparing: T): boolean
-  isAfterMonth(date: T, comparing: T): boolean
-  isAfterYear(date: T, comparing: T): boolean
-  isBefore(date: T, comparing: T): boolean
-  isBeforeDay(date: T, comparing: T): boolean
-  isBeforeMonth(date: T, comparing: T): boolean
-  isBeforeYear(date: T, comparing: T): boolean
-  isEqual(date: T, comparing: T): boolean
-  isSameDay(date: T, comparing: T): boolean
-  isSameHour(date: T, comparing: T): boolean
-  isSameMonth(date: T, comparing: T): boolean
-  isSameYear(date: T, comparing: T): boolean
-  isWithinRange(date: T, range: [T, T]): boolean
+  isAfter (date: T, comparing: T): boolean
+  isAfterDay (date: T, comparing: T): boolean
+  isAfterMonth (date: T, comparing: T): boolean
+  isAfterYear (date: T, comparing: T): boolean
+  isBefore (date: T, comparing: T): boolean
+  isBeforeDay (date: T, comparing: T): boolean
+  isBeforeMonth (date: T, comparing: T): boolean
+  isBeforeYear (date: T, comparing: T): boolean
+  isEqual (date: T, comparing: T): boolean
+  isSameDay (date: T, comparing: T): boolean
+  isSameHour (date: T, comparing: T): boolean
+  isSameMonth (date: T, comparing: T): boolean
+  isSameYear (date: T, comparing: T): boolean
+  isWithinRange (date: T, range: [T, T]): boolean
 
   // Getters
-  getYear(date: T): number
-  getMonth(date: T): number  // 0-indexed
-  getDate(date: T): number
-  getHours(date: T): number
-  getMinutes(date: T): number
-  getSeconds(date: T): number
-  getDiff(date: T, comparing: T | string, unit?: string): number
-  getWeek(date: T, firstDayOfWeek?: number, minimalDays?: number): number
-  getDaysInMonth(date: T): number
+  getYear (date: T): number
+  getMonth (date: T): number  // 0-indexed
+  getDate (date: T): number
+  getHours (date: T): number
+  getMinutes (date: T): number
+  getSeconds (date: T): number
+  getDiff (date: T, comparing: T | string, unit?: string): number
+  getWeek (date: T, firstDayOfWeek?: number, minimalDays?: number): number
+  getDaysInMonth (date: T): number
 
   // Setters (immutable - returns new instance)
-  setYear(date: T, year: number): T
-  setMonth(date: T, month: number): T  // 0-indexed
-  setDate(date: T, day: number): T
-  setHours(date: T, hours: number): T
-  setMinutes(date: T, minutes: number): T
-  setSeconds(date: T, seconds: number): T
+  setYear (date: T, year: number): T
+  setMonth (date: T, month: number): T  // 0-indexed
+  setDate (date: T, day: number): T
+  setHours (date: T, hours: number): T
+  setMinutes (date: T, minutes: number): T
+  setSeconds (date: T, seconds: number): T
 
   // Calendar Utilities
-  getWeekdays(firstDayOfWeek?: number, format?: 'long' | 'short' | 'narrow'): string[]
-  getWeekArray(date: T, firstDayOfWeek?: number): T[][]
-  getMonthArray(date: T): T[]
-  getYearRange(start: T, end: T): T[]
-  getNextMonth(date: T): T
-  getPreviousMonth(date: T): T
+  getWeekdays (firstDayOfWeek?: number, format?: 'long' | 'short' | 'narrow'): string[]
+  getWeekArray (date: T, firstDayOfWeek?: number): T[][]
+  getMonthArray (date: T): T[]
+  getYearRange (start: T, end: T): T[]
+  getNextMonth (date: T): T
+  getPreviousMonth (date: T): T
 
   // Utility
-  mergeDateAndTime(date: T, time: T): T
-  getCurrentLocaleCode(): string
-  is12HourCycleInCurrentLocale(): boolean
+  mergeDateAndTime (date: T, time: T): T
+  getCurrentLocaleCode (): string
+  is12HourCycleInCurrentLocale (): boolean
 }
 ```
 
@@ -273,11 +261,12 @@ Create custom adapters for different date libraries (date-fns, luxon, dayjs):
 
 ```ts
 import type { DateAdapter } from '@vuetify/v0'
+import { isValid as dateFnsIsValid, parseISO, format as dateFnsFormat } from 'date-fns'
 
 class DateFnsAdapter implements DateAdapter<Date> {
   locale = 'en-US'
 
-  date(value?: unknown): Date | null {
+  date (value?: unknown): Date | null {
     if (value == null) return new Date()
     if (value instanceof Date) return value
     if (typeof value === 'string') return parseISO(value)
@@ -285,8 +274,17 @@ class DateFnsAdapter implements DateAdapter<Date> {
     return null
   }
 
-  format(date: Date, formatString: string): string {
-    // Use date-fns format function
+  // Type predicate - enables TypeScript narrowing
+  isValid (date: unknown): date is Date {
+    return date instanceof Date && dateFnsIsValid(date)
+  }
+
+  // Type predicate - enables TypeScript narrowing
+  isNull (value: Date | null): value is null {
+    return value === null
+  }
+
+  format (date: Date, formatString: string): string {
     return dateFnsFormat(date, this.getDateFnsFormat(formatString))
   }
 
@@ -300,6 +298,16 @@ app.use(
   })
 )
 ```
+
+> [!TIP]
+> The `isValid` and `isNull` methods are type predicates. This enables TypeScript to narrow types after validation:
+> ```ts
+> const date = adapter.date(input)
+> if (!adapter.isNull(date) && adapter.isValid(date)) {
+>   // TypeScript knows `date` is Date here
+>   adapter.format(date, 'fullDate')
+> }
+> ```
 
 ## Known Limitations
 

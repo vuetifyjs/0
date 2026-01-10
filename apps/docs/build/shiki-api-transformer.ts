@@ -65,6 +65,7 @@ const V0_COMPOSABLES = new Set([
   'useToggleScope',
   // Plugins
   'useBreakpoints',
+  'useDate',
   'useFeatures',
   'useHydration',
   'useLocale',
