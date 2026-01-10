@@ -10,6 +10,7 @@ features:
   category: Plugin
   label: 'E: useDate'
   github: /composables/useDate/
+  level: 2
 ---
 
 <script setup>

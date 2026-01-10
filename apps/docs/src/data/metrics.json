@@ -315,6 +315,14 @@
       "overall": 98.1
     }
   },
+  "useDate": {
+    "coverage": {
+      "statements": 97.5,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.8
+    }
+  },
   "useEventListener": {
     "coverage": {
       "statements": 100,
@@ -423,10 +431,10 @@
   },
   "useLocale": {
     "coverage": {
-      "statements": 95.5,
-      "functions": 92.3,
+      "statements": 97.7,
+      "functions": 100,
       "branches": 95.5,
-      "overall": 94.5
+      "overall": 97.9
     }
   },
   "useLogger": {

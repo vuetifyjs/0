@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { isUndefined } from '@vuetify/v0'
+
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
 
@@ -39,6 +42,7 @@
       features: {
         github: string
         label: string
+        level?: 1 | 2 | 3
         renderless?: boolean
         ssrSafe?: boolean
       }
@@ -145,6 +149,19 @@
   const renderless = toRef(() => props.frontmatter?.features?.renderless)
   const ssrSafe = toRef(() => props.frontmatter?.features?.ssrSafe ?? false)
 
+  // Level display config
+  const levelConfig = {
+    1: { icon: 'level-beginner', color: 'text-success', label: 'Beginner' },
+    2: { icon: 'level-intermediate', color: 'text-info', label: 'Intermediate' },
+    3: { icon: 'level-advanced', color: 'text-warning', label: 'Advanced' },
+  } as const
+
+  const level = toRef(() => {
+    const l = props.frontmatter?.features?.level
+    if (!l || !(l in levelConfig)) return null
+    return levelConfig[l]
+  })
+
   async function onClickCopy () {
     if (loading.value) return
 
@@ -243,7 +260,7 @@
 
     <!-- Inline metadata -->
     <div
-      v-if="coverage || benchmark || renderless !== undefined || ssrSafe"
+      v-if="level || coverage || benchmark || !isUndefined(renderless) || ssrSafe"
       class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider"
     >
       <a
@@ -258,7 +275,7 @@
         <span>{{ coverage.label }}</span>
       </a>
 
-      <span v-if="coverage && testFileLink && (benchmark || renderless !== undefined || ssrSafe)" class="mx-2 opacity-40">·</span>
+      <span v-if="coverage && testFileLink && (level || benchmark || !isUndefined(renderless) || ssrSafe)" class="mx-2 opacity-40">·</span>
 
       <a
         v-if="benchmark"
@@ -270,7 +287,7 @@
         <span>{{ benchmark.label }}</span>
       </a>
 
-      <span v-if="benchmark && (renderless !== undefined || ssrSafe)" class="mx-2 opacity-40">·</span>
+      <span v-if="benchmark && (level || !isUndefined(renderless) || ssrSafe)" class="mx-2 opacity-40">·</span>
 
       <span
         v-if="renderless === true"
@@ -290,7 +307,18 @@
         <span>Renders element</span>
       </span>
 
-      <span v-if="renderless !== undefined && ssrSafe" class="mx-2 opacity-40">·</span>
+      <span v-if="!isUndefined(renderless) && (level || ssrSafe)" class="mx-2 opacity-40">·</span>
+
+      <span
+        v-if="level"
+        class="inline-flex items-center gap-1"
+        :title="`${level.label} skill level`"
+      >
+        <AppIcon :class="level.color" :icon="level.icon" size="1em" />
+        <span>{{ level.label }}</span>
+      </span>
+
+      <span v-if="level && ssrSafe" class="mx-2 opacity-40">·</span>
 
       <span
         v-if="ssrSafe"
