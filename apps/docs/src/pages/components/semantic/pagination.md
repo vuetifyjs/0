@@ -58,6 +58,7 @@ The Pagination component provides a compound component pattern for building page
 </template>
 ```
 
+> [!WARNING]
 > For responsive sizing to work accurately, **all pagination buttons must have the same width**. The component measures a sample button and uses that width to calculate how many buttons fit. If buttons have variable widths (e.g., single-digit "1" vs double-digit "50"), the calculation will be inaccurate and items may overflow or leave excess space.
 
 <DocsApi />
