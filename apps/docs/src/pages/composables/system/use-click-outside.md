@@ -29,7 +29,7 @@ A composable for detecting clicks outside of specified element(s) with automatic
 
 The `useClickOutside` composable detects when users click outside target elements. It uses two-phase detection (pointerdown → pointerup) to prevent false positives when dragging, and includes touch scroll handling for mobile.
 
-<DocsExample file="basic.vue" title="Dropdown Menu" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
   <BasicExample />
 </DocsExample>
 

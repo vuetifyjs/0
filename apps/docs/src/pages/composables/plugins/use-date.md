@@ -69,7 +69,7 @@ app.use(
 
 Once the plugin is installed, use the `useDate` composable in any component:
 
-<DocsExample file="basic.vue" title="Date Formatting" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
   <BasicExample />
 </DocsExample>
 
@@ -232,7 +232,7 @@ The following examples demonstrate common date operations using the default Temp
 
 The mini calendar example shows how to render a simple month view calendar using `useDate` for date calculations and formatting.
 
-<DocsExample file="calendar.vue" title="Mini Calendar" :code="CalendarExampleRaw">
+<DocsExample file="calendar.vue" :code="CalendarExampleRaw">
   <CalendarExample />
 </DocsExample>
 

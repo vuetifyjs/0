@@ -30,7 +30,7 @@ A composable for reactive CSS media query matching with automatic cleanup.
 
 The `useMediaQuery` composable wraps the browser's `matchMedia` API, providing reactive updates when the media query state changes. It supports static strings, refs, and getter functions for dynamic queries.
 
-<DocsExample file="basic.vue" title="Media Query Detection" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
   <BasicExample />
 </DocsExample>
 

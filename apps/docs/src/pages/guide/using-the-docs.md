@@ -238,7 +238,7 @@ Examples render as functional components you can interact with directly:
 - See real behavior without leaving the docs
 - Examples use the same code shown below them
 
-<DocsExample file="basic.vue" title="Interactive Group Example" :code="GroupExampleRaw">
+<DocsExample file="basic.vue" :code="GroupExampleRaw">
   <GroupExample />
 </DocsExample>
 
