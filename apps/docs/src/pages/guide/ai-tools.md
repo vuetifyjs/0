@@ -24,8 +24,8 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 
 | File | Size | Purpose | Best For |
 | - | - | - | - |
-| <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | ~6 KB | Curated index with links | Quick context, navigation |
-| <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | ~220&nbsp;KB | Complete documentation | Deep understanding, code generation |
+| <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | ~7 KB | Curated index with links | Quick context, navigation |
+| <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | ~165&nbsp;KB | Complete documentation | Deep understanding, code generation |
 
 > [!SUGGESTION] When should I use llms.txt vs llms-full.txt?
 
@@ -71,6 +71,7 @@ WebFetch https://0.vuetifyjs.com/llms-full.txt
 
 ## How It Works
 
-- `llms.txt` is manually curated in `apps/docs/public/`
-- `llms-full.txt` is auto-generated at build time from all markdown pages
-- Both are served statically and cached for performance
+Both files are auto-generated at build time by [generate-llms-full.ts](https://github.com/vuetifyjs/0/blob/master/apps/docs/build/generate-llms-full.ts):
+
+- `llms.txt` extracts titles and descriptions, organized by category
+- `llms-full.txt` includes the complete content of every markdown page, stripped of Vue components and frontmatter
