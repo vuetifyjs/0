@@ -1,14 +1,12 @@
 <script setup lang="ts">
   import apiData from 'virtual:api'
 
-  // Framework
-  import { useStorage } from '@vuetify/v0'
-
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, shallowRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -20,14 +18,15 @@
 
   const route = useRoute()
   const data = apiData as ApiData
-  const storage = useStorage()
+  const { showInlineApi: defaultInlineApi } = useSettings()
   const { toKebab } = useApiHelpers()
 
-  const apiMode = storage.get<'inline' | 'links'>('api-display', 'inline')
+  // Local state initialized from global default, resets on navigation
+  const showInlineApi = shallowRef(defaultInlineApi.value)
 
-  function toggleApiMode () {
-    apiMode.value = apiMode.value === 'inline' ? 'links' : 'inline'
-  }
+  watch(() => route.path, () => {
+    showInlineApi.value = defaultInlineApi.value
+  })
 
   const pageType = computed(() => {
     const path = route.path
@@ -93,16 +92,16 @@
       <button
         class="text-sm text-primary hover:underline whitespace-nowrap"
         type="button"
-        @click="toggleApiMode"
+        @click="showInlineApi = !showInlineApi"
       >
-        {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
+        {{ showInlineApi ? 'View standalone →' : 'Show inline ↓' }}
       </button>
     </div>
 
     The following API details are for all variations of the <strong>{{ itemName }}</strong> component.
 
     <DocsApiLinks
-      v-if="apiMode === 'links'"
+      v-if="!showInlineApi"
       :component-apis="componentApis"
     />
 
@@ -184,16 +183,16 @@
       <button
         class="text-sm text-primary hover:underline whitespace-nowrap"
         type="button"
-        @click="toggleApiMode"
+        @click="showInlineApi = !showInlineApi"
       >
-        {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
+        {{ showInlineApi ? 'View standalone →' : 'Show inline ↓' }}
       </button>
     </div>
 
     The following API details are for the <strong>{{ itemName }}</strong> composable.
 
     <DocsApiLinks
-      v-if="apiMode === 'links'"
+      v-if="!showInlineApi"
       :composable-api="composableApi"
     />
 

@@ -60,6 +60,9 @@
       <!-- Code Examples -->
       <AppSettingsLineWrap />
 
+      <!-- API Reference -->
+      <AppSettingsInlineApi />
+
       <!-- Motion -->
       <AppSettingsMotion />
 
