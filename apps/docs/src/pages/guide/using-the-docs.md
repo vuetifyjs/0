@@ -414,6 +414,14 @@ Toggle line wrapping for long lines in code blocks:
   <AppSettingsLineWrap />
 </div>
 
+### API Reference
+
+Display API details inline on component and composable pages, or show links to dedicated API pages:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsInlineApi />
+</div>
+
 ### Motion
 
 Control animations: follow your OS preference, force reduce, or enable full motion.
