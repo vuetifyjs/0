@@ -16,7 +16,7 @@
     <AppIcon icon="alert" :size="14" />
 
     <div>
-      You are viewing Pre-Alpha documentation. <span class="hidden md:inline">See the <RouterLink to="/roadmap" class="underline underline-offset-2">roadmap</RouterLink> for updates.</span>
+      You are viewing Pre-Alpha documentation. <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap">roadmap</RouterLink> for updates.</span>
     </div>
   </Atom>
 </template>
