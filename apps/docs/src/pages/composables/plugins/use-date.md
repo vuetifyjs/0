@@ -15,6 +15,8 @@ features:
 <script setup>
 import BasicExample from '@/examples/composables/use-date/basic.vue'
 import BasicExampleRaw from '@/examples/composables/use-date/basic.vue?raw'
+import CalendarExample from '@/examples/composables/use-date/calendar.vue'
+import CalendarExampleRaw from '@/examples/composables/use-date/calendar.vue?raw'
 </script>
 
 # useDate
@@ -221,11 +223,23 @@ The `formatByString()` method supports these tokens:
 | `A` | AM/PM | AM |
 | `a` | am/pm | am |
 
+## Examples
+
+The following examples demonstrate common date operations using the default Temporal adapter:
+
+### Mini Calendar
+
+The mini calendar example shows how to render a simple month view calendar using `useDate` for date calculations and formatting.
+
+<DocsExample file="calendar.vue" title="Mini Calendar" :code="CalendarExampleRaw">
+  <CalendarExample />
+</DocsExample>
+
 ## Locale Integration
 
 When `useLocale` is available, `useDate` automatically syncs with the selected locale:
 
-```ts
+```ts src/main.ts
 import { createApp } from 'vue'
 import { createLocalePlugin, createDatePlugin } from '@vuetify/v0'
 
@@ -259,7 +273,7 @@ When switching locales via `useLocale`, the date adapter automatically updates i
 
 Create custom adapters for different date libraries (date-fns, luxon, dayjs):
 
-```ts
+```ts src/adapters/date-fns-adapter.ts
 import type { DateAdapter } from '@vuetify/v0'
 import { isValid as dateFnsIsValid, parseISO, format as dateFnsFormat } from 'date-fns'
 
