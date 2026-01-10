@@ -25,7 +25,7 @@
     return isDesktop.value ? 'fade' : 'slide'
   })
 
-  useScrollLock(() => fullscreen.value && isDesktop.value)
+  useScrollLock(() => isOpen.value && fullscreen.value && isDesktop.value)
 
   const {
     messages,
