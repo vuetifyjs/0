@@ -557,7 +557,7 @@ describe('tabs', () => {
           }, () => [
             h(Tabs.Tab as any, { value: 'tab-1' }, {
               default: (props: any) => {
-                tabId = props.id
+                tabId = props.attrs.id
                 return h('button', 'Tab 1')
               },
             }),
