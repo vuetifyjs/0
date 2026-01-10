@@ -22,3 +22,10 @@ declare module 'virtual:nav' {
   const data: NavItem[]
   export default data
 }
+
+declare module 'virtual:page-dates' {
+  // Types
+  import type { PageDates } from '../build/generate-page-dates'
+  const data: PageDates
+  export default data
+}

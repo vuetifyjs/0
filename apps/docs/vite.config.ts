@@ -20,6 +20,7 @@ import generateApiPlugin from './build/generate-api'
 import generateExamplesPlugin from './build/generate-examples'
 import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
+import generatePageDatesPlugin from './build/generate-page-dates'
 import generateSearchIndexPlugin from './build/generate-search-index'
 import Markdown from './build/markdown'
 import pkg from './package.json' with { type: 'json' }
@@ -71,6 +72,7 @@ export default defineConfig({
     generateLlmsFullPlugin(),
     generateSearchIndexPlugin(),
     generateNavPlugin(),
+    generatePageDatesPlugin(),
     VitePWA({
       injectRegister: 'script-defer',
       registerType: 'autoUpdate',

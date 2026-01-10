@@ -1,6 +1,8 @@
 <script setup lang="ts">
+  import pageDates from 'virtual:page-dates'
+
   // Framework
-  import { isUndefined } from '@vuetify/v0'
+  import { isUndefined, useDate } from '@vuetify/v0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -10,6 +12,7 @@
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
+  // Data
   import metrics from '@/data/metrics.json'
 
   const { scrollToAnchor } = useScrollToAnchor()
@@ -162,6 +165,20 @@
     return levelConfig[l]
   })
 
+  // Last updated date from git history
+  const { adapter } = useDate()
+  const lastUpdated = toRef(() => {
+    // Try exact path, then without trailing slash
+    const path = route.path.replace(/\/$/, '') || '/'
+    const pageDate = pageDates[path]
+    if (!pageDate?.updated) return null
+
+    const date = adapter.date(pageDate.updated)
+    if (!adapter.isValid(date)) return null
+
+    return adapter.format(date, 'normalDate')
+  })
+
   async function onClickCopy () {
     if (loading.value) return
 
@@ -204,6 +221,7 @@
         :href="edit"
         rel="noopener noreferrer"
         target="_blank"
+        title="Edit documentation page"
       >
         <AppChip
           color="text-info"
@@ -216,6 +234,7 @@
         href="https://issues.vuetifyjs.com/?repo=vuetify0&type=bug"
         rel="noopener noreferrer"
         target="_blank"
+        title="Open Vuetify Issues"
       >
         <AppChip
           color="text-error"
@@ -229,6 +248,7 @@
         :href="label"
         rel="noopener noreferrer"
         target="_blank"
+        title="View Issues on GitHub"
       >
         <AppChip
           color="text-warning"
@@ -242,6 +262,7 @@
         :href="github"
         rel="noopener noreferrer"
         target="_blank"
+        title="View source code on GitHub"
       >
         <AppChip
           icon="github"
@@ -260,7 +281,7 @@
 
     <!-- Inline metadata -->
     <div
-      v-if="level || coverage || benchmark || !isUndefined(renderless) || ssrSafe"
+      v-if="level || coverage || benchmark || !isUndefined(renderless) || ssrSafe || lastUpdated"
       class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider"
     >
       <a
@@ -281,6 +302,7 @@
         v-if="benchmark"
         class="inline-flex items-center gap-1 hover:text-on-surface transition-colors"
         href="#benchmarks"
+        title="View performance benchmarks"
         @click.prevent="scrollToAnchor('benchmarks')"
       >
         <AppIcon :class="benchmark.color" :icon="benchmark.icon" size="1em" />
@@ -327,6 +349,17 @@
       >
         <AppIcon class="text-info" icon="ssr" size="1em" />
         <span>SSR Safe</span>
+      </span>
+
+      <span v-if="lastUpdated && (level || coverage || benchmark || !isUndefined(renderless) || ssrSafe)" class="mx-2 opacity-40">·</span>
+
+      <span
+        v-if="lastUpdated"
+        class="inline-flex items-center gap-1"
+        title="Last updated"
+      >
+        <AppIcon class="text-secondary" icon="calendar-clock" size="1em" />
+        <span>{{ lastUpdated }}</span>
       </span>
     </div>
   </div>
