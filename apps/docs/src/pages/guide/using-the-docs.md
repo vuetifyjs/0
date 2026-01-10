@@ -49,6 +49,33 @@ The docs are organized into distinct sections, each serving a specific purpose:
 
 Each component and composable page follows a consistent structure: overview, usage examples, anatomy, and API reference.
 
+### Page Header
+
+Every page includes a header area (shown at the top of this page) with quick actions and metadata.
+
+**Actions:**
+
+| Example | Description |
+|---------|-------------|
+| <DocsActionChip color="text-info" icon="pencil" text="Edit this page" /> | Open the source file on GitHub for editing |
+| <DocsActionChip color="text-error" icon="vuetify-issues" text="Report a Bug" /> | File an issue via Vuetify Issues |
+| <DocsActionChip color="text-warning" icon="alert" text="Open issues" /> | View existing GitHub issues for this feature |
+| <DocsActionChip icon="github" text="View on GitHub" /> | Browse source code for components/composables |
+| <DocsActionChip icon="markdown" text="Copy Page as Markdown" /> | Copy page content for use with AI tools |
+
+**Metadata** (component and composable pages):
+
+| Example | Description |
+|---------|-------------|
+| <span class="inline-flex items-center text-xs"><DocsMetaCoverage :coverage="{ value: 94, label: '94% coverage', color: 'text-success' }" /></span> | Test coverage percentage (links to test file) |
+| <span class="inline-flex items-center text-xs"><DocsMetaBenchmark :benchmark="{ label: 'Blazing Fast', icon: 'benchmark-blazing', color: 'text-error' }" /></span> | Performance tier: Blazing Fast, Fast, or Good |
+| <span class="inline-flex items-center text-xs"><DocsMetaRenderless :renderless="true" /></span> | Component renders no DOM element by default |
+| <span class="inline-flex items-center text-xs"><DocsMetaRenderless :renderless="false" /></span> | Component renders a DOM element by default |
+| <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-beginner', color: 'text-success', label: 'Beginner' }" /></span> | Difficulty indicator — see [below](#skill-levels) |
+| <span class="inline-flex items-center text-xs"><DocsMetaLastUpdated date="Jan 10, 2026" /></span> | When the page was last modified (from git) |
+
+These metadata items are standalone components usable anywhere. This page's actual metadata: <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel /><DocsMetaLastUpdated /></span>
+
 ## Skill Levels & Learning Tracks { #skill-levels-learning-tracks }
 
 Use the filter to show only pages matching your experience level: <AppSkillFilter />
@@ -57,11 +84,11 @@ Use the filter to show only pages matching your experience level: <AppSkillFilte
 
 Every page is tagged with a skill level to help you find content appropriate for your experience:
 
-| Level | Badge | For |
-|-------|-------|-----|
-| <span class="inline-block w-3 h-3 rounded bg-success mr-1 align-middle" />**1** | Beginner | New to v0, learning fundamentals |
-| <span class="inline-block w-3 h-3 rounded bg-info mr-1 align-middle" />**2** | Intermediate | Building with components, practical usage |
-| <span class="inline-block w-3 h-3 rounded bg-warning mr-1 align-middle" />**3** | Advanced | Architecture deep-dives, custom patterns |
+| Level | For | Filter |
+|-------|-----|:------:|
+| <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-beginner', color: 'text-success', label: 'Beginner' }" /></span> | New to v0, learning fundamentals | <span class="flex justify-center"><DocsSkillToggle :level="1" /></span> |
+| <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-intermediate', color: 'text-info', label: 'Intermediate' }" /></span> | Building with components, practical usage | <span class="flex justify-center"><DocsSkillToggle :level="2" /></span> |
+| <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-advanced', color: 'text-warning', label: 'Advanced' }" /></span> | Architecture deep-dives, custom patterns | <span class="flex justify-center"><DocsSkillToggle :level="3" /></span> |
 
 ### Learning Tracks
 

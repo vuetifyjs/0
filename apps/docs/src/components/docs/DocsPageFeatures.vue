@@ -6,6 +6,7 @@
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
+  import { providePageMeta } from '@/composables/usePageMeta'
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
@@ -47,7 +48,6 @@
         label: string
         level?: 1 | 2 | 3
         renderless?: boolean
-        ssrSafe?: boolean
       }
     }
   }>()
@@ -150,7 +150,6 @@
   // Static badges from frontmatter
   // renderless: true = "Renderless", false = "Renders element", undefined = no chip
   const renderless = toRef(() => props.frontmatter?.features?.renderless)
-  const ssrSafe = toRef(() => props.frontmatter?.features?.ssrSafe ?? false)
 
   // Level display config
   const levelConfig = {
@@ -177,6 +176,19 @@
     if (!adapter.isValid(date)) return null
 
     return adapter.format(date, 'normalDate')
+  })
+
+  // Provide page metadata context for child components
+  providePageMeta({
+    edit,
+    github,
+    label,
+    testFileLink,
+    level,
+    coverage,
+    benchmark,
+    renderless,
+    lastUpdated,
   })
 
   async function onClickCopy () {
@@ -261,7 +273,7 @@
 
     <!-- Inline metadata -->
     <div
-      v-if="level || coverage || benchmark || !isUndefined(renderless) || ssrSafe || lastUpdated"
+      v-if="level || coverage || benchmark || !isUndefined(renderless) || lastUpdated"
       class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider"
     >
       <DocsMetaItem
@@ -305,14 +317,6 @@
         :icon="level.icon"
         :text="level.label"
         :title="`${level.label} skill level`"
-      />
-
-      <DocsMetaItem
-        v-if="ssrSafe"
-        color="text-info"
-        icon="ssr"
-        text="SSR Safe"
-        title="Safe for server-side rendering"
       />
 
       <DocsMetaItem
