@@ -56,7 +56,7 @@
         v-for="integration in integrations"
         :key="integration.name"
         class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-surface transition-colors hover:border-primary cursor-pointer"
-        :href="integration.href"
+        :href="integration.href ?? integration.to"
         :rel=" !integration.to ? 'noopener' : undefined"
         :target=" !integration.to ? '_blank' : undefined"
         :to="integration.to"
