@@ -93,8 +93,11 @@ If you have an existing styled component library and want to adopt v0's headless
 <script setup lang="ts">
   import { shallowRef } from 'vue'
 
-  const activeTab = shallowRef(0)
-  function selectTab(index: number) { activeTab.value = index }
+  const active = shallowRef(0)
+
+  function select (i: number) {
+    active.value = i
+  }
 </script>
 ```
 
