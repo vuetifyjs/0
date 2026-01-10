@@ -39,7 +39,7 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 **Events**: `useEventListener`, `useHotkey`, `useClickOutside`
 **Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`
 **Features**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`
-**Data**: `useFilter`, `usePagination`, `useVirtual`, `createForm`, `createQueue`, `createTimeline`
+**Data**: `useFilter`, `usePagination`, `useVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`
 **Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `useOverflow`
 **Tokens**: `createTokens`
 
@@ -102,6 +102,7 @@ pnpm repo:check       # knip + sherif
 
 ### Vue SFCs
 - Script tag order: `<script setup lang="ts">` (setup before lang)
+- With generics: `<script lang="ts" setup generic="T">` (lang before setup when using generic)
 
 ### TypeScript
 - Zero `any` types
