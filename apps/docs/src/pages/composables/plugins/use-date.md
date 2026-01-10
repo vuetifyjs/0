@@ -271,6 +271,48 @@ When switching locales via `useLocale`, the date adapter automatically updates i
 
 ## Custom Adapters
 
+The adapter pattern decouples date operations from the underlying library. When you call `adapter.format()`, the request flows through the provided adapter to its underlying date library:
+
+```mermaid "Adapter Pattern Flow"
+flowchart LR
+  subgraph Setup["Plugin Setup"]
+    plugin["createDatePlugin"]
+    opts["adapter option"]
+  end
+
+  subgraph Adapters["adapters/"]
+    direction TB
+    v0["Vuetify0DateAdapter"]
+    custom["DateFnsAdapter<br/>LuxonAdapter<br/>DayjsAdapter"]
+  end
+
+  subgraph Provided["App Context"]
+    ctx["DateContext"]
+  end
+
+  subgraph Comp["Component"]
+    use["useDate"]
+    invoke["adapter.format"]
+  end
+
+  subgraph Library["Date Library"]
+    temporal["Temporal API"]
+    datefns["date-fns"]
+    luxon["luxon"]
+  end
+
+  plugin --> opts
+  opts -->|default| v0
+  opts -->|custom| custom
+  v0 --> ctx
+  custom --> ctx
+  ctx --> use
+  use --> invoke
+  invoke -->|v0| temporal
+  invoke -->|date-fns| datefns
+  invoke -->|luxon| luxon
+```
+
 Create custom adapters for different date libraries (date-fns, luxon, dayjs):
 
 ```ts src/adapters/date-fns-adapter.ts collapse

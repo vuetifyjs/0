@@ -334,6 +334,10 @@
     fill: var(--v0-on-surface) !important;
   }
 
+  .docs-mermaid .cluster-label text {
+    transform: translateY(4px);
+  }
+
   .docs-mermaid .flowchart-link {
     stroke: var(--v0-primary) !important;
   }
