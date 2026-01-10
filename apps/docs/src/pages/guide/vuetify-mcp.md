@@ -22,42 +22,87 @@ Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/g
 
 ## Quick Start
 
-### Hosted Server (Recommended)
+### Claude Code (Recommended)
 
-The fastest way to get started. No installation required:
+[Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) is Anthropic's agentic coding tool. Add the hosted MCP server directly via CLI:
 
 ```bash
 claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 ```
 
-### Local Installation
-
-Run the server locally for offline access:
-
-```bash
-npx -y @vuetify/mcp
-```
-
 ### Interactive Setup
 
-Auto-detects your IDE and configures MCP:
+Auto-detects your IDE and configures MCP automatically:
 
-```bash
-# For hosted server
+::: code-group
+
+```bash pnpm
+# Hosted server (recommended)
+pnpm dlx @vuetify/mcp config --remote
+
+# Local server
+pnpm dlx @vuetify/mcp config
+```
+
+```bash npm
+# Hosted server (recommended)
 npx -y @vuetify/mcp config --remote
 
-# For local server
+# Local server
 npx -y @vuetify/mcp config
 ```
 
+```bash yarn
+# Hosted server (recommended)
+yarn dlx @vuetify/mcp config --remote
+
+# Local server
+yarn dlx @vuetify/mcp config
+```
+
+```bash bun
+# Hosted server (recommended)
+bunx @vuetify/mcp config --remote
+
+# Local server
+bunx @vuetify/mcp config
+```
+
+:::
+
+### Local Server
+
+Run locally for offline access or custom configuration:
+
+::: code-group
+
+```bash pnpm
+pnpm dlx @vuetify/mcp
+```
+
+```bash npm
+npx -y @vuetify/mcp
+```
+
+```bash yarn
+yarn dlx @vuetify/mcp
+```
+
+```bash bun
+bunx @vuetify/mcp
+```
+
+:::
+
 ## IDE Configuration
 
-Manual configuration for each IDE:
+Manual configuration for each IDE. Use the interactive setup above for automatic configuration.
 
 | IDE | Config File |
 | - | - |
+| Claude Code | `~/.claude.json` or project `.mcp.json` |
 | Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
-| VS Code | `~/.config/Code/User/settings.json` |
+| VS Code (Copilot) | `~/.config/Code/User/settings.json` |
 | Cursor | `~/.config/Cursor/User/mcp.json` |
 | Windsurf | `~/.config/Windsurf/User/mcp.json` |
 | Trae | `~/.config/Trae/User/mcp.json` |
@@ -115,34 +160,26 @@ Manual configuration for each IDE:
 | `get_vuetify0_component_list` | List all headless components |
 | `get_vuetify0_component_guide` | Component documentation and examples |
 
-### Workflow: Building Components
+## Workflows
 
-When building components with AI assistance, use these tools in order:
+### Building with v0
 
-| Step | Tool | Purpose |
-| - | - | - |
-| 1 | `get_vuetify0_composable_list` | See what primitives are available |
-| 2 | `get_vuetify0_composable_guide` | Get detailed docs for chosen composable |
-| 3 | `get_vuetify0_component_guide` | See reference implementation patterns |
+When using AI to build headless components:
 
-**Example prompt flow:**
+1. **Explore** — `get_vuetify0_composable_list` to see available primitives
+2. **Learn** — `get_vuetify0_composable_guide` for detailed documentation
+3. **Reference** — `get_vuetify0_component_guide` for implementation patterns
 
-```txt
-1. "List v0 composables" → get_vuetify0_composable_list
-2. "Show me createSelection docs" → get_vuetify0_composable_guide(selection, createSelection)
-3. "How does the Selection component use it?" → get_vuetify0_component_guide(Selection)
-```
+### Building with Vuetify 3
 
-For Vuetify 3 styled components:
+When using AI with styled Vuetify components:
 
-| Step | Tool | Purpose |
-| - | - | - |
-| 1 | `get_component_api_by_version` | Get props, events, slots for a component |
-| 2 | `get_feature_guide` | Understand theming, i18n, or other features |
+1. **API** — `get_component_api_by_version` for props, events, and slots
+2. **Features** — `get_feature_guide` for theming, i18n, or accessibility
 
 ## Authentication
 
-Some features require a Vuetify API key:
+[Vuetify Bins](https://vuetifyjs.com/features/bins/) require an API key from your Vuetify account:
 
 ```json
 {
@@ -160,10 +197,26 @@ Some features require a Vuetify API key:
 
 ## Self-Hosting
 
-Run an HTTP server for team access:
+Run an HTTP server for team or organization access:
 
-```bash
+::: code-group
+
+```bash pnpm
+pnpm dlx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
+```
+
+```bash npm
 npx -y @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 
-Then configure clients to use your server URL instead of `mcp.vuetifyjs.com`.
+```bash yarn
+yarn dlx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
+```
+
+```bash bun
+bunx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
+```
+
+:::
+
+Configure clients to use your server URL instead of `mcp.vuetifyjs.com`.
