@@ -7,7 +7,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { nextTick, useTemplateRef, watch } from 'vue'
+  import { nextTick, toRef, useTemplateRef, watch } from 'vue'
   import { useRouter } from 'vue-router'
 
   const {
@@ -26,6 +26,7 @@
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
   const { prefersReducedMotion } = useSettings()
+  const transition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
 
   watch(isOpen, async opened => {
     if (opened) {
@@ -79,7 +80,7 @@
 </script>
 
 <template>
-  <Transition name="fade">
+  <Transition :name="transition">
     <div
       v-if="isOpen"
       class="fixed inset-0 bg-black/50 z-50"
@@ -87,16 +88,15 @@
     />
   </Transition>
 
-  <Transition name="fade">
+  <Transition :name="transition">
     <div
       v-if="isOpen"
-      aria-labelledby="search-title"
+      aria-label="Search Documentation"
       aria-modal="true"
       class="fixed left-1/2 top-[20%] -translate-x-1/2 w-full max-w-xl z-50 px-4"
       role="dialog"
     >
       <div class="bg-glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
-        <h2 id="search-title" class="sr-only">Search Documentation</h2>
         <div class="flex items-center gap-3 px-4 py-3 border-b border-divider">
           <AppIcon
             aria-hidden="true"
