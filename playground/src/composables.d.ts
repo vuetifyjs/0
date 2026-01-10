@@ -21,7 +21,9 @@ declare global {
   const SUPPORTS_MUTATION_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_MUTATION_OBSERVER
   const SUPPORTS_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_OBSERVER
   const SUPPORTS_TOUCH: typeof import('../../packages/0/src/constants/globals').SUPPORTS_TOUCH
+  const TemporalDateAdapter: typeof import('../../packages/0/src/composables/useDate/index').TemporalDateAdapter
   const V0_ELEVATION_KEY: typeof import('../../packages/paper/src/composables/useElevation/index').V0_ELEVATION_KEY
+  const Vuetify0DateAdapter: typeof import('../../packages/0/src/composables/useDate/index').Vuetify0DateAdapter
   const Vuetify0LocaleAdapter: typeof import('../../packages/0/src/composables/useLocale/index').Vuetify0LocaleAdapter
   const Vuetify0LoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').Vuetify0LoggerAdapter
   const Vuetify0ThemeAdapter: typeof import('../../packages/0/src/composables/useTheme/index').Vuetify0ThemeAdapter
@@ -33,6 +35,10 @@ declare global {
   const createBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsContext
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsPlugin
   const createContext: typeof import('../../packages/0/src/composables/createContext/index').createContext
+  const createDate: typeof import('../../packages/0/src/composables/useDate/index').createDate
+  const createDateContext: typeof import('../../packages/0/src/composables/useDate/index').createDateContext
+  const createDateFallback: typeof import('../../packages/0/src/composables/useDate/index').createDateFallback
+  const createDatePlugin: typeof import('../../packages/0/src/composables/useDate/index').createDatePlugin
   const createElevation: typeof import('../../packages/paper/src/composables/useElevation/index').createElevation
   const createFallbackHydration: typeof import('../../packages/0/src/composables/useHydration/index').createFallbackHydration
   const createFeatures: typeof import('../../packages/0/src/composables/useFeatures/index').createFeatures
@@ -167,6 +173,7 @@ declare global {
   const useContrast: typeof import('../../packages/paper/src/composables/useContrast/index').useContrast
   const useCssModule: typeof import('vue').useCssModule
   const useCssVars: typeof import('vue').useCssVars
+  const useDate: typeof import('../../packages/0/src/composables/useDate/index').useDate
   const useDimensions: typeof import('../../packages/paper/src/composables/useDimensions/index').useDimensions
   const useDocumentEventListener: typeof import('../../packages/0/src/composables/useEventListener/index').useDocumentEventListener
   const useElementIntersection: typeof import('../../packages/0/src/composables/useIntersectionObserver/index').useElementIntersection
@@ -259,6 +266,9 @@ declare global {
   // @ts-ignore
   export type { ClickOutsideElement, ClickOutsideTarget, ClickOutsideIgnoreTarget, UseClickOutsideOptions, UseClickOutsideReturn } from '../../packages/0/src/composables/useClickOutside/index'
   import('../../packages/0/src/composables/useClickOutside/index')
+  // @ts-ignore
+  export type { DateContext, DateOptionsBase, DateOptionsWithAdapter, DateOptionsDefault, DateOptions, DateContextOptionsWithAdapter, DateContextOptionsDefault, DateContextOptions, DatePluginOptions, DateAdapter } from '../../packages/0/src/composables/useDate/index'
+  import('../../packages/0/src/composables/useDate/index')
   // @ts-ignore
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'
   import('../../packages/0/src/composables/useEventListener/index')
@@ -372,6 +382,7 @@ declare module 'vue' {
     readonly SUPPORTS_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_OBSERVER']>
     readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
+    readonly Vuetify0DateAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['Vuetify0DateAdapter']>
     readonly Vuetify0LocaleAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['Vuetify0LocaleAdapter']>
     readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
     readonly Vuetify0ThemeAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']>
@@ -383,6 +394,10 @@ declare module 'vue' {
     readonly createBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsContext']>
     readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
     readonly createContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['createContext']>
+    readonly createDate: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDate']>
+    readonly createDateContext: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDateContext']>
+    readonly createDateFallback: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDateFallback']>
+    readonly createDatePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDatePlugin']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createFallbackHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createFallbackHydration']>
     readonly createFeatures: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['createFeatures']>
@@ -517,6 +532,7 @@ declare module 'vue' {
     readonly useContrast: UnwrapRef<typeof import('../../packages/paper/src/composables/useContrast/index')['useContrast']>
     readonly useCssModule: UnwrapRef<typeof import('vue')['useCssModule']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
+    readonly useDate: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['useDate']>
     readonly useDimensions: UnwrapRef<typeof import('../../packages/paper/src/composables/useDimensions/index')['useDimensions']>
     readonly useDocumentEventListener: UnwrapRef<typeof import('../../packages/0/src/composables/useEventListener/index')['useDocumentEventListener']>
     readonly useElementIntersection: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useElementIntersection']>

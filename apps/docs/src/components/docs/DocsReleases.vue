@@ -4,7 +4,7 @@
 
   // Framework
   // Vuetify0
-  import { Popover, useFilter } from '@vuetify/v0'
+  import { Popover, useDate, useFilter } from '@vuetify/v0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -51,6 +51,7 @@
   const route = useRoute()
   const router = useRouter()
   const store = useReleasesStore()
+  const { adapter } = useDate()
   const { copied, copy } = useClipboard()
 
   const model = shallowRef<Release>()
@@ -79,12 +80,8 @@
   const publishedOn = computed(() => {
     if (!model.value?.published_at) return undefined
 
-    return new Date(model.value.published_at).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
+    const date = adapter.date(model.value.published_at)
+    return date ? adapter.format(date, 'fullDateWithWeekday') : undefined
   })
 
   const renderedBody = computed(() => {

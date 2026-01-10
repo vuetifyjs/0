@@ -74,5 +74,8 @@
       "development": "./src/index.ts",
       "default": "./dist/browser/index.js"
     }
+  },
+  "dependencies": {
+    "@js-temporal/polyfill": "catalog:"
   }
 }

@@ -89,6 +89,7 @@ Application-level features installable via Vue plugins.
 | Name | Description |
 | - | - |
 | [useBreakpoints](/composables/plugins/use-breakpoints) | Responsive breakpoint detection |
+| [useDate](/composables/plugins/use-date) | Date manipulation with Temporal API and locale-aware formatting |
 | [useFeatures](/composables/plugins/use-features) | Feature flags and A/B testing |
 | [useHydration](/composables/plugins/use-hydration) | SSR hydration management |
 | [useLocale](/composables/plugins/use-locale) | Internationalization system |

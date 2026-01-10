@@ -121,6 +121,7 @@
     "pnpm-lock.yaml"
   ],
   "ignoreDependencies": [
+    "@js-temporal/polyfill",
     "@vuetify/paper",
     "@vuetify/v0",
     "conventional-changelog-vuetify"
