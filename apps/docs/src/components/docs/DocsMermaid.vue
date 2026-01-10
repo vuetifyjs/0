@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Dialog, useResizeObserver } from '@vuetify/v0'
+  import { Dialog, useEventListener, useResizeObserver } from '@vuetify/v0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -68,6 +68,110 @@
     return svgPanZoom
   }
 
+  // Custom touch events handler for mobile support
+  function createTouchEventsHandler () {
+    let pannedX = 0
+    let pannedY = 0
+    let initialScale = 1
+    let initialDistance = 0
+    let lastTap = 0
+    let instance: PanZoomInstance | null = null
+    const cleanups: Array<() => void> = []
+
+    function getDistance (touches: TouchList) {
+      const [t1, t2] = [touches[0], touches[1]]
+      return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY)
+    }
+
+    function getCenter (touches: TouchList) {
+      const [t1, t2] = [touches[0], touches[1]]
+      return {
+        x: (t1.clientX + t2.clientX) / 2,
+        y: (t1.clientY + t2.clientY) / 2,
+      }
+    }
+
+    function handleTouchStart (e: TouchEvent) {
+      if (!instance) return
+
+      if (e.touches.length === 1) {
+        // Check for double tap
+        const now = Date.now()
+        if (now - lastTap < 300) {
+          instance.zoomIn()
+          lastTap = 0
+        } else {
+          lastTap = now
+        }
+        pannedX = 0
+        pannedY = 0
+      } else if (e.touches.length === 2) {
+        // Start pinch
+        initialScale = instance.getZoom()
+        initialDistance = getDistance(e.touches)
+        e.preventDefault()
+      }
+    }
+
+    function handleTouchMove (e: TouchEvent) {
+      if (!instance) return
+
+      if (e.touches.length === 1) {
+        // Pan
+        const touch = e.touches[0]
+        const deltaX = touch.clientX - (pannedX || touch.clientX)
+        const deltaY = touch.clientY - (pannedY || touch.clientY)
+
+        if (pannedX !== 0 || pannedY !== 0) {
+          instance.panBy({ x: deltaX, y: deltaY })
+        }
+
+        pannedX = touch.clientX
+        pannedY = touch.clientY
+        e.preventDefault()
+      } else if (e.touches.length === 2) {
+        // Pinch zoom
+        const distance = getDistance(e.touches)
+        const scale = distance / initialDistance
+        const center = getCenter(e.touches)
+
+        instance.zoomAtPoint(initialScale * scale, center)
+        e.preventDefault()
+      }
+    }
+
+    function handleTouchEnd (e: TouchEvent) {
+      pannedX = 0
+      pannedY = 0
+
+      // Reset pinch if no more touches
+      if (e.touches.length < 2) {
+        initialDistance = 0
+      }
+    }
+
+    return {
+      haltEventListeners: ['touchstart', 'touchend', 'touchmove', 'touchleave', 'touchcancel'],
+      init (options: { svgElement: SVGElement, instance: PanZoomInstance }) {
+        instance = options.instance
+
+        cleanups.push(
+          useEventListener(options.svgElement, 'touchstart', handleTouchStart, { passive: false }),
+          useEventListener(options.svgElement, 'touchmove', handleTouchMove, { passive: false }),
+          useEventListener(options.svgElement, 'touchend', handleTouchEnd),
+          useEventListener(options.svgElement, 'touchcancel', handleTouchEnd),
+        )
+      },
+      destroy () {
+        for (const cleanup of cleanups) {
+          cleanup()
+        }
+        cleanups.length = 0
+        instance = null
+      },
+    }
+  }
+
   const props = defineProps<{
     code: string // base64 encoded
     caption?: string // base64 encoded
@@ -112,6 +216,7 @@
       minZoom: 0.5,
       maxZoom: 10,
       zoomScaleSensitivity: 0.3,
+      customEventsHandler: createTouchEventsHandler(),
     })
   }
 
@@ -191,8 +296,8 @@
           Use controls to zoom and pan. Click outside or press Escape to close.
         </Dialog.Description>
 
-        <!-- Zoom controls - hidden on mobile -->
-        <div class="hidden sm:flex items-center gap-1">
+        <!-- Zoom controls -->
+        <div class="flex items-center gap-1">
           <button
             aria-label="Zoom out"
             class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
@@ -369,10 +474,19 @@
     min-height: 0;
     overflow: hidden;
     cursor: grab;
+    touch-action: none; /* Prevent default touch behaviors for custom pan/zoom */
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .docs-mermaid-panzoom:active {
     cursor: grabbing;
+  }
+
+  @media (pointer: coarse) {
+    .docs-mermaid-panzoom {
+      cursor: default;
+    }
   }
 
   .docs-mermaid-panzoom svg {
