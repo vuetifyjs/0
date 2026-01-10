@@ -31,7 +31,12 @@
     {
       name: 'Vuetify Create',
       icon: 'vuetify-create',
-      href: 'https://github.com/vuetifyjs/cli/tree/main/packages/create0',
+      to: '/introduction/getting-started#vuetify-create',
+    },
+    {
+      name: 'Vuetify CLI',
+      icon: 'vuetify-cli',
+      to: '/introduction/getting-started#vuetify-cli',
     },
     {
       name: 'Vuetify MCP',
@@ -45,7 +50,7 @@
   <section class="home-integrations py-12">
     <p class="text-center text-sm opacity-60 mb-6">Works with</p>
 
-    <div class="flex flex-wrap justify-center gap-4 md:gap-6 max-w-[500px] mx-auto">
+    <div class="flex flex-wrap justify-center gap-4 md:gap-6 max-w-[650px] mx-auto">
       <component
         :is="integration.to ? RouterLink : 'a'"
         v-for="integration in integrations"

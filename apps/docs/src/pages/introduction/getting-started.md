@@ -27,7 +27,7 @@ The fastest way to start a new Vuetify0 project is with the CLI.
 
 ### Vuetify Create
 
-Standalone scaffolding tool for Vuetify0 projects.
+Standalone scaffolding tool for Vuetify0 projects using <AppIcon icon="vuetify-create" class="align-sub" /> [Vuetify Create](https://github.com/vuetifyjs/create).
 
 ::: code-group
 
@@ -51,7 +51,7 @@ bun create vuetify0
 
 ### Vuetify CLI
 
-Full-featured CLI with additional presets and options.
+Full-featured CLI with additional presets and options using <AppIcon icon="vuetify-cli" class="align-sub" /> Vuetify CLI.
 
 ::: code-group
 
