@@ -48,6 +48,24 @@ function getMarked (hl: Highlighter): Marked {
         const tbody = `<tbody>${rows.map(row => `<tr>${row.map(cell => `<td${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</td>`).join('')}</tr>`).join('')}</tbody>`
         return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
       },
+      blockquote ({ raw }) {
+        // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR]
+        const innerContent = raw
+          .split('\n')
+          .map(line => line.replace(/^>\s?/, ''))
+          .join('\n')
+          .trim()
+
+        const match = innerContent.match(/^\[!(TIP|INFO|WARNING|ERROR)\]\s*([\s\S]*)/)
+        if (match) {
+          const type = match[1].toLowerCase()
+          const content = match[2].trim()
+          const encodedContent = btoa(unescape(encodeURIComponent(content)))
+          return `<div data-alert data-type="${type}" data-content="${encodedContent}"></div>`
+        }
+
+        return `<blockquote>${innerContent}</blockquote>`
+      },
       code ({ text, lang }) {
         const language = lang?.split(/\s+/)[0] || 'text'
 
