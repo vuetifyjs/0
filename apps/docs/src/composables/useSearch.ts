@@ -364,6 +364,12 @@ export function useSearch (): UseSearchReturn {
     // Don't add duplicates
     if (favorites.value.some(f => f.id === result.id)) return
 
+    // Remove from recents if present
+    if (recentSearches.value.some(r => r.id === result.id)) {
+      recentSearches.value = recentSearches.value.filter(r => r.id !== result.id)
+      persistRecents()
+    }
+
     favorites.value = [
       {
         id: result.id,
@@ -377,6 +383,10 @@ export function useSearch (): UseSearchReturn {
   }
 
   function removeFavorite (id: string) {
+    const favorite = favorites.value.find(f => f.id === id)
+    if (favorite) {
+      addRecent(favorite)
+    }
     favorites.value = favorites.value.filter(f => f.id !== id)
     persistFavorites()
   }
@@ -387,6 +397,9 @@ export function useSearch (): UseSearchReturn {
 
   // Recent searches management
   function addRecent (result: SearchResult | SavedResult) {
+    // Don't add if already in favorites
+    if (favorites.value.some(f => f.id === result.id)) return
+
     // Remove if already exists (will be re-added at front)
     const filtered = recentSearches.value.filter(r => r.id !== result.id)
 
