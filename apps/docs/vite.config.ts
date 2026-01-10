@@ -26,17 +26,8 @@ import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig({
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: id => {
-          if (id.includes('mermaid')) return 'mermaid'
-          if (id.includes('shiki') || id.includes('@shikijs')) return 'shiki'
-          if (id.includes('katex')) return 'katex'
-          if (id.includes('octokit')) return 'octokit'
-          if (id.includes('marked')) return 'marked'
-        },
-      },
-    },
+    // Let Vite/Rollup handle chunking automatically
+    // Large dependencies (mermaid, shiki, katex) will be split via dynamic imports
   },
   css: {
     lightningcss: {
@@ -98,7 +89,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        globIgnores: ['**/mermaid-*.js'],
+        // Exclude mermaid diagram chunks from precache (loaded on demand)
+        globIgnores: ['**/*Diagram-*.js', '**/mermaid*.js', '**/cytoscape*.js'],
         navigateFallback: null,
       },
     }),
