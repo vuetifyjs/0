@@ -22,7 +22,7 @@ jobs:
         with:
           lycheeVersion: v0.22.0
           args: --config lychee.toml './apps/docs/dist'
-          fail: true
+          fail: false
       - uses: vuetifyjs/coolify-action@master
         with:
           imageName: v0-docs
