@@ -15,7 +15,7 @@
 // Globals
 
 // Framework
-import { useMutationObserver, useWindowEventListener } from '@vuetify/v0'
+import { useBreakpoints, useMutationObserver, useWindowEventListener } from '@vuetify/v0'
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
 // Composables
@@ -100,6 +100,7 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
   const route = useRoute()
   const headings = shallowRef<TocHeading[]>([])
   const scrollSpy = useScrollSpy()
+  const breakpoints = useBreakpoints()
   const { prefersReducedMotion } = useSettings()
 
   let scanTimeoutId: ReturnType<typeof setTimeout> | null = null
@@ -216,9 +217,9 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
     }
   }
 
-  // Sync URL hash on user scroll
+  // Sync URL hash on user scroll (disabled on mobile to prevent scroll issues)
   watchEffect(() => {
-    if (isSyncing.value || isInitialLoad.value) return
+    if (isSyncing.value || isInitialLoad.value || breakpoints.isMobile.value) return
 
     const id = scrollSpy.selectedId.value
     if (id) {
