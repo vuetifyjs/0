@@ -170,6 +170,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-date': RouteRecordInfo<
+      '/composables/plugins/use-date',
+      '/composables/plugins/use-date',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-features': RouteRecordInfo<
       '/composables/plugins/use-features',
       '/composables/plugins/use-features',
@@ -450,13 +457,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/guide/structure': RouteRecordInfo<
-      '/guide/structure',
-      '/guide/structure',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/guide/theming': RouteRecordInfo<
       '/guide/theming',
       '/guide/theming',
@@ -670,6 +670,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-breakpoints.md': {
       routes:
         | '/composables/plugins/use-breakpoints'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-date.md': {
+      routes:
+        | '/composables/plugins/use-date'
       views:
         | never
     }
@@ -910,12 +916,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/plugins.md': {
       routes:
         | '/guide/plugins'
-      views:
-        | never
-    }
-    'src/pages/guide/structure.md': {
-      routes:
-        | '/guide/structure'
       views:
         | never
     }
