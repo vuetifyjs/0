@@ -28,6 +28,10 @@
     label?: string
     /** Value associated with this checkbox */
     value: unknown
+    /** Form field name (triggers auto hidden input when provided) */
+    name?: string
+    /** Associate with form by ID */
+    form?: string
     /** Whether this checkbox is currently checked */
     isChecked: Readonly<Ref<boolean>>
     /** Whether this checkbox is in a mixed/indeterminate state */
@@ -51,8 +55,12 @@
     id?: string
     /** Optional display label (passed through to slot) */
     label?: string
-    /** Value associated with this checkbox (used in group mode) */
+    /** Value associated with this checkbox (used in group mode and form submission) */
     value?: unknown
+    /** Form field name - triggers auto hidden input when provided */
+    name?: string
+    /** Associate with form by ID */
+    form?: string
     /** Disables this checkbox */
     disabled?: boolean
     /** Sets the indeterminate state */
@@ -103,15 +111,18 @@
 <script lang="ts" setup generic="V = unknown">
   // Components
   import { useCheckboxGroup } from './CheckboxGroup.vue'
+  import CheckboxHiddenInput from './CheckboxHiddenInput.vue'
 
   // Utilities
   import { genId } from '#v0/utilities'
-  import { computed, onUnmounted, toRef, toValue } from 'vue'
+  import { computed, onUnmounted, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
 
-  defineOptions({ name: 'CheckboxRoot' })
+  defineOptions({ name: 'CheckboxRoot', inheritAttrs: false })
+
+  const attrs = useAttrs()
 
   defineSlots<{
     default: (props: CheckboxRootSlotProps<V>) => any
@@ -127,6 +138,8 @@
     id = genId(),
     label,
     value,
+    name,
+    form,
     disabled = false,
     indeterminate = false,
     namespace = 'v0:checkbox:group',
@@ -233,6 +246,8 @@
     id: String(id),
     label,
     value,
+    name,
+    form,
     isChecked,
     isMixed,
     isDisabled,
@@ -272,7 +287,7 @@
 
 <template>
   <Atom
-    v-bind="slotProps.attrs"
+    v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
     @click="onClick"
@@ -280,4 +295,6 @@
   >
     <slot v-bind="slotProps" />
   </Atom>
+
+  <CheckboxHiddenInput v-if="name" />
 </template>

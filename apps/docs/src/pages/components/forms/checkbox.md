@@ -47,20 +47,27 @@ The Checkbox component supports two modes:
 
 <template>
   <!-- Standalone -->
-  <Checkbox.Root v-model="checked">
+  <Checkbox.Root>
     <Checkbox.Indicator />
   </Checkbox.Root>
 
   <!-- Group -->
-  <Checkbox.Group v-model="selected">
-    <Checkbox.Root value="a">
+  <Checkbox.Group>
+    <Checkbox.Root>
       <Checkbox.Indicator />
     </Checkbox.Root>
 
-    <Checkbox.Root value="b">
+    <Checkbox.Root>
       <Checkbox.Indicator />
     </Checkbox.Root>
   </Checkbox.Group>
+
+  <!-- With form submission -->
+  <Checkbox.Root>
+    <Checkbox.Indicator />
+
+    <Checkbox.HiddenInput />
+  </Checkbox.Root>
 </template>
 ```
 

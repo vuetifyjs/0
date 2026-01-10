@@ -1,17 +1,21 @@
 export { default as CheckboxGroup } from './CheckboxGroup.vue'
 export { provideCheckboxGroup, useCheckboxGroup } from './CheckboxGroup.vue'
 
+export { default as CheckboxHiddenInput } from './CheckboxHiddenInput.vue'
+
 export { default as CheckboxIndicator } from './CheckboxIndicator.vue'
 
 export { default as CheckboxRoot } from './CheckboxRoot.vue'
 export { provideCheckboxRoot, useCheckboxRoot } from './CheckboxRoot.vue'
 
 export type { CheckboxGroupProps, CheckboxGroupSlotProps } from './CheckboxGroup.vue'
+export type { CheckboxHiddenInputProps } from './CheckboxHiddenInput.vue'
 export type { CheckboxIndicatorProps, CheckboxIndicatorSlotProps } from './CheckboxIndicator.vue'
 export type { CheckboxRootContext, CheckboxRootProps, CheckboxRootSlotProps } from './CheckboxRoot.vue'
 
 // Components
 import Group from './CheckboxGroup.vue'
+import HiddenInput from './CheckboxHiddenInput.vue'
 import Indicator from './CheckboxIndicator.vue'
 import Root from './CheckboxRoot.vue'
 
@@ -44,15 +48,14 @@ export const Checkbox = {
    */
   Group,
   /**
-   * Root component for individual checkboxes.
+   * Hidden input component for form submission.
    *
-   * Renders as a button with proper ARIA attributes and handles
-   * click/keyboard interactions. Supports standalone mode with
-   * v-model or group mode within Checkbox.Group.
+   * Auto-rendered by Root when `name` prop is provided.
+   * Can also be used explicitly for custom form integration.
    *
-   * @see https://0.vuetifyjs.com/components/checkbox#root
+   * @see https://0.vuetifyjs.com/components/checkbox#hiddeninput
    */
-  Root,
+  HiddenInput,
   /**
    * Visual indicator component for checkboxes.
    *
@@ -62,4 +65,15 @@ export const Checkbox = {
    * @see https://0.vuetifyjs.com/components/checkbox#indicator
    */
   Indicator,
+  /**
+   * Root component for individual checkboxes.
+   *
+   * Renders as a button with proper ARIA attributes and handles
+   * click/keyboard interactions. Supports standalone mode with
+   * v-model or group mode within Checkbox.Group. When `name` prop
+   * is provided, automatically renders a hidden input for form submission.
+   *
+   * @see https://0.vuetifyjs.com/components/checkbox#root
+   */
+  Root,
 }

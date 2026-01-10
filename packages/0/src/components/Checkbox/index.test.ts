@@ -272,7 +272,8 @@ describe('checkbox', () => {
         await nextTick()
 
         // Root handles keyboard via onKeydown bound to Atom
-        await wrapper.trigger('keydown', { key: ' ' })
+        const button = wrapper.find('button')
+        await button.trigger('keydown', { key: ' ' })
         await nextTick()
 
         expect(checked.value).toBe(true)
@@ -295,7 +296,8 @@ describe('checkbox', () => {
 
         await nextTick()
 
-        await wrapper.trigger('click')
+        const button = wrapper.find('button')
+        await button.trigger('click')
         await nextTick()
 
         expect(checked.value).toBe(true)
@@ -984,6 +986,236 @@ describe('checkbox', () => {
           },
         })
       }).toThrow(/Context.*not found/i)
+    })
+
+    it('should throw when HiddenInput is used outside Root', () => {
+      expect(() => {
+        mount(Checkbox.HiddenInput as any)
+      }).toThrow(/Context.*not found/i)
+    })
+  })
+
+  describe('form integration', () => {
+    describe('auto-rendered hidden input', () => {
+      it('should render hidden input when name prop is provided', () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.exists()).toBe(true)
+        expect(input.attributes('name')).toBe('agree')
+      })
+
+      it('should not render hidden input when name prop is not provided', () => {
+        const wrapper = mount(Checkbox.Root, {
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.exists()).toBe(false)
+      })
+
+      it('should sync checked state with hidden input', async () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+            modelValue: false,
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+        })
+
+        await nextTick()
+
+        let input = wrapper.find('input[type="checkbox"]')
+        expect((input.element as HTMLInputElement).checked).toBe(false)
+
+        // Update v-model
+        await wrapper.setProps({ modelValue: true })
+        await nextTick()
+
+        input = wrapper.find('input[type="checkbox"]')
+        expect((input.element as HTMLInputElement).checked).toBe(true)
+      })
+
+      it('should use value prop for hidden input value', () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+            value: 'yes',
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.attributes('value')).toBe('yes')
+      })
+
+      it('should use default value "on" when value prop is not provided', () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.attributes('value')).toBe('on')
+      })
+
+      it('should pass form prop to hidden input', () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+            form: 'my-form',
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.attributes('form')).toBe('my-form')
+      })
+
+      it('should disable hidden input when checkbox is disabled', () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+            disabled: true,
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.attributes('disabled')).toBeDefined()
+      })
+
+      it('should have aria-hidden and negative tabindex on hidden input', () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.attributes('aria-hidden')).toBe('true')
+        expect(input.attributes('tabindex')).toBe('-1')
+      })
+    })
+
+    describe('explicit HiddenInput component', () => {
+      it('should render when placed inside Root', () => {
+        const wrapper = mount(Checkbox.Root, {
+          slots: {
+            default: () => [
+              h(Checkbox.HiddenInput as any, { name: 'agree' }),
+              h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+            ],
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.exists()).toBe(true)
+        expect(input.attributes('name')).toBe('agree')
+      })
+
+      it('should override context values with explicit props', () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            value: 'context-value',
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.HiddenInput as any, { name: 'agree', value: 'explicit-value' }),
+              h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+            ],
+          },
+        })
+
+        const input = wrapper.find('input[type="checkbox"]')
+        expect(input.attributes('value')).toBe('explicit-value')
+      })
+    })
+
+    describe('form integration in group mode', () => {
+      it('should render hidden inputs for multiple checkboxes', () => {
+        const wrapper = mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.Root as any, { name: 'options', value: 'a' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Option A'),
+              ),
+              h(Checkbox.Root as any, { name: 'options', value: 'b' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Option B'),
+              ),
+            ],
+          },
+        })
+
+        const inputs = wrapper.findAll('input[type="checkbox"]')
+        expect(inputs).toHaveLength(2)
+        expect(inputs[0]!.attributes('name')).toBe('options')
+        expect(inputs[0]!.attributes('value')).toBe('a')
+        expect(inputs[1]!.attributes('name')).toBe('options')
+        expect(inputs[1]!.attributes('value')).toBe('b')
+      })
+
+      it('should sync checked state with group selection', async () => {
+        const selected = ref<string[]>([])
+        let item1Props: any
+
+        const wrapper = mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.Root as any, { name: 'options', value: 'a' }, {
+                default: (props: any) => {
+                  item1Props = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Option A')
+                },
+              }),
+              h(Checkbox.Root as any, { name: 'options', value: 'b' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Option B'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const inputs = wrapper.findAll('input[type="checkbox"]')
+        expect((inputs[0]!.element as HTMLInputElement).checked).toBe(false)
+
+        item1Props.toggle()
+        await nextTick()
+
+        expect((inputs[0]!.element as HTMLInputElement).checked).toBe(true)
+        expect((inputs[1]!.element as HTMLInputElement).checked).toBe(false)
+      })
     })
   })
 })
