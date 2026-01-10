@@ -32,16 +32,18 @@
       <AppIcon icon="download" size="16" />
       <span>Package Manager</span>
     </h3>
-    <div class="grid grid-cols-4 gap-2">
+    <div aria-label="Package manager" class="grid grid-cols-4 gap-2" role="radiogroup">
       <button
         v-for="option in packageManagerOptions"
         :key="option.id"
+        :aria-checked="packageManagerSingle.selectedId.value === option.id"
         :class="[
           'flex items-center justify-center px-2 py-2 rounded-lg border transition-colors text-sm font-mono',
           packageManagerSingle.selectedId.value === option.id
             ? 'border-primary bg-primary/10 text-primary'
             : 'border-divider hover:border-primary/50 text-on-surface',
         ]"
+        role="radio"
         type="button"
         @click="packageManagerSingle.select(option.id)"
       >

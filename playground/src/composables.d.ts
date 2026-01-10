@@ -267,7 +267,7 @@ declare global {
   export type { ClickOutsideElement, ClickOutsideTarget, ClickOutsideIgnoreTarget, UseClickOutsideOptions, UseClickOutsideReturn } from '../../packages/0/src/composables/useClickOutside/index'
   import('../../packages/0/src/composables/useClickOutside/index')
   // @ts-ignore
-  export type { DateContext, DateOptionsBase, DateOptionsWithAdapter, DateOptionsDefault, DateOptions, DateContextOptionsWithAdapter, DateContextOptionsDefault, DateContextOptions, DatePluginOptions, DateAdapter } from '../../packages/0/src/composables/useDate/index'
+  export type { DateContext, DateOptions, DateContextOptions, DatePluginOptions, DateAdapter } from '../../packages/0/src/composables/useDate/index'
   import('../../packages/0/src/composables/useDate/index')
   // @ts-ignore
   export type { CleanupFunction, EventHandler } from '../../packages/0/src/composables/useEventListener/index'

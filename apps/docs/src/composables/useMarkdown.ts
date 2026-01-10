@@ -15,12 +15,69 @@ import { useHighlighter } from './useHighlighter'
 import { processLinks } from '@/utilities/processLinks'
 import { type MaybeRefOrGetter, onMounted, shallowRef, type ShallowRef, toValue, watch } from 'vue'
 
+// Types
+import type { Highlighter } from 'shiki'
+
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
 
 export interface UseMarkdownReturn {
   html: ShallowRef<string>
   render: (source?: string) => Promise<void>
+}
+
+// Shared Marked instance cache - avoids recreating per render
+let cachedMarked: Marked | null = null
+let cachedHighlighter: Highlighter | null = null
+
+function getMarked (hl: Highlighter): Marked {
+  // Return cached if highlighter is the same
+  if (cachedMarked && cachedHighlighter === hl) return cachedMarked
+
+  cachedHighlighter = hl
+  cachedMarked = new Marked({
+    async: true,
+    gfm: true,
+    breaks: true,
+  })
+
+  cachedMarked.use({
+    renderer: {
+      table ({ header, rows }) {
+        const thead = `<thead><tr>${header.map(cell => `<th${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</th>`).join('')}</tr></thead>`
+        const tbody = `<tbody>${rows.map(row => `<tr>${row.map(cell => `<td${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</td>`).join('')}</tr>`).join('')}</tbody>`
+        return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
+      },
+      code ({ text, lang }) {
+        const language = lang?.split(/\s+/)[0] || 'text'
+
+        // Handle mermaid diagrams separately
+        if (language === 'mermaid') {
+          const encodedCode = btoa(unescape(encodeURIComponent(text)))
+          return `<div data-mermaid data-code="${encodedCode}"></div>`
+        }
+
+        let highlighted: string
+        try {
+          highlighted = hl.codeToHtml(text, {
+            lang: language,
+            themes: SHIKI_THEMES,
+            defaultColor: false,
+          })
+        } catch {
+          // Fallback for unsupported languages
+          highlighted = `<pre class="shiki"><code>${escapeHtml(text)}</code></pre>`
+        }
+
+        // Encode code for DocsMarkup component mounting (Unicode-safe base64)
+        const encodedCode = btoa(unescape(encodeURIComponent(text)))
+
+        return `<div data-markup data-code="${encodedCode}" data-language="${escapeHtml(language)}">${highlighted}</div>`
+      },
+    },
+  })
+
+  return cachedMarked
 }
 
 /**
@@ -38,48 +95,7 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): Use
     }
 
     const hl = highlighter.value ?? await getHighlighter()
-
-    const marked = new Marked({
-      async: true,
-      gfm: true,
-      breaks: true,
-    })
-
-    marked.use({
-      renderer: {
-        table ({ header, rows }) {
-          const thead = `<thead><tr>${header.map(cell => `<th${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</th>`).join('')}</tr></thead>`
-          const tbody = `<tbody>${rows.map(row => `<tr>${row.map(cell => `<td${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</td>`).join('')}</tr>`).join('')}</tbody>`
-          return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
-        },
-        code ({ text, lang }) {
-          const language = lang?.split(/\s+/)[0] || 'text'
-
-          // Handle mermaid diagrams separately
-          if (language === 'mermaid') {
-            const encodedCode = btoa(unescape(encodeURIComponent(text)))
-            return `<div data-mermaid data-code="${encodedCode}"></div>`
-          }
-
-          let highlighted: string
-          try {
-            highlighted = hl.codeToHtml(text, {
-              lang: language,
-              themes: SHIKI_THEMES,
-              defaultColor: false,
-            })
-          } catch {
-            // Fallback for unsupported languages
-            highlighted = `<pre class="shiki"><code>${escapeHtml(text)}</code></pre>`
-          }
-
-          // Encode code for DocsMarkup component mounting (Unicode-safe base64)
-          const encodedCode = btoa(unescape(encodeURIComponent(text)))
-
-          return `<div data-markup data-code="${encodedCode}" data-language="${escapeHtml(language)}">${highlighted}</div>`
-        },
-      },
-    })
+    const marked = getMarked(hl)
 
     try {
       html.value = processLinks(await marked.parse(value))

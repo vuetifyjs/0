@@ -119,6 +119,7 @@
                 :value="item.id"
               >
                 <button
+                  :aria-pressed="isSelected"
                   class="demo-btn px-5 py-2.5 rounded-lg border font-medium transition-all flex-1"
                   :class="isSelected ? 'bg-primary text-on-primary border-primary' : 'bg-surface hover:bg-surface-tint'"
                   @click="toggle"

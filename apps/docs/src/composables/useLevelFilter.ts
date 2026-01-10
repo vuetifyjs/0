@@ -25,7 +25,7 @@ export { useLevelFilterContext }
 
 export function createLevelFilter (nav: MaybeRefOrGetter<NavItem[]>) {
   const storage = useStorage()
-  const group = createGroup<any>()
+  const group = createGroup<Level>()
 
   group.onboard(LEVELS.map(level => ({ id: level, value: level })))
 

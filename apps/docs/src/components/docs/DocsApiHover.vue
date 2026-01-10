@@ -10,9 +10,12 @@
    */
   import apiData from 'virtual:api'
 
+  // Framework
+  import { useDocumentEventListener } from '@vuetify/v0'
+
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+  import { computed, ref, shallowRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -171,16 +174,10 @@
     scheduleHide()
   }
 
-  // Set up global event delegation on code blocks
-  onMounted(() => {
-    document.addEventListener('mouseenter', onMouseEnter, true)
-    document.addEventListener('mouseleave', onMouseLeave, true)
-  })
-
-  onUnmounted(() => {
-    document.removeEventListener('mouseenter', onMouseEnter, true)
-    document.removeEventListener('mouseleave', onMouseLeave, true)
-  })
+  // Set up event delegation on document (persistent across route changes)
+  // Handlers already filter for [data-api-candidate] elements
+  useDocumentEventListener('mouseenter', onMouseEnter, { capture: true })
+  useDocumentEventListener('mouseleave', onMouseLeave, { capture: true })
 
   // Component-specific computed
   const componentApi = computed(() =>

@@ -17,7 +17,6 @@ const PAGES_DIR = resolve(__dirname, '../src/pages')
 export interface NavItemLink {
   name: string
   to: string
-  new?: string
   level?: 1 | 2 | 3
   emphasized?: boolean
   children?: NavItem[]

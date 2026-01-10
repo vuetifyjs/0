@@ -25,6 +25,7 @@
 <template>
   <aside
     ref="sheet"
+    aria-labelledby="settings-title"
     aria-modal="true"
     class="fixed inset-y-0 right-0 flex flex-col z-50 bg-glass-surface w-[320px] max-w-full shadow-xl outline-none"
     role="dialog"
@@ -35,7 +36,7 @@
     <header class="shrink-0 px-4 py-3 border-b border-divider flex items-center justify-between bg-surface">
       <div class="flex items-center gap-2">
         <AppIcon class="text-primary" icon="cog" />
-        <span class="font-medium">Settings</span>
+        <span id="settings-title" class="font-medium">Settings</span>
       </div>
 
       <button

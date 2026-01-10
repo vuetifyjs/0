@@ -12,7 +12,6 @@
   import type { RouterLinkProps } from 'vue-router'
 
   export interface ComponentProps extends AtomProps, Partial<RouterLinkProps> {
-    new?: string
     emphasized?: boolean
     children?: NavItem[]
   }
@@ -20,7 +19,6 @@
   const {
     as = RouterLink,
     activeClass = 'underline text-primary opacity-100!',
-    new: newDate,
     emphasized,
     children = [],
     to,
@@ -29,12 +27,6 @@
 
   const route = useRoute()
   const isActive = computed(() => to && route.path === to)
-
-  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
-
-  function isNew (date: string | undefined) {
-    return date && Date.now() - new Date(date).getTime() <= THIRTY_DAYS
-  }
 </script>
 
 <template>
@@ -53,7 +45,7 @@
       v-bind="props"
     >
       <slot />
-      <span v-if="emphasized || isNew(newDate)" class="w-2 h-2 rounded-[2px] bg-success" />
+      <span v-if="emphasized" class="w-2 h-2 rounded-[2px] bg-success" />
     </Atom>
 
     <div v-else class="font-semibold">
@@ -70,7 +62,6 @@
         :children="'children' in child ? child.children : undefined"
         class="text-sm"
         :emphasized="'emphasized' in child ? child.emphasized : undefined"
-        :new="'new' in child ? child.new : undefined"
         :to="'to' in child ? child.to : undefined"
       >
         {{ 'name' in child ? child.name : '' }}

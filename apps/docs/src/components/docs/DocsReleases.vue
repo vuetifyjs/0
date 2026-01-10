@@ -103,12 +103,14 @@
 
   function getReactionCount (release: Release, key: string): number {
     const reactions = release.reactions
-    if (!reactions) return 0
-    return (reactions as Record<string, unknown>)[key] as number ?? 0
+    if (!reactions || typeof reactions !== 'object') return 0
+    const count = (reactions as Record<string, unknown>)[key]
+    return typeof count === 'number' ? count : 0
   }
 
   async function copyLink () {
-    await copy(`${window.location.origin}/releases/?version=${model.value!.tag_name}`)
+    if (!model.value) return
+    await copy(`${window.location.origin}/releases/?version=${model.value.tag_name}`)
   }
 
   function selectRelease (release: Release) {

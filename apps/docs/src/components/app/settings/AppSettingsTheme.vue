@@ -32,16 +32,18 @@
       <AppIcon icon="theme-system" size="16" />
       <span>Theme</span>
     </h3>
-    <div class="grid grid-cols-2 gap-2">
+    <div aria-label="Theme" class="grid grid-cols-2 gap-2" role="radiogroup">
       <button
         v-for="option in themeOptions"
         :key="option.id"
+        :aria-checked="themeSingle.selectedId.value === option.id"
         :class="[
           'flex items-center gap-2 px-3 py-2 rounded-lg border transition-colors text-sm',
           themeSingle.selectedId.value === option.id
             ? 'border-primary bg-primary/10 text-primary'
             : 'border-divider hover:border-primary/50 text-on-surface',
         ]"
+        role="radio"
         type="button"
         @click="themeSingle.select(option.id)"
       >

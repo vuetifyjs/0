@@ -1,10 +1,11 @@
+// Framework
+import { IN_BROWSER } from '@vuetify/v0'
+
 // Utilities
 import { toValue, watchEffect } from 'vue'
 
 // Types
 import type { MaybeRefOrGetter } from 'vue'
-
-const IN_BROWSER = typeof window !== 'undefined'
 
 export function useScrollLock (condition: MaybeRefOrGetter<boolean>) {
   if (!IN_BROWSER) return

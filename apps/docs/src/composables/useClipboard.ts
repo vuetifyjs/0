@@ -1,3 +1,6 @@
+// Framework
+import { IN_BROWSER } from '@vuetify/v0'
+
 // Utilities
 import { shallowRef, type ShallowRef } from 'vue'
 
@@ -17,6 +20,8 @@ export function useClipboard (timeout = 2000): UseClipboardReturn {
   }
 
   async function copy (text: string) {
+    if (!IN_BROWSER) return false
+
     reset()
     try {
       await navigator.clipboard.writeText(text)

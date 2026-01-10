@@ -204,7 +204,7 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
 
     isSyncing.value = true
     el.scrollIntoView({ behavior })
-    history.replaceState(null, '', `#${id}`)
+    history.replaceState(history.state, '', `#${id}`)
 
     if (behavior === 'auto') {
       nextTick(() => {
@@ -223,9 +223,9 @@ export function useToc (options: UseTocOptions = {}): UseTocReturn {
 
     const id = scrollSpy.selectedId.value
     if (id) {
-      history.replaceState(null, '', `#${id}`)
+      history.replaceState(history.state, '', `#${id}`)
     } else {
-      history.replaceState(null, '', location.pathname + location.search)
+      history.replaceState(history.state, '', location.pathname + location.search)
     }
   })
 

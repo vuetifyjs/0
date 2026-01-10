@@ -58,7 +58,8 @@ export function getPrefersReducedMotion (): boolean {
   if (!IN_BROWSER) return false
 
   const stored = localStorage.getItem('v0:reduceMotion')
-  const setting = stored ? JSON.parse(stored) as DocSettings['reduceMotion'] : 'system'
+  const parsed = stored ? JSON.parse(stored) : null
+  const setting: DocSettings['reduceMotion'] = parsed === 'system' || parsed === 'on' || parsed === 'off' ? parsed : 'system'
 
   if (setting === 'system') {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches

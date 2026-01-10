@@ -25,6 +25,7 @@
       </div>
       <button
         :aria-checked="showInlineApi"
+        aria-label="Toggle inline API display"
         :class="[
           'relative w-11 h-6 rounded-full transition-colors shrink-0',
           showInlineApi ? 'bg-primary' : 'bg-surface-variant',

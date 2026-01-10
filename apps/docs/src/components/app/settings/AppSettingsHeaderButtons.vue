@@ -43,6 +43,7 @@
         </div>
         <button
           :aria-checked="button.model.value"
+          :aria-label="`Toggle ${button.label.toLowerCase()}`"
           :class="[
             'relative w-11 h-6 rounded-full transition-colors shrink-0',
             button.model.value ? 'bg-primary' : 'bg-surface-variant',

@@ -1,6 +1,9 @@
 import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
 
+// Framework
+import { IN_BROWSER } from '@vuetify/v0'
+
 // Composables
 import { getPrefersReducedMotion } from '@/composables/useSettings'
 
@@ -10,6 +13,9 @@ import type { RouterOptions } from 'vue-router'
 const routerOptions: Omit<RouterOptions, 'history'> = {
   routes: setupLayouts(routes),
   scrollBehavior (to, _from, savedPosition) {
+    // SSR safety - scrollBehavior only runs client-side but guard for clarity
+    if (!IN_BROWSER) return { top: 0 }
+
     // If the user navigated via browser back/forward, restore their position
     if (savedPosition) return savedPosition
 

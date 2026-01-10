@@ -31,16 +31,18 @@
       <AppIcon icon="vapor" size="16" />
       <span>Motion</span>
     </h3>
-    <div class="space-y-1">
+    <div aria-label="Motion preference" class="space-y-1" role="radiogroup">
       <button
         v-for="option in motionOptions"
         :key="option.id"
+        :aria-checked="motionSingle.selectedId.value === option.id"
         :class="[
           'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors text-left',
           motionSingle.selectedId.value === option.id
             ? 'bg-primary/10 text-primary'
             : 'hover:bg-surface-tint text-on-surface',
         ]"
+        role="radio"
         type="button"
         @click="motionSingle.select(option.id)"
       >

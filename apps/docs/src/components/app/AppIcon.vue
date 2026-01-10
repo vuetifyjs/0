@@ -3,7 +3,7 @@
   import { toArray } from '@vuetify/v0'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { computed } from 'vue'
 
   import { useIconContext } from '@/plugins/icons'
 
@@ -19,15 +19,20 @@
 
   const icons = useIconContext()
 
-  const icon = toRef(() => {
+  // Cache resolved icons by name to avoid re-resolving on every render
+  const iconCache = new Map<string, [string, number][]>()
+
+  const icon = computed(() => {
+    const name = props.icon
+    if (iconCache.has(name)) return iconCache.get(name)!
+
     const array: [string, number][] = []
-
-    for (const i of toArray(icons.resolve(props.icon))) {
+    for (const i of toArray(icons.resolve(name))) {
       const [path, opacity = 1] = toArray(i)
-
       array.push([path as string, opacity as number])
     }
 
+    iconCache.set(name, array)
     return array
   })
 </script>

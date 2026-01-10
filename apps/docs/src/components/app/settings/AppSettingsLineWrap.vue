@@ -25,6 +25,7 @@
       </div>
       <button
         :aria-checked="lineWrap"
+        aria-label="Toggle line wrapping"
         :class="[
           'relative w-11 h-6 rounded-full transition-colors shrink-0',
           lineWrap ? 'bg-primary' : 'bg-surface-variant',
