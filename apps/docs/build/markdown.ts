@@ -141,12 +141,31 @@ export default async function MarkdownPlugin () {
         const playgroundIndex = rest.indexOf('playground')
         const playground = playgroundIndex !== -1
         if (playground) rest.splice(playgroundIndex, 1)
+
+        // Parse collapse modifier: "collapse" or "collapse:15"
+        const collapseIndex = rest.findIndex(r => r === 'collapse' || r.startsWith('collapse:'))
+        let collapse = false
+        let collapseLines: number | undefined
+        if (collapseIndex !== -1) {
+          const collapseToken = rest[collapseIndex]
+          collapse = true
+          if (collapseToken.includes(':')) {
+            const parsed = Number.parseInt(collapseToken.split(':')[1])
+            if (!Number.isNaN(parsed) && parsed > 0) {
+              collapseLines = parsed
+            }
+          }
+          rest.splice(collapseIndex, 1)
+        }
+
         const title = rest.join(' ')
         const highlighted = defaultFence(tokens, index, options, env, self)
         // Base64 encode to avoid escaping issues
         const titleAttr = title ? ` title="${title}"` : ''
         const playgroundAttr = playground ? ' playground' : ''
-        return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${playgroundAttr}>${highlighted}</DocsMarkup>`
+        const collapseAttr = collapse ? ' collapse' : ''
+        const collapseLinesAttr = collapseLines ? ` :collapse-lines="${collapseLines}"` : ''
+        return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}>${highlighted}</DocsMarkup>`
       }
       // Wrap tables in scrollable container for mobile
       md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'

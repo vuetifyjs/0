@@ -40,17 +40,29 @@
       {{ title || language }}
     </span>
 
-    <DocsCodeActions
-      v-model:wrap="lineWrap"
-      bin
-      class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
-      :code="decodedCode"
-      :language
-      :playground
-      show-copy
-      show-wrap
-      :title
-    />
+    <div class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+      <DocsCodeActions
+        v-model:wrap="lineWrap"
+        bin
+        :code="decodedCode"
+        :language
+        :playground
+        show-copy
+        show-wrap
+        :title
+      />
+
+      <button
+        v-if="shouldCollapse && expanded"
+        aria-label="Collapse code"
+        class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+        title="Collapse code"
+        type="button"
+        @click="expanded = false"
+      >
+        <AppIcon icon="fullscreen-exit" :size="16" />
+      </button>
+    </div>
 
     <div
       class="docs-markup-content"
@@ -60,15 +72,17 @@
       <slot />
     </div>
 
+    <div v-if="shouldCollapse && !expanded" class="docs-markup-fade" />
+
     <button
-      v-if="shouldCollapse"
-      :aria-expanded="expanded"
-      class="docs-markup-expand"
-      :class="{ 'docs-markup-expand--collapsed': !expanded }"
+      v-if="shouldCollapse && !expanded"
+      aria-label="Expand code"
+      class="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
       type="button"
-      @click="expanded = !expanded"
+      @click="expanded = true"
     >
-      <span class="i-lucide-chevron-down" :class="{ 'rotate-180': expanded }" />
+      <span>Expand</span>
+      <AppIcon icon="down" :size="14" />
     </button>
   </div>
 </template>
@@ -81,40 +95,18 @@
 
   .docs-markup-content--collapsed {
     overflow: hidden;
+    border-radius: 0 0 0.5rem 0.5rem;
+    border-bottom: 1px solid var(--v0-divider);
   }
 
-  .docs-markup-expand {
+  .docs-markup-fade {
     position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.25rem;
-    font-size: 1rem;
-    color: var(--v0-on-surface-variant);
-    background: var(--v0-surface-variant);
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, bottom 0.2s, right 0.2s;
-    z-index: 10;
-  }
-
-  .docs-markup-expand--collapsed {
-    bottom: 0.75rem;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .docs-markup-expand:not(.docs-markup-expand--collapsed) {
-    bottom: 0.5rem;
-    right: 0.5rem;
-  }
-
-  .docs-markup-expand:hover {
-    background: var(--v0-surface-tint);
-    color: var(--v0-on-surface);
-  }
-
-  .docs-markup-expand span {
-    transition: transform 0.3s ease;
+    bottom: 1px;
+    left: 1px;
+    right: 1px;
+    height: 4rem;
+    background: linear-gradient(transparent, var(--v0-pre));
+    pointer-events: none;
+    border-radius: 0 0 0.5rem 0.5rem;
   }
 </style>
