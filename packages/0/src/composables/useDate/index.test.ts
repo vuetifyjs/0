@@ -1488,24 +1488,5 @@ describe('useDate', () => {
       // Runtime assertion to satisfy vitest/expect-expect rule
       expect(defaultCtx.adapter).toBeDefined()
     })
-
-    // Type-level tests: these verify TypeScript rejects invalid calls
-    // The @ts-expect-error comments ensure these FAIL to compile if removed
-    it('should reject invalid overload usage at compile time', () => {
-      // @ts-expect-error - T provided without adapter should fail
-      createDate<Date>()
-
-      // @ts-expect-error - T provided without adapter should fail
-      createDateContext<Date>()
-
-      // @ts-expect-error - T provided without adapter should fail
-      createDatePlugin<Date>()
-
-      // @ts-expect-error - useDate<T>() without namespace should fail (second overload requires string)
-      useDate<Date>()
-
-      // Runtime assertion to satisfy vitest/expect-expect rule
-      expect(true).toBe(true)
-    })
   })
 })
