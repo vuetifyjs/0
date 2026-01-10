@@ -14,7 +14,7 @@
     collapse?: boolean
     collapseLines?: number
   }>(), {
-    collapseLines: 10,
+    collapseLines: 15,
   })
 
   const { lineWrap: defaultLineWrap } = useSettings()
@@ -31,7 +31,13 @@
 </script>
 
 <template>
-  <div class="docs-markup relative my-4 group" :class="{ 'docs-markup--wrap': lineWrap }">
+  <div
+    class="docs-markup relative my-4 group"
+    :class="{
+      'docs-markup--wrap': lineWrap,
+      'mb-8': shouldCollapse
+    }"
+  >
     <span
       v-if="title || (language && language !== 'text')"
       class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
@@ -77,7 +83,7 @@
     <button
       v-if="shouldCollapse && !expanded"
       aria-label="Expand code"
-      class="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+      class="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
       type="button"
       @click="expanded = true"
     >

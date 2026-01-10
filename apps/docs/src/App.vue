@@ -267,7 +267,6 @@
     border: thin solid var(--v0-divider);
     border-radius: 0.5rem;
     padding: 0.5rem 1rem;
-    margin-bottom: 1rem;
   }
 
   .shiki span {

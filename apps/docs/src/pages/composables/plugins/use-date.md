@@ -78,7 +78,7 @@ Once the plugin is installed, use the `useDate` composable in any component:
 
 The adapter provides a comprehensive API compatible with [date-io](https://github.com/dmtrKovalenko/date-io):
 
-```ts
+```ts collapse
 interface DateAdapter<T> {
   locale?: string
 
@@ -273,7 +273,7 @@ When switching locales via `useLocale`, the date adapter automatically updates i
 
 Create custom adapters for different date libraries (date-fns, luxon, dayjs):
 
-```ts src/adapters/date-fns-adapter.ts
+```ts src/adapters/date-fns-adapter.ts collapse
 import type { DateAdapter } from '@vuetify/v0'
 import { isValid as dateFnsIsValid, parseISO, format as dateFnsFormat } from 'date-fns'
 
