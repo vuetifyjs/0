@@ -1,6 +1,13 @@
 <script setup lang="ts">
-// Utilities
+  // Composables
+  import { usePlayground } from '@/composables/playground'
+
+  // Utilities
   import { RouterLink } from 'vue-router'
+
+  const playgroundUrl = usePlayground(`<template>
+  <h1>Hello v0!</h1>
+</template>`)
 
   const integrations = [
     {
@@ -26,7 +33,7 @@
     {
       name: 'Vuetify Play',
       icon: 'vuetify-play',
-      href: 'https://play.vuetifyjs.com',
+      href: playgroundUrl,
     },
     {
       name: 'Vuetify Create',
