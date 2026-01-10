@@ -272,29 +272,12 @@
     </div>
 
     <!-- Inline metadata -->
+    <!-- Order: Classification → Skill Level → Quality → Performance → Reference -->
     <div
-      v-if="level || coverage || benchmark || !isUndefined(renderless) || lastUpdated"
+      v-if="!isUndefined(renderless) || level || coverage || benchmark || lastUpdated"
       class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider"
     >
-      <DocsMetaItem
-        v-if="coverage && testFileLink"
-        :color="coverage.color"
-        :href="testFileLink"
-        icon="test"
-        :text="coverage.label"
-        :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
-      />
-
-      <DocsMetaItem
-        v-if="benchmark"
-        :color="benchmark.color"
-        href="#benchmarks"
-        :icon="benchmark.icon"
-        :text="benchmark.label"
-        title="View performance benchmarks"
-        @click.prevent="scrollToAnchor('benchmarks')"
-      />
-
+      <!-- 1. Renderless - Feature classification (what is it?) -->
       <DocsMetaItem
         v-if="renderless === true"
         color="text-secondary"
@@ -311,6 +294,7 @@
         title="Component renders a DOM element by default"
       />
 
+      <!-- 2. Level - Skill level (should I use it?) -->
       <DocsMetaItem
         v-if="level"
         :color="level.color"
@@ -319,6 +303,28 @@
         :title="`${level.label} skill level`"
       />
 
+      <!-- 3. Coverage - Quality signal (is it tested?) -->
+      <DocsMetaItem
+        v-if="coverage && testFileLink"
+        :color="coverage.color"
+        :href="testFileLink"
+        icon="test"
+        :text="coverage.label"
+        :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
+      />
+
+      <!-- 4. Benchmark - Performance (is it fast?) -->
+      <DocsMetaItem
+        v-if="benchmark"
+        :color="benchmark.color"
+        href="#benchmarks"
+        :icon="benchmark.icon"
+        :text="benchmark.label"
+        title="View performance benchmarks"
+        @click.prevent="scrollToAnchor('benchmarks')"
+      />
+
+      <!-- 5. Last Updated - Reference (is it maintained?) -->
       <DocsMetaItem
         v-if="lastUpdated"
         color="text-secondary"
