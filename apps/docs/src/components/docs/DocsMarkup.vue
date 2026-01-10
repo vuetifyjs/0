@@ -71,14 +71,14 @@
     </div>
 
     <div
-      class="docs-markup-content"
-      :class="{ 'docs-markup-content--collapsed': shouldCollapse && !expanded }"
+      class="overflow-hidden transition-[max-height] duration-300 ease-out"
+      :class="shouldCollapse && !expanded && 'rounded-b-2 border-b border-divider'"
       :style="shouldCollapse && !expanded ? { maxHeight: collapsedHeight } : undefined"
     >
       <slot />
     </div>
 
-    <div v-if="shouldCollapse && !expanded" class="docs-markup-fade" />
+    <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute left-px right-px bottom-px h-16 rounded-b-2 pointer-events-none" />
 
     <button
       v-if="shouldCollapse && !expanded"
@@ -94,25 +94,8 @@
 </template>
 
 <style>
-  .docs-markup-content {
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-
-  .docs-markup-content--collapsed {
-    overflow: hidden;
-    border-radius: 0 0 0.5rem 0.5rem;
-    border-bottom: 1px solid var(--v0-divider);
-  }
-
   .docs-markup-fade {
-    position: absolute;
-    bottom: 1px;
-    left: 1px;
-    right: 1px;
-    height: 4rem;
-    background: linear-gradient(transparent, var(--v0-pre));
-    pointer-events: none;
-    border-radius: 0 0 0.5rem 0.5rem;
+    background: var(--v0-pre);
+    mask: linear-gradient(transparent, var(--v0-primary));
   }
 </style>
