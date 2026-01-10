@@ -3,6 +3,7 @@
   import { useDocumentEventListener } from '@vuetify/v0'
 
   // Composables
+  import { useAsk } from '@/composables/useAsk'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
@@ -38,6 +39,7 @@
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
   const { prefersReducedMotion } = useSettings()
+  const { open: openAsk, ask } = useAsk()
   const transition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
 
   watch(isOpen, async opened => {
@@ -88,6 +90,16 @@
   function handleRemoveFavorite (e: Event, id: string) {
     e.stopPropagation()
     removeFavorite(id)
+  }
+
+  async function askAbout (e: Event, result: SearchResult | SavedResult) {
+    e.stopPropagation()
+    addRecent(result)
+    query.value = ''
+    close()
+    await router.push(result.path)
+    openAsk()
+    ask(`Tell me about ${result.title}`)
   }
 
   /** Get flat index accounting for favorites + recents in empty state */
@@ -302,18 +314,34 @@
                   <span class="font-medium">{{ result.title }}</span>
                   <span class="text-xs text-on-surface-variant ml-2">{{ result.category }}</span>
                 </div>
-                <span
-                  aria-label="Remove from recent searches"
-                  class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant opacity-0 group-hover:opacity-100 cursor-pointer"
-                  role="button"
-                  tabindex="0"
-                  title="Remove from recent"
-                  @click="handleRemoveRecent($event, result.id)"
-                  @keydown.enter.stop="handleRemoveRecent($event, result.id)"
-                  @keydown.space.stop.prevent="handleRemoveRecent($event, result.id)"
-                >
-                  <AppIcon aria-hidden="true" icon="close" size="16" />
-                </span>
+                <div class="flex items-center gap-1 shrink-0">
+                  <!-- Favorite toggle -->
+                  <span
+                    aria-label="Add to favorites"
+                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-warning opacity-0 group-hover:opacity-100 cursor-pointer"
+                    role="button"
+                    tabindex="0"
+                    title="Add to favorites"
+                    @click="toggleFavorite($event, result)"
+                    @keydown.enter.stop="toggleFavorite($event, result)"
+                    @keydown.space.stop.prevent="toggleFavorite($event, result)"
+                  >
+                    <AppIcon aria-hidden="true" icon="star-outline" size="16" />
+                  </span>
+                  <!-- Remove button -->
+                  <span
+                    aria-label="Remove from recent searches"
+                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant opacity-0 group-hover:opacity-100 cursor-pointer"
+                    role="button"
+                    tabindex="0"
+                    title="Remove from recent"
+                    @click="handleRemoveRecent($event, result.id)"
+                    @keydown.enter.stop="handleRemoveRecent($event, result.id)"
+                    @keydown.space.stop.prevent="handleRemoveRecent($event, result.id)"
+                  >
+                    <AppIcon aria-hidden="true" icon="close" size="16" />
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -393,6 +421,19 @@
                       :icon="isFavorite(result.id) ? 'star' : 'star-outline'"
                       size="16"
                     />
+                  </span>
+                  <!-- Ask AI button -->
+                  <span
+                    aria-label="Ask AI about this page"
+                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-primary opacity-0 group-hover:opacity-100 cursor-pointer"
+                    role="button"
+                    tabindex="0"
+                    title="Ask AI"
+                    @click="askAbout($event, result)"
+                    @keydown.enter.stop="askAbout($event, result)"
+                    @keydown.space.stop.prevent="askAbout($event, result)"
+                  >
+                    <AppIcon aria-hidden="true" icon="create" size="16" />
                   </span>
                   <!-- Dismiss button -->
                   <span

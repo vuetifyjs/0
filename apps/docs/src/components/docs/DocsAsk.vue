@@ -25,8 +25,6 @@
     return isDesktop.value ? 'fade' : 'slide'
   })
 
-  useScrollLock(() => isOpen.value && fullscreen.value && isDesktop.value)
-
   const {
     messages,
     isOpen,
@@ -38,6 +36,8 @@
     open,
     stop,
   } = useAsk()
+
+  useScrollLock(() => isOpen.value && fullscreen.value && isDesktop.value)
 
   const inputRef = useTemplateRef<InstanceType<typeof DocsAskInput>>('input')
   const sheetRef = useTemplateRef<InstanceType<typeof DocsAskSheet>>('sheet')
