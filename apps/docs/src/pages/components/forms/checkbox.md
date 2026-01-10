@@ -19,8 +19,6 @@ import BasicExample from '@/examples/components/checkbox/basic.vue'
 import BasicExampleRaw from '@/examples/components/checkbox/basic.vue?raw'
 import GroupExample from '@/examples/components/checkbox/group.vue'
 import GroupExampleRaw from '@/examples/components/checkbox/group.vue?raw'
-import SelectAllExample from '@/examples/components/checkbox/select-all.vue'
-import SelectAllExampleRaw from '@/examples/components/checkbox/select-all.vue?raw'
 </script>
 
 # Checkbox
@@ -74,40 +72,27 @@ Wrap checkboxes in `Checkbox.Group` for multi-selection with array-based v-model
   <GroupExample />
 </DocsExample>
 
-## Select All Pattern
-
-The Group component exposes helpers for implementing "select all" patterns:
-
-- **`isNoneSelected`**: True when no items are selected
-- **`isAllSelected`**: True when all selectable items are selected
-- **`isMixed`**: True when some but not all are selected (indeterminate state)
-- **`selectAll`**: Selects all non-disabled items
-- **`unselectAll`**: Unselects all items
-- **`toggleAll`**: Toggles between all selected and none
-
-<DocsExample file="select-all.vue" title="Select All" :code="SelectAllExampleRaw">
-  <SelectAllExample />
-</DocsExample>
-
 ## Accessibility
 
-The Checkbox.Indicator component handles all ARIA attributes automatically:
+The Checkbox.Root component renders as a button and handles all ARIA attributes automatically:
 
 - `role="checkbox"` for proper semantics
 - `aria-checked` reflects state (`true`, `false`, or `"mixed"`)
 - `aria-disabled` when checkbox is disabled
 - `aria-label` from the `label` prop
 - `tabindex="0"` for keyboard focus (removed when disabled)
-- Space key toggles the checkbox
+- Space and Enter keys toggle the checkbox
 
-The `attrs` slot prop contains all required attributes for custom implementations:
+For custom implementations, use `renderless` mode and bind the `attrs` slot prop to your element:
 
 ```vue
-<Checkbox.Indicator v-slot="{ attrs }">
-  <div v-bind="attrs">
-    <!-- Custom checkbox visual -->
-  </div>
-</Checkbox.Indicator>
+<template>
+  <Checkbox.Root v-slot="{ attrs }" renderless>
+    <div v-bind="attrs">
+      <!-- Custom checkbox visual -->
+    </div>
+  </Checkbox.Root>
+</template>
 ```
 
 <DocsApi />

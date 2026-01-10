@@ -1,7 +1,5 @@
 <script setup lang="ts">
-  // Framework
   import { Checkbox } from '@vuetify/v0'
-  // Utilities
   import { ref } from 'vue'
 
   const selected = ref<string[]>([])
@@ -15,30 +13,19 @@
 
 <template>
   <Checkbox.Group v-model="selected" class="flex flex-col gap-2">
-    <Checkbox.Root
+    <label
       v-for="option in options"
       :key="option.value"
-      v-slot="{ isChecked }"
-      class="flex items-center"
-      :value="option.value"
+      class="inline-flex items-center gap-2"
     >
-      <Checkbox.Indicator
-        class="size-5 border rounded flex items-center justify-center cursor-pointer"
-        :class="isChecked ? 'bg-primary border-primary' : 'border-divider'"
+      <Checkbox.Root
+        class="size-5 border rounded inline-flex items-center justify-center border-divider data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+        :value="option.value"
       >
-        <svg
-          v-if="isChecked"
-          class="size-3 text-on-primary"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="3"
-          viewBox="0 0 24 24"
-        >
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      </Checkbox.Indicator>
-      <span class="ml-2">{{ option.label }}</span>
-    </Checkbox.Root>
+        <Checkbox.Indicator class="text-on-primary text-sm">✓</Checkbox.Indicator>
+      </Checkbox.Root>
+      <span>{{ option.label }}</span>
+    </label>
   </Checkbox.Group>
 
   <p class="mt-4 text-sm text-on-surface-variant">

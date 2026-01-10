@@ -22,6 +22,7 @@ const COMPONENT_PATTERN = /^([A-Z][a-zA-Z]*)(?:\.([A-Z][a-zA-Z]*))?$/
 const V0_COMPONENTS = new Set([
   'Atom',
   'Avatar',
+  'Checkbox',
   'Dialog',
   'ExpansionPanel',
   'Group',

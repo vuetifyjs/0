@@ -79,16 +79,16 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/components/primitives/atom': RouteRecordInfo<
-      '/components/primitives/atom',
-      '/components/primitives/atom',
+    '/components/forms/checkbox': RouteRecordInfo<
+      '/components/forms/checkbox',
+      '/components/forms/checkbox',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/components/providers/checkbox': RouteRecordInfo<
-      '/components/providers/checkbox',
-      '/components/providers/checkbox',
+    '/components/primitives/atom': RouteRecordInfo<
+      '/components/primitives/atom',
+      '/components/primitives/atom',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -443,13 +443,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/guide/features': RouteRecordInfo<
-      '/guide/features',
-      '/guide/features',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/guide/nuxt': RouteRecordInfo<
       '/guide/nuxt',
       '/guide/nuxt',
@@ -616,15 +609,15 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/components/primitives/atom.md': {
+    'src/pages/components/forms/checkbox.md': {
       routes:
-        | '/components/primitives/atom'
+        | '/components/forms/checkbox'
       views:
         | never
     }
-    'src/pages/components/providers/checkbox.md': {
+    'src/pages/components/primitives/atom.md': {
       routes:
-        | '/components/providers/checkbox'
+        | '/components/primitives/atom'
       views:
         | never
     }
@@ -925,12 +918,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/core.md': {
       routes:
         | '/guide/core'
-      views:
-        | never
-    }
-    'src/pages/guide/features.md': {
-      routes:
-        | '/guide/features'
       views:
         | never
     }
