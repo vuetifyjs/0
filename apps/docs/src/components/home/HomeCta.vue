@@ -30,11 +30,18 @@ const selected = ref([])
 
   const features = [
     {
-      title: 'Documentation',
+      title: 'Getting Started',
       description: 'Comprehensive guides, API references, and real-world examples.',
       to: '/introduction/getting-started',
       icon: 'book',
       cta: 'Get Started',
+    },
+    {
+      title: 'Using the Docs',
+      description: 'Learn how to navigate the documentation and get the most out of it.',
+      to: '/guide/using-the-docs',
+      icon: 'map',
+      cta: 'Learn How',
     },
     {
       title: 'Vuetify Play',
