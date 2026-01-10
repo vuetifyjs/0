@@ -84,7 +84,7 @@
 
   watch(context.isSelected, isOpen => {
     const element = ref.value?.element
-    if (!element) return
+    if (!element || isOpen === element.matches?.(':popover-open')) return
 
     if (isOpen) {
       element.showPopover?.()
@@ -92,11 +92,13 @@
       element.hidePopover?.()
     }
   })
+
+  function onToggle (e: ToggleEvent) {
+    context.isSelected.value = e.newState === 'open'
+  }
   /* v8 ignore stop */
 
   function onBeforeToggle (e: ToggleEvent) {
-    context.isSelected.value = e.newState === 'open'
-
     emit('beforetoggle', e)
   }
 
@@ -115,6 +117,7 @@
     :style
     v-bind="slotProps.attrs"
     @beforetoggle="onBeforeToggle"
+    @toggle="onToggle"
   >
     <slot v-bind="slotProps" />
   </Atom>
