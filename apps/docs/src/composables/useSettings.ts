@@ -16,6 +16,7 @@ export interface DocSettings {
   lineWrap: boolean
   reduceMotion: 'system' | 'on' | 'off'
   packageManager: PackageManager
+  showInlineApi: boolean
   showSkillFilter: boolean
   showThemeToggle: boolean
   showSocialLinks: boolean
@@ -27,6 +28,7 @@ export interface SettingsContext {
   reduceMotion: ShallowRef<DocSettings['reduceMotion']>
   packageManager: ShallowRef<DocSettings['packageManager']>
   prefersReducedMotion: Ref<boolean>
+  showInlineApi: ShallowRef<boolean>
   showSkillFilter: ShallowRef<boolean>
   showThemeToggle: ShallowRef<boolean>
   showSocialLinks: ShallowRef<boolean>
@@ -39,6 +41,7 @@ const DEFAULTS: DocSettings = {
   lineWrap: false,
   reduceMotion: 'system',
   packageManager: 'pnpm',
+  showInlineApi: true,
   showSkillFilter: true,
   showThemeToggle: true,
   showSocialLinks: true,
@@ -88,6 +91,7 @@ export function createSettingsContext (): SettingsContext {
   const lineWrap = shallowRef(DEFAULTS.lineWrap)
   const reduceMotion = shallowRef<DocSettings['reduceMotion']>(DEFAULTS.reduceMotion)
   const packageManager = shallowRef<DocSettings['packageManager']>(DEFAULTS.packageManager)
+  const showInlineApi = shallowRef(DEFAULTS.showInlineApi)
   const showSkillFilter = shallowRef(DEFAULTS.showSkillFilter)
   const showThemeToggle = shallowRef(DEFAULTS.showThemeToggle)
   const showSocialLinks = shallowRef(DEFAULTS.showSocialLinks)
@@ -96,12 +100,13 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'lineWrap', lineWrap)
   loadSetting(storage, 'reduceMotion', reduceMotion)
   loadSetting(storage, 'packageManager', packageManager)
+  loadSetting(storage, 'showInlineApi', showInlineApi)
   loadSetting(storage, 'showSkillFilter', showSkillFilter)
   loadSetting(storage, 'showThemeToggle', showThemeToggle)
   loadSetting(storage, 'showSocialLinks', showSocialLinks)
 
   // Persist on change
-  const settings = { lineWrap, reduceMotion, packageManager, showSkillFilter, showThemeToggle, showSocialLinks }
+  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
@@ -130,6 +135,7 @@ export function createSettingsContext (): SettingsContext {
     reduceMotion,
     packageManager,
     prefersReducedMotion,
+    showInlineApi,
     showSkillFilter,
     showThemeToggle,
     showSocialLinks,

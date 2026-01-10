@@ -1,12 +1,10 @@
 <script setup lang="ts">
   // Composables
-  import { getBinUrl } from '@/composables/bin'
-  import { usePlayground } from '@/composables/playground'
-  import { useClipboard } from '@/composables/useClipboard'
   import { useHighlightCode } from '@/composables/useHighlightCode'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, ref, toRef, useId } from 'vue'
+  import { computed, ref, shallowRef, toRef, useId } from 'vue'
 
   const props = defineProps<{
     file?: string
@@ -16,8 +14,11 @@
 
   const uid = useId()
   const showCode = ref(false)
-  const { copied, copy } = useClipboard()
   const { highlightedCode, highlight } = useHighlightCode(toRef(() => props.code), { immediate: false })
+  const { lineWrap: defaultLineWrap } = useSettings()
+
+  // Local state initialized from global default, per-instance
+  const lineWrap = shallowRef(defaultLineWrap.value)
 
   const fileName = computed(() => props.file?.split('/').pop() || '')
 
@@ -27,29 +28,15 @@
       highlight(props.code)
     }
   }
-
-  function copyCode () {
-    if (props.code) copy(props.code)
-  }
 </script>
 
 <template>
   <div class="border border-divider rounded-lg my-6 overflow-hidden">
     <div
-      v-if="title || code"
-      class="px-4 py-3 font-semibold border-b border-divider bg-surface-tint flex items-center justify-between"
+      v-if="title"
+      class="px-4 py-3 font-semibold border-b border-divider bg-surface-tint"
     >
-      <span>{{ title }}</span>
-      <a
-        v-if="code"
-        class="pa-1 inline-flex rounded opacity-90 hover:opacity-100"
-        :href="usePlayground(code)"
-        rel="noopener"
-        target="_blank"
-        title="Open in Vuetify Play"
-      >
-        <AppIcon icon="vuetify-play" />
-      </a>
+      {{ title }}
     </div>
 
     <div class="p-6 bg-surface">
@@ -73,24 +60,20 @@
     <div
       v-if="showCode && highlightedCode"
       :id="code ? `${uid}-code` : undefined"
-      class="relative bg-pre"
+      class="docs-example-code relative bg-pre group"
+      :class="{ 'docs-example-code--wrap': lineWrap }"
     >
-      <div class="absolute top-3 right-3 flex gap-1">
-        <a
-          class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint"
-          :href="getBinUrl(code!, 'vue', title || fileName)"
-          rel="noopener"
-          target="_blank"
-          title="Open in Vuetify Bin"
-        >
-          <AppIcon icon="vuetify-bin" />
-        </a>
-        <AppIconButton
-          :icon="!copied ? 'copy' : 'success'"
-          title="Copy code"
-          @click="copyCode"
-        />
-      </div>
+      <DocsCodeActions
+        v-model:wrap="lineWrap"
+        bin
+        class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+        :code="code!"
+        language="vue"
+        playground
+        show-copy
+        show-wrap
+        :title="title || fileName"
+      />
       <div
         class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto"
         v-html="highlightedCode"
@@ -105,5 +88,10 @@
     border-top: thin solid var(--v0-divider);
     border-radius: 0;
     margin-bottom: 0;
+  }
+
+  .docs-example-code--wrap ::v-deep(pre) {
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 </style>

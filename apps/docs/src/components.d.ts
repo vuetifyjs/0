@@ -28,6 +28,7 @@ declare module 'vue' {
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
     AppSettings: typeof import('./components/app/AppSettings.vue')['default']
     AppSettingsHeaderButtons: typeof import('./components/app/settings/AppSettingsHeaderButtons.vue')['default']
+    AppSettingsInlineApi: typeof import('./components/app/settings/AppSettingsInlineApi.vue')['default']
     AppSettingsLineWrap: typeof import('./components/app/settings/AppSettingsLineWrap.vue')['default']
     AppSettingsMotion: typeof import('./components/app/settings/AppSettingsMotion.vue')['default']
     AppSettingsPackageManager: typeof import('./components/app/settings/AppSettingsPackageManager.vue')['default']

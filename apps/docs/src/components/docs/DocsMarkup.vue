@@ -4,17 +4,30 @@
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed } from 'vue'
+  import { computed, ref, shallowRef } from 'vue'
 
-  const props = defineProps<{
+  const props = withDefaults(defineProps<{
     code: string // base64 encoded
     language?: string
     title?: string
     playground?: boolean
-  }>()
+    collapse?: boolean
+    collapseLines?: number
+  }>(), {
+    collapseLines: 10,
+  })
 
-  const { lineWrap } = useSettings()
+  const { lineWrap: defaultLineWrap } = useSettings()
+
+  // Local state initialized from global default, per-instance
+  const lineWrap = shallowRef(defaultLineWrap.value)
   const decodedCode = computed(() => decodeBase64(props.code))
+
+  // Collapse state
+  const expanded = ref(false)
+  const lineCount = computed(() => decodedCode.value.split('\n').length)
+  const shouldCollapse = computed(() => props.collapse && lineCount.value > props.collapseLines)
+  const collapsedHeight = computed(() => `${props.collapseLines * 1.5 + 2.5}rem`)
 </script>
 
 <template>
@@ -27,18 +40,73 @@
       {{ title || language }}
     </span>
 
-    <DocsCodeActions
-      v-model:wrap="lineWrap"
-      bin
-      class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
-      :code="decodedCode"
-      :language
-      :playground
-      show-copy
-      show-wrap
-      :title
-    />
+    <div class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+      <DocsCodeActions
+        v-model:wrap="lineWrap"
+        bin
+        :code="decodedCode"
+        :language
+        :playground
+        show-copy
+        show-wrap
+        :title
+      />
 
-    <slot />
+      <button
+        v-if="shouldCollapse && expanded"
+        aria-label="Collapse code"
+        class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+        title="Collapse code"
+        type="button"
+        @click="expanded = false"
+      >
+        <AppIcon icon="fullscreen-exit" :size="16" />
+      </button>
+    </div>
+
+    <div
+      class="docs-markup-content"
+      :class="{ 'docs-markup-content--collapsed': shouldCollapse && !expanded }"
+      :style="shouldCollapse && !expanded ? { maxHeight: collapsedHeight } : undefined"
+    >
+      <slot />
+    </div>
+
+    <div v-if="shouldCollapse && !expanded" class="docs-markup-fade" />
+
+    <button
+      v-if="shouldCollapse && !expanded"
+      aria-label="Expand code"
+      class="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+      type="button"
+      @click="expanded = true"
+    >
+      <span>Expand</span>
+      <AppIcon icon="down" :size="14" />
+    </button>
   </div>
 </template>
+
+<style>
+  .docs-markup-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .docs-markup-content--collapsed {
+    overflow: hidden;
+    border-radius: 0 0 0.5rem 0.5rem;
+    border-bottom: 1px solid var(--v0-divider);
+  }
+
+  .docs-markup-fade {
+    position: absolute;
+    bottom: 1px;
+    left: 1px;
+    right: 1px;
+    height: 4rem;
+    background: linear-gradient(transparent, var(--v0-pre));
+    pointer-events: none;
+    border-radius: 0 0 0.5rem 0.5rem;
+  }
+</style>
