@@ -24,38 +24,15 @@ import Root from './CheckboxRoot.vue'
  * ```vue
  * <script lang="ts" setup>
  *   import { Checkbox } from '@vuetify/v0'
- *   import { ref } from 'vue'
- *
- *   // Standalone mode
- *   const agreed = ref(false)
- *
- *   // Group mode
- *   const selected = ref<string[]>([])
  * </script>
  *
  * <template>
- *   <!-- Standalone checkbox -->
- *   <Checkbox.Root v-model="agreed" v-slot="{ isChecked }">
- *     <Checkbox.Indicator>
- *       <CheckIcon v-if="isChecked" />
- *       I agree to terms
- *     </Checkbox.Indicator>
- *   </Checkbox.Root>
- *
- *   <!-- Group of checkboxes -->
- *   <Checkbox.Group v-model="selected">
- *     <Checkbox.Root value="a">
- *       <Checkbox.Indicator v-slot="{ isChecked }">
- *         <CheckIcon v-if="isChecked" /> Option A
- *       </Checkbox.Indicator>
+ *   <label>
+ *     <Checkbox.Root>
+ *       <Checkbox.Indicator>✓</Checkbox.Indicator>
  *     </Checkbox.Root>
- *
- *     <Checkbox.Root value="b">
- *       <Checkbox.Indicator v-slot="{ isChecked }">
- *         <CheckIcon v-if="isChecked" /> Option B
- *       </Checkbox.Indicator>
- *     </Checkbox.Root>
- *   </Checkbox.Group>
+ *     I agree to terms
+ *   </label>
  * </template>
  * ```
  */
@@ -69,9 +46,9 @@ export const Checkbox = {
   /**
    * Root component for individual checkboxes.
    *
-   * Handles registration with parent group (if present) and provides
-   * checkbox context to Checkbox.Indicator. Supports standalone mode
-   * with v-model or group mode within Checkbox.Group.
+   * Renders as a button with proper ARIA attributes and handles
+   * click/keyboard interactions. Supports standalone mode with
+   * v-model or group mode within Checkbox.Group.
    *
    * @see https://0.vuetifyjs.com/components/checkbox#root
    */
@@ -79,7 +56,7 @@ export const Checkbox = {
   /**
    * Visual indicator component for checkboxes.
    *
-   * Renders the checkbox button with proper ARIA attributes.
+   * Renders as a span and only displays when checked or indeterminate.
    * Must be used within a Checkbox.Root component.
    *
    * @see https://0.vuetifyjs.com/components/checkbox#indicator

@@ -8,14 +8,18 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
   // Types
+  import type { AtomProps } from '#v0/components/Atom'
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
   import type { ID } from '#v0/types'
 
-  export interface CheckboxGroupProps {
+  export interface CheckboxGroupProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
     /** Disables the entire checkbox group */
@@ -81,6 +85,8 @@
   }>()
 
   const {
+    as = 'div',
+    renderless,
     namespace = 'v0:checkbox:group',
     disabled = false,
     enroll = false,
@@ -119,5 +125,11 @@
 </script>
 
 <template>
-  <slot v-bind="slotProps" />
+  <Atom
+    v-bind="slotProps.attrs"
+    :as
+    :renderless
+  >
+    <slot v-bind="slotProps" />
+  </Atom>
 </template>

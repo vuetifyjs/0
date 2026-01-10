@@ -11,10 +11,14 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
   // Types
+  import type { AtomProps } from '#v0/components/Atom'
   import type { MaybeRef, Ref } from 'vue'
 
   export interface CheckboxRootContext {
@@ -42,7 +46,7 @@
     unmix: () => void
   }
 
-  export interface CheckboxRootProps {
+  export interface CheckboxRootProps extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: string
     /** Optional display label (passed through to slot) */
@@ -80,6 +84,17 @@
     mix: () => void
     /** Clear mixed/indeterminate state (group mode only) */
     unmix: () => void
+    /** Attributes to bind to the checkbox element */
+    attrs: {
+      'type': 'button' | undefined
+      'role': 'checkbox'
+      'aria-checked': boolean | 'mixed'
+      'aria-disabled': boolean | undefined
+      'aria-label': string | undefined
+      'tabindex': 0 | undefined
+      'data-state': 'checked' | 'unchecked' | 'indeterminate'
+      'data-disabled': true | undefined
+    }
   }
 
   export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext>('v0:checkbox:root')
@@ -107,6 +122,8 @@
   }>()
 
   const {
+    as = 'button',
+    renderless,
     id = genId(),
     label,
     value,
@@ -144,6 +161,11 @@
       return toValue(ticket.disabled) || toValue(group.disabled)
     }
     return disabled
+  })
+
+  const dataState = computed(() => {
+    if (isMixed.value) return 'indeterminate'
+    return isChecked.value ? 'checked' : 'unchecked'
   })
 
   // Actions
@@ -187,6 +209,18 @@
     ticket.unmix()
   }
 
+  function onClick (e: Event) {
+    e.preventDefault()
+    toggle()
+  }
+
+  function onKeydown (e: KeyboardEvent) {
+    if (e.key === ' ') {
+      e.preventDefault()
+      toggle()
+    }
+  }
+
   // Cleanup
   onUnmounted(() => {
     if (ticket && group) {
@@ -223,9 +257,27 @@
     toggle,
     mix,
     unmix,
+    attrs: {
+      'type': as === 'button' ? 'button' : undefined,
+      'role': 'checkbox',
+      'aria-checked': isMixed.value ? 'mixed' : isChecked.value,
+      'aria-disabled': isDisabled.value || undefined,
+      'aria-label': label || undefined,
+      'tabindex': isDisabled.value ? undefined : 0,
+      'data-state': dataState.value,
+      'data-disabled': isDisabled.value ? true : undefined,
+    },
   }))
 </script>
 
 <template>
-  <slot v-bind="slotProps" />
+  <Atom
+    v-bind="slotProps.attrs"
+    :as
+    :renderless
+    @click="onClick"
+    @keydown="onKeydown"
+  >
+    <slot v-bind="slotProps" />
+  </Atom>
 </template>

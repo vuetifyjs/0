@@ -12,7 +12,6 @@ describe('checkbox', () => {
     describe('v-model binding', () => {
       it('should bind to v-model boolean', async () => {
         let rootProps: any
-        let indicatorProps: any
         let emittedValue: boolean | undefined
 
         mount(Checkbox.Root, {
@@ -24,12 +23,7 @@ describe('checkbox', () => {
           slots: {
             default: (props: any) => {
               rootProps = props
-              return h(Checkbox.Indicator as any, {}, {
-                default: (iProps: any) => {
-                  indicatorProps = iProps
-                  return 'Checkbox'
-                },
-              })
+              return h(Checkbox.Indicator as any, {}, () => 'Checkbox')
             },
           },
         })
@@ -37,9 +31,8 @@ describe('checkbox', () => {
         await nextTick()
 
         expect(rootProps.isChecked).toBe(false)
-        expect(indicatorProps.isChecked).toBe(false)
 
-        indicatorProps.toggle()
+        rootProps.toggle()
         await nextTick()
 
         expect(emittedValue).toBe(true)
@@ -122,133 +115,118 @@ describe('checkbox', () => {
     })
 
     describe('a11y attrs', () => {
-      it('should have correct role on Indicator', async () => {
-        let indicatorProps: any
+      it('should have correct role on Root', async () => {
+        let rootProps: any
 
         mount(Checkbox.Root, {
           slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
+            default: (props: any) => {
+              rootProps = props
+              return h(Checkbox.Indicator as any, {}, () => 'Checkbox')
+            },
           },
         })
 
         await nextTick()
 
-        expect(indicatorProps.attrs.role).toBe('checkbox')
+        expect(rootProps.attrs.role).toBe('checkbox')
       })
 
       it('should set aria-checked based on state', async () => {
-        let indicatorProps: any
+        let rootProps: any
 
         const wrapper = mount(Checkbox.Root, {
           props: {
             modelValue: false,
           },
           slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
+            default: (props: any) => {
+              rootProps = props
+              return h(Checkbox.Indicator as any, {}, () => 'Checkbox')
+            },
           },
         })
 
         await nextTick()
 
-        expect(indicatorProps.attrs['aria-checked']).toBe(false)
+        expect(rootProps.attrs['aria-checked']).toBe(false)
 
         await wrapper.setProps({ modelValue: true })
         await nextTick()
 
-        expect(indicatorProps.attrs['aria-checked']).toBe(true)
+        expect(rootProps.attrs['aria-checked']).toBe(true)
       })
 
       it('should set tabindex to 0 when enabled', async () => {
-        let indicatorProps: any
+        let rootProps: any
 
         mount(Checkbox.Root, {
           slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
+            default: (props: any) => {
+              rootProps = props
+              return h(Checkbox.Indicator as any, {}, () => 'Checkbox')
+            },
           },
         })
 
         await nextTick()
 
-        expect(indicatorProps.attrs.tabindex).toBe(0)
+        expect(rootProps.attrs.tabindex).toBe(0)
       })
 
       it('should set data-state correctly', async () => {
-        let indicatorProps: any
+        let rootProps: any
 
         const wrapper = mount(Checkbox.Root, {
           props: {
             modelValue: false,
           },
           slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
+            default: (props: any) => {
+              rootProps = props
+              return h(Checkbox.Indicator as any, {}, () => 'Checkbox')
+            },
           },
         })
 
         await nextTick()
 
-        expect(indicatorProps.attrs['data-state']).toBe('unchecked')
+        expect(rootProps.attrs['data-state']).toBe('unchecked')
 
         await wrapper.setProps({ modelValue: true })
         await nextTick()
 
-        expect(indicatorProps.attrs['data-state']).toBe('checked')
+        expect(rootProps.attrs['data-state']).toBe('checked')
       })
     })
 
     describe('disabled state', () => {
       it('should be disabled when Root disabled=true', async () => {
-        let indicatorProps: any
+        let rootProps: any
 
         mount(Checkbox.Root, {
           props: {
             disabled: true,
           },
           slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
+            default: (props: any) => {
+              rootProps = props
+              return h(Checkbox.Indicator as any, {}, () => 'Checkbox')
+            },
           },
         })
 
         await nextTick()
 
-        expect(indicatorProps.isDisabled).toBe(true)
-        expect(indicatorProps.attrs['aria-disabled']).toBe(true)
-        expect(indicatorProps.attrs.tabindex).toBeUndefined()
-        expect(indicatorProps.attrs['data-disabled']).toBe(true)
+        expect(rootProps.isDisabled).toBe(true)
+        expect(rootProps.attrs['aria-disabled']).toBe(true)
+        expect(rootProps.attrs.tabindex).toBeUndefined()
+        expect(rootProps.attrs['data-disabled']).toBe(true)
       })
 
       it('should not toggle when disabled', async () => {
         const checked = ref(false)
-        let indicatorProps: any
+        let rootProps: any
 
         mount(Checkbox.Root, {
           props: {
@@ -259,19 +237,16 @@ describe('checkbox', () => {
             },
           },
           slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
+            default: (props: any) => {
+              rootProps = props
+              return h(Checkbox.Indicator as any, {}, () => 'Checkbox')
+            },
           },
         })
 
         await nextTick()
 
-        indicatorProps.toggle()
+        rootProps.toggle()
         await nextTick()
 
         expect(checked.value).toBe(false)
@@ -279,11 +254,10 @@ describe('checkbox', () => {
     })
 
     describe('keyboard interaction', () => {
-      it('should toggle on Space key press', async () => {
+      it('should toggle on Space key press via click handler', async () => {
         const checked = ref(false)
-        let indicatorProps: any
 
-        mount(Checkbox.Root, {
+        const wrapper = mount(Checkbox.Root, {
           props: {
             'modelValue': checked.value,
             'onUpdate:modelValue': (value: unknown) => {
@@ -291,29 +265,23 @@ describe('checkbox', () => {
             },
           },
           slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
           },
         })
 
         await nextTick()
 
-        indicatorProps.attrs.onKeydown({ key: ' ', preventDefault: () => {} })
+        // Root handles keyboard via onKeydown bound to Atom
+        await wrapper.trigger('keydown', { key: ' ' })
         await nextTick()
 
         expect(checked.value).toBe(true)
       })
 
-      it('should not toggle on Enter key press', async () => {
+      it('should toggle on click', async () => {
         const checked = ref(false)
-        let indicatorProps: any
 
-        mount(Checkbox.Root, {
+        const wrapper = mount(Checkbox.Root, {
           props: {
             'modelValue': checked.value,
             'onUpdate:modelValue': (value: unknown) => {
@@ -321,53 +289,16 @@ describe('checkbox', () => {
             },
           },
           slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
           },
         })
 
         await nextTick()
 
-        indicatorProps.attrs.onKeydown({ key: 'Enter', preventDefault: () => {} })
+        await wrapper.trigger('click')
         await nextTick()
 
-        expect(checked.value).toBe(false)
-      })
-
-      it('should not toggle on Space when disabled', async () => {
-        const checked = ref(false)
-        let indicatorProps: any
-
-        mount(Checkbox.Root, {
-          props: {
-            'disabled': true,
-            'modelValue': checked.value,
-            'onUpdate:modelValue': (value: unknown) => {
-              checked.value = value as boolean
-            },
-          },
-          slots: {
-            default: () =>
-              h(Checkbox.Indicator as any, {}, {
-                default: (props: any) => {
-                  indicatorProps = props
-                  return 'Checkbox'
-                },
-              }),
-          },
-        })
-
-        await nextTick()
-
-        indicatorProps.attrs.onKeydown({ key: ' ', preventDefault: () => {} })
-        await nextTick()
-
-        expect(checked.value).toBe(false)
+        expect(checked.value).toBe(true)
       })
     })
 
@@ -402,16 +333,13 @@ describe('checkbox', () => {
         expect(typeof rootProps.toggle).toBe('function')
         expect(typeof rootProps.mix).toBe('function')
         expect(typeof rootProps.unmix).toBe('function')
+        expect(rootProps.attrs).toBeDefined()
       })
 
       it('should expose slot props on Indicator', async () => {
         let indicatorProps: any
 
         mount(Checkbox.Root, {
-          props: {
-            id: 'my-checkbox',
-            label: 'My Label',
-          },
           slots: {
             default: () =>
               h(Checkbox.Indicator as any, {}, {
@@ -425,10 +353,11 @@ describe('checkbox', () => {
 
         await nextTick()
 
-        expect(indicatorProps.id).toBe('my-checkbox')
-        expect(indicatorProps.label).toBe('My Label')
-        expect(typeof indicatorProps.toggle).toBe('function')
+        expect(typeof indicatorProps.isChecked).toBe('boolean')
+        expect(typeof indicatorProps.isMixed).toBe('boolean')
         expect(indicatorProps.attrs).toBeDefined()
+        expect(indicatorProps.attrs['data-state']).toBeDefined()
+        expect(indicatorProps.attrs.style).toBeDefined()
       })
 
       it('should generate id if not provided', async () => {
@@ -478,13 +407,14 @@ describe('checkbox', () => {
 
   describe('group mode (Checkbox.Group > Checkbox.Root > Checkbox.Indicator)', () => {
     describe('rendering', () => {
-      it('should render Group as renderless', () => {
+      it('should render Group with role="group"', () => {
         const wrapper = mount(Checkbox.Group, {
           slots: {
             default: () => h('div', { class: 'wrapper' }, 'Content'),
           },
         })
 
+        expect(wrapper.attributes('role')).toBe('group')
         expect(wrapper.find('.wrapper').exists()).toBe(true)
       })
 
@@ -518,7 +448,7 @@ describe('checkbox', () => {
     describe('v-model binding', () => {
       it('should update v-model when items are selected', async () => {
         const selected = ref<string[]>([])
-        let indicatorProps: any
+        let rootProps: any
 
         mount(Checkbox.Group, {
           props: {
@@ -529,20 +459,18 @@ describe('checkbox', () => {
           },
           slots: {
             default: () =>
-              h(Checkbox.Root as any, { value: 'item-1' }, () =>
-                h(Checkbox.Indicator as any, {}, {
-                  default: (props: any) => {
-                    indicatorProps = props
-                    return 'Item 1'
-                  },
-                }),
-              ),
+              h(Checkbox.Root as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  rootProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
           },
         })
 
         await nextTick()
 
-        indicatorProps.toggle()
+        rootProps.toggle()
         await nextTick()
 
         expect(selected.value).toContain('item-1')
@@ -562,22 +490,18 @@ describe('checkbox', () => {
           },
           slots: {
             default: () => [
-              h(Checkbox.Root as any, { value: 'item-1' }, () =>
-                h(Checkbox.Indicator as any, {}, {
-                  default: (props: any) => {
-                    item1Props = props
-                    return 'Item 1'
-                  },
-                }),
-              ),
-              h(Checkbox.Root as any, { value: 'item-2' }, () =>
-                h(Checkbox.Indicator as any, {}, {
-                  default: (props: any) => {
-                    item2Props = props
-                    return 'Item 2'
-                  },
-                }),
-              ),
+              h(Checkbox.Root as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  item1Props = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-2' }, {
+                default: (props: any) => {
+                  item2Props = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 2')
+                },
+              }),
             ],
           },
         })
@@ -593,7 +517,7 @@ describe('checkbox', () => {
       })
 
       it('should reflect initial model value', async () => {
-        let indicatorProps: any
+        let rootProps: any
 
         mount(Checkbox.Group, {
           props: {
@@ -601,20 +525,18 @@ describe('checkbox', () => {
           },
           slots: {
             default: () =>
-              h(Checkbox.Root as any, { value: 'item-1' }, () =>
-                h(Checkbox.Indicator as any, {}, {
-                  default: (props: any) => {
-                    indicatorProps = props
-                    return 'Item 1'
-                  },
-                }),
-              ),
+              h(Checkbox.Root as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  rootProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
           },
         })
 
         await nextTick()
 
-        expect(indicatorProps.isChecked).toBe(true)
+        expect(rootProps.isChecked).toBe(true)
       })
     })
 
@@ -789,7 +711,6 @@ describe('checkbox', () => {
 
       it('should set aria-checked to mixed when in mixed state', async () => {
         let rootProps: any
-        let indicatorProps: any
 
         mount(Checkbox.Group, {
           slots: {
@@ -797,12 +718,7 @@ describe('checkbox', () => {
               h(Checkbox.Root as any, { value: 'item-1' }, {
                 default: (props: any) => {
                   rootProps = props
-                  return h(Checkbox.Indicator as any, {}, {
-                    default: (iProps: any) => {
-                      indicatorProps = iProps
-                      return 'Item'
-                    },
-                  })
+                  return h(Checkbox.Indicator as any, {}, () => 'Item')
                 },
               }),
           },
@@ -813,14 +729,14 @@ describe('checkbox', () => {
         rootProps.mix()
         await nextTick()
 
-        expect(indicatorProps.attrs['aria-checked']).toBe('mixed')
-        expect(indicatorProps.attrs['data-state']).toBe('indeterminate')
+        expect(rootProps.attrs['aria-checked']).toBe('mixed')
+        expect(rootProps.attrs['data-state']).toBe('indeterminate')
       })
     })
 
     describe('disabled state', () => {
       it('should be disabled when Group is disabled', async () => {
-        let indicatorProps: any
+        let rootProps: any
 
         mount(Checkbox.Group, {
           props: {
@@ -828,42 +744,38 @@ describe('checkbox', () => {
           },
           slots: {
             default: () =>
-              h(Checkbox.Root as any, { value: 'item-1' }, () =>
-                h(Checkbox.Indicator as any, {}, {
-                  default: (props: any) => {
-                    indicatorProps = props
-                    return 'Item 1'
-                  },
-                }),
-              ),
+              h(Checkbox.Root as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  rootProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
           },
         })
 
         await nextTick()
 
-        expect(indicatorProps.isDisabled).toBe(true)
+        expect(rootProps.isDisabled).toBe(true)
       })
 
       it('should be disabled when Root is disabled', async () => {
-        let indicatorProps: any
+        let rootProps: any
 
         mount(Checkbox.Group, {
           slots: {
             default: () =>
-              h(Checkbox.Root as any, { value: 'item-1', disabled: true }, () =>
-                h(Checkbox.Indicator as any, {}, {
-                  default: (props: any) => {
-                    indicatorProps = props
-                    return 'Item 1'
-                  },
-                }),
-              ),
+              h(Checkbox.Root as any, { value: 'item-1', disabled: true }, {
+                default: (props: any) => {
+                  rootProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
           },
         })
 
         await nextTick()
 
-        expect(indicatorProps.isDisabled).toBe(true)
+        expect(rootProps.isDisabled).toBe(true)
       })
     })
 
@@ -935,7 +847,7 @@ describe('checkbox', () => {
   })
 
   describe('atom integration', () => {
-    it('should render Indicator as button by default', () => {
+    it('should render Root as button by default', () => {
       const wrapper = mount(Checkbox.Root, {
         slots: {
           default: () =>
@@ -946,18 +858,32 @@ describe('checkbox', () => {
       expect(wrapper.find('button').exists()).toBe(true)
     })
 
-    it('should render Indicator as specified element', () => {
+    it('should render Indicator as span by default', () => {
       const wrapper = mount(Checkbox.Root, {
         slots: {
           default: () =>
-            h(Checkbox.Indicator as any, { as: 'div' }, () => 'Click me'),
+            h(Checkbox.Indicator as any, {}, () => 'Check'),
+        },
+      })
+
+      expect(wrapper.find('span').exists()).toBe(true)
+    })
+
+    it('should render Root as specified element', () => {
+      const wrapper = mount(Checkbox.Root, {
+        props: {
+          as: 'div',
+        },
+        slots: {
+          default: () =>
+            h(Checkbox.Indicator as any, {}, () => 'Click me'),
         },
       })
 
       expect(wrapper.find('div[role="checkbox"]').exists()).toBe(true)
     })
 
-    it('should apply attrs to rendered element', async () => {
+    it('should apply attrs to rendered Root element', async () => {
       const wrapper = mount(Checkbox.Root, {
         props: {
           modelValue: true,

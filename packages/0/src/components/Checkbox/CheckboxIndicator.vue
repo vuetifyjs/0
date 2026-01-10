@@ -4,7 +4,7 @@
  * @remarks
  * Visual indicator component for checkboxes. Must be used within a
  * Checkbox.Root component which provides the checkbox state and actions.
- * Renders as a button by default with proper ARIA attributes.
+ * Renders as a span by default and only displays when checked or indeterminate.
  */
 
 <script lang="ts">
@@ -14,113 +14,68 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
-  export interface CheckboxIndicatorProps extends AtomProps {}
+  export interface CheckboxIndicatorProps extends AtomProps {
+    /**
+     * The HTML element to render as
+     * @default 'span'
+     */
+    as?: AtomProps['as']
+    /**
+     * When true, renders slot content directly without a wrapper element
+     * @default false
+     */
+    renderless?: boolean
+  }
 
-  export interface CheckboxIndicatorSlotProps<V = unknown> {
-    /** Unique identifier */
-    id: string
-    /** Optional display label */
-    label?: string
-    /** Value associated with this checkbox */
-    value: V | undefined
+  export interface CheckboxIndicatorSlotProps {
     /** Whether this checkbox is currently checked */
     isChecked: boolean
     /** Whether this checkbox is in a mixed/indeterminate state */
     isMixed: boolean
-    /** Whether this checkbox is disabled */
-    isDisabled: boolean
-    /** Check this checkbox */
-    check: () => void
-    /** Uncheck this checkbox */
-    uncheck: () => void
-    /** Toggle this checkbox's state */
-    toggle: () => void
-    /** Set this checkbox to mixed/indeterminate state */
-    mix: () => void
-    /** Clear mixed/indeterminate state */
-    unmix: () => void
-    /** Attributes to bind to the checkbox element */
+    /** Attributes to bind to the indicator element */
     attrs: {
-      'role': 'checkbox'
-      'aria-checked': boolean | 'mixed'
-      'aria-disabled': boolean | undefined
-      'aria-label': string | undefined
-      'tabindex': 0 | undefined
       'data-state': 'checked' | 'unchecked' | 'indeterminate'
-      'data-disabled': true | undefined
-      'onClick': () => void
-      'onKeydown': (e: KeyboardEvent) => void
+      'style': { visibility: 'visible' | 'hidden' }
     }
   }
 </script>
 
-<script lang="ts" setup generic="V = unknown">
+<script lang="ts" setup>
   // Components
   import { useCheckboxRoot } from './CheckboxRoot.vue'
 
   // Utilities
-  import { computed, toRef, toValue } from 'vue'
+  import { toRef, toValue } from 'vue'
 
   defineOptions({ name: 'CheckboxIndicator' })
 
   defineSlots<{
-    default: (props: CheckboxIndicatorSlotProps<V>) => unknown
+    default: (props: CheckboxIndicatorSlotProps) => unknown
   }>()
 
   const {
-    as = 'button',
+    as = 'span',
     renderless,
   } = defineProps<CheckboxIndicatorProps>()
 
   // Inject context from Checkbox.Root
   const root = useCheckboxRoot()
 
-  const isChecked = computed(() => toValue(root.isChecked))
-  const isMixed = computed(() => toValue(root.isMixed))
-  const isDisabled = computed(() => toValue(root.isDisabled))
+  const isChecked = toRef(() => toValue(root.isChecked))
+  const isMixed = toRef(() => toValue(root.isMixed))
 
-  // State helpers
-  const dataState = computed(() => {
+  const showIndicator = toRef(() => isChecked.value || isMixed.value)
+  const dataState = toRef(() => {
     if (isMixed.value) return 'indeterminate'
     return isChecked.value ? 'checked' : 'unchecked'
   })
 
-  // Interaction handlers
-  function onClick () {
-    if (isDisabled.value) return
-    root.toggle()
-  }
-
-  function onKeydown (e: KeyboardEvent) {
-    if (isDisabled.value) return
-    if (e.key === ' ') {
-      e.preventDefault()
-      root.toggle()
-    }
-  }
-
-  const slotProps = toRef((): CheckboxIndicatorSlotProps<V> => ({
-    id: root.id,
-    label: root.label,
-    value: root.value as V | undefined,
+  const slotProps = toRef((): CheckboxIndicatorSlotProps => ({
     isChecked: isChecked.value,
     isMixed: isMixed.value,
-    isDisabled: isDisabled.value,
-    check: root.check,
-    uncheck: root.uncheck,
-    toggle: root.toggle,
-    mix: root.mix,
-    unmix: root.unmix,
     attrs: {
-      'role': 'checkbox',
-      'aria-checked': isMixed.value ? 'mixed' : isChecked.value,
-      'aria-disabled': isDisabled.value || undefined,
-      'aria-label': root.label || undefined,
-      'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
-      'data-disabled': isDisabled.value ? true : undefined,
-      'onClick': onClick,
-      'onKeydown': onKeydown,
+      'style': { visibility: showIndicator.value ? 'visible' : 'hidden' },
     },
   }))
 </script>
