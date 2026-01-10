@@ -156,7 +156,7 @@
 
         <p class="lead">API reference for the {{ composableApi.name }} composable.</p>
 
-        <template v-if="composableApi.functions.length > 0">
+        <template v-if="composableApi.functions?.length">
           <DocsHeaderAnchor
             id="functions"
             tag="h2"
@@ -175,7 +175,7 @@
           </div>
         </template>
 
-        <template v-if="composableApi.options.length > 0">
+        <template v-if="composableApi.options?.length">
           <DocsHeaderAnchor
             id="options"
             tag="h2"
@@ -194,7 +194,7 @@
           </div>
         </template>
 
-        <template v-if="composableApi.properties.length > 0">
+        <template v-if="composableApi.properties?.length">
           <DocsHeaderAnchor
             id="properties"
             class="mt-8"
@@ -214,7 +214,7 @@
           </div>
         </template>
 
-        <template v-if="composableApi.methods.length > 0">
+        <template v-if="composableApi.methods?.length">
           <DocsHeaderAnchor
             id="methods"
             class="mt-8"
