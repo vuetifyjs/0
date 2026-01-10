@@ -217,60 +217,40 @@
   <div class="mt-4 mb-8 flex flex-col gap-4">
     <!-- Action chips -->
     <div class="inline-flex gap-2 flex-wrap">
-      <a
+      <DocsActionChip
+        color="text-info"
         :href="edit"
-        rel="noopener noreferrer"
-        target="_blank"
+        icon="pencil"
+        text="Edit this page"
         title="Edit documentation page"
-      >
-        <AppChip
-          color="text-info"
-          icon="pencil"
-          text="Edit this page"
-        />
-      </a>
+      />
 
-      <a
+      <DocsActionChip
+        color="text-error"
         href="https://issues.vuetifyjs.com/?repo=vuetify0&type=bug"
-        rel="noopener noreferrer"
-        target="_blank"
+        icon="vuetify-issues"
+        text="Report a Bug"
         title="Open Vuetify Issues"
-      >
-        <AppChip
-          color="text-error"
-          icon="vuetify-issues"
-          text="Report a Bug"
-        />
-      </a>
+      />
 
-      <a
+      <DocsActionChip
         v-if="label"
+        color="text-warning"
         :href="label"
-        rel="noopener noreferrer"
-        target="_blank"
+        icon="alert"
+        text="Open issues"
         title="View Issues on GitHub"
-      >
-        <AppChip
-          color="text-warning"
-          icon="alert"
-          text="Open issues"
-        />
-      </a>
+      />
 
-      <a
+      <DocsActionChip
         v-if="github"
         :href="github"
-        rel="noopener noreferrer"
-        target="_blank"
+        icon="github"
+        text="View on GitHub"
         title="View source code on GitHub"
-      >
-        <AppChip
-          icon="github"
-          text="View on GitHub"
-        />
-      </a>
+      />
 
-      <AppChip
+      <DocsActionChip
         :color="copyError ? 'text-error' : copied ? 'text-success' : 'text-on-surface'"
         :icon="loading ? 'loading' : copyError ? 'alert' : copied ? 'success' : 'markdown'"
         :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : copied ? 'Copied' : 'Copy Page as Markdown'"
@@ -284,83 +264,64 @@
       v-if="level || coverage || benchmark || !isUndefined(renderless) || ssrSafe || lastUpdated"
       class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider"
     >
-      <a
+      <DocsMetaItem
         v-if="coverage && testFileLink"
-        class="inline-flex items-center gap-1 hover:text-on-surface transition-colors"
+        :color="coverage.color"
         :href="testFileLink"
-        rel="noopener noreferrer"
-        target="_blank"
+        icon="test"
+        :text="coverage.label"
         :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
-      >
-        <AppIcon :class="coverage.color" icon="test" size="1em" />
-        <span>{{ coverage.label }}</span>
-      </a>
+      />
 
-      <span v-if="coverage && testFileLink && (level || benchmark || !isUndefined(renderless) || ssrSafe)" class="mx-2 opacity-40">·</span>
-
-      <a
+      <DocsMetaItem
         v-if="benchmark"
-        class="inline-flex items-center gap-1 hover:text-on-surface transition-colors"
+        :color="benchmark.color"
         href="#benchmarks"
+        :icon="benchmark.icon"
+        :text="benchmark.label"
         title="View performance benchmarks"
         @click.prevent="scrollToAnchor('benchmarks')"
-      >
-        <AppIcon :class="benchmark.color" :icon="benchmark.icon" size="1em" />
-        <span>{{ benchmark.label }}</span>
-      </a>
+      />
 
-      <span v-if="benchmark && (level || !isUndefined(renderless) || ssrSafe)" class="mx-2 opacity-40">·</span>
-
-      <span
+      <DocsMetaItem
         v-if="renderless === true"
-        class="inline-flex items-center gap-1"
+        color="text-secondary"
+        icon="renderless"
+        text="Renderless"
         title="Component renders no DOM element by default"
-      >
-        <AppIcon class="text-secondary" icon="renderless" size="1em" />
-        <span>Renderless</span>
-      </span>
+      />
 
-      <span
+      <DocsMetaItem
         v-if="renderless === false"
-        class="inline-flex items-center gap-1"
+        color="text-secondary"
+        icon="layers"
+        text="Renders element"
         title="Component renders a DOM element by default"
-      >
-        <AppIcon class="text-secondary" icon="layers" size="1em" />
-        <span>Renders element</span>
-      </span>
+      />
 
-      <span v-if="!isUndefined(renderless) && (level || ssrSafe)" class="mx-2 opacity-40">·</span>
-
-      <span
+      <DocsMetaItem
         v-if="level"
-        class="inline-flex items-center gap-1"
+        :color="level.color"
+        :icon="level.icon"
+        :text="level.label"
         :title="`${level.label} skill level`"
-      >
-        <AppIcon :class="level.color" :icon="level.icon" size="1em" />
-        <span>{{ level.label }}</span>
-      </span>
+      />
 
-      <span v-if="level && ssrSafe" class="mx-2 opacity-40">·</span>
-
-      <span
+      <DocsMetaItem
         v-if="ssrSafe"
-        class="inline-flex items-center gap-1"
+        color="text-info"
+        icon="ssr"
+        text="SSR Safe"
         title="Safe for server-side rendering"
-      >
-        <AppIcon class="text-info" icon="ssr" size="1em" />
-        <span>SSR Safe</span>
-      </span>
+      />
 
-      <span v-if="lastUpdated && (level || coverage || benchmark || !isUndefined(renderless) || ssrSafe)" class="mx-2 opacity-40">·</span>
-
-      <span
+      <DocsMetaItem
         v-if="lastUpdated"
-        class="inline-flex items-center gap-1"
+        color="text-secondary"
+        icon="calendar-clock"
+        :text="lastUpdated"
         title="Last updated"
-      >
-        <AppIcon class="text-secondary" icon="calendar-clock" size="1em" />
-        <span>{{ lastUpdated }}</span>
-      </span>
+      />
     </div>
   </div>
 </template>
