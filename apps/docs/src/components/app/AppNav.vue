@@ -139,7 +139,7 @@
         <li class="px-4">
           <router-link
             class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
-            to="/guide/using-the-docs#skill-levels-learning-tracks"
+            to="/guide/using-the-docs#skill-levels"
           >
             <AppIcon icon="info" size="16" />
             <span>Missing pages?</span>
