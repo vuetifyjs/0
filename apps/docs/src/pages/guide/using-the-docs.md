@@ -57,22 +57,22 @@ Every page includes a header area (shown at the top of this page) with quick act
 
 | Example | Description |
 |---------|-------------|
-| <DocsActionChip color="text-info" icon="pencil" text="Edit this page" /> | Open the source file on GitHub for editing |
-| <DocsActionChip color="text-error" icon="vuetify-issues" text="Report a Bug" /> | File an issue via Vuetify Issues |
-| <DocsActionChip color="text-warning" icon="alert" text="Open issues" /> | View existing GitHub issues for this feature |
-| <DocsActionChip icon="github" text="View on GitHub" /> | Browse source code for components/composables |
-| <DocsActionChip icon="markdown" text="Copy Page as Markdown" /> | Copy page content for use with AI tools |
+| <span class="whitespace-nowrap"><DocsActionChip color="text-info" icon="pencil" text="Edit this page" /></span> | Open the source file on GitHub for editing |
+| <span class="whitespace-nowrap"><DocsActionChip color="text-error" icon="vuetify-issues" text="Report a Bug" /></span> | File an issue via Vuetify Issues |
+| <span class="whitespace-nowrap"><DocsActionChip color="text-warning" icon="alert" text="Open issues" /></span> | View existing GitHub issues for this feature |
+| <span class="whitespace-nowrap"><DocsActionChip icon="github" text="View on GitHub" /></span> | Browse source code for components/composables |
+| <span class="whitespace-nowrap"><DocsActionChip icon="markdown" text="Copy Page as Markdown" /></span> | Copy page content for use with AI tools |
 
 **Metadata** (component and composable pages):
 
 | Example | Description |
 |---------|-------------|
-| <span class="inline-flex items-center text-xs"><DocsMetaCoverage :coverage="{ value: 94, label: '94% coverage', color: 'text-success' }" /></span> | Test coverage percentage (links to test file) |
-| <span class="inline-flex items-center text-xs"><DocsMetaBenchmark :benchmark="{ label: 'Blazing Fast', icon: 'benchmark-blazing', color: 'text-error' }" /></span> | Performance tier: Blazing Fast, Fast, or Good |
-| <span class="inline-flex items-center text-xs"><DocsMetaRenderless :renderless="true" /></span> | Component renders no DOM element by default |
-| <span class="inline-flex items-center text-xs"><DocsMetaRenderless :renderless="false" /></span> | Component renders a DOM element by default |
-| <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-beginner', color: 'text-success', label: 'Beginner' }" /></span> | Difficulty indicator — see [below](#skill-levels) |
-| <span class="inline-flex items-center text-xs"><DocsMetaLastUpdated date="Jan 10, 2026" /></span> | When the page was last modified (from git) |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaCoverage :coverage="{ value: 94, label: '94% coverage', color: 'text-success' }" /></span> | Test coverage percentage (links to test file) |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaBenchmark :benchmark="{ label: 'Blazing Fast', icon: 'benchmark-blazing', color: 'text-error' }" /></span> | Performance tier: Blazing Fast, Fast, or Good |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaRenderless :renderless="true" /></span> | Component renders no DOM element by default |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaRenderless :renderless="false" /></span> | Component renders a DOM element by default |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaSkillLevel :level="{ icon: 'level-beginner', color: 'text-success', label: 'Beginner' }" /></span> | Difficulty indicator — see [below](#skill-levels) |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaLastUpdated date="Jan 10, 2026" /></span> | When the page was last modified (from git) |
 
 These metadata items are standalone components usable anywhere. This page's actual metadata: <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel /><DocsMetaLastUpdated /></span>
 
