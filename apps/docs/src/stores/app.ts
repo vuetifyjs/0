@@ -12,6 +12,11 @@ export type { NavItem, NavItemCategory, NavItemDivider, NavItemLink } from '../.
 interface Commit {
   sha: string
   html_url: string
+  commit: {
+    author: {
+      date: string
+    }
+  }
 }
 
 function flattenRoutes (nav: NavItem): string[] {
