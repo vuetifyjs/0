@@ -181,11 +181,11 @@ The AI has access to the entire v0 documentation via [llms-full.txt](/guide/ai-t
 
 | Context | Description |
 |---------|-------------|
-| <AppIcon icon="book" :size="16" class="inline-block align-text-bottom" /> **Full docs** | Complete documentation available for cross-referencing |
-| <AppIcon icon="typescript" :size="16" class="inline-block align-text-bottom" /> **Examples** | Live Vue code from the page's interactive demos |
-| <AppIcon icon="beaker" :size="16" class="inline-block align-text-bottom" /> **API specs** | Props, events, slots, and methods for the current component/composable |
-| <AppIcon icon="benchmark" :size="16" class="inline-block align-text-bottom" /> **Benchmarks** | Performance metrics (for composables) |
-| <AppIcon icon="chat" :size="16" class="inline-block align-text-bottom" /> **History** | Your last 6 messages in the conversation |
+| <span class="whitespace-nowrap"><AppIcon icon="book" :size="16" class="inline-block align-text-bottom" /> **Full docs**</span> | Complete documentation available for cross-referencing |
+| <span class="whitespace-nowrap"><AppIcon icon="typescript" :size="16" class="inline-block align-text-bottom" /> **Examples**</span> | Live Vue code from the page's interactive demos |
+| <span class="whitespace-nowrap"><AppIcon icon="beaker" :size="16" class="inline-block align-text-bottom" /> **API specs**</span> | Props, events, slots, and methods for the current component/composable |
+| <span class="whitespace-nowrap"><AppIcon icon="benchmark" :size="16" class="inline-block align-text-bottom" /> **Benchmarks**</span> | Performance metrics (for composables) |
+| <span class="whitespace-nowrap"><AppIcon icon="chat" :size="16" class="inline-block align-text-bottom" /> **History**</span> | Your last 6 messages in the conversation |
 
 This context makes answers specific and actionable. Asking "How do I open this programmatically?" on the Dialog page gives you Dialog-specific code.
 
@@ -267,10 +267,10 @@ Hover over the code block to reveal action buttons:
 
 | Button | Action |
 |--------|--------|
-| <AppIcon icon="vuetify-play" :size="16" class="inline-block align-text-bottom" /> **Play** | Open in Vuetify Play with full editing environment |
-| <AppIcon icon="vuetify-bin" :size="16" class="inline-block align-text-bottom" /> **Bin** | Open in Vuetify Bin for sharing |
-| <AppIcon icon="wrap" :size="16" class="inline-block align-text-bottom" /> **Wrap** | Toggle line wrapping for long lines |
-| <AppIcon icon="copy" :size="16" class="inline-block align-text-bottom" /> **Copy** | Copy code to clipboard (checkmark confirms success) |
+| <span class="whitespace-nowrap"><AppIcon icon="vuetify-play" :size="16" class="inline-block align-text-bottom" /> **Play**</span> | Open in Vuetify Play with full editing environment |
+| <span class="whitespace-nowrap"><AppIcon icon="vuetify-bin" :size="16" class="inline-block align-text-bottom" /> **Bin**</span> | Open in Vuetify Bin for sharing |
+| <span class="whitespace-nowrap"><AppIcon icon="wrap" :size="16" class="inline-block align-text-bottom" /> **Wrap**</span> | Toggle line wrapping for long lines |
+| <span class="whitespace-nowrap"><AppIcon icon="copy" :size="16" class="inline-block align-text-bottom" /> **Copy**</span> | Copy code to clipboard (checkmark confirms success) |
 
 ### Code Groups
 
