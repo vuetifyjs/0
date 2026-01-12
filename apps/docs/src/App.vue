@@ -120,6 +120,7 @@
         text-decoration: none;
         display: inline-flex;
         align-items: center;
+        align-self: center;
 
         &::before,
         &::after {
@@ -177,6 +178,10 @@
       line-height: 2rem;
       margin-top: 1.5rem;
       margin-bottom: 0.5rem;
+    }
+
+    > :is(h1,h2,h3) + :is(h2,h3) {
+      margin-top: 0;
     }
 
     blockquote {
