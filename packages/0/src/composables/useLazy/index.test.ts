@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 // Utilities
-import { nextTick, ref } from 'vue'
+import { effectScope, nextTick, ref } from 'vue'
+
+// Types
+import type { LazyContext } from './index'
 
 import { useLazy } from './index'
 
@@ -99,5 +102,124 @@ describe('useLazy', () => {
 
     expect(isBooted.value).toBe(true)
     expect(hasContent.value).toBe(true)
+  })
+
+  it('should stop watcher on scope disposal', async () => {
+    const active = ref(false)
+    let context: LazyContext
+
+    const scope = effectScope()
+    scope.run(() => {
+      context = useLazy(active)
+    })
+
+    scope.stop()
+
+    active.value = true
+    await nextTick()
+
+    expect(context!.isBooted.value).toBe(false)
+  })
+
+  it('should re-boot after reset when activated again', async () => {
+    const active = ref(true)
+    const { isBooted, reset } = useLazy(active)
+
+    await nextTick()
+    expect(isBooted.value).toBe(true)
+
+    reset()
+    expect(isBooted.value).toBe(false)
+
+    active.value = false
+    await nextTick()
+
+    active.value = true
+    await nextTick()
+
+    expect(isBooted.value).toBe(true)
+  })
+
+  it('should accept plain boolean for active', () => {
+    const { isBooted: booted1 } = useLazy(true)
+    expect(booted1.value).toBe(true)
+
+    const { isBooted: booted2 } = useLazy(false)
+    expect(booted2.value).toBe(false)
+  })
+
+  it('should lose content when eager toggles from true to false while not booted', async () => {
+    const active = ref(false)
+    const eager = ref(true)
+    const { hasContent, isBooted } = useLazy(active, { eager })
+
+    expect(hasContent.value).toBe(true)
+    expect(isBooted.value).toBe(false)
+
+    eager.value = false
+    await nextTick()
+
+    expect(hasContent.value).toBe(false)
+  })
+
+  it('should handle rapid toggle sequences', async () => {
+    const active = ref(false)
+    const { isBooted } = useLazy(active)
+
+    active.value = true
+    await nextTick()
+    expect(isBooted.value).toBe(true)
+
+    active.value = false
+    active.value = true
+    active.value = false
+    active.value = true
+    await nextTick()
+
+    expect(isBooted.value).toBe(true)
+  })
+
+  it('should accept getter function for active', async () => {
+    const source = ref(false)
+    const { isBooted, hasContent } = useLazy(() => source.value)
+
+    expect(isBooted.value).toBe(false)
+    expect(hasContent.value).toBe(false)
+
+    source.value = true
+    await nextTick()
+
+    expect(isBooted.value).toBe(true)
+    expect(hasContent.value).toBe(true)
+  })
+
+  it('should accept getter function for eager option', async () => {
+    const active = ref(false)
+    const eagerSource = ref(false)
+    const { hasContent, onAfterLeave } = useLazy(active, { eager: () => eagerSource.value })
+
+    expect(hasContent.value).toBe(false)
+
+    eagerSource.value = true
+    await nextTick()
+
+    expect(hasContent.value).toBe(true)
+
+    // onAfterLeave should not reset when eager getter returns true
+    active.value = true
+    await nextTick()
+    active.value = false
+    onAfterLeave()
+
+    expect(hasContent.value).toBe(true)
+
+    // onAfterLeave should reset when eager getter returns false
+    eagerSource.value = false
+    active.value = true
+    await nextTick()
+    active.value = false
+    onAfterLeave()
+
+    expect(hasContent.value).toBe(false)
   })
 })

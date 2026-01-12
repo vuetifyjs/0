@@ -21,14 +21,14 @@
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue, watch } from 'vue'
 
 // Types
-import type { MaybeRef, Ref, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export interface LazyOptions {
   /**
    * When true, content renders immediately without waiting for activation.
    * @default false
    */
-  eager?: MaybeRef<boolean>
+  eager?: MaybeRefOrGetter<boolean>
 }
 
 export interface LazyContext {
@@ -89,11 +89,13 @@ export interface LazyContext {
  * With reactive eager prop:
  * ```ts
  * const props = defineProps<{ eager: boolean }>()
- * const { hasContent } = useLazy(isOpen, { eager: toRef(() => props.eager) })
+ * const { hasContent } = useLazy(isOpen, {
+ *   eager: toRef(() => props.eager),
+ * })
  * ```
  */
 export function useLazy (
-  active: MaybeRef<boolean>,
+  active: MaybeRefOrGetter<boolean>,
   options: LazyOptions = {},
 ): LazyContext {
   const { eager = false } = options
@@ -117,7 +119,7 @@ export function useLazy (
     if (!toValue(eager)) reset()
   }
 
-  onScopeDispose(stop)
+  onScopeDispose(stop, true)
 
   return {
     isBooted: shallowReadonly(isBooted),
