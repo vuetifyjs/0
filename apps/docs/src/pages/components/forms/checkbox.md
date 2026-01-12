@@ -88,7 +88,7 @@ The Checkbox.Root component renders as a button and handles all ARIA attributes 
 - `aria-disabled` when checkbox is disabled
 - `aria-label` from the `label` prop
 - `tabindex="0"` for keyboard focus (removed when disabled)
-- Space and Enter keys toggle the checkbox
+- Space key toggles the checkbox (Enter works when rendered as button)
 
 For custom implementations, use `renderless` mode and bind the `attrs` slot prop to your element:
 

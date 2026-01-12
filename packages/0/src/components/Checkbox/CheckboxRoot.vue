@@ -56,27 +56,27 @@
 
   export interface CheckboxRootProps<V = unknown> extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
-    'id'?: ID
+    id?: ID
     /** Optional display label (passed through to slot) */
-    'label'?: string
+    label?: string
     /** Value associated with this checkbox (used in group mode and form submission) */
-    'value'?: V
+    value?: V
     /** Form field name - triggers auto hidden input when provided */
-    'name'?: string
+    name?: string
     /** Associate with form by ID */
-    'form'?: string
+    form?: string
     /** Disables this checkbox */
-    'disabled'?: MaybeRef<boolean>
+    disabled?: MaybeRef<boolean>
     /** Sets the indeterminate state */
-    'indeterminate'?: MaybeRef<boolean>
+    indeterminate?: MaybeRef<boolean>
     /** Namespace for group dependency injection */
-    'namespace'?: string
+    namespace?: string
     /** ID of element that labels this checkbox */
-    'aria-labelledby'?: string
+    ariaLabelledby?: string
     /** ID of element that describes this checkbox */
-    'aria-describedby'?: string
+    ariaDescribedby?: string
     /** Whether the checkbox has an invalid value */
-    'aria-invalid'?: boolean
+    ariaInvalid?: boolean
   }
 
   export interface CheckboxRootSlotProps<V = unknown> {
@@ -142,7 +142,7 @@
   }>()
 
   defineEmits<{
-    'update:modelValue': [value: boolean]
+    'update:model-value': [value: boolean]
   }>()
 
   const props = defineProps<CheckboxRootProps<V>>()
@@ -188,7 +188,7 @@
     if (group && ticket) {
       return toValue(ticket.disabled) || toValue(group.disabled)
     }
-    return toValue(disabled)
+    return toValue(props.disabled) ?? false
   })
 
   const dataState = computed(() => {
@@ -293,9 +293,9 @@
       'aria-checked': isMixed.value ? 'mixed' : isChecked.value,
       'aria-disabled': isDisabled.value || undefined,
       'aria-label': label || undefined,
-      'aria-labelledby': props['aria-labelledby'] || undefined,
-      'aria-describedby': props['aria-describedby'] || undefined,
-      'aria-invalid': props['aria-invalid'] || undefined,
+      'aria-labelledby': props.ariaLabelledby || undefined,
+      'aria-describedby': props.ariaDescribedby || undefined,
+      'aria-invalid': props.ariaInvalid || undefined,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
