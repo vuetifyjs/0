@@ -52,7 +52,8 @@ export function parseFrontmatter (content: string): ParseResult {
     if (!trimmed) continue
 
     // Check if we're entering/exiting a nested block
-    if (!line.startsWith(' ') && !line.startsWith('\t')) {
+    // Allow '-' prefix for YAML array items within meta block
+    if (!line.startsWith(' ') && !line.startsWith('\t') && !line.startsWith('-')) {
       inFeatures = false
       inMeta = false
     }

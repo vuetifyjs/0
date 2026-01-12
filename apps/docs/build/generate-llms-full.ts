@@ -12,6 +12,19 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const PAGES_DIR = resolve(__dirname, '../src/pages')
 const BASE_URL = 'https://0.vuetifyjs.com'
 
+const VIRTUAL_MODULE_ID = 'virtual:llms-stats'
+const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
+
+export interface LlmsStats {
+  llms: { size: number, sizeFormatted: string }
+  llmsFull: { size: number, sizeFormatted: string }
+}
+
+function formatSize (bytes: number): string {
+  const kb = bytes / 1024
+  return kb < 10 ? `${kb.toFixed(1)} KB` : `${Math.round(kb)} KB`
+}
+
 // Category order for sorting
 const CATEGORY_ORDER: Record<string, number> = {
   introduction: 0,
@@ -242,6 +255,7 @@ function generateLlmsFullTxt (pages: PageInfo[]): string {
 export default function generateLlmsFullPlugin (): Plugin {
   let pagesCache: PageInfo[] | null = null
   let pagesPromise: Promise<PageInfo[]> | null = null
+  let statsCache: LlmsStats | null = null
 
   async function getPages () {
     if (pagesCache) return pagesCache
@@ -259,8 +273,39 @@ export default function generateLlmsFullPlugin (): Plugin {
     return pagesCache
   }
 
+  async function getStats (): Promise<LlmsStats> {
+    if (statsCache) return statsCache
+
+    const pages = await getPages()
+    const llmsContent = generateLlmsTxt(pages)
+    const llmsFullContent = generateLlmsFullTxt(pages)
+
+    const llmsSize = new TextEncoder().encode(llmsContent).length
+    const llmsFullSize = new TextEncoder().encode(llmsFullContent).length
+
+    statsCache = {
+      llms: { size: llmsSize, sizeFormatted: formatSize(llmsSize) },
+      llmsFull: { size: llmsFullSize, sizeFormatted: formatSize(llmsFullSize) },
+    }
+
+    return statsCache
+  }
+
   return {
     name: 'generate-llms',
+
+    resolveId (id) {
+      if (id === VIRTUAL_MODULE_ID) {
+        return RESOLVED_VIRTUAL_MODULE_ID
+      }
+    },
+
+    async load (id) {
+      if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+        const stats = await getStats()
+        return `export default ${JSON.stringify(stats)}`
+      }
+    },
 
     configureServer (server: ViteDevServer) {
       server.middlewares.use(async (req, res, next) => {
@@ -280,6 +325,15 @@ export default function generateLlmsFullPlugin (): Plugin {
           res.end(`Error generating ${req.url}`)
         }
       })
+
+      // Invalidate cache when markdown files change
+      server.watcher.on('change', file => {
+        if (file.endsWith('.md') && file.includes('/pages/')) {
+          pagesCache = null
+          pagesPromise = null
+          statsCache = null
+        }
+      })
     },
 
     async generateBundle (_, bundle) {
@@ -288,25 +342,29 @@ export default function generateLlmsFullPlugin (): Plugin {
       if (Object.keys(bundle).some(k => k.includes('entry-server'))) return
 
       const pages = await getPages()
+      const llmsContent = generateLlmsTxt(pages)
+      const llmsFullContent = generateLlmsFullTxt(pages)
 
       this.emitFile({
         type: 'asset',
         fileName: 'llms.txt',
-        source: generateLlmsTxt(pages),
+        source: llmsContent,
       })
 
       this.emitFile({
         type: 'asset',
         fileName: 'llms-full.txt',
-        source: generateLlmsFullTxt(pages),
+        source: llmsFullContent,
       })
 
-      console.log('[generate-llms] Generated llms.txt and llms-full.txt')
+      const stats = await getStats()
+      console.log(`[generate-llms] Generated llms.txt (${stats.llms.sizeFormatted}) and llms-full.txt (${stats.llmsFull.sizeFormatted})`)
     },
 
     buildEnd () {
       pagesCache = null
       pagesPromise = null
+      statsCache = null
     },
   }
 }

@@ -29,3 +29,10 @@ declare module 'virtual:page-dates' {
   const data: PageDates
   export default data
 }
+
+declare module 'virtual:llms-stats' {
+  // Types
+  import type { LlmsStats } from '../build/generate-llms-full'
+  const data: LlmsStats
+  export default data
+}

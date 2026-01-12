@@ -14,6 +14,10 @@ related:
   - /introduction/getting-started
 ---
 
+<script setup>
+  import llmsStats from 'virtual:llms-stats'
+</script>
+
 # AI Tools
 
 v0 provides machine-readable documentation files following the [llms.txt](https://llmstxt.org/) standard. These files help AI assistants understand the library without hallucinating APIs or patterns.
@@ -24,8 +28,8 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 
 | File | Size | Purpose | Best For |
 | - | - | - | - |
-| <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | ~7 KB | Curated index with links | Quick context, navigation |
-| <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | ~165&nbsp;KB | Complete documentation | Deep understanding, code generation |
+| <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
+| <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
 
 > [!SUGGESTION] When should I use llms.txt vs llms-full.txt?
 
