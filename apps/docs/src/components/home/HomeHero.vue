@@ -69,13 +69,20 @@
 
       <router-link
         class="px-8 py-3 bg-surface text-on-surface rounded-lg font-semibold hover:bg-surface-tint transition-colors text-lg border text-center"
-        to="/components"
+        to="/introduction/why-vuetify0"
       >
-        Components
+        Why Vuetify0
       </router-link>
     </div>
 
-    <div class="grid grid-cols-3 md:flex gap-4 md:gap-12 justify-center text-center">
+    <router-link
+      class="text-sm opacity-60 hover:opacity-100 hover:text-primary transition-all"
+      to="/introduction/why-vuetify0"
+    >
+      See how Vuetify0 compares to other libraries →
+    </router-link>
+
+    <div class="grid grid-cols-3 md:flex gap-4 md:gap-12 justify-center text-center mt-12">
       <div>
         <div class="text-2xl md:text-3xl font-bold">{{ stats.stars }}</div>
         <div class="text-sm opacity-60">GitHub Stars</div>

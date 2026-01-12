@@ -20,23 +20,21 @@ related:
 
 Choosing a UI foundation is one of the most consequential decisions in a Vue project. This guide compares v0 with other popular options to help you decide.
 
+Use the filter to show content matching your experience level: <AppSkillFilter />
+
 ## Why v0
 
-v0 comes from [Vuetify](https://vuetifyjs.com)—the most popular Vue component framework with **40K+ GitHub stars**, **2M+ weekly downloads**, and **10+ years** of production use. This isn't a side project or experiment.
+Vuetify0 comes from the creators of [Vuetify](https://vuetifyjs.com)—the most popular Vue component framework with **40K+ GitHub stars**, **2M+ weekly downloads**, and **10+ years** of production use. This isn't a side project or experiment.
 
 ### What You Get
 
-- **Battle-tested patterns** — The selection, registration, and theming systems in v0 power Vuetify 3's most complex components (data tables, treeviews, calendars). They work because they've been stress-tested at scale.
-
-- **Long-term support** — Vuetify has maintained backwards compatibility and active development since 2016. v0 receives the same commitment from the same team.
-
-- **Vue-native design** — v0 isn't a port from React. Every pattern is built for Vue's reactivity system, leveraging `provide`/`inject`, computed refs, and watchers the way Vue intended.
-
-- **Professional backing** — Vuetify is backed by a dedicated team and sustainable business model. When you build on v0, you're building on a foundation that will be maintained for years.
-
-- **Documentation that respects your time** — Skill-level filtering, runnable examples, auto-generated API references, and integrated AI assistance. Find what you need without wading through irrelevant content.
-
-- **AI-ready tooling** — First-class [MCP server](/guide/tooling/vuetify-mcp) for Claude and other AI assistants, structured for LLM consumption. Get accurate answers about v0 APIs without hallucinations.
+| | Feature | Description |
+|:-:|---------|-------------|
+| <AppIcon icon="vuetify" :size="20" /> | **Battle-tested patterns** | Selection, registration, and theming systems derived from Vuetify's core patterns. Vuetify itself will be refactored to use Vuetify0 under the hood. |
+| <AppIcon icon="vuetify-create" :size="20" /> | **Quick scaffolding** | Get started in seconds with [Vuetify Create](https://github.com/vuetifyjs/create). One command sets up your project with v0 pre-configured and ready to build. |
+| <AppIcon icon="vuetify-play" :size="20" /> | **Interactive playground** | Every example runs live in [Vuetify Play](https://play.vuetifyjs.com). Edit code, see results instantly, and share your experiments with a single link. |
+| <AppIcon icon="vuetify-mcp" :size="20" /> | **AI-powered assistance** | First-class [MCP server](/guide/tooling/vuetify-mcp) for Claude and other AI assistants. Get accurate answers about v0 APIs without hallucinations. |
+| <AppIcon icon="vuetify-cli" :size="20" /> | **Developer tooling** | Dedicated CLI for common workflows—component generation, project upgrades, and debugging utilities. Streamline your development process. |
 
 ### Composable-First Architecture
 
@@ -71,7 +69,7 @@ This means the same selection logic powers a chip group, a listbox, tabs, or you
 
 | Library | Type | Components | Best For |
 |---------|------|------------|----------|
-| <span class="text-nowrap">**v0**</span> | Headless composables + components | 10+ (growing) | Custom design systems, composable logic |
+| <span class="text-nowrap">[**Vuetify0**](/)</span> | Headless composables + components | 10+ (growing) | Custom design systems, composable logic |
 | <span class="text-nowrap">[Vuetify 3](https://vuetifyjs.com)</span> | Styled Material Design | 80+ | Full-featured apps with Material Design |
 | <span class="text-nowrap">[Reka UI](https://reka-ui.com)</span> | Headless components (formerly Radix Vue) | 40+ | Nuxt UI users, Radix-style patterns |
 | <span class="text-nowrap">[Ark UI](https://ark-ui.com)</span> | Headless (state machines) | 45+ | Multi-framework projects |
@@ -86,7 +84,7 @@ This means the same selection logic powers a chip group, a listbox, tabs, or you
 - You prefer convention over configuration
 - You're building a standard business application
 
-### Choose v0 when:
+### Choose Vuetify0 when:
 
 - Building a **custom design system** (not Material Design)
 - You need composable logic **without component wrappers**
@@ -116,14 +114,14 @@ This means the same selection logic powers a chip group, a listbox, tabs, or you
 ## Feature Comparison
 
 | Feature | <span class="text-nowrap">v0</span> | <span class="text-nowrap">Vuetify</span> | <span class="text-nowrap">Reka UI</span> | <span class="text-nowrap">Ark UI</span> |
-|---------|----|---------|---------| -------|
-| Unstyled/headless | Yes | No | Yes | Yes |
-| Composable-only usage | Yes | No | No | No |
-| Vue-native design | Yes | Yes | Radix port | Zag.js |
+|---------|:--:|:--:|:--:|:--:|
+| Unstyled/headless | <AppIcon icon="success" class="text-success" /> | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="success" class="text-success" /> | <AppIcon icon="success" class="text-success" /> |
+| Composable-only usage | <AppIcon icon="success" class="text-success" /> | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="close" class="text-error" /> |
+| Vue-native design | <AppIcon icon="success" class="text-success" /> | <AppIcon icon="success" class="text-success" /> | Radix port | Zag.js |
 | TypeScript | Full | Full | Full | Full |
-| SSR/Nuxt support | Yes | Yes | Yes | Yes |
-| Theming system | CSS variables | SASS + CSS | None | None |
-| Form validation | Built-in | Built-in | None | Field context only |
+| SSR/Nuxt support | <AppIcon icon="success" class="text-success" /> | <AppIcon icon="success" class="text-success" /> | <AppIcon icon="success" class="text-success" /> | <AppIcon icon="success" class="text-success" /> |
+| Theming system | CSS variables | SASS + CSS | <AppIcon icon="close" class="text-error" /> | <AppIcon icon="close" class="text-error" /> |
+| Form validation | Built-in | Built-in | <AppIcon icon="close" class="text-error" /> | Field context |
 | Selection patterns | Advanced | Advanced | Basic | Basic |
 | Component count | ~15 | 80+ | 40+ | 45+ |
 
@@ -133,9 +131,9 @@ v0 is actively growing. The initial release focuses on core abstractions—the p
 
 | Version | Focus | Status |
 |---------|-------|--------|
-| **0.1.x** | Core patterns (selection, registry, theming, forms) | Current |
-| **0.2.0** | Expanded component library | Planned |
-| **1.0** | Complete headless package | Target 2026 |
+| <AppLink to="/roadmap?milestone=v0.1.0">**v0.1.x**</AppLink> | Core patterns (selection, registry, theming, forms) | Current |
+| <AppLink to="/roadmap?milestone=v0.2.0">**v0.2.0**</AppLink> | Expanded component library | Planned |
+| <AppLink to="/roadmap?milestone=v1.0.0">**v1.0**</AppLink> | Complete headless package | Target 2026 |
 
 If you need 40+ components today, consider Reka UI or Ark UI. If you're building a design system and want the strongest foundation for selection, forms, and composition patterns, v0 is the right choice—and more components are coming.
 
@@ -178,6 +176,9 @@ v0 and Vuetify share the same DNA. You can use v0 composables inside a Vuetify a
 ```
 
 This lets you leverage v0's selection patterns while keeping Vuetify's styled components.
+
+> [!INFO]
+> After Vuetify 4 releases, Vuetify 5 will immediately begin implementing Vuetify0 into key parts of its internal functionality. See the [roadmap](/roadmap) for more details.
 
 ## Summary
 
