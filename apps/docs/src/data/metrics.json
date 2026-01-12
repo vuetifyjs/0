@@ -1,432 +1,498 @@
 {
   "Atom": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Avatar": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Dialog": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "ExpansionPanel": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Group": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Pagination": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Popover": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Selection": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Single": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "Step": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createContext": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createForm": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createGroup": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createPlugin": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
+      "statements": 100,
+      "functions": 100,
       "branches": 0,
-      "overall": 0
+      "overall": 80
     }
   },
   "createQueue": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createRegistry": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 97.8,
+      "functions": 96.8,
+      "branches": 98.5,
+      "overall": 97.6
     },
     "benchmarks": {
       "initialization": {
         "name": "Create empty registry",
-        "hz": 652936,
-        "hzLabel": "652.9k ops/s",
-        "mean": 0.0015315447700847832,
-        "meanLabel": "1.5μs",
-        "rme": 12.7
+        "hz": 755535,
+        "hzLabel": "755.5k ops/s",
+        "mean": 0.0013235648486793785,
+        "meanLabel": "1.3μs",
+        "rme": 11.4
       },
       "lookup operations": {
-        "name": "Get item by id (1,000 items)",
-        "hz": 33464661,
-        "hzLabel": "33.5M ops/s",
-        "mean": 0.000029882268585335765,
-        "meanLabel": "30ns",
+        "name": "Get item by id (10,000 items)",
+        "hz": 34402735,
+        "hzLabel": "34.4M ops/s",
+        "mean": 0.000029067456437184084,
+        "meanLabel": "29ns",
         "rme": 0.2
       },
       "mutation operations": {
         "name": "Register single item",
-        "hz": 730004,
-        "hzLabel": "730.0k ops/s",
-        "mean": 0.0013698555459903433,
+        "hz": 718981,
+        "hzLabel": "719.0k ops/s",
+        "mean": 0.0013908567752639294,
         "meanLabel": "1.4μs",
-        "rme": 13.6
+        "rme": 13.8
       },
       "batch operations": {
         "name": "Onboard then clear 1,000 items",
-        "hz": 8671,
-        "hzLabel": "8.7k ops/s",
-        "mean": 0.11532971333023324,
-        "meanLabel": "115.3μs",
-        "rme": 3.4
+        "hz": 9164,
+        "hzLabel": "9.2k ops/s",
+        "mean": 0.10911909142487473,
+        "meanLabel": "109.1μs",
+        "rme": 2.3
       },
       "computed access": {
-        "name": "Access keys() 100 times (10,000 items, cached)",
-        "hz": 629118,
-        "hzLabel": "629.1k ops/s",
-        "mean": 0.0015895265895203463,
-        "meanLabel": "1.6μs",
+        "name": "Access values() 100 times (1,000 items, cached)",
+        "hz": 711123,
+        "hzLabel": "711.1k ops/s",
+        "mean": 0.0014062257834021308,
+        "meanLabel": "1.4μs",
         "rme": 0.2
       },
       "seek operations": {
-        "name": "Seek last item (1,000 items)",
-        "hz": 18610448,
+        "name": "Seek first item (10,000 items)",
+        "hz": 18618085,
         "hzLabel": "18.6M ops/s",
-        "mean": 0.000053733258866926113,
+        "mean": 0.00005371121822194104,
         "meanLabel": "54ns",
-        "rme": 0.2
+        "rme": 0.1
       },
       "_fastest": {
-        "name": "Get item by id (1,000 items)",
-        "hz": 33464661,
-        "hzLabel": "33.5M ops/s",
-        "mean": 0.000029882268585335765,
-        "meanLabel": "30ns",
+        "name": "Get item by id (10,000 items)",
+        "hz": 34402735,
+        "hzLabel": "34.4M ops/s",
+        "mean": 0.000029067456437184084,
+        "meanLabel": "29ns",
         "tier": "blazing"
       }
     }
   },
   "createSelection": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 97,
+      "functions": 92.6,
+      "branches": 92.6,
+      "overall": 94.8
     }
   },
   "createSingle": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "createStep": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 97.4,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.7
     }
   },
   "createTimeline": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 97.6,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.8
     }
   },
   "createTokens": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 99.1,
+      "functions": 100,
+      "branches": 100,
+      "overall": 99.6
     },
     "benchmarks": {
       "initialization": {
         "name": "Initialize with fixture tokens (~100 tokens)",
-        "hz": 23205,
-        "hzLabel": "23.2k ops/s",
-        "mean": 0.04309453787813504,
-        "meanLabel": "43.1μs",
-        "rme": 14.2
+        "hz": 26331,
+        "hzLabel": "26.3k ops/s",
+        "mean": 0.03797748739176704,
+        "meanLabel": "38.0μs",
+        "rme": 12.9
       },
       "lookup operations": {
-        "name": "Resolve nested path (3 levels)",
-        "hz": 14648458,
-        "hzLabel": "14.6M ops/s",
-        "mean": 0.00006826657273171218,
-        "meanLabel": "68ns",
-        "rme": 1.1
+        "name": "Resolve by id (1,000 tokens)",
+        "hz": 15874539,
+        "hzLabel": "15.9M ops/s",
+        "mean": 0.00006299395699033868,
+        "meanLabel": "63ns",
+        "rme": 0.7
       },
       "alias resolution": {
         "name": "Resolve single alias",
-        "hz": 14479873,
-        "hzLabel": "14.5M ops/s",
-        "mean": 0.00006906137857295592,
-        "meanLabel": "69ns",
-        "rme": 1
+        "hz": 15719172,
+        "hzLabel": "15.7M ops/s",
+        "mean": 0.00006361658061643782,
+        "meanLabel": "64ns",
+        "rme": 0.9
       },
       "batch resolution": {
         "name": "Resolve 5 different paths sequentially",
-        "hz": 4336261,
-        "hzLabel": "4.3M ops/s",
-        "mean": 0.0002306134371033338,
-        "meanLabel": "231ns",
-        "rme": 0.9
+        "hz": 4587648,
+        "hzLabel": "4.6M ops/s",
+        "mean": 0.00021797662109451077,
+        "meanLabel": "218ns",
+        "rme": 0.7
       },
       "computed access": {
-        "name": "Resolve cached token 100 times (1,000 tokens)",
-        "hz": 258741,
-        "hzLabel": "258.7k ops/s",
-        "mean": 0.0038648723825287757,
-        "meanLabel": "3.9μs",
-        "rme": 0.8
+        "name": "Resolve cached token 100 times (10,000 tokens)",
+        "hz": 277245,
+        "hzLabel": "277.2k ops/s",
+        "mean": 0.0036069137661139616,
+        "meanLabel": "3.6μs",
+        "rme": 0.6
       },
       "_fastest": {
-        "name": "Resolve nested path (3 levels)",
-        "hz": 14648458,
-        "hzLabel": "14.6M ops/s",
-        "mean": 0.00006826657273171218,
-        "meanLabel": "68ns",
+        "name": "Resolve by id (1,000 tokens)",
+        "hz": 15874539,
+        "hzLabel": "15.9M ops/s",
+        "mean": 0.00006299395699033868,
+        "meanLabel": "63ns",
         "tier": "blazing"
       }
     }
   },
   "createTrinity": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "toArray": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "toReactive": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "useBreakpoints": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 97.5,
+      "functions": 93.3,
+      "branches": 92.3,
+      "overall": 95.2
     }
   },
   "useClickOutside": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 96.2,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.1
     }
   },
   "useDate": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 97.5,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.8
+    },
+    "benchmarks": {
+      "construction": {
+        "name": "create date from ISO string",
+        "hz": 625364,
+        "hzLabel": "625.4k ops/s",
+        "mean": 0.001599068033759207,
+        "meanLabel": "1.6μs",
+        "rme": 14.1
+      },
+      "formatting": {
+        "name": "format fullDate",
+        "hz": 656415,
+        "hzLabel": "656.4k ops/s",
+        "mean": 0.001523426982279375,
+        "meanLabel": "1.5μs",
+        "rme": 0.4
+      },
+      "navigation": {
+        "name": "startOfDay",
+        "hz": 251257,
+        "hzLabel": "251.3k ops/s",
+        "mean": 0.003979988649117584,
+        "meanLabel": "4.0μs",
+        "rme": 3.4
+      },
+      "arithmetic": {
+        "name": "addMonths",
+        "hz": 399196,
+        "hzLabel": "399.2k ops/s",
+        "mean": 0.00250503579105973,
+        "meanLabel": "2.5μs",
+        "rme": 9.7
+      },
+      "comparison": {
+        "name": "isAfter",
+        "hz": 714074,
+        "hzLabel": "714.1k ops/s",
+        "mean": 0.0014004160141848222,
+        "meanLabel": "1.4μs",
+        "rme": 14.6
+      },
+      "getters/setters": {
+        "name": "get components",
+        "hz": 2055281,
+        "hzLabel": "2.1M ops/s",
+        "mean": 0.0004865514688499484,
+        "meanLabel": "487ns",
+        "rme": 0.5
+      },
+      "locale switching": {
+        "name": "locale change + reformat",
+        "hz": 18425,
+        "hzLabel": "18.4k ops/s",
+        "mean": 0.054275538912415856,
+        "meanLabel": "54.3μs",
+        "rme": 1.1
+      },
+      "_fastest": {
+        "name": "get components",
+        "hz": 2055281,
+        "hzLabel": "2.1M ops/s",
+        "mean": 0.0004865514688499484,
+        "meanLabel": "487ns",
+        "tier": "blazing"
+      }
     }
   },
   "useEventListener": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "useFeatures": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 96.2,
+      "functions": 88.9,
+      "branches": 100,
+      "overall": 94.8
     }
   },
   "useFilter": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 95.7,
+      "functions": 94.7,
+      "branches": 100,
+      "overall": 96.3
     },
     "benchmarks": {
       "initialization": {
         "name": "Create filter with default options",
-        "hz": 31632296,
-        "hzLabel": "31.6M ops/s",
-        "mean": 0.00003161325996612059,
-        "meanLabel": "32ns",
+        "hz": 32101541,
+        "hzLabel": "32.1M ops/s",
+        "mean": 0.00003115115236519772,
+        "meanLabel": "31ns",
         "rme": 0.2
       },
       "primitive filtering": {
         "name": "Filter 1,000 string primitives with single query",
-        "hz": 21301373,
-        "hzLabel": "21.3M ops/s",
-        "mean": 0.00004694533160181236,
-        "meanLabel": "47ns",
-        "rme": 1
+        "hz": 22202764,
+        "hzLabel": "22.2M ops/s",
+        "mean": 0.00004503943833282041,
+        "meanLabel": "45ns",
+        "rme": 0.7
       },
       "object filtering": {
-        "name": "Filter 10,000 objects across all keys",
-        "hz": 19454083,
-        "hzLabel": "19.5M ops/s",
-        "mean": 0.00005140309238357895,
-        "meanLabel": "51ns",
-        "rme": 1.3
+        "name": "Filter 1,000 objects with single key constraint",
+        "hz": 20925820,
+        "hzLabel": "20.9M ops/s",
+        "mean": 0.000047787852710378566,
+        "meanLabel": "48ns",
+        "rme": 1
       },
       "filter modes": {
-        "name": "Filter 10,000 objects with every mode",
-        "hz": 19075308,
-        "hzLabel": "19.1M ops/s",
-        "mean": 0.00005242379264026097,
-        "meanLabel": "52ns",
-        "rme": 1.5
+        "name": "Filter 10,000 objects with some mode",
+        "hz": 21170576,
+        "hzLabel": "21.2M ops/s",
+        "mean": 0.0000472353705428866,
+        "meanLabel": "47ns",
+        "rme": 0.8
       },
       "mutation operations": {
         "name": "Reactive filter: access computed 100 times (1,000 items)",
-        "hz": 621,
-        "hzLabel": "621 ops/s",
-        "mean": 1.6100841414789926,
-        "meanLabel": "1.61ms",
-        "rme": 1.1
+        "hz": 654,
+        "hzLabel": "654 ops/s",
+        "mean": 1.5287163048781778,
+        "meanLabel": "1.53ms",
+        "rme": 0.9
       },
       "native comparison": {
         "name": "Native Array.filter 1,000 objects",
-        "hz": 9208,
-        "hzLabel": "9.2k ops/s",
-        "mean": 0.10860383927016327,
-        "meanLabel": "108.6μs",
-        "rme": 0.8
+        "hz": 10088,
+        "hzLabel": "10.1k ops/s",
+        "mean": 0.09912959397308922,
+        "meanLabel": "99.1μs",
+        "rme": 0.7
       },
       "_fastest": {
         "name": "Create filter with default options",
-        "hz": 31632296,
-        "hzLabel": "31.6M ops/s",
-        "mean": 0.00003161325996612059,
-        "meanLabel": "32ns",
+        "hz": 32101541,
+        "hzLabel": "32.1M ops/s",
+        "mean": 0.00003115115236519772,
+        "meanLabel": "31ns",
         "tier": "blazing"
       }
     }
   },
   "useHotkey": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 96.1,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.1
     }
   },
   "useHydration": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 95.7,
+      "functions": 90.9,
+      "branches": 100,
+      "overall": 95.1
     }
   },
   "useIntersectionObserver": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 96.7,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.4
     }
   },
   "useLazy": {
@@ -439,162 +505,162 @@
   },
   "useLocale": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 97.7,
+      "functions": 100,
+      "branches": 95.5,
+      "overall": 97.9
     }
   },
   "useLogger": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 96.3,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.2
     }
   },
   "useMediaQuery": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "useMutationObserver": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 93.6,
+      "functions": 81.3,
+      "branches": 100,
+      "overall": 91.2
     }
   },
   "useOverflow": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 94.6,
+      "functions": 80,
+      "branches": 90.5,
+      "overall": 89.4
     }
   },
   "usePagination": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 96.9,
+      "overall": 99.4
     }
   },
   "usePermissions": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 95.8,
+      "functions": 85.7,
+      "branches": 100,
+      "overall": 93.6
     }
   },
   "useProxyModel": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 98.1,
+      "functions": 100,
+      "branches": 100,
+      "overall": 99.1
     }
   },
   "useProxyRegistry": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "useResizeObserver": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 98.1,
+      "functions": 100,
+      "branches": 100,
+      "overall": 99.1
     }
   },
   "useStorage": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 98,
+      "functions": 100,
+      "branches": 100,
+      "overall": 99
     }
   },
   "useTheme": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 97.6,
+      "functions": 92.9,
+      "branches": 100,
+      "overall": 96.7
     }
   },
   "useToggleScope": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 100,
+      "functions": 100,
+      "branches": 100,
+      "overall": 100
     }
   },
   "useVirtual": {
     "coverage": {
-      "statements": 0,
-      "functions": 0,
-      "branches": 0,
-      "overall": 0
+      "statements": 96.5,
+      "functions": 100,
+      "branches": 100,
+      "overall": 98.3
     },
     "benchmarks": {
       "initialization": {
         "name": "Initialize with 1,000 items",
-        "hz": 17092,
-        "hzLabel": "17.1k ops/s",
-        "mean": 0.05850757851626519,
-        "meanLabel": "58.5μs",
-        "rme": 5.9
+        "hz": 17938,
+        "hzLabel": "17.9k ops/s",
+        "mean": 0.05574799431374782,
+        "meanLabel": "55.7μs",
+        "rme": 7
       },
       "scroll operations": {
-        "name": "Scroll to start position (1,000 items)",
-        "hz": 1343147,
-        "hzLabel": "1.3M ops/s",
-        "mean": 0.0007445203358081884,
-        "meanLabel": "745ns",
-        "rme": 0.5
+        "name": "Scroll to start position (10,000 items)",
+        "hz": 1437473,
+        "hzLabel": "1.4M ops/s",
+        "mean": 0.000695665129247382,
+        "meanLabel": "696ns",
+        "rme": 0.4
       },
       "resize operations": {
         "name": "Resize single item (1,000 items)",
-        "hz": 16031,
-        "hzLabel": "16.0k ops/s",
-        "mean": 0.06237799925149662,
-        "meanLabel": "62.4μs",
-        "rme": 9.7
+        "hz": 17279,
+        "hzLabel": "17.3k ops/s",
+        "mean": 0.05787437673611064,
+        "meanLabel": "57.9μs",
+        "rme": 8.5
       },
       "scrollTo operations": {
-        "name": "ScrollTo middle (1,000 items)",
-        "hz": 17393,
-        "hzLabel": "17.4k ops/s",
-        "mean": 0.057494472001834065,
-        "meanLabel": "57.5μs",
-        "rme": 4.3
+        "name": "ScrollTo start (1,000 items)",
+        "hz": 18260,
+        "hzLabel": "18.3k ops/s",
+        "mean": 0.05476530240964514,
+        "meanLabel": "54.8μs",
+        "rme": 4.5
       },
       "computed access": {
         "name": "Access computed items 100 times (1,000 items, cached)",
-        "hz": 5288437,
-        "hzLabel": "5.3M ops/s",
-        "mean": 0.00018909179610411995,
-        "meanLabel": "189ns",
+        "hz": 5483685,
+        "hzLabel": "5.5M ops/s",
+        "mean": 0.0001823591139245001,
+        "meanLabel": "182ns",
         "rme": 0.2
       },
       "_fastest": {
         "name": "Access computed items 100 times (1,000 items, cached)",
-        "hz": 5288437,
-        "hzLabel": "5.3M ops/s",
-        "mean": 0.00018909179610411995,
-        "meanLabel": "189ns",
+        "hz": 5483685,
+        "hzLabel": "5.5M ops/s",
+        "mean": 0.0001823591139245001,
+        "meanLabel": "182ns",
         "tier": "blazing"
       }
     }
