@@ -5,7 +5,7 @@ import { createContext } from '@vuetify/v0'
 import { inject } from 'vue'
 
 // Types
-import type { ComputedRef } from 'vue'
+import type { Ref } from 'vue'
 
 export interface LevelConfig {
   icon: string
@@ -28,16 +28,16 @@ export interface BenchmarkConfig {
 
 export interface PageMeta {
   // Links
-  edit: ComputedRef<string>
-  github: ComputedRef<string | false>
-  label: ComputedRef<string | false>
-  testFileLink: ComputedRef<string | null>
+  edit: Readonly<Ref<string>>
+  github: Readonly<Ref<string | false>>
+  label: Readonly<Ref<string | false>>
+  testFileLink: Readonly<Ref<string | null>>
   // Metadata
-  level: ComputedRef<LevelConfig | null>
-  coverage: ComputedRef<CoverageConfig | null>
-  benchmark: ComputedRef<BenchmarkConfig | null>
-  renderless: ComputedRef<boolean | undefined>
-  lastUpdated: ComputedRef<string | null>
+  level: Readonly<Ref<LevelConfig | null>>
+  coverage: Readonly<Ref<CoverageConfig | null>>
+  benchmark: Readonly<Ref<BenchmarkConfig | null>>
+  renderless: Readonly<Ref<boolean | undefined>>
+  lastUpdated: Readonly<Ref<string | null>>
 }
 
 export const PAGE_META_KEY = 'v0:docs:page-meta'
@@ -49,5 +49,5 @@ export const [usePageMeta, providePageMeta] = createContext<PageMeta>(PAGE_META_
  * Use this in hybrid components that accept both props and context.
  */
 export function usePageMetaOptional (): PageMeta | null {
-  return inject<PageMeta>(PAGE_META_KEY, null)
+  return inject<PageMeta | null>(PAGE_META_KEY, null)
 }
