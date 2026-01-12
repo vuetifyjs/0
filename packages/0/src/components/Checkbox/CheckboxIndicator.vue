@@ -13,6 +13,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { CheckboxState } from './CheckboxRoot.vue'
 
   export interface CheckboxIndicatorProps extends AtomProps {
     /**
@@ -34,7 +35,7 @@
     isMixed: boolean
     /** Attributes to bind to the indicator element */
     attrs: {
-      'data-state': 'checked' | 'unchecked' | 'indeterminate'
+      'data-state': CheckboxState
       'style': { visibility: 'visible' | 'hidden' }
     }
   }
@@ -50,7 +51,7 @@
   defineOptions({ name: 'CheckboxIndicator' })
 
   defineSlots<{
-    default: (props: CheckboxIndicatorSlotProps) => unknown
+    default: (props: CheckboxIndicatorSlotProps) => any
   }>()
 
   const {

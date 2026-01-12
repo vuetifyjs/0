@@ -846,6 +846,253 @@ describe('checkbox', () => {
         expect(group2RootProps.isChecked).toBe(false)
       })
     })
+
+    describe('mandatory prop', () => {
+      it('should prevent deselecting last item when mandatory=true', async () => {
+        const selected = ref<string[]>(['item-1'])
+        let rootProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'mandatory': true,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () =>
+              h(Checkbox.Root as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  rootProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(rootProps.isChecked).toBe(true)
+
+        rootProps.toggle()
+        await nextTick()
+
+        // Should still be selected due to mandatory
+        expect(rootProps.isChecked).toBe(true)
+        expect(selected.value).toContain('item-1')
+      })
+
+      it('should auto-select first item when mandatory=force', async () => {
+        let rootProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            mandatory: 'force',
+          },
+          slots: {
+            default: () =>
+              h(Checkbox.Root as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  rootProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(rootProps.isChecked).toBe(true)
+      })
+    })
+
+    describe('enroll prop', () => {
+      it('should auto-select non-disabled items when enroll=true', async () => {
+        let item1Props: any
+        let item2Props: any
+
+        mount(Checkbox.Group, {
+          props: {
+            enroll: true,
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.Root as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  item1Props = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-2', disabled: true }, {
+                default: (props: any) => {
+                  item2Props = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 2')
+                },
+              }),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(item1Props.isChecked).toBe(true)
+        expect(item2Props.isChecked).toBe(false)
+      })
+    })
+
+    describe('batch operations with ID arrays', () => {
+      it('should select multiple items by ID array', async () => {
+        const selected = ref<string[]>([])
+        let groupProps: any
+        let item1Props: any
+        let item2Props: any
+        let item3Props: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: (props: any) => {
+              groupProps = props
+              return [
+                h(Checkbox.Root as any, { id: 'id-1', value: 'item-1' }, {
+                  default: (p: any) => {
+                    item1Props = p
+                    return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                  },
+                }),
+                h(Checkbox.Root as any, { id: 'id-2', value: 'item-2' }, {
+                  default: (p: any) => {
+                    item2Props = p
+                    return h(Checkbox.Indicator as any, {}, () => 'Item 2')
+                  },
+                }),
+                h(Checkbox.Root as any, { id: 'id-3', value: 'item-3' }, {
+                  default: (p: any) => {
+                    item3Props = p
+                    return h(Checkbox.Indicator as any, {}, () => 'Item 3')
+                  },
+                }),
+              ]
+            },
+          },
+        })
+
+        await nextTick()
+
+        groupProps.select(['id-1', 'id-3'])
+        await nextTick()
+
+        expect(item1Props.isChecked).toBe(true)
+        expect(item2Props.isChecked).toBe(false)
+        expect(item3Props.isChecked).toBe(true)
+      })
+
+      it('should toggle multiple items by ID array', async () => {
+        const selected = ref<string[]>([])
+        let groupProps: any
+        let item1Props: any
+        let item2Props: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: (props: any) => {
+              groupProps = props
+              return [
+                h(Checkbox.Root as any, { id: 'id-1', value: 'item-1' }, {
+                  default: (p: any) => {
+                    item1Props = p
+                    return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                  },
+                }),
+                h(Checkbox.Root as any, { id: 'id-2', value: 'item-2' }, {
+                  default: (p: any) => {
+                    item2Props = p
+                    return h(Checkbox.Indicator as any, {}, () => 'Item 2')
+                  },
+                }),
+              ]
+            },
+          },
+        })
+
+        await nextTick()
+
+        groupProps.toggle(['id-1', 'id-2'])
+        await nextTick()
+
+        expect(item1Props.isChecked).toBe(true)
+        expect(item2Props.isChecked).toBe(true)
+
+        groupProps.toggle(['id-1', 'id-2'])
+        await nextTick()
+
+        expect(item1Props.isChecked).toBe(false)
+        expect(item2Props.isChecked).toBe(false)
+      })
+
+      it('should unselect multiple items by ID array', async () => {
+        const selected = ref<string[]>(['item-1', 'item-2', 'item-3'])
+        let groupProps: any
+        let item1Props: any
+        let item2Props: any
+        let item3Props: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: (props: any) => {
+              groupProps = props
+              return [
+                h(Checkbox.Root as any, { id: 'id-1', value: 'item-1' }, {
+                  default: (p: any) => {
+                    item1Props = p
+                    return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                  },
+                }),
+                h(Checkbox.Root as any, { id: 'id-2', value: 'item-2' }, {
+                  default: (p: any) => {
+                    item2Props = p
+                    return h(Checkbox.Indicator as any, {}, () => 'Item 2')
+                  },
+                }),
+                h(Checkbox.Root as any, { id: 'id-3', value: 'item-3' }, {
+                  default: (p: any) => {
+                    item3Props = p
+                    return h(Checkbox.Indicator as any, {}, () => 'Item 3')
+                  },
+                }),
+              ]
+            },
+          },
+        })
+
+        await nextTick()
+
+        groupProps.unselect(['id-1', 'id-3'])
+        await nextTick()
+
+        expect(item1Props.isChecked).toBe(false)
+        expect(item2Props.isChecked).toBe(true)
+        expect(item3Props.isChecked).toBe(false)
+      })
+    })
   })
 
   describe('atom integration', () => {
@@ -906,7 +1153,7 @@ describe('checkbox', () => {
     })
   })
 
-  describe('sSR/Hydration', () => {
+  describe('SSR/Hydration', () => {
     it('should render standalone to string without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>
@@ -974,6 +1221,55 @@ describe('checkbox', () => {
 
       expect(html).toContain('aria-disabled="true"')
       expect(html).toContain('data-disabled')
+    })
+
+    it('should use provided id to avoid hydration mismatch', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(Checkbox.Root as any, { id: 'stable-id', modelValue: true }, () =>
+            h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          ),
+      }))
+
+      const html = await renderToString(app)
+
+      // With explicit id, the server render should be deterministic
+      expect(html).toBeTruthy()
+
+      // Mount client-side with same id and capture slot props
+      let capturedProps: any
+      mount(Checkbox.Root, {
+        props: {
+          id: 'stable-id',
+          modelValue: true,
+        },
+        slots: {
+          default: (props: any) => {
+            capturedProps = props
+            return h(Checkbox.Indicator as any, {}, () => 'Checkbox')
+          },
+        },
+      })
+
+      await nextTick()
+
+      // ID should match
+      expect(capturedProps.id).toBe('stable-id')
+    })
+
+    it('should render hidden input in SSR output', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(Checkbox.Root as any, { name: 'agree', value: 'yes', modelValue: true }, () =>
+            h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          ),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('type="checkbox"')
+      expect(html).toContain('name="agree"')
+      expect(html).toContain('value="yes"')
     })
   })
 
@@ -1215,6 +1511,64 @@ describe('checkbox', () => {
 
         expect((inputs[0]!.element as HTMLInputElement).checked).toBe(true)
         expect((inputs[1]!.element as HTMLInputElement).checked).toBe(false)
+      })
+    })
+
+    describe('formData population', () => {
+      it('should populate FormData correctly when checked', async () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+            value: 'yes',
+            modelValue: true,
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+          attachTo: document.body,
+        })
+
+        await nextTick()
+
+        const input = wrapper.find('input[type="checkbox"]').element as HTMLInputElement
+        const formData = new FormData()
+
+        // Simulate form data collection
+        if (input.checked) {
+          formData.append(input.name, input.value)
+        }
+
+        expect(formData.get('agree')).toBe('yes')
+
+        wrapper.unmount()
+      })
+
+      it('should not populate FormData when unchecked', async () => {
+        const wrapper = mount(Checkbox.Root, {
+          props: {
+            name: 'agree',
+            value: 'yes',
+            modelValue: false,
+          },
+          slots: {
+            default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
+          },
+          attachTo: document.body,
+        })
+
+        await nextTick()
+
+        const input = wrapper.find('input[type="checkbox"]').element as HTMLInputElement
+        const formData = new FormData()
+
+        // Simulate form data collection
+        if (input.checked) {
+          formData.append(input.name, input.value)
+        }
+
+        expect(formData.get('agree')).toBeNull()
+
+        wrapper.unmount()
       })
     })
   })

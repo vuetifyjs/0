@@ -11,7 +11,7 @@ export { provideCheckboxRoot, useCheckboxRoot } from './CheckboxRoot.vue'
 export type { CheckboxGroupProps, CheckboxGroupSlotProps } from './CheckboxGroup.vue'
 export type { CheckboxHiddenInputProps } from './CheckboxHiddenInput.vue'
 export type { CheckboxIndicatorProps, CheckboxIndicatorSlotProps } from './CheckboxIndicator.vue'
-export type { CheckboxRootContext, CheckboxRootProps, CheckboxRootSlotProps } from './CheckboxRoot.vue'
+export type { CheckboxRootContext, CheckboxRootProps, CheckboxRootSlotProps, CheckboxState } from './CheckboxRoot.vue'
 
 // Components
 import Group from './CheckboxGroup.vue'

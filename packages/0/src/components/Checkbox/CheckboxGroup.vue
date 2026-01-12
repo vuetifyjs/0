@@ -21,18 +21,24 @@
 
   export interface CheckboxGroupProps extends AtomProps {
     /** Namespace for dependency injection */
-    namespace?: string
+    'namespace'?: string
     /** Disables the entire checkbox group */
-    disabled?: boolean
+    'disabled'?: boolean
     /** Auto-select non-disabled items on registration */
-    enroll?: boolean
+    'enroll'?: boolean
     /**
      * Controls mandatory checkbox behavior:
      * - false (default): No mandatory enforcement
      * - true: Prevents deselecting the last selected item
      * - `force`: Automatically selects the first non-disabled item on registration
      */
-    mandatory?: boolean | 'force'
+    'mandatory'?: boolean | 'force'
+    /** Accessible name for the group */
+    'label'?: string
+    /** ID of element that labels this group */
+    'aria-labelledby'?: string
+    /** ID of element that describes this group */
+    'aria-describedby'?: string
   }
 
   export interface CheckboxGroupSlotProps {
@@ -60,6 +66,9 @@
     attrs: {
       'role': 'group'
       'aria-multiselectable': true
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
     }
   }
 
@@ -84,6 +93,8 @@
     'update:model-value': [value: T | T[]]
   }>()
 
+  const props = defineProps<CheckboxGroupProps>()
+
   const {
     as = 'div',
     renderless,
@@ -91,7 +102,8 @@
     disabled = false,
     enroll = false,
     mandatory = false,
-  } = defineProps<CheckboxGroupProps>()
+    label,
+  } = props
 
   const model = defineModel<T | T[]>()
 
@@ -120,6 +132,9 @@
     attrs: {
       'role': 'group',
       'aria-multiselectable': true,
+      'aria-label': label || undefined,
+      'aria-labelledby': props['aria-labelledby'] || undefined,
+      'aria-describedby': props['aria-describedby'] || undefined,
     },
   }))
 </script>
