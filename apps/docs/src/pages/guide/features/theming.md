@@ -1,7 +1,7 @@
 ---
 title: Theming Guide - Design Tokens and CSS Variables
 features:
-  order: 6
+  order: 1
   level: 2
 meta:
   - name: description
@@ -11,7 +11,7 @@ meta:
 related:
   - /composables/plugins/use-theme
   - /composables/registration/create-tokens
-  - /guide/accessibility
+  - /guide/features/accessibility
 ---
 
 # Theming

@@ -9,7 +9,7 @@ features:
   category: Composable
   label: 'E: useLazy'
   github: /composables/useLazy/
-  level: 1
+  level: 2
 related:
   - /composables/system/use-toggle-scope
   - /composables/system/use-intersection-observer

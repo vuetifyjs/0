@@ -9,8 +9,8 @@ meta:
   - name: keywords
     content: vuetify0, composables, headless ui, Vue 3, selection, forms, plugins, utilities
 related:
-  - /guide/core
-  - /guide/components
+  - /guide/fundamentals/core
+  - /guide/fundamentals/components
   - /composables/foundation/create-context
 ---
 

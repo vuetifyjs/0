@@ -2,7 +2,7 @@
 title: Vuetify MCP - AI Assistant Integration
 features:
   label: Vuetify MCP
-  order: 12
+  order: 2
   level: 1
 meta:
   - name: description
@@ -10,13 +10,13 @@ meta:
   - name: keywords
     content: MCP, Model Context Protocol, Claude, AI assistant, Vuetify API, developer tools
 related:
-  - /guide/ai-tools
+  - /guide/tooling/ai-tools
   - /introduction/getting-started
 ---
 
 # Vuetify MCP
 
-Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) server that gives AI assistants structured access to Vuetify and v0 APIs. Unlike [llms.txt](/guide/ai-tools), MCP provides real-time, queryable documentation.
+Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) server that gives AI assistants structured access to Vuetify and v0 APIs. Unlike [llms.txt](/guide/tooling/ai-tools), MCP provides real-time, queryable documentation.
 
 <DocsPageFeatures :frontmatter />
 

@@ -14,7 +14,7 @@ features:
 related:
   - /composables/system/use-media-query
   - /composables/registration/create-tokens
-  - /guide/theming
+  - /guide/features/theming
 ---
 
 # useTheme

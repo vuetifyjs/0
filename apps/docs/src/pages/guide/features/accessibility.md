@@ -1,7 +1,7 @@
 ---
 title: Accessibility Guide - WCAG and ARIA Best Practices
 features:
-  order: 8
+  order: 2
   level: 2
 meta:
   - name: description
@@ -10,7 +10,7 @@ meta:
     content: vuetify0, accessibility, a11y, ARIA, WCAG, keyboard navigation, focus management, screen reader, Vue 3
 related:
   - /composables/plugins/use-locale
-  - /guide/components
+  - /guide/fundamentals/components
 ---
 
 # Accessibility

@@ -11,7 +11,7 @@ features:
   github: /composables/useStorage/
   level: 2
 related:
-  - /guide/plugins
+  - /guide/fundamentals/plugins
 ---
 
 # useStorage

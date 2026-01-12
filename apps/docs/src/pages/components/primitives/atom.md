@@ -12,7 +12,7 @@ features:
   renderless: false
   level: 2
 related:
-  - /guide/components
+  - /guide/fundamentals/components
 ---
 
 <script setup>

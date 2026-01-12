@@ -1,7 +1,7 @@
 ---
 title: Utilities Guide - Helper Functions for Vue 3
 features:
-  order: 7
+  order: 3
   level: 2
 meta:
   - name: description

@@ -1,7 +1,7 @@
 ---
 title: Plugins Guide - Extend Vuetify0 Functionality
 features:
-  order: 5
+  order: 4
   level: 3
 meta:
   - name: description
@@ -9,7 +9,7 @@ meta:
   - name: keywords
     content: vuetify0, plugins, createPlugin, extensions, Vue 3, dependency injection, global features
 related:
-  - /guide/core
+  - /guide/fundamentals/core
   - /composables/foundation/create-plugin
   - /composables/plugins/use-theme
   - /composables/plugins/use-locale
@@ -17,7 +17,7 @@ related:
 
 # Plugins
 
-v0 plugins are Vue plugins built with `createPlugin`. They provide app-wide singletons for features like theming, locale, and logging. For understanding the underlying architecture, see [Core](/guide/core).
+v0 plugins are Vue plugins built with `createPlugin`. They provide app-wide singletons for features like theming, locale, and logging. For understanding the underlying architecture, see [Core](/guide/fundamentals/core).
 
 <DocsPageFeatures :frontmatter />
 

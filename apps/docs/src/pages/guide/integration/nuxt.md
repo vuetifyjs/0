@@ -1,7 +1,7 @@
 ---
 title: Nuxt 3 - SSR Integration Guide
 features:
-  order: 7
+  order: 1
   level: 2
 meta:
   - name: description
@@ -10,7 +10,7 @@ meta:
     content: vuetify0, nuxt 3, ssr, server side rendering, hydration, auto-imports, vue 3
 related:
   - /introduction/getting-started
-  - /guide/theming
+  - /guide/features/theming
   - /composables/plugins/use-hydration
 ---
 

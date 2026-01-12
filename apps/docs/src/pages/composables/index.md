@@ -8,7 +8,7 @@ meta:
 features:
   level: 1
 related:
-  - /guide/core
+  - /guide/fundamentals/core
   - /components
 ---
 

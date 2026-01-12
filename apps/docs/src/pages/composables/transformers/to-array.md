@@ -9,7 +9,7 @@ features:
   category: Transformer
   label: 'E: toArray'
   github: /composables/toArray/
-  level: 3
+  level: 2
 related:
   - /composables/transformers/to-reactive
 ---

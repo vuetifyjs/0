@@ -94,18 +94,20 @@ Every page is tagged with a skill level to help you find content appropriate for
 
 The [Guide overview](/guide) defines three learning tracks for structured progression:
 
-**Track A: Core Concepts** — Understanding the system
-1. [Core](/guide/core) — Trinity, Context, and Registry patterns
-2. [Components](/guide/components) — Headless primitives and slot props
-3. [Plugins](/guide/plugins) — Vue plugin integration
+**Track A: Fundamentals** — Understanding the system
+1. [Core](/guide/fundamentals/core) — Trinity, Context, and Registry patterns
+2. [Components](/guide/fundamentals/components) — Headless primitives and slot props
+3. [Composables](/guide/fundamentals/composables) — Composables vs components
+4. [Plugins](/guide/fundamentals/plugins) — Vue plugin integration
 
-**Track B: Features & Polish** — Production-ready UIs
-1. [Theming](/guide/theming) — CSS variables and design tokens
-2. [Accessibility](/guide/accessibility) — ARIA patterns and keyboard navigation
-3. [Utilities](/guide/utilities) — Helper functions and type guards
+**Track B: Features** — Production-ready UIs
+1. [Theming](/guide/features/theming) — CSS variables and design tokens
+2. [Accessibility](/guide/features/accessibility) — ARIA patterns and keyboard navigation
+3. [Utilities](/guide/features/utilities) — Helper functions and type guards
 
-**Track C: Real-World Application** — See v0 in production
-1. [Building Docs](/guide/building-docs) — How this documentation site uses v0
+**Track C: Integration** — See v0 in production
+1. [Nuxt 3](/guide/integration/nuxt) — SSR, auto-imports, theme persistence
+2. [Building Docs](/guide/integration/building-docs) — How this documentation site uses v0
 
 New to v0? Start with Track A. Already building? Jump to Track B as needed.
 
@@ -177,7 +179,7 @@ On desktop, the chat opens as a right-side panel. On mobile, it opens as a full-
 
 ### What the AI Knows
 
-The AI has access to the entire v0 documentation via [llms-full.txt](/guide/ai-tools), but prioritizes the current page for more relevant answers:
+The AI has access to the entire v0 documentation via [llms-full.txt](/guide/tooling/ai-tools), but prioritizes the current page for more relevant answers:
 
 | Context | Description |
 |---------|-------------|

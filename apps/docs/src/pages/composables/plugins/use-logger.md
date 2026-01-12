@@ -12,7 +12,7 @@ features:
   github: /composables/useLogger/
   level: 2
 related:
-  - /guide/plugins
+  - /guide/fundamentals/plugins
 ---
 
 # useLogger

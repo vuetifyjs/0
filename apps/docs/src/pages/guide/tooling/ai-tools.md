@@ -2,7 +2,7 @@
 title: AI Tools - LLM-Friendly Documentation
 features:
   label: AI Tools
-  order: 11
+  order: 1
   level: 1
 meta:
   - name: description
@@ -10,7 +10,7 @@ meta:
   - name: keywords
     content: llms.txt, AI tools, LLM, Claude, ChatGPT, Cursor, documentation, developer experience
 related:
-  - /guide/vuetify-mcp
+  - /guide/tooling/vuetify-mcp
   - /introduction/getting-started
 ---
 
@@ -60,7 +60,7 @@ WebFetch https://0.vuetifyjs.com/llms-full.txt
 ```
 
 > [!TIP]
-> For the best experience with Claude, use [Vuetify MCP](/guide/vuetify-mcp) instead. It provides structured API access rather than raw text.
+> For the best experience with Claude, use [Vuetify MCP](/guide/tooling/vuetify-mcp) instead. It provides structured API access rather than raw text.
 
 ## What's Included
 

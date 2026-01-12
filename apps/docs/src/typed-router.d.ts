@@ -408,65 +408,79 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/guide/accessibility': RouteRecordInfo<
-      '/guide/accessibility',
-      '/guide/accessibility',
+    '/guide/features/accessibility': RouteRecordInfo<
+      '/guide/features/accessibility',
+      '/guide/features/accessibility',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/ai-tools': RouteRecordInfo<
-      '/guide/ai-tools',
-      '/guide/ai-tools',
+    '/guide/features/theming': RouteRecordInfo<
+      '/guide/features/theming',
+      '/guide/features/theming',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/building-docs': RouteRecordInfo<
-      '/guide/building-docs',
-      '/guide/building-docs',
+    '/guide/features/utilities': RouteRecordInfo<
+      '/guide/features/utilities',
+      '/guide/features/utilities',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/components': RouteRecordInfo<
-      '/guide/components',
-      '/guide/components',
+    '/guide/fundamentals/components': RouteRecordInfo<
+      '/guide/fundamentals/components',
+      '/guide/fundamentals/components',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/composables': RouteRecordInfo<
-      '/guide/composables',
-      '/guide/composables',
+    '/guide/fundamentals/composables': RouteRecordInfo<
+      '/guide/fundamentals/composables',
+      '/guide/fundamentals/composables',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/core': RouteRecordInfo<
-      '/guide/core',
-      '/guide/core',
+    '/guide/fundamentals/core': RouteRecordInfo<
+      '/guide/fundamentals/core',
+      '/guide/fundamentals/core',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/nuxt': RouteRecordInfo<
-      '/guide/nuxt',
-      '/guide/nuxt',
+    '/guide/fundamentals/plugins': RouteRecordInfo<
+      '/guide/fundamentals/plugins',
+      '/guide/fundamentals/plugins',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/plugins': RouteRecordInfo<
-      '/guide/plugins',
-      '/guide/plugins',
+    '/guide/integration/building-docs': RouteRecordInfo<
+      '/guide/integration/building-docs',
+      '/guide/integration/building-docs',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/guide/theming': RouteRecordInfo<
-      '/guide/theming',
-      '/guide/theming',
+    '/guide/integration/nuxt': RouteRecordInfo<
+      '/guide/integration/nuxt',
+      '/guide/integration/nuxt',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/tooling/ai-tools': RouteRecordInfo<
+      '/guide/tooling/ai-tools',
+      '/guide/tooling/ai-tools',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/tooling/vuetify-mcp': RouteRecordInfo<
+      '/guide/tooling/vuetify-mcp',
+      '/guide/tooling/vuetify-mcp',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -474,20 +488,6 @@ declare module 'vue-router/auto-routes' {
     '/guide/using-the-docs': RouteRecordInfo<
       '/guide/using-the-docs',
       '/guide/using-the-docs',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/guide/utilities': RouteRecordInfo<
-      '/guide/utilities',
-      '/guide/utilities',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/guide/vuetify-mcp': RouteRecordInfo<
-      '/guide/vuetify-mcp',
-      '/guide/vuetify-mcp',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -884,75 +884,75 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/guide/accessibility.md': {
+    'src/pages/guide/features/accessibility.md': {
       routes:
-        | '/guide/accessibility'
+        | '/guide/features/accessibility'
       views:
         | never
     }
-    'src/pages/guide/ai-tools.md': {
+    'src/pages/guide/features/theming.md': {
       routes:
-        | '/guide/ai-tools'
+        | '/guide/features/theming'
       views:
         | never
     }
-    'src/pages/guide/building-docs.md': {
+    'src/pages/guide/features/utilities.md': {
       routes:
-        | '/guide/building-docs'
+        | '/guide/features/utilities'
       views:
         | never
     }
-    'src/pages/guide/components.md': {
+    'src/pages/guide/fundamentals/components.md': {
       routes:
-        | '/guide/components'
+        | '/guide/fundamentals/components'
       views:
         | never
     }
-    'src/pages/guide/composables.md': {
+    'src/pages/guide/fundamentals/composables.md': {
       routes:
-        | '/guide/composables'
+        | '/guide/fundamentals/composables'
       views:
         | never
     }
-    'src/pages/guide/core.md': {
+    'src/pages/guide/fundamentals/core.md': {
       routes:
-        | '/guide/core'
+        | '/guide/fundamentals/core'
       views:
         | never
     }
-    'src/pages/guide/nuxt.md': {
+    'src/pages/guide/fundamentals/plugins.md': {
       routes:
-        | '/guide/nuxt'
+        | '/guide/fundamentals/plugins'
       views:
         | never
     }
-    'src/pages/guide/plugins.md': {
+    'src/pages/guide/integration/building-docs.md': {
       routes:
-        | '/guide/plugins'
+        | '/guide/integration/building-docs'
       views:
         | never
     }
-    'src/pages/guide/theming.md': {
+    'src/pages/guide/integration/nuxt.md': {
       routes:
-        | '/guide/theming'
+        | '/guide/integration/nuxt'
+      views:
+        | never
+    }
+    'src/pages/guide/tooling/ai-tools.md': {
+      routes:
+        | '/guide/tooling/ai-tools'
+      views:
+        | never
+    }
+    'src/pages/guide/tooling/vuetify-mcp.md': {
+      routes:
+        | '/guide/tooling/vuetify-mcp'
       views:
         | never
     }
     'src/pages/guide/using-the-docs.md': {
       routes:
         | '/guide/using-the-docs'
-      views:
-        | never
-    }
-    'src/pages/guide/utilities.md': {
-      routes:
-        | '/guide/utilities'
-      views:
-        | never
-    }
-    'src/pages/guide/vuetify-mcp.md': {
-      routes:
-        | '/guide/vuetify-mcp'
       views:
         | never
     }

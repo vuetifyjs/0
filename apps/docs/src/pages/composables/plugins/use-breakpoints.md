@@ -12,7 +12,7 @@ features:
   github: /composables/useBreakpoints/
   level: 2
 related:
-  - /guide/plugins
+  - /guide/fundamentals/plugins
 ---
 
 # useBreakpoints
