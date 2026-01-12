@@ -43,6 +43,8 @@ The Pagination component provides a compound component pattern for building page
 
 <template>
   <Pagination.Root>
+    <Pagination.Status />
+
     <Pagination.First />
 
     <Pagination.Prev />
