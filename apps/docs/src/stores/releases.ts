@@ -1,3 +1,7 @@
+// Vuetify0
+// Framework
+import { createStorage } from '@vuetify/v0'
+
 // Utilities
 import { defineStore } from 'pinia'
 
@@ -13,6 +17,11 @@ export interface Release extends GitHubRelease {
   }
 }
 
+interface CacheEntry<T> {
+  data: T
+  timestamp: number
+}
+
 interface State {
   releases: Release[]
   isLoading: boolean
@@ -21,6 +30,13 @@ interface State {
 }
 
 const url = import.meta.env.VITE_API_SERVER_URL
+const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
+const storage = createStorage({ prefix: 'v0-releases:' })
+
+function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
+  if (!entry) return false
+  return Date.now() - entry.timestamp < CACHE_TTL
+}
 
 export const useReleasesStore = defineStore('releases', {
   state: (): State => ({
@@ -41,6 +57,18 @@ export const useReleasesStore = defineStore('releases', {
       }
     },
     async fetch () {
+      if (this.isLoading) return // Prevent concurrent requests
+
+      // Check cache on first page load
+      if (this.page === 1 && this.releases.length === 0) {
+        const cached = storage.get<CacheEntry<Release[]> | null>('page-1', null)
+        if (isCacheValid(cached.value)) {
+          this.releases = cached.value.data
+          this.page = 2
+          return
+        }
+      }
+
       this.isLoading = true
       this.error = null
 
@@ -61,8 +89,19 @@ export const useReleasesStore = defineStore('releases', {
         return
       }
 
+      const formatted: Release[] = []
       for (const release of data) {
-        this.releases.push(this.format(release))
+        const r = this.format(release)
+        formatted.push(r)
+        this.releases.push(r)
+      }
+
+      // Cache first page only
+      if (this.page === 1) {
+        storage.set<CacheEntry<Release[]>>('page-1', {
+          data: formatted,
+          timestamp: Date.now(),
+        })
       }
 
       this.isLoading = false
@@ -74,6 +113,16 @@ export const useReleasesStore = defineStore('releases', {
       const found = this.releases.find(release => release.tag_name === tag)
 
       if (found) return found
+
+      // Check cache for this specific tag
+      const cacheKey = `tag-${tag}`
+      const cached = storage.get<CacheEntry<Release> | null>(cacheKey, null)
+      if (isCacheValid(cached.value)) {
+        this.releases.push(cached.value.data)
+        return cached.value.data
+      }
+
+      if (this.isLoading) return // Prevent concurrent requests
 
       this.isLoading = true
       this.error = null
@@ -93,16 +142,24 @@ export const useReleasesStore = defineStore('releases', {
         } catch (error: unknown) {
           console.error(error)
           this.error = 'Failed to find release. Please try again.'
-          this.isLoading = false
           return
+        } finally {
+          this.isLoading = false
         }
+      } else {
+        this.isLoading = false
       }
-
-      this.isLoading = false
 
       if (data) {
         const formatted = this.format(data)
         this.releases.push(formatted)
+
+        // Cache individual tag lookup
+        storage.set<CacheEntry<Release>>(cacheKey, {
+          data: formatted,
+          timestamp: Date.now(),
+        })
+
         return formatted
       }
     },
