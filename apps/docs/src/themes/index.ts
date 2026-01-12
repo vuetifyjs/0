@@ -1,0 +1,284 @@
+// Types
+export interface ThemeDefinition {
+  id: string
+  label: string
+  icon: string
+  dark: boolean
+  colors: Record<string, string>
+}
+
+export type ThemeId = keyof typeof themes
+
+/**
+ * All available themes for the docs site.
+ * Colors follow the v0 theme token format.
+ */
+export const themes = {
+  'light': {
+    id: 'light',
+    label: 'Light',
+    icon: 'theme-light',
+    dark: false,
+    colors: {
+      'primary': '#3b82f6',
+      'secondary': '#64748b',
+      'accent': '#6366f1',
+      'error': '#ef4444',
+      'info': '#1867c0',
+      'success': '#22c55e',
+      'warning': '#f59e0b',
+      'background': '#f5f5f5',
+      'surface': '#FFFFFF',
+      'surface-tint': '#f5f5f5',
+      'surface-variant': '#eeeeee',
+      'divider': '#e0e0e0',
+      'pre': '{light.colors.surface-tint}',
+      'on-primary': '#ffffff',
+      'on-secondary': '#ffffff',
+      'on-accent': '#ffffff',
+      'on-error': '#ffffff',
+      'on-info': '#ffffff',
+      'on-success': '#ffffff',
+      'on-warning': '#1a1a1a',
+      'on-background': '#212121',
+      'on-surface': '#212121',
+      'on-surface-variant': '#666666',
+    },
+  },
+  'dark': {
+    id: 'dark',
+    label: 'Dark',
+    icon: 'theme-dark',
+    dark: true,
+    colors: {
+      'primary': '#c4b5fd',
+      'secondary': '#94a3b8',
+      'accent': '#c084fc',
+      'error': '#f87171',
+      'info': '#38bdf8',
+      'success': '#4ade80',
+      'warning': '#fb923c',
+      'background': '#121212',
+      'surface': '#1a1a1a',
+      'surface-tint': '#2a2a2a',
+      'surface-variant': '#1e1e1e',
+      'divider': '#404040',
+      'pre': '{dark.colors.surface-tint}',
+      'on-primary': '#1a1a1a',
+      'on-secondary': '#1a1a1a',
+      'on-accent': '#1a1a1a',
+      'on-error': '#1a1a1a',
+      'on-info': '#1a1a1a',
+      'on-success': '#1a1a1a',
+      'on-warning': '#1a1a1a',
+      'on-background': '#e0e0e0',
+      'on-surface': '#e0e0e0',
+      'on-surface-variant': '#a0a0a0',
+    },
+  },
+  'high-contrast': {
+    id: 'high-contrast',
+    label: 'High Contrast',
+    icon: 'theme-high-contrast',
+    dark: true,
+    colors: {
+      'primary': '#ffff00',
+      'secondary': '#00ffff',
+      'accent': '#ff00ff',
+      'error': '#ff0000',
+      'info': '#00ffff',
+      'success': '#00ff00',
+      'warning': '#ffff00',
+      'background': '#000000',
+      'surface': '#000000',
+      'surface-tint': '#1a1a1a',
+      'surface-variant': '#000000',
+      'divider': '#ffffff',
+      'pre': '#0a0a0a',
+      'on-primary': '#000000',
+      'on-secondary': '#000000',
+      'on-accent': '#000000',
+      'on-error': '#000000',
+      'on-info': '#000000',
+      'on-success': '#000000',
+      'on-warning': '#000000',
+      'on-background': '#ffffff',
+      'on-surface': '#ffffff',
+      'on-surface-variant': '#ffffff',
+    },
+  },
+  'blackguard': {
+    id: 'blackguard',
+    label: 'Blackguard',
+    icon: 'theme-blackguard',
+    dark: true,
+    colors: {
+      'primary': '#f59e0b',
+      'secondary': '#a78bfa',
+      'accent': '#f472b6',
+      'error': '#f87171',
+      'info': '#c084fc',
+      'success': '#86efac',
+      'warning': '#fbbf24',
+      'background': '#0f0c24',
+      'surface': '#1a1640',
+      'surface-tint': '#252050',
+      'surface-variant': '#1e1845',
+      'divider': 'rgba(167, 139, 250, 0.2)',
+      'pre': '#151230',
+      'on-primary': '#000000',
+      'on-secondary': '#000000',
+      'on-accent': '#000000',
+      'on-error': '#000000',
+      'on-info': '#000000',
+      'on-success': '#000000',
+      'on-warning': '#000000',
+      'on-background': '#e8e0f0',
+      'on-surface': '#e8e0f0',
+      'on-surface-variant': '#a0a0b0',
+    },
+  },
+  'polaris': {
+    id: 'polaris',
+    label: 'Polaris',
+    icon: 'theme-polaris',
+    dark: true,
+    colors: {
+      'primary': '#f97316',
+      'secondary': '#fb923c',
+      'accent': '#fbbf24',
+      'error': '#f87171',
+      'info': '#fdba74',
+      'success': '#86efac',
+      'warning': '#fcd34d',
+      'background': '#1c0f0a',
+      'surface': '#261510',
+      'surface-tint': '#352018',
+      'surface-variant': '#2d1a14',
+      'divider': 'rgba(251, 146, 60, 0.2)',
+      'pre': '#1a0d08',
+      'on-primary': '#000000',
+      'on-secondary': '#000000',
+      'on-accent': '#000000',
+      'on-error': '#000000',
+      'on-info': '#000000',
+      'on-success': '#000000',
+      'on-warning': '#000000',
+      'on-background': '#f5e6e0',
+      'on-surface': '#f5e6e0',
+      'on-surface-variant': '#b0a0a0',
+    },
+  },
+  'nebula': {
+    id: 'nebula',
+    label: 'Nebula',
+    icon: 'theme-nebula',
+    dark: true,
+    colors: {
+      'primary': '#60a5fa',
+      'secondary': '#38bdf8',
+      'accent': '#22d3ee',
+      'error': '#f87171',
+      'info': '#94a3b8',
+      'success': '#34d399',
+      'warning': '#fbbf24',
+      'background': '#0f172a',
+      'surface': '#1e293b',
+      'surface-tint': '#273548',
+      'surface-variant': '#1e293b',
+      'divider': 'rgba(96, 165, 250, 0.2)',
+      'pre': '#0f172a',
+      'on-primary': '#000000',
+      'on-secondary': '#000000',
+      'on-accent': '#000000',
+      'on-error': '#000000',
+      'on-info': '#000000',
+      'on-success': '#000000',
+      'on-warning': '#000000',
+      'on-background': '#e2e8f0',
+      'on-surface': '#e2e8f0',
+      'on-surface-variant': '#94a3b8',
+    },
+  },
+  'odyssey': {
+    id: 'odyssey',
+    label: 'Odyssey',
+    icon: 'theme-odyssey',
+    dark: false,
+    colors: {
+      'primary': '#059669',
+      'secondary': '#f97316',
+      'accent': '#10b981',
+      'error': '#ef4444',
+      'info': '#14b8a6',
+      'success': '#22c55e',
+      'warning': '#f59e0b',
+      'background': '#fefce8',
+      'surface': '#fffef5',
+      'surface-tint': '#fef9c3',
+      'surface-variant': '#fef3c7',
+      'divider': 'rgba(5, 150, 105, 0.2)',
+      'pre': '#fef9c3',
+      'on-primary': '#ffffff',
+      'on-secondary': '#ffffff',
+      'on-accent': '#000000',
+      'on-error': '#ffffff',
+      'on-info': '#000000',
+      'on-success': '#000000',
+      'on-warning': '#000000',
+      'on-background': '#1c1917',
+      'on-surface': '#1c1917',
+      'on-surface-variant': '#57534e',
+    },
+  },
+} as const satisfies Record<string, ThemeDefinition>
+
+/**
+ * Get all theme configs for createThemePlugin.
+ */
+export function getAllThemeConfigs () {
+  return Object.fromEntries(
+    Object.entries(themes).map(([id, theme]) => [
+      id,
+      { dark: theme.dark, colors: theme.colors },
+    ]),
+  ) as Record<ThemeId, { dark: boolean, colors: Record<string, string> }>
+}
+
+/**
+ * Preview colors for theme swatches.
+ */
+export function getPreviewColors (id: ThemeId): string[] {
+  const { colors } = themes[id]
+  return [
+    colors.primary,
+    colors.secondary,
+    colors.accent,
+    colors.surface,
+    colors.background,
+  ]
+}
+
+/**
+ * Export theme as Vuetify config format.
+ * Ready to paste into createVuetify() themes option.
+ */
+export function exportThemeAsVuetifyConfig (id: ThemeId): string {
+  const theme = themes[id]
+  const config = {
+    dark: theme.dark,
+    colors: { ...theme.colors },
+  }
+
+  // Format as JS object (not JSON) for better DX
+  const colorsStr = Object.entries(config.colors)
+    .map(([key, value]) => `      '${key}': '${value}',`)
+    .join('\n')
+
+  return `{
+  dark: ${config.dark},
+  colors: {
+${colorsStr}
+  },
+}`
+}

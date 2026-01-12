@@ -1,18 +1,7 @@
 <script setup lang="ts">
-  // Composables
-  import { useThemeToggle } from '@/composables/useThemeToggle'
-
-  const { icon, title, toggle } = useThemeToggle()
+  // Uses AppThemeSelector for popover-based theme selection
 </script>
 
 <template>
-  <button
-    :aria-label="title"
-    class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-    :title="title"
-    type="button"
-    @click="toggle"
-  >
-    <AppIcon :icon />
-  </button>
+  <AppThemeSelector />
 </template>

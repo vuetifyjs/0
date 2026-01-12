@@ -7,28 +7,52 @@ import { type Ref, shallowRef, type ShallowRef, toRef, watch } from 'vue'
 // Types
 import type { UseThemeReturn } from '@vuetify/v0'
 
-const PREFERENCE_ORDER = ['system', 'light', 'dark', 'high-contrast'] as const
+// Themes
+import { themes, type ThemeId } from '@/themes'
+
+const PREFERENCE_ORDER = [
+  'system',
+  'light',
+  'dark',
+  'high-contrast',
+  'blackguard',
+  'polaris',
+  'nebula',
+  'odyssey',
+] as const
+
 const PREFERENCE_ICONS: Record<string, string> = {
+  'system': 'theme-system',
   'light': 'theme-light',
   'dark': 'theme-dark',
   'high-contrast': 'theme-high-contrast',
-  'system': 'theme-system',
+  'blackguard': 'theme-blackguard',
+  'polaris': 'theme-polaris',
+  'nebula': 'theme-nebula',
+  'odyssey': 'theme-odyssey',
 }
+
 const PREFERENCE_LABELS: Record<string, string> = {
+  'system': 'System',
   'light': 'Light',
   'dark': 'Dark',
   'high-contrast': 'High Contrast',
-  'system': 'System',
+  'blackguard': 'Blackguard',
+  'polaris': 'Polaris',
+  'nebula': 'Nebula',
+  'odyssey': 'Odyssey',
 }
 
 export type ThemePreference = typeof PREFERENCE_ORDER[number]
 
 export interface UseThemeToggleReturn {
   theme: UseThemeReturn
+  themes: typeof themes
   preference: ShallowRef<ThemePreference>
   icon: Ref<string>
   title: Ref<string>
   toggle: () => void
+  setPreference: (pref: ThemePreference) => void
   isDark: UseThemeReturn['isDark']
 }
 
@@ -57,7 +81,11 @@ export function useThemeToggle (): UseThemeToggleReturn {
       [preference, prefersDark],
       ([pref, isDark]) => {
         storage.set('theme', pref)
-        const actualTheme = pref === 'system' ? (isDark ? 'dark' : 'light') : pref
+        // 'system' resolves to light/dark based on OS preference
+        // All other preferences are actual theme names
+        const actualTheme: ThemeId = pref === 'system'
+          ? (isDark ? 'dark' : 'light')
+          : pref
         theme.select(actualTheme)
       },
     )
@@ -72,12 +100,18 @@ export function useThemeToggle (): UseThemeToggleReturn {
     preference.value = PREFERENCE_ORDER[nextIndex]
   }
 
+  function setPreference (pref: ThemePreference) {
+    preference.value = pref
+  }
+
   return {
     theme,
+    themes,
     preference,
     icon,
     title,
     toggle,
+    setPreference,
     isDark: theme.isDark,
   }
 }

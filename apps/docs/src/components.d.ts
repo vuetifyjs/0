@@ -39,6 +39,8 @@ declare module 'vue' {
     AppSettingsTheme: typeof import('./components/app/settings/AppSettingsTheme.vue')['default']
     AppSettingsToggle: typeof import('./components/app/settings/AppSettingsToggle.vue')['default']
     AppSkillFilter: typeof import('./components/app/AppSkillFilter.vue')['default']
+    AppThemePreview: typeof import('./components/app/AppThemePreview.vue')['default']
+    AppThemeSelector: typeof import('./components/app/AppThemeSelector.vue')['default']
     AppThemeToggle: typeof import('./components/app/AppThemeToggle.vue')['default']
     DocsActionChip: typeof import('./components/docs/DocsActionChip.vue')['default']
     DocsAlert: typeof import('./components/docs/DocsAlert.vue')['default']

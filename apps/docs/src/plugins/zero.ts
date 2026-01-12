@@ -4,6 +4,9 @@ import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, create
 // Types
 import type { App } from 'vue'
 
+// Themes
+import { getAllThemeConfigs, themes, type ThemeId } from '@/themes'
+
 // Plugins
 import { createIconPlugin } from './icons'
 
@@ -47,8 +50,9 @@ export default function zero (app: App) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
 
-  function resolveTheme (preference: string | null | undefined): 'light' | 'dark' | 'high-contrast' {
-    if (preference === 'light' || preference === 'dark' || preference === 'high-contrast') return preference
+  function resolveTheme (preference: string | null | undefined): ThemeId {
+    // Direct theme selection
+    if (preference && preference in themes) return preference as ThemeId
     // 'system' or unknown/null preference resolves to system theme
     return getSystemTheme()
   }
@@ -61,92 +65,7 @@ export default function zero (app: App) {
     createThemePlugin({
       default: savedTheme,
       target: 'html',
-      themes: {
-        'light': {
-          dark: false,
-          colors: {
-            'primary': '#3b82f6',
-            'secondary': '#64748b',
-            'accent': '#6366f1',
-            'error': '#ef4444',
-            'info': '#1867c0',
-            'success': '#22c55e',
-            'warning': '#f59e0b',
-            'background': '#f5f5f5',
-            'surface': '#FFFFFF',
-            'surface-tint': '#f5f5f5',
-            'surface-variant': '#eeeeee',
-            'divider': '#e0e0e0',
-            'pre': '{light.colors.surface-tint}',
-            'on-primary': '#ffffff',
-            'on-secondary': '#ffffff',
-            'on-accent': '#ffffff',
-            'on-error': '#ffffff',
-            'on-info': '#ffffff',
-            'on-success': '#ffffff',
-            'on-warning': '#1a1a1a',
-            'on-background': '#212121',
-            'on-surface': '#212121',
-            'on-surface-variant': '#666666',
-          },
-        },
-        'dark': {
-          dark: true,
-          colors: {
-            'primary': '#c4b5fd',
-            'secondary': '#94a3b8',
-            'accent': '#c084fc',
-            'error': '#f87171',
-            'info': '#38bdf8',
-            'success': '#4ade80',
-            'warning': '#fb923c',
-            'background': '#121212',
-            'surface': '#1a1a1a',
-            'surface-tint': '#2a2a2a',
-            'surface-variant': '#1e1e1e',
-            'divider': '#404040',
-            'pre': '{dark.colors.surface-tint}',
-            'on-primary': '#1a1a1a',
-            'on-secondary': '#1a1a1a',
-            'on-accent': '#1a1a1a',
-            'on-error': '#1a1a1a',
-            'on-info': '#1a1a1a',
-            'on-success': '#1a1a1a',
-            'on-warning': '#1a1a1a',
-            'on-background': '#e0e0e0',
-            'on-surface': '#e0e0e0',
-            'on-surface-variant': '#a0a0a0',
-          },
-        },
-        'high-contrast': {
-          dark: true,
-          colors: {
-            'primary': '#ffff00',
-            'secondary': '#00ffff',
-            'accent': '#ff00ff',
-            'error': '#ff0000',
-            'info': '#00ffff',
-            'success': '#00ff00',
-            'warning': '#ffff00',
-            'background': '#000000',
-            'surface': '#000000',
-            'surface-tint': '#1a1a1a',
-            'surface-variant': '#000000',
-            'divider': '#ffffff',
-            'pre': '#0a0a0a',
-            'on-primary': '#000000',
-            'on-secondary': '#000000',
-            'on-accent': '#000000',
-            'on-error': '#000000',
-            'on-info': '#000000',
-            'on-success': '#000000',
-            'on-warning': '#000000',
-            'on-background': '#ffffff',
-            'on-surface': '#ffffff',
-            'on-surface-variant': '#ffffff',
-          },
-        },
-      },
+      themes: getAllThemeConfigs(),
     }),
   )
 
