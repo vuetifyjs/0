@@ -12,7 +12,7 @@
   // Themes
   import type { ThemeId } from '@/themes'
 
-  const { icon, preference, setPreference } = useThemeToggle()
+  const { icon, title, preference, setPreference } = useThemeToggle()
 
   const isOpen = ref(false)
 
@@ -50,13 +50,13 @@
     <Popover.Activator
       aria-label="Select theme"
       class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-      title="Select theme"
+      :title="title"
     >
       <AppIcon :icon />
     </Popover.Activator>
 
     <Popover.Content
-      class="p-3 rounded-lg bg-surface border border-divider shadow-xl min-w-56"
+      class="p-3 rounded-lg bg-surface border border-divider shadow-xl min-w-56 !mt-1"
       position-area="bottom span-left"
       position-try="bottom span-left, bottom span-right, top span-left, top span-right"
     >

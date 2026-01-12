@@ -52,7 +52,7 @@
       <span>Theme</span>
       <button
         class="ml-auto p-1 rounded hover:bg-surface-tint transition-colors inline-flex items-center justify-center shrink-0"
-        title="Copy current theme as Vuetify config"
+        title="Copy theme as Vuetify0 config"
         type="button"
         @click="exportTheme"
       >

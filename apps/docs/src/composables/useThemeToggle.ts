@@ -92,7 +92,7 @@ export function useThemeToggle (): UseThemeToggleReturn {
   }
 
   const icon = toRef(() => PREFERENCE_ICONS[preference.value] ?? 'theme-system')
-  const title = toRef(() => `Toggle Theme (${PREFERENCE_LABELS[preference.value] ?? 'System'})`)
+  const title = toRef(() => `Theme: ${PREFERENCE_LABELS[preference.value] ?? 'System'}`)
 
   function toggle () {
     const currentIndex = PREFERENCE_ORDER.indexOf(preference.value)
