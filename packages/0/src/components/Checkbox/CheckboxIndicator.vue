@@ -41,7 +41,7 @@
   }
 </script>
 
-<script lang="ts" setup>
+<script setup lang="ts">
   // Components
   import { useCheckboxRoot } from './CheckboxRoot.vue'
 

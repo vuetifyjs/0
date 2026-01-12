@@ -102,4 +102,47 @@ For custom implementations, use `renderless` mode and bind the `attrs` slot prop
 </template>
 ```
 
+## Form Integration
+
+When the `name` prop is provided on `Checkbox.Root`, a hidden native checkbox is automatically rendered for form submission:
+
+```vue
+<template>
+  <!-- Auto-renders hidden input for form submission -->
+  <Checkbox.Root name="agree" value="yes">
+    <Checkbox.Indicator>✓</Checkbox.Indicator>
+  </Checkbox.Root>
+</template>
+```
+
+For custom form integration, use `Checkbox.HiddenInput` explicitly:
+
+```vue
+<template>
+  <Checkbox.Root>
+    <Checkbox.Indicator>✓</Checkbox.Indicator>
+    <Checkbox.HiddenInput name="custom" value="override" />
+  </Checkbox.Root>
+</template>
+```
+
+## Indeterminate State
+
+In group mode, checkboxes support an indeterminate (mixed) state via the `indeterminate` prop:
+
+```vue
+<template>
+  <Checkbox.Group v-model="selected">
+    <Checkbox.Root value="parent" :indeterminate="isMixed">
+      <Checkbox.Indicator>
+        <span v-if="isMixed">−</span>
+        <span v-else>✓</span>
+      </Checkbox.Indicator>
+    </Checkbox.Root>
+  </Checkbox.Group>
+</template>
+```
+
+The indeterminate state sets `aria-checked="mixed"` and `data-state="indeterminate"` for styling.
+
 <DocsApi />

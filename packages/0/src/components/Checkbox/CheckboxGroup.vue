@@ -75,7 +75,7 @@
   export const [useCheckboxGroup, provideCheckboxGroup] = createContext<GroupContext<GroupTicket>>()
 </script>
 
-<script lang="ts" setup generic="T = unknown">
+<script setup lang="ts" generic="T = unknown">
   // Composables
   import { createGroup } from '#v0/composables/createGroup'
   import { useProxyModel } from '#v0/composables/useProxyModel'

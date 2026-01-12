@@ -788,6 +788,42 @@ describe('checkbox', () => {
     })
 
     describe('batch operations', () => {
+      it('should handle selectAll when all items are disabled', async () => {
+        const selected = ref<string[]>([])
+        let groupProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: (props: any) => {
+              groupProps = props
+              return [
+                h(Checkbox.Root as any, { value: 'item-1', disabled: true }, () =>
+                  h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+                ),
+                h(Checkbox.Root as any, { value: 'item-2', disabled: true }, () =>
+                  h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+                ),
+              ]
+            },
+          },
+        })
+
+        await nextTick()
+
+        groupProps.selectAll()
+        await nextTick()
+
+        // No items should be selected since all are disabled
+        expect(selected.value).toHaveLength(0)
+        expect(groupProps.isNoneSelected).toBe(true)
+      })
+
       it('should select all items with selectAll', async () => {
         const selected = ref<string[]>([])
         let groupProps: any
@@ -954,6 +990,62 @@ describe('checkbox', () => {
         await nextTick()
 
         expect(rootProps.isMixed).toBe(false)
+      })
+
+      it('should initialize to mixed state when indeterminate prop is true', async () => {
+        let rootProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () =>
+              h(Checkbox.Root as any, { value: 'item-1', indeterminate: true }, {
+                default: (props: any) => {
+                  rootProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(rootProps.isMixed).toBe(true)
+        expect(rootProps.attrs['aria-checked']).toBe('mixed')
+      })
+
+      it('should respond to reactive indeterminate prop changes', async () => {
+        const indeterminate = ref(false)
+        let rootProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () =>
+              h(Checkbox.Root as any, { value: 'item-1', indeterminate: indeterminate.value }, {
+                default: (props: any) => {
+                  rootProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item')
+                },
+              }),
+          },
+        })
+
+        await nextTick()
+
+        expect(rootProps.isMixed).toBe(false)
+
+        // Note: indeterminate is only applied at registration time
+        // Dynamic changes require using mix()/unmix() methods
+        rootProps.mix()
+        await nextTick()
+
+        expect(rootProps.isMixed).toBe(true)
+        expect(rootProps.attrs['data-state']).toBe('indeterminate')
+
+        rootProps.unmix()
+        await nextTick()
+
+        expect(rootProps.isMixed).toBe(false)
+        expect(rootProps.attrs['data-state']).toBe('unchecked')
       })
 
       it('should set aria-checked to mixed when in mixed state', async () => {

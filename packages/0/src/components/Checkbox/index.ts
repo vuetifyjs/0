@@ -45,6 +45,29 @@ export const Checkbox = {
    * Group component for managing multiple checkboxes.
    *
    * @see https://0.vuetifyjs.com/components/checkbox#group
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Checkbox } from '@vuetify/v0'
+   *   import { ref } from 'vue'
+   *
+   *   const selected = ref<string[]>([])
+   * </script>
+   *
+   * <template>
+   *   <Checkbox.Group v-model="selected">
+   *     <Checkbox.Root value="a">
+   *       <Checkbox.Indicator>✓</Checkbox.Indicator>
+   *       Option A
+   *     </Checkbox.Root>
+   *     <Checkbox.Root value="b">
+   *       <Checkbox.Indicator>✓</Checkbox.Indicator>
+   *       Option B
+   *     </Checkbox.Root>
+   *   </Checkbox.Group>
+   * </template>
+   * ```
    */
   Group,
   /**
@@ -54,6 +77,20 @@ export const Checkbox = {
    * Can also be used explicitly for custom form integration.
    *
    * @see https://0.vuetifyjs.com/components/checkbox#hiddeninput
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Checkbox } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Checkbox.Root>
+   *     <Checkbox.Indicator>✓</Checkbox.Indicator>
+   *     <Checkbox.HiddenInput name="agree" value="yes" />
+   *   </Checkbox.Root>
+   * </template>
+   * ```
    */
   HiddenInput,
   /**
@@ -63,6 +100,23 @@ export const Checkbox = {
    * Must be used within a Checkbox.Root component.
    *
    * @see https://0.vuetifyjs.com/components/checkbox#indicator
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Checkbox } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Checkbox.Root>
+   *     <Checkbox.Indicator>
+   *       <svg viewBox="0 0 24 24">
+   *         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+   *       </svg>
+   *     </Checkbox.Indicator>
+   *   </Checkbox.Root>
+   * </template>
+   * ```
    */
   Indicator,
   /**
@@ -74,6 +128,25 @@ export const Checkbox = {
    * is provided, automatically renders a hidden input for form submission.
    *
    * @see https://0.vuetifyjs.com/components/checkbox#root
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Checkbox } from '@vuetify/v0'
+   *   import { ref } from 'vue'
+   *
+   *   const agreed = ref(false)
+   * </script>
+   *
+   * <template>
+   *   <label>
+   *     <Checkbox.Root v-model="agreed">
+   *       <Checkbox.Indicator>✓</Checkbox.Indicator>
+   *     </Checkbox.Root>
+   *     I agree to the terms
+   *   </label>
+   * </template>
+   * ```
    */
   Root,
 }
