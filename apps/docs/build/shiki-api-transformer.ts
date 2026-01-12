@@ -59,6 +59,7 @@ const V0_COMPOSABLES = new Set([
   'useEventListener',
   'useHotkey',
   'useIntersectionObserver',
+  'useLazy',
   'useMediaQuery',
   'useMutationObserver',
   'useResizeObserver',
