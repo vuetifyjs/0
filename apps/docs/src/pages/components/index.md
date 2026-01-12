@@ -32,11 +32,18 @@ Pure context providers for state management. Always renderless—they provide lo
 
 | Name | Description |
 | - | - |
-| [Checkbox](/components/providers/checkbox) | Checkbox controls with dual-mode (standalone/group) support |
 | [Selection](/components/providers/selection) | Multi-selection state with v-model binding |
 | [Single](/components/providers/single) | Single-selection with automatic deselection |
 | [Group](/components/providers/group) | Multi-selection with tri-state support |
 | [Step](/components/providers/step) | Sequential navigation (first, last, next, prev) |
+
+## Forms
+
+Form control components with accessibility and validation support.
+
+| Name | Description |
+| - | - |
+| [Checkbox](/components/forms/checkbox) | Checkbox controls with dual-mode (standalone/group) and tri-state support |
 
 ## Semantic
 

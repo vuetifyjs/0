@@ -38,8 +38,9 @@ v0 components are Vue wrappers around composables. Composables hold logic, compo
 | - | - | - |
 | **Primitives** | Base building blocks | [Atom](/components/primitives/atom) |
 | **Providers** | Pure state management, no DOM | [Selection](/components/providers/selection), [Single](/components/providers/single), [Group](/components/providers/group), [Step](/components/providers/step) |
+| **Forms** | Form controls with accessibility | [Checkbox](/components/forms/checkbox) |
 | **Semantic** | Meaningful HTML defaults | [Avatar](/components/semantic/avatar), [Pagination](/components/semantic/pagination) |
-| **Disclosure** | Show/hide patterns | [ExpansionPanel](/components/disclosure/expansion-panel), [Popover](/components/disclosure/popover) |
+| **Disclosure** | Show/hide patterns | [Dialog](/components/disclosure/dialog), [ExpansionPanel](/components/disclosure/expansion-panel), [Popover](/components/disclosure/popover) |
 
 ## Atom: The Foundation
 
@@ -134,6 +135,10 @@ Components emit data attributes for CSS styling:
 - [Group](/components/providers/group) — Multi-select with tri-state
 - [Step](/components/providers/step) — Sequential navigation
 
+### Forms
+
+- [Checkbox](/components/forms/checkbox) — Standalone/group checkbox with tri-state
+
 ### Semantic
 
 - [Avatar](/components/semantic/avatar) — Image with fallback
@@ -141,5 +146,6 @@ Components emit data attributes for CSS styling:
 
 ### Disclosure
 
+- [Dialog](/components/disclosure/dialog) — Modal dialog with focus management
 - [ExpansionPanel](/components/disclosure/expansion-panel) — Accordion pattern
 - [Popover](/components/disclosure/popover) — Floating content
