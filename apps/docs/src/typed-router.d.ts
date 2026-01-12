@@ -79,6 +79,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/checkbox': RouteRecordInfo<
+      '/components/forms/checkbox',
+      '/components/forms/checkbox',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/primitives/atom': RouteRecordInfo<
       '/components/primitives/atom',
       '/components/primitives/atom',
@@ -606,6 +613,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/disclosure/popover.md': {
       routes:
         | '/components/disclosure/popover'
+      views:
+        | never
+    }
+    'src/pages/components/forms/checkbox.md': {
+      routes:
+        | '/components/forms/checkbox'
       views:
         | never
     }

@@ -65,6 +65,17 @@ The Checkbox component supports two modes:
     </Checkbox.Root>
   </Checkbox.Group>
 
+  <!-- Group with Select All -->
+  <Checkbox.Group>
+    <Checkbox.SelectAll>
+      <Checkbox.Indicator />
+    </Checkbox.SelectAll>
+
+    <Checkbox.Root>
+      <Checkbox.Indicator />
+    </Checkbox.Root>
+  </Checkbox.Group>
+
   <!-- With form submission -->
   <Checkbox.Root>
     <Checkbox.Indicator />
@@ -132,12 +143,16 @@ For custom form integration, use `Checkbox.HiddenInput` explicitly:
 
 ## Indeterminate State
 
-Checkboxes support an indeterminate (mixed) state via the `indeterminate` prop. This is useful for "select all" patterns where some but not all children are selected.
+Use `Checkbox.SelectAll` within a group for "select all" patterns. It automatically reflects the group's aggregate state and toggles all items on click:
 
 <DocsExample file="indeterminate.vue" :code="IndeterminateExampleRaw">
   <IndeterminateExample />
 </DocsExample>
 
-The indeterminate state sets `aria-checked="mixed"` and `data-state="indeterminate"` for styling.
+The `SelectAll` component:
+- Binds to the group's `isAllSelected` and `isMixed` state
+- Calls `toggleAll` on click
+- Does NOT register as a group item
+- Sets `aria-checked="mixed"` and `data-state="indeterminate"` when partially selected
 
 <DocsApi />

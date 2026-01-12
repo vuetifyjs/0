@@ -27,7 +27,7 @@ All components follow the **compound component pattern** in `packages/0/src/comp
 |-----------|-------------|----------------|
 | **Atom** | Polymorphic foundation. `as` prop for element type. | — |
 | **Avatar** | Image with fallback | Root, Image, Fallback |
-| **Checkbox** | Standalone or group checkbox with tri-state | Root, Group, Indicator, HiddenInput |
+| **Checkbox** | Standalone or group checkbox with tri-state | Root, Group, SelectAll, Indicator, HiddenInput |
 | **Dialog** | Modal overlay with focus trapping | Root, Activator, Content, Title, Description, Close |
 | **ExpansionPanel** | Accordion/collapsible | Root, Item, Header, Activator, Content |
 | **Group** | Multi-selection + tri-state | Root, Item |

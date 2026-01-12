@@ -181,7 +181,7 @@
 
   const isMixed = computed(() => {
     if (ticket) return toValue(ticket.isMixed)
-    return false
+    return toValue(props.indeterminate) ?? false
   })
 
   const isDisabled = computed(() => {

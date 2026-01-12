@@ -580,7 +580,7 @@ describe('checkbox', () => {
         expect(rootProps.isMixed).toBe(false)
       })
 
-      it('should ignore indeterminate prop in standalone mode', async () => {
+      it('should honor indeterminate prop in standalone mode', async () => {
         let rootProps: any
 
         mount(Checkbox.Root, {
@@ -597,8 +597,8 @@ describe('checkbox', () => {
 
         await nextTick()
 
-        // indeterminate prop is only meaningful in group mode
-        expect(rootProps.isMixed).toBe(false)
+        // indeterminate prop controls isMixed in standalone mode
+        expect(rootProps.isMixed).toBe(true)
       })
     })
   })
