@@ -11,21 +11,21 @@
   ]
 
   const composables = [
-    { name: 'useSelection', category: 'Selection' },
-    { name: 'useGroup', category: 'Selection' },
-    { name: 'useSingle', category: 'Selection' },
-    { name: 'useStep', category: 'Selection' },
-    { name: 'useTheme', category: 'Plugins' },
-    { name: 'useBreakpoints', category: 'Plugins' },
-    { name: 'useLocale', category: 'Plugins' },
-    { name: 'useStorage', category: 'Plugins' },
-    { name: 'useRegistry', category: 'Registration' },
-    { name: 'useTokens', category: 'Registration' },
-    { name: 'usePagination', category: 'Selection' },
-    { name: 'useFilter', category: 'Selection' },
-    { name: 'useForm', category: 'Forms' },
-    { name: 'useVirtual', category: 'System' },
-    { name: 'createContext', category: 'Foundation' },
+    { name: 'createSelection', to: '/composables/selection/create-selection', category: 'Selection' },
+    { name: 'createGroup', to: '/composables/selection/create-group', category: 'Selection' },
+    { name: 'createSingle', to: '/composables/selection/create-single', category: 'Selection' },
+    { name: 'createStep', to: '/composables/selection/create-step', category: 'Selection' },
+    { name: 'useTheme', to: '/composables/plugins/use-theme', category: 'Plugins' },
+    { name: 'useBreakpoints', to: '/composables/plugins/use-breakpoints', category: 'Plugins' },
+    { name: 'useLocale', to: '/composables/plugins/use-locale', category: 'Plugins' },
+    { name: 'useStorage', to: '/composables/plugins/use-storage', category: 'Plugins' },
+    { name: 'createRegistry', to: '/composables/registration/create-registry', category: 'Registration' },
+    { name: 'createTokens', to: '/composables/registration/create-tokens', category: 'Registration' },
+    { name: 'usePagination', to: '/composables/utilities/use-pagination', category: 'Utilities' },
+    { name: 'useFilter', to: '/composables/utilities/use-filter', category: 'Utilities' },
+    { name: 'createForm', to: '/composables/forms/create-form', category: 'Forms' },
+    { name: 'useVirtual', to: '/composables/utilities/use-virtual', category: 'Utilities' },
+    { name: 'createContext', to: '/composables/foundation/create-context', category: 'Foundation' },
   ]
 </script>
 
@@ -88,14 +88,15 @@
       </div>
 
       <div class="grid grid-cols-2 md:flex md:flex-wrap gap-3">
-        <div
+        <router-link
           v-for="composable in composables"
           :key="composable.name"
-          class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 transition-colors"
+          class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-colors"
+          :to="composable.to"
         >
           <span class="font-mono text-sm">{{ composable.name }}</span>
           <span class="text-xs opacity-60 ml-2 hidden sm:inline">{{ composable.category }}</span>
-        </div>
+        </router-link>
 
         <router-link
           class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-colors"
