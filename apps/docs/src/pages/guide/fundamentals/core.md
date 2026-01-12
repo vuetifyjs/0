@@ -1,7 +1,7 @@
 ---
 title: Core - Foundation Systems for Vue 3
 features:
-  order: 2
+  order: 1
   level: 3
 meta:
   - name: description
@@ -9,7 +9,7 @@ meta:
   - name: keywords
     content: vuetify0, framework core, dependency injection, createContext, createTrinity, createPlugin, Vue 3
 related:
-  - /guide/plugins
+  - /guide/fundamentals/plugins
   - /composables/foundation/create-context
   - /composables/foundation/create-trinity
   - /composables/registration/create-registry
@@ -17,7 +17,7 @@ related:
 
 # Core
 
-v0's core architecture provides type-safe dependency injection and composable patterns. This page explains **how v0 works**. For creating plugins, see [Plugins Guide](/guide/plugins).
+v0's core architecture provides type-safe dependency injection and composable patterns. This page explains **how v0 works**. For creating plugins, see [Plugins Guide](/guide/fundamentals/plugins).
 
 <DocsPageFeatures :frontmatter />
 

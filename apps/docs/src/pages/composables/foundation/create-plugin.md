@@ -13,7 +13,7 @@ features:
 related:
   - /composables/foundation/create-context
   - /composables/foundation/create-trinity
-  - /guide/plugins
+  - /guide/fundamentals/plugins
 ---
 
 # createPlugin
@@ -53,6 +53,7 @@ export function createMyPlugin () {
 }
 ```
 
+> [!TIP]
 > The **setup** and **provide** functions do the same thing, they are separated for semantic purposes.
 
 Then, in your main application file, register the plugin like so:

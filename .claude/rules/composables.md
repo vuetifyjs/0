@@ -35,7 +35,7 @@ createPlugin({
 
 ## Registry System
 
-`useRegistry` is the foundational data structure. Enhanced Map with indexing, caching, events.
+`createRegistry` is the foundational factory. Returns an enhanced Map with indexing, caching, events.
 
 **Core Concept**: Manages "tickets" with `id`, `index`, `value`, `valueIsIndex`
 
@@ -59,31 +59,31 @@ registry.onboard([...])     // Bulk register
 
 ## Selection System
 
-### `useSelection` - Base Selection
+### `createSelection` - Base Selection
 - `selectedIds`: `Set<ID>` (reactive)
 - `mandatory`: Prevents deselecting last item
 - `enroll`: Auto-select non-disabled on register
 - Tickets get: `isSelected`, `select()`, `unselect()`, `toggle()`
 
-### `useSingle` - Single Selection
+### `createSingle` - Single Selection
 - Clears `selectedIds` before selecting
 - Adds: `selectedId`, `selectedItem`, `selectedIndex`, `selectedValue`
 
-### `useGroup` - Multi-Selection + Tri-State
+### `createGroup` - Multi-Selection + Tri-State
 - Accepts `ID | ID[]` for batch ops
 - Tri-state: `isMixed`, `mix()`, `unmix()`, `indeterminate`
 - Batch: `selectAll()`, `unselectAll()`, `toggleAll()`
 
-### `useStep` - Navigation
-- Extends `useSingle`
+### `createStep` - Navigation
+- Extends `createSingle`
 - `first()`, `last()`, `next()`, `prev()`, `step(count)`
 - Circular navigation, skips disabled
 
 ## Token System
 
-### `useTokens` - Design Token Registry
+### `createTokens` - Design Token Registry
 ```ts
-const tokens = useTokens({
+const tokens = createTokens({
   colors: {
     blue: { 500: '#3b82f6' },
     primary: '{colors.blue.500}'  // Alias
@@ -101,7 +101,7 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 
 | Composable | Purpose |
 |------------|---------|
-| `useFeatures` | Feature flags with variations (on `useGroup` + `useTokens`) |
+| `useFeatures` | Feature flags with variations (on `createGroup` + `createTokens`) |
 | `useForm` | Form validation with async rules |
 | `useTimeline` | Bounded undo/redo |
 | `useTheme` | Theme management with CSS variable injection |
@@ -110,7 +110,7 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 | `useVirtual` | Virtual scrolling |
 | `useOverflow` | Container measurement |
 | `useFilter` | Array filtering |
-| `usePermissions` | RBAC/ABAC on `useTokens` |
+| `usePermissions` | RBAC/ABAC on `createTokens` |
 | `useLocale` | i18n with interpolation |
 | `useBreakpoints` | Responsive breakpoint detection |
 | `useLogger` | Pluggable logging with adapters |
@@ -127,6 +127,8 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 - **Events**: `useEventListener`, `useHotkey`, `useClickOutside`
 - **Storage**: `useStorage` (localStorage/sessionStorage/memory adapters)
 - **Hydration**: `useHydration` (SSR hydration state)
+- **Date**: `useDate` (date manipulation with adapter pattern)
+- **Media**: `useMediaQuery` (reactive media query matching)
 - **Transformers**: `toReactive`, `toArray`
 
 ## Trinity Pattern

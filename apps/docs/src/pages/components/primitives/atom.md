@@ -2,7 +2,7 @@
 title: Atom - Polymorphic Foundation Component for Vue 3
 meta:
 - name: description
-  content: Polymorphic foundation component for dynamic element rendering. Render as any HTML element with the 'as' prop and support renderless mode for full flexibility.
+  content: Polymorphic foundation component for dynamic element rendering. Render as any HTML element with the 'as' prop or use renderless mode for zero DOM overhead.
 - name: keywords
   content: atom, component, renderless, polymorphic, as prop, Vue 3, headless, dynamic element
 features:
@@ -12,7 +12,7 @@ features:
   renderless: false
   level: 2
 related:
-  - /guide/components
+  - /guide/fundamentals/components
 ---
 
 <script setup>
@@ -22,15 +22,20 @@ import BasicExampleRaw from '@/examples/components/atom/basic.vue?raw'
 
 # Atom
 
-The foundational building block for dynamic element rendering with renderless capabilities.
+Renders any HTML element or outputs nothing at all—your choice.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-The Atom component provides dynamic element rendering and is used as the foundation for all other components in Vuetify0. It supports polymorphic rendering through the `as` prop and can render as any HTML element or Vue component.
+Use Atom when you need to:
+- Render the same component as different elements (e.g., `<button>` vs `<a>`)
+- Output slot content without a wrapper element (renderless mode)
+- Build higher-level components that inherit polymorphic behavior
 
-<DocsExample file="basic.vue" title="Dynamic Element Rendering" :code="BasicExampleRaw">
+The `as` prop accepts any HTML tag name. Set `as` to `null` or use the `renderless` prop to skip the wrapper entirely and render only slot content.
+
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
   <BasicExample />
 </DocsExample>
 
@@ -45,5 +50,46 @@ The Atom component provides dynamic element rendering and is used as the foundat
   <Atom />
 </template>
 ```
+
+## In Practice
+
+All v0 components use Atom internally with sensible defaults:
+
+| Component | Default `as` | Why |
+|-----------|--------------|-----|
+| `PaginationItem` | `button` | Interactive by default |
+| `AvatarRoot` | `div` | Container element |
+| `DialogRoot` | `null` | Pure context provider, no DOM |
+
+```vue
+<script setup lang="ts">
+  // Inside PaginationItem.vue
+  import { Atom } from '@vuetify/v0'
+
+  const { as = 'button', renderless, value } = defineProps<PaginationItemProps>()
+
+  const slotProps = computed(() => ({
+    page: value,
+    isSelected: isSelected.value,
+    select,
+    attrs: {
+      'aria-label': `Go to page ${value}`,
+      'aria-current': isSelected.value ? 'page' : undefined,
+      onClick: select,
+    },
+  }))
+</script>
+
+<template>
+  <!-- Renders as <button> by default, but consumers can override -->
+  <Atom :as :renderless v-bind="slotProps.attrs">
+    <slot v-bind="slotProps">
+      {{ value }}
+    </slot>
+  </Atom>
+</template>
+```
+
+Each component exposes the `as` and `renderless` props, so you can override the default when needed.
 
 <DocsApi />

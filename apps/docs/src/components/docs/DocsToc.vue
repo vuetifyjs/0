@@ -26,7 +26,7 @@
       On this page
     </button>
 
-    <nav>
+    <nav aria-label="Table of contents">
       <ul class="space-y-1">
         <li v-for="h2 in headings" :key="h2.id">
           <a

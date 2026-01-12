@@ -17,6 +17,8 @@
 
 <template>
   <button
+    :aria-label="`Filter by ${labels[level]} level`"
+    :aria-pressed="active"
     class="px-2 py-0.5 rounded-full text-xs font-medium transition-opacity cursor-pointer"
     :class="[
       colors[level],

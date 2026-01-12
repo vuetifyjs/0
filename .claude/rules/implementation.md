@@ -80,12 +80,12 @@ type Rule = (value: T) => string | true | Promise<string | true>
 ## SSR Support
 
 - `IN_BROWSER` constant from `#v0/constants/globals`
-- `Hydration` component + `useHydration` composable
+- `useHydration` composable (SSR-aware, used internally by observers)
 - Theme adapter checks `IN_BROWSER` before DOM ops
 
 ## Token Flattening
 
-`useTokens` flattens nested objects:
+`createTokens` flattens nested objects:
 ```ts
 { colors: { blue: { 500: '#3b82f6' } } }
 // → 'colors.blue.500' -> '#3b82f6'

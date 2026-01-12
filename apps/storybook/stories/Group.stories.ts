@@ -28,43 +28,46 @@ export const Default: Story = {
       return { args, selected }
     },
     template: `
-      <div class="flex flex-col gap-4">
-        <div class="text-sm text-gray-500">
-          Selected: <code class="bg-gray-100 px-1 rounded">{{ selected.length ? selected.join(', ') : 'none' }}</code>
-        </div>
+      <Root v-model="selected" class="flex gap-2">
+        <Item value="apple" v-slot="{ isSelected, toggle, attrs }">
+          <button
+            v-bind="attrs"
+            @click="toggle"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            :class="isSelected
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
+              : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
+          >
+            Apple
+          </button>
+        </Item>
 
-        <Root v-model="selected" class="flex gap-2">
-          <Item value="apple" v-slot="{ isSelected, toggle }">
-            <button
-              @click="toggle"
-              class="px-4 py-2 rounded border-2 transition-colors"
-              :class="isSelected ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-gray-300'"
-            >
-              Apple
-            </button>
-          </Item>
+        <Item value="banana" v-slot="{ isSelected, toggle, attrs }">
+          <button
+            v-bind="attrs"
+            @click="toggle"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            :class="isSelected
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
+              : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
+          >
+            Banana
+          </button>
+        </Item>
 
-          <Item value="banana" v-slot="{ isSelected, toggle }">
-            <button
-              @click="toggle"
-              class="px-4 py-2 rounded border-2 transition-colors"
-              :class="isSelected ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-gray-300'"
-            >
-              Banana
-            </button>
-          </Item>
-
-          <Item value="cherry" v-slot="{ isSelected, toggle }">
-            <button
-              @click="toggle"
-              class="px-4 py-2 rounded border-2 transition-colors"
-              :class="isSelected ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 hover:border-gray-300'"
-            >
-              Cherry
-            </button>
-          </Item>
-        </Root>
-      </div>
+        <Item value="cherry" v-slot="{ isSelected, toggle, attrs }">
+          <button
+            v-bind="attrs"
+            @click="toggle"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            :class="isSelected
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
+              : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
+          >
+            Cherry
+          </button>
+        </Item>
+      </Root>
     `,
   }),
 }
@@ -78,63 +81,73 @@ export const WithBatchControls: Story = {
       return { args, selected }
     },
     template: `
-      <div class="flex flex-col gap-4">
-        <Root v-model="selected" v-slot="{ selectAll, unselectAll, isAllSelected, isNoneSelected, isMixed }">
-          <div class="flex gap-2 mb-4">
+      <Root v-model="selected" v-slot="{ selectAll, unselectAll, isAllSelected, isNoneSelected }">
+        <div class="space-y-4">
+          <div class="flex items-center gap-3">
             <button
               @click="selectAll"
-              class="px-3 py-1 text-sm rounded bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
-              :class="{ 'opacity-50 cursor-not-allowed': isAllSelected }"
+              :disabled="isAllSelected"
+              class="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              :class="isAllSelected
+                ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+                : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
             >
               Select All
             </button>
             <button
               @click="unselectAll"
-              class="px-3 py-1 text-sm rounded bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
-              :class="{ 'opacity-50 cursor-not-allowed': isNoneSelected }"
+              :disabled="isNoneSelected"
+              class="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-md transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-rose-500/50"
+              :class="isNoneSelected
+                ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+                : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
             >
-              Clear All
+              Clear
             </button>
-            <span class="text-sm text-gray-500 self-center">
-              <template v-if="isAllSelected">All selected</template>
-              <template v-else-if="isNoneSelected">None selected</template>
-              <template v-else-if="isMixed">Some selected</template>
-            </span>
           </div>
 
           <div class="flex gap-2">
-            <Item value="one" v-slot="{ isSelected, toggle }">
+            <Item value="one" v-slot="{ isSelected, toggle, attrs }">
               <button
+                v-bind="attrs"
                 @click="toggle"
-                class="px-4 py-2 rounded border-2 transition-colors"
-                :class="isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'"
+                class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                :class="isSelected
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
               >
                 One
               </button>
             </Item>
 
-            <Item value="two" v-slot="{ isSelected, toggle }">
+            <Item value="two" v-slot="{ isSelected, toggle, attrs }">
               <button
+                v-bind="attrs"
                 @click="toggle"
-                class="px-4 py-2 rounded border-2 transition-colors"
-                :class="isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'"
+                class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                :class="isSelected
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
               >
                 Two
               </button>
             </Item>
 
-            <Item value="three" v-slot="{ isSelected, toggle }">
+            <Item value="three" v-slot="{ isSelected, toggle, attrs }">
               <button
+                v-bind="attrs"
                 @click="toggle"
-                class="px-4 py-2 rounded border-2 transition-colors"
-                :class="isSelected ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'"
+                class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                :class="isSelected
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
               >
                 Three
               </button>
             </Item>
           </div>
-        </Root>
-      </div>
+        </div>
+      </Root>
     `,
   }),
 }
@@ -150,30 +163,28 @@ export const CheckboxStyle: Story = {
     },
     template: `
       <Root v-model="selected" v-slot="{ toggleAll, isAllSelected, isMixed }">
-        <div class="w-72 border border-gray-200 rounded-lg">
-          <!-- Master checkbox header -->
-          <label class="flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-gray-50 cursor-pointer">
+        <div class="w-80 bg-white rounded-xl shadow-lg ring-1 ring-zinc-950/5 overflow-hidden">
+          <label class="flex items-center gap-3 px-4 py-3.5 bg-zinc-50/80 border-b border-zinc-100 cursor-pointer select-none">
             <input
               type="checkbox"
               :checked="isAllSelected"
               :indeterminate="isMixed"
               @change="toggleAll"
-              class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              class="size-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500/25 focus:ring-offset-0"
             />
-            <span class="font-medium text-gray-700">Notification Settings</span>
+            <span class="font-semibold text-sm text-zinc-800">Notification Settings</span>
           </label>
 
-          <!-- Individual checkboxes -->
-          <div class="divide-y divide-gray-100">
-            <Item v-for="item in items" :key="item" :value="item" v-slot="{ isSelected, toggle }">
-              <label class="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50">
+          <div class="divide-y divide-zinc-100">
+            <Item v-for="item in items" :key="item" :value="item" v-slot="{ isSelected, toggle, attrs }">
+              <label v-bind="attrs" class="flex items-center gap-3 px-4 py-3 cursor-pointer select-none transition-colors hover:bg-zinc-50">
                 <input
                   type="checkbox"
                   :checked="isSelected"
                   @change="toggle"
-                  class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  class="size-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500/25 focus:ring-offset-0"
                 />
-                <span class="text-gray-600">{{ item }}</span>
+                <span class="text-sm text-zinc-600">{{ item }}</span>
               </label>
             </Item>
           </div>
@@ -192,41 +203,46 @@ export const Mandatory: Story = {
       return { args, selected }
     },
     template: `
-      <div class="flex flex-col gap-4">
-        <p class="text-sm text-gray-500">At least one option must be selected:</p>
+      <Root v-model="selected" :mandatory="true" class="flex gap-2">
+        <Item value="option-a" v-slot="{ isSelected, toggle, attrs }">
+          <button
+            v-bind="attrs"
+            @click="toggle"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50"
+            :class="isSelected
+              ? 'bg-fuchsia-600 text-white shadow-md shadow-fuchsia-500/25'
+              : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
+          >
+            Option A
+          </button>
+        </Item>
 
-        <Root v-model="selected" :mandatory="true" class="flex gap-2">
-          <Item value="option-a" v-slot="{ isSelected, toggle }">
-            <button
-              @click="toggle"
-              class="px-4 py-2 rounded transition-colors"
-              :class="isSelected ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'"
-            >
-              Option A
-            </button>
-          </Item>
+        <Item value="option-b" v-slot="{ isSelected, toggle, attrs }">
+          <button
+            v-bind="attrs"
+            @click="toggle"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50"
+            :class="isSelected
+              ? 'bg-fuchsia-600 text-white shadow-md shadow-fuchsia-500/25'
+              : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
+          >
+            Option B
+          </button>
+        </Item>
 
-          <Item value="option-b" v-slot="{ isSelected, toggle }">
-            <button
-              @click="toggle"
-              class="px-4 py-2 rounded transition-colors"
-              :class="isSelected ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'"
-            >
-              Option B
-            </button>
-          </Item>
-
-          <Item value="option-c" v-slot="{ isSelected, toggle }">
-            <button
-              @click="toggle"
-              class="px-4 py-2 rounded transition-colors"
-              :class="isSelected ? 'bg-purple-500 text-white' : 'bg-gray-100 hover:bg-gray-200'"
-            >
-              Option C
-            </button>
-          </Item>
-        </Root>
-      </div>
+        <Item value="option-c" v-slot="{ isSelected, toggle, attrs }">
+          <button
+            v-bind="attrs"
+            @click="toggle"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50"
+            :class="isSelected
+              ? 'bg-fuchsia-600 text-white shadow-md shadow-fuchsia-500/25'
+              : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
+          >
+            Option C
+          </button>
+        </Item>
+      </Root>
     `,
   }),
 }
@@ -241,30 +257,37 @@ export const DisabledItems: Story = {
     },
     template: `
       <Root v-model="selected" class="flex gap-2">
-        <Item value="enabled-1" v-slot="{ isSelected, toggle }">
+        <Item value="enabled-1" v-slot="{ isSelected, toggle, attrs }">
           <button
+            v-bind="attrs"
             @click="toggle"
-            class="px-4 py-2 rounded border-2 transition-colors"
-            :class="isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            :class="isSelected
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/25'
+              : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
           >
             Enabled
           </button>
         </Item>
 
-        <Item value="disabled" :disabled="true" v-slot="{ isSelected, isDisabled }">
+        <Item value="disabled" :disabled="true" v-slot="{ attrs }">
           <button
+            v-bind="attrs"
             disabled
-            class="px-4 py-2 rounded border-2 opacity-50 cursor-not-allowed border-gray-200"
+            class="px-4 py-2 rounded-lg font-medium text-sm bg-zinc-100 text-zinc-400 cursor-not-allowed"
           >
             Disabled
           </button>
         </Item>
 
-        <Item value="enabled-2" v-slot="{ isSelected, toggle }">
+        <Item value="enabled-2" v-slot="{ isSelected, toggle, attrs }">
           <button
+            v-bind="attrs"
             @click="toggle"
-            class="px-4 py-2 rounded border-2 transition-colors"
-            :class="isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            :class="isSelected
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/25'
+              : 'bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200 hover:ring-zinc-300 hover:shadow'"
           >
             Enabled
           </button>
@@ -280,32 +303,27 @@ export const ChipStyle: Story = {
     components: { Root: Group.Root, Item: Group.Item },
     setup () {
       const selected = ref(['vue', 'typescript'])
-      const tags = ['vue', 'react', 'angular', 'svelte', 'typescript', 'javascript']
+      const tags = ['Vue', 'React', 'Angular', 'Svelte', 'TypeScript', 'JavaScript']
       return { args, selected, tags }
     },
     template: `
-      <div class="flex flex-col gap-4">
-        <p class="text-sm text-gray-500">Select your favorite technologies:</p>
-
-        <Root v-model="selected" class="flex flex-wrap gap-2">
-          <Item v-for="tag in tags" :key="tag" :value="tag" v-slot="{ isSelected, toggle }">
-            <button
-              @click="toggle"
-              class="px-3 py-1 rounded-full text-sm transition-all"
-              :class="isSelected
-                ? 'bg-blue-500 text-white shadow-sm'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-            >
-              {{ tag }}
-              <span v-if="isSelected" class="ml-1">×</span>
-            </button>
-          </Item>
-        </Root>
-
-        <div class="text-sm text-gray-500">
-          Selected: {{ selected.join(', ') || 'none' }}
-        </div>
-      </div>
+      <Root v-model="selected" class="flex flex-wrap gap-2 max-w-sm">
+        <Item v-for="tag in tags" :key="tag.toLowerCase()" :value="tag.toLowerCase()" v-slot="{ isSelected, toggle, attrs }">
+          <button
+            v-bind="attrs"
+            @click="toggle"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            :class="isSelected
+              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+              : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'"
+          >
+            {{ tag }}
+            <svg v-if="isSelected" class="size-3.5 -mr-0.5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+            </svg>
+          </button>
+        </Item>
+      </Root>
     `,
   }),
 }

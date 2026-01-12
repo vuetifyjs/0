@@ -1,5 +1,6 @@
 <script setup lang="ts">
   // Components
+  import DocsAlert from './DocsAlert.vue'
   import DocsMarkup from './DocsMarkup.vue'
   import DocsMermaid from './DocsMermaid.vue'
 
@@ -8,6 +9,7 @@
   import { useRouterLinks } from '@/composables/useRouterLinks'
 
   // Utilities
+  import { decodeBase64 } from '@/utilities/decodeBase64'
   import { getCurrentInstance, h, nextTick, onBeforeUnmount, render, toRef, useTemplateRef, watch } from 'vue'
 
   const props = defineProps<{
@@ -32,6 +34,7 @@
   watch(html, async () => {
     await nextTick()
     mountDynamicComponents()
+    mountAlertComponents()
 
     // Mount mermaid immediately if not streaming (e.g., conversation history)
     if (!props.isStreaming) {
@@ -80,6 +83,29 @@
         playground: language === 'vue',
       }, {
         default: () => h('div', { innerHTML: highlighted }),
+      })
+      vnode.appContext = appContext ?? null
+      render(vnode, wrapper)
+    }
+  }
+
+  function mountAlertComponents () {
+    if (!contentRef.value) return
+
+    const alertPlaceholders = contentRef.value.querySelectorAll<HTMLElement>('[data-alert]')
+    for (const el of alertPlaceholders) {
+      const type = el.dataset.type as 'tip' | 'info' | 'warning' | 'error'
+      const encodedContent = el.dataset.content
+      if (!type || !encodedContent) continue
+
+      const content = decodeBase64(encodedContent)
+
+      const wrapper = document.createElement('div')
+      el.replaceWith(wrapper)
+      mountedWrappers.add(wrapper)
+
+      const vnode = h(DocsAlert, { type }, {
+        default: () => h('div', { innerHTML: content }),
       })
       vnode.appContext = appContext ?? null
       render(vnode, wrapper)

@@ -11,7 +11,7 @@
   import { useClipboard } from '@/composables/useClipboard'
 
   // Utilities
-  import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, nextTick, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { Message } from '@/composables/useAsk'
@@ -35,8 +35,7 @@
   const { copied, copy } = useClipboard()
 
   const messagesRef = useTemplateRef<HTMLElement | null>('messages')
-  const inputRef = useTemplateRef<HTMLInputElement | null>('input')
-  const question = shallowRef('')
+  const formRef = useTemplateRef<{ focus: () => void }>('form')
 
   const isDesktop = computed(() => breakpoints.lgAndUp.value)
 
@@ -52,12 +51,9 @@
     { deep: true },
   )
 
-  function onSubmit () {
-    const q = question.value.trim()
-    if (!q || props.isLoading) return
-
-    emit('submit', q)
-    question.value = ''
+  function onSubmit (question: string) {
+    if (props.isLoading) return
+    emit('submit', question)
   }
 
   function getConversationMarkdown () {
@@ -78,7 +74,7 @@
   }
 
   function focus () {
-    inputRef.value?.focus()
+    formRef.value?.focus()
   }
 
   defineExpose({ focus })
@@ -196,48 +192,13 @@
 
     <!-- Input -->
     <footer class="shrink-0 p-3">
-      <form
-        class="bg-glass-surface rounded-full border border-divider flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 hover:border-primary/50 focus-within:border-primary focus-within:hover:border-primary transition-colors"
-        @submit.prevent="onSubmit"
-      >
-        <AppIcon
-          class="shrink-0 text-on-surface opacity-60"
-          icon="create"
-          size="14"
-        />
-
-        <input
-          ref="input"
-          v-model="question"
-          aria-label="Ask a follow-up question"
-          class="flex-1 bg-transparent border-none outline-none text-base text-on-surface placeholder:text-on-surface-tint"
-          :disabled="isLoading"
-          placeholder="Ask a question..."
-          type="text"
-        >
-
-        <button
-          v-if="isLoading"
-          aria-label="Stop generating"
-          class="shrink-0 size-6 rounded-full bg-error text-on-error flex items-center justify-center hover:opacity-90 transition-opacity"
-          title="Stop generating"
-          type="button"
-          @click="emit('stop')"
-        >
-          <AppIcon icon="stop" size="12" />
-        </button>
-
-        <button
-          v-else
-          aria-label="Send question"
-          class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-          :disabled="!question.trim()"
-          title="Send"
-          type="submit"
-        >
-          <AppIcon icon="send" size="12" />
-        </button>
-      </form>
+      <DocsAskForm
+        ref="form"
+        aria-label="Ask a follow-up question"
+        :is-loading
+        @stop="emit('stop')"
+        @submit="onSubmit"
+      />
     </footer>
   </aside>
 </template>

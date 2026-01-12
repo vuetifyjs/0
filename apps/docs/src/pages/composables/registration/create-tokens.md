@@ -14,7 +14,7 @@ features:
 related:
 - /composables/registration/create-registry
 - /composables/plugins/use-theme
-- /guide/theming
+- /guide/features/theming
 ---
 
 # createTokens

@@ -3,6 +3,9 @@ import { ViteSSG } from 'vite-ssg'
 // Components
 import App from './App.vue'
 
+// Composables
+import { useHighlighter } from './composables/useHighlighter'
+
 import { registerPlugins } from './plugins'
 import pinia from './plugins/pinia'
 import routerOptions from './plugins/router'
@@ -48,9 +51,7 @@ export const createApp = ViteSSG(
         // Preload Shiki highlighter on idle to avoid lag on first "Show Code" click
         if ('requestIdleCallback' in window) {
           requestIdleCallback(() => {
-            import('./composables/useHighlighter').then(({ useHighlighter }) => {
-              useHighlighter().getHighlighter()
-            })
+            useHighlighter().getHighlighter()
           })
         }
       })

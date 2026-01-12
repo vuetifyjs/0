@@ -10,6 +10,7 @@ features:
   label: 'Storybook'
   github: /apps/storybook/
   level: 1
+  hidden: true
 ---
 
 # Storybook

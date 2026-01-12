@@ -24,7 +24,8 @@
       "ignore": [
         "src/typed-router.d.ts",
         "src/layouts/*.vue",
-        "src/pages/**/*.vue"
+        "src/pages/**/*.vue",
+        "src/components/docs/meta/*.vue"
       ],
       "paths": {
         "@/*": [
@@ -124,6 +125,7 @@
     "pnpm-lock.yaml"
   ],
   "ignoreDependencies": [
+    "@js-temporal/polyfill",
     "@vuetify/paper",
     "@vuetify/v0",
     "conventional-changelog-vuetify"

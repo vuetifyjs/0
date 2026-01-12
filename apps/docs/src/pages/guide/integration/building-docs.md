@@ -6,12 +6,12 @@ meta:
   - name: keywords
     content: vuetify0, documentation, vite-ssg, unocss, proof of concept, headless ui
 features:
-  category: Guide
+  order: 2
   label: 'Building Docs'
   level: 2
 related:
-  - /guide/theming
-  - /guide/core
+  - /guide/features/theming
+  - /guide/fundamentals/core
   - /composables/plugins/use-storage
 ---
 
@@ -38,7 +38,7 @@ This documentation site is itself a proof of concept for v0. Every pattern docum
 
 The `DocsCodeGroup` component powers all tabbed code examples. It uses [createSingle](/composables/selection/create-single) for exclusive selection and [useProxyRegistry](/composables/reactivity/use-proxy-registry) for keyboard navigation.
 
-```vue DocsCodeGroup.vue
+```vue DocsCodeGroup.vue collapse
 <script setup lang="ts">
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
 
@@ -83,7 +83,7 @@ The `DocsCodeGroup` component powers all tabbed code examples. It uses [createSi
 
 The `AppNav` component uses v0 primitives for polymorphism and interaction:
 
-```vue AppNav.vue
+```vue AppNav.vue collapse
 <script setup lang="ts">
   import { shallowRef, useTemplateRef } from 'vue'
   import { Atom, useClickOutside, useBreakpoints } from '@vuetify/v0'
@@ -125,7 +125,7 @@ The `AppNav` component uses v0 primitives for polymorphism and interaction:
 
 The homepage demo uses [Selection](/components/providers/selection) to show v0's component pattern:
 
-```vue
+```vue collapse
 <script setup lang="ts">
   import { ref } from 'vue'
   import { Selection } from '@vuetify/v0'
@@ -183,7 +183,7 @@ No localStorage boilerplate. SSR-safe. Reactive.
 
 The docs map UnoCSS utilities to v0's CSS variable system:
 
-```ts uno.config.ts
+```ts uno.config.ts collapse
 import { defineConfig, presetWind4 } from 'unocss'
 
 export default defineConfig({
@@ -256,7 +256,7 @@ This powers:
 
 Don't embed logic in components. Extract to composables, expose via slot props:
 
-```vue
+```vue collapse
 <!-- Bad: Logic trapped in component -->
 <template>
   <TabGroup @change="handleChange">

@@ -22,6 +22,7 @@
       <button
         v-for="level in levels"
         :key="level"
+        :aria-pressed="isSelected(level)"
         class="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-surface-tint transition-colors text-left"
         type="button"
         @click="toggle(level)"

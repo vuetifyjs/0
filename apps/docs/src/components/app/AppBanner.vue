@@ -16,7 +16,7 @@
     <AppIcon icon="alert" :size="14" />
 
     <div>
-      You are viewing Pre-Alpha documentation. <span class="hidden md:inline">Some features may not work as expected.</span>
+      You are viewing Pre-Alpha documentation. <span class="hidden md:inline">See the <RouterLink class="underline underline-offset-2" to="/roadmap">roadmap</RouterLink> for updates.</span>
     </div>
   </Atom>
 </template>

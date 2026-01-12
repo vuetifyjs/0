@@ -18,7 +18,7 @@
     <AppBanner />
     <AppBar />
     <AppHomeMain />
-    <HomeFooter />
+    <AppFooter />
 
     <DocsSearch />
   </div>

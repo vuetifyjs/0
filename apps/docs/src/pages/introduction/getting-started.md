@@ -10,7 +10,7 @@ features:
   level: 1
 related:
   - /guide
-  - /guide/nuxt
+  - /guide/integration/nuxt
   - /composables
   - /components
 ---
@@ -21,9 +21,61 @@ Vuetify0 provides headless UI primitives and composables for Vue 3. Components a
 
 <DocsPageFeatures :frontmatter />
 
-## Vite Setup
+## Quick Start
 
-Create a new Vue project with Vite:
+The fastest way to start a new Vuetify0 project is with the CLI.
+
+### Vuetify Create
+
+Standalone scaffolding tool for Vuetify0 projects using <AppIcon icon="vuetify-create" class="align-sub" /> [Vuetify Create](https://github.com/vuetifyjs/create).
+
+::: code-group
+
+```bash pnpm
+pnpm create vuetify0
+```
+
+```bash npm
+npm create vuetify0
+```
+
+```bash yarn
+yarn create vuetify0
+```
+
+```bash bun
+bun create vuetify0
+```
+
+:::
+
+### Vuetify CLI
+
+Full-featured CLI with additional presets and options using <AppIcon icon="vuetify-cli" class="align-sub" /> Vuetify CLI.
+
+::: code-group
+
+```bash pnpm
+pnpm dlx @vuetify/cli init --type vuetify0
+```
+
+```bash npm
+npx @vuetify/cli init --type vuetify0
+```
+
+```bash bun
+bunx @vuetify/cli init --type vuetify0
+```
+
+:::
+
+Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured.
+
+## Manual Setup
+
+To add v0 to an existing project, follow the steps below.
+
+### Create Vue Project
 
 ::: code-group
 
@@ -45,18 +97,7 @@ bun create vue@latest
 
 :::
 
-v0 works out of the box with Vite. No special configuration required:
-
-```ts vite.config.ts
-import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [vue()],
-})
-```
-
-## Installation
+### Installation
 
 Install `@vuetify/v0` with your preferred package manager:
 
@@ -339,7 +380,7 @@ Type-safe access via `useCssModule()`:
 ```
 
 > [!TIP]
-> For dark mode, custom themes, and design tokens, see the [Theming Guide](/guide/theming).
+> For dark mode, custom themes, and design tokens, see the [Theming Guide](/guide/features/theming).
 
 ## Nuxt 3
 
@@ -391,7 +432,7 @@ export default defineNuxtConfig({
 ```
 
 > [!TIP]
-> For auto-imports, SSR hydration, and theme persistence, see the [Nuxt Guide](/guide/nuxt).
+> For auto-imports, SSR hydration, and theme persistence, see the [Nuxt Guide](/guide/integration/nuxt).
 
 ## Exposed Exports
 
@@ -405,7 +446,7 @@ The following export paths exist for the Vuetify0 framework:
 | `@vuetify/v0/utilities` | Utilities only. |
 | `@vuetify/v0/constants` | Constants only (not included in main entry). |
 
-```ts
+```ts collapse
 // Everything
 import { ExpansionPanel, createSelection } from '@vuetify/v0'
 

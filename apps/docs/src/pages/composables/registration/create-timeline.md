@@ -8,7 +8,7 @@ meta:
 features:
   category: Composable
   label: 'E: createTimeline'
-  github: /composables/useTimeline/
+  github: /composables/createTimeline/
   level: 3
 related:
 - /composables/registration/create-registry

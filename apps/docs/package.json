@@ -35,6 +35,7 @@
     "vue-router": "catalog:"
   },
   "dependencies": {
+    "@js-temporal/polyfill": "catalog:",
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
     "@unhead/addons": "catalog:",
@@ -47,6 +48,7 @@
     "mermaid": "catalog:",
     "minisearch": "catalog:",
     "pinia": "catalog:",
+    "svg-pan-zoom": "catalog:",
     "swetrix": "catalog:",
     "vue": "catalog:"
   }

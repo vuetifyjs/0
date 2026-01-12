@@ -1,12 +1,19 @@
 <script setup lang="ts">
+  import pageDates from 'virtual:page-dates'
+
+  // Framework
+  import { isUndefined, useDate } from '@vuetify/v0'
+
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
+  import { providePageMeta } from '@/composables/usePageMeta'
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
   import { shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
+  // Data
   import metrics from '@/data/metrics.json'
 
   const { scrollToAnchor } = useScrollToAnchor()
@@ -39,8 +46,8 @@
       features: {
         github: string
         label: string
+        level?: 1 | 2 | 3
         renderless?: boolean
-        ssrSafe?: boolean
       }
     }
   }>()
@@ -143,7 +150,46 @@
   // Static badges from frontmatter
   // renderless: true = "Renderless", false = "Renders element", undefined = no chip
   const renderless = toRef(() => props.frontmatter?.features?.renderless)
-  const ssrSafe = toRef(() => props.frontmatter?.features?.ssrSafe ?? false)
+
+  // Level display config
+  const levelConfig = {
+    1: { icon: 'level-beginner', color: 'text-success', label: 'Beginner' },
+    2: { icon: 'level-intermediate', color: 'text-info', label: 'Intermediate' },
+    3: { icon: 'level-advanced', color: 'text-warning', label: 'Advanced' },
+  } as const
+
+  const level = toRef(() => {
+    const l = props.frontmatter?.features?.level
+    if (!l || !(l in levelConfig)) return null
+    return levelConfig[l]
+  })
+
+  // Last updated date from git history
+  const { adapter } = useDate()
+  const lastUpdated = toRef(() => {
+    // Try exact path, then without trailing slash
+    const path = route.path.replace(/\/$/, '') || '/'
+    const pageDate = pageDates[path]
+    if (!pageDate?.updated) return null
+
+    const date = adapter.date(pageDate.updated)
+    if (!adapter.isValid(date)) return null
+
+    return adapter.format(date, 'normalDate')
+  })
+
+  // Provide page metadata context for child components
+  providePageMeta({
+    edit,
+    github,
+    label,
+    testFileLink,
+    level,
+    coverage,
+    benchmark,
+    renderless,
+    lastUpdated,
+  })
 
   async function onClickCopy () {
     if (loading.value) return
@@ -180,59 +226,43 @@
 </script>
 
 <template>
-  <div class="my-2 flex flex-col gap-2 mb-8">
+  <div class="mt-4 mb-8 flex flex-col gap-4">
     <!-- Action chips -->
     <div class="inline-flex gap-2 flex-wrap">
-      <a
+      <DocsActionChip
+        color="text-info"
         :href="edit"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        <AppChip
-          color="text-info"
-          icon="pencil"
-          text="Edit this page"
-        />
-      </a>
+        icon="pencil"
+        text="Edit this page"
+        title="Edit documentation page"
+      />
 
-      <a
+      <DocsActionChip
+        color="text-error"
         href="https://issues.vuetifyjs.com/?repo=vuetify0&type=bug"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        <AppChip
-          color="text-error"
-          icon="vuetify-issues"
-          text="Report a Bug"
-        />
-      </a>
+        icon="vuetify-issues"
+        text="Report a Bug"
+        title="Open Vuetify Issues"
+      />
 
-      <a
+      <DocsActionChip
         v-if="label"
+        color="text-warning"
         :href="label"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        <AppChip
-          color="text-warning"
-          icon="alert"
-          text="Open issues"
-        />
-      </a>
+        icon="alert"
+        text="Open issues"
+        title="View Issues on GitHub"
+      />
 
-      <a
+      <DocsActionChip
         v-if="github"
         :href="github"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        <AppChip
-          icon="github"
-          text="View on GitHub"
-        />
-      </a>
+        icon="github"
+        text="View on GitHub"
+        title="View source code on GitHub"
+      />
 
-      <AppChip
+      <DocsActionChip
         :color="copyError ? 'text-error' : copied ? 'text-success' : 'text-on-surface'"
         :icon="loading ? 'loading' : copyError ? 'alert' : copied ? 'success' : 'markdown'"
         :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : copied ? 'Copied' : 'Copy Page as Markdown'"
@@ -241,47 +271,21 @@
       />
     </div>
 
-    <!-- Metric chips -->
+    <!-- Inline metadata -->
+    <!-- Order: Classification → Skill Level → Quality → Performance → Reference -->
     <div
-      v-if="coverage || benchmark || renderless !== undefined || ssrSafe"
-      class="inline-flex gap-2 flex-wrap"
+      v-if="!isUndefined(renderless) || level || coverage || benchmark || lastUpdated"
+      class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider gap-3 md:gap-2"
     >
-      <a
-        v-if="coverage && testFileLink"
-        :href="testFileLink"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        <AppChip
-          :color="coverage.color"
-          icon="test"
-          :text="coverage.label"
-          :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
-        />
-      </a>
-
-      <a
-        v-if="benchmark"
-        href="#benchmarks"
-        @click.prevent="scrollToAnchor('benchmarks')"
-      >
-        <AppChip
-          :color="benchmark.color"
-          :icon="benchmark.icon"
-          :text="benchmark.label"
-          :title="benchmark.title"
-        />
-      </a>
-
-      <AppChip
+      <!-- 1. Renderless - Feature classification (what is it?) -->
+      <DocsMetaItem
         v-if="renderless === true"
         color="text-secondary"
         icon="renderless"
         text="Renderless"
         title="Component renders no DOM element by default"
       />
-
-      <AppChip
+      <DocsMetaItem
         v-if="renderless === false"
         color="text-secondary"
         icon="layers"
@@ -289,12 +293,43 @@
         title="Component renders a DOM element by default"
       />
 
-      <AppChip
-        v-if="ssrSafe"
-        color="text-info"
-        icon="ssr"
-        text="SSR Safe"
-        title="Safe for server-side rendering"
+      <!-- 2. Level - Skill level (should I use it?) -->
+      <DocsMetaItem
+        v-if="level"
+        :color="level.color"
+        :icon="level.icon"
+        :text="level.label"
+        :title="`${level.label} skill level`"
+      />
+
+      <!-- 3. Coverage - Quality signal (is it tested?) -->
+      <DocsMetaItem
+        v-if="coverage && testFileLink"
+        :color="coverage.color"
+        :href="testFileLink"
+        icon="test"
+        :text="coverage.label"
+        :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
+      />
+
+      <!-- 4. Benchmark - Performance (is it fast?) -->
+      <DocsMetaItem
+        v-if="benchmark"
+        :color="benchmark.color"
+        href="#benchmarks"
+        :icon="benchmark.icon"
+        :text="benchmark.label"
+        title="View performance benchmarks"
+        @click.prevent="scrollToAnchor('benchmarks')"
+      />
+
+      <!-- 5. Last Updated - Reference (is it maintained?) -->
+      <DocsMetaItem
+        v-if="lastUpdated"
+        color="text-secondary"
+        icon="calendar-clock"
+        :text="lastUpdated"
+        title="Last updated"
       />
     </div>
   </div>

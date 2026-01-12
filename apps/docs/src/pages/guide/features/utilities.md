@@ -1,7 +1,7 @@
 ---
 title: Utilities Guide - Helper Functions for Vue 3
 features:
-  order: 7
+  order: 3
   level: 2
 meta:
   - name: description
@@ -265,7 +265,7 @@ const virtual = useVirtual(filtered, {
 
 For large datasets that need all three utilities working together:
 
-```ts
+```ts collapse
 import { shallowRef, computed } from 'vue'
 import { createFilter, createPagination, useVirtual } from '@vuetify/v0'
 

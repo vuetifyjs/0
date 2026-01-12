@@ -63,12 +63,12 @@
 
   onMounted(async () => {
     await nextTick()
-    const activeLink = navRef.value?.element?.querySelector('[aria-current="page"]')
+    const activeLink = navRef.value?.element.value?.querySelector('[aria-current="page"]')
     activeLink?.scrollIntoView({ block: 'center' })
   })
 
   useClickOutside(
-    () => navRef.value?.element,
+    () => navRef.value?.element.value,
     () => {
       if (app.drawer && isMobile.value) {
         app.drawer = false
@@ -90,7 +90,7 @@
     ref="nav"
     aria-label="Main navigation"
     :as
-    class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-[24px] translate-x-[-100%] md:bottom-0 md:translate-x-0 border-r border-solid border-divider z-10 bg-glass-surface"
+    class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-0 translate-x-[-100%] md:bottom-0 md:translate-x-0 border-r border-solid border-divider z-10 bg-glass-surface"
     :class="[
       app.drawer && '!translate-x-0',
       !prefersReducedMotion && 'transition-transform duration-200 ease-in-out',
@@ -116,16 +116,24 @@
       </template>
 
       <template v-for="(nav, i) in filteredNav" :key="i">
-        <li v-if="nav.divider" class="px-4">
+        <li v-if="'divider' in nav" class="px-4">
           <AppDivider />
         </li>
+
+        <AppNavLink
+          v-else-if="'to' in nav"
+          :children="nav.children"
+          class="px-4"
+          :to="nav.to"
+        >
+          {{ nav.name }}
+        </AppNavLink>
 
         <AppNavLink
           v-else
           :children="nav.children"
           class="px-4"
-          :new="nav.new"
-          :to="nav.to || ''"
+          :to="''"
         >
           {{ nav.name }}
         </AppNavLink>
@@ -139,7 +147,7 @@
         <li class="px-4">
           <router-link
             class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary hover:underline transition-colors"
-            to="/guide/using-the-docs#skill-levels-learning-tracks"
+            to="/guide/using-the-docs#skill-levels"
           >
             <AppIcon icon="info" size="16" />
             <span>Missing pages?</span>

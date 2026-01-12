@@ -9,7 +9,7 @@ features:
   category: Composable
   label: 'E: useToggleScope'
   github: /composables/useToggleScope/
-  level: 3
+  level: 2
 related:
   - /composables/system/use-event-listener
 ---

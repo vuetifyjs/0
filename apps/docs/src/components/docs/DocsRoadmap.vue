@@ -4,9 +4,12 @@
 
   // Utilities
   import { computed, onBeforeMount, watch } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
 
   import { type Milestone, type TimeHorizon, useRoadmapStore } from '@/stores/roadmap'
 
+  const route = useRoute()
+  const router = useRouter()
   const store = useRoadmapStore()
   const expanded = defineModel<number[]>({ default: () => [] })
 
@@ -48,6 +51,23 @@
     return description.split('\n').slice(1).map(line => line.trim()).filter(Boolean).map(line => line.replace(/^[•\-\*]\s*/, '')) // Strip leading bullets
   }
 
+  function findMilestoneByQuery (query: string | undefined) {
+    if (!query) return undefined
+    return store.milestones.find(m =>
+      m.title.toLowerCase() === query.toLowerCase()
+      || m.title.toLowerCase().startsWith(query.toLowerCase()),
+    )
+  }
+
+  function expandFromQuery () {
+    const milestoneQuery = route.query.milestone as string | undefined
+    const milestone = findMilestoneByQuery(milestoneQuery)
+    if (milestone && !expanded.value.includes(milestone.number)) {
+      expanded.value = [milestone.number]
+    }
+  }
+
+  // Fetch issues when expanded
   watch(expanded, (newVal, oldVal) => {
     const added = newVal.filter(id => !oldVal?.includes(id))
     for (const id of added) {
@@ -55,8 +75,35 @@
     }
   })
 
-  onBeforeMount(() => {
-    store.fetch()
+  // Expand from URL when milestones load
+  watch(() => store.milestones.length, () => {
+    expandFromQuery()
+  })
+
+  // Expand from URL when route changes
+  watch(() => route.query.milestone, () => {
+    expandFromQuery()
+  })
+
+  onBeforeMount(async () => {
+    await store.fetch()
+    expandFromQuery()
+  })
+
+  // Sync expanded state to URL
+  watch(expanded, newVal => {
+    if (newVal.length === 1) {
+      const milestone = store.milestones.find(m => m.number === newVal[0])
+      if (milestone) {
+        router.replace({ query: { ...route.query, milestone: milestone.title } })
+        return
+      }
+    }
+    // Clear milestone param if none or multiple expanded
+    if (route.query.milestone) {
+      const { milestone: _, ...rest } = route.query
+      router.replace({ query: rest })
+    }
   })
 </script>
 

@@ -17,7 +17,6 @@ const PAGES_DIR = resolve(__dirname, '../src/pages')
 export interface NavItemLink {
   name: string
   to: string
-  new?: string
   level?: 1 | 2 | 3
   emphasized?: boolean
   children?: NavItem[]
@@ -47,13 +46,14 @@ interface PageInfo {
 // Section configuration - defines structure and ordering
 const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootPath?: string }> = {
   introduction: { order: 0, hasSubcategories: false, rootPath: '/' },
-  guide: { order: 2, hasSubcategories: false },
+  guide: { order: 2, hasSubcategories: true },
   components: { order: 4, hasSubcategories: true },
   composables: { order: 6, hasSubcategories: true },
 }
 
 // Subcategory ordering within sections
 const SUBCATEGORY_ORDER: Record<string, string[]> = {
+  guide: ['fundamentals', 'features', 'integration', 'tooling'],
   components: ['primitives', 'providers', 'disclosure', 'forms', 'semantic'],
   composables: ['foundation', 'registration', 'selection', 'forms', 'reactivity', 'system', 'plugins', 'utilities', 'transformers'],
 }
@@ -218,14 +218,25 @@ async function generateNav (): Promise<NavItem[]> {
     if (config.hasSubcategories) {
       // Group by subcategory
       const subcategories = new Map<string, PageInfo[]>()
+      const rootPages: PageInfo[] = []
 
       for (const page of sectionPages) {
         const parts = page.path.split('/')
-        if (parts.length < 3) continue // Skip index files
+        if (parts.length < 3) {
+          // Root-level pages (not in subcategory)
+          if (page.name) rootPages.push(page)
+          continue
+        }
 
         const subcategory = parts[1]
         if (!subcategories.has(subcategory)) subcategories.set(subcategory, [])
         subcategories.get(subcategory)!.push(page)
+      }
+
+      // Add root-level pages first (sorted by order)
+      const sortedRootPages = rootPages.toSorted(comparePages)
+      for (const page of sortedRootPages) {
+        sectionItem.children!.push(toNavLink(page))
       }
 
       // Sort subcategories by configured order, then alphabetically

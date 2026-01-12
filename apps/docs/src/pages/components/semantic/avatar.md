@@ -30,7 +30,7 @@ A headless component for managing image loading with priority-based fallback sys
 
 The Avatar component provides a robust image loading system with automatic fallback handling. It manages multiple image sources with priority ordering and only displays the highest-priority loaded image or fallback content.
 
-<DocsExample file="basic.vue" title="Avatar with Fallback" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
   <BasicExample />
 </DocsExample>
 
@@ -46,6 +46,57 @@ The Avatar component provides a robust image loading system with automatic fallb
     <Avatar.Image />
 
     <Avatar.Fallback />
+  </Avatar.Root>
+</template>
+```
+
+## Architecture
+
+The Avatar uses an internal selection system with `mandatory: 'force'` to ensure exactly one element is always visible. Images register as disabled until they load successfully.
+
+```mermaid "Image/Fallback Flow"
+flowchart TD
+  subgraph Root["Avatar.Root"]
+    Selection["Selection Context<br/>(mandatory: force)"]
+  end
+
+  subgraph Image["Avatar.Image"]
+    Register["Register<br/>(disabled: true)"]
+    Load{Load Event}
+    Error{Error Event}
+  end
+
+  subgraph Fallback["Avatar.Fallback"]
+    FallbackReg["Register<br/>(enabled)"]
+  end
+
+  Root --> Image
+  Root --> Fallback
+
+  Register --> Load
+  Register --> Error
+
+  Load -->|"disabled = false<br/>select()"| Visible["Image Visible"]
+  Error -->|"disabled = true<br/>seek('first')"| FallbackVisible["Fallback Visible"]
+
+  FallbackReg -->|"Selected by default<br/>until image loads"| FallbackVisible
+```
+
+### Priority System
+
+When multiple images are present, the `priority` prop determines display order. Higher priority images are preferred when loaded:
+
+```vue
+<template>
+  <Avatar.Root>
+    <!-- Preferred when loaded -->
+    <Avatar.Image src="/high-res.jpg" :priority="1" />
+
+    <!-- Fallback image -->
+    <Avatar.Image src="/low-res.jpg" :priority="0" />
+
+    <!-- Text fallback -->
+    <Avatar.Fallback>JD</Avatar.Fallback>
   </Avatar.Root>
 </template>
 ```

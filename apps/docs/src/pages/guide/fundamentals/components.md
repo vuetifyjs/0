@@ -1,7 +1,7 @@
 ---
 title: Components Guide - Headless Vue 3 UI Primitives
 features:
-  order: 4
+  order: 2
   level: 2
 meta:
   - name: description
@@ -9,9 +9,9 @@ meta:
   - name: keywords
     content: vuetify0, components, headless ui, compound pattern, accessibility, v-model, Vue 3, unstyled
 related:
-  - /guide/core
-  - /guide/composables
-  - /guide/accessibility
+  - /guide/fundamentals/core
+  - /guide/fundamentals/composables
+  - /guide/features/accessibility
 ---
 
 # Components

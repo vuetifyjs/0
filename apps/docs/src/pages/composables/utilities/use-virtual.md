@@ -30,7 +30,7 @@ Virtual scrolling composable for efficiently rendering large lists by only rende
 
 The `useVirtual` composable efficiently renders large lists by only mounting visible items plus a small overscan buffer. Pass an array of items and configure the item height to get back sliced items, scroll handlers, and positioning values.
 
-<DocsExample file="basic.vue" title="Virtual List" :code="VirtualListExampleRaw">
+<DocsExample file="basic.vue" :code="VirtualListExampleRaw">
   <VirtualListExample />
 </DocsExample>
 

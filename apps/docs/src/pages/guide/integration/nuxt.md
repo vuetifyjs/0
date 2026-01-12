@@ -1,7 +1,7 @@
 ---
 title: Nuxt 3 - SSR Integration Guide
 features:
-  order: 7
+  order: 1
   level: 2
 meta:
   - name: description
@@ -10,7 +10,7 @@ meta:
     content: vuetify0, nuxt 3, ssr, server side rendering, hydration, auto-imports, vue 3
 related:
   - /introduction/getting-started
-  - /guide/theming
+  - /guide/features/theming
   - /composables/plugins/use-hydration
 ---
 
@@ -28,7 +28,7 @@ See [Getting Started](/introduction/getting-started#nuxt-3) for the minimal plug
 
 Configure Nuxt to auto-import v0 composables:
 
-```ts nuxt.config.ts
+```ts nuxt.config.ts collapse
 export default defineNuxtConfig({
   build: {
     transpile: ['@vuetify/v0'],
@@ -52,7 +52,7 @@ export default defineNuxtConfig({
 
 ## SSR Considerations
 
-### The `IN_BROWSER` Constant
+### The IN_BROWSER Constant
 
 Guard browser-only code with `IN_BROWSER`:
 
@@ -99,7 +99,7 @@ The theme plugin automatically integrates with Nuxt's `@unhead/vue` to inject st
 
 For theme preference to persist across SSR requests, use cookies instead of localStorage:
 
-```ts plugins/v0.ts
+```ts plugins/v0.ts collapse
 import { createHydrationPlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
 
 export default defineNuxtPlugin((nuxtApp) => {

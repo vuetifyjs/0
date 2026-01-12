@@ -33,9 +33,7 @@
 
   watch(children, items => {
     single.clear()
-    for (const item of items) {
-      single.register({ id: item.label, value: item.label })
-    }
+    single.onboard(items.map(item => ({ id: item.label, value: item.label })))
   }, { immediate: true })
 
   // Select user's preferred package manager when preference or children change

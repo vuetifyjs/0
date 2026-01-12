@@ -1,14 +1,12 @@
 <script setup lang="ts">
   import apiData from 'virtual:api'
 
-  // Framework
-  import { useStorage } from '@vuetify/v0'
-
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, shallowRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -20,14 +18,15 @@
 
   const route = useRoute()
   const data = apiData as ApiData
-  const storage = useStorage()
+  const { showInlineApi: defaultInlineApi } = useSettings()
   const { toKebab } = useApiHelpers()
 
-  const apiMode = storage.get<'inline' | 'links'>('api-display', 'inline')
+  // Local state initialized from global default, syncs when global changes
+  const showInlineApi = shallowRef(defaultInlineApi.value)
 
-  function toggleApiMode () {
-    apiMode.value = apiMode.value === 'inline' ? 'links' : 'inline'
-  }
+  watch(defaultInlineApi, val => {
+    showInlineApi.value = val
+  })
 
   const pageType = computed(() => {
     const path = route.path
@@ -81,10 +80,10 @@
     v-if="componentApis.length > 0"
     class="mt-8 mb-12 markdown-body"
   >
-    <div class="markdown-body flex items-center justify-between gap-4">
+    <div class="markdown-body flex items-center justify-between gap-4 mb-3">
       <DocsHeaderAnchor
         id="api-reference"
-        class="!mb-0"
+        class="!my-0"
         tag="h2"
       >
         API Reference
@@ -93,16 +92,16 @@
       <button
         class="text-sm text-primary hover:underline whitespace-nowrap"
         type="button"
-        @click="toggleApiMode"
+        @click="showInlineApi = !showInlineApi"
       >
-        {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
+        {{ showInlineApi ? 'View standalone →' : 'Show inline ↓' }}
       </button>
     </div>
 
     The following API details are for all variations of the <strong>{{ itemName }}</strong> component.
 
     <DocsApiLinks
-      v-if="apiMode === 'links'"
+      v-if="!showInlineApi"
       :component-apis="componentApis"
     />
 
@@ -115,56 +114,28 @@
         {{ api.name }}
       </DocsHeaderAnchor>
 
-      <template v-if="api.props.length > 0">
-        <DocsHeaderAnchor :id="`${toKebab(api.name)}-props`">
-          Props
-        </DocsHeaderAnchor>
+      <DocsApiSection
+        :anchor-id="`${toKebab(api.name)}-props`"
+        :items="api.props"
+        kind="prop"
+        title="Props"
+      />
 
-        <div class="space-y-4">
-          <DocsApiCard
-            v-for="prop in api.props"
-            :key="prop.name"
-            :item="prop"
-            kind="prop"
-          />
-        </div>
-      </template>
+      <DocsApiSection
+        :anchor-id="`${toKebab(api.name)}-events`"
+        class="mt-8"
+        :items="api.events"
+        kind="event"
+        title="Events"
+      />
 
-      <template v-if="api.events.length > 0">
-        <DocsHeaderAnchor
-          :id="`${toKebab(api.name)}-events`"
-          class="mt-8"
-        >
-          Events
-        </DocsHeaderAnchor>
-
-        <div class="space-y-4">
-          <DocsApiCard
-            v-for="event in api.events"
-            :key="event.name"
-            :item="event"
-            kind="event"
-          />
-        </div>
-      </template>
-
-      <template v-if="api.slots.length > 0">
-        <DocsHeaderAnchor
-          :id="`${toKebab(api.name)}-slots`"
-          class="mt-8"
-        >
-          Slots
-        </DocsHeaderAnchor>
-
-        <div class="space-y-4">
-          <DocsApiCard
-            v-for="slot in api.slots"
-            :key="slot.name"
-            :item="slot"
-            kind="slot"
-          />
-        </div>
-      </template>
+      <DocsApiSection
+        :anchor-id="`${toKebab(api.name)}-slots`"
+        class="mt-8"
+        :items="api.slots"
+        kind="slot"
+        title="Slots"
+      />
     </template>
   </div>
 
@@ -184,91 +155,51 @@
       <button
         class="text-sm text-primary hover:underline whitespace-nowrap"
         type="button"
-        @click="toggleApiMode"
+        @click="showInlineApi = !showInlineApi"
       >
-        {{ apiMode === 'inline' ? 'View standalone →' : 'Show inline ↓' }}
+        {{ showInlineApi ? 'View standalone →' : 'Show inline ↓' }}
       </button>
     </div>
 
     The following API details are for the <strong>{{ itemName }}</strong> composable.
 
     <DocsApiLinks
-      v-if="apiMode === 'links'"
+      v-if="!showInlineApi"
       :composable-api="composableApi"
     />
 
     <template v-else>
-      <template v-if="composableApi.functions.length > 0">
-        <DocsHeaderAnchor
-          id="functions"
-          class="mt-8"
-        >
-          Functions
-        </DocsHeaderAnchor>
+      <DocsApiSection
+        anchor-id="functions"
+        class="mt-8"
+        :items="composableApi.functions"
+        kind="function"
+        title="Functions"
+      />
 
-        <div class="space-y-4">
-          <DocsApiCard
-            v-for="fn in composableApi.functions"
-            :key="fn.name"
-            :item="fn"
-            kind="function"
-          />
-        </div>
-      </template>
+      <DocsApiSection
+        anchor-id="options"
+        class="mt-8"
+        :items="composableApi.options"
+        kind="option"
+        title="Options"
+      />
 
-      <template v-if="composableApi.options.length > 0">
-        <DocsHeaderAnchor
-          id="options"
-          class="mt-8"
-        >
-          Options
-        </DocsHeaderAnchor>
+      <DocsApiSection
+        anchor-id="properties"
+        class="mt-8"
+        :items="composableApi.properties"
+        kind="property"
+        title="Properties"
+      />
 
-        <div class="space-y-4">
-          <DocsApiCard
-            v-for="opt in composableApi.options"
-            :key="opt.name"
-            :item="opt"
-            kind="option"
-          />
-        </div>
-      </template>
-
-      <template v-if="composableApi.properties.length > 0">
-        <DocsHeaderAnchor
-          id="properties"
-          class="mt-8"
-        >
-          Properties
-        </DocsHeaderAnchor>
-
-        <div class="space-y-4">
-          <DocsApiCard
-            v-for="prop in composableApi.properties"
-            :key="prop.name"
-            :item="prop"
-            kind="property"
-          />
-        </div>
-      </template>
-
-      <template v-if="composableApi.methods.length > 0">
-        <DocsHeaderAnchor
-          id="methods"
-          class="mt-8"
-        >
-          Methods
-        </DocsHeaderAnchor>
-
-        <div class="space-y-4">
-          <DocsApiCard
-            v-for="method in composableApi.methods"
-            :key="method.name"
-            :item="method"
-            kind="method"
-          />
-        </div>
-      </template>
+      <DocsApiSection
+        anchor-id="methods"
+        class="mt-8"
+        :items="composableApi.methods"
+        kind="method"
+        title="Methods"
+      />
     </template>
   </div>
 </template>

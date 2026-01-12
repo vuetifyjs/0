@@ -2,7 +2,7 @@
 title: AI Tools - LLM-Friendly Documentation
 features:
   label: AI Tools
-  order: 11
+  order: 1
   level: 1
 meta:
   - name: description
@@ -10,9 +10,13 @@ meta:
   - name: keywords
     content: llms.txt, AI tools, LLM, Claude, ChatGPT, Cursor, documentation, developer experience
 related:
-  - /guide/vuetify-mcp
+  - /guide/tooling/vuetify-mcp
   - /introduction/getting-started
 ---
+
+<script setup>
+  import llmsStats from 'virtual:llms-stats'
+</script>
 
 # AI Tools
 
@@ -24,8 +28,8 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 
 | File | Size | Purpose | Best For |
 | - | - | - | - |
-| <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | ~6 KB | Curated index with links | Quick context, navigation |
-| <a href="/llms-full.txt" target="_blank" class="v0-link" style="white-space: nowrap">llms-full.txt↗</a> | ~220 KB | Complete documentation | Deep understanding, code generation |
+| <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
+| <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
 
 > [!SUGGESTION] When should I use llms.txt vs llms-full.txt?
 
@@ -56,7 +60,7 @@ WebFetch https://0.vuetifyjs.com/llms-full.txt
 ```
 
 > [!TIP]
-> For the best experience with Claude, use [Vuetify MCP](/guide/vuetify-mcp) instead. It provides structured API access rather than raw text.
+> For the best experience with Claude, use [Vuetify MCP](/guide/tooling/vuetify-mcp) instead. It provides structured API access rather than raw text.
 
 ## What's Included
 
@@ -71,6 +75,7 @@ WebFetch https://0.vuetifyjs.com/llms-full.txt
 
 ## How It Works
 
-- `llms.txt` is manually curated in `apps/docs/public/`
-- `llms-full.txt` is auto-generated at build time from all markdown pages
-- Both are served statically and cached for performance
+Both files are auto-generated at build time by [generate-llms-full.ts](https://github.com/vuetifyjs/0/blob/master/apps/docs/build/generate-llms-full.ts):
+
+- `llms.txt` extracts titles and descriptions, organized by category
+- `llms-full.txt` includes the complete content of every markdown page, stripped of Vue components and frontmatter

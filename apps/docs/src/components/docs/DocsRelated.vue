@@ -14,33 +14,39 @@
   const links = toRef(() => {
     if (!props.frontmatter?.related?.length) return []
 
-    return props.frontmatter.related.map(path => {
-      const segments = path.split('/').filter(Boolean)
+    return props.frontmatter.related
+      .map(path => {
+        const segments = path.split('/').filter(Boolean)
+        if (segments.length === 0) return null
 
-      // Extract category (e.g., "composables/plugins" -> "Plugins")
-      const category = segments.length > 1
-        ? segments.at(-2)!
-          .split('-')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ')
-        : segments[0].charAt(0).toUpperCase() + segments[0].slice(1)
+        const lastSegment = segments.at(-1) ?? ''
+        const secondLast = segments.at(-2)
 
-      // Extract name from slug
-      const slug = segments.at(-1)!
-      const acronyms = new Set(['ai', 'api', 'ssr', 'css', 'html', 'dom', 'url', 'uri', 'http', 'https', 'json', 'xml', 'svg', 'pdf'])
-      const isComposable = slug.startsWith('use-') || slug.startsWith('create-')
+        // Extract category (e.g., "composables/plugins" -> "Plugins")
+        const category = secondLast
+          ? secondLast
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+          : lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)
 
-      const name = isComposable
-        // Composables: camelCase (e.g., "use-theme" -> "useTheme")
-        ? slug.split('-').map((word, i) => i === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join('')
-        // Others: Title Case with spaces (e.g., "getting-started" -> "Getting Started")
-        : slug.split('-').map(word => {
-          if (acronyms.has(word.toLowerCase())) return word.toUpperCase()
-          return word.charAt(0).toUpperCase() + word.slice(1)
-        }).join(' ')
+        // Extract name from slug
+        const slug = lastSegment
+        const acronyms = new Set(['ai', 'api', 'ssr', 'css', 'html', 'dom', 'url', 'uri', 'http', 'https', 'json', 'xml', 'svg', 'pdf'])
+        const isComposable = slug.startsWith('use-') || slug.startsWith('create-')
 
-      return { to: path, category, name }
-    })
+        const name = isComposable
+          // Composables: camelCase (e.g., "use-theme" -> "useTheme")
+          ? slug.split('-').map((word, i) => i === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join('')
+          // Others: Title Case with spaces (e.g., "getting-started" -> "Getting Started")
+          : slug.split('-').map(word => {
+            if (acronyms.has(word.toLowerCase())) return word.toUpperCase()
+            return word.charAt(0).toUpperCase() + word.slice(1)
+          }).join(' ')
+
+        return { to: path, category, name }
+      })
+      .filter((link): link is { to: string, category: string, name: string } => link !== null)
   })
 </script>
 

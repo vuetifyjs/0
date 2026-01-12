@@ -1,12 +1,37 @@
 <script setup lang="ts">
+  // Framework
+  import { createStorage } from '@vuetify/v0'
+
   // Utilities
   import { onMounted } from 'vue'
 
   import { useAppStore } from '@/stores/app'
 
+  interface CacheEntry<T> {
+    data: T
+    timestamp: number
+  }
+
+  const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
+  const storage = createStorage({ prefix: 'v0-commit:' })
+
+  function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
+    if (!entry) return false
+    return Date.now() - entry.timestamp < CACHE_TTL
+  }
+
   const app = useAppStore()
 
   onMounted(async () => {
+    if (app.stats.commit) return // Already fetched this session
+
+    // Check cache first
+    const cached = storage.get<CacheEntry<typeof app.stats.commit> | null>('latest', null)
+    if (isCacheValid(cached.value)) {
+      app.stats.commit = cached.value.data
+      return
+    }
+
     try {
       const octokit = await import('@/plugins/octokit').then(m => m.default)
       const { data = [] } = await octokit.request('GET /repos/{owner}/{repo}/commits', {
@@ -18,6 +43,12 @@
       if (data.length === 0) return
 
       app.stats.commit = data[0] as typeof app.stats.commit
+
+      // Cache the result
+      storage.set<CacheEntry<typeof app.stats.commit>>('latest', {
+        data: app.stats.commit,
+        timestamp: Date.now(),
+      })
     } catch (error) {
       console.warn('Failed to fetch commit info:', error)
     }

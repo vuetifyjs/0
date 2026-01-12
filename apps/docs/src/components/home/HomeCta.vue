@@ -30,11 +30,18 @@ const selected = ref([])
 
   const features = [
     {
-      title: 'Documentation',
+      title: 'Getting Started',
       description: 'Comprehensive guides, API references, and real-world examples.',
       to: '/introduction/getting-started',
       icon: 'book',
       cta: 'Get Started',
+    },
+    {
+      title: 'Using the Docs',
+      description: 'Learn how to navigate the documentation and get the most out of it.',
+      to: '/guide/using-the-docs',
+      icon: 'map',
+      cta: 'Learn How',
     },
     {
       title: 'Vuetify Play',
@@ -46,7 +53,7 @@ const selected = ref([])
     {
       title: 'Vuetify MCP',
       description: 'AI-powered assistance with intelligent suggestions and instant API answers.',
-      to: 'https://github.com/vuetifyjs/mcp',
+      to: '/guide/vuetify-mcp',
       icon: 'vuetify-mcp',
       cta: 'Learn More',
     },

@@ -54,12 +54,12 @@
       Skip to main content
     </a>
 
-    <div :inert="isModalOpen || undefined">
+    <div class="min-h-[calc(100vh-72px)] flex flex-col" :inert="isModalOpen || undefined">
       <AppBanner />
       <AppNav />
       <AppBar />
-      <AppMain />
-      <AppFooter />
+      <AppMain class="flex-1" />
+      <AppFooter inset />
     </div>
 
     <DocsAsk />

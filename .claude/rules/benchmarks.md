@@ -10,7 +10,7 @@ Performance benchmark conventions for `packages/0/src/`.
 
 Benchmarks are colocated with source:
 ```
-packages/0/src/composables/useRegistry/
+packages/0/src/composables/createRegistry/
 ├── index.ts
 ├── index.test.ts
 └── index.bench.ts
@@ -67,7 +67,7 @@ describe('mutation operations', () => {
 
 Fixtures must have explicit types:
 
-```ts
+```ts collapse
 interface BenchmarkItem {
   id: string
   value: string
@@ -202,7 +202,7 @@ vi.mock('#v0/constants/globals', async () => ({
 
 ```bash
 # Single file
-pnpm vitest bench packages/0/src/composables/useRegistry/index.bench.ts
+pnpm vitest bench packages/0/src/composables/createRegistry/index.bench.ts
 
 # All benchmarks
 pnpm vitest bench
@@ -213,7 +213,7 @@ pnpm metrics
 
 ## Reference Implementation
 
-See `packages/0/src/composables/useRegistry/index.bench.ts` for the canonical example of:
+See `packages/0/src/composables/createRegistry/index.bench.ts` for the canonical example of:
 - Proper fixture isolation
 - TypeScript types on fixtures
 - Category documentation

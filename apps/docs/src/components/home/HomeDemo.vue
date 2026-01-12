@@ -96,8 +96,8 @@
       </div>
 
       <!-- Live Demo -->
-      <div class="demo-preview p-4 md:p-8 rounded-xl border bg-surface flex flex-col">
-        <div class="text-center md:text-end mb-8 lg:mb-0">
+      <div class="demo-preview px-4 py-1 rounded-xl border bg-surface flex flex-col">
+        <div class="text-center md:text-end mt-4 mb-4 lg:m-0">
           <a
             class="text-xs font-medium text-primary hover:underline inline-flex gap-1"
             :href="playgroundUrl"
@@ -119,6 +119,7 @@
                 :value="item.id"
               >
                 <button
+                  :aria-pressed="isSelected"
                   class="demo-btn px-5 py-2.5 rounded-lg border font-medium transition-all flex-1"
                   :class="isSelected ? 'bg-primary text-on-primary border-primary' : 'bg-surface hover:bg-surface-tint'"
                   @click="toggle"

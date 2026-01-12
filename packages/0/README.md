@@ -92,7 +92,7 @@ import { ... } from '@vuetify/v0/constants'  // Constants only
 
 ### Composables
 
-#### Factories
+#### Foundation
 
 Core factories that provide the foundation for all other composables:
 
@@ -100,7 +100,7 @@ Core factories that provide the foundation for all other composables:
 - **`createPlugin`** - Vue plugin factory with context provision
 - **`createTrinity`** - Context triple pattern: `[use, provide, default]`
 
-#### Registry
+#### Registration
 
 Base data structures that most other composables build upon:
 
@@ -118,23 +118,28 @@ Selection management composables built on `createRegistry`:
 - **`createSingle`** - Single-selection specialization
 - **`createStep`** - Navigation through items (first, last, next, prev)
 
-#### Forms & Data
+#### Forms
 
 - **`createForm`** - Form validation and state management with async rules
-- **`useFilter`** - Reactive array filtering with multiple modes
 
 #### Reactivity
 
 - **`useProxyModel`** - Bridge selection context to component v-model
 - **`useProxyRegistry`** - Convert registry Map to reactive object
 
-#### Layout & Measurement
+#### Utilities
 
+- **`useFilter`** - Reactive array filtering with multiple modes
 - **`usePagination`** - Lightweight page navigation (non-registry based)
-- **`useOverflow`** - Container overflow measurement for item capacity
 - **`useVirtual`** - Virtual scrolling for large lists
+- **`useOverflow`** - Container overflow measurement for item capacity
 
-#### Observers & Events
+#### Transformers
+
+- **`toArray`** - Array transformation utilities
+- **`toReactive`** - Reactive object conversion
+
+#### System
 
 - **`useClickOutside`** - Click outside detection with cleanup
 - **`useEventListener`** - Lifecycle-managed event listeners
@@ -143,8 +148,9 @@ Selection management composables built on `createRegistry`:
 - **`useMediaQuery`** - Reactive CSS media query matching
 - **`useMutationObserver`** - DOM mutation observation
 - **`useResizeObserver`** - Resize observer utilities
+- **`useToggleScope`** - Conditional effect scope management
 
-#### System
+#### Plugins
 
 Plugin-capable composables following the trinity pattern:
 
@@ -156,12 +162,6 @@ Plugin-capable composables following the trinity pattern:
 - **`usePermissions`** - RBAC/ABAC permission system
 - **`useStorage`** - Storage adapter (localStorage/sessionStorage/memory)
 - **`useTheme`** - Theme management with CSS variable injection
-
-#### Utilities
-
-- **`useToggleScope`** - Conditional effect scope management
-- **`toArray`** - Array transformation utilities
-- **`toReactive`** - Reactive object conversion
 
 ## Design Principles
 
@@ -178,7 +178,7 @@ For detailed API documentation, examples, and guides, visit [0.vuetifyjs.com](ht
 
 ## Development
 
-```bash
+```bash collapse
 # Install dependencies
 pnpm install
 

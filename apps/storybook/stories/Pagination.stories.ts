@@ -36,61 +36,72 @@ export const Default: Story = {
       return { args, page }
     },
     template: `
-      <div class="flex flex-col items-center gap-4">
-        <div class="text-sm text-gray-500">Page {{ page }} of 10</div>
+      <Root v-model="page" :size="100" v-slot="{ items }">
+        <nav class="flex items-center gap-1" aria-label="Pagination">
+          <First renderless v-slot="{ attrs }">
+            <button
+              v-bind="attrs"
+              class="size-9 flex items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            >
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M15.79 14.77a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L11.832 10l3.938 3.71a.75.75 0 01.02 1.06zm-6 0a.75.75 0 01-1.06.02l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 111.04 1.08L5.832 10l3.938 3.71a.75.75 0 01.02 1.06z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </First>
 
-        <Root v-model="page" :length="10" v-slot="{ items }">
-          <div class="flex items-center gap-1">
-            <First v-slot="{ isDisabled }">
+          <Prev renderless v-slot="{ attrs }">
+            <button
+              v-bind="attrs"
+              class="size-9 flex items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            >
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </Prev>
+
+          <template v-for="item in items" :key="item.key">
+            <Item v-if="item.type === 'page'" renderless :value="item.value" v-slot="{ isSelected, attrs }">
               <button
-                class="px-3 py-2 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                :disabled="isDisabled"
+                v-bind="attrs"
+                class="size-9 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                :class="isSelected
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
+                  : 'text-zinc-600 hover:bg-zinc-100'"
               >
-                ««
+                {{ item.value }}
               </button>
-            </First>
+            </Item>
+            <Ellipsis v-else class="size-9 flex items-center justify-center text-zinc-400">
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm5.5 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm7 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+              </svg>
+            </Ellipsis>
+          </template>
 
-            <Prev v-slot="{ isDisabled }">
-              <button
-                class="px-3 py-2 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                :disabled="isDisabled"
-              >
-                ‹
-              </button>
-            </Prev>
+          <Next renderless v-slot="{ attrs }">
+            <button
+              v-bind="attrs"
+              class="size-9 flex items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            >
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </Next>
 
-            <template v-for="item in items" :key="item.key">
-              <Item v-if="item.type === 'page'" :value="item.value" v-slot="{ isSelected }">
-                <button
-                  class="w-10 h-10 rounded transition-colors"
-                  :class="isSelected ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'"
-                >
-                  {{ item.value }}
-                </button>
-              </Item>
-              <Ellipsis v-else class="px-2 text-gray-400">...</Ellipsis>
-            </template>
-
-            <Next v-slot="{ isDisabled }">
-              <button
-                class="px-3 py-2 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                :disabled="isDisabled"
-              >
-                ›
-              </button>
-            </Next>
-
-            <Last v-slot="{ isDisabled }">
-              <button
-                class="px-3 py-2 rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                :disabled="isDisabled"
-              >
-                »»
-              </button>
-            </Last>
-          </div>
-        </Root>
-      </div>
+          <Last renderless v-slot="{ attrs }">
+            <button
+              v-bind="attrs"
+              class="size-9 flex items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+            >
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.21 5.23a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.04-1.08L8.168 10 4.23 6.29a.75.75 0 01-.02-1.06zm6 0a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.04-1.08L14.168 10 10.23 6.29a.75.75 0 01-.02-1.06z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </Last>
+        </nav>
+      </Root>
     `,
   }),
 }
@@ -102,32 +113,31 @@ export const SimplePrevNext: Story = {
       Root: Pagination.Root,
       Prev: Pagination.Prev,
       Next: Pagination.Next,
-      Status: Pagination.Status,
     },
     setup () {
       const page = ref(1)
       return { args, page }
     },
     template: `
-      <Root v-model="page" :length="20">
+      <Root v-model="page" :size="200" v-slot="{ pages }">
         <div class="flex items-center gap-4">
-          <Prev v-slot="{ isDisabled }">
+          <Prev renderless v-slot="{ attrs }">
             <button
-              class="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :disabled="isDisabled"
+              v-bind="attrs"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 bg-zinc-100 transition-colors hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             >
               Previous
             </button>
           </Prev>
 
-          <span class="text-gray-600">
-            Page {{ page }} of 20
+          <span class="text-sm font-medium text-zinc-600 tabular-nums">
+            Page {{ page }} of {{ pages }}
           </span>
 
-          <Next v-slot="{ isDisabled }">
+          <Next renderless v-slot="{ attrs }">
             <button
-              class="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :disabled="isDisabled"
+              v-bind="attrs"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 bg-zinc-100 transition-colors hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             >
               Next
             </button>
@@ -155,67 +165,64 @@ export const WithIcons: Story = {
       return { args, page }
     },
     template: `
-      <Root v-model="page" :length="15" v-slot="{ items }">
-        <nav class="flex items-center gap-1" aria-label="Pagination">
-          <First v-slot="{ isDisabled }">
+      <Root v-model="page" :size="150" v-slot="{ items }">
+        <nav class="flex items-center gap-1 p-1.5 bg-white rounded-xl shadow-lg ring-1 ring-zinc-950/5" aria-label="Pagination">
+          <First renderless v-slot="{ attrs }">
             <button
-              class="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-              :disabled="isDisabled"
-              aria-label="First page"
+              v-bind="attrs"
+              class="p-2 rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
               </svg>
             </button>
           </First>
 
-          <Prev v-slot="{ isDisabled }">
+          <Prev renderless v-slot="{ attrs }">
             <button
-              class="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-              :disabled="isDisabled"
-              aria-label="Previous page"
+              v-bind="attrs"
+              class="p-2 rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
           </Prev>
 
           <template v-for="item in items" :key="item.key">
-            <Item v-if="item.type === 'page'" :value="item.value" v-slot="{ isSelected }">
+            <Item v-if="item.type === 'page'" renderless :value="item.value" v-slot="{ isSelected, attrs }">
               <button
-                class="w-10 h-10 rounded-lg font-medium transition-colors"
+                v-bind="attrs"
+                class="size-10 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none"
                 :class="isSelected
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'"
+                  ? 'bg-violet-600 text-white shadow-md shadow-violet-500/25'
+                  : 'text-zinc-700 hover:bg-zinc-100'"
               >
                 {{ item.value }}
               </button>
             </Item>
-            <Ellipsis v-else class="w-10 h-10 flex items-center justify-center text-gray-400">
-              •••
+            <Ellipsis v-else class="size-10 flex items-center justify-center text-zinc-400">
+              ...
             </Ellipsis>
           </template>
 
-          <Next v-slot="{ isDisabled }">
+          <Next renderless v-slot="{ attrs }">
             <button
-              class="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-              :disabled="isDisabled"
-              aria-label="Next page"
+              v-bind="attrs"
+              class="p-2 rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </Next>
 
-          <Last v-slot="{ isDisabled }">
+          <Last renderless v-slot="{ attrs }">
             <button
-              class="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
-              :disabled="isDisabled"
-              aria-label="Last page"
+              v-bind="attrs"
+              class="p-2 rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent focus:outline-none"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               </svg>
             </button>
@@ -241,33 +248,36 @@ export const ManyPages: Story = {
       return { args, page }
     },
     template: `
-      <Root v-model="page" :length="100" :siblings="1" v-slot="{ items }">
+      <Root v-model="page" :size="1000" :total-visible="7" v-slot="{ items }">
         <div class="flex items-center gap-1">
-          <Prev v-slot="{ isDisabled }">
+          <Prev renderless v-slot="{ attrs }">
             <button
-              class="px-2 py-1 text-sm rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-50"
-              :disabled="isDisabled"
+              v-bind="attrs"
+              class="px-3 py-1.5 text-sm font-medium rounded-md bg-white ring-1 ring-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             >
               Prev
             </button>
           </Prev>
 
           <template v-for="item in items" :key="item.key">
-            <Item v-if="item.type === 'page'" :value="item.value" v-slot="{ isSelected }">
+            <Item v-if="item.type === 'page'" renderless :value="item.value" v-slot="{ isSelected, attrs }">
               <button
-                class="w-8 h-8 text-sm rounded transition-colors"
-                :class="isSelected ? 'bg-gray-800 text-white' : 'hover:bg-gray-100'"
+                v-bind="attrs"
+                class="size-8 text-sm font-medium rounded-md transition-all duration-150 focus:outline-none"
+                :class="isSelected
+                  ? 'bg-zinc-900 text-white'
+                  : 'text-zinc-600 hover:bg-zinc-100'"
               >
                 {{ item.value }}
               </button>
             </Item>
-            <Ellipsis v-else class="w-8 text-center text-gray-400">…</Ellipsis>
+            <Ellipsis v-else class="size-8 flex items-center justify-center text-zinc-400">…</Ellipsis>
           </template>
 
-          <Next v-slot="{ isDisabled }">
+          <Next renderless v-slot="{ attrs }">
             <button
-              class="px-2 py-1 text-sm rounded border border-gray-200 hover:bg-gray-50 disabled:opacity-50"
-              :disabled="isDisabled"
+              v-bind="attrs"
+              class="px-3 py-1.5 text-sm font-medium rounded-md bg-white ring-1 ring-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             >
               Next
             </button>
@@ -294,37 +304,38 @@ export const WithStatus: Story = {
       return { args, page, itemsPerPage, totalItems }
     },
     template: `
-      <Root v-model="page" :length="Math.ceil(totalItems / itemsPerPage)">
-        <div class="flex flex-col items-center gap-3">
-          <div class="flex items-center gap-4">
-            <Prev v-slot="{ isDisabled }">
-              <button
-                class="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                :disabled="isDisabled"
-              >
-                ← Previous
-              </button>
-            </Prev>
+      <Root v-model="page" :size="totalItems" :items-per-page="itemsPerPage">
+        <div class="bg-white rounded-xl shadow-lg ring-1 ring-zinc-950/5 p-4">
+          <div class="flex items-center justify-between gap-6">
+            <div class="text-sm text-zinc-500">
+              Showing <span class="font-medium text-zinc-900">{{ (page - 1) * itemsPerPage + 1 }}-{{ Math.min(page * itemsPerPage, totalItems) }}</span> of <span class="font-medium text-zinc-900">{{ totalItems }}</span>
+            </div>
 
-            <span class="px-4 py-2 bg-gray-100 rounded-lg font-medium">
-              Page {{ page }}
-            </span>
+            <div class="flex items-center gap-2">
+              <Prev renderless v-slot="{ attrs }">
+                <button
+                  v-bind="attrs"
+                  class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white ring-1 ring-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                >
+                  Previous
+                </button>
+              </Prev>
 
-            <Next v-slot="{ isDisabled }">
-              <button
-                class="px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                :disabled="isDisabled"
-              >
-                Next →
-              </button>
-            </Next>
+              <span class="px-3 py-1.5 text-sm font-semibold text-zinc-900 bg-zinc-100 rounded-lg tabular-nums">
+                {{ page }}
+              </span>
+
+              <Next renderless v-slot="{ attrs }">
+                <button
+                  v-bind="attrs"
+                  class="px-3 py-1.5 text-sm font-medium rounded-lg bg-white ring-1 ring-zinc-200 text-zinc-600 transition-colors hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                >
+                  Next
+                </button>
+              </Next>
+            </div>
           </div>
 
-          <div class="text-sm text-gray-500">
-            Showing {{ (page - 1) * itemsPerPage + 1 }} - {{ Math.min(page * itemsPerPage, totalItems) }} of {{ totalItems }} items
-          </div>
-
-          <!-- Screen reader announcement -->
           <Status class="sr-only" />
         </div>
       </Root>
@@ -337,48 +348,50 @@ export const PillStyle: Story = {
   render: args => ({
     components: {
       Root: Pagination.Root,
-      First: Pagination.First,
       Prev: Pagination.Prev,
       Item: Pagination.Item,
-      Ellipsis: Pagination.Ellipsis,
       Next: Pagination.Next,
-      Last: Pagination.Last,
     },
     setup () {
       const page = ref(3)
       return { args, page }
     },
     template: `
-      <Root v-model="page" :length="7" v-slot="{ items }">
-        <div class="flex items-center gap-2 p-2 bg-gray-100 rounded-full">
-          <Prev v-slot="{ isDisabled }">
+      <Root v-model="page" :size="70" v-slot="{ items }">
+        <div class="flex items-center gap-1 p-1.5 bg-zinc-100 rounded-full">
+          <Prev renderless v-slot="{ attrs }">
             <button
-              class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white disabled:opacity-30"
-              :disabled="isDisabled"
+              v-bind="attrs"
+              class="size-9 flex items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:shadow-none focus:outline-none"
             >
-              ‹
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+              </svg>
             </button>
           </Prev>
 
           <template v-for="item in items" :key="item.key">
-            <Item v-if="item.type === 'page'" :value="item.value" v-slot="{ isSelected }">
+            <Item v-if="item.type === 'page'" renderless :value="item.value" v-slot="{ isSelected, attrs }">
               <button
-                class="w-10 h-10 rounded-full font-medium transition-all"
+                v-bind="attrs"
+                class="size-9 rounded-full text-sm font-medium transition-all duration-150 focus:outline-none"
                 :class="isSelected
-                  ? 'bg-white shadow-sm text-blue-600'
-                  : 'hover:bg-white/50'"
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-zinc-600 hover:bg-white/50'"
               >
                 {{ item.value }}
               </button>
             </Item>
           </template>
 
-          <Next v-slot="{ isDisabled }">
+          <Next renderless v-slot="{ attrs }">
             <button
-              class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white disabled:opacity-30"
-              :disabled="isDisabled"
+              v-bind="attrs"
+              class="size-9 flex items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:shadow-none focus:outline-none"
             >
-              ›
+              <svg class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+              </svg>
             </button>
           </Next>
         </div>

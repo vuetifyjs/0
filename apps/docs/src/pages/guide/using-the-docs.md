@@ -44,10 +44,37 @@ The docs are organized into distinct sections, each serving a specific purpose:
 | <AppLink to="/guide" class="whitespace-nowrap"><AppIcon icon="book" :size="18" class="inline-block align-text-bottom mr-1" />**Guide**</AppLink> | Conceptual learning | Understanding architecture, patterns, best practices |
 | <AppLink to="/components" class="whitespace-nowrap"><AppIcon icon="layers" :size="18" class="inline-block align-text-bottom mr-1" />**Components**</AppLink> | Headless UI primitives | Building accessible interfaces (Dialog, Popover, Selection) |
 | <AppLink to="/composables" class="whitespace-nowrap"><AppIcon icon="puzzle" :size="18" class="inline-block align-text-bottom mr-1" />**Composables**</AppLink> | Logic building blocks | Adding behavior without UI (createContext, createSelection) |
-| <AppLink to="/api" class="whitespace-nowrap"><AppIcon icon="toc" :size="18" class="inline-block align-text-bottom mr-1" />**API**</AppLink> | Complete reference | Looking up props, events, slots, methods |
-| <AppLink to="/storybook" class="whitespace-nowrap"><AppIcon icon="test" :size="18" class="inline-block align-text-bottom mr-1" />**Storybook**</AppLink> | Visual playground | Exploring component variants interactively |
+| <AppLink to="/api" class="whitespace-nowrap"><AppIcon icon="beaker" :size="18" class="inline-block align-text-bottom mr-1" />**API**</AppLink> | Complete reference | Looking up props, events, slots, methods |
+<!-- | <AppLink to="/storybook" class="whitespace-nowrap"><AppIcon icon="test" :size="18" class="inline-block align-text-bottom mr-1" />**Storybook**</AppLink> | Visual playground | Exploring component variants interactively | -->
 
 Each component and composable page follows a consistent structure: overview, usage examples, anatomy, and API reference.
+
+### Page Header
+
+Every page includes a header area (shown at the top of this page) with quick actions and metadata.
+
+**Actions:**
+
+| Example | Description |
+|---------|-------------|
+| <span class="whitespace-nowrap"><DocsActionChip color="text-info" icon="pencil" text="Edit this page" /></span> | Open the source file on GitHub for editing |
+| <span class="whitespace-nowrap"><DocsActionChip color="text-error" icon="vuetify-issues" text="Report a Bug" /></span> | File an issue via Vuetify Issues |
+| <span class="whitespace-nowrap"><DocsActionChip color="text-warning" icon="alert" text="Open issues" /></span> | View existing GitHub issues for this feature |
+| <span class="whitespace-nowrap"><DocsActionChip icon="github" text="View on GitHub" /></span> | Browse source code for components/composables |
+| <span class="whitespace-nowrap"><DocsActionChip icon="markdown" text="Copy Page as Markdown" /></span> | Copy page content for use with AI tools |
+
+**Metadata** (component and composable pages):
+
+| Example | Description |
+|---------|-------------|
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaCoverage :coverage="{ value: 94, label: '94% coverage', color: 'text-success' }" /></span> | Test coverage percentage (links to test file) |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaBenchmark :benchmark="{ label: 'Blazing Fast', icon: 'benchmark-blazing', color: 'text-error' }" /></span> | Performance tier: Blazing Fast, Fast, or Good |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaRenderless :renderless="true" /></span> | Component renders no DOM element by default |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaRenderless :renderless="false" /></span> | Component renders a DOM element by default |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaSkillLevel :level="{ icon: 'level-beginner', color: 'text-success', label: 'Beginner' }" /></span> | Difficulty indicator — see [below](#skill-levels) |
+| <span class="inline-flex items-center text-xs whitespace-nowrap"><DocsMetaLastUpdated date="Jan 10, 2026" /></span> | When the page was last modified (from git) |
+
+These metadata items are standalone components usable anywhere. This page's actual metadata: <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel /><DocsMetaLastUpdated /></span>
 
 ## Skill Levels & Learning Tracks { #skill-levels-learning-tracks }
 
@@ -57,29 +84,30 @@ Use the filter to show only pages matching your experience level: <AppSkillFilte
 
 Every page is tagged with a skill level to help you find content appropriate for your experience:
 
-| Level | Badge | For |
-|-------|-------|-----|
-| <span class="inline-block w-3 h-3 rounded bg-success mr-1 align-middle" />**1** | Beginner | New to v0, learning fundamentals |
-| <span class="inline-block w-3 h-3 rounded bg-info mr-1 align-middle" />**2** | Intermediate | Building with components, practical usage |
-| <span class="inline-block w-3 h-3 rounded bg-warning mr-1 align-middle" />**3** | Advanced | Architecture deep-dives, custom patterns |
+| Level | For | Filter |
+|-------|-----|:------:|
+| <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-beginner', color: 'text-success', label: 'Beginner' }" /></span> | New to v0, learning fundamentals | <span class="flex justify-center"><DocsSkillToggle :level="1" /></span> |
+| <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-intermediate', color: 'text-info', label: 'Intermediate' }" /></span> | Building with components, practical usage | <span class="flex justify-center"><DocsSkillToggle :level="2" /></span> |
+| <span class="inline-flex items-center text-xs"><DocsMetaSkillLevel :level="{ icon: 'level-advanced', color: 'text-warning', label: 'Advanced' }" /></span> | Architecture deep-dives, custom patterns | <span class="flex justify-center"><DocsSkillToggle :level="3" /></span> |
 
 ### Learning Tracks
 
 The [Guide overview](/guide) defines three learning tracks for structured progression:
 
-**Track A: Core Concepts** — Understanding the system
-1. [Structure](/guide/structure) — Package organization and imports
-2. [Core](/guide/core) — Trinity, Context, and Registry patterns
-3. [Components](/guide/components) — Headless primitives and slot props
-4. [Plugins](/guide/plugins) — Vue plugin integration
+**Track A: Fundamentals** — Understanding the system
+1. [Core](/guide/fundamentals/core) — Trinity, Context, and Registry patterns
+2. [Components](/guide/fundamentals/components) — Headless primitives and slot props
+3. [Composables](/guide/fundamentals/composables) — Composables vs components
+4. [Plugins](/guide/fundamentals/plugins) — Vue plugin integration
 
-**Track B: Features & Polish** — Production-ready UIs
-1. [Theming](/guide/theming) — CSS variables and design tokens
-2. [Accessibility](/guide/accessibility) — ARIA patterns and keyboard navigation
-3. [Utilities](/guide/utilities) — Helper functions and type guards
+**Track B: Features** — Production-ready UIs
+1. [Theming](/guide/features/theming) — CSS variables and design tokens
+2. [Accessibility](/guide/features/accessibility) — ARIA patterns and keyboard navigation
+3. [Utilities](/guide/features/utilities) — Helper functions and type guards
 
-**Track C: Real-World Application** — See v0 in production
-1. [Building Docs](/guide/building-docs) — How this documentation site uses v0
+**Track C: Integration** — See v0 in production
+1. [Nuxt 3](/guide/integration/nuxt) — SSR, auto-imports, theme persistence
+2. [Building Docs](/guide/integration/building-docs) — How this documentation site uses v0
 
 New to v0? Start with Track A. Already building? Jump to Track B as needed.
 
@@ -151,15 +179,15 @@ On desktop, the chat opens as a right-side panel. On mobile, it opens as a full-
 
 ### What the AI Knows
 
-The AI has access to the entire v0 documentation via [llms-full.txt](/guide/ai-tools), but prioritizes the current page for more relevant answers:
+The AI has access to the entire v0 documentation via [llms-full.txt](/guide/tooling/ai-tools), but prioritizes the current page for more relevant answers:
 
 | Context | Description |
 |---------|-------------|
-| <AppIcon icon="book" :size="16" class="inline-block align-text-bottom" /> **Full docs** | Complete documentation available for cross-referencing |
-| <AppIcon icon="typescript" :size="16" class="inline-block align-text-bottom" /> **Examples** | Live Vue code from the page's interactive demos |
-| <AppIcon icon="toc" :size="16" class="inline-block align-text-bottom" /> **API specs** | Props, events, slots, and methods for the current component/composable |
-| <AppIcon icon="benchmark" :size="16" class="inline-block align-text-bottom" /> **Benchmarks** | Performance metrics (for composables) |
-| <AppIcon icon="chat" :size="16" class="inline-block align-text-bottom" /> **History** | Your last 6 messages in the conversation |
+| <span class="whitespace-nowrap"><AppIcon icon="book" :size="16" class="inline-block align-text-bottom" /> **Full docs**</span> | Complete documentation available for cross-referencing |
+| <span class="whitespace-nowrap"><AppIcon icon="typescript" :size="16" class="inline-block align-text-bottom" /> **Examples**</span> | Live Vue code from the page's interactive demos |
+| <span class="whitespace-nowrap"><AppIcon icon="beaker" :size="16" class="inline-block align-text-bottom" /> **API specs**</span> | Props, events, slots, and methods for the current component/composable |
+| <span class="whitespace-nowrap"><AppIcon icon="benchmark" :size="16" class="inline-block align-text-bottom" /> **Benchmarks**</span> | Performance metrics (for composables) |
+| <span class="whitespace-nowrap"><AppIcon icon="chat" :size="16" class="inline-block align-text-bottom" /> **History**</span> | Your last 6 messages in the conversation |
 
 This context makes answers specific and actionable. Asking "How do I open this programmatically?" on the Dialog page gives you Dialog-specific code.
 
@@ -212,7 +240,7 @@ Examples render as functional components you can interact with directly:
 - See real behavior without leaving the docs
 - Examples use the same code shown below them
 
-<DocsExample file="basic.vue" title="Interactive Group Example" :code="GroupExampleRaw">
+<DocsExample file="basic.vue" :code="GroupExampleRaw">
   <GroupExample />
 </DocsExample>
 
@@ -241,10 +269,10 @@ Hover over the code block to reveal action buttons:
 
 | Button | Action |
 |--------|--------|
-| <AppIcon icon="vuetify-play" :size="16" class="inline-block align-text-bottom" /> **Play** | Open in Vuetify Play with full editing environment |
-| <AppIcon icon="vuetify-bin" :size="16" class="inline-block align-text-bottom" /> **Bin** | Open in Vuetify Bin for sharing |
-| <AppIcon icon="wrap" :size="16" class="inline-block align-text-bottom" /> **Wrap** | Toggle line wrapping for long lines |
-| <AppIcon icon="copy" :size="16" class="inline-block align-text-bottom" /> **Copy** | Copy code to clipboard (checkmark confirms success) |
+| <span class="whitespace-nowrap"><AppIcon icon="vuetify-play" :size="16" class="inline-block align-text-bottom" /> **Play**</span> | Open in Vuetify Play with full editing environment |
+| <span class="whitespace-nowrap"><AppIcon icon="vuetify-bin" :size="16" class="inline-block align-text-bottom" /> **Bin**</span> | Open in Vuetify Bin for sharing |
+| <span class="whitespace-nowrap"><AppIcon icon="wrap" :size="16" class="inline-block align-text-bottom" /> **Wrap**</span> | Toggle line wrapping for long lines |
+| <span class="whitespace-nowrap"><AppIcon icon="copy" :size="16" class="inline-block align-text-bottom" /> **Copy**</span> | Copy code to clipboard (checkmark confirms success) |
 
 ### Code Groups
 
@@ -413,6 +441,14 @@ Toggle line wrapping for long lines in code blocks:
 
 <div class="max-w-xs mb-6">
   <AppSettingsLineWrap />
+</div>
+
+### API Reference
+
+Display API details inline on component and composable pages, or show links to dedicated API pages:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsInlineApi />
 </div>
 
 ### Motion

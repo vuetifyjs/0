@@ -64,7 +64,7 @@ export function useRouterLinks (
       if (el) {
         e.preventDefault()
         el.scrollIntoView({ behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
-        history.replaceState(null, '', href)
+        history.replaceState(history.state, '', href)
       }
       return
     }

@@ -44,34 +44,35 @@ Before diving into the guides, ensure you're familiar with:
 
 ## Learning Paths
 
-### Track A: Core Concepts
+### Track A: Fundamentals
 
 For understanding the system architecture.
 
 | Guide | What You'll Learn |
 | - | - |
-| [Structure](/guide/structure) | Package organization, imports, file conventions |
-| [Core](/guide/core) | Trinity, Context, Registry patterns |
-| [Components](/guide/components) | Component categories, Atom primitive, slot props |
-| [Plugins](/guide/plugins) | Using and creating Vue plugins |
+| [Core](/guide/fundamentals/core) | Trinity, Context, Registry patterns |
+| [Components](/guide/fundamentals/components) | Component categories, Atom primitive, slot props |
+| [Composables](/guide/fundamentals/composables) | Composables vs components, when to use each |
+| [Plugins](/guide/fundamentals/plugins) | Using and creating Vue plugins |
 
-### Track B: Features & Polish
+### Track B: Features
 
 For building production UIs.
 
 | Guide | What You'll Learn |
 | - | - |
-| [Theming](/guide/theming) | CSS variables, design tokens, dark mode |
-| [Accessibility](/guide/accessibility) | ARIA patterns, keyboard nav, testing |
-| [Utilities](/guide/utilities) | Helper functions, type guards |
+| [Theming](/guide/features/theming) | CSS variables, design tokens, dark mode |
+| [Accessibility](/guide/features/accessibility) | ARIA patterns, keyboard nav, testing |
+| [Utilities](/guide/features/utilities) | Helper functions, type guards |
 
-### Track C: Real-World Application
+### Track C: Integration
 
 See v0 patterns in production.
 
 | Guide | What You'll Learn |
 | - | - |
-| [Building This Documentation](/guide/building-docs) | How this site uses v0, UnoCSS, and vite-ssg |
+| [Nuxt 3](/guide/integration/nuxt) | SSR, auto-imports, theme persistence |
+| [Building This Documentation](/guide/integration/building-docs) | How this site uses v0, UnoCSS, and vite-ssg |
 
 > [!TIP]
 > New to v0? Start with Track A. Already building? Jump to Track B as needed.
@@ -94,8 +95,11 @@ If you have an existing styled component library and want to adopt v0's headless
 <script setup lang="ts">
   import { shallowRef } from 'vue'
 
-  const activeTab = shallowRef(0)
-  function selectTab(index: number) { activeTab.value = index }
+  const active = shallowRef(0)
+
+  function select (i: number) {
+    active.value = i
+  }
 </script>
 ```
 
@@ -129,9 +133,9 @@ If you have an existing styled component library and want to adopt v0's headless
 
 | Pattern | Use Case | Guide |
 | - | - | - |
-| `createContext` | Share state across component tree | [Core](/guide/core) |
+| `createContext` | Share state across component tree | [Core](/guide/fundamentals/core) |
 | `createSelection` | Multi-select, toggles, radio groups | [Composables](/composables/selection/create-selection) |
-| `createRegistry` | Dynamic child registration | [Core](/guide/core) |
-| `Atom` component | Polymorphic base element | [Components](/guide/components) |
-| `useTheme` | Theme switching, CSS variables | [Theming](/guide/theming) |
+| `createRegistry` | Dynamic child registration | [Core](/guide/fundamentals/core) |
+| `Atom` component | Polymorphic base element | [Components](/guide/fundamentals/components) |
+| `useTheme` | Theme switching, CSS variables | [Theming](/guide/features/theming) |
 

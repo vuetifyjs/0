@@ -1,7 +1,7 @@
 ---
 title: Theming Guide - Design Tokens and CSS Variables
 features:
-  order: 6
+  order: 1
   level: 2
 meta:
   - name: description
@@ -11,7 +11,7 @@ meta:
 related:
   - /composables/plugins/use-theme
   - /composables/registration/create-tokens
-  - /guide/accessibility
+  - /guide/features/accessibility
 ---
 
 # Theming
@@ -165,7 +165,7 @@ Theme changes update automatically—the utilities reference CSS variables, not 
 
 Map v0 variables to UnoCSS theme colors:
 
-```ts uno.config.ts
+```ts uno.config.ts collapse
 import { defineConfig, presetUno } from 'unocss'
 
 export default defineConfig({
@@ -208,7 +208,7 @@ export default defineConfig({
 
 Use `useStorage` to persist theme selection across page loads. The key is installing the storage plugin first, then reading the stored preference during theme plugin setup:
 
-```ts main.ts
+```ts main.ts collapse
 import { createApp } from 'vue'
 import {
   createStoragePlugin,

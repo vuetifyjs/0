@@ -30,7 +30,7 @@ A headless component for creating page navigation with proper ARIA support.
 
 The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the [usePagination](/composables/utilities/use-pagination) and [useOverflow](/composables/utilities/use-overflow) composable internally.
 
-<DocsExample file="basic.vue" title="Basic Pagination" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
   <BasicExample />
 </DocsExample>
 
@@ -58,6 +58,7 @@ The Pagination component provides a compound component pattern for building page
 </template>
 ```
 
+> [!WARNING]
 > For responsive sizing to work accurately, **all pagination buttons must have the same width**. The component measures a sample button and uses that width to calculate how many buttons fit. If buttons have variable widths (e.g., single-digit "1" vs double-digit "50"), the calculation will be inaccurate and items may overflow or leave excess space.
 
 <DocsApi />
