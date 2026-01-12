@@ -63,12 +63,12 @@
 
   onMounted(async () => {
     await nextTick()
-    const activeLink = navRef.value?.element?.querySelector('[aria-current="page"]')
+    const activeLink = navRef.value?.element.value?.querySelector('[aria-current="page"]')
     activeLink?.scrollIntoView({ block: 'center' })
   })
 
   useClickOutside(
-    () => navRef.value?.element,
+    () => navRef.value?.element.value,
     () => {
       if (app.drawer && isMobile.value) {
         app.drawer = false
@@ -116,16 +116,24 @@
       </template>
 
       <template v-for="(nav, i) in filteredNav" :key="i">
-        <li v-if="nav.divider" class="px-4">
+        <li v-if="'divider' in nav" class="px-4">
           <AppDivider />
         </li>
+
+        <AppNavLink
+          v-else-if="'to' in nav"
+          :children="nav.children"
+          class="px-4"
+          :to="nav.to"
+        >
+          {{ nav.name }}
+        </AppNavLink>
 
         <AppNavLink
           v-else
           :children="nav.children"
           class="px-4"
-          :new="nav.new"
-          :to="nav.to || ''"
+          :to="''"
         >
           {{ nav.name }}
         </AppNavLink>
