@@ -42,9 +42,11 @@
 </template>
 
 <style scoped>
-  .docs-meta-item + .docs-meta-item::before {
-    content: '·';
-    margin-inline: 0.5rem;
-    opacity: 0.4;
+  @media (min-width: 640px) {
+    .docs-meta-item + .docs-meta-item::before {
+      content: '·';
+      margin-inline: 0.5rem;
+      opacity: 0.4;
+    }
   }
 </style>

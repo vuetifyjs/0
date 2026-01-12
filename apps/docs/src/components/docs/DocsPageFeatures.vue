@@ -275,7 +275,7 @@
     <!-- Order: Classification → Skill Level → Quality → Performance → Reference -->
     <div
       v-if="!isUndefined(renderless) || level || coverage || benchmark || lastUpdated"
-      class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider"
+      class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider gap-3 md:gap-2"
     >
       <!-- 1. Renderless - Feature classification (what is it?) -->
       <DocsMetaItem
@@ -285,7 +285,6 @@
         text="Renderless"
         title="Component renders no DOM element by default"
       />
-
       <DocsMetaItem
         v-if="renderless === false"
         color="text-secondary"
