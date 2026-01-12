@@ -446,7 +446,7 @@ The following export paths exist for the Vuetify0 framework:
 | `@vuetify/v0/utilities` | Utilities only. |
 | `@vuetify/v0/constants` | Constants only (not included in main entry). |
 
-```ts
+```ts collapse
 // Everything
 import { ExpansionPanel, createSelection } from '@vuetify/v0'
 

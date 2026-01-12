@@ -178,7 +178,7 @@ For detailed API documentation, examples, and guides, visit [0.vuetifyjs.com](ht
 
 ## Development
 
-```bash
+```bash collapse
 # Install dependencies
 pnpm install
 

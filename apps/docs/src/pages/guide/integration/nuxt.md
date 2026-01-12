@@ -28,7 +28,7 @@ See [Getting Started](/introduction/getting-started#nuxt-3) for the minimal plug
 
 Configure Nuxt to auto-import v0 composables:
 
-```ts nuxt.config.ts
+```ts nuxt.config.ts collapse
 export default defineNuxtConfig({
   build: {
     transpile: ['@vuetify/v0'],
@@ -99,7 +99,7 @@ The theme plugin automatically integrates with Nuxt's `@unhead/vue` to inject st
 
 For theme preference to persist across SSR requests, use cookies instead of localStorage:
 
-```ts plugins/v0.ts
+```ts plugins/v0.ts collapse
 import { createHydrationPlugin, createThemePlugin, IN_BROWSER } from '@vuetify/v0'
 
 export default defineNuxtPlugin((nuxtApp) => {

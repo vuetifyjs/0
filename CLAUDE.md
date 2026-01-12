@@ -67,7 +67,7 @@ import { createRegistry } from '#v0/composables'
 
 ## Commands
 
-```bash
+```bash collapse
 # Development
 pnpm dev              # Playground
 pnpm dev:docs         # Documentation

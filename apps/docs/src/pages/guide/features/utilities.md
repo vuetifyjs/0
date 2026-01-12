@@ -265,7 +265,7 @@ const virtual = useVirtual(filtered, {
 
 For large datasets that need all three utilities working together:
 
-```ts
+```ts collapse
 import { shallowRef, computed } from 'vue'
 import { createFilter, createPagination, useVirtual } from '@vuetify/v0'
 

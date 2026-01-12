@@ -67,7 +67,7 @@ describe('mutation operations', () => {
 
 Fixtures must have explicit types:
 
-```ts
+```ts collapse
 interface BenchmarkItem {
   id: string
   value: string
