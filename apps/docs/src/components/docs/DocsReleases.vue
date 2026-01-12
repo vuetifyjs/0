@@ -52,7 +52,8 @@
   const router = useRouter()
   const store = useReleasesStore()
   const { adapter } = useDate()
-  const { copied, copy } = useClipboard()
+  const { copied: copiedLink, copy: copyLink } = useClipboard()
+  const { copied: copiedMarkdown, copy: copyMarkdown } = useClipboard()
 
   const model = shallowRef<Release>()
   const search = shallowRef('')
@@ -108,9 +109,14 @@
     return typeof count === 'number' ? count : 0
   }
 
-  async function copyLink () {
+  async function copyReleaseLink () {
     if (!model.value) return
-    await copy(`${window.location.origin}/releases/?version=${model.value.tag_name}`)
+    await copyLink(`${window.location.origin}/releases/?version=${model.value.tag_name}`)
+  }
+
+  async function copyReleaseMarkdown () {
+    if (!model.value?.body) return
+    await copyMarkdown(model.value.body)
   }
 
   function selectRelease (release: Release) {
@@ -252,12 +258,23 @@
 
         <div class="flex items-center gap-2">
           <button
+            aria-label="Copy markdown"
             class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
-            :title="copied ? 'Copied!' : 'Copy link'"
+            :title="copiedMarkdown ? 'Copied!' : 'Copy markdown'"
             type="button"
-            @click="copyLink"
+            @click="copyReleaseMarkdown"
           >
-            <AppIcon :icon="copied ? 'success' : 'share'" :size="18" />
+            <AppIcon :icon="copiedMarkdown ? 'success' : 'copy'" :size="18" />
+          </button>
+
+          <button
+            aria-label="Copy link"
+            class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
+            :title="copiedLink ? 'Copied!' : 'Copy link'"
+            type="button"
+            @click="copyReleaseLink"
+          >
+            <AppIcon :icon="copiedLink ? 'success' : 'share'" :size="18" />
           </button>
 
           <a
@@ -285,7 +302,7 @@
       <!-- Body -->
       <div
         v-if="renderedBody"
-        class="px-4 py-4 prose prose-sm max-w-none [&_img]:max-w-full [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_a]:underline-offset-2 [&_pre]:bg-pre [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-surface-tint [&_code]:px-1 [&_code]:rounded [&_pre_code]:bg-transparent [&_pre_code]:p-0"
+        class="px-4 max-w-none [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-5 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-base [&_h4]:font-medium [&_h4]:mt-3 [&_h4]:mb-2 [&_p]:my-3 [&_ul]:my-3 [&_ul]:pl-5 [&_ul]:list-disc [&_ol]:my-3 [&_ol]:pl-5 [&_ol]:list-decimal [&_li]:my-1 [&_img]:max-w-full [&_a]:text-primary [&_a]:no-underline [&_a:hover]:underline [&_a]:underline-offset-2 [&_pre]:bg-pre [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_pre]:my-3 [&_code]:bg-surface-tint [&_code]:px-1 [&_code]:rounded [&_pre_code]:bg-transparent [&_pre_code]:p-0"
         v-html="renderedBody"
       />
 
