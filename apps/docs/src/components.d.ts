@@ -83,7 +83,6 @@ declare module 'vue' {
     HomeFeatureCard: typeof import('./components/home/HomeFeatureCard.vue')['default']
     HomeFeatureLink: typeof import('./components/home/HomeFeatureLink.vue')['default']
     HomeFeatures: typeof import('./components/home/HomeFeatures.vue')['default']
-    HomeFooter: typeof import('./components/home/HomeFooter.vue')['default']
     HomeHero: typeof import('./components/home/HomeHero.vue')['default']
     HomeIntegrations: typeof import('./components/home/HomeIntegrations.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
