@@ -452,6 +452,62 @@
     stroke: var(--v0-primary) !important;
   }
 
+  /* State diagram styling */
+  .docs-mermaid .statediagram-state .basic path {
+    fill: var(--v0-surface) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid .statediagram-state .nodeLabel,
+  .docs-mermaid .statediagram-state .nodeLabel p {
+    color: var(--v0-on-surface) !important;
+  }
+
+  .docs-mermaid g.stateGroup rect {
+    fill: var(--v0-surface) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid g.stateGroup text,
+  .docs-mermaid g.stateGroup .state-title {
+    fill: var(--v0-on-surface) !important;
+  }
+
+  .docs-mermaid .transition {
+    stroke: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid [id*="stateDiagram-barbEnd"] path {
+    fill: var(--v0-primary) !important;
+    stroke: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid .node circle.state-start {
+    fill: var(--v0-primary) !important;
+    stroke: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid .node circle.state-end {
+    fill: var(--v0-primary) !important;
+    stroke: transparent !important;
+  }
+
+  .docs-mermaid .statediagram .edgeLabel {
+    background-color: var(--v0-surface) !important;
+  }
+
+  .docs-mermaid .statediagram .edgeLabel p,
+  .docs-mermaid .statediagram .edgeLabel .text-inner-tspan {
+    background-color: var(--v0-surface) !important;
+    color: var(--v0-on-surface-variant) !important;
+    fill: var(--v0-on-surface-variant) !important;
+  }
+
+  .docs-mermaid .statediagram .edgeLabel rect.background {
+    fill: var(--v0-surface) !important;
+    opacity: 1 !important;
+  }
+
   /* Dialog expanded view */
   .docs-mermaid-dialog[open] {
     width: min(90vw, 1200px);

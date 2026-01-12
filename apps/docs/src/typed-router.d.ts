@@ -324,6 +324,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/system/use-lazy': RouteRecordInfo<
+      '/composables/system/use-lazy',
+      '/composables/system/use-lazy',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/system/use-media-query': RouteRecordInfo<
       '/composables/system/use-media-query',
       '/composables/system/use-media-query',
@@ -802,6 +809,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/system/use-intersection-observer.md': {
       routes:
         | '/composables/system/use-intersection-observer'
+      views:
+        | never
+    }
+    'src/pages/composables/system/use-lazy.md': {
+      routes:
+        | '/composables/system/use-lazy'
       views:
         | never
     }
