@@ -121,6 +121,7 @@ For custom form integration, use `Checkbox.HiddenInput` explicitly:
 <template>
   <Checkbox.Root>
     <Checkbox.Indicator>✓</Checkbox.Indicator>
+
     <Checkbox.HiddenInput name="custom" value="override" />
   </Checkbox.Root>
 </template>
