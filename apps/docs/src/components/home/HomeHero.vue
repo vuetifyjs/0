@@ -77,7 +77,7 @@
 
     <router-link
       class="text-sm opacity-60 hover:opacity-100 hover:text-primary transition-all"
-      to="/introduction/why-vuetify0"
+      to="/introduction/why-vuetify0#quick-comparison"
     >
       See how Vuetify0 compares to other libraries →
     </router-link>
