@@ -8,6 +8,7 @@ meta:
 features:
   category: Component
   label: 'E: Checkbox'
+  level: 2
   github: /components/Checkbox/
 related:
   - /composables/selection/use-group
