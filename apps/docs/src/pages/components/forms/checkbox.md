@@ -20,6 +20,8 @@ import BasicExample from '@/examples/components/checkbox/basic.vue'
 import BasicExampleRaw from '@/examples/components/checkbox/basic.vue?raw'
 import GroupExample from '@/examples/components/checkbox/group.vue'
 import GroupExampleRaw from '@/examples/components/checkbox/group.vue?raw'
+import IndeterminateExample from '@/examples/components/checkbox/indeterminate.vue'
+import IndeterminateExampleRaw from '@/examples/components/checkbox/indeterminate.vue?raw'
 </script>
 
 # Checkbox
@@ -130,20 +132,11 @@ For custom form integration, use `Checkbox.HiddenInput` explicitly:
 
 ## Indeterminate State
 
-In group mode, checkboxes support an indeterminate (mixed) state via the `indeterminate` prop:
+Checkboxes support an indeterminate (mixed) state via the `indeterminate` prop. This is useful for "select all" patterns where some but not all children are selected.
 
-```vue
-<template>
-  <Checkbox.Group v-model="selected">
-    <Checkbox.Root value="parent" :indeterminate="isMixed">
-      <Checkbox.Indicator>
-        <span v-if="isMixed">−</span>
-        <span v-else>✓</span>
-      </Checkbox.Indicator>
-    </Checkbox.Root>
-  </Checkbox.Group>
-</template>
-```
+<DocsExample file="indeterminate.vue" :code="IndeterminateExampleRaw">
+  <IndeterminateExample />
+</DocsExample>
 
 The indeterminate state sets `aria-checked="mixed"` and `data-state="indeterminate"` for styling.
 
