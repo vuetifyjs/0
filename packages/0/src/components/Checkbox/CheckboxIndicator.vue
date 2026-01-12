@@ -15,18 +15,7 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { CheckboxState } from './CheckboxRoot.vue'
 
-  export interface CheckboxIndicatorProps extends AtomProps {
-    /**
-     * The HTML element to render as
-     * @default 'span'
-     */
-    as?: AtomProps['as']
-    /**
-     * When true, renders slot content directly without a wrapper element
-     * @default false
-     */
-    renderless?: boolean
-  }
+  export type CheckboxIndicatorProps = AtomProps
 
   export interface CheckboxIndicatorSlotProps {
     /** Whether this checkbox is currently checked */
