@@ -34,7 +34,7 @@ The Checkbox component supports two modes:
 - **Standalone mode**: Use `v-model` on `Checkbox.Root` for simple boolean state
 - **Group mode**: Wrap in `Checkbox.Group` for multi-selection with array v-model
 
-<DocsExample file="basic.vue" title="Standalone Checkbox" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
   <BasicExample />
 </DocsExample>
 
@@ -75,7 +75,7 @@ The Checkbox component supports two modes:
 
 Wrap checkboxes in `Checkbox.Group` for multi-selection with array-based v-model:
 
-<DocsExample file="group.vue" title="Checkbox Group" :code="GroupExampleRaw">
+<DocsExample file="group.vue" :code="GroupExampleRaw">
   <GroupExample />
 </DocsExample>
 
