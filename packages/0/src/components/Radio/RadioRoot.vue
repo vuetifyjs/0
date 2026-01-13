@@ -141,11 +141,23 @@
   // Register with parent group (el ref for focus management)
   // Note: Vue auto-unwraps exposed refs when accessed via template ref
   const el = toRef(() => (rootRef.value?.element as unknown as HTMLElement | null) ?? undefined)
-  const ticket = group.register({ id, value, disabled, el })
+  const ticket = group.register({ id, value, disabled, el } as any)
 
   const isChecked = toRef(() => toValue(ticket.isSelected))
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
-  const isTabbable = toRef(() => !toValue(group.disabled) && toValue(ticket.isTabbable))
+
+  // Roving tabindex: tabbable if selected, or first non-disabled when none selected
+  const isTabbable = toRef(() => {
+    if (toValue(group.disabled)) return false
+    if (toValue(ticket.disabled)) return false
+    if (toValue(ticket.isSelected)) return true
+    if (group.selectedIds.size > 0) return false
+    // First non-disabled item is tabbable when none selected
+    for (const item of group.values()) {
+      if (!toValue(item.disabled)) return item.id === id
+    }
+    return false
+  })
   const dataState = toRef((): RadioState => isChecked.value ? 'checked' : 'unchecked')
 
   function select () {
@@ -185,7 +197,8 @@
     if (!nextItem) return
 
     nextItem.select()
-    toValue(nextItem.el)?.focus()
+    // Focus via element ref stored during registration
+    toValue((nextItem as any).el)?.focus()
   }
 
   onUnmounted(() => {
