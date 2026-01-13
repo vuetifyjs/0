@@ -60,7 +60,6 @@
 
 <template>
   <input
-    aria-hidden="true"
     :checked="isChecked"
     :disabled="isDisabled"
     :form="form"
