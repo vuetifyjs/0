@@ -543,6 +543,12 @@
     .docs-mermaid-panzoom {
       cursor: default;
     }
+
+    /* Prevent sticky hover states on touch devices */
+    .docs-mermaid-dialog button:hover:not(:focus-visible):not(:active) {
+      background-color: transparent;
+      border-color: transparent;
+    }
   }
 
   .docs-mermaid-panzoom svg {
