@@ -16,10 +16,12 @@
      *
      * @example
      * ```vue
-     * <Radio.Root value="a">
-     *   <Radio.HiddenInput name="choice" />
-     *   <Radio.Indicator />
-     * </Radio.Root>
+     * <template>
+     *   <Radio.Root value="a">
+     *     <Radio.HiddenInput name="choice" />
+     *     <Radio.Indicator />
+     *   </Radio.Root>
+     * </template>
      * ```
      */
     name?: string
@@ -29,9 +31,11 @@
      *
      * @example
      * ```vue
-     * <Radio.Root value="internal-id">
-     *   <Radio.HiddenInput name="choice" value="user-friendly-value" />
-     * </Radio.Root>
+     * <template>
+     *   <Radio.Root value="internal-id">
+     *     <Radio.HiddenInput name="choice" value="user-friendly-value" />
+     *   </Radio.Root>
+     * </template>
      * ```
      */
     value?: string
@@ -40,9 +44,11 @@
      *
      * @example
      * ```vue
-     * <Radio.Root value="a">
-     *   <Radio.HiddenInput name="choice" form="external-form" />
-     * </Radio.Root>
+     * <template>
+     *   <Radio.Root value="a">
+     *     <Radio.HiddenInput name="choice" form="external-form" />
+     *   </Radio.Root>
+     * </template>
      * ```
      */
     form?: string

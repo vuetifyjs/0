@@ -51,10 +51,12 @@
      *
      * @example
      * ```vue
-     * <Radio.Group v-model="size">
-     *   <Radio.Root value="small">Small</Radio.Root>
-     *   <Radio.Root value="large">Large</Radio.Root>
-     * </Radio.Group>
+     * <template>
+     *   <Radio.Group v-model="size">
+     *     <Radio.Root value="small">Small</Radio.Root>
+     *     <Radio.Root value="large">Large</Radio.Root>
+     *   </Radio.Group>
+     * </template>
      * ```
      */
     value?: V
@@ -65,8 +67,10 @@
      *
      * @example
      * ```vue
-     * <form id="my-form">...</form>
-     * <Radio.Root value="a" form="my-form">Option</Radio.Root>
+     * <template>
+     *   <form id="my-form">...</form>
+     *   <Radio.Root value="a" form="my-form">Option</Radio.Root>
+     * </template>
      * ```
      */
     form?: string
@@ -75,9 +79,11 @@
      *
      * @example
      * ```vue
-     * <Radio.Root value="premium" disabled>
-     *   Premium (Coming soon)
-     * </Radio.Root>
+     * <template>
+     *   <Radio.Root value="premium" disabled>
+     *     Premium (Coming soon)
+     *   </Radio.Root>
+     * </template>
      * ```
      */
     disabled?: MaybeRef<boolean>
@@ -94,9 +100,11 @@
      *
      * @example
      * ```vue
-     * <Radio.Root :aria-invalid="hasError" value="a">
-     *   Option A
-     * </Radio.Root>
+     * <template>
+     *   <Radio.Root :aria-invalid="hasError" value="a">
+     *     Option A
+     *   </Radio.Root>
+     * </template>
      * ```
      */
     ariaInvalid?: boolean
@@ -155,11 +163,13 @@
      *
      * @example
      * ```vue
-     * <Radio.Root v-slot="{ isChecked, select, attrs }" value="a">
-     *   <div v-bind="attrs" @click="select">
-     *     <span :class="{ 'font-bold': isChecked }">Option A</span>
-     *   </div>
-     * </Radio.Root>
+     * <template>
+     *   <Radio.Root v-slot="{ isChecked, select, attrs }" value="a">
+     *     <div v-bind="attrs" v-on:click="select">
+     *       <span :class="{ 'font-bold': isChecked }">Option A</span>
+     *     </div>
+     *   </Radio.Root>
+     * </template>
      * ```
      */
     default: (props: RadioRootSlotProps<V>) => any

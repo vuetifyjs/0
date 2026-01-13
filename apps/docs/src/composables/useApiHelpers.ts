@@ -44,10 +44,12 @@ export function useApiHelpers (): UseApiHelpersReturn {
       expandedExamples.value = newSet
       if (code && !highlightedExamples[key]) {
         const hl = highlighter.value ?? await getHighlighter()
+        // Detect language: Vue SFC if it starts with <template> or <script, otherwise TypeScript
+        const isVue = /^<(?:template|script)/.test(code.trim())
         highlightedExamples[key] = {
           code,
           html: hl.codeToHtml(code, {
-            lang: 'typescript',
+            lang: isVue ? 'vue' : 'typescript',
             themes: SHIKI_THEMES,
             defaultColor: false,
             transformers: [createApiTransformer()],

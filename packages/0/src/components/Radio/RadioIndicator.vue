@@ -46,9 +46,11 @@
      *
      * @example
      * ```vue
-     * <Radio.Indicator v-slot="{ isChecked }">
-     *   <CheckIcon v-if="isChecked" />
-     * </Radio.Indicator>
+     * <template>
+     *   <Radio.Indicator v-slot="{ isChecked }">
+     *     <CheckIcon v-if="isChecked" />
+     *   </Radio.Indicator>
+     * </template>
      * ```
      */
     default: (props: RadioIndicatorSlotProps) => any

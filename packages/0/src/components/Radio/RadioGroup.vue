@@ -38,9 +38,11 @@
      *
      * @example
      * ```vue
-     * <Radio.Group disabled>
-     *   <Radio.Root value="a">Option A</Radio.Root>
-     * </Radio.Group>
+     * <template>
+     *   <Radio.Group disabled>
+     *     <Radio.Root value="a">Option A</Radio.Root>
+     *   </Radio.Group>
+     * </template>
      * ```
      */
     disabled?: boolean
@@ -51,10 +53,12 @@
      *
      * @example
      * ```vue
-     * <Radio.Group v-model="selected" mandatory="force">
-     *   <Radio.Root value="small">Small</Radio.Root>
-     *   <Radio.Root value="medium">Medium</Radio.Root>
-     * </Radio.Group>
+     * <template>
+     *   <Radio.Group v-model="selected" mandatory="force">
+     *     <Radio.Root value="small">Small</Radio.Root>
+     *     <Radio.Root value="medium">Medium</Radio.Root>
+     *   </Radio.Group>
+     * </template>
      * ```
      */
     mandatory?: boolean | 'force'
@@ -63,10 +67,12 @@
      *
      * @example
      * ```vue
-     * <Radio.Group label="Select size">
-     *   <Radio.Root value="s">Small</Radio.Root>
-     *   <Radio.Root value="m">Medium</Radio.Root>
-     * </Radio.Group>
+     * <template>
+     *   <Radio.Group label="Select size">
+     *     <Radio.Root value="s">Small</Radio.Root>
+     *     <Radio.Root value="m">Medium</Radio.Root>
+     *   </Radio.Group>
+     * </template>
      * ```
      */
     label?: string
@@ -81,10 +87,12 @@
      *
      * @example
      * ```vue
-     * <Radio.Group v-model="size" name="product_size">
-     *   <Radio.Root value="small">Small</Radio.Root>
-     *   <Radio.Root value="large">Large</Radio.Root>
-     * </Radio.Group>
+     * <template>
+     *   <Radio.Group v-model="size" name="product_size">
+     *     <Radio.Root value="small">Small</Radio.Root>
+     *     <Radio.Root value="large">Large</Radio.Root>
+     *   </Radio.Group>
+     * </template>
      * ```
      */
     name?: string
@@ -124,12 +132,14 @@
      *
      * @example
      * ```vue
-     * <Radio.Group v-slot="{ isNoneSelected, attrs }">
-     *   <div v-bind="attrs">
-     *     <p v-if="isNoneSelected">Please select an option</p>
-     *     <Radio.Root value="a">Option A</Radio.Root>
-     *   </div>
-     * </Radio.Group>
+     * <template>
+     *   <Radio.Group v-slot="{ isNoneSelected, attrs }">
+     *     <div v-bind="attrs">
+     *       <p v-if="isNoneSelected">Please select an option</p>
+     *       <Radio.Root value="a">Option A</Radio.Root>
+     *     </div>
+     *   </Radio.Group>
+     * </template>
      * ```
      */
     default: (props: RadioGroupSlotProps) => any
