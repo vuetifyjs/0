@@ -100,6 +100,8 @@
 </script>
 
 <script setup lang="ts" generic="V = unknown">
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { useRadioGroup } from './RadioGroup.vue'
   import RadioHiddenInput from './RadioHiddenInput.vue'
@@ -182,9 +184,11 @@
     const nextItem = items[nextIndex]
     if (nextItem) {
       nextItem.select()
-      // Focus the next radio button
-      const nextElement = document.querySelector(`[data-radio-id="${nextItem.id}"]`) as HTMLElement | null
-      nextElement?.focus()
+      // Focus the next radio button (SSR-safe)
+      if (IN_BROWSER) {
+        const nextElement = document.querySelector(`[data-radio-id="${nextItem.id}"]`) as HTMLElement | null
+        nextElement?.focus()
+      }
     }
   }
 

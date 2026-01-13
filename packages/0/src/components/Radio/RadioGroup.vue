@@ -41,6 +41,8 @@
     ariaLabelledby?: string
     /** ID of element that describes this group */
     ariaDescribedby?: string
+    /** Whether a selection is required before form submission */
+    ariaRequired?: boolean
     /** Form field name - applies to all radios in group */
     name?: string
   }
@@ -56,6 +58,7 @@
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
+      'aria-required': boolean | undefined
     }
   }
 
@@ -86,6 +89,7 @@
     namespace = 'v0:radio:group',
     ariaLabelledby,
     ariaDescribedby,
+    ariaRequired,
     disabled = false,
     mandatory = false,
     label,
@@ -112,6 +116,7 @@
       'aria-label': label || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-describedby': ariaDescribedby || undefined,
+      'aria-required': ariaRequired || undefined,
     },
   }))
 </script>

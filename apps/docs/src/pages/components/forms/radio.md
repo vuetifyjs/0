@@ -88,6 +88,7 @@ The Radio components handle all ARIA attributes automatically:
 - `role="radio"` on each Root
 - `aria-checked` reflects checked state
 - `aria-disabled` when radio is disabled
+- `aria-required` for form validation (set on Group)
 - `aria-label` from the `label` prop
 - Roving `tabindex` - only the selected radio (or first if none) is tabbable
 - Space key selects the focused radio

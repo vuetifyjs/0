@@ -37,7 +37,7 @@
   import { useRadioRoot } from './RadioRoot.vue'
 
   // Utilities
-  import { isNullOrUndefined, isObject } from '#v0/utilities'
+  import { isObject } from '#v0/utilities'
   import { toRef } from 'vue'
 
   defineOptions({ name: 'RadioHiddenInput' })
@@ -57,7 +57,6 @@
   // Serialize complex values for form submission - objects become JSON strings
   const value = toRef(() => {
     const v = valueProp ?? root.value ?? 'on'
-    if (isNullOrUndefined(v)) return 'on'
     if (isObject(v)) return JSON.stringify(v)
     return String(v)
   })

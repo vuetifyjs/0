@@ -88,6 +88,7 @@ describe('radio', () => {
         ['aria-label', { label: 'Options' }, 'Options'],
         ['aria-labelledby', { 'aria-labelledby': 'label-id' }, 'label-id'],
         ['aria-describedby', { 'aria-describedby': 'desc-id' }, 'desc-id'],
+        ['aria-required', { 'aria-required': true }, true],
       ] as const)('should set %s on Group', async (attr, inputProps, expected) => {
         const { groupProps, wait } = mountGroup({ props: inputProps })
         await wait()
@@ -346,6 +347,110 @@ describe('radio', () => {
         const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })
         radio.element.dispatchEvent(event)
         expect(event.defaultPrevented).toBe(true)
+      })
+
+      it('should navigate to next radio on ArrowRight', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({ model })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+        expect(model.value).toBe('item-2')
+      })
+
+      it('should navigate to previous radio on ArrowLeft', async () => {
+        const model = ref<string | undefined>('item-2')
+        const { wrapper, wait } = mountGroup({ model })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[1]!.trigger('keydown', { key: 'ArrowLeft' })
+        await wait()
+        expect(model.value).toBe('item-1')
+      })
+
+      it('should navigate using ArrowUp and ArrowDown', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({ model })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'ArrowDown' })
+        await wait()
+        expect(model.value).toBe('item-2')
+
+        await radios[1]!.trigger('keydown', { key: 'ArrowUp' })
+        await wait()
+        expect(model.value).toBe('item-1')
+      })
+
+      it('should wrap from last to first on ArrowRight at end', async () => {
+        const model = ref<string | undefined>('item-2')
+        const { wrapper, wait } = mountGroup({ model })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[1]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+        expect(model.value).toBe('item-1')
+      })
+
+      it('should wrap from first to last on ArrowLeft at start', async () => {
+        const model = ref<string | undefined>('item-1')
+        const { wrapper, wait } = mountGroup({ model })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'ArrowLeft' })
+        await wait()
+        expect(model.value).toBe('item-2')
+      })
+
+      it('should skip disabled items during arrow navigation', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({
+          model,
+          items: [
+            { value: 'item-1' },
+            { value: 'item-2', disabled: true },
+            { value: 'item-3' },
+          ],
+        })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+        expect(model.value).toBe('item-3') // Skips disabled item-2
+      })
+
+      it('should prevent default on arrow keys', async () => {
+        const { wrapper, wait } = mountGroup()
+        await wait()
+
+        const radio = wrapper.find('[role="radio"]')
+        const event = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+        radio.element.dispatchEvent(event)
+        expect(event.defaultPrevented).toBe(true)
+      })
+
+      it('should not navigate when all items are disabled', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({
+          model,
+          items: [
+            { value: 'item-1', disabled: true },
+            { value: 'item-2', disabled: true },
+          ],
+        })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+        expect(model.value).toBeUndefined()
       })
     })
 
