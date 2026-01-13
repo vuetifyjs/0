@@ -102,10 +102,10 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 | Composable | Purpose |
 |------------|---------|
 | `useFeatures` | Feature flags with variations (on `createGroup` + `createTokens`) |
-| `useForm` | Form validation with async rules |
-| `useTimeline` | Bounded undo/redo |
+| `createForm` | Form validation with async rules |
+| `createTimeline` | Bounded undo/redo |
 | `useTheme` | Theme management with CSS variable injection |
-| `useQueue` | FIFO queue for notifications/toasts |
+| `createQueue` | FIFO queue for notifications/toasts |
 | `usePagination` | Integer-based page navigation |
 | `useVirtual` | Virtual scrolling |
 | `useOverflow` | Container measurement |
@@ -129,6 +129,7 @@ tokens.resolve('{colors.primary}')  // '#3b82f6'
 - **Hydration**: `useHydration` (SSR hydration state)
 - **Date**: `useDate` (date manipulation with adapter pattern)
 - **Media**: `useMediaQuery` (reactive media query matching)
+- **Lazy**: `useLazy` (deferred content rendering for dialogs, menus, tooltips)
 - **Transformers**: `toReactive`, `toArray`
 
 ## Trinity Pattern

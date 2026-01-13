@@ -40,7 +40,7 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 **Reactivity**: `useProxyModel`, `useToggleScope`, `toReactive`, `toArray`
 **Features**: `useFeatures`, `usePermissions`, `useTheme`, `useLocale`, `useLogger`
 **Data**: `useFilter`, `usePagination`, `useVirtual`, `useDate`, `createForm`, `createQueue`, `createTimeline`
-**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `useOverflow`
+**Browser**: `useBreakpoints`, `useMediaQuery`, `useStorage`, `useHydration`, `useOverflow`, `useLazy`
 **Tokens**: `createTokens`
 
 ## Path Alias
