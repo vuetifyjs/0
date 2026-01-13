@@ -138,8 +138,9 @@
   const name = _name ?? group.name
 
   // Register with parent group (el ref for focus management)
-  // Note: Vue auto-unwraps exposed refs when accessed via template ref
-  const el = toRef(() => (rootRef.value?.element as unknown as HTMLElement | null) ?? undefined)
+  // Vue auto-unwraps exposed refs when accessed via template ref,
+  // but TypeScript doesn't reflect this - cast corrects the type
+  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
   const ticket = group.register({ id, value, disabled, el })
 
   const isChecked = toRef(() => toValue(ticket.isSelected))

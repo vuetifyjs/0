@@ -110,6 +110,14 @@ describe('radio', () => {
         const radios = wrapper.findAll('[role="radio"]')
         expect(radios).toHaveLength(2)
       })
+
+      it('should handle empty group gracefully', async () => {
+        const { groupProps, wait, wrapper } = mountGroup({ items: [] })
+        await wait()
+
+        expect(groupProps().isNoneSelected).toBe(true)
+        expect(wrapper.findAll('[role="radio"]')).toHaveLength(0)
+      })
     })
 
     describe('v-model binding', () => {
@@ -175,6 +183,38 @@ describe('radio', () => {
         itemProps('item-1').select()
         await wait()
         expect(itemProps('item-1').attrs['aria-checked']).toBe(true)
+      })
+
+      it('should set aria-invalid when prop is provided', async () => {
+        let capturedProps: any
+        mount(Radio.Group, {
+          slots: {
+            default: () => h(Radio.Root as any, { 'value': 'a', 'aria-invalid': true }, {
+              default: (p: any) => {
+                capturedProps = p
+                return h(Radio.Indicator as any, {}, () => '●')
+              },
+            }),
+          },
+        })
+        await nextTick()
+        expect(capturedProps.attrs['aria-invalid']).toBe(true)
+      })
+
+      it('should not set aria-invalid when prop is false', async () => {
+        let capturedProps: any
+        mount(Radio.Group, {
+          slots: {
+            default: () => h(Radio.Root as any, { 'value': 'a', 'aria-invalid': false }, {
+              default: (p: any) => {
+                capturedProps = p
+                return h(Radio.Indicator as any, {}, () => '●')
+              },
+            }),
+          },
+        })
+        await nextTick()
+        expect(capturedProps.attrs['aria-invalid']).toBeUndefined()
       })
     })
 
@@ -248,6 +288,78 @@ describe('radio', () => {
         await nextTick()
         expect(groupProps.isNoneSelected).toBe(true)
       })
+
+      it('should handle dynamic item addition', async () => {
+        const items = ref(['item-1'])
+        const model = ref<string | undefined>(undefined)
+        const itemPropsMap: Record<string, any> = {}
+
+        mount(Radio.Group, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as string | undefined
+            },
+          },
+          slots: {
+            default: () => items.value.map(item =>
+              h(Radio.Root as any, { key: item, value: item }, {
+                default: (p: any) => {
+                  itemPropsMap[item] = p
+                  return h(Radio.Indicator as any, {}, () => item)
+                },
+              }),
+            ),
+          },
+        })
+
+        await nextTick()
+        expect(Object.keys(itemPropsMap)).toHaveLength(1)
+
+        // Add new item
+        items.value = ['item-1', 'item-2']
+        await nextTick()
+        expect(Object.keys(itemPropsMap)).toHaveLength(2)
+
+        // Select new item
+        itemPropsMap['item-2'].select()
+        await nextTick()
+        expect(model.value).toBe('item-2')
+      })
+
+      it('should preserve selection when unrelated item is removed', async () => {
+        const items = ref(['item-1', 'item-2', 'item-3'])
+        const model = ref<string | undefined>('item-2')
+        const itemPropsMap: Record<string, any> = {}
+
+        mount(Radio.Group, {
+          props: {
+            'modelValue': model.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              model.value = v as string | undefined
+            },
+          },
+          slots: {
+            default: () => items.value.map(item =>
+              h(Radio.Root as any, { key: item, value: item }, {
+                default: (p: any) => {
+                  itemPropsMap[item] = p
+                  return h(Radio.Indicator as any, {}, () => item)
+                },
+              }),
+            ),
+          },
+        })
+
+        await nextTick()
+        expect(itemPropsMap['item-2'].isChecked).toBe(true)
+
+        // Remove item-3 (not selected)
+        items.value = ['item-1', 'item-2']
+        await nextTick()
+        expect(model.value).toBe('item-2')
+        expect(itemPropsMap['item-2'].isChecked).toBe(true)
+      })
     })
 
     describe('namespace isolation', () => {
@@ -292,6 +404,18 @@ describe('radio', () => {
           items: [{ value: 'item-1' }],
         })
         await wait()
+        expect(itemProps('item-1').isChecked).toBe(true)
+      })
+
+      it('should not deselect when re-selecting same item (radio is inherently mandatory)', async () => {
+        const model = ref<string | undefined>('item-1')
+        const { itemProps, wait } = mountGroup({ model })
+        await wait()
+
+        // Radio only exposes select(), not toggle/unselect - re-selecting is a no-op
+        itemProps('item-1').select()
+        await wait()
+        expect(model.value).toBe('item-1')
         expect(itemProps('item-1').isChecked).toBe(true)
       })
     })
@@ -552,6 +676,28 @@ describe('radio', () => {
       expect(wrapper.find('.custom').exists()).toBe(true)
       expect(capturedProps.attrs.role).toBe('radio')
     })
+
+    it('should render Indicator slot content directly when renderless=true', async () => {
+      let indicatorProps: any
+      const wrapper = mount(Radio.Group, {
+        props: { modelValue: 'a' },
+        slots: {
+          default: () => h(Radio.Root as any, { value: 'a' }, () =>
+            h(Radio.Indicator as any, { renderless: true }, {
+              default: (props: any) => {
+                indicatorProps = props
+                return h('svg', { class: 'custom-indicator', ...props.attrs }, 'check')
+              },
+            }),
+          ),
+        },
+      })
+      await nextTick()
+
+      expect(wrapper.find('span').exists()).toBe(false)
+      expect(wrapper.find('.custom-indicator').exists()).toBe(true)
+      expect(indicatorProps.attrs['data-state']).toBe('checked')
+    })
   })
 
   describe('ssr/hydration', () => {
@@ -707,6 +853,77 @@ describe('radio', () => {
 
         const input = wrapper.find('input[name="explicit"]')
         expect(input.attributes('value')).toBe('override')
+      })
+
+      it('should serialize object values as JSON for form submission', () => {
+        const objectValue = { id: 123, label: 'Option A' }
+        const wrapper = mount(Radio.Group, {
+          props: { name: 'choice' },
+          slots: {
+            default: () => h(Radio.Root as any, { value: objectValue }, () =>
+              h(Radio.Indicator as any, {}, () => '●'),
+            ),
+          },
+        })
+
+        const input = wrapper.find('input[type="radio"]')
+        expect(input.attributes('value')).toBe(JSON.stringify(objectValue))
+      })
+
+      it('should serialize number values as strings', () => {
+        const wrapper = mount(Radio.Group, {
+          props: { name: 'choice' },
+          slots: {
+            default: () => h(Radio.Root as any, { value: 42 }, () =>
+              h(Radio.Indicator as any, {}, () => '●'),
+            ),
+          },
+        })
+
+        const input = wrapper.find('input[type="radio"]')
+        expect(input.attributes('value')).toBe('42')
+      })
+
+      it('should use default value "on" when no value provided', () => {
+        const wrapper = mount(Radio.Group, {
+          props: { name: 'choice' },
+          slots: {
+            default: () => h(Radio.Root as any, {}, () =>
+              h(Radio.Indicator as any, {}, () => '●'),
+            ),
+          },
+        })
+
+        const input = wrapper.find('input[type="radio"]')
+        expect(input.attributes('value')).toBe('on')
+      })
+
+      it('should associate with form via form attribute', () => {
+        const wrapper = mount(Radio.Group, {
+          slots: {
+            default: () => h(Radio.Root as any, { value: 'a', form: 'my-form' }, () => [
+              h(Radio.HiddenInput as any, { name: 'choice' }),
+              h(Radio.Indicator as any, {}, () => '●'),
+            ]),
+          },
+        })
+
+        const input = wrapper.find('input[type="radio"]')
+        expect(input.attributes('form')).toBe('my-form')
+      })
+
+      it('should allow HiddenInput to override form attribute', () => {
+        const wrapper = mount(Radio.Group, {
+          slots: {
+            default: () => h(Radio.Root as any, { value: 'a', form: 'root-form' }, () => [
+              h(Radio.HiddenInput as any, { name: 'choice', form: 'explicit-form' }),
+              h(Radio.Indicator as any, {}, () => '●'),
+            ]),
+          },
+        })
+
+        const input = wrapper.find('input[type="radio"]')
+        expect(input.attributes('form')).toBe('explicit-form')
       })
     })
 
