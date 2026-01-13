@@ -1,11 +1,13 @@
 <script setup lang="ts">
   // Composables
+  import { useCustomThemes } from '@/composables/useCustomThemes'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { useTemplateRef, watch } from 'vue'
 
   const { close } = useSettings()
+  const { isEditing: isEditingTheme } = useCustomThemes()
 
   const sheetRef = useTemplateRef<HTMLElement | null>('sheet')
 
@@ -55,23 +57,26 @@
       <!-- Theme -->
       <AppSettingsTheme />
 
-      <!-- Skill Level -->
-      <AppSettingsSkillLevel />
+      <!-- Other settings (hidden when editing theme) -->
+      <template v-if="!isEditingTheme">
+        <!-- Skill Level -->
+        <AppSettingsSkillLevel />
 
-      <!-- Code Examples -->
-      <AppSettingsLineWrap />
+        <!-- Code Examples -->
+        <AppSettingsLineWrap />
 
-      <!-- API Reference -->
-      <AppSettingsInlineApi />
+        <!-- API Reference -->
+        <AppSettingsInlineApi />
 
-      <!-- Motion -->
-      <AppSettingsMotion />
+        <!-- Motion -->
+        <AppSettingsMotion />
 
-      <!-- Package Manager -->
-      <AppSettingsPackageManager />
+        <!-- Package Manager -->
+        <AppSettingsPackageManager />
 
-      <!-- Header Buttons -->
-      <AppSettingsHeaderButtons />
+        <!-- Header Buttons -->
+        <AppSettingsHeaderButtons />
+      </template>
     </div>
   </aside>
 </template>

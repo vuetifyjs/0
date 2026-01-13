@@ -246,20 +246,6 @@ export function getAllThemeConfigs () {
 }
 
 /**
- * Preview colors for theme swatches.
- */
-export function getPreviewColors (id: ThemeId): string[] {
-  const { colors } = themes[id]
-  return [
-    colors.primary,
-    colors.secondary,
-    colors.accent,
-    colors.surface,
-    colors.background,
-  ]
-}
-
-/**
  * Export theme as Vuetify config format.
  * Ready to paste into createVuetify() themes option.
  */

@@ -43,7 +43,7 @@ const PREFERENCE_LABELS: Record<string, string> = {
   'odyssey': 'Odyssey',
 }
 
-export type ThemePreference = typeof PREFERENCE_ORDER[number]
+export type ThemePreference = typeof PREFERENCE_ORDER[number] | (string & {})
 
 export interface UseThemeToggleReturn {
   theme: UseThemeReturn
@@ -58,6 +58,18 @@ export interface UseThemeToggleReturn {
 
 // Shared singleton state - ensures all consumers see the same preference
 const preference = shallowRef<ThemePreference>('system')
+
+/**
+ * Check if a preference is valid (preset or custom theme)
+ */
+function isValidPreference (pref: string | undefined): pref is ThemePreference {
+  if (!pref) return false
+  // Preset themes
+  if ((PREFERENCE_ORDER as readonly string[]).includes(pref)) return true
+  // Custom themes start with 'custom-'
+  if (pref.startsWith('custom-')) return true
+  return false
+}
 let initialized = false
 
 export function useThemeToggle (): UseThemeToggleReturn {
@@ -69,10 +81,10 @@ export function useThemeToggle (): UseThemeToggleReturn {
   if (!initialized) {
     initialized = true
 
-    // Load stored preference
+    // Load stored preference (supports preset and custom themes)
     const storedPreference = storage.get<string>('theme')
-    preference.value = PREFERENCE_ORDER.includes(storedPreference.value as ThemePreference)
-      ? storedPreference.value as ThemePreference
+    preference.value = isValidPreference(storedPreference.value)
+      ? storedPreference.value
       : 'system'
 
     // Watch preference and system theme changes together
@@ -91,8 +103,8 @@ export function useThemeToggle (): UseThemeToggleReturn {
     )
   }
 
-  const icon = toRef(() => PREFERENCE_ICONS[preference.value] ?? 'theme-system')
-  const title = toRef(() => `Theme: ${PREFERENCE_LABELS[preference.value] ?? 'System'}`)
+  const icon = toRef(() => PREFERENCE_ICONS[preference.value] ?? 'theme-custom')
+  const title = toRef(() => `Theme: ${PREFERENCE_LABELS[preference.value] ?? 'Custom'}`)
 
   function toggle () {
     const currentIndex = PREFERENCE_ORDER.indexOf(preference.value)
