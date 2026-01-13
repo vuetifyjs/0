@@ -28,6 +28,7 @@ const V0_COMPONENTS = new Set([
   'Group',
   'Pagination',
   'Popover',
+  'Radio',
   'Selection',
   'Single',
   'Step',

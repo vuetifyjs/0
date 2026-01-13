@@ -20,15 +20,21 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createSelection } from '#v0/composables/createSelection'
 
 // Utilities
-import { computed } from 'vue'
+import { computed, toRef, toValue } from 'vue'
 
 // Types
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef } from 'vue'
+import type { App, ComputedRef, Ref } from 'vue'
 
-export interface SingleTicket<V = unknown> extends SelectionTicket<V> {}
+export interface SingleTicket<V = unknown> extends SelectionTicket<V> {
+  /**
+   * Whether this ticket should be tabbable (roving tabindex pattern).
+   * True if: selected, OR (none selected AND first non-disabled item)
+   */
+  isTabbable: Readonly<Ref<boolean>>
+}
 
 export interface SingleContext<Z extends SingleTicket> extends SelectionContext<Z> {
   selectedId: ComputedRef<ID | undefined>
@@ -103,6 +109,35 @@ export function createSingle<
   const selectedIndex = computed(() => selectedItem.value?.index ?? -1)
   const selectedValue = computed(() => selectedItem.value?.value)
 
+  // Find first non-disabled item ID (for roving tabindex when none selected)
+  const firstTabbableId = computed(() => {
+    for (const item of registry.values()) {
+      if (!toValue(item.disabled)) return item.id
+    }
+    return undefined
+  })
+
+  function register (registration: Partial<Z> = {}): Z {
+    const ticket = registry.register(registration)
+
+    // Roving tabindex: tabbable if selected, or first non-disabled when none selected
+    const isTabbable = toRef(() => {
+      if (toValue(ticket.disabled)) return false
+      if (toValue(ticket.isSelected)) return true
+      if (registry.selectedIds.size > 0) return false
+      return ticket.id === firstTabbableId.value
+    })
+
+    // Extend ticket with isTabbable
+    ;(ticket as Z).isTabbable = isTabbable
+
+    return ticket
+  }
+
+  function onboard (registrations: Partial<Z>[]): Z[] {
+    return registrations.map(registration => register(registration))
+  }
+
   function unselect (id: ID) {
     if (mandatory && registry.selectedIds.size === 1) return
 
@@ -116,6 +151,8 @@ export function createSingle<
 
   return {
     ...registry,
+    register,
+    onboard,
     selectedId,
     selectedItem,
     selectedIndex,
