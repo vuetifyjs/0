@@ -22,7 +22,7 @@ import Root from './RadioRoot.vue'
 /**
  * Radio component with sub-components for radio button controls.
  *
- * @see https://0.vuetifyjs.com/components/radio
+ * @see https://0.vuetifyjs.com/components/forms/radio
  *
  * @example
  * ```vue
@@ -55,7 +55,7 @@ export const Radio = {
   /**
    * Group component for managing radio buttons with single-selection.
    *
-   * @see https://0.vuetifyjs.com/components/radio#group
+   * @see https://0.vuetifyjs.com/components/forms/radio#group
    *
    * @example
    * ```vue
@@ -87,7 +87,7 @@ export const Radio = {
    * Auto-rendered by Root when Group has a `name` prop.
    * Can also be used explicitly for custom form integration.
    *
-   * @see https://0.vuetifyjs.com/components/radio#hiddeninput
+   * @see https://0.vuetifyjs.com/components/forms/radio#hiddeninput
    *
    * @example
    * ```vue
@@ -112,7 +112,7 @@ export const Radio = {
    * Renders as a span and only displays when checked.
    * Must be used within a Radio.Root component.
    *
-   * @see https://0.vuetifyjs.com/components/radio#indicator
+   * @see https://0.vuetifyjs.com/components/forms/radio#indicator
    *
    * @example
    * ```vue
@@ -142,7 +142,7 @@ export const Radio = {
    * group has a `name` prop, automatically renders a hidden input for
    * form submission.
    *
-   * @see https://0.vuetifyjs.com/components/radio#root
+   * @see https://0.vuetifyjs.com/components/forms/radio#root
    *
    * @example
    * ```vue
