@@ -46,6 +46,11 @@ import { createSelection } from '@vuetify/v0'
 // Pure logic - no components needed
 const selection = createSelection()
 
+// Register items first
+selection.register({ id: 'item-1', value: 'Item 1' })
+selection.register({ id: 'item-2', value: 'Item 2' })
+
+// Then select
 selection.select('item-1')
 selection.select('item-2')
 

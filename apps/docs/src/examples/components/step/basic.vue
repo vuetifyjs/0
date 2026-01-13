@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { Step } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
-  const current = ref('step1')
+  const current = shallowRef<string>()
 </script>
 
 <template>

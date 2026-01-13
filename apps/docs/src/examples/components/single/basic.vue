@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { Single } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
-  const selected = ref('medium')
+  const selected = shallowRef<string>()
 </script>
 
 <template>

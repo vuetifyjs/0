@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { Group } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
-  const selected = ref(['apple', 'banana'])
+  const selected = shallowRef<string[]>([])
 </script>
 
 <template>

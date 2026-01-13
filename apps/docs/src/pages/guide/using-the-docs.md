@@ -358,11 +358,11 @@ In code examples throughout the docs, component and composable names are interac
   import { Step } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
-  const current = shallowRef('step1')
+  const current = shallowRef<string>()
 </script>
 
 <template>
-  <Step.Root v-model="current">
+  <Step.Root v-model="current" mandatory>
     <Step.Item value="step1">Step 1</Step.Item>
     <Step.Item value="step2">Step 2</Step.Item>
   </Step.Root>

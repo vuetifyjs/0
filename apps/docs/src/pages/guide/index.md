@@ -110,6 +110,7 @@ If you have an existing styled component library and want to adopt v0's headless
   import { shallowRef } from 'vue'
   import { createSingle } from '@vuetify/v0'
 
+  // mandatory selects first registered item automatically
   const tabs = shallowRef(createSingle({ mandatory: true }))
 
   // Expose for advanced consumers
@@ -118,6 +119,7 @@ If you have an existing styled component library and want to adopt v0's headless
 
 <template>
   <div class="my-tabs">
+    <!-- Tab items register on mount, then mandatory auto-selects -->
     <slot :tabs="tabs" />
   </div>
 </template>

@@ -11,7 +11,6 @@
 <template>
   <ExpansionPanel.Root
     class="border border-divider rounded-lg border-solid overflow-hidden divide-y divide-divider"
-    :model-value="['panel-1', 'panel-3']"
     multiple
   >
     <ExpansionPanel.Item

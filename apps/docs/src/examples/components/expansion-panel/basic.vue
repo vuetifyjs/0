@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ExpansionPanel } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
   const panels = [
     { id: 'panel-1', title: 'Panel 1', content: 'This is the content for panel 1.' },
@@ -8,7 +8,7 @@
     { id: 'panel-3', title: 'Panel 3', content: 'This is the content for panel 3.' },
   ]
 
-  const model = ref(['panel-2'])
+  const model = shallowRef<string[]>([])
 </script>
 
 <template>
