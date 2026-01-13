@@ -19,7 +19,6 @@
     form?: string
   }
 
-  // Visually hidden but accessible for form submission
   const visuallyHiddenStyle = {
     position: 'absolute',
     width: '1px',
@@ -50,10 +49,8 @@
     form: formProp,
   } = defineProps<CheckboxHiddenInputProps>()
 
-  // Inject context from Checkbox.Root
   const root = useCheckboxRoot(namespace)
 
-  // Use prop if provided, otherwise fall back to context
   const name = toRef(() => nameProp ?? root.name)
   const form = toRef(() => formProp ?? root.form)
 

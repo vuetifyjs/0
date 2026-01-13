@@ -228,8 +228,8 @@ describe('checkbox', () => {
       })
 
       it.each([
-        ['check', false, true],
-        ['uncheck', true, false],
+        ['select', false, true],
+        ['unselect', true, false],
         ['toggle', false, true],
       ] as const)('should %s correctly', async (method, initial, expected) => {
         const model = ref(initial)
@@ -352,8 +352,8 @@ describe('checkbox', () => {
         expect(typeof props().isChecked).toBe('boolean')
         expect(typeof props().isMixed).toBe('boolean')
         expect(typeof props().isDisabled).toBe('boolean')
-        expect(typeof props().check).toBe('function')
-        expect(typeof props().uncheck).toBe('function')
+        expect(typeof props().select).toBe('function')
+        expect(typeof props().unselect).toBe('function')
         expect(typeof props().toggle).toBe('function')
         expect(props().attrs).toBeDefined()
       })

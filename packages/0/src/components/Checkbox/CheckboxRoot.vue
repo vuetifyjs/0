@@ -43,9 +43,9 @@
     /** Whether this checkbox is disabled */
     isDisabled: Readonly<Ref<boolean>>
     /** Check this checkbox */
-    check: () => void
+    select: () => void
     /** Uncheck this checkbox */
-    uncheck: () => void
+    unselect: () => void
     /** Toggle this checkbox's state */
     toggle: () => void
     /** Set this checkbox to mixed/indeterminate state (group mode only) */
@@ -95,9 +95,9 @@
     /** Whether this checkbox is disabled */
     isDisabled: boolean
     /** Check this checkbox */
-    check: () => void
+    select: () => void
     /** Uncheck this checkbox */
-    uncheck: () => void
+    unselect: () => void
     /** Toggle this checkbox's state */
     toggle: () => void
     /** Set this checkbox to mixed/indeterminate state (group mode only) */
@@ -130,7 +130,7 @@
 
   // Utilities
   import { genId } from '#v0/utilities'
-  import { computed, onUnmounted, toRef, toValue, useAttrs } from 'vue'
+  import { onUnmounted, toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
@@ -147,12 +147,13 @@
     'update:model-value': [value: boolean]
   }>()
 
-  const props = defineProps<CheckboxRootProps<V>>()
-
   const {
     as = 'button',
     renderless,
     id = genId(),
+    ariaLabelledby,
+    ariaDescribedby,
+    ariaInvalid,
     label,
     value,
     name,
@@ -161,7 +162,7 @@
     indeterminate = false,
     namespace = 'v0:checkbox:root',
     groupNamespace = 'v0:checkbox:group',
-  } = props
+  } = defineProps<CheckboxRootProps<V>>()
 
   // Dual-mode: try to inject group context, null if standalone
   let group: GroupContext<GroupTicket> | null = null
@@ -173,33 +174,29 @@
 
   const model = defineModel<boolean>()
 
-  // Group mode: register with parent
+  // Dual mode: register with parent
   const ticket = group?.register({ id, value, disabled, indeterminate })
 
-  // Unified state computations
-  const isChecked = computed(() => {
-    if (ticket) return toValue(ticket.isSelected)
-    return model.value ?? false
-  })
+  const isChecked = toRef(() => ticket
+    ? toValue(ticket.isSelected)
+    : model.value ?? false,
+  )
 
-  const isMixed = computed(() => {
-    if (ticket) return toValue(ticket.isMixed)
-    return toValue(props.indeterminate) ?? false
-  })
+  const isMixed = toRef(() => ticket
+    ? toValue(ticket.isMixed)
+    : toValue(indeterminate) ?? false,
+  )
 
-  const isDisabled = computed(() => {
-    if (group && ticket) {
-      return toValue(ticket.disabled) || toValue(group.disabled)
-    }
-    return toValue(props.disabled) ?? false
-  })
+  const isDisabled = toRef(() => group && ticket
+    ? toValue(ticket.disabled) || toValue(group.disabled)
+    : toValue(disabled) ?? false,
+  )
 
-  const dataState = computed(() => {
-    if (isMixed.value) return 'indeterminate'
-    return isChecked.value ? 'checked' : 'unchecked'
-  })
+  const dataState = toRef(() => isMixed.value
+    ? 'indeterminate'
+    : (isChecked.value ? 'checked' : 'unchecked'),
+  )
 
-  // Actions
   function toggle () {
     if (isDisabled.value) return
 
@@ -210,7 +207,7 @@
     }
   }
 
-  function check () {
+  function select () {
     if (isDisabled.value) return
 
     if (ticket) {
@@ -220,7 +217,7 @@
     }
   }
 
-  function uncheck () {
+  function unselect () {
     if (isDisabled.value) return
 
     if (ticket) {
@@ -245,20 +242,18 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if (e.key === ' ') {
-      e.preventDefault()
-      toggle()
-    }
+    if (e.key !== ' ') return
+
+    e.preventDefault()
+    toggle()
   }
 
-  // Cleanup
   onUnmounted(() => {
-    if (ticket && group) {
-      group.unregister(ticket.id)
-    }
+    if (!ticket || !group) return
+
+    group.unregister(ticket.id)
   })
 
-  // Provide context for Checkbox.Indicator
   const context: CheckboxRootContext<V> = {
     id,
     label,
@@ -268,8 +263,8 @@
     isChecked,
     isMixed,
     isDisabled,
-    check,
-    uncheck,
+    select,
+    unselect,
     toggle,
     mix,
     unmix,
@@ -284,8 +279,8 @@
     isChecked: isChecked.value,
     isMixed: isMixed.value,
     isDisabled: isDisabled.value,
-    check,
-    uncheck,
+    select,
+    unselect,
     toggle,
     mix,
     unmix,
@@ -295,9 +290,9 @@
       'aria-checked': isMixed.value ? 'mixed' : isChecked.value,
       'aria-disabled': isDisabled.value || undefined,
       'aria-label': label || undefined,
-      'aria-labelledby': props.ariaLabelledby || undefined,
-      'aria-describedby': props.ariaDescribedby || undefined,
-      'aria-invalid': props.ariaInvalid || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
+      'aria-describedby': ariaDescribedby || undefined,
+      'aria-invalid': ariaInvalid || undefined,
       'tabindex': isDisabled.value ? undefined : 0,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,

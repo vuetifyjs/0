@@ -92,17 +92,17 @@
     'update:model-value': [value: T | T[]]
   }>()
 
-  const props = defineProps<CheckboxGroupProps>()
-
   const {
     as = 'div',
     renderless,
     namespace = 'v0:checkbox:group',
+    ariaLabelledby,
+    ariaDescribedby,
     disabled = false,
     enroll = false,
     mandatory = false,
     label,
-  } = props
+  } = defineProps<CheckboxGroupProps>()
 
   const model = defineModel<T | T[]>()
 
@@ -131,8 +131,8 @@
     attrs: {
       'role': 'group',
       'aria-label': label || undefined,
-      'aria-labelledby': props.ariaLabelledby || undefined,
-      'aria-describedby': props.ariaDescribedby || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
+      'aria-describedby': ariaDescribedby || undefined,
     },
   }))
 </script>

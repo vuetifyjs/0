@@ -70,7 +70,7 @@
 
   // Utilities
   import { genId } from '#v0/utilities'
-  import { computed, toRef, toValue, useAttrs } from 'vue'
+  import { toRef, toValue, useAttrs } from 'vue'
 
   defineOptions({ name: 'CheckboxSelectAll', inheritAttrs: false })
 
@@ -90,31 +90,30 @@
     groupNamespace = 'v0:checkbox:group',
   } = props
 
-  // Must be inside a Checkbox.Group
   const group = useCheckboxGroup(groupNamespace)
 
   const id = genId()
 
-  const isAllSelected = computed(() => group.isAllSelected.value)
-  const isMixed = computed(() => group.isMixed.value)
-  const isDisabled = computed(() => toValue(props.disabled) || toValue(group.disabled))
-
-  const dataState = computed((): CheckboxState => {
-    if (isMixed.value) return 'indeterminate'
-    return isAllSelected.value ? 'checked' : 'unchecked'
-  })
+  const isAllSelected = toRef(() => group.isAllSelected.value)
+  const isMixed = toRef(() => group.isMixed.value)
+  const isDisabled = toRef(() => toValue(props.disabled) || toValue(group.disabled))
+  const dataState = toRef((): CheckboxState => isMixed.value
+    ? 'indeterminate'
+    : (isAllSelected.value ? 'checked' : 'unchecked'),
+  )
 
   function onClick () {
     if (isDisabled.value) return
+
     group.toggleAll()
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if (e.key === ' ') {
-      e.preventDefault()
-      if (isDisabled.value) return
-      group.toggleAll()
-    }
+    if (e.key !== ' ') return
+
+    e.preventDefault()
+    if (isDisabled.value) return
+    group.toggleAll()
   }
 
   // Provide context for Checkbox.Indicator
@@ -129,8 +128,8 @@
     isChecked: isAllSelected,
     isMixed,
     isDisabled,
-    check: group.selectAll,
-    uncheck: group.unselectAll,
+    select: group.selectAll,
+    unselect: group.unselectAll,
     toggle: group.toggleAll,
     mix: () => {},
     unmix: () => {},

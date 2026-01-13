@@ -52,24 +52,22 @@
     namespace = 'v0:checkbox:root',
   } = defineProps<CheckboxIndicatorProps>()
 
-  // Inject context from Checkbox.Root
   const root = useCheckboxRoot(namespace)
 
   const isChecked = toRef(() => toValue(root.isChecked))
   const isMixed = toRef(() => toValue(root.isMixed))
-
-  const showIndicator = toRef(() => isChecked.value || isMixed.value)
-  const dataState = toRef(() => {
-    if (isMixed.value) return 'indeterminate'
-    return isChecked.value ? 'checked' : 'unchecked'
-  })
+  const isVisible = toRef(() => isChecked.value || isMixed.value)
+  const dataState = toRef((): CheckboxState => isMixed.value
+    ? 'indeterminate'
+    : (isChecked.value ? 'checked' : 'unchecked'),
+  )
 
   const slotProps = toRef((): CheckboxIndicatorSlotProps => ({
     isChecked: isChecked.value,
     isMixed: isMixed.value,
     attrs: {
       'data-state': dataState.value,
-      'style': { visibility: showIndicator.value ? 'visible' : 'hidden' },
+      'style': { visibility: isVisible.value ? 'visible' : 'hidden' },
     },
   }))
 </script>
