@@ -48,6 +48,10 @@ declare module 'vue' {
     SingleRoot: typeof import('./../../packages/0/src/components/Single/SingleRoot.vue')['default']
     StepItem: typeof import('./../../packages/0/src/components/Step/StepItem.vue')['default']
     StepRoot: typeof import('./../../packages/0/src/components/Step/StepRoot.vue')['default']
+    TabsList: typeof import('./../../packages/0/src/components/Tabs/TabsList.vue')['default']
+    TabsPanel: typeof import('./../../packages/0/src/components/Tabs/TabsPanel.vue')['default']
+    TabsRoot: typeof import('./../../packages/0/src/components/Tabs/TabsRoot.vue')['default']
+    TabsTab: typeof import('./../../packages/0/src/components/Tabs/TabsTab.vue')['default']
     V0Paper: typeof import('./../../packages/paper/src/components/V0Paper/V0Paper.vue')['default']
   }
 }
