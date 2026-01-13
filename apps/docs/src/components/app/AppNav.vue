@@ -68,7 +68,7 @@
   })
 
   useClickOutside(
-    () => navRef.value?.element.value,
+    () => navRef.value?.element,
     () => {
       if (app.drawer && isMobile.value) {
         app.drawer = false
@@ -81,7 +81,7 @@
     if (app.drawer && isMobile.value) {
       app.drawer = false
     }
-  })
+  }, { immediate: true })
 </script>
 
 <template>
