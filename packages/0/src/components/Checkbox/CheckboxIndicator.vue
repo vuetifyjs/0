@@ -15,7 +15,10 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { CheckboxState } from './CheckboxRoot.vue'
 
-  export type CheckboxIndicatorProps = AtomProps
+  export interface CheckboxIndicatorProps extends AtomProps {
+    /** Namespace for context injection from parent Checkbox.Root */
+    namespace?: string
+  }
 
   export interface CheckboxIndicatorSlotProps {
     /** Whether this checkbox is currently checked */
@@ -46,10 +49,11 @@
   const {
     as = 'span',
     renderless,
+    namespace = 'v0:checkbox:root',
   } = defineProps<CheckboxIndicatorProps>()
 
   // Inject context from Checkbox.Root
-  const root = useCheckboxRoot()
+  const root = useCheckboxRoot(namespace)
 
   const isChecked = toRef(() => toValue(root.isChecked))
   const isMixed = toRef(() => toValue(root.isMixed))

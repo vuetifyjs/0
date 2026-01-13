@@ -69,8 +69,10 @@
     disabled?: MaybeRef<boolean>
     /** Sets the indeterminate state */
     indeterminate?: MaybeRef<boolean>
-    /** Namespace for group dependency injection */
+    /** Namespace for context provision to children (Indicator, HiddenInput) */
     namespace?: string
+    /** Namespace for connecting to parent Checkbox.Group */
+    groupNamespace?: string
     /** ID of element that labels this checkbox */
     ariaLabelledby?: string
     /** ID of element that describes this checkbox */
@@ -118,7 +120,7 @@
     }
   }
 
-  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext<unknown>>('v0:checkbox:root')
+  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext<unknown>>()
 </script>
 
 <script setup lang="ts" generic="V = unknown">
@@ -157,13 +159,14 @@
     form,
     disabled = false,
     indeterminate = false,
-    namespace = 'v0:checkbox:group',
+    namespace = 'v0:checkbox:root',
+    groupNamespace = 'v0:checkbox:group',
   } = props
 
   // Dual-mode: try to inject group context, null if standalone
   let group: GroupContext<GroupTicket> | null = null
   try {
-    group = useCheckboxGroup(namespace)
+    group = useCheckboxGroup(groupNamespace)
   } catch {
     // No group context, standalone mode
   }
@@ -272,7 +275,7 @@
     unmix,
   }
 
-  provideCheckboxRoot(context)
+  provideCheckboxRoot(namespace, context)
 
   const slotProps = toRef((): CheckboxRootSlotProps<V> => ({
     id,

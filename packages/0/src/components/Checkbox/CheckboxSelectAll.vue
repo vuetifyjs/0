@@ -22,8 +22,10 @@
     label?: string
     /** Disables this checkbox */
     disabled?: boolean
-    /** Namespace for group dependency injection */
+    /** Namespace for context provision to children (Indicator) */
     namespace?: string
+    /** Namespace for connecting to parent Checkbox.Group */
+    groupNamespace?: string
     /** ID of element that labels this checkbox */
     ariaLabelledby?: string
     /** ID of element that describes this checkbox */
@@ -84,11 +86,12 @@
     as = 'button',
     renderless,
     label,
-    namespace = 'v0:checkbox:group',
+    namespace = 'v0:checkbox:root',
+    groupNamespace = 'v0:checkbox:group',
   } = props
 
   // Must be inside a Checkbox.Group
-  const group = useCheckboxGroup(namespace)
+  const group = useCheckboxGroup(groupNamespace)
 
   const id = genId()
 
@@ -133,7 +136,7 @@
     unmix: () => {},
   }
 
-  provideCheckboxRoot(context)
+  provideCheckboxRoot(namespace, context)
 
   const slotProps = toRef((): CheckboxSelectAllSlotProps => ({
     label,

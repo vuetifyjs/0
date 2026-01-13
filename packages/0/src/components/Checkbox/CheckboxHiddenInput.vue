@@ -9,6 +9,8 @@
 
 <script lang="ts">
   export interface CheckboxHiddenInputProps {
+    /** Namespace for context injection from parent Checkbox.Root */
+    namespace?: string
     /** Form field name (defaults to context value) */
     name?: string
     /** Submitted value when checked (defaults to context value or 'on') */
@@ -41,13 +43,14 @@
   defineOptions({ name: 'CheckboxHiddenInput' })
 
   const {
+    namespace = 'v0:checkbox:root',
     name: nameProp,
     value: valueProp,
     form: formProp,
   } = defineProps<CheckboxHiddenInputProps>()
 
   // Inject context from Checkbox.Root
-  const root = useCheckboxRoot()
+  const root = useCheckboxRoot(namespace)
 
   // Use prop if provided, otherwise fall back to context
   const name = toRef(() => nameProp ?? root.name)

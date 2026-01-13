@@ -1175,7 +1175,7 @@ describe('checkbox', () => {
         mount(defineComponent({
           render: () => [
             h(Checkbox.Group as any, { namespace: 'checkbox-1' }, () =>
-              h(Checkbox.Root as any, { value: 'item-1', namespace: 'checkbox-1' }, {
+              h(Checkbox.Root as any, { value: 'item-1', groupNamespace: 'checkbox-1' }, {
                 default: (props: any) => {
                   group1RootProps = props
                   return h(Checkbox.Indicator as any, {}, () => 'Group 1 Item')
@@ -1183,7 +1183,7 @@ describe('checkbox', () => {
               }),
             ),
             h(Checkbox.Group as any, { namespace: 'checkbox-2' }, () =>
-              h(Checkbox.Root as any, { value: 'item-1', namespace: 'checkbox-2' }, {
+              h(Checkbox.Root as any, { value: 'item-1', groupNamespace: 'checkbox-2' }, {
                 default: (props: any) => {
                   group2RootProps = props
                   return h(Checkbox.Indicator as any, {}, () => 'Group 2 Item')
@@ -2813,16 +2813,16 @@ describe('checkbox', () => {
         const wrapper = mount(defineComponent({
           render: () => [
             h(Checkbox.Group as any, { namespace: 'group-1', modelValue: ['a'] }, () => [
-              h(Checkbox.SelectAll as any, { namespace: 'group-1' }, {
+              h(Checkbox.SelectAll as any, { groupNamespace: 'group-1' }, {
                 default: (props: any) => {
                   selectAllProps = props
                   return 'Select All Group 1'
                 },
               }),
-              h(Checkbox.Root as any, { value: 'a', namespace: 'group-1' }, () =>
+              h(Checkbox.Root as any, { value: 'a', groupNamespace: 'group-1' }, () =>
                 h(Checkbox.Indicator as any, {}, () => 'A'),
               ),
-              h(Checkbox.Root as any, { value: 'b', namespace: 'group-1' }, () =>
+              h(Checkbox.Root as any, { value: 'b', groupNamespace: 'group-1' }, () =>
                 h(Checkbox.Indicator as any, {}, () => 'B'),
               ),
             ]),
@@ -3058,7 +3058,7 @@ describe('checkbox', () => {
         expect(input.attributes('disabled')).toBeDefined()
       })
 
-      it('should have aria-hidden and negative tabindex on hidden input', () => {
+      it('should have inert and negative tabindex on hidden input', () => {
         const wrapper = mount(Checkbox.Root, {
           props: {
             name: 'agree',
@@ -3069,7 +3069,7 @@ describe('checkbox', () => {
         })
 
         const input = wrapper.find('input[type="checkbox"]')
-        expect(input.attributes('aria-hidden')).toBe('true')
+        expect(input.attributes('inert')).toBeDefined()
         expect(input.attributes('tabindex')).toBe('-1')
       })
     })
