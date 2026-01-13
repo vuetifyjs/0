@@ -80,6 +80,7 @@ declare module 'vue' {
     DocsSearch: typeof import('./components/docs/DocsSearch.vue')['default']
     DocsSkillToggle: typeof import('./components/docs/meta/DocsSkillToggle.vue')['default']
     DocsToc: typeof import('./components/docs/DocsToc.vue')['default']
+    DocsVueLink: typeof import('./components/docs/DocsVueLink.vue')['default']
     FaqList: typeof import('./components/docs/FaqList.vue')['default']
     HomeCta: typeof import('./components/home/HomeCta.vue')['default']
     HomeDemo: typeof import('./components/home/HomeDemo.vue')['default']
