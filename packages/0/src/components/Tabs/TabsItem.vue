@@ -1,5 +1,5 @@
 /**
- * @module TabsTab
+ * @module TabsItem
  *
  * @remarks
  * Individual tab trigger that registers with the parent TabsRoot.
@@ -24,7 +24,7 @@
   import type { ID } from '#v0/types'
   import type { MaybeRef, Ref } from 'vue'
 
-  export interface TabsTabContext {
+  export interface TabsItemContext {
     /** Unique identifier */
     readonly id: ID
     /** Value associated with this tab */
@@ -37,16 +37,16 @@
     select: () => void
   }
 
-  export const [useTabsTab, provideTabsTab] = createContext<TabsTabContext>()
+  export const [useTabsItem, provideTabsItem] = createContext<TabsItemContext>()
 
-  export interface TabsTabProps<V = unknown> extends AtomProps {
+  export interface TabsItemProps<V = unknown> extends AtomProps {
     /**
      * Unique identifier (auto-generated if not provided)
      *
      * @example
      * ```vue
      * <template>
-     *   <Tabs.Tab id="custom-id" value="profile">Profile</Tabs.Tab>
+     *   <Tabs.Item id="custom-id" value="profile">Profile</Tabs.Item>
      * </template>
      * ```
      */
@@ -57,7 +57,7 @@
      * @example
      * ```vue
      * <template>
-     *   <Tabs.Tab value="profile">Profile</Tabs.Tab>
+     *   <Tabs.Item value="profile">Profile</Tabs.Item>
      *   <Tabs.Panel value="profile">Profile content</Tabs.Panel>
      * </template>
      * ```
@@ -69,7 +69,7 @@
      * @example
      * ```vue
      * <template>
-     *   <Tabs.Tab value="billing" disabled>Billing</Tabs.Tab>
+     *   <Tabs.Item value="billing" disabled>Billing</Tabs.Item>
      * </template>
      * ```
      */
@@ -77,10 +77,10 @@
     /** Namespace for connecting to parent Tabs.Root */
     namespace?: string
     /** Namespace for context provision to children (Indicator) */
-    tabNamespace?: string
+    itemNamespace?: string
   }
 
-  export interface TabsTabSlotProps {
+  export interface TabsItemSlotProps {
     /** Unique identifier */
     id: ID
     /** Whether this tab is currently selected */
@@ -111,9 +111,9 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  defineOptions({ name: 'TabsTab', inheritAttrs: false })
+  defineOptions({ name: 'TabsItem', inheritAttrs: false })
 
-  const tabRef = useTemplateRef<AtomExpose>('tab')
+  const itemRef = useTemplateRef<AtomExpose>('item')
 
   defineSlots<{
     /**
@@ -122,15 +122,15 @@
      * @example
      * ```vue
      * <template>
-     *   <Tabs.Tab v-slot="{ isSelected, attrs }" value="profile">
+     *   <Tabs.Item v-slot="{ isSelected, attrs }" value="profile">
      *     <button v-bind="attrs" :class="{ 'font-bold': isSelected }">
      *       Profile
      *     </button>
-     *   </Tabs.Tab>
+     *   </Tabs.Item>
      * </template>
      * ```
      */
-    default: (props: TabsTabSlotProps) => any
+    default: (props: TabsItemSlotProps) => any
   }>()
 
   const {
@@ -140,15 +140,15 @@
     value,
     disabled,
     namespace = 'v0:tabs',
-    tabNamespace = 'v0:tabs:tab',
-  } = defineProps<TabsTabProps<V>>()
+    itemNamespace = 'v0:tabs:item',
+  } = defineProps<TabsItemProps<V>>()
 
   const tabs = useTabsRoot(namespace)
 
   // Register with parent context (el ref for focus management)
   // Vue auto-unwraps exposed refs when accessed via template ref,
   // but TypeScript doesn't reflect this - cast corrects the type
-  const el = toRef(() => (tabRef.value?.element as HTMLElement | null | undefined) ?? undefined)
+  const el = toRef(() => (itemRef.value?.element as HTMLElement | null | undefined) ?? undefined)
   const ticket = tabs.register({ id, value, disabled, el })
 
   const isSelected = toRef(() => toValue(ticket.isSelected))
@@ -163,7 +163,7 @@
   })
 
   // Provide context to child components (Indicator)
-  const context: TabsTabContext = {
+  const context: TabsItemContext = {
     id: ticket.id,
     value,
     isSelected,
@@ -171,7 +171,7 @@
     select: ticket.select,
   }
 
-  provideTabsTab(tabNamespace, context)
+  provideTabsItem(itemNamespace, context)
 
   /**
    * Focus the currently selected tab using stored element refs
@@ -247,7 +247,7 @@
     }
   }
 
-  const slotProps = toRef((): TabsTabSlotProps => ({
+  const slotProps = toRef((): TabsItemSlotProps => ({
     id: ticket.id,
     isSelected: isSelected.value,
     isDisabled: isDisabled.value,
@@ -274,7 +274,7 @@
 
 <template>
   <Atom
-    ref="tab"
+    ref="item"
     v-bind="slotProps.attrs"
     :as
     :renderless

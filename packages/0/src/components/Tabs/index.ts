@@ -1,5 +1,8 @@
 export { default as TabsIndicator } from './TabsIndicator.vue'
 
+export { default as TabsItem } from './TabsItem.vue'
+export { provideTabsItem, useTabsItem } from './TabsItem.vue'
+
 export { default as TabsList } from './TabsList.vue'
 
 export { default as TabsPanel } from './TabsPanel.vue'
@@ -7,21 +10,18 @@ export { default as TabsPanel } from './TabsPanel.vue'
 export { default as TabsRoot } from './TabsRoot.vue'
 export { provideTabsRoot, useTabsRoot } from './TabsRoot.vue'
 
-export { default as TabsTab } from './TabsTab.vue'
-export { provideTabsTab, useTabsTab } from './TabsTab.vue'
-
 export type { TabsIndicatorProps, TabsIndicatorSlotProps } from './TabsIndicator.vue'
+export type { TabsItemContext, TabsItemProps, TabsItemSlotProps } from './TabsItem.vue'
 export type { TabsListProps, TabsListSlotProps } from './TabsList.vue'
 export type { TabsPanelProps, TabsPanelSlotProps } from './TabsPanel.vue'
 export type { TabsActivation, TabsContext, TabsOrientation, TabsRootProps, TabsRootSlotProps, TabsState, TabsTicket } from './TabsRoot.vue'
-export type { TabsTabContext, TabsTabProps, TabsTabSlotProps } from './TabsTab.vue'
 
 // Components
 import Indicator from './TabsIndicator.vue'
+import Item from './TabsItem.vue'
 import List from './TabsList.vue'
 import Panel from './TabsPanel.vue'
 import Root from './TabsRoot.vue'
-import Tab from './TabsTab.vue'
 
 /**
  * Tabs component with sub-components for building accessible tab interfaces.
@@ -40,18 +40,18 @@ import Tab from './TabsTab.vue'
  * <template>
  *   <Tabs.Root v-model="selected">
  *     <Tabs.List label="Account settings">
- *       <Tabs.Tab value="profile">
+ *       <Tabs.Item value="profile">
  *         Profile
  *         <Tabs.Indicator />
- *       </Tabs.Tab>
- *       <Tabs.Tab value="password">
+ *       </Tabs.Item>
+ *       <Tabs.Item value="password">
  *         Password
  *         <Tabs.Indicator />
- *       </Tabs.Tab>
- *       <Tabs.Tab value="billing" disabled>
+ *       </Tabs.Item>
+ *       <Tabs.Item value="billing" disabled>
  *         Billing
  *         <Tabs.Indicator />
- *       </Tabs.Tab>
+ *       </Tabs.Item>
  *     </Tabs.List>
  *
  *     <Tabs.Panel value="profile">Profile content</Tabs.Panel>
@@ -79,8 +79,8 @@ export const Tabs = {
    * <template>
    *   <Tabs.Root v-model="activeTab" orientation="horizontal">
    *     <Tabs.List>
-   *       <Tabs.Tab value="profile">Profile</Tabs.Tab>
-   *       <Tabs.Tab value="settings">Settings</Tabs.Tab>
+   *       <Tabs.Item value="profile">Profile</Tabs.Item>
+   *       <Tabs.Item value="settings">Settings</Tabs.Item>
    *     </Tabs.List>
    *     <Tabs.Panel value="profile">Profile content</Tabs.Panel>
    *     <Tabs.Panel value="settings">Settings content</Tabs.Panel>
@@ -105,8 +105,8 @@ export const Tabs = {
    * <template>
    *   <Tabs.Root>
    *     <Tabs.List label="Navigation tabs" class="flex gap-2">
-   *       <Tabs.Tab value="home">Home</Tabs.Tab>
-   *       <Tabs.Tab value="about">About</Tabs.Tab>
+   *       <Tabs.Item value="home">Home</Tabs.Item>
+   *       <Tabs.Item value="about">About</Tabs.Item>
    *     </Tabs.List>
    *   </Tabs.Root>
    * </template>
@@ -118,7 +118,7 @@ export const Tabs = {
    *
    * Supports roving tabindex and both automatic/manual activation modes.
    *
-   * @see https://0.vuetifyjs.com/components/navigation/tabs#tab
+   * @see https://0.vuetifyjs.com/components/navigation/tabs#item
    *
    * @example
    * ```vue
@@ -129,20 +129,20 @@ export const Tabs = {
    * <template>
    *   <Tabs.Root>
    *     <Tabs.List>
-   *       <Tabs.Tab v-slot="{ isSelected }" value="profile">
+   *       <Tabs.Item v-slot="{ isSelected }" value="profile">
    *         <span :class="{ 'font-bold': isSelected }">Profile</span>
    *         <Tabs.Indicator class="absolute bottom-0 h-0.5 bg-blue-500" />
-   *       </Tabs.Tab>
+   *       </Tabs.Item>
    *     </Tabs.List>
    *   </Tabs.Root>
    * </template>
    * ```
    */
-  Tab,
+  Item,
   /**
    * Visual indicator component for active tab state.
    *
-   * Must be placed inside a Tabs.Tab component. Renders as a span
+   * Must be placed inside a Tabs.Item component. Renders as a span
    * and only displays when its parent tab is selected.
    *
    * @see https://0.vuetifyjs.com/components/navigation/tabs#indicator
@@ -156,10 +156,10 @@ export const Tabs = {
    * <template>
    *   <Tabs.Root>
    *     <Tabs.List>
-   *       <Tabs.Tab value="home" class="relative pb-2">
+   *       <Tabs.Item value="home" class="relative pb-2">
    *         Home
    *         <Tabs.Indicator class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-   *       </Tabs.Tab>
+   *       </Tabs.Item>
    *     </Tabs.List>
    *   </Tabs.Root>
    * </template>
@@ -182,7 +182,7 @@ export const Tabs = {
    * <template>
    *   <Tabs.Root>
    *     <Tabs.List>
-   *       <Tabs.Tab value="profile">Profile</Tabs.Tab>
+   *       <Tabs.Item value="profile">Profile</Tabs.Item>
    *     </Tabs.List>
    *
    *     <Tabs.Panel value="profile" class="p-4">

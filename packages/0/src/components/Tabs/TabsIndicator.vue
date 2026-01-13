@@ -3,7 +3,7 @@
  *
  * @remarks
  * Visual indicator component for tabs. Must be used within a
- * Tabs.Tab component which provides the tab state. Renders as
+ * Tabs.Item component which provides the tab state. Renders as
  * a span by default and only displays when the tab is selected.
  *
  * @see {@link https://0.vuetifyjs.com/components/navigation/tabs#indicator}
@@ -18,7 +18,7 @@
   import type { TabsState } from './TabsRoot.vue'
 
   export interface TabsIndicatorProps extends AtomProps {
-    /** Namespace for context injection from parent Tabs.Tab */
+    /** Namespace for context injection from parent Tabs.Item */
     namespace?: string
     /**
      * Force the indicator to always render (useful for CSS transitions)
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
   // Components
-  import { useTabsTab } from './TabsTab.vue'
+  import { useTabsItem } from './TabsItem.vue'
 
   // Utilities
   import { toRef, toValue } from 'vue'
@@ -72,13 +72,13 @@
   const {
     as = 'span',
     renderless,
-    namespace = 'v0:tabs:tab',
+    namespace = 'v0:tabs:item',
     forceMount = false,
   } = defineProps<TabsIndicatorProps>()
 
-  const tab = useTabsTab(namespace)
+  const item = useTabsItem(namespace)
 
-  const isSelected = toRef(() => toValue(tab.isSelected))
+  const isSelected = toRef(() => toValue(item.isSelected))
   const dataState = toRef((): TabsState => isSelected.value ? 'active' : 'inactive')
 
   const slotProps = toRef((): TabsIndicatorSlotProps => ({

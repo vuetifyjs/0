@@ -46,14 +46,14 @@ Use `Tabs.Root` to create a tab container with `v-model` to bind the active tab 
 <template>
   <Tabs.Root>
     <Tabs.List>
-      <Tabs.Tab value="a">
+      <Tabs.Item value="a">
         Tab A
         <Tabs.Indicator />
-      </Tabs.Tab>
-      <Tabs.Tab value="b">
+      </Tabs.Item>
+      <Tabs.Item value="b">
         Tab B
         <Tabs.Indicator />
-      </Tabs.Tab>
+      </Tabs.Item>
     </Tabs.List>
 
     <Tabs.Panel value="a">
@@ -102,7 +102,7 @@ By default, `mandatory="force"` auto-selects the first non-disabled tab. Set `ma
 The Tabs components handle all ARIA attributes automatically:
 
 - `role="tablist"` on the List
-- `role="tab"` on each Tab
+- `role="tab"` on each Item
 - `role="tabpanel"` on each Panel
 - `aria-selected` reflects active state
 - `aria-controls` links tabs to panels
@@ -116,11 +116,11 @@ The Tabs components handle all ARIA attributes automatically:
 For custom implementations, use `renderless` mode and bind the `attrs` slot prop to your element:
 
 ```vue
-<Tabs.Tab v-slot="{ attrs, isSelected }" renderless value="profile">
+<Tabs.Item v-slot="{ attrs, isSelected }" renderless value="profile">
   <button v-bind="attrs" :class="{ active: isSelected }">
     Profile
   </button>
-</Tabs.Tab>
+</Tabs.Item>
 ```
 
 ## API
