@@ -72,9 +72,9 @@ Radio buttons must be used within a `Radio.Group`. Use `v-model` on the group to
 </template>
 ```
 
-## Mandatory Selection
+## Auto-Select First Option
 
-Use `mandatory` to prevent deselection, or `mandatory="force"` to auto-select the first option:
+Radio groups are inherently mandatory—once a selection is made, it can only be changed, not cleared. Use `mandatory="force"` to automatically select the first non-disabled option on mount:
 
 <DocsExample file="mandatory.vue" :code="MandatoryExampleRaw">
   <MandatoryExample />
