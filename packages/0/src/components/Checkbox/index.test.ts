@@ -1740,6 +1740,1038 @@ describe('checkbox', () => {
     })
   })
 
+  describe('selectAll component', () => {
+    describe('rendering', () => {
+      it('should render as button by default', () => {
+        const wrapper = mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        const button = wrapper.find('button[role="checkbox"]')
+        expect(button.exists()).toBe(true)
+        expect(button.text()).toContain('Select All')
+      })
+
+      it('should render as specified element with as prop', () => {
+        const wrapper = mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { as: 'div' }, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        const div = wrapper.find('div[role="checkbox"]')
+        expect(div.exists()).toBe(true)
+      })
+
+      it('should expose slot props', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(typeof slotProps.isAllSelected).toBe('boolean')
+        expect(typeof slotProps.isMixed).toBe('boolean')
+        expect(typeof slotProps.isDisabled).toBe('boolean')
+        expect(typeof slotProps.selectAll).toBe('function')
+        expect(typeof slotProps.unselectAll).toBe('function')
+        expect(typeof slotProps.toggleAll).toBe('function')
+        expect(slotProps.attrs).toBeDefined()
+        expect(slotProps.attrs.role).toBe('checkbox')
+      })
+    })
+
+    describe('a11y attrs', () => {
+      it('should have role="checkbox"', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.attrs.role).toBe('checkbox')
+      })
+
+      it('should set aria-label from label prop', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { label: 'Select all items' }, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.attrs['aria-label']).toBe('Select all items')
+        expect(slotProps.label).toBe('Select all items')
+      })
+
+      it('should set aria-labelledby when prop is provided', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { ariaLabelledby: 'label-id' }, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.attrs['aria-labelledby']).toBe('label-id')
+      })
+
+      it('should set aria-describedby when prop is provided', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { ariaDescribedby: 'description-id' }, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.attrs['aria-describedby']).toBe('description-id')
+      })
+
+      it('should set tabindex to 0 when enabled', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.attrs.tabindex).toBe(0)
+      })
+
+      it('should set type=button when as=button', () => {
+        const wrapper = mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { as: 'button' }, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        const button = wrapper.find('button[role="checkbox"]')
+        expect(button.attributes('type')).toBe('button')
+      })
+    })
+
+    describe('state reflection', () => {
+      it('should reflect isAllSelected=false when none selected', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            modelValue: [],
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.isAllSelected).toBe(false)
+        expect(slotProps.isMixed).toBe(false)
+        expect(slotProps.attrs['aria-checked']).toBe(false)
+        expect(slotProps.attrs['data-state']).toBe('unchecked')
+      })
+
+      it('should reflect isAllSelected=true when all selected', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            modelValue: ['item-1', 'item-2'],
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.isAllSelected).toBe(true)
+        expect(slotProps.isMixed).toBe(false)
+        expect(slotProps.attrs['aria-checked']).toBe(true)
+        expect(slotProps.attrs['data-state']).toBe('checked')
+      })
+
+      it('should reflect isMixed=true when some but not all selected', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            modelValue: ['item-1'],
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.isAllSelected).toBe(false)
+        expect(slotProps.isMixed).toBe(true)
+        expect(slotProps.attrs['aria-checked']).toBe('mixed')
+        expect(slotProps.attrs['data-state']).toBe('indeterminate')
+      })
+
+      it('should update state reactively when group selection changes', async () => {
+        const selected = ref<string[]>([])
+        let slotProps: any
+        let item1Props: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, {
+                default: (props: any) => {
+                  item1Props = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Item 1')
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.isAllSelected).toBe(false)
+        expect(slotProps.isMixed).toBe(false)
+
+        // Select one item
+        item1Props.toggle()
+        await nextTick()
+
+        expect(slotProps.isMixed).toBe(true)
+        expect(slotProps.attrs['aria-checked']).toBe('mixed')
+      })
+    })
+
+    describe('toggleAll interaction', () => {
+      it('should select all items when clicking from none selected', async () => {
+        const selected = ref<string[]>([])
+
+        const wrapper = mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.find('button[role="checkbox"]')
+        await selectAll.trigger('click')
+        await nextTick()
+
+        expect(selected.value).toHaveLength(2)
+        expect(selected.value).toContain('item-1')
+        expect(selected.value).toContain('item-2')
+      })
+
+      it('should unselect all items when clicking from all selected', async () => {
+        const selected = ref<string[]>(['item-1', 'item-2'])
+
+        const wrapper = mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.find('button[role="checkbox"]')
+        await selectAll.trigger('click')
+        await nextTick()
+
+        expect(selected.value).toHaveLength(0)
+      })
+
+      it('should select all items when clicking from mixed state', async () => {
+        const selected = ref<string[]>(['item-1'])
+
+        const wrapper = mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.find('button[role="checkbox"]')
+        await selectAll.trigger('click')
+        await nextTick()
+
+        expect(selected.value).toHaveLength(2)
+      })
+
+      it('should call selectAll() slot prop method', async () => {
+        const selected = ref<string[]>([])
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        slotProps.selectAll()
+        await nextTick()
+
+        expect(selected.value).toHaveLength(2)
+      })
+
+      it('should call unselectAll() slot prop method', async () => {
+        const selected = ref<string[]>(['item-1', 'item-2'])
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        slotProps.unselectAll()
+        await nextTick()
+
+        expect(selected.value).toHaveLength(0)
+      })
+
+      it('should prevent default on click', async () => {
+        const wrapper = mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.find('button[role="checkbox"]')
+        const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+        selectAll.element.dispatchEvent(event)
+
+        expect(event.defaultPrevented).toBe(true)
+      })
+    })
+
+    describe('disabled state', () => {
+      it('should be disabled when SelectAll disabled=true', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { disabled: true }, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.isDisabled).toBe(true)
+        expect(slotProps.attrs['aria-disabled']).toBe(true)
+        expect(slotProps.attrs.tabindex).toBeUndefined()
+        expect(slotProps.attrs['data-disabled']).toBe(true)
+      })
+
+      it('should be disabled when Group disabled=true', async () => {
+        let slotProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            disabled: true,
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  slotProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(slotProps.isDisabled).toBe(true)
+        expect(slotProps.attrs['aria-disabled']).toBe(true)
+      })
+
+      it('should not toggle when disabled', async () => {
+        const selected = ref<string[]>([])
+
+        const wrapper = mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { disabled: true }, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.find('button[role="checkbox"]')
+        await selectAll.trigger('click')
+        await nextTick()
+
+        expect(selected.value).toHaveLength(0)
+      })
+    })
+
+    describe('keyboard interaction', () => {
+      it('should toggle on Space key press', async () => {
+        const selected = ref<string[]>([])
+
+        const wrapper = mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.find('button[role="checkbox"]')
+        await selectAll.trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(selected.value).toHaveLength(2)
+      })
+
+      it('should not toggle on Space key when disabled', async () => {
+        const selected = ref<string[]>([])
+
+        const wrapper = mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { disabled: true }, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.find('button[role="checkbox"]')
+        await selectAll.trigger('keydown', { key: ' ' })
+        await nextTick()
+
+        expect(selected.value).toHaveLength(0)
+      })
+
+      it('should prevent default on Space key', async () => {
+        const wrapper = mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const selectAll = wrapper.find('button[role="checkbox"]')
+        const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })
+        selectAll.element.dispatchEvent(event)
+
+        expect(event.defaultPrevented).toBe(true)
+      })
+    })
+
+    describe('indicator integration', () => {
+      it('should provide context for Checkbox.Indicator', async () => {
+        let indicatorProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            modelValue: ['item-1', 'item-2'],
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () =>
+                h(Checkbox.Indicator as any, {}, {
+                  default: (props: any) => {
+                    indicatorProps = props
+                    return 'Check'
+                  },
+                }),
+              ),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(indicatorProps.isChecked).toBe(true)
+        expect(indicatorProps.isMixed).toBe(false)
+        expect(indicatorProps.attrs['data-state']).toBe('checked')
+      })
+
+      it('should show indicator as mixed when some selected', async () => {
+        let indicatorProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            modelValue: ['item-1'],
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () =>
+                h(Checkbox.Indicator as any, {}, {
+                  default: (props: any) => {
+                    indicatorProps = props
+                    return 'Check'
+                  },
+                }),
+              ),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        expect(indicatorProps.isChecked).toBe(false)
+        expect(indicatorProps.isMixed).toBe(true)
+        expect(indicatorProps.attrs['data-state']).toBe('indeterminate')
+      })
+
+      it('should set indicator visibility based on state', async () => {
+        let indicatorProps: any
+
+        const wrapper = mount(Checkbox.Group, {
+          props: {
+            modelValue: [],
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, () =>
+                h(Checkbox.Indicator as any, {}, {
+                  default: (props: any) => {
+                    indicatorProps = props
+                    return 'Check'
+                  },
+                }),
+              ),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // When unchecked, indicator should be hidden
+        expect(indicatorProps.attrs.style.visibility).toBe('hidden')
+
+        // Update to all selected
+        await wrapper.setProps({ modelValue: ['item-1'] })
+        await nextTick()
+
+        // When checked (or mixed), indicator should be visible
+        expect(indicatorProps.attrs.style.visibility).toBe('visible')
+      })
+    })
+
+    describe('does not register as group item', () => {
+      it('should not be counted in isAllSelected calculation', async () => {
+        let groupProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            modelValue: ['item-1'],
+          },
+          slots: {
+            default: (props: any) => {
+              groupProps = props
+              return [
+                h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+                h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                  h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+                ),
+              ]
+            },
+          },
+        })
+
+        await nextTick()
+
+        // With only 1 item and it selected, isAllSelected should be true
+        // If SelectAll was counted, it would be false
+        expect(groupProps.isAllSelected).toBe(true)
+      })
+
+      it('should not be affected by selectAll', async () => {
+        const selected = ref<string[]>([])
+        let groupProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (value: unknown) => {
+              selected.value = value as string[]
+            },
+          },
+          slots: {
+            default: (props: any) => {
+              groupProps = props
+              return [
+                h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+                h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                  h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+                ),
+                h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                  h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+                ),
+              ]
+            },
+          },
+        })
+
+        await nextTick()
+
+        groupProps.selectAll()
+        await nextTick()
+
+        // Only 2 items should be in selection (not 3 including SelectAll)
+        expect(selected.value).toHaveLength(2)
+        expect(selected.value).toEqual(['item-1', 'item-2'])
+      })
+    })
+
+    describe('namespace isolation', () => {
+      it('should use custom namespace to connect to correct group', async () => {
+        let selectAllProps: any
+
+        const wrapper = mount(defineComponent({
+          render: () => [
+            h(Checkbox.Group as any, { namespace: 'group-1', modelValue: ['a'] }, () => [
+              h(Checkbox.SelectAll as any, { namespace: 'group-1' }, {
+                default: (props: any) => {
+                  selectAllProps = props
+                  return 'Select All Group 1'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'a', namespace: 'group-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'A'),
+              ),
+              h(Checkbox.Root as any, { value: 'b', namespace: 'group-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'B'),
+              ),
+            ]),
+          ],
+        }))
+
+        await nextTick()
+
+        // Group 1 has 1 of 2 selected, so should be mixed
+        expect(selectAllProps.isMixed).toBe(true)
+
+        wrapper.unmount()
+      })
+    })
+
+    describe('sSR rendering', () => {
+      it('should render to string without errors', async () => {
+        const app = createSSRApp(defineComponent({
+          render: () =>
+            h(Checkbox.Group as any, { modelValue: ['item-1'] }, () => [
+              // Render Root items first so they register before SelectAll
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+            ]),
+        }))
+
+        const html = await renderToString(app)
+
+        expect(html).toBeTruthy()
+        expect(html).toContain('Select All')
+        expect(html).toContain('aria-checked="mixed"')
+        expect(html).toContain('data-state="indeterminate"')
+      })
+
+      it('should render all-selected state on server', async () => {
+        const app = createSSRApp(defineComponent({
+          render: () =>
+            h(Checkbox.Group as any, { modelValue: ['item-1', 'item-2'] }, () => [
+              // Render Root items first so they register before SelectAll
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+            ]),
+        }))
+
+        const html = await renderToString(app)
+
+        // Find the SelectAll checkbox (first one)
+        expect(html).toContain('data-state="checked"')
+      })
+
+      it('should render disabled state on server', async () => {
+        const app = createSSRApp(defineComponent({
+          render: () =>
+            h(Checkbox.Group as any, { disabled: true }, () => [
+              h(Checkbox.SelectAll as any, {}, () => 'Select All'),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ]),
+        }))
+
+        const html = await renderToString(app)
+
+        expect(html).toContain('aria-disabled="true"')
+        expect(html).toContain('data-disabled')
+      })
+    })
+
+    describe('error conditions', () => {
+      it('should throw when used outside Group', () => {
+        expect(() => {
+          mount(Checkbox.SelectAll as any, {
+            slots: {
+              default: () => 'Select All',
+            },
+          })
+        }).toThrow(/Context.*not found/i)
+      })
+    })
+
+    describe('renderless mode', () => {
+      it('should render slot content directly when renderless=true', async () => {
+        let slotProps: any
+
+        const wrapper = mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, { renderless: true }, {
+                default: (props: any) => {
+                  slotProps = props
+                  return h('div', { class: 'custom-select-all', ...props.attrs }, 'Custom')
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1', renderless: true }, {
+                default: (p: any) => h('div', { class: 'custom-item', ...p.attrs }, 'Item 1'),
+              }),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Should not render a button wrapper (neither SelectAll nor Root)
+        expect(wrapper.find('button').exists()).toBe(false)
+        // Should render the custom select-all element
+        expect(wrapper.find('.custom-select-all').exists()).toBe(true)
+        // Should render the custom item element
+        expect(wrapper.find('.custom-item').exists()).toBe(true)
+        // Slot props should still be available
+        expect(slotProps.attrs.role).toBe('checkbox')
+      })
+    })
+  })
+
   describe('form integration', () => {
     describe('auto-rendered hidden input', () => {
       it('should render hidden input when name prop is provided', () => {
