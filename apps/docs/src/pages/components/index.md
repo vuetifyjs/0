@@ -37,6 +37,14 @@ Pure context providers for state management. Always renderless—they provide lo
 | [Group](/components/providers/group) | Multi-selection with tri-state support |
 | [Step](/components/providers/step) | Sequential navigation (first, last, next, prev) |
 
+## Forms
+
+Form control components with accessibility and validation support.
+
+| Name | Description |
+| - | - |
+| [Checkbox](/components/forms/checkbox) | Checkbox controls with dual-mode (standalone/group) and tri-state support |
+
 ## Semantic
 
 Components with meaningful HTML defaults. Render semantic elements by default but support the `as` prop for customization.

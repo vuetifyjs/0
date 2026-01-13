@@ -27,6 +27,7 @@ All components follow the **compound component pattern** in `packages/0/src/comp
 |-----------|-------------|----------------|
 | **Atom** | Polymorphic foundation. `as` prop for element type. | — |
 | **Avatar** | Image with fallback | Root, Image, Fallback |
+| **Checkbox** | Standalone or group checkbox with tri-state | Root, Group, SelectAll, Indicator, HiddenInput |
 | **Dialog** | Modal overlay with focus trapping | Root, Activator, Content, Title, Description, Close |
 | **ExpansionPanel** | Accordion/collapsible | Root, Item, Header, Activator, Content |
 | **Group** | Multi-selection + tri-state | Root, Item |
@@ -58,6 +59,29 @@ useProxyModel(context, model, { multiple })
 - **Single-layer**: No internal component composition
 - **CSS variables**: `--v0-*` prefix only
 - **No global state**: Local or context-based only
+
+## Props Inheritance
+
+When extending `AtomProps`, don't re-declare inherited props (`as`, `renderless`):
+
+```ts
+// BAD - redundant declarations
+export interface MyProps extends AtomProps {
+  as?: AtomProps['as']      // Already inherited
+  renderless?: boolean      // Already inherited
+  myProp: string
+}
+
+// GOOD - only add new props
+export interface MyProps extends AtomProps {
+  myProp: string
+}
+
+// GOOD - use type alias if no new props
+export type MyProps = AtomProps
+```
+
+Runtime defaults (e.g., `as = 'span'` instead of `'div'`) are set in `defineProps` destructuring, not the interface.
 
 ## Barrel Export Pattern
 

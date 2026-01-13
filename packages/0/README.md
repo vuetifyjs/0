@@ -81,6 +81,7 @@ import { ... } from '@vuetify/v0/constants'  // Constants only
 |-----------|-------------|
 | **Atom** | Polymorphic base element. Renders as any HTML element via `as` prop with renderless mode support |
 | **Avatar** | Image with fallback display. Compound component with Root, Image, and Fallback sub-components |
+| **Checkbox** | Standalone or group checkbox with tri-state. Root, Group, Indicator, HiddenInput sub-components |
 | **Dialog** | Modal dialog using native `<dialog>`. Root, Activator, Content, Title, Description, Close sub-components |
 | **ExpansionPanel** | Accordion/collapsible panels. Supports single (accordion) or multi-expand modes |
 | **Group** | Multi-selection with tri-state support. Provides `selectAll`, `unselectAll`, `toggleAll` |

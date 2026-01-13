@@ -54,7 +54,7 @@ const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootP
 // Subcategory ordering within sections
 const SUBCATEGORY_ORDER: Record<string, string[]> = {
   guide: ['fundamentals', 'features', 'integration', 'tooling'],
-  components: ['primitives', 'providers', 'semantic', 'disclosure'],
+  components: ['primitives', 'providers', 'disclosure', 'forms', 'semantic'],
   composables: ['foundation', 'registration', 'selection', 'forms', 'reactivity', 'system', 'plugins', 'utilities', 'transformers'],
 }
 
