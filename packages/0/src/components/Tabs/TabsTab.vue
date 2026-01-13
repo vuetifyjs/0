@@ -6,44 +6,83 @@
  * Provides complete ARIA attributes, roving tabindex, and keyboard
  * handling for accessibility. Supports both automatic and manual
  * activation modes.
- *
- * @example
- * ```ts
- * // Using slot props for conditional styling
- * h(Tabs.Tab, { value: 'profile' }, {
- *   default: ({ isSelected }) => h('button', {
- *     class: isSelected ? 'border-b-2 border-blue-500' : ''
- *   }, 'Profile')
- * })
- * ```
  */
 
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  import { useTabsRoot } from './TabsRoot.vue'
+  import { useTabsRoot, type TabsState } from './TabsRoot.vue'
+
+  // Foundational
+  import { createContext } from '#v0/composables/createContext'
 
   // Utilities
-  import { nextTick, onBeforeUnmount, toRef, toValue } from 'vue'
+  import { onBeforeUnmount, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
-  import type { MaybeRef } from 'vue'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { ID } from '#v0/types'
+  import type { MaybeRef, Ref } from 'vue'
+
+  export interface TabsTabContext {
+    /** Unique identifier */
+    readonly id: ID
+    /** Value associated with this tab */
+    readonly value: unknown
+    /** Whether this tab is currently selected */
+    isSelected: Readonly<Ref<boolean>>
+    /** Whether this tab is disabled */
+    isDisabled: Readonly<Ref<boolean>>
+    /** Select this tab */
+    select: () => void
+  }
+
+  export const [useTabsTab, provideTabsTab] = createContext<TabsTabContext>()
 
   export interface TabsTabProps<V = unknown> extends AtomProps {
-    /** Unique identifier (auto-generated if not provided) */
-    id?: string
-    /** Value associated with this tab (used to match with TabsPanel) */
+    /**
+     * Unique identifier (auto-generated if not provided)
+     *
+     * @example
+     * ```vue
+     * <template>
+     *   <Tabs.Tab id="custom-id" value="profile">Profile</Tabs.Tab>
+     * </template>
+     * ```
+     */
+    id?: ID
+    /**
+     * Value associated with this tab (used to match with TabsPanel)
+     *
+     * @example
+     * ```vue
+     * <template>
+     *   <Tabs.Tab value="profile">Profile</Tabs.Tab>
+     *   <Tabs.Panel value="profile">Profile content</Tabs.Panel>
+     * </template>
+     * ```
+     */
     value?: V
-    /** Disables this specific tab */
+    /**
+     * Disables this specific tab
+     *
+     * @example
+     * ```vue
+     * <template>
+     *   <Tabs.Tab value="billing" disabled>Billing</Tabs.Tab>
+     * </template>
+     * ```
+     */
     disabled?: MaybeRef<boolean>
-    /** Namespace for dependency injection */
+    /** Namespace for connecting to parent Tabs.Root */
     namespace?: string
+    /** Namespace for context provision to children (Indicator) */
+    tabNamespace?: string
   }
 
   export interface TabsTabSlotProps {
     /** Unique identifier */
-    id: string
+    id: ID
     /** Whether this tab is currently selected */
     isSelected: boolean
     /** Whether this tab is disabled */
@@ -58,8 +97,10 @@
       'aria-selected': boolean
       'aria-controls': string
       'aria-disabled': boolean | undefined
+      'data-state': TabsState
       'data-selected': true | undefined
       'data-disabled': true | undefined
+      'data-tab-id': ID
       'disabled': boolean | undefined
       'type': 'button' | undefined
       'onClick': () => void
@@ -70,9 +111,25 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  defineOptions({ name: 'TabsTab' })
+  defineOptions({ name: 'TabsTab', inheritAttrs: false })
+
+  const tabRef = useTemplateRef<AtomExpose>('tab')
 
   defineSlots<{
+    /**
+     * Default slot with tab state, actions, and ARIA attributes
+     *
+     * @example
+     * ```vue
+     * <template>
+     *   <Tabs.Tab v-slot="{ isSelected, attrs }" value="profile">
+     *     <button v-bind="attrs" :class="{ 'font-bold': isSelected }">
+     *       Profile
+     *     </button>
+     *   </Tabs.Tab>
+     * </template>
+     * ```
+     */
     default: (props: TabsTabSlotProps) => any
   }>()
 
@@ -83,12 +140,20 @@
     value,
     disabled,
     namespace = 'v0:tabs',
+    tabNamespace = 'v0:tabs:tab',
   } = defineProps<TabsTabProps<V>>()
 
   const tabs = useTabsRoot(namespace)
-  const ticket = tabs.register({ id, value, disabled })
 
+  // Register with parent context (el ref for focus management)
+  // Vue auto-unwraps exposed refs when accessed via template ref,
+  // but TypeScript doesn't reflect this - cast corrects the type
+  const el = toRef(() => (tabRef.value?.element as HTMLElement | null | undefined) ?? undefined)
+  const ticket = tabs.register({ id, value, disabled, el })
+
+  const isSelected = toRef(() => toValue(ticket.isSelected))
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(tabs.disabled))
+  const dataState = toRef((): TabsState => isSelected.value ? 'active' : 'inactive')
 
   const tabId = toRef(() => `${tabs.rootId}-tab-${ticket.id}`)
   const panelId = toRef(() => `${tabs.rootId}-panel-${ticket.id}`)
@@ -97,13 +162,29 @@
     tabs.unregister(ticket.id)
   })
 
-  function focusSelectedTab (currentTarget: EventTarget | null) {
-    nextTick(() => {
-      const current = currentTarget as HTMLElement | null
-      const tablist = current?.closest('[role="tablist"]')
-      const selectedTab = tablist?.querySelector('[role="tab"][aria-selected="true"]') as HTMLElement | null
-      selectedTab?.focus()
-    })
+  // Provide context to child components (Indicator)
+  const context: TabsTabContext = {
+    id: ticket.id,
+    value,
+    isSelected,
+    isDisabled,
+    select: ticket.select,
+  }
+
+  provideTabsTab(tabNamespace, context)
+
+  /**
+   * Focus the currently selected tab using stored element refs
+   * This is more robust than DOM queries as it doesn't rely on ARIA attributes
+   */
+  function focusSelectedTab () {
+    // Find the selected ticket and focus its element
+    for (const item of tabs.values()) {
+      if (toValue(item.isSelected)) {
+        toValue(item.el)?.focus()
+        return
+      }
+    }
   }
 
   function onKeydown (e: KeyboardEvent) {
@@ -117,7 +198,7 @@
     ) {
       e.preventDefault()
       tabs.next()
-      focusSelectedTab(e.currentTarget)
+      focusSelectedTab()
       return
     }
 
@@ -127,7 +208,7 @@
     ) {
       e.preventDefault()
       tabs.prev()
-      focusSelectedTab(e.currentTarget)
+      focusSelectedTab()
       return
     }
 
@@ -135,14 +216,14 @@
     if (e.key === 'Home') {
       e.preventDefault()
       tabs.first()
-      focusSelectedTab(e.currentTarget)
+      focusSelectedTab()
       return
     }
 
     if (e.key === 'End') {
       e.preventDefault()
       tabs.last()
-      focusSelectedTab(e.currentTarget)
+      focusSelectedTab()
       return
     }
 
@@ -167,20 +248,22 @@
   }
 
   const slotProps = toRef((): TabsTabSlotProps => ({
-    id: String(ticket.id),
-    isSelected: toValue(ticket.isSelected),
-    isDisabled: toValue(isDisabled),
+    id: ticket.id,
+    isSelected: isSelected.value,
+    isDisabled: isDisabled.value,
     select: ticket.select,
     attrs: {
       'id': tabId.value,
       'role': 'tab',
-      'tabindex': toValue(ticket.isSelected) ? 0 : -1,
-      'aria-selected': toValue(ticket.isSelected),
+      'tabindex': isSelected.value ? 0 : -1,
+      'aria-selected': isSelected.value,
       'aria-controls': panelId.value,
-      'aria-disabled': toValue(isDisabled) || undefined,
-      'data-selected': toValue(ticket.isSelected) || undefined,
-      'data-disabled': toValue(isDisabled) || undefined,
-      'disabled': as === 'button' ? toValue(isDisabled) : undefined,
+      'aria-disabled': isDisabled.value || undefined,
+      'data-state': dataState.value,
+      'data-selected': isSelected.value || undefined,
+      'data-disabled': isDisabled.value || undefined,
+      'data-tab-id': ticket.id,
+      'disabled': as === 'button' ? isDisabled.value : undefined,
       'type': as === 'button' ? 'button' : undefined,
       'onClick': onClick,
       'onKeydown': onKeydown,
@@ -191,6 +274,7 @@
 
 <template>
   <Atom
+    ref="tab"
     v-bind="slotProps.attrs"
     :as
     :renderless

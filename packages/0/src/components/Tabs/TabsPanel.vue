@@ -6,20 +6,13 @@
  * prop. Provides ARIA tabpanel role and labelledby relationship with the
  * corresponding tab trigger.
  *
- * @example
- * ```ts
- * // Panel content is shown when its tab is selected
- * h(Tabs.Panel, { value: 'profile', class: 'p-4' }, () => [
- *   h('h3', 'Profile Settings'),
- *   h('p', 'Manage your profile information.'),
- * ])
- * ```
+ * @see {@link https://0.vuetifyjs.com/components/navigation/tabs#panel}
  */
 
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
-  import { useTabsRoot } from './TabsRoot.vue'
+  import { useTabsRoot, type TabsState } from './TabsRoot.vue'
 
   // Utilities
   import { toRef, toValue } from 'vue'
@@ -28,8 +21,31 @@
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface TabsPanelProps<V = unknown> extends AtomProps {
-    /** Value to match with corresponding TabsTab */
+    /**
+     * Value to match with corresponding TabsTab
+     *
+     * @example
+     * ```vue
+     * <template>
+     *   <Tabs.Tab value="profile">Profile</Tabs.Tab>
+     *   <Tabs.Panel value="profile">Profile content</Tabs.Panel>
+     * </template>
+     * ```
+     */
     value: V
+    /**
+     * Force mount the panel even when not selected (useful for animations)
+     *
+     * @example
+     * ```vue
+     * <template>
+     *   <Tabs.Panel value="profile" force-mount class="transition-opacity">
+     *     Content always in DOM
+     *   </Tabs.Panel>
+     * </template>
+     * ```
+     */
+    forceMount?: boolean
     /** Namespace for dependency injection */
     namespace?: string
   }
@@ -43,7 +59,8 @@
       'role': 'tabpanel'
       'aria-labelledby': string
       'tabindex': 0 | -1
-      'hidden': boolean
+      'hidden': boolean | undefined
+      'data-state': TabsState
       'data-selected': true | undefined
     }
   }
@@ -53,6 +70,20 @@
   defineOptions({ name: 'TabsPanel' })
 
   defineSlots<{
+    /**
+     * Default slot for panel content
+     *
+     * @example
+     * ```vue
+     * <template>
+     *   <Tabs.Panel v-slot="{ isSelected }" value="profile">
+     *     <div :class="{ 'opacity-100': isSelected, 'opacity-0': !isSelected }">
+     *       Profile content with custom transitions
+     *     </div>
+     *   </Tabs.Panel>
+     * </template>
+     * ```
+     */
     default: (props: TabsPanelSlotProps) => any
   }>()
 
@@ -60,6 +91,7 @@
     as = 'div',
     renderless,
     value,
+    forceMount = false,
     namespace = 'v0:tabs',
   } = defineProps<TabsPanelProps<V>>()
 
@@ -82,6 +114,7 @@
   })
 
   const ticketId = toRef(() => ticket.value?.id ?? value)
+  const dataState = toRef((): TabsState => isSelected.value ? 'active' : 'inactive')
 
   const panelId = toRef(() => `${tabs.rootId}-panel-${ticketId.value}`)
   const tabId = toRef(() => `${tabs.rootId}-tab-${ticketId.value}`)
@@ -93,7 +126,8 @@
       'role': 'tabpanel',
       'aria-labelledby': tabId.value,
       'tabindex': isSelected.value ? 0 : -1,
-      'hidden': !isSelected.value,
+      'hidden': forceMount ? undefined : !isSelected.value,
+      'data-state': dataState.value,
       'data-selected': isSelected.value || undefined,
     },
   }))
