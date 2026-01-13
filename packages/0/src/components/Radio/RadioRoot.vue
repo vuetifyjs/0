@@ -46,13 +46,40 @@
     id?: ID
     /** Optional display label (passed through to slot) */
     label?: string
-    /** Value associated with this radio (required for group selection) */
+    /**
+     * Value associated with this radio for group selection and form submission
+     *
+     * @example
+     * ```vue
+     * <Radio.Group v-model="size">
+     *   <Radio.Root value="small">Small</Radio.Root>
+     *   <Radio.Root value="large">Large</Radio.Root>
+     * </Radio.Group>
+     * ```
+     */
     value?: V
     /** Form field name - triggers auto hidden input when provided */
     name?: string
-    /** Associate with form by ID */
+    /**
+     * Associate with a form by ID (for radios outside the form element)
+     *
+     * @example
+     * ```vue
+     * <form id="my-form">...</form>
+     * <Radio.Root value="a" form="my-form">Option</Radio.Root>
+     * ```
+     */
     form?: string
-    /** Disables this radio */
+    /**
+     * Disables this radio (prevents selection and keyboard focus)
+     *
+     * @example
+     * ```vue
+     * <Radio.Root value="premium" disabled>
+     *   Premium (Coming soon)
+     * </Radio.Root>
+     * ```
+     */
     disabled?: MaybeRef<boolean>
     /** Namespace for context provision to children (Indicator, HiddenInput) */
     namespace?: string
@@ -62,7 +89,16 @@
     ariaLabelledby?: string
     /** ID of element that describes this radio */
     ariaDescribedby?: string
-    /** Whether the radio has an invalid value */
+    /**
+     * Marks the radio as invalid for form validation
+     *
+     * @example
+     * ```vue
+     * <Radio.Root :aria-invalid="hasError" value="a">
+     *   Option A
+     * </Radio.Root>
+     * ```
+     */
     ariaInvalid?: boolean
   }
 
@@ -114,6 +150,18 @@
   const rootRef = useTemplateRef<AtomExpose>('root')
 
   defineSlots<{
+    /**
+     * Default slot with radio state, actions, and ARIA attributes
+     *
+     * @example
+     * ```vue
+     * <Radio.Root v-slot="{ isChecked, select, attrs }" value="a">
+     *   <div v-bind="attrs" @click="select">
+     *     <span :class="{ 'font-bold': isChecked }">Option A</span>
+     *   </div>
+     * </Radio.Root>
+     * ```
+     */
     default: (props: RadioRootSlotProps<V>) => any
   }>()
 

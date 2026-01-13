@@ -33,16 +33,42 @@
   export interface RadioGroupProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
-    /** Disables the entire radio group */
+    /**
+     * Disables the entire radio group
+     *
+     * @example
+     * ```vue
+     * <Radio.Group disabled>
+     *   <Radio.Root value="a">Option A</Radio.Root>
+     * </Radio.Group>
+     * ```
+     */
     disabled?: boolean
     /**
-     * Controls mandatory radio behavior:
-     * - false (default): No mandatory enforcement
-     * - true: Prevents deselecting the selected item
-     * - `force`: Automatically selects the first non-disabled item on registration
+     * Auto-selects the first non-disabled item on mount.
+     * Radio groups are inherently mandatory (selection can only be changed, not cleared),
+     * so `mandatory="force"` is the only meaningful option.
+     *
+     * @example
+     * ```vue
+     * <Radio.Group v-model="selected" mandatory="force">
+     *   <Radio.Root value="small">Small</Radio.Root>
+     *   <Radio.Root value="medium">Medium</Radio.Root>
+     * </Radio.Group>
+     * ```
      */
     mandatory?: boolean | 'force'
-    /** Accessible name for the group */
+    /**
+     * Accessible name for the group
+     *
+     * @example
+     * ```vue
+     * <Radio.Group label="Select size">
+     *   <Radio.Root value="s">Small</Radio.Root>
+     *   <Radio.Root value="m">Medium</Radio.Root>
+     * </Radio.Group>
+     * ```
+     */
     label?: string
     /** ID of element that labels this group */
     ariaLabelledby?: string
@@ -50,7 +76,17 @@
     ariaDescribedby?: string
     /** Whether a selection is required before form submission */
     ariaRequired?: boolean
-    /** Form field name - applies to all radios in group */
+    /**
+     * Form field name - enables native form submission for all radios in group
+     *
+     * @example
+     * ```vue
+     * <Radio.Group v-model="size" name="product_size">
+     *   <Radio.Root value="small">Small</Radio.Root>
+     *   <Radio.Root value="large">Large</Radio.Root>
+     * </Radio.Group>
+     * ```
+     */
     name?: string
   }
 
@@ -83,6 +119,19 @@
   defineOptions({ name: 'RadioGroup' })
 
   defineSlots<{
+    /**
+     * Default slot with group state and ARIA attributes
+     *
+     * @example
+     * ```vue
+     * <Radio.Group v-slot="{ isNoneSelected, attrs }">
+     *   <div v-bind="attrs">
+     *     <p v-if="isNoneSelected">Please select an option</p>
+     *     <Radio.Root value="a">Option A</Radio.Root>
+     *   </div>
+     * </Radio.Group>
+     * ```
+     */
     default: (props: RadioGroupSlotProps) => any
   }>()
 

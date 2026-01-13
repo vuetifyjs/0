@@ -41,6 +41,16 @@
   defineOptions({ name: 'RadioIndicator' })
 
   defineSlots<{
+    /**
+     * Default slot for custom indicator content
+     *
+     * @example
+     * ```vue
+     * <Radio.Indicator v-slot="{ isChecked }">
+     *   <CheckIcon v-if="isChecked" />
+     * </Radio.Indicator>
+     * ```
+     */
     default: (props: RadioIndicatorSlotProps) => any
   }>()
 

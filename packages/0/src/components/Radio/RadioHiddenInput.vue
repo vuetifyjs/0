@@ -11,11 +11,40 @@
   export interface RadioHiddenInputProps {
     /** Namespace for context injection from parent Radio.Root */
     namespace?: string
-    /** Form field name (defaults to context value) */
+    /**
+     * Form field name (defaults to context value from Radio.Group)
+     *
+     * @example
+     * ```vue
+     * <Radio.Root value="a">
+     *   <Radio.HiddenInput name="choice" />
+     *   <Radio.Indicator />
+     * </Radio.Root>
+     * ```
+     */
     name?: string
-    /** Submitted value when checked (defaults to context value or 'on') */
+    /**
+     * Submitted value when checked (defaults to context value or 'on').
+     * Use to override the Radio.Root value for form submission.
+     *
+     * @example
+     * ```vue
+     * <Radio.Root value="internal-id">
+     *   <Radio.HiddenInput name="choice" value="user-friendly-value" />
+     * </Radio.Root>
+     * ```
+     */
     value?: string
-    /** Associate with form by ID (defaults to context value) */
+    /**
+     * Associate with form by ID (for inputs outside the form element)
+     *
+     * @example
+     * ```vue
+     * <Radio.Root value="a">
+     *   <Radio.HiddenInput name="choice" form="external-form" />
+     * </Radio.Root>
+     * ```
+     */
     form?: string
   }
 
