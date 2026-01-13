@@ -26,7 +26,7 @@ import SelectAll from './CheckboxSelectAll.vue'
 /**
  * Checkbox component with sub-components for checkbox controls.
  *
- * @see https://0.vuetifyjs.com/components/checkbox
+ * @see https://0.vuetifyjs.com/components/forms/checkbox
  *
  * @example
  * ```vue
@@ -48,7 +48,7 @@ export const Checkbox = {
   /**
    * Group component for managing multiple checkboxes.
    *
-   * @see https://0.vuetifyjs.com/components/checkbox#group
+   * @see https://0.vuetifyjs.com/components/forms/checkbox#group
    *
    * @example
    * ```vue
@@ -80,7 +80,7 @@ export const Checkbox = {
    * Auto-rendered by Root when `name` prop is provided.
    * Can also be used explicitly for custom form integration.
    *
-   * @see https://0.vuetifyjs.com/components/checkbox#hiddeninput
+   * @see https://0.vuetifyjs.com/components/forms/checkbox#hiddeninput
    *
    * @example
    * ```vue
@@ -103,7 +103,7 @@ export const Checkbox = {
    * Renders as a span and only displays when checked or indeterminate.
    * Must be used within a Checkbox.Root component.
    *
-   * @see https://0.vuetifyjs.com/components/checkbox#indicator
+   * @see https://0.vuetifyjs.com/components/forms/checkbox#indicator
    *
    * @example
    * ```vue
@@ -131,7 +131,7 @@ export const Checkbox = {
    * v-model or group mode within Checkbox.Group. When `name` prop
    * is provided, automatically renders a hidden input for form submission.
    *
-   * @see https://0.vuetifyjs.com/components/checkbox#root
+   * @see https://0.vuetifyjs.com/components/forms/checkbox#root
    *
    * @example
    * ```vue
@@ -160,7 +160,7 @@ export const Checkbox = {
    * isAllSelected/isMixed and calls toggleAll on click. Does NOT
    * register as a group item. Must be used within a Checkbox.Group.
    *
-   * @see https://0.vuetifyjs.com/components/checkbox#selectall
+   * @see https://0.vuetifyjs.com/components/forms/checkbox#selectall
    *
    * @example
    * ```vue
