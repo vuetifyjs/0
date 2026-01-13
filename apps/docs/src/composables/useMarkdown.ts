@@ -21,6 +21,9 @@ import type { Highlighter } from 'shiki'
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
 
+// Build
+import { createApiTransformer, VUE_FUNCTIONS } from '../../build/shiki-api-transformer'
+
 export interface UseMarkdownReturn {
   html: ShallowRef<string>
   render: (source?: string) => Promise<void>
@@ -81,6 +84,7 @@ function getMarked (hl: Highlighter): Marked {
             lang: language,
             themes: SHIKI_THEMES,
             defaultColor: false,
+            transformers: [createApiTransformer()],
           })
         } catch {
           // Fallback for unsupported languages
@@ -91,6 +95,14 @@ function getMarked (hl: Highlighter): Marked {
         const encodedCode = btoa(unescape(encodeURIComponent(text)))
 
         return `<div data-markup data-code="${encodedCode}" data-language="${escapeHtml(language)}">${highlighted}</div>`
+      },
+      codespan ({ text }) {
+        // Check if inline code is a Vue function
+        const vueHref = VUE_FUNCTIONS[text]
+        if (vueHref) {
+          return `<code data-vue-href="${escapeHtml(vueHref)}" title="Open Vue documentation">${escapeHtml(text)}</code>`
+        }
+        return `<code>${escapeHtml(text)}</code>`
       },
     },
   })

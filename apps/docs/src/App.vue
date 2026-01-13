@@ -54,6 +54,9 @@
 
   <!-- API hover popovers for code blocks -->
   <DocsApiHover />
+
+  <!-- Vue documentation links for code blocks -->
+  <DocsVueLink />
 </template>
 
 <style>

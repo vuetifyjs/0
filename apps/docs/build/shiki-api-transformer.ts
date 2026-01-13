@@ -92,6 +92,98 @@ const TRINITY_RETURNS: Record<string, string> = {
   provideContext: 'createContext',
 }
 
+// Vue 3 built-in functions mapped to their documentation URLs
+// Keys are function names, values are full URLs to Vue docs
+const VUE_FUNCTIONS: Record<string, string> = {
+  // Reactivity: Core
+  ref: 'https://vuejs.org/api/reactivity-core.html#ref',
+  computed: 'https://vuejs.org/api/reactivity-core.html#computed',
+  reactive: 'https://vuejs.org/api/reactivity-core.html#reactive',
+  readonly: 'https://vuejs.org/api/reactivity-core.html#readonly',
+  watch: 'https://vuejs.org/api/reactivity-core.html#watch',
+  watchEffect: 'https://vuejs.org/api/reactivity-core.html#watcheffect',
+  watchPostEffect: 'https://vuejs.org/api/reactivity-core.html#watchposteffect',
+  watchSyncEffect: 'https://vuejs.org/api/reactivity-core.html#watchsynceffect',
+
+  // Reactivity: Utilities
+  isRef: 'https://vuejs.org/api/reactivity-utilities.html#isref',
+  unref: 'https://vuejs.org/api/reactivity-utilities.html#unref',
+  toRef: 'https://vuejs.org/api/reactivity-utilities.html#toref',
+  toValue: 'https://vuejs.org/api/reactivity-utilities.html#tovalue',
+  toRefs: 'https://vuejs.org/api/reactivity-utilities.html#torefs',
+  isProxy: 'https://vuejs.org/api/reactivity-utilities.html#isproxy',
+  isReactive: 'https://vuejs.org/api/reactivity-utilities.html#isreactive',
+  isReadonly: 'https://vuejs.org/api/reactivity-utilities.html#isreadonly',
+
+  // Reactivity: Advanced
+  shallowRef: 'https://vuejs.org/api/reactivity-advanced.html#shallowref',
+  triggerRef: 'https://vuejs.org/api/reactivity-advanced.html#triggerref',
+  customRef: 'https://vuejs.org/api/reactivity-advanced.html#customref',
+  shallowReactive: 'https://vuejs.org/api/reactivity-advanced.html#shallowreactive',
+  shallowReadonly: 'https://vuejs.org/api/reactivity-advanced.html#shallowreadonly',
+  toRaw: 'https://vuejs.org/api/reactivity-advanced.html#toraw',
+  markRaw: 'https://vuejs.org/api/reactivity-advanced.html#markraw',
+  effectScope: 'https://vuejs.org/api/reactivity-advanced.html#effectscope',
+  getCurrentScope: 'https://vuejs.org/api/reactivity-advanced.html#getcurrentscope',
+  onScopeDispose: 'https://vuejs.org/api/reactivity-advanced.html#onscopedispose',
+
+  // Lifecycle Hooks
+  onMounted: 'https://vuejs.org/api/composition-api-lifecycle.html#onmounted',
+  onUpdated: 'https://vuejs.org/api/composition-api-lifecycle.html#onupdated',
+  onUnmounted: 'https://vuejs.org/api/composition-api-lifecycle.html#onunmounted',
+  onBeforeMount: 'https://vuejs.org/api/composition-api-lifecycle.html#onbeforemount',
+  onBeforeUpdate: 'https://vuejs.org/api/composition-api-lifecycle.html#onbeforeupdate',
+  onBeforeUnmount: 'https://vuejs.org/api/composition-api-lifecycle.html#onbeforeunmount',
+  onErrorCaptured: 'https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured',
+  onRenderTracked: 'https://vuejs.org/api/composition-api-lifecycle.html#onrendertracked',
+  onRenderTriggered: 'https://vuejs.org/api/composition-api-lifecycle.html#onrendertriggered',
+  onActivated: 'https://vuejs.org/api/composition-api-lifecycle.html#onactivated',
+  onDeactivated: 'https://vuejs.org/api/composition-api-lifecycle.html#ondeactivated',
+  onServerPrefetch: 'https://vuejs.org/api/composition-api-lifecycle.html#onserverprefetch',
+
+  // Dependency Injection
+  provide: 'https://vuejs.org/api/composition-api-dependency-injection.html#provide',
+  inject: 'https://vuejs.org/api/composition-api-dependency-injection.html#inject',
+  hasInjectionContext: 'https://vuejs.org/api/composition-api-dependency-injection.html#hasinjectioncontext',
+
+  // Setup Helpers
+  defineProps: 'https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits',
+  defineEmits: 'https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits',
+  defineExpose: 'https://vuejs.org/api/sfc-script-setup.html#defineexpose',
+  defineOptions: 'https://vuejs.org/api/sfc-script-setup.html#defineoptions',
+  defineSlots: 'https://vuejs.org/api/sfc-script-setup.html#defineslots',
+  defineModel: 'https://vuejs.org/api/sfc-script-setup.html#definemodel',
+  withDefaults: 'https://vuejs.org/api/sfc-script-setup.html#default-props-values-when-using-type-declaration',
+  useSlots: 'https://vuejs.org/api/sfc-script-setup.html#useslots-useattrs',
+  useAttrs: 'https://vuejs.org/api/sfc-script-setup.html#useslots-useattrs',
+  useTemplateRef: 'https://vuejs.org/api/composition-api-helpers.html#usetemplateref',
+  useId: 'https://vuejs.org/api/composition-api-helpers.html#useid',
+  useCssModule: 'https://vuejs.org/api/sfc-css-features.html#usecssmodule',
+
+  // Render Function
+  h: 'https://vuejs.org/api/render-function.html#h',
+  mergeProps: 'https://vuejs.org/api/render-function.html#mergeprops',
+  cloneVNode: 'https://vuejs.org/api/render-function.html#clonevnode',
+  isVNode: 'https://vuejs.org/api/render-function.html#isvnode',
+  resolveComponent: 'https://vuejs.org/api/render-function.html#resolvecomponent',
+  resolveDirective: 'https://vuejs.org/api/render-function.html#resolvedirective',
+  withDirectives: 'https://vuejs.org/api/render-function.html#withdirectives',
+  withModifiers: 'https://vuejs.org/api/render-function.html#withmodifiers',
+
+  // Custom Elements
+  defineCustomElement: 'https://vuejs.org/api/custom-elements.html#definecustomelement',
+  useHost: 'https://vuejs.org/api/custom-elements.html#usehost',
+  useShadowRoot: 'https://vuejs.org/api/custom-elements.html#useshadowroot',
+
+  // General
+  defineComponent: 'https://vuejs.org/api/general.html#definecomponent',
+  defineAsyncComponent: 'https://vuejs.org/api/general.html#defineasynccomponent',
+  nextTick: 'https://vuejs.org/api/general.html#nexttick',
+
+  // Application
+  createApp: 'https://vuejs.org/api/application.html#createapp',
+}
+
 /**
  * Maps create* variants to their parent use* composable.
  * Returns the composable name if valid, null otherwise.
@@ -149,6 +241,7 @@ function resolveComposable (name: string): { apiName: string } | null {
  *
  * Components: Detects "Namespace.Part" patterns (e.g., Popover.Root)
  * Composables: Detects use* or create* patterns
+ * Vue built-ins: Links to Vue documentation
  *
  * Client-side validation happens in DocsApiHover.vue
  */
@@ -168,9 +261,10 @@ export function createApiTransformer (): ShikiTransformer {
       const trimmed = text.trim()
       if (!trimmed) return
 
-      // Determine if this is an API token
+      // Determine if this is an API token (v0) or Vue built-in
       let apiType: 'component' | 'composable' | null = null
       let apiName = trimmed
+      let vueHref: string | null = null
 
       // Check if it's a v0 composable (whitelist-based)
       const composable = resolveComposable(trimmed)
@@ -182,21 +276,32 @@ export function createApiTransformer (): ShikiTransformer {
         const match = COMPONENT_PATTERN.exec(trimmed)
         if (match && V0_COMPONENTS.has(match[1])) {
           apiType = 'component'
+        } else {
+          // Check if it's a Vue built-in function
+          vueHref = VUE_FUNCTIONS[trimmed] || null
         }
       }
 
-      if (!apiType) return
+      // Nothing to mark
+      if (!apiType && !vueHref) return
 
       // Extract leading/trailing whitespace
       const leadingWs = text.match(/^\s*/)?.[0] || ''
       const trailingWs = text.match(/\s*$/)?.[0] || ''
 
+      // Build properties based on type
+      const properties: Record<string, string> = vueHref
+        ? { 'data-vue-href': vueHref, 'title': 'Open Vue documentation' }
+        : {
+            'data-api-candidate': trimmed,
+            'data-api-name': apiName,
+            'data-api-type': apiType!,
+          }
+
       // If no whitespace, simple case - just add attributes
       if (!leadingWs && !trailingWs) {
         node.properties = node.properties || {}
-        node.properties['data-api-candidate'] = trimmed
-        node.properties['data-api-name'] = apiName
-        node.properties['data-api-type'] = apiType
+        Object.assign(node.properties, properties)
         return
       }
 
@@ -208,15 +313,11 @@ export function createApiTransformer (): ShikiTransformer {
         newChildren.push({ type: 'text', value: leadingWs })
       }
 
-      // Create inner span for the API token
+      // Create inner span for the token
       newChildren.push({
         type: 'element',
         tagName: 'span',
-        properties: {
-          'data-api-candidate': trimmed,
-          'data-api-name': apiName,
-          'data-api-type': apiType,
-        },
+        properties,
         children: [{ type: 'text', value: trimmed }],
       })
 
@@ -228,3 +329,6 @@ export function createApiTransformer (): ShikiTransformer {
     },
   }
 }
+
+// Export for use in markdown.ts inline code processing
+export { VUE_FUNCTIONS }

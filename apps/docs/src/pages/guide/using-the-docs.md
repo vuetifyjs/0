@@ -384,6 +384,28 @@ theme.toggle() // switch themes
 
 > [!TIP] The hover works on any recognized v0 component or composable in code blocks, making it easy to explore without leaving your current page.
 
+### Vue Documentation Links
+
+Vue built-in functions like `ref`, `computed`, `onMounted`, and `watch` are clickable in both code blocks and inline code. Click to open the official Vue documentation in a new tab.
+
+```ts
+import { ref, computed, onMounted } from 'vue'
+
+const count = ref(0)
+const doubled = computed(() => count.value * 2)
+
+onMounted(() => {
+  console.log('Component mounted')
+})
+```
+
+| Style | Type | Action |
+|-------|------|--------|
+| <span class="underline decoration-dotted">dotted underline</span> | v0 API | Hover for popover |
+| <span class="underline decoration-dashed">dashed underline</span> | Vue built-in | Click to open docs |
+
+> [!TIP] Vue links also work in inline code. Try clicking `ref` or `computed` in this sentence.
+
 ## Callouts
 
 The documentation uses callout boxes to highlight important information:
