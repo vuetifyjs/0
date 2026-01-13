@@ -54,7 +54,6 @@
 
   const isChecked = toRef(() => toValue(root.isChecked))
   const dataState = toRef((): RadioState => isChecked.value ? 'checked' : 'unchecked')
-
   const slotProps = toRef((): RadioIndicatorSlotProps => ({
     isChecked: isChecked.value,
     attrs: {

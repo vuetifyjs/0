@@ -17,8 +17,15 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SingleContext, SingleTicket } from '#v0/composables/createSingle'
+  import type { MaybeRef } from 'vue'
 
-  export interface RadioGroupContext extends SingleContext<SingleTicket> {
+  /** Ticket for radio items with element reference for focus management */
+  export interface RadioTicket extends SingleTicket {
+    /** Element reference for roving tabindex focus management */
+    el?: MaybeRef<HTMLElement | null | undefined>
+  }
+
+  export interface RadioGroupContext extends SingleContext<RadioTicket> {
     /** Form field name shared by all radios in the group */
     name?: string
   }
@@ -98,7 +105,7 @@
 
   const model = defineModel<T>()
 
-  const single = createSingle({
+  const single = createSingle<RadioTicket>({
     disabled: toRef(() => disabled),
     mandatory,
     events: true,

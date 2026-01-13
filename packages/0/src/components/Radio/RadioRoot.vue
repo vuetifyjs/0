@@ -126,7 +126,7 @@
     ariaInvalid,
     label,
     value,
-    name: nameProp,
+    name: _name,
     form,
     disabled = false,
     namespace = 'v0:radio:root',
@@ -135,17 +135,16 @@
 
   const group = useRadioGroup(groupNamespace)
 
-  // Get name from group if not provided directly
-  const name = nameProp ?? group.name
+  const name = _name ?? group.name
 
   // Register with parent group (el ref for focus management)
   // Note: Vue auto-unwraps exposed refs when accessed via template ref
   const el = toRef(() => (rootRef.value?.element as unknown as HTMLElement | null) ?? undefined)
-  const ticket = group.register({ id, value, disabled, el } as any)
+  const ticket = group.register({ id, value, disabled, el })
 
   const isChecked = toRef(() => toValue(ticket.isSelected))
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
-
+  const dataState = toRef((): RadioState => isChecked.value ? 'checked' : 'unchecked')
   // Roving tabindex: tabbable if selected, or first non-disabled when none selected
   const isTabbable = toRef(() => {
     if (toValue(group.disabled)) return false
@@ -158,10 +157,10 @@
     }
     return false
   })
-  const dataState = toRef((): RadioState => isChecked.value ? 'checked' : 'unchecked')
 
   function select () {
     if (isDisabled.value) return
+
     ticket.select()
   }
 
@@ -176,7 +175,6 @@
       return
     }
 
-    // Arrow key navigation within group
     const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
     if (!keys.includes(e.key)) return
 
@@ -197,8 +195,7 @@
     if (!nextItem) return
 
     nextItem.select()
-    // Focus via element ref stored during registration
-    toValue((nextItem as any).el)?.focus()
+    toValue(nextItem.el)?.focus()
   }
 
   onUnmounted(() => {
