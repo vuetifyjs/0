@@ -56,18 +56,21 @@ export interface ApiProp {
   required: boolean
   default?: string
   description?: string
+  example?: string
 }
 
 export interface ApiEvent {
   name: string
   type: string
   description?: string
+  example?: string
 }
 
 export interface ApiSlot {
   name: string
   type?: string
   description?: string
+  example?: string
 }
 
 export interface ComponentApi {
@@ -140,6 +143,21 @@ function getChecker () {
   return checker
 }
 
+/**
+ * Extract example from vue-component-meta tags array
+ */
+function extractExampleTag (tags: { name: string, text?: string }[]): string | undefined {
+  const exampleTag = tags.find(t => t.name === 'example')
+  if (!exampleTag?.text) return undefined
+
+  let example = exampleTag.text.trim()
+  // Remove markdown code fence if present
+  if (example.startsWith('```')) {
+    example = example.replace(/^```\w*\n?/, '').replace(/\n?```$/, '')
+  }
+  return example || undefined
+}
+
 function extractComponentApi (filePath: string): ComponentApi | null {
   try {
     const meta = getChecker().getComponentMeta(filePath)
@@ -152,6 +170,7 @@ function extractComponentApi (filePath: string): ComponentApi | null {
         required: p.required,
         default: p.default,
         description: p.description,
+        example: extractExampleTag(p.tags),
       }))
 
     const events: ApiEvent[] = meta.events
@@ -160,12 +179,14 @@ function extractComponentApi (filePath: string): ComponentApi | null {
         name: e.name,
         type: e.type,
         description: e.description,
+        example: extractExampleTag(e.tags),
       }))
 
     const slots: ApiSlot[] = meta.slots.map(s => ({
       name: s.name,
       type: s.type,
       description: s.description,
+      example: extractExampleTag(s.tags),
     }))
 
     return {
