@@ -38,6 +38,7 @@
   import { useCheckboxRoot } from './CheckboxRoot.vue'
 
   // Utilities
+  import { isNullOrUndefined, isObject } from '#v0/utilities'
   import { toRef } from 'vue'
 
   defineOptions({ name: 'CheckboxHiddenInput' })
@@ -54,8 +55,15 @@
 
   // Use prop if provided, otherwise fall back to context
   const name = toRef(() => nameProp ?? root.name)
-  const value = toRef(() => valueProp ?? root.value ?? 'on')
   const form = toRef(() => formProp ?? root.form)
+
+  // Serialize complex values for form submission - objects become JSON strings
+  const value = toRef(() => {
+    const v = valueProp ?? root.value ?? 'on'
+    if (isNullOrUndefined(v)) return 'on'
+    if (isObject(v)) return JSON.stringify(v)
+    return String(v)
+  })
 
   const isChecked = root.isChecked
   const isDisabled = root.isDisabled

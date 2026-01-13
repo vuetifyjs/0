@@ -120,7 +120,7 @@
   // Provide context for Checkbox.Indicator
   // SelectAll doesn't register as group item, so mix/unmix are no-ops.
   // These satisfy CheckboxRootContext contract for Indicator children.
-  const context: CheckboxRootContext<never> = {
+  const context: CheckboxRootContext<void> = {
     id,
     label,
     value: undefined,

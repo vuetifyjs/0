@@ -27,15 +27,15 @@
 
   export interface CheckboxRootContext<V = unknown> {
     /** Unique identifier */
-    id: ID
+    readonly id: ID
     /** Optional display label */
-    label?: string
+    readonly label?: string
     /** Value associated with this checkbox */
-    value: V | undefined
+    readonly value: V | undefined
     /** Form field name (triggers auto hidden input when provided) */
-    name?: string
+    readonly name?: string
     /** Associate with form by ID */
-    form?: string
+    readonly form?: string
     /** Whether this checkbox is currently checked */
     isChecked: Readonly<Ref<boolean>>
     /** Whether this checkbox is in a mixed/indeterminate state */
