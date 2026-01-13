@@ -218,7 +218,7 @@ describe('radio', () => {
         await wait()
 
         expect(itemProps('item-1').attrs['aria-disabled']).toBe(true)
-        expect(itemProps('item-1').attrs.tabindex).toBeUndefined()
+        expect(itemProps('item-1').attrs.tabindex).toBe(-1)
         expect(itemProps('item-1').attrs['data-disabled']).toBe(true)
       })
     })

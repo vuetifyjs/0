@@ -34,6 +34,11 @@ export interface SingleTicket<V = unknown> extends SelectionTicket<V> {
    * True if: selected, OR (none selected AND first non-disabled item)
    */
   isTabbable: Readonly<Ref<boolean>>
+  /**
+   * Optional element ref for focus management.
+   * Used by components implementing roving tabindex to focus items directly.
+   */
+  el?: Readonly<Ref<HTMLElement | undefined>>
 }
 
 export interface SingleContext<Z extends SingleTicket> extends SelectionContext<Z> {

@@ -15,7 +15,7 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
   import type { MaybeRef, Ref } from 'vue'
 
@@ -89,7 +89,7 @@
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
       'aria-invalid': boolean | undefined
-      'tabindex': 0 | -1 | undefined
+      'tabindex': 0 | -1
       'data-state': RadioState
       'data-disabled': true | undefined
       'data-radio-id': ID
@@ -100,19 +100,18 @@
 </script>
 
 <script setup lang="ts" generic="V = unknown">
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { useRadioGroup } from './RadioGroup.vue'
   import RadioHiddenInput from './RadioHiddenInput.vue'
 
   // Utilities
   import { genId } from '#v0/utilities'
-  import { onUnmounted, toRef, toValue, useAttrs } from 'vue'
+  import { onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'RadioRoot', inheritAttrs: false })
 
   const attrs = useAttrs()
+  const rootRef = useTemplateRef<AtomExpose>('root')
 
   defineSlots<{
     default: (props: RadioRootSlotProps<V>) => any
@@ -134,14 +133,15 @@
     groupNamespace = 'v0:radio:group',
   } = defineProps<RadioRootProps<V>>()
 
-  // Radio.Root requires a parent Radio.Group
   const group = useRadioGroup(groupNamespace)
 
   // Get name from group if not provided directly
   const name = nameProp ?? group.name
 
-  // Register with parent group
-  const ticket = group.register({ id, value, disabled })
+  // Register with parent group (el ref for focus management)
+  // Note: Vue auto-unwraps exposed refs when accessed via template ref
+  const el = toRef(() => (rootRef.value?.element as unknown as HTMLElement | null) ?? undefined)
+  const ticket = group.register({ id, value, disabled, el })
 
   const isChecked = toRef(() => toValue(ticket.isSelected))
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(group.disabled))
@@ -182,14 +182,10 @@
     }
 
     const nextItem = items[nextIndex]
-    if (nextItem) {
-      nextItem.select()
-      // Focus the next radio button (SSR-safe)
-      if (IN_BROWSER) {
-        const nextElement = document.querySelector(`[data-radio-id="${nextItem.id}"]`) as HTMLElement | null
-        nextElement?.focus()
-      }
-    }
+    if (!nextItem) return
+
+    nextItem.select()
+    toValue(nextItem.el)?.focus()
   }
 
   onUnmounted(() => {
@@ -225,7 +221,7 @@
       'aria-labelledby': ariaLabelledby || undefined,
       'aria-describedby': ariaDescribedby || undefined,
       'aria-invalid': ariaInvalid || undefined,
-      'tabindex': isDisabled.value ? undefined : (isTabbable.value ? 0 : -1),
+      'tabindex': isTabbable.value ? 0 : -1,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
       'data-radio-id': id,
@@ -235,6 +231,7 @@
 
 <template>
   <Atom
+    ref="root"
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
