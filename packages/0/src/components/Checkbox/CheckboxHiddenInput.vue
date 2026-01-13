@@ -64,6 +64,7 @@
     :checked="isChecked"
     :disabled="isDisabled"
     :form="form"
+    inert
     :name="name"
     :style="visuallyHiddenStyle"
     tabindex="-1"

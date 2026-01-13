@@ -101,8 +101,7 @@
     return isAllSelected.value ? 'checked' : 'unchecked'
   })
 
-  function onClick (e: Event) {
-    e.preventDefault()
+  function onClick () {
     if (isDisabled.value) return
     group.toggleAll()
   }
@@ -116,7 +115,9 @@
   }
 
   // Provide context for Checkbox.Indicator
-  const context: CheckboxRootContext = {
+  // SelectAll doesn't register as group item, so mix/unmix are no-ops.
+  // These satisfy CheckboxRootContext contract for Indicator children.
+  const context: CheckboxRootContext<never> = {
     id,
     label,
     value: undefined,

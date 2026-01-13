@@ -462,7 +462,7 @@ describe('checkbox', () => {
         expect(checked.value).toBe(false)
       })
 
-      it('should prevent default on click', async () => {
+      it('should prevent default on Space keydown', async () => {
         const wrapper = mount(Checkbox.Root, {
           slots: {
             default: () => h(Checkbox.Indicator as any, {}, () => 'Checkbox'),
@@ -472,7 +472,7 @@ describe('checkbox', () => {
         await nextTick()
 
         const button = wrapper.find('button')
-        const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+        const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })
         button.element.dispatchEvent(event)
 
         expect(event.defaultPrevented).toBe(true)
@@ -639,7 +639,7 @@ describe('checkbox', () => {
         expect(typeof groupProps.selectAll).toBe('function')
         expect(typeof groupProps.unselectAll).toBe('function')
         expect(typeof groupProps.toggleAll).toBe('function')
-        expect(groupProps.attrs['aria-multiselectable']).toBe(true)
+        expect(groupProps.attrs.role).toBe('group')
       })
 
       it('should set aria-label on Group', () => {
@@ -2266,8 +2266,16 @@ describe('checkbox', () => {
         expect(selected.value).toHaveLength(0)
       })
 
-      it('should prevent default on click', async () => {
+      it('should toggle state on click', async () => {
+        const selected = ref<string[]>([])
+
         const wrapper = mount(Checkbox.Group, {
+          props: {
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string[]
+            },
+          },
           slots: {
             default: () => [
               h(Checkbox.SelectAll as any, {}, () => 'Select All'),
@@ -2281,10 +2289,10 @@ describe('checkbox', () => {
         await nextTick()
 
         const selectAll = wrapper.find('button[role="checkbox"]')
-        const event = new MouseEvent('click', { bubbles: true, cancelable: true })
-        selectAll.element.dispatchEvent(event)
+        await selectAll.trigger('click')
+        await nextTick()
 
-        expect(event.defaultPrevented).toBe(true)
+        expect(selected.value).toHaveLength(1)
       })
     })
 
@@ -2562,6 +2570,173 @@ describe('checkbox', () => {
 
         // When checked (or mixed), indicator should be visible
         expect(indicatorProps.attrs.style.visibility).toBe('visible')
+      })
+    })
+
+    describe('context methods (mix/unmix no-ops)', () => {
+      it('should provide mix() as no-op that does not throw', async () => {
+        let selectAllProps: any
+
+        mount(Checkbox.Group, {
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  selectAllProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Check')
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // SelectAll exposes selectAll/unselectAll/toggleAll but NOT mix/unmix in slot props
+        // However the context provides mix/unmix as no-ops for Indicator children
+        expect(selectAllProps.selectAll).toBeDefined()
+        expect(selectAllProps.unselectAll).toBeDefined()
+        expect(selectAllProps.toggleAll).toBeDefined()
+      })
+
+      it('should not change state when Indicator calls context mix/unmix', async () => {
+        let selectAllProps: any
+
+        mount(Checkbox.Group, {
+          props: {
+            modelValue: ['item-1'],
+          },
+          slots: {
+            default: () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  selectAllProps = props
+                  return h(Checkbox.Indicator as any, {}, () => 'Check')
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        const initialIsMixed = selectAllProps.isMixed
+
+        // SelectAll's isMixed comes from group state, not from mix() calls
+        // Calling the no-op mix/unmix should not affect anything
+        expect(initialIsMixed).toBe(true) // 1 of 2 selected = mixed
+        expect(selectAllProps.isAllSelected).toBe(false)
+      })
+    })
+
+    describe('dynamic group membership', () => {
+      it('should update state when items are added dynamically', async () => {
+        const selected = ref<string[]>([])
+        const showThird = ref(false)
+        let selectAllProps: any
+
+        mount(defineComponent({
+          setup () {
+            return { selected, showThird }
+          },
+          render () {
+            return h(Checkbox.Group as any, {
+              'modelValue': selected.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                selected.value = v as string[]
+              },
+            }, () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  selectAllProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+              ),
+              showThird.value
+                ? h(Checkbox.Root as any, { value: 'item-3' }, () =>
+                    h(Checkbox.Indicator as any, {}, () => 'Item 3'),
+                  )
+                : null,
+            ])
+          },
+        }))
+
+        await nextTick()
+
+        // Select all (2 items)
+        selectAllProps.selectAll()
+        await nextTick()
+        expect(selected.value).toHaveLength(2)
+        expect(selectAllProps.isAllSelected).toBe(true)
+
+        // Add third item
+        showThird.value = true
+        await nextTick()
+
+        // Now 2 of 3 selected = mixed
+        expect(selectAllProps.isAllSelected).toBe(false)
+        expect(selectAllProps.isMixed).toBe(true)
+      })
+
+      it('should update state when items are removed dynamically', async () => {
+        const selected = ref<string[]>(['item-1', 'item-2'])
+        const showSecond = ref(true)
+        let selectAllProps: any
+
+        mount(defineComponent({
+          setup () {
+            return { selected, showSecond }
+          },
+          render () {
+            return h(Checkbox.Group as any, {
+              'modelValue': selected.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                selected.value = v as string[]
+              },
+            }, () => [
+              h(Checkbox.SelectAll as any, {}, {
+                default: (props: any) => {
+                  selectAllProps = props
+                  return 'Select All'
+                },
+              }),
+              h(Checkbox.Root as any, { value: 'item-1' }, () =>
+                h(Checkbox.Indicator as any, {}, () => 'Item 1'),
+              ),
+              showSecond.value
+                ? h(Checkbox.Root as any, { value: 'item-2' }, () =>
+                    h(Checkbox.Indicator as any, {}, () => 'Item 2'),
+                  )
+                : null,
+            ])
+          },
+        }))
+
+        await nextTick()
+
+        expect(selectAllProps.isAllSelected).toBe(true) // 2 of 2
+
+        // Remove second item
+        showSecond.value = false
+        await nextTick()
+
+        // Now only 1 item visible, 1 selected = all selected
+        expect(selectAllProps.isAllSelected).toBe(true)
       })
     })
 

@@ -65,7 +65,6 @@
     /** Attributes to bind to the root element */
     attrs: {
       'role': 'group'
-      'aria-multiselectable': true
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'aria-describedby': string | undefined
@@ -131,7 +130,6 @@
     toggleAll: group.toggleAll,
     attrs: {
       'role': 'group',
-      'aria-multiselectable': true,
       'aria-label': label || undefined,
       'aria-labelledby': props.ariaLabelledby || undefined,
       'aria-describedby': props.ariaDescribedby || undefined,

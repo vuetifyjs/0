@@ -25,13 +25,13 @@
   /** Visual state of the checkbox for styling purposes */
   export type CheckboxState = 'checked' | 'unchecked' | 'indeterminate'
 
-  export interface CheckboxRootContext {
+  export interface CheckboxRootContext<V = unknown> {
     /** Unique identifier */
     id: ID
     /** Optional display label */
     label?: string
     /** Value associated with this checkbox */
-    value: unknown
+    value: V | undefined
     /** Form field name (triggers auto hidden input when provided) */
     name?: string
     /** Associate with form by ID */
@@ -118,7 +118,7 @@
     }
   }
 
-  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext>('v0:checkbox:root')
+  export const [useCheckboxRoot, provideCheckboxRoot] = createContext<CheckboxRootContext<unknown>>('v0:checkbox:root')
 </script>
 
 <script setup lang="ts" generic="V = unknown">
@@ -237,8 +237,7 @@
     ticket.unmix()
   }
 
-  function onClick (e: Event) {
-    e.preventDefault()
+  function onClick () {
     toggle()
   }
 
@@ -257,7 +256,7 @@
   })
 
   // Provide context for Checkbox.Indicator
-  const context: CheckboxRootContext = {
+  const context: CheckboxRootContext<V> = {
     id,
     label,
     value,
@@ -278,7 +277,7 @@
   const slotProps = toRef((): CheckboxRootSlotProps<V> => ({
     id,
     label,
-    value: value as V | undefined,
+    value,
     isChecked: isChecked.value,
     isMixed: isMixed.value,
     isDisabled: isDisabled.value,
