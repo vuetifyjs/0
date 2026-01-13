@@ -22,13 +22,13 @@
   /** Visual state of the radio for styling purposes */
   export type RadioState = 'checked' | 'unchecked'
 
-  export interface RadioRootContext<V = unknown> {
+  export interface RadioRootContext {
     /** Unique identifier */
     readonly id: ID
     /** Optional display label */
     readonly label?: string
     /** Value associated with this radio */
-    readonly value: V | undefined
+    readonly value: unknown
     /** Form field name (triggers auto hidden input when provided) */
     readonly name?: string
     /** Associate with form by ID */
@@ -96,7 +96,7 @@
     }
   }
 
-  export const [useRadioRoot, provideRadioRoot] = createContext<RadioRootContext<unknown>>()
+  export const [useRadioRoot, provideRadioRoot] = createContext<RadioRootContext>()
 </script>
 
 <script setup lang="ts" generic="V = unknown">
@@ -192,7 +192,7 @@
     group.unregister(ticket.id)
   })
 
-  const context: RadioRootContext<V> = {
+  const context: RadioRootContext = {
     id,
     label,
     value,
