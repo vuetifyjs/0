@@ -1,13 +1,14 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, useClickOutside, useWindowEventListener } from '@vuetify/v0'
+  import { Atom, useClickOutside, useHydration, useWindowEventListener } from '@vuetify/v0'
 
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
+  import { createNavNested } from '@/composables/useNavNested'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -20,10 +21,15 @@
   const { as = 'nav' } = defineProps<AtomProps>()
 
   const { prefersReducedMotion } = useSettings()
+  const { isSettled } = useHydration()
 
   const app = useAppStore()
   const { filteredNav, selectedLevels } = useLevelFilterContext()
   const route = useRoute()
+
+  // Provide nested nav context for collapsible sections
+  const { provide: provideNavNested } = createNavNested(filteredNav)
+  provideNavNested()
 
   // Find a page by path in nav tree
   function findPage (items: NavItem[], path: string): NavItemLink | null {
@@ -61,11 +67,25 @@
   onMounted(updateMobile)
   useWindowEventListener('resize', updateMobile, { passive: true })
 
-  onMounted(async () => {
-    await nextTick()
-    const activeLink = navRef.value?.element.value?.querySelector('[aria-current="page"]')
-    activeLink?.scrollIntoView({ block: 'center' })
-  })
+  // Scroll active link into view after hydration settles
+  watch(isSettled, settled => {
+    if (!settled) return
+    // Wait for sections to fully expand before scrolling
+    // 300ms accounts for expand animation (200ms) + buffer
+    setTimeout(() => {
+      const nav = document.querySelector('#main-navigation')
+      const activeLink = nav?.querySelector<HTMLElement>('[aria-current="page"]')
+      if (activeLink && nav) {
+        const navRect = nav.getBoundingClientRect()
+        const linkRect = activeLink.getBoundingClientRect()
+        // Only scroll if link is outside visible area
+        if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
+          const linkRelativeTop = linkRect.top - navRect.top + nav.scrollTop
+          nav.scrollTop = Math.max(0, linkRelativeTop - 100) // 100px from top, not centered
+        }
+      }
+    }, 300)
+  }, { immediate: true })
 
   useClickOutside(
     () => navRef.value?.element,
@@ -103,12 +123,15 @@
           Active page
         </li>
 
-        <AppNavLink
-          class="px-4"
-          :to="filteredOutPage.to"
-        >
-          {{ filteredOutPage.name }}
-        </AppNavLink>
+        <li class="px-4">
+          <router-link
+            aria-current="page"
+            class="font-semibold text-primary underline"
+            :to="filteredOutPage.to"
+          >
+            {{ filteredOutPage.name }}
+          </router-link>
+        </li>
 
         <li class="px-4">
           <AppDivider />
@@ -122,21 +145,19 @@
 
         <AppNavLink
           v-else-if="'to' in nav"
-          :children="nav.children"
+          :id="nav.to"
           class="px-4"
+          :emphasized="nav.emphasized"
+          :name="nav.name"
           :to="nav.to"
-        >
-          {{ nav.name }}
-        </AppNavLink>
+        />
 
         <AppNavLink
           v-else
-          :children="nav.children"
+          :id="`category-root-${i}`"
           class="px-4"
-          :to="''"
-        >
-          {{ nav.name }}
-        </AppNavLink>
+          :name="nav.name"
+        />
       </template>
 
       <template v-if="selectedLevels.size > 0">
