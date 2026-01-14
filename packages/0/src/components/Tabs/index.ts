@@ -4,7 +4,7 @@ export { default as TabsList } from './TabsList.vue'
 export { default as TabsTab } from './TabsTab.vue'
 export { default as TabsPanel } from './TabsPanel.vue'
 
-export type { TabsActivation, TabsContext, TabsOrientation, TabsRootProps, TabsRootSlotProps } from './TabsRoot.vue'
+export type { TabsActivation, TabsContext, TabsOrientation, TabsRootProps, TabsRootSlotProps, TabsTicket } from './TabsRoot.vue'
 export type { TabsListProps, TabsListSlotProps } from './TabsList.vue'
 export type { TabsTabProps, TabsTabSlotProps } from './TabsTab.vue'
 export type { TabsPanelProps, TabsPanelSlotProps } from './TabsPanel.vue'

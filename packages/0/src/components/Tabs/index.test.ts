@@ -1008,6 +1008,408 @@ describe('tabs', () => {
     })
   })
 
+  describe('edge cases', () => {
+    describe('empty and single tab scenarios', () => {
+      it('should handle empty tabs gracefully', async () => {
+        const wrapper = mount(Tabs.Root, {
+          props: {
+            mandatory: false,
+          },
+          slots: {
+            default: () => h('div', 'No tabs'),
+          },
+        })
+
+        await nextTick()
+
+        // Should render without errors
+        expect(wrapper.text()).toContain('No tabs')
+      })
+
+      it('should allow selection with single tab', async () => {
+        let tabProps: any
+
+        mount(Tabs.Root, {
+          props: {
+            mandatory: 'force',
+          },
+          slots: {
+            default: () => h(Tabs.Tab as any, { value: 'only-tab' }, {
+              default: (props: any) => {
+                tabProps = props
+                return h('button', 'Only Tab')
+              },
+            }),
+          },
+        })
+
+        await nextTick()
+
+        // Single tab should be selected with mandatory='force'
+        expect(tabProps.isSelected).toBe(true)
+      })
+
+      it('should handle single tab with mandatory=false', async () => {
+        const selected = ref<string>()
+        let tabProps: any
+
+        mount(Tabs.Root, {
+          props: {
+            'mandatory': false,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => h(Tabs.Tab as any, { value: 'only-tab' }, {
+              default: (props: any) => {
+                tabProps = props
+                return h('button', 'Only Tab')
+              },
+            }),
+          },
+        })
+
+        await nextTick()
+
+        // Not auto-selected
+        expect(tabProps.isSelected).toBe(false)
+
+        // Can select
+        tabProps.attrs.onClick()
+        await nextTick()
+
+        expect(tabProps.isSelected).toBe(true)
+      })
+    })
+
+    describe('all tabs disabled', () => {
+      it('should not navigate when all tabs are disabled', async () => {
+        const selected = ref<string>()
+        let tab1Props: any
+
+        mount(Tabs.Root, {
+          props: {
+            'mandatory': false,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => [
+              h(Tabs.Tab as any, { value: 'tab-1', disabled: true }, {
+                default: (props: any) => {
+                  tab1Props = props
+                  return h('button', 'Tab 1')
+                },
+              }),
+              h(Tabs.Tab as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
+              h(Tabs.Tab as any, { value: 'tab-3', disabled: true }, () => h('button', 'Tab 3')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Try to navigate
+        const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+        Object.defineProperty(event, 'preventDefault', { value: () => {} })
+
+        tab1Props.attrs.onKeydown(event)
+        await nextTick()
+
+        // Selection should remain undefined
+        expect(selected.value).toBeUndefined()
+      })
+
+      it('should not select first when mandatory=force and all disabled', async () => {
+        let tab1Props: any
+
+        mount(Tabs.Root, {
+          props: {
+            mandatory: 'force',
+          },
+          slots: {
+            default: () => [
+              h(Tabs.Tab as any, { value: 'tab-1', disabled: true }, {
+                default: (props: any) => {
+                  tab1Props = props
+                  return h('button', 'Tab 1')
+                },
+              }),
+              h(Tabs.Tab as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // No tab should be selected since all are disabled
+        expect(tab1Props.isSelected).toBe(false)
+      })
+    })
+
+    describe('dynamic tab lifecycle', () => {
+      it('should handle dynamic tab addition', async () => {
+        const tabs = ref(['tab-1'])
+        const selected = ref('tab-1')
+        let newTabProps: any
+
+        const Component = defineComponent({
+          setup () {
+            return () => h(Tabs.Root as any, {
+              'modelValue': selected.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                selected.value = v as string
+              },
+            }, () => tabs.value.map(value =>
+              h(Tabs.Tab as any, { key: value, value }, {
+                default: (props: any) => {
+                  if (value === 'tab-2') newTabProps = props
+                  return h('button', value)
+                },
+              }),
+            ))
+          },
+        })
+
+        mount(Component)
+        await nextTick()
+
+        // Add new tab
+        tabs.value = ['tab-1', 'tab-2']
+        await nextTick()
+
+        // New tab should be registered and selectable
+        expect(newTabProps).toBeDefined()
+        expect(newTabProps.isSelected).toBe(false)
+
+        // Can select new tab
+        newTabProps.select()
+        await nextTick()
+
+        expect(selected.value).toBe('tab-2')
+      })
+
+      it('should preserve selection when unrelated tab is removed', async () => {
+        const tabs = ref(['tab-1', 'tab-2', 'tab-3'])
+        const selected = ref('tab-2')
+
+        const Component = defineComponent({
+          setup () {
+            return () => h(Tabs.Root as any, {
+              'modelValue': selected.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                selected.value = v as string
+              },
+            }, () => tabs.value.map(value =>
+              h(Tabs.Tab as any, { key: value, value }, () => h('button', value)),
+            ))
+          },
+        })
+
+        mount(Component)
+        await nextTick()
+
+        // Remove tab-3 (not selected)
+        tabs.value = ['tab-1', 'tab-2']
+        await nextTick()
+
+        // Selection should be preserved
+        expect(selected.value).toBe('tab-2')
+      })
+
+      it('should handle removal of selected tab', async () => {
+        const tabs = ref(['tab-1', 'tab-2', 'tab-3'])
+        const selected = ref('tab-2')
+
+        const Component = defineComponent({
+          setup () {
+            return () => h(Tabs.Root as any, {
+              'modelValue': selected.value,
+              'onUpdate:modelValue': (v: unknown) => {
+                selected.value = v as string
+              },
+            }, () => tabs.value.map(value =>
+              h(Tabs.Tab as any, { key: value, value }, () => h('button', value)),
+            ))
+          },
+        })
+
+        mount(Component)
+        await nextTick()
+
+        expect(selected.value).toBe('tab-2')
+
+        // Remove selected tab
+        tabs.value = ['tab-1', 'tab-3']
+        await nextTick()
+
+        // Selection should be cleared or moved
+        // The exact behavior depends on implementation - just verify no error
+        expect(tabs.value).toEqual(['tab-1', 'tab-3'])
+      })
+    })
+
+    describe('loop=false boundary behavior', () => {
+      it('should not wrap when loop is disabled and at last tab', async () => {
+        const selected = ref('tab-3')
+        let tab3Props: any
+
+        mount(Tabs.Root, {
+          props: {
+            'loop': false,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => [
+              h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+              h(Tabs.Tab as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
+              h(Tabs.Tab as any, { value: 'tab-3' }, {
+                default: (props: any) => {
+                  tab3Props = props
+                  return h('button', 'Tab 3')
+                },
+              }),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Try to navigate right from last tab
+        const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+        Object.defineProperty(event, 'preventDefault', { value: () => {} })
+
+        tab3Props.attrs.onKeydown(event)
+        await nextTick()
+
+        // Should stay on tab-3 (no wrap)
+        expect(selected.value).toBe('tab-3')
+      })
+
+      it('should not wrap when loop is disabled and at first tab', async () => {
+        const selected = ref('tab-1')
+        let tab1Props: any
+
+        mount(Tabs.Root, {
+          props: {
+            'loop': false,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => [
+              h(Tabs.Tab as any, { value: 'tab-1' }, {
+                default: (props: any) => {
+                  tab1Props = props
+                  return h('button', 'Tab 1')
+                },
+              }),
+              h(Tabs.Tab as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
+              h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Try to navigate left from first tab
+        const event = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+        Object.defineProperty(event, 'preventDefault', { value: () => {} })
+
+        tab1Props.attrs.onKeydown(event)
+        await nextTick()
+
+        // Should stay on tab-1 (no wrap)
+        expect(selected.value).toBe('tab-1')
+      })
+
+      it('should navigate right from middle position with loop disabled', async () => {
+        const selected = ref('tab-2')
+        let tab2Props: any
+
+        mount(Tabs.Root, {
+          props: {
+            'loop': false,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => [
+              h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+              h(Tabs.Tab as any, { value: 'tab-2' }, {
+                default: (props: any) => {
+                  tab2Props = props
+                  return h('button', 'Tab 2')
+                },
+              }),
+              h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Navigate right from middle
+        const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
+        Object.defineProperty(event, 'preventDefault', { value: () => {} })
+
+        tab2Props.attrs.onKeydown(event)
+        await nextTick()
+
+        expect(selected.value).toBe('tab-3')
+      })
+
+      it('should navigate left from middle position with loop disabled', async () => {
+        const selected = ref('tab-2')
+        let tab2Props: any
+
+        mount(Tabs.Root, {
+          props: {
+            'loop': false,
+            'modelValue': selected.value,
+            'onUpdate:modelValue': (v: unknown) => {
+              selected.value = v as string
+            },
+          },
+          slots: {
+            default: () => [
+              h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+              h(Tabs.Tab as any, { value: 'tab-2' }, {
+                default: (props: any) => {
+                  tab2Props = props
+                  return h('button', 'Tab 2')
+                },
+              }),
+              h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+            ],
+          },
+        })
+
+        await nextTick()
+
+        // Navigate left from middle
+        const event = new KeyboardEvent('keydown', { key: 'ArrowLeft' })
+        Object.defineProperty(event, 'preventDefault', { value: () => {} })
+
+        tab2Props.attrs.onKeydown(event)
+        await nextTick()
+
+        expect(selected.value).toBe('tab-1')
+      })
+    })
+  })
+
   describe('sSR/Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({

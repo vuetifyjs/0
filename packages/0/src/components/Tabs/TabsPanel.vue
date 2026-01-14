@@ -65,15 +65,13 @@
 
   const tabs = useTabsRoot(namespace)
 
-  // Find the ticket that matches this panel's value (O(1) lookup)
+  // Find the ticket that matches this panel's value
   const ticket = toRef(() => {
-    // Try value-based lookup first
     const ids = tabs.browse(value)
     if (ids && ids.length > 0) {
       return tabs.get(ids[0]!) ?? null
     }
-    // Fall back to ID-based lookup (for valueIsIndex cases)
-    return tabs.get(value as string | number) ?? null
+    return null
   })
 
   const isSelected = toRef(() => {

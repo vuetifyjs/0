@@ -24,10 +24,10 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { nextTick, onBeforeUnmount, toRef, toValue } from 'vue'
+  import { nextTick, onUnmounted, toRef, toValue, useTemplateRef } from 'vue'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { MaybeRef } from 'vue'
 
   export interface TabsTabProps<V = unknown> extends AtomProps {
@@ -70,6 +70,8 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
+  const rootRef = useTemplateRef<AtomExpose>('root')
+
   defineOptions({ name: 'TabsTab' })
 
   defineSlots<{
@@ -86,23 +88,27 @@
   } = defineProps<TabsTabProps<V>>()
 
   const tabs = useTabsRoot(namespace)
-  const ticket = tabs.register({ id, value, disabled })
+
+  // Vue auto-unwraps exposed refs when accessed via template ref,
+  // but TypeScript doesn't reflect this - cast corrects the type
+  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
+  const ticket = tabs.register({ id, value, disabled, el })
 
   const isDisabled = toRef(() => toValue(ticket.disabled) || toValue(tabs.disabled))
 
   const tabId = toRef(() => `${tabs.rootId}-tab-${ticket.id}`)
   const panelId = toRef(() => `${tabs.rootId}-panel-${ticket.id}`)
 
-  onBeforeUnmount(() => {
+  onUnmounted(() => {
     tabs.unregister(ticket.id)
   })
 
-  function focusSelectedTab (currentTarget: EventTarget | null) {
+  function focusSelectedTab () {
     nextTick(() => {
-      const current = currentTarget as HTMLElement | null
-      const tablist = current?.closest('[role="tablist"]')
-      const selectedTab = tablist?.querySelector('[role="tab"][aria-selected="true"]') as HTMLElement | null
-      selectedTab?.focus()
+      const selected = tabs.selectedItem.value
+      if (selected) {
+        toValue(selected.el)?.focus()
+      }
     })
   }
 
@@ -117,7 +123,7 @@
     ) {
       e.preventDefault()
       tabs.next()
-      focusSelectedTab(e.currentTarget)
+      focusSelectedTab()
       return
     }
 
@@ -127,7 +133,7 @@
     ) {
       e.preventDefault()
       tabs.prev()
-      focusSelectedTab(e.currentTarget)
+      focusSelectedTab()
       return
     }
 
@@ -135,14 +141,14 @@
     if (e.key === 'Home') {
       e.preventDefault()
       tabs.first()
-      focusSelectedTab(e.currentTarget)
+      focusSelectedTab()
       return
     }
 
     if (e.key === 'End') {
       e.preventDefault()
       tabs.last()
-      focusSelectedTab(e.currentTarget)
+      focusSelectedTab()
       return
     }
 
@@ -191,6 +197,7 @@
 
 <template>
   <Atom
+    ref="root"
     v-bind="slotProps.attrs"
     :as
     :renderless

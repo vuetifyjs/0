@@ -14,9 +14,15 @@
   // Types
   import type { StepContext, StepTicket } from '#v0/composables/createStep'
   import type { ID } from '#v0/types'
-  import type { Ref } from 'vue'
+  import type { MaybeRef, Ref } from 'vue'
 
   export type TabsOrientation = 'horizontal' | 'vertical'
+
+  /** Ticket for tab items with element reference for focus management */
+  export interface TabsTicket extends StepTicket {
+    /** Element reference for roving tabindex focus management */
+    el?: MaybeRef<HTMLElement | null | undefined>
+  }
   export type TabsActivation = 'automatic' | 'manual'
 
   export interface TabsRootProps {
@@ -74,7 +80,7 @@
     }
   }
 
-  export interface TabsContext extends StepContext<StepTicket> {
+  export interface TabsContext extends StepContext<TabsTicket> {
     /** Tab orientation */
     orientation: Readonly<Ref<TabsOrientation>>
     /** Activation mode */
