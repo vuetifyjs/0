@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { LaunchDarklyFeatureAdapter } from './launchdarkly'
+import { LaunchDarklyFeatureAdapter } from '.'
 
 describe('launchDarklyFeatureAdapter', () => {
   it('should sync flags from LaunchDarkly', () => {

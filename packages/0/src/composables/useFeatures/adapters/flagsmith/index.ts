@@ -1,7 +1,7 @@
 import flagsmith from 'flagsmith'
 
 // Types
-import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from './adapter'
+import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { IFlagsmith, IInitConfig } from 'flagsmith'
 
 export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {

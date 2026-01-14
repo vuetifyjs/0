@@ -127,7 +127,10 @@
     "@js-temporal/polyfill",
     "@vuetify/paper",
     "@vuetify/v0",
-    "conventional-changelog-vuetify"
+    "conventional-changelog-vuetify",
+    "flagsmith",
+    "launchdarkly-js-client-sdk",
+    "posthog-js"
   ],
   "ignoreExportsUsedInFile": {
     "interface": true,
