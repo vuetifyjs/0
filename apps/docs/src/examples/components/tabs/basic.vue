@@ -21,7 +21,7 @@
         <Tabs.Item
           v-for="tab in tabs"
           :key="tab.value"
-          class="px-4 py-2 text-sm font-medium transition-colors -mb-px border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:border-divider data-[selected]:border-primary data-[selected]:text-primary"
+          class="px-4 py-2 text-sm font-medium transition-colors -mb-px border-b-2 border-transparent text-on-surface-variant hover:text-on-surface hover:border-divider data-[selected]:border-primary data-[selected]:text-primary data-[selected]:hover:text-primary data-[selected]:hover:border-primary"
           :value="tab.value"
         >
           {{ tab.label }}
