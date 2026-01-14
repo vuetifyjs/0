@@ -54,6 +54,7 @@ For understanding the system architecture.
 | [Components](/guide/fundamentals/components) | Component categories, Atom primitive, slot props |
 | [Composables](/guide/fundamentals/composables) | Composables vs components, when to use each |
 | [Plugins](/guide/fundamentals/plugins) | Using and creating Vue plugins |
+| [Benchmarks](/guide/fundamentals/benchmarks) | Performance tiers, metrics, minimal reactivity tradeoffs |
 
 ### Track B: Features
 

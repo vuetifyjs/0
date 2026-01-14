@@ -62,6 +62,8 @@ declare module 'vue' {
     DocsCodeActions: typeof import('./components/docs/DocsCodeActions.vue')['default']
     DocsCodeGroup: typeof import('./components/docs/DocsCodeGroup.vue')['default']
     DocsExample: typeof import('./components/docs/DocsExample.vue')['default']
+    DocsFaq: typeof import('./components/docs/DocsFaq.vue')['default']
+    DocsFaqItem: typeof import('./components/docs/DocsFaqItem.vue')['default']
     DocsHeaderAnchor: typeof import('./components/docs/DocsHeaderAnchor.vue')['default']
     DocsLastCommit: typeof import('./components/docs/DocsLastCommit.vue')['default']
     DocsMarkup: typeof import('./components/docs/DocsMarkup.vue')['default']
