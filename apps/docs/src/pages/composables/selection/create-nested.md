@@ -8,7 +8,7 @@ meta:
 features:
   category: Composable
   label: 'E: createNested'
-  github: /composables/useNested/
+  github: /composables/createNested/
   level: 2
 related:
   - /composables/selection/create-group

@@ -1,5 +1,5 @@
 /**
- * @module useNested/strategies
+ * @module createNested/strategies
  *
  * @remarks
  * Open strategies for controlling how nested items expand/collapse.

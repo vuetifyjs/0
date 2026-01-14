@@ -7,7 +7,7 @@ import type { NestedRegistration } from './types'
 // Composables
 import { createNested, multipleOpenStrategy, singleOpenStrategy } from './index'
 
-describe('useNested', () => {
+describe('createNested', () => {
   describe('parent-child relationship management', () => {
     it('should register a root node with no parent', () => {
       const nested = createNested()

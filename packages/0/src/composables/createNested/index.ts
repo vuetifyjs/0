@@ -1,14 +1,14 @@
 /**
- * @module useNested
+ * @module createNested
  *
  * @remarks
- * Hierarchical tree management composable extending useGroup with:
+ * Hierarchical tree management composable extending createGroup with:
  * - Parent-child relationship tracking (children/parents Maps)
  * - Open/close state management
  * - Tree traversal utilities (getPath, getDescendants, etc.)
  * - Pluggable open strategies
  *
- * Inheritance chain: useRegistry → useSelection → useGroup → useNested
+ * Inheritance chain: createRegistry → createSelection → createGroup → createNested
  */
 
 // Factories
