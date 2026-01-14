@@ -32,6 +32,7 @@ const V0_COMPONENTS = new Set([
   'Selection',
   'Single',
   'Step',
+  'Tabs',
 ])
 
 // v0 composables with API entries
