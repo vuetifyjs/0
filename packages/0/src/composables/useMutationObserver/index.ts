@@ -26,7 +26,9 @@ import { isNull } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
+
+export type MaybeRef<T> = T | Ref<T> | Readonly<Ref<T>> | ShallowRef<T> | Readonly<ShallowRef<T>> | (() => T)
 
 export interface MutationObserverRecord {
   type: 'attributes' | 'childList' | 'characterData'
@@ -123,11 +125,12 @@ export interface UseMutationObserverReturn {
  * ```
  */
 export function useMutationObserver (
-  target: Ref<Element | null | undefined>,
+  target: MaybeRef<Element | null | undefined>,
   callback: (entries: MutationObserverRecord[]) => void,
   options: UseMutationObserverOptions = {},
 ): UseMutationObserverReturn {
   const { isHydrated } = useHydration()
+  const targetRef = toRef(target)
   const observer = shallowRef<MutationObserver | null>()
   const isPaused = shallowRef(false)
   const isActive = toRef(() => !!observer.value)
@@ -145,7 +148,7 @@ export function useMutationObserver (
   function setup () {
     // null = permanently stopped, undefined = not yet created
     if (isNull(observer.value)) return
-    if (!isHydrated.value || !SUPPORTS_MUTATION_OBSERVER || !target.value || isPaused.value) return
+    if (!isHydrated.value || !SUPPORTS_MUTATION_OBSERVER || !targetRef.value || isPaused.value) return
 
     observer.value = new MutationObserver(mutations => {
       const transformedEntries: MutationObserverRecord[] = mutations.map(mutation => ({
@@ -167,7 +170,7 @@ export function useMutationObserver (
       }
     })
 
-    observer.value.observe(target.value, observerOptions)
+    observer.value.observe(targetRef.value, observerOptions)
 
     if (options.immediate) {
       const emptyNodeList = {
@@ -179,7 +182,7 @@ export function useMutationObserver (
 
       const syntheticEntry: MutationObserverRecord = {
         type: 'childList',
-        target: target.value,
+        target: targetRef.value,
         addedNodes: emptyNodeList,
         removedNodes: emptyNodeList,
         previousSibling: null,
@@ -199,7 +202,7 @@ export function useMutationObserver (
 
   // Watch target changes - only cleanup/setup when element actually changes
   watch(
-    () => target.value,
+    () => targetRef.value,
     (el, oldEl) => {
       // Only cleanup if we had a previous element
       if (oldEl) cleanup()
@@ -216,7 +219,7 @@ export function useMutationObserver (
     const stopHydrationWatch = watch(
       () => isHydrated.value,
       hydrated => {
-        if (hydrated && target.value && !observer.value) {
+        if (hydrated && targetRef.value && !observer.value) {
           setup()
           stopHydrationWatch()
         }
