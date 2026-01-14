@@ -8,7 +8,7 @@
  * - Tree traversal utilities (getPath, getDescendants, etc.)
  * - Pluggable open strategies
  *
- * Inheritance chain: createRegistry → createSelection → createGroup → createNested
+ * Inheritance chain: createSelection → createGroup → createNested
  */
 
 // Factories
@@ -106,19 +106,19 @@ export function createNested<
     return new Set(
       Array.from(openedIds)
         .map(id => group.get(id))
-        .filter((item): item is Z => !isUndefined(item)) as Z[],
+        .filter((item): item is Z => !isUndefined(item)),
     )
   })
 
   const roots = computed(() => {
-    return group.values().filter(item => isUndefined(parents.get(item.id))) as Z[]
+    return group.values().filter(item => isUndefined(parents.get(item.id)))
   })
 
   const leaves = computed(() => {
     return group.values().filter(item => {
       const childList = children.get(item.id)
       return isUndefined(childList) || childList.length === 0
-    }) as Z[]
+    })
   })
 
   // Open state methods
@@ -370,6 +370,7 @@ export function createNested<
       } else {
         // Orphan children by setting their parent to undefined
         for (const cid of list) {
+          openedIds.delete(cid)
           parents.set(cid, undefined)
         }
       }

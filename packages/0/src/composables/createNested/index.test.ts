@@ -663,3 +663,57 @@ describe('createNested', () => {
     })
   })
 })
+
+describe('createNestedContext', () => {
+  it('should create context trinity with default namespace', async () => {
+    const { createNestedContext } = await import('./index')
+
+    const [useNestedTest, provideNestedTest, defaultNested] = createNestedContext()
+
+    expect(useNestedTest).toBeInstanceOf(Function)
+    expect(provideNestedTest).toBeInstanceOf(Function)
+    expect(defaultNested).toBeDefined()
+    expect(defaultNested.register).toBeInstanceOf(Function)
+  })
+
+  it('should create independent context instances', async () => {
+    const { createNestedContext } = await import('./index')
+
+    const [, , context1] = createNestedContext({ namespace: 'test:nested-1' })
+    const [, , context2] = createNestedContext({ namespace: 'test:nested-2' })
+
+    context1.register({ id: 'node-1', value: 'Node 1' })
+
+    expect(context1.size).toBe(1)
+    expect(context2.size).toBe(0)
+  })
+
+  it('should pass options to nested instance', async () => {
+    const { createNestedContext, singleOpenStrategy } = await import('./index')
+
+    const [, , context] = createNestedContext({
+      namespace: 'test:nested-options',
+      openStrategy: singleOpenStrategy,
+    })
+
+    context.register({ id: 'node-1', value: 'Node 1' })
+    context.register({ id: 'node-2', value: 'Node 2' })
+
+    context.open('node-1')
+    context.open('node-2')
+
+    // Single open strategy should close node-1 when node-2 opens
+    expect(context.opened('node-1')).toBe(false)
+    expect(context.opened('node-2')).toBe(true)
+  })
+})
+
+describe('useNested', () => {
+  it('should throw when context not provided', async () => {
+    const { useNested } = await import('./index')
+
+    expect(() => {
+      useNested('non-existent:namespace')
+    }).toThrow()
+  })
+})

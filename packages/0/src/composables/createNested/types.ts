@@ -38,12 +38,12 @@ export interface NestedTicket<V = unknown> extends GroupTicket<V> {
  * Only exposes the state needed for open/close operations.
  */
 export interface OpenStrategyContext {
-  /** Set of currently opened item IDs */
+  /** Set of currently opened item IDs (mutable for strategy control) */
   openedIds: Reactive<Set<ID>>
-  /** Map of parent IDs to child ID arrays */
-  children: Map<ID, ID[]>
-  /** Map of child IDs to parent IDs */
-  parents: Map<ID, ID | undefined>
+  /** Map of parent IDs to child ID arrays (readonly - use for traversal only) */
+  readonly children: ReadonlyMap<ID, readonly ID[]>
+  /** Map of child IDs to parent IDs (readonly - use for traversal only) */
+  readonly parents: ReadonlyMap<ID, ID | undefined>
 }
 
 /**
@@ -88,12 +88,12 @@ export interface NestedRegistration<V = unknown> {
  * file explorers, and organizational charts.
  */
 export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext<Z>, 'register' | 'onboard' | 'select' | 'unselect' | 'toggle'> {
-  /** Map of parent IDs to arrays of child IDs */
-  children: Map<ID, ID[]>
-  /** Map of child IDs to their parent ID (or undefined for roots) */
-  parents: Map<ID, ID | undefined>
-  /** Reactive Set of opened/expanded item IDs */
-  openedIds: Reactive<Set<ID>>
+  /** Map of parent IDs to arrays of child IDs. Use register/unregister to modify. */
+  readonly children: ReadonlyMap<ID, readonly ID[]>
+  /** Map of child IDs to their parent ID (or undefined for roots). Use register/unregister to modify. */
+  readonly parents: ReadonlyMap<ID, ID | undefined>
+  /** Reactive Set of opened/expanded item IDs. Use open/close/toggleOpen to modify. */
+  readonly openedIds: Reactive<Set<ID>>
   /** Computed Set of opened/expanded item instances */
   openedItems: ComputedRef<Set<Z>>
   /** Open/expand one or more items by ID */
