@@ -419,10 +419,6 @@ importers:
         version: 3.5.24(typescript@5.9.3)
 
   packages/0:
-    dependencies:
-      '@js-temporal/polyfill':
-        specifier: 'catalog:'
-        version: 0.5.1
     devDependencies:
       '@vue/test-utils':
         specifier: 'catalog:'
@@ -445,6 +441,10 @@ importers:
       vue-component-meta:
         specifier: 'catalog:'
         version: 3.2.2(typescript@5.9.3)
+    optionalDependencies:
+      '@js-temporal/polyfill':
+        specifier: 'catalog:'
+        version: 0.5.1
 
   packages/paper:
     dependencies:
