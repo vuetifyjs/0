@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 // Types
 import type { IFlagsmith } from 'flagsmith'
 
-import { FlagsmithFeatureAdapter } from './flagsmith'
+import { FlagsmithFeatureAdapter } from '.'
 const mockFlagsmith = {
   init: vi.fn(),
   getAllFlags: vi.fn(),

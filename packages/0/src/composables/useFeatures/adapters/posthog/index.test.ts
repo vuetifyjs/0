@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { PostHogFeatureAdapter } from './posthog'
+import { PostHogFeatureAdapter } from '.'
 
 describe('postHogFeatureAdapter', () => {
   it('should sync flags from PostHog', () => {

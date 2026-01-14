@@ -1,5 +1,5 @@
 // Types
-import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from './adapter'
+import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { LDClient } from 'launchdarkly-js-client-sdk'
 
 export class LaunchDarklyFeatureAdapter implements FeaturesAdapterInterface {

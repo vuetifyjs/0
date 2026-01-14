@@ -1,5 +1,5 @@
 // Types
-import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from './adapter'
+import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { PostHog } from 'posthog-js'
 
 export class PostHogFeatureAdapter implements FeaturesAdapterInterface {
