@@ -69,8 +69,7 @@
   import { provideCheckboxRoot } from './CheckboxRoot.vue'
 
   // Utilities
-  import { genId } from '#v0/utilities'
-  import { toRef, toValue, useAttrs } from 'vue'
+  import { toRef, toValue, useAttrs, useId } from 'vue'
 
   defineOptions({ name: 'CheckboxSelectAll', inheritAttrs: false })
 
@@ -92,7 +91,7 @@
 
   const group = useCheckboxGroup(groupNamespace)
 
-  const id = genId()
+  const id = useId()
 
   const isAllSelected = toRef(() => group.isAllSelected.value)
   const isMixed = toRef(() => group.isMixed.value)

@@ -318,24 +318,39 @@ export function mergeDeep<T extends object> (target: T, ...sources: DeepPartial<
   return mergeDeep(target, ...sources)
 }
 
+// Utilities
+import { useId as vueUseId } from 'vue'
+
+import { instanceExists } from './instance'
+
+let idCounter = 0
+
 /**
- * Generates a random 7-character alphanumeric ID
+ * Generates a unique ID, using Vue's useId when in component context
  *
- * @returns A random string of 7 characters (a-z, 0-9)
+ * @returns A unique string ID
  *
  * @remarks
- * Uses `Math.random()` converted to base-36. Not cryptographically secure.
- * Suitable for unique keys in UI components, not for security purposes.
+ * - In component setup/lifecycle: Uses Vue's `useId()` for SSR-safe hydration
+ * - Outside components: Falls back to sequential counter (`v0-0`, `v0-1`, ...)
+ * - Vapor mode compatible
  *
  * @example
  * ```ts
- * genId() // 'k7x9m2p'
- * genId() // 'a3b8c1d'
+ * // In component setup - SSR safe
+ * const id = useId() // 'v:0', 'v:1', etc. (Vue's format)
+ *
+ * // Outside component - counter fallback
+ * const id = useId() // 'v0-0', 'v0-1', etc.
  * ```
  */
 /* #__NO_SIDE_EFFECTS__ */
-export function genId (): string {
-  return Math.random().toString(36).slice(2, 9)
+export function useId (): string {
+  if (instanceExists()) {
+    return vueUseId()
+  }
+
+  return `v0-${idCounter++}`
 }
 
 /**

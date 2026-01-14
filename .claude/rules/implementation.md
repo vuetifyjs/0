@@ -16,7 +16,7 @@ Before writing new helpers, check `#v0/utilities`. Use these instead of creating
 | `isObject`, `isArray`, `isNull`, `isUndefined` | Type guards |
 | `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN` | Type guards |
 | `mergeDeep` | Deep object merge with `DeepPartial<T>` |
-| `genId` | Generate random 7-char ID |
+| `useId()` | SSR-safe ID generation |
 | `clamp(value, min, max)` | Clamp number to range |
 | `range(length, start)` | Create sequential number array |
 | `debounce(fn, delay)` | Debounce with `.clear()` and `.immediate()` |
@@ -99,7 +99,7 @@ Uses iterative stack (not recursive) for performance.
 ```ts
 import { ID } from '#v0/types'
 import { useRegistry } from '#v0/composables/useRegistry'
-import { isObject, genId } from '#v0/utilities'
+import { isObject } from '#v0/utilities'
 ```
 
 ## File Organization

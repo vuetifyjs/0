@@ -149,8 +149,7 @@
   import RadioHiddenInput from './RadioHiddenInput.vue'
 
   // Utilities
-  import { genId } from '#v0/utilities'
-  import { onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
+  import { onUnmounted, toRef, toValue, useAttrs, useId, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'RadioRoot', inheritAttrs: false })
 
@@ -178,7 +177,7 @@
   const {
     as = 'button',
     renderless,
-    id = genId(),
+    id = useId(),
     ariaLabelledby,
     ariaDescribedby,
     ariaInvalid,

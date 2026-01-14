@@ -43,7 +43,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { toRef, toValue, useId } from 'vue'
+  import { toRef, useId } from 'vue'
 
   defineOptions({ name: 'PopoverRoot' })
 
@@ -51,11 +51,11 @@
     default: (props: PopoverRootSlotProps) => any
   }>()
 
-  const { as = null, ...props } = defineProps<PopoverRootProps>()
+  const { as = null, id: _id } = defineProps<PopoverRootProps>()
 
   const isSelected = defineModel<boolean>({ default: false })
 
-  const id = toRef(() => props.id ?? useId())
+  const id = _id ?? useId()
 
   function toggle () {
     isSelected.value = !isSelected.value
@@ -64,11 +64,11 @@
   providePopoverContext({
     isSelected,
     toggle,
-    id: toValue(id),
+    id,
   })
 
   const slotProps = toRef((): PopoverRootSlotProps => ({
-    id: toValue(id),
+    id,
     isSelected: isSelected.value,
     toggle,
   }))

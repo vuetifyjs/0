@@ -49,7 +49,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { toRef, toValue, useId } from 'vue'
+  import { toRef, useId } from 'vue'
 
   defineOptions({ name: 'DialogRoot' })
 
@@ -64,14 +64,14 @@
   const {
     as = null,
     namespace = 'v0:dialog',
-    ...props
+    id: _id,
   } = defineProps<DialogRootProps>()
 
   const isOpen = defineModel<boolean>({ default: false })
 
-  const id = toRef(() => props.id ?? useId())
-  const titleId = toRef(() => `${toValue(id)}-title`)
-  const descriptionId = toRef(() => `${toValue(id)}-description`)
+  const id = _id ?? useId()
+  const titleId = `${id}-title`
+  const descriptionId = `${id}-description`
 
   function open () {
     isOpen.value = true
@@ -83,15 +83,15 @@
 
   provideDialogContext(namespace, {
     isOpen,
-    id: toValue(id),
-    titleId: toValue(titleId),
-    descriptionId: toValue(descriptionId),
+    id,
+    titleId,
+    descriptionId,
     open,
     close,
   })
 
   const slotProps = toRef((): DialogRootSlotProps => ({
-    id: toValue(id),
+    id,
     isOpen: isOpen.value,
     open,
     close,

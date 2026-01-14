@@ -129,8 +129,7 @@
   import CheckboxHiddenInput from './CheckboxHiddenInput.vue'
 
   // Utilities
-  import { genId } from '#v0/utilities'
-  import { onUnmounted, toRef, toValue, useAttrs } from 'vue'
+  import { onUnmounted, toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
@@ -150,7 +149,7 @@
   const {
     as = 'button',
     renderless,
-    id = genId(),
+    id = useId(),
     ariaLabelledby,
     ariaDescribedby,
     ariaInvalid,
