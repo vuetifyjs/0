@@ -40,7 +40,7 @@
      */
     mandatory?: boolean | 'force'
     /** Whether arrow key navigation wraps around */
-    loop?: boolean
+    circular?: boolean
     /** Tab orientation for keyboard navigation */
     orientation?: TabsOrientation
     /**
@@ -85,8 +85,8 @@
     orientation: Ref<TabsOrientation>
     /** Activation mode */
     activation: Ref<TabsActivation>
-    /** Whether navigation loops */
-    loop: Ref<boolean>
+    /** Whether navigation wraps around */
+    circular: Ref<boolean>
     /** Root ID for generating tab/panel IDs */
     rootId: string
   }
@@ -118,7 +118,7 @@
     disabled = false,
     enroll = false,
     mandatory = 'force',
-    loop = true,
+    circular = true,
     orientation = 'horizontal',
     activation = 'automatic',
   } = defineProps<TabsRootProps>()
@@ -131,7 +131,7 @@
     disabled: toRef(() => disabled),
     enroll,
     mandatory,
-    circular: loop,
+    circular,
     events: true,
   })
 
@@ -141,7 +141,7 @@
     ...step,
     orientation: toRef(() => orientation),
     activation: toRef(() => activation),
-    loop: toRef(() => loop),
+    circular: toRef(() => circular),
     rootId,
   }
 

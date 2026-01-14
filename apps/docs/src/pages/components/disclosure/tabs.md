@@ -95,13 +95,13 @@ Support for both horizontal and vertical tab layouts:
 </template>
 ```
 
-### Loop Navigation
+### Circular Navigation
 
 Control whether navigation wraps around at boundaries:
 
 ```vue
 <template>
-  <Tabs.Root :loop="false">
+  <Tabs.Root :circular="false">
     <!-- Navigation stops at first/last tab -->
   </Tabs.Root>
 </template>

@@ -711,7 +711,7 @@ describe('tabs', () => {
       expect(selected.value).toBe('tab-3')
     })
 
-    it('should wrap navigation when loop is enabled (default)', async () => {
+    it('should wrap navigation when circular is enabled (default)', async () => {
       const { selected, tab3Props } = await setupTabs()
 
       // Select last tab
@@ -914,7 +914,7 @@ describe('tabs', () => {
 
       mount(Tabs.Root, {
         props: {
-          'loop': true,
+          'circular': true,
           'modelValue': selected.value,
           'onUpdate:modelValue': (value: unknown) => {
             selected.value = value as string
@@ -936,14 +936,14 @@ describe('tabs', () => {
 
       await nextTick()
 
-      // When loop is true and at the last tab, right arrow should wrap to first
+      // When circular is true and at the last tab, right arrow should wrap to first
       const event = new KeyboardEvent('keydown', { key: 'ArrowRight' })
       Object.defineProperty(event, 'preventDefault', { value: () => {} })
 
       tab3Props.attrs.onKeydown(event)
       await nextTick()
 
-      // The context's loop property enables this wrapping behavior
+      // The context's circular property enables this wrapping behavior
       expect(selected.value).toBe('tab-1')
     })
 
@@ -1253,14 +1253,14 @@ describe('tabs', () => {
       })
     })
 
-    describe('loop=false boundary behavior', () => {
-      it('should not wrap when loop is disabled and at last tab', async () => {
+    describe('circular=false boundary behavior', () => {
+      it('should not wrap when circular is disabled and at last tab', async () => {
         const selected = ref('tab-3')
         let tab3Props: any
 
         mount(Tabs.Root, {
           props: {
-            'loop': false,
+            'circular': false,
             'modelValue': selected.value,
             'onUpdate:modelValue': (v: unknown) => {
               selected.value = v as string
@@ -1293,13 +1293,13 @@ describe('tabs', () => {
         expect(selected.value).toBe('tab-3')
       })
 
-      it('should not wrap when loop is disabled and at first tab', async () => {
+      it('should not wrap when circular is disabled and at first tab', async () => {
         const selected = ref('tab-1')
         let tab1Props: any
 
         mount(Tabs.Root, {
           props: {
-            'loop': false,
+            'circular': false,
             'modelValue': selected.value,
             'onUpdate:modelValue': (v: unknown) => {
               selected.value = v as string
@@ -1338,7 +1338,7 @@ describe('tabs', () => {
 
         mount(Tabs.Root, {
           props: {
-            'loop': false,
+            'circular': false,
             'modelValue': selected.value,
             'onUpdate:modelValue': (v: unknown) => {
               selected.value = v as string
@@ -1376,7 +1376,7 @@ describe('tabs', () => {
 
         mount(Tabs.Root, {
           props: {
-            'loop': false,
+            'circular': false,
             'modelValue': selected.value,
             'onUpdate:modelValue': (v: unknown) => {
               selected.value = v as string
