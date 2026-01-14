@@ -28,7 +28,7 @@ import { createSelection } from '#v0/composables/createSelection'
 import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
-import { genId, isUndefined } from '#v0/utilities'
+import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Transformers
@@ -227,7 +227,7 @@ export function createGroup<
   }
 
   function register (registration: Partial<Z> = {}): Z {
-    const id = registration.id ?? genId()
+    const id = registration.id ?? useId()
     const item: Partial<Z> = {
       ...registration,
       id,

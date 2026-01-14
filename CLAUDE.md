@@ -14,7 +14,7 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 | `isObject`, `isArray`, `isNull`, `isUndefined` | Type guards |
 | `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN` | Type guards |
 | `mergeDeep(target, ...sources)` | Deep merge with `DeepPartial<T>` |
-| `genId()` | Random 7-char alphanumeric ID |
+| `useId()` | SSR-safe ID (Vue's useId in components, counter fallback) |
 | `clamp(value, min, max)` | Clamp number to range |
 | `range(length, start)` | Create sequential number array |
 | `debounce(fn, delay)` | Debounce with `.clear()` and `.immediate()` |
@@ -49,7 +49,7 @@ Always use `#v0/` for package imports, never relative paths:
 
 ```ts
 import { ID } from '#v0/types'
-import { isObject, genId } from '#v0/utilities'
+import { isObject } from '#v0/utilities'
 import { IN_BROWSER } from '#v0/constants/globals'
 import { createRegistry } from '#v0/composables'
 ```

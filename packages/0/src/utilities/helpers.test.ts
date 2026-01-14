@@ -15,10 +15,10 @@ import {
   isSymbol,
   isNaN,
   mergeDeep,
-  genId,
   clamp,
   range,
   debounce,
+  useId,
 } from './helpers'
 
 describe('helpers', () => {
@@ -395,26 +395,6 @@ describe('helpers', () => {
     })
   })
 
-  describe('genId', () => {
-    it('should return a string', () => {
-      expect(typeof genId()).toBe('string')
-    })
-
-    it('should return a 7-character string', () => {
-      expect(genId()).toHaveLength(7)
-    })
-
-    it('should only contain alphanumeric characters', () => {
-      const id = genId()
-      expect(id).toMatch(/^[a-z0-9]+$/)
-    })
-
-    it('should generate unique IDs', () => {
-      const ids = new Set(Array.from({ length: 100 }, () => genId()))
-      expect(ids.size).toBe(100)
-    })
-  })
-
   describe('clamp', () => {
     it('should return value when within range', () => {
       expect(clamp(5, 0, 10)).toBe(5)
@@ -593,6 +573,27 @@ describe('helpers', () => {
         expect(fn).toHaveBeenCalledTimes(1)
         expect(fn).toHaveBeenCalledWith('immediate')
       })
+    })
+  })
+
+  describe('useId', () => {
+    it('should return a string', () => {
+      expect(typeof useId()).toBe('string')
+    })
+
+    it('should return sequential IDs outside component context', () => {
+      const id1 = useId()
+      const id2 = useId()
+      const id3 = useId()
+
+      expect(id1).toMatch(/^v0-\d+$/)
+      expect(id2).toMatch(/^v0-\d+$/)
+      expect(id3).toMatch(/^v0-\d+$/)
+    })
+
+    it('should generate unique IDs', () => {
+      const ids = new Set(Array.from({ length: 100 }, () => useId()))
+      expect(ids.size).toBe(100)
     })
   })
 })

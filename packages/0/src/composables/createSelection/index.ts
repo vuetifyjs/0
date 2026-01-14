@@ -22,7 +22,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { genId, isUndefined } from '#v0/utilities'
+import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Types
@@ -205,7 +205,7 @@ export function createSelection<
   }
 
   function register (registration: Partial<Z> = {}): Z {
-    const id = registration.id ?? genId()
+    const id = registration.id ?? useId()
     const item: Partial<Z> = {
       disabled: false,
       select: () => select(id),

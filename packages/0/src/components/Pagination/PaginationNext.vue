@@ -15,8 +15,7 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { genId } from '#v0/utilities'
-  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useId, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -61,7 +60,7 @@
     renderless,
     namespace = 'v0:pagination',
     disabled,
-    id = genId(),
+    id = useId(),
   } = defineProps<PaginationNextProps>()
 
   const locale = useLocale()

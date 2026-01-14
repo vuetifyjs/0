@@ -22,7 +22,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { createRegistry } from '#v0/composables/createRegistry'
 
 // Utilities
-import { genId, isUndefined } from '#v0/utilities'
+import { isUndefined, useId } from '#v0/utilities'
 import { onScopeDispose } from 'vue'
 
 // Types
@@ -302,7 +302,7 @@ export function createQueue<
   }
 
   function register (registration: Partial<Z> = {}): Z {
-    const id = registration.id ?? genId()
+    const id = registration.id ?? useId()
     const hasExplicitTimeout = Object.prototype.hasOwnProperty.call(registration, 'timeout')
     const timeout = hasExplicitTimeout ? registration.timeout : _timeout
 
