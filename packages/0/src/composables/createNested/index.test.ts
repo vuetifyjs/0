@@ -286,10 +286,10 @@ describe('createNested', () => {
 
       nested.register({ id: 'node', value: 'Node' })
 
-      nested.toggleOpen('node')
+      nested.flip('node')
       expect(nested.opened('node')).toBe(true)
 
-      nested.toggleOpen('node')
+      nested.flip('node')
       expect(nested.opened('node')).toBe(false)
     })
 
@@ -322,7 +322,7 @@ describe('createNested', () => {
       ticket.close()
       expect(nested.opened('node')).toBe(false)
 
-      ticket.toggleOpen()
+      ticket.flip()
       expect(nested.opened('node')).toBe(true)
     })
   })
@@ -463,7 +463,186 @@ describe('createNested', () => {
     })
   })
 
-  describe('open strategies', () => {
+  describe('open option', () => {
+    it('should allow multiple nodes open with open: multiple (default)', () => {
+      const nested = createNested({ open: 'multiple' })
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+
+      nested.open('node-1')
+      nested.open('node-2')
+
+      expect(nested.opened('node-1')).toBe(true)
+      expect(nested.opened('node-2')).toBe(true)
+    })
+
+    it('should close others with open: single (accordion)', () => {
+      const nested = createNested({ open: 'single' })
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+
+      nested.open('node-1')
+      expect(nested.opened('node-1')).toBe(true)
+
+      nested.open('node-2')
+      expect(nested.opened('node-1')).toBe(false)
+      expect(nested.opened('node-2')).toBe(true)
+    })
+
+    it('should default to multiple when no option provided', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+
+      nested.open('node-1')
+      nested.open('node-2')
+
+      expect(nested.opened('node-1')).toBe(true)
+      expect(nested.opened('node-2')).toBe(true)
+    })
+  })
+
+  describe('selection option', () => {
+    describe('selection: cascade (default)', () => {
+      it('should select all descendants when selecting parent', () => {
+        const nested = createNested({ selection: 'cascade' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+        nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+        nested.select('root')
+
+        expect(nested.selected('root')).toBe(true)
+        expect(nested.selected('child-1')).toBe(true)
+        expect(nested.selected('child-2')).toBe(true)
+      })
+
+      it('should set parent to mixed when some children selected', () => {
+        const nested = createNested({ selection: 'cascade' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+        nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+        nested.select('child-1')
+
+        expect(nested.selected('child-1')).toBe(true)
+        expect(nested.mixed('root')).toBe(true)
+      })
+    })
+
+    describe('selection: independent', () => {
+      it('should only select the targeted node', () => {
+        const nested = createNested({ selection: 'independent' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+        nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+        nested.select('root')
+
+        expect(nested.selected('root')).toBe(true)
+        expect(nested.selected('child-1')).toBe(false)
+        expect(nested.selected('child-2')).toBe(false)
+      })
+
+      it('should not affect parent when selecting child', () => {
+        const nested = createNested({ selection: 'independent' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+        nested.select('child')
+
+        expect(nested.selected('child')).toBe(true)
+        expect(nested.selected('root')).toBe(false)
+        expect(nested.mixed('root')).toBe(false)
+      })
+
+      it('should toggle independently', () => {
+        const nested = createNested({ selection: 'independent' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+        nested.toggle('root')
+        expect(nested.selected('root')).toBe(true)
+        expect(nested.selected('child')).toBe(false)
+
+        nested.toggle('root')
+        expect(nested.selected('root')).toBe(false)
+      })
+    })
+
+    describe('selection: leaf', () => {
+      it('should only select leaf nodes directly', () => {
+        const nested = createNested({ selection: 'leaf' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+        nested.select('child')
+
+        expect(nested.selected('child')).toBe(true)
+      })
+
+      it('should select all leaf descendants when selecting parent', () => {
+        const nested = createNested({ selection: 'leaf' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'branch', value: 'Branch', parentId: 'root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'branch' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'branch' })
+
+        nested.select('root')
+
+        // Parent nodes should NOT be selected
+        expect(nested.selected('root')).toBe(false)
+        expect(nested.selected('branch')).toBe(false)
+        // Leaf nodes SHOULD be selected
+        expect(nested.selected('leaf-1')).toBe(true)
+        expect(nested.selected('leaf-2')).toBe(true)
+      })
+
+      it('should unselect all leaf descendants when unselecting parent', () => {
+        const nested = createNested({ selection: 'leaf' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+        nested.select('root')
+        expect(nested.selected('leaf-1')).toBe(true)
+        expect(nested.selected('leaf-2')).toBe(true)
+
+        nested.unselect('root')
+        expect(nested.selected('leaf-1')).toBe(false)
+        expect(nested.selected('leaf-2')).toBe(false)
+      })
+
+      it('should toggle all leaf descendants when toggling parent', () => {
+        const nested = createNested({ selection: 'leaf' })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'leaf-1', value: 'Leaf 1', parentId: 'root' })
+        nested.register({ id: 'leaf-2', value: 'Leaf 2', parentId: 'root' })
+
+        nested.toggle('root')
+        expect(nested.selected('leaf-1')).toBe(true)
+        expect(nested.selected('leaf-2')).toBe(true)
+
+        nested.toggle('root')
+        expect(nested.selected('leaf-1')).toBe(false)
+        expect(nested.selected('leaf-2')).toBe(false)
+      })
+    })
+  })
+
+  describe('open strategies (deprecated)', () => {
     it('should allow multiple nodes open with multipleOpenStrategy', () => {
       const nested = createNested({ openStrategy: multipleOpenStrategy })
 
@@ -487,6 +666,23 @@ describe('createNested', () => {
       expect(nested.opened('node-1')).toBe(true)
 
       nested.open('node-2')
+      expect(nested.opened('node-1')).toBe(false)
+      expect(nested.opened('node-2')).toBe(true)
+    })
+
+    it('should prioritize openStrategy over open option', () => {
+      const nested = createNested({
+        open: 'multiple',
+        openStrategy: singleOpenStrategy,
+      })
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+
+      nested.open('node-1')
+      nested.open('node-2')
+
+      // singleOpenStrategy should take precedence
       expect(nested.opened('node-1')).toBe(false)
       expect(nested.opened('node-2')).toBe(true)
     })
@@ -660,6 +856,160 @@ describe('createNested', () => {
       expect(nested.selected('child-1')).toBe(false)
       expect(nested.selected('child-2')).toBe(false)
       expect(nested.mixed('root')).toBe(false)
+    })
+  })
+})
+
+describe('edge cases', () => {
+  describe('empty tree', () => {
+    it('should return empty roots and leaves on empty tree', () => {
+      const nested = createNested()
+
+      expect(nested.roots.value).toEqual([])
+      expect(nested.leaves.value).toEqual([])
+    })
+
+    it('should return empty array for getDescendants on non-existent node', () => {
+      const nested = createNested()
+
+      expect(nested.getDescendants('non-existent')).toEqual([])
+    })
+
+    it('should return path containing only the ID for non-existent node', () => {
+      const nested = createNested()
+
+      // getPath walks parents map; for unknown ID, parents.get returns undefined
+      // so path is just [id] - this documents current behavior
+      expect(nested.getPath('non-existent')).toEqual(['non-existent'])
+    })
+  })
+
+  describe('validation in open/close/flip', () => {
+    it('should not call strategy for non-existent IDs on open', () => {
+      const onOpenSpy = vi.fn()
+      const nested = createNested({
+        openStrategy: { onOpen: onOpenSpy },
+      })
+
+      nested.open('non-existent')
+
+      expect(onOpenSpy).not.toHaveBeenCalled()
+    })
+
+    it('should not call strategy for non-existent IDs on close', () => {
+      const onCloseSpy = vi.fn()
+      const nested = createNested({
+        openStrategy: { onClose: onCloseSpy },
+      })
+
+      nested.close('non-existent')
+
+      expect(onCloseSpy).not.toHaveBeenCalled()
+    })
+
+    it('should skip non-existent IDs in flip', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'node', value: 'Node' })
+
+      // Should not throw, just skip non-existent
+      nested.flip(['node', 'non-existent'])
+
+      expect(nested.opened('node')).toBe(true)
+    })
+  })
+
+  describe('memory leak prevention', () => {
+    it('should clear open state for all descendants when orphaning', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'root', value: 'Root' })
+      nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+      nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+      nested.open(['root', 'child', 'grandchild'])
+      expect(nested.openedIds.size).toBe(3)
+
+      // Orphan children (cascade=false is default)
+      nested.unregister('root')
+
+      // All descendants should have open state cleared
+      expect(nested.openedIds.has('root')).toBe(false)
+      expect(nested.openedIds.has('child')).toBe(false)
+      expect(nested.openedIds.has('grandchild')).toBe(false)
+    })
+
+    it('should orphan children correctly without memory leak', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'root', value: 'Root' })
+      nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+      nested.register({ id: 'grandchild', value: 'Grandchild', parentId: 'child' })
+
+      nested.unregister('child')
+
+      // grandchild should be orphaned (parent undefined)
+      expect(nested.parents.get('grandchild')).toBeUndefined()
+      // grandchild should still exist
+      expect(nested.has('grandchild')).toBe(true)
+    })
+  })
+
+  describe('cascading selection edge cases', () => {
+    it('should not affect state when selecting non-existent node', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'root', value: 'Root' })
+      nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+      nested.select('non-existent')
+
+      expect(nested.selectedIds.size).toBe(0)
+      expect(nested.mixed('root')).toBe(false)
+    })
+
+    it('should handle selection after orphaning', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'root', value: 'Root' })
+      nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+
+      nested.select('child')
+      expect(nested.selected('child')).toBe(true)
+
+      // Orphan child
+      nested.unregister('root')
+
+      // Selection should persist on orphaned node
+      expect(nested.selected('child')).toBe(true)
+    })
+  })
+
+  describe('offboard edge cases', () => {
+    it('should handle offboard with non-existent IDs', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'root', value: 'Root' })
+
+      // Should not throw
+      nested.offboard(['root', 'non-existent'])
+
+      expect(nested.has('root')).toBe(false)
+      expect(nested.size).toBe(0)
+    })
+
+    it('should handle offboard with cascade on some nodes', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'root-1', value: 'Root 1' })
+      nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root-1' })
+      nested.register({ id: 'root-2', value: 'Root 2' })
+
+      nested.offboard(['root-1'], true)
+
+      expect(nested.has('root-1')).toBe(false)
+      expect(nested.has('child-1')).toBe(false)
+      expect(nested.has('root-2')).toBe(true)
     })
   })
 })

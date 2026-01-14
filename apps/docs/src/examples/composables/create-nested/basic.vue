@@ -100,9 +100,10 @@
       <div
         v-for="id in visibleNodes"
         :key="id"
-        class="flex items-center gap-2 py-2 hover:bg-surface-tint cursor-pointer border-b border-divider last:border-b-0"
+        class="flex items-center gap-2 py-2 hover:bg-surface-tint border-b border-divider last:border-b-0"
+        :class="{ 'cursor-pointer': !nav.isLeaf(id) }"
         :style="{ paddingLeft: `${nav.getDepth(id) * 16 + 12}px` }"
-        @click="nav.toggleOpen(id)"
+        @click="nav.flip(id)"
       >
         <span
           v-if="!nav.isLeaf(id)"

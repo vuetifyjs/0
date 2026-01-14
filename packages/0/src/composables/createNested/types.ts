@@ -23,8 +23,8 @@ export interface NestedTicket<V = unknown> extends GroupTicket<V> {
   open: () => void
   /** Close/collapse this ticket */
   close: () => void
-  /** Toggle this ticket's open/closed state */
-  toggleOpen: () => void
+  /** Flip this ticket's open/closed state */
+  flip: () => void
   /** Get path from root to self (includes self) */
   getPath: () => ID[]
   /** Get ancestors excluding self */
@@ -92,7 +92,7 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
   readonly children: ReadonlyMap<ID, readonly ID[]>
   /** Map of child IDs to their parent ID (or undefined for roots). Use register/unregister to modify. */
   readonly parents: ReadonlyMap<ID, ID | undefined>
-  /** Reactive Set of opened/expanded item IDs. Use open/close/toggleOpen to modify. */
+  /** Reactive Set of opened/expanded item IDs. Use open/close/flip to modify. */
   readonly openedIds: Reactive<Set<ID>>
   /** Computed Set of opened/expanded item instances */
   openedItems: ComputedRef<Set<Z>>
@@ -100,8 +100,8 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
   open: (ids: ID | ID[]) => void
   /** Close/collapse one or more items by ID */
   close: (ids: ID | ID[]) => void
-  /** Toggle one or more items' open/closed state by ID */
-  toggleOpen: (ids: ID | ID[]) => void
+  /** Flip one or more items' open/closed state by ID */
+  flip: (ids: ID | ID[]) => void
   /** Check if an item is open by ID */
   opened: (id: ID) => boolean
   /** Expand all non-leaf nodes */
@@ -143,10 +143,42 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
 }
 
 /**
+ * Open mode for nested items.
+ * - `'multiple'` (default): Multiple nodes can be open simultaneously
+ * - `'single'`: Only one node can be open at a time (accordion behavior)
+ */
+export type NestedOpenMode = 'single' | 'multiple'
+
+/**
+ * Selection mode for nested items.
+ * - `'cascade'` (default): Selecting a parent selects all descendants; ancestors show mixed state
+ * - `'independent'`: Each node is selected independently, no cascading
+ * - `'leaf'`: Only leaf nodes can be selected; selecting parent selects all leaf descendants
+ */
+export type NestedSelectionMode = 'cascade' | 'independent' | 'leaf'
+
+/**
  * Options for creating a nested instance.
  */
 export interface NestedOptions extends GroupOptions {
-  /** Strategy for controlling open behavior */
+  /**
+   * Controls how nodes expand/collapse.
+   * - `'multiple'` (default): Multiple nodes can be open simultaneously
+   * - `'single'`: Only one node open at a time (accordion behavior)
+   */
+  open?: NestedOpenMode
+  /**
+   * Controls how selection cascades through the hierarchy.
+   * - `'cascade'` (default): Selecting parent selects descendants; ancestors show mixed state
+   * - `'independent'`: Each node selected independently
+   * - `'leaf'`: Only leaf nodes selectable; parent selection selects leaf descendants
+   */
+  selection?: NestedSelectionMode
+  /**
+   * Advanced: Custom strategy for open behavior.
+   * Overrides `open` option if provided.
+   * @deprecated Use `open` option for simple cases
+   */
   openStrategy?: OpenStrategy
 }
 
@@ -154,6 +186,23 @@ export interface NestedOptions extends GroupOptions {
  * Options for creating a nested context.
  */
 export interface NestedContextOptions extends GroupContextOptions {
-  /** Strategy for controlling open behavior */
+  /**
+   * Controls how nodes expand/collapse.
+   * - `'multiple'` (default): Multiple nodes can be open simultaneously
+   * - `'single'`: Only one node open at a time (accordion behavior)
+   */
+  open?: NestedOpenMode
+  /**
+   * Controls how selection cascades through the hierarchy.
+   * - `'cascade'` (default): Selecting parent selects descendants; ancestors show mixed state
+   * - `'independent'`: Each node selected independently
+   * - `'leaf'`: Only leaf nodes selectable; parent selection selects leaf descendants
+   */
+  selection?: NestedSelectionMode
+  /**
+   * Advanced: Custom strategy for open behavior.
+   * Overrides `open` option if provided.
+   * @deprecated Use `open` option for simple cases
+   */
   openStrategy?: OpenStrategy
 }

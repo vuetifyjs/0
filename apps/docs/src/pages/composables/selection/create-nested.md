@@ -49,35 +49,121 @@ flowchart TD
   createNested --> OpenStrategy[OpenStrategy]
 ```
 
-## Open Strategies
+<DocsApi />
 
-Control how nodes expand/collapse using pluggable strategies:
+## Options
+
+### open
+
+Controls how nodes expand/collapse:
+
+| Value | Behavior |
+|-------|----------|
+| `'multiple'` | Multiple nodes can be open simultaneously (default) |
+| `'single'` | Only one node open at a time (accordion behavior) |
 
 ```ts
-import { createNested, multipleOpenStrategy, singleOpenStrategy } from '@vuetify/v0'
+// Tree view - multiple nodes open
+const tree = createNested({ open: 'multiple' })
 
-// Multiple nodes can be open (default)
-const tree = createNested({ openStrategy: multipleOpenStrategy })
-
-// Accordion behavior - only one node open at a time
-const accordion = createNested({ openStrategy: singleOpenStrategy })
+// Accordion - single node open
+const accordion = createNested({ open: 'single' })
 ```
 
-### Custom Strategy
+### selection
+
+Controls how selection cascades through the hierarchy:
+
+| Value | Behavior |
+|-------|----------|
+| `'cascade'` | Selecting parent selects all descendants; ancestors show mixed state (default) |
+| `'independent'` | Each node selected independently, no cascading |
+| `'leaf'` | Only leaf nodes can be selected; parent selection selects leaf descendants |
 
 ```ts
-import type { OpenStrategy } from '@vuetify/v0'
+// Cascading checkbox tree
+const tree = createNested({ selection: 'cascade' })
 
-const customStrategy: OpenStrategy = {
+// Independent selection
+const flat = createNested({ selection: 'independent' })
+
+// Leaf-only selection (file picker)
+const picker = createNested({ selection: 'leaf' })
+```
+
+## Selection Modes
+
+### Cascade Mode (Default)
+
+Selection propagates through the hierarchy:
+
+**Selecting a parent** selects all descendants:
+
+```ts
+tree.select('root')
+// root, child-1, child-2, grandchild-1, etc. are all selected
+```
+
+**Selecting a child** updates ancestors to mixed state:
+
+```ts
+tree.select('child-1')
+// child-1 is selected
+// root shows mixed state (some children selected)
+```
+
+**Automatic state resolution:**
+
+- **All children selected** → Parent becomes selected (not mixed)
+- **Some children selected** → Parent becomes mixed
+- **No children selected** → Parent becomes unselected (not mixed)
+
+### Independent Mode
+
+Each node is selected independently with no cascading:
+
+```ts
+const tree = createNested({ selection: 'independent' })
+
+tree.select('parent')
+// Only 'parent' is selected, children unchanged
+```
+
+### Leaf Mode
+
+Only leaf nodes can be selected. Selecting a parent selects all leaf descendants:
+
+```ts
+const tree = createNested({ selection: 'leaf' })
+
+tree.select('folder')
+// All files (leaves) under 'folder' are selected
+// 'folder' itself is not in selectedIds
+```
+
+## Custom Open Strategies
+
+For advanced use cases, implement custom strategies:
+
+```ts
+import type { OpenStrategy, OpenStrategyContext } from '@vuetify/v0'
+
+const keepParentsOpenStrategy: OpenStrategy = {
   onOpen: (id, context) => {
-    // Custom logic when a node opens
-    // context provides: openedIds, children, parents
+    // context.openedIds - reactive Set of open node IDs
+    // context.children - Map of parent ID to child IDs
+    // context.parents - Map of child ID to parent ID
   },
   onClose: (id, context) => {
-    // Custom logic when a node closes
+    // Called after a node is closed
   },
 }
+
+const tree = createNested({ openStrategy: keepParentsOpenStrategy })
 ```
+
+> [!TIP]
+> The `openStrategy` option overrides `open` when provided. Use `open` for simple cases.
 
 ## Convenience Methods
 
@@ -158,7 +244,7 @@ node.depth.value       // number - depth in tree (0 = root)
 // Methods
 node.open()            // Open this node
 node.close()           // Close this node
-node.toggleOpen()      // Toggle open state
+node.flip()            // Flip open/closed state
 node.getPath()         // Get path from root to this node
 node.getAncestors()    // Get all ancestors
 node.getDescendants()  // Get all descendants
@@ -182,5 +268,3 @@ provideTree()
 // In child components
 const tree = useTree()
 ```
-
-<DocsApi />

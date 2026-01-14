@@ -34,6 +34,7 @@ import type { ID } from '#v0/types'
 import type {
   NestedContext,
   NestedContextOptions,
+  NestedOpenMode,
   NestedOptions,
   NestedRegistration,
   NestedTicket,
@@ -41,12 +42,18 @@ import type {
 import type { App } from 'vue'
 
 // Strategies
-import { multipleOpenStrategy } from './strategies'
+import { multipleOpenStrategy, singleOpenStrategy } from './strategies'
 
 // Re-export types
 
 // Re-export strategies
-export { multipleOpenStrategy, singleOpenStrategy } from './strategies'
+
+/**
+ * Resolves open mode to an OpenStrategy.
+ */
+function resolveOpenStrategy (open: NestedOpenMode = 'multiple') {
+  return open === 'single' ? singleOpenStrategy : multipleOpenStrategy
+}
 
 /**
  * Creates a new nested tree instance with hierarchical management.
@@ -66,7 +73,7 @@ export { multipleOpenStrategy, singleOpenStrategy } from './strategies'
  * - `unregister()` accepts optional `cascade` parameter for cascading deletions
  * - Adds tree traversal methods: `getPath()`, `getAncestors()`, `getDescendants()`
  * - Adds computed properties: `roots`, `leaves`, `isLeaf()`, `getDepth()`
- * - Adds open state management: `open()`, `close()`, `toggleOpen()`, `opened()`
+ * - Adds open state management: `open()`, `close()`, `flip()`, `opened()`
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-nested
  *
@@ -92,7 +99,16 @@ export function createNested<
   Z extends NestedTicket = NestedTicket,
   E extends NestedContext<Z> = NestedContext<Z>,
 > (_options: NestedOptions = {}): E {
-  const { openStrategy = multipleOpenStrategy, ...options } = _options
+  const {
+    open: openMode = 'multiple',
+    selection: selectionMode = 'cascade',
+    openStrategy,
+    ...options
+  } = _options
+
+  // Resolve open strategy: explicit openStrategy takes precedence over open mode
+  const resolvedOpenStrategy = openStrategy ?? resolveOpenStrategy(openMode)
+
   const group = createGroup<Z, GroupContext<Z>>(options)
   const logger = useLogger()
 
@@ -130,19 +146,21 @@ export function createNested<
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
       openedIds.add(id)
-      openStrategy.onOpen?.(id, context)
+      resolvedOpenStrategy.onOpen?.(id, context)
     }
   }
 
   function close (ids: ID | ID[]): void {
     for (const id of toArray(ids)) {
+      if (!group.has(id)) continue
       openedIds.delete(id)
-      openStrategy.onClose?.(id, context)
+      resolvedOpenStrategy.onClose?.(id, context)
     }
   }
 
-  function toggleOpen (ids: ID | ID[]): void {
+  function flip (ids: ID | ID[]): void {
     for (const id of toArray(ids)) {
+      if (!group.has(id)) continue
       if (opened(id)) {
         close(id)
       } else {
@@ -184,9 +202,10 @@ export function createNested<
   function getDescendants (id: ID): ID[] {
     const descendants: ID[] = []
     const queue: ID[] = [...(children.get(id) ?? [])]
+    let index = 0
 
-    while (queue.length > 0) {
-      const currentId = queue.shift()!
+    while (index < queue.length) {
+      const currentId = queue[index++]!
       descendants.push(currentId)
       queue.push(...(children.get(currentId) ?? []))
     }
@@ -203,7 +222,7 @@ export function createNested<
     return getAncestors(id).length
   }
 
-  // Cascading selection helpers
+  // Cascading selection helpers (used when selectionMode === 'cascade')
   function updateAncestors (id: ID): void {
     // Process from immediate parent up to root
     const ancestorIds = getAncestors(id).toReversed()
@@ -227,20 +246,37 @@ export function createNested<
     }
   }
 
+  // Get all leaf descendants of a node (used when selectionMode === 'leaf')
+  function getLeafDescendants (id: ID): ID[] {
+    return getDescendants(id).filter(did => isLeaf(did))
+  }
+
   function select (ids: ID | ID[]): void {
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
 
-      // Select this item and all descendants
-      group.unmix(id)
-      group.select(id)
-      for (const did of getDescendants(id)) {
-        group.unmix(did)
-        group.select(did)
+      if (selectionMode === 'independent') {
+        // Independent: just select this node, no cascading
+        group.select(id)
+      } else if (selectionMode === 'leaf') {
+        // Leaf: only select leaf nodes; if parent, select all leaf descendants
+        if (isLeaf(id)) {
+          group.select(id)
+        } else {
+          for (const lid of getLeafDescendants(id)) {
+            group.select(lid)
+          }
+        }
+      } else {
+        // Cascade (default): select this item and all descendants
+        group.unmix(id)
+        group.select(id)
+        for (const did of getDescendants(id)) {
+          group.unmix(did)
+          group.select(did)
+        }
+        updateAncestors(id)
       }
-
-      // Update ancestor states
-      updateAncestors(id)
     }
   }
 
@@ -248,25 +284,60 @@ export function createNested<
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
 
-      // Unselect this item and all descendants
-      group.unmix(id)
-      group.unselect(id)
-      for (const did of getDescendants(id)) {
-        group.unmix(did)
-        group.unselect(did)
+      if (selectionMode === 'independent') {
+        // Independent: just unselect this node, no cascading
+        group.unselect(id)
+      } else if (selectionMode === 'leaf') {
+        // Leaf: only unselect leaf nodes; if parent, unselect all leaf descendants
+        if (isLeaf(id)) {
+          group.unselect(id)
+        } else {
+          for (const lid of getLeafDescendants(id)) {
+            group.unselect(lid)
+          }
+        }
+      } else {
+        // Cascade (default): unselect this item and all descendants
+        group.unmix(id)
+        group.unselect(id)
+        for (const did of getDescendants(id)) {
+          group.unmix(did)
+          group.unselect(did)
+        }
+        updateAncestors(id)
       }
-
-      // Update ancestor states
-      updateAncestors(id)
     }
   }
 
   function toggle (ids: ID | ID[]): void {
     for (const id of toArray(ids)) {
-      if (group.selected(id) || group.mixed(id)) {
-        unselect(id)
+      if (selectionMode === 'independent') {
+        // Independent: just toggle this node
+        group.toggle(id)
+      } else if (selectionMode === 'leaf') {
+        // Leaf: toggle leaf nodes; if parent, toggle all leaf descendants
+        if (isLeaf(id)) {
+          group.toggle(id)
+        } else {
+          const leafIds = getLeafDescendants(id)
+          const allSelected = leafIds.every(lid => group.selected(lid))
+          if (allSelected) {
+            for (const lid of leafIds) {
+              group.unselect(lid)
+            }
+          } else {
+            for (const lid of leafIds) {
+              group.select(lid)
+            }
+          }
+        }
       } else {
-        select(id)
+        // Cascade (default): toggle with mixed state handling
+        if (group.selected(id) || group.mixed(id)) {
+          unselect(id)
+        } else {
+          select(id)
+        }
       }
     }
   }
@@ -319,7 +390,7 @@ export function createNested<
       depth: toRef(() => getDepth(id)),
       open: () => open(id),
       close: () => close(id),
-      toggleOpen: () => toggleOpen(id),
+      flip: () => flip(id),
       getPath: () => getPath(id),
       getAncestors: () => getAncestors(id),
       getDescendants: () => getDescendants(id),
@@ -369,8 +440,11 @@ export function createNested<
         }
       } else {
         // Orphan children by setting their parent to undefined
+        // Clear open state for ALL descendants to prevent memory leaks
+        for (const did of getDescendants(id)) {
+          openedIds.delete(did)
+        }
         for (const cid of list) {
-          openedIds.delete(cid)
           parents.set(cid, undefined)
         }
       }
@@ -402,8 +476,8 @@ export function createNested<
 
   const context = {
     ...group,
-    children,
-    parents,
+    children: children as ReadonlyMap<ID, readonly ID[]>,
+    parents: parents as ReadonlyMap<ID, ID | undefined>,
     openedIds,
     openedItems,
     roots,
@@ -415,12 +489,12 @@ export function createNested<
     getDepth,
     open,
     close,
-    toggleOpen,
+    flip,
     opened,
     expandAll,
     collapseAll,
     toFlat,
-    openStrategy,
+    openStrategy: resolvedOpenStrategy,
     select,
     unselect,
     toggle,
@@ -432,7 +506,7 @@ export function createNested<
     get size () {
       return group.size
     },
-  } as unknown as E
+  } as E
 
   return context
 }
@@ -485,4 +559,6 @@ export function useNested<
   return useContext<E>(namespace)
 }
 
-export { type NestedContext, type NestedContextOptions, type NestedOptions, type NestedRegistration, type NestedTicket, type OpenStrategy, type OpenStrategyContext } from './types'
+export { type NestedContext, type NestedContextOptions, type NestedOpenMode, type NestedOptions, type NestedRegistration, type NestedSelectionMode, type NestedTicket, type OpenStrategy, type OpenStrategyContext } from './types'
+
+export { multipleOpenStrategy, singleOpenStrategy } from './strategies'
