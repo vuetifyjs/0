@@ -76,9 +76,11 @@ Control when tabs activate with the `activation` prop:
 - **manual**: Tab only activates on Enter/Space key press
 
 ```vue
-<Tabs.Root activation="manual">
-  <!-- Tabs only activate on Enter/Space -->
-</Tabs.Root>
+<template>
+  <Tabs.Root activation="manual">
+    <!-- Tabs only activate on Enter/Space -->
+  </Tabs.Root>
+</template>
 ```
 
 ### Orientation
@@ -86,9 +88,11 @@ Control when tabs activate with the `activation` prop:
 Support for both horizontal and vertical tab layouts:
 
 ```vue
-<Tabs.Root orientation="vertical">
-  <!-- Arrow Up/Down for navigation instead of Left/Right -->
-</Tabs.Root>
+<template>
+  <Tabs.Root orientation="vertical">
+    <!-- Arrow Up/Down for navigation instead of Left/Right -->
+  </Tabs.Root>
+</template>
 ```
 
 ### Loop Navigation
@@ -96,7 +100,9 @@ Support for both horizontal and vertical tab layouts:
 Control whether navigation wraps around at boundaries:
 
 ```vue
-<Tabs.Root :loop="false">
-  <!-- Navigation stops at first/last tab -->
-</Tabs.Root>
+<template>
+  <Tabs.Root :loop="false">
+    <!-- Navigation stops at first/last tab -->
+  </Tabs.Root>
+</template>
 ```
