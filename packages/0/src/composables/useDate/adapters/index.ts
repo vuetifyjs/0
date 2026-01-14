@@ -2,11 +2,13 @@
  * @module DateAdapter
  *
  * @remarks
- * Date adapter interfaces and implementations for date manipulation and formatting.
+ * Date adapter interfaces for date manipulation and formatting.
+ *
+ * For the Temporal-based adapter, import from `@vuetify/v0/date`:
+ * ```ts
+ * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * ```
  */
 
 // Types
 export type { DateAdapter } from './adapter'
-
-// Adapters
-export { Vuetify0DateAdapter } from './v0'

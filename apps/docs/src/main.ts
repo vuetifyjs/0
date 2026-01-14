@@ -1,5 +1,8 @@
 import { ViteSSG } from 'vite-ssg'
 
+// Framework
+import { useLogger } from '@vuetify/v0'
+
 // Components
 import App from './App.vue'
 
@@ -25,6 +28,8 @@ export const createApp = ViteSSG(
       pinia.state.value = initialState.pinia || {}
 
     if (!import.meta.env.SSR) {
+      const logger = useLogger()
+
       // Reload on chunk load failures (stale cache after deploy)
       window.addEventListener('vite:preloadError', () => {
         window.location.reload()
@@ -34,14 +39,14 @@ export const createApp = ViteSSG(
       router.onError((err, to) => {
         if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
           if (localStorage.getItem('vuetify:dynamic-reload')) {
-            console.error('Dynamic import error, reloading page did not fix it', err)
+            logger.error('Dynamic import error, reloading page did not fix it', err)
           } else {
-            console.log('Reloading page to fix dynamic import error')
+            logger.info('Reloading page to fix dynamic import error')
             localStorage.setItem('vuetify:dynamic-reload', 'true')
             location.assign(to.fullPath)
           }
         } else {
-          console.error(err)
+          logger.error('Router error', err)
         }
       })
 

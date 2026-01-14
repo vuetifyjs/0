@@ -19,7 +19,7 @@
     class="hidden xl:block fixed right-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
   >
     <button
-      class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wide hover:text-primary hover:underline transition-colors cursor-pointer after:content-['_§']"
+      class="text-xs font-medium text-on-surface-variant mb-3 uppercase tracking-wide hover:text-primary hover:underline transition-colors cursor-pointer after:content-['_§']"
       type="button"
       @click="scrollToTop"
     >
@@ -34,7 +34,7 @@
             class="block py-1 hover:text-primary hover:underline transition-colors truncate"
             :class="selectedId === h2.id
               ? 'text-primary font-medium underline'
-              : 'text-gray-600 dark:text-gray-300'"
+              : 'text-on-surface-variant'"
             :href="`#${h2.id}`"
             @click.prevent="scrollTo(h2.id)"
           >
@@ -48,7 +48,7 @@
                 class="block py-1 hover:text-primary hover:underline transition-colors truncate text-xs"
                 :class="selectedId === h3.id
                   ? 'text-primary font-medium underline'
-                  : 'text-gray-500 dark:text-gray-400'"
+                  : 'text-on-surface-variant'"
                 :href="`#${h3.id}`"
                 @click.prevent="scrollTo(h3.id)"
               >
@@ -62,7 +62,7 @@
                     class="block py-0.5 hover:text-primary hover:underline transition-colors truncate text-xs"
                     :class="selectedId === h4.id
                       ? 'text-primary font-medium underline'
-                      : 'text-gray-400 dark:text-gray-500'"
+                      : 'text-on-surface-variant'"
                     :href="`#${h4.id}`"
                     @click.prevent="scrollTo(h4.id)"
                   >

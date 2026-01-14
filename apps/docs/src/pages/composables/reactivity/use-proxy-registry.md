@@ -2,8 +2,7 @@
 title: useProxyRegistry - Reactive Registry Wrapper for Vue 3
 meta:
 - name: description
-  content: A reactive proxy wrapper for registry collections that automatically updates
-    refs when items are registered or unregistered.
+  content: Vue 3 reactive proxy wrapper for registry collections. Automatically updates refs when items are registered or unregistered from the registry system.
 - name: keywords
   content: useProxyRegistry, registry, reactive, composable, Vue, state management
 features:

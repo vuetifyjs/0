@@ -2,7 +2,7 @@
 title: Radio - Accessible Radio Button Controls
 meta:
 - name: description
-  content: Headless radio button component for single-selection groups. Keyboard navigation, roving tabindex, and full ARIA compliance built-in.
+  content: Headless radio button component for Vue 3 single-selection groups. Features keyboard navigation, roving tabindex, and complete ARIA compliance.
 - name: keywords
   content: radio, radio button, form control, single-select, accessible, ARIA, Vue 3, headless
 features:

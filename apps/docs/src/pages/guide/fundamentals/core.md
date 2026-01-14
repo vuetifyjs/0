@@ -5,7 +5,7 @@ features:
   level: 3
 meta:
   - name: description
-    content: Explore Vuetify0's core architecture including createContext, createTrinity, and createPlugin factories. Build scalable Vue 3 apps with type-safe dependency injection.
+    content: Explore Vuetify0's core architecture including createContext, createTrinity, and createPlugin factories. Build scalable apps with type-safe dependency injection.
   - name: keywords
     content: vuetify0, framework core, dependency injection, createContext, createTrinity, createPlugin, Vue 3
 related:

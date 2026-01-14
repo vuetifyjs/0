@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Atom } from '@vuetify/v0'
+  import { Atom, useLogger } from '@vuetify/v0'
 
   // Types
   import type { AtomProps } from '@vuetify/v0'
@@ -13,6 +13,7 @@
   }
 
   const props = defineProps<AppIconButtonProps>()
+  const logger = useLogger()
 
   const {
     as = 'button',
@@ -20,7 +21,7 @@
   } = props
 
   if (import.meta.env.DEV && !props['ariaLabel'] && !props.title) {
-    console.warn('[AppIconButton] Missing ariaLabel or title for icon:', props.icon)
+    logger.warn('Missing ariaLabel or title for icon', props.icon)
   }
 </script>
 

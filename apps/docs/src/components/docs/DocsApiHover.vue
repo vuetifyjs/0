@@ -19,7 +19,7 @@
   import { useRouter } from 'vue-router'
 
   // Types
-  import type { Api, ComponentApi, ComposableApi } from '../../../build/generate-api'
+  import type { Api, ComponentApi, ComposableApi } from '@build/generate-api'
 
   const router = useRouter()
 

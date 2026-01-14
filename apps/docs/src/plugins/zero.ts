@@ -1,5 +1,6 @@
 // Framework
 import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
+import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 
 // Types
 import type { App } from 'vue'
@@ -41,6 +42,7 @@ export default function zero (app: App) {
   )
   app.use(
     createDatePlugin({
+      adapter: new Vuetify0DateAdapter(),
       locales: { en: 'en-US' },
     }),
   )

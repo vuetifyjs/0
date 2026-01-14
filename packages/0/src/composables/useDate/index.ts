@@ -6,16 +6,16 @@
  *
  * Key features:
  * - Adapter pattern for date library abstraction
- * - Temporal API as default adapter (modern, immutable dates)
  * - Locale-aware formatting via Intl.DateTimeFormat
  * - Integration with useLocale for automatic locale sync
  *
- * @example
+ * @example Using the built-in Temporal adapter
  * ```ts
+ * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
  * import { createDatePlugin } from '@vuetify/v0'
  *
  * const app = createApp(App)
- * app.use(createDatePlugin())
+ * app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))
  *
  * // In a component:
  * const { adapter } = useDate()
@@ -31,7 +31,7 @@
  *   // ... implementation
  * }
  *
- * const context = createDate({ adapter: new DateFnsAdapter() })
+ * app.use(createDatePlugin({ adapter: new DateFnsAdapter() }))
  * ```
  */
 
@@ -43,9 +43,6 @@ import { createTrinity } from '#v0/composables/createTrinity'
 // Composables
 import { useLocale } from '#v0/composables/useLocale'
 
-// Adapters
-import { Vuetify0DateAdapter } from '#v0/composables/useDate/adapters'
-
 // Utilities
 import { instanceExists, isNullOrUndefined } from '#v0/utilities'
 import { computed, watchEffect, onScopeDispose } from 'vue'
@@ -54,17 +51,12 @@ import { computed, watchEffect, onScopeDispose } from 'vue'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { DateAdapter } from '#v0/composables/useDate/adapters'
 import type { ID } from '#v0/types'
-import type { Temporal } from '@js-temporal/polyfill'
 import type { App, ComputedRef, Ref } from 'vue'
 
 // Exports
 export type { DateAdapter } from '#v0/composables/useDate/adapters'
-export { Vuetify0DateAdapter } from '#v0/composables/useDate/adapters'
 
-/** The default date type when using Vuetify0DateAdapter */
-type DefaultDateType = Temporal.PlainDateTime
-
-export interface DateContext<Z = DefaultDateType> {
+export interface DateContext<Z> {
   /** The date adapter instance */
   adapter: DateAdapter<Z>
   /** Current locale (reactive, synced with useLocale if available) */
@@ -72,9 +64,17 @@ export interface DateContext<Z = DefaultDateType> {
 }
 
 /** Options for date composables */
-export interface DateOptions<Z = DefaultDateType> {
-  /** Custom date adapter instance (defaults to Vuetify0DateAdapter) */
-  adapter?: DateAdapter<Z>
+export interface DateOptions<Z> {
+  /**
+   * Date adapter instance.
+   *
+   * @example
+   * ```ts
+   * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+   * createDate({ adapter: new Vuetify0DateAdapter() })
+   * ```
+   */
+  adapter: DateAdapter<Z>
   /** Locale for formatting (defaults to useLocale's selected locale or 'en-US') */
   locale?: string
   /** Short locale codes mapped to full Intl locale strings (e.g., { en: 'en-US' }) */
@@ -82,12 +82,12 @@ export interface DateOptions<Z = DefaultDateType> {
 }
 
 /** Context options with namespace */
-export interface DateContextOptions<Z = DefaultDateType> extends DateOptions<Z> {
+export interface DateContextOptions<Z> extends DateOptions<Z> {
   namespace?: string
 }
 
 /** Plugin options */
-export interface DatePluginOptions<Z = DefaultDateType> extends DateContextOptions<Z> {}
+export interface DatePluginOptions<Z> extends DateContextOptions<Z> {}
 
 /**
  * Default short locale codes mapped to full Intl locale strings.
@@ -110,7 +110,8 @@ const defaultLocales: Record<string, string> = {
 /**
  * Creates a new date context.
  *
- * @param options Optional adapter and locale configuration.
+ * @param options Adapter and locale configuration.
+ * @template Z The date type used by the adapter.
  * @template E The date context type.
  * @returns A date context.
  *
@@ -118,23 +119,25 @@ const defaultLocales: Record<string, string> = {
  *
  * @example
  * ```ts
- * const { adapter } = createDate()
- * const today = adapter.date() // Temporal.PlainDateTime
+ * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ *
+ * const { adapter } = createDate({ adapter: new Vuetify0DateAdapter() })
+ * const today = adapter.date()
  *
  * // With locale options
- * const { adapter: deAdapter } = createDate({ locale: 'de-DE' })
- *
- * // With custom adapter
- * const { adapter } = createDate({ adapter: new DateFnsAdapter() })
+ * const { adapter } = createDate({
+ *   adapter: new Vuetify0DateAdapter(),
+ *   locale: 'de-DE',
+ * })
  * ```
  */
 export function createDate<
-  Z = DefaultDateType,
+  Z,
   E extends DateContext<Z> = DateContext<Z>,
-> (options: DateOptions<Z> = {}): E {
+> (options: DateOptions<Z>): E {
   const {
     locales = defaultLocales,
-    adapter = new Vuetify0DateAdapter() as unknown as DateAdapter<Z>,
+    adapter,
     locale: initialLocale,
   } = options
 
@@ -185,24 +188,10 @@ export function createDate<
 }
 
 /**
- * Creates a fallback date context for when useDate is called outside of a Vue component.
- *
- * @returns A fallback date context with Vuetify0DateAdapter.
- * @internal
- */
-export function createDateFallback (): DateContext<DefaultDateType> {
-  const adapter = new Vuetify0DateAdapter()
-
-  return {
-    adapter,
-    locale: computed(() => adapter.locale ?? 'en-US'),
-  }
-}
-
-/**
  * Creates a new date context trinity.
  *
- * @param options Optional adapter, locale, and namespace configuration.
+ * @param options Adapter, locale, and namespace configuration.
+ * @template Z The date type used by the adapter.
  * @template E The date context type.
  * @returns A trinity [useContext, provideContext, defaultContext].
  *
@@ -210,21 +199,18 @@ export function createDateFallback (): DateContext<DefaultDateType> {
  *
  * @example
  * ```ts
- * const [useAppDate, provideAppDate] = createDateContext({
- *   namespace: 'app:date',
- * })
+ * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
  *
- * // With custom adapter
  * const [useAppDate, provideAppDate] = createDateContext({
- *   adapter: new DateFnsAdapter(),
+ *   adapter: new Vuetify0DateAdapter(),
  *   namespace: 'app:date',
  * })
  * ```
  */
 export function createDateContext<
-  Z = DefaultDateType,
+  Z,
   E extends DateContext<Z> = DateContext<Z>,
-> (options: DateContextOptions<Z> = {}): ContextTrinity<E> {
+> (options: DateContextOptions<Z>): ContextTrinity<E> {
   const { namespace = 'v0:date', ...dateOptions } = options
   const [useDateContext, _provideDateContext] = createContext<E>(namespace)
   const context = createDate<Z, E>(dateOptions)
@@ -239,7 +225,8 @@ export function createDateContext<
 /**
  * Creates a new date plugin.
  *
- * @param options Optional adapter, locale, and namespace configuration.
+ * @param options Adapter, locale, and namespace configuration.
+ * @template Z The date type used by the adapter.
  * @template E The date context type.
  * @returns A Vue plugin.
  *
@@ -247,20 +234,22 @@ export function createDateContext<
  *
  * @example
  * ```ts
+ * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ *
  * const app = createApp(App)
- * app.use(createDatePlugin())
+ * app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))
  *
- * // With options
- * app.use(createDatePlugin({ locale: 'de-DE' }))
- *
- * // With custom adapter
- * app.use(createDatePlugin({ adapter: new DateFnsAdapter() }))
+ * // With locale options
+ * app.use(createDatePlugin({
+ *   adapter: new Vuetify0DateAdapter(),
+ *   locale: 'de-DE',
+ * }))
  * ```
  */
 export function createDatePlugin<
-  Z = DefaultDateType,
+  Z,
   E extends DateContext<Z> = DateContext<Z>,
-> (options: DatePluginOptions<Z> = {}) {
+> (options: DatePluginOptions<Z>) {
   const { namespace = 'v0:date', ...dateOptions } = options
   const [, provideDateContext, context] = createDateContext<Z, E>({ namespace, ...dateOptions })
 
@@ -275,14 +264,24 @@ export function createDatePlugin<
 /**
  * Returns the current date context.
  *
- * When called inside a component with a provided date context (via plugin or provider),
- * returns that context. Otherwise, returns a fallback context with Vuetify0DateAdapter.
+ * Requires `createDatePlugin` to be installed with an adapter.
  *
  * @param namespace The namespace to look up (defaults to 'v0:date').
+ * @template Z The date type used by the adapter.
  * @template E The date context type.
  * @returns The current date context.
+ * @throws If called outside a component or without a date plugin installed.
  *
  * @see https://0.vuetifyjs.com/composables/plugins/use-date
+ *
+ * @example
+ * ```ts
+ * // main.ts
+ * import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+ * import { createDatePlugin } from '@vuetify/v0'
+ *
+ * app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))
+ * ```
  *
  * @example
  * ```vue
@@ -295,16 +294,18 @@ export function createDatePlugin<
  * ```
  */
 export function useDate<
-  Z = DefaultDateType,
+  Z,
   E extends DateContext<Z> = DateContext<Z>,
 > (namespace = 'v0:date'): E {
-  const fallback = createDateFallback() as unknown as E
-
-  if (!instanceExists()) return fallback
-
-  try {
-    return useContext<E>(namespace, fallback)
-  } catch {
-    return fallback
+  if (!instanceExists()) {
+    throw new Error(
+      '[v0] useDate() must be called inside a Vue component with createDatePlugin installed.\n\n' +
+      'Example:\n' +
+      '  import { Vuetify0DateAdapter } from \'@vuetify/v0/date\'\n' +
+      '  import { createDatePlugin } from \'@vuetify/v0\'\n\n' +
+      '  app.use(createDatePlugin({ adapter: new Vuetify0DateAdapter() }))',
+    )
   }
+
+  return useContext<E>(namespace)
 }

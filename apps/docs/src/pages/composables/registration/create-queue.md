@@ -2,8 +2,7 @@
 title: createQueue - Time-Based FIFO Collections for Vue 3
 meta:
 - name: description
-  content: A queue composable for managing time-based collections with automatic timeout-based
-    removal, pause/resume functionality, and FIFO ordering.
+  content: Vue 3 queue composable for time-based collections. Features automatic timeout removal, pause and resume functionality, and FIFO ordering for items.
 - name: keywords
   content: createQueue, queue, composable, Vue, timeout, FIFO
 features:

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Dialog, useEventListener, useResizeObserver } from '@vuetify/v0'
+  import { Dialog, useEventListener, useLogger, useResizeObserver } from '@vuetify/v0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -12,6 +12,7 @@
 
   const { prefersReducedMotion } = useSettings()
   const { copied, copy } = useClipboard()
+  const logger = useLogger()
 
   // Types
   import type Mermaid from 'mermaid'
@@ -191,7 +192,7 @@
       const { svg: rendered } = await m.render(id, decodedCode.value)
       svg.value = rendered
     } catch (error) {
-      console.error('Mermaid render error:', error)
+      logger.error('Mermaid render error', error)
       svg.value = `<pre class="text-error">${decodedCode.value}</pre>`
     }
   }

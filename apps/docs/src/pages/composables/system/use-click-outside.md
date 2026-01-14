@@ -2,7 +2,7 @@
 title: useClickOutside - Click Outside Detection for Vue 3
 meta:
 - name: description
-  content: Detect clicks outside of elements with two-phase detection, touch scroll handling, iframe focus detection, and automatic cleanup.
+  content: Vue 3 composable for detecting clicks outside elements. Features two-phase detection, touch scroll handling, iframe focus detection, and auto cleanup.
 - name: keywords
   content: useClickOutside, click outside, dismiss, popover, dropdown, modal, Vue 3, composable
 features:

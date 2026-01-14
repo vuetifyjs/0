@@ -2,7 +2,7 @@
 title: useHotkey - Hotkey Combinations and Sequences for Vue 3
 meta:
 - name: description
-  content: Handle hotkey combinations and sequences with platform-aware modifiers and automatic cleanup. Supports ctrl+k combinations, g-h sequences, and input focus detection.
+  content: Handle hotkey combinations and sequences with platform-aware modifiers and automatic cleanup. Supports ctrl+k combinations, g-h sequences, and input focus.
 - name: keywords
   content: useHotkey, hotkey, keyboard, shortcuts, sequences, combinations, composable, Vue 3, ctrl+k, cmd+k
 features:

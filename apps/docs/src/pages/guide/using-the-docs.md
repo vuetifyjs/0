@@ -2,7 +2,7 @@
 title: Using the Docs - Navigate and Learn Effectively
 meta:
   - name: description
-    content: "Master the v0 documentation with Ask AI, skill-level filtering, interactive examples, keyboard shortcuts, and learning tracks designed for your experience level."
+    content: "Master the v0 documentation with Ask AI, skill-level filtering, interactive examples, keyboard shortcuts, and learning tracks designed for your experience."
   - name: keywords
     content: "documentation, navigation, ask ai, search, examples, learning tracks, keyboard shortcuts, accessibility"
 features:

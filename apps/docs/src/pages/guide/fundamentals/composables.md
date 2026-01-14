@@ -5,7 +5,7 @@ features:
   level: 2
 meta:
   - name: description
-    content: Learn how to use Vuetify0 composables for headless UI logic. Understand when to use composables vs components, and how to build custom UI with type-safe primitives.
+    content: Learn how to use Vuetify0 composables for headless UI logic. Understand when to use composables vs components, and how to build custom UI with type-safe APIs.
   - name: keywords
     content: vuetify0, composables, headless ui, Vue 3, selection, forms, plugins, utilities
 related:

@@ -2,7 +2,7 @@
 title: useIntersectionObserver - Visibility Detection for Vue 3
 meta:
 - name: description
-  content: Detect element visibility with Intersection Observer API. Perfect for lazy loading, infinite scroll, and entrance animations with automatic cleanup and pause/resume.
+  content: Detect element visibility with Intersection Observer API. Perfect for lazy loading, infinite scroll, and entrance animations with automatic cleanup control.
 - name: keywords
   content: intersection observer, visibility, viewport, lazy loading, infinite scroll, Vue 3, composable
 features:

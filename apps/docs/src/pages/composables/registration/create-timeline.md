@@ -2,7 +2,7 @@
 title: createTimeline - Bounded Undo/Redo System for Vue 3
 meta:
 - name: description
-  content: Bounded undo/redo system with fixed-size history. Built on createRegistry for state management with automatic overflow handling and time-travel debugging for Vue 3.
+  content: Bounded undo/redo system with fixed-size history. Built on createRegistry for state management with automatic overflow handling and time-travel debugging.
 - name: keywords
   content: createTimeline, timeline, undo, redo, history, time travel, Vue 3, state management, registry
 features:

@@ -2,8 +2,7 @@
 title: useDate - Date management with Temporal API
 meta:
 - name: description
-  content: A composable for date manipulation with adapter pattern, Temporal API support,
-    and locale-aware formatting via Intl.DateTimeFormat.
+  content: Vue 3 composable for date manipulation using the Temporal API. Supports adapter pattern, locale-aware formatting, and Intl.DateTimeFormat integration.
 - name: keywords
   content: useDate, date, datetime, temporal, date-io, formatting, composable
 features:
@@ -11,6 +10,9 @@ features:
   label: 'E: useDate'
   github: /composables/useDate/
   level: 2
+related:
+  - /composables/plugins/use-locale
+  - /composables/plugins/create-plugin
 ---
 
 <script setup>
@@ -28,7 +30,7 @@ The `useDate` composable provides comprehensive date manipulation capabilities u
 
 ## Installation
 
-The default adapter requires the `@js-temporal/polyfill` package:
+The built-in `Vuetify0DateAdapter` requires the `@js-temporal/polyfill` package:
 
 ::: code-group
 
@@ -53,17 +55,22 @@ bun add @js-temporal/polyfill
 > [!TIP]
 > The Temporal API is a Stage 3 [TC39 proposal](https://github.com/tc39/proposal-temporal). Once browsers ship native support, the polyfill will no longer be required.
 
-Then install the date plugin in your application:
+Then install the date plugin with an adapter:
 
 ```ts src/plugins/zero.ts
+import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 import { createDatePlugin } from '@vuetify/v0'
 
 app.use(
   createDatePlugin({
+    adapter: new Vuetify0DateAdapter(),
     locale: 'en-US',
   })
 )
 ```
+
+> [!INFO]
+> The `adapter` option is **required**. The `Vuetify0DateAdapter` is exported from a separate subpath (`@vuetify/v0/date`) to avoid bundling the Temporal polyfill unless explicitly used. If you don't need date functionality, simply don't install the plugin—no polyfill will be loaded.
 
 ## Usage
 
@@ -242,6 +249,7 @@ When `useLocale` is available, `useDate` automatically syncs with the selected l
 
 ```ts src/main.ts
 import { createApp } from 'vue'
+import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 import { createLocalePlugin, createDatePlugin } from '@vuetify/v0'
 
 const app = createApp(App)
@@ -260,6 +268,7 @@ app.use(
 // Date plugin will auto-sync with locale
 app.use(
   createDatePlugin({
+    adapter: new Vuetify0DateAdapter(),
     locales: {
       en: 'en-US',  // Map short codes to Intl locales
       de: 'de-DE',
@@ -281,9 +290,9 @@ flowchart LR
     opts["adapter option"]
   end
 
-  subgraph Adapters["adapters/"]
+  subgraph Adapters["Adapter Implementations"]
     direction TB
-    v0["Vuetify0DateAdapter"]
+    v0["Vuetify0DateAdapter<br/>(from @vuetify/v0/date)"]
     custom["DateFnsAdapter<br/>LuxonAdapter<br/>DayjsAdapter"]
   end
 
@@ -303,8 +312,8 @@ flowchart LR
   end
 
   plugin --> opts
-  opts -->|default| v0
-  opts -->|custom| custom
+  opts --> v0
+  opts --> custom
   v0 --> ctx
   custom --> ctx
   ctx --> use

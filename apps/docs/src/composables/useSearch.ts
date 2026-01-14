@@ -20,13 +20,13 @@
 import MiniSearch from 'minisearch'
 
 // Framework
-import { IN_BROWSER, useHotkey, useStorage, useToggleScope } from '@vuetify/v0'
+import { IN_BROWSER, useHotkey, useLogger, useStorage, useToggleScope } from '@vuetify/v0'
 
 // Utilities
 import { computed, readonly, shallowRef, watch } from 'vue'
 
 // Types
-import type { SearchDocument } from '../../build/generate-search-index'
+import type { SearchDocument } from '@build/generate-search-index'
 import type { StorageContext } from '@vuetify/v0'
 import type { ComputedRef, Ref, ShallowRef } from 'vue'
 
@@ -111,6 +111,7 @@ let indexPromise: Promise<void> | null = null
 const isOpen = shallowRef(false)
 const isLoading = shallowRef(false)
 const error = shallowRef<string | null>(null)
+const logger = useLogger()
 
 // Persistent state - loaded from storage on first use
 const favorites = shallowRef<SavedResult[]>([])
@@ -177,7 +178,7 @@ async function loadIndex (): Promise<void> {
 
       miniSearch.addAll(docs)
     } catch (error_) {
-      console.error('[useSearch] Failed to load index:', error_)
+      logger.error('Failed to load search index', error_)
       error.value = 'Failed to load search index. Please try again.'
       miniSearch = null
     }

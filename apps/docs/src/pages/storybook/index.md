@@ -11,6 +11,9 @@ features:
   github: /apps/storybook/
   level: 1
   hidden: true
+related:
+  - /components
+  - /guide/using-the-docs
 ---
 
 # Storybook

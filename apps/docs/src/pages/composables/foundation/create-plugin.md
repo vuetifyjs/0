@@ -2,7 +2,7 @@
 title: createPlugin - Vue Plugin Factory with Context Support
 meta:
 - name: description
-  content: Factory for creating Vue plugins with standardized context provision. Simplifies plugin creation with automatic app-level context injection and lifecycle management.
+  content: Factory for creating Vue plugins with standardized context provision. Simplifies plugin creation with automatic app-level context injection and cleanup.
 - name: keywords
   content: createPlugin, Vue plugin, plugin factory, composable, context provision, app-level state, Vue 3
 features:

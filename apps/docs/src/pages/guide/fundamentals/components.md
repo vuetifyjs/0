@@ -47,7 +47,7 @@ v0 components are Vue wrappers around composables. Composables hold logic, compo
 The `Atom` component is a polymorphic base element supporting any HTML tag:
 
 ```vue
-<script lang="ts" setup>
+<script setup lang="ts">
   function onClick() {
     console.log('clicked')
   }

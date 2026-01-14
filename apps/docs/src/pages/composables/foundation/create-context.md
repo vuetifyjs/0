@@ -2,7 +2,7 @@
 title: createContext - Type-Safe Dependency Injection for Vue 3
 meta:
 - name: description
-  content: Type-safe Vue dependency injection wrapper. Create reusable context to share state across components without prop drilling. Foundation for all Vuetify0 composables.
+  content: Type-safe Vue dependency injection wrapper. Create reusable context to share state across components without prop drilling. Foundation for Vuetify0.
 - name: keywords
   content: createContext, context, dependency injection, provide inject, composable, Vue 3, state management
 features:

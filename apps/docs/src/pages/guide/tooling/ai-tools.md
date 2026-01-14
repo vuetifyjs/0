@@ -6,7 +6,7 @@ features:
   level: 1
 meta:
   - name: description
-    content: Use llms.txt and llms-full.txt to provide AI assistants with comprehensive v0 documentation context.
+    content: Use llms.txt and llms-full.txt files to provide AI assistants like Claude, ChatGPT, and Cursor with comprehensive Vuetify0 documentation context.
   - name: keywords
     content: llms.txt, AI tools, LLM, Claude, ChatGPT, Cursor, documentation, developer experience
 related:

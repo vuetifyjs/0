@@ -1,3 +1,6 @@
+// Transformers
+import { createApiTransformer } from '@build/shiki-api-transformer'
+
 // Composables
 import { useHighlighter } from './useHighlighter'
 
@@ -6,9 +9,6 @@ import { type MaybeRefOrGetter, onMounted, onScopeDispose, shallowRef, toValue, 
 
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
-
-// Transformers
-import { createApiTransformer } from '../../build/shiki-api-transformer'
 
 export interface UseHighlightCodeOptions {
   /** Language for syntax highlighting. Defaults to 'vue' */

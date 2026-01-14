@@ -2,7 +2,7 @@
 title: Dialog - Modal dialog component for Vue 3
 meta:
 - name: description
-  content: Build modal dialogs using the native HTML dialog element. Focus trapping, backdrop, escape key, and full ARIA support built-in.
+  content: Build accessible modal dialogs using the native HTML dialog element. Includes focus trapping, backdrop overlay, escape key handling, and ARIA support.
 - name: keywords
   content: dialog, modal, overlay, Vue 3, headless, accessibility, ARIA, focus trap
 features:

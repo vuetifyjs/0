@@ -1,6 +1,6 @@
 // Vuetify0
 // Framework
-import { createStorage } from '@vuetify/v0'
+import { createStorage, useLogger } from '@vuetify/v0'
 
 // Utilities
 import { defineStore } from 'pinia'
@@ -32,6 +32,7 @@ interface State {
 const url = import.meta.env.VITE_API_SERVER_URL
 const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
 const storage = createStorage({ prefix: 'v0-releases:' })
+const logger = useLogger()
 
 function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
   if (!entry) return false
@@ -83,7 +84,7 @@ export const useReleasesStore = defineStore('releases', {
         }
         data = await res.json()
       } catch (error: unknown) {
-        console.error(error)
+        logger.error('Failed to fetch releases', error)
         this.error = 'Failed to load releases. Please try again.'
         this.isLoading = false
         return
@@ -140,7 +141,7 @@ export const useReleasesStore = defineStore('releases', {
           }
           data = await res.json()
         } catch (error: unknown) {
-          console.error(error)
+          logger.error('Failed to find release', error)
           this.error = 'Failed to find release. Please try again.'
           return
         } finally {

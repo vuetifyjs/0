@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createStorage } from '@vuetify/v0'
+  import { createStorage, useLogger } from '@vuetify/v0'
 
   // Utilities
   import { onMounted } from 'vue'
@@ -21,6 +21,7 @@
   }
 
   const app = useAppStore()
+  const logger = useLogger()
 
   onMounted(async () => {
     if (app.stats.commit) return // Already fetched this session
@@ -50,7 +51,7 @@
         timestamp: Date.now(),
       })
     } catch (error) {
-      console.warn('Failed to fetch commit info:', error)
+      logger.warn('Failed to fetch commit info', error)
     }
   })
 </script>

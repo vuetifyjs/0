@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { useLogger } from '@vuetify/v0'
+
   // Composables
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
@@ -15,6 +18,7 @@
 
   const app = useAppStore()
   const releases = useReleasesStore()
+  const logger = useLogger()
 
   const { icon: themeIcon, title: themeTitle, toggle: toggleTheme } = useThemeToggle()
 
@@ -39,7 +43,7 @@
         app.stats.commit = data[0] as typeof app.stats.commit
       }
     } catch (error) {
-      console.warn('Failed to fetch commit info:', error)
+      logger.warn('Failed to fetch commit info', error)
     }
 
     // Fetch latest release if not already loaded

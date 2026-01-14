@@ -15,8 +15,8 @@ import { readonly, shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
 
 // Types
-import type { ApiData } from '../../build/generate-api'
-import type { ExamplesData } from '../../build/generate-examples'
+import type { ApiData } from '@build/generate-api'
+import type { ExamplesData } from '@build/generate-examples'
 import type { Ref, ShallowRef } from 'vue'
 
 export interface Message {
