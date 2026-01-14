@@ -44,13 +44,11 @@ The Tabs component provides a compound pattern for building accessible tab inter
 
 <template>
   <Tabs.Root>
-    <Tabs.List label="Tab group">
-      <Tabs.Item value="one">Tab 1</Tabs.Item>
-      <Tabs.Item value="two">Tab 2</Tabs.Item>
+    <Tabs.List>
+      <Tabs.Item>Tab</Tabs.Item>
     </Tabs.List>
 
-    <Tabs.Panel value="one">Content 1</Tabs.Panel>
-    <Tabs.Panel value="two">Content 2</Tabs.Panel>
+    <Tabs.Panel>Content</Tabs.Panel>
   </Tabs.Root>
 </template>
 ```
