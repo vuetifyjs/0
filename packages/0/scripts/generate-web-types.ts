@@ -42,6 +42,8 @@ async function run () {
 
   const componentDirs = await readdir(COMPONENTS_DIR)
   const components: any[] = []
+  const namespaces: string[] = []
+  const globalEvents: Map<string, any> = new Map()
 
   for (const dir of componentDirs) {
     const dirPath = resolve(COMPONENTS_DIR, dir)
@@ -51,6 +53,19 @@ async function run () {
       if (!stats.isDirectory()) continue
     } catch {
       continue
+    }
+
+    // Check for namespace export
+    try {
+      const indexContent = readFileSync(resolve(dirPath, 'index.ts'), 'utf8')
+      const namespaceExport = new RegExp(String.raw`export\s+(?:const|var|let)\s+${dir}\b`).test(indexContent) ||
+        new RegExp(String.raw`export\s+\{[^}]*\bas\s+${dir}\b[^}]*\}`).test(indexContent)
+
+      if (namespaceExport) {
+        namespaces.push(dir)
+      }
+    } catch {
+      // index.ts might not exist
     }
 
     const entries = await readdir(dirPath).catch(() => [])
@@ -79,11 +94,30 @@ async function run () {
 
         const events = meta.events
           .filter(e => e.name !== 'update:modelValue')
-          .map(e => ({
-            name: e.name,
-            type: e.type,
-            description: e.description,
-          }))
+          .map(e => {
+            let type = e.type
+            if (type?.startsWith('[') && type?.endsWith(']')) {
+              type = type.slice(1, -1).replace(/^\w+:\s*/, '')
+            }
+            return {
+              name: e.name,
+              type,
+              description: e.description,
+            }
+          })
+
+        for (const e of events) {
+          if (!globalEvents.has(e.name)) {
+            globalEvents.set(e.name, {
+              name: e.name,
+              arguments: [{
+                name: '$event',
+                type: e.type,
+              }],
+              description: e.description,
+            })
+          }
+        }
 
         const slots = meta.slots.map(s => ({
           name: s.name,
@@ -107,34 +141,49 @@ async function run () {
 
   // Generate web-types.json
   const webTypes = {
-    $schema: 'https://raw.githubusercontent.com/web-types/web-types/master/schema/web-types.json',
-    framework: 'vue',
-    name: '@vuetify/v0',
+    '$schema': 'https://raw.githubusercontent.com/JetBrains/web-types/master/schema/web-types.json',
+    'framework': 'vue',
+    'name': '@vuetify/v0',
     version,
-    contributions: {
+    'js-types-syntax': 'typescript',
+    'contributions': {
       html: {
-        'types-syntax': 'typescript',
-        'tags': components.map(c => ({
-          name: c.kebabName,
-          description: c.description,
-          attributes: c.props.map((p: any) => ({
-            name: p.name,
-            type: p.type,
-            description: p.description,
-            default: p.default,
-            required: p.required,
-          })),
-          events: c.events.map((e: any) => ({
-            name: e.name,
-            type: e.type,
-            description: e.description,
-          })),
-          slots: c.slots.map((s: any) => ({
-            name: s.name,
-            type: s.type,
-            description: s.description,
-          })),
-        })),
+        elements: components.map(c => {
+          const element: any = {
+            name: c.kebabName,
+            description: c.description,
+            attributes: c.props.map((p: any) => ({
+              name: p.name,
+              value: {
+                kind: 'expression',
+                type: p.type,
+              },
+              description: p.description,
+              default: p.default,
+              required: p.required,
+            })),
+          }
+
+          if (c.slots.length > 0) {
+            element.slots = c.slots.map((s: any) => {
+              let type = s.type
+              if (type && /^[A-Z]\w+SlotProps/.test(type)) {
+                const baseType = type.replace(/<.*>$/, '')
+                type = `import('${packageJson.name}').${baseType}`
+              }
+              return {
+                name: s.name,
+                type,
+                description: s.description,
+              }
+            })
+          }
+
+          return element
+        }),
+      },
+      js: {
+        events: Array.from(globalEvents.values()),
       },
     },
   }
@@ -167,13 +216,22 @@ async function run () {
 
   // Generate importMap.json
   const importMap = {
-    components: components.reduce((acc, c) => {
-      acc[c.name] = {
-        from: '@vuetify/v0',
-        styles: [],
-      }
-      return acc
-    }, {} as Record<string, any>),
+    components: {
+      ...components.reduce((acc, c) => {
+        acc[c.name] = {
+          from: '@vuetify/v0',
+          styles: [],
+        }
+        return acc
+      }, {} as Record<string, any>),
+      ...namespaces.reduce((acc, name) => {
+        acc[name] = {
+          from: '@vuetify/v0',
+          styles: [],
+        }
+        return acc
+      }, {} as Record<string, any>),
+    },
   }
 
   writeFileSync(resolve(OUTPUT_DIR, 'importMap.json'), JSON.stringify(importMap, null, 2))
