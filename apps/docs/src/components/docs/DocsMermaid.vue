@@ -509,6 +509,59 @@
     opacity: 1 !important;
   }
 
+  /* Semantic node classes (use with classDef in mermaid) */
+  .docs-mermaid .node.success rect,
+  .docs-mermaid .node.success polygon {
+    fill: var(--v0-success) !important;
+  }
+
+  .docs-mermaid .node.success .nodeLabel {
+    fill: var(--v0-on-success) !important;
+    color: var(--v0-on-success) !important;
+  }
+
+  .docs-mermaid .node.info rect,
+  .docs-mermaid .node.info polygon {
+    fill: var(--v0-info) !important;
+  }
+
+  .docs-mermaid .node.info .nodeLabel {
+    fill: var(--v0-on-info) !important;
+    color: var(--v0-on-info) !important;
+  }
+
+  .docs-mermaid .node.warning rect,
+  .docs-mermaid .node.warning polygon {
+    fill: var(--v0-warning) !important;
+  }
+
+  .docs-mermaid .node.warning .nodeLabel {
+    fill: var(--v0-on-warning) !important;
+    color: var(--v0-on-warning) !important;
+  }
+
+  .docs-mermaid .node.error rect,
+  .docs-mermaid .node.error polygon {
+    fill: var(--v0-error) !important;
+  }
+
+  .docs-mermaid .node.error .nodeLabel {
+    fill: var(--v0-on-error) !important;
+    color: var(--v0-on-error) !important;
+  }
+
+  .docs-mermaid .node.muted rect,
+  .docs-mermaid .node.muted polygon {
+    fill: var(--v0-surface-variant) !important;
+    stroke: var(--v0-divider) !important;
+    stroke-width: 1px !important;
+  }
+
+  .docs-mermaid .node.muted .nodeLabel {
+    fill: var(--v0-on-surface-variant) !important;
+    color: var(--v0-on-surface-variant) !important;
+  }
+
   /* Dialog expanded view */
   .docs-mermaid-dialog[open] {
     width: min(90vw, 1200px);
