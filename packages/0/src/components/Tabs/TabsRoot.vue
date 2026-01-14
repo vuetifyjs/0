@@ -3,7 +3,7 @@
  *
  * @remarks
  * Root component for tabs navigation. Creates and provides step context
- * to child TabsTab and TabsPanel components. Supports horizontal/vertical
+ * to child TabsItem and TabsPanel components. Supports horizontal/vertical
  * orientation and automatic/manual activation modes.
  */
 
@@ -82,11 +82,11 @@
 
   export interface TabsContext extends StepContext<TabsTicket> {
     /** Tab orientation */
-    orientation: Readonly<Ref<TabsOrientation>>
+    orientation: Ref<TabsOrientation>
     /** Activation mode */
-    activation: Readonly<Ref<TabsActivation>>
+    activation: Ref<TabsActivation>
     /** Whether navigation loops */
-    loop: Readonly<Ref<boolean>>
+    loop: Ref<boolean>
     /** Root ID for generating tab/panel IDs */
     rootId: string
   }

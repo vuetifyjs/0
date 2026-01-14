@@ -22,7 +22,7 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { toRef, toValue } from 'vue'
+  import { toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -46,12 +46,15 @@
       'aria-orientation': TabsOrientation
       'aria-label': string | undefined
       'aria-disabled': boolean | undefined
+      'data-disabled': true | undefined
     }
   }
 </script>
 
 <script lang="ts" setup>
-  defineOptions({ name: 'TabsList' })
+  defineOptions({ name: 'TabsList', inheritAttrs: false })
+
+  const attrs = useAttrs()
 
   defineSlots<{
     default: (props: TabsListSlotProps) => any
@@ -76,13 +79,14 @@
       'aria-orientation': tabs.orientation.value,
       'aria-label': label,
       'aria-disabled': isDisabled.value || undefined,
+      'data-disabled': isDisabled.value || undefined,
     },
   }))
 </script>
 
 <template>
   <Atom
-    v-bind="slotProps.attrs"
+    v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
   >

@@ -1,19 +1,19 @@
 export { provideTabsRoot, useTabsRoot } from './TabsRoot.vue'
 export { default as TabsRoot } from './TabsRoot.vue'
 export { default as TabsList } from './TabsList.vue'
-export { default as TabsTab } from './TabsTab.vue'
+export { default as TabsItem } from './TabsItem.vue'
 export { default as TabsPanel } from './TabsPanel.vue'
 
 export type { TabsActivation, TabsContext, TabsOrientation, TabsRootProps, TabsRootSlotProps, TabsTicket } from './TabsRoot.vue'
 export type { TabsListProps, TabsListSlotProps } from './TabsList.vue'
-export type { TabsTabProps, TabsTabSlotProps } from './TabsTab.vue'
+export type { TabsItemProps, TabsItemSlotProps } from './TabsItem.vue'
 export type { TabsPanelProps, TabsPanelSlotProps } from './TabsPanel.vue'
 
 // Components
+import Item from './TabsItem.vue'
 import List from './TabsList.vue'
 import Panel from './TabsPanel.vue'
 import Root from './TabsRoot.vue'
-import Tab from './TabsTab.vue'
 
 /**
  * Tabs component with sub-components for building accessible tab interfaces.
@@ -31,9 +31,9 @@ import Tab from './TabsTab.vue'
  * <template>
  *   <Tabs.Root v-model="selected">
  *     <Tabs.List label="Account settings">
- *       <Tabs.Tab value="profile">Profile</Tabs.Tab>
- *       <Tabs.Tab value="password">Password</Tabs.Tab>
- *       <Tabs.Tab value="billing" disabled>Billing</Tabs.Tab>
+ *       <Tabs.Item value="profile">Profile</Tabs.Item>
+ *       <Tabs.Item value="password">Password</Tabs.Item>
+ *       <Tabs.Item value="billing" disabled>Billing</Tabs.Item>
  *     </Tabs.List>
  *
  *     <Tabs.Panel value="profile">Profile content</Tabs.Panel>
@@ -59,9 +59,9 @@ export const Tabs = {
   /**
    * Individual tab trigger.
    *
-   * @see https://0.vuetifyjs.com/components/tabs#tabstab
+   * @see https://0.vuetifyjs.com/components/tabs#tabsitem
    */
-  Tab,
+  Item,
   /**
    * Content panel associated with a tab.
    *

@@ -2,7 +2,7 @@
  * @module TabsPanel
  *
  * @remarks
- * Content panel associated with a tab. Matches with TabsTab via the `value`
+ * Content panel associated with a tab. Matches with TabsItem via the `value`
  * prop. Provides ARIA tabpanel role and labelledby relationship with the
  * corresponding tab trigger.
  *
@@ -22,13 +22,13 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { toRef, toValue } from 'vue'
+  import { toRef, toValue, useAttrs } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface TabsPanelProps<V = unknown> extends AtomProps {
-    /** Value to match with corresponding TabsTab */
+    /** Value to match with corresponding TabsItem */
     value: V
     /** Namespace for dependency injection */
     namespace?: string
@@ -50,7 +50,9 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
-  defineOptions({ name: 'TabsPanel' })
+  defineOptions({ name: 'TabsPanel', inheritAttrs: false })
+
+  const attrs = useAttrs()
 
   defineSlots<{
     default: (props: TabsPanelSlotProps) => any
@@ -99,7 +101,7 @@
 
 <template>
   <Atom
-    v-bind="slotProps.attrs"
+    v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
   >

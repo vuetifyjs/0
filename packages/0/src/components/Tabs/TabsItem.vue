@@ -1,5 +1,5 @@
 /**
- * @module TabsTab
+ * @module TabsItem
  *
  * @remarks
  * Individual tab trigger that registers with the parent TabsRoot.
@@ -10,7 +10,7 @@
  * @example
  * ```ts
  * // Using slot props for conditional styling
- * h(Tabs.Tab, { value: 'profile' }, {
+ * h(Tabs.Item, { value: 'profile' }, {
  *   default: ({ isSelected }) => h('button', {
  *     class: isSelected ? 'border-b-2 border-blue-500' : ''
  *   }, 'Profile')
@@ -24,24 +24,31 @@
   import { useTabsRoot } from './TabsRoot.vue'
 
   // Utilities
-  import { nextTick, onUnmounted, toRef, toValue, useTemplateRef } from 'vue'
+  import { nextTick, onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { ID } from '#v0/types'
   import type { MaybeRef } from 'vue'
 
-  export interface TabsTabProps<V = unknown> extends AtomProps {
+  export interface TabsItemProps<V = unknown> extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
-    id?: string
+    id?: ID
     /** Value associated with this tab (used to match with TabsPanel) */
     value?: V
     /** Disables this specific tab */
     disabled?: MaybeRef<boolean>
     /** Namespace for dependency injection */
     namespace?: string
+    /** Accessible label for this tab */
+    ariaLabel?: string
+    /** ID of element that labels this tab */
+    ariaLabelledby?: string
+    /** ID of element that describes this tab */
+    ariaDescribedby?: string
   }
 
-  export interface TabsTabSlotProps {
+  export interface TabsItemSlotProps {
     /** Unique identifier */
     id: string
     /** Whether this tab is currently selected */
@@ -58,6 +65,9 @@
       'aria-selected': boolean
       'aria-controls': string
       'aria-disabled': boolean | undefined
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'data-selected': true | undefined
       'data-disabled': true | undefined
       'disabled': boolean | undefined
@@ -70,12 +80,13 @@
 </script>
 
 <script lang="ts" setup generic="V = unknown">
+  defineOptions({ name: 'TabsItem', inheritAttrs: false })
+
+  const attrs = useAttrs()
   const rootRef = useTemplateRef<AtomExpose>('root')
 
-  defineOptions({ name: 'TabsTab' })
-
   defineSlots<{
-    default: (props: TabsTabSlotProps) => any
+    default: (props: TabsItemSlotProps) => any
   }>()
 
   const {
@@ -85,7 +96,10 @@
     value,
     disabled,
     namespace = 'v0:tabs',
-  } = defineProps<TabsTabProps<V>>()
+    ariaLabel,
+    ariaLabelledby,
+    ariaDescribedby,
+  } = defineProps<TabsItemProps<V>>()
 
   const tabs = useTabsRoot(namespace)
 
@@ -172,7 +186,7 @@
     }
   }
 
-  const slotProps = toRef((): TabsTabSlotProps => ({
+  const slotProps = toRef((): TabsItemSlotProps => ({
     id: String(ticket.id),
     isSelected: toValue(ticket.isSelected),
     isDisabled: toValue(isDisabled),
@@ -184,6 +198,9 @@
       'aria-selected': toValue(ticket.isSelected),
       'aria-controls': panelId.value,
       'aria-disabled': toValue(isDisabled) || undefined,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledby,
+      'aria-describedby': ariaDescribedby,
       'data-selected': toValue(ticket.isSelected) || undefined,
       'data-disabled': toValue(isDisabled) || undefined,
       'disabled': as === 'button' ? toValue(isDisabled) : undefined,
@@ -198,7 +215,7 @@
 <template>
   <Atom
     ref="root"
-    v-bind="slotProps.attrs"
+    v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
   >

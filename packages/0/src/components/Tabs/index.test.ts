@@ -94,7 +94,7 @@ describe('tabs', () => {
 
         mount(Tabs.Root, {
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'tab-1' }, {
+            default: () => h(Tabs.Item as any, { value: 'tab-1' }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Tab 1')
@@ -116,7 +116,7 @@ describe('tabs', () => {
             mandatory: false,
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'tab-1' }, {
+            default: () => h(Tabs.Item as any, { value: 'tab-1' }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Tab 1')
@@ -175,7 +175,7 @@ describe('tabs', () => {
             mandatory: false,
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'tab-1' }, {
+            default: () => h(Tabs.Item as any, { value: 'tab-1' }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Tab 1')
@@ -200,7 +200,7 @@ describe('tabs', () => {
             modelValue: 'tab-1',
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'tab-1' }, {
+            default: () => h(Tabs.Item as any, { value: 'tab-1' }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Tab 1')
@@ -227,13 +227,13 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, {
+              h(Tabs.Item as any, { value: 'tab-1' }, {
                 default: (props: any) => {
                   tab1Props = props
                   return h('button', 'Tab 1')
                 },
               }),
-              h(Tabs.Tab as any, { value: 'tab-2' }, {
+              h(Tabs.Item as any, { value: 'tab-2' }, {
                 default: (props: any) => {
                   tab2Props = props
                   return h('button', 'Tab 2')
@@ -264,7 +264,7 @@ describe('tabs', () => {
             },
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'tab-1' }, {
+            default: () => h(Tabs.Item as any, { value: 'tab-1' }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Tab 1')
@@ -299,7 +299,7 @@ describe('tabs', () => {
             },
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'tab-1', disabled: true }, {
+            default: () => h(Tabs.Item as any, { value: 'tab-1', disabled: true }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Tab 1')
@@ -333,7 +333,7 @@ describe('tabs', () => {
             },
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'tab-1', disabled }, {
+            default: () => h(Tabs.Item as any, { value: 'tab-1', disabled }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Tab 1')
@@ -375,7 +375,7 @@ describe('tabs', () => {
             },
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'tab-1', disabled }, {
+            default: () => h(Tabs.Item as any, { value: 'tab-1', disabled }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Tab 1')
@@ -413,14 +413,14 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, {
+              h(Tabs.Item as any, { value: 'tab-1' }, {
                 default: (props: any) => {
                   tab1Props = props
                   return h('button', 'Tab 1')
                 },
               }),
-              h(Tabs.Tab as any, { value: 'tab-2', disabled: tab2Disabled }, () => h('button', 'Tab 2')),
-              h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+              h(Tabs.Item as any, { value: 'tab-2', disabled: tab2Disabled }, () => h('button', 'Tab 2')),
+              h(Tabs.Item as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
             ],
           },
         })
@@ -460,7 +460,7 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+              h(Tabs.Item as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
               h(Tabs.Panel as any, { value: 'tab-1' }, {
                 default: (props: any) => {
                   panelProps = props
@@ -488,8 +488,8 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
-              h(Tabs.Tab as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
+              h(Tabs.Item as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+              h(Tabs.Item as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
               h(Tabs.Panel as any, { value: 'tab-1' }, {
                 default: (props: any) => {
                   panelProps = props
@@ -519,7 +519,7 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'profile' }, {
+              h(Tabs.Item as any, { value: 'profile' }, {
                 default: (props: any) => {
                   tabProps = props
                   return h('button', 'Profile')
@@ -555,7 +555,7 @@ describe('tabs', () => {
               selected.value = value as string
             },
           }, () => [
-            h(Tabs.Tab as any, { value: 'tab-1' }, {
+            h(Tabs.Item as any, { value: 'tab-1' }, {
               default: (props: any) => {
                 tabId = props.attrs.id
                 return h('button', 'Tab 1')
@@ -600,19 +600,19 @@ describe('tabs', () => {
         },
         slots: {
           default: () => [
-            h(Tabs.Tab as any, { value: 'tab-1' }, {
+            h(Tabs.Item as any, { value: 'tab-1' }, {
               default: (props: any) => {
                 tab1Props = props
                 return h('button', 'Tab 1')
               },
             }),
-            h(Tabs.Tab as any, { value: 'tab-2' }, {
+            h(Tabs.Item as any, { value: 'tab-2' }, {
               default: (props: any) => {
                 tab2Props = props
                 return h('button', 'Tab 2')
               },
             }),
-            h(Tabs.Tab as any, { value: 'tab-3' }, {
+            h(Tabs.Item as any, { value: 'tab-3' }, {
               default: (props: any) => {
                 tab3Props = props
                 return h('button', 'Tab 3')
@@ -746,8 +746,8 @@ describe('tabs', () => {
         },
         slots: {
           default: () => [
-            h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
-            h(Tabs.Tab as any, { value: 'tab-2' }, {
+            h(Tabs.Item as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+            h(Tabs.Item as any, { value: 'tab-2' }, {
               default: (props: any) => {
                 tab2Props = props
                 return h('button', 'Tab 2')
@@ -781,8 +781,8 @@ describe('tabs', () => {
         },
         slots: {
           default: () => [
-            h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
-            h(Tabs.Tab as any, { value: 'tab-2' }, {
+            h(Tabs.Item as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+            h(Tabs.Item as any, { value: 'tab-2' }, {
               default: (props: any) => {
                 tab2Props = props
                 return h('button', 'Tab 2')
@@ -815,7 +815,7 @@ describe('tabs', () => {
           },
         },
         slots: {
-          default: () => h(Tabs.Tab as any, { value: 'tab-1' }, {
+          default: () => h(Tabs.Item as any, { value: 'tab-1' }, {
             default: (props: any) => {
               tab1Props = props
               return h('button', 'Tab 1')
@@ -849,7 +849,7 @@ describe('tabs', () => {
           },
         },
         slots: {
-          default: () => h(Tabs.Tab as any, { value: 'tab-1' }, {
+          default: () => h(Tabs.Item as any, { value: 'tab-1' }, {
             default: (props: any) => {
               tab1Props = props
               return h('button', 'Tab 1')
@@ -884,14 +884,14 @@ describe('tabs', () => {
         },
         slots: {
           default: () => [
-            h(Tabs.Tab as any, { value: 'tab-1' }, {
+            h(Tabs.Item as any, { value: 'tab-1' }, {
               default: (props: any) => {
                 tab1Props = props
                 return h('button', 'Tab 1')
               },
             }),
-            h(Tabs.Tab as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
-            h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+            h(Tabs.Item as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
+            h(Tabs.Item as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
           ],
         },
       })
@@ -922,9 +922,9 @@ describe('tabs', () => {
         },
         slots: {
           default: () => [
-            h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
-            h(Tabs.Tab as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
-            h(Tabs.Tab as any, { value: 'tab-3' }, {
+            h(Tabs.Item as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+            h(Tabs.Item as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
+            h(Tabs.Item as any, { value: 'tab-3' }, {
               default: (props: any) => {
                 tab3Props = props
                 return h('button', 'Tab 3')
@@ -955,7 +955,7 @@ describe('tabs', () => {
           modelValue: 'tab-1',
         },
         slots: {
-          default: () => h(Tabs.Tab as any, { value: 'tab-1', as: 'a' }, {
+          default: () => h(Tabs.Item as any, { value: 'tab-1', as: 'a' }, {
             default: (props: any) => {
               tabProps = props
               return h('a', { href: '#' }, 'Tab 1')
@@ -978,7 +978,7 @@ describe('tabs', () => {
       mount(defineComponent({
         render: () => [
           h(Tabs.Root as any, { namespace: 'tabs-1', mandatory: false }, () =>
-            h(Tabs.Tab as any, { value: 'item', namespace: 'tabs-1' }, {
+            h(Tabs.Item as any, { value: 'item', namespace: 'tabs-1' }, {
               default: (props: any) => {
                 tabs1Props = props
                 return h('button', 'Tab 1')
@@ -986,7 +986,7 @@ describe('tabs', () => {
             }),
           ),
           h(Tabs.Root as any, { namespace: 'tabs-2', mandatory: false }, () =>
-            h(Tabs.Tab as any, { value: 'item', namespace: 'tabs-2' }, {
+            h(Tabs.Item as any, { value: 'item', namespace: 'tabs-2' }, {
               default: (props: any) => {
                 tabs2Props = props
                 return h('button', 'Tab 2')
@@ -1034,7 +1034,7 @@ describe('tabs', () => {
             mandatory: 'force',
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'only-tab' }, {
+            default: () => h(Tabs.Item as any, { value: 'only-tab' }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Only Tab')
@@ -1062,7 +1062,7 @@ describe('tabs', () => {
             },
           },
           slots: {
-            default: () => h(Tabs.Tab as any, { value: 'only-tab' }, {
+            default: () => h(Tabs.Item as any, { value: 'only-tab' }, {
               default: (props: any) => {
                 tabProps = props
                 return h('button', 'Only Tab')
@@ -1099,14 +1099,14 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1', disabled: true }, {
+              h(Tabs.Item as any, { value: 'tab-1', disabled: true }, {
                 default: (props: any) => {
                   tab1Props = props
                   return h('button', 'Tab 1')
                 },
               }),
-              h(Tabs.Tab as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
-              h(Tabs.Tab as any, { value: 'tab-3', disabled: true }, () => h('button', 'Tab 3')),
+              h(Tabs.Item as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
+              h(Tabs.Item as any, { value: 'tab-3', disabled: true }, () => h('button', 'Tab 3')),
             ],
           },
         })
@@ -1133,13 +1133,13 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1', disabled: true }, {
+              h(Tabs.Item as any, { value: 'tab-1', disabled: true }, {
                 default: (props: any) => {
                   tab1Props = props
                   return h('button', 'Tab 1')
                 },
               }),
-              h(Tabs.Tab as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
+              h(Tabs.Item as any, { value: 'tab-2', disabled: true }, () => h('button', 'Tab 2')),
             ],
           },
         })
@@ -1165,7 +1165,7 @@ describe('tabs', () => {
                 selected.value = v as string
               },
             }, () => tabs.value.map(value =>
-              h(Tabs.Tab as any, { key: value, value }, {
+              h(Tabs.Item as any, { key: value, value }, {
                 default: (props: any) => {
                   if (value === 'tab-2') newTabProps = props
                   return h('button', value)
@@ -1205,7 +1205,7 @@ describe('tabs', () => {
                 selected.value = v as string
               },
             }, () => tabs.value.map(value =>
-              h(Tabs.Tab as any, { key: value, value }, () => h('button', value)),
+              h(Tabs.Item as any, { key: value, value }, () => h('button', value)),
             ))
           },
         })
@@ -1233,7 +1233,7 @@ describe('tabs', () => {
                 selected.value = v as string
               },
             }, () => tabs.value.map(value =>
-              h(Tabs.Tab as any, { key: value, value }, () => h('button', value)),
+              h(Tabs.Item as any, { key: value, value }, () => h('button', value)),
             ))
           },
         })
@@ -1268,9 +1268,9 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
-              h(Tabs.Tab as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
-              h(Tabs.Tab as any, { value: 'tab-3' }, {
+              h(Tabs.Item as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+              h(Tabs.Item as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
+              h(Tabs.Item as any, { value: 'tab-3' }, {
                 default: (props: any) => {
                   tab3Props = props
                   return h('button', 'Tab 3')
@@ -1307,14 +1307,14 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, {
+              h(Tabs.Item as any, { value: 'tab-1' }, {
                 default: (props: any) => {
                   tab1Props = props
                   return h('button', 'Tab 1')
                 },
               }),
-              h(Tabs.Tab as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
-              h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+              h(Tabs.Item as any, { value: 'tab-2' }, () => h('button', 'Tab 2')),
+              h(Tabs.Item as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
             ],
           },
         })
@@ -1346,14 +1346,14 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
-              h(Tabs.Tab as any, { value: 'tab-2' }, {
+              h(Tabs.Item as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+              h(Tabs.Item as any, { value: 'tab-2' }, {
                 default: (props: any) => {
                   tab2Props = props
                   return h('button', 'Tab 2')
                 },
               }),
-              h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+              h(Tabs.Item as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
             ],
           },
         })
@@ -1384,14 +1384,14 @@ describe('tabs', () => {
           },
           slots: {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
-              h(Tabs.Tab as any, { value: 'tab-2' }, {
+              h(Tabs.Item as any, { value: 'tab-1' }, () => h('button', 'Tab 1')),
+              h(Tabs.Item as any, { value: 'tab-2' }, {
                 default: (props: any) => {
                   tab2Props = props
                   return h('button', 'Tab 2')
                 },
               }),
-              h(Tabs.Tab as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
+              h(Tabs.Item as any, { value: 'tab-3' }, () => h('button', 'Tab 3')),
             ],
           },
         })
@@ -1417,10 +1417,10 @@ describe('tabs', () => {
           h(Tabs.Root as any, { modelValue: 'tab-1' }, {
             default: () => [
               h(Tabs.List as any, { label: 'Tabs' }, () => [
-                h(Tabs.Tab as any, { value: 'tab-1' }, {
+                h(Tabs.Item as any, { value: 'tab-1' }, {
                   default: (props: any) => h('button', { ...props.attrs }, 'Tab 1'),
                 }),
-                h(Tabs.Tab as any, { value: 'tab-2' }, {
+                h(Tabs.Item as any, { value: 'tab-2' }, {
                   default: (props: any) => h('button', { ...props.attrs }, 'Tab 2'),
                 }),
               ]),
@@ -1450,7 +1450,7 @@ describe('tabs', () => {
         render: () =>
           h(Tabs.Root as any, { modelValue: 'tab-1' }, {
             default: () =>
-              h(Tabs.Tab as any, { value: 'tab-1' }, {
+              h(Tabs.Item as any, { value: 'tab-1' }, {
                 default: (props: any) => h('button', { ...props.attrs }, 'Tab 1'),
               }),
           }),
@@ -1467,7 +1467,7 @@ describe('tabs', () => {
         render: () =>
           h(Tabs.Root as any, { modelValue: 'tab-1' }, {
             default: () => [
-              h(Tabs.Tab as any, { value: 'tab-1' }, {
+              h(Tabs.Item as any, { value: 'tab-1' }, {
                 default: (props: any) => h('button', { ...props.attrs }, 'Tab 1'),
               }),
               h(Tabs.Panel as any, { value: 'tab-1' }, {
