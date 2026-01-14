@@ -1,7 +1,7 @@
 // Types
-import type { ComputedRef, Reactive, Ref } from 'vue'
+import type { GroupContext, GroupContextOptions, GroupOptions, GroupTicket } from '#v0/composables/createGroup'
 import type { ID } from '#v0/types'
-import type { GroupContext, GroupContextOptions, GroupOptions, GroupTicket } from '#v0/composables/useGroup'
+import type { ComputedRef, Reactive, Ref } from 'vue'
 
 /**
  * Ticket for nested/hierarchical items with parent-child relationships.
@@ -34,6 +34,19 @@ export interface NestedTicket<V = unknown> extends GroupTicket<V> {
 }
 
 /**
+ * Minimal context interface for open strategy callbacks.
+ * Only exposes the state needed for open/close operations.
+ */
+export interface OpenStrategyContext {
+  /** Set of currently opened item IDs */
+  openedIds: Reactive<Set<ID>>
+  /** Map of parent IDs to child ID arrays */
+  children: Map<ID, ID[]>
+  /** Map of child IDs to parent IDs */
+  parents: Map<ID, ID | undefined>
+}
+
+/**
  * Strategy interface for controlling how items are opened.
  *
  * @remarks
@@ -44,9 +57,26 @@ export interface NestedTicket<V = unknown> extends GroupTicket<V> {
  */
 export interface OpenStrategy {
   /** Called when an item is opened */
-  onOpen?: (id: ID, context: NestedContext<any>) => void
+  onOpen?: (id: ID, context: OpenStrategyContext) => void
   /** Called when an item is closed */
-  onClose?: (id: ID, context: NestedContext<any>) => void
+  onClose?: (id: ID, context: OpenStrategyContext) => void
+}
+
+/**
+ * Registration input for nested items.
+ * Allows inline children definition for easier tree construction.
+ */
+export interface NestedRegistration<V = unknown> {
+  /** Unique identifier (auto-generated if not provided) */
+  id?: ID
+  /** Value associated with this item */
+  value?: V
+  /** Parent ID (set automatically when using children property) */
+  parentId?: ID
+  /** Whether this item is disabled */
+  disabled?: boolean
+  /** Inline children to register with this item as parent */
+  children?: NestedRegistration<V>[]
 }
 
 /**
@@ -57,7 +87,7 @@ export interface OpenStrategy {
  * and hierarchical traversal methods. Perfect for tree structures, nested menus,
  * file explorers, and organizational charts.
  */
-export interface NestedContext<Z extends NestedTicket> extends GroupContext<Z> {
+export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext<Z>, 'register' | 'onboard' | 'select' | 'unselect' | 'toggle'> {
   /** Map of parent IDs to arrays of child IDs */
   children: Map<ID, ID[]>
   /** Map of child IDs to their parent ID (or undefined for roots) */
@@ -66,14 +96,20 @@ export interface NestedContext<Z extends NestedTicket> extends GroupContext<Z> {
   openedIds: Reactive<Set<ID>>
   /** Computed Set of opened/expanded item instances */
   openedItems: ComputedRef<Set<Z>>
-  /** Open/expand an item by ID */
-  open: (id: ID) => void
-  /** Close/collapse an item by ID */
-  close: (id: ID) => void
-  /** Toggle an item's open/closed state by ID */
-  toggleOpen: (id: ID) => void
+  /** Open/expand one or more items by ID */
+  open: (ids: ID | ID[]) => void
+  /** Close/collapse one or more items by ID */
+  close: (ids: ID | ID[]) => void
+  /** Toggle one or more items' open/closed state by ID */
+  toggleOpen: (ids: ID | ID[]) => void
   /** Check if an item is open by ID */
   opened: (id: ID) => boolean
+  /** Expand all non-leaf nodes */
+  expandAll: () => void
+  /** Collapse all nodes */
+  collapseAll: () => void
+  /** Convert tree to flat array with parentId references */
+  toFlat: () => Array<{ id: ID, parentId: ID | undefined, value: unknown }>
   /** Get the path from root to the specified item (inclusive) */
   getPath: (id: ID) => ID[]
   /** Get all descendants of an item */
@@ -90,6 +126,20 @@ export interface NestedContext<Z extends NestedTicket> extends GroupContext<Z> {
   leaves: ComputedRef<Z[]>
   /** Strategy controlling how items are opened */
   openStrategy: OpenStrategy
+  /** Select item(s) and all descendants, updating ancestor mixed states */
+  select: (ids: ID | ID[]) => void
+  /** Unselect item(s) and all descendants, updating ancestor mixed states */
+  unselect: (ids: ID | ID[]) => void
+  /** Toggle selection with cascading behavior */
+  toggle: (ids: ID | ID[]) => void
+  /** Register a node with optional inline children */
+  register: (registration?: NestedRegistration) => Z
+  /** Batch register nodes with optional inline children */
+  onboard: (registrations: NestedRegistration[]) => Z[]
+  /** Unregister a node, optionally cascading to descendants */
+  unregister: (id: ID, cascade?: boolean) => void
+  /** Offboard multiple nodes, optionally cascading */
+  offboard: (ids: ID[], cascade?: boolean) => void
 }
 
 /**

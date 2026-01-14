@@ -11,7 +11,7 @@
 
 // Types
 import type { ID } from '#v0/types'
-import type { NestedContext, NestedTicket, OpenStrategy } from './types'
+import type { OpenStrategy, OpenStrategyContext } from './types'
 
 /**
  * Multiple open strategy: allows multiple nodes to be open simultaneously.
@@ -48,7 +48,7 @@ export const multipleOpenStrategy: OpenStrategy = {
  * ```
  */
 export const singleOpenStrategy: OpenStrategy = {
-  onOpen: <Z extends NestedTicket>(id: ID, context: NestedContext<Z>) => {
+  onOpen: (id: ID, context: OpenStrategyContext) => {
     // Close all other items
     for (const openedId of context.openedIds) {
       if (openedId !== id) {

@@ -12,44 +12,38 @@
  */
 
 // Factories
+// Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createGroup } from '#v0/composables/useGroup'
+import { createGroup } from '#v0/composables/createGroup'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { computed, shallowReactive, toRef } from 'vue'
 import { genId, isUndefined } from '#v0/utilities'
+import { computed, shallowReactive, toRef } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
-// Strategies
-import { multipleOpenStrategy } from './strategies'
-
 // Types
-import type { App } from 'vue'
-import type { ID } from '#v0/types'
-import type { GroupContext, GroupTicket } from '#v0/composables/useGroup'
+import type { GroupContext } from '#v0/composables/createGroup'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { ID } from '#v0/types'
 import type {
   NestedContext,
   NestedContextOptions,
   NestedOptions,
+  NestedRegistration,
   NestedTicket,
-  OpenStrategy,
 } from './types'
+import type { App } from 'vue'
+
+// Strategies
+import { multipleOpenStrategy } from './strategies'
 
 // Re-export types
-export type {
-  NestedContext,
-  NestedContextOptions,
-  NestedOptions,
-  NestedTicket,
-  OpenStrategy,
-}
 
 // Re-export strategies
 export { multipleOpenStrategy, singleOpenStrategy } from './strategies'
@@ -97,9 +91,9 @@ export { multipleOpenStrategy, singleOpenStrategy } from './strategies'
 export function createNested<
   Z extends NestedTicket = NestedTicket,
   E extends NestedContext<Z> = NestedContext<Z>,
->(_options: NestedOptions = {}): E {
+> (_options: NestedOptions = {}): E {
   const { openStrategy = multipleOpenStrategy, ...options } = _options
-  const group = createGroup<GroupTicket, GroupContext<GroupTicket>>(options)
+  const group = createGroup<Z, GroupContext<Z>>(options)
   const logger = useLogger()
 
   // Tree structure - use shallowReactive for proper reactivity
@@ -112,7 +106,7 @@ export function createNested<
     return new Set(
       Array.from(openedIds)
         .map(id => group.get(id))
-        .filter((item): item is Z => !isUndefined(item)) as Z[]
+        .filter((item): item is Z => !isUndefined(item)) as Z[],
     )
   })
 
@@ -128,11 +122,11 @@ export function createNested<
   })
 
   // Open state methods
-  function opened(id: ID): boolean {
+  function opened (id: ID): boolean {
     return openedIds.has(id)
   }
 
-  function open(ids: ID | ID[]): void {
+  function open (ids: ID | ID[]): void {
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
       openedIds.add(id)
@@ -140,14 +134,14 @@ export function createNested<
     }
   }
 
-  function close(ids: ID | ID[]): void {
+  function close (ids: ID | ID[]): void {
     for (const id of toArray(ids)) {
       openedIds.delete(id)
       openStrategy.onClose?.(id, context)
     }
   }
 
-  function toggleOpen(ids: ID | ID[]): void {
+  function toggleOpen (ids: ID | ID[]): void {
     for (const id of toArray(ids)) {
       if (opened(id)) {
         close(id)
@@ -157,8 +151,20 @@ export function createNested<
     }
   }
 
+  function expandAll (): void {
+    for (const id of group.keys()) {
+      if (!isLeaf(id)) {
+        openedIds.add(id)
+      }
+    }
+  }
+
+  function collapseAll (): void {
+    openedIds.clear()
+  }
+
   // Tree traversal methods (computed on-demand)
-  function getPath(id: ID): ID[] {
+  function getPath (id: ID): ID[] {
     const path: ID[] = []
     let currentId: ID | undefined = id
 
@@ -170,12 +176,12 @@ export function createNested<
     return path
   }
 
-  function getAncestors(id: ID): ID[] {
+  function getAncestors (id: ID): ID[] {
     const path = getPath(id)
     return path.slice(0, -1)
   }
 
-  function getDescendants(id: ID): ID[] {
+  function getDescendants (id: ID): ID[] {
     const descendants: ID[] = []
     const queue: ID[] = [...(children.get(id) ?? [])]
 
@@ -188,19 +194,100 @@ export function createNested<
     return descendants
   }
 
-  function isLeaf(id: ID): boolean {
+  function isLeaf (id: ID): boolean {
     const childList = children.get(id)
     return isUndefined(childList) || childList.length === 0
   }
 
-  function getDepth(id: ID): number {
+  function getDepth (id: ID): number {
     return getAncestors(id).length
   }
 
+  // Cascading selection helpers
+  function updateAncestors (id: ID): void {
+    // Process from immediate parent up to root
+    const ancestorIds = getAncestors(id).toReversed()
+    for (const aid of ancestorIds) {
+      const childIds = children.get(aid) ?? []
+      if (childIds.length === 0) continue
+
+      const allSelected = childIds.every(cid => group.selected(cid))
+      const someSelected = childIds.some(cid => group.selected(cid) || group.mixed(cid))
+
+      if (allSelected) {
+        group.unmix(aid)
+        group.select(aid)
+      } else if (someSelected) {
+        group.unselect(aid)
+        group.mix(aid)
+      } else {
+        group.unmix(aid)
+        group.unselect(aid)
+      }
+    }
+  }
+
+  function select (ids: ID | ID[]): void {
+    for (const id of toArray(ids)) {
+      if (!group.has(id)) continue
+
+      // Select this item and all descendants
+      group.unmix(id)
+      group.select(id)
+      for (const did of getDescendants(id)) {
+        group.unmix(did)
+        group.select(did)
+      }
+
+      // Update ancestor states
+      updateAncestors(id)
+    }
+  }
+
+  function unselect (ids: ID | ID[]): void {
+    for (const id of toArray(ids)) {
+      if (!group.has(id)) continue
+
+      // Unselect this item and all descendants
+      group.unmix(id)
+      group.unselect(id)
+      for (const did of getDescendants(id)) {
+        group.unmix(did)
+        group.unselect(did)
+      }
+
+      // Update ancestor states
+      updateAncestors(id)
+    }
+  }
+
+  function toggle (ids: ID | ID[]): void {
+    for (const id of toArray(ids)) {
+      if (group.selected(id) || group.mixed(id)) {
+        unselect(id)
+      } else {
+        select(id)
+      }
+    }
+  }
+
+  /**
+   * Converts the tree to a flat array with parentId references.
+   * Useful for serialization or sending to APIs/AI systems.
+   */
+  function toFlat (): Array<{ id: ID, parentId: ID | undefined, value: unknown }> {
+    return group.values().map(item => ({
+      id: item.id,
+      parentId: parents.get(item.id),
+      value: item.value,
+    }))
+  }
+
   // Registration
-  function register(registration: Partial<Z> = {}): Z {
+  function register (registration: NestedRegistration = {}): Z {
     const id = registration.id ?? genId()
     const parentId = registration.parentId
+    const nested = registration.children
 
     // Validate parent exists if provided
     if (!isUndefined(parentId) && !group.has(parentId)) {
@@ -211,9 +298,9 @@ export function createNested<
     if (!isUndefined(parentId) && group.has(parentId)) {
       parents.set(id, parentId)
 
-      const childList = children.get(parentId)
-      if (childList) {
-        childList.push(id)
+      const list = children.get(parentId)
+      if (list) {
+        list.push(id)
       } else {
         children.set(parentId, [id])
       }
@@ -221,9 +308,10 @@ export function createNested<
       parents.set(id, undefined)
     }
 
-    // Create ticket with nested-specific properties
+    // Create ticket with nested-specific properties (exclude children from spreading)
+    const { children: _, ...rest } = registration
     const item: Partial<Z> = {
-      ...registration,
+      ...rest,
       id,
       parentId: parents.get(id),
       isOpen: toRef(() => opened(id)),
@@ -237,22 +325,29 @@ export function createNested<
       getDescendants: () => getDescendants(id),
     } as Partial<Z>
 
-    const ticket = group.register(item as any) as Z
+    const ticket = group.register(item)
 
-    return ticket
+    // Recursively register nested children
+    if (nested?.length) {
+      for (const child of nested) {
+        register({ ...child, parentId: id })
+      }
+    }
+
+    return ticket as Z
   }
 
   // Unregistration with cascade option
-  function unregister(id: ID, cascade = false): void {
+  function unregister (id: ID, cascade = false): void {
     if (!group.has(id)) return
 
     const parentId = parents.get(id)
 
     // Remove from parent's children array
     if (!isUndefined(parentId)) {
-      const childList = children.get(parentId)
-      if (childList) {
-        const filtered = childList.filter(childId => childId !== id)
+      const siblings = children.get(parentId)
+      if (siblings) {
+        const filtered = siblings.filter(sid => sid !== id)
         if (filtered.length === 0) {
           children.delete(parentId)
         } else {
@@ -262,21 +357,20 @@ export function createNested<
     }
 
     // Handle children
-    const childList = children.get(id)
-    if (childList && childList.length > 0) {
+    const list = children.get(id)
+    if (list?.length) {
       if (cascade) {
         // Cascade delete to all descendants
-        const descendants = getDescendants(id)
-        for (const descendantId of descendants) {
-          parents.delete(descendantId)
-          children.delete(descendantId)
-          openedIds.delete(descendantId)
-          group.unregister(descendantId)
+        for (const did of getDescendants(id)) {
+          parents.delete(did)
+          children.delete(did)
+          openedIds.delete(did)
+          group.unregister(did)
         }
       } else {
         // Orphan children by setting their parent to undefined
-        for (const childId of childList) {
-          parents.set(childId, undefined)
+        for (const cid of list) {
+          parents.set(cid, undefined)
         }
       }
     }
@@ -288,17 +382,17 @@ export function createNested<
     group.unregister(id)
   }
 
-  function offboard(ids: ID[], cascade = false): void {
+  function offboard (ids: ID[], cascade = false): void {
     for (const id of ids) {
       unregister(id, cascade)
     }
   }
 
-  function onboard(registrations: Partial<Z>[]): Z[] {
+  function onboard (registrations: NestedRegistration[]): Z[] {
     return registrations.map(registration => register(registration))
   }
 
-  function reset(): void {
+  function reset (): void {
     children.clear()
     parents.clear()
     openedIds.clear()
@@ -322,16 +416,22 @@ export function createNested<
     close,
     toggleOpen,
     opened,
+    expandAll,
+    collapseAll,
+    toFlat,
     openStrategy,
+    select,
+    unselect,
+    toggle,
     register,
     unregister,
     offboard,
     onboard,
     reset,
-    get size() {
+    get size () {
       return group.size
     },
-  } as E
+  } as unknown as E
 
   return context
 }
@@ -357,12 +457,12 @@ export function createNested<
 export function createNestedContext<
   Z extends NestedTicket = NestedTicket,
   E extends NestedContext<Z> = NestedContext<Z>,
->(_options: NestedContextOptions = {}): ContextTrinity<E> {
+> (_options: NestedContextOptions = {}): ContextTrinity<E> {
   const { namespace = 'v0:nested', ...options } = _options
   const [useNestedContext, _provideNestedContext] = createContext<E>(namespace)
   const context = createNested<Z, E>(options)
 
-  function provideNestedContext(_context: E = context, app?: App): E {
+  function provideNestedContext (_context: E = context, app?: App): E {
     return _provideNestedContext(_context, app)
   }
 
@@ -380,11 +480,8 @@ export function createNestedContext<
 export function useNested<
   Z extends NestedTicket = NestedTicket,
   E extends NestedContext<Z> = NestedContext<Z>,
->(namespace = 'v0:nested'): E {
+> (namespace = 'v0:nested'): E {
   return useContext<E>(namespace)
 }
 
-/**
- * Default nested trinity export.
- */
-export const [defaultUseNested, provideNested, defaultNested] = createNestedContext()
+export { type NestedContext, type NestedContextOptions, type NestedOptions, type NestedRegistration, type NestedTicket, type OpenStrategy, type OpenStrategyContext } from './types'
