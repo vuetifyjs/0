@@ -100,8 +100,7 @@
   import { useProxyModel } from '#v0/composables/useProxyModel'
 
   // Utilities
-  import { genId } from '#v0/utilities'
-  import { toRef, toValue } from 'vue'
+  import { toRef, toValue, useId } from 'vue'
 
   defineOptions({ name: 'TabsRoot' })
 
@@ -125,7 +124,7 @@
 
   const model = defineModel<T | T[]>()
 
-  const rootId = genId()
+  const rootId = useId()
 
   const step = createStep({
     disabled: toRef(() => disabled),
