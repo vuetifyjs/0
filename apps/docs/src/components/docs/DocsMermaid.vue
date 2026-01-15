@@ -8,7 +8,7 @@
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, watch } from 'vue'
+  import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, useTemplateRef, watch } from 'vue'
 
   const { prefersReducedMotion } = useSettings()
   const { copied, copy } = useClipboard()
@@ -20,7 +20,7 @@
 
   const mermaid = shallowRef<typeof Mermaid>()
   const panZoomInstance = shallowRef<PanZoomInstance>()
-  const dialogSvgRef = ref<HTMLElement>()
+  const dialogSvgRef = useTemplateRef<HTMLElement>('dialogSvg')
   const isOpen = ref(false)
 
   async function loadMermaid () {
@@ -392,7 +392,7 @@
       <!-- Diagram area -->
       <figure>
         <div
-          ref="dialogSvgRef"
+          ref="dialogSvg"
           class="docs-mermaid docs-mermaid-panzoom"
           v-html="svg"
         />

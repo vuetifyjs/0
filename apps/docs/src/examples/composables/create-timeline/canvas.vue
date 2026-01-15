@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { createTimeline, useProxyRegistry } from '@vuetify/v0'
-  import { onMounted, shallowRef, toRef, watchEffect } from 'vue'
+  import { onMounted, shallowRef, toRef, useTemplateRef, watchEffect } from 'vue'
 
   type Point = { x: number, y: number }
   type Stroke = Point[]
@@ -8,8 +8,8 @@
   const timeline = createTimeline<{ id: string, value: Stroke }>({ size: 20, events: true })
   const proxy = useProxyRegistry(timeline)
 
-  const canvas = shallowRef<HTMLCanvasElement>()
-  const colorRef = shallowRef<HTMLDivElement>()
+  const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas')
+  const colorRef = useTemplateRef<HTMLDivElement>('color')
   const isDrawing = shallowRef(false)
   const currentStroke = shallowRef<Stroke>([])
   const strokeColor = shallowRef('#6366f1')
@@ -31,7 +31,7 @@
   })
 
   function getPos (e: MouseEvent | TouchEvent): Point {
-    const el = canvas.value!
+    const el = canvasRef.value!
     const rect = el.getBoundingClientRect()
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
@@ -66,7 +66,7 @@
   }
 
   function render () {
-    const ctx = canvas.value?.getContext('2d')
+    const ctx = canvasRef.value?.getContext('2d')
     if (!ctx) return
     ctx.clearRect(0, 0, 600, 400)
     ctx.strokeStyle = strokeColor.value
@@ -115,7 +115,7 @@
 <template>
   <div class="flex flex-col gap-3">
     <!-- Hidden element to get primary color -->
-    <div ref="colorRef" class="hidden bg-primary" />
+    <div ref="color" class="hidden bg-primary" />
 
     <div class="flex gap-2 items-center">
       <button
