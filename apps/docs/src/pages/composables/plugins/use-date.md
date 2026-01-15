@@ -12,7 +12,7 @@ features:
   level: 2
 related:
   - /composables/plugins/use-locale
-  - /composables/plugins/create-plugin
+  - /composables/foundation/create-plugin
 ---
 
 <script setup>

@@ -7,7 +7,7 @@ meta:
   content: expansion panel, accordion, collapsible, Vue 3, headless, accessibility, WAI-ARIA, disclosure
 features:
   category: Component
-  label: 'E: ExpansionPanel'
+  label: 'C: ExpansionPanel'
   github: /components/ExpansionPanel/
   renderless: false
   level: 2

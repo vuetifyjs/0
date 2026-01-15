@@ -7,7 +7,7 @@ meta:
   content: pagination, navigation, Vue 3, headless, accessibility, ARIA, responsive, keyboard navigation
 features:
   category: Component
-  label: 'P: Pagination'
+  label: 'C: Pagination'
   github: /components/Pagination/
   renderless: false
   level: 2

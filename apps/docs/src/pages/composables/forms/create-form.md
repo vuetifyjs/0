@@ -70,4 +70,4 @@ flowchart TD
   useForm --> errors[error collection]
 ```
 
-<DocsApi name="useForm" />
+<DocsApi />

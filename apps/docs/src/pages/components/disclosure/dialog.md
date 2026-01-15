@@ -7,7 +7,7 @@ meta:
   content: dialog, modal, overlay, Vue 3, headless, accessibility, ARIA, focus trap
 features:
   category: Component
-  label: 'E: Dialog'
+  label: 'C: Dialog'
   github: /components/Dialog/
   renderless: false
   level: 2

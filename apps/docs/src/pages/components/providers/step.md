@@ -7,7 +7,7 @@ meta:
   content: step, wizard, stepper, multi-step form, navigation, carousel, Vue 3, headless
 features:
   category: Component
-  label: 'E: Step'
+  label: 'C: Step'
   github: /components/Step/
   renderless: true
   level: 2

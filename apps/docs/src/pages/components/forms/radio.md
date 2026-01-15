@@ -7,7 +7,7 @@ meta:
   content: radio, radio button, form control, single-select, accessible, ARIA, Vue 3, headless
 features:
   category: Component
-  label: 'E: Radio'
+  label: 'C: Radio'
   level: 2
   github: /components/Radio/
 related:

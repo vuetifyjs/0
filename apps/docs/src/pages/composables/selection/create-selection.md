@@ -39,7 +39,7 @@ selection.select('apple')
 selection.select('banana')
 
 console.log(selection.selectedIds) // Set(2) { 'apple', 'banana' }
-console.log(selection.selectedValues) // ComputedRef<Set> { value: Set(2) { 'Apple', 'Banana' } }
+console.log(selection.selectedValues.value) // Set(2) { 'Apple', 'Banana' }
 console.log(selection.has('apple')) // true
 ```
 
@@ -53,9 +53,6 @@ flowchart TD
   createSelection --> createSingle
   createSelection --> createGroup
   createSingle --> createStep
-  createSingle --> useTheme
-  createSingle --> useLocale
-  createGroup --> useFeatures
 ```
 
 <DocsApi />

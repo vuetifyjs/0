@@ -37,12 +37,12 @@ single.register({ id: 'banana', value: 'Banana' })
 
 // Select by ID
 single.select('apple')
-console.log(single.selectedId) // 'apple'
-console.log(single.selectedValue) // 'Apple'
+console.log(single.selectedId.value) // 'apple'
+console.log(single.selectedValue.value) // 'Apple'
 
 // Selecting a new item automatically clears the previous selection
 single.select('banana')
-console.log(single.selectedId) // 'banana' (replaces apple)
+console.log(single.selectedId.value) // 'banana' (replaces apple)
 ```
 
 ## Architecture

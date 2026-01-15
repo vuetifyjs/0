@@ -73,4 +73,4 @@ flowchart TD
   createTimeline --> cursor[history cursor]
 ```
 
-<DocsApi name="useTimeline" />
+<DocsApi />

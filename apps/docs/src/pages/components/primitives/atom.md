@@ -7,7 +7,7 @@ meta:
   content: atom, component, renderless, polymorphic, as prop, Vue 3, headless, dynamic element
 features:
   category: Component
-  label: 'E: Atom'
+  label: 'C: Atom'
   github: /components/Atom/
   renderless: false
   level: 2

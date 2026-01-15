@@ -7,7 +7,7 @@ meta:
     content: selection, checkbox, radio group, listbox, Vue 3, headless, v-model, state management
 features:
   category: Component
-  label: 'E: Selection'
+  label: 'C: Selection'
   github: /components/Selection/
   renderless: true
   level: 2

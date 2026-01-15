@@ -7,7 +7,7 @@ meta:
   content: tabs, tab panel, navigation, Vue 3, headless, accessibility, WAI-ARIA, roving tabindex
 features:
   category: Component
-  label: 'T: Tabs'
+  label: 'C: Tabs'
   github: /components/Tabs/
   renderless: false
   level: 2
