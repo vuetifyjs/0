@@ -497,6 +497,14 @@ Toggle visibility of header controls to reduce clutter:
   <AppSettingsHeaderButtons />
 </div>
 
+### Navigation
+
+Group sidebar navigation items into collapsible sections:
+
+<div class="max-w-xs mb-6">
+  <AppSettingsNavigation />
+</div>
+
 ## Accessibility
 
 The documentation is built with accessibility in mind:
