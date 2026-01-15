@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, useHydration } from '@vuetify/v0'
+  import { Atom } from '@vuetify/v0'
 
   // Composables
   import { useNavConfigContext } from '@/composables/useNavConfig'
@@ -37,14 +37,13 @@
   } = defineProps<ComponentProps>()
 
   const route = useRoute()
-  const { nested, scrollEnabled } = useNavNestedContext()
+  const { nested, isRestoring, scrollEnabled } = useNavNestedContext()
   const { flatMode } = useNavConfigContext()
   const { prefersReducedMotion } = useSettings()
-  const { isSettled } = useHydration()
 
-  // Skip animation until hydration settles (prevents all sections animating on page load)
+  // Skip animation during state restoration (prevents all sections animating on page load/navigation)
   const expandTransition = toRef(() => {
-    if (!isSettled.value || prefersReducedMotion.value) return undefined
+    if (isRestoring.value || prefersReducedMotion.value) return undefined
     return 'expand'
   })
 

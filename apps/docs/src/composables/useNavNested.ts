@@ -2,7 +2,7 @@
 import { createContext, createNested } from '@vuetify/v0'
 
 // Utilities
-import { onMounted, shallowRef, toValue, watch } from 'vue'
+import { nextTick, onMounted, shallowRef, toValue, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 // Types
@@ -71,6 +71,8 @@ export function navToNestedItems (
 export interface NavNestedContext {
   nested: NestedContext<NestedTicket<NavNestedValue>>
   getValue: (id: ID) => NavNestedValue | undefined
+  /** True during initial state restoration (animations should be disabled) */
+  isRestoring: Readonly<ReturnType<typeof shallowRef<boolean>>>
   /** True after initial state restoration + animations complete (safe to scroll on expand) */
   scrollEnabled: Readonly<ReturnType<typeof shallowRef<boolean>>>
 }
@@ -86,6 +88,7 @@ export { useNavNestedContext }
 export function createNavNested (nav: MaybeRefOrGetter<NavItem[]>) {
   const route = useRoute()
   const nested = createNested<NestedTicket<NavNestedValue>>({ open: 'multiple' })
+  const isRestoring = shallowRef(true)
   const scrollEnabled = shallowRef(false)
 
   // SSR-safe: Build tree structure on server and client
@@ -105,13 +108,17 @@ export function createNavNested (nav: MaybeRefOrGetter<NavItem[]>) {
   const DEFAULT_OPEN_SECTIONS = ['category-root-0', '/guide']
 
   // Client-only: Open defaults and reveal current page
-  onMounted(() => {
+  onMounted(async () => {
     nested.open(DEFAULT_OPEN_SECTIONS)
 
     // Reveal current page's section on route change
     watch(() => route.path, path => {
       nested.reveal(path)
     }, { immediate: true })
+
+    // Wait for DOM to reconcile before enabling animations
+    await nextTick()
+    isRestoring.value = false
 
     // Enable scroll after animations complete (200ms expand + buffer)
     setTimeout(() => {
@@ -127,6 +134,7 @@ export function createNavNested (nav: MaybeRefOrGetter<NavItem[]>) {
   const context: NavNestedContext = {
     nested,
     getValue,
+    isRestoring,
     scrollEnabled,
   }
 
