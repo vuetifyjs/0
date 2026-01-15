@@ -43,7 +43,7 @@
     {
       name: 'Vuetify CLI',
       icon: 'vuetify-cli',
-      to: '/introduction/getting-started#vuetify-cli',
+      to: '/guide/tooling/vuetify-cli',
     },
     {
       name: 'Vuetify MCP',
