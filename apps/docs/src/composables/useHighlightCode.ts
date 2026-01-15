@@ -50,7 +50,7 @@ export function useHighlightCode (
     // Delay showing loading indicator to avoid flicker for fast operations
     loadingTimer = setTimeout(() => {
       showLoader.value = true
-    }, 200)
+    }, 100)
 
     const hl = highlighter.value ?? await getHighlighter()
 
