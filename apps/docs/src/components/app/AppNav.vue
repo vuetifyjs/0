@@ -25,7 +25,7 @@
   const { isSettled } = useHydration()
 
   const app = useAppStore()
-  const { filteredNav, selectedLevels } = useLevelFilterContext()
+  const { selectedLevels } = useLevelFilterContext()
   const { configuredNav, activeFeatures, clearFilter } = useNavConfigContext()
   const route = useRoute()
 
