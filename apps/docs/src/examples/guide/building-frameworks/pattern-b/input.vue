@@ -1,7 +1,5 @@
 <script setup lang="ts">
-  // Components
   import { Checkbox } from '@vuetify/v0'
-  // Utilities
   import { shallowRef } from 'vue'
 
   const selected = shallowRef<string[]>(['notifications', 'updates'])
@@ -42,7 +40,15 @@
           :value="option.value"
         >
           <Checkbox.Indicator class="my-checkbox__indicator">
-            <span class="i-mdi-check" />
+            <svg
+              fill="currentColor"
+              height="14"
+              viewBox="0 0 24 24"
+              width="14"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
+            </svg>
           </Checkbox.Indicator>
         </Checkbox.Root>
 
@@ -59,7 +65,7 @@
   </div>
 </template>
 
-<style scoped>
+<style>
 .my-checkbox {
   display: flex;
   align-items: flex-start;
@@ -72,27 +78,27 @@
   width: 1.25rem;
   height: 1.25rem;
   margin-top: 0.125rem;
-  border: 2px solid var(--v0-color-divider);
+  border: 2px solid var(--v0-divider);
   border-radius: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 150ms;
-  background: var(--v0-color-surface);
+  background: var(--v0-surface);
 }
 
 .my-checkbox__root[data-state="checked"] {
-  background: var(--v0-color-primary);
-  border-color: var(--v0-color-primary);
+  background: var(--v0-primary);
+  border-color: var(--v0-primary);
 }
 
 .my-checkbox__root:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--v0-color-primary-rgb, 25, 118, 210), 0.2);
+  box-shadow: 0 0 0 3px rgba(var(--v0-primary-rgb, 25, 118, 210), 0.2);
 }
 
 .my-checkbox__indicator {
-  color: var(--v0-color-on-primary);
+  color: var(--v0-on-primary);
   font-size: 0.875rem;
 }
 
@@ -104,12 +110,12 @@
 
 .my-checkbox__title {
   font-weight: 500;
-  color: var(--v0-color-on-surface);
+  color: var(--v0-on-surface);
   font-size: 0.875rem;
 }
 
 .my-checkbox__description {
-  color: var(--v0-color-on-surface-variant);
+  color: var(--v0-on-surface-variant);
   font-size: 0.75rem;
 }
 </style>

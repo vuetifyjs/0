@@ -1,5 +1,4 @@
 <script lang="ts">
-  // Types
   import type { AtomProps } from '@vuetify/v0'
 
   export interface MyButtonProps extends AtomProps {
@@ -11,9 +10,7 @@
 </script>
 
 <script setup lang="ts">
-  // Components
   import { Atom } from '@vuetify/v0'
-  // Utilities
   import { toRef } from 'vue'
 
   const {
@@ -57,7 +54,7 @@
 }
 
 .my-button:focus-visible {
-  outline: 2px solid var(--v0-color-primary);
+  outline: 2px solid var(--v0-primary);
   outline-offset: 2px;
 }
 
@@ -68,12 +65,12 @@
 
 /* Filled */
 .my-button--filled.my-button--primary {
-  background: var(--v0-color-primary);
-  color: var(--v0-color-on-primary);
+  background: var(--v0-primary);
+  color: var(--v0-on-primary);
 }
 .my-button--filled.my-button--neutral {
-  background: var(--v0-color-surface-variant);
-  color: var(--v0-color-on-surface);
+  background: var(--v0-surface-variant);
+  color: var(--v0-on-surface);
 }
 .my-button--filled:hover:not(:disabled) { opacity: 0.9; }
 
@@ -82,25 +79,25 @@
   background: transparent;
 }
 .my-button--outlined.my-button--primary {
-  border-color: var(--v0-color-primary);
-  color: var(--v0-color-primary);
+  border-color: var(--v0-primary);
+  color: var(--v0-primary);
 }
 .my-button--outlined.my-button--neutral {
-  border-color: var(--v0-color-divider);
-  color: var(--v0-color-on-surface);
+  border-color: var(--v0-divider);
+  color: var(--v0-on-surface);
 }
 .my-button--outlined:hover:not(:disabled) {
-  background: var(--v0-color-surface-variant);
+  background: var(--v0-surface-variant);
 }
 
 /* Text */
 .my-button--text {
   background: transparent;
 }
-.my-button--text.my-button--primary { color: var(--v0-color-primary); }
-.my-button--text.my-button--neutral { color: var(--v0-color-on-surface); }
+.my-button--text.my-button--primary { color: var(--v0-primary); }
+.my-button--text.my-button--neutral { color: var(--v0-on-surface); }
 .my-button--text:hover:not(:disabled) {
-  background: var(--v0-color-surface-variant);
+  background: var(--v0-surface-variant);
 }
 
 /* Disabled */

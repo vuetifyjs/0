@@ -1,17 +1,6 @@
 <script setup lang="ts">
-  /**
-   * This demo shows how an end-user would consume @example/my-ui
-   *
-   * In a real app, they would:
-   * 1. Install: pnpm add @example/my-ui @vuetify/v0
-   * 2. Register plugin in main.ts
-   * 3. Use components
-   */
-
-  // Utilities
   import { shallowRef } from 'vue'
 
-  // In a real app: import { MyButton, MyTabs, MyAccordion } from '@example/my-ui'
   import MyAccordion from './src/components/MyAccordion.vue'
   import MyButton from './src/components/MyButton.vue'
   import MyTabs from './src/components/MyTabs.vue'

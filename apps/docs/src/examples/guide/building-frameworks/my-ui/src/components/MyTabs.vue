@@ -6,9 +6,7 @@
 </script>
 
 <script setup lang="ts">
-  // Composables
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
-  // Utilities
   import { useId, watch } from 'vue'
 
   const props = defineProps<MyTabsProps>()
@@ -115,14 +113,14 @@
 .my-tabs__list {
   display: flex;
   gap: 0.25rem;
-  border-bottom: 1px solid var(--v0-color-divider);
+  border-bottom: 1px solid var(--v0-divider);
 }
 
 .my-tabs__tab {
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--v0-color-on-surface-variant);
+  color: var(--v0-on-surface-variant);
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -132,16 +130,16 @@
 }
 
 .my-tabs__tab:hover {
-  color: var(--v0-color-on-surface);
+  color: var(--v0-on-surface);
 }
 
 .my-tabs__tab[data-selected] {
-  color: var(--v0-color-primary);
-  border-bottom-color: var(--v0-color-primary);
+  color: var(--v0-primary);
+  border-bottom-color: var(--v0-primary);
 }
 
 .my-tabs__tab:focus-visible {
-  outline: 2px solid var(--v0-color-primary);
+  outline: 2px solid var(--v0-primary);
   outline-offset: -2px;
 }
 

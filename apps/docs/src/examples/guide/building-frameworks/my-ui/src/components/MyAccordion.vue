@@ -7,7 +7,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
   import { ExpansionPanel } from '@vuetify/v0'
 
   const {
@@ -23,9 +22,8 @@
     <ExpansionPanel.Item
       v-for="item in items"
       :key="item.value"
-      v-slot="{ isExpanded }"
+      v-slot="{ isSelected }"
       class="my-accordion__item"
-      :data-expanded="isExpanded || undefined"
       :value="item.value"
     >
       <ExpansionPanel.Header class="my-accordion__header">
@@ -33,7 +31,7 @@
           <span class="my-accordion__title">{{ item.title }}</span>
           <svg
             class="my-accordion__icon"
-            :class="{ 'my-accordion__icon--open': isExpanded }"
+            :class="{ 'my-accordion__icon--open': isSelected }"
             fill="none"
             height="16"
             stroke="currentColor"
@@ -63,18 +61,18 @@
 }
 
 .my-accordion__item {
-  border: 1px solid var(--v0-color-divider);
+  border: 1px solid var(--v0-divider);
   border-radius: 0.5rem;
   overflow: hidden;
   transition: border-color 150ms;
 }
 
-.my-accordion__item[data-expanded] {
-  border-color: var(--v0-color-primary);
+.my-accordion__item[data-selected] {
+  border-color: var(--v0-primary);
 }
 
 .my-accordion__header {
-  background: var(--v0-color-surface);
+  background: var(--v0-surface);
 }
 
 .my-accordion__trigger {
@@ -92,21 +90,21 @@
 }
 
 .my-accordion__trigger:hover {
-  background: var(--v0-color-surface-variant);
+  background: var(--v0-surface-variant);
 }
 
 .my-accordion__trigger:focus-visible {
-  outline: 2px solid var(--v0-color-primary);
+  outline: 2px solid var(--v0-primary);
   outline-offset: -2px;
 }
 
 .my-accordion__title {
   font-weight: 600;
-  color: var(--v0-color-on-surface);
+  color: var(--v0-on-surface);
 }
 
 .my-accordion__icon {
-  color: var(--v0-color-on-surface-variant);
+  color: var(--v0-on-surface-variant);
   transition: transform 200ms;
 }
 
@@ -117,7 +115,7 @@
 .my-accordion__content {
   padding: 0 1rem 1rem;
   font-size: 0.875rem;
-  color: var(--v0-color-on-surface-variant);
+  color: var(--v0-on-surface-variant);
   line-height: 1.6;
 }
 </style>

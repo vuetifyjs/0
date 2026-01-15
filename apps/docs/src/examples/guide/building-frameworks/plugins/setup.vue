@@ -1,14 +1,8 @@
 <script setup lang="ts">
-  // Composables
   import { useBreakpoints, useTheme } from '@vuetify/v0'
-  // Utilities
-  import { toRef } from 'vue'
 
   const theme = useTheme()
   const breakpoints = useBreakpoints()
-
-  const currentTheme = toRef(() => theme.current.value)
-  const breakpoint = toRef(() => breakpoints.name.value)
 </script>
 
 <template>
@@ -24,19 +18,18 @@
         <div class="space-y-2 text-sm">
           <div class="flex justify-between">
             <span class="text-on-surface-variant">Current:</span>
-            <span class="font-mono">{{ currentTheme?.name ?? 'unknown' }}</span>
+            <span class="font-mono">{{ theme.selectedId?.value ?? 'none' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-on-surface-variant">Dark mode:</span>
+            <span class="font-mono">{{ theme.isDark?.value ?? false }}</span>
           </div>
           <div class="flex gap-2 mt-3">
             <button
-              v-for="t in theme.themes.value"
-              :key="t.name"
-              class="px-2 py-1 text-xs rounded transition-colors"
-              :class="currentTheme?.name === t.name
-                ? 'bg-primary text-on-primary'
-                : 'bg-surface-variant text-on-surface-variant hover:bg-surface'"
-              @click="theme.set(t.name)"
+              class="px-2 py-1 text-xs rounded transition-colors bg-surface-variant text-on-surface-variant hover:bg-surface"
+              @click="theme.cycle(['light', 'dark'])"
             >
-              {{ t.name }}
+              Toggle theme
             </button>
           </div>
         </div>
@@ -48,18 +41,18 @@
         <div class="space-y-2 text-sm">
           <div class="flex justify-between">
             <span class="text-on-surface-variant">Current:</span>
-            <span class="font-mono">{{ breakpoint }}</span>
+            <span class="font-mono">{{ breakpoints.name?.value ?? 'unknown' }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-on-surface-variant">Width:</span>
-            <span class="font-mono">{{ breakpoints.width.value }}px</span>
+            <span class="font-mono">{{ breakpoints.width?.value ?? 0 }}px</span>
           </div>
           <div class="flex gap-1 mt-3">
             <span
               v-for="bp in ['xs', 'sm', 'md', 'lg', 'xl']"
               :key="bp"
               class="px-1.5 py-0.5 text-xs rounded"
-              :class="breakpoint === bp
+              :class="breakpoints.name?.value === bp
                 ? 'bg-primary text-on-primary'
                 : 'bg-surface-variant text-on-surface-variant'"
             >

@@ -1,11 +1,9 @@
 <script setup lang="ts">
-  // Composables
   import { createSingle, useProxyRegistry } from '@vuetify/v0'
-  // Utilities
   import { useId } from 'vue'
 
   const uid = useId()
-  const tabs = createSingle({ mandatory: 'force' })
+  const tabs = createSingle({ mandatory: 'force', events: true })
   const proxy = useProxyRegistry(tabs)
 
   tabs.onboard([

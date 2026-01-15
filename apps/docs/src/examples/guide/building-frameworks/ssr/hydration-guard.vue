@@ -1,9 +1,6 @@
 <script setup lang="ts">
-  // Composables
   import { useHydration } from '@vuetify/v0'
-  // Constants
   import { IN_BROWSER } from '@vuetify/v0/constants'
-  // Utilities
   import { shallowRef, toRef, watchEffect } from 'vue'
 
   const { isHydrated } = useHydration()
