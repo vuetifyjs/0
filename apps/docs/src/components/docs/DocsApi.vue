@@ -10,7 +10,7 @@
   import { useRoute } from 'vue-router'
 
   // Types
-  import type { ApiData } from '../../../build/generate-api'
+  import type { ApiData } from '@build/generate-api'
 
   const props = defineProps<{
     name?: string

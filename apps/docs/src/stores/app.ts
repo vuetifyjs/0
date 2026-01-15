@@ -4,9 +4,9 @@ import navData from 'virtual:nav'
 import { defineStore } from 'pinia'
 
 // Types
-import type { NavItem } from '../../build/generate-nav'
+import type { NavItem } from '@build/generate-nav'
 
-export type { NavItem, NavItemCategory, NavItemDivider, NavItemLink } from '../../build/generate-nav'
+export type { NavItem, NavItemCategory, NavItemDivider, NavItemLink } from '@build/generate-nav'
 
 // Minimal type for commit data we actually use
 interface Commit {

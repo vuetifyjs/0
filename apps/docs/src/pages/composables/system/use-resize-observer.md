@@ -15,6 +15,11 @@ related:
   - /composables/system/use-mutation-observer
 ---
 
+<script setup lang="ts">
+import ResponsiveGridExample from '@/examples/composables/use-resize-observer/responsive-grid.vue'
+import ResponsiveGridExampleRaw from '@/examples/composables/use-resize-observer/responsive-grid.vue?raw'
+</script>
+
 # useResizeObserver
 
 A composable for detecting element size changes using the Resize Observer API with automatic cleanup.
@@ -48,6 +53,16 @@ The `useResizeObserver` composable wraps the Resize Observer API to detect when 
   </div>
 </template>
 ```
+
+## Examples
+
+### Responsive Grid
+
+A resizable container that adapts its grid layout based on observed dimensions.
+
+<DocsExample file="responsive-grid.vue" :code="ResponsiveGridExampleRaw">
+  <ResponsiveGridExample />
+</DocsExample>
 
 ## Architecture
 

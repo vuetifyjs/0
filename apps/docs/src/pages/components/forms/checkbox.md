@@ -7,11 +7,11 @@ meta:
   content: checkbox, toggle, form control, multi-select, tri-state, indeterminate, accessible, ARIA, Vue 3, headless
 features:
   category: Component
-  label: 'E: Checkbox'
+  label: 'C: Checkbox'
   level: 2
   github: /components/Checkbox/
 related:
-  - /composables/selection/use-group
+  - /composables/selection/create-group
   - /components/providers/group
 ---
 

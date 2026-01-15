@@ -1,13 +1,10 @@
 import { Temporal } from '@js-temporal/polyfill'
-import { describe, it, expect, beforeEach, expectTypeOf } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 // Adapters
 import { Vuetify0DateAdapter } from './adapters/v0'
 
-// Types
-import type { DateAdapter, DateContext } from './index'
-
-import { createDate, createDateContext, createDateFallback, createDatePlugin, useDate } from './index'
+import { createDate, createDateContext, createDatePlugin, useDate } from './index'
 
 describe('useDate', () => {
   describe('vuetify0DateAdapter', () => {
@@ -981,43 +978,40 @@ describe('useDate', () => {
   })
 
   describe('createDate', () => {
-    it('should create date context with default options', () => {
-      const dateContext = createDate()
+    it('should create date context with adapter', () => {
+      const adapter = new Vuetify0DateAdapter('en-US')
+      const dateContext = createDate({ adapter })
 
       expect(dateContext).toBeDefined()
-      expect(dateContext.adapter).toBeDefined()
+      expect(dateContext.adapter).toBe(adapter)
       expect(dateContext.locale).toBeDefined()
     })
 
-    it('should create date context with custom adapter', () => {
-      const customAdapter = new Vuetify0DateAdapter('de-DE')
-      const dateContext = createDate({ adapter: customAdapter as DateAdapter })
-
-      expect(dateContext.adapter).toBe(customAdapter)
-    })
-
     it('should use specified locale', () => {
-      const dateContext = createDate({ locale: 'fr-FR' })
+      const adapter = new Vuetify0DateAdapter()
+      const dateContext = createDate({ adapter, locale: 'fr-FR' })
 
       expect(dateContext.locale.value).toBe('fr-FR')
     })
 
     it('should auto-detect Intl locale (with hyphen)', () => {
-      // Locales with region codes should be used directly
-      const dateContext = createDate({ locale: 'en-US' })
+      const adapter = new Vuetify0DateAdapter()
+      const dateContext = createDate({ adapter, locale: 'en-US' })
 
       expect(dateContext.locale.value).toBe('en-US')
     })
 
     it('should map short locale codes to Intl locales', () => {
-      // Short codes without region should use locales
-      const dateContext = createDate({ locale: 'en' })
+      const adapter = new Vuetify0DateAdapter()
+      const dateContext = createDate({ adapter, locale: 'en' })
 
       expect(dateContext.locale.value).toBe('en-US') // from defaultLocaleMap
     })
 
     it('should allow custom locales for short codes', () => {
+      const adapter = new Vuetify0DateAdapter()
       const dateContext = createDate({
+        adapter,
         locale: 'en',
         locales: { en: 'en-GB' },
       })
@@ -1026,8 +1020,9 @@ describe('useDate', () => {
     })
 
     it('should not apply locales to full Intl locales', () => {
-      // Even with a locales, full Intl locales should be used directly
+      const adapter = new Vuetify0DateAdapter()
       const dateContext = createDate({
+        adapter,
         locale: 'en-US',
         locales: { 'en-US': 'en-GB' }, // This should be ignored
       })
@@ -1038,14 +1033,17 @@ describe('useDate', () => {
 
   describe('createDatePlugin', () => {
     it('should create a Vue plugin', () => {
-      const plugin = createDatePlugin()
+      const adapter = new Vuetify0DateAdapter()
+      const plugin = createDatePlugin({ adapter })
 
       expect(plugin).toBeDefined()
       expect(typeof plugin.install).toBe('function')
     })
 
     it('should accept date options', () => {
+      const adapter = new Vuetify0DateAdapter()
       const plugin = createDatePlugin({
+        adapter,
         locale: 'de-DE',
       })
 
@@ -1053,17 +1051,10 @@ describe('useDate', () => {
       expect(typeof plugin.install).toBe('function')
     })
 
-    it('should accept custom adapter', () => {
-      const customAdapter = new Vuetify0DateAdapter('ja-JP')
-      const plugin = createDatePlugin({
-        adapter: customAdapter as DateAdapter,
-      })
-
-      expect(plugin).toBeDefined()
-    })
-
     it('should accept custom namespace', () => {
+      const adapter = new Vuetify0DateAdapter()
       const plugin = createDatePlugin({
+        adapter,
         namespace: 'my-app:date',
       })
 
@@ -1073,7 +1064,8 @@ describe('useDate', () => {
 
   describe('createDateContext', () => {
     it('should return trinity tuple [useContext, provideContext, defaultContext]', () => {
-      const trinity = createDateContext()
+      const adapter = new Vuetify0DateAdapter()
+      const trinity = createDateContext({ adapter })
 
       expect(trinity).toHaveLength(3)
       expect(typeof trinity[0]).toBe('function') // useContext
@@ -1081,24 +1073,20 @@ describe('useDate', () => {
       expect(trinity[2]).toBeDefined() // defaultContext
     })
 
-    it('should return date context with default adapter', () => {
-      const [, , context] = createDateContext()
+    it('should return date context with adapter', () => {
+      const adapter = new Vuetify0DateAdapter()
+      const [, , context] = createDateContext({ adapter })
 
       expect(context).toBeDefined()
-      expect(context.adapter).toBeDefined()
+      expect(context.adapter).toBe(adapter)
       expect(context.locale).toBeDefined()
     })
 
-    it('should preserve custom adapter in trinity', () => {
-      const customAdapter = new Vuetify0DateAdapter('ja-JP')
-      const [, , context] = createDateContext({ adapter: customAdapter as DateAdapter })
-
-      expect(context.adapter).toBe(customAdapter)
-    })
-
     it('should create independent contexts with different namespaces', () => {
-      const ctx1 = createDateContext({ namespace: 'app:date1' })
-      const ctx2 = createDateContext({ namespace: 'app:date2' })
+      const adapter1 = new Vuetify0DateAdapter()
+      const adapter2 = new Vuetify0DateAdapter()
+      const ctx1 = createDateContext({ adapter: adapter1, namespace: 'app:date1' })
+      const ctx2 = createDateContext({ adapter: adapter2, namespace: 'app:date2' })
 
       // Both should return valid trinities
       expect(ctx1).toHaveLength(3)
@@ -1109,13 +1097,16 @@ describe('useDate', () => {
     })
 
     it('should apply locale option', () => {
-      const [, , context] = createDateContext({ locale: 'de-DE' })
+      const adapter = new Vuetify0DateAdapter()
+      const [, , context] = createDateContext({ adapter, locale: 'de-DE' })
 
       expect(context.locale.value).toBe('de-DE')
     })
 
     it('should apply locales in trinity', () => {
+      const adapter = new Vuetify0DateAdapter()
       const [, , context] = createDateContext({
+        adapter,
         locale: 'de',
         locales: { de: 'de-CH' },
       })
@@ -1123,44 +1114,18 @@ describe('useDate', () => {
       expect(context.locale.value).toBe('de-CH')
     })
 
-    it('should use default namespace when not specified', () => {
-      const trinity = createDateContext()
-
-      // Should not throw - uses default 'v0:date' namespace
-      expect(trinity).toBeDefined()
-    })
-
     it('should accept custom namespace', () => {
-      const trinity = createDateContext({ namespace: 'custom:date' })
+      const adapter = new Vuetify0DateAdapter()
+      const trinity = createDateContext({ adapter, namespace: 'custom:date' })
 
       expect(trinity).toBeDefined()
       expect(trinity).toHaveLength(3)
     })
 
     it('should create functional context for date operations', () => {
-      const [, , context] = createDateContext()
+      const adapter = new Vuetify0DateAdapter()
+      const [, , context] = createDateContext({ adapter })
       const date = context.adapter.date('2024-06-15T10:30:00')
-
-      expect(date).not.toBeNull()
-      expect(date!.year).toBe(2024)
-      expect(date!.month).toBe(6)
-    })
-  })
-
-  describe('createDateFallback', () => {
-    it('should return a valid date context without Vue component', () => {
-      // createDateFallback works outside of Vue component lifecycle
-      const fallback = createDateFallback()
-
-      expect(fallback).toBeDefined()
-      expect(fallback.adapter).toBeInstanceOf(Vuetify0DateAdapter)
-      expect(fallback.locale).toBeDefined()
-      expect(fallback.locale.value).toBe('en-US')
-    })
-
-    it('should create functional adapter for date operations', () => {
-      const fallback = createDateFallback()
-      const date = fallback.adapter.date('2024-06-15T10:30:00')
 
       expect(date).not.toBeNull()
       expect(date!.year).toBe(2024)
@@ -1172,7 +1137,7 @@ describe('useDate', () => {
     it('should sync adapter locale with computed locale', () => {
       const customAdapter = new Vuetify0DateAdapter('en-US')
       const dateContext = createDate({
-        adapter: customAdapter as DateAdapter,
+        adapter: customAdapter,
         locale: 'de-DE',
       })
 
@@ -1185,7 +1150,7 @@ describe('useDate', () => {
     it('should apply locales when short code is provided', () => {
       const customAdapter = new Vuetify0DateAdapter('en-US')
       const dateContext = createDate({
-        adapter: customAdapter as DateAdapter,
+        adapter: customAdapter,
         locale: 'fr', // short code
         locales: { fr: 'fr-CA' },
       })
@@ -1196,27 +1161,12 @@ describe('useDate', () => {
   })
 
   describe('useDate', () => {
-    it('should return fallback when called outside component', () => {
-      const ctx = useDate()
-
-      expect(ctx).toBeDefined()
-      expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
-      expect(ctx.locale.value).toBe('en-US')
+    it('should throw when called outside component', () => {
+      expect(() => useDate()).toThrow('[v0] useDate() must be called inside a Vue component')
     })
 
-    it('should return fallback with custom namespace outside component', () => {
-      const ctx = useDate('custom:namespace')
-
-      expect(ctx).toBeDefined()
-      expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
-    })
-
-    it('should handle missing context gracefully', () => {
-      // useDate catches errors and returns fallback
-      const ctx = useDate('nonexistent:namespace')
-
-      expect(ctx).toBeDefined()
-      expect(ctx.adapter).toBeInstanceOf(Vuetify0DateAdapter)
+    it('should throw with helpful error message', () => {
+      expect(() => useDate()).toThrow('createDatePlugin')
     })
   })
 
@@ -1225,7 +1175,9 @@ describe('useDate', () => {
       const { mount } = await import('@vue/test-utils')
       const { defineComponent } = await import('vue')
 
+      const adapter = new Vuetify0DateAdapter()
       const [useDateContext, provideDateContext, context] = createDateContext({
+        adapter,
         namespace: 'test:date',
         locale: 'en-US',
       })
@@ -1262,7 +1214,9 @@ describe('useDate', () => {
       const { mount } = await import('@vue/test-utils')
       const { defineComponent } = await import('vue')
 
+      const adapter = new Vuetify0DateAdapter()
       const plugin = createDatePlugin({
+        adapter,
         namespace: 'test:plugin-date',
         locale: 'de-DE',
       })
@@ -1312,7 +1266,7 @@ describe('useDate', () => {
 
       const [useDateContext, provideDateContext] = createDateContext({
         namespace: 'test:cleanup',
-        adapter: customAdapter as DateAdapter,
+        adapter: customAdapter,
         locale: 'en-US',
       })
 
@@ -1369,7 +1323,9 @@ describe('useDate', () => {
         },
       })
 
+      const adapter = new Vuetify0DateAdapter()
       const [useDateContext, provideDateContext] = createDateContext({
+        adapter,
         namespace: 'test:date-locale',
         locales: { en: 'en-US', de: 'de-DE', fr: 'fr-FR' },
       })
@@ -1425,7 +1381,9 @@ describe('useDate', () => {
         setup () {
           const localeContext = useLocale()
           // Create date context INSIDE component for dynamic sync
+          const adapter = new Vuetify0DateAdapter()
           const dateContext = createDate({
+            adapter,
             locales: { en: 'en-US', de: 'de-DE' },
           })
 
@@ -1456,37 +1414,6 @@ describe('useDate', () => {
       expect(wrapper.text()).toContain('de-DE')
 
       wrapper.unmount()
-    })
-  })
-
-  describe('type safety (compile-time)', () => {
-    it('should infer correct types for overloads', () => {
-      // Default adapter: returns DateContext<Temporal.PlainDateTime>
-      const defaultCtx = createDate()
-      expectTypeOf(defaultCtx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
-
-      // Custom adapter with explicit type: infers T from adapter
-      const customAdapter = new Vuetify0DateAdapter()
-      const customCtx = createDate({ adapter: customAdapter as DateAdapter })
-      expectTypeOf(customCtx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
-
-      // With custom adapter: returns DateContext (no generic inference from adapter)
-      const mockDateAdapter = {} as DateAdapter
-      const mockCtx = createDate({ adapter: mockDateAdapter })
-      // Type is DateContext (default PlainDateTime), not inferred from adapter
-      expectTypeOf(mockCtx.adapter).toEqualTypeOf<DateAdapter<Temporal.PlainDateTime>>()
-      expectTypeOf(mockCtx).toEqualTypeOf<DateContext<Temporal.PlainDateTime>>()
-
-      // Context trinity returns correct type
-      const [, , ctx] = createDateContext()
-      expectTypeOf(ctx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
-
-      // useDate returns default type
-      const usedCtx = useDate()
-      expectTypeOf(usedCtx.adapter.date()).toEqualTypeOf<Temporal.PlainDateTime | null>()
-
-      // Runtime assertion to satisfy vitest/expect-expect rule
-      expect(defaultCtx.adapter).toBeDefined()
     })
   })
 })

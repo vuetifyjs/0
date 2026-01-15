@@ -23,7 +23,7 @@ v0 theming uses CSS custom properties for runtime theme switching. The theme plu
 > [!TIP]
 > v0 is unopinionated—you define all theme colors. The examples below show common patterns, but the color names and values are entirely yours.
 
-> [!SUGGESTION] How do I use v0 theming with Tailwind CSS instead of UnoCSS?
+> [!ASKAI] How do I use v0 theming with Tailwind CSS instead of UnoCSS?
 
 ## Quick Start
 

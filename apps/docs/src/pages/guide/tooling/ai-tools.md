@@ -6,7 +6,7 @@ features:
   level: 1
 meta:
   - name: description
-    content: Use llms.txt and llms-full.txt to provide AI assistants with comprehensive v0 documentation context.
+    content: Use llms.txt and llms-full.txt files to provide AI assistants like Claude, ChatGPT, and Cursor with comprehensive Vuetify0 documentation context.
   - name: keywords
     content: llms.txt, AI tools, LLM, Claude, ChatGPT, Cursor, documentation, developer experience
 related:
@@ -31,7 +31,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
 | <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
 
-> [!SUGGESTION] When should I use llms.txt vs llms-full.txt?
+> [!ASKAI] When should I use llms.txt vs llms-full.txt?
 
 ## Usage Examples
 

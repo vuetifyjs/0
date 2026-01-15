@@ -70,7 +70,7 @@ if (IN_BROWSER) {
 Use `useHydration` to defer browser-only rendering:
 
 ```vue
-<script lang="ts" setup>
+<script setup lang="ts">
   import { useHydration } from '@vuetify/v0'
 
   const { isHydrated } = useHydration()

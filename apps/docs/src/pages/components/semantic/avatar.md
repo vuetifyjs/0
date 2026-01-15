@@ -7,7 +7,7 @@ meta:
   content: avatar, image, fallback, loading, profile picture, Vue 3, headless, priority loading
 features:
   category: Component
-  label: 'E: Avatar'
+  label: 'C: Avatar'
   github: /components/Avatar/
   renderless: false
   level: 2

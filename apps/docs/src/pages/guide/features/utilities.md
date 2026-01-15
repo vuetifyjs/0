@@ -162,11 +162,12 @@ Compute how many items fit in a container:
 
 ```ts
 import { createOverflow } from '@vuetify/v0'
+import { useTemplateRef } from 'vue'
 
-const container = ref<HTMLElement>()
+const containerRef = useTemplateRef<HTMLElement>('container')
 
 const overflow = createOverflow({
-  container,
+  container: containerRef,
   itemWidth: 100,
   gap: 8,
 })

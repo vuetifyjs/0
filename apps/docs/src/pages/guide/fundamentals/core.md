@@ -5,7 +5,7 @@ features:
   level: 3
 meta:
   - name: description
-    content: Explore Vuetify0's core architecture including createContext, createTrinity, and createPlugin factories. Build scalable Vue 3 apps with type-safe dependency injection.
+    content: Explore Vuetify0's core architecture including createContext, createTrinity, and createPlugin factories. Build scalable apps with type-safe dependency injection.
   - name: keywords
     content: vuetify0, framework core, dependency injection, createContext, createTrinity, createPlugin, Vue 3
 related:
@@ -247,4 +247,132 @@ wizard.last()   // Jump to end
 | Standalone logic | Direct factory call |
 | Testing | Trinity's third element |
 
-> [!SUGGESTION] How do I handle scoped contexts for nested components without prop drilling?
+> [!ASKAI] How do I handle scoped contexts for nested components without prop drilling?
+
+## Frequently Asked Questions
+
+::: faq
+??? Why use createContext instead of Vue's provide/inject directly?
+
+`createContext` adds three critical guarantees:
+
+1. **Throws on missing context** — No silent `undefined` bugs
+2. **Type inference** — Full TypeScript support without manual casting
+3. **Consistent API** — Same pattern across all v0 composables
+
+```ts
+// Vue's provide/inject - silent failure
+const theme = inject('theme') // undefined if not provided, no error
+
+// createContext - explicit failure
+const theme = useTheme() // throws: "Injection 'v0:theme' not found"
+```
+
+??? Can I nest contexts? What happens with the same key?
+
+Yes. Each `provideContext` call creates a new scope. Children receive the nearest ancestor's value:
+
+```mermaid "Context Nesting"
+flowchart TD
+    A["App (provideTheme: 'light')"] --> B["Page"]
+    B --> C["Panel (provideTheme: 'dark')"]
+    C --> D["Card (useTheme → 'dark')"]
+    B --> E["Sidebar (useTheme → 'light')"]
+```
+
+```ts
+// App.vue
+provideTheme({ mode: 'light' })
+
+// Panel.vue - creates nested scope
+provideTheme({ mode: 'dark' })
+
+// Card.vue inside Panel - gets 'dark'
+const theme = useTheme() // { mode: 'dark' }
+
+// Sidebar.vue outside Panel - gets 'light'
+const theme = useTheme() // { mode: 'light' }
+```
+
+??? How do I test code that uses contexts without mounting Vue components?
+
+Use the trinity pattern's third element—the default context instance:
+
+```ts
+import { createThemeContext } from '@vuetify/v0'
+
+const [useTheme, provideTheme, defaultTheme] = createThemeContext()
+
+// Unit test without Vue
+test('theme cycling', () => {
+  defaultTheme.cycle()
+  expect(defaultTheme.current.value).toBe('dark')
+})
+```
+
+For testing components that inject contexts, use `provideContext` in a wrapper:
+
+```ts
+import { mount } from '@vue/test-utils'
+
+const wrapper = mount(MyComponent, {
+  global: {
+    provide: {
+      'v0:theme': mockThemeContext,
+    },
+  },
+})
+```
+
+??? When should I use static vs dynamic key mode?
+
+| Mode | Use When | Example |
+| - | - | - |
+| **Static** | Singletons—one instance for the entire app | Theme, locale, breakpoints |
+| **Dynamic** | Multiple instances of same type | Nested panels, tabs within tabs |
+
+Static keys are ideal for app-wide singletons where you'll never need more than one instance. Dynamic keys let you create multiple independent contexts of the same type.
+
+```ts
+// Static - singleton theme for the app
+const [useTheme, provideTheme] = createContext<ThemeContext>('v0:theme')
+
+// Dynamic - multiple panels can coexist
+const [usePanel, providePanel] = createContext<PanelContext>()
+providePanel('panel-main', mainContext)
+providePanel('panel-sidebar', sidebarContext)
+```
+
+??? What's the performance impact of contexts vs direct imports?
+
+Negligible. Context injection is a single Map lookup at component creation—not per render:
+
+```mermaid "Context Resolution"
+flowchart LR
+    A[Component mounts] --> B[inject lookup]
+    B --> C[Cache reference]
+    C --> D[Use cached ref in renders]
+```
+
+Contexts don't add reactivity overhead. The injected value is the same object reference whether you use `inject()` directly or `useContext()`.
+
+??? How does the suffix pattern work for parent-child hierarchies?
+
+The suffix pattern creates derived keys for related contexts. Useful when a child context depends on knowing its parent:
+
+```ts
+// Parent provides at 'v0:panel'
+const [usePanel, providePanel] = createContext<PanelContext>('v0:panel')
+
+// Item context with suffix - provides at 'v0:panel:item'
+const [useItem, provideItem] = createContext<ItemContext>({ suffix: 'item' })
+
+// In PanelItem.vue
+provideItem('v0:panel', itemContext) // Actually provides to 'v0:panel:item'
+
+// In nested content
+const item = useItem('v0:panel') // Injects from 'v0:panel:item'
+```
+
+This avoids key collision between the panel and its items while maintaining the relationship.
+:::

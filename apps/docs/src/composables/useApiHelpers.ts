@@ -1,3 +1,6 @@
+// Transformers
+import { createApiTransformer } from '@build/shiki-api-transformer'
+
 // Composables
 import { useHighlighter } from '@/composables/useHighlighter'
 
@@ -7,13 +10,10 @@ import { toKebab } from '@/utilities/strings'
 import { ref, type Ref, shallowReactive, useId } from 'vue'
 
 // Types
-import type { ApiMethod, ApiProperty } from '../../build/generate-api'
+import type { ApiMethod, ApiProperty } from '@build/generate-api'
 
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
-
-// Transformers
-import { createApiTransformer } from '../../build/shiki-api-transformer'
 
 type ExampleState = { html: string, code: string }
 

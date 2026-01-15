@@ -2,7 +2,7 @@
 title: useVirtual - High-Performance Virtual Scrolling
 meta:
 - name: description
-  content: Efficiently render large lists with virtual scrolling. Only renders visible items, supports dynamic heights, bidirectional scrolling, and infinite scroll for Vue 3.
+  content: Efficiently render large lists with virtual scrolling. Only renders visible items, supports dynamic heights, bidirectional scrolling, and infinite scroll.
 - name: keywords
   content: virtual scroll, virtualization, large lists, performance, Vue 3, composable, infinite scroll
 features:

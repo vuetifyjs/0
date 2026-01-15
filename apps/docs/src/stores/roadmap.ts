@@ -1,6 +1,6 @@
 // Vuetify0
 // Framework
-import { createStorage } from '@vuetify/v0'
+import { createStorage, useLogger } from '@vuetify/v0'
 
 // Utilities
 import { defineStore } from 'pinia'
@@ -35,6 +35,7 @@ const REPO = 'vuetifyjs/0'
 const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
 
 const storage = createStorage({ prefix: 'v0-roadmap:' })
+const logger = useLogger()
 
 function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
   if (!entry) return false
@@ -123,7 +124,7 @@ export const useRoadmapStore = defineStore('roadmap', {
           timestamp: Date.now(),
         })
       } catch (error: unknown) {
-        console.error(error)
+        logger.error('Failed to fetch roadmap', error)
         this.error = error instanceof Error && error.message === 'RATE_LIMITED' ? 'GitHub API rate limit reached. Try again in a few minutes.' : 'Failed to load roadmap. Please try again.'
       } finally {
         this.isLoading = false
@@ -166,7 +167,7 @@ export const useRoadmapStore = defineStore('roadmap', {
           timestamp: Date.now(),
         })
       } catch (error: unknown) {
-        console.error(error)
+        logger.error('Failed to fetch issues', error)
         milestone.issues = []
       } finally {
         milestone.issuesLoading = false

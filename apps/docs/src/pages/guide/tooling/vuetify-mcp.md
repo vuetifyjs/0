@@ -6,7 +6,7 @@ features:
   level: 1
 meta:
   - name: description
-    content: Set up Vuetify MCP server to give AI assistants like Claude direct access to Vuetify and v0 APIs.
+    content: Set up Vuetify MCP server to give AI assistants like Claude and Cursor direct access to Vuetify component APIs and v0 headless composable docs.
   - name: keywords
     content: MCP, Model Context Protocol, Claude, AI assistant, Vuetify API, developer tools
 related:

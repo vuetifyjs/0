@@ -9,8 +9,8 @@
   import { computed } from 'vue'
 
   export interface DocsAlertProps {
-    type: 'tip' | 'info' | 'warning' | 'error' | 'suggestion'
-    suggestion?: string
+    type: 'tip' | 'info' | 'warning' | 'error' | 'askai'
+    question?: string
   }
 
   const props = defineProps<DocsAlertProps>()
@@ -47,7 +47,7 @@
           classes: 'bg-error/10 border-error/50 text-error',
         }
       }
-      case 'suggestion': {
+      case 'askai': {
         return {
           icon: 'create',
           title: 'Ask AI',
@@ -64,13 +64,13 @@
     }
   })
 
-  function decodeSuggestion (encoded: string): string {
+  function decodeQuestion (encoded: string): string {
     return decodeURIComponent(escape(atob(encoded)))
   }
 
   function onClick () {
-    if (props.type === 'suggestion' && props.suggestion) {
-      ask(decodeSuggestion(props.suggestion))
+    if (props.type === 'askai' && props.question) {
+      ask(decodeQuestion(props.question))
     }
   }
 </script>
@@ -79,13 +79,13 @@
   <div
     class="my-4 rounded-lg border-l-4 px-4 py-3"
     :class="config.classes"
-    :role="props.type === 'suggestion' ? 'button' : undefined"
-    :tabindex="props.type === 'suggestion' ? 0 : undefined"
+    :role="props.type === 'askai' ? 'button' : undefined"
+    :tabindex="props.type === 'askai' ? 0 : undefined"
     @click="onClick"
     @keydown.enter="onClick"
     @keydown.space.prevent="onClick"
   >
-    <template v-if="props.type === 'suggestion'">
+    <template v-if="props.type === 'askai'">
       <div class="flex items-center gap-2 font-semibold mb-1">
         <AppIcon :icon="config.icon" :size="18" />
 
@@ -93,7 +93,7 @@
       </div>
 
       <div class="text-on-surface">
-        {{ props.suggestion ? decodeSuggestion(props.suggestion) : '' }}
+        {{ props.question ? decodeQuestion(props.question) : '' }}
       </div>
     </template>
 

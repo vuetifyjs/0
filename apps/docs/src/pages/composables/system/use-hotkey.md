@@ -2,7 +2,7 @@
 title: useHotkey - Hotkey Combinations and Sequences for Vue 3
 meta:
 - name: description
-  content: Handle hotkey combinations and sequences with platform-aware modifiers and automatic cleanup. Supports ctrl+k combinations, g-h sequences, and input focus detection.
+  content: Handle hotkey combinations and sequences with platform-aware modifiers and automatic cleanup. Supports ctrl+k combinations, g-h sequences, and input focus.
 - name: keywords
   content: useHotkey, hotkey, keyboard, shortcuts, sequences, combinations, composable, Vue 3, ctrl+k, cmd+k
 features:
@@ -14,6 +14,11 @@ related:
   - /composables/system/use-event-listener
   - /composables/system/use-click-outside
 ---
+
+<script setup lang="ts">
+import CommandPaletteExample from '@/examples/composables/use-hotkey/command-palette.vue'
+import CommandPaletteExampleRaw from '@/examples/composables/use-hotkey/command-palette.vue?raw'
+</script>
 
 # useHotkey
 
@@ -62,6 +67,16 @@ The `useHotkey` composable registers hotkey handlers on the window with automati
   </div>
 </template>
 ```
+
+## Examples
+
+### Command Palette
+
+A searchable command palette with keyboard navigation and platform-aware shortcuts.
+
+<DocsExample file="command-palette.vue" :code="CommandPaletteExampleRaw">
+  <CommandPaletteExample />
+</DocsExample>
 
 ## Architecture
 

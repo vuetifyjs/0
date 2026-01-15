@@ -2,7 +2,7 @@
 title: Why Vuetify0 - Choosing Your Vue UI Foundation
 meta:
   - name: description
-    content: Why choose Vuetify0 for your Vue project. Compare v0 with Vuetify, Reka UI, Ark UI, and VueUse.
+    content: Why choose Vuetify0 for your Vue project. Compare v0 headless composables with Vuetify 3, Reka UI, Ark UI, and VueUse for building design systems.
   - name: keywords
     content: vuetify0, headless ui, comparison, reka ui, ark ui, vueuse, vuetify, why
 features:

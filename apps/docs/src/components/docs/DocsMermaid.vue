@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Dialog, useEventListener, useResizeObserver } from '@vuetify/v0'
+  import { Dialog, useEventListener, useLogger, useResizeObserver } from '@vuetify/v0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -8,10 +8,11 @@
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, watch } from 'vue'
+  import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, useTemplateRef, watch } from 'vue'
 
   const { prefersReducedMotion } = useSettings()
   const { copied, copy } = useClipboard()
+  const logger = useLogger()
 
   // Types
   import type Mermaid from 'mermaid'
@@ -19,7 +20,7 @@
 
   const mermaid = shallowRef<typeof Mermaid>()
   const panZoomInstance = shallowRef<PanZoomInstance>()
-  const dialogSvgRef = ref<HTMLElement>()
+  const dialogSvgRef = useTemplateRef<HTMLElement>('dialogSvg')
   const isOpen = ref(false)
 
   async function loadMermaid () {
@@ -191,7 +192,7 @@
       const { svg: rendered } = await m.render(id, decodedCode.value)
       svg.value = rendered
     } catch (error) {
-      console.error('Mermaid render error:', error)
+      logger.error('Mermaid render error', error)
       svg.value = `<pre class="text-error">${decodedCode.value}</pre>`
     }
   }
@@ -391,7 +392,7 @@
       <!-- Diagram area -->
       <figure>
         <div
-          ref="dialogSvgRef"
+          ref="dialogSvg"
           class="docs-mermaid docs-mermaid-panzoom"
           v-html="svg"
         />
@@ -506,6 +507,59 @@
   .docs-mermaid .statediagram .edgeLabel rect.background {
     fill: var(--v0-surface) !important;
     opacity: 1 !important;
+  }
+
+  /* Semantic node classes (use with classDef in mermaid) */
+  .docs-mermaid .node.success rect,
+  .docs-mermaid .node.success polygon {
+    fill: var(--v0-success) !important;
+  }
+
+  .docs-mermaid .node.success .nodeLabel {
+    fill: var(--v0-on-success) !important;
+    color: var(--v0-on-success) !important;
+  }
+
+  .docs-mermaid .node.info rect,
+  .docs-mermaid .node.info polygon {
+    fill: var(--v0-info) !important;
+  }
+
+  .docs-mermaid .node.info .nodeLabel {
+    fill: var(--v0-on-info) !important;
+    color: var(--v0-on-info) !important;
+  }
+
+  .docs-mermaid .node.warning rect,
+  .docs-mermaid .node.warning polygon {
+    fill: var(--v0-warning) !important;
+  }
+
+  .docs-mermaid .node.warning .nodeLabel {
+    fill: var(--v0-on-warning) !important;
+    color: var(--v0-on-warning) !important;
+  }
+
+  .docs-mermaid .node.error rect,
+  .docs-mermaid .node.error polygon {
+    fill: var(--v0-error) !important;
+  }
+
+  .docs-mermaid .node.error .nodeLabel {
+    fill: var(--v0-on-error) !important;
+    color: var(--v0-on-error) !important;
+  }
+
+  .docs-mermaid .node.muted rect,
+  .docs-mermaid .node.muted polygon {
+    fill: var(--v0-surface-variant) !important;
+    stroke: var(--v0-divider) !important;
+    stroke-width: 1px !important;
+  }
+
+  .docs-mermaid .node.muted .nodeLabel {
+    fill: var(--v0-on-surface-variant) !important;
+    color: var(--v0-on-surface-variant) !important;
   }
 
   /* Dialog expanded view */

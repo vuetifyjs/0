@@ -24,7 +24,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { clamp, genId, isUndefined } from '#v0/utilities'
+import { clamp, isUndefined, useId } from '#v0/utilities'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -860,7 +860,7 @@ export function createRegistry<
 
   function register (registration: Partial<Z> = {}): Z {
     const size = collection.size
-    const id = registration.id ?? genId()
+    const id = registration.id ?? useId()
 
     if (has(id)) {
       logger.warn(`Ticket "${id}" already exists. Use \`upsert()\` to update or check \`has()\` before registering.`)

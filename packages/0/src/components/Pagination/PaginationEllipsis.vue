@@ -13,8 +13,7 @@
   import { usePaginationItems, usePaginationRoot } from './PaginationRoot.vue'
 
   // Utilities
-  import { genId } from '#v0/utilities'
-  import { onBeforeUnmount, toRef, useTemplateRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef, useId, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
@@ -51,7 +50,7 @@
     renderless,
     namespace = 'v0:pagination',
     ellipsis,
-    id = genId(),
+    id = useId(),
   } = defineProps<PaginationEllipsisProps>()
 
   const pagination = usePaginationRoot(namespace)

@@ -59,7 +59,55 @@ export default async function MarkdownPlugin () {
         },
       })
 
-      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!SUGGESTION]
+      // FAQ container: ::: faq ... ::: or ::: faq single ... :::
+      // Questions marked with ??? Question text
+      md.use(Container, 'faq', {
+        render (tokens: MarkdownToken[], index: number, _options: unknown, env: Record<string, unknown>) {
+          if (tokens[index].nesting === 1) {
+            const info = (tokens[index] as MarkdownToken & { info?: string }).info?.trim() || ''
+            const isSingle = info.includes('single')
+            return `<DocsFaq :multiple="${!isSingle}">\n`
+          }
+          // Close final FAQ item when container closes
+          const closeItem = env._inFaqItem ? '</DocsFaqItem>\n' : ''
+          delete env._inFaqItem
+          return `${closeItem}</DocsFaq>\n`
+        },
+      })
+
+      // Transform ??? lines into DocsFaqItem components
+      const defaultParagraphOpen = md.renderer.rules.paragraph_open
+      const defaultParagraphClose = md.renderer.rules.paragraph_close
+
+      md.renderer.rules.paragraph_open = (tokens, index, options, env, self) => {
+        const inlineToken = tokens[index + 1]
+        if (inlineToken?.type === 'inline' && inlineToken.content?.startsWith('??? ')) {
+          const question = inlineToken.content.slice(4).trim()
+          // Close previous FAQ item if one is open
+          const closeTag = env._inFaqItem ? '</DocsFaqItem>\n' : ''
+          env._inFaqItem = true
+          env._faqQuestionPara = true
+          inlineToken.content = ''
+          inlineToken.children = []
+          return `${closeTag}<DocsFaqItem question="${md.utils.escapeHtml(question)}">\n`
+        }
+        return defaultParagraphOpen
+          ? defaultParagraphOpen(tokens, index, options, env, self)
+          : '<p>'
+      }
+
+      md.renderer.rules.paragraph_close = (tokens, index, options, env, self) => {
+        if (env._faqQuestionPara) {
+          delete env._faqQuestionPara
+          return ''
+        }
+
+        return defaultParagraphClose
+          ? defaultParagraphClose(tokens, index, options, env, self)
+          : '</p>'
+      }
+
+      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!ASKAI]
       const defaultBlockquoteOpen = md.renderer.rules.blockquote_open
       const defaultBlockquoteClose = md.renderer.rules.blockquote_close
 
@@ -67,17 +115,17 @@ export default async function MarkdownPlugin () {
         // Look ahead: blockquote_open -> paragraph_open -> inline
         const inlineToken = tokens[index + 2]
         if (inlineToken?.type === 'inline' && inlineToken.content) {
-          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|SUGGESTION)\]\s*(.*)/)
+          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI)\]\s*(.*)/)
           if (match) {
             const type = match[1].toLowerCase()
             env._calloutType = type
 
-            if (type === 'suggestion') {
-              // For suggestions, the rest of the line is the question
-              const suggestion = match[2].trim()
+            if (type === 'askai') {
+              // For ask callouts, the rest of the line is the question
+              const question = match[2].trim()
               inlineToken.content = ''
               inlineToken.children = []
-              return `<DocsAlert type="${type}" suggestion="${Buffer.from(suggestion).toString('base64')}">`
+              return `<DocsAlert type="${type}" question="${Buffer.from(question).toString('base64')}">`
             }
 
             // For other types, strip the marker and keep content

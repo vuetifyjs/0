@@ -4,7 +4,7 @@
   import { computed } from 'vue'
 
   // Types
-  import type { ComponentApi, ComposableApi } from '../../../build/generate-api'
+  import type { ComponentApi, ComposableApi } from '@build/generate-api'
 
   const props = defineProps<{
     /** Component APIs to display */

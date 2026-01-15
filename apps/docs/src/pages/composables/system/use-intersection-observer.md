@@ -2,7 +2,7 @@
 title: useIntersectionObserver - Visibility Detection for Vue 3
 meta:
 - name: description
-  content: Detect element visibility with Intersection Observer API. Perfect for lazy loading, infinite scroll, and entrance animations with automatic cleanup and pause/resume.
+  content: Detect element visibility with Intersection Observer API. Perfect for lazy loading, infinite scroll, and entrance animations with automatic cleanup control.
 - name: keywords
   content: intersection observer, visibility, viewport, lazy loading, infinite scroll, Vue 3, composable
 features:
@@ -14,6 +14,11 @@ related:
   - /composables/system/use-resize-observer
   - /composables/system/use-mutation-observer
 ---
+
+<script setup lang="ts">
+import ScrollRevealExample from '@/examples/composables/use-intersection-observer/scroll-reveal.vue'
+import ScrollRevealExampleRaw from '@/examples/composables/use-intersection-observer/scroll-reveal.vue?raw'
+</script>
 
 # useIntersectionObserver
 
@@ -50,6 +55,16 @@ The `useIntersectionObserver` composable wraps the Intersection Observer API to 
   </div>
 </template>
 ```
+
+## Examples
+
+### Scroll Reveal
+
+Cards that animate in when entering the viewport with intersection ratio tracking.
+
+<DocsExample file="scroll-reveal.vue" :code="ScrollRevealExampleRaw">
+  <ScrollRevealExample />
+</DocsExample>
 
 ## Architecture
 

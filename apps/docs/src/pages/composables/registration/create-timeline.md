@@ -2,7 +2,7 @@
 title: createTimeline - Bounded Undo/Redo System for Vue 3
 meta:
 - name: description
-  content: Bounded undo/redo system with fixed-size history. Built on createRegistry for state management with automatic overflow handling and time-travel debugging for Vue 3.
+  content: Bounded undo/redo system with fixed-size history. Built on createRegistry for state management with automatic overflow handling and time-travel debugging.
 - name: keywords
   content: createTimeline, timeline, undo, redo, history, time travel, Vue 3, state management, registry
 features:
@@ -14,6 +14,11 @@ related:
 - /composables/registration/create-registry
 - /composables/registration/create-queue
 ---
+
+<script setup lang="ts">
+import CanvasExample from '@/examples/composables/create-timeline/canvas.vue'
+import CanvasExampleRaw from '@/examples/composables/create-timeline/canvas.vue?raw'
+</script>
 
 # createTimeline
 
@@ -46,6 +51,16 @@ timeline.redo()
 console.log(timeline.size) // 3
 ```
 
+## Examples
+
+### Drawing Canvas
+
+A drawing canvas with undo/redo and visual timeline indicator.
+
+<DocsExample file="canvas.vue" :code="CanvasExampleRaw">
+  <CanvasExample />
+</DocsExample>
+
 ## Architecture
 
 `createTimeline` extends `createRegistry` with bounded history and overflow management:
@@ -58,4 +73,4 @@ flowchart TD
   createTimeline --> cursor[history cursor]
 ```
 
-<DocsApi name="useTimeline" />
+<DocsApi />

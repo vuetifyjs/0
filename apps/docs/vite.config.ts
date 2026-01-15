@@ -90,7 +90,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
         // Exclude mermaid diagram chunks from precache (loaded on demand)
         globIgnores: ['**/*Diagram-*.js', '**/mermaid*.js', '**/cytoscape*.js'],
         navigateFallback: null,
@@ -109,6 +109,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
+      '@build': fileURLToPath(new URL('build', import.meta.url)),
       '@vuetify/v0': fileURLToPath(new URL('../../packages/0/src', import.meta.url)),
       '@vuetify/paper': fileURLToPath(new URL('../../packages/paper/src', import.meta.url)),
       // internal

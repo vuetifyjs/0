@@ -15,11 +15,11 @@
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, ref, shallowRef } from 'vue'
+  import { computed, ref, shallowRef, useTemplateRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
-  import type { Api, ComponentApi, ComposableApi } from '../../../build/generate-api'
+  import type { Api, ComponentApi, ComposableApi } from '@build/generate-api'
 
   const router = useRouter()
 
@@ -31,7 +31,7 @@
   const activeTarget = shallowRef<HTMLElement | null>(null)
   const activeApi = shallowRef<Api | null>(null)
   const displayName = shallowRef<string>('')
-  const popoverEl = ref<HTMLDivElement>()
+  const _popoverRef = useTemplateRef<HTMLDivElement>('popover')
   const isVisible = ref(false)
 
   // Hover timing
@@ -235,7 +235,7 @@
     <Transition name="fade">
       <div
         v-if="isVisible && activeApi"
-        ref="popoverEl"
+        ref="popover"
         class="docs-api-hover-popover"
         :class="{ 'popover-flipped': flipBelow }"
         :style="{

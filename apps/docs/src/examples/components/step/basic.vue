@@ -2,13 +2,13 @@
   import { Step } from '@vuetify/v0'
   import { shallowRef } from 'vue'
 
-  const current = shallowRef<string>()
+  const current = shallowRef(1)
 </script>
 
 <template>
   <Step.Root v-model="current">
     <template #default="{ next, prev }">
-      <Step.Item v-for="i in 3" :key="i" :value="`step${i}`">
+      <Step.Item v-for="i in 3" :key="i" :value="i">
         <template #default="{ isSelected }">
           <div v-if="isSelected" class="p-6 border border-divider rounded mb-4">
             <h3 class="text-lg font-semibold mb-2">Step {{ i }}</h3>

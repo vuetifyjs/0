@@ -79,6 +79,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/disclosure/tabs': RouteRecordInfo<
+      '/components/disclosure/tabs',
+      '/components/disclosure/tabs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/forms/checkbox': RouteRecordInfo<
       '/components/forms/checkbox',
       '/components/forms/checkbox',
@@ -450,6 +457,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/fundamentals/benchmarks': RouteRecordInfo<
+      '/guide/fundamentals/benchmarks',
+      '/guide/fundamentals/benchmarks',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/fundamentals/building-frameworks': RouteRecordInfo<
+      '/guide/fundamentals/building-frameworks',
+      '/guide/fundamentals/building-frameworks',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/fundamentals/components': RouteRecordInfo<
       '/guide/fundamentals/components',
       '/guide/fundamentals/components',
@@ -474,6 +495,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/fundamentals/plugins': RouteRecordInfo<
       '/guide/fundamentals/plugins',
       '/guide/fundamentals/plugins',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/fundamentals/styling': RouteRecordInfo<
+      '/guide/fundamentals/styling',
+      '/guide/fundamentals/styling',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -627,6 +655,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/disclosure/popover.md': {
       routes:
         | '/components/disclosure/popover'
+      views:
+        | never
+    }
+    'src/pages/components/disclosure/tabs.md': {
+      routes:
+        | '/components/disclosure/tabs'
       views:
         | never
     }
@@ -948,6 +982,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/fundamentals/benchmarks.md': {
+      routes:
+        | '/guide/fundamentals/benchmarks'
+      views:
+        | never
+    }
+    'src/pages/guide/fundamentals/building-frameworks.md': {
+      routes:
+        | '/guide/fundamentals/building-frameworks'
+      views:
+        | never
+    }
     'src/pages/guide/fundamentals/components.md': {
       routes:
         | '/guide/fundamentals/components'
@@ -969,6 +1015,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/fundamentals/plugins.md': {
       routes:
         | '/guide/fundamentals/plugins'
+      views:
+        | never
+    }
+    'src/pages/guide/fundamentals/styling.md': {
+      routes:
+        | '/guide/fundamentals/styling'
       views:
         | never
     }

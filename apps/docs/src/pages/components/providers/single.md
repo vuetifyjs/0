@@ -7,7 +7,7 @@ meta:
   content: single, radio button, single-select, tabs, toggle, Vue 3, headless, exclusive selection
 features:
   category: Component
-  label: 'E: Single'
+  label: 'C: Single'
   github: /components/Single/
   renderless: true
   level: 2

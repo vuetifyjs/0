@@ -18,6 +18,67 @@ Type-safe composables for headless UI. Components wrap these composables—you c
 
 <DocsPageFeatures :frontmatter />
 
+## Minimal Reactivity
+
+Vuetify0 composables use the absolute minimum reactivity required to fulfill their responsibilities. This deliberate constraint keeps bundle sizes small, maximizes performance, and gives you full control over what triggers updates.
+
+> [!TIP]
+> See [Benchmarks](/guide/fundamentals/benchmarks) for performance data and what the size ratings mean.
+
+### What's Reactive
+
+| Category | Reactive | Why |
+| - | :-: | - |
+| Selection state (`selectedIds`, `selectedId`) | <AppIcon icon="success" class="text-success" /> | UI must reflect selection changes |
+| Registry collections (`values()`, `keys()`) | <AppIcon icon="close" class="text-error" /> | Read-heavy, rarely needs live updates |
+| Registry size | <AppIcon icon="close" class="text-error" /> | Computed on access, not tracked |
+| Queue/Timeline data | <AppIcon icon="close" class="text-error" /> | Consumed via events or polling |
+
+### Events as Opt-In Reactivity
+
+Registries emit events when operations occur. Use events to build reactive behavior only where needed:
+
+```ts
+import { createRegistry } from '@vuetify/v0'
+
+const registry = createRegistry({ events: true })
+
+// Listen for changes
+registry.on('register:ticket', ticket => {
+  console.log('Added:', ticket.id)
+})
+
+registry.on('unregister:ticket', ticket => {
+  console.log('Removed:', ticket.id)
+})
+```
+
+**Available events:**
+- `register:ticket` — Item added
+- `unregister:ticket` — Item removed
+- `update:ticket` — Item modified via `upsert()`
+- `clear:registry` — All items removed
+- `reindex:registry` — Indices recalculated
+
+### useProxyRegistry for Full Reactivity
+
+When you need automatic template updates for registry data, wrap it with [useProxyRegistry](/composables/reactivity/use-proxy-registry):
+
+```ts
+import { createRegistry, useProxyRegistry } from '@vuetify/v0'
+
+const registry = createRegistry()
+
+// Non-reactive: template won't update when items change
+const items = registry.values()
+
+// Reactive: changes trigger template updates automatically
+const proxy = useProxyRegistry(registry)
+// proxy.values is a computed ref that updates on any mutation
+```
+
+This pattern lets you choose reactivity granularity—pay for what you use
+
 ## Foundation
 
 Core factories that provide the foundation for all other composables.

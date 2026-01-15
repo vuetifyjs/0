@@ -14,7 +14,7 @@
 
   const uid = useId()
   const showCode = ref(false)
-  const { highlightedCode, highlight } = useHighlightCode(toRef(() => props.code), { immediate: false })
+  const { highlightedCode, highlight, isLoading, showLoader } = useHighlightCode(toRef(() => props.code), { immediate: false })
   const { lineWrap: defaultLineWrap } = useSettings()
 
   // Local state initialized from global default, per-instance
@@ -52,12 +52,13 @@
       <button
         :aria-controls="code ? `${uid}-code` : undefined"
         :aria-expanded="showCode"
-        class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
+        class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface hover:text-primary"
         type="button"
         @click="toggleCode"
       >
-        <span v-if="showCode">Hide code</span>
-        <span v-else>Show code</span>
+        <AppLoaderIcon v-if="showLoader" variant="orbit" />
+        <AppIcon v-else-if="showCode && !isLoading" icon="chevron-up" :size="16" />
+        <AppIcon v-else icon="code" :size="16" />
         <span v-if="fileName" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ fileName }}</span>
       </button>
     </div>

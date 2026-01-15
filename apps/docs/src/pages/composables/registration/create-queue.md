@@ -2,8 +2,7 @@
 title: createQueue - Time-Based FIFO Collections for Vue 3
 meta:
 - name: description
-  content: A queue composable for managing time-based collections with automatic timeout-based
-    removal, pause/resume functionality, and FIFO ordering.
+  content: Vue 3 queue composable for time-based collections. Features automatic timeout removal, pause and resume functionality, and FIFO ordering for items.
 - name: keywords
   content: createQueue, queue, composable, Vue, timeout, FIFO
 features:
@@ -15,6 +14,11 @@ related:
 - /composables/registration/create-registry
 - /composables/registration/create-timeline
 ---
+
+<script setup lang="ts">
+import TaskRunnerExample from '@/examples/composables/create-queue/task-runner.vue'
+import TaskRunnerExampleRaw from '@/examples/composables/create-queue/task-runner.vue?raw'
+</script>
 
 # createQueue
 
@@ -40,6 +44,16 @@ console.log(item2.isPaused) // true (waiting in queue)
 console.log(queue.size) // 3
 ```
 
+## Examples
+
+### Task Runner
+
+A background task queue with progress tracking and FIFO ordering.
+
+<DocsExample file="task-runner.vue" :code="TaskRunnerExampleRaw">
+  <TaskRunnerExample />
+</DocsExample>
+
 ## Architecture
 
 `createQueue` extends `createRegistry` with FIFO ordering and timeout management:
@@ -52,4 +66,4 @@ flowchart TD
   createQueue --> first[first item active]
 ```
 
-<DocsApi name="useQueue" />
+<DocsApi />

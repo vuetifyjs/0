@@ -2,7 +2,7 @@
 title: createStep - Sequential Navigation for Vue 3
 meta:
 - name: description
-  content: Navigate sequential steps with first, last, next, and prev methods. Build form wizards, carousels, and guided flows with circular navigation and disabled item skipping.
+  content: Navigate sequential steps with first, last, next, and prev methods. Build form wizards, carousels, and guided flows with circular navigation support.
 - name: keywords
   content: createStep, step navigation, wizard, stepper, carousel, multi-step form, Vue 3, composable
 features:
@@ -14,6 +14,11 @@ related:
   - /composables/selection/create-single
   - /components/providers/step
 ---
+
+<script setup lang="ts">
+import StepperExample from '@/examples/composables/create-step/stepper.vue'
+import StepperExampleRaw from '@/examples/composables/create-step/stepper.vue?raw'
+</script>
 
 # createStep
 
@@ -56,6 +61,16 @@ carousel.last()   // Go to slide3
 carousel.next()   // Wraps to slide1
 carousel.prev()   // Wraps to slide3
 ```
+
+## Examples
+
+### Stepper
+
+A horizontal progress stepper with disabled step skipping and navigation controls.
+
+<DocsExample file="stepper.vue" :code="StepperExampleRaw">
+  <StepperExample />
+</DocsExample>
 
 ## Architecture
 

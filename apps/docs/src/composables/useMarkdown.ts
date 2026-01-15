@@ -6,6 +6,8 @@
  * Uses marked for parsing and Shiki for code highlighting.
  */
 
+// Build
+import { createApiTransformer, VUE_FUNCTIONS } from '@build/shiki-api-transformer'
 import { Marked } from 'marked'
 
 // Composables
@@ -20,9 +22,6 @@ import type { Highlighter } from 'shiki'
 
 // Constants
 import { SHIKI_THEMES } from '@/constants/shiki'
-
-// Build
-import { createApiTransformer, VUE_FUNCTIONS } from '../../build/shiki-api-transformer'
 
 export interface UseMarkdownReturn {
   html: ShallowRef<string>

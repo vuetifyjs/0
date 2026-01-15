@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/v0",
-  "version": "0.0.22",
+  "version": "0.0.24-beta.1",
   "description": "Vuetify0",
   "license": "MIT",
   "main": "./dist/index.mjs",
@@ -26,6 +26,7 @@
       "./components": "./dist/components/index.mjs",
       "./composables": "./dist/composables/index.mjs",
       "./constants": "./dist/constants/index.mjs",
+      "./date": "./dist/date/index.mjs",
       "./types": "./dist/types/index.mjs",
       "./utilities": "./dist/utilities/index.mjs",
       "./package.json": "./package.json",
@@ -61,6 +62,10 @@
       "development": "./src/constants/index.ts",
       "default": "./dist/constants/index.mjs"
     },
+    "./date": {
+      "development": "./src/date/index.ts",
+      "default": "./dist/date/index.mjs"
+    },
     "./types": {
       "development": "./src/types/index.ts",
       "default": "./dist/types/index.mjs"
@@ -75,7 +80,7 @@
       "default": "./dist/browser/index.js"
     }
   },
-  "dependencies": {
+  "optionalDependencies": {
     "@js-temporal/polyfill": "catalog:"
   }
 }

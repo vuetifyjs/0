@@ -2,7 +2,7 @@
 title: createSingle - Single-Selection State for Vue 3
 meta:
 - name: description
-  content: Single-item selection with automatic deselection. Extends createSelection for radio buttons, tabs, and exclusive choice patterns. Base for createTheme and createLocale.
+  content: Single-item selection with automatic deselection. Extends createSelection for radio buttons, tabs, and exclusive choice patterns. Base for theme/locale.
 - name: keywords
   content: createSingle, single selection, radio button, tabs, exclusive, composable, Vue 3, state management
 features:
@@ -37,12 +37,12 @@ single.register({ id: 'banana', value: 'Banana' })
 
 // Select by ID
 single.select('apple')
-console.log(single.selectedId) // 'apple'
-console.log(single.selectedValue) // 'Apple'
+console.log(single.selectedId.value) // 'apple'
+console.log(single.selectedValue.value) // 'Apple'
 
 // Selecting a new item automatically clears the previous selection
 single.select('banana')
-console.log(single.selectedId) // 'banana' (replaces apple)
+console.log(single.selectedId.value) // 'banana' (replaces apple)
 ```
 
 ## Architecture

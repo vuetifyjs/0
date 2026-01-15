@@ -5,7 +5,7 @@ features:
   level: 2
 meta:
   - name: description
-    content: Learn how to use Vuetify0 composables for headless UI logic. Understand when to use composables vs components, and how to build custom UI with type-safe primitives.
+    content: Learn how to use Vuetify0 composables for headless UI logic. Understand when to use composables vs components, and how to build custom UI with type-safe APIs.
   - name: keywords
     content: vuetify0, composables, headless ui, Vue 3, selection, forms, plugins, utilities
 related:
@@ -51,7 +51,7 @@ selection.select('a')
 > [!TIP]
 > Components and composables are interchangeable. Every component uses a composable internally—you can always drop to the composable for more control.
 
-> [!SUGGESTION] How do I choose between composables and components for my use case?
+> [!ASKAI] How do I choose between composables and components for my use case?
 
 ## Categories
 
@@ -222,4 +222,152 @@ const ticket = selection.get('1')
 ticket?.value // MyItem
 ```
 
-> [!SUGGESTION] Which composables should I use for a data table with filtering and pagination?
+> [!ASKAI] Which composables should I use for a data table with filtering and pagination?
+
+## Frequently Asked Questions
+
+::: faq
+??? Should I always use context injection or can I call factories directly?
+
+Both are valid. Choose based on scope:
+
+| Pattern | When to Use |
+| - | - |
+| Direct factory | Local state, single component, testing |
+| Context injection | Shared state across component tree |
+| Plugin installation | App-wide singletons |
+
+```ts
+// Direct - local to this component
+const localSelection = createSelection()
+
+// Context - shared with descendants
+const [useSelection, provideSelection] = createSelectionContext()
+provideSelection() // Children can now useSelection()
+```
+
+Direct calls are simpler when you don't need to share state. See [Core](/guide/fundamentals/core) for context patterns.
+
+??? Can I share a composable instance across multiple component trees?
+
+Yes. Three approaches depending on your needs:
+
+**Trinity's third element** — Built-in shared instance:
+
+```ts
+const [useTheme, provideTheme, theme] = createThemeContext()
+
+// 'theme' is the shared default instance
+// Access it anywhere without injection
+theme.current.value // Works outside components, in tests, etc.
+```
+
+**Module singleton** — Export a factory result:
+
+```ts singleton.ts
+export const globalSelection = createSelection({ multiple: true })
+```
+
+**Plugin installation** — App-wide via dependency injection:
+
+```ts main.ts
+app.use(createSelectionPlugin({ multiple: true }))
+```
+
+```mermaid "Sharing Patterns"
+flowchart TD
+    subgraph Trinity Default
+        T[createThemeContext] --> T3["theme (3rd element)"]
+        T3 --> X[Any code]
+    end
+    subgraph Module Singleton
+        A[Component A] --> S[globalSelection]
+        B[Component B] --> S
+    end
+    subgraph Plugin DI
+        C[Component C] --> P[useSelection]
+        D[Component D] --> P
+        P --> I[Injected instance]
+    end
+```
+
+Trinity's third element is the idiomatic v0 approach—see [The Trinity Pattern](/guide/fundamentals/core#the-trinity-pattern) for details. Module singletons work outside Vue. Plugins integrate with devtools.
+
+??? What's the lifecycle of a composable when components unmount?
+
+Composables follow Vue's reactivity lifecycle:
+
+1. **Created** — Factory call allocates refs and state
+2. **Active** — Reactive updates propagate normally
+3. **Cleanup** — When the creating component unmounts, `onUnmounted` hooks run
+
+```ts
+const selection = createSelection()
+
+// Registered items persist until explicitly unregistered
+selection.register({ id: 'a', value: 1 })
+
+onUnmounted(() => {
+  // Manual cleanup if needed
+  selection.unregister('a')
+})
+```
+
+For context-provided composables, the instance lives as long as the providing component. Child components that inject don't affect the lifecycle.
+
+??? Is there a performance penalty for plugin-based composables?
+
+Minimal. Plugin installation runs once at app startup:
+
+```mermaid "Plugin Resolution"
+flowchart LR
+    A[app.use] --> B[provide to app root]
+    B --> C[Component mounts]
+    C --> D[inject - O(1) lookup]
+    D --> E[Cache reference]
+```
+
+The injection is a single Map lookup, same as any `inject()` call. There's no per-render overhead—you're accessing the same object reference.
+
+??? Can I mix multiple composables together safely?
+
+Yes. Composables are designed for composition:
+
+```ts
+import {
+  createSelection,
+  useFilter,
+  usePagination,
+} from '@vuetify/v0'
+
+// Each composable manages its own state
+const selection = createSelection({ multiple: true })
+const filter = useFilter()
+const pagination = usePagination({ itemsPerPage: 10 })
+
+// Wire them together
+const filtered = filter.apply(query, items)
+const paginated = computed(() =>
+  filtered.value.slice(pagination.pageStart.value, pagination.pageStop.value)
+)
+```
+
+Each composable is independent. They don't interfere with each other unless you explicitly connect them. See [Composing Composables](#composing-composables) above for patterns.
+
+??? How do I debug composable state in Vue DevTools?
+
+Composables using Vue's reactivity show up in DevTools automatically. For better debugging:
+
+1. **Named refs** — Use `ref()` with descriptive variable names
+2. **Custom inspector** — Plugins registered via `app.use()` appear in DevTools
+3. **Console logging** — Refs are reactive, use `toRaw()` for snapshots
+
+```ts
+import { toRaw } from 'vue'
+
+const selection = createSelection()
+console.log(toRaw(selection.selectedIds)) // Plain Set, not reactive proxy
+```
+
+For registry-based composables, enable `events: true` to trace registration changes via [useProxyRegistry](/composables/reactivity/use-proxy-registry).
+:::

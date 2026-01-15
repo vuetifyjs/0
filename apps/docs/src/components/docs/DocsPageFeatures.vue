@@ -2,7 +2,7 @@
   import pageDates from 'virtual:page-dates'
 
   // Framework
-  import { isUndefined, useDate } from '@vuetify/v0'
+  import { isUndefined, useDate, useLogger } from '@vuetify/v0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -17,6 +17,7 @@
   import metrics from '@/data/metrics.json'
 
   const { scrollToAnchor } = useScrollToAnchor()
+  const logger = useLogger()
 
   interface MetricCoverage {
     overall: number
@@ -214,7 +215,7 @@
 
       await copy(raw)
     } catch (error) {
-      console.error('Failed to copy page:', error)
+      logger.error('Failed to copy page', error)
       copyError.value = true
       setTimeout(() => {
         copyError.value = false

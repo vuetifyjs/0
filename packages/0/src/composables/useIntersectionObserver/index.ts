@@ -23,12 +23,11 @@ import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
 import { isNull } from '#v0/utilities'
-import { isRef, onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
-import type { Ref, ShallowRef } from 'vue'
-
-export type MaybeRef<T> = T | Ref<T> | Readonly<Ref<T>> | ShallowRef<T> | Readonly<ShallowRef<T>>
+import type { MaybeRef } from '#v0/types'
+import type { Ref } from 'vue'
 
 export interface IntersectionObserverEntry {
   boundingClientRect: DOMRectReadOnly
@@ -125,7 +124,7 @@ export function useIntersectionObserver (
   options: IntersectionObserverOptions = {},
 ): UseIntersectionObserverReturn {
   const { isHydrated } = useHydration()
-  const targetRef = isRef(target) ? target : shallowRef(target)
+  const targetRef = toRef(target)
   const observer = shallowRef<IntersectionObserver | null>()
   const isPaused = shallowRef(false)
   const isIntersecting = shallowRef(false)

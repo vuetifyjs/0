@@ -7,7 +7,7 @@ meta:
   content: group, checkbox, multi-select, tri-state, indeterminate, select all, Vue 3, headless
 features:
   category: Component
-  label: 'E: Group'
+  label: 'C: Group'
   github: /components/Group/
   renderless: true
   level: 2

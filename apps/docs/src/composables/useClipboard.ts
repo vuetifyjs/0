@@ -1,5 +1,5 @@
 // Framework
-import { IN_BROWSER } from '@vuetify/v0'
+import { IN_BROWSER, useLogger } from '@vuetify/v0'
 
 // Utilities
 import { shallowRef, type ShallowRef } from 'vue'
@@ -11,6 +11,7 @@ export interface UseClipboardReturn {
 }
 
 export function useClipboard (timeout = 2000): UseClipboardReturn {
+  const logger = useLogger()
   const copied = shallowRef(false)
   let timeoutId: ReturnType<typeof setTimeout> | undefined
 
@@ -29,7 +30,7 @@ export function useClipboard (timeout = 2000): UseClipboardReturn {
       timeoutId = setTimeout(reset, timeout)
       return true
     } catch (error) {
-      console.error('Failed to copy:', error)
+      logger.error('Failed to copy', error)
       return false
     }
   }

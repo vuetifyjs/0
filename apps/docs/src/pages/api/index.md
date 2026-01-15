@@ -2,7 +2,7 @@
 title: API Reference - Vuetify0 Components & Composables
 meta:
   - name: description
-    content: Complete API reference for all Vuetify0 components and composables. Props, events, slots, options, and methods.
+    content: Complete API reference for all Vuetify0 components and composables. Explore props, events, slots, options, and methods with detailed documentation.
   - name: keywords
     content: api, reference, props, events, slots, methods, options, components, composables
 features:

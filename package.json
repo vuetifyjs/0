@@ -1,6 +1,6 @@
 {
   "name": "@vuetify/zero",
-  "version": "0.0.22",
+  "version": "0.0.24-beta.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -67,5 +67,6 @@
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
-  "packageManager": "pnpm@10.26.1"
+  "packageManager": "pnpm@10.26.1",
+  "web-types": "dist/json/web-types.json"
 }

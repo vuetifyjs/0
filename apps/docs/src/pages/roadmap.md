@@ -2,11 +2,14 @@
 title: Roadmap - Vuetify0 Development Timeline
 meta:
   - name: description
-    content: Track upcoming features, releases, and milestones for @vuetify/v0. See what's in progress and what's coming next.
+    content: Track upcoming features, releases, and milestones for @vuetify/v0 headless UI library. See what is in progress and what new composables are coming.
   - name: keywords
     content: roadmap, timeline, milestones, releases, features, Vue 3, v0, headless ui
 features:
   level: 1
+related:
+  - /releases
+  - /introduction/contributing
 ---
 
 # Roadmap

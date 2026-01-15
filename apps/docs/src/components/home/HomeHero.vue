@@ -1,7 +1,11 @@
 <script setup lang="ts">
+  // Framework
+  import { useLogger } from '@vuetify/v0'
+
   // Utilities
   import { onMounted, ref } from 'vue'
 
+  const logger = useLogger()
   const stats = ref({
     stars: '—',
     downloads: '—',
@@ -24,7 +28,7 @@
         stats.value.downloads = formatNumber(npm.downloads)
       }
     } catch (error) {
-      console.warn('Failed to fetch stats:', error)
+      logger.warn('Failed to fetch stats', error)
     }
   })
 

@@ -26,6 +26,7 @@ import { isNull } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
+import type { MaybeRef } from '#v0/types'
 import type { Ref } from 'vue'
 
 export interface ResizeObserverEntry {
@@ -109,11 +110,12 @@ export interface UseResizeObserverReturn {
  * ```
  */
 export function useResizeObserver (
-  target: Ref<Element | null | undefined>,
+  target: MaybeRef<Element | null | undefined>,
   callback: (entries: ResizeObserverEntry[]) => void,
   options: ResizeObserverOptions = {},
 ): UseResizeObserverReturn {
   const { isHydrated } = useHydration()
+  const targetRef = toRef(target)
   const observer = shallowRef<ResizeObserver | null>()
   const isPaused = shallowRef(false)
   const isActive = toRef(() => !!observer.value)
@@ -121,7 +123,7 @@ export function useResizeObserver (
   function setup () {
     // null = permanently stopped, undefined = not yet created
     if (isNull(observer.value)) return
-    if (!isHydrated.value || !SUPPORTS_OBSERVER || !target.value || isPaused.value) return
+    if (!isHydrated.value || !SUPPORTS_OBSERVER || !targetRef.value || isPaused.value) return
 
     observer.value = new ResizeObserver(entries => {
       const transformedEntries: ResizeObserverEntry[] = entries.map(entry => ({
@@ -141,12 +143,12 @@ export function useResizeObserver (
       }
     })
 
-    observer.value.observe(target.value, {
+    observer.value.observe(targetRef.value, {
       box: options.box || 'content-box',
     })
 
     if (options.immediate) {
-      const rect = target.value.getBoundingClientRect()
+      const rect = targetRef.value.getBoundingClientRect()
       callback([{
         contentRect: {
           width: rect.width,
@@ -154,14 +156,14 @@ export function useResizeObserver (
           top: rect.top,
           left: rect.left,
         },
-        target: target.value,
+        target: targetRef.value,
       }])
     }
   }
 
   // Watch target changes - only cleanup/setup when element actually changes
   watch(
-    () => target.value,
+    () => targetRef.value,
     (el, oldEl) => {
       // Only cleanup if we had a previous element
       if (oldEl) cleanup()
@@ -178,7 +180,7 @@ export function useResizeObserver (
     const stopHydrationWatch = watch(
       () => isHydrated.value,
       hydrated => {
-        if (hydrated && target.value && !observer.value) {
+        if (hydrated && targetRef.value && !observer.value) {
           setup()
           stopHydrationWatch()
         }
@@ -256,7 +258,7 @@ export interface UseElementSizeReturn extends UseResizeObserverReturn {
  * })
  * ```
  */
-export function useElementSize (target: Ref<Element | null | undefined>): UseElementSizeReturn {
+export function useElementSize (target: MaybeRef<Element | null | undefined>): UseElementSizeReturn {
   const width = shallowRef(0)
   const height = shallowRef(0)
 

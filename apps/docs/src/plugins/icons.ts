@@ -18,6 +18,7 @@ import {
   mdiChevronUp,
   mdiCircleOutline,
   mdiClose,
+  mdiCodeTags,
   mdiCog,
   mdiContentCopy,
   mdiContrastCircle,
@@ -86,6 +87,7 @@ import type { App } from 'vue'
 export const [useIconContext, provideIconContext, context] = createTokensContext({
   namespace: 'v0:icons',
   tokens: {
+    'code': mdiCodeTags,
     'copy': mdiContentCopy,
     'dev': mdiDevTo,
     'cog': mdiCog,

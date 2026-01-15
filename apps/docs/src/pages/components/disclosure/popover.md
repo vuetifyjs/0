@@ -7,7 +7,7 @@ meta:
   content: popover, tooltip, dropdown, CSS anchor positioning, Vue 3, headless, popover API, menu
 features:
   category: Component
-  label: 'E: Popover'
+  label: 'C: Popover'
   github: /components/Popover/
   renderless: true
   level: 2

@@ -25,7 +25,9 @@
         "src/typed-router.d.ts",
         "src/layouts/*.vue",
         "src/pages/**/*.vue",
-        "src/components/docs/meta/*.vue"
+        "src/components/docs/meta/*.vue",
+        "src/examples/guide/building-frameworks/my-ui/src/**/*.ts",
+        "src/examples/guide/building-frameworks/my-ui/vite.config.ts"
       ],
       "paths": {
         "@/*": [

@@ -9,7 +9,7 @@
   import { computed } from 'vue'
 
   // Types
-  import type { ApiData, ComponentApi, ComposableApi } from '../../../build/generate-api'
+  import type { ApiData, ComponentApi, ComposableApi } from '@build/generate-api'
 
   const params = useParams<{ name: string }>()
   const data = apiData as ApiData
