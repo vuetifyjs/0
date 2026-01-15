@@ -38,7 +38,7 @@
 </script>
 
 <template>
-  <i class="inline-flex align-center justify-center">
+  <i class="inline-flex align-center justify-center opacity-70">
     <svg
       aria-hidden="true"
       class="inline-block align-middle"

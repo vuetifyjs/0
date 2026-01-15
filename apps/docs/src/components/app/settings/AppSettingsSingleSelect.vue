@@ -75,7 +75,7 @@
         'w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors text-left',
         single.selectedId.value === option.id
           ? 'bg-primary/10 text-primary'
-          : 'hover:bg-surface-tint text-on-surface',
+          : 'hover:bg-surface-variant text-on-surface',
       ]"
       role="radio"
       type="button"
@@ -101,7 +101,7 @@
         'w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors text-left',
         single.selectedId.value === option.id
           ? 'bg-primary/10 text-primary'
-          : 'hover:bg-surface-tint text-on-surface',
+          : 'hover:bg-surface-variant text-on-surface',
       ]"
       role="radio"
       type="button"

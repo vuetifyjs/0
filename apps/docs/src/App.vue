@@ -81,16 +81,16 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--v0-divider);
+    background: var(--v0-scrollbar-thumb);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--v0-primary) 50%, var(--v0-divider));
+    background: color-mix(in srgb, var(--v0-primary) 50%, var(--v0-scrollbar-thumb));
   }
 
   /* Firefox */
   * {
-    scrollbar-color: var(--v0-divider) var(--v0-background);
+    scrollbar-color: var(--v0-scrollbar-thumb) var(--v0-background);
   }
 
   .mesh-bg {

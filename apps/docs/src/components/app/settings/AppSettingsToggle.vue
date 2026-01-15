@@ -19,7 +19,7 @@
 </script>
 
 <template>
-  <label class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface-tint/50 cursor-pointer">
+  <label class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface-variant cursor-pointer">
     <div :class="slots.prepend ? 'flex items-center gap-2' : ''">
       <slot name="prepend" />
       <span class="text-sm">{{ label }}</span>

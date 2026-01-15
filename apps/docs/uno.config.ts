@@ -7,7 +7,7 @@ export default defineConfig({
   // Wind4 uses color-mix with oklch - opacity modifiers (bg-surface/50)
   // don't work with CSS variables. Use color-mix shortcuts instead.
   shortcuts: {
-    'bg-glass-surface': '[background:color-mix(in_srgb,var(--v0-surface)_70%,transparent)] backdrop-blur-12',
+    'bg-glass-surface': '[background:var(--v0-glass-surface)] backdrop-blur-12',
     'bg-glass-warning': '[background:color-mix(in_srgb,var(--v0-warning)_70%,transparent)] backdrop-blur-12',
   },
   preflights: [
