@@ -20,6 +20,7 @@ export interface DocSettings {
   showSkillFilter: boolean
   showThemeToggle: boolean
   showSocialLinks: boolean
+  collapsibleNav: boolean
 }
 
 export interface SettingsContext {
@@ -32,6 +33,7 @@ export interface SettingsContext {
   showSkillFilter: ShallowRef<boolean>
   showThemeToggle: ShallowRef<boolean>
   showSocialLinks: ShallowRef<boolean>
+  collapsibleNav: ShallowRef<boolean>
   open: () => void
   close: () => void
   toggle: () => void
@@ -45,6 +47,7 @@ const DEFAULTS: DocSettings = {
   showSkillFilter: true,
   showThemeToggle: true,
   showSocialLinks: true,
+  collapsibleNav: true,
 }
 
 // Create context
@@ -96,6 +99,7 @@ export function createSettingsContext (): SettingsContext {
   const showSkillFilter = shallowRef(DEFAULTS.showSkillFilter)
   const showThemeToggle = shallowRef(DEFAULTS.showThemeToggle)
   const showSocialLinks = shallowRef(DEFAULTS.showSocialLinks)
+  const collapsibleNav = shallowRef(DEFAULTS.collapsibleNav)
 
   // Load stored preferences
   loadSetting(storage, 'lineWrap', lineWrap)
@@ -105,9 +109,10 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'showSkillFilter', showSkillFilter)
   loadSetting(storage, 'showThemeToggle', showThemeToggle)
   loadSetting(storage, 'showSocialLinks', showSocialLinks)
+  loadSetting(storage, 'collapsibleNav', collapsibleNav)
 
   // Persist on change
-  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks }
+  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
@@ -140,6 +145,7 @@ export function createSettingsContext (): SettingsContext {
     showSkillFilter,
     showThemeToggle,
     showSocialLinks,
+    collapsibleNav,
     open,
     close,
     toggle,

@@ -44,8 +44,9 @@ interface PageInfo {
 }
 
 // Section configuration - defines structure and ordering
-const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootPath?: string }> = {
-  introduction: { order: 0, hasSubcategories: false, rootPath: '/' },
+// rootPath: string = custom link, undefined = default to /${section}, null = no link
+const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootPath?: string | null }> = {
+  introduction: { order: 0, hasSubcategories: false, rootPath: null },
   guide: { order: 2, hasSubcategories: true },
   components: { order: 4, hasSubcategories: true },
   composables: { order: 6, hasSubcategories: true },
@@ -131,6 +132,40 @@ function comparePages (a: PageInfo, b: PageInfo) {
   return a.name.localeCompare(b.name)
 }
 
+async function buildApiSection (): Promise<NavItemLink> {
+  const apiNames = await getApiNamesGrouped()
+
+  // Group components by their folder (Avatar, Selection, etc.)
+  const componentGroups = new Map<string, { name: string, slug: string }[]>()
+  for (const comp of apiNames.components) {
+    const group = comp.group || 'Other'
+    if (!componentGroups.has(group)) componentGroups.set(group, [])
+    componentGroups.get(group)!.push({ name: comp.name, slug: comp.slug })
+  }
+
+  return {
+    name: 'API',
+    to: '/api',
+    children: [
+      {
+        name: 'Components',
+        children: Array.from(componentGroups.entries())
+          .toSorted((a, b) => a[0].localeCompare(b[0]))
+          .flatMap(([, items]) =>
+            items.toSorted((a, b) => a.name.localeCompare(b.name))
+              .map(item => ({ name: item.name, to: `/api/${item.slug}` })),
+          ),
+      },
+      {
+        name: 'Composables',
+        children: apiNames.composables
+          .toSorted((a, b) => a.name.localeCompare(b.name))
+          .map(item => ({ name: item.name, to: `/api/${item.slug}` })),
+      },
+    ],
+  }
+}
+
 function createPageInfo (relPath: string, file: string, name: string, frontmatter: Frontmatter): PageInfo {
   return {
     path: relPath,
@@ -209,11 +244,10 @@ async function generateNav (): Promise<NavItem[]> {
     }
 
     const sectionName = titleCase(section)
-    const sectionItem: NavItemLink = {
-      name: sectionName,
-      to: config.rootPath ?? `/${section}`,
-      children: [],
-    }
+    // Create NavItemCategory (no link) if rootPath is null, otherwise NavItemLink
+    const sectionItem: NavItemLink | NavItemCategory = config.rootPath === null
+      ? { name: sectionName, children: [] }
+      : { name: sectionName, to: config.rootPath ?? `/${section}`, children: [] }
 
     if (config.hasSubcategories) {
       // Group by subcategory
@@ -265,38 +299,7 @@ async function generateNav (): Promise<NavItem[]> {
   }
 
   // Add API section
-  const apiNames = await getApiNamesGrouped()
-
-  // Group components by their folder (Avatar, Selection, etc.)
-  const componentGroups = new Map<string, { name: string, slug: string }[]>()
-  for (const comp of apiNames.components) {
-    const group = comp.group || 'Other'
-    if (!componentGroups.has(group)) componentGroups.set(group, [])
-    componentGroups.get(group)!.push({ name: comp.name, slug: comp.slug })
-  }
-
-  const apiSection: NavItemLink = {
-    name: 'API',
-    to: '/api',
-    children: [
-      {
-        name: 'Components',
-        children: Array.from(componentGroups.entries())
-          .toSorted((a, b) => a[0].localeCompare(b[0]))
-          .flatMap(([, items]) =>
-            items.toSorted((a, b) => a.name.localeCompare(b.name))
-              .map(item => ({ name: item.name, to: `/api/${item.slug}` })),
-          ),
-      },
-      {
-        name: 'Composables',
-        children: apiNames.composables
-          .toSorted((a, b) => a.name.localeCompare(b.name))
-          .map(item => ({ name: item.name, to: `/api/${item.slug}` })),
-      },
-    ],
-  }
-
+  const apiSection = await buildApiSection()
   nav.push({ divider: true }, apiSection)
 
   return nav

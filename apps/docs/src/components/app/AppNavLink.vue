@@ -3,6 +3,7 @@
   import { Atom, useHydration } from '@vuetify/v0'
 
   // Composables
+  import { useNavConfigContext } from '@/composables/useNavConfig'
   import { isNavItemLink, useNavNestedContext } from '@/composables/useNavNested'
   import { useSettings } from '@/composables/useSettings'
 
@@ -37,6 +38,7 @@
 
   const route = useRoute()
   const { nested, scrollEnabled } = useNavNestedContext()
+  const { flatMode } = useNavConfigContext()
   const { prefersReducedMotion } = useSettings()
   const { isSettled } = useHydration()
 
@@ -51,9 +53,9 @@
   const childIds = computed(() => nested.children.get(id) ?? [])
   const hasChildren = computed(() => childIds.value.length > 0)
 
-  // Only top-level items can be collapsed
+  // Only top-level items can be collapsed (disabled in flat mode)
   const isTopLevel = computed(() => depth === 0)
-  const isCollapsible = computed(() => isTopLevel.value && hasChildren.value)
+  const isCollapsible = computed(() => !flatMode.value && isTopLevel.value && hasChildren.value)
   const isOpen = computed(() => isCollapsible.value ? nested.opened(id) : true)
 
   // Check if this node is an ancestor of the current route (for highlighting category headers)
@@ -86,8 +88,8 @@
 
   // Scroll expanded section into view if header is near bottom of visible area
   function onAfterExpand () {
-    // Don't scroll during initial state restoration
-    if (!scrollEnabled.value) return
+    // Don't scroll during initial state restoration or in flat mode
+    if (!scrollEnabled.value || flatMode.value) return
 
     const el = itemRef.value
     if (!el) return
@@ -133,8 +135,8 @@
         </span>
       </button>
 
-      <!-- Dash prefix for top-level solo links -->
-      <span v-else-if="isTopLevel" aria-hidden="true" class="size-5 shrink-0 flex items-center justify-center text-divider">–</span>
+      <!-- Dash prefix for top-level solo links (only when collapsible nav is enabled) -->
+      <span v-else-if="isTopLevel && !flatMode" aria-hidden="true" class="size-5 shrink-0 flex items-center justify-center text-divider">–</span>
 
       <!-- Link (navigable) -->
       <Atom
@@ -171,7 +173,7 @@
 
     <!-- Children (always visible for nested items, conditional for top-level) -->
     <Transition :name="expandTransition" @after-enter="onAfterExpand">
-      <div v-if="hasChildren && isOpen" class="grid mt-2" :class="isTopLevel && 'ml-6'">
+      <div v-if="hasChildren && isOpen" class="grid mt-2" :class="isTopLevel && !flatMode && 'ml-6'">
         <ul
           :id="`nav-section-${id}`"
           class="flex flex-col gap-2 overflow-hidden"

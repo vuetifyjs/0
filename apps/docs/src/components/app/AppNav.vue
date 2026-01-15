@@ -4,6 +4,7 @@
 
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
+  import { useNavConfigContext } from '@/composables/useNavConfig'
   import { createNavNested } from '@/composables/useNavNested'
   import { useSettings } from '@/composables/useSettings'
 
@@ -25,10 +26,11 @@
 
   const app = useAppStore()
   const { filteredNav, selectedLevels } = useLevelFilterContext()
+  const { configuredNav, urlFeatures, clearUrlFilter } = useNavConfigContext()
   const route = useRoute()
 
   // Provide nested nav context for collapsible sections
-  const { provide: provideNavNested } = createNavNested(filteredNav)
+  const { provide: provideNavNested } = createNavNested(configuredNav)
   provideNavNested()
 
   // Find a page by path in nav tree
@@ -117,6 +119,20 @@
     ]"
     :inert="!app.drawer && isMobile ? true : undefined"
   >
+    <!-- URL filter banner -->
+    <div v-if="urlFeatures" class="-mt-4 px-4 py-3 mb-2 bg-surface-variant/50 border-b border-divider">
+      <p class="text-xs text-on-surface-variant mb-2">
+        Showing docs for your project
+      </p>
+      <button
+        class="text-xs text-primary hover:underline"
+        type="button"
+        @click="clearUrlFilter"
+      >
+        Show all docs
+      </button>
+    </div>
+
     <ul class="flex gap-2 flex-col">
       <template v-if="filteredOutPage">
         <li class="px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wide">
@@ -138,7 +154,7 @@
         </li>
       </template>
 
-      <template v-for="(nav, i) in filteredNav" :key="i">
+      <template v-for="(nav, i) in configuredNav" :key="i">
         <li v-if="'divider' in nav" class="px-4">
           <AppDivider />
         </li>

@@ -62,6 +62,9 @@
         <!-- Skill Level -->
         <AppSettingsSkillLevel />
 
+        <!-- Navigation -->
+        <AppSettingsNavigation />
+
         <!-- Code Examples -->
         <AppSettingsLineWrap />
 
