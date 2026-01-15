@@ -6,7 +6,7 @@
   // Utilities
   import { onUnmounted, useTemplateRef, watch } from 'vue'
 
-  const { close, lineWrap, showInlineApi, collapsibleNav } = useSettings()
+  const { close, reset, hasChanges, lineWrap, showInlineApi, collapsibleNav } = useSettings()
   const { isEditing: isEditingTheme, clearPreview } = useCustomThemes()
 
   onUnmounted(() => {
@@ -104,6 +104,18 @@
 
         <!-- Header Buttons -->
         <AppSettingsHeaderButtons />
+
+        <!-- Reset -->
+        <div v-if="hasChanges" class="pt-2 border-t border-divider text-end">
+          <button
+            aria-label="Reset all settings to defaults"
+            class="text-xs text-on-surface/40 hover:text-error hover:underline focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
+            type="button"
+            @click="reset"
+          >
+            Reset to defaults
+          </button>
+        </div>
       </template>
     </div>
   </aside>

@@ -34,9 +34,11 @@ export interface SettingsContext {
   showThemeToggle: ShallowRef<boolean>
   showSocialLinks: ShallowRef<boolean>
   collapsibleNav: ShallowRef<boolean>
+  hasChanges: ShallowRef<boolean>
   open: () => void
   close: () => void
   toggle: () => void
+  reset: () => void
 }
 
 const DEFAULTS: DocSettings = {
@@ -123,6 +125,18 @@ export function createSettingsContext (): SettingsContext {
     return reduceMotion.value === 'on'
   })
 
+  // Check if any setting differs from defaults
+  const hasChanges = toRef(() => (
+    lineWrap.value !== DEFAULTS.lineWrap ||
+    reduceMotion.value !== DEFAULTS.reduceMotion ||
+    packageManager.value !== DEFAULTS.packageManager ||
+    showInlineApi.value !== DEFAULTS.showInlineApi ||
+    showSkillFilter.value !== DEFAULTS.showSkillFilter ||
+    showThemeToggle.value !== DEFAULTS.showThemeToggle ||
+    showSocialLinks.value !== DEFAULTS.showSocialLinks ||
+    collapsibleNav.value !== DEFAULTS.collapsibleNav
+  ))
+
   // Track trigger element for focus restoration
   const triggerRef = shallowRef<HTMLElement | null>(null)
 
@@ -149,6 +163,17 @@ export function createSettingsContext (): SettingsContext {
     }
   }
 
+  function reset () {
+    lineWrap.value = DEFAULTS.lineWrap
+    reduceMotion.value = DEFAULTS.reduceMotion
+    packageManager.value = DEFAULTS.packageManager
+    showInlineApi.value = DEFAULTS.showInlineApi
+    showSkillFilter.value = DEFAULTS.showSkillFilter
+    showThemeToggle.value = DEFAULTS.showThemeToggle
+    showSocialLinks.value = DEFAULTS.showSocialLinks
+    collapsibleNav.value = DEFAULTS.collapsibleNav
+  }
+
   return {
     isOpen,
     lineWrap,
@@ -160,9 +185,11 @@ export function createSettingsContext (): SettingsContext {
     showThemeToggle,
     showSocialLinks,
     collapsibleNav,
+    hasChanges,
     open,
     close,
     toggle,
+    reset,
   }
 }
 
