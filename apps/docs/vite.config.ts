@@ -90,7 +90,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
         // Exclude mermaid diagram chunks from precache (loaded on demand)
         globIgnores: ['**/*Diagram-*.js', '**/mermaid*.js', '**/cytoscape*.js'],
         navigateFallback: null,
