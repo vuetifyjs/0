@@ -63,6 +63,10 @@ pnpm dlx @vuetify/cli init --type vuetify0
 npx @vuetify/cli init --type vuetify0
 ```
 
+```bash yarn
+yarn dlx @vuetify/cli init --type vuetify0
+```
+
 ```bash bun
 bunx @vuetify/cli init --type vuetify0
 ```
