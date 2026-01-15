@@ -1,13 +1,13 @@
 <script setup lang="ts">
-  // Composables
-  import { useApiHelpers } from '@/composables/useApiHelpers'
+  // Utilities
+  import { useScrollToAnchor } from '@/utilities/scroll'
 
   defineProps<{
     id: string
     tag?: 'h2' | 'h3' | 'h4'
   }>()
 
-  const { scrollToAnchor } = useApiHelpers()
+  const { scrollToAnchor } = useScrollToAnchor()
 </script>
 
 <template>

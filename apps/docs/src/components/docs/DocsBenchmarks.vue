@@ -1,12 +1,9 @@
 <script setup lang="ts">
   // Utilities
-  import { useScrollToAnchor } from '@/utilities/scroll'
   import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   import metrics from '@/data/metrics.json'
-
-  const { scrollToAnchor } = useScrollToAnchor()
 
   interface BenchmarkEntry {
     name: string
@@ -77,13 +74,7 @@
     v-if="benchmarks && entries.length > 0"
     class="markdown-body mt-8"
   >
-    <h2 id="benchmarks">
-      <a
-        class="header-anchor"
-        href="#benchmarks"
-        @click.prevent="scrollToAnchor('benchmarks')"
-      >Benchmarks</a>
-    </h2>
+    <DocsHeaderAnchor id="benchmarks" tag="h2">Benchmarks</DocsHeaderAnchor>
 
     <p v-if="githubLink">
       <a

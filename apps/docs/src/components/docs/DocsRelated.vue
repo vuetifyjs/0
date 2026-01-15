@@ -1,9 +1,6 @@
 <script setup lang="ts">
   // Utilities
-  import { useScrollToAnchor } from '@/utilities/scroll'
   import { toRef } from 'vue'
-
-  const { scrollToAnchor } = useScrollToAnchor()
 
   const props = defineProps<{
     frontmatter?: {
@@ -52,13 +49,7 @@
 
 <template>
   <section v-if="links.length > 0" class="markdown-body mt-8">
-    <h2 id="related">
-      <a
-        class="header-anchor"
-        href="#related"
-        @click.prevent="scrollToAnchor('related')"
-      >Related</a>
-    </h2>
+    <DocsHeaderAnchor id="related" tag="h2">Related</DocsHeaderAnchor>
 
     <p>Explore these related pages for additional context and usage patterns.</p>
 

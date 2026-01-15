@@ -6,7 +6,7 @@
   // Utilities
   import { useTemplateRef, watch } from 'vue'
 
-  const { close } = useSettings()
+  const { close, lineWrap, showInlineApi, collapsibleNav } = useSettings()
   const { isEditing: isEditingTheme } = useCustomThemes()
 
   const sheetRef = useTemplateRef<HTMLElement | null>('sheet')
@@ -63,13 +63,31 @@
         <AppSettingsSkillLevel />
 
         <!-- Navigation -->
-        <AppSettingsNavigation />
+        <AppSettingsToggleSection
+          v-model="collapsibleNav"
+          hint="Group navigation items into expandable sections"
+          icon="menu"
+          label="Collapsible sections"
+          title="Navigation"
+        />
 
         <!-- Code Examples -->
-        <AppSettingsLineWrap />
+        <AppSettingsToggleSection
+          v-model="lineWrap"
+          description="Wrap long lines in code blocks"
+          icon="markdown"
+          label="Line wrapping"
+          title="Code Examples"
+        />
 
         <!-- API Reference -->
-        <AppSettingsInlineApi />
+        <AppSettingsToggleSection
+          v-model="showInlineApi"
+          description="Display API details inline instead of links"
+          icon="beaker"
+          label="Show inline"
+          title="API Reference"
+        />
 
         <!-- Motion -->
         <AppSettingsMotion />
