@@ -27,8 +27,7 @@ import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig({
   build: {
-    // Let Vite/Rollup handle chunking automatically
-    // Large dependencies (mermaid, shiki, katex) will be split via dynamic imports
+    sourcemap: true,
   },
   css: {
     lightningcss: {
