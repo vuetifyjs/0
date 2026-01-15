@@ -2,7 +2,7 @@
 title: Vuetify MCP - AI Assistant Integration
 features:
   label: Vuetify MCP
-  order: 2
+  order: 3
   level: 1
 meta:
   - name: description
@@ -11,6 +11,7 @@ meta:
     content: MCP, Model Context Protocol, Claude, AI assistant, Vuetify API, developer tools
 related:
   - /guide/tooling/ai-tools
+  - /guide/tooling/vuetify-cli
   - /introduction/getting-started
 ---
 
@@ -134,25 +135,6 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 
 ## Available Tools
 
-### Vuetify 3 API
-
-| Tool | Purpose |
-| - | - |
-| `get_component_api_by_version` | Props, events, slots for any component |
-| `get_directive_api_by_version` | Directive info (v-ripple, v-scroll, etc.) |
-| `get_vuetify_api_by_version` | Download full API types by version |
-
-### Documentation
-
-| Tool | Purpose |
-| - | - |
-| `get_installation_guide` | Setup for Vite, Nuxt, Laravel, CDN |
-| `get_feature_guide` | Theming, i18n, accessibility guides |
-| `get_frequently_asked_questions` | Common questions and answers |
-| `get_release_notes_by_version` | Changelog for any version |
-
-### v0 (Headless)
-
 | Tool | Purpose |
 | - | - |
 | `get_vuetify0_composable_list` | List all composables by category |
@@ -160,22 +142,13 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 | `get_vuetify0_component_list` | List all headless components |
 | `get_vuetify0_component_guide` | Component documentation and examples |
 
-## Workflows
-
-### Building with v0
+## Workflow
 
 When using AI to build headless components:
 
 1. **Explore** — `get_vuetify0_composable_list` to see available primitives
 2. **Learn** — `get_vuetify0_composable_guide` for detailed documentation
 3. **Reference** — `get_vuetify0_component_guide` for implementation patterns
-
-### Building with Vuetify 3
-
-When using AI with styled Vuetify components:
-
-1. **API** — `get_component_api_by_version` for props, events, and slots
-2. **Features** — `get_feature_guide` for theming, i18n, or accessibility
 
 ## Authentication
 
