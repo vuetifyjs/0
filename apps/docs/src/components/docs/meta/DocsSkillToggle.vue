@@ -16,16 +16,16 @@
   const colorClass = computed(() => {
     switch (props.level) {
       case 1: {
-        return 'bg-success border-success'
+        return 'bg-success border-success text-on-success'
       }
       case 2: {
-        return 'bg-info border-info'
+        return 'bg-info border-info text-on-info'
       }
       case 3: {
-        return 'bg-warning border-warning'
+        return 'bg-warning border-warning text-on-warning'
       }
       default: {
-        return 'bg-surface border-divider'
+        return 'bg-surface border-divider text-on-surface'
       }
     }
   })
@@ -40,6 +40,6 @@
     type="button"
     @click="toggle(level)"
   >
-    <AppIcon v-if="checked" class="text-white" icon="check" size="14" />
+    <AppIcon v-if="checked" icon="check" size="14" />
   </button>
 </template>

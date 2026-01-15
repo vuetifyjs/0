@@ -24,6 +24,7 @@
           icon: 'lightbulb',
           title: 'Tip',
           classes: 'bg-success/10 border-success/50 text-success',
+          contentClasses: 'text-on-success',
         }
       }
       case 'info': {
@@ -31,6 +32,7 @@
           icon: 'info',
           title: 'Info',
           classes: 'bg-info/10 border-info/50 text-info',
+          contentClasses: 'text-on-info',
         }
       }
       case 'warning': {
@@ -38,6 +40,7 @@
           icon: 'alert',
           title: 'Warning',
           classes: 'bg-warning/10 border-warning/50 text-warning',
+          contentClasses: 'text-on-warning',
         }
       }
       case 'error': {
@@ -45,13 +48,15 @@
           icon: 'error',
           title: 'Error',
           classes: 'bg-error/10 border-error/50 text-error',
+          contentClasses: 'text-on-error',
         }
       }
       case 'askai': {
         return {
           icon: 'create',
           title: 'Ask AI',
-          classes: 'bg-primary/10 border-primary/50 text-primary cursor-pointer hover:bg-primary/20 transition-colors',
+          classes: 'bg-accent/10 border-accent/50 text-accent cursor-pointer hover:bg-accent/20 transition-colors',
+          contentClasses: 'text-on-accent',
         }
       }
       default: {
@@ -59,6 +64,7 @@
           icon: 'alert',
           title: 'Note',
           classes: 'bg-surface-variant/10 border-divider text-on-surface',
+          contentClasses: 'text-on-surface',
         }
       }
     }
@@ -92,7 +98,7 @@
         <span>{{ config.title }}</span>
       </div>
 
-      <div class="text-on-surface">
+      <div :class="config.contentClasses">
         {{ props.question ? decodeQuestion(props.question) : '' }}
       </div>
     </template>
@@ -104,7 +110,7 @@
         <span>{{ config.title }}</span>
       </div>
 
-      <div class="docs-alert-content text-on-surface">
+      <div class="docs-alert-content" :class="config.contentClasses">
         <slot />
       </div>
     </template>

@@ -4,10 +4,10 @@
 
   const { levels, toggle, isSelected, selectedLevels } = useLevelFilterContext()
 
-  const levelConfig: Record<number, { label: string, bg: string }> = {
-    1: { label: 'Beginner', bg: 'bg-success border-success' },
-    2: { label: 'Intermediate', bg: 'bg-info border-info' },
-    3: { label: 'Advanced', bg: 'bg-warning border-warning' },
+  const levelConfig: Record<number, { label: string, bg: string, text: string }> = {
+    1: { label: 'Beginner', bg: 'bg-success border-success', text: 'text-on-success' },
+    2: { label: 'Intermediate', bg: 'bg-info border-info', text: 'text-on-info' },
+    3: { label: 'Advanced', bg: 'bg-warning border-warning', text: 'text-on-warning' },
   }
 </script>
 
@@ -31,7 +31,7 @@
           class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0"
           :class="isSelected(level) ? levelConfig[level].bg : 'border-divider'"
         >
-          <AppIcon v-if="isSelected(level)" class="text-white" icon="check" size="12" />
+          <AppIcon v-if="isSelected(level)" :class="levelConfig[level].text" icon="check" size="12" />
         </span>
         <span>{{ levelConfig[level].label }}</span>
       </button>

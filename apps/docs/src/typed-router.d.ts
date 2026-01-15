@@ -527,6 +527,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/tooling/vuetify-cli': RouteRecordInfo<
+      '/guide/tooling/vuetify-cli',
+      '/guide/tooling/vuetify-cli',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/tooling/vuetify-mcp': RouteRecordInfo<
       '/guide/tooling/vuetify-mcp',
       '/guide/tooling/vuetify-mcp',
@@ -537,6 +544,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/using-the-docs': RouteRecordInfo<
       '/guide/using-the-docs',
       '/guide/using-the-docs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/introduction/code-of-conduct': RouteRecordInfo<
+      '/introduction/code-of-conduct',
+      '/introduction/code-of-conduct',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -558,6 +572,20 @@ declare module 'vue-router/auto-routes' {
     '/introduction/getting-started': RouteRecordInfo<
       '/introduction/getting-started',
       '/introduction/getting-started',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/introduction/license': RouteRecordInfo<
+      '/introduction/license',
+      '/introduction/license',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/introduction/security': RouteRecordInfo<
+      '/introduction/security',
+      '/introduction/security',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1042,6 +1070,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/tooling/vuetify-cli.md': {
+      routes:
+        | '/guide/tooling/vuetify-cli'
+      views:
+        | never
+    }
     'src/pages/guide/tooling/vuetify-mcp.md': {
       routes:
         | '/guide/tooling/vuetify-mcp'
@@ -1051,6 +1085,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/using-the-docs.md': {
       routes:
         | '/guide/using-the-docs'
+      views:
+        | never
+    }
+    'src/pages/introduction/code-of-conduct.md': {
+      routes:
+        | '/introduction/code-of-conduct'
       views:
         | never
     }
@@ -1069,6 +1109,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/introduction/getting-started.md': {
       routes:
         | '/introduction/getting-started'
+      views:
+        | never
+    }
+    'src/pages/introduction/license.md': {
+      routes:
+        | '/introduction/license'
+      views:
+        | never
+    }
+    'src/pages/introduction/security.md': {
+      routes:
+        | '/introduction/security'
       views:
         | never
     }
