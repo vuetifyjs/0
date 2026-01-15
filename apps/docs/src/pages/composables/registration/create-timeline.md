@@ -15,6 +15,11 @@ related:
 - /composables/registration/create-queue
 ---
 
+<script setup lang="ts">
+import CanvasExample from '@/examples/composables/create-timeline/canvas.vue'
+import CanvasExampleRaw from '@/examples/composables/create-timeline/canvas.vue?raw'
+</script>
+
 # createTimeline
 
 A bounded undo/redo system that manages a fixed-size timeline of registered items with automatic overflow handling and history management.
@@ -45,6 +50,16 @@ console.log(timeline.size) // 2
 timeline.redo()
 console.log(timeline.size) // 3
 ```
+
+## Examples
+
+### Drawing Canvas
+
+A drawing canvas with undo/redo and visual timeline indicator.
+
+<DocsExample file="canvas.vue" :code="CanvasExampleRaw">
+  <CanvasExample />
+</DocsExample>
 
 ## Architecture
 

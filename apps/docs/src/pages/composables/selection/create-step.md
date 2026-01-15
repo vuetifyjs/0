@@ -15,6 +15,11 @@ related:
   - /components/providers/step
 ---
 
+<script setup lang="ts">
+import StepperExample from '@/examples/composables/create-step/stepper.vue'
+import StepperExampleRaw from '@/examples/composables/create-step/stepper.vue?raw'
+</script>
+
 # createStep
 
 A composable for managing navigation through multi-step processes like forms, wizards, or onboarding flows, with support for step tracking, completion, and navigation controls.
@@ -56,6 +61,16 @@ carousel.last()   // Go to slide3
 carousel.next()   // Wraps to slide1
 carousel.prev()   // Wraps to slide3
 ```
+
+## Examples
+
+### Stepper
+
+A horizontal progress stepper with disabled step skipping and navigation controls.
+
+<DocsExample file="stepper.vue" :code="StepperExampleRaw">
+  <StepperExample />
+</DocsExample>
 
 ## Architecture
 

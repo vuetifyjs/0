@@ -15,6 +15,11 @@ related:
   - /composables/system/use-mutation-observer
 ---
 
+<script setup lang="ts">
+import ScrollRevealExample from '@/examples/composables/use-intersection-observer/scroll-reveal.vue'
+import ScrollRevealExampleRaw from '@/examples/composables/use-intersection-observer/scroll-reveal.vue?raw'
+</script>
+
 # useIntersectionObserver
 
 A composable for detecting when elements enter or leave the viewport using the Intersection Observer API with automatic cleanup.
@@ -50,6 +55,16 @@ The `useIntersectionObserver` composable wraps the Intersection Observer API to 
   </div>
 </template>
 ```
+
+## Examples
+
+### Scroll Reveal
+
+Cards that animate in when entering the viewport with intersection ratio tracking.
+
+<DocsExample file="scroll-reveal.vue" :code="ScrollRevealExampleRaw">
+  <ScrollRevealExample />
+</DocsExample>
 
 ## Architecture
 
