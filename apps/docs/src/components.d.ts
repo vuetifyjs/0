@@ -34,6 +34,7 @@ declare module 'vue' {
     AppSettingsInlineApi: typeof import('./components/app/settings/AppSettingsInlineApi.vue')['default']
     AppSettingsLineWrap: typeof import('./components/app/settings/AppSettingsLineWrap.vue')['default']
     AppSettingsMotion: typeof import('./components/app/settings/AppSettingsMotion.vue')['default']
+    AppSettingsNavigation: typeof import('./components/app/settings/AppSettingsNavigation.vue')['default']
     AppSettingsPackageManager: typeof import('./components/app/settings/AppSettingsPackageManager.vue')['default']
     AppSettingsSheet: typeof import('./components/app/AppSettingsSheet.vue')['default']
     AppSettingsSingleSelect: typeof import('./components/app/settings/AppSettingsSingleSelect.vue')['default']

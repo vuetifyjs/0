@@ -25,12 +25,22 @@ export interface NestedTicket<V = unknown> extends GroupTicket<V> {
   close: () => void
   /** Flip this ticket's open/closed state */
   flip: () => void
+  /** Reveal this ticket by opening all ancestors */
+  reveal: () => void
   /** Get path from root to self (includes self) */
   getPath: () => ID[]
   /** Get ancestors excluding self */
   getAncestors: () => ID[]
   /** Get all descendants */
   getDescendants: () => ID[]
+  /** Check if this ticket is an ancestor of the given ID */
+  isAncestorOf: (descendantId: ID) => boolean
+  /** Check if this ticket has the given ID as an ancestor */
+  hasAncestor: (ancestorId: ID) => boolean
+  /** Get sibling IDs (including self) */
+  siblings: () => ID[]
+  /** Get 1-indexed position among siblings (for aria-posinset) */
+  position: () => number
 }
 
 /**
@@ -104,6 +114,12 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
   flip: (ids: ID | ID[]) => void
   /** Check if an item is open by ID */
   opened: (id: ID) => boolean
+  /** Open node(s) and their immediate non-leaf children */
+  unfold: (ids: ID | ID[]) => void
+  /** Reveal node(s) by opening all ancestors (makes node visible without opening it) */
+  reveal: (ids: ID | ID[]) => void
+  /** Fully expand node(s) and all their non-leaf descendants */
+  expand: (ids: ID | ID[]) => void
   /** Expand all non-leaf nodes */
   expandAll: () => void
   /** Collapse all nodes */
@@ -120,6 +136,14 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
   isLeaf: (id: ID) => boolean
   /** Get the depth level of an item in the tree */
   getDepth: (id: ID) => number
+  /** Check if ancestorId is an ancestor of descendantId */
+  isAncestorOf: (ancestorId: ID, descendantId: ID) => boolean
+  /** Check if id has ancestorId as an ancestor (semantic alias for isAncestorOf) */
+  hasAncestor: (id: ID, ancestorId: ID) => boolean
+  /** Get sibling IDs (including self). For roots, returns all root IDs. */
+  siblings: (id: ID) => ID[]
+  /** Get 1-indexed position among siblings (for aria-posinset). Returns 0 if not found. */
+  position: (id: ID) => number
   /** Computed array of root items (items with no parent) */
   roots: ComputedRef<Z[]>
   /** Computed array of leaf items (items with no children) */
@@ -168,6 +192,16 @@ export interface NestedOptions extends GroupOptions {
    */
   open?: NestedOpenMode
   /**
+   * When true, parent nodes automatically open when children are registered.
+   * Similar to `enroll` in selection composables but for open state.
+   */
+  openAll?: boolean
+  /**
+   * When true, opening a node also opens all its ancestors.
+   * Ensures the opened node is always visible in the tree.
+   */
+  reveal?: boolean
+  /**
    * Controls how selection cascades through the hierarchy.
    * - `'cascade'` (default): Selecting parent selects descendants; ancestors show mixed state
    * - `'independent'`: Each node selected independently
@@ -192,6 +226,16 @@ export interface NestedContextOptions extends GroupContextOptions {
    * - `'single'`: Only one node open at a time (accordion behavior)
    */
   open?: NestedOpenMode
+  /**
+   * When true, parent nodes automatically open when children are registered.
+   * Similar to `enroll` in selection composables but for open state.
+   */
+  openAll?: boolean
+  /**
+   * When true, opening a node also opens all its ancestors.
+   * Ensures the opened node is always visible in the tree.
+   */
+  reveal?: boolean
   /**
    * Controls how selection cascades through the hierarchy.
    * - `'cascade'` (default): Selecting parent selects descendants; ancestors show mixed state

@@ -21,7 +21,7 @@ import { createGroup } from '#v0/composables/createGroup'
 import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
-import { genId, isUndefined } from '#v0/utilities'
+import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef } from 'vue'
 
 // Transformers
@@ -101,6 +101,8 @@ export function createNested<
 > (_options: NestedOptions = {}): E {
   const {
     open: openMode = 'multiple',
+    openAll = false,
+    reveal: revealOnOpen = false,
     selection: selectionMode = 'cascade',
     openStrategy,
     ...options
@@ -145,6 +147,16 @@ export function createNested<
   function open (ids: ID | ID[]): void {
     for (const id of toArray(ids)) {
       if (!group.has(id)) continue
+
+      // Auto-reveal ancestors when opening (if enabled)
+      if (revealOnOpen) {
+        let parentId = parents.get(id)
+        while (!isUndefined(parentId)) {
+          openedIds.add(parentId)
+          parentId = parents.get(parentId)
+        }
+      }
+
       openedIds.add(id)
       resolvedOpenStrategy.onOpen?.(id, context)
     }
@@ -165,6 +177,55 @@ export function createNested<
         close(id)
       } else {
         open(id)
+      }
+    }
+  }
+
+  /**
+   * Open node(s) and their immediate non-leaf children.
+   * Useful for expanding a section with its immediate subcategories.
+   */
+  function unfold (ids: ID | ID[]): void {
+    for (const id of toArray(ids)) {
+      if (!group.has(id)) continue
+      open(id)
+      const childIds = children.get(id) ?? []
+      for (const childId of childIds) {
+        if (!isLeaf(childId)) {
+          open(childId)
+        }
+      }
+    }
+  }
+
+  /**
+   * Reveal a node by opening all its ancestors.
+   * Makes the node visible in a collapsed tree without opening the node itself.
+   */
+  function reveal (ids: ID | ID[]): void {
+    for (const id of toArray(ids)) {
+      if (!group.has(id)) continue
+      const ancestorIds = getAncestors(id)
+      if (ancestorIds.length > 0) {
+        open(ancestorIds)
+      }
+    }
+  }
+
+  /**
+   * Fully expand a node and all its non-leaf descendants.
+   * Opens the entire subtree rooted at the given node.
+   */
+  function expand (ids: ID | ID[]): void {
+    for (const id of toArray(ids)) {
+      if (!group.has(id)) continue
+      if (!isLeaf(id)) {
+        open(id)
+      }
+      for (const descendantId of getDescendants(id)) {
+        if (!isLeaf(descendantId)) {
+          open(descendantId)
+        }
       }
     }
   }
@@ -220,6 +281,56 @@ export function createNested<
 
   function getDepth (id: ID): number {
     return getAncestors(id).length
+  }
+
+  /**
+   * Check if `ancestorId` is an ancestor of `descendantId`.
+   * Returns false if either ID doesn't exist in the tree.
+   */
+  function isAncestorOf (ancestorId: ID, descendantId: ID): boolean {
+    if (!group.has(ancestorId) || !group.has(descendantId)) return false
+    if (ancestorId === descendantId) return false
+
+    let currentId: ID | undefined = parents.get(descendantId)
+    while (!isUndefined(currentId)) {
+      if (currentId === ancestorId) return true
+      currentId = parents.get(currentId)
+    }
+    return false
+  }
+
+  /**
+   * Check if `id` has `ancestorId` as an ancestor.
+   * Semantic alias for isAncestorOf(ancestorId, id).
+   */
+  function hasAncestor (id: ID, ancestorId: ID): boolean {
+    return isAncestorOf(ancestorId, id)
+  }
+
+  /**
+   * Get siblings of a node (including self).
+   * For root nodes, returns all root IDs.
+   */
+  function siblings (id: ID): ID[] {
+    if (!group.has(id)) return []
+    const parentId = parents.get(id)
+    if (isUndefined(parentId)) {
+      // Root node - siblings are other roots
+      return group.values()
+        .filter(item => isUndefined(parents.get(item.id)))
+        .map(item => item.id)
+    }
+    return children.get(parentId) ?? []
+  }
+
+  /**
+   * Get 1-indexed position among siblings (for aria-posinset).
+   * Returns 0 if node not found.
+   */
+  function position (id: ID): number {
+    const sibs = siblings(id)
+    const index = sibs.indexOf(id)
+    return index === -1 ? 0 : index + 1
   }
 
   // Cascading selection helpers (used when selectionMode === 'cascade')
@@ -356,7 +467,7 @@ export function createNested<
 
   // Registration
   function register (registration: NestedRegistration = {}): Z {
-    const id = registration.id ?? genId()
+    const id = registration.id ?? useId()
     const parentId = registration.parentId
     const nested = registration.children
 
@@ -375,6 +486,11 @@ export function createNested<
       } else {
         children.set(parentId, [id])
       }
+
+      // Auto-open parent when child registers (if openAll enabled)
+      if (openAll) {
+        openedIds.add(parentId)
+      }
     } else {
       parents.set(id, undefined)
     }
@@ -391,9 +507,14 @@ export function createNested<
       open: () => open(id),
       close: () => close(id),
       flip: () => flip(id),
+      reveal: () => reveal(id),
       getPath: () => getPath(id),
       getAncestors: () => getAncestors(id),
       getDescendants: () => getDescendants(id),
+      isAncestorOf: (descendantId: ID) => isAncestorOf(id, descendantId),
+      hasAncestor: (ancestorId: ID) => hasAncestor(id, ancestorId),
+      siblings: () => siblings(id),
+      position: () => position(id),
     } as Partial<Z>
 
     const ticket = group.register(item)
@@ -487,10 +608,17 @@ export function createNested<
     getDescendants,
     isLeaf,
     getDepth,
+    isAncestorOf,
+    hasAncestor,
+    siblings,
+    position,
     open,
     close,
     flip,
     opened,
+    unfold,
+    reveal,
+    expand,
     expandAll,
     collapseAll,
     toFlat,

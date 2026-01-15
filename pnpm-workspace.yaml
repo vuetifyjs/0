@@ -50,7 +50,7 @@ catalog:
   storybook: ^10.1.9
   svg-pan-zoom: ^3.6.2
   swetrix: ^3.7.2
-  ts-morph: ^27.0.2
+  ts-morph: 27.0.2
   tsdown: ^0.16.8
   tsx: ^4.21.0
   typescript: 5.9.3
