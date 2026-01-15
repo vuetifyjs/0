@@ -53,23 +53,25 @@
 
     <p>Explore these related pages for additional context and usage patterns.</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th class="text-left" scope="col">Page</th>
-          <th class="text-left" scope="col">Category</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="link in links" :key="link.to">
-          <td>
-            <AppLink :to="link.to">
-              {{ link.name }}
-            </AppLink>
-          </td>
-          <td>{{ link.category }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th class="text-left" scope="col">Page</th>
+            <th class="text-left" scope="col">Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="link in links" :key="link.to">
+            <td>
+              <AppLink :to="link.to">
+                {{ link.name }}
+              </AppLink>
+            </td>
+            <td>{{ link.category }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 </template>

@@ -85,26 +85,28 @@
       >View benchmark source↗</a>
     </p>
 
-    <table>
-      <thead>
-        <tr>
-          <th class="text-left" scope="col">Operation</th>
-          <th class="text-right" scope="col">Throughput</th>
-          <th class="text-right" scope="col">Latency</th>
-          <th class="text-right" scope="col">Margin</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="entry in entries"
-          :key="entry.key"
-        >
-          <td>{{ entry.name }}</td>
-          <td class="text-right"><code>{{ entry.hzLabel }}</code></td>
-          <td class="text-right"><code>{{ entry.meanLabel }}</code></td>
-          <td class="text-right">± {{ entry.rme?.toFixed(1) ?? '-' }}%</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th class="text-left" scope="col">Operation</th>
+            <th class="text-right" scope="col">Throughput</th>
+            <th class="text-right" scope="col">Latency</th>
+            <th class="text-right" scope="col">Margin</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="entry in entries"
+            :key="entry.key"
+          >
+            <td>{{ entry.name }}</td>
+            <td class="text-right"><code>{{ entry.hzLabel }}</code></td>
+            <td class="text-right"><code>{{ entry.meanLabel }}</code></td>
+            <td class="text-right">± {{ entry.rme?.toFixed(1) ?? '-' }}%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>

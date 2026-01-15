@@ -90,7 +90,7 @@
       </DocsHeaderAnchor>
 
       <button
-        class="text-sm text-primary hover:underline whitespace-nowrap"
+        class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none whitespace-nowrap"
         type="button"
         @click="showInlineApi = !showInlineApi"
       >
@@ -153,7 +153,7 @@
       </DocsHeaderAnchor>
 
       <button
-        class="text-sm text-primary hover:underline whitespace-nowrap"
+        class="text-sm text-primary hover:underline focus-visible:underline focus-visible:outline-none whitespace-nowrap"
         type="button"
         @click="showInlineApi = !showInlineApi"
       >
