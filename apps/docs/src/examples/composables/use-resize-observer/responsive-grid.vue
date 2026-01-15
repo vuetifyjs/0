@@ -1,9 +1,18 @@
 <script setup lang="ts">
-  import { useElementSize } from '@vuetify/v0'
-  import { computed, useTemplateRef } from 'vue'
+  import { useResizeObserver } from '@vuetify/v0'
+  import { computed, shallowRef, useTemplateRef } from 'vue'
 
   const containerRef = useTemplateRef<HTMLElement>('container')
-  const { width, height } = useElementSize(containerRef)
+  const width = shallowRef(0)
+  const height = shallowRef(0)
+
+  useResizeObserver(containerRef, entries => {
+    const entry = entries[0]
+    if (entry) {
+      width.value = entry.contentRect.width
+      height.value = entry.contentRect.height
+    }
+  })
 
   const columns = computed(() => {
     if (width.value >= 600) return 3

@@ -35,7 +35,7 @@
         <span class="flex-1 font-medium text-on-surface text-base">{{ item.title }}</span>
       </ExpansionPanel.Activator>
 
-      <ExpansionPanel.Content class="pa-4">
+      <ExpansionPanel.Content class="p-4">
         {{ item.content }}
       </ExpansionPanel.Content>
     </ExpansionPanel.Item>
