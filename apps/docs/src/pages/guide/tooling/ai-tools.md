@@ -11,6 +11,7 @@ meta:
     content: llms.txt, AI tools, LLM, Claude, ChatGPT, Cursor, documentation, developer experience
 related:
   - /guide/tooling/vuetify-mcp
+  - /guide/tooling/vuetify-cli
   - /introduction/getting-started
 ---
 
