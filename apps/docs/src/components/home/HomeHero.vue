@@ -41,17 +41,15 @@
 
 <template>
   <section class="home-hero text-center py-16 md:py-24">
-    <router-link class="inline-block mb-8" to="/">
-      <img
-        alt="Vuetify0 Logo"
-        class="mx-auto h-[164px] w-auto"
-        decoding="async"
-        fetchpriority="high"
-        height="164"
-        src="https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg"
-        width="189"
-      >
-    </router-link>
+    <img
+      alt="Vuetify0 Logo"
+      class="mx-auto h-[164px] w-auto mb-8"
+      decoding="async"
+      fetchpriority="high"
+      height="164"
+      src="https://cdn.vuetifyjs.com/docs/images/one/logos/vzero.svg"
+      width="189"
+    >
 
     <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
       Headless UI primitives
