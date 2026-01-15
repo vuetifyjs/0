@@ -169,11 +169,6 @@ async function loadIndex (): Promise<void> {
       miniSearch = new MiniSearch({
         fields: ['title', 'headings', 'content'],
         storeFields: ['title', 'category', 'path', 'headings'],
-        searchOptions: {
-          boost: { title: 3, headings: 2 },
-          fuzzy: 0.2,
-          prefix: true,
-        },
       })
 
       miniSearch.addAll(docs)
@@ -187,12 +182,94 @@ async function loadIndex (): Promise<void> {
   return indexPromise
 }
 
+// Category priority for search result boosting (lower = higher priority)
+const CATEGORY_PRIORITY: Record<string, number> = {
+  Component: 0,
+  Components: 0,
+  Composable: 0,
+  Composables: 0,
+  Factory: 0,
+  Plugin: 1,
+  Transformer: 1,
+  Guide: 2,
+  Introduction: 3,
+  Utilities: 4,
+  API: 5,
+}
+
 function search (query: string): SearchResult[] {
   if (!miniSearch || !query.trim()) {
     return []
   }
 
-  const results = miniSearch.search(query, { limit: 20 })
+  const queryLower = query.toLowerCase().trim()
+  const queryTerms = queryLower.split(/\s+/)
+  const isMultiWord = queryTerms.length > 1
+  const wantsApi = queryTerms.includes('api')
+  // Extract non-"api" terms for matching
+  const searchTerms = queryTerms.filter(t => t !== 'api')
+
+  const results = miniSearch.search(query, {
+    limit: 20,
+    // Field importance
+    boost: { title: 5, headings: 2, content: 1 },
+    // Fuzzy/prefix matching
+    fuzzy: 0.2,
+    prefix: true,
+    // Penalize fuzzy/prefix vs exact matches
+    weights: { fuzzy: 0.4, prefix: 0.7 },
+    // Require all terms for multi-word queries
+    combineWith: isMultiWord ? 'AND' : 'OR',
+
+    // Note: boostDocument is called per-term per-document, so boosts compound
+    // for multi-term queries. We normalize by term count to maintain consistent ratios.
+    boostDocument: (_, term, doc) => {
+      const title = (doc.title as string).toLowerCase()
+      const category = doc.category as string
+      const path = doc.path as string
+      let boost = 1
+
+      // === Exact/partial title match boosting ===
+      // Exact title match gets highest priority
+      if (title === queryLower) {
+        boost *= 10
+      // Title starts with query
+      } else if (title.startsWith(queryLower)) {
+        boost *= 5
+      // Title contains full query
+      } else if (title.includes(queryLower)) {
+        boost *= 3
+      // All search terms appear in title
+      } else if (searchTerms.length > 0 && searchTerms.every(t => title.includes(t))) {
+        boost *= 2
+      }
+
+      // === API-specific boosting ===
+      if (wantsApi) {
+        const isApiPage = category === 'API'
+        if (isApiPage) {
+          // API page with matching terms in title (e.g., "Tabs API" for query "tabs api")
+          boost *= searchTerms.some(t => title.includes(t)) ? 4 : 2
+        } else {
+          // Penalize non-API results when explicitly searching for API
+          boost *= 0.3
+        }
+      } else {
+        // === Default category boosting (when not searching for API) ===
+        const priority = CATEGORY_PRIORITY[category] ?? 6
+        boost *= Math.max(0.5, 1 + (5 - priority) * 0.2)
+
+        // Penalize index/overview pages (shallow paths like /components)
+        const segments = path.split('/').filter(Boolean)
+        if (segments.length <= 2) {
+          boost *= 0.5
+        }
+      }
+
+      // Normalize for multi-term queries to prevent excessive compounding
+      return isMultiWord ? Math.pow(boost, 1 / queryTerms.length) : boost
+    },
+  })
 
   return results.map(result => ({
     id: result.id,
@@ -213,12 +290,14 @@ function groupByCategory (results: SearchResult[]): GroupedResults[] {
     groups.set(result.category, items)
   }
 
+  // Sort groups by best score in each group (highest first)
+  // This ensures the most relevant category appears first
   return Array.from(groups.entries())
     .map(([category, items]) => ({ category, items }))
     .toSorted((a, b) => {
-      if (a.category === 'Guide') return -1
-      if (b.category === 'Guide') return 1
-      return a.category.localeCompare(b.category)
+      const bestScoreA = Math.max(...a.items.map(i => i.score))
+      const bestScoreB = Math.max(...b.items.map(i => i.score))
+      return bestScoreB - bestScoreA
     })
 }
 
