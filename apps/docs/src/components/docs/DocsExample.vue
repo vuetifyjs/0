@@ -52,13 +52,13 @@
       <button
         :aria-controls="code ? `${uid}-code` : undefined"
         :aria-expanded="showCode"
-        class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface hover:text-primary"
+        class="group w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface"
         type="button"
         @click="toggleCode"
       >
         <AppLoaderIcon v-if="showLoader" variant="orbit" />
         <AppIcon v-else-if="showCode && !isLoading" icon="chevron-up" :size="16" />
-        <AppIcon v-else icon="code" :size="16" />
+        <AppIcon v-else class="transition-colors group-hover:text-primary" icon="code" :size="16" />
         <span v-if="fileName" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ fileName }}</span>
       </button>
     </div>
