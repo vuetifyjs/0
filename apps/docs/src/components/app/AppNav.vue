@@ -60,6 +60,11 @@
     if (hasPage(configuredNav.value, path)) return null
     return findPage(app.nav, path)
   })
+
+  // Check if nav has real content (not just dividers)
+  const hasNavContent = computed(() =>
+    configuredNav.value.some(item => !('divider' in item)),
+  )
   const navRef = useTemplateRef<AtomExpose>('nav')
 
   // Match Tailwind's md breakpoint (768px) for nav visibility
@@ -180,7 +185,8 @@
       </template>
 
       <template v-if="selectedLevels.size > 0">
-        <li class="px-4">
+        <!-- Skip divider if Active page section already added one and nav has no real content -->
+        <li v-if="!filteredOutPage || hasNavContent" class="px-4">
           <AppDivider />
         </li>
 

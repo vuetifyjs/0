@@ -164,6 +164,8 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
   unregister: (id: ID, cascade?: boolean) => void
   /** Offboard multiple nodes, optionally cascading */
   offboard: (ids: ID[], cascade?: boolean) => void
+  /** Clear all nodes and nested state (children, parents, openedIds) */
+  clear: () => void
 }
 
 /**

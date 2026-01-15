@@ -588,11 +588,15 @@ export function createNested<
     return registrations.map(registration => register(registration))
   }
 
-  function reset (): void {
+  function clear (): void {
     children.clear()
     parents.clear()
     openedIds.clear()
     group.reset()
+  }
+
+  function reset (): void {
+    clear()
   }
 
   const context = {
@@ -630,6 +634,7 @@ export function createNested<
     unregister,
     offboard,
     onboard,
+    clear,
     reset,
     get size () {
       return group.size

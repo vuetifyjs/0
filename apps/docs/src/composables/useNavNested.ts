@@ -89,9 +89,15 @@ export function createNavNested (nav: MaybeRefOrGetter<NavItem[]>) {
   const scrollEnabled = shallowRef(false)
 
   // SSR-safe: Build tree structure on server and client
+  // Preserve open state across nav changes (e.g., filtering)
   watch(() => toValue(nav), items => {
+    const savedOpenIds = [...nested.openedIds]
     nested.clear()
     nested.onboard(navToNestedItems(items))
+    // Restore any open IDs that still exist in the new tree
+    if (savedOpenIds.length > 0) {
+      nested.open(savedOpenIds.filter(id => nested.has(id)))
+    }
   }, { immediate: true })
 
   // Top-level sections to open on first visit
