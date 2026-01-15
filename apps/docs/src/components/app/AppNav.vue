@@ -1,13 +1,15 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, useClickOutside, useWindowEventListener } from '@vuetify/v0'
+  import { Atom, useClickOutside, useHydration, useWindowEventListener } from '@vuetify/v0'
 
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
+  import { useNavConfigContext } from '@/composables/useNavConfig'
+  import { createNavNested } from '@/composables/useNavNested'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -20,10 +22,16 @@
   const { as = 'nav' } = defineProps<AtomProps>()
 
   const { prefersReducedMotion } = useSettings()
+  const { isSettled } = useHydration()
 
   const app = useAppStore()
-  const { filteredNav, selectedLevels } = useLevelFilterContext()
+  const { selectedLevels } = useLevelFilterContext()
+  const { configuredNav, activeFeatures, clearFilter } = useNavConfigContext()
   const route = useRoute()
+
+  // Provide nested nav context for collapsible sections
+  const { provide: provideNavNested } = createNavNested(configuredNav)
+  provideNavNested()
 
   // Find a page by path in nav tree
   function findPage (items: NavItem[], path: string): NavItemLink | null {
@@ -42,13 +50,21 @@
     return findPage(items, path) !== null
   }
 
-  // Current page info when it's filtered out
+  // Current page info when it's filtered out (by skill level OR feature filter)
   const filteredOutPage = computed(() => {
-    if (selectedLevels.size === 0) return null
+    const hasSkillFilter = selectedLevels.size > 0
+    const hasFeatureFilter = !!activeFeatures.value
+    if (!hasSkillFilter && !hasFeatureFilter) return null
     const path = route.path
-    if (hasPage(filteredNav.value, path)) return null
+    // Check against configuredNav which is filtered by both skill level and features
+    if (hasPage(configuredNav.value, path)) return null
     return findPage(app.nav, path)
   })
+
+  // Check if nav has real content (not just dividers)
+  const hasNavContent = computed(() =>
+    configuredNav.value.some(item => !('divider' in item)),
+  )
   const navRef = useTemplateRef<AtomExpose>('nav')
 
   // Match Tailwind's md breakpoint (768px) for nav visibility
@@ -61,11 +77,25 @@
   onMounted(updateMobile)
   useWindowEventListener('resize', updateMobile, { passive: true })
 
-  onMounted(async () => {
-    await nextTick()
-    const activeLink = navRef.value?.element.value?.querySelector('[aria-current="page"]')
-    activeLink?.scrollIntoView({ block: 'center' })
-  })
+  // Scroll active link into view after hydration settles
+  watch(isSettled, settled => {
+    if (!settled) return
+    // Wait for sections to fully expand before scrolling
+    // 300ms accounts for expand animation (200ms) + buffer
+    setTimeout(() => {
+      const nav = document.querySelector('#main-navigation')
+      const activeLink = nav?.querySelector<HTMLElement>('[aria-current="page"]')
+      if (activeLink && nav) {
+        const navRect = nav.getBoundingClientRect()
+        const linkRect = activeLink.getBoundingClientRect()
+        // Only scroll if link is outside visible area
+        if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
+          const linkRelativeTop = linkRect.top - navRect.top + nav.scrollTop
+          nav.scrollTop = Math.max(0, linkRelativeTop - 100) // 100px from top, not centered
+        }
+      }
+    }, 300)
+  }, { immediate: true })
 
   useClickOutside(
     () => navRef.value?.element,
@@ -97,50 +127,66 @@
     ]"
     :inert="!app.drawer && isMobile ? true : undefined"
   >
+    <!-- URL filter banner -->
+    <div v-if="activeFeatures" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant/50 border-b border-divider">
+      <p class="text-xs text-on-surface-variant mb-2">
+        Showing docs for your project
+      </p>
+      <button
+        class="text-xs text-primary hover:underline"
+        type="button"
+        @click="clearFilter"
+      >
+        Show all docs
+      </button>
+    </div>
+
     <ul class="flex gap-2 flex-col">
       <template v-if="filteredOutPage">
         <li class="px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wide">
           Active page
         </li>
 
-        <AppNavLink
-          class="px-4"
-          :to="filteredOutPage.to"
-        >
-          {{ filteredOutPage.name }}
-        </AppNavLink>
+        <li class="px-4">
+          <router-link
+            aria-current="page"
+            class="font-semibold text-primary underline"
+            :to="filteredOutPage.to"
+          >
+            {{ filteredOutPage.name }}
+          </router-link>
+        </li>
 
         <li class="px-4">
           <AppDivider />
         </li>
       </template>
 
-      <template v-for="(nav, i) in filteredNav" :key="i">
+      <template v-for="(nav, i) in configuredNav" :key="i">
         <li v-if="'divider' in nav" class="px-4">
           <AppDivider />
         </li>
 
         <AppNavLink
           v-else-if="'to' in nav"
-          :children="nav.children"
+          :id="nav.to"
           class="px-4"
+          :emphasized="nav.emphasized"
+          :name="nav.name"
           :to="nav.to"
-        >
-          {{ nav.name }}
-        </AppNavLink>
+        />
 
         <AppNavLink
           v-else
-          :children="nav.children"
+          :id="`category-root-${i}`"
           class="px-4"
-          :to="''"
-        >
-          {{ nav.name }}
-        </AppNavLink>
+          :name="nav.name"
+        />
       </template>
 
       <template v-if="selectedLevels.size > 0">
-        <li class="px-4">
+        <!-- Skip divider if Active page section already added one and nav has no real content -->
+        <li v-if="!filteredOutPage || hasNavContent" class="px-4">
           <AppDivider />
         </li>
 

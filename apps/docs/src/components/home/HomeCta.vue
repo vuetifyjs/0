@@ -53,7 +53,7 @@ const selected = ref([])
     {
       title: 'Vuetify MCP',
       description: 'AI-powered assistance with intelligent suggestions and instant API answers.',
-      to: '/guide/vuetify-mcp',
+      to: '/guide/tooling/vuetify-mcp',
       icon: 'vuetify-mcp',
       cta: 'Learn More',
     },

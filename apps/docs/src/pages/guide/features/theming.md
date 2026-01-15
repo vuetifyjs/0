@@ -268,7 +268,7 @@ Then sync theme changes back to storage:
 ```
 
 > [!TIP]
-> For SSR apps, use cookies instead of localStorage—see [Nuxt Theme Persistence](/guide/nuxt#theme-persistence).
+> For SSR apps, use cookies instead of localStorage—see [Nuxt Theme Persistence](/guide/integration/nuxt#theme-persistence).
 
 ## Design Tokens with createTokens
 

@@ -23,15 +23,21 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { instanceExists, isNull } from '#v0/utilities'
-import { shallowReadonly, shallowRef } from 'vue'
+import { nextTick, shallowReadonly, shallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App, ShallowRef } from 'vue'
 
 export interface HydrationContext {
+  /** True when root component has mounted (hydration complete) */
   isHydrated: Readonly<ShallowRef<boolean>>
+  /** True after first tick post-hydration (safe for animations after state restoration) */
+  isSettled: Readonly<ShallowRef<boolean>>
+  /** Mark hydration as complete */
   hydrate: () => void
+  /** Mark as settled (called automatically after nextTick post-hydration) */
+  settle: () => void
 }
 
 export interface HydrationOptions {}
@@ -63,14 +69,21 @@ export function createHydration<
   E extends HydrationContext = HydrationContext,
 > (): E {
   const isHydrated = shallowRef(false)
+  const isSettled = shallowRef(false)
 
   function hydrate () {
     isHydrated.value = true
   }
 
+  function settle () {
+    isSettled.value = true
+  }
+
   return {
     isHydrated: shallowReadonly(isHydrated),
+    isSettled: shallowReadonly(isSettled),
     hydrate,
+    settle,
   } as E
 }
 
@@ -79,7 +92,9 @@ export function createFallbackHydration<
 > (): E {
   return {
     isHydrated: shallowReadonly(shallowRef(true)),
+    isSettled: shallowReadonly(shallowRef(true)),
     hydrate: () => {},
+    settle: () => {},
   } as E
 }
 
@@ -150,10 +165,13 @@ export function createHydrationPlugin<
     },
     setup: (app: App) => {
       app.mixin({
-        mounted () {
+        async mounted () {
           if (!isNull(this.$parent)) return
 
           context.hydrate()
+          // Wait for next tick to allow state restoration in other onMounted hooks
+          await nextTick()
+          context.settle()
         },
       })
     },
@@ -173,13 +191,16 @@ export function createHydrationPlugin<
  * <script setup lang="ts">
  *   import { useHydration } from '@vuetify/v0'
  *
- *   const hydration = useHydration()
+ *   const { isHydrated, isSettled } = useHydration()
+ *
+ *   // Use isSettled to gate animations after state restoration
+ *   const transition = computed(() => isSettled.value ? 'fade' : undefined)
  * </script>
  *
  * <template>
- *   <div>
- *     <p>Is hydrated: {{ hydration.isHydrated.value }}</p>
- *   </div>
+ *   <Transition :name="transition">
+ *     <div v-if="show">Animates only after hydration settles</div>
+ *   </Transition>
  * </template>
  * ```
  */

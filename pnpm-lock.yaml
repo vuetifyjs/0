@@ -139,7 +139,7 @@ catalogs:
       specifier: ^3.7.2
       version: 3.7.2
     ts-morph:
-      specifier: ^27.0.2
+      specifier: 27.0.2
       version: 27.0.2
     tsdown:
       specifier: ^0.16.8

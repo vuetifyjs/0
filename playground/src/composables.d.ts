@@ -60,6 +60,8 @@ declare global {
   const createLogger: typeof import('../../packages/0/src/composables/useLogger/index').createLogger
   const createLoggerContext: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerContext
   const createLoggerPlugin: typeof import('../../packages/0/src/composables/useLogger/index').createLoggerPlugin
+  const createNested: typeof import('../../packages/0/src/composables/createNested/index').createNested
+  const createNestedContext: typeof import('../../packages/0/src/composables/createNested/index').createNestedContext
   const createOverflow: typeof import('../../packages/0/src/composables/useOverflow/index').createOverflow
   const createOverflowContext: typeof import('../../packages/0/src/composables/useOverflow/index').createOverflowContext
   const createPagination: typeof import('../../packages/0/src/composables/usePagination/index').createPagination
@@ -126,6 +128,7 @@ declare global {
   const isUndefined: typeof import('../../packages/0/src/utilities/helpers').isUndefined
   const markRaw: typeof import('vue').markRaw
   const mergeDeep: typeof import('../../packages/0/src/utilities/helpers').mergeDeep
+  const multipleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').multipleOpenStrategy
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
@@ -154,6 +157,7 @@ declare global {
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
   const shallowRef: typeof import('vue').shallowRef
+  const singleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').singleOpenStrategy
   const toArray: typeof import('../../packages/0/src/composables/toArray/index').toArray
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers').toCamelCase
   const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers').toKebabCase
@@ -189,11 +193,13 @@ declare global {
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index').useHydration
   const useId: typeof import('vue').useId
   const useIntersectionObserver: typeof import('../../packages/0/src/composables/useIntersectionObserver/index').useIntersectionObserver
+  const useLazy: typeof import('../../packages/0/src/composables/useLazy/index').useLazy
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index').useLocale
   const useLogger: typeof import('../../packages/0/src/composables/useLogger/index').useLogger
   const useMediaQuery: typeof import('../../packages/0/src/composables/useMediaQuery/index').useMediaQuery
   const useModel: typeof import('vue').useModel
   const useMutationObserver: typeof import('../../packages/0/src/composables/useMutationObserver/index').useMutationObserver
+  const useNested: typeof import('../../packages/0/src/composables/createNested/index').useNested
   const useOverflow: typeof import('../../packages/0/src/composables/useOverflow/index').useOverflow
   const usePagination: typeof import('../../packages/0/src/composables/usePagination/index').usePagination
   const usePermissions: typeof import('../../packages/0/src/composables/usePermissions/index').usePermissions
@@ -293,6 +299,9 @@ declare global {
   // @ts-ignore
   export type { MaybeRef, IntersectionObserverEntry, IntersectionObserverOptions, UseIntersectionObserverReturn, UseElementIntersectionReturn } from '../../packages/0/src/composables/useIntersectionObserver/index'
   import('../../packages/0/src/composables/useIntersectionObserver/index')
+  // @ts-ignore
+  export type { LazyOptions, LazyContext } from '../../packages/0/src/composables/useLazy/index'
+  import('../../packages/0/src/composables/useLazy/index')
   // @ts-ignore
   export type { LocaleRecord, LocaleTicket, LocaleContext, LocaleOptions, LocaleContextOptions, LocalePluginOptions, LocaleAdapter } from '../../packages/0/src/composables/useLocale/index'
   import('../../packages/0/src/composables/useLocale/index')
@@ -419,6 +428,8 @@ declare module 'vue' {
     readonly createLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLogger']>
     readonly createLoggerContext: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerContext']>
     readonly createLoggerPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['createLoggerPlugin']>
+    readonly createNested: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['createNested']>
+    readonly createNestedContext: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['createNestedContext']>
     readonly createOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/useOverflow/index')['createOverflow']>
     readonly createOverflowContext: UnwrapRef<typeof import('../../packages/0/src/composables/useOverflow/index')['createOverflowContext']>
     readonly createPagination: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['createPagination']>
@@ -485,6 +496,7 @@ declare module 'vue' {
     readonly isUndefined: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['isUndefined']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly mergeDeep: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['mergeDeep']>
+    readonly multipleOpenStrategy: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['multipleOpenStrategy']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -513,6 +525,7 @@ declare module 'vue' {
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
+    readonly singleOpenStrategy: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['singleOpenStrategy']>
     readonly toArray: UnwrapRef<typeof import('../../packages/0/src/composables/toArray/index')['toArray']>
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']>
@@ -548,11 +561,13 @@ declare module 'vue' {
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
+    readonly useLazy: UnwrapRef<typeof import('../../packages/0/src/composables/useLazy/index')['useLazy']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>
     readonly useLogger: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['useLogger']>
     readonly useMediaQuery: UnwrapRef<typeof import('../../packages/0/src/composables/useMediaQuery/index')['useMediaQuery']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useMutationObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useMutationObserver/index')['useMutationObserver']>
+    readonly useNested: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['useNested']>
     readonly useOverflow: UnwrapRef<typeof import('../../packages/0/src/composables/useOverflow/index')['useOverflow']>
     readonly usePagination: UnwrapRef<typeof import('../../packages/0/src/composables/usePagination/index')['usePagination']>
     readonly usePermissions: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['usePermissions']>

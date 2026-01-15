@@ -5,6 +5,7 @@
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { createLevelFilter } from '@/composables/useLevelFilter'
+  import { createNavConfig } from '@/composables/useNavConfig'
   import { useScrollLock } from '@/composables/useScrollLock'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
@@ -23,6 +24,9 @@
   const app = useAppStore()
   const levelFilter = createLevelFilter(() => app.nav)
   levelFilter.provide()
+
+  const navConfig = createNavConfig(levelFilter.filteredNav)
+  navConfig.provide()
 
   const breakpoints = useBreakpoints()
   const { isOpen: isAskOpen } = useAsk()

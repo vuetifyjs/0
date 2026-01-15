@@ -66,7 +66,9 @@ describe('useBreakpoints', () => {
     // Mock hydration
     mockUseHydration.mockReturnValue({
       isHydrated: shallowRef(true),
+      isSettled: shallowRef(true),
       hydrate: vi.fn(),
+      settle: vi.fn(),
     })
   })
 

@@ -48,7 +48,7 @@
     {
       name: 'Vuetify MCP',
       icon: 'vuetify-mcp',
-      to: '/guide/vuetify-mcp',
+      to: '/guide/tooling/vuetify-mcp',
     },
   ]
 </script>
