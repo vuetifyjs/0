@@ -187,4 +187,4 @@ New composables should include benchmarks if they:
 - Have user-perceived latency (loading, transitions)
 - Are called frequently (every render, every keystroke)
 
-See `packages/0/src/composables/createRegistry/index.bench.ts` for the canonical example.
+See [createRegistry benchmarks](https://github.com/vuetifyjs/v0/blob/master/packages/0/src/composables/createRegistry/index.bench.ts) for the canonical example.
