@@ -11,11 +11,20 @@
   import { useThemeToggle } from './composables/useThemeToggle'
 
   // Utilities
-  import { shallowRef, toRef } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
+  import { useRoute } from 'vue-router'
 
   useScrollPersist()
   const { prefersReducedMotion } = useSettings()
   const pageTransition = toRef(() => prefersReducedMotion.value ? undefined : 'page')
+
+  const route = useRoute()
+  watch(() => route.fullPath, (to, from) => {
+    if (!IN_BROWSER) return
+    if (to.includes('#') || history.state?.scroll) return
+    if (to === from) return
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
+  })
 
   const { preference } = useThemeToggle()
   const showMesh = toRef(() => preference.value !== 'high-contrast')
