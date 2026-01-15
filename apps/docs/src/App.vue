@@ -301,6 +301,12 @@
     padding: 0.5rem 1rem;
   }
 
+  /* Focus indicator for keyboard scrolling (inset to avoid clipping by overflow-hidden parent) */
+  .shiki:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--v0-primary);
+  }
+
   .shiki span {
     color: var(--shiki-light);
   }

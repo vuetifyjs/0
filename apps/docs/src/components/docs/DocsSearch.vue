@@ -275,7 +275,7 @@
                 </div>
                 <span
                   aria-label="Remove from favorites"
-                  class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant opacity-0 group-hover:opacity-100 cursor-pointer"
+                  class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                   role="button"
                   tabindex="0"
                   title="Remove from favorites"
@@ -323,7 +323,7 @@
                   <!-- Favorite toggle -->
                   <span
                     aria-label="Add to favorites"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-warning opacity-0 group-hover:opacity-100 cursor-pointer"
+                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Add to favorites"
@@ -336,7 +336,7 @@
                   <!-- Remove button -->
                   <span
                     aria-label="Remove from recent searches"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant opacity-0 group-hover:opacity-100 cursor-pointer"
+                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Remove from recent"
@@ -411,8 +411,8 @@
                   <span
                     :aria-label="isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
                     :class="[
-                      'inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors cursor-pointer',
-                      isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 text-on-surface/60 hover:text-warning',
+                      'inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors cursor-pointer',
+                      isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
                     ]"
                     role="button"
                     tabindex="0"
@@ -430,7 +430,7 @@
                   <!-- Ask AI button -->
                   <span
                     aria-label="Ask AI about this page"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-primary opacity-0 group-hover:opacity-100 cursor-pointer"
+                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Ask AI"
@@ -443,7 +443,7 @@
                   <!-- Dismiss button -->
                   <span
                     aria-label="Dismiss result"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant opacity-0 group-hover:opacity-100 cursor-pointer"
+                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Dismiss result"

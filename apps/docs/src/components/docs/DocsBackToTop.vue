@@ -28,7 +28,7 @@
 <template>
   <button
     v-if="show"
-    class="inline-flex items-center ms-auto text-sm text-primary mt-16 hover:underline cursor-pointer bg-transparent border-none font-inherit"
+    class="inline-flex items-center ms-auto text-sm text-primary mt-16 hover:underline focus-visible:underline cursor-pointer bg-transparent border-none font-inherit"
     type="button"
     @click="scrollToTop"
   >

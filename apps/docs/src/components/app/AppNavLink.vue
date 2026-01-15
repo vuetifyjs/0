@@ -121,7 +121,7 @@
         v-if="isCollapsible"
         :aria-controls="`nav-section-${id}`"
         :aria-expanded="isOpen ? 'true' : 'false'"
-        class="size-5 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint"
+        class="size-5 flex items-center justify-center shrink-0 rounded hover:bg-surface-tint focus-visible:bg-surface-tint focus-visible:outline-none"
         type="button"
         @click.stop="onToggle"
       >
@@ -146,8 +146,8 @@
         :as
         class="font-semibold inline-flex items-center gap-1 flex-1 min-w-0"
         :class="[
-          'hover:underline hover:text-primary',
-          !hasChildren && 'opacity-70 hover:opacity-100',
+          'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
+          !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
         ]"
         :to
         v-bind="props"

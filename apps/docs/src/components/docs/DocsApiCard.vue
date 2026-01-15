@@ -88,7 +88,7 @@
         <button
           :aria-controls="`${uid}-${exampleKey}`"
           :aria-expanded="expandedExamples.has(exampleKey)"
-          class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface hover:text-primary"
+          class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface hover:text-primary focus-visible:bg-surface focus-visible:text-primary"
           type="button"
           @click="toggleExample(exampleKey, item.example)"
         >

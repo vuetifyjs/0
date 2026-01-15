@@ -22,7 +22,7 @@
 <template>
   <Atom
     :as="isInternal ? RouterLink : 'a'"
-    class="group flex items-center gap-5 p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-all cursor-pointer"
+    class="group flex items-center gap-5 p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary/50 focus-visible:bg-surface/50 focus-visible:border-primary/50 focus-visible:outline-none transition-all cursor-pointer"
     v-bind="isInternal
       ? { to }
       : { href: to, target: '_blank', rel: 'noopener noreferrer' }"

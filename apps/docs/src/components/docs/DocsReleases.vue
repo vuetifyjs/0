@@ -161,7 +161,7 @@
     <Popover.Root v-model="isOpen">
       <Popover.Activator
         v-slot="{ isOpen: open }"
-        class="w-full px-4 py-3 bg-surface-tint border-none font-inherit text-left cursor-pointer flex items-center gap-3 hover:bg-surface transition-colors"
+        class="w-full px-4 py-3 bg-surface-tint border-none font-inherit text-left cursor-pointer flex items-center gap-3 hover:bg-surface focus-visible:bg-surface transition-colors"
       >
         <AppIcon class="opacity-50" icon="search" :size="20" />
 
@@ -203,7 +203,7 @@
       >
         <input
           v-model="search"
-          class="w-full px-4 py-2 bg-transparent border-none border-b border-divider font-inherit text-inherit outline-none"
+          class="w-full px-4 py-2 bg-transparent border-none border-b border-divider font-inherit text-inherit outline-none focus-visible:bg-surface-tint"
           placeholder="Search releases..."
           type="text"
         >
@@ -215,7 +215,7 @@
         <button
           v-for="release in filteredReleases"
           :key="release.id"
-          class="w-full px-4 py-2 bg-transparent border-none font-inherit text-left cursor-pointer flex items-center gap-2 hover:bg-surface-tint transition-colors"
+          class="w-full px-4 py-2 bg-transparent border-none font-inherit text-left cursor-pointer flex items-center gap-2 hover:bg-surface-tint focus-visible:bg-surface-tint transition-colors"
           :class="{ 'bg-surface-tint': model?.id === release.id }"
           type="button"
           @click="selectRelease(release)"
@@ -238,7 +238,7 @@
         </div>
 
         <button
-          class="w-full px-4 py-2 bg-transparent border-none border-t border-divider font-inherit text-center cursor-pointer hover:bg-surface-tint transition-colors text-primary font-medium"
+          class="w-full px-4 py-2 bg-transparent border-none border-t border-divider font-inherit text-center cursor-pointer hover:bg-surface-tint focus-visible:bg-surface-tint transition-colors text-primary font-medium"
           type="button"
           @click="store.fetch()"
         >
@@ -259,7 +259,7 @@
         <div class="flex items-center gap-2">
           <button
             aria-label="Copy markdown"
-            class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
+            class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             :title="copiedMarkdown ? 'Copied!' : 'Copy markdown'"
             type="button"
             @click="copyReleaseMarkdown"
@@ -269,7 +269,7 @@
 
           <button
             aria-label="Copy link"
-            class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
+            class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             :title="copiedLink ? 'Copied!' : 'Copy link'"
             type="button"
             @click="copyReleaseLink"
@@ -278,7 +278,7 @@
           </button>
 
           <a
-            class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
+            class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             href="https://community.vuetifyjs.com/"
             rel="noopener"
             target="_blank"
@@ -288,7 +288,7 @@
           </a>
 
           <a
-            class="p-1.5 rounded hover:bg-surface-tint inline-flex opacity-50 hover:opacity-80"
+            class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
             :href="model.html_url"
             rel="noopener"
             target="_blank"

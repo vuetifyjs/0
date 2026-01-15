@@ -4,10 +4,17 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { useTemplateRef, watch } from 'vue'
+  import { onUnmounted, useTemplateRef, watch } from 'vue'
 
   const { close, lineWrap, showInlineApi, collapsibleNav } = useSettings()
-  const { isEditing: isEditingTheme } = useCustomThemes()
+  const { isEditing: isEditingTheme, clearPreview } = useCustomThemes()
+
+  onUnmounted(() => {
+    if (isEditingTheme.value) {
+      clearPreview()
+      isEditingTheme.value = false
+    }
+  })
 
   const sheetRef = useTemplateRef<HTMLElement | null>('sheet')
 

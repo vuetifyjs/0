@@ -29,7 +29,7 @@
   <Atom
     :aria-label="props['ariaLabel']"
     :as
-    class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint"
+    class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint focus-visible:opacity-80 focus-visible:bg-surface-tint focus-visible:outline-none"
     :title="props.title"
   >
     <AppIcon aria-hidden="true" :icon :size />
