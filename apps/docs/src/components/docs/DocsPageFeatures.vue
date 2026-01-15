@@ -81,6 +81,15 @@
     return `${base}/labels/${original}`
   })
 
+  const reportBugLink = toRef(() => {
+    const label = props.frontmatter?.features?.label
+    const baseUrl = 'https://issues.vuetifyjs.com/?repo=vuetify0&type=bug'
+
+    if (!label) return baseUrl
+
+    return `${baseUrl}&label=${encodeURIComponent(label)}`
+  })
+
   // Extract name from github path (e.g., /composables/useRegistry/ -> useRegistry)
   const itemName = toRef(() => {
     const github = props.frontmatter?.features?.github
@@ -240,7 +249,7 @@
 
       <DocsActionChip
         color="text-error"
-        href="https://issues.vuetifyjs.com/?repo=vuetify0&type=bug"
+        :href="reportBugLink"
         icon="vuetify-issues"
         text="Report a Bug"
         title="Open Vuetify Issues"
