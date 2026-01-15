@@ -23,6 +23,7 @@ declare module 'vue' {
     AppIconButton: typeof import('./components/app/AppIconButton.vue')['default']
     AppLevelChip: typeof import('./components/app/AppLevelChip.vue')['default']
     AppLink: typeof import('./components/app/AppLink.vue')['default']
+    AppLoaderIcon: typeof import('./components/app/AppLoaderIcon.vue')['default']
     AppMain: typeof import('./components/app/AppMain.vue')['default']
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
