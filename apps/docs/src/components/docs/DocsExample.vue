@@ -14,7 +14,7 @@
 
   const uid = useId()
   const showCode = ref(false)
-  const { highlightedCode, highlight } = useHighlightCode(toRef(() => props.code), { immediate: false })
+  const { highlightedCode, highlight, isLoading, showLoader } = useHighlightCode(toRef(() => props.code), { immediate: false })
   const { lineWrap: defaultLineWrap } = useSettings()
 
   // Local state initialized from global default, per-instance
@@ -56,8 +56,9 @@
         type="button"
         @click="toggleCode"
       >
-        <span v-if="showCode">Hide code</span>
-        <span v-else>Show code</span>
+        <AppLoaderIcon v-if="showLoader" variant="orbit" />
+        <AppIcon v-else-if="showCode && !isLoading" icon="chevron-up" :size="16" />
+        <AppIcon v-else icon="code" :size="16" />
         <span v-if="fileName" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ fileName }}</span>
       </button>
     </div>

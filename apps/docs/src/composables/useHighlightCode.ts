@@ -30,8 +30,11 @@ export function useHighlightCode (
   const { lang = 'vue', immediate = true, debounce = 50 } = options
   const { highlighter, getHighlighter } = useHighlighter()
   const highlightedCode = shallowRef('')
+  const isLoading = shallowRef(false)
+  const showLoader = shallowRef(false)
 
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
+  let loadingTimer: ReturnType<typeof setTimeout> | null = null
 
   async function highlight (source?: string) {
     if (debounceTimer) {
@@ -42,6 +45,13 @@ export function useHighlightCode (
     const value = source ?? toValue(code)
     if (!value) return
 
+    isLoading.value = true
+
+    // Delay showing loading indicator to avoid flicker for fast operations
+    loadingTimer = setTimeout(() => {
+      showLoader.value = true
+    }, 200)
+
     const hl = highlighter.value ?? await getHighlighter()
 
     highlightedCode.value = hl.codeToHtml(value, {
@@ -50,6 +60,10 @@ export function useHighlightCode (
       defaultColor: false,
       transformers: [createApiTransformer()],
     })
+
+    if (loadingTimer) clearTimeout(loadingTimer)
+    isLoading.value = false
+    showLoader.value = false
   }
 
   function debouncedHighlight (value: string) {
@@ -73,10 +87,13 @@ export function useHighlightCode (
 
   onScopeDispose(() => {
     if (debounceTimer) clearTimeout(debounceTimer)
+    if (loadingTimer) clearTimeout(loadingTimer)
   })
 
   return {
     highlightedCode,
     highlight,
+    isLoading,
+    showLoader,
   }
 }
