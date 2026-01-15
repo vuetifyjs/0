@@ -27,6 +27,7 @@ declare module 'vue' {
     AppMain: typeof import('./components/app/AppMain.vue')['default']
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
+    AppSearchInline: typeof import('./components/app/AppSearchInline.vue')['default']
     AppSettings: typeof import('./components/app/AppSettings.vue')['default']
     AppSettingsColorInput: typeof import('./components/app/settings/AppSettingsColorInput.vue')['default']
     AppSettingsHeader: typeof import('./components/app/settings/AppSettingsHeader.vue')['default']

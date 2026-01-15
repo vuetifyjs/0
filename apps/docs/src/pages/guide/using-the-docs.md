@@ -37,8 +37,6 @@ This guide helps you get the most out of v0 documentation. Whether you're explor
 
 The docs are organized into distinct sections, each serving a specific purpose:
 
-<!-- TODO: ![Documentation sections overview](/images/guide/using-the-docs/structure.png) -->
-
 | Section | Purpose | When to use |
 |---------|---------|-------------|
 | <AppLink to="/guide" class="whitespace-nowrap"><AppIcon icon="book" :size="18" class="inline-block align-text-bottom mr-1" />**Guide**</AppLink> | Conceptual learning | Understanding architecture, patterns, best practices |
@@ -139,10 +137,8 @@ Footer navigation at the bottom of each page links to adjacent pages in the curr
 
 ### Opening Search
 
-- Click the search button in the header ("Search the docs...")
+- Click the search button in the header, or try it here: <AppSearchInline />
 - Press `Ctrl+K` (Windows/Linux) or `Cmd+K` (Mac)
-
-<!-- TODO: ![Search modal](/images/guide/using-the-docs/search.png) -->
 
 ### Using Search
 
@@ -167,8 +163,6 @@ Results are grouped by category, with Guide pages prioritized. Maximum 20 result
 ## Ask AI
 
 The documentation includes a context-aware AI assistant that understands v0 concepts and has access to the current page's content.
-
-<!-- TODO: ![Ask AI panel](/images/guide/using-the-docs/ask-ai.png) -->
 
 ### Opening Ask AI
 
@@ -229,8 +223,6 @@ Or type your own question:
 ## Interactive Examples
 
 Most component and composable pages include live, interactive examples.
-
-<!-- TODO: ![Interactive example](/images/guide/using-the-docs/example.png) -->
 
 ### Live Previews
 
