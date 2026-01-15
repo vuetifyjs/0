@@ -3,11 +3,11 @@
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
 
-  // Types
-  import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '@build/generate-api'
-
   // Utilities
   import { shallowRef, watch } from 'vue'
+
+  // Types
+  import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '@build/generate-api'
 
   type ApiItem = ApiOption | ApiProperty | ApiMethod | ApiProp | ApiEvent | ApiSlot | ApiFunction
 

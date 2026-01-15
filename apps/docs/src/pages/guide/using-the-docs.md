@@ -518,4 +518,4 @@ Found an error or want to improve the docs? Contributions are welcome:
 - Submit pull requests for fixes or enhancements
 - See the [Contributing Guide](/introduction/contributing) for details
 
-> [!TIP] The easiest way to contribute is to click "Edit this page" near the top of any documentation page.
+> [!TIP] The easiest way to contribute is to click <DocsActionChip color="text-info" icon="pencil" text="Edit this page" /> near the top of any documentation page.
