@@ -53,14 +53,14 @@ All v0 components expose state via `data-*` attributes in the `attrs` object:
 
 | Component | Attributes | Notes |
 | - | - | - |
-| [Selection](/components/providers/selection)<br>[Single](/components/providers/single)<br>[Group](/components/providers/group) | `data-selected`<br>`data-disabled` | Set on items |
-| [Group](/components/providers/group) | `data-mixed` | Tri-state only |
-| [Tabs](/components/disclosure/tabs) | `data-selected`<br>`data-disabled` | Tab items |
-| [ExpansionPanel](/components/disclosure/expansion-panel) | `data-selected`<br>`data-disabled` | Activator element |
-| [Checkbox](/components/forms/checkbox) | `data-state`<br>`data-disabled` | `checked` `unchecked` `indeterminate` |
-| [Radio](/components/forms/radio) | `data-state`<br>`data-disabled` | `checked` `unchecked` |
-| [Popover](/components/disclosure/popover) | `data-popover-open` | Activator element |
-| [Dialog](/components/disclosure/dialog) | `data-dialog-open` | Activator element |
+| [Selection](/components/providers/selection)<br>[Single](/components/providers/single)<br>[Group](/components/providers/group) | <span class="whitespace-nowrap">`data-selected`</span><br><span class="whitespace-nowrap">`data-disabled`</span> | Set on items |
+| [Group](/components/providers/group) | <span class="whitespace-nowrap">`data-mixed`</span> | Tri-state only |
+| [Tabs](/components/disclosure/tabs) | <span class="whitespace-nowrap">`data-selected`</span><br><span class="whitespace-nowrap">`data-disabled`</span> | Tab items |
+| [ExpansionPanel](/components/disclosure/expansion-panel) | <span class="whitespace-nowrap">`data-selected`</span><br><span class="whitespace-nowrap">`data-disabled`</span> | Activator element |
+| [Checkbox](/components/forms/checkbox) | <span class="whitespace-nowrap">`data-state`</span><br><span class="whitespace-nowrap">`data-disabled`</span> | `checked` `unchecked` `indeterminate` |
+| [Radio](/components/forms/radio) | <span class="whitespace-nowrap">`data-state`</span><br><span class="whitespace-nowrap">`data-disabled`</span> | `checked` `unchecked` |
+| [Popover](/components/disclosure/popover) | <span class="whitespace-nowrap">`data-popover-open`</span> | Activator element |
+| [Dialog](/components/disclosure/dialog) | <span class="whitespace-nowrap">`data-dialog-open`</span> | Activator element |
 
 > [!INFO]
 > Attributes are only present when `true`. Use `[data-selected]` not `[data-selected="true"]`.
