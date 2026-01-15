@@ -11,7 +11,7 @@ features:
   emphasized: true
 related:
   - /guide
-  - /guide/ai-tools
+  - /guide/tooling/ai-tools
   - /introduction/getting-started
 ---
 
@@ -125,7 +125,7 @@ The right sidebar (desktop only) shows an outline of the current page:
 
 At the bottom of each page, you'll find links to related content. These cross-references help you discover connected concepts and navigate between related components and composables.
 
-<DocsRelated :frontmatter="{ related: ['/guide/ai-tools', '/introduction/getting-started'] }" />
+<DocsRelated :frontmatter="{ related: ['/guide/tooling/ai-tools', '/introduction/getting-started'] }" />
 
 ### Previous / Next
 
