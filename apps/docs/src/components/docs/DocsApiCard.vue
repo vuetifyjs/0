@@ -1,9 +1,13 @@
 <script setup lang="ts">
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
+  import { useSettings } from '@/composables/useSettings'
 
   // Types
   import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '@build/generate-api'
+
+  // Utilities
+  import { shallowRef, watch } from 'vue'
 
   type ApiItem = ApiOption | ApiProperty | ApiMethod | ApiProp | ApiEvent | ApiSlot | ApiFunction
 
@@ -21,6 +25,13 @@
     toggleExample,
     formatSignature,
   } = useApiHelpers()
+
+  const { lineWrap: defaultLineWrap } = useSettings()
+  const lineWrap = shallowRef(defaultLineWrap.value)
+
+  watch(defaultLineWrap, val => {
+    lineWrap.value = val
+  })
 
   const exampleKey = `${props.kind}-${props.item.name}`
 </script>
@@ -73,17 +84,16 @@
     </div>
 
     <template v-if="'example' in item && item.example">
-      <div class="border-t border-divider bg-surface hover:bg-surface-tint">
+      <div class="border-t border-divider bg-surface-tint">
         <button
           :aria-controls="`${uid}-${exampleKey}`"
           :aria-expanded="expandedExamples.has(exampleKey)"
-          class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors"
+          class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface hover:text-primary"
           type="button"
           @click="toggleExample(exampleKey, item.example)"
         >
-          <span v-if="expandedExamples.has(exampleKey)">Hide code example</span>
-
-          <span v-else>Show code example</span>
+          <AppIcon v-if="expandedExamples.has(exampleKey)" icon="chevron-up" :size="16" />
+          <AppIcon v-else icon="code" :size="16" />
         </button>
       </div>
 
@@ -93,16 +103,19 @@
         class="relative bg-pre group"
       >
         <DocsCodeActions
+          v-model:wrap="lineWrap"
           bin
           class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
           :code="highlightedExamples[exampleKey]?.code ?? ''"
           language="typescript"
           show-copy
+          show-wrap
           :title="item.name"
         />
 
         <div
           class="[&_.shiki]:rounded-none [&_.shiki]:border-0 [&_.shiki]:m-0 [&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
+          :class="lineWrap && '[&_pre]:whitespace-pre-wrap [&_pre]:break-words'"
           v-html="highlightedExamples[exampleKey]?.html ?? ''"
         />
       </div>
