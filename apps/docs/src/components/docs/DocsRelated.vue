@@ -65,8 +65,8 @@
     <table>
       <thead>
         <tr>
-          <th class="text-left">Page</th>
-          <th class="text-left">Category</th>
+          <th class="text-left" scope="col">Page</th>
+          <th class="text-left" scope="col">Category</th>
         </tr>
       </thead>
       <tbody>

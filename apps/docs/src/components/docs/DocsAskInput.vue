@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useWindowEventListener } from '@vuetify/v0'
 
   // Utilities
   import { computed, onMounted, shallowRef, useTemplateRef } from 'vue'
@@ -39,6 +39,7 @@
   }
 
   function onScroll () {
+    if (!IN_BROWSER) return
     const scrollTop = window.scrollY
     const windowHeight = window.innerHeight
     const docHeight = document.documentElement.scrollHeight
@@ -47,6 +48,7 @@
   }
 
   function updateMobile () {
+    if (!IN_BROWSER) return
     isMobile.value = window.innerWidth < 768
   }
 

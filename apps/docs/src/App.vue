@@ -3,7 +3,7 @@
   import { injectHead, useHead } from '@unhead/vue'
 
   // Framework
-  import { useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useWindowEventListener } from '@vuetify/v0'
 
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
@@ -22,6 +22,7 @@
   const showBottomMesh = shallowRef(false)
 
   useWindowEventListener('scroll', () => {
+    if (!IN_BROWSER) return
     showBottomMesh.value = window.scrollY > 200
   }, { passive: true })
 
@@ -31,6 +32,11 @@
   useHead({
     title: 'Vuetify0',
     titleTemplate: '%s — Vuetify0',
+    link: [
+      { rel: 'preconnect', href: 'https://api.github.com' },
+      { rel: 'preconnect', href: 'https://cdn.vuetifyjs.com' },
+      { rel: 'dns-prefetch', href: 'https://api.npmjs.org' },
+    ],
     meta: [
       { key: 'description', name: 'description', content: 'Headless components and composables for building modern applications and design systems' },
       { key: 'og:type', property: 'og:type', content: 'website' },

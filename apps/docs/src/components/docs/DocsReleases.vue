@@ -4,7 +4,7 @@
 
   // Framework
   // Vuetify0
-  import { Popover, useDate, useFilter } from '@vuetify/v0'
+  import { IN_BROWSER, Popover, useDate, useFilter } from '@vuetify/v0'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -110,7 +110,7 @@
   }
 
   async function copyReleaseLink () {
-    if (!model.value) return
+    if (!model.value || !IN_BROWSER) return
     await copyLink(`${window.location.origin}/releases/?version=${model.value.tag_name}`)
   }
 

@@ -20,6 +20,7 @@
   useDocumentEventListener('scroll', updateOverflow)
 
   function scrollToTop () {
+    if (!IN_BROWSER) return
     window.scrollTo({ top: 0, behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
   }
 </script>

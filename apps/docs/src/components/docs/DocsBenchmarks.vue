@@ -97,10 +97,10 @@
     <table>
       <thead>
         <tr>
-          <th class="text-left">Operation</th>
-          <th class="text-right">Throughput</th>
-          <th class="text-right">Latency</th>
-          <th class="text-right">Margin</th>
+          <th class="text-left" scope="col">Operation</th>
+          <th class="text-right" scope="col">Throughput</th>
+          <th class="text-right" scope="col">Latency</th>
+          <th class="text-right" scope="col">Margin</th>
         </tr>
       </thead>
       <tbody>

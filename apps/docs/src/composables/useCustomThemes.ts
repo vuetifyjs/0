@@ -1,5 +1,5 @@
 // Framework
-import { useStorage, useTheme } from '@vuetify/v0'
+import { IN_BROWSER, useStorage, useTheme } from '@vuetify/v0'
 
 // Utilities
 import { computed, shallowRef, watch } from 'vue'
@@ -54,6 +54,7 @@ function generateThemeCSS (id: string, colors: Record<string, string>): string {
  * Inject or update a custom theme's CSS in the stylesheet
  */
 function injectThemeCSS (id: string, colors: Record<string, string>): void {
+  if (!IN_BROWSER) return
   const styleEl = document.querySelector(`#${STYLESHEET_ID}`) as HTMLStyleElement | null
   if (!styleEl) return
 
@@ -82,6 +83,7 @@ function injectThemeCSS (id: string, colors: Record<string, string>): void {
  * Remove a custom theme's CSS from the stylesheet
  */
 function removeThemeCSS (id: string): void {
+  if (!IN_BROWSER) return
   const styleEl = document.querySelector(`#${STYLESHEET_ID}`) as HTMLStyleElement | null
   if (!styleEl) return
 
@@ -260,6 +262,7 @@ export function useCustomThemes (): UseCustomThemesReturn {
    * Preview theme colors in real-time by setting CSS variables directly
    */
   function previewTheme (colors: Record<string, string>, dark: boolean): void {
+    if (!IN_BROWSER) return
     const root = document.documentElement
     for (const [key, value] of Object.entries(colors)) {
       root.style.setProperty(`--v0-${key}`, value)
@@ -272,6 +275,7 @@ export function useCustomThemes (): UseCustomThemesReturn {
    * Clear the preview and restore previous theme
    */
   function clearPreview (): void {
+    if (!IN_BROWSER) return
     const root = document.documentElement
     // Remove all inline v0 CSS variables
     const style = root.style

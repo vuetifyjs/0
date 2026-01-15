@@ -11,7 +11,7 @@ features:
   level: 2
   github: /components/Radio/
 related:
-  - /composables/selection/use-single
+  - /composables/selection/create-single
   - /components/providers/single
   - /components/forms/checkbox
 ---

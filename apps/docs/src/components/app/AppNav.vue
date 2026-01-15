@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, useClickOutside, useHydration, useWindowEventListener } from '@vuetify/v0'
+  import { Atom, IN_BROWSER, useClickOutside, useHydration, useWindowEventListener } from '@vuetify/v0'
 
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
@@ -71,6 +71,7 @@
   const isMobile = shallowRef(true)
 
   function updateMobile () {
+    if (!IN_BROWSER) return
     isMobile.value = window.innerWidth < 768
   }
 
@@ -79,7 +80,7 @@
 
   // Scroll active link into view after hydration settles
   watch(isSettled, settled => {
-    if (!settled) return
+    if (!settled || !IN_BROWSER) return
     // Wait for sections to fully expand before scrolling
     // 300ms accounts for expand animation (200ms) + buffer
     setTimeout(() => {

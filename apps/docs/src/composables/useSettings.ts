@@ -127,7 +127,9 @@ export function createSettingsContext (): SettingsContext {
   const triggerRef = shallowRef<HTMLElement | null>(null)
 
   function open () {
-    triggerRef.value = document.activeElement as HTMLElement | null
+    if (IN_BROWSER) {
+      triggerRef.value = document.activeElement as HTMLElement | null
+    }
     isOpen.value = true
   }
 

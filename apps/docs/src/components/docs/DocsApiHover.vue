@@ -11,7 +11,7 @@
   import apiData from 'virtual:api'
 
   // Framework
-  import { useDocumentEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useDocumentEventListener } from '@vuetify/v0'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
@@ -45,6 +45,8 @@
   const flipBelow = shallowRef(false)
 
   function showPopover (target: HTMLElement) {
+    if (!IN_BROWSER) return
+
     // Cancel any pending hide
     if (hideTimeout) {
       clearTimeout(hideTimeout)

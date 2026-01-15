@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { useHead } from '@unhead/vue'
+
   // Components
   import DocsToc from '../docs/DocsToc.vue'
 
@@ -8,7 +10,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { shallowRef, toRef, useTemplateRef } from 'vue'
+  import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
 
   const { isOpen: isAskOpen } = useAsk()
   const { prefersReducedMotion } = useSettings()
@@ -17,6 +19,21 @@
   const pageTransition = toRef(() => prefersReducedMotion.value ? undefined : 'page')
 
   useRouterLinks(mainRef)
+
+  // Extract page metadata from frontmatter
+  const pageTitle = computed(() => page.value?.frontmatter?.title as string | undefined)
+  const pageMeta = computed(() => page.value?.frontmatter?.meta as Array<{ name?: string, content?: string }> | undefined)
+  const pageDescription = computed(() => pageMeta.value?.find(m => m.name === 'description')?.content)
+
+  // Set page-level meta from frontmatter (reactive)
+  // InferSeoMetaPlugin auto-generates og:title and og:description
+  useHead({
+    title: pageTitle,
+    meta: computed(() => pageDescription.value
+      ? [{ key: 'description', name: 'description', content: pageDescription.value }]
+      : [],
+    ),
+  })
 </script>
 
 <template>

@@ -54,7 +54,7 @@
 
   onMounted(() => {
     // Defer syntax highlighting to idle time to avoid blocking main thread
-    if ('requestIdleCallback' in window) {
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
       requestIdleCallback(() => highlight(), { timeout: 2000 })
     } else {
       setTimeout(() => highlight(), 100)
