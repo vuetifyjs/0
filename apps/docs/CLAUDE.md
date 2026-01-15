@@ -100,7 +100,7 @@ build/
 
 | Component | Purpose |
 |-----------|---------|
-| `DocsAlert` | GitHub-style callouts (`> [!TIP]`, `> [!WARNING]`, `> [!ERROR]`, `> [!SUGGESTION]`) |
+| `DocsAlert` | GitHub-style callouts (`> [!TIP]`, `> [!WARNING]`, `> [!ERROR]`, `> [!ASKAI]`) |
 | `DocsExample` | Live examples from `examples/` with code |
 | `DocsMarkup` | Syntax-highlighted code blocks |
 | `DocsApi` | Auto-generated API tables with inline/links toggle |
@@ -114,12 +114,47 @@ build/
 | `DocsNavigator` | Prev/next page navigation |
 | `DocsReleases` | Release changelog display |
 
+## Live Examples with DocsExample
+
+To add interactive examples to documentation pages:
+
+**1. Create the example file** in `src/examples/`:
+```
+src/examples/components/{component}/basic.vue
+src/examples/composables/{composable}/basic.vue
+src/examples/guide/{guide-name}/example.vue
+```
+
+**2. Import in the markdown page** using `<script setup>`:
+```vue
+<script setup>
+import BasicExample from '@/examples/components/tabs/basic.vue'
+import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
+</script>
+```
+
+**3. Use DocsExample** with the component as slot and raw code as prop:
+```vue
+<DocsExample file="basic.vue" :code="BasicExampleRaw">
+  <BasicExample />
+</DocsExample>
+```
+
+| Prop | Purpose |
+|------|---------|
+| `file` | Filename shown in UI (e.g., `basic.vue`) |
+| `:code` | Raw source string for syntax highlighting |
+| slot | The actual Vue component to render |
+
+> [!WARNING]
+> Do NOT use just `<DocsExample file="path/to/example" />`. This won't render the component or show code. Always import both the component and its `?raw` version.
+
 ## Conventions
 
 - **Always prefer @vuetify/v0 composables** over raw browser APIs or custom implementations. Check `mcp__vuetify-mcp__get_vuetify0_composable_list` before writing event listeners, observers, or state management.
 - UnoCSS utilities for all styling
 - Prefer markdown for documentation pages
-- **Callouts**: Use `> [!TIP]`, `> [!WARNING]`, `> [!ERROR]` for alerts. Use `> [!SUGGESTION] question` to prompt Ask AI.
+- **Callouts**: Use `> [!TIP]`, `> [!WARNING]`, `> [!ERROR]` for alerts. Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user.
 - **Vue code in markdown fences**: Indent `<script>` and `<style>` content by 2 spaces for visual alignment with `<template>`
 - Examples: `src/examples/components/{component}/` or `src/examples/composables/{composable}/`
 - Component docs: `pages/components/{category}/{component}.md`

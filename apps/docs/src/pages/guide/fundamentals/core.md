@@ -247,7 +247,7 @@ wizard.last()   // Jump to end
 | Standalone logic | Direct factory call |
 | Testing | Trinity's third element |
 
-> [!SUGGESTION] How do I handle scoped contexts for nested components without prop drilling?
+> [!ASKAI] How do I handle scoped contexts for nested components without prop drilling?
 
 ## Frequently Asked Questions
 

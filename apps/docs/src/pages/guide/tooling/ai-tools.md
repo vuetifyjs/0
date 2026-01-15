@@ -31,7 +31,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
 | <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
 
-> [!SUGGESTION] When should I use llms.txt vs llms-full.txt?
+> [!ASKAI] When should I use llms.txt vs llms-full.txt?
 
 ## Usage Examples
 

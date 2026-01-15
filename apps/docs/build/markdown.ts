@@ -107,7 +107,7 @@ export default async function MarkdownPlugin () {
           : '</p>'
       }
 
-      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!SUGGESTION]
+      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!ASKAI]
       const defaultBlockquoteOpen = md.renderer.rules.blockquote_open
       const defaultBlockquoteClose = md.renderer.rules.blockquote_close
 
@@ -115,17 +115,17 @@ export default async function MarkdownPlugin () {
         // Look ahead: blockquote_open -> paragraph_open -> inline
         const inlineToken = tokens[index + 2]
         if (inlineToken?.type === 'inline' && inlineToken.content) {
-          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|SUGGESTION)\]\s*(.*)/)
+          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI)\]\s*(.*)/)
           if (match) {
             const type = match[1].toLowerCase()
             env._calloutType = type
 
-            if (type === 'suggestion') {
-              // For suggestions, the rest of the line is the question
-              const suggestion = match[2].trim()
+            if (type === 'askai') {
+              // For ask callouts, the rest of the line is the question
+              const question = match[2].trim()
               inlineToken.content = ''
               inlineToken.children = []
-              return `<DocsAlert type="${type}" suggestion="${Buffer.from(suggestion).toString('base64')}">`
+              return `<DocsAlert type="${type}" question="${Buffer.from(question).toString('base64')}">`
             }
 
             // For other types, strip the marker and keep content

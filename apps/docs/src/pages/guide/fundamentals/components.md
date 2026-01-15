@@ -30,7 +30,7 @@ v0 components are Vue wrappers around composables. Composables hold logic, compo
 > [!TIP]
 > Always spread the `attrs` object onto your elements. It contains ARIA attributes and data attributes for accessibility and styling.
 
-> [!SUGGESTION] How do I add styling or CSS classes to headless components?
+> [!ASKAI] How do I add styling or CSS classes to headless components?
 
 ## Component Categories
 

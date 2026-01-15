@@ -65,7 +65,7 @@ All v0 components expose state via `data-*` attributes in the `attrs` object:
 > [!INFO]
 > Attributes are only present when `true`. Use `[data-selected]` not `[data-selected="true"]`.
 
-> [!SUGGESTION] What data attributes does Selection.Item expose and how do I style them?
+> [!ASKAI] What data attributes does Selection.Item expose and how do I style them?
 
 ## Styling with Data Attributes
 

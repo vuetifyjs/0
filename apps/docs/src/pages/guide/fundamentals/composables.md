@@ -51,7 +51,7 @@ selection.select('a')
 > [!TIP]
 > Components and composables are interchangeable. Every component uses a composable internally—you can always drop to the composable for more control.
 
-> [!SUGGESTION] How do I choose between composables and components for my use case?
+> [!ASKAI] How do I choose between composables and components for my use case?
 
 ## Categories
 
@@ -222,7 +222,7 @@ const ticket = selection.get('1')
 ticket?.value // MyItem
 ```
 
-> [!SUGGESTION] Which composables should I use for a data table with filtering and pagination?
+> [!ASKAI] Which composables should I use for a data table with filtering and pagination?
 
 ## Frequently Asked Questions
 

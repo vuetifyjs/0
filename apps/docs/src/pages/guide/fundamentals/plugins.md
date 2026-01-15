@@ -74,7 +74,7 @@ app.use(
 > [!TIP]
 > All plugins are optional. Only install what you need—v0 works without any plugins installed.
 
-> [!SUGGESTION] Which built-in plugins do I actually need? Can I use v0 without them?
+> [!ASKAI] Which built-in plugins do I actually need? Can I use v0 without them?
 
 ## Creating Custom Plugins
 

@@ -191,11 +191,11 @@ The AI has access to the entire v0 documentation via [llms-full.txt](/guide/tool
 
 This context makes answers specific and actionable. Asking "How do I open this programmatically?" on the Dialog page gives you Dialog-specific code.
 
-### SUGGESTION Callouts
+### ASKAI Callouts
 
 Throughout the documentation, you'll find clickable "Ask AI" boxes:
 
-> [!SUGGESTION] How do I add styling or CSS classes to headless components?
+> [!ASKAI] How do I add styling or CSS classes to headless components?
 
 These are pre-written questions relevant to the current topic. Click one to instantly send it to Ask AI.
 
@@ -216,9 +216,9 @@ The AI can generate syntax-highlighted code blocks and Mermaid diagrams directly
 
 Click any suggestion to send it to Ask AI:
 
-- > [!SUGGESTION] Show me how to use Dialog with v-model
-- > [!SUGGESTION] What's the difference between createSelection and createGroup?
-- > [!SUGGESTION] Explain the slot props for Step.Item
+- > [!ASKAI] Show me how to use Dialog with v-model
+- > [!ASKAI] What's the difference between createSelection and createGroup?
+- > [!ASKAI] Explain the slot props for Step.Item
 
 Or type your own question:
 
@@ -416,7 +416,7 @@ The documentation uses callout boxes to highlight important information:
 
 > [!WARNING] Cautions and common mistakes to avoid.
 
-> [!SUGGESTION] What's the difference between createSelection and createGroup?
+> [!ASKAI] What's the difference between createSelection and createGroup?
 
 ## Keyboard Shortcuts
 
