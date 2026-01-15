@@ -214,9 +214,9 @@
                       </span>
                     </div>
 
-                    <div class="mt-2 text-xs opacity-60 flex items-center gap-2">
+                    <div class="mt-2 text-xs opacity-70 flex items-center gap-2">
                       <span>{{ milestone.closed_issues }} closed · {{ milestone.open_issues }} open</span>
-                      <span v-if="!isSelected" class="text-primary/70">· View details</span>
+                      <span v-if="!isSelected" class="text-primary">· View details</span>
                     </div>
                   </div>
 

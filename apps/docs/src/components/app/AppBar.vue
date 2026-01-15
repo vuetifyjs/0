@@ -99,19 +99,19 @@
         target="_blank"
         title="Discord Community"
       >
-        <AppIcon icon="discord" />
+        <AppIcon class="!opacity-100" icon="discord" />
       </a>
 
       <a
         v-if="isHomePage || showSocialLinks"
         aria-label="GitHub Repository (opens in new tab)"
-        class="bg-on-background text-background pa-1 inline-flex rounded opacity-90 hover:opacity-100"
+        class="bg-[#24292f] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://github.com/vuetifyjs/0"
         rel="noopener noreferrer"
         target="_blank"
         title="GitHub Repository"
       >
-        <AppIcon icon="github" />
+        <AppIcon class="!opacity-100" icon="github" />
       </a>
 
       <AppSettings v-if="!isHomePage" />

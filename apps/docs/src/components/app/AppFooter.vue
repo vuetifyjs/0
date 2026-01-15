@@ -23,8 +23,8 @@
   const { icon: themeIcon, title: themeTitle, toggle: toggleTheme } = useThemeToggle()
 
   const links = [
-    { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub' },
-    { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord' },
+    { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
+    { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-[#5865F2]' },
   ]
 
   const latestRelease = computed(() => releases.releases[0])
@@ -97,12 +97,13 @@
           v-for="link in links"
           :key="link.icon"
           :aria-label="link.label"
-          class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-tint transition-colors text-on-surface"
+          class="w-9 h-9 rounded-lg flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity text-white"
+          :class="link.bg"
           :href="link.href"
           rel="noopener noreferrer"
           target="_blank"
         >
-          <AppIcon :icon="link.icon" :size="20" />
+          <AppIcon class="!opacity-100" :icon="link.icon" :size="20" />
         </a>
 
         <div class="hidden md:block w-px h-5 bg-divider" />
