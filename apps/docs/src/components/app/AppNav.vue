@@ -50,11 +50,14 @@
     return findPage(items, path) !== null
   }
 
-  // Current page info when it's filtered out
+  // Current page info when it's filtered out (by skill level OR feature filter)
   const filteredOutPage = computed(() => {
-    if (selectedLevels.size === 0) return null
+    const hasSkillFilter = selectedLevels.size > 0
+    const hasFeatureFilter = !!activeFeatures.value
+    if (!hasSkillFilter && !hasFeatureFilter) return null
     const path = route.path
-    if (hasPage(filteredNav.value, path)) return null
+    // Check against configuredNav which is filtered by both skill level and features
+    if (hasPage(configuredNav.value, path)) return null
     return findPage(app.nav, path)
   })
   const navRef = useTemplateRef<AtomExpose>('nav')
@@ -120,7 +123,7 @@
     :inert="!app.drawer && isMobile ? true : undefined"
   >
     <!-- URL filter banner -->
-    <div v-if="activeFeatures" class="-mt-4 px-4 py-3 mb-2 bg-surface-variant/50 border-b border-divider">
+    <div v-if="activeFeatures" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant/50 border-b border-divider">
       <p class="text-xs text-on-surface-variant mb-2">
         Showing docs for your project
       </p>

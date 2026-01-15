@@ -140,11 +140,8 @@ export function createNavConfig (nav: MaybeRefOrGetter<NavItem[]>) {
     }
   }, { immediate: true })
 
-  // Flat mode when collapsible is off OR feature filtering is active
-  const flatMode = computed(() => {
-    if (activeFeatures.value) return true
-    return !collapsibleNav.value
-  })
+  // Flat mode when collapsible setting is off
+  const flatMode = computed(() => !collapsibleNav.value)
 
   // Filter nav by active features (case-insensitive)
   const configuredNav = computed(() => {
