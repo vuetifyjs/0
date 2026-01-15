@@ -1,16 +1,23 @@
 // Framework
 import { createContext } from '@vuetify/v0'
+import { IN_BROWSER } from '@vuetify/v0/constants'
 
 // Composables
 import { useSettings } from '@/composables/useSettings'
 
 // Utilities
-import { computed, toValue } from 'vue'
+import { computed, shallowRef, toValue, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 // Types
 import type { NavItem, NavItemLink } from '@/stores/app'
-import type { ComputedRef, MaybeRefOrGetter } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+const STORAGE_KEY = 'v0:docs:features'
 
 // =============================================================================
 // Types
@@ -19,12 +26,12 @@ import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 export interface NavConfigContext {
   /** Flat mode - all sections expanded, no collapse buttons */
   flatMode: ComputedRef<boolean>
-  /** Features from URL query param */
-  urlFeatures: ComputedRef<string[] | null>
-  /** Nav filtered by URL features (or original if no filter) */
+  /** Active features filter (from URL or sessionStorage) */
+  activeFeatures: ShallowRef<string[] | null>
+  /** Nav filtered by active features (or original if no filter) */
   configuredNav: ComputedRef<NavItem[]>
-  /** Clear URL filter and show all */
-  clearUrlFilter: () => void
+  /** Clear feature filter and show all */
+  clearFilter: () => void
 }
 
 const [useNavConfigContext, provideNavConfigContext] = createContext<NavConfigContext>('docs:nav-config')
@@ -100,39 +107,65 @@ export function createNavConfig (nav: MaybeRefOrGetter<NavItem[]>) {
   const router = useRouter()
   const { collapsibleNav } = useSettings()
 
-  // Parse features from URL query param
-  const urlFeatures = computed<string[] | null>(() => {
-    const param = route.query.features
-    if (!param || typeof param !== 'string') return null
-    const features = param.split(',').map(f => f.trim()).filter(Boolean)
-    return features.length > 0 ? features : null
-  })
+  // Active features - persisted to sessionStorage
+  const activeFeatures = shallowRef<string[] | null>(null)
 
-  // Flat mode when collapsible is off OR URL filtering is active
+  // Load from sessionStorage on init (client-side only)
+  if (IN_BROWSER) {
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        activeFeatures.value = JSON.parse(stored)
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  // Watch URL for features param - overwrites stored value
+  watch(() => route.query.features, param => {
+    if (!param || typeof param !== 'string') return
+
+    const features = param.split(',').map(f => f.trim()).filter(Boolean)
+    if (features.length > 0) {
+      activeFeatures.value = features
+      // Persist to sessionStorage
+      if (IN_BROWSER) {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(features))
+      }
+      // Remove from URL to keep it clean
+      const query = { ...route.query }
+      delete query.features
+      router.replace({ query })
+    }
+  }, { immediate: true })
+
+  // Flat mode when collapsible is off OR feature filtering is active
   const flatMode = computed(() => {
-    if (urlFeatures.value) return true
+    if (activeFeatures.value) return true
     return !collapsibleNav.value
   })
 
-  // Filter nav by URL features (case-insensitive)
+  // Filter nav by active features (case-insensitive)
   const configuredNav = computed(() => {
     const items = toValue(nav)
-    const features = urlFeatures.value
+    const features = activeFeatures.value
     if (!features) return items
     return filterNavByFeatures(items, new Set(features.map(f => f.toLowerCase())))
   })
 
-  function clearUrlFilter () {
-    const query = { ...route.query }
-    delete query.features
-    router.replace({ query })
+  function clearFilter () {
+    activeFeatures.value = null
+    if (IN_BROWSER) {
+      sessionStorage.removeItem(STORAGE_KEY)
+    }
   }
 
   const context: NavConfigContext = {
     flatMode,
-    urlFeatures,
+    activeFeatures,
     configuredNav,
-    clearUrlFilter,
+    clearFilter,
   }
 
   return {

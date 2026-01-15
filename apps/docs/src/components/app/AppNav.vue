@@ -26,7 +26,7 @@
 
   const app = useAppStore()
   const { filteredNav, selectedLevels } = useLevelFilterContext()
-  const { configuredNav, urlFeatures, clearUrlFilter } = useNavConfigContext()
+  const { configuredNav, activeFeatures, clearFilter } = useNavConfigContext()
   const route = useRoute()
 
   // Provide nested nav context for collapsible sections
@@ -120,14 +120,14 @@
     :inert="!app.drawer && isMobile ? true : undefined"
   >
     <!-- URL filter banner -->
-    <div v-if="urlFeatures" class="-mt-4 px-4 py-3 mb-2 bg-surface-variant/50 border-b border-divider">
+    <div v-if="activeFeatures" class="-mt-4 px-4 py-3 mb-2 bg-surface-variant/50 border-b border-divider">
       <p class="text-xs text-on-surface-variant mb-2">
         Showing docs for your project
       </p>
       <button
         class="text-xs text-primary hover:underline"
         type="button"
-        @click="clearUrlFilter"
+        @click="clearFilter"
       >
         Show all docs
       </button>
