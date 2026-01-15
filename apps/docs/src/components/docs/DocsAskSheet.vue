@@ -82,6 +82,7 @@
 
 <template>
   <aside
+    aria-labelledby="ask-title"
     :aria-modal="!isDesktop"
     :class="[
       'flex flex-col z-50 bg-glass-surface',
@@ -102,7 +103,7 @@
     >
       <div class="flex items-center gap-2">
         <AppIcon class="text-primary" icon="create" />
-        <span class="font-medium">Ask AI</span>
+        <span id="ask-title" class="font-medium">Ask AI</span>
       </div>
 
       <div class="flex items-center gap-0.5">

@@ -4,7 +4,7 @@ import { IN_BROWSER } from '@vuetify/v0/constants'
 import { isNullOrUndefined } from '@vuetify/v0/utilities'
 
 // Utilities
-import { shallowRef, toRef, watch } from 'vue'
+import { nextTick, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { UseStorageReturn } from '@vuetify/v0'
@@ -118,16 +118,28 @@ export function createSettingsContext (): SettingsContext {
     return reduceMotion.value === 'on'
   })
 
+  // Track trigger element for focus restoration
+  const triggerRef = shallowRef<HTMLElement | null>(null)
+
   function open () {
+    triggerRef.value = document.activeElement as HTMLElement | null
     isOpen.value = true
   }
 
   function close () {
     isOpen.value = false
+    nextTick(() => {
+      triggerRef.value?.focus()
+      triggerRef.value = null
+    })
   }
 
   function toggle () {
-    isOpen.value = !isOpen.value
+    if (isOpen.value) {
+      close()
+    } else {
+      open()
+    }
   }
 
   return {

@@ -12,7 +12,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, toRef, nextTick, shallowRef, useTemplateRef } from 'vue'
+  import { computed, nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   const breakpoints = useBreakpoints()
   const isDesktop = computed(() => breakpoints.lgAndUp.value)
@@ -41,14 +41,25 @@
 
   const inputRef = useTemplateRef<InstanceType<typeof DocsAskInput>>('input')
   const sheetRef = useTemplateRef<InstanceType<typeof DocsAskSheet>>('sheet')
+  const triggerRef = shallowRef<HTMLElement | null>(null)
 
   const hasMessages = toRef(() => messages.value.length > 0)
+
+  // Restore focus when closing
+  watch(isOpen, async opened => {
+    if (!opened) {
+      await nextTick()
+      triggerRef.value?.focus()
+      triggerRef.value = null
+    }
+  })
 
   async function onSubmit (question: string) {
     await ask(question)
   }
 
   async function onReopen () {
+    triggerRef.value = document.activeElement as HTMLElement | null
     open()
     await nextTick()
     sheetRef.value?.focus()

@@ -8,7 +8,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { nextTick, toRef, useTemplateRef, watch } from 'vue'
+  import { nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
@@ -38,14 +38,19 @@
   const router = useRouter()
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
+  const triggerRef = shallowRef<HTMLElement | null>(null)
   const { prefersReducedMotion } = useSettings()
   const { open: openAsk, ask } = useAsk()
   const transition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
 
   watch(isOpen, async opened => {
     if (opened) {
+      triggerRef.value = document.activeElement as HTMLElement | null
       await nextTick()
       inputRef.value?.focus()
+    } else {
+      triggerRef.value?.focus()
+      triggerRef.value = null
     }
   })
 
