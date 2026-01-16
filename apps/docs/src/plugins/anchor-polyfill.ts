@@ -16,7 +16,7 @@ function supportsAnchorPositioning (): boolean {
 }
 
 async function loadPolyfill () {
-  const { polyfill } = await import('@oddbird/css-anchor-positioning')
+  const polyfill = (await import('@oddbird/css-anchor-positioning/fn')).default
   polyfill()
 }
 
