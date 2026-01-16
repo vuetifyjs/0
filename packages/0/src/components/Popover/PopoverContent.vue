@@ -84,7 +84,9 @@
 
   watch(context.isSelected, isOpen => {
     const element = ref.value?.element
-    if (!element || isOpen === element.matches?.(':popover-open')) return
+    // Guard against operations on disconnected elements (e.g., during unmount)
+    if (!element?.isConnected) return
+    if (isOpen === element.matches?.(':popover-open')) return
 
     if (isOpen) {
       element.showPopover?.()
@@ -94,6 +96,8 @@
   })
 
   function onToggle (e: ToggleEvent) {
+    // Guard against events firing during unmount
+    if (!ref.value?.element?.isConnected) return
     context.isSelected.value = e.newState === 'open'
   }
   /* v8 ignore stop */

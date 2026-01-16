@@ -61,7 +61,7 @@
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
   <main class="min-h-screen pt-[72px] text-on-background">
     <router-view v-slot="{ Component }">
-      <Transition :name="pageTransition">
+      <Transition mode="out-in" :name="pageTransition">
         <component :is="Component" :key="$route.meta.layout" />
       </Transition>
     </router-view>

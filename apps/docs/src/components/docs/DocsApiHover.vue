@@ -15,13 +15,32 @@
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, ref, shallowRef, useTemplateRef } from 'vue'
+  import { computed, onScopeDispose, ref, shallowRef, useTemplateRef } from 'vue'
   import { useRouter } from 'vue-router'
 
   // Types
   import type { Api, ComponentApi, ComposableApi } from '@build/generate-api'
 
   const router = useRouter()
+
+  // Track navigation state to avoid event storms on iOS Safari during transitions
+  const isNavigating = shallowRef(false)
+  const unregisterBefore = router.beforeEach(() => {
+    isNavigating.value = true
+    // Hide popover immediately when navigation starts
+    hidePopover()
+  })
+  // Re-enable after DOM settles (must exceed transition duration + Vue flush)
+  const NAVIGATION_SETTLE_MS = 100
+  const unregisterAfter = router.afterEach(() => {
+    setTimeout(() => {
+      isNavigating.value = false
+    }, NAVIGATION_SETTLE_MS)
+  })
+  onScopeDispose(() => {
+    unregisterBefore()
+    unregisterAfter()
+  })
 
   // Build lookup maps from API data
   const componentNames = new Set(Object.keys(apiData.components))
@@ -138,6 +157,9 @@
   }
 
   function onMouseEnter (e: MouseEvent) {
+    // Skip during navigation to avoid event storms on iOS Safari
+    if (isNavigating.value) return
+
     const eventTarget = e.target
     if (!(eventTarget instanceof Element)) return
 
@@ -157,6 +179,9 @@
   }
 
   function onMouseLeave (e: MouseEvent) {
+    // Skip during navigation to avoid event storms on iOS Safari
+    if (isNavigating.value) return
+
     const relatedTarget = e.relatedTarget
 
     // Don't schedule hide if moving to the popover or between hover targets
