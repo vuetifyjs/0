@@ -11,7 +11,7 @@
 <template>
   <div class="p-6 rounded-xl border bg-surface hover:bg-surface transition-colors">
     <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center mb-4 text-on-primary">
-      <AppIcon :icon :size="20" />
+      <AppIcon class="!opacity-100" :icon :size="20" />
     </div>
 
     <h3 class="text-lg font-semibold mb-2">{{ title }}</h3>
