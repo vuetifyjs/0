@@ -63,14 +63,14 @@
 
     <div class="grid grid-cols-2 md:flex gap-4 justify-center mb-12">
       <router-link
-        class="px-8 py-3 bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity text-lg text-center"
+        class="px-8 py-3 bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity text-lg text-center whitespace-nowrap"
         to="/introduction/getting-started"
       >
         Get Started
       </router-link>
 
       <router-link
-        class="px-8 py-3 bg-surface text-on-surface rounded-lg font-semibold hover:bg-surface-tint transition-colors text-lg border text-center"
+        class="px-8 py-3 bg-surface text-on-surface rounded-lg font-semibold hover:bg-surface-tint transition-colors text-lg border text-center whitespace-nowrap"
         to="/introduction/why-vuetify0"
       >
         Why Vuetify0
