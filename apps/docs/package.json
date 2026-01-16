@@ -38,6 +38,7 @@
     "@js-temporal/polyfill": "catalog:",
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
+    "@oddbird/css-anchor-positioning": "catalog:",
     "@unhead/addons": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",

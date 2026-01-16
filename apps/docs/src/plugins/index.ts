@@ -11,6 +11,7 @@ import _app from './app'
 import zero from './zero'
 // Plugins
 import './analytics'
+import './anchor-polyfill'
 
 export function registerPlugins (app: App) {
   app.use(zero)
