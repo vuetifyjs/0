@@ -5,7 +5,8 @@ export { default as LazyRoot } from './LazyRoot.vue'
 
 export type { LazyContentProps, LazyContentSlotProps } from './LazyContent.vue'
 export type { LazyPlaceholderProps, LazyPlaceholderSlotProps } from './LazyPlaceholder.vue'
-export type { LazyRootContext, LazyRootProps, LazyRootSlotProps, LazyTicket } from './LazyRoot.vue'
+export type { LazyRootContext, LazyRootProps, LazyRootSlotProps } from './LazyRoot.vue'
+export type { LazyContext } from '#v0/composables/useLazy'
 
 // Components
 import Content from './LazyContent.vue'
@@ -73,18 +74,63 @@ export const Lazy = {
    * Root component for lazy loading contexts.
    *
    * @see https://0.vuetifyjs.com/components/lazy#lazyroot
+   *
+   * @example
+   * ```vue
+   * <script lang="ts" setup>
+   *   import { Lazy } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Lazy.Root>
+   *     <Lazy.Placeholder>
+   *       <div class="skeleton" />
+   *     </Lazy.Placeholder>
+   *
+   *     <Lazy.Content>
+   *       <ExpensiveComponent />
+   *     </Lazy.Content>
+   *   </Lazy.Root>
+   * </template>
+   * ```
    */
   Root,
   /**
    * Placeholder component shown before content intersects viewport.
    *
    * @see https://0.vuetifyjs.com/components/lazy#lazyplaceholder
+   *
+   * @example
+   * ```vue
+   * <script lang="ts" setup>
+   *   import { Lazy } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Lazy.Placeholder>
+   *     <div class="h-48 w-full animate-pulse bg-gray-200" />
+   *   </Lazy.Placeholder>
+   * </template>
+   * ```
    */
   Placeholder,
   /**
    * Content component shown after viewport intersection.
    *
    * @see https://0.vuetifyjs.com/components/lazy#lazycontent
+   *
+   * @example
+   * ```vue
+   * <script lang="ts" setup>
+   *   import { Lazy } from '@vuetify/v0'
+   * </script>
+   *
+   * <template>
+   *   <Lazy.Content>
+   *     <img src="/large-image.jpg" alt="Lazy loaded image" />
+   *   </Lazy.Content>
+   * </template>
+   * ```
    */
   Content,
 }

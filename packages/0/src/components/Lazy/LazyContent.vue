@@ -3,7 +3,7 @@
  *
  * @remarks
  * Content component shown after the element intersects the viewport.
- * Registers with the Lazy context and displays when content is loaded.
+ * Consumes the Lazy context and displays when hasContent is true.
  */
 
 <script lang="ts">
@@ -17,7 +17,7 @@
 
   export interface LazyContentSlotProps {
     /** Whether this content is currently visible */
-    isSelected: boolean
+    hasContent: boolean
   }
 </script>
 
@@ -28,7 +28,7 @@
   import { useLazyRoot } from './LazyRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef } from 'vue'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'LazyContent' })
 
@@ -44,18 +44,14 @@
 
   const context = useLazyRoot(namespace)
 
-  const ticket = context.register({ type: 'content' })
-
   const slotProps = toRef((): LazyContentSlotProps => ({
-    isSelected: ticket.isSelected.value,
+    hasContent: context.hasContent.value,
   }))
-
-  onUnmounted(() => context.unregister(ticket.id))
 </script>
 
 <template>
   <Atom
-    v-if="ticket.isSelected.value"
+    v-if="context.hasContent.value"
     :as
     :renderless
   >

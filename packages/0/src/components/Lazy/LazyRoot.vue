@@ -4,8 +4,12 @@
  * @remarks
  * Root component for deferred content rendering. Uses IntersectionObserver
  * to detect when the element enters the viewport and switches from
- * placeholder to content. Uses selection internally to ensure one
- * child is always visible.
+ * placeholder to content. Leverages the useLazy composable for SSR-safe
+ * booted state management.
+ *
+ * Supports integration with Vue Transition via the `onAfterLeave` slot prop,
+ * which resets the booted state when the leave transition completes (unless
+ * eager mode is enabled).
  */
 
 <script lang="ts">
@@ -14,8 +18,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
-  import type { Ref } from 'vue'
+  import type { LazyContext } from '#v0/composables/useLazy'
 
   export interface LazyRootProps extends AtomProps {
     /** Namespace for dependency injection */
@@ -29,20 +32,17 @@
   }
 
   export interface LazyRootSlotProps {
-    /** Whether the element has intersected the viewport */
-    isIntersected: boolean
+    /** Whether the lazy content has been activated (intersected or eager) */
+    isBooted: boolean
     /** Whether content is ready to be displayed */
     hasContent: boolean
+    /** Reset booted state. Call on leave transition if not eager. */
+    reset: () => void
+    /** Transition callback for after-leave. Resets if not eager. */
+    onAfterLeave: () => void
   }
 
-  export interface LazyTicket extends SelectionTicket {
-    type: 'placeholder' | 'content'
-  }
-
-  export interface LazyRootContext extends SelectionContext<LazyTicket> {
-    /** Whether the element has intersected the viewport */
-    isIntersected: Readonly<Ref<boolean>>
-  }
+  export type LazyRootContext = LazyContext
 
   export const [useLazyRoot, provideLazyRoot] = createContext<LazyRootContext>()
 </script>
@@ -52,12 +52,11 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { createSelection } from '#v0/composables/createSelection'
   import { useIntersectionObserver } from '#v0/composables/useIntersectionObserver'
-  import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
+  import { useLazy } from '#v0/composables/useLazy'
 
   // Utilities
-  import { computed, shallowReadonly, shallowRef, watch } from 'vue'
+  import { shallowRef, toRef } from 'vue'
 
   defineOptions({ name: 'LazyRoot' })
 
@@ -75,27 +74,10 @@
   } = defineProps<LazyRootProps>()
 
   const rootEl = shallowRef<HTMLElement>()
-  const isIntersected = shallowRef(eager)
+  const isIntersected = shallowRef(false)
 
-  const selection = createSelection<LazyTicket>({
-    mandatory: 'force',
-    multiple: false,
-    events: true,
-  })
-
-  const proxy = useProxyRegistry(selection)
-
-  // Select content when intersected, otherwise select placeholder
-  // Watch both isIntersected AND proxy.size (reactive via events) to handle
-  // eager mode where children register after the initial watcher run
-  watch(
-    [isIntersected, () => proxy.size],
-    ([intersected]) => {
-      const target = proxy.values.find(item => item.type === (intersected ? 'content' : 'placeholder'))
-      if (target) selection.select(target.id)
-    },
-    { immediate: true },
-  )
+  // Use useLazy with intersection as the active signal
+  const context = useLazy(isIntersected, { eager })
 
   useIntersectionObserver(
     rootEl,
@@ -108,16 +90,13 @@
     { once: true, rootMargin, threshold },
   )
 
-  const context: LazyRootContext = {
-    ...selection,
-    isIntersected: shallowReadonly(isIntersected),
-  }
-
   provideLazyRoot(namespace, context)
 
-  const slotProps = computed((): LazyRootSlotProps => ({
-    isIntersected: isIntersected.value,
-    hasContent: isIntersected.value,
+  const slotProps = toRef((): LazyRootSlotProps => ({
+    isBooted: context.isBooted.value,
+    hasContent: context.hasContent.value,
+    reset: context.reset,
+    onAfterLeave: context.onAfterLeave,
   }))
 </script>
 

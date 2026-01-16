@@ -3,7 +3,7 @@
  *
  * @remarks
  * Placeholder component shown before content intersects the viewport.
- * Registers with the Lazy context and displays when content is not yet loaded.
+ * Consumes the Lazy context and displays when hasContent is false.
  */
 
 <script lang="ts">
@@ -16,8 +16,8 @@
   }
 
   export interface LazyPlaceholderSlotProps {
-    /** Whether this placeholder is currently visible */
-    isSelected: boolean
+    /** Whether content is ready (placeholder hides when true) */
+    hasContent: boolean
   }
 </script>
 
@@ -28,7 +28,7 @@
   import { useLazyRoot } from './LazyRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef } from 'vue'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'LazyPlaceholder' })
 
@@ -44,18 +44,14 @@
 
   const context = useLazyRoot(namespace)
 
-  const ticket = context.register({ type: 'placeholder' })
-
   const slotProps = toRef((): LazyPlaceholderSlotProps => ({
-    isSelected: ticket.isSelected.value,
+    hasContent: context.hasContent.value,
   }))
-
-  onUnmounted(() => context.unregister(ticket.id))
 </script>
 
 <template>
   <Atom
-    v-if="ticket.isSelected.value"
+    v-if="!context.hasContent.value"
     :as
     :renderless
   >
