@@ -12,20 +12,12 @@
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
 function supportsAnchorPositioning (): boolean {
-  try {
-    return typeof CSS !== 'undefined' && CSS.supports('anchor-name', '--test')
-  } catch {
-    return false
-  }
+  return CSS.supports('anchor-name', '--test')
 }
 
 async function loadPolyfill () {
-  try {
-    const polyfill = (await import('@oddbird/css-anchor-positioning/fn')).default
-    polyfill()
-  } catch {
-    // Polyfill loading failed - non-critical, silently ignore
-  }
+  const polyfill = (await import('@oddbird/css-anchor-positioning/fn')).default
+  polyfill()
 }
 
 if (IN_BROWSER && !supportsAnchorPositioning()) {
