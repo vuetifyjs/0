@@ -17,11 +17,20 @@ export default function zero (app: App) {
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin())
   app.use(createStoragePlugin())
+  function getDevmodeValue (): boolean {
+    if (!IN_BROWSER) return false
+    try {
+      return localStorage.getItem('v0:devmode') === 'true'
+    } catch {
+      return false
+    }
+  }
+
   app.use(
     createFeaturesPlugin({
       features: {
         devmode: {
-          $value: IN_BROWSER ? localStorage.getItem('v0:devmode') === 'true' : false,
+          $value: getDevmodeValue(),
           $description: 'Enables development mode with additional logging and warnings',
         },
       },

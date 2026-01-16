@@ -38,11 +38,16 @@ export const createApp = ViteSSG(
       // Workaround for https://github.com/vitejs/vite/issues/11804
       router.onError((err, to) => {
         if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
-          if (localStorage.getItem('vuetify:dynamic-reload')) {
-            logger.error('Dynamic import error, reloading page did not fix it', err)
-          } else {
-            logger.info('Reloading page to fix dynamic import error')
-            localStorage.setItem('vuetify:dynamic-reload', 'true')
+          try {
+            if (localStorage.getItem('vuetify:dynamic-reload')) {
+              logger.error('Dynamic import error, reloading page did not fix it', err)
+            } else {
+              logger.info('Reloading page to fix dynamic import error')
+              localStorage.setItem('vuetify:dynamic-reload', 'true')
+              location.assign(to.fullPath)
+            }
+          } catch {
+            // Safari private mode may throw on localStorage access
             location.assign(to.fullPath)
           }
         } else {
@@ -51,7 +56,11 @@ export const createApp = ViteSSG(
       })
 
       router.isReady().then(() => {
-        localStorage.removeItem('vuetify:dynamic-reload')
+        try {
+          localStorage.removeItem('vuetify:dynamic-reload')
+        } catch {
+          // Safari private mode may throw on localStorage access
+        }
 
         // Preload Shiki highlighter on idle to avoid lag on first "Show Code" click
         if ('requestIdleCallback' in window) {
