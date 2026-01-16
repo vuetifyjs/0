@@ -3,6 +3,7 @@ export type { MaybeRef } from '#v0/types'
 
 // Composables
 export * from './createContext'
+export * from './createDataTable'
 export * from './createPlugin'
 export * from './createTrinity'
 export * from './toArray'
