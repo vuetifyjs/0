@@ -16,15 +16,29 @@
 
 ```
 createRegistry (rows)
-  └─ createGroup (selection)
-      └─ createGroup (expansion)
-          └─ useFilter (filtering)
-              └─ sorting (createSingle + createStep)
-                  └─ usePagination (pagination)
-                      └─ useVirtual (virtualization)
+  └─ createRegistry (columns)
+      └─ createGroup (selection)
+          └─ createGroup (expansion)
+              └─ useFilter (filtering)
+                  └─ sorting (createSingle + createStep)
+                      └─ usePagination (pagination)
+                          └─ useVirtual (virtualization)
 ```
 
 Each layer is **opt-in** via options. Disabled features have zero overhead.
+
+### Design Boundaries
+
+This is a **composable**, not a component. It provides:
+- Data management and state
+- Methods to manipulate state
+- Computed values for rendering
+
+It does **not** provide:
+- Slots (component concern)
+- CSS/styling (component concern)
+- Density/spacing (CSS concern)
+- Fixed column positioning (CSS concern)
 
 ### The Data Pipeline
 
@@ -205,7 +219,7 @@ interface DataTableOptions<T = unknown> {
 ### Column Definition
 
 ```ts
-interface DataTableColumn<T = unknown> {
+interface DataTableColumnDef<T = unknown> {
   key: string
   title?: string
 
@@ -213,16 +227,15 @@ interface DataTableColumn<T = unknown> {
   sortable?: boolean
   filterable?: boolean
   groupable?: boolean
+  resizable?: boolean
+  reorderable?: boolean
+  hideable?: boolean
 
-  // Display
+  // Display (initial values, can be changed at runtime)
   align?: 'start' | 'center' | 'end'
-  width?: string | number
-  minWidth?: string | number
-  maxWidth?: string | number
-  fixed?: 'left' | 'right'
-
-  // Custom rendering (slot names derived from key)
-  // Slots: `header.${key}`, `item.${key}`
+  width?: number
+  minWidth?: number
+  maxWidth?: number
 
   // Custom sort/filter for this column
   sort?: (a: T, b: T) => number
@@ -230,6 +243,41 @@ interface DataTableColumn<T = unknown> {
 
   // Value accessor (defaults to item[key])
   value?: (item: T) => unknown
+}
+```
+
+### Column Ticket (Runtime State)
+
+Columns are managed via `createRegistry`, each column becomes a ticket:
+
+```ts
+interface DataTableColumnTicket<T = unknown> extends RegistryTicket {
+  /** Column key */
+  key: string
+  /** Display title */
+  title: string
+  /** Column definition */
+  def: DataTableColumnDef<T>
+
+  // Runtime state (reactive)
+  /** Current width */
+  width: Ref<number>
+  /** Is column visible */
+  visible: Ref<boolean>
+  /** Current sort state */
+  sortState: ComputedRef<'asc' | 'desc' | null>
+
+  // Methods
+  /** Resize column */
+  resize: (width: number) => void
+  /** Show column */
+  show: () => void
+  /** Hide column */
+  hide: () => void
+  /** Toggle visibility */
+  toggleVisible: () => void
+  /** Toggle sort (cycles through states) */
+  toggleSort: () => void
 }
 ```
 
@@ -259,14 +307,36 @@ interface DataTableContext<T = unknown> {
   /** All items before transforms */
   allItems: ComputedRef<T[]>
 
-  /** Column definitions */
-  columns: ComputedRef<DataTableColumn[]>
-
   /** Current mode */
   mode: 'client' | 'server'
 
   /** Loading state */
   loading: Ref<boolean>
+
+  // === COLUMNS (always present) ===
+
+  columns: {
+    /** All column tickets */
+    all: ComputedRef<DataTableColumnTicket[]>
+    /** Visible columns only */
+    visible: ComputedRef<DataTableColumnTicket[]>
+    /** Hidden columns */
+    hidden: ComputedRef<DataTableColumnTicket[]>
+    /** Get column by key */
+    get: (key: string) => DataTableColumnTicket | undefined
+    /** Reorder column */
+    reorder: (fromIndex: number, toIndex: number) => void
+    /** Reset column order to initial */
+    resetOrder: () => void
+    /** Reset all column widths to initial */
+    resetWidths: () => void
+    /** Show all columns */
+    showAll: () => void
+    /** Hide column by key */
+    hide: (key: string) => void
+    /** Show column by key */
+    show: (key: string) => void
+  }
 
   // === SELECTION (if enabled) ===
 
@@ -574,10 +644,10 @@ const table = useDataTable('my-table')
 
 ---
 
-## Open Questions
+## Design Decisions (Resolved)
 
-1. **Column registry**: Should columns use `createRegistry` or just be a reactive array?
-2. **Slot names**: Follow Vuetify 3 conventions (`header.${key}`, `item.${key}`)?
-3. **Density**: Handle in composable or leave to components?
-4. **Fixed columns**: CSS-only or composable support?
-5. **Drag/resize**: Separate composable or built-in?
+1. **Column registry**: ✅ Use `createRegistry` - columns are tickets with runtime state
+2. **Slots**: ✅ No slots - this is a composable, slots are component concern
+3. **Density**: ✅ Not our concern - CSS/component responsibility
+4. **Fixed columns**: ✅ CSS concern - composable doesn't handle positioning
+5. **Drag/resize**: ✅ Built-in - track `width` and `index` in column tickets, provide `reorder()` and `resize()` methods. Actual drag interaction is component concern.
