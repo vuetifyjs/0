@@ -16,7 +16,6 @@
 
   useScrollPersist()
   const { prefersReducedMotion } = useSettings()
-  const pageTransition = toRef(() => prefersReducedMotion.value ? undefined : 'page')
 
   const route = useRoute()
   watch(() => route.fullPath, (to, from) => {
@@ -60,11 +59,7 @@
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-top" />
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
   <main class="min-h-screen pt-[72px] text-on-background">
-    <router-view v-slot="{ Component }">
-      <Transition mode="out-in" :name="pageTransition">
-        <component :is="Component" :key="$route.meta.layout" />
-      </Transition>
-    </router-view>
+    <router-view />
   </main>
 
   <!-- API hover popovers for code blocks -->
