@@ -101,3 +101,24 @@ export type MaybeArray<T> = T | T[]
  * ```
  */
 export type MaybeRef<T> = T | Ref<T> | Readonly<Ref<T>> | ShallowRef<T> | Readonly<ShallowRef<T>> | (() => T)
+
+/**
+ * Keyboard activation mode for navigable components
+ *
+ * @remarks
+ * Controls when selection occurs during keyboard navigation:
+ * - `automatic` (default): Selection follows focus (arrow keys select).
+ *   This is the WAI-ARIA standard for radio groups.
+ * - `manual`: Arrow keys move focus only; Enter/Space required to select.
+ *   Use for toolbar contexts or when deliberate selection is preferred.
+ *
+ * @example
+ * ```vue
+ * <template>
+ *   <Radio.Group v-model="selected" activation="manual">
+ *     <Radio.Root value="a">Option A</Radio.Root>
+ *   </Radio.Group>
+ * </template>
+ * ```
+ */
+export type Activation = 'automatic' | 'manual'

@@ -8,7 +8,7 @@ export { default as RadioIndicator } from './RadioIndicator.vue'
 export { default as RadioRoot } from './RadioRoot.vue'
 export { provideRadioRoot, useRadioRoot } from './RadioRoot.vue'
 
-export type { RadioGroupContext, RadioGroupProps, RadioGroupSlotProps, RadioTicket } from './RadioGroup.vue'
+export type { RadioActivation, RadioGroupContext, RadioGroupProps, RadioGroupSlotProps, RadioTicket } from './RadioGroup.vue'
 export type { RadioHiddenInputProps } from './RadioHiddenInput.vue'
 export type { RadioIndicatorProps, RadioIndicatorSlotProps } from './RadioIndicator.vue'
 export type { RadioRootContext, RadioRootProps, RadioRootSlotProps, RadioState } from './RadioRoot.vue'

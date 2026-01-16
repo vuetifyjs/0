@@ -17,7 +17,8 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SingleContext, SingleTicket } from '#v0/composables/createSingle'
-  import type { MaybeRef } from 'vue'
+  import type { Activation } from '#v0/types'
+  import type { MaybeRef, Ref } from 'vue'
 
   /** Ticket for radio items with element reference for focus management */
   export interface RadioTicket extends SingleTicket {
@@ -25,9 +26,14 @@
     el?: MaybeRef<HTMLElement | null | undefined>
   }
 
+  /** Activation mode alias for Radio component API */
+  export type RadioActivation = Activation
+
   export interface RadioGroupContext extends SingleContext<RadioTicket> {
     /** Form field name shared by all radios in the group */
     name?: string
+    /** Activation mode for the group */
+    activation: Ref<RadioActivation>
   }
 
   export interface RadioGroupProps extends AtomProps {
@@ -96,6 +102,25 @@
      * ```
      */
     name?: string
+    /**
+     * Activation mode controlling when selection occurs:
+     * - `automatic` (default): Selection follows focus (arrow keys select)
+     * - `manual`: Selection requires explicit Enter/Space key press
+     *
+     * Per WAI-ARIA APG, radio groups should have selection follow focus by default.
+     * Use `manual` for toolbar radio groups or when deliberate selection is preferred.
+     *
+     * @example
+     * ```vue
+     * <template>
+     *   <Radio.Group v-model="selected" activation="manual">
+     *     <Radio.Root value="a">Option A</Radio.Root>
+     *     <Radio.Root value="b">Option B</Radio.Root>
+     *   </Radio.Group>
+     * </template>
+     * ```
+     */
+    activation?: RadioActivation
   }
 
   export interface RadioGroupSlotProps {
@@ -103,6 +128,8 @@
     isDisabled: boolean
     /** Whether no items are currently selected */
     isNoneSelected: boolean
+    /** Current activation mode */
+    activation: RadioActivation
     /** Attributes to bind to the root element */
     attrs: {
       'role': 'radiogroup'
@@ -160,6 +187,7 @@
     mandatory = false,
     label,
     name,
+    activation = 'automatic',
   } = defineProps<RadioGroupProps>()
 
   const model = defineModel<T>()
@@ -172,11 +200,12 @@
 
   useProxyModel(single, model, { multiple: false })
 
-  provideRadioGroup(namespace, { ...single, name })
+  provideRadioGroup(namespace, { ...single, name, activation: toRef(() => activation) })
 
   const slotProps = toRef((): RadioGroupSlotProps => ({
     isDisabled: toValue(single.disabled),
     isNoneSelected: single.selectedIds.size === 0,
+    activation,
     attrs: {
       'role': 'radiogroup',
       'aria-label': label || undefined,

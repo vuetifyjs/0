@@ -227,7 +227,8 @@
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if (e.key === ' ') {
+    // Enter/Space always selects (both activation modes)
+    if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault()
       select()
       return
@@ -252,7 +253,11 @@
     const nextItem = items[nextIndex]
     if (!nextItem) return
 
-    nextItem.select()
+    // Automatic: select on arrow key navigation (ARIA standard)
+    // Manual: only focus, require Enter/Space to select
+    if (group.activation.value === 'automatic') {
+      nextItem.select()
+    }
     toValue(nextItem.el)?.focus()
   }
 

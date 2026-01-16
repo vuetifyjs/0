@@ -578,6 +578,120 @@ describe('radio', () => {
       })
     })
 
+    describe('activation prop', () => {
+      it('should default to automatic activation', async () => {
+        const { groupProps, wait } = mountGroup()
+        await wait()
+        expect(groupProps().activation).toBe('automatic')
+      })
+
+      it('should accept manual activation mode', async () => {
+        const { groupProps, wait } = mountGroup({ props: { activation: 'manual' } })
+        await wait()
+        expect(groupProps().activation).toBe('manual')
+      })
+
+      it('automatic mode should select on arrow key navigation', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({ model })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+        expect(model.value).toBe('item-2')
+      })
+
+      it('automatic mode should select on Enter key', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({ model })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'Enter' })
+        await wait()
+        expect(model.value).toBe('item-1')
+      })
+
+      it('manual mode should NOT select on arrow key navigation', async () => {
+        const model = ref<string | undefined>('item-1')
+        const { wrapper, wait } = mountGroup({
+          model,
+          props: { activation: 'manual' },
+        })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+        // Should still be item-1, arrow only moved focus
+        expect(model.value).toBe('item-1')
+      })
+
+      it('manual mode should select on Enter key', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({
+          model,
+          props: { activation: 'manual' },
+        })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: 'Enter' })
+        await wait()
+        expect(model.value).toBe('item-1')
+      })
+
+      it('manual mode should select on Space key', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({
+          model,
+          props: { activation: 'manual' },
+        })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('keydown', { key: ' ' })
+        await wait()
+        expect(model.value).toBe('item-1')
+      })
+
+      it('manual mode should still select on click', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({
+          model,
+          props: { activation: 'manual' },
+        })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        await radios[0]!.trigger('click')
+        await wait()
+        expect(model.value).toBe('item-1')
+      })
+
+      it('manual mode should allow arrow navigation then Enter to select', async () => {
+        const model = ref<string | undefined>(undefined)
+        const { wrapper, wait } = mountGroup({
+          model,
+          props: { activation: 'manual' },
+        })
+        await wait()
+
+        const radios = wrapper.findAll('[role="radio"]')
+        // Navigate to second radio with arrow
+        await radios[0]!.trigger('keydown', { key: 'ArrowRight' })
+        await wait()
+        // Selection should not change yet
+        expect(model.value).toBeUndefined()
+
+        // Now press Enter on the focused radio (second one)
+        await radios[1]!.trigger('keydown', { key: 'Enter' })
+        await wait()
+        expect(model.value).toBe('item-2')
+      })
+    })
+
     describe('slot props', () => {
       it('should expose all required slot props', async () => {
         const { itemProps, wait } = mountGroup({
