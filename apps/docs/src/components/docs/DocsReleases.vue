@@ -216,7 +216,7 @@
           v-for="release in filteredReleases"
           :key="release.id"
           class="w-full px-4 py-2 bg-transparent border-none font-inherit text-left cursor-pointer flex items-center gap-2 hover:bg-surface-tint focus-visible:bg-surface-tint transition-colors"
-          :class="{ 'bg-surface-tint': model?.id === release.id }"
+          :style="model?.id === release.id ? { backgroundColor: 'color-mix(in srgb, var(--v0-primary) 10%, transparent)' } : undefined"
           type="button"
           @click="selectRelease(release)"
         >
