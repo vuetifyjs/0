@@ -10,6 +10,8 @@
 
     <DocsRelated :frontmatter="frontmatter" />
 
+    <DocsFeedback :frontmatter="frontmatter" />
+
     <DocsBackToTop />
 
     <DocsNavigator />

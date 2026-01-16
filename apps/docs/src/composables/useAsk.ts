@@ -10,6 +10,9 @@
 // Framework
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
+// Composables
+import { useSettings } from './useSettings'
+
 // Utilities
 import { readonly, shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
@@ -315,6 +318,7 @@ let abortController: AbortController | null = null
  */
 export function useAsk (): UseAskReturn {
   const route = useRoute()
+  const { packageManager } = useSettings()
 
   function open () {
     isOpen.value = true
@@ -387,6 +391,7 @@ export function useAsk (): UseAskReturn {
           path: route.path,
           history: history.length > 0 ? history : undefined,
           context: Object.keys(context).length > 0 ? context : undefined,
+          packageManager: packageManager.value,
         }),
         signal: abortController.signal,
       })
