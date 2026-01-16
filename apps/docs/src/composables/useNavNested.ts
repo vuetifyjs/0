@@ -103,17 +103,14 @@ export function createNavNested (nav: MaybeRefOrGetter<NavItem[]>) {
     }
   }, { immediate: true })
 
-  // Top-level sections to open on first visit
-  // Introduction has no link so uses synthetic ID, Guide has rootPath '/guide'
-  const DEFAULT_OPEN_SECTIONS = ['category-root-0', '/guide']
-
-  // Client-only: Open defaults and reveal current page
+  // Client-only: Reveal current page's section on route change
   onMounted(async () => {
-    nested.open(DEFAULT_OPEN_SECTIONS)
-
-    // Reveal current page's section on route change
     watch(() => route.path, path => {
       nested.reveal(path)
+      // If current page has children, open it too (reveal only opens ancestors)
+      if (nested.children.has(path)) {
+        nested.open([path])
+      }
     }, { immediate: true })
 
     // Wait for DOM to reconcile before enabling animations

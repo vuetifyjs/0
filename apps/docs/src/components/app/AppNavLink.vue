@@ -76,10 +76,17 @@
     }
   }
 
-  // Click handler - only toggle for top-level collapsible items
+  // Toggle handler for the chevron button
   function onToggle () {
     if (isCollapsible.value) {
       nested.flip(id)
+    }
+  }
+
+  // Open handler for link/header clicks - always opens, never closes
+  function onOpen () {
+    if (isCollapsible.value && !isOpen.value) {
+      nested.open([id])
     }
   }
 
@@ -150,7 +157,7 @@
         ]"
         :to
         v-bind="props"
-        @click="onToggle"
+        @click="onOpen"
       >
         <span class="truncate">{{ name }}</span>
         <span v-if="emphasized" class="w-2 h-2 rounded-[2px] bg-success shrink-0" />
@@ -164,7 +171,7 @@
           isCollapsible && 'cursor-pointer hover:text-primary',
           containsActivePage && 'text-primary underline',
         ]"
-        @click="onToggle"
+        @click="onOpen"
       >
         {{ name }}
       </div>
