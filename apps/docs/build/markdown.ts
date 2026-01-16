@@ -227,6 +227,11 @@ export default async function MarkdownPlugin () {
           rest.splice(collapseIndex, 1)
         }
 
+        // Parse hide-name modifier
+        const hideNameIndex = rest.indexOf('hide-name')
+        const hideName = hideNameIndex !== -1
+        if (hideName) rest.splice(hideNameIndex, 1)
+
         const title = rest.join(' ')
         const highlighted = defaultFence(tokens, index, options, env, self)
         // Base64 encode to avoid escaping issues
@@ -234,7 +239,8 @@ export default async function MarkdownPlugin () {
         const playgroundAttr = playground ? ' playground' : ''
         const collapseAttr = collapse ? ' collapse' : ''
         const collapseLinesAttr = collapseLines ? ` :collapse-lines="${collapseLines}"` : ''
-        return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}>${highlighted}</DocsMarkup>`
+        const hideNameAttr = hideName ? ' hide-name' : ''
+        return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}${hideNameAttr}>${highlighted}</DocsMarkup>`
       }
       // Wrap tables in scrollable container for mobile
       md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'

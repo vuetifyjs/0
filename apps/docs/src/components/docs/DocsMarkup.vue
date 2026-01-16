@@ -13,6 +13,7 @@
     playground?: boolean
     collapse?: boolean
     collapseLines?: number
+    hideName?: boolean
   }>(), {
     collapseLines: 15,
   })
@@ -45,7 +46,7 @@
     }"
   >
     <span
-      v-if="title || (language && language !== 'text')"
+      v-if="!hideName && (title || (language && language !== 'text'))"
       class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
       :class="{ 'uppercase': !title }"
     >
