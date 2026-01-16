@@ -5,6 +5,10 @@
  * Content component for dialogs. Renders the dialog panel using the native
  * dialog element with `showModal()` for proper modal behavior including
  * focus trapping, backdrop, and escape key handling.
+ *
+ * **Note:** Avoid applying layout classes (`flex`, `grid`, `block`) directly
+ * to Dialog.Content as they override the native dialog's `display: none` when
+ * closed. Use a nested element for layout instead.
  */
 
 <script lang="ts">
