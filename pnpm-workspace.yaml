@@ -33,6 +33,7 @@ catalog:
   fflate: ^0.8.2
   happy-dom: ^20.1.0
   knip: ^5.80.0
+  lightningcss: ^1.30.2
   markdown-it-anchor: ^9.2.0
   markdown-it-attrs: ^4.3.1
   markdown-it-container: ^4.0.0

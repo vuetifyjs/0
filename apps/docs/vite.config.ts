@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 
+import { Features } from 'lightningcss'
 import UnocssVitePlugin from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
 import VueRouter from 'unplugin-vue-router/vite'
@@ -28,7 +29,11 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
-  css: {},
+  css: {
+    lightningcss: {
+      exclude: Features.LightDark,
+    },
+  },
   ssgOptions: {
     dirStyle: 'nested',
     async includedRoutes (paths) {
