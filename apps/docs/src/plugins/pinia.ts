@@ -23,7 +23,7 @@ function one (id: string[], url: string) {
 pinia.use(
   one(
     ['vzero'],
-    import.meta.env.VITE_API_SERVER_URL,
+    import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com',
   ),
 )
 

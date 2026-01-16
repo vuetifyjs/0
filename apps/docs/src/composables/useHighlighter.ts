@@ -20,11 +20,13 @@ const highlighter = shallowRef<HighlighterCore | null>(null)
 const logger = useLogger()
 
 /**
- * iOS Safari has issues with complex lookbehind patterns in Shiki grammars
- * despite passing basic feature tests. Force WASM on iOS devices.
+ * Safari/WebKit has issues with complex lookbehind patterns in Shiki grammars
+ * despite passing basic feature tests. Force WASM on all Safari browsers.
  */
 function supportsAdvancedRegExp (): boolean {
-  if (/iP(hone|ad|od)/.test(navigator.userAgent)) return false
+  const ua = navigator.userAgent
+  const isSafari = /Safari/.test(ua) && !/Chrome|Chromium/.test(ua)
+  if (isSafari) return false
 
   try {
     new RegExp('a', 'v')
