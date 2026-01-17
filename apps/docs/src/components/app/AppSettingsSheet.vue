@@ -22,8 +22,8 @@
 
 <template>
   <Dialog.Root v-model="isOpen">
-    <Dialog.Content class="fixed inset-y-0 right-0 left-auto m-0 max-h-full w-[320px] max-w-full outline-none border-0 p-0 bg-transparent">
-      <div class="flex flex-col h-full bg-glass-surface shadow-xl">
+    <Dialog.Content class="fixed inset-y-0 right-0 left-auto m-0 max-h-full w-[320px] max-w-full outline-none border-0 p-0 bg-surface shadow-xl">
+      <div class="flex flex-col h-full">
         <!-- Header -->
         <header class="shrink-0 px-4 py-3 border-b border-divider flex items-center justify-between bg-surface">
           <div class="flex items-center gap-2">

@@ -199,10 +199,10 @@
     <Dialog.Content
       id="main-navigation"
       aria-label="Main navigation"
-      class="fixed inset-y-0 left-0 right-auto m-0 max-h-full w-[230px] outline-none border-0 p-0 bg-transparent"
+      class="fixed inset-y-0 left-0 right-auto m-0 max-h-full w-[230px] outline-none border-0 p-0 bg-surface"
     >
       <div
-        class="flex flex-col h-full border-r border-solid border-divider bg-glass-surface"
+        class="flex flex-col h-full border-r border-solid border-divider"
         :class="!prefersReducedMotion && 'transition-transform duration-200 ease-in-out'"
       >
         <!-- Scrollable content wrapper -->
