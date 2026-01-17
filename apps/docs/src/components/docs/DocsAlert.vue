@@ -23,42 +23,42 @@
         return {
           icon: 'lightbulb',
           title: 'Tip',
-          classes: 'bg-success/10 border-success/50 text-success',
+          classes: 'docs-alert-tip border-success/50 text-success',
         }
       }
       case 'info': {
         return {
           icon: 'info',
           title: 'Info',
-          classes: 'bg-info/10 border-info/50 text-info',
+          classes: 'docs-alert-info border-info/50 text-info',
         }
       }
       case 'warning': {
         return {
           icon: 'alert',
           title: 'Warning',
-          classes: 'bg-warning/10 border-warning/50 text-warning',
+          classes: 'docs-alert-warning border-warning/50 text-warning',
         }
       }
       case 'error': {
         return {
           icon: 'error',
           title: 'Error',
-          classes: 'bg-error/10 border-error/50 text-error',
+          classes: 'docs-alert-error border-error/50 text-error',
         }
       }
       case 'askai': {
         return {
           icon: 'create',
           title: 'Ask AI',
-          classes: 'bg-accent/10 border-accent/50 text-accent cursor-pointer hover:bg-accent/20 transition-colors',
+          classes: 'docs-alert-askai border-accent/50 text-accent cursor-pointer transition-colors',
         }
       }
       default: {
         return {
           icon: 'alert',
           title: 'Note',
-          classes: 'bg-surface-variant/10 border-divider text-on-surface',
+          classes: 'docs-alert-default border-divider text-on-surface',
         }
       }
     }
@@ -118,5 +118,34 @@
 
   .docs-alert-content :deep(> p:last-child) {
     margin-bottom: 0;
+  }
+
+  /* Semi-transparent backgrounds - dots subtly show through */
+  .docs-alert-tip {
+    background: color-mix(in srgb, color-mix(in srgb, var(--v0-success) 10%, var(--v0-background)) 70%, transparent);
+  }
+
+  .docs-alert-info {
+    background: color-mix(in srgb, color-mix(in srgb, var(--v0-info) 10%, var(--v0-background)) 70%, transparent);
+  }
+
+  .docs-alert-warning {
+    background: color-mix(in srgb, color-mix(in srgb, var(--v0-warning) 10%, var(--v0-background)) 70%, transparent);
+  }
+
+  .docs-alert-error {
+    background: color-mix(in srgb, color-mix(in srgb, var(--v0-error) 10%, var(--v0-background)) 70%, transparent);
+  }
+
+  .docs-alert-askai {
+    background: color-mix(in srgb, color-mix(in srgb, var(--v0-accent) 10%, var(--v0-background)) 70%, transparent);
+
+    &:hover {
+      background: color-mix(in srgb, color-mix(in srgb, var(--v0-accent) 20%, var(--v0-background)) 70%, transparent);
+    }
+  }
+
+  .docs-alert-default {
+    background: color-mix(in srgb, color-mix(in srgb, var(--v0-surface-variant) 10%, var(--v0-background)) 70%, transparent);
   }
 </style>

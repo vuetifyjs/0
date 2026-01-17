@@ -120,7 +120,39 @@
   }
 
   #app > main {
+    position: relative;
     background: color-mix(in srgb, var(--v0-background) 85%, transparent);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) 10%, transparent) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: linear-gradient(
+        225deg,
+        black 0%,
+        black 15%,
+        transparent 35%
+      );
+      -webkit-mask-image: linear-gradient(
+        225deg,
+        black 0%,
+        black 15%,
+        transparent 35%
+      );
+    }
+
+    > * {
+      position: relative;
+      z-index: 1;
+    }
 
     hr {
       border: none;
