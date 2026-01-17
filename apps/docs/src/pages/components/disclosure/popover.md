@@ -26,6 +26,14 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
 
 <DocsPageFeatures :frontmatter />
 
+<DocsBrowserSupport
+  feature="CSS Anchor Positioning"
+  :versions="{ chrome: '125+', edge: '125+', firefox: '147+ (beta)' }"
+  anchor="css-anchor-positioning"
+>
+  The component works in all browsers, but automatic anchor positioning requires CSS Anchor Positioning support. In unsupported browsers, you'll need to position the popover manually or use [Floating UI](https://floating-ui.com).
+</DocsBrowserSupport>
+
 ## Usage
 
 The Popover component leverages the CSS Anchor Positioning API to create popovers, tooltips, and dropdown menus without JavaScript-based positioning. It provides v-model support for open/closed state management.

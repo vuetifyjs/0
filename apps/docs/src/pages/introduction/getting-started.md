@@ -171,7 +171,7 @@ app.mount('#app')
 
 ## Requirements
 
-- Vue 3.3.0 or higher
+- Vue 3.5.0 or higher
 - Node 22+
 
 ## Quick Start

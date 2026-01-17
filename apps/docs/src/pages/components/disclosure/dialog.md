@@ -27,6 +27,14 @@ A headless modal dialog component using the native HTML dialog element.
 
 <DocsPageFeatures :frontmatter />
 
+<DocsBrowserSupport
+  feature="Native Dialog"
+  :versions="{ chrome: '37+', edge: '79+', firefox: '98+', safari: '15.4+', opera: '24+' }"
+  anchor="native-dialog"
+>
+  Uses the native dialog element with showModal(). Safari 15.4+ is required; older versions have no support.
+</DocsBrowserSupport>
+
 ## Usage
 
 The Dialog component leverages the native `showModal()` API for proper modal behavior including focus trapping, backdrop rendering, and escape key handling. It provides v-model support for open/closed state management.
