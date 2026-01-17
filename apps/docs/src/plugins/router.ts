@@ -8,10 +8,21 @@ import { IN_BROWSER } from '@vuetify/v0'
 import { getPrefersReducedMotion } from '@/composables/useSettings'
 
 // Types
-import type { RouterOptions } from 'vue-router'
+import type { RouterOptions, RouteRecordRaw } from 'vue-router'
+
+// TODO: Replace vite-plugin-vue-layouts-next with unplugin-vue-router's extendRoutes hook.
+// The layouts plugin doesn't handle nested routes, forcing this workaround.
+// We could define layouts via definePage and process them in extendRoutes directly.
+function applyLayoutsRecursively (route: RouteRecordRaw): RouteRecordRaw {
+  if (route.children) {
+    route.children = route.children.map(child => applyLayoutsRecursively(child))
+    return route
+  }
+  return setupLayouts([route])[0]
+}
 
 const routerOptions: Omit<RouterOptions, 'history'> = {
-  routes: setupLayouts(routes),
+  routes: routes.map(route => applyLayoutsRecursively(route)),
   scrollBehavior (to, _from, savedPosition) {
     // SSR safety - scrollBehavior only runs client-side but guard for clarity
     if (!IN_BROWSER) return { top: 0 }

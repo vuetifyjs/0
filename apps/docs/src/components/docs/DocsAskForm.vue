@@ -52,6 +52,7 @@
       v-model="question"
       :aria-label="ariaLabel ?? 'Ask a question'"
       class="flex-1 bg-transparent border-none outline-none text-base text-on-surface placeholder:text-on-surface-tint"
+      data-ask-input
       :disabled="isLoading"
       placeholder="Ask a question..."
       type="text"

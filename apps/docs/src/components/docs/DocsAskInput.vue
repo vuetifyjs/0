@@ -73,6 +73,7 @@
         ref="form"
         aria-label="Ask a question about this page"
         class="shadow-lg"
+        data-ask-trigger
         show-keyboard-hint
         @focus="onFocus"
         @submit="onSubmit"

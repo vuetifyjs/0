@@ -5,6 +5,9 @@
   // Framework
   import { IN_BROWSER, useWindowEventListener } from '@vuetify/v0'
 
+  // Components
+  import GuidedTourOverlay from './components/skillz/GuidedTourOverlay.vue'
+
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
   import { useSettings } from './composables/useSettings'
@@ -67,6 +70,9 @@
 
   <!-- Vue documentation links for code blocks -->
   <DocsVueLink />
+
+  <!-- Guided tour overlay for Skillz -->
+  <GuidedTourOverlay />
 </template>
 
 <style>

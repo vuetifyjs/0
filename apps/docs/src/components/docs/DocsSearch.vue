@@ -175,10 +175,11 @@
       aria-label="Search Documentation"
       aria-modal="true"
       class="fixed left-1/2 top-[20%] -translate-x-1/2 w-full max-w-2xl z-50 px-4"
+      data-search-dialog
       role="dialog"
     >
       <div class="bg-glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
-        <div class="flex items-center gap-3 px-4 py-3 border-b border-divider">
+        <div class="flex items-center gap-3 px-4 py-3 border-b border-divider rounded-t-lg" data-search-bar>
           <AppIcon
             aria-hidden="true"
             class="text-on-surface-variant shrink-0"
@@ -193,6 +194,7 @@
             :aria-expanded="hasResults()"
             aria-label="Search documentation"
             class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-tint"
+            data-search-input
             placeholder="Search the docs..."
             role="combobox"
             type="search"
@@ -207,6 +209,7 @@
           ref="results"
           aria-label="Search results"
           class="max-h-96 overflow-y-auto"
+          data-search-results
           role="listbox"
         >
           <!-- Loading skeleton -->

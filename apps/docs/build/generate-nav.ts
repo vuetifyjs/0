@@ -63,6 +63,7 @@ const SUBCATEGORY_ORDER: Record<string, string[]> = {
 const STANDALONE: Record<string, { order: number, name: string }> = {
   'releases.md': { order: 1, name: 'Release Notes' },
   'roadmap.md': { order: 1.1, name: 'Roadmap' },
+  'skillz/index.md': { order: 1.2, name: 'Skillz' },
   'storybook/index.md': { order: 1.5, name: 'Storybook' },
 }
 
@@ -194,10 +195,9 @@ async function generateNav (): Promise<NavItem[]> {
     // Handle standalone pages
     if (STANDALONE[relPath]) {
       const { order, name } = STANDALONE[relPath]
-      standalonePages.push({
-        item: { name, to: getUrlPath(file) },
-        order,
-      })
+      const item: NavItemLink = { name, to: getUrlPath(file) }
+      if (frontmatter.features?.level) item.level = frontmatter.features.level
+      standalonePages.push({ item, order })
       continue
     }
 
