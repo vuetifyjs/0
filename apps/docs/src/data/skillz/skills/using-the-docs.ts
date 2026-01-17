@@ -33,6 +33,7 @@ export const usingTheDocs: GuidedSkill = {
       task: 'Type "Tabs" in the search box to find the Tabs component documentation.',
       hint: 'The search uses fuzzy matching, so partial words work too',
       route: '/guide/using-the-docs',
+      setup: { type: 'click', selector: '[data-search-trigger]' },
       highlight: {
         selector: '[data-search-bar]',
         style: 'outline',
@@ -47,6 +48,7 @@ export const usingTheDocs: GuidedSkill = {
       task: 'Click on the Tabs component result to navigate to its documentation page.',
       hint: 'Use arrow keys to navigate results, Enter to select',
       route: '/guide/using-the-docs',
+      setup: { type: 'click', selector: '[data-search-trigger]' },
       highlight: {
         selector: '[data-search-results] a',
         style: 'outline',
@@ -86,6 +88,7 @@ export const usingTheDocs: GuidedSkill = {
       task: 'Type a question like "How do I make tabs controlled?" and press Enter. Wait for the response.',
       hint: 'Ask AI has context about the current page, examples, and API',
       route: '/components/disclosure/tabs',
+      setup: { type: 'click', selector: '[data-ask-trigger]' },
       highlight: {
         selector: '[data-ask-panel] [data-ask-input]',
         style: 'outline',
@@ -100,6 +103,7 @@ export const usingTheDocs: GuidedSkill = {
       task: 'Click the fullscreen button to expand the Ask AI panel for easier reading.',
       hint: 'The fullscreen button is in the top-right corner of the panel',
       route: '/components/disclosure/tabs',
+      setup: { type: 'click', selector: '[data-ask-trigger]' },
       highlight: {
         selector: '[data-ask-fullscreen]',
         style: 'pulse',
@@ -113,6 +117,7 @@ export const usingTheDocs: GuidedSkill = {
       title: 'Exit fullscreen',
       task: 'Click the fullscreen button again to return to the normal view.',
       route: '/components/disclosure/tabs',
+      setup: { type: 'click', selector: '[data-ask-trigger]' },
       highlight: {
         selector: '[data-ask-fullscreen]',
         style: 'pulse',
@@ -126,6 +131,7 @@ export const usingTheDocs: GuidedSkill = {
       title: 'Close Ask AI',
       task: 'Click the close button to dismiss the Ask AI panel.',
       route: '/components/disclosure/tabs',
+      setup: { type: 'click', selector: '[data-ask-trigger]' },
       highlight: {
         selector: '[data-ask-close]',
         style: 'pulse',
@@ -154,6 +160,7 @@ export const usingTheDocs: GuidedSkill = {
       task: 'Notice the toolbar buttons: save to Vuetify Bin for sharing, copy the conversation, or reset to start fresh. Close Ask AI when ready.',
       hint: 'Vuetify Bin creates a shareable link to your conversation',
       route: '/components/disclosure/tabs',
+      setup: { type: 'click', selector: '[data-ask-trigger]' },
       highlight: {
         selector: '[data-ask-panel] header',
         style: 'outline',

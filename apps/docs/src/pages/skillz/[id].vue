@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { definePage, useRoute, useRouter } from 'vue-router/auto'
+
   // Components
   import SkillTutorial from '@/components/skillz/SkillTutorial.vue'
 
@@ -8,7 +10,6 @@
 
   // Utilities
   import { computed } from 'vue'
-  import { definePage, useRoute, useRouter } from 'vue-router/auto'
 
   definePage({
     meta: {

@@ -118,7 +118,10 @@ export default defineConfig({
   },
   server: {
     fs: {
-      allow: ['../packages/*', '.'],
+      allow: ['../packages/*', '.', '../../node_modules'],
     },
+  },
+  optimizeDeps: {
+    exclude: ['@vue/repl'],
   },
 })

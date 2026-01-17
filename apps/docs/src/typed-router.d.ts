@@ -548,6 +548,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/introduction/browser-support': RouteRecordInfo<
+      '/introduction/browser-support',
+      '/introduction/browser-support',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/introduction/code-of-conduct': RouteRecordInfo<
       '/introduction/code-of-conduct',
       '/introduction/code-of-conduct',
@@ -609,6 +616,20 @@ declare module 'vue-router/auto-routes' {
       '/roadmap',
       Record<never, never>,
       Record<never, never>,
+      | never
+    >,
+    '/skillz/': RouteRecordInfo<
+      '/skillz/',
+      '/skillz',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/skillz/[id]': RouteRecordInfo<
+      '/skillz/[id]',
+      '/skillz/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
       | never
     >,
     '/storybook/': RouteRecordInfo<
@@ -1088,6 +1109,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/introduction/browser-support.md': {
+      routes:
+        | '/introduction/browser-support'
+      views:
+        | never
+    }
     'src/pages/introduction/code-of-conduct.md': {
       routes:
         | '/introduction/code-of-conduct'
@@ -1139,6 +1166,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/roadmap.md': {
       routes:
         | '/roadmap'
+      views:
+        | never
+    }
+    'src/pages/skillz/index.md': {
+      routes:
+        | '/skillz/'
+      views:
+        | never
+    }
+    'src/pages/skillz/[id].vue': {
+      routes:
+        | '/skillz/[id]'
       views:
         | never
     }

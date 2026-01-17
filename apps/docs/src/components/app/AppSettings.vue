@@ -16,6 +16,7 @@
   <button
     aria-label="Open settings"
     class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
+    data-settings-trigger
     title="Settings"
     type="button"
     @click="toggle"

@@ -92,6 +92,7 @@
           ? 'fixed right-4 top-23 w-[clamp(280px,calc(100vw-230px-688px-64px),500px)] h-[calc(100vh-137px)] rounded-lg border border-divider shadow-lg'
           : 'fixed inset-0',
     ]"
+    data-ask-panel
     :role="isDesktop ? 'complementary' : 'dialog'"
   >
     <!-- Header -->
@@ -110,6 +111,7 @@
         <button
           v-if="messages.length > 0"
           class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+          data-ask-bin
           title="Open in Bin"
           type="button"
           @click="openInBin"
@@ -140,6 +142,7 @@
         <button
           v-if="isDesktop"
           class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+          data-ask-fullscreen
           :title="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
           type="button"
           @click="emit('update:fullscreen', !fullscreen)"
@@ -149,6 +152,7 @@
 
         <button
           class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+          data-ask-close
           title="Close"
           type="button"
           @click="emit('close')"

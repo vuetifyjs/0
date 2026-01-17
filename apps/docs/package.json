@@ -39,6 +39,7 @@
     "@mdi/js": "catalog:",
     "@octokit/core": "catalog:",
     "@unhead/addons": "catalog:",
+    "@vue/repl": "catalog:",
     "@vuetify/paper": "workspace:*",
     "@vuetify/v0": "workspace:*",
     "fflate": "catalog:",

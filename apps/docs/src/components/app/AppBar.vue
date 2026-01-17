@@ -73,6 +73,7 @@
       <button
         aria-label="Search (Ctrl+K)"
         class="inline-flex items-center gap-1.5 md:bg-glass-surface rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors"
+        data-search-trigger
         title="Search (Ctrl+K)"
         type="button"
         @click="openSearch"

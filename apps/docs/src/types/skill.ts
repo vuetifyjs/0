@@ -76,6 +76,12 @@ export interface GuidedHighlight {
   padding?: number // Extra padding around highlight
 }
 
+// Setup action to prepare UI state before a step
+export type GuidedSetup =
+  | { type: 'click', selector: string } // Click an element (e.g., open a dialog)
+  | { type: 'focus', selector: string } // Focus an element
+  | { type: 'scroll', selector: string } // Scroll element into view
+
 export interface GuidedStep {
   title: string
   task: string // What the user should do
@@ -83,6 +89,9 @@ export interface GuidedStep {
 
   // Where this step takes place
   route: string // Docs route, e.g., '/guide/using-the-docs'
+
+  // Setup action to prepare UI state (e.g., open dialog before highlighting inside it)
+  setup?: GuidedSetup
 
   // Visual guidance
   highlight?: GuidedHighlight // Element to highlight

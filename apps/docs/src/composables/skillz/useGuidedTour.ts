@@ -19,6 +19,7 @@ const STORAGE_KEY = 'skillz-guided-tour'
 // Singleton state for active tour
 const activeTour = ref<GuidedTourState | null>(null)
 const isInitialized = ref(false)
+let storedRef: ReturnType<ReturnType<typeof useStorage>['get']> | null = null
 
 export function useGuidedTour () {
   const router = useRouter()
@@ -27,13 +28,23 @@ export function useGuidedTour () {
 
   // Initialize from storage on first use
   if (!isInitialized.value) {
-    const stored = storage.get<GuidedTourState | null>(STORAGE_KEY, null)
-    activeTour.value = stored.value
+    storedRef = storage.get<GuidedTourState | null>(STORAGE_KEY, null)
+    activeTour.value = storedRef.value
     isInitialized.value = true
+
+    // Watch for storage hydration (value may load async after SSR)
+    watch(storedRef, newValue => {
+      // Only restore if tour isn't already active (avoid overwriting user actions)
+      if (newValue && !activeTour.value) {
+        activeTour.value = newValue
+      }
+    }, { immediate: true })
 
     // Sync to storage when tour changes
     watch(activeTour, newTour => {
-      stored.value = newTour
+      if (storedRef) {
+        storedRef.value = newTour
+      }
     }, { deep: true })
   }
 
@@ -86,12 +97,15 @@ export function useGuidedTour () {
   })
 
   // Start a guided tour
-  function startTour (skillId: string) {
+  async function startTour (skillId: string) {
     const skill = getSkill(skillId)
     if (!skill || skill.mode !== 'guided') {
       console.warn(`Cannot start tour: skill "${skillId}" not found or not a guided skill`)
       return false
     }
+
+    // Navigate first, then activate tour to avoid "wrong page" flash
+    await router.push(skill.startRoute)
 
     activeTour.value = {
       skillId,
@@ -99,8 +113,6 @@ export function useGuidedTour () {
       startedAt: new Date().toISOString(),
     }
 
-    // Navigate to start route
-    router.push(skill.startRoute)
     return true
   }
 
