@@ -3,7 +3,7 @@
   import { IN_BROWSER } from '@vuetify/v0/constants'
 
   // Utilities
-  import { shallowRef } from 'vue'
+  import { shallowRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   const props = defineProps<{
@@ -27,6 +27,13 @@
   const rating = shallowRef<Rating | null>(null)
   const comment = shallowRef('')
   const isSubmitting = shallowRef(false)
+
+  watch(() => route.path, () => {
+    state.value = 'idle'
+    rating.value = null
+    comment.value = ''
+    isSubmitting.value = false
+  })
 
   function selectRating (value: Rating) {
     rating.value = value
