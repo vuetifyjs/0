@@ -46,7 +46,7 @@ This is a **pnpm monorepo** containing:
 
 - **Node.js** >= 22
 - **pnpm** >= 10.6
-- **Vue** >= 3.3.0
+- **Vue** >= 3.5.0
 
 ## Installation
 
@@ -170,7 +170,7 @@ Plugin-capable composables following the trinity pattern:
 - **Slot-Driven**: Maximum flexibility through comprehensive slot APIs
 - **CSS Variables**: All styling configurable via `--v0-*` custom properties
 - **TypeScript Native**: Full type safety with generics for extensibility
-- **Minimal Dependencies**: Only Vue 3.3+ required (markdown libraries optional)
+- **Minimal Dependencies**: Only Vue 3.5+ required (markdown libraries optional)
 - **Composable Architecture**: Reusable logic through Vue 3 composables
 
 ## Documentation
