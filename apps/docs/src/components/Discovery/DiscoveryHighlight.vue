@@ -31,12 +31,15 @@
 </script>
 
 <script setup lang="ts">
+  // Framework
+  import { useWindowEventListener } from '@vuetify/v0'
+
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
   import { isNumber, isUndefined } from '#v0/utilities'
-  import { computed, onMounted, onUnmounted, shallowRef, toRef, watch } from 'vue'
+  import { computed, shallowRef, toRef, watch } from 'vue'
 
   defineOptions({ name: 'DiscoveryHighlight' })
 
@@ -107,16 +110,7 @@
     })
   }
 
-  onMounted(() => {
-    window.addEventListener('scroll', scheduleUpdate, { passive: true })
-    window.addEventListener('resize', scheduleUpdate, { passive: true })
-  })
-
-  onUnmounted(() => {
-    window.removeEventListener('scroll', scheduleUpdate)
-    window.removeEventListener('resize', scheduleUpdate)
-    if (rafId) cancelAnimationFrame(rafId)
-  })
+  useWindowEventListener(['scroll', 'resize'], scheduleUpdate, { passive: true })
 
   // Border radius for SVG (capped to prevent oval/circle appearance)
   const borderRadius = computed(() => {

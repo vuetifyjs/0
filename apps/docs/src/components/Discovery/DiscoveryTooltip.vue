@@ -28,11 +28,14 @@
 </script>
 
 <script setup lang="ts">
+  // Framework
+  import { useWindowEventListener } from '@vuetify/v0'
+
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { computed, onMounted, onUnmounted, shallowRef, toRef, watch } from 'vue'
+  import { computed, shallowRef, toRef, watch } from 'vue'
 
   defineOptions({ name: 'DiscoveryTooltip' })
 
@@ -90,17 +93,7 @@
     { immediate: true },
   )
 
-  onMounted(() => {
-    updateRect()
-    window.addEventListener('scroll', scheduleUpdate, { passive: true })
-    window.addEventListener('resize', scheduleUpdate, { passive: true })
-  })
-
-  onUnmounted(() => {
-    window.removeEventListener('scroll', scheduleUpdate)
-    window.removeEventListener('resize', scheduleUpdate)
-    if (rafId) cancelAnimationFrame(rafId)
-  })
+  useWindowEventListener(['scroll', 'resize'], scheduleUpdate, { passive: true })
 
   const isVisible = computed(() => discovery.isActive.value && rect.value !== null)
 
