@@ -270,7 +270,7 @@
         </Discovery.Root>
 
         <!-- Step 5: Profile - left placement -->
-        <Discovery.Root v-slot="{ isFirst, isLast, index, total }" step="profile">
+        <Discovery.Root step="profile">
           <Discovery.Activator
             v-slot="{ isActive }"
             class="p-6 bg-surface rounded-xl border border-divider transition-all block"
@@ -290,10 +290,6 @@
                   <div class="text-xs text-on-surface-variant">john@example.com</div>
                 </div>
               </div>
-              <!-- Show slot props when active -->
-              <div v-if="isActive" class="text-xs text-primary bg-primary/10 p-2 rounded">
-                Slot props: index={{ index }}, total={{ total }}, isFirst={{ isFirst }}, isLast={{ isLast }}
-              </div>
             </div>
           </Discovery.Activator>
 
@@ -304,7 +300,7 @@
               </Discovery.Title>
               <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
               <Discovery.Description class="text-sm text-on-surface-variant mb-4">
-                This step uses <code class="text-primary">placement="left"</code>. The card shows slot props when active.
+                This step uses <code class="text-primary">placement="left"</code> to position the popover.
               </Discovery.Description>
               <div class="flex justify-between items-center">
                 <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40">

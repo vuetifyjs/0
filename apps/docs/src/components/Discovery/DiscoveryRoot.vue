@@ -83,21 +83,23 @@
     default: (props: DiscoveryRootSlotProps) => any
   }>()
 
+  const props = defineProps<DiscoveryRootProps>()
+
   const {
     as = null,
     step,
-    disabled,
     rules,
     namespace = 'v0:discovery',
-  } = defineProps<DiscoveryRootProps>()
+  } = props
 
   const discovery = useDiscovery(namespace)
 
   // Register this step with the discovery context
+  // Use getter for disabled to maintain reactivity (destructuring loses it)
   const cleanup = discovery.register({
     type: 'step',
     id: step,
-    disabled,
+    disabled: () => props.disabled,
     rules,
   })
 

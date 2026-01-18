@@ -168,7 +168,7 @@
 </script>
 
 <template>
-  <Teleport :disabled="!teleportTarget" :to="teleportTarget ?? 'body'">
+  <Teleport v-if="rootContext.isActive.value" :disabled="!teleportTarget" :to="teleportTarget ?? 'body'">
     <!-- Live region for screen reader announcements -->
     <div
       aria-atomic="true"
