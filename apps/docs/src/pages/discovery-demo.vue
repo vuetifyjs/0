@@ -36,7 +36,7 @@
 <template>
   <div class="min-h-screen bg-background p-8">
     <!-- Highlight overlay - renders when tour is active -->
-    <Discovery.Highlight :opacity="0.7" :padding="12" />
+    <Discovery.Highlight :opacity="0.7" />
 
     <div class="max-w-4xl mx-auto space-y-8">
       <!-- Header -->

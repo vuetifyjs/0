@@ -9,7 +9,7 @@
 
 <script lang="ts">
   // Framework
-  import { Atom, createContext } from '@vuetify/v0'
+  import { Atom, createContext, useProxyRegistry } from '@vuetify/v0'
 
   // Types
   import type { FormValidationRule } from '@/composables/useDiscovery'
@@ -75,7 +75,7 @@
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { computed, onBeforeUnmount, toRef, useId } from 'vue'
+  import { onBeforeUnmount, toRef, useId } from 'vue'
 
   defineOptions({ name: 'DiscoveryRoot' })
 
@@ -108,21 +108,17 @@
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
 
+  // Create reactive proxy for step tracking (events enabled in createDiscovery)
+  const stepsProxy = useProxyRegistry(discovery)
+
   // Computed state - must check both tour is active AND this step is selected
   const isActive = toRef(() => discovery.isActive.value && discovery.selectedId.value === step)
 
-  const index = computed(() => {
-    let idx = 0
-    for (const ticket of discovery.values()) {
-      if (ticket.id === step) return idx
-      idx++
-    }
-    return -1
-  })
-
-  const total = toRef(() => discovery.size)
+  // Reactive index and total via proxy (ticket.index is maintained by registry)
+  const total = toRef(() => stepsProxy.size)
+  const index = toRef(() => total.value > 0 ? discovery.get(step)?.index ?? -1 : -1)
   const isFirst = toRef(() => index.value === 0)
-  const isLast = toRef(() => index.value === discovery.size - 1)
+  const isLast = toRef(() => index.value === total.value - 1)
 
   // Navigation methods
   function next () {

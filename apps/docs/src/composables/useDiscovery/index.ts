@@ -166,7 +166,8 @@ export function createDiscovery<
   const isCompleted = shallowRef(false)
 
   // Step navigation (extends single selection with first/last/next/prev)
-  const steps = createStep<Z>({ circular })
+  // Enable events so useProxyRegistry can track changes
+  const steps = createStep<Z>({ circular, events: true })
 
   // Form for step validation
   const form = createForm()
