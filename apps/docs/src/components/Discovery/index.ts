@@ -9,7 +9,6 @@ export { default as DiscoveryProgress } from './DiscoveryProgress.vue'
 export { default as DiscoveryPrev } from './DiscoveryPrev.vue'
 export { default as DiscoveryNext } from './DiscoveryNext.vue'
 export { default as DiscoverySkip } from './DiscoverySkip.vue'
-export { default as DiscoveryTooltip } from './DiscoveryTooltip.vue'
 
 export type { DiscoveryRootContext, DiscoveryRootProps, DiscoveryRootSlotProps } from './DiscoveryRoot.vue'
 export type { DiscoveryActivatorProps, DiscoveryActivatorSlotProps } from './DiscoveryActivator.vue'
@@ -21,7 +20,6 @@ export type { DiscoveryProgressProps, DiscoveryProgressSlotProps } from './Disco
 export type { DiscoveryPrevProps, DiscoveryPrevSlotProps } from './DiscoveryPrev.vue'
 export type { DiscoveryNextProps, DiscoveryNextSlotProps } from './DiscoveryNext.vue'
 export type { DiscoverySkipProps, DiscoverySkipSlotProps } from './DiscoverySkip.vue'
-export type { DiscoveryTooltipProps, DiscoveryTooltipSlotProps } from './DiscoveryTooltip.vue'
 
 // Components
 import Activator from './DiscoveryActivator.vue'
@@ -34,10 +32,11 @@ import Progress from './DiscoveryProgress.vue'
 import Root from './DiscoveryRoot.vue'
 import Skip from './DiscoverySkip.vue'
 import Title from './DiscoveryTitle.vue'
-import Tooltip from './DiscoveryTooltip.vue'
 
 /**
  * Discovery component for feature tours and guided experiences.
+ *
+ * Each step uses CSS anchor positioning for per-step tooltip placement.
  *
  * @example
  * ```vue
@@ -51,12 +50,12 @@ import Tooltip from './DiscoveryTooltip.vue'
  * <template>
  *   <Discovery.Highlight />
  *
- *   <Discovery.Activator step="search">
- *     <SearchInput />
- *   </Discovery.Activator>
- *
  *   <Discovery.Root step="search">
- *     <Discovery.Content>
+ *     <Discovery.Activator>
+ *       <SearchInput />
+ *     </Discovery.Activator>
+ *
+ *     <Discovery.Content placement="bottom">
  *       <Discovery.Title>Search Feature</Discovery.Title>
  *       <Discovery.Progress />
  *       <Discovery.Description>
@@ -68,6 +67,18 @@ import Tooltip from './DiscoveryTooltip.vue'
  *     </Discovery.Content>
  *   </Discovery.Root>
  *
+ *   <Discovery.Root step="settings">
+ *     <Discovery.Activator>
+ *       <SettingsButton />
+ *     </Discovery.Activator>
+ *
+ *     <Discovery.Content placement="top">
+ *       <Discovery.Title>Settings</Discovery.Title>
+ *       <Discovery.Description>Configure your preferences here.</Discovery.Description>
+ *       <Discovery.Next>Done</Discovery.Next>
+ *     </Discovery.Content>
+ *   </Discovery.Root>
+ *
  *   <button @click="discovery.start()">Start Tour</button>
  * </template>
  * ```
@@ -75,11 +86,11 @@ import Tooltip from './DiscoveryTooltip.vue'
 export const Discovery = {
   /** Root component that registers a step and provides context to children */
   Root,
-  /** Registers target element for highlighting */
+  /** Registers target element for highlighting and CSS anchor positioning */
   Activator,
   /** SVG overlay with transparent cutout around the active step's activator */
   Highlight,
-  /** Container for step content, rendered when step is active */
+  /** Container for step content with CSS anchor positioning via `placement` prop */
   Content,
   /** Accessible title for the step */
   Title,
@@ -93,6 +104,4 @@ export const Discovery = {
   Next,
   /** Skip/close the tour */
   Skip,
-  /** Positioned tooltip that follows the activator */
-  Tooltip,
 }

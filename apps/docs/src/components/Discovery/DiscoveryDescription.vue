@@ -9,7 +9,7 @@
 
 <script lang="ts">
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomProps } from '@vuetify/v0'
 
   export interface DiscoveryDescriptionProps extends AtomProps {
     /** Namespace for context injection */
@@ -25,8 +25,10 @@
 </script>
 
 <script setup lang="ts">
+  // Framework
+  import { Atom } from '@vuetify/v0'
+
   // Components
-  import { Atom } from '#v0/components/Atom'
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   // Utilities

@@ -8,13 +8,12 @@
  */
 
 <script lang="ts">
-  // Foundational
-  import { createContext } from '#v0/composables/createContext'
+  // Framework
+  import { Atom, createContext } from '@vuetify/v0'
 
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
-  import type { ID } from '#v0/types'
   import type { FormValidationRule } from '@/composables/useDiscovery'
+  import type { AtomProps, ID } from '@vuetify/v0'
   import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 
   export interface DiscoveryRootContext {
@@ -22,10 +21,24 @@
     step: ID
     /** Whether this step is currently active */
     isActive: ComputedRef<boolean>
+    /** Current step index (0-based) */
+    index: ComputedRef<number>
+    /** Total number of steps */
+    total: ComputedRef<number>
+    /** Whether this is the first step */
+    isFirst: ComputedRef<boolean>
+    /** Whether this is the last step */
+    isLast: ComputedRef<boolean>
     /** ID for aria-labelledby */
     titleId: string
     /** ID for aria-describedby */
     descriptionId: string
+    /** Navigate to next step (or stop if last) */
+    next: () => void
+    /** Navigate to previous step */
+    prev: () => void
+    /** Stop/skip the tour */
+    stop: () => void
   }
 
   export interface DiscoveryRootProps extends AtomProps {
@@ -58,9 +71,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
@@ -98,8 +108,8 @@
   const titleId = `${id}-title`
   const descriptionId = `${id}-description`
 
-  // Computed state
-  const isActive = computed(() => discovery.selectedId.value === step)
+  // Computed state - must check both tour is active AND this step is selected
+  const isActive = toRef(() => discovery.isActive.value && discovery.selectedId.value === step)
 
   const index = computed(() => {
     let idx = 0
@@ -110,15 +120,40 @@
     return -1
   })
 
-  const isFirst = computed(() => index.value === 0)
-  const isLast = computed(() => index.value === discovery.size - 1)
+  const total = toRef(() => discovery.size)
+  const isFirst = toRef(() => index.value === 0)
+  const isLast = toRef(() => index.value === discovery.size - 1)
+
+  // Navigation methods
+  function next () {
+    if (isLast.value) {
+      discovery.stop()
+    } else {
+      discovery.next()
+    }
+  }
+
+  function prev () {
+    discovery.prev()
+  }
+
+  function stop () {
+    discovery.stop()
+  }
 
   // Provide local context to children
   provideDiscoveryRootContext(namespace, {
     step,
     isActive,
+    index,
+    total,
+    isFirst,
+    isLast,
     titleId,
     descriptionId,
+    next,
+    prev,
+    stop,
   })
 
   const slotProps = toRef((): DiscoveryRootSlotProps => ({
@@ -127,7 +162,7 @@
     isFirst: isFirst.value,
     isLast: isLast.value,
     index: index.value,
-    total: discovery.size,
+    total: total.value,
   }))
 </script>
 

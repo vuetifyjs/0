@@ -8,7 +8,7 @@
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { computed } from 'vue'
+  import { ref } from 'vue'
 
   useHead({
     title: 'Discovery Demo',
@@ -16,37 +16,8 @@
 
   const discovery = useDiscovery()
 
-  // Step content definitions
-  const steps = {
-    search: {
-      title: 'Search Feature',
-      description: 'Use the search bar to find content across the documentation. You can search for components, composables, or guides.',
-    },
-    settings: {
-      title: 'Settings Panel',
-      description: 'Access your preferences and customize the documentation experience. Change themes, toggle features, and more.',
-    },
-    help: {
-      title: 'Help Center',
-      description: 'Need help? Access our FAQ, community resources, or contact support for assistance with any issues.',
-    },
-  }
-
-  const currentStep = computed(() => {
-    const id = discovery.selectedId.value as keyof typeof steps
-    return steps[id] ?? null
-  })
-
-  const currentIndex = computed(() => {
-    const id = discovery.selectedId.value
-    if (!id) return -1
-    let idx = 0
-    for (const ticket of discovery.values()) {
-      if (ticket.id === id) return idx
-      idx++
-    }
-    return -1
-  })
+  // For disabled step demo
+  const notificationsEnabled = ref(false)
 
   function startTour () {
     discovery.start()
@@ -54,10 +25,11 @@
 
   function resetTour () {
     discovery.stop()
-    const currentId = discovery.selectedId.value
-    if (currentId) {
-      discovery.unselect(currentId)
-    }
+  }
+
+  function goToStep (step: string) {
+    discovery.start()
+    discovery.select(step)
   }
 </script>
 
@@ -65,47 +37,6 @@
   <div class="min-h-screen bg-background p-8">
     <!-- Highlight overlay - renders when tour is active -->
     <Discovery.Highlight :opacity="0.7" :padding="12" />
-
-    <!-- Single positioned tooltip that follows the activator -->
-    <Discovery.Tooltip :offset="16">
-      <div
-        v-if="currentStep"
-        class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs"
-      >
-        <h3 class="text-lg font-semibold text-on-surface mb-1">
-          {{ currentStep.title }}
-        </h3>
-        <p class="text-xs text-on-surface-variant mb-2">
-          Step {{ currentIndex + 1 }} of {{ discovery.size }}
-        </p>
-        <p class="text-sm text-on-surface-variant mb-4">
-          {{ currentStep.description }}
-        </p>
-        <div class="flex justify-between items-center">
-          <button
-            class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40"
-            :disabled="currentIndex === 0"
-            @click="discovery.prev()"
-          >
-            Previous
-          </button>
-          <div class="flex gap-2">
-            <button
-              class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface"
-              @click="discovery.stop()"
-            >
-              Skip
-            </button>
-            <button
-              class="px-3 py-1.5 text-sm bg-primary text-on-primary rounded hover:opacity-90"
-              @click="currentIndex === discovery.size - 1 ? discovery.finish() : discovery.next()"
-            >
-              {{ currentIndex === discovery.size - 1 ? 'Finish' : 'Next' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Discovery.Tooltip>
 
     <div class="max-w-4xl mx-auto space-y-8">
       <!-- Header -->
@@ -137,14 +68,26 @@
           Current step: {{ discovery.selectedId.value ?? 'none' }} |
           Total steps: {{ discovery.size }}
         </div>
+
+        <!-- Programmatic navigation -->
+        <div class="flex flex-wrap justify-center gap-2 pt-2">
+          <button
+            v-for="step in ['search', 'settings', 'help', 'notifications', 'profile', 'sidebar']"
+            :key="step"
+            class="px-2 py-1 text-xs bg-surface border border-divider rounded hover:bg-surface-variant"
+            @click="goToStep(step)"
+          >
+            Go to {{ step }}
+          </button>
+        </div>
       </header>
 
       <!-- Demo content with discovery steps -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Step 1: Search - explicitly pass step to Activator -->
+        <!-- Step 1: Search - placement bottom (default) -->
         <Discovery.Root step="search">
           <div class="p-6 bg-surface rounded-xl border border-divider">
-            <Discovery.Activator step="search">
+            <Discovery.Activator>
               <div class="space-y-3">
                 <div class="flex items-center gap-2 text-lg font-medium text-on-surface">
                   <span class="i-mdi-magnify text-xl text-primary" />
@@ -158,12 +101,37 @@
               </div>
             </Discovery.Activator>
           </div>
+
+          <Discovery.Content placement="bottom">
+            <div class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs">
+              <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">
+                Search Feature
+              </Discovery.Title>
+              <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
+              <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+                Use the search bar to find content across the documentation. You can search for components, composables, or guides.
+              </Discovery.Description>
+              <div class="flex justify-between items-center">
+                <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40">
+                  Previous
+                </Discovery.Prev>
+                <div class="flex gap-2">
+                  <Discovery.Skip class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
+                    Skip
+                  </Discovery.Skip>
+                  <Discovery.Next class="px-3 py-1.5 text-sm bg-primary text-on-primary rounded hover:opacity-90">
+                    Next
+                  </Discovery.Next>
+                </div>
+              </div>
+            </div>
+          </Discovery.Content>
         </Discovery.Root>
 
-        <!-- Step 2: Settings - explicitly pass step to Activator -->
+        <!-- Step 2: Settings - placement TOP to demonstrate per-step control -->
         <Discovery.Root step="settings">
           <div class="p-6 bg-surface rounded-xl border border-divider">
-            <Discovery.Activator step="settings">
+            <Discovery.Activator>
               <div class="space-y-3">
                 <div class="flex items-center gap-2 text-lg font-medium text-on-surface">
                   <span class="i-mdi-cog text-xl text-primary" />
@@ -175,12 +143,37 @@
               </div>
             </Discovery.Activator>
           </div>
+
+          <Discovery.Content placement="top">
+            <div class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs">
+              <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">
+                Settings Panel
+              </Discovery.Title>
+              <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
+              <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+                Access your preferences and customize the documentation experience. Change themes, toggle features, and more.
+              </Discovery.Description>
+              <div class="flex justify-between items-center">
+                <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40">
+                  Previous
+                </Discovery.Prev>
+                <div class="flex gap-2">
+                  <Discovery.Skip class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
+                    Skip
+                  </Discovery.Skip>
+                  <Discovery.Next class="px-3 py-1.5 text-sm bg-primary text-on-primary rounded hover:opacity-90">
+                    Next
+                  </Discovery.Next>
+                </div>
+              </div>
+            </div>
+          </Discovery.Content>
         </Discovery.Root>
 
-        <!-- Step 3: Help - explicitly pass step to Activator -->
+        <!-- Step 3: Help - placement bottom -->
         <Discovery.Root step="help">
           <div class="p-6 bg-surface rounded-xl border border-divider">
-            <Discovery.Activator step="help">
+            <Discovery.Activator>
               <div class="space-y-3">
                 <div class="flex items-center gap-2 text-lg font-medium text-on-surface">
                   <span class="i-mdi-help-circle text-xl text-primary" />
@@ -192,24 +185,198 @@
               </div>
             </Discovery.Activator>
           </div>
+
+          <Discovery.Content placement="bottom">
+            <div class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs">
+              <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">
+                Help Center
+              </Discovery.Title>
+              <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
+              <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+                Need help? Access our FAQ, community resources, or contact support for assistance with any issues.
+              </Discovery.Description>
+              <div class="flex justify-between items-center">
+                <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40">
+                  Previous
+                </Discovery.Prev>
+                <div class="flex gap-2">
+                  <Discovery.Skip class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
+                    Skip
+                  </Discovery.Skip>
+                  <Discovery.Next class="px-3 py-1.5 text-sm bg-primary text-on-primary rounded hover:opacity-90">
+                    Finish
+                  </Discovery.Next>
+                </div>
+              </div>
+            </div>
+          </Discovery.Content>
         </Discovery.Root>
       </div>
 
-      <!-- Additional content to show scrolling behavior -->
+      <!-- Left/Right placement examples -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="p-6 bg-surface rounded-xl border border-divider">
-          <h3 class="text-lg font-medium text-on-surface mb-2">Feature One</h3>
-          <p class="text-on-surface-variant">
-            This is some additional content to demonstrate that the tour overlay covers the entire page while highlighting the target element.
-          </p>
-        </div>
-        <div class="p-6 bg-surface rounded-xl border border-divider">
-          <h3 class="text-lg font-medium text-on-surface mb-2">Feature Two</h3>
-          <p class="text-on-surface-variant">
-            The tooltip follows the activator element and positions itself automatically based on available screen space.
-          </p>
-        </div>
+        <!-- Step 4: Notifications - conditionally disabled -->
+        <Discovery.Root :disabled="!notificationsEnabled" step="notifications">
+          <Discovery.Activator
+            v-slot="{ isActive }"
+            class="p-6 bg-surface rounded-xl border border-divider transition-all block"
+            :class="{ 'ring-2 ring-primary': isActive }"
+          >
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-lg font-medium text-on-surface">
+                  <span class="i-mdi-bell text-xl text-primary" />
+                  Notifications
+                </div>
+                <span
+                  v-if="!notificationsEnabled"
+                  class="text-xs px-2 py-0.5 bg-warning/20 text-warning rounded"
+                >
+                  Step Disabled
+                </span>
+              </div>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  v-model="notificationsEnabled"
+                  class="w-4 h-4"
+                  type="checkbox"
+                >
+                <span class="text-sm text-on-surface-variant">
+                  Enable notifications (enables this step)
+                </span>
+              </label>
+            </div>
+          </Discovery.Activator>
+
+          <Discovery.Content placement="right">
+            <div class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs">
+              <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">
+                Notification Settings
+              </Discovery.Title>
+              <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
+              <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+                This step uses <code class="text-primary">placement="right"</code> and was conditionally enabled.
+              </Discovery.Description>
+              <div class="flex justify-between items-center">
+                <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40">
+                  Previous
+                </Discovery.Prev>
+                <Discovery.Next class="px-3 py-1.5 text-sm bg-primary text-on-primary rounded hover:opacity-90">
+                  Next
+                </Discovery.Next>
+              </div>
+            </div>
+          </Discovery.Content>
+        </Discovery.Root>
+
+        <!-- Step 5: Profile - left placement -->
+        <Discovery.Root v-slot="{ isFirst, isLast, index, total }" step="profile">
+          <Discovery.Activator
+            v-slot="{ isActive }"
+            class="p-6 bg-surface rounded-xl border border-divider transition-all block"
+            :class="{ 'ring-2 ring-primary': isActive }"
+          >
+            <div class="space-y-3">
+              <div class="flex items-center gap-2 text-lg font-medium text-on-surface">
+                <span class="i-mdi-account text-xl text-primary" />
+                Profile
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span class="i-mdi-account text-primary" />
+                </div>
+                <div>
+                  <div class="font-medium text-on-surface">John Doe</div>
+                  <div class="text-xs text-on-surface-variant">john@example.com</div>
+                </div>
+              </div>
+              <!-- Show slot props when active -->
+              <div v-if="isActive" class="text-xs text-primary bg-primary/10 p-2 rounded">
+                Slot props: index={{ index }}, total={{ total }}, isFirst={{ isFirst }}, isLast={{ isLast }}
+              </div>
+            </div>
+          </Discovery.Activator>
+
+          <Discovery.Content placement="left">
+            <div class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs">
+              <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">
+                Your Profile
+              </Discovery.Title>
+              <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
+              <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+                This step uses <code class="text-primary">placement="left"</code>. The card shows slot props when active.
+              </Discovery.Description>
+              <div class="flex justify-between items-center">
+                <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40">
+                  Previous
+                </Discovery.Prev>
+                <Discovery.Next class="px-3 py-1.5 text-sm bg-primary text-on-primary rounded hover:opacity-90">
+                  Next
+                </Discovery.Next>
+              </div>
+            </div>
+          </Discovery.Content>
+        </Discovery.Root>
       </div>
+
+      <!-- Sidebar example - demonstrates activator separate from content location -->
+      <Discovery.Root step="sidebar">
+        <div class="flex gap-6">
+          <Discovery.Activator
+            v-slot="{ isActive }"
+            as="aside"
+            class="w-48 p-4 bg-surface rounded-xl border border-divider shrink-0 transition-all"
+            :class="{ 'ring-2 ring-primary': isActive }"
+          >
+            <nav class="space-y-2">
+              <div class="text-sm font-medium text-on-surface mb-3">Navigation</div>
+              <a class="block px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-variant rounded" href="#">Home</a>
+              <a class="block px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-variant rounded" href="#">Components</a>
+              <a class="block px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-variant rounded" href="#">Composables</a>
+              <a class="block px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-variant rounded" href="#">Guides</a>
+            </nav>
+          </Discovery.Activator>
+
+          <div class="flex-1 p-6 bg-surface rounded-xl border border-divider">
+            <h3 class="text-lg font-medium text-on-surface mb-2">Main Content Area</h3>
+            <p class="text-on-surface-variant mb-4">
+              This demonstrates a typical layout where the sidebar is highlighted. The content popover appears to the right of the sidebar.
+            </p>
+            <div class="text-sm text-on-surface-variant space-y-2">
+              <p><strong>Features demonstrated:</strong></p>
+              <ul class="list-disc list-inside space-y-1">
+                <li><code class="text-primary">placement="bottom"</code> - Search (default)</li>
+                <li><code class="text-primary">placement="top"</code> - Settings</li>
+                <li><code class="text-primary">placement="right"</code> - Notifications, Sidebar</li>
+                <li><code class="text-primary">placement="left"</code> - Profile</li>
+                <li><code class="text-primary">:disabled</code> - Conditional step (Notifications)</li>
+                <li>Slot props for custom styling</li>
+                <li>Programmatic navigation via <code class="text-primary">discovery.select()</code></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <Discovery.Content placement="right">
+          <div class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs">
+            <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">
+              Sidebar Navigation
+            </Discovery.Title>
+            <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
+            <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+              The sidebar provides quick access to all documentation sections. This is the final step of the tour!
+            </Discovery.Description>
+            <div class="flex justify-between items-center">
+              <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40">
+                Previous
+              </Discovery.Prev>
+              <Discovery.Next class="px-3 py-1.5 text-sm bg-primary text-on-primary rounded hover:opacity-90">
+                Finish
+              </Discovery.Next>
+            </div>
+          </div>
+        </Discovery.Content>
+      </Discovery.Root>
 
       <!-- Debug info -->
       <details class="p-4 bg-surface rounded-xl border border-divider" open>

@@ -8,7 +8,7 @@
 
 <script lang="ts">
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomProps } from '@vuetify/v0'
 
   export interface DiscoveryPrevProps extends AtomProps {
     /** Namespace for context injection */
@@ -35,14 +35,15 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
-  // Composables
-  import { useDiscovery } from '@/composables/useDiscovery'
+  // Components
+  // Context
+  import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'DiscoveryPrev' })
 
@@ -56,26 +57,13 @@
     namespace = 'v0:discovery',
   } = defineProps<DiscoveryPrevProps>()
 
-  const discovery = useDiscovery(namespace)
+  const rootContext = useDiscoveryRootContext(namespace)
 
-  const currentIndex = computed(() => {
-    const selectedId = discovery.selectedId.value
-    if (!selectedId) return -1
-
-    let idx = 0
-    for (const ticket of discovery.values()) {
-      if (ticket.id === selectedId) return idx
-      idx++
-    }
-    return -1
-  })
-
-  const isFirst = computed(() => currentIndex.value === 0)
-  const isDisabled = toRef(() => disabled || isFirst.value)
+  const isDisabled = toRef(() => disabled || rootContext.isFirst.value)
 
   function prev () {
     if (isDisabled.value) return
-    discovery.prev()
+    rootContext.prev()
   }
 
   const slotProps = toRef((): DiscoveryPrevSlotProps => ({

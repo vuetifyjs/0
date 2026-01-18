@@ -8,7 +8,7 @@
 
 <script lang="ts">
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomProps } from '@vuetify/v0'
 
   export interface DiscoveryNextProps extends AtomProps {
     /** Namespace for context injection */
@@ -37,14 +37,15 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
-  // Composables
-  import { useDiscovery } from '@/composables/useDiscovery'
+  // Components
+  // Context
+  import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'DiscoveryNext' })
 
@@ -58,38 +59,20 @@
     namespace = 'v0:discovery',
   } = defineProps<DiscoveryNextProps>()
 
-  const discovery = useDiscovery(namespace)
+  const rootContext = useDiscoveryRootContext(namespace)
 
-  const currentIndex = computed(() => {
-    const selectedId = discovery.selectedId.value
-    if (!selectedId) return -1
-
-    let idx = 0
-    for (const ticket of discovery.values()) {
-      if (ticket.id === selectedId) return idx
-      idx++
-    }
-    return -1
-  })
-
-  const isLast = computed(() => currentIndex.value === discovery.size - 1)
   const isDisabled = toRef(() => disabled ?? false)
 
   function next () {
     if (isDisabled.value) return
-
-    if (isLast.value) {
-      discovery.stop()
-    } else {
-      discovery.next()
-    }
+    rootContext.next()
   }
 
-  const ariaLabel = computed(() => isLast.value ? 'Complete tour' : 'Go to next step')
+  const ariaLabel = toRef(() => rootContext.isLast.value ? 'Complete tour' : 'Go to next step')
 
   const slotProps = toRef((): DiscoveryNextSlotProps => ({
     isDisabled: isDisabled.value,
-    isLast: isLast.value,
+    isLast: rootContext.isLast.value,
     next,
     attrs: {
       'aria-label': ariaLabel.value,

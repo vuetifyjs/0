@@ -56,7 +56,6 @@ declare module 'vue' {
     DiscoveryRoot: typeof import('./components/Discovery/DiscoveryRoot.vue')['default']
     DiscoverySkip: typeof import('./components/Discovery/DiscoverySkip.vue')['default']
     DiscoveryTitle: typeof import('./components/Discovery/DiscoveryTitle.vue')['default']
-    DiscoveryTooltip: typeof import('./components/Discovery/DiscoveryTooltip.vue')['default']
     DocsActionChip: typeof import('./components/docs/DocsActionChip.vue')['default']
     DocsAlert: typeof import('./components/docs/DocsAlert.vue')['default']
     DocsApi: typeof import('./components/docs/DocsApi.vue')['default']

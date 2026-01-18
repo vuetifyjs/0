@@ -9,8 +9,7 @@
 
 <script lang="ts">
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
-  import type { ID } from '#v0/types'
+  import type { AtomProps, ID } from '@vuetify/v0'
 
   export interface DiscoveryActivatorProps extends AtomProps {
     /** Step ID (inherited from parent Root if not provided) */
@@ -31,6 +30,9 @@
 </script>
 
 <script setup lang="ts">
+  // Framework
+  import { Atom, isUndefined, useLogger } from '@vuetify/v0'
+
   // Components
   // Context
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
@@ -39,8 +41,10 @@
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { isUndefined } from '#v0/utilities'
-  import { computed, onBeforeUnmount, onMounted, toRef, useTemplateRef } from 'vue'
+  import { onBeforeUnmount, onMounted, toRef, useTemplateRef } from 'vue'
+
+  // Types
+  import type { Ref } from 'vue'
 
   defineOptions({ name: 'DiscoveryActivator', inheritAttrs: false })
 
@@ -49,11 +53,13 @@
   }>()
 
   const {
+    as = 'div',
     step: stepProp,
     namespace = 'v0:discovery',
   } = defineProps<DiscoveryActivatorProps>()
 
   const discovery = useDiscovery(namespace)
+  const logger = useLogger()
 
   // Try to get step from parent Root context, fall back to prop
   let rootContext: ReturnType<typeof useDiscoveryRootContext> | null = null
@@ -63,36 +69,40 @@
     // Not inside a Root, step prop is required
   }
 
-  const step = computed(() => stepProp ?? rootContext?.step)
+  const step = toRef(() => stepProp ?? rootContext?.step)
 
   if (isUndefined(step.value)) {
-    console.warn('[DiscoveryActivator] No step provided. Use step prop or place inside Discovery.Root.')
+    logger.warn('[DiscoveryActivator] No step provided. Use step prop or place inside Discovery.Root.')
   }
 
-  // Direct element reference
-  const element = useTemplateRef<HTMLElement>('activator')
+  const activatorRef = useTemplateRef<InstanceType<typeof Atom>>('activator')
+  const element = toRef(() => activatorRef.value?.element)
 
-  // Register activator with discovery context
   let cleanup: (() => void) | null = null
 
   onMounted(() => {
-    if (isUndefined(step.value)) {
-      return
-    }
+    if (isUndefined(step.value)) return
+
     cleanup = discovery.register({
       type: 'activator',
       step: step.value,
-      element,
+      element: element as unknown as Ref<HTMLElement | undefined>,
     })
   })
 
   onBeforeUnmount(() => cleanup?.())
 
-  // Computed state
-  const isActive = computed(() => {
+  // Use root context's isActive if available (avoids duplicate computation)
+  const isActive = toRef(() => {
+    if (rootContext) return rootContext.isActive.value
     if (!step.value) return false
     return discovery.selectedId.value === step.value && discovery.isActive.value
   })
+
+  // CSS anchor positioning: set anchor-name so Content can position relative to this
+  const style = toRef(() => ({
+    anchorName: step.value ? `--discovery-${step.value}` : undefined,
+  }))
 
   const slotProps = toRef((): DiscoveryActivatorSlotProps => ({
     isActive: isActive.value,
@@ -104,10 +114,12 @@
 </script>
 
 <template>
-  <div
+  <Atom
     ref="activator"
+    :as
+    :style
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
-  </div>
+  </Atom>
 </template>

@@ -9,7 +9,7 @@
 
 <script lang="ts">
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomProps } from '@vuetify/v0'
 
   export interface DiscoveryHighlightProps extends AtomProps {
     /** Padding around the highlighted element */
@@ -32,14 +32,13 @@
 
 <script setup lang="ts">
   // Framework
-  import { useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, isNull, isNumber, isUndefined, useWindowEventListener } from '@vuetify/v0'
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { isNumber, isUndefined } from '#v0/utilities'
-  import { computed, shallowRef, toRef, watch } from 'vue'
+  import { onBeforeUnmount, shallowRef, toRef, watch } from 'vue'
 
   defineOptions({ name: 'DiscoveryHighlight' })
 
@@ -82,15 +81,15 @@
       height: r.height + padding * 2,
     }
 
-    // Update border radius from element
-    const el = discovery.getActivatorElement(id)
-    if (el) {
-      const styles = getComputedStyle(el)
-      detectedRadius.value = styles.borderRadius || '8px'
+    if (IN_BROWSER) {
+      const el = discovery.getActivatorElement(id)
+      if (el) {
+        const styles = getComputedStyle(el)
+        detectedRadius.value = styles.borderRadius || '8px'
+      }
     }
   }
 
-  // Watch for step/active changes
   watch(
     [() => discovery.selectedId.value, () => discovery.isActive.value],
     () => {
@@ -99,7 +98,6 @@
     { immediate: true },
   )
 
-  // Update on scroll/resize
   let rafId: number | null = null
 
   function scheduleUpdate () {
@@ -110,10 +108,18 @@
     })
   }
 
+  function cancelScheduledUpdate () {
+    if (isNull(rafId)) return
+
+    cancelAnimationFrame(rafId)
+    rafId = null
+  }
+
   useWindowEventListener(['scroll', 'resize'], scheduleUpdate, { passive: true })
+  onBeforeUnmount(cancelScheduledUpdate)
 
   // Border radius for SVG (capped to prevent oval/circle appearance)
-  const borderRadius = computed(() => {
+  const borderRadius = toRef(() => {
     let radius: number
     if (isUndefined(borderRadiusProp)) {
       radius = Number.parseFloat(detectedRadius.value) || 8
@@ -133,7 +139,7 @@
     return radius
   })
 
-  const isVisible = computed(() => discovery.isActive.value && rect.value !== null)
+  const isVisible = toRef(() => discovery.isActive.value && rect.value !== null)
 
   const slotProps = toRef((): DiscoveryHighlightSlotProps => ({
     isVisible: isVisible.value,

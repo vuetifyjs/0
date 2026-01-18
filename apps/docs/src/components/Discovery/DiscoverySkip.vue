@@ -7,7 +7,7 @@
 
 <script lang="ts">
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomProps } from '@vuetify/v0'
 
   export interface DiscoverySkipProps extends AtomProps {
     /** Namespace for context injection */
@@ -27,11 +27,12 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
-  // Composables
-  import { useDiscovery } from '@/composables/useDiscovery'
+  // Components
+  // Context
+  import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   // Utilities
   import { toRef } from 'vue'
@@ -47,10 +48,10 @@
     namespace = 'v0:discovery',
   } = defineProps<DiscoverySkipProps>()
 
-  const discovery = useDiscovery(namespace)
+  const rootContext = useDiscoveryRootContext(namespace)
 
   function skip () {
-    discovery.stop()
+    rootContext.stop()
   }
 
   const slotProps = toRef((): DiscoverySkipSlotProps => ({

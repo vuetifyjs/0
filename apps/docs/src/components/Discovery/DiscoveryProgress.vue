@@ -8,7 +8,7 @@
 
 <script lang="ts">
   // Types
-  import type { AtomProps } from '#v0/components/Atom'
+  import type { AtomProps } from '@vuetify/v0'
 
   export interface DiscoveryProgressProps extends AtomProps {
     /** Namespace for context injection */
@@ -30,14 +30,15 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
+  // Framework
+  import { Atom } from '@vuetify/v0'
 
-  // Composables
-  import { useDiscovery } from '@/composables/useDiscovery'
+  // Components
+  // Context
+  import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { toRef } from 'vue'
 
   defineOptions({ name: 'DiscoveryProgress' })
 
@@ -50,24 +51,12 @@
     namespace = 'v0:discovery',
   } = defineProps<DiscoveryProgressProps>()
 
-  const discovery = useDiscovery(namespace)
+  const rootContext = useDiscoveryRootContext(namespace)
 
-  const currentIndex = computed(() => {
-    const selectedId = discovery.selectedId.value
-    if (!selectedId) return -1
-
-    let idx = 0
-    for (const ticket of discovery.values()) {
-      if (ticket.id === selectedId) return idx
-      idx++
-    }
-    return -1
-  })
-
-  const current = computed(() => currentIndex.value + 1)
-  const total = computed(() => discovery.size)
-  const text = computed(() => `${current.value} of ${total.value}`)
-  const ariaLabel = computed(() => `Step ${current.value} of ${total.value}`)
+  const current = toRef(() => rootContext.index.value + 1)
+  const total = toRef(() => rootContext.total.value)
+  const text = toRef(() => `${current.value} of ${total.value}`)
+  const ariaLabel = toRef(() => `Step ${current.value} of ${total.value}`)
 
   const slotProps = toRef((): DiscoveryProgressSlotProps => ({
     current: current.value,
