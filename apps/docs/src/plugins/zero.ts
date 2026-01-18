@@ -2,6 +2,10 @@
 import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
 import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 
+// Composables
+// Discovery
+import { createDiscoveryPlugin } from '@/composables/useDiscovery'
+
 // Types
 import type { App } from 'vue'
 
@@ -14,6 +18,7 @@ import { createIconPlugin } from './icons'
 export default function zero (app: App) {
   app.use(createIconPlugin())
   app.use(createLoggerPlugin())
+  app.use(createDiscoveryPlugin())
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin())
   app.use(createStoragePlugin())

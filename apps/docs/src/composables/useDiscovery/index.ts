@@ -87,6 +87,8 @@ export interface DiscoveryContext<
 > extends Omit<StepContext<Z>, 'register'> {
   /** Whether the discovery tour is currently active */
   isActive: Readonly<ShallowRef<boolean>>
+  /** Whether the discovery tour has been completed (finished on last step) */
+  isCompleted: Readonly<ShallowRef<boolean>>
   /** Form context for step validation */
   form: FormContext
   /** Register a step or activator */
@@ -95,10 +97,14 @@ export interface DiscoveryContext<
   start: (id?: ID) => void
   /** Stop the discovery tour */
   stop: () => void
+  /** Finish the discovery tour (marks as completed) */
+  finish: () => void
   /** Get the element for a step's activator */
   getActivatorElement: (id: ID) => HTMLElement | null
   /** Get the bounding rect for a step's activator */
   getActivatorRect: (id: ID) => DOMRect | null
+  /** Debug: number of registered activators */
+  activatorCount: number
 }
 
 export interface DiscoveryOptions {
@@ -157,6 +163,7 @@ export function createDiscovery<
   const { circular = false } = options
 
   const isActive = shallowRef(false)
+  const isCompleted = shallowRef(false)
 
   // Step navigation (extends single selection with first/last/next/prev)
   const steps = createStep<Z>({ circular })
@@ -253,6 +260,7 @@ export function createDiscovery<
    */
   function start (id?: ID) {
     isActive.value = true
+    isCompleted.value = false
 
     if (id) {
       steps.select(id)
@@ -267,6 +275,7 @@ export function createDiscovery<
    * @remarks
    * Sets the active state to false. Does not reset the current step,
    * so calling start() again will resume from where the tour left off.
+   * Does not mark the tour as completed.
    *
    * @example
    * ```ts
@@ -275,6 +284,26 @@ export function createDiscovery<
    */
   function stop () {
     isActive.value = false
+  }
+
+  /**
+   * Finish the discovery tour.
+   *
+   * @remarks
+   * Sets the active state to false and marks the tour as completed.
+   * Use this when the user completes all steps vs skipping/stopping.
+   *
+   * @example
+   * ```ts
+   * // On last step, finish instead of stop
+   * if (isLastStep) {
+   *   discovery.finish()
+   * }
+   * ```
+   */
+  function finish () {
+    isActive.value = false
+    isCompleted.value = true
   }
 
   /**
@@ -323,17 +352,24 @@ export function createDiscovery<
     ...steps,
 
     isActive: readonly(isActive),
+    isCompleted: readonly(isCompleted),
 
     form,
 
     register,
     start,
     stop,
+    finish,
     getActivatorElement,
     getActivatorRect,
 
     get size () {
       return steps.size
+    },
+
+    // Debug helper - returns number of registered activators
+    get activatorCount () {
+      return activators.size
     },
   } as E
 }

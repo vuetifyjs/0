@@ -191,7 +191,7 @@ declare global {
   const useGroup: typeof import('../../packages/0/src/composables/createGroup/index').useGroup
   const useHotkey: typeof import('../../packages/0/src/composables/useHotkey/index').useHotkey
   const useHydration: typeof import('../../packages/0/src/composables/useHydration/index').useHydration
-  const useId: typeof import('vue').useId
+  const useId: typeof import('../../packages/0/src/utilities/helpers').useId
   const useIntersectionObserver: typeof import('../../packages/0/src/composables/useIntersectionObserver/index').useIntersectionObserver
   const useLazy: typeof import('../../packages/0/src/composables/useLazy/index').useLazy
   const useLocale: typeof import('../../packages/0/src/composables/useLocale/index').useLocale
@@ -297,7 +297,7 @@ declare global {
   export type { HydrationContext, HydrationOptions, HydrationContextOptions, HydrationPluginOptions } from '../../packages/0/src/composables/useHydration/index'
   import('../../packages/0/src/composables/useHydration/index')
   // @ts-ignore
-  export type { MaybeRef, IntersectionObserverEntry, IntersectionObserverOptions, UseIntersectionObserverReturn, UseElementIntersectionReturn } from '../../packages/0/src/composables/useIntersectionObserver/index'
+  export type { IntersectionObserverEntry, IntersectionObserverOptions, UseIntersectionObserverReturn, UseElementIntersectionReturn } from '../../packages/0/src/composables/useIntersectionObserver/index'
   import('../../packages/0/src/composables/useIntersectionObserver/index')
   // @ts-ignore
   export type { LazyOptions, LazyContext } from '../../packages/0/src/composables/useLazy/index'
@@ -366,6 +366,9 @@ declare global {
   export type { VirtualDirection, VirtualState, VirtualAnchor, ScrollToOptions, VirtualOptions, VirtualItem, VirtualContext } from '../../packages/0/src/composables/useVirtual/index'
   import('../../packages/0/src/composables/useVirtual/index')
   // @ts-ignore
+  export type { MaybeRef } from '../../packages/0/src/composables/index'
+  import('../../packages/0/src/composables/index')
+  // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
   import('../../packages/0/src/constants/htmlElements')
 }
@@ -391,7 +394,6 @@ declare module 'vue' {
     readonly SUPPORTS_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_OBSERVER']>
     readonly SUPPORTS_TOUCH: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_TOUCH']>
     readonly V0_ELEVATION_KEY: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['V0_ELEVATION_KEY']>
-    readonly Vuetify0DateAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['Vuetify0DateAdapter']>
     readonly Vuetify0LocaleAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['Vuetify0LocaleAdapter']>
     readonly Vuetify0LoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['Vuetify0LoggerAdapter']>
     readonly Vuetify0ThemeAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useTheme/index')['Vuetify0ThemeAdapter']>
@@ -405,7 +407,6 @@ declare module 'vue' {
     readonly createContext: UnwrapRef<typeof import('../../packages/0/src/composables/createContext/index')['createContext']>
     readonly createDate: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDate']>
     readonly createDateContext: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDateContext']>
-    readonly createDateFallback: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDateFallback']>
     readonly createDatePlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useDate/index')['createDatePlugin']>
     readonly createElevation: UnwrapRef<typeof import('../../packages/paper/src/composables/useElevation/index')['createElevation']>
     readonly createFallbackHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['createFallbackHydration']>
@@ -465,7 +466,6 @@ declare module 'vue' {
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
-    readonly genId: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['genId']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentInstanceName: UnwrapRef<typeof import('../../packages/paper/src/utilities/getCurrentInstanceName')['getCurrentInstanceName']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
@@ -559,7 +559,7 @@ declare module 'vue' {
     readonly useGroup: UnwrapRef<typeof import('../../packages/0/src/composables/createGroup/index')['useGroup']>
     readonly useHotkey: UnwrapRef<typeof import('../../packages/0/src/composables/useHotkey/index')['useHotkey']>
     readonly useHydration: UnwrapRef<typeof import('../../packages/0/src/composables/useHydration/index')['useHydration']>
-    readonly useId: UnwrapRef<typeof import('vue')['useId']>
+    readonly useId: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['useId']>
     readonly useIntersectionObserver: UnwrapRef<typeof import('../../packages/0/src/composables/useIntersectionObserver/index')['useIntersectionObserver']>
     readonly useLazy: UnwrapRef<typeof import('../../packages/0/src/composables/useLazy/index')['useLazy']>
     readonly useLocale: UnwrapRef<typeof import('../../packages/0/src/composables/useLocale/index')['useLocale']>

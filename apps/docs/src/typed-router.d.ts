@@ -429,6 +429,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/discovery-demo': RouteRecordInfo<
+      '/discovery-demo',
+      '/discovery-demo',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -544,6 +551,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/using-the-docs': RouteRecordInfo<
       '/guide/using-the-docs',
       '/guide/using-the-docs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/introduction/browser-support': RouteRecordInfo<
+      '/introduction/browser-support',
+      '/introduction/browser-support',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -986,6 +1000,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/discovery-demo.vue': {
+      routes:
+        | '/discovery-demo'
+      views:
+        | never
+    }
     'src/pages/guide/index.md': {
       routes:
         | '/guide/'
@@ -1085,6 +1105,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/using-the-docs.md': {
       routes:
         | '/guide/using-the-docs'
+      views:
+        | never
+    }
+    'src/pages/introduction/browser-support.md': {
+      routes:
+        | '/introduction/browser-support'
       views:
         | never
     }
