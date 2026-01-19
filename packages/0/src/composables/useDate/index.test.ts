@@ -10,6 +10,10 @@ describe('useDate', () => {
   describe('vuetify0DateAdapter', () => {
     let adapter: Vuetify0DateAdapter
 
+    function asTemporal (isoDate: string) {
+      return Temporal.PlainDateTime.from(`${isoDate}T10:00:00`)
+    }
+
     beforeEach(() => {
       adapter = new Vuetify0DateAdapter('en-US')
     })
@@ -561,14 +565,56 @@ describe('useDate', () => {
       })
 
       it('should handle year boundary weeks', () => {
-        const dec31 = Temporal.PlainDateTime.from('2024-12-31T10:00:00')
-        const jan1 = Temporal.PlainDateTime.from('2025-01-01T10:00:00')
+        expect(adapter.getWeek(asTemporal('2024-12-28'))).toBe(52)
+        expect(adapter.getWeek(asTemporal('2024-12-29'))).toBe(1)
+        expect(adapter.getWeek(asTemporal('2024-12-31'))).toBe(1)
+        expect(adapter.getWeek(asTemporal('2025-01-01'))).toBe(1)
+        expect(adapter.getWeek(asTemporal('2025-01-04'))).toBe(1)
+        expect(adapter.getWeek(asTemporal('2025-01-05'))).toBe(2)
+      })
 
-        const weekDec = adapter.getWeek(dec31)
-        const weekJan = adapter.getWeek(jan1)
+      it('should handle year boundary weeks with non-US settings', () => {
+        expect(adapter.getWeek(asTemporal('2026-12-27'), 1, 4)).toBe(52)
+        expect(adapter.getWeek(asTemporal('2026-12-28'), 1, 4)).toBe(53)
+        expect(adapter.getWeek(asTemporal('2026-12-31'), 1, 4)).toBe(53)
+        expect(adapter.getWeek(asTemporal('2027-01-01'), 1, 4)).toBe(53)
+        expect(adapter.getWeek(asTemporal('2027-01-03'), 1, 4)).toBe(53)
+        expect(adapter.getWeek(asTemporal('2027-01-04'), 1, 4)).toBe(1)
+      })
 
-        expect(weekDec).toBeGreaterThanOrEqual(1)
-        expect(weekJan).toBeGreaterThanOrEqual(1)
+      it('should correctly calculate when year starts with a full week', () => {
+        const adapter1 = new Vuetify0DateAdapter('en-US') // first day = 7 | minimal days = 1
+        expect(adapter1.getWeek(asTemporal('2022-12-25'))).toBe(53)
+        expect(adapter1.getWeek(asTemporal('2022-12-31'))).toBe(53)
+        expect(adapter1.getWeek(asTemporal('2023-01-01'))).toBe(1)
+        expect(adapter1.getWeek(asTemporal('2023-01-07'))).toBe(1)
+
+        const adapter2 = new Vuetify0DateAdapter('pt-PT') // first day = 7 | minimal days = 4
+        expect(adapter2.getWeek(asTemporal('2022-12-25'), 0, 4)).toBe(52)
+        expect(adapter2.getWeek(asTemporal('2022-12-31'), 0, 4)).toBe(52)
+        expect(adapter2.getWeek(asTemporal('2023-01-01'), 0, 4)).toBe(1)
+        expect(adapter2.getWeek(asTemporal('2023-01-07'), 0, 4)).toBe(1)
+      })
+
+      it('should adjust fallback to week start from locale', () => {
+        const adapter1 = new Vuetify0DateAdapter('en-US')
+        expect(adapter1.getWeek(asTemporal('2025-01-04'))).toBe(1) // saturday
+        expect(adapter1.getWeek(asTemporal('2025-01-05'))).toBe(2) // sunday
+
+        const adapter2 = new Vuetify0DateAdapter('fr-FR')
+        expect(adapter2.getWeek(asTemporal('2025-01-05'), 1, 4)).toBe(1) // sunday
+        expect(adapter2.getWeek(asTemporal('2025-01-06'), 1, 4)).toBe(2) // monday
+      })
+    })
+
+    describe('week numbers with first-day-of-week', () => {
+      it('should calculate weeks correctly when adapting for UK', () => {
+        const adapter1 = new Vuetify0DateAdapter('en-US')
+        expect(adapter1.getWeek(adapter1.parseISO('2025-03-16'))).toBe(12)
+        expect(adapter1.getWeek(adapter1.parseISO('2025-03-16'), 1, 4)).toBe(11)
+
+        const adapter2 = new Vuetify0DateAdapter('en-GB')
+        expect(adapter2.getWeek(adapter2.parseISO('2025-03-16'), 1, 4)).toBe(11)
       })
     })
 
