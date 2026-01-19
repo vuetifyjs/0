@@ -27,7 +27,7 @@
     /** Attributes to bind to the button element */
     attrs: {
       'aria-label': string
-      'aria-disabled': boolean
+      'aria-disabled': boolean | undefined
       'data-disabled': true | undefined
       'disabled': boolean | undefined
       'type': 'button' | undefined
@@ -76,7 +76,7 @@
     next,
     attrs: {
       'aria-label': ariaLabel.value,
-      'aria-disabled': isDisabled.value,
+      'aria-disabled': as === 'button' ? undefined : isDisabled.value,
       'data-disabled': isDisabled.value || undefined,
       'disabled': as === 'button' ? isDisabled.value : undefined,
       'type': as === 'button' ? 'button' : undefined,

@@ -28,6 +28,7 @@ import {
   createRegistry,
   createStep,
   createTrinity,
+  IN_BROWSER,
   useContext,
 } from '@vuetify/v0'
 
@@ -224,9 +225,7 @@ export function createDiscovery<
 
       return () => {
         steps.unregister(step.id)
-        if (!ticket) return
-
-        form.unregister(ticket.id)
+        if (ticket) form.unregister(ticket.id)
       }
     }
 
@@ -260,6 +259,8 @@ export function createDiscovery<
    * ```
    */
   function start (id?: ID) {
+    if (!IN_BROWSER) return
+
     isActive.value = true
     isCompleted.value = false
 
@@ -312,8 +313,14 @@ export function createDiscovery<
    *
    * @param id The ID of the step to get the activator element for
    * @returns The activator element if found and still connected to the DOM, null otherwise
+   *
+   * @remarks
+   * If multiple activators are registered for the same step, returns the first
+   * one that is still connected to the DOM.
    */
   function getActivatorElement (id: ID): HTMLElement | null {
+    if (!IN_BROWSER) return null
+
     for (const ticket of activators.values()) {
       if (ticket.step !== id) continue
 
@@ -344,6 +351,8 @@ export function createDiscovery<
    * ```
    */
   function getActivatorRect (id: ID): DOMRect | null {
+    if (!IN_BROWSER) return null
+
     const element = getActivatorElement(id)
     return element?.getBoundingClientRect() ?? null
   }

@@ -93,6 +93,7 @@
   watch(
     [() => discovery.selectedId.value, () => discovery.isActive.value],
     () => {
+      if (!IN_BROWSER) return
       requestAnimationFrame(updateRect)
     },
     { immediate: true },

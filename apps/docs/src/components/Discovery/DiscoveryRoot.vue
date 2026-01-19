@@ -33,8 +33,8 @@
     titleId: string
     /** ID for aria-describedby */
     descriptionId: string
-    /** Navigate to next step (or stop if last) */
-    next: () => void
+    /** Navigate to next step (or finish if last), validates if rules are defined */
+    next: () => Promise<void>
     /** Navigate to previous step */
     prev: () => void
     /** Stop/skip the tour */
@@ -46,7 +46,7 @@
     step: ID
     /** Whether this step is disabled */
     disabled?: MaybeRefOrGetter<boolean>
-    /** Validation rules for this step */
+    /** Validation rules for this step. When provided, validation runs before navigating to next step. */
     rules?: FormValidationRule[]
     /** Namespace for plugin context injection */
     namespace?: string
@@ -123,9 +123,15 @@
   const isLast = toRef(() => index.value === total.value - 1)
 
   // Navigation methods
-  function next () {
+  async function next () {
+    // Validate current step if rules are registered
+    if (discovery.form.has(step)) {
+      const isValid = await discovery.form.submit(step)
+      if (!isValid) return
+    }
+
     if (isLast.value) {
-      discovery.stop()
+      discovery.finish()
     } else {
       discovery.next()
     }

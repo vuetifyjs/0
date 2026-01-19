@@ -137,8 +137,8 @@ export function createForm<
     }
   }
 
-  async function submit (): Promise<boolean> {
-    return validate(registry.keys())
+  async function submit (id?: ID | ID[]): Promise<boolean> {
+    return validate(id ?? registry.keys())
   }
 
   async function validate (id: ID | ID[]): Promise<boolean> {

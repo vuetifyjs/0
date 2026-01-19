@@ -19,6 +19,12 @@
   // For disabled step demo
   const notificationsEnabled = ref(false)
 
+  // For validation demo - rule checks the searchQuery ref directly
+  const searchQuery = ref('')
+  const searchRules = [
+    () => !!searchQuery.value.trim() || 'Please enter a search term to continue',
+  ]
+
   function startTour () {
     discovery.start()
   }
@@ -84,8 +90,8 @@
 
       <!-- Demo content with discovery steps -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Step 1: Search - placement bottom (default) -->
-        <Discovery.Root step="search">
+        <!-- Step 1: Search - placement bottom (default), with validation -->
+        <Discovery.Root :rules="searchRules" step="search">
           <div class="p-6 bg-surface rounded-xl border border-divider">
             <Discovery.Activator>
               <div class="space-y-3">
@@ -94,6 +100,7 @@
                   Search
                 </div>
                 <input
+                  v-model="searchQuery"
                   class="w-full px-3 py-2 bg-background border border-divider rounded-lg text-on-background placeholder:text-on-surface-variant"
                   placeholder="Search documentation..."
                   type="text"
@@ -108,9 +115,13 @@
                 Search Feature
               </Discovery.Title>
               <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
-              <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+              <Discovery.Description class="text-sm text-on-surface-variant mb-2">
                 Use the search bar to find content across the documentation. You can search for components, composables, or guides.
               </Discovery.Description>
+              <div v-if="discovery.form.get('search')?.errors.value.length" class="text-sm text-error mb-4">
+                {{ discovery.form.get('search')?.errors.value[0] }}
+              </div>
+              <div v-else class="mb-4" />
               <div class="flex justify-between items-center">
                 <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface disabled:opacity-40">
                   Previous
@@ -216,9 +227,8 @@
       <!-- Left/Right placement examples -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Step 4: Notifications - conditionally disabled -->
-        <Discovery.Root :disabled="!notificationsEnabled" step="notifications">
+        <Discovery.Root v-slot="{ isActive }" :disabled="!notificationsEnabled" step="notifications">
           <Discovery.Activator
-            v-slot="{ isActive }"
             class="p-6 bg-surface rounded-xl border border-divider transition-all block"
             :class="{ 'ring-2 ring-primary': isActive }"
           >
@@ -270,9 +280,8 @@
         </Discovery.Root>
 
         <!-- Step 5: Profile - left placement -->
-        <Discovery.Root step="profile">
+        <Discovery.Root v-slot="{ isActive }" step="profile">
           <Discovery.Activator
-            v-slot="{ isActive }"
             class="p-6 bg-surface rounded-xl border border-divider transition-all block"
             :class="{ 'ring-2 ring-primary': isActive }"
           >
@@ -316,10 +325,9 @@
       </div>
 
       <!-- Sidebar example - demonstrates activator separate from content location -->
-      <Discovery.Root step="sidebar">
+      <Discovery.Root v-slot="{ isActive }" step="sidebar">
         <div class="flex gap-6">
           <Discovery.Activator
-            v-slot="{ isActive }"
             as="aside"
             class="w-48 p-4 bg-surface rounded-xl border border-divider shrink-0 transition-all"
             :class="{ 'ring-2 ring-primary': isActive }"

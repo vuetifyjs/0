@@ -24,6 +24,7 @@
     text: string
     /** Attributes to bind to the progress element */
     attrs: {
+      'role': 'status'
       'aria-label': string
     }
   }
@@ -63,6 +64,7 @@
     total: total.value,
     text: text.value,
     attrs: {
+      'role': 'status',
       'aria-label': ariaLabel.value,
     },
   }))

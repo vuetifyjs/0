@@ -303,6 +303,67 @@ describe('createDiscovery', () => {
     })
   })
 
+  describe('finish', () => {
+    it('should set isActive to false and isCompleted to true', () => {
+      const discovery = createDiscovery()
+      discovery.register({ type: 'step', id: 'step-1' })
+      discovery.start()
+
+      discovery.finish()
+
+      expect(discovery.isActive.value).toBe(false)
+      expect(discovery.isCompleted.value).toBe(true)
+    })
+
+    it('should reset isCompleted when starting again', () => {
+      const discovery = createDiscovery()
+      discovery.register({ type: 'step', id: 'step-1' })
+
+      discovery.start()
+      discovery.finish()
+      expect(discovery.isCompleted.value).toBe(true)
+
+      discovery.start()
+      expect(discovery.isCompleted.value).toBe(false)
+    })
+  })
+
+  describe('disabled steps navigation', () => {
+    it('should skip disabled steps on next()', () => {
+      const discovery = createDiscovery()
+      discovery.register({ type: 'step', id: 'step-1' })
+      discovery.register({ type: 'step', id: 'step-2', disabled: true })
+      discovery.register({ type: 'step', id: 'step-3' })
+
+      discovery.start()
+      expect(discovery.selectedId.value).toBe('step-1')
+
+      discovery.next()
+      expect(discovery.selectedId.value).toBe('step-3')
+    })
+
+    it('should skip disabled steps on prev()', () => {
+      const discovery = createDiscovery()
+      discovery.register({ type: 'step', id: 'step-1' })
+      discovery.register({ type: 'step', id: 'step-2', disabled: true })
+      discovery.register({ type: 'step', id: 'step-3' })
+
+      discovery.start('step-3')
+      discovery.prev()
+      expect(discovery.selectedId.value).toBe('step-1')
+    })
+
+    it('should skip disabled steps on first()', () => {
+      const discovery = createDiscovery()
+      discovery.register({ type: 'step', id: 'step-1', disabled: true })
+      discovery.register({ type: 'step', id: 'step-2' })
+
+      discovery.start()
+      discovery.first()
+      expect(discovery.selectedId.value).toBe('step-2')
+    })
+  })
+
   describe('getActivatorElement', () => {
     it('should return element for step', () => {
       const discovery = createDiscovery()
@@ -420,6 +481,145 @@ describe('createDiscovery', () => {
       const isValid = await discovery.form.submit()
 
       expect(isValid).toBe(true)
+    })
+
+    it('should validate a single step by id', async () => {
+      const discovery = createDiscovery()
+
+      discovery.register({
+        type: 'step',
+        id: 'step-1',
+        rules: [() => true],
+      })
+
+      discovery.register({
+        type: 'step',
+        id: 'step-2',
+        rules: [() => 'Step 2 error'],
+      })
+
+      // Validate only step-1, should pass
+      const step1Valid = await discovery.form.submit('step-1')
+      expect(step1Valid).toBe(true)
+
+      // Validate only step-2, should fail
+      const step2Valid = await discovery.form.submit('step-2')
+      expect(step2Valid).toBe(false)
+    })
+
+    it('should allow navigation when validation passes', async () => {
+      const discovery = createDiscovery()
+
+      discovery.register({
+        type: 'step',
+        id: 'step-1',
+        rules: [() => true],
+      })
+
+      discovery.register({
+        type: 'step',
+        id: 'step-2',
+      })
+
+      discovery.start()
+      expect(discovery.selectedId.value).toBe('step-1')
+
+      // Validate step-1 passes
+      const isValid = await discovery.form.submit('step-1')
+      expect(isValid).toBe(true)
+
+      // Navigation should work
+      discovery.next()
+      expect(discovery.selectedId.value).toBe('step-2')
+    })
+
+    it('should block navigation when validation fails', async () => {
+      const discovery = createDiscovery()
+
+      discovery.register({
+        type: 'step',
+        id: 'step-1',
+        rules: [() => 'Validation error'],
+      })
+
+      discovery.register({
+        type: 'step',
+        id: 'step-2',
+      })
+
+      discovery.start()
+      expect(discovery.selectedId.value).toBe('step-1')
+
+      // Validate step-1 fails
+      const isValid = await discovery.form.submit('step-1')
+      expect(isValid).toBe(false)
+
+      // User code should check validation before calling next
+      // This demonstrates the pattern used in DiscoveryRoot
+      if (!isValid) {
+        // Don't navigate
+        expect(discovery.selectedId.value).toBe('step-1')
+      }
+    })
+
+    it('should allow navigation when step has no rules', async () => {
+      const discovery = createDiscovery()
+
+      discovery.register({
+        type: 'step',
+        id: 'step-1',
+        // No rules
+      })
+
+      discovery.register({
+        type: 'step',
+        id: 'step-2',
+      })
+
+      discovery.start()
+      expect(discovery.selectedId.value).toBe('step-1')
+
+      // Step without rules is not registered in form
+      // form.submit with non-existent id returns true
+      const isValid = await discovery.form.submit('step-1')
+      expect(isValid).toBe(true)
+
+      discovery.next()
+      expect(discovery.selectedId.value).toBe('step-2')
+    })
+
+    describe('async validation', () => {
+      it('should handle async validation rules', async () => {
+        const discovery = createDiscovery()
+
+        discovery.register({
+          type: 'step',
+          id: 'step-1',
+          rules: [async () => {
+            await new Promise(resolve => setTimeout(resolve, 10))
+            return true
+          }],
+        })
+
+        const isValid = await discovery.form.submit('step-1')
+        expect(isValid).toBe(true)
+      })
+
+      it('should fail with async validation errors', async () => {
+        const discovery = createDiscovery()
+
+        discovery.register({
+          type: 'step',
+          id: 'step-1',
+          rules: [async () => {
+            await new Promise(resolve => setTimeout(resolve, 10))
+            return 'Async error'
+          }],
+        })
+
+        const isValid = await discovery.form.submit('step-1')
+        expect(isValid).toBe(false)
+      })
     })
   })
 

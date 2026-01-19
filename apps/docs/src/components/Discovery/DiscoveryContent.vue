@@ -104,6 +104,8 @@
 
   // Control popover visibility based on step active state
   watch(() => rootContext.isActive.value, async isActive => {
+    if (!IN_BROWSER) return
+
     await nextTick() // Ensure DOM is ready
     const element = contentRef.value
     // Guard against operations on disconnected elements
@@ -137,7 +139,10 @@
     } else {
       // Restore focus when step becomes inactive
       await nextTick()
-      triggerRef.value?.focus()
+      // Check if trigger still exists and is focusable
+      if (triggerRef.value?.isConnected && !triggerRef.value.hasAttribute('disabled')) {
+        triggerRef.value.focus()
+      }
       triggerRef.value = null
     }
   })
@@ -172,7 +177,7 @@
     <!-- Live region for screen reader announcements -->
     <div
       aria-atomic="true"
-      aria-live="polite"
+      aria-live="assertive"
       class="sr-only"
     >
       {{ announcement }}
