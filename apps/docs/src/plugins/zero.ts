@@ -2,6 +2,9 @@
 import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
 import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 
+// Composables
+import { createDiscoveryPlugin } from '@/composables/useDiscovery'
+
 // Types
 import type { App } from 'vue'
 
@@ -17,6 +20,13 @@ export default function zero (app: App) {
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin())
   app.use(createStoragePlugin())
+  app.use(
+    createDiscoveryPlugin({
+      tours: {
+        'docs-intro': ['open-search', 'search-tabs', 'ask-ai'],
+      },
+    }),
+  )
   app.use(
     createFeaturesPlugin({
       features: {

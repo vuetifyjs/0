@@ -1,12 +1,22 @@
 <script setup lang="ts">
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
+  import { useDiscovery } from '@/composables/useDiscovery'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { onUnmounted, useTemplateRef, watch } from 'vue'
 
+  // Stores
+
+  const discovery = useDiscovery()
   const { close, reset, hasChanges, lineWrap, showInlineApi, collapsibleNav } = useSettings()
+
+  function startTour () {
+    close()
+    discovery.start('docs-intro')
+  }
+
   const { isEditing: isEditingTheme, clearPreview } = useCustomThemes()
 
   onUnmounted(() => {
@@ -29,6 +39,8 @@
       close()
     }
   }
+
+  startTour()
 </script>
 
 <template>
@@ -61,6 +73,22 @@
 
     <!-- Content -->
     <div class="flex-1 overflow-y-auto p-4 space-y-6">
+      <!-- Tour -->
+      <div class="pb-2 border-b border-divider">
+        <button
+          class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface"
+          type="button"
+          @click="startTour"
+        >
+          <AppIcon class="text-primary" icon="school" size="20" />
+          <div class="flex-1 text-left">
+            <div class="text-sm font-medium">Take the tour</div>
+            <div class="text-xs text-on-surface-variant">Learn how to use the docs</div>
+          </div>
+          <AppIcon class="text-on-surface-variant" icon="arrow-right" size="16" />
+        </button>
+      </div>
+
       <!-- Theme -->
       <AppSettingsTheme />
 

@@ -548,6 +548,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/introduction/browser-support': RouteRecordInfo<
+      '/introduction/browser-support',
+      '/introduction/browser-support',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/introduction/code-of-conduct': RouteRecordInfo<
       '/introduction/code-of-conduct',
       '/introduction/code-of-conduct',
@@ -1085,6 +1092,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/using-the-docs.md': {
       routes:
         | '/guide/using-the-docs'
+      views:
+        | never
+    }
+    'src/pages/introduction/browser-support.md': {
+      routes:
+        | '/introduction/browser-support'
       views:
         | never
     }

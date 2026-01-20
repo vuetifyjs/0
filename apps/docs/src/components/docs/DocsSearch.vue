@@ -2,14 +2,18 @@
   // Framework
   import { useDocumentEventListener } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useAsk } from '@/composables/useAsk'
+  import { useDiscovery } from '@/composables/useDiscovery'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
-  import { useRouter } from 'vue-router'
+  import { nextTick, ref, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
 
   // Types
   import type { SavedResult, SearchResult } from '@/composables/useSearch'
@@ -36,6 +40,8 @@
   } = useSearch()
 
   const router = useRouter()
+  const route = useRoute()
+  const discovery = useDiscovery()
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
   const triggerRef = shallowRef<HTMLElement | null>(null)
@@ -158,6 +164,25 @@
     }
     return hasEmptyStateContent.value
   }
+
+  discovery.on('start:search', () => {
+    const once = useDocumentEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key !== 'Enter') return
+
+      nextTick(() => {
+        discovery.next()
+        once()
+      })
+    })
+  })
+
+  discovery.on('back:search', () => {
+    close()
+  })
+
+  discovery.on('complete:search', () => {
+    console.log('completed search')
+  })
 </script>
 
 <template>
@@ -178,29 +203,55 @@
       role="dialog"
     >
       <div class="bg-glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
-        <div class="flex items-center gap-3 px-4 py-3 border-b border-divider">
-          <AppIcon
-            aria-hidden="true"
-            class="text-on-surface-variant shrink-0"
-            icon="search"
-          />
-          <input
-            ref="input"
-            v-model="query"
-            :aria-activedescendant="getActiveDescendantId()"
-            aria-autocomplete="list"
-            aria-controls="search-listbox"
-            :aria-expanded="hasResults()"
-            aria-label="Search documentation"
-            class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-tint"
-            placeholder="Search the docs..."
-            role="combobox"
-            type="search"
+        <Discovery.Root step="search-tabs">
+          <Discovery.Activator
+            class="flex-1 bg-transparent flex border-b border-divider outline-none text-on-surface rounded-lg rounded-b-0 items-center gap-3 px-4 py-3 "
+            step="search-tabs"
           >
-          <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant text-xs font-mono">
-            esc
-          </kbd>
-        </div>
+            <AppIcon
+              aria-hidden="true"
+              class="text-on-surface-variant shrink-0"
+              icon="search"
+            />
+            <input
+              ref="input"
+              v-model="query"
+              :aria-activedescendant="getActiveDescendantId()"
+              aria-autocomplete="list"
+              aria-controls="search-listbox"
+              :aria-expanded="hasResults()"
+              aria-label="Search documentation"
+              class="flex-1 bg-transparent border-none outline-none text-on-surface placeholder:text-on-surface-tint"
+              placeholder="Search the docs..."
+              role="combobox"
+              type="search"
+            >
+            <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant text-xs font-mono">
+              esc
+            </kbd>
+          </Discovery.Activator>
+
+          <Discovery.Content class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs z-[60] translate-x--85" placement="bottom">
+            <div class="flex justify-between items-center">
+              <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">Search for Tabs</Discovery.Title>
+              <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
+            </div>
+
+            <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+              Type <kbd class="px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-xs font-mono">Tabs</kbd> and press Enter to navigate to the Tabs component.
+            </Discovery.Description>
+
+            <div class="flex justify-end">
+              <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
+                Back
+              </Discovery.Prev>
+
+              <Discovery.Skip class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
+                Skip tour
+              </Discovery.Skip>
+            </div>
+          </Discovery.Content>
+        </Discovery.Root>
 
         <div
           id="search-listbox"
