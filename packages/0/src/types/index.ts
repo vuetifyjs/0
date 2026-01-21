@@ -5,7 +5,7 @@
  * Shared type definitions used throughout @vuetify/v0.
  */
 
-import type { h, Ref, ShallowRef } from 'vue'
+import type { h } from 'vue'
 
 /**
  * Valid element types for Vue's `h()` render function
@@ -81,26 +81,6 @@ export type DeepPartial<T> = T extends object ? {
  * ```
  */
 export type MaybeArray<T> = T | T[]
-
-/**
- * Value that may be wrapped in a Vue ref
- *
- * @template T The base value type
- *
- * @remarks
- * Accepts raw values, refs, readonly refs, shallow refs, or getter functions.
- * Used by observer composables for flexible target parameters.
- *
- * @example
- * ```ts
- * function observe(target: MaybeRef<Element>) { ... }
- * observe(element)              // raw value
- * observe(ref(element))         // Ref
- * observe(shallowRef(element))  // ShallowRef
- * observe(() => element)        // getter function
- * ```
- */
-export type MaybeRef<T> = T | Ref<T> | Readonly<Ref<T>> | ShallowRef<T> | Readonly<ShallowRef<T>> | (() => T)
 
 /**
  * Keyboard activation mode for navigable components
