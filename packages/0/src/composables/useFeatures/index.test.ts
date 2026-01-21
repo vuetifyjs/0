@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 // Utilities
-import { createApp } from 'vue'
+import { createApp, watchEffect } from 'vue'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from './adapters'
@@ -434,16 +434,88 @@ describe('createFeaturesPlugin', () => {
 
       const context = app.runWithContext(() => useFeatures())
 
-      // Initial state
       expect(context.has('feature-new')).toBe(false)
 
-      // Update
       updateCallback?.({
         'feature-new': true,
       })
 
       expect(context.has('feature-new')).toBe(true)
       expect(context.selectedIds.has('feature-new')).toBe(true)
+    })
+
+    it('should update existing flags from adapter', () => {
+      let updateCallback: ((flags: FeaturesAdapterFlags) => void) | undefined
+
+      const mockAdapter: FeaturesAdapterInterface = {
+        setup: onUpdate => {
+          updateCallback = onUpdate
+          return {
+            'feature-boolean': true,
+            'feature-object': { $value: true, $variation: 'test' },
+            'feature-to-enable': false,
+            'feature-object-to-enable': { $value: false, $variation: 'test' },
+          }
+        },
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: mockAdapter }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-boolean')).toBe(true)
+      expect(context.selectedIds.has('feature-object')).toBe(true)
+      expect(context.selectedIds.has('feature-to-enable')).toBe(false)
+      expect(context.selectedIds.has('feature-object-to-enable')).toBe(false)
+
+      updateCallback?.({
+        'feature-boolean': false,
+        'feature-object': { $value: false, $variation: 'test' },
+        'feature-to-enable': true,
+        'feature-object-to-enable': { $value: true, $variation: 'test' },
+      })
+
+      expect(context.selectedIds.has('feature-boolean')).toBe(false)
+      expect(context.selectedIds.has('feature-object')).toBe(false)
+      expect(context.selectedIds.has('feature-to-enable')).toBe(true)
+      expect(context.selectedIds.has('feature-object-to-enable')).toBe(true)
+    })
+
+    it('should be reactive when flags are updated from adapter', async () => {
+      let updateCallback: ((flags: FeaturesAdapterFlags) => void) | undefined
+
+      const mockAdapter: FeaturesAdapterInterface = {
+        setup: onUpdate => {
+          updateCallback = onUpdate
+          return {
+            'reactive-feature': true,
+          }
+        },
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: mockAdapter }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      let isFeatureEnabled = false
+      const stop = app.runWithContext(() => {
+        return watchEffect(() => {
+          isFeatureEnabled = context.selectedIds.has('reactive-feature')
+        })
+      })
+
+      expect(isFeatureEnabled).toBe(true)
+
+      updateCallback?.({
+        'reactive-feature': false,
+      })
+
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(isFeatureEnabled).toBe(false)
+      stop()
     })
   })
 })
