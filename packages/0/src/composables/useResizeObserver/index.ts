@@ -26,8 +26,7 @@ import { isNull } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
-import type { MaybeRef } from '#v0/types'
-import type { Ref } from 'vue'
+import type { Ref, MaybeRef } from 'vue'
 
 export interface ResizeObserverEntry {
   contentRect: {

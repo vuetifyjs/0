@@ -27,7 +27,9 @@
         "src/pages/**/*.vue",
         "src/components/docs/meta/*.vue",
         "src/examples/guide/building-frameworks/my-ui/src/**/*.ts",
-        "src/examples/guide/building-frameworks/my-ui/vite.config.ts"
+        "src/examples/guide/building-frameworks/my-ui/vite.config.ts",
+        "src/components/app/AppBrowserIcon.vue",
+        "src/components/docs/DocsBrowserSupport.vue"
       ],
       "paths": {
         "@/*": [

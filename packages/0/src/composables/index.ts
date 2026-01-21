@@ -1,6 +1,3 @@
-// Types (re-exported for convenience)
-export type { MaybeRef } from '#v0/types'
-
 // Composables
 export * from './createContext'
 export * from './createPlugin'
