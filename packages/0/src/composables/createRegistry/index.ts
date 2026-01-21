@@ -25,6 +25,7 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { clamp, isUndefined, useId } from '#v0/utilities'
+import { shallowReactive } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -571,6 +572,24 @@ export interface RegistryOptions {
    * ```
   */
   events?: boolean
+  /**
+   * Enable reactive behavior for registry operations
+   *
+   * @default false
+   * @remarks When enabled, the registry will use Vue's shallowReactive to track changes. This is useful for scenarios where you want to reactively update the registry state in response to changes.
+   *
+   * @example
+   * ```ts
+   * import { createRegistry } from '@vuetify/v0'
+   *
+   * const registry = createRegistry({ reactive: true })
+   *
+   * registry.register({ id: 'ticket-id' })
+   *
+   * console.log(registry.size) // 1
+   * ```
+  */
+  reactive?: boolean
 }
 
 export interface RegistryContextOptions extends RegistryOptions {
@@ -606,13 +625,14 @@ export function createRegistry<
 > (options?: RegistryOptions): E {
   const logger = useLogger()
 
-  const collection = new Map<ID, Z>()
+  const events = options?.events ?? false
+  const reactive = options?.reactive ?? false
+
+  const collection = reactive ? shallowReactive(new Map<ID, Z>()) : new Map<ID, Z>()
   const catalog = new Map<unknown, ID[]>()
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
   const listeners = new Map<string, Set<RegistryEventCallback>>()
-
-  const events = options?.events ?? false
 
   let indexDependentCount = 0
   let needsReindex = false
@@ -877,13 +897,15 @@ export function createRegistry<
       indexDependentCount++
     }
 
-    const ticket = {
+    const rawTicket = {
       ...registration,
       id,
       index,
       value,
       valueIsIndex,
     } as Z
+
+    const ticket = reactive ? shallowReactive(rawTicket) : rawTicket
 
     collection.set(ticket.id, ticket)
     directory.set(ticket.index, ticket.id)
