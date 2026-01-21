@@ -32,27 +32,19 @@ describe('useVirtual', () => {
     mockIsHydrated.value = true
 
     // Mock ResizeObserver as a proper constructor
-    const mockObserver = {
-      observe: vi.fn((element: any) => {
-        // Immediately trigger the callback with mock dimensions
-        const callback = (globalThis.ResizeObserver as any).mock.calls[0][0]
-        if (callback && element) {
-          const rect = element.getBoundingClientRect?.() || { width: 400, height: 500 }
-          callback([{
-            target: element,
-            contentRect: rect,
-            borderBoxSize: [],
-            contentBoxSize: [],
-            devicePixelContentBoxSize: [],
-          }])
-        }
-      }),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }
     globalThis.ResizeObserver = vi.fn(function (this: any, callback: any) {
-      (this as any).callback = callback
-      return mockObserver
+      this.observe = vi.fn((element: any) => {
+        const rect = element.getBoundingClientRect?.() || { width: 400, height: 500 }
+        callback([{
+          target: element,
+          contentRect: rect,
+          borderBoxSize: [{ blockSize: rect.height, inlineSize: rect.width }],
+          contentBoxSize: [],
+          devicePixelContentBoxSize: [],
+        }])
+      })
+      this.unobserve = vi.fn()
+      this.disconnect = vi.fn()
     }) as any
 
     // Mock container element
@@ -79,6 +71,7 @@ describe('useVirtual', () => {
         y: 0,
         toJSON: () => ({}),
       })),
+      children: [],
     } as unknown as HTMLElement
 
     // Mock window for IN_BROWSER
@@ -853,5 +846,31 @@ describe('useVirtual', () => {
       // cancelAnimationFrame should have been called
       expect(globalThis.cancelAnimationFrame).toHaveBeenCalled()
     })
+  })
+
+  it('should support dynamic item sizing', async () => {
+    const items = ref(Array.from({ length: 10 }, (_, i) => i))
+    const virtual = useVirtual(items, { itemHeight: 50, dynamic: true })
+
+    // Mock item elements with random heights
+    const heights = [30, 60, 45, 80, 50] // First 5 items
+    const itemElements = Array.from({ length: 5 }, (_, i) => ({
+      dataset: { index: String(i) },
+      getBoundingClientRect: () => ({ width: 400, height: heights[i] }),
+    }))
+
+    // @ts-expect-error mock property
+    mockContainer.children = itemElements
+
+    virtual.element.value = mockContainer
+
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 0))
+    await nextTick()
+
+    // Sum of first 5 items: 30 + 60 + 45 + 80 + 50 = 265
+    virtual.scrollTo(5)
+
+    expect(mockContainer.scrollTop).toBe(265)
   })
 })

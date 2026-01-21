@@ -98,6 +98,12 @@ export interface VirtualOptions {
    * Whether to enable elastic scrolling.
    */
   elastic?: boolean
+  /**
+   * Whether to enable dynamic item sizing.
+   * When enabled, the composable will observe item size changes.
+   * Items must have a `data-index` attribute with their index.
+   */
+  dynamic?: boolean
 }
 
 export interface VirtualItem<T = unknown> {
@@ -349,6 +355,7 @@ export function useVirtual<T = unknown> (
     endThreshold = 0,
     momentum: momentumOption,
     elastic: elasticOption,
+    dynamic = false,
   } = _options
 
   const element = ref<HTMLElement>()
@@ -634,10 +641,38 @@ export function useVirtual<T = unknown> (
     }
   }
 
+  let itemResizeObserver: ResizeObserver | undefined
+  if (IN_BROWSER && dynamic) {
+    itemResizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const target = entry.target as HTMLElement
+        const index = target.dataset.index
+        if (index === undefined) continue
+
+        const height = entry.borderBoxSize?.[0]?.blockSize ?? target.getBoundingClientRect().height
+        resize(Number.parseInt(index, 10), height)
+      }
+    })
+
+    watch(computedItems, () => {
+      if (!itemResizeObserver || !element.value) return
+
+      const children = element.value.children
+      itemResizeObserver.disconnect()
+      for (const child_ of children) {
+        const child = child_ as HTMLElement
+        if (child.dataset.index !== undefined) {
+          itemResizeObserver.observe(child)
+        }
+      }
+    }, { flush: 'post' })
+  }
+
   onScopeDispose(() => {
     cancelAnimationFrame(raf)
     cancelAnimationFrame(rebuildRaf)
     cancelAnimationFrame(edgeRaf)
+    itemResizeObserver?.disconnect()
   }, true)
 
   return {
