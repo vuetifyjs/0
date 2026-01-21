@@ -120,7 +120,7 @@ export function createFeatures<
   const { features, ...options } = _options
 
   const tokens = createTokens(features, { flat: true })
-  const registry = createGroup<Z, E>(options)
+  const registry = createGroup<Z, E>({ ...options, reactive: true })
 
   for (const [id, { value }] of tokens.entries()) {
     register({ id, value } as Partial<Z>)
