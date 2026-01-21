@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { createApp, watchEffect } from 'vue'
@@ -516,6 +516,23 @@ describe('createFeaturesPlugin', () => {
 
       expect(isFeatureEnabled).toBe(false)
       stop()
+    })
+
+    it('should call adapter dispose when scope is disposed', () => {
+      const disposeMock = vi.fn()
+      const mockAdapter: FeaturesAdapterInterface = {
+        setup: () => ({}),
+        dispose: disposeMock,
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: mockAdapter }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
+
+      expect(disposeMock).toHaveBeenCalled()
     })
   })
 })
