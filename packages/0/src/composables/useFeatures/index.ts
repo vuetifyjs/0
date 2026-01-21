@@ -161,22 +161,18 @@ export function createFeatures<
       const existing = registry.get(id)
 
       if (existing) {
-        // Update existing flag
         const shouldSelect = isBoolean(value)
           ? value === true
           : isObject(value) && isBoolean(value.$value) && value.$value === true
 
-        // Update the value via upsert
         registry.upsert(id, { value } as Partial<Z>)
 
-        // Update selection state
         if (shouldSelect) {
           registry.select(id)
         } else {
           registry.unselect(id)
         }
       } else {
-        // Register new flag
         register({ id, value } as Partial<Z>)
       }
     }
