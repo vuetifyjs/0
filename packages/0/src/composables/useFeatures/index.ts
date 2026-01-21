@@ -28,8 +28,7 @@ import { createGroup } from '#v0/composables/createGroup'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Utilities
-import { isBoolean, isObject } from '#v0/utilities'
-import { onScopeDispose } from 'vue'
+import { isBoolean, isFunction, isObject } from '#v0/utilities'
 
 // Types
 import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
@@ -269,18 +268,17 @@ export function createFeaturesPlugin<
     provide: (app: App) => {
       provideFeaturesContext(context, app)
     },
-    setup: (_app: App) => {
+    setup: (app: App) => {
       if (!adapter) return
 
-      // Initialize adapter and sync initial flags
       const initialFlags = adapter.setup(flags => {
         context.sync(flags)
       })
 
       context.sync(initialFlags)
 
-      if (adapter.dispose) {
-        onScopeDispose(() => adapter.dispose!(), true)
+      if (isFunction(adapter.dispose)) {
+        app.onUnmount(() => adapter.dispose!())
       }
     },
   })
