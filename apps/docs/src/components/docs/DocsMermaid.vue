@@ -625,7 +625,7 @@
 
   @keyframes backdrop-fade {
     from { background: rgb(0 0 0 / 0); }
-    to { background: rgb(0 0 0 / 0.5); }
+    to { background: rgb(0 0 0 / 0.3); }
   }
 
   .docs-mermaid-dialog[open] {
@@ -642,6 +642,6 @@
   }
 
   .docs-mermaid-dialog.reduce-motion[open]::backdrop {
-    background: rgb(0 0 0 / 0.5);
+    background: rgb(0 0 0 / 0.3);
   }
 </style>

@@ -77,6 +77,15 @@
 
     <DocsSearch />
 
+    <!-- Mobile nav backdrop -->
+    <Transition :name="fadeTransition">
+      <div
+        v-if="isMobileNavOpen"
+        class="fixed inset-0 bg-black/30 z-9"
+        @click="app.drawer = false"
+      />
+    </Transition>
+
     <!-- Settings backdrop -->
     <Transition :name="fadeTransition">
       <div
