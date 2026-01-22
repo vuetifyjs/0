@@ -67,7 +67,7 @@
   // Register step config if any lifecycle props are provided
   const hasConfig = props.enter || props.leave || props.back || props.nextWhen
   const cleanup = hasConfig
-    ? discovery.step(props.step, {
+    ? discovery.on(props.step, {
       enter: props.enter,
       leave: props.leave,
       back: props.back,
@@ -107,7 +107,7 @@
     >
       <!-- Header -->
       <div class="flex justify-between items-center mb-4">
-        <span class="text-2xs font-bold uppercase tracking-wide px-2 py-1 bg-primary text-on-primary rounded">
+        <span class="text-xs font-bold uppercase tracking-wide px-2 py-1 bg-primary text-on-primary rounded">
           SKILLZ
         </span>
 
@@ -135,28 +135,30 @@
       <div v-if="$slots.footer" class="flex justify-end gap-2">
         <slot name="footer" />
       </div>
-      <div v-else class="flex justify-end gap-2">
-        <Discovery.Prev v-if="!isFirst" class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
-          Back
-        </Discovery.Prev>
-
-        <Discovery.Next v-if="!isLast" class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
-          Skip
-        </Discovery.Next>
-
+      <div v-else class="flex gap-2">
         <Discovery.Skip
           v-if="!isLast"
-          class="ml-auto px-3 py-1.5 text-sm rounded-lg text-error hover:bg-error/10 transition-colors"
+          class="px-3 py-1.5 text-sm rounded-lg text-error hover:bg-error/10 transition-colors"
         >
           Exit
         </Discovery.Skip>
 
-        <Discovery.Skip
-          v-else
-          class="ml-auto px-3 py-1.5 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors"
-        >
-          Complete
-        </Discovery.Skip>
+        <div class="ml-auto flex gap-2">
+          <Discovery.Prev v-if="!isFirst" class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
+            Back
+          </Discovery.Prev>
+
+          <Discovery.Next v-if="!isLast" class="px-3 py-1.5 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors">
+            Next
+          </Discovery.Next>
+
+          <Discovery.Skip
+            v-else
+            class="px-3 py-1.5 text-sm rounded-lg bg-primary text-on-primary hover:bg-primary/90 transition-colors"
+          >
+            Complete
+          </Discovery.Skip>
+        </div>
       </div>
     </Discovery.Content>
   </Discovery.Root>

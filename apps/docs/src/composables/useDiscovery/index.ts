@@ -83,8 +83,10 @@ export interface DiscoveryContext extends Omit<StepContext<StepTicketInput>, 're
   total: Readonly<ShallowRef<number>>
   /** Reactive number of defined tours */
   all: Readonly<ShallowRef<number>>
+  /** Navigate to step by index (1-based) */
+  step: (index: number) => void
   /** Configure step behavior declaratively */
-  step: (id: ID, config: DiscoveryStepConfig) => () => void
+  on: (id: ID, config: DiscoveryStepConfig) => () => void
 }
 
 export interface DiscoveryOptions {
@@ -350,7 +352,14 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
     tours.select(prevId)
   }
 
-  function step (id: ID, config: DiscoveryStepConfig): () => void {
+  function step (index: number) {
+    const id = tours.lookup(index - 1)
+    if (isUndefined(id)) return
+    if (isStepDisabled(id)) return
+    tours.select(id)
+  }
+
+  function onStep (id: ID, config: DiscoveryStepConfig): () => void {
     let stopAdvanceWatcher: (() => void) | null = null
 
     const offChange = on(`change:${id}`, active => {
@@ -406,6 +415,7 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
     next,
     prev,
     step,
+    on: onStep,
   }
 }
 
