@@ -26,6 +26,9 @@
   const root = useDiscoveryRootContext('v0:discovery')
   const contentRef = useTemplateRef<HTMLElement>('content')
 
+  // Check for CSS Anchor Positioning support
+  const supportsAnchor = IN_BROWSER && CSS.supports('position-area', 'top')
+
   // Map placement to position-area values with self-alignment for centering
   const placementStyles: Record<string, Record<string, string>> = {
     bottom: {
@@ -46,17 +49,35 @@
     },
   }
 
-  const style = toRef(() => ({
-    position: 'fixed' as const,
-    margin: `${offset}px`,
-    positionAnchor: `--discovery-${root.step}`,
-    positionTryFallbacks: positionTry,
-    ...placementStyles[placement] ?? placementStyles.bottom,
-  }))
+  const style = toRef(() => {
+    if (supportsAnchor) {
+      return {
+        position: 'fixed' as const,
+        margin: `${offset}px`,
+        positionAnchor: `--discovery-${root.step}`,
+        positionTryFallbacks: positionTry,
+        ...placementStyles[placement] ?? placementStyles.bottom,
+      }
+    }
+    // Fallback for browsers without anchor positioning (Safari/iOS)
+    // Centers popover at viewport edge since we can't anchor to elements
+    const fallbackStyles: Record<string, Record<string, string>> = {
+      bottom: { top: 'auto', bottom: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },
+      top: { top: `${offset}px`, bottom: 'auto', left: '50%', transform: 'translateX(-50%)' },
+      left: { top: '50%', left: `${offset}px`, transform: 'translateY(-50%)' },
+      right: { top: '50%', right: `${offset}px`, left: 'auto', transform: 'translateY(-50%)' },
+    }
+    return {
+      position: 'fixed' as const,
+      ...fallbackStyles[placement] ?? fallbackStyles.bottom,
+    }
+  })
 
   watch(() => root.isActive.value, async isActive => {
     if (!IN_BROWSER) return
     await nextTick()
+    // Extra frame to ensure anchor element is positioned after enter callbacks
+    await new Promise(resolve => requestAnimationFrame(resolve))
     const el = contentRef.value
     if (!el?.isConnected) return
 
