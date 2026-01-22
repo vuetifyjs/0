@@ -10,9 +10,11 @@
     code: string // base64 encoded
     language?: string
     title?: string
+    binTitle?: string
     playground?: boolean
     collapse?: boolean
     collapseLines?: number
+    hideFilename?: boolean
   }>(), {
     collapseLines: 15,
   })
@@ -47,15 +49,16 @@
     <span
       v-if="title || (language && language !== 'text')"
       class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
-      :class="{ 'uppercase': !title }"
+      :class="{ 'uppercase': !title || hideFilename }"
     >
-      {{ title || language }}
+      {{ hideFilename ? language : title ?? language }}
     </span>
 
     <div class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
       <DocsCodeActions
         v-model:wrap="lineWrap"
         bin
+        :bin-title="binTitle"
         :code="decodedCode"
         :language
         :playground
