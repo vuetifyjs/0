@@ -27,7 +27,11 @@
   const contentRef = useTemplateRef<HTMLElement>('content')
 
   // Check for CSS Anchor Positioning support
-  const supportsAnchor = IN_BROWSER && CSS.supports('position-area', 'top')
+  // Safari/iOS don't support anchor positioning - check for the specific property
+  const supportsAnchor = IN_BROWSER
+    && typeof CSS !== 'undefined'
+    && typeof CSS.supports === 'function'
+    && CSS.supports('position-area', 'top')
 
   // Map placement to position-area values with self-alignment for centering
   const placementStyles: Record<string, Record<string, string>> = {
@@ -61,14 +65,16 @@
     }
     // Fallback for browsers without anchor positioning (Safari/iOS)
     // Centers popover at viewport edge since we can't anchor to elements
+    // Reset inset to avoid top-layer default positioning
+    const base = { inset: 'auto', position: 'fixed' as const }
     const fallbackStyles: Record<string, Record<string, string>> = {
-      bottom: { top: 'auto', bottom: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },
-      top: { top: `${offset}px`, bottom: 'auto', left: '50%', transform: 'translateX(-50%)' },
+      bottom: { bottom: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },
+      top: { top: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },
       left: { top: '50%', left: `${offset}px`, transform: 'translateY(-50%)' },
-      right: { top: '50%', right: `${offset}px`, left: 'auto', transform: 'translateY(-50%)' },
+      right: { top: '50%', right: `${offset}px`, transform: 'translateY(-50%)' },
     }
     return {
-      position: 'fixed' as const,
+      ...base,
       ...fallbackStyles[placement] ?? fallbackStyles.bottom,
     }
   })
