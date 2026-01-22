@@ -320,6 +320,7 @@
   /* DocsMarkup code block padding */
   .docs-markup pre {
     padding-top: 2.5rem;
+    padding-bottom: 1rem;
   }
 
   @media (max-width: 768px) {

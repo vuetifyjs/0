@@ -37,7 +37,7 @@ The Tabs component provides a compound pattern for building accessible tab inter
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy playground no-filename
 <script setup lang="ts">
   import { Tabs } from '@vuetify/v0'
 </script>

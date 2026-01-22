@@ -127,11 +127,10 @@ bun add @vuetify/v0
 Create a plugin file to configure v0:
 
 ```ts src/plugins/vuetify0.ts
-import { createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
+import { createThemePlugin } from '@vuetify/v0'
 import type { App } from 'vue'
 
 export default function zero (app: App) {
-  app.use(createHydrationPlugin())
   app.use(
     createThemePlugin({
       default: 'light',
@@ -392,11 +391,10 @@ v0 works with Nuxt 3 via a standard plugin.
 
 ### 1. Create Plugin
 
-```ts plugins/v0.ts
-import { createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
+```ts plugins/vuetify0.ts collapse
+import { createThemePlugin } from '@vuetify/v0'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(createHydrationPlugin())
   nuxtApp.vueApp.use(
     createThemePlugin({
       default: 'light',

@@ -35,7 +35,7 @@ Use Atom when you need to:
 
 The `as` prop accepts any HTML tag name. Set `as` to `null` or use the `renderless` prop to skip the wrapper entirely and render only slot content.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
   <BasicExample />
 </DocsExample>
 

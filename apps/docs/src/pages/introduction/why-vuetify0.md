@@ -156,22 +156,22 @@ v0 and Vuetify share the same DNA. You can use v0 composables inside a Vuetify a
 
   const selection = createSelection({ multiple: true })
 
-  const items = [
+  selection.onboard([
     { id: 1, title: 'Option A' },
     { id: 2, title: 'Option B' },
     { id: 3, title: 'Option C' },
-  ]
+  ])
 </script>
 
 <template>
   <VCard title="Select Options">
     <div class="d-flex ga-2 pa-4">
       <VBtn
-        v-for="item in items"
+        v-for="item in selection.values()"
         :key="item.id"
-        :color="selection.isSelected(item.id) ? 'primary' : undefined"
-        :variant="selection.isSelected(item.id) ? 'flat' : 'outlined'"
-        @click="selection.toggle(item.id)"
+        :color="item.isSelected.value ? 'primary' : undefined"
+        :variant="item.isSelected.value ? 'flat' : 'outlined'"
+        @click="item.toggle()"
       >
         {{ item.title }}
       </VBtn>
@@ -190,9 +190,9 @@ This lets you leverage v0's selection patterns while keeping Vuetify's styled co
 | If you need... | Choose |
 |----------------|--------|
 | Material Design, batteries included | Vuetify 3 |
-| Custom design system, full control | v0 |
+| Custom design system, full control | Vuetify0 |
 | Most components, fastest start | Reka UI |
 | Multi-framework consistency | Ark UI |
 | Utility composables | VueUse (pairs with any) |
 
-Still unsure? Start with the [Getting Started](/introduction/getting-started) guide and try v0's selection patterns. If they click, you're in the right place.
+Still unsure? Start with the [Getting Started](/introduction/getting-started) guide and try Vuetify0's selection patterns. If they click, you're in the right place.

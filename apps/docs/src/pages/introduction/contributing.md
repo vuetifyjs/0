@@ -73,7 +73,7 @@ pnpm dev:docs
 
 ### Project Structure
 
-```text
+```txt
 ├── packages/
 │   └── 0/              # @vuetify/v0 - main package
 │       ├── src/
@@ -140,7 +140,7 @@ Use descriptive branch names:
 
 Follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
 
-```text
+```txt
 type(scope): subject
 ```
 
@@ -220,4 +220,3 @@ describe('useSelection', () => {
 - [GitHub Issues](https://github.com/vuetifyjs/0/issues) - Bug reports and feature requests
 
 Thank you for contributing!
-
