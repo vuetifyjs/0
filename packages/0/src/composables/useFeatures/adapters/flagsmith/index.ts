@@ -14,12 +14,11 @@ export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
   }
 
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {
-    this.client.init({
-      ...this.options,
-      onChange: (oldFlags: IFlags | null, params: IRetrieveInfo, loadingState: LoadingState) => {
-        const flags = this.client.getAllFlags()
-        const adapterFlags: FeaturesAdapterFlags = {}
+    const updateFlags = () => {
+      const flags = this.client.getAllFlags()
+      const adapterFlags: FeaturesAdapterFlags = {}
 
+      if (flags) {
         for (const [key, flag] of Object.entries(flags)) {
           const isEnabled = flag.enabled
           const variation = flag.value
@@ -28,8 +27,15 @@ export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
             ? { $value: isEnabled, $variation: variation }
             : isEnabled
         }
+      }
 
-        onUpdate(adapterFlags)
+      return adapterFlags
+    }
+
+    this.client.init({
+      ...this.options,
+      onChange: (oldFlags: IFlags | null, params: IRetrieveInfo, loadingState: LoadingState) => {
+        onUpdate(updateFlags())
 
         this.options.onChange?.(oldFlags, params, loadingState)
       },
@@ -37,7 +43,7 @@ export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
 
     this.disposeFn = () => this.client.stopListening()
 
-    return {}
+    return updateFlags()
   }
 
   dispose () {

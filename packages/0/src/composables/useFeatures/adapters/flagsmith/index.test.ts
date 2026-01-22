@@ -58,4 +58,17 @@ describe('flagsmithFeatureAdapter', () => {
       'feature-b': false,
     })
   })
+
+  it('should return initial flags if available', () => {
+    mockFlagsmith.getAllFlags.mockReturnValue({
+      'feature-c': { enabled: true, value: 'value-c' } as any,
+    })
+
+    const adapter = new FlagsmithFeatureAdapter(mockFlagsmith as unknown as IFlagsmith, { environmentID: 'test-env' })
+    const initialFlags = adapter.setup(vi.fn())
+
+    expect(initialFlags).toEqual({
+      'feature-c': { $value: true, $variation: 'value-c' },
+    })
+  })
 })
