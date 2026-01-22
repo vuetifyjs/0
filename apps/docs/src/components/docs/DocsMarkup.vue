@@ -39,55 +39,56 @@
 </script>
 
 <template>
-  <div
-    class="docs-markup relative my-4 group"
-    :class="{
-      'docs-markup--wrap': lineWrap,
-      'mb-8': shouldCollapse
-    }"
-  >
-    <span
-      v-if="title || (language && language !== 'text')"
-      class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
-      :class="{ 'uppercase': !title || hideFilename }"
-    >
-      {{ hideFilename ? language : title ?? language }}
-    </span>
-
-    <div class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
-      <DocsCodeActions
-        v-model:wrap="lineWrap"
-        bin
-        :bin-title="binTitle"
-        :code="decodedCode"
-        :language
-        :playground
-        show-copy
-        show-wrap
-        :title
-      />
-
-      <button
-        v-if="shouldCollapse && expanded"
-        aria-label="Collapse code"
-        class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
-        title="Collapse code"
-        type="button"
-        @click="expanded = false"
-      >
-        <AppIcon icon="fullscreen-exit" :size="16" />
-      </button>
-    </div>
-
+  <div class="relative my-4" :class="shouldCollapse && !expanded && 'mb-8'">
     <div
-      class="overflow-hidden transition-[max-height] duration-300 ease-out"
-      :class="shouldCollapse && !expanded && 'rounded-b-2 border-b border-divider'"
-      :style="shouldCollapse && !expanded ? { maxHeight: collapsedHeight } : undefined"
+      class="docs-markup relative group"
+      :class="[
+        { 'docs-markup--wrap': lineWrap },
+        shouldCollapse && !expanded && 'overflow-hidden rounded-b-2 border-b border-divider'
+      ]"
     >
-      <slot />
-    </div>
+      <span
+        v-if="title || (language && language !== 'text')"
+        class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
+        :class="{ 'uppercase': !title || hideFilename }"
+      >
+        {{ hideFilename ? language : title ?? language }}
+      </span>
 
-    <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute left-px right-px bottom-px h-16 rounded-b-2 pointer-events-none" />
+      <div class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+        <DocsCodeActions
+          v-model:wrap="lineWrap"
+          bin
+          :bin-title="binTitle"
+          :code="decodedCode"
+          :language
+          :playground
+          show-copy
+          show-wrap
+          :title
+        />
+
+        <button
+          v-if="shouldCollapse && expanded"
+          aria-label="Collapse code"
+          class="inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+          title="Collapse code"
+          type="button"
+          @click="expanded = false"
+        >
+          <AppIcon icon="fullscreen-exit" :size="16" />
+        </button>
+      </div>
+
+      <div
+        class="transition-[max-height] duration-300 ease-out"
+        :style="shouldCollapse && !expanded ? { maxHeight: collapsedHeight } : undefined"
+      >
+        <slot />
+      </div>
+
+      <div v-if="shouldCollapse && !expanded" class="docs-markup-fade absolute left-0 right-0 bottom-0 h-16 rounded-b-2 pointer-events-none" />
+    </div>
 
     <button
       v-if="shouldCollapse && !expanded"

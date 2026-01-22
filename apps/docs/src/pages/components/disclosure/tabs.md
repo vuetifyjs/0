@@ -31,7 +31,7 @@ A component for creating accessible tabbed interfaces with proper ARIA support a
 
 The Tabs component provides a compound pattern for building accessible tab interfaces. It uses the `createStep` composable internally for navigation and provides full v-model support with automatic state synchronization.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
   <BasicExample />
 </DocsExample>
 
