@@ -78,7 +78,7 @@
     hint="Ask AI knows the content of the current page and can answer questions about it"
     :next-on="nextOnEnter"
     :next-when="() => sheet.isOpen.value"
-    placement="top"
+    placement="top center"
     step="ask-ai"
     title="Open Ask AI"
   >
@@ -90,7 +90,6 @@
     :enter="() => sheet.open()"
     :leave="() => sheet.close()"
     :next-when="() => !sheet.isOpen.value"
-    :offset="[-32, 0]"
     placement="x-start"
     step="ask-ai-close"
     text="Click the close button to dismiss the Ask AI panel."
@@ -101,7 +100,7 @@
   <DocsDiscoveryStep
     hint="Your conversation persists until you clear it or refresh the page"
     :next-when="sheet.isOpen"
-    placement="top"
+    placement="top center"
     step="ask-ai-reopen"
     text="Click the Ask AI input at the bottom to bring back your conversation. Notice it remembers what you discussed!"
     title="Reopen Ask AI"
@@ -124,7 +123,6 @@
   <DocsDiscoveryStep
     hint="Skill filters change the visible navigation items"
     :next-when="() => settings.isOpen.value"
-    :offset="[-32, 0]"
     placement="bottom left"
     step="open-settings"
     text="Click the settings button in the header to open the Settings panel."
@@ -136,7 +134,7 @@
     :enter="() => settings.open()"
     hint="Try toggling levels to see how navigation updates"
     :leave="() => settings.close()"
-    :placement="breakpoints.mdAndUp.value ? 'left' : 'top'"
+    :placement="`${breakpoints.mdAndUp.value ? 'left' : 'top center'}`"
     step="skill-level"
     text="Select one or more skill levels to filter documentation by complexity. Beginner shows fundamentals, Advanced reveals in-depth content."
     title="Adjust your skill level"
