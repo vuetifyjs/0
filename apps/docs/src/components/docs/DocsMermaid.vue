@@ -10,7 +10,7 @@
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, useTemplateRef, watch } from 'vue'
 
-  const { prefersReducedMotion } = useSettings()
+  const { prefersReducedMotion, showBgGlass } = useSettings()
   const { copied, copy } = useClipboard()
   const logger = useLogger()
 
@@ -286,7 +286,7 @@
       </figure>
     </Dialog.Activator>
 
-    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider', prefersReducedMotion && 'reduce-motion']">
+    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl border border-divider', showBgGlass ? 'bg-glass-surface' : 'bg-surface', prefersReducedMotion && 'reduce-motion']">
       <!-- Header toolbar -->
       <div class="flex items-center justify-between gap-2 p-2 border-b border-divider">
         <Dialog.Title as="span" class="sr-only">

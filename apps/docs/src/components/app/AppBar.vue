@@ -31,7 +31,7 @@
   const features = useFeatures()
   const theme = useTheme()
   const search = useSearch()
-  const { showSkillFilter, showThemeToggle, showSocialLinks } = useSettings()
+  const { showSkillFilter, showThemeToggle, showSocialLinks, showBgGlass } = useSettings()
 
   const devmode = features.get('devmode')!
 
@@ -48,7 +48,7 @@
 <template>
   <Atom
     :as
-    class="flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1 bg-glass-surface"
+    :class="['flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1', showBgGlass ? 'bg-glass-surface' : 'bg-surface']"
     data-app-bar
   >
     <div class="flex items-center gap-2">
@@ -76,7 +76,7 @@
       <Discovery.Activator class="rounded-2xl" step="open-search">
         <button
           aria-label="Search (Ctrl+K)"
-          class="inline-flex items-center gap-1.5 md:bg-glass-surface rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors"
+          :class="['inline-flex items-center gap-1.5 rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors', showBgGlass ? 'md:bg-glass-surface' : 'md:bg-surface']"
           title="Search (Ctrl+K)"
           type="button"
           @click="search.open()"

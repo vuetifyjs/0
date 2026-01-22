@@ -43,7 +43,7 @@
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
   const triggerRef = shallowRef<HTMLElement | null>(null)
-  const { prefersReducedMotion } = useSettings()
+  const { prefersReducedMotion, showBgGlass } = useSettings()
   const { open: openAsk, ask } = useAskSheet()
   const transition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
 
@@ -188,7 +188,7 @@
       class="fixed inset-x-0 top-[20%] mx-auto w-full max-w-2xl z-50 px-4"
       role="dialog"
     >
-      <div class="bg-glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
+      <div :class="['rounded-lg shadow-xl border border-divider overflow-hidden', showBgGlass ? 'bg-glass-surface' : 'bg-surface']">
         <Discovery.Activator
           class="flex-1 bg-transparent flex border-b border-divider outline-none text-on-surface rounded-lg rounded-b-0 items-center gap-3 px-4 py-3"
           step="search-tabs"

@@ -14,7 +14,7 @@
   const { preference, setPreference, theme } = useThemeToggle()
   const { customThemes, isEditing, create, update, remove, getCurrentTheme, clearPreview } = useCustomThemes()
   const { copied, copy } = useClipboard()
-  const { showDotGrid, showMeshTransition } = useSettings()
+  const { showDotGrid, showMeshTransition, showBgGlass } = useSettings()
 
   // Editor state
   const editingTheme = shallowRef<ThemeDefinition | null>(null)
@@ -278,6 +278,11 @@
             v-model="showMeshTransition"
             description="Animate background on scroll"
             label="Mesh transition"
+          />
+          <AppSettingsToggle
+            v-model="showBgGlass"
+            description="Frosted glass effect on UI surfaces"
+            label="Glass surface effect"
           />
         </div>
       </div>

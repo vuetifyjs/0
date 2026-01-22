@@ -11,6 +11,7 @@
   import { getBinUrl } from '@/composables/bin'
   import { useAskSheet } from '@/composables/useAskSheet'
   import { useClipboard } from '@/composables/useClipboard'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { computed, nextTick, useTemplateRef, watch } from 'vue'
@@ -36,6 +37,7 @@
   const breakpoints = useBreakpoints()
   const { focusTrigger } = useAskSheet()
   const { copied, copy } = useClipboard()
+  const { showBgGlass } = useSettings()
 
   const messagesRef = useTemplateRef<HTMLElement | null>('messages')
   const formRef = useTemplateRef<{ focus: () => void }>('form')
@@ -92,7 +94,8 @@
     aria-labelledby="ask-title"
     :aria-modal="!isDesktop"
     :class="[
-      'flex flex-col z-50 bg-glass-surface',
+      'flex flex-col z-50',
+      showBgGlass ? 'bg-glass-surface' : 'bg-surface',
       isDesktop && fullscreen
         ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
         : isDesktop

@@ -11,7 +11,7 @@
 
   const features = useFeatures()
   const storage = useStorage()
-  const { close, reset, hasChanges, lineWrap, showInlineApi, collapsibleNav } = useSettings()
+  const { close, reset, hasChanges, lineWrap, showInlineApi, collapsibleNav, showBgGlass } = useSettings()
 
   const devmode = features.get('devmode')!
 
@@ -48,7 +48,7 @@
     ref="sheet"
     aria-labelledby="settings-title"
     aria-modal="true"
-    class="fixed inset-y-0 right-0 flex flex-col z-50 bg-glass-surface w-[320px] max-w-full shadow-xl outline-none"
+    :class="['fixed inset-y-0 right-0 flex flex-col z-50 w-[320px] max-w-full shadow-xl outline-none', showBgGlass ? 'bg-glass-surface' : 'bg-surface']"
     role="dialog"
     tabindex="-1"
     @keydown="onKeydown"

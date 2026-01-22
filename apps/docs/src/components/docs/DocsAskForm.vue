@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Composables
+  import { useSettings } from '@/composables/useSettings'
+
   // Utilities
   import { shallowRef, useTemplateRef } from 'vue'
 
@@ -16,6 +19,7 @@
 
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const question = shallowRef('')
+  const { showBgGlass } = useSettings()
 
   function onSubmit () {
     const q = question.value.trim()
@@ -38,7 +42,7 @@
 
 <template>
   <form
-    class="bg-glass-surface rounded-full border border-divider flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 hover:border-primary/50 focus-within:border-primary focus-within:hover:border-primary transition-colors"
+    :class="['rounded-full border border-divider flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 hover:border-primary/50 focus-within:border-primary focus-within:hover:border-primary transition-colors', showBgGlass ? 'bg-glass-surface' : 'bg-surface']"
     @submit.prevent="onSubmit"
   >
     <AppIcon

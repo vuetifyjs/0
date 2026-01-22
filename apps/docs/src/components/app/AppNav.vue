@@ -21,7 +21,7 @@
 
   const { as = 'nav' } = defineProps<AtomProps>()
 
-  const { prefersReducedMotion } = useSettings()
+  const { prefersReducedMotion, showBgGlass } = useSettings()
   const { isSettled } = useHydration()
 
   const app = useAppStore()
@@ -121,8 +121,9 @@
     ref="nav"
     aria-label="Main navigation"
     :as
-    class="flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-0 translate-x-[-100%] md:bottom-0 md:translate-x-0 border-r border-solid border-divider z-10 bg-glass-surface"
     :class="[
+      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-[72px] bottom-0 translate-x-[-100%] md:bottom-0 md:translate-x-0 border-r border-solid border-divider z-10',
+      showBgGlass ? 'bg-glass-surface' : 'bg-surface',
       app.drawer && '!translate-x-0',
       !prefersReducedMotion && 'transition-transform duration-200 ease-in-out',
     ]"
