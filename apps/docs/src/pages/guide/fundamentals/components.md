@@ -30,8 +30,6 @@ v0 components are Vue wrappers around composables. Composables hold logic, compo
 > [!TIP]
 > Always spread the `attrs` object onto your elements. It contains ARIA attributes and data attributes for accessibility and styling.
 
-> [!ASKAI] How do I add styling or CSS classes to headless components?
-
 ## Component Categories
 
 | Category | Purpose | Examples |
@@ -122,30 +120,4 @@ Components emit data attributes for CSS styling:
 [data-popover-open] { /* popover is visible */ }
 ```
 
-## Component Reference
-
-### Primitives
-
-- [Atom](/components/primitives/atom) — Polymorphic base element
-
-### Providers
-
-- [Selection](/components/providers/selection) — Multi-selection state
-- [Single](/components/providers/single) — Single-selection state
-- [Group](/components/providers/group) — Multi-select with tri-state
-- [Step](/components/providers/step) — Sequential navigation
-
-### Forms
-
-- [Checkbox](/components/forms/checkbox) — Standalone/group checkbox with tri-state
-
-### Semantic
-
-- [Avatar](/components/semantic/avatar) — Image with fallback
-- [Pagination](/components/semantic/pagination) — Page navigation
-
-### Disclosure
-
-- [Dialog](/components/disclosure/dialog) — Modal dialog with focus management
-- [ExpansionPanel](/components/disclosure/expansion-panel) — Accordion pattern
-- [Popover](/components/disclosure/popover) — Floating content
+> [!ASKAI] How do I add styling or CSS classes to headless components?
