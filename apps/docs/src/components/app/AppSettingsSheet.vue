@@ -4,14 +4,23 @@
 
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
+  import { useLevelFilterContext } from '@/composables/useLevelFilter'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { onUnmounted, useTemplateRef, watch } from 'vue'
+  import { computed, onUnmounted, useTemplateRef, watch } from 'vue'
 
   const features = useFeatures()
   const storage = useStorage()
-  const { close, reset, hasChanges, lineWrap, showInlineApi, collapsibleNav, showBgGlass } = useSettings()
+  const { close, reset: resetSettings, hasChanges: settingsHasChanges, lineWrap, showInlineApi, collapsibleNav, showBgGlass } = useSettings()
+  const { hasChanges: levelHasChanges, clear: clearLevels } = useLevelFilterContext()
+
+  const hasChanges = computed(() => settingsHasChanges.value || levelHasChanges.value)
+
+  function reset () {
+    resetSettings()
+    clearLevels()
+  }
 
   const devmode = features.get('devmode')!
 
@@ -120,11 +129,11 @@
         <AppSettingsHeaderButtons />
 
         <!-- Reset -->
-        <div v-if="hasChanges" class="pt-2 pb-4 border-t border-divider flex justify-between">
+        <div class="pt-4 pb-2 border-t border-divider flex justify-between">
           <button
             aria-label="Enter Developer Mode"
-            class="inline-flex items-center gap-1 text-xs hover:text-error focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
-            :class="[devmode.isSelected.value ? 'text-error' : 'text-on-surface/40' ]"
+            class="inline-flex items-center gap-1 text-xs focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
+            :class="[devmode.isSelected.value ? 'text-error hover:text-error' : 'text-on-surface/40 hover:text-primary' ]"
             type="button"
             @click="devmode.toggle()"
           >
@@ -134,6 +143,7 @@
           </button>
 
           <button
+            v-if="hasChanges"
             aria-label="Reset all settings to defaults"
             class="text-xs text-on-surface/40 hover:text-error hover:underline focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
             type="button"
