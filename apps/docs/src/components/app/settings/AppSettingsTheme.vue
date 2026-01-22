@@ -2,6 +2,7 @@
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
   import { useCustomThemes, type CustomTheme } from '@/composables/useCustomThemes'
+  import { useSettings } from '@/composables/useSettings'
   import { useThemeToggle, type ThemePreference } from '@/composables/useThemeToggle'
 
   // Utilities
@@ -13,6 +14,7 @@
   const { preference, setPreference, theme } = useThemeToggle()
   const { customThemes, isEditing, create, update, remove, getCurrentTheme, clearPreview } = useCustomThemes()
   const { copied, copy } = useClipboard()
+  const { showDotGrid, showMeshTransition } = useSettings()
 
   // Editor state
   const editingTheme = shallowRef<ThemeDefinition | null>(null)
@@ -147,7 +149,7 @@
     <!-- Selector Mode -->
     <template v-else>
       <h3 class="flex items-center gap-2 text-sm font-medium text-on-surface-variant mb-3">
-        <AppIcon icon="theme-settings" size="16" />
+        <AppIcon icon="paint" size="16" />
         <span>Theme</span>
         <button
           class="ml-auto p-1 rounded hover:bg-surface-tint transition-colors inline-flex items-center justify-center shrink-0"
@@ -260,6 +262,23 @@
             </div>
             <AppThemePreview v-if="option.theme" :theme="option.theme" />
           </button>
+        </div>
+      </div>
+
+      <!-- Background Effects -->
+      <div>
+        <div class="text-xs font-medium text-on-surface-variant mb-2">Background Effects</div>
+        <div class="space-y-1">
+          <AppSettingsToggle
+            v-model="showDotGrid"
+            description="Decorative dots in the corner"
+            label="Dot grid pattern"
+          />
+          <AppSettingsToggle
+            v-model="showMeshTransition"
+            description="Animate background on scroll"
+            label="Mesh transition"
+          />
         </div>
       </div>
 

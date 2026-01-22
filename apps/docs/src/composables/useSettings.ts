@@ -21,6 +21,8 @@ export interface DocSettings {
   showThemeToggle: boolean
   showSocialLinks: boolean
   collapsibleNav: boolean
+  showDotGrid: boolean
+  showMeshTransition: boolean
 }
 
 export interface SettingsContext {
@@ -34,6 +36,8 @@ export interface SettingsContext {
   showThemeToggle: ShallowRef<boolean>
   showSocialLinks: ShallowRef<boolean>
   collapsibleNav: ShallowRef<boolean>
+  showDotGrid: ShallowRef<boolean>
+  showMeshTransition: ShallowRef<boolean>
   hasChanges: ShallowRef<boolean>
   open: () => void
   close: () => void
@@ -50,6 +54,8 @@ const DEFAULTS: DocSettings = {
   showThemeToggle: true,
   showSocialLinks: true,
   collapsibleNav: true,
+  showDotGrid: true,
+  showMeshTransition: true,
 }
 
 // Create context
@@ -102,6 +108,8 @@ export function createSettingsContext (): SettingsContext {
   const showThemeToggle = shallowRef(DEFAULTS.showThemeToggle)
   const showSocialLinks = shallowRef(DEFAULTS.showSocialLinks)
   const collapsibleNav = shallowRef(DEFAULTS.collapsibleNav)
+  const showDotGrid = shallowRef(DEFAULTS.showDotGrid)
+  const showMeshTransition = shallowRef(DEFAULTS.showMeshTransition)
 
   // Load stored preferences
   loadSetting(storage, 'lineWrap', lineWrap)
@@ -112,9 +120,11 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'showThemeToggle', showThemeToggle)
   loadSetting(storage, 'showSocialLinks', showSocialLinks)
   loadSetting(storage, 'collapsibleNav', collapsibleNav)
+  loadSetting(storage, 'showDotGrid', showDotGrid)
+  loadSetting(storage, 'showMeshTransition', showMeshTransition)
 
   // Persist on change
-  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav }
+  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, showMeshTransition }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
@@ -134,7 +144,9 @@ export function createSettingsContext (): SettingsContext {
     showSkillFilter.value !== DEFAULTS.showSkillFilter ||
     showThemeToggle.value !== DEFAULTS.showThemeToggle ||
     showSocialLinks.value !== DEFAULTS.showSocialLinks ||
-    collapsibleNav.value !== DEFAULTS.collapsibleNav
+    collapsibleNav.value !== DEFAULTS.collapsibleNav ||
+    showDotGrid.value !== DEFAULTS.showDotGrid ||
+    showMeshTransition.value !== DEFAULTS.showMeshTransition
   ))
 
   // Track trigger element for focus restoration
@@ -172,6 +184,8 @@ export function createSettingsContext (): SettingsContext {
     showThemeToggle.value = DEFAULTS.showThemeToggle
     showSocialLinks.value = DEFAULTS.showSocialLinks
     collapsibleNav.value = DEFAULTS.collapsibleNav
+    showDotGrid.value = DEFAULTS.showDotGrid
+    showMeshTransition.value = DEFAULTS.showMeshTransition
   }
 
   return {
@@ -185,6 +199,8 @@ export function createSettingsContext (): SettingsContext {
     showThemeToggle,
     showSocialLinks,
     collapsibleNav,
+    showDotGrid,
+    showMeshTransition,
     hasChanges,
     open,
     close,

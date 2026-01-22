@@ -35,14 +35,25 @@ import { computed, shallowReactive, toRef, toValue } from 'vue'
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/createSelection'
+import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
 
-export interface GroupTicket<V = unknown> extends SelectionTicket<V> {
+/**
+ * Input type for group tickets.
+ * Extend this interface to add custom properties.
+ */
+export interface GroupTicketInput<V = unknown> extends SelectionTicketInput<V> {
   /** Whether the ticket should start in mixed/indeterminate state */
   indeterminate?: MaybeRef<boolean>
+}
+
+/**
+ * Output type for group tickets.
+ * Includes all input properties plus selection and tri-state methods.
+ */
+export type GroupTicket<Z extends GroupTicketInput = GroupTicketInput> = SelectionTicket<Z> & {
   /** Whether the ticket is in a mixed/indeterminate state */
   isMixed: Readonly<Ref<boolean>>
   /** Set self to mixed/indeterminate state */
@@ -51,7 +62,16 @@ export interface GroupTicket<V = unknown> extends SelectionTicket<V> {
   unmix: () => void
 }
 
-export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z> {
+/**
+ * Context returned by createGroup.
+ *
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ */
+export interface GroupContext<
+  Z extends GroupTicketInput = GroupTicketInput,
+  E extends GroupTicket<Z> = GroupTicket<Z>,
+> extends Omit<SelectionContext<Z, E>, 'register' | 'onboard' | 'select' | 'unselect' | 'toggle'> {
   selectedIndexes: ComputedRef<Set<number>>
   /** Select one or more Tickets by ID */
   select: (ids: ID | ID[]) => void
@@ -62,7 +82,7 @@ export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z>
   /** Set of mixed/indeterminate ticket IDs */
   mixedIds: Reactive<Set<ID>>
   /** Set of mixed/indeterminate ticket instances */
-  mixedItems: ComputedRef<Set<Z>>
+  mixedItems: ComputedRef<Set<E>>
   /** Set one or more Tickets to mixed/indeterminate state by ID */
   mix: (ids: ID | ID[]) => void
   /** Clear mixed/indeterminate state from one or more Tickets by ID */
@@ -81,6 +101,10 @@ export interface GroupContext<Z extends GroupTicket> extends SelectionContext<Z>
   unselectAll: () => void
   /** Toggle between all selected and none selected */
   toggleAll: () => void
+  /** Register a new ticket (accepts input type, returns output type) */
+  register: (ticket?: Partial<Z>) => E
+  /** Onboard multiple tickets at once */
+  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface GroupOptions extends SelectionOptions {}
@@ -161,12 +185,13 @@ export interface GroupContextOptions extends SelectionContextOptions {}
  * ```
  */
 export function createGroup<
-  Z extends GroupTicket = GroupTicket,
-  E extends GroupContext<Z> = GroupContext<Z>,
-> (_options: GroupOptions = {}): E {
+  Z extends GroupTicketInput = GroupTicketInput,
+  E extends GroupTicket<Z> = GroupTicket<Z>,
+  R extends GroupContext<Z, E> = GroupContext<Z, E>,
+> (_options: GroupOptions = {}): R {
   const { mandatory = false, multiple = true, ...options } = _options
   const selection = createSelection<Z, E>({ ...options, mandatory, multiple, events: true })
-  const proxy = useProxyRegistry<Z>(selection)
+  const proxy = useProxyRegistry<E>(selection)
   const mixedIds = shallowReactive(new Set<ID>())
 
   const selectedIndexes = computed(() => {
@@ -181,7 +206,7 @@ export function createGroup<
     return new Set(
       Array.from(mixedIds)
         .map(id => selection.get(id))
-        .filter((item): item is Z => !isUndefined(item)),
+        .filter((item): item is E => !isUndefined(item)),
     )
   })
 
@@ -226,9 +251,12 @@ export function createGroup<
     }
   }
 
-  function register (registration: Partial<Z> = {}): Z {
+  function register (registration: Partial<Z> = {}): E {
     const id = registration.id ?? useId()
-    const item: Partial<Z> = {
+
+    // Build the full ticket with group-specific methods
+    // selection.register will merge these with selection methods
+    const item = {
       ...registration,
       id,
       isMixed: toRef(() => mixed(id)),
@@ -239,7 +267,9 @@ export function createGroup<
       unmix: () => unmix(id),
     }
 
-    const ticket = selection.register(item)
+    // Type assertion needed because item has more properties than Partial<Z>
+    // but selection.register accepts and preserves extra properties
+    const ticket = selection.register(item as unknown as Partial<Z>) as E
 
     if (toValue(registration.indeterminate)) mix(id)
 
@@ -258,7 +288,7 @@ export function createGroup<
     selection.offboard(ids)
   }
 
-  function onboard (registrations: Partial<Z>[]) {
+  function onboard (registrations: Partial<Z>[]): E[] {
     return registrations.map(registration => register(registration))
   }
 
@@ -329,15 +359,16 @@ export function createGroup<
     get size () {
       return selection.size
     },
-  } as E
+  } as R
 }
 
 /**
  * Creates a new group context.
  *
  * @param options The options for the group context.
- * @template Z The type of the group ticket.
- * @template E The type of the group context.
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ * @template R The context type.
  * @returns A new group context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-group
@@ -360,24 +391,28 @@ export function createGroup<
  * ```
  */
 export function createGroupContext<
-  Z extends GroupTicket = GroupTicket,
-  E extends GroupContext<Z> = GroupContext<Z>,
-> (_options: GroupContextOptions = {}): ContextTrinity<E> {
+  Z extends GroupTicketInput = GroupTicketInput,
+  E extends GroupTicket<Z> = GroupTicket<Z>,
+  R extends GroupContext<Z, E> = GroupContext<Z, E>,
+> (_options: GroupContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:group', ...options } = _options
-  const [useGroupContext, _provideGroupContext] = createContext<E>(namespace)
-  const context = createGroup<Z, E>(options)
+  const [useGroupContext, _provideGroupContext] = createContext<R>(namespace)
+  const context = createGroup<Z, E, R>(options)
 
-  function provideGroupContext (_context: E = context, app?: App): E {
+  function provideGroupContext (_context: R = context, app?: App): R {
     return _provideGroupContext(_context, app)
   }
 
-  return createTrinity<E>(useGroupContext, provideGroupContext, context)
+  return createTrinity<R>(useGroupContext, provideGroupContext, context)
 }
 
 /**
  * Returns the current group instance.
  *
  * @param namespace The namespace for the group context. Defaults to `'v0:group'`.
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ * @template R The context type.
  * @returns The current group instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-group
@@ -398,8 +433,9 @@ export function createGroupContext<
  * ```
  */
 export function useGroup<
-  Z extends GroupTicket = GroupTicket,
-  E extends GroupContext<Z> = GroupContext<Z>,
-> (namespace = 'v0:group'): E {
-  return useContext<E>(namespace)
+  Z extends GroupTicketInput = GroupTicketInput,
+  E extends GroupTicket<Z> = GroupTicket<Z>,
+  R extends GroupContext<Z, E> = GroupContext<Z, E>,
+> (namespace = 'v0:group'): R {
+  return useContext<R>(namespace)
 }

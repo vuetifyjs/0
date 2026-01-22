@@ -41,7 +41,28 @@ export type FormValidationRule = (value: unknown) => FormValidationResult
 
 export type FormValue = Ref<unknown> | ShallowRef<unknown>
 
-export interface FormTicket<V = unknown> extends RegistryTicket<V> {
+/**
+ * Input type for form tickets - what users provide to register().
+ * Extend this interface to add custom properties.
+ *
+ * @template V The type of the field value.
+ */
+export interface FormTicketInput<V = unknown> extends RegistryTicket<V> {
+  /** Validation rules for this field */
+  rules?: FormValidationRule[]
+  /** When validation should trigger (inherits from form if not set) */
+  validateOn?: 'submit' | 'change' | string
+  /** Whether this field is disabled */
+  disabled?: boolean
+}
+
+/**
+ * Output type for form tickets - what users receive from get().
+ * Includes all input properties plus validation state and methods.
+ *
+ * @template Z The input ticket type that extends FormTicketInput.
+ */
+export type FormTicket<Z extends FormTicketInput = FormTicketInput> = Z & {
   validate: (silent?: boolean) => Promise<boolean>
   reset: () => void
   validateOn: 'submit' | 'change' | string
@@ -53,7 +74,18 @@ export interface FormTicket<V = unknown> extends RegistryTicket<V> {
   isValidating: ShallowRef<boolean>
 }
 
-export interface FormContext<Z extends FormTicket = FormTicket> extends RegistryContext<Z> {
+/**
+ * Context for managing form field collections with validation.
+ *
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ */
+export interface FormContext<
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+> extends Omit<RegistryContext<E>, 'register' | 'onboard'> {
+  register: (registration: Partial<Z>) => E
+  onboard: (registrations: Partial<Z>[]) => E[]
   submit: (id?: ID | ID[]) => Promise<boolean>
   reset: () => void
   validateOn: 'submit' | 'change' | string
@@ -100,10 +132,11 @@ export interface FormContextOptions extends RegistryOptions {
  * ```
  */
 export function createForm<
-  Z extends FormTicket = FormTicket,
-  E extends FormContext<Z> = FormContext<Z>,
-> (options?: FormOptions): E {
-  const registry = createRegistry<Z, E>(options)
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+  R extends FormContext<Z, E> = FormContext<Z, E>,
+> (options?: FormOptions): R {
+  const registry = createRegistry<E>(options)
   const validateOn = options?.validateOn || 'submit'
 
   function parse (value: string): string[] {
@@ -151,11 +184,11 @@ export function createForm<
       return results.every(Boolean)
     }
 
-    const tickets = validating.map(id => registry.get(id)).filter(Boolean) as Z[]
+    const tickets = validating.map(id => registry.get(id)).filter(Boolean) as E[]
     return tickets.every(ticket => ticket.isValid.value === true)
   }
 
-  function register (registration: Partial<Z>): Z {
+  function register (registration: Partial<Z>): E {
     const model = shallowRef(isNullOrUndefined(registration.value) ? '' : toValue(registration.value))
     const rules = registration.rules || []
     const errors = shallowRef<string[]>([])
@@ -197,7 +230,7 @@ export function createForm<
       }
     }
 
-    const item: Partial<Z> = {
+    const item = {
       ...registration,
       rules,
       errors,
@@ -210,7 +243,7 @@ export function createForm<
       validate,
     }
 
-    const ticket = registry.register(item)
+    const ticket = registry.register(item as unknown as Partial<E>) as E
 
     Object.defineProperty(ticket, 'value', {
       get () {
@@ -241,7 +274,7 @@ export function createForm<
     get size () {
       return registry.size
     },
-  } as E
+  } as R
 }
 
 /**
@@ -276,19 +309,20 @@ export function createForm<
  * ```
  */
 export function createFormContext<
-  Z extends FormTicket = FormTicket,
-  E extends FormContext<Z> = FormContext<Z>,
-> (_options: FormContextOptions = {}): ContextTrinity<E> {
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+  R extends FormContext<Z, E> = FormContext<Z, E>,
+> (_options: FormContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:form', ...options } = _options
-  const [useFormContext, _provideFormContext] = createContext<E>(namespace)
+  const [useFormContext, _provideFormContext] = createContext<R>(namespace)
 
-  const context = createForm<Z, E>(options)
+  const context = createForm<Z, E, R>(options)
 
-  function provideFormContext (_context: E = context, app?: App): E {
+  function provideFormContext (_context: R = context, app?: App): R {
     return _provideFormContext(_context, app)
   }
 
-  return createTrinity<E>(useFormContext, provideFormContext, context)
+  return createTrinity<R>(useFormContext, provideFormContext, context)
 }
 
 /**
@@ -315,8 +349,9 @@ export function createFormContext<
  * ```
  */
 export function useForm<
-  Z extends FormTicket = FormTicket,
-  E extends FormContext<Z> = FormContext<Z>,
-> (namespace = 'v0:form'): E {
-  return useContext<E>(namespace)
+  Z extends FormTicketInput = FormTicketInput,
+  E extends FormTicket<Z> = FormTicket<Z>,
+  R extends FormContext<Z, E> = FormContext<Z, E>,
+> (namespace = 'v0:form'): R {
+  return useContext<R>(namespace)
 }

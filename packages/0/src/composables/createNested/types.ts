@@ -1,16 +1,26 @@
 // Types
-import type { GroupContext, GroupContextOptions, GroupOptions, GroupTicket } from '#v0/composables/createGroup'
+import type { GroupContext, GroupContextOptions, GroupOptions, GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
 import type { ID } from '#v0/types'
 import type { ComputedRef, Reactive, Ref } from 'vue'
 
 /**
- * Ticket for nested/hierarchical items with parent-child relationships.
+ * Input type for nested tickets - what users provide to register().
+ * Extend this interface to add custom properties.
  *
- * @remarks
- * Extends GroupTicket with open/close state and leaf detection.
- * Each ticket knows its parent and can control its own open/closed state.
+ * @template V The type of the ticket value.
  */
-export interface NestedTicket<V = unknown> extends GroupTicket<V> {
+export interface NestedTicketInput<V = unknown> extends GroupTicketInput<V> {
+  /** ID of the parent ticket, or undefined if this is a root item */
+  parentId?: ID
+}
+
+/**
+ * Output type for nested tickets - what users receive from get().
+ * Includes all input properties plus tree traversal and state methods.
+ *
+ * @template Z The input ticket type that extends NestedTicketInput.
+ */
+export type NestedTicket<Z extends NestedTicketInput = NestedTicketInput> = GroupTicket<Z> & {
   /** ID of the parent ticket, or undefined if this is a root item */
   parentId: ID | undefined
   /** Whether this ticket is currently open/expanded */
@@ -75,29 +85,29 @@ export interface OpenStrategy {
 /**
  * Registration input for nested items.
  * Allows inline children definition for easier tree construction.
+ *
+ * @template Z The input ticket type that extends NestedTicketInput.
  */
-export interface NestedRegistration<V = unknown> {
-  /** Unique identifier (auto-generated if not provided) */
-  id?: ID
-  /** Value associated with this item */
-  value?: V
-  /** Parent ID (set automatically when using children property) */
-  parentId?: ID
-  /** Whether this item is disabled */
-  disabled?: boolean
+export type NestedRegistration<Z extends NestedTicketInput = NestedTicketInput> = Partial<Z> & {
   /** Inline children to register with this item as parent */
-  children?: NestedRegistration<V>[]
+  children?: NestedRegistration<Z>[]
 }
 
 /**
  * Context for managing nested/hierarchical item collections.
+ *
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
  *
  * @remarks
  * Extends GroupContext with parent-child relationship tracking, open/close state,
  * and hierarchical traversal methods. Perfect for tree structures, nested menus,
  * file explorers, and organizational charts.
  */
-export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext<Z>, 'register' | 'onboard' | 'select' | 'unselect' | 'toggle'> {
+export interface NestedContext<
+  Z extends NestedTicketInput = NestedTicketInput,
+  E extends NestedTicket<Z> = NestedTicket<Z>,
+> extends Omit<GroupContext<Z, E>, 'register' | 'onboard' | 'select' | 'unselect' | 'toggle'> {
   /** Map of parent IDs to arrays of child IDs. Use register/unregister to modify. */
   readonly children: ReadonlyMap<ID, readonly ID[]>
   /** Map of child IDs to their parent ID (or undefined for roots). Use register/unregister to modify. */
@@ -105,7 +115,7 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
   /** Reactive Set of opened/expanded item IDs. Use open/close/flip to modify. */
   readonly openedIds: Reactive<Set<ID>>
   /** Computed Set of opened/expanded item instances */
-  openedItems: ComputedRef<Set<Z>>
+  openedItems: ComputedRef<Set<E>>
   /** Open/expand one or more items by ID */
   open: (ids: ID | ID[]) => void
   /** Close/collapse one or more items by ID */
@@ -145,9 +155,9 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
   /** Get 1-indexed position among siblings (for aria-posinset). Returns 0 if not found. */
   position: (id: ID) => number
   /** Computed array of root items (items with no parent) */
-  roots: ComputedRef<Z[]>
+  roots: ComputedRef<E[]>
   /** Computed array of leaf items (items with no children) */
-  leaves: ComputedRef<Z[]>
+  leaves: ComputedRef<E[]>
   /** Strategy controlling how items are opened */
   openStrategy: OpenStrategy
   /** Select item(s) and all descendants, updating ancestor mixed states */
@@ -156,10 +166,10 @@ export interface NestedContext<Z extends NestedTicket> extends Omit<GroupContext
   unselect: (ids: ID | ID[]) => void
   /** Toggle selection with cascading behavior */
   toggle: (ids: ID | ID[]) => void
-  /** Register a node with optional inline children */
-  register: (registration?: NestedRegistration) => Z
+  /** Register a node with optional inline children (accepts input type, returns output type) */
+  register: (registration?: NestedRegistration<Z>) => E
   /** Batch register nodes with optional inline children */
-  onboard: (registrations: NestedRegistration[]) => Z[]
+  onboard: (registrations: NestedRegistration<Z>[]) => E[]
   /** Unregister a node, optionally cascading to descendants */
   unregister: (id: ID, cascade?: boolean) => void
   /** Offboard multiple nodes, optionally cascading */

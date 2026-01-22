@@ -83,15 +83,6 @@
         <!-- Skill Level -->
         <AppSettingsSkillLevel />
 
-        <!-- Navigation -->
-        <AppSettingsToggleSection
-          v-model="collapsibleNav"
-          hint="Group navigation items into expandable sections"
-          icon="menu"
-          label="Collapsible sections"
-          title="Navigation"
-        />
-
         <!-- Code Examples -->
         <AppSettingsToggleSection
           v-model="lineWrap"
@@ -100,6 +91,12 @@
           label="Line wrapping"
           title="Code Examples"
         />
+
+        <!-- Motion -->
+        <AppSettingsMotion />
+
+        <!-- Package Manager -->
+        <AppSettingsPackageManager />
 
         <!-- API Reference -->
         <AppSettingsToggleSection
@@ -110,13 +107,16 @@
           title="API Reference"
         />
 
-        <!-- Motion -->
-        <AppSettingsMotion />
+        <!-- Navigation -->
+        <AppSettingsToggleSection
+          v-model="collapsibleNav"
+          description="Group navigation items into expandable sections"
+          icon="menu"
+          label="Collapsible sections"
+          title="Navigation"
+        />
 
-        <!-- Package Manager -->
-        <AppSettingsPackageManager />
-
-        <!-- Header Buttons -->
+        <!-- Header -->
         <AppSettingsHeaderButtons />
 
         <!-- Reset -->
