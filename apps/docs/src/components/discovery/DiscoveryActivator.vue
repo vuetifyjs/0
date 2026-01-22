@@ -14,14 +14,11 @@
     step,
     as = 'span',
     padding,
-    scrollDelay = 0,
   } = defineProps<{
     step: ID | ID[]
     as?: string
     /** Padding around the highlighted area */
     padding?: number
-    /** Delay in ms before scrolling into view (for animated elements) */
-    scrollDelay?: number
   }>()
 
   const discovery = useDiscovery()
@@ -40,10 +37,7 @@
   async function scrollIntoViewIfActive () {
     if (!steps.includes(discovery.selectedId.value as ID)) return
     await nextTick()
-    if (scrollDelay > 0) {
-      await new Promise(resolve => setTimeout(resolve, scrollDelay))
-    }
-    activatorRef.value?.scrollIntoView({ block: 'end', behavior: 'smooth' })
+    activatorRef.value?.scrollIntoView({ block: 'end', behavior: 'instant' })
   }
 
   // Handle dynamically mounted activators (step already active when mounted)
