@@ -17,6 +17,8 @@
     opacity?: number
     /** Padding around the highlighted element */
     padding?: number
+    /** Whether clicking the backdrop blocks interaction (default: false) */
+    blocking?: boolean
   }
   export interface DiscoveryHighlightSlotProps {
 
@@ -43,6 +45,7 @@
     namespace = 'v0:discovery',
     padding = 0,
     opacity = 0.75,
+    blocking = false,
   } = defineProps<DiscoveryHighlightProps>()
 
   const discovery = useDiscovery(namespace)
@@ -71,11 +74,14 @@
       return
     }
 
+    // Use activator-specific padding, fall back to global padding prop
+    const p = activator?.padding ?? padding
+
     rect.value = {
-      x: r.x - padding,
-      y: r.y - padding,
-      width: r.width + padding * 2,
-      height: r.height + padding * 2,
+      x: r.x - p,
+      y: r.y - p,
+      width: r.width + p * 2,
+      height: r.height + p * 2,
     }
 
     if (el) {
@@ -84,11 +90,33 @@
     }
   }
 
+  let delayTimeoutId: ReturnType<typeof setTimeout> | null = null
+
   watch(
     [() => discovery.selectedId.value, () => discovery.isActive.value],
     () => {
       if (!IN_BROWSER) return
-      requestAnimationFrame(updateRect)
+
+      // Clear any pending delayed update
+      if (delayTimeoutId) {
+        clearTimeout(delayTimeoutId)
+        delayTimeoutId = null
+      }
+
+      const id = discovery.selectedId.value
+      const step = id ? discovery.steps.get(id) : undefined
+      const delay = step?.delay ?? 0
+
+      if (delay > 0) {
+        // Hide highlight during delay
+        rect.value = null
+        delayTimeoutId = setTimeout(() => {
+          requestAnimationFrame(updateRect)
+          delayTimeoutId = null
+        }, delay)
+      } else {
+        requestAnimationFrame(updateRect)
+      }
     },
     { immediate: true },
   )
@@ -106,9 +134,30 @@
     rafId = null
   }
   useWindowEventListener(['scroll', 'resize'], scheduleUpdate, { passive: true })
-  onBeforeUnmount(cancelScheduledUpdate)
+  onBeforeUnmount(() => {
+    cancelScheduledUpdate()
+    if (delayTimeoutId) {
+      clearTimeout(delayTimeoutId)
+      delayTimeoutId = null
+    }
+  })
 
   const isVisible = toRef(() => discovery.isActive.value && rect.value !== null)
+
+  // Clip-path that covers everything except the cutout (for blocking clicks)
+  const clipPath = toRef(() => {
+    if (!rect.value) return undefined
+    const { x, y, width, height } = rect.value
+    const r = borderRadius.value
+    // Use path() for rounded rectangle cutout
+    // Outer: full screen rectangle
+    // Inner: rounded rectangle (counter-clockwise to create hole)
+    if (r > 0) {
+      return `path(evenodd, "M 0 0 H 100000 V 100000 H 0 Z M ${x + r} ${y} H ${x + width - r} Q ${x + width} ${y} ${x + width} ${y + r} V ${y + height - r} Q ${x + width} ${y + height} ${x + width - r} ${y + height} H ${x + r} Q ${x} ${y + height} ${x} ${y + height - r} V ${y + r} Q ${x} ${y} ${x + r} ${y} Z")`
+    }
+    // Simple rectangle cutout (no border radius)
+    return `path(evenodd, "M 0 0 H 100000 V 100000 H 0 Z M ${x} ${y} V ${y + height} H ${x + width} V ${y} Z")`
+  })
 </script>
 
 <template>
@@ -116,8 +165,16 @@
 
   <Teleport to="body">
     <Transition name="discovery-highlight">
-      <div v-if="isVisible && rect" class="fixed inset-0 z-9998">
-        <!-- SVG Backdrop -->
+      <div v-if="isVisible && rect" class="fixed inset-0 z-9998 pointer-events-none">
+        <!-- Click-blocking layer (when blocking is enabled) -->
+        <div
+          v-if="blocking"
+          aria-hidden="true"
+          class="absolute inset-0 pointer-events-auto cursor-default"
+          :style="{ clipPath }"
+        />
+
+        <!-- SVG Backdrop (visual only) -->
         <svg
           aria-hidden="true"
           class="absolute inset-0 pointer-events-none w-screen h-screen"

@@ -1,11 +1,11 @@
 <script setup lang="ts">
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
 
   // Utilities
   import { shallowRef } from 'vue'
 
-  const { ask } = useAsk()
+  const { ask } = useAskSheet()
   const question = shallowRef('')
 
   function onSubmit () {

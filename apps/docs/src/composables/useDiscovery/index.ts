@@ -2,7 +2,7 @@
 import { createContext, createForm, createPlugin, createRegistry, createSelection, createStep, createTrinity, IN_BROWSER, isUndefined, useContext, useProxyRegistry } from '@vuetify/v0'
 
 // Utilities
-import { readonly, shallowRef, toRef, watch, type App, type ShallowRef } from 'vue'
+import { readonly, shallowRef, toRef, toValue, watch, type App, type MaybeRefOrGetter, type ShallowRef } from 'vue'
 
 // Types
 import type { RegistryTicket, ContextTrinity, FormValidationRule, StepTicket, StepContext, SelectionTicket } from '@vuetify/v0'
@@ -12,21 +12,40 @@ type ID = string | number
 export interface DiscoveryActivatorTicket extends RegistryTicket {
   type: 'activator'
   element: ShallowRef<HTMLElement | null>
+  /** Padding around the highlighted area */
+  padding?: number
 }
 
 export interface DiscoveryStepTicket extends SelectionTicket {
   type: 'step'
   rules?: FormValidationRule[]
+  disabled?: boolean
+  /** Delay in ms before showing highlight (for animated elements) */
+  delay?: number
 }
 
 export type DiscoveryTicket = DiscoveryActivatorTicket | DiscoveryStepTicket
 
-export interface DiscoveryContext extends Omit<StepContext<StepTicket>, 'register' | 'unregister'> {
+export type DiscoveryEventHandler<T = void> = (value: T) => void
+export type DiscoveryBeforeHandler = (next: () => void, reject: () => void) => void
+
+export interface DiscoveryStepConfig {
+  /** Called when step becomes active */
+  enter?: () => void
+  /** Called when step becomes inactive */
+  leave?: () => void
+  /** Called when navigating back to this step */
+  back?: () => void
+  /** When truthy, automatically advance to next step */
+  advanceWhen?: MaybeRefOrGetter<boolean>
+}
+
+export interface DiscoveryContext extends Omit<StepContext<StepTicket>, 'register' | 'unregister' | 'on'> {
   start: (id: ID) => void
   stop: () => void
   complete: () => void
   register: (registration: Partial<DiscoveryTicket>) => RegistryTicket
-  unregister: (id: ID) => void
+  unregister: (id: ID, type?: 'activator' | 'step') => void
   /** Steps registry (registered step components) */
   steps: ReturnType<typeof createSelection<DiscoveryStepTicket>>
   /** Activators registry (element references) */
@@ -39,12 +58,24 @@ export interface DiscoveryContext extends Omit<StepContext<StepTicket>, 'registe
   isFirst: Readonly<ShallowRef<boolean>>
   /** Whether the current step is the last */
   isLast: Readonly<ShallowRef<boolean>>
+  /** Whether there is a previous non-disabled step */
+  canGoBack: Readonly<ShallowRef<boolean>>
+  /** Whether navigation can proceed (no rules or rules are valid) */
+  canGoNext: Readonly<ShallowRef<boolean>>
   /** Form context for step validation */
   form: ReturnType<typeof createForm>
   /** Reactive step count in active tour */
   total: Readonly<ShallowRef<number>>
   /** Reactive number of defined tours */
   all: Readonly<ShallowRef<number>>
+  /** Listen for step lifecycle events */
+  on: {
+    (event: `change:${string}`, handler: DiscoveryEventHandler<boolean>): () => void
+    (event: `${'start' | 'back' | 'complete'}:${string}`, handler: DiscoveryEventHandler): () => void
+    (event: `before:${string}`, handler: DiscoveryBeforeHandler): () => void
+  }
+  /** Configure step behavior declaratively */
+  step: (id: ID, config: DiscoveryStepConfig) => () => void
 }
 
 export interface DiscoveryOptions {
@@ -58,7 +89,7 @@ export interface DiscoveryContextOptions extends DiscoveryOptions {
 
 export interface DiscoveryPluginOptions extends DiscoveryContextOptions {}
 
-export function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
+function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
   const tourDefinitions: Record<string, ID[]> = { ...options.tours }
 
   const tours = createStep<StepTicket>({ events: true })
@@ -73,22 +104,111 @@ export function createDiscovery (options: DiscoveryOptions = {}): DiscoveryConte
   const isActive = shallowRef(false)
   const isComplete = shallowRef(false)
 
+  const listeners = new Map<string, Set<DiscoveryEventHandler<any>>>()
+  let direction: 'forward' | 'backward' = 'forward'
+
+  function on (event: string, handler: DiscoveryEventHandler<any>): () => void {
+    if (!listeners.has(event)) {
+      listeners.set(event, new Set())
+    }
+    listeners.get(event)!.add(handler)
+
+    return () => {
+      listeners.get(event)?.delete(handler)
+    }
+  }
+
+  function emit (event: string, value?: any) {
+    const handlers = listeners.get(event)
+    if (handlers) {
+      for (const handler of handlers) {
+        handler(value)
+      }
+    }
+  }
+
+  /**
+   * Emit a 'before' event and wait for all handlers to call next() or reject()
+   * Returns true if all handlers called next(), false if any called reject()
+   */
+  async function emitBefore (event: string): Promise<boolean> {
+    const handlers = listeners.get(event)
+    if (!handlers || handlers.size === 0) return true
+
+    const promises: Promise<boolean>[] = []
+
+    for (const handler of handlers) {
+      promises.push(new Promise<boolean>(resolve => {
+        ;(handler as DiscoveryBeforeHandler)(
+          () => resolve(true),
+          () => resolve(false),
+        )
+      }))
+    }
+
+    const results = await Promise.all(promises)
+    return results.every(Boolean)
+  }
+
   const all = toRef(() => Object.keys(tourDefinitions).length)
   const total = toRef(() => toursProxy.size)
   const isFirst = toRef(() => tours.selectedIndex.value === 0)
   const isLast = toRef(() => tours.selectedIndex.value === total.value - 1)
 
-  // Sync tours selection with steps selection
-  watch(tours.selectedId, (newId, oldId) => {
-    // Deselect previous step
-    if (!isUndefined(oldId) && steps.has(oldId)) {
-      steps.unselect(oldId)
+  // Check if there's a previous non-disabled step
+  const canGoBack = toRef(() => {
+    if (!isActive.value) return false
+    const currentIndex = tours.selectedIndex.value
+    const items = tours.values()
+
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const id = items[i].id
+      if (steps.get(id)?.disabled !== true) return true
+    }
+    return false
+  })
+
+  // Check if we can proceed: no rules, or rules are valid (null = not validated yet, still allow)
+  const canGoNext = toRef(() => {
+    if (!isActive.value) return false
+    const selectedId = tours.selectedId.value
+    if (isUndefined(selectedId)) return false
+
+    // If step has rules, check validation state
+    if (form.has(selectedId)) {
+      const field = form.get(selectedId)
+      // If explicitly invalid, can't proceed
+      if (field?.isValid.value === false) return false
     }
 
-    // Select new step
-    if (!isUndefined(newId) && steps.has(newId)) {
-      steps.select(newId)
+    return true
+  })
+
+  watch(tours.selectedId, (newId, oldId) => {
+    // Emit complete/change for old step
+    if (!isUndefined(oldId)) {
+      emit(`complete:${oldId}`)
+      emit(`change:${oldId}`, false)
+      if (steps.has(oldId)) {
+        steps.unselect(oldId)
+      }
     }
+
+    // Emit start/back/change for new step
+    if (!isUndefined(newId)) {
+      if (direction === 'backward') {
+        emit(`back:${newId}`)
+      } else {
+        emit(`start:${newId}`)
+      }
+      emit(`change:${newId}`, true)
+      if (steps.has(newId)) {
+        steps.select(newId)
+      }
+    }
+
+    // Reset direction after handling
+    direction = 'forward'
   })
 
   // Form validation for steps
@@ -123,9 +243,18 @@ export function createDiscovery (options: DiscoveryOptions = {}): DiscoveryConte
     return registration as RegistryTicket
   }
 
-  function unregister (id: ID) {
-    if (activators.has(id)) activators.unregister(id)
-    if (steps.has(id)) steps.unregister(id)
+  function unregister (id: ID, type?: 'activator' | 'step') {
+    // If type is specified, only unregister from that registry
+    // This prevents activator unmount from removing the step registration (and vice versa)
+    if (type === 'activator') {
+      activators.unregister(id)
+    } else if (type === 'step') {
+      steps.unregister(id)
+    } else {
+      // Legacy behavior: remove from both (for backwards compatibility)
+      if (activators.has(id)) activators.unregister(id)
+      if (steps.has(id)) steps.unregister(id)
+    }
   }
 
   function start (id: ID) {
@@ -153,6 +282,32 @@ export function createDiscovery (options: DiscoveryOptions = {}): DiscoveryConte
     isComplete.value = true
   }
 
+  function isStepDisabled (id: ID): boolean {
+    return steps.get(id)?.disabled === true
+  }
+
+  function findNextEnabledStep (): ID | undefined {
+    const currentIndex = tours.selectedIndex.value
+    const items = tours.values()
+
+    for (let i = currentIndex + 1; i < items.length; i++) {
+      const id = items[i].id
+      if (!isStepDisabled(id)) return id
+    }
+    return undefined
+  }
+
+  function findPrevEnabledStep (): ID | undefined {
+    const currentIndex = tours.selectedIndex.value
+    const items = tours.values()
+
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const id = items[i].id
+      if (!isStepDisabled(id)) return id
+    }
+    return undefined
+  }
+
   async function next () {
     const selectedId = tours.selectedId.value
     if (isUndefined(selectedId)) return
@@ -162,15 +317,63 @@ export function createDiscovery (options: DiscoveryOptions = {}): DiscoveryConte
       if (!isValid) return
     }
 
-    if (isLast.value) {
+    const nextId = findNextEnabledStep()
+    if (isUndefined(nextId)) {
       complete()
     } else {
-      tours.next()
+      // Emit before event and wait for handlers
+      const allowed = await emitBefore(`before:${nextId}`)
+      if (!allowed) return
+
+      tours.select(nextId)
     }
   }
 
-  function prev () {
-    tours.prev()
+  async function prev () {
+    const prevId = findPrevEnabledStep()
+    if (isUndefined(prevId)) return
+
+    // Emit before event and wait for handlers
+    const allowed = await emitBefore(`before:${prevId}`)
+    if (!allowed) return
+
+    direction = 'backward'
+    tours.select(prevId)
+  }
+
+  function step (id: ID, config: DiscoveryStepConfig): () => void {
+    let stopAdvanceWatcher: (() => void) | null = null
+
+    const offChange = on(`change:${id}`, active => {
+      if (active) {
+        config.enter?.()
+
+        if (config.advanceWhen) {
+          stopAdvanceWatcher = watch(
+            () => toValue(config.advanceWhen),
+            shouldAdvance => {
+              if (shouldAdvance) {
+                stopAdvanceWatcher?.()
+                stopAdvanceWatcher = null
+                next()
+              }
+            },
+          )
+        }
+      } else {
+        stopAdvanceWatcher?.()
+        stopAdvanceWatcher = null
+        config.leave?.()
+      }
+    })
+
+    const offBack = config.back ? on(`back:${id}`, config.back) : undefined
+
+    return () => {
+      offChange()
+      offBack?.()
+      stopAdvanceWatcher?.()
+    }
   }
 
   return {
@@ -181,6 +384,8 @@ export function createDiscovery (options: DiscoveryOptions = {}): DiscoveryConte
     isComplete: readonly(isComplete),
     isFirst: readonly(isFirst),
     isLast: readonly(isLast),
+    canGoBack: readonly(canGoBack),
+    canGoNext: readonly(canGoNext),
     total: readonly(total),
     all: readonly(all),
     form,
@@ -191,10 +396,12 @@ export function createDiscovery (options: DiscoveryOptions = {}): DiscoveryConte
     complete,
     next,
     prev,
+    on,
+    step,
   }
 }
 
-export function createDiscoveryContext (options: DiscoveryContextOptions = {}): ContextTrinity<DiscoveryContext> {
+function createDiscoveryContext (options: DiscoveryContextOptions = {}): ContextTrinity<DiscoveryContext> {
   const { namespace = 'v0:discovery', ...rest } = options
   const [useDiscoveryContext, _provideDiscoveryContext] = createContext<DiscoveryContext>(namespace)
 

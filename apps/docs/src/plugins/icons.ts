@@ -21,6 +21,7 @@ import {
   mdiClose,
   mdiCodeTags,
   mdiCog,
+  mdiCompassOutline,
   mdiContentCopy,
   mdiContrastCircle,
   mdiCreation,
@@ -93,6 +94,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
   namespace: 'v0:icons',
   tokens: {
     'code': mdiCodeTags,
+    'compass': mdiCompassOutline,
     'copy': mdiContentCopy,
     'dev': mdiDevTo,
     'cog': mdiCog,

@@ -1,17 +1,16 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, useBreakpoints, useDocumentEventListener, useFeatures, useHotkey, useStorage, useTheme } from '@vuetify/v0'
+  import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
 
   // Composables
-  import { useDiscovery } from '@/composables/useDiscovery'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { nextTick, ref, toRef, watch } from 'vue'
+  import { toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -29,10 +28,9 @@
   const isHomePage = toRef(() => route.path === '/')
 
   const breakpoints = useBreakpoints()
-  const discovery = useDiscovery()
   const features = useFeatures()
   const theme = useTheme()
-  const { open: openSearch } = useSearch()
+  const search = useSearch()
   const { showSkillFilter, showThemeToggle, showSocialLinks } = useSettings()
 
   const devmode = features.get('devmode')!
@@ -45,24 +43,6 @@
     ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.png'
     : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png',
   )
-
-  discovery.on('start:open-search', () => {
-    const once = useDocumentEventListener('keydown', (event: KeyboardEvent) => {
-      if (!event.ctrlKey || event.key !== 'k') return
-      nextTick(() => {
-        discovery.next()
-        once()
-      })
-    })
-  })
-
-  discovery.on('back:open-search', () => {
-    console.log('back to open-search')
-  })
-
-  discovery.on('complete:open-search', () => {
-    console.log('completed open-search')
-  })
 </script>
 
 <template>
@@ -93,40 +73,21 @@
         <AppIcon :icon="app.drawer ? 'close' : 'menu'" />
       </button>
 
-      <Discovery.Root step="open-search">
-        <Discovery.Activator class="rounded-2xl" step="open-search">
-          <button
-            aria-label="Search (Ctrl+K)"
-            class="inline-flex items-center gap-1.5 md:bg-glass-surface rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors"
-            title="Search (Ctrl+K)"
-            type="button"
-            @click="openSearch"
-          >
-            <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
-              <AppIcon icon="search" size="12" />
-            </span>
-            <span class="hidden md:inline text-sm text-on-surface-variant">Search the docs...</span>
-            <kbd class="hidden md:inline-flex shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono items-center rounded-r-lg">Ctrl+K</kbd>
-          </button>
-        </Discovery.Activator>
-
-        <Discovery.Content class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs">
-          <div class="flex justify-between items-center">
-            <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">Open Search</Discovery.Title>
-            <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
-          </div>
-
-          <Discovery.Description class="text-sm text-on-surface-variant mb-4">
-            Press <kbd class="px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-xs font-mono">Ctrl+K</kbd> to open the search dialog.
-          </Discovery.Description>
-
-          <div class="flex justify-end">
-            <Discovery.Skip class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
-              Skip tour
-            </Discovery.Skip>
-          </div>
-        </Discovery.Content>
-      </Discovery.Root>
+      <Discovery.Activator class="rounded-2xl" step="open-search">
+        <button
+          aria-label="Search (Ctrl+K)"
+          class="inline-flex items-center gap-1.5 md:bg-glass-surface rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors"
+          title="Search (Ctrl+K)"
+          type="button"
+          @click="search.open()"
+        >
+          <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
+            <AppIcon icon="search" size="12" />
+          </span>
+          <span class="hidden md:inline text-sm text-on-surface-variant">Search the docs...</span>
+          <kbd class="hidden md:inline-flex shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono items-center rounded-r-lg">Ctrl+K</kbd>
+        </button>
+      </Discovery.Activator>
     </div>
 
     <div class="flex align-center items-center gap-3">

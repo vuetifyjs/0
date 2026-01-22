@@ -1,10 +1,10 @@
 <script setup lang="ts">
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
   import { useSettings } from '@/composables/useSettings'
   import { useToc } from '@/composables/useToc'
 
-  const { isOpen: isAskOpen } = useAsk()
+  const { isOpen: isAskOpen } = useAskSheet()
   const { headings, selectedId, scrollTo } = useToc()
   const { prefersReducedMotion } = useSettings()
 

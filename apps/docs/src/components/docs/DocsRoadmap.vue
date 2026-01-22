@@ -184,7 +184,7 @@
             <div class="border border-divider rounded-lg overflow-hidden bg-surface ml-4">
               <!-- Header -->
               <ExpansionPanel.Header class="!mb-0">
-                <ExpansionPanel.Activator class="w-full px-4 py-3 text-left flex items-start gap-3 hover:bg-surface-tint transition-colors">
+                <ExpansionPanel.Activator class="w-full px-4 py-3 text-left flex items-start gap-3 hover:bg-surface-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset transition-colors">
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                       <h3 class="font-semibold">{{ milestone.title }}</h3>

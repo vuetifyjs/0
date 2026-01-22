@@ -1,21 +1,19 @@
 <script setup lang="ts">
+  // Framework
+  import { useFeatures, useStorage } from '@vuetify/v0'
+
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
-  import { useDiscovery } from '@/composables/useDiscovery'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { onUnmounted, useTemplateRef, watch } from 'vue'
 
-  // Stores
-
-  const discovery = useDiscovery()
+  const features = useFeatures()
+  const storage = useStorage()
   const { close, reset, hasChanges, lineWrap, showInlineApi, collapsibleNav } = useSettings()
 
-  function startTour () {
-    close()
-    discovery.start('docs-intro')
-  }
+  const devmode = features.get('devmode')!
 
   const { isEditing: isEditingTheme, clearPreview } = useCustomThemes()
 
@@ -34,13 +32,15 @@
     el.focus()
   })
 
+  watch(() => devmode.isSelected.value, isSelected => {
+    storage.set('devmode', isSelected)
+  })
+
   function onKeydown (e: KeyboardEvent) {
     if (e.key === 'Escape') {
       close()
     }
   }
-
-  startTour()
 </script>
 
 <template>
@@ -72,22 +72,8 @@
     </header>
 
     <!-- Content -->
-    <div class="flex-1 overflow-y-auto p-4 space-y-6">
-      <!-- Tour -->
-      <div class="pb-2 border-b border-divider">
-        <button
-          class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface"
-          type="button"
-          @click="startTour"
-        >
-          <AppIcon class="text-primary" icon="school" size="20" />
-          <div class="flex-1 text-left">
-            <div class="text-sm font-medium">Take the tour</div>
-            <div class="text-xs text-on-surface-variant">Learn how to use the docs</div>
-          </div>
-          <AppIcon class="text-on-surface-variant" icon="arrow-right" size="16" />
-        </button>
-      </div>
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <AppSettingsTour v-if="devmode.isSelected.value" />
 
       <!-- Theme -->
       <AppSettingsTheme />
@@ -134,7 +120,19 @@
         <AppSettingsHeaderButtons />
 
         <!-- Reset -->
-        <div v-if="hasChanges" class="pt-2 border-t border-divider text-end">
+        <div v-if="hasChanges" class="pt-2 pb-4 border-t border-divider flex justify-between">
+          <button
+            aria-label="Enter Developer Mode"
+            class="inline-flex items-center gap-1 text-xs hover:text-error focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
+            :class="[devmode.isSelected.value ? 'text-error' : 'text-on-surface/40' ]"
+            type="button"
+            @click="devmode.toggle()"
+          >
+            Devmode
+
+            <AppIcon v-if="devmode.isSelected.value" icon="vuetify-0" size="12" />
+          </button>
+
           <button
             aria-label="Reset all settings to defaults"
             class="text-xs text-on-surface/40 hover:text-error hover:underline focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"

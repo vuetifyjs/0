@@ -6,10 +6,10 @@
   import { Discovery } from '@/components/discovery'
 
   // Composables
-  import { useDiscovery } from '@/composables/useDiscovery'
+  import { useAsk } from '@/composables/useAsk'
 
   // Utilities
-  import { computed, onMounted, shallowRef, useTemplateRef } from 'vue'
+  import { computed, onMounted, shallowRef, useTemplateRef, nextTick, watch } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -24,7 +24,11 @@
   }>()
 
   const app = useAppStore()
-  const discovery = useDiscovery()
+  const { focusTrigger } = useAsk()
+
+  watch(focusTrigger, () => {
+    nextTick(() => focus())
+  })
 
   const formRef = useTemplateRef<{ focus: () => void }>('form')
   const isNearBottom = shallowRef(false)
@@ -60,12 +64,6 @@
     isMobile.value = window.innerWidth < 768
   }
 
-  discovery.on('start:ask-ai', () => {})
-
-  discovery.on('back:ask-ai', () => {})
-
-  discovery.on('complete:ask-ai', () => {})
-
   useWindowEventListener('scroll', onScroll, { passive: true })
   useWindowEventListener('resize', updateMobile, { passive: true })
 
@@ -83,39 +81,16 @@
       v-show="!isHidden"
       class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-sm px-4"
     >
-      <Discovery.Root step="ask-ai">
-        <Discovery.Activator class="rounded-2xl" step="ask-ai">
-          <DocsAskForm
-            ref="form"
-            aria-label="Ask a question about this page"
-            class="shadow-lg"
-            show-keyboard-hint
-            @focus="onFocus"
-            @submit="onSubmit"
-          />
-        </Discovery.Activator>
-
-        <Discovery.Content class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs z-[60] translate-x--48" placement="top">
-          <div class="flex justify-between items-center">
-            <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">Ask the AI</Discovery.Title>
-            <Discovery.Progress class="text-xs text-on-surface-variant mb-2" />
-          </div>
-
-          <Discovery.Description class="text-sm text-on-surface-variant mb-4">
-            Type <kbd class="px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-xs font-mono">Tabs</kbd> and press Enter to navigate to the Tabs component.
-          </Discovery.Description>
-
-          <div class="flex justify-end">
-            <Discovery.Prev class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
-              Back
-            </Discovery.Prev>
-
-            <Discovery.Skip class="px-3 py-1.5 text-sm text-on-surface-variant hover:text-on-surface">
-              Skip tour
-            </Discovery.Skip>
-          </div>
-        </Discovery.Content>
-      </Discovery.Root>
+      <Discovery.Activator class="rounded-2xl" :step="['ask-ai', 'ask-ai-reopen']">
+        <DocsAskForm
+          ref="form"
+          aria-label="Ask a question about this page"
+          class="shadow-lg"
+          show-keyboard-hint
+          @focus="onFocus"
+          @submit="onSubmit"
+        />
+      </Discovery.Activator>
     </div>
   </Transition>
 </template>

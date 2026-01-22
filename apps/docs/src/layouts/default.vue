@@ -3,7 +3,7 @@
   import { useBreakpoints } from '@vuetify/v0'
 
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
   import { useScrollLock } from '@/composables/useScrollLock'
@@ -29,7 +29,7 @@
   navConfig.provide()
 
   const breakpoints = useBreakpoints()
-  const { isOpen: isAskOpen } = useAsk()
+  const { isOpen: isAskOpen } = useAskSheet()
   const { isOpen: isSearchOpen } = useSearch()
   const { isOpen: isSettingsOpen, close: closeSettings, prefersReducedMotion } = useSettings()
 

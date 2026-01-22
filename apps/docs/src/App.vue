@@ -6,7 +6,7 @@
   import { IN_BROWSER, useWindowEventListener } from '@vuetify/v0'
 
   // Components
-  import { Discovery } from './components/discovery'
+  import DocsHighlight from '@/components/docs/DocsHighlight.vue'
 
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
@@ -72,7 +72,7 @@
   <DocsVueLink />
 
   <!-- Discovery overlay -->
-  <Discovery.Highlight />
+  <DocsHighlight />
 </template>
 
 <style>

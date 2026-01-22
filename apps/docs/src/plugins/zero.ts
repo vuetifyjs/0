@@ -23,7 +23,7 @@ export default function zero (app: App) {
   app.use(
     createDiscoveryPlugin({
       tours: {
-        'docs-intro': ['open-search', 'search-tabs', 'ask-ai'],
+        'docs-intro': ['open-search', 'search-tabs', 'ask-ai', 'ask-ai-close', 'ask-ai-reopen', 'ask-ai-options', 'open-settings', 'skill-level'],
       },
     }),
   )
