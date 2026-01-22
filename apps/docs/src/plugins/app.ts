@@ -2,7 +2,7 @@
 import DocsCodeGroup from '@/components/docs/DocsCodeGroup.vue'
 import DocsExample from '@/components/docs/DocsExample.vue'
 import DocsNavigator from '@/components/docs/DocsNavigator.vue'
-import DocsPageFeatures from '@/components/docs/DocsPageFeatures.vue'
+import DocsPageFeatures from '@/components/docs/meta/DocsPageFeatures.vue'
 
 // Utilities
 import { defineAsyncComponent } from 'vue'
