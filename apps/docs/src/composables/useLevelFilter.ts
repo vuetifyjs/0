@@ -14,8 +14,10 @@ export type Level = (typeof LEVELS)[number]
 export interface LevelFilterContext {
   levels: typeof LEVELS
   selectedLevels: Set<Level>
+  hasChanges: ComputedRef<boolean>
   toggle: (level: Level) => void
   isSelected: (level: Level) => boolean
+  clear: () => void
   filteredNav: ComputedRef<NavItem[]>
 }
 
@@ -42,11 +44,19 @@ export function createLevelFilter (nav: MaybeRefOrGetter<NavItem[]>) {
     return filterNavByLevel(items, group.selectedIds as Set<number>)
   })
 
+  const hasChanges = computed(() => group.selectedIds.size > 0)
+
+  function clear () {
+    group.unselectAll()
+  }
+
   const context: LevelFilterContext = {
     levels: LEVELS,
     selectedLevels: group.selectedIds as Set<Level>,
+    hasChanges,
     toggle: group.toggle as (level: Level) => void,
     isSelected: (level: Level) => group.selectedIds.has(level),
+    clear,
     filteredNav,
   }
 

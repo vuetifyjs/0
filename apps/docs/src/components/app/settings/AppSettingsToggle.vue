@@ -22,8 +22,10 @@
   <label class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface-variant cursor-pointer">
     <div :class="slots.prepend ? 'flex items-center gap-2' : ''">
       <slot name="prepend" />
-      <span class="text-sm">{{ label }}</span>
-      <p v-if="description && !slots.prepend" class="text-xs text-on-surface-variant/60">{{ description }}</p>
+      <div>
+        <span class="text-sm">{{ label }}</span>
+        <p v-if="description" class="text-xs text-on-surface-variant/60">{{ description }}</p>
+      </div>
     </div>
     <button
       :aria-checked="model"

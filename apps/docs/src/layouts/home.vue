@@ -22,7 +22,7 @@
   <div>
     <AppBanner />
     <AppBar />
-    <AppHomeMain />
+    <AppHomePage />
     <AppFooter />
 
     <DocsSearch />

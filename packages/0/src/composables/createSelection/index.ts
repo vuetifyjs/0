@@ -31,8 +31,45 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
 
-export interface SelectionTicket<V = unknown> extends RegistryTicket<V> {
-  /** Disabled state of the ticket */
+/**
+ * Input type for selection tickets - what users provide to register().
+ * Custom ticket types should extend this interface.
+ *
+ * @template V The type of the ticket value.
+ *
+ * @example
+ * ```ts
+ * interface MyTicket extends SelectionTicketInput {
+ *   label: string
+ *   disabled?: boolean
+ *   metadata?: Record<string, unknown>
+ * }
+ *
+ * const selection = createSelection<MyTicket>()
+ * selection.register({ label: 'Item 1' })
+ * ```
+ */
+export interface SelectionTicketInput<V = unknown> extends RegistryTicket<V> {
+  /** Disabled state of the ticket (optional on input, defaults to false) */
+  disabled?: MaybeRef<boolean>
+}
+
+/**
+ * Output type for selection tickets - what users receive from get().
+ * Includes registry-added methods for self-selection.
+ *
+ * @template Z The input ticket type that extends SelectionTicketInput.
+ *
+ * @remarks
+ * The following properties are automatically added by the registry:
+ * - `disabled` - Defaults to `false` if not provided
+ * - `isSelected` - Reactive boolean indicating selection state
+ * - `select()` - Method to select this ticket
+ * - `unselect()` - Method to unselect this ticket
+ * - `toggle()` - Method to toggle selection state
+ */
+export type SelectionTicket<Z extends SelectionTicketInput = SelectionTicketInput> = Z & {
+  /** Disabled state of the ticket (guaranteed to exist on output) */
   disabled: MaybeRef<boolean>
   /** Whether the ticket is currently selected */
   isSelected: Readonly<Ref<boolean, boolean>>
@@ -44,11 +81,20 @@ export interface SelectionTicket<V = unknown> extends RegistryTicket<V> {
   toggle: () => void
 }
 
-export interface SelectionContext<Z extends SelectionTicket> extends RegistryContext<Z> {
+/**
+ * Context returned by createSelection.
+ *
+ * @template Z The input ticket type (what users provide to register).
+ * @template E The output ticket type (what users receive from get). Defaults to SelectionTicket<Z>.
+ */
+export interface SelectionContext<
+  Z extends SelectionTicketInput = SelectionTicketInput,
+  E extends SelectionTicket<Z> = SelectionTicket<Z>,
+> extends Omit<RegistryContext<E>, 'register' | 'onboard'> {
   /** Set of selected ticket IDs */
   selectedIds: Reactive<Set<ID>>
   /** Set of selected ticket instances */
-  selectedItems: ComputedRef<Set<Z>>
+  selectedItems: ComputedRef<Set<E>>
   /** Set of selected ticket values */
   selectedValues: ComputedRef<Set<unknown>>
   /** Disable state for the entire selection instance */
@@ -65,6 +111,10 @@ export interface SelectionContext<Z extends SelectionTicket> extends RegistryCon
   selected: (id: ID) => boolean
   /** Mandates selected ID based on "mandatory" Option */
   mandate: () => void
+  /** Register a new ticket (accepts input type, returns output type) */
+  register: (ticket?: Partial<Z>) => E
+  /** Onboard multiple tickets at once */
+  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface SelectionOptions extends RegistryOptions {
@@ -97,8 +147,9 @@ export interface SelectionContextOptions extends SelectionOptions {
  * Supports disabled items, mandatory selection enforcement, and auto-enrollment.
  *
  * @param options The options for the selection instance.
- * @template Z The type of the selection ticket.
- * @template E The type of the selection context.
+ * @template Z The input ticket type - what users provide to register(). Extend SelectionTicketInput to add custom properties.
+ * @template E The output ticket type - what users receive from get(). Automatically includes selection methods.
+ * @template R The context type. Defaults to SelectionContext<Z, E>.
  * @returns A new selection instance with selection management methods.
  *
  * @remarks
@@ -121,6 +172,7 @@ export interface SelectionContextOptions extends SelectionOptions {
  * ```ts
  * import { createSelection } from '@vuetify/v0'
  *
+ * // Basic usage
  * const selection = createSelection({ mandatory: true })
  *
  * selection.onboard([
@@ -135,11 +187,29 @@ export interface SelectionContextOptions extends SelectionOptions {
  * console.log(selection.selectedIds) // Set { 'item-1', 'item-3' }
  * console.log(Array.from(selection.selectedValues.value)) // ['Item 1', 'Item 3']
  * ```
+ *
+ * @example
+ * ```ts
+ * // With custom ticket type
+ * interface MyTicket extends SelectionTicketInput {
+ *   label: string
+ *   icon?: string
+ * }
+ *
+ * const tabs = createSelection<MyTicket>()
+ *
+ * tabs.register({ label: 'Home', icon: 'mdi-home' })
+ * tabs.register({ label: 'Settings' })
+ *
+ * const ticket = tabs.get('...')
+ * // ticket has: label, icon, isSelected, select(), unselect(), toggle()
+ * ```
  */
 export function createSelection<
-  Z extends SelectionTicket = SelectionTicket,
-  E extends SelectionContext<Z> = SelectionContext<Z>,
-> (_options: SelectionOptions = {}): E {
+  Z extends SelectionTicketInput = SelectionTicketInput,
+  E extends SelectionTicket<Z> = SelectionTicket<Z>,
+  R extends SelectionContext<Z, E> = SelectionContext<Z, E>,
+> (_options: SelectionOptions = {}): R {
   const {
     disabled = false,
     enroll = false,
@@ -147,14 +217,14 @@ export function createSelection<
     multiple = false,
     ...options
   } = _options
-  const registry = createRegistry<Z, E>(options)
+  const registry = createRegistry<E>(options)
   const selectedIds = shallowReactive(new Set<ID>())
 
   const selectedItems = computed(() => {
     return new Set(
       Array.from(selectedIds)
         .map(id => registry.get(id))
-        .filter((item): item is Z => !isUndefined(item)),
+        .filter((item): item is E => !isUndefined(item)),
     )
   })
 
@@ -164,8 +234,8 @@ export function createSelection<
     )
   })
 
-  function seek (direction: 'first' | 'last' = 'first', from?: number): Z | undefined {
-    return registry.seek(direction, from, (ticket: Z) => !toValue(ticket.disabled))
+  function seek (direction: 'first' | 'last' = 'first', from?: number): E | undefined {
+    return registry.seek(direction, from, (ticket: E) => !toValue(ticket.disabled))
   }
 
   function mandate () {
@@ -204,9 +274,9 @@ export function createSelection<
     return selectedIds.has(id)
   }
 
-  function register (registration: Partial<Z> = {}): Z {
+  function register (registration: Partial<Z> = {}): E {
     const id = registration.id ?? useId()
-    const item: Partial<Z> = {
+    const item: Partial<E> = {
       disabled: false,
       select: () => select(id),
       unselect: () => unselect(id),
@@ -214,7 +284,7 @@ export function createSelection<
       isSelected: toRef(() => selected(id)),
       ...registration,
       id,
-    }
+    } as Partial<E>
 
     const ticket = registry.register(item)
 
@@ -236,7 +306,7 @@ export function createSelection<
     registry.offboard(ids)
   }
 
-  function onboard (registrations: Partial<Z>[]) {
+  function onboard (registrations: Partial<Z>[]): E[] {
     return registrations.map(registration => register(registration))
   }
 
@@ -266,15 +336,16 @@ export function createSelection<
     get size () {
       return registry.size
     },
-  } as E
+  } as R
 }
 
 /**
  * Creates a new selection context.
  *
  * @param options The options for the selection context.
- * @template Z The type of the selection ticket.
- * @template E The type of the selection context.
+ * @template Z The input ticket type - what users provide to register().
+ * @template E The output ticket type - what users receive from get().
+ * @template R The context type. Defaults to SelectionContext<Z, E>.
  * @returns A new selection context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
@@ -296,26 +367,41 @@ export function createSelection<
  * const checkboxes = useCheckboxes()
  * checkboxes.select('checkbox-1')
  * ```
+ *
+ * @example
+ * ```ts
+ * // With custom ticket type
+ * interface TabTicket extends SelectionTicketInput {
+ *   label: string
+ *   icon?: string
+ * }
+ *
+ * export const [useTabs, provideTabs, tabs] = createSelectionContext<TabTicket>()
+ * ```
  */
 export function createSelectionContext<
-  Z extends SelectionTicket = SelectionTicket,
-  E extends SelectionContext<Z> = SelectionContext<Z>,
-> (_options: SelectionContextOptions = {}): ContextTrinity<E> {
+  Z extends SelectionTicketInput = SelectionTicketInput,
+  E extends SelectionTicket<Z> = SelectionTicket<Z>,
+  R extends SelectionContext<Z, E> = SelectionContext<Z, E>,
+> (_options: SelectionContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:selection', ...options } = _options
-  const [useSelectionContext, _provideSelectionContext] = createContext<E>(namespace)
-  const context = createSelection<Z, E>(options)
+  const [useSelectionContext, _provideSelectionContext] = createContext<R>(namespace)
+  const context = createSelection<Z, E, R>(options)
 
-  function provideSelectionContext (_context: E = context, app?: App): E {
+  function provideSelectionContext (_context: R = context, app?: App): R {
     return _provideSelectionContext(_context, app)
   }
 
-  return createTrinity<E>(useSelectionContext, provideSelectionContext, context)
+  return createTrinity<R>(useSelectionContext, provideSelectionContext, context)
 }
 
 /**
  * Returns the current selection instance.
  *
  * @param namespace The namespace for the selection context. Defaults to `'v0:selection'`.
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ * @template R The context type.
  * @returns The current selection instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-selection
@@ -336,8 +422,9 @@ export function createSelectionContext<
  * ```
  */
 export function useSelection<
-  Z extends SelectionTicket = SelectionTicket,
-  E extends SelectionContext<Z> = SelectionContext<Z>,
-> (namespace = 'v0:selection'): E {
-  return useContext<E>(namespace)
+  Z extends SelectionTicketInput = SelectionTicketInput,
+  E extends SelectionTicket<Z> = SelectionTicket<Z>,
+  R extends SelectionContext<Z, E> = SelectionContext<Z, E>,
+> (namespace = 'v0:selection'): R {
+  return useContext<R>(namespace)
 }

@@ -2,6 +2,9 @@
   // Framework
   import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
@@ -27,8 +30,8 @@
   const breakpoints = useBreakpoints()
   const features = useFeatures()
   const theme = useTheme()
-  const { open: openSearch } = useSearch()
-  const { showSkillFilter, showThemeToggle, showSocialLinks } = useSettings()
+  const search = useSearch()
+  const { showSkillFilter, showThemeToggle, showSocialLinks, showBgGlass } = useSettings()
 
   const devmode = features.get('devmode')!
 
@@ -45,7 +48,7 @@
 <template>
   <Atom
     :as
-    class="flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1 bg-glass-surface"
+    :class="['flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1', showBgGlass ? 'bg-glass-surface' : 'bg-surface']"
     data-app-bar
   >
     <div class="flex items-center gap-2">
@@ -70,19 +73,21 @@
         <AppIcon :icon="app.drawer ? 'close' : 'menu'" />
       </button>
 
-      <button
-        aria-label="Search (Ctrl+K)"
-        class="inline-flex items-center gap-1.5 md:bg-glass-surface rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors"
-        title="Search (Ctrl+K)"
-        type="button"
-        @click="openSearch"
-      >
-        <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
-          <AppIcon icon="search" size="12" />
-        </span>
-        <span class="hidden md:inline text-sm text-on-surface-variant">Search the docs...</span>
-        <kbd class="hidden md:inline-flex shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono items-center rounded-r-lg">Ctrl+K</kbd>
-      </button>
+      <Discovery.Activator class="rounded-2xl" step="open-search">
+        <button
+          aria-label="Search (Ctrl+K)"
+          :class="['inline-flex items-center gap-1.5 rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors', showBgGlass ? 'md:bg-glass-surface' : 'md:bg-surface']"
+          title="Search (Ctrl+K)"
+          type="button"
+          @click="search.open()"
+        >
+          <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
+            <AppIcon icon="search" size="12" />
+          </span>
+          <span class="hidden md:inline text-sm text-on-surface-variant">Search the docs...</span>
+          <kbd class="hidden md:inline-flex shrink-0 px-1.5 py-0.5 rounded bg-surface-tint text-on-surface-tint text-[10px] font-mono items-center rounded-r-lg">Ctrl+K</kbd>
+        </button>
+      </Discovery.Activator>
     </div>
 
     <div class="flex align-center items-center gap-3">

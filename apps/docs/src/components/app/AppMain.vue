@@ -5,14 +5,14 @@
   import DocsToc from '../docs/DocsToc.vue'
 
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
   import { useRouterLinks } from '@/composables/useRouterLinks'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
 
-  const { isOpen: isAskOpen } = useAsk()
+  const { isOpen: isAskOpen } = useAskSheet()
   const { prefersReducedMotion } = useSettings()
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
   const mainRef = useTemplateRef<HTMLElement>('main')

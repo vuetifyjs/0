@@ -132,7 +132,7 @@
 </template>
 
 <style scoped>
-.docs-code-group__content :deep(.docs-markup) {
+.docs-code-group__content > [role="tabpanel"] > * {
   margin-top: 0;
   margin-bottom: 0;
 }

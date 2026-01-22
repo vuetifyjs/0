@@ -1,11 +1,13 @@
 <script setup lang="ts">
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { shallowRef } from 'vue'
 
-  const { ask } = useAsk()
+  const { ask } = useAskSheet()
+  const { showBgGlass } = useSettings()
   const question = shallowRef('')
 
   function onSubmit () {
@@ -19,7 +21,7 @@
 
 <template>
   <form
-    class="bg-glass-surface rounded-full border border-divider flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 hover:border-primary/50 focus-within:border-primary focus-within:hover:border-primary transition-colors max-w-sm"
+    :class="['rounded-full border border-divider flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 hover:border-primary/50 focus-within:border-primary focus-within:hover:border-primary transition-colors max-w-sm', showBgGlass ? 'bg-glass-surface' : 'bg-surface']"
     @submit.prevent="onSubmit"
   >
     <AppIcon

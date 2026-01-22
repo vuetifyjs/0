@@ -7,7 +7,7 @@
   import DocsAskSheet from './DocsAskSheet.vue'
 
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
   import { useScrollLock } from '@/composables/useScrollLock'
   import { useSettings } from '@/composables/useSettings'
 
@@ -35,7 +35,7 @@
     close,
     open,
     stop,
-  } = useAsk()
+  } = useAskSheet()
 
   useScrollLock(() => isOpen.value && fullscreen.value && isDesktop.value)
 

@@ -27,6 +27,10 @@ export default defineConfig({
           outline-offset: 2px;
         }
 
+        dialog::backdrop {
+          background: rgb(0 0 0 / 0.3);
+        }
+
         :not(pre) > code {
           background: var(--v0-surface-tint);
           padding: 0.125rem 0.375rem;

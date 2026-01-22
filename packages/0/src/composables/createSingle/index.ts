@@ -23,18 +23,41 @@ import { createSelection } from '#v0/composables/createSelection'
 import { computed } from 'vue'
 
 // Types
-import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket } from '#v0/composables/createSelection'
+import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef } from 'vue'
 
-export interface SingleTicket<V = unknown> extends SelectionTicket<V> {}
+/**
+ * Input type for single selection tickets.
+ * Extend this interface to add custom properties.
+ */
+export interface SingleTicketInput<V = unknown> extends SelectionTicketInput<V> {}
 
-export interface SingleContext<Z extends SingleTicket> extends SelectionContext<Z> {
+/**
+ * Output type for single selection tickets.
+ * Includes all input properties plus selection methods.
+ */
+export type SingleTicket<Z extends SingleTicketInput = SingleTicketInput> = SelectionTicket<Z>
+
+/**
+ * Context returned by createSingle.
+ *
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ */
+export interface SingleContext<
+  Z extends SingleTicketInput = SingleTicketInput,
+  E extends SingleTicket<Z> = SingleTicket<Z>,
+> extends Omit<SelectionContext<Z, E>, 'register' | 'onboard'> {
   selectedId: ComputedRef<ID | undefined>
   selectedIndex: ComputedRef<number>
-  selectedItem: ComputedRef<Z | undefined>
-  selectedValue: ComputedRef<Z['value'] | undefined>
+  selectedItem: ComputedRef<E | undefined>
+  selectedValue: ComputedRef<E['value'] | undefined>
+  /** Register a new ticket (accepts input type, returns output type) */
+  register: (ticket?: Partial<Z>) => E
+  /** Onboard multiple tickets at once */
+  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface SingleOptions extends SelectionOptions {}
@@ -48,8 +71,9 @@ export interface SingleContextOptions extends SelectionContextOptions {}
  * Adds computed singular properties: `selectedId`, `selectedItem`, `selectedIndex`, `selectedValue`.
  *
  * @param options The options for the single selection instance.
- * @template Z The type of the single selection ticket.
- * @template E The type of the single selection context.
+ * @template Z The input ticket type - what users provide to register().
+ * @template E The output ticket type - what users receive from get().
+ * @template R The context type.
  * @returns A new single selection instance with single-selection enforcement.
  *
  * @remarks
@@ -90,11 +114,24 @@ export interface SingleContextOptions extends SelectionContextOptions {}
  * console.log(tabs.selectedId.value) // 'about'
  * console.log(tabs.selectedIds.size) // 1 (always enforces single selection)
  * ```
+ *
+ * @example
+ * ```ts
+ * // With custom ticket type
+ * interface TabTicket extends SingleTicketInput {
+ *   label: string
+ *   icon?: string
+ * }
+ *
+ * const tabs = createSingle<TabTicket>()
+ * tabs.register({ label: 'Home', icon: 'mdi-home' })
+ * ```
  */
 export function createSingle<
-  Z extends SingleTicket = SingleTicket,
-  E extends SingleContext<Z> = SingleContext<Z>,
-> (_options: SingleOptions = {}): E {
+  Z extends SingleTicketInput = SingleTicketInput,
+  E extends SingleTicket<Z> = SingleTicket<Z>,
+  R extends SingleContext<Z, E> = SingleContext<Z, E>,
+> (_options: SingleOptions = {}): R {
   const { mandatory = false, multiple = false, ...options } = _options
   const registry = createSelection<Z, E>({ ...options, mandatory, multiple })
 
@@ -125,15 +162,16 @@ export function createSingle<
     get size () {
       return registry.size
     },
-  } as E
+  } as R
 }
 
 /**
  * Creates a new single selection context.
  *
  * @param options The options for the single selection context.
- * @template Z The type of the single selection ticket.
- * @template E The type of the single selection context.
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ * @template R The context type.
  * @returns A new single selection context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
@@ -154,24 +192,28 @@ export function createSingle<
  * ```
  */
 export function createSingleContext<
-  Z extends SingleTicket = SingleTicket,
-  E extends SingleContext<Z> = SingleContext<Z>,
-> (_options: SingleContextOptions = {}): ContextTrinity<E> {
+  Z extends SingleTicketInput = SingleTicketInput,
+  E extends SingleTicket<Z> = SingleTicket<Z>,
+  R extends SingleContext<Z, E> = SingleContext<Z, E>,
+> (_options: SingleContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:single', ...options } = _options
-  const [useSingleContext, _provideSingleContext] = createContext<E>(namespace)
-  const context = createSingle<Z, E>(options)
+  const [useSingleContext, _provideSingleContext] = createContext<R>(namespace)
+  const context = createSingle<Z, E, R>(options)
 
-  function provideSingleContext (_context: E = context, app?: App): E {
+  function provideSingleContext (_context: R = context, app?: App): R {
     return _provideSingleContext(_context, app)
   }
 
-  return createTrinity<E>(useSingleContext, provideSingleContext, context)
+  return createTrinity<R>(useSingleContext, provideSingleContext, context)
 }
 
 /**
  * Returns the current single selection instance.
  *
  * @param namespace The namespace for the single selection context. Defaults to `'v0:single'`.
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ * @template R The context type.
  * @returns The current single selection instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-single
@@ -192,8 +234,9 @@ export function createSingleContext<
  * ```
  */
 export function useSingle<
-  Z extends SingleTicket = SingleTicket,
-  E extends SingleContext<Z> = SingleContext<Z>,
-> (namespace = 'v0:single'): E {
-  return useContext<E>(namespace)
+  Z extends SingleTicketInput = SingleTicketInput,
+  E extends SingleTicket<Z> = SingleTicket<Z>,
+  R extends SingleContext<Z, E> = SingleContext<Z, E>,
+> (namespace = 'v0:single'): R {
+  return useContext<R>(namespace)
 }

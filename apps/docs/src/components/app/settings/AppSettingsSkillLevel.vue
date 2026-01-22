@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
 
@@ -12,7 +15,7 @@
 </script>
 
 <template>
-  <section>
+  <Discovery.Activator as="section" class="rounded-lg" :padding="8" step="skill-level">
     <h3 class="flex items-center gap-2 text-sm font-medium text-on-surface-variant mb-3">
       <AppIcon icon="tune" size="16" />
       <span>Skill Level</span>
@@ -29,15 +32,16 @@
       >
         <span
           class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0"
-          :class="isSelected(level) ? levelConfig[level].bg : 'border-divider'"
+          :class="isSelected(level) ? levelConfig[level]!.bg : 'border-divider'"
         >
-          <AppIcon v-if="isSelected(level)" :class="levelConfig[level].text" icon="check" size="12" />
+          <AppIcon v-if="isSelected(level)" :class="levelConfig[level]!.text" icon="check" size="12" />
         </span>
-        <span>{{ levelConfig[level].label }}</span>
+        <span>{{ levelConfig[level]!.label }}</span>
       </button>
     </div>
+
     <p class="text-xs text-on-surface-variant/60 mt-2">
       Filter documentation by complexity level
     </p>
-  </section>
+  </Discovery.Activator>
 </template>

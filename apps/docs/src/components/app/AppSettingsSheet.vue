@@ -1,12 +1,29 @@
 <script setup lang="ts">
+  // Framework
+  import { useFeatures, useStorage } from '@vuetify/v0'
+
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
+  import { useLevelFilterContext } from '@/composables/useLevelFilter'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { onUnmounted, useTemplateRef, watch } from 'vue'
+  import { computed, onUnmounted, useTemplateRef, watch } from 'vue'
 
-  const { close, reset, hasChanges, lineWrap, showInlineApi, collapsibleNav } = useSettings()
+  const features = useFeatures()
+  const storage = useStorage()
+  const { close, reset: resetSettings, hasChanges: settingsHasChanges, lineWrap, showInlineApi, collapsibleNav, showBgGlass } = useSettings()
+  const { hasChanges: levelHasChanges, clear: clearLevels } = useLevelFilterContext()
+
+  const hasChanges = computed(() => settingsHasChanges.value || levelHasChanges.value)
+
+  function reset () {
+    resetSettings()
+    clearLevels()
+  }
+
+  const devmode = features.get('devmode')!
+
   const { isEditing: isEditingTheme, clearPreview } = useCustomThemes()
 
   onUnmounted(() => {
@@ -24,6 +41,10 @@
     el.focus()
   })
 
+  watch(() => devmode.isSelected.value, isSelected => {
+    storage.set('devmode', isSelected)
+  })
+
   function onKeydown (e: KeyboardEvent) {
     if (e.key === 'Escape') {
       close()
@@ -36,7 +57,7 @@
     ref="sheet"
     aria-labelledby="settings-title"
     aria-modal="true"
-    class="fixed inset-y-0 right-0 flex flex-col z-50 bg-glass-surface w-[320px] max-w-full shadow-xl outline-none"
+    :class="['fixed inset-y-0 right-0 flex flex-col z-50 w-[320px] max-w-full shadow-xl outline-none', showBgGlass ? 'bg-glass-surface' : 'bg-surface']"
     role="dialog"
     tabindex="-1"
     @keydown="onKeydown"
@@ -60,7 +81,9 @@
     </header>
 
     <!-- Content -->
-    <div class="flex-1 overflow-y-auto p-4 space-y-6">
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <AppSettingsTour v-if="devmode.isSelected.value" />
+
       <!-- Theme -->
       <AppSettingsTheme />
 
@@ -68,15 +91,6 @@
       <template v-if="!isEditingTheme">
         <!-- Skill Level -->
         <AppSettingsSkillLevel />
-
-        <!-- Navigation -->
-        <AppSettingsToggleSection
-          v-model="collapsibleNav"
-          hint="Group navigation items into expandable sections"
-          icon="menu"
-          label="Collapsible sections"
-          title="Navigation"
-        />
 
         <!-- Code Examples -->
         <AppSettingsToggleSection
@@ -87,6 +101,12 @@
           title="Code Examples"
         />
 
+        <!-- Motion -->
+        <AppSettingsMotion />
+
+        <!-- Package Manager -->
+        <AppSettingsPackageManager />
+
         <!-- API Reference -->
         <AppSettingsToggleSection
           v-model="showInlineApi"
@@ -96,18 +116,34 @@
           title="API Reference"
         />
 
-        <!-- Motion -->
-        <AppSettingsMotion />
+        <!-- Navigation -->
+        <AppSettingsToggleSection
+          v-model="collapsibleNav"
+          description="Group navigation items into expandable sections"
+          icon="menu"
+          label="Collapsible sections"
+          title="Navigation"
+        />
 
-        <!-- Package Manager -->
-        <AppSettingsPackageManager />
-
-        <!-- Header Buttons -->
+        <!-- Header -->
         <AppSettingsHeaderButtons />
 
         <!-- Reset -->
-        <div v-if="hasChanges" class="pt-2 border-t border-divider text-end">
+        <div class="pt-4 pb-2 border-t border-divider flex justify-between">
           <button
+            aria-label="Enter Developer Mode"
+            class="inline-flex items-center gap-1 text-xs focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
+            :class="[devmode.isSelected.value ? 'text-error hover:text-error' : 'text-on-surface/40 hover:text-primary' ]"
+            type="button"
+            @click="devmode.toggle()"
+          >
+            Devmode
+
+            <AppIcon v-if="devmode.isSelected.value" icon="vuetify-0" size="12" />
+          </button>
+
+          <button
+            v-if="hasChanges"
             aria-label="Reset all settings to defaults"
             class="text-xs text-on-surface/40 hover:text-error hover:underline focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
             type="button"

@@ -5,6 +5,9 @@
   // Framework
   import { IN_BROWSER, useWindowEventListener } from '@vuetify/v0'
 
+  // Components
+  import DocsHighlight from '@/components/docs/DocsHighlight.vue'
+
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
   import { useSettings } from './composables/useSettings'
@@ -15,7 +18,7 @@
   import { useRoute } from 'vue-router'
 
   useScrollPersist()
-  const { prefersReducedMotion } = useSettings()
+  const { prefersReducedMotion, showDotGrid, showMeshTransition } = useSettings()
 
   const route = useRoute()
   watch(() => route.fullPath, (to, from) => {
@@ -31,7 +34,7 @@
 
   useWindowEventListener('scroll', () => {
     if (!IN_BROWSER) return
-    showBottomMesh.value = window.scrollY > 200
+    showBottomMesh.value = showMeshTransition.value && window.scrollY > 200
   }, { passive: true })
 
   const head = injectHead()
@@ -58,7 +61,7 @@
 <template>
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-top" />
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
-  <main class="min-h-screen pt-[72px] text-on-background">
+  <main class="min-h-screen pt-[72px] text-on-background" :class="{ 'dot-grid': showDotGrid }">
     <router-view />
   </main>
 
@@ -67,6 +70,9 @@
 
   <!-- Vue documentation links for code blocks -->
   <DocsVueLink />
+
+  <!-- Discovery overlay -->
+  <DocsHighlight />
 </template>
 
 <style>
@@ -120,7 +126,40 @@
   }
 
   #app > main {
+    position: relative;
     background: color-mix(in srgb, var(--v0-background) 85%, transparent);
+
+    &.dot-grid::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) 10%, transparent) 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-position: 18px 0;
+      mask-image: linear-gradient(
+        225deg,
+        black 0%,
+        black 15%,
+        transparent 35%
+      );
+      -webkit-mask-image: linear-gradient(
+        225deg,
+        black 0%,
+        black 15%,
+        transparent 35%
+      );
+    }
+
+    &.dot-grid > * {
+      position: relative;
+      z-index: 1;
+    }
 
     hr {
       border: none;

@@ -31,7 +31,13 @@ import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
 
-export interface QueueTicket<V = unknown> extends RegistryTicket<V> {
+/**
+ * Input type for queue tickets - what users provide to register().
+ * Extend this interface to add custom properties.
+ *
+ * @template V The type of the ticket value.
+ */
+export interface QueueTicketInput<V = unknown> extends RegistryTicket<V> {
   /**
    * Timeout in milliseconds
    *
@@ -39,6 +45,19 @@ export interface QueueTicket<V = unknown> extends RegistryTicket<V> {
    * - If `undefined`: Uses the default timeout from queue options (default: 3000ms)
    * - If `-1`: Ticket persists indefinitely until manually dismissed
    * - If a number: Ticket will be automatically removed after the specified milliseconds
+   */
+  timeout?: number
+}
+
+/**
+ * Output type for queue tickets - what users receive from get().
+ * Includes all input properties plus queue state and methods.
+ *
+ * @template Z The input ticket type that extends QueueTicketInput.
+ */
+export type QueueTicket<Z extends QueueTicketInput = QueueTicketInput> = Z & {
+  /**
+   * Timeout in milliseconds (resolved from input or default)
    */
   timeout?: number
   /**
@@ -59,9 +78,18 @@ export interface QueueTicket<V = unknown> extends RegistryTicket<V> {
   dismiss: () => void
 }
 
-export interface QueueContext<Z extends QueueTicket = QueueTicket> extends RegistryContext<Z> {
+/**
+ * Context for managing queue collections with timeout support.
+ *
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ */
+export interface QueueContext<
+  Z extends QueueTicketInput = QueueTicketInput,
+  E extends QueueTicket<Z> = QueueTicket<Z>,
+> extends Omit<RegistryContext<E>, 'register' | 'unregister' | 'offboard'> {
   /**
-   * Register a new ticket in the queue
+   * Register a new ticket in the queue (accepts input type, returns output type)
    *
    * @param ticket The partial ticket data to register
    * @remarks
@@ -89,7 +117,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * const ticket3 = queue.register({ value: 'Persistent', timeout: -1 })
    * ```
    */
-  register: (ticket?: Partial<Z>) => Z
+  register: (ticket?: Partial<Z>) => E
   /**
    * Unregister a ticket from the queue
    *
@@ -118,7 +146,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * console.log(removed?.value) // 'First'
    * ```
    */
-  unregister: (id?: ID) => Z | undefined
+  unregister: (id?: ID) => E | undefined
   /**
    * Pause the timeout of the first ticket in the queue
    *
@@ -143,7 +171,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * console.log(paused?.isPaused) // true
    * ```
    */
-  pause: () => Z | undefined
+  pause: () => E | undefined
   /**
    * Resume the timeout of the first paused ticket in the queue
    *
@@ -169,7 +197,7 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * console.log(resumed?.isPaused) // false
    * ```
    */
-  resume: () => Z | undefined
+  resume: () => E | undefined
   /**
    * Clear the entire queue
    *
@@ -223,6 +251,10 @@ export interface QueueContext<Z extends QueueTicket = QueueTicket> extends Regis
    * ```
    */
   dispose: () => void
+  /**
+   * Batch unregister tickets from the queue
+   */
+  offboard: (ids: ID[]) => void
 }
 
 export interface QueueOptions extends RegistryOptions {
@@ -273,14 +305,15 @@ export interface QueueContextOptions extends QueueOptions {
  * ```
  */
 export function createQueue<
-  Z extends QueueTicket = QueueTicket,
-  E extends QueueContext<Z> = QueueContext<Z>,
-> (_options: QueueOptions = {}): E {
+  Z extends QueueTicketInput = QueueTicketInput,
+  E extends QueueTicket<Z> = QueueTicket<Z>,
+  R extends QueueContext<Z, E> = QueueContext<Z, E>,
+> (_options: QueueOptions = {}): R {
   const { timeout: _timeout = 3000, ...options } = _options
-  const registry = createRegistry<Z, E>({ ...options, events: true })
+  const registry = createRegistry<E>({ ...options, events: true })
   const timeouts = new Map<ID, ReturnType<typeof setTimeout>>()
 
-  function startTimeout (ticket: Z) {
+  function startTimeout (ticket: E) {
     if (isUndefined(ticket.timeout) || ticket.timeout < 0 || ticket.isPaused) return
 
     const timeout = setTimeout(() => {
@@ -301,12 +334,12 @@ export function createQueue<
     }
   }
 
-  function register (registration: Partial<Z> = {}): Z {
+  function register (registration: Partial<Z> = {} as Partial<Z>): E {
     const id = registration.id ?? useId()
     const hasExplicitTimeout = Object.prototype.hasOwnProperty.call(registration, 'timeout')
     const timeout = hasExplicitTimeout ? registration.timeout : _timeout
 
-    const ticket: Partial<Z> = {
+    const ticket = {
       ...registration,
       id,
       timeout,
@@ -314,14 +347,14 @@ export function createQueue<
       dismiss: () => unregister(id),
     }
 
-    const registered = registry.register(ticket)
+    const registered = registry.register(ticket as unknown as Partial<E>) as E
 
     startTimeout(registered)
 
     return registered
   }
 
-  function unregister (id?: ID): Z | undefined {
+  function unregister (id?: ID): E | undefined {
     const ticket = isUndefined(id) ? registry.seek('first') : registry.get(id)
     if (!ticket) return undefined
 
@@ -351,20 +384,20 @@ export function createQueue<
     if (hadFirst) resume()
   }
 
-  function pause (): Z | undefined {
+  function pause (): E | undefined {
     const ticket = registry.seek('first')
     if (!ticket || ticket.isPaused) return undefined
 
     clearTimeout(ticket.id)
 
-    return registry.upsert(ticket.id, { isPaused: true } as Partial<Z>)
+    return registry.upsert(ticket.id, { isPaused: true } as Partial<E>)
   }
 
-  function resume (): Z | undefined {
+  function resume (): E | undefined {
     const ticket = registry.seek('first')
     if (!ticket || ticket.index !== 0 || !ticket.isPaused) return undefined
 
-    const updated = registry.upsert(ticket.id, { isPaused: false } as Partial<Z>)
+    const updated = registry.upsert(ticket.id, { isPaused: false } as Partial<E>)
 
     startTimeout(updated)
 
@@ -395,7 +428,7 @@ export function createQueue<
     get size () {
       return registry.size
     },
-  } as E
+  } as R
 }
 
 /**
@@ -418,18 +451,19 @@ export function createQueue<
  * ```
  */
 export function createQueueContext<
-  Z extends QueueTicket = QueueTicket,
-  E extends QueueContext<Z> = QueueContext<Z>,
-> (_options: QueueContextOptions = {}): ContextTrinity<E> {
+  Z extends QueueTicketInput = QueueTicketInput,
+  E extends QueueTicket<Z> = QueueTicket<Z>,
+  R extends QueueContext<Z, E> = QueueContext<Z, E>,
+> (_options: QueueContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:queue', ...options } = _options
-  const [useQueueContext, _provideQueueContext] = createContext<E>(namespace)
-  const context = createQueue<Z, E>(options)
+  const [useQueueContext, _provideQueueContext] = createContext<R>(namespace)
+  const context = createQueue<Z, E, R>(options)
 
-  function provideQueueContext (_context: E = context, app?: App): E {
+  function provideQueueContext (_context: R = context, app?: App): R {
     return _provideQueueContext(_context, app)
   }
 
-  return createTrinity<E>(useQueueContext, provideQueueContext, context)
+  return createTrinity<R>(useQueueContext, provideQueueContext, context)
 }
 
 /**
@@ -450,8 +484,9 @@ export function createQueueContext<
  * ```
  */
 export function useQueue<
-  Z extends QueueTicket = QueueTicket,
-  E extends QueueContext<Z> = QueueContext<Z>,
-> (namespace = 'v0:queue'): E {
-  return useContext<E>(namespace)
+  Z extends QueueTicketInput = QueueTicketInput,
+  E extends QueueTicket<Z> = QueueTicket<Z>,
+  R extends QueueContext<Z, E> = QueueContext<Z, E>,
+> (namespace = 'v0:queue'): R {
+  return useContext<R>(namespace)
 }

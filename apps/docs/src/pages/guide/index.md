@@ -92,44 +92,86 @@ If you have an existing styled component library and want to adopt v0's headless
 
 **Before** (custom state management):
 
-```vue
+```vue collapse
 <script setup lang="ts">
-  import { shallowRef } from 'vue'
+  import { shallowRef, computed } from 'vue'
 
-  const active = shallowRef(0)
+  const tabs = ['Home', 'Profile', 'Settings']
+  const activeIndex = shallowRef(0)
 
-  function select (i: number) {
-    active.value = i
+  function select(index: number) {
+    activeIndex.value = index
   }
+
+  function next() {
+    activeIndex.value = (activeIndex.value + 1) % tabs.length
+  }
+
+  function prev() {
+    activeIndex.value = (activeIndex.value - 1 + tabs.length) % tabs.length
+  }
+
+  const activeTab = computed(() => tabs[activeIndex.value])
 </script>
+
+<template>
+  <div class="my-tabs">
+    <button
+      v-for="(tab, i) in tabs"
+      :key="tab"
+      :class="{ active: i === activeIndex }"
+      @click="select(i)"
+    >
+      {{ tab }}
+    </button>
+    <div class="content">{{ activeTab }}</div>
+  </div>
+</template>
 ```
 
 **After** (v0-powered):
 
 ```vue
 <script setup lang="ts">
-  import { shallowRef } from 'vue'
   import { createSingle } from '@vuetify/v0'
 
-  // mandatory selects first registered item automatically
-  const tabs = shallowRef(createSingle({ mandatory: true }))
+  const tabs = createSingle({ mandatory: true })
 
-  // Expose for advanced consumers
-  defineExpose({ tabs })
+  // Bulk register tabs - first is auto-selected due to mandatory
+  tabs.onboard([
+    { id: 'home', value: 'Home' },
+    { id: 'profile', value: 'Profile' },
+    { id: 'settings', value: 'Settings' },
+  ])
 </script>
 
 <template>
   <div class="my-tabs">
-    <!-- Tab items register on mount, then mandatory auto-selects -->
-    <slot :tabs="tabs" />
+    <button
+      v-for="tab in tabs.items"
+      :key="tab.id"
+      :class="{ active: tab.isSelected }"
+      @click="tab.select"
+    >
+      {{ tab.value }}
+    </button>
+    <div class="content">{{ tabs.selectedValue }}</div>
   </div>
 </template>
 ```
 
+### What You Get
+
+- **`mandatory`** auto-selects first registered item
+- **Navigation** methods built-in: `next()`, `prev()`, `first()`, `last()`
+- **Computed properties**: `selectedId`, `selectedIndex`, `selectedValue`
+- **Ticket methods**: each item has `isSelected`, `select()`, `toggle()`
+- **Disabled support** via `{ disabled: true }` on any ticket
+
 ### Benefits
 
-- **Less code to maintain** - v0 handles edge cases (keyboard nav, ARIA, etc.)
-- **Consistent patterns** - All your components use the same selection/toggle primitives
+- **Less code to maintain** - v0 handles edge cases
+- **Consistent patterns** - All your components use the same selection primitives
 - **Incremental adoption** - Migrate one component at a time
 
 ## Quick Reference
@@ -141,4 +183,3 @@ If you have an existing styled component library and want to adopt v0's headless
 | `createRegistry` | Dynamic child registration | [Core](/guide/fundamentals/core) |
 | `Atom` component | Polymorphic base element | [Components](/guide/fundamentals/components) |
 | `useTheme` | Theme switching, CSS variables | [Theming](/guide/features/theming) |
-

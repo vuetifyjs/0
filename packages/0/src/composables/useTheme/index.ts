@@ -34,7 +34,7 @@ import { computed, toRef } from 'vue'
 
 // Types
 import type { RegistryOptions } from '#v0/composables/createRegistry'
-import type { SingleContext, SingleTicket } from '#v0/composables/createSingle'
+import type { SingleContext, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { TokenCollection } from '#v0/composables/createTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
@@ -60,7 +60,32 @@ export type ThemeRecord = {
   colors: ThemeColors
 }
 
-export interface ThemeTicket extends SingleTicket<ThemeColors> {
+/**
+ * Input type for theme tickets - what users provide to register().
+ * Extend this interface to add custom properties.
+ */
+export interface ThemeTicketInput extends SingleTicketInput<ThemeColors> {
+  /**
+   * Indicates whether the theme is dark or light.
+   *
+   * @remarks Defaults to `false` (light theme).
+   */
+  dark?: boolean
+  /**
+   * Indicates whether the theme should be loaded lazily.
+   *
+   * @remarks Defaults to `false`.
+   */
+  lazy?: boolean
+}
+
+/**
+ * Output type for theme tickets - what users receive from get().
+ * Includes all input properties plus guaranteed dark/lazy values.
+ *
+ * @template Z The input ticket type that extends ThemeTicketInput.
+ */
+export type ThemeTicket<Z extends ThemeTicketInput = ThemeTicketInput> = SingleTicket<Z> & {
   /**
    * Indicates whether the theme is dark or light.
    *
@@ -75,7 +100,16 @@ export interface ThemeTicket extends SingleTicket<ThemeColors> {
   lazy: boolean
 }
 
-export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
+/**
+ * Context for managing theme collections.
+ *
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ */
+export interface ThemeContext<
+  Z extends ThemeTicketInput = ThemeTicketInput,
+  E extends ThemeTicket<Z> = ThemeTicket<Z>,
+> extends Omit<SingleContext<Z, E>, 'register'> {
   /**
    * A computed reference to the resolved colors of the current theme.
    *
@@ -127,6 +161,8 @@ export interface ThemeContext<Z extends ThemeTicket> extends SingleContext<Z> {
    * ```
    */
   cycle: (themes?: ID[]) => void
+  /** Register a theme (accepts input type, returns output type) */
+  register: (registration?: Partial<Z>) => E
 }
 
 export interface ThemeOptions<Z extends ThemeRecord = ThemeRecord> extends RegistryOptions {
@@ -198,12 +234,13 @@ export interface ThemePluginOptions extends ThemeContextOptions {}
  */
 
 export function createTheme<
-  Z extends ThemeTicket = ThemeTicket,
-  E extends ThemeContext<Z> = ThemeContext<Z>,
-> (_options: ThemeOptions = {}): E {
+  Z extends ThemeTicketInput = ThemeTicketInput,
+  E extends ThemeTicket<Z> = ThemeTicket<Z>,
+  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
+> (_options: ThemeOptions = {}): R {
   const { themes = {}, palette = {}, ...options } = _options
   const tokens = createTokens({ palette, ...themes }, { flat: true })
-  const registry = createSingle<Z, E>(options)
+  const registry = createSingle<SingleTicketInput<ThemeColors>, SingleTicket<SingleTicketInput<ThemeColors>>>(options)
 
   for (const id in themes) {
     const { colors: value, ...theme } = themes[id]!
@@ -215,10 +252,12 @@ export function createTheme<
     }
   }
 
+  type InternalTicket = SingleTicket<SingleTicketInput<ThemeColors>> & { dark: boolean, lazy: boolean }
+
   const names = computed(() => registry.keys())
   const colors = computed(() => {
     const resolved = {} as Record<ID, Colors>
-    for (const theme of registry.values()) {
+    for (const theme of registry.values() as InternalTicket[]) {
       if (theme.lazy && theme.id !== registry.selectedId.value) continue
 
       resolved[theme.id] = resolve(theme.value as Colors)
@@ -227,7 +266,7 @@ export function createTheme<
     return resolved
   })
 
-  const isDark = toRef(() => registry.selectedItem.value?.dark ?? false)
+  const isDark = toRef(() => (registry.selectedItem.value as InternalTicket | undefined)?.dark ?? false)
 
   function cycle (themes: ID[] = names.value) {
     const current = themes.indexOf(registry.selectedId.value ?? '')
@@ -245,14 +284,14 @@ export function createTheme<
     return resolved
   }
 
-  function register (registration: Partial<Z> = {}): Z {
-    const item: Partial<Z> = {
+  function register (registration: Partial<Z> = {} as Partial<Z>): E {
+    const item = {
       lazy: false,
       dark: false,
       ...registration,
     }
 
-    return registry.register(item)
+    return registry.register(item as unknown as Partial<SingleTicketInput<ThemeColors>>) as unknown as E
   }
 
   return {
@@ -264,7 +303,7 @@ export function createTheme<
     get size () {
       return registry.size
     },
-  } as E
+  } as unknown as R
 }
 
 /**
@@ -302,18 +341,19 @@ export function createTheme<
  * ```
  */
 export function createThemeContext<
-  Z extends ThemeTicket = ThemeTicket,
-  E extends ThemeContext<Z> = ThemeContext<Z>,
-> (_options: ThemeContextOptions = {}): ContextTrinity<E> {
+  Z extends ThemeTicketInput = ThemeTicketInput,
+  E extends ThemeTicket<Z> = ThemeTicket<Z>,
+  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
+> (_options: ThemeContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:theme', ...options } = _options
-  const [useThemeContext, _provideThemeContext] = createContext<E>(namespace)
-  const context = createTheme<Z, E>(options)
+  const [useThemeContext, _provideThemeContext] = createContext<R>(namespace)
+  const context = createTheme<Z, E, R>(options)
 
-  function provideThemeContext (_context: E = context, app?: App): E {
+  function provideThemeContext (_context: R = context, app?: App): R {
     return _provideThemeContext(_context, app)
   }
 
-  return createTrinity<E>(useThemeContext, provideThemeContext, context)
+  return createTrinity<R>(useThemeContext, provideThemeContext, context)
 }
 
 /**
@@ -358,11 +398,12 @@ export function createThemeContext<
  * ```
  */
 export function createThemePlugin<
-  Z extends ThemeTicket = ThemeTicket,
-  E extends ThemeContext<Z> = ThemeContext<Z>,
+  Z extends ThemeTicketInput = ThemeTicketInput,
+  E extends ThemeTicket<Z> = ThemeTicket<Z>,
+  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
 > (_options: ThemePluginOptions = {}) {
   const { adapter = new Vuetify0ThemeAdapter(), namespace = 'v0:theme', palette = {}, themes = {}, target, ...options } = _options
-  const [, provideThemeContext, context] = createThemeContext<Z, E>({ ...options, namespace, themes, palette })
+  const [, provideThemeContext, context] = createThemeContext<Z, E, R>({ ...options, namespace, themes, palette })
 
   return createPlugin({
     namespace,
@@ -399,8 +440,9 @@ export function createThemePlugin<
  * ```
  */
 export function useTheme<
-  Z extends ThemeTicket = ThemeTicket,
-  E extends ThemeContext<Z> = ThemeContext<Z>,
-> (namespace = 'v0:theme'): E {
-  return useContext<E>(namespace)
+  Z extends ThemeTicketInput = ThemeTicketInput,
+  E extends ThemeTicket<Z> = ThemeTicket<Z>,
+  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
+> (namespace = 'v0:theme'): R {
+  return useContext<R>(namespace)
 }

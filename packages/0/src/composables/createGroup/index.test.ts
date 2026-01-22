@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Utilities
 import { inject, provide, ref } from 'vue'
 
+// Types
+import type { GroupTicketInput } from './index'
+
 import { createGroup, createGroupContext, useGroup } from './index'
 
 vi.mock('vue', async () => {
@@ -1054,5 +1057,118 @@ describe('useGroup consumer', () => {
     expect(() => useGroup()).toThrow(
       'Context "v0:group" not found. Ensure it\'s provided by an ancestor.',
     )
+  })
+})
+
+describe('custom ticket types', () => {
+  it('should allow extending GroupTicketInput with custom properties', () => {
+    interface CheckboxTicket extends GroupTicketInput {
+      label: string
+      description?: string
+    }
+
+    const group = createGroup<CheckboxTicket>()
+
+    // Register accepts input type with custom properties
+    const ticket = group.register({ label: 'Option A', description: 'First option' })
+
+    // Output has input properties
+    expect(ticket.label).toBe('Option A')
+    expect(ticket.description).toBe('First option')
+
+    // Output has selection methods
+    expect(ticket.isSelected.value).toBe(false)
+    ticket.select()
+    expect(ticket.isSelected.value).toBe(true)
+
+    // Output has group-specific tri-state methods
+    expect(ticket.isMixed.value).toBe(false)
+    ticket.mix()
+    expect(ticket.isMixed.value).toBe(true)
+    expect(ticket.isSelected.value).toBe(false) // mixing clears selection
+  })
+
+  it('should preserve custom properties through onboard', () => {
+    interface PermissionTicket extends GroupTicketInput {
+      permission: string
+      scope: 'read' | 'write' | 'admin'
+    }
+
+    const permissions = createGroup<PermissionTicket>()
+
+    const tickets = permissions.onboard([
+      { permission: 'users', scope: 'read' },
+      { permission: 'posts', scope: 'write' },
+      { permission: 'settings', scope: 'admin', indeterminate: true },
+    ])
+
+    expect(tickets[0]?.permission).toBe('users')
+    expect(tickets[0]?.scope).toBe('read')
+    expect(tickets[1]?.permission).toBe('posts')
+    expect(tickets[1]?.scope).toBe('write')
+    expect(tickets[2]?.permission).toBe('settings')
+    expect(tickets[2]?.scope).toBe('admin')
+    expect(tickets[2]?.isMixed.value).toBe(true) // indeterminate was set
+
+    // All have group methods
+    for (const ticket of tickets) {
+      expect(typeof ticket.select).toBe('function')
+      expect(typeof ticket.mix).toBe('function')
+      expect(typeof ticket.unmix).toBe('function')
+    }
+  })
+
+  it('should preserve custom properties in selectedItems and mixedItems', () => {
+    interface TagTicket extends GroupTicketInput {
+      tag: string
+      color: string
+    }
+
+    const tags = createGroup<TagTicket>()
+
+    tags.onboard([
+      { id: 'tag-1', tag: 'important', color: 'red' },
+      { id: 'tag-2', tag: 'urgent', color: 'orange' },
+      { id: 'tag-3', tag: 'later', color: 'blue' },
+    ])
+
+    tags.select(['tag-1', 'tag-2'])
+    tags.mix('tag-3')
+
+    // selectedItems has custom properties
+    const selected = Array.from(tags.selectedItems.value)
+    expect(selected.length).toBe(2)
+    expect(selected.some(t => t.tag === 'important' && t.color === 'red')).toBe(true)
+    expect(selected.some(t => t.tag === 'urgent' && t.color === 'orange')).toBe(true)
+
+    // mixedItems has custom properties
+    const mixed = Array.from(tags.mixedItems.value)
+    expect(mixed.length).toBe(1)
+    expect(mixed[0]?.tag).toBe('later')
+    expect(mixed[0]?.color).toBe('blue')
+  })
+
+  it('should work with createGroupContext and custom types', () => {
+    interface CategoryTicket extends GroupTicketInput {
+      name: string
+      subcategories?: string[]
+    }
+
+    const [, , context] = createGroupContext<CategoryTicket>()
+
+    context.onboard([
+      { name: 'Electronics', subcategories: ['Phones', 'Laptops'] },
+      { name: 'Clothing' },
+    ])
+
+    const tickets = context.values()
+    expect(tickets[0]?.name).toBe('Electronics')
+    expect(tickets[0]?.subcategories).toEqual(['Phones', 'Laptops'])
+    expect(tickets[1]?.name).toBe('Clothing')
+    expect(tickets[1]?.subcategories).toBeUndefined()
+
+    // Can use group methods
+    context.selectAll()
+    expect(context.isAllSelected.value).toBe(true)
   })
 })

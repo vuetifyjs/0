@@ -5,16 +5,19 @@
   // Components
   import DocsAskMessage from './DocsAskMessage.vue'
   import AppIcon from '@/components/app/AppIcon.vue'
+  import { Discovery } from '@/components/discovery'
 
   // Composables
   import { getBinUrl } from '@/composables/bin'
+  import { useAskSheet } from '@/composables/useAskSheet'
   import { useClipboard } from '@/composables/useClipboard'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { computed, nextTick, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { Message } from '@/composables/useAsk'
+  import type { Message } from '@/composables/useAskSheet'
 
   const props = defineProps<{
     messages: readonly Message[]
@@ -32,7 +35,9 @@
   }>()
 
   const breakpoints = useBreakpoints()
+  const { focusTrigger } = useAskSheet()
   const { copied, copy } = useClipboard()
+  const { showBgGlass } = useSettings()
 
   const messagesRef = useTemplateRef<HTMLElement | null>('messages')
   const formRef = useTemplateRef<{ focus: () => void }>('form')
@@ -77,6 +82,10 @@
     formRef.value?.focus()
   }
 
+  watch(focusTrigger, () => {
+    nextTick(() => focus())
+  })
+
   defineExpose({ focus })
 </script>
 
@@ -85,7 +94,8 @@
     aria-labelledby="ask-title"
     :aria-modal="!isDesktop"
     :class="[
-      'flex flex-col z-50 bg-glass-surface',
+      'flex flex-col z-50',
+      showBgGlass ? 'bg-glass-surface' : 'bg-surface',
       isDesktop && fullscreen
         ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
         : isDesktop
@@ -95,68 +105,72 @@
     :role="isDesktop ? 'complementary' : 'dialog'"
   >
     <!-- Header -->
-    <header
-      :class="[
-        'shrink-0 px-4 py-2 border-b border-divider flex items-center justify-between bg-surface',
-        isDesktop ? 'rounded-t-lg' : '',
-      ]"
-    >
-      <div class="flex items-center gap-2">
-        <AppIcon class="text-primary" icon="create" />
-        <span id="ask-title" class="font-medium">Ask AI</span>
-      </div>
+    <Discovery.Activator class="rounded-lg" step="ask-ai-options">
+      <header
+        :class="[
+          'shrink-0 px-4 py-2 border-b border-divider flex items-center justify-between bg-surface',
+          isDesktop ? 'rounded-t-lg' : '',
+        ]"
+      >
+        <div class="flex items-center gap-2">
+          <AppIcon class="text-primary" icon="create" />
+          <span id="ask-title" class="font-medium">Ask AI</span>
+        </div>
 
-      <div class="flex items-center gap-0.5">
-        <button
-          v-if="messages.length > 0"
-          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-          title="Open in Bin"
-          type="button"
-          @click="openInBin"
-        >
-          <AppIcon icon="vuetify-bin" size="16" />
-        </button>
+        <div class="flex items-center gap-0.5">
+          <button
+            v-if="messages.length > 0"
+            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+            title="Open in Bin"
+            type="button"
+            @click="openInBin"
+          >
+            <AppIcon icon="vuetify-bin" size="16" />
+          </button>
 
-        <button
-          v-if="messages.length > 0"
-          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-          :title="copied ? 'Copied!' : 'Copy conversation'"
-          type="button"
-          @click="copyConversation"
-        >
-          <AppIcon :icon="copied ? 'success' : 'copy'" size="16" />
-        </button>
+          <button
+            v-if="messages.length > 0"
+            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+            :title="copied ? 'Copied!' : 'Copy conversation'"
+            type="button"
+            @click="copyConversation"
+          >
+            <AppIcon :icon="copied ? 'success' : 'copy'" size="16" />
+          </button>
 
-        <button
-          v-if="messages.length > 0"
-          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-          title="Reset conversation"
-          type="button"
-          @click="emit('clear')"
-        >
-          <AppIcon icon="restart" size="16" />
-        </button>
+          <button
+            v-if="messages.length > 0"
+            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+            title="Reset conversation"
+            type="button"
+            @click="emit('clear')"
+          >
+            <AppIcon icon="restart" size="16" />
+          </button>
 
-        <button
-          v-if="isDesktop"
-          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-          :title="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
-          type="button"
-          @click="emit('update:fullscreen', !fullscreen)"
-        >
-          <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
-        </button>
+          <button
+            v-if="isDesktop"
+            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+            :title="fullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+            type="button"
+            @click="emit('update:fullscreen', !fullscreen)"
+          >
+            <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
+          </button>
 
-        <button
-          class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-          title="Close"
-          type="button"
-          @click="emit('close')"
-        >
-          <AppIcon icon="close" size="16" />
-        </button>
-      </div>
-    </header>
+          <Discovery.Activator class="rounded-lg" step="ask-ai-close">
+            <button
+              class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+              title="Close"
+              type="button"
+              @click="emit('close')"
+            >
+              <AppIcon icon="close" size="16" />
+            </button>
+          </Discovery.Activator>
+        </div>
+      </header>
+    </Discovery.Activator>
 
     <!-- Messages -->
     <div
@@ -193,13 +207,15 @@
 
     <!-- Input -->
     <footer class="shrink-0 p-3">
-      <DocsAskForm
-        ref="form"
-        aria-label="Ask a follow-up question"
-        :is-loading
-        @stop="emit('stop')"
-        @submit="onSubmit"
-      />
+      <Discovery.Activator class="rounded-2xl" step="ask-ai-follow-up">
+        <DocsAskForm
+          ref="form"
+          aria-label="Ask a follow-up question"
+          :is-loading
+          @stop="emit('stop')"
+          @submit="onSubmit"
+        />
+      </Discovery.Activator>
     </footer>
   </aside>
 </template>

@@ -25,13 +25,32 @@ import { isUndefined } from '#v0/utilities'
 import { toValue } from 'vue'
 
 // Types
-import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket } from '#v0/composables/createSingle'
+import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { App } from 'vue'
 
-export interface StepTicket<V = unknown> extends SingleTicket<V> {}
+/**
+ * Input type for step tickets.
+ * Extend this interface to add custom properties.
+ */
+export interface StepTicketInput<V = unknown> extends SingleTicketInput<V> {}
 
-export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
+/**
+ * Output type for step tickets.
+ * Includes all input properties plus selection methods.
+ */
+export type StepTicket<Z extends StepTicketInput = StepTicketInput> = SingleTicket<Z>
+
+/**
+ * Context returned by createStep.
+ *
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ */
+export interface StepContext<
+  Z extends StepTicketInput = StepTicketInput,
+  E extends StepTicket<Z> = StepTicket<Z>,
+> extends Omit<SingleContext<Z, E>, 'register' | 'onboard'> {
   /** Select the first Ticket in the collection */
   first: () => void
   /** Select the last Ticket in the collection */
@@ -42,6 +61,10 @@ export interface StepContext<Z extends StepTicket> extends SingleContext<Z> {
   prev: () => void
   /** Step through the collection by a given count */
   step: (count: number) => void
+  /** Register a new ticket (accepts input type, returns output type) */
+  register: (ticket?: Partial<Z>) => E
+  /** Onboard multiple tickets at once */
+  onboard: (registrations: Partial<Z>[]) => E[]
 }
 
 export interface StepOptions extends SingleOptions {
@@ -133,9 +156,10 @@ export interface StepContextOptions extends SingleContextOptions {
  * ```
  */
 export function createStep<
-  Z extends StepTicket = StepTicket,
-  E extends StepContext<Z> = StepContext<Z>,
-> (_options: StepOptions = {}): E {
+  Z extends StepTicketInput = StepTicketInput,
+  E extends StepTicket<Z> = StepTicket<Z>,
+  R extends StepContext<Z, E> = StepContext<Z, E>,
+> (_options: StepOptions = {}): R {
   const { circular = false, ...options } = _options
   const registry = createSingle<Z, E>(options)
 
@@ -203,15 +227,16 @@ export function createStep<
     get size () {
       return registry.size
     },
-  } as E
+  } as R
 }
 
 /**
  * Creates a new step context.
  *
  * @param options The options for the step context.
- * @template Z The type of the step ticket.
- * @template E The type of the step context.
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ * @template R The context type.
  * @returns A new step context.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
@@ -232,24 +257,28 @@ export function createStep<
  * ```
  */
 export function createStepContext<
-  Z extends StepTicket = StepTicket,
-  E extends StepContext<Z> = StepContext<Z>,
-> (_options: StepContextOptions = {}): ContextTrinity<E> {
+  Z extends StepTicketInput = StepTicketInput,
+  E extends StepTicket<Z> = StepTicket<Z>,
+  R extends StepContext<Z, E> = StepContext<Z, E>,
+> (_options: StepContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:step', ...options } = _options
-  const [useStepContext, _provideStepContext] = createContext<E>(namespace)
-  const context = createStep<Z, E>(options)
+  const [useStepContext, _provideStepContext] = createContext<R>(namespace)
+  const context = createStep<Z, E, R>(options)
 
-  function provideStepContext (_context: E = context, app?: App): E {
+  function provideStepContext (_context: R = context, app?: App): R {
     return _provideStepContext(_context, app)
   }
 
-  return createTrinity<E>(useStepContext, provideStepContext, context)
+  return createTrinity<R>(useStepContext, provideStepContext, context)
 }
 
 /**
  * Returns the current step instance.
  *
  * @param namespace The namespace for the step context. Defaults to `'v0:step'`.
+ * @template Z The input ticket type.
+ * @template E The output ticket type.
+ * @template R The context type.
  * @returns The current step instance.
  *
  * @see https://0.vuetifyjs.com/composables/selection/use-step
@@ -271,8 +300,9 @@ export function createStepContext<
  * ```
  */
 export function useStep<
-  Z extends StepTicket = StepTicket,
-  E extends StepContext<Z> = StepContext<Z>,
-> (namespace = 'v0:step'): E {
-  return useContext<E>(namespace)
+  Z extends StepTicketInput = StepTicketInput,
+  E extends StepTicket<Z> = StepTicket<Z>,
+  R extends StepContext<Z, E> = StepContext<Z, E>,
+> (namespace = 'v0:step'): R {
+  return useContext<R>(namespace)
 }

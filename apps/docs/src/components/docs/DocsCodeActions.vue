@@ -8,6 +8,7 @@
     code: string
     language?: string
     title?: string
+    binTitle?: string
     playground?: boolean
     bin?: boolean
     showCopy?: boolean
@@ -23,7 +24,7 @@
   }
 
   function openInBin () {
-    const url = getBinUrl(props.code, props.language || 'markdown', props.title)
+    const url = getBinUrl(props.code, props.language || 'markdown', props.binTitle || props.title)
     window.open(url, '_blank')
   }
 

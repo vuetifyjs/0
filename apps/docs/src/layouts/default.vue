@@ -3,7 +3,8 @@
   import { useBreakpoints } from '@vuetify/v0'
 
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useDiscovery } from '@/composables/useDiscovery'
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
   import { useScrollLock } from '@/composables/useScrollLock'
@@ -11,7 +12,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, defineAsyncComponent, toRef } from 'vue'
+  import { computed, defineAsyncComponent, toRef, watch } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -29,9 +30,15 @@
   navConfig.provide()
 
   const breakpoints = useBreakpoints()
-  const { isOpen: isAskOpen } = useAsk()
+  const discovery = useDiscovery()
+  const { isOpen: isAskOpen } = useAskSheet()
   const { isOpen: isSearchOpen } = useSearch()
-  const { isOpen: isSettingsOpen, close: closeSettings, prefersReducedMotion } = useSettings()
+  const { isOpen: isSettingsOpen, close: closeSettings, prefersReducedMotion, forceReducedMotion } = useSettings()
+
+  // Force reduced motion during tours so elements don't animate
+  watch(() => discovery.isActive.value, active => {
+    forceReducedMotion.value = active
+  })
 
   const fadeTransition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
   const slideTransition = toRef(() => prefersReducedMotion.value ? undefined : 'slide')
@@ -69,6 +76,15 @@
     <DocsAsk />
 
     <DocsSearch />
+
+    <!-- Mobile nav backdrop -->
+    <Transition :name="fadeTransition">
+      <div
+        v-if="isMobileNavOpen"
+        class="fixed inset-0 bg-black/30 z-9"
+        @click="app.drawer = false"
+      />
+    </Transition>
 
     <!-- Settings backdrop -->
     <Transition :name="fadeTransition">

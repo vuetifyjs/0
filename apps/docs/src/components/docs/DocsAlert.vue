@@ -3,7 +3,7 @@
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
 
   // Utilities
   import { computed } from 'vue'
@@ -15,7 +15,7 @@
 
   const props = defineProps<DocsAlertProps>()
 
-  const { ask } = useAsk()
+  const { ask } = useAskSheet()
 
   const config = computed(() => {
     switch (props.type) {

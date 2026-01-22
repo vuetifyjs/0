@@ -9,8 +9,7 @@ features:
   order: 1
   level: 1
 related:
-  - /guide
-  - /guide/integration/nuxt
+  - /guide/using-the-docs
   - /composables
   - /components
 ---
@@ -31,19 +30,19 @@ Standalone scaffolding tool for Vuetify0 projects using <AppIcon icon="vuetify-c
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 pnpm create vuetify0
 ```
 
-```bash npm
+```bash npm no-filename
 npm create vuetify0
 ```
 
-```bash yarn
+```bash yarn no-filename
 yarn create vuetify0
 ```
 
-```bash bun
+```bash bun no-filename
 bun create vuetify0
 ```
 
@@ -55,19 +54,19 @@ Full-featured CLI with additional presets and options using <AppIcon icon="vueti
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 pnpm dlx @vuetify/cli init --type vuetify0
 ```
 
-```bash npm
+```bash npm no-filename
 npx @vuetify/cli init --type vuetify0
 ```
 
-```bash yarn
+```bash yarn no-filename
 yarn dlx @vuetify/cli init --type vuetify0
 ```
 
-```bash bun
+```bash bun no-filename
 bunx @vuetify/cli init --type vuetify0
 ```
 
@@ -83,19 +82,19 @@ To add v0 to an existing project, follow the steps below.
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 pnpm create vue@latest
 ```
 
-```bash npm
+```bash npm no-filename
 npm create vue@latest
 ```
 
-```bash yarn
+```bash yarn no-filename
 yarn create vue
 ```
 
-```bash bun
+```bash bun no-filename
 bun create vue@latest
 ```
 
@@ -107,19 +106,19 @@ Install `@vuetify/v0` with your preferred package manager:
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 pnpm add @vuetify/v0
 ```
 
-```bash npm
+```bash npm no-filename
 npm install @vuetify/v0
 ```
 
-```bash yarn
+```bash yarn no-filename
 yarn add @vuetify/v0
 ```
 
-```bash bun
+```bash bun no-filename
 bun add @vuetify/v0
 ```
 
@@ -127,7 +126,7 @@ bun add @vuetify/v0
 
 Create a plugin file to configure v0:
 
-```ts src/plugins/zero.ts
+```ts src/plugins/vuetify0.ts
 import { createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
 import type { App } from 'vue'
 
@@ -157,11 +156,11 @@ Register the plugin in your app entry:
 ```ts src/main.ts
 import { createApp } from 'vue'
 import App from './App.vue'
-import zero from './plugins/zero'
+import vuetify0 from './plugins/vuetify0'
 
 const app = createApp(App)
 
-zero(app)
+vuetify0(app)
 
 app.mount('#app')
 ```
@@ -178,12 +177,12 @@ app.mount('#app')
 
 Import and use components directly - no plugin installation required:
 
-```vue QuickStart.vue playground
+```vue QuickStart.vue playground no-filename
 <script setup lang="ts">
   import { ExpansionPanel } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
-  const expanded = ref([])
+  const expanded = shallowRef([])
 </script>
 
 <template>
@@ -215,19 +214,19 @@ v0 is style-agnostic. Choose your preferred CSS framework and map theme colors t
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 pnpm add -D unocss @unocss/preset-wind
 ```
 
-```bash npm
+```bash npm no-filename
 npm install -D unocss @unocss/preset-wind
 ```
 
-```bash yarn
+```bash yarn no-filename
 yarn add -D unocss @unocss/preset-wind
 ```
 
-```bash bun
+```bash bun no-filename
 bun add -D unocss @unocss/preset-wind
 ```
 
@@ -246,6 +245,7 @@ export default defineConfig({
       surface: 'var(--v0-surface)',
       'on-primary': 'var(--v0-on-primary)',
       'on-surface': 'var(--v0-on-surface)',
+      // Add more theme colors as needed
     },
   },
 })
@@ -266,7 +266,7 @@ export default defineConfig({
 
 #### 4. Import Styles
 
-```ts main.ts
+```ts src/main.ts
 import 'virtual:uno.css'
 ```
 
@@ -288,19 +288,19 @@ Now use utility classes in your components:
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 pnpm add -D tailwindcss @tailwindcss/vite
 ```
 
-```bash npm
+```bash npm no-filename
 npm install -D tailwindcss @tailwindcss/vite
 ```
 
-```bash yarn
+```bash yarn no-filename
 yarn add -D tailwindcss @tailwindcss/vite
 ```
 
-```bash bun
+```bash bun no-filename
 bun add -D tailwindcss @tailwindcss/vite
 ```
 
@@ -334,7 +334,7 @@ export default defineConfig({
 
 #### 4. Import Styles
 
-```ts main.ts
+```ts src/main.ts
 import './styles/main.css'
 ```
 
@@ -352,7 +352,7 @@ Now use utility classes in your components:
 
 Vue's built-in [CSS Modules](https://vuejs.org/api/sfc-css-features#css-modules) require zero configuration.
 
-```vue Button.vue
+```vue Button.vue no-filename
 <template>
   <button :class="$style.btn">
     Click me
@@ -450,7 +450,7 @@ The following export paths exist for the Vuetify0 framework:
 | `@vuetify/v0/utilities` | Utilities only. |
 | `@vuetify/v0/constants` | Constants only (not included in main entry). |
 
-```ts collapse
+```ts
 // Everything
 import { ExpansionPanel, createSelection } from '@vuetify/v0'
 
@@ -466,9 +466,3 @@ import { isObject, isString } from '@vuetify/v0/utilities'
 // Constants only
 import { IN_BROWSER } from '@vuetify/v0/constants'
 ```
-
-## Next Steps
-
-- [Using the Docs](/guide/using-the-docs) — Learn navigation tips, Ask AI, and skill filtering
-- [Explore Components](/components/) — See all available components
-- [Browse Composables](/composables/) — Dive into the composables API

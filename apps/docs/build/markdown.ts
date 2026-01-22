@@ -211,6 +211,25 @@ export default async function MarkdownPlugin () {
         const playground = playgroundIndex !== -1
         if (playground) rest.splice(playgroundIndex, 1)
 
+        // Parse bin title modifier: bin:"Custom Title"
+        const binTitleMatch = info.match(/bin:"([^"]+)"/)
+        const binTitle = binTitleMatch?.[1]
+        if (binTitleMatch) {
+          // Remove the bin:"..." from rest array
+          const binTitleIndex = rest.findIndex(r => r.startsWith('bin:"') || r === binTitleMatch[0])
+          if (binTitleIndex !== -1) {
+            // The quoted string may have been split across multiple array items, rebuild and remove
+            let toRemove = 0
+            let combined = ''
+            for (let i = binTitleIndex; i < rest.length; i++) {
+              combined += (combined ? ' ' : '') + rest[i]
+              toRemove++
+              if (combined.includes('"') && combined.lastIndexOf('"') > combined.indexOf('"')) break
+            }
+            rest.splice(binTitleIndex, toRemove)
+          }
+        }
+
         // Parse collapse modifier: "collapse" or "collapse:15"
         const collapseIndex = rest.findIndex(r => r === 'collapse' || r.startsWith('collapse:'))
         let collapse = false
@@ -227,14 +246,21 @@ export default async function MarkdownPlugin () {
           rest.splice(collapseIndex, 1)
         }
 
+        // Parse no-filename modifier to hide the filename/language label
+        const noFilenameIndex = rest.indexOf('no-filename')
+        const hideFilename = noFilenameIndex !== -1
+        if (hideFilename) rest.splice(noFilenameIndex, 1)
+
         const title = rest.join(' ')
         const highlighted = defaultFence(tokens, index, options, env, self)
         // Base64 encode to avoid escaping issues
         const titleAttr = title ? ` title="${title}"` : ''
+        const binTitleAttr = binTitle ? ` bin-title="${binTitle}"` : ''
         const playgroundAttr = playground ? ' playground' : ''
         const collapseAttr = collapse ? ' collapse' : ''
         const collapseLinesAttr = collapseLines ? ` :collapse-lines="${collapseLines}"` : ''
-        return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}>${highlighted}</DocsMarkup>`
+        const hideFilenameAttr = hideFilename ? ' hide-filename' : ''
+        return `<DocsMarkup code="${encodedCode}" language="${lang || 'text'}"${titleAttr}${binTitleAttr}${playgroundAttr}${collapseAttr}${collapseLinesAttr}${hideFilenameAttr}>${highlighted}</DocsMarkup>`
       }
       // Wrap tables in scrollable container for mobile
       md.renderer.rules.table_open = () => '<div class="overflow-x-auto mb-4"><table>'

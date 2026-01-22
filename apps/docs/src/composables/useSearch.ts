@@ -85,6 +85,10 @@ export interface UseSearchReturn {
   toggle: () => void
   /** Clear the search query */
   clear: () => void
+  /** Request focus on the search input */
+  focus: () => void
+  /** Focus trigger counter (watch this to focus input) */
+  focusTrigger: Readonly<Ref<number>>
   /** Get the currently selected result */
   getSelected: () => SearchResult | SavedResult | undefined
   /** Add a result to favorites */
@@ -111,6 +115,7 @@ let indexPromise: Promise<void> | null = null
 const isOpen = shallowRef(false)
 const isLoading = shallowRef(false)
 const error = shallowRef<string | null>(null)
+const focusTrigger = shallowRef(0)
 const logger = useLogger()
 
 // Persistent state - loaded from storage on first use
@@ -518,6 +523,10 @@ export function useSearch (): UseSearchReturn {
     }
   }
 
+  function focus () {
+    focusTrigger.value++
+  }
+
   // Keyboard navigation - only active when modal is open
   useToggleScope(() => isOpen.value, () => {
     useHotkey('escape', close, { inputs: true })
@@ -551,5 +560,7 @@ export function useSearch (): UseSearchReturn {
     addRecent,
     removeRecent,
     clearRecents,
+    focus,
+    focusTrigger: readonly(focusTrigger),
   }
 }

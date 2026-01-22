@@ -2,8 +2,14 @@
   // Framework
   import { IN_BROWSER, useWindowEventListener } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
+  // Composables
+  import { useAsk } from '@/composables/useAsk'
+
   // Utilities
-  import { computed, onMounted, shallowRef, useTemplateRef } from 'vue'
+  import { computed, onMounted, shallowRef, useTemplateRef, nextTick, watch } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -18,6 +24,12 @@
   }>()
 
   const app = useAppStore()
+  const { focusTrigger } = useAsk()
+
+  watch(focusTrigger, () => {
+    nextTick(() => focus())
+  })
+
   const formRef = useTemplateRef<{ focus: () => void }>('form')
   const isNearBottom = shallowRef(false)
   const isMobile = shallowRef(true)
@@ -67,16 +79,18 @@
   <Transition name="fade">
     <div
       v-show="!isHidden"
-      class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-sm px-4"
+      class="fixed bottom-4 inset-x-0 mx-auto z-40 w-full max-w-sm px-4"
     >
-      <DocsAskForm
-        ref="form"
-        aria-label="Ask a question about this page"
-        class="shadow-lg"
-        show-keyboard-hint
-        @focus="onFocus"
-        @submit="onSubmit"
-      />
+      <Discovery.Activator class="rounded-2xl" :step="['ask-ai', 'ask-ai-reopen']">
+        <DocsAskForm
+          ref="form"
+          aria-label="Ask a question about this page"
+          class="shadow-lg"
+          show-keyboard-hint
+          @focus="onFocus"
+          @submit="onSubmit"
+        />
+      </Discovery.Activator>
     </div>
   </Transition>
 </template>

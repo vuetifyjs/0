@@ -11,10 +11,11 @@
 
 <template>
   <section>
-    <AppSettingsHeader icon="menu" title="Header Buttons" />
+    <AppSettingsHeader icon="menu" title="Header" />
     <div class="space-y-1">
       <AppSettingsToggle
         v-model="showSkillFilter"
+        description="Filter button in header"
         label="Skill filter"
       >
         <template #prepend>
@@ -23,6 +24,7 @@
       </AppSettingsToggle>
       <AppSettingsToggle
         v-model="showThemeToggle"
+        description="Theme switcher in header"
         label="Theme toggle"
       >
         <template #prepend>
@@ -31,6 +33,7 @@
       </AppSettingsToggle>
       <AppSettingsToggle
         v-model="showSocialLinks"
+        description="GitHub and Discord links"
         label="Social links"
       >
         <template #prepend>
@@ -38,8 +41,5 @@
         </template>
       </AppSettingsToggle>
     </div>
-    <p class="text-xs text-on-surface-variant/60 mt-2">
-      Show or hide buttons in the header
-    </p>
   </section>
 </template>

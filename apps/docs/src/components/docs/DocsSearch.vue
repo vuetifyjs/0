@@ -2,8 +2,11 @@
   // Framework
   import { useDocumentEventListener } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
-  import { useAsk } from '@/composables/useAsk'
+  import { useAskSheet } from '@/composables/useAskSheet'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
@@ -24,6 +27,7 @@
     favorites,
     recentSearches,
     hasEmptyStateContent,
+    focusTrigger,
     open,
     close,
     getSelected,
@@ -39,8 +43,8 @@
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
   const triggerRef = shallowRef<HTMLElement | null>(null)
-  const { prefersReducedMotion } = useSettings()
-  const { open: openAsk, ask } = useAsk()
+  const { prefersReducedMotion, showBgGlass } = useSettings()
+  const { open: openAsk, ask } = useAskSheet()
   const transition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
 
   watch(isOpen, async opened => {
@@ -51,6 +55,13 @@
     } else {
       triggerRef.value?.focus()
       triggerRef.value = null
+    }
+  })
+
+  watch(focusTrigger, async () => {
+    if (isOpen.value) {
+      await nextTick()
+      inputRef.value?.focus()
     }
   })
 
@@ -164,7 +175,7 @@
   <Transition :name="transition">
     <div
       v-if="isOpen"
-      class="fixed inset-0 bg-black/50 z-50"
+      class="fixed inset-0 bg-black/30 z-50"
       @click="close"
     />
   </Transition>
@@ -174,11 +185,14 @@
       v-if="isOpen"
       aria-label="Search Documentation"
       aria-modal="true"
-      class="fixed left-1/2 top-[20%] -translate-x-1/2 w-full max-w-2xl z-50 px-4"
+      class="fixed inset-x-0 top-[20%] mx-auto w-full max-w-2xl z-50 px-4"
       role="dialog"
     >
-      <div class="bg-glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
-        <div class="flex items-center gap-3 px-4 py-3 border-b border-divider">
+      <div :class="['rounded-lg shadow-xl border border-divider overflow-hidden', showBgGlass ? 'bg-glass-surface' : 'bg-surface']">
+        <Discovery.Activator
+          class="flex-1 bg-transparent flex border-b border-divider outline-none text-on-surface rounded-lg rounded-b-0 items-center gap-3 px-4 py-3"
+          step="search-tabs"
+        >
           <AppIcon
             aria-hidden="true"
             class="text-on-surface-variant shrink-0"
@@ -200,7 +214,7 @@
           <kbd class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant text-xs font-mono">
             esc
           </kbd>
-        </div>
+        </Discovery.Activator>
 
         <div
           id="search-listbox"
