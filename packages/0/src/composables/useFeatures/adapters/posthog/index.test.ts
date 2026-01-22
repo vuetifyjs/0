@@ -24,4 +24,23 @@ describe('postHogFeatureAdapter', () => {
       'flag-2': { $value: false, $variation: 'payload-2' },
     })
   })
+
+  it('should dispose listener', () => {
+    const unsubscribeMock = vi.fn()
+    const mockPostHog = {
+      featureFlags: {
+        getFlags: vi.fn().mockReturnValue([]),
+      },
+      isFeatureEnabled: vi.fn(),
+      getFeatureFlagPayload: vi.fn(),
+      getFeatureFlag: vi.fn(),
+      onFeatureFlags: vi.fn().mockReturnValue(unsubscribeMock),
+    }
+
+    const adapter = new PostHogFeatureAdapter(mockPostHog as any)
+    adapter.setup(vi.fn())
+    adapter.dispose()
+
+    expect(unsubscribeMock).toHaveBeenCalled()
+  })
 })

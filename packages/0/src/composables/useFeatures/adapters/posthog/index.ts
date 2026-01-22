@@ -28,8 +28,14 @@ export class PostHogFeatureAdapter implements FeaturesAdapterInterface {
       return {}
     }
 
-    this.client.onFeatureFlags(updateFlags)
+    this.disposeFn = this.client.onFeatureFlags(updateFlags)
 
     return updateFlags()
   }
+
+  dispose () {
+    this.disposeFn()
+  }
+
+  private disposeFn: () => void = () => {}
 }
