@@ -5,10 +5,21 @@ import { createContext, createForm, createPlugin, createRegistry, createSelectio
 import { readonly, shallowRef, toRef, toValue, watch, type App, type MaybeRefOrGetter, type ShallowRef } from 'vue'
 
 // Types
-import type { RegistryTicket, ContextTrinity, FormValidationRule, StepTicket, StepContext, SelectionTicket } from '@vuetify/v0'
+import type {
+  ContextTrinity,
+  FormValidationRule,
+  RegistryTicket,
+  RegistryContext,
+  SelectionTicketInput,
+  SelectionTicket,
+  SelectionContext,
+  StepTicketInput,
+  StepContext,
+} from '@vuetify/v0'
 
 type ID = string | number
 
+/** Input/output type for activator tickets (no methods added, so same type) */
 export interface DiscoveryActivatorTicket extends RegistryTicket {
   type: 'activator'
   element: ShallowRef<HTMLElement | null>
@@ -16,18 +27,24 @@ export interface DiscoveryActivatorTicket extends RegistryTicket {
   padding?: number
 }
 
-export interface DiscoveryStepTicket extends SelectionTicket {
+/** Input type for step tickets */
+export interface DiscoveryStepTicketInput extends SelectionTicketInput {
   type: 'step'
   rules?: FormValidationRule[]
-  disabled?: boolean
   /** Delay in ms before showing highlight (for animated elements) */
   delay?: number
 }
 
+/** Output type for step tickets (includes selection methods) */
+export type DiscoveryStepTicket = SelectionTicket<DiscoveryStepTicketInput>
+
+/** Union of ticket input types */
+export type DiscoveryTicketInput = DiscoveryActivatorTicket | DiscoveryStepTicketInput
+
+/** Union of ticket output types */
 export type DiscoveryTicket = DiscoveryActivatorTicket | DiscoveryStepTicket
 
-export type DiscoveryEventHandler<T = void> = (value: T) => void
-export type DiscoveryBeforeHandler = (next: () => void, reject: () => void) => void
+type DiscoveryBeforeHandler = (next: () => void, reject: () => void) => void
 
 export interface DiscoveryStepConfig {
   /** Called when step becomes active */
@@ -40,16 +57,16 @@ export interface DiscoveryStepConfig {
   advanceWhen?: MaybeRefOrGetter<boolean>
 }
 
-export interface DiscoveryContext extends Omit<StepContext<StepTicket>, 'register' | 'unregister' | 'on'> {
+export interface DiscoveryContext extends Omit<StepContext<StepTicketInput>, 'register' | 'unregister' | 'on' | 'step'> {
   start: (id: ID) => void
   stop: () => void
   complete: () => void
-  register: (registration: Partial<DiscoveryTicket>) => RegistryTicket
+  register: (registration: Partial<DiscoveryTicketInput>) => DiscoveryTicket
   unregister: (id: ID, type?: 'activator' | 'step') => void
   /** Steps registry (registered step components) */
-  steps: ReturnType<typeof createSelection<DiscoveryStepTicket>>
+  steps: SelectionContext<DiscoveryStepTicketInput, DiscoveryStepTicket>
   /** Activators registry (element references) */
-  activators: ReturnType<typeof createRegistry<DiscoveryActivatorTicket>>
+  activators: RegistryContext<DiscoveryActivatorTicket>
   /** Whether the discovery is currently active */
   isActive: Readonly<ShallowRef<boolean>>
   /** Whether the discovery has been completed */
@@ -68,12 +85,6 @@ export interface DiscoveryContext extends Omit<StepContext<StepTicket>, 'registe
   total: Readonly<ShallowRef<number>>
   /** Reactive number of defined tours */
   all: Readonly<ShallowRef<number>>
-  /** Listen for step lifecycle events */
-  on: {
-    (event: `change:${string}`, handler: DiscoveryEventHandler<boolean>): () => void
-    (event: `${'start' | 'back' | 'complete'}:${string}`, handler: DiscoveryEventHandler): () => void
-    (event: `before:${string}`, handler: DiscoveryBeforeHandler): () => void
-  }
   /** Configure step behavior declaratively */
   step: (id: ID, config: DiscoveryStepConfig) => () => void
 }
@@ -92,10 +103,10 @@ export interface DiscoveryPluginOptions extends DiscoveryContextOptions {}
 function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
   const tourDefinitions: Record<string, ID[]> = { ...options.tours }
 
-  const tours = createStep<StepTicket>({ events: true })
+  const tours = createStep({ events: true })
   const toursProxy = useProxyRegistry(tours)
 
-  const steps = createSelection<DiscoveryStepTicket>({ events: true })
+  const steps = createSelection<DiscoveryStepTicketInput>({ events: true })
 
   const activators = createRegistry<DiscoveryActivatorTicket>()
 
@@ -104,10 +115,10 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
   const isActive = shallowRef(false)
   const isComplete = shallowRef(false)
 
-  const listeners = new Map<string, Set<DiscoveryEventHandler<any>>>()
+  const listeners = new Map<string, Set<(...args: any[]) => void>>()
   let direction: 'forward' | 'backward' = 'forward'
 
-  function on (event: string, handler: DiscoveryEventHandler<any>): () => void {
+  function on (event: string, handler: (...args: any[]) => void): () => void {
     if (!listeners.has(event)) {
       listeners.set(event, new Set())
     }
@@ -162,8 +173,8 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
     const items = tours.values()
 
     for (let i = currentIndex - 1; i >= 0; i--) {
-      const id = items[i].id
-      if (steps.get(id)?.disabled !== true) return true
+      const id = items[i]?.id
+      if (id && steps.get(id)?.disabled !== true) return true
     }
     return false
   })
@@ -231,16 +242,16 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
     }
   }, { deep: true })
 
-  function register (registration: Partial<DiscoveryTicket>): RegistryTicket {
+  function register (registration: Partial<DiscoveryTicketInput>): DiscoveryTicket {
     if (registration.type === 'activator') {
-      return activators.register(registration)
+      return activators.register(registration as Partial<DiscoveryActivatorTicket>)
     }
 
     if (registration.type === 'step') {
-      return steps.register(registration as Partial<DiscoveryStepTicket>)
+      return steps.register(registration as Partial<DiscoveryStepTicketInput>)
     }
 
-    return registration as RegistryTicket
+    return registration as DiscoveryTicket
   }
 
   function unregister (id: ID, type?: 'activator' | 'step') {
@@ -291,8 +302,8 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
     const items = tours.values()
 
     for (let i = currentIndex + 1; i < items.length; i++) {
-      const id = items[i].id
-      if (!isStepDisabled(id)) return id
+      const id = items[i]?.id
+      if (id && !isStepDisabled(id)) return id
     }
     return undefined
   }
@@ -302,8 +313,8 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
     const items = tours.values()
 
     for (let i = currentIndex - 1; i >= 0; i--) {
-      const id = items[i].id
-      if (!isStepDisabled(id)) return id
+      const id = items[i]?.id
+      if (id && !isStepDisabled(id)) return id
     }
     return undefined
   }
@@ -396,7 +407,6 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
     complete,
     next,
     prev,
-    on,
     step,
   }
 }
