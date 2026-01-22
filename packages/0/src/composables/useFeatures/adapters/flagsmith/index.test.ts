@@ -7,16 +7,29 @@ import { FlagsmithFeatureAdapter } from '.'
 const mockFlagsmith = {
   init: vi.fn(),
   getAllFlags: vi.fn(),
+  stopListening: vi.fn(),
 }
 
 describe('flagsmithFeatureAdapter', () => {
   it('should initialize flagsmith with options', () => {
-    const options = { environmentID: 'test-env' }
+    const options: any = { environmentID: 'test-env' }
     const adapter = new FlagsmithFeatureAdapter(mockFlagsmith as unknown as IFlagsmith, options)
 
     adapter.setup(vi.fn())
 
     expect(mockFlagsmith.init).toHaveBeenCalledWith(expect.objectContaining(options))
+  })
+
+  it('should call stopListening on dispose', () => {
+    const adapter = new FlagsmithFeatureAdapter(mockFlagsmith as unknown as IFlagsmith, { environmentID: 'test-env' })
+    adapter.setup(vi.fn())
+    adapter.dispose()
+    expect(mockFlagsmith.stopListening).toHaveBeenCalled()
+  })
+
+  it('should handle dispose before setup', () => {
+    const adapter = new FlagsmithFeatureAdapter(mockFlagsmith as unknown as IFlagsmith, { environmentID: 'test-env' })
+    expect(() => adapter.dispose()).not.toThrow()
   })
 
   it('should call onUpdate when flags change', () => {

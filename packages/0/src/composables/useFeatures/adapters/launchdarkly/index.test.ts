@@ -13,6 +13,7 @@ describe('launchDarklyFeatureAdapter', () => {
       on: vi.fn((event, cb) => {
         if (event === 'change') cb()
       }),
+      off: vi.fn(),
     }
 
     const adapter = new LaunchDarklyFeatureAdapter(mockLDClient as any)
@@ -25,5 +26,18 @@ describe('launchDarklyFeatureAdapter', () => {
       'flag-json': { $value: true, $variation: { color: 'blue' } },
       'flag-string': { $value: true, $variation: 'variation-a' },
     })
+
+    adapter.dispose()
+    expect(mockLDClient.off).toHaveBeenCalledWith('change', expect.any(Function))
+  })
+
+  it('should handle dispose before setup', () => {
+    const mockLDClient = {
+      allFlags: vi.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
+    }
+    const adapter = new LaunchDarklyFeatureAdapter(mockLDClient as any)
+    expect(() => adapter.dispose()).not.toThrow()
   })
 })

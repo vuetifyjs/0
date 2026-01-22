@@ -16,6 +16,7 @@ describe('createFeatures', () => {
       expect(context).toBeDefined()
       expect(context.variation).toBeDefined()
       expect(context.register).toBeDefined()
+      expect(context.size).toBe(0)
     })
 
     it('should register boolean features', () => {
@@ -26,6 +27,7 @@ describe('createFeatures', () => {
         },
       })
 
+      expect(context.size).toBe(2)
       expect(context.collection.size).toBe(2)
       expect(context.collection.has('feature-a')).toBe(true)
       expect(context.collection.has('feature-b')).toBe(true)
@@ -321,6 +323,12 @@ describe('createFeatures', () => {
       // Null is treated as nullish by the ?? operator, so it falls back to default
       expect(context.variation('null-feature', 'default')).toBe('default')
       expect(context.variation('undefined-feature', 'default')).toBe('default')
+    })
+
+    it('should handle null feature value', () => {
+      const context = createFeatures({})
+      context.register({ id: 'null-val', value: null as any })
+      expect(context.variation('null-val', 'fallback')).toBe('fallback')
     })
   })
 })
