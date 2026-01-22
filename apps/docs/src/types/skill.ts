@@ -1,0 +1,97 @@
+// Skill level aligns with docs skill filter (1 = Beginner, 2 = Intermediate, 3 = Advanced)
+export type SkillLevel = 1 | 2 | 3
+
+export type SkillMode = 'tour' | 'challenge' | 'quiz'
+
+export interface SkillStep {
+  id: string
+  title: string
+  task: string
+  hint: string
+  learn: string
+}
+
+export interface SkillMeta {
+  mode: SkillMode
+  id: string
+  name: string
+  level: SkillLevel
+  track: SkillTrack
+  categories: SkillCategory[]
+  order: number
+  prerequisites: string[]
+  description: string
+  estimatedMinutes: number
+  startRoute: string
+  steps: SkillStep[]
+  /** Repl challenge ID (for mode: 'challenge') */
+  challenge?: string
+}
+
+// Tracks align with docs learning tracks
+export type SkillTrack = 'fundamentals' | 'features' | 'integration'
+
+// Categories for multi-tag filtering
+export type SkillCategory =
+  | 'components' // Headless UI components (Tabs, Dialog, Disclosure)
+  | 'composables' // Logic building blocks (createSingle, useEventListener)
+  | 'patterns' // Architectural patterns (Trinity, Context, Registry)
+  | 'forms' // Input and validation (createForm, field state)
+  | 'data' // Collections and processing (useFilter, usePagination)
+  | 'browser' // DOM and events (observers, hotkeys, media queries)
+  | 'theming' // Design tokens and themes (useTheme, createTokens)
+  | 'accessibility' // ARIA and keyboard (focus management, screen readers)
+  | 'library-building' // Build your own library (plugins, adapters, extending v0)
+  | 'meta' // Learning the docs (Ask AI, search, examples)
+  | 'typescript' // Type patterns (generics, inference)
+  | 'ssr' // Server-side rendering (hydration, Nuxt)
+
+export interface SkillProgress {
+  skillId: string
+  completedSteps: number[]
+  completed: boolean
+  completedAt?: string
+}
+
+// State for tracking active guided tour
+export interface GuidedTourState {
+  skillId: string
+  currentStepIndex: number
+  startedAt: string
+}
+
+export const SKILL_LEVEL_META: Record<SkillLevel, { label: string, icon: string, color: string }> = {
+  1: { label: 'Beginner', icon: 'level-beginner', color: 'var(--v0-success)' },
+  2: { label: 'Intermediate', icon: 'level-intermediate', color: 'var(--v0-info)' },
+  3: { label: 'Advanced', icon: 'level-advanced', color: 'var(--v0-warning)' },
+}
+
+export const SKILL_TRACK_META: Record<SkillTrack, { label: string, description: string }> = {
+  fundamentals: {
+    label: 'Fundamentals',
+    description: 'Understanding the system — Trinity, Context, Registry patterns',
+  },
+  features: {
+    label: 'Features',
+    description: 'Production-ready UIs — Theming, Accessibility, Utilities',
+  },
+  integration: {
+    label: 'Integration',
+    description: 'Real-world usage — Nuxt, existing apps, custom components',
+  },
+}
+
+export const SKILL_CATEGORY_META: Record<SkillCategory, { label: string, icon: string }> = {
+  'components': { label: 'Components', icon: 'layers' },
+  'composables': { label: 'Composables', icon: 'puzzle' },
+  'patterns': { label: 'Patterns', icon: 'map' },
+  'forms': { label: 'Forms', icon: 'form' },
+  'data': { label: 'Data', icon: 'database' },
+  'browser': { label: 'Browser', icon: 'monitor' },
+  'theming': { label: 'Theming', icon: 'palette' },
+  'accessibility': { label: 'Accessibility', icon: 'accessibility' },
+  'library-building': { label: 'Library Building', icon: 'package' },
+  'meta': { label: 'Learning', icon: 'book' },
+  'typescript': { label: 'TypeScript', icon: 'typescript' },
+  'ssr': { label: 'SSR', icon: 'server' },
+}

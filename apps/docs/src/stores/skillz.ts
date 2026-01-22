@@ -1,0 +1,87 @@
+// Utilities
+import { defineStore } from 'pinia'
+
+// Types
+import type { SkillMeta } from '@/types/skill'
+
+interface State {
+  items: SkillMeta[]
+}
+
+export const useSkillzStore = defineStore('skillz', {
+  state: (): State => ({
+    items: [
+      {
+        mode: 'tour',
+        id: 'using-the-docs',
+        name: 'Using the Docs',
+        level: 1,
+        track: 'fundamentals',
+        categories: ['meta'],
+        order: 0,
+        prerequisites: [],
+        description: 'Learn to navigate the v0 documentation effectively.',
+        estimatedMinutes: 5,
+        startRoute: '/introduction/what-is-v0',
+        steps: [
+          {
+            id: 'open-search',
+            title: 'Open the Search',
+            task: 'Press Ctrl+K (or Cmd+K on Mac) to open the search dialog. You can also click the search button in the header.',
+            hint: 'Look for the search icon in the top navigation bar',
+            learn: 'How to quickly access the search dialog using keyboard shortcuts',
+          },
+          {
+            id: 'search-tabs',
+            title: 'Search for something',
+            task: 'Type "Tabs" in the search box to find the Tabs component documentation and then press Enter.',
+            hint: 'The search uses fuzzy matching, so partial words work too',
+            learn: 'How to use fuzzy search to find components and documentation',
+          },
+          {
+            id: 'ask-ai',
+            title: 'Open Ask AI',
+            task: 'Press Ctrl+/ (or Cmd+/ on Mac) to open Ask AI, or click the input at the bottom of the page.',
+            hint: 'Ask AI knows the content of the current page and can answer questions about it',
+            learn: 'How to access the AI assistant for context-aware help',
+          },
+          {
+            id: 'ask-ai-close',
+            title: 'Close Ask AI',
+            task: 'Click the close button to dismiss the Ask AI panel.',
+            hint: '',
+            learn: 'How to dismiss the Ask AI panel when done',
+          },
+          {
+            id: 'ask-ai-reopen',
+            title: 'Reopen Ask AI',
+            task: 'Click the Ask AI input at the bottom to bring back your conversation. Notice it remembers what you discussed!',
+            hint: 'Your conversation persists until you clear it or refresh the page',
+            learn: 'That conversations persist and can be resumed',
+          },
+          {
+            id: 'ask-ai-options',
+            title: 'Explore save options',
+            task: 'Notice the toolbar buttons: save to Vuetify Bin for sharing, copy the conversation, or reset to start fresh. Click the close button to dismiss the Ask AI panel.',
+            hint: 'Vuetify Bin creates a shareable link to your conversation',
+            learn: 'How to save, share, and manage AI conversations',
+          },
+          {
+            id: 'open-settings',
+            title: 'Open Settings',
+            task: 'Click the settings button in the header to open the Settings panel.',
+            hint: 'Skill filters change the visible navigation items',
+            learn: 'Where to find site-wide settings and preferences',
+          },
+          {
+            id: 'skill-level',
+            title: 'Adjust your skill level',
+            task: 'Select one or more skill levels to filter documentation by complexity. Beginner shows fundamentals, Advanced reveals in-depth content.',
+            hint: 'Try toggling levels to see how navigation updates',
+            learn: 'How skill levels filter documentation to match your experience',
+          },
+        ],
+      },
+    ],
+  }),
+})
