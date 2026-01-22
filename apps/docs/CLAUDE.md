@@ -13,11 +13,42 @@ pnpm preview   # Preview build
 ## Stack
 
 - **SSG**: vite-ssg (generates static HTML)
-- **Routing**: unplugin-vue-router (file-based)
+- **Routing**: unplugin-vue-router (file-based) + vite-plugin-vue-layouts-next
 - **Markdown**: unplugin-vue-markdown + Shiki + Mermaid
 - **Styling**: UnoCSS with `presetWind4()` (Tailwind v4 syntax, integrated reset)
 - **State**: Pinia
 - **PWA**: vite-plugin-pwa
+
+## Routing & Layouts
+
+Available layouts: `default`, `fullscreen`, `home` (in `src/layouts/`)
+
+### Independent Routes with Custom Layouts
+
+Files inside a folder with an `index.md` are treated as **nested routes** that inherit the parent's layout. To create a route with its own independent layout, use **dot notation** at the pages root:
+
+```
+# WRONG - [id].vue inherits index.md's default layout
+pages/
+  skillz/
+    index.md      → /skillz (default layout)
+    [id].vue      → /skillz/:id (NESTED, inherits default layout)
+
+# CORRECT - dot notation creates independent route
+pages/
+  skillz/
+    index.md      → /skillz (default layout)
+  skillz.[id].vue → /skillz/:id (independent, uses its own layout)
+```
+
+Set layout in Vue files with `definePage()`:
+```ts
+definePage({
+  meta: {
+    layout: 'fullscreen',
+  },
+})
+```
 
 ## UnoCSS Theme
 
