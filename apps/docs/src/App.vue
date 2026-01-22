@@ -141,6 +141,7 @@
       background:
         radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) 10%, transparent) 1px, transparent 1px);
       background-size: 24px 24px;
+      background-position: 18px 0;
       mask-image: linear-gradient(
         225deg,
         black 0%,
