@@ -1,6 +1,6 @@
 <script lang="ts" setup>
   // Framework
-  import { useDocumentEventListener } from '@vuetify/v0'
+  import { useBreakpoints, useDocumentEventListener } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -14,6 +14,7 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
+  const breakpoints = useBreakpoints()
   const discovery = useDiscovery()
   const search = useSearch()
   const settings = useSettings()
@@ -84,7 +85,6 @@
     hint="The search uses fuzzy matching, so partial words work too"
     :leave="() => search.close()"
     :next-on="nextOnEnterWithBlock"
-    :offset="[-105, 0]"
     step="search-tabs"
     title="Search for something"
   >
@@ -96,7 +96,6 @@
     hint="Ask AI knows the content of the current page and can answer questions about it"
     :next-on="nextOnEnter"
     :next-when="() => sheet.isOpen.value"
-    :offset="[-61, 0]"
     placement="top"
     step="ask-ai"
     title="Open Ask AI"
@@ -109,7 +108,7 @@
     :enter="() => sheet.open()"
     :leave="() => sheet.close()"
     :next-when="() => !sheet.isOpen.value"
-    :offset="[0, 42]"
+    :offset="[-32, 0]"
     placement="x-start"
     step="ask-ai-close"
     text="Click the close button to dismiss the Ask AI panel."
@@ -120,7 +119,6 @@
   <DocsDiscoveryStep
     hint="Your conversation persists until you clear it or refresh the page"
     :next-when="sheet.isOpen"
-    :offset="[-61, 0]"
     placement="top"
     step="ask-ai-reopen"
     text="Click the Ask AI input at the bottom to bring back your conversation. Notice it remembers what you discussed!"
@@ -134,7 +132,6 @@
     :leave="() => sheet.close()"
     :next-on="nextOnCloseKeys"
     :next-when="() => !sheet.isOpen.value"
-    :offset="[0, 42]"
     placement="x-start"
     step="ask-ai-options"
     text="Notice the toolbar buttons: save to Vuetify Bin for sharing, copy the conversation, or reset to start fresh. Click the close button to dismiss the Ask AI panel."
@@ -145,7 +142,7 @@
   <DocsDiscoveryStep
     hint="Skill filters change the visible navigation items"
     :next-when="() => settings.isOpen.value"
-    :offset="[0, -16]"
+    :offset="[-32, 0]"
     placement="bottom left"
     step="open-settings"
     text="Click the settings button in the header to open the Settings panel."
@@ -154,12 +151,11 @@
 
   <!-- Step 8 -->
   <DocsDiscoveryStep
-    :delay="150"
+    :delay="500"
     :enter="() => settings.open()"
     hint="Try toggling levels to see how navigation updates"
     :leave="() => settings.close()"
-    :offset="[0, 8]"
-    placement="left"
+    :placement="breakpoints.mdAndUp.value ? 'left' : 'top'"
     step="skill-level"
     text="Select one or more skill levels to filter documentation by complexity. Beginner shows fundamentals, Advanced reveals in-depth content."
     title="Adjust your skill level"

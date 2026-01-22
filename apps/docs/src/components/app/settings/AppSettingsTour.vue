@@ -6,6 +6,8 @@
 
   function startTour () {
     discovery.start('docs-intro')
+    // discovery.select('open-settings')
+    // discovery.step(7)
   }
 </script>
 

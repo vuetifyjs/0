@@ -1,6 +1,6 @@
 <script lang="ts">
   // Types
-  import type { AdvanceOnCallback } from '@/components/discovery/DiscoveryRoot.vue'
+  import type { NextOnCallback } from '@/components/discovery/DiscoveryRoot.vue'
   import type { DiscoveryStepConfig } from '@/composables/useDiscovery'
   import type { MaybeRefOrGetter } from 'vue'
 
@@ -10,7 +10,7 @@
     /** Unique step identifier */
     step: ID
     /** Callback to set up auto-advance behavior */
-    nextOn?: AdvanceOnCallback
+    nextOn?: NextOnCallback
     /** Whether this step is disabled (will be skipped) */
     disabled?: boolean
     /** Step title */
@@ -63,7 +63,7 @@
   const offsetStyle = computed(() => {
     if (!props.offset) return undefined
     const [x, y] = props.offset
-    return { transform: `translate(${x}%, ${y}%)` }
+    return { transform: `translate(${x}px, ${y}px)` }
   })
 
   // Register step config if any lifecycle props are provided

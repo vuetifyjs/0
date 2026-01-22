@@ -14,27 +14,44 @@
 
   const {
     placement = 'bottom',
+    positionTry = 'flip-block flip-inline',
     offset = 16,
   } = defineProps<{
     placement?: string
+    /** CSS position-try-fallbacks value for automatic repositioning */
+    positionTry?: string
     offset?: number
   }>()
 
   const root = useDiscoveryRootContext('v0:discovery')
   const contentRef = useTemplateRef<HTMLElement>('content')
 
-  const marginMap: Record<string, string> = {
-    top: `0 0 ${offset}px 0`,
-    bottom: `${offset}px 0 0 0`,
-    left: `0 ${offset}px 0 0`,
-    right: `0 0 0 ${offset}px`,
+  // Map placement to position-area values with self-alignment for centering
+  const placementStyles: Record<string, Record<string, string>> = {
+    bottom: {
+      positionArea: 'bottom',
+      justifySelf: 'anchor-center',
+    },
+    top: {
+      positionArea: 'top',
+      justifySelf: 'anchor-center',
+    },
+    left: {
+      positionArea: 'left',
+      alignSelf: 'anchor-center',
+    },
+    right: {
+      positionArea: 'right',
+      alignSelf: 'anchor-center',
+    },
   }
 
   const style = toRef(() => ({
     position: 'fixed' as const,
-    margin: marginMap[placement] ?? `${offset}px`,
-    positionArea: placement,
+    margin: `${offset}px`,
     positionAnchor: `--discovery-${root.step}`,
+    positionTryFallbacks: positionTry,
+    ...placementStyles[placement] ?? placementStyles.bottom,
   }))
 
   watch(() => root.isActive.value, async isActive => {

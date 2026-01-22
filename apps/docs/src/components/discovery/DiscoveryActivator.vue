@@ -6,7 +6,7 @@
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { onBeforeUnmount, toRef, useTemplateRef } from 'vue'
+  import { nextTick, onBeforeUnmount, onMounted, toRef, useTemplateRef, watch } from 'vue'
 
   type ID = string | number
 
@@ -14,11 +14,14 @@
     step,
     as = 'span',
     padding,
+    scrollDelay = 0,
   } = defineProps<{
     step: ID | ID[]
     as?: string
     /** Padding around the highlighted area */
     padding?: number
+    /** Delay in ms before scrolling into view (for animated elements) */
+    scrollDelay?: number
   }>()
 
   const discovery = useDiscovery()
@@ -33,9 +36,27 @@
     }
   })
 
+  // Scroll into view when this step becomes active
+  async function scrollIntoViewIfActive () {
+    if (!steps.includes(discovery.selectedId.value as ID)) return
+    await nextTick()
+    if (scrollDelay > 0) {
+      await new Promise(resolve => setTimeout(resolve, scrollDelay))
+    }
+    activatorRef.value?.scrollIntoView({ block: 'end', behavior: 'smooth' })
+  }
+
+  // Handle dynamically mounted activators (step already active when mounted)
+  onMounted(scrollIntoViewIfActive)
+
+  // Handle step becoming active after mount
+  watch(() => discovery.selectedId.value, scrollIntoViewIfActive)
+
   // CSS anchor positioning: set anchor-name so Content can position relative to this
+  // scroll-margin-bottom provides extra room when scrollIntoView with block: 'end'
   const style = toRef(() => ({
     anchorName: tickets.map(t => `--discovery-${t.id}`).join(', '),
+    scrollMarginBottom: '100px',
   }))
 </script>
 

@@ -5,7 +5,7 @@
   // Types
   import type { Ref } from 'vue'
 
-  export type AdvanceOnCallback = (next: () => void) => (() => void) | void
+  export type NextOnCallback = (next: () => void) => (() => void) | void
 
   type ID = string | number
 
@@ -41,7 +41,7 @@
   const props = defineProps<{
     step: ID
     disabled?: boolean
-    advanceOn?: AdvanceOnCallback
+    nextOn?: NextOnCallback
     /** Delay in ms before showing highlight (for animated elements) */
     delay?: number
   }>()
@@ -50,12 +50,12 @@
 
   const ticket = discovery.register({ type: 'step', id: props.step, disabled: props.disabled, delay: props.delay })
 
-  // Cleanup function for advanceOn callback
-  let advanceOnCleanup: (() => void) | void | null = null
+  // Cleanup function for nextOn callback
+  let nextOnCleanup: (() => void) | void | null = null
 
   onBeforeUnmount(() => {
     discovery.unregister(ticket.id, 'step')
-    advanceOnCleanup?.()
+    nextOnCleanup?.()
   })
 
   // Sync disabled prop changes to the registry
@@ -73,14 +73,14 @@
   const isFirst = toRef(() => index.value === 0)
   const isLast = toRef(() => index.value === total.value - 1)
 
-  // Handle advanceOn callback when step becomes active
+  // Handle nextOn callback when step becomes active
   // flush: 'sync' ensures cleanup runs before other watchers/handlers
   watch(isActive, active => {
-    if (active && props.advanceOn) {
-      advanceOnCleanup = props.advanceOn(() => discovery.next())
-    } else if (advanceOnCleanup) {
-      advanceOnCleanup()
-      advanceOnCleanup = null
+    if (active && props.nextOn) {
+      nextOnCleanup = props.nextOn(() => discovery.next())
+    } else if (nextOnCleanup) {
+      nextOnCleanup()
+      nextOnCleanup = null
     }
   }, { immediate: true, flush: 'sync' })
 
