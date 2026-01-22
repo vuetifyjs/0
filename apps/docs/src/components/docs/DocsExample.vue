@@ -80,7 +80,17 @@
         class="docs-example-code relative bg-pre group"
         :class="{ 'docs-example-code--wrap': lineWrap }"
       >
-        <div class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+        <span
+          v-if="fileName && (!shouldPeek || expanded)"
+          class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50"
+        >
+          {{ fileName }}
+        </span>
+
+        <div
+          class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
+          :class="(!shouldPeek || expanded) && 'max-md:opacity-100'"
+        >
           <DocsCodeActions
             v-model:wrap="lineWrap"
             bin
@@ -110,6 +120,7 @@
         >
           <div
             class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto"
+            :class="(!shouldPeek || expanded) && '[&_pre]:pt-10'"
             v-html="highlightedCode"
           />
         </div>
