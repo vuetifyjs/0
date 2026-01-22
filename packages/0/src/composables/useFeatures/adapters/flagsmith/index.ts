@@ -2,7 +2,7 @@ import flagsmith from 'flagsmith'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
-import type { IFlagsmith, IInitConfig } from 'flagsmith'
+import type { IFlagsmith, IInitConfig, IFlags, LoadingState, IRetrieveInfo } from 'flagsmith'
 
 export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
   private client: IFlagsmith
@@ -16,11 +16,11 @@ export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {
     this.client.init({
       ...this.options,
-      onChange: (oldFlags: any, params: any, loadingState: any) => {
+      onChange: (oldFlags: IFlags | null, params: IRetrieveInfo, loadingState: LoadingState) => {
         const flags = this.client.getAllFlags()
         const adapterFlags: FeaturesAdapterFlags = {}
 
-        for (const [key, flag] of Object.entries(flags) as any) {
+        for (const [key, flag] of Object.entries(flags)) {
           const isEnabled = flag.enabled
           const variation = flag.value
 
