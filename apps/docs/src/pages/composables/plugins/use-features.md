@@ -137,6 +137,19 @@ app.use(createFeaturesPlugin({
 }))
 ```
 
+### Multiple Adapters
+
+You can combine flags from multiple sources by passing an array of adapters. They are initialized in order, and flags are merged (last one wins for conflicting keys).
+
+```ts
+app.use(createFeaturesPlugin({
+  adapter: [
+    new FlagsmithFeatureAdapter(flagsmith, options),
+    new PostHogFeatureAdapter(posthog),
+  ]
+}))
+```
+
 ### Custom Adapters
 
 Create custom adapters by implementing the `FeaturesAdapterInterface`.

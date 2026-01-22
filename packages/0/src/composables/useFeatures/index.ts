@@ -28,7 +28,7 @@ import { createGroup } from '#v0/composables/createGroup'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Utilities
-import { isBoolean, isFunction, isObject } from '#v0/utilities'
+import { isArray, isBoolean, isFunction, isObject } from '#v0/utilities'
 
 // Types
 import type { GroupContext, GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
@@ -36,7 +36,7 @@ import type { RegistryOptions } from '#v0/composables/createRegistry'
 import type { TokenCollection } from '#v0/composables/createTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { FeaturesAdapterInterface, FeaturesAdapterFlags } from '#v0/composables/useFeatures/adapters'
-import type { ID } from '#v0/types'
+import type { ID, MaybeArray } from '#v0/types'
 import type { App } from 'vue'
 
 export type { FeaturesAdapterFlags, FeaturesAdapterInterface, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
@@ -98,7 +98,7 @@ export interface FeaturePluginOptions extends FeatureContextOptions {
    *
    * @remarks Adapters provide dynamic flag values from external services.
    */
-  adapter?: FeaturesAdapterInterface
+  adapter?: MaybeArray<FeaturesAdapterInterface>
 }
 
 /**
@@ -286,14 +286,18 @@ export function createFeaturesPlugin<
     setup: (app: App) => {
       if (!adapter) return
 
-      const initialFlags = adapter.setup(flags => {
-        context.sync(flags)
-      })
+      const adapters = isArray(adapter) ? adapter : [adapter]
 
-      context.sync(initialFlags)
+      for (const adapter of adapters) {
+        const initialFlags = adapter.setup(flags => {
+          context.sync(flags)
+        })
 
-      if (isFunction(adapter.dispose)) {
-        app.onUnmount(() => adapter.dispose!())
+        context.sync(initialFlags)
+
+        if (isFunction(adapter.dispose)) {
+          app.onUnmount(() => adapter.dispose!())
+        }
       }
     },
   })
