@@ -98,12 +98,16 @@
 <template>
   <Discovery.Root
     v-slot="{ isFirst, isLast }"
-    :advance-on="nextOn"
     :delay="delay"
     :disabled="disabled"
+    :next-on="nextOn"
     :step="step"
   >
-    <Discovery.Content class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs" :style="offsetStyle" v-bind="attrs">
+    <Discovery.Content
+      class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs"
+      :style="offsetStyle"
+      v-bind="attrs"
+    >
       <!-- Header -->
       <div class="flex justify-between items-center mb-4">
         <span class="text-2xs font-bold uppercase tracking-wide px-2 py-1 bg-primary text-on-primary rounded">
