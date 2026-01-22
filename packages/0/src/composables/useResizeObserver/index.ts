@@ -160,12 +160,12 @@ export function useResizeObserver (
     }
   }
 
-  // Watch target changes - only cleanup/setup when element actually changes
+  // Watch target changes - cleanup when element changes or is removed
   watch(
     () => targetRef.value,
     (el, oldEl) => {
-      // Only cleanup if we had a previous element
-      if (oldEl) cleanup()
+      // Cleanup if we had a previous element or if observer exists (handles paused state)
+      if (oldEl || observer.value) cleanup()
 
       if (isHydrated.value && el) {
         setup()
@@ -175,13 +175,15 @@ export function useResizeObserver (
   )
 
   // Handle initial hydration - setup once when hydrated if target exists
+  let stopHydrationWatch: (() => void) | undefined
   if (!isHydrated.value) {
-    const stopHydrationWatch = watch(
+    stopHydrationWatch = watch(
       () => isHydrated.value,
       hydrated => {
         if (hydrated && targetRef.value && !observer.value) {
           setup()
-          stopHydrationWatch()
+          stopHydrationWatch?.()
+          stopHydrationWatch = undefined
         }
       },
     )
@@ -207,6 +209,8 @@ export function useResizeObserver (
   }
 
   function stop () {
+    stopHydrationWatch?.()
+    stopHydrationWatch = undefined
     cleanup()
     observer.value = null
   }
