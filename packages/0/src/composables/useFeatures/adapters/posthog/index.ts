@@ -18,7 +18,6 @@ export class PostHogFeatureAdapter implements FeaturesAdapterInterface {
           if (payload !== undefined && payload !== null) {
             flags[key] = { $value: isEnabled, $variation: payload }
           } else {
-            // Check if there's a multivariate string value
             const variant = this.client.getFeatureFlag(key)
             flags[key] = variant !== true && variant !== false && variant !== undefined && variant !== null ? { $value: true, $variation: variant } : isEnabled
           }

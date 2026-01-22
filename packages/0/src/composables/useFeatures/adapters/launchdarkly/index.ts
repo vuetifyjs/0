@@ -11,12 +11,6 @@ export class LaunchDarklyFeatureAdapter implements FeaturesAdapterInterface {
       const flags: FeaturesAdapterFlags = {}
 
       for (const [key, value] of Object.entries(allFlags)) {
-        // LaunchDarkly returns the evaluated value directly (boolean, string, number, json)
-        // It doesn't distinctly separate "enabled" from "variation" in the simple allFlags view usually,
-        // unless using detailed evaluation. `allFlags()` returns simple values.
-
-        // If it's boolean, map directly.
-        // If it's non-boolean, it's implicitly "enabled" with a variation value.
         flags[key] = typeof value === 'boolean'
           ? value
           : { $value: true, $variation: value }
