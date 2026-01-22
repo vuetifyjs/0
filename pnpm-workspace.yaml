@@ -32,6 +32,8 @@ catalog:
   fflate: ^0.8.2
   happy-dom: ^20.1.0
   knip: ^5.80.0
+  flagsmith: ^10.0.0
+  launchdarkly-js-client-sdk: ^3.9.0
   lightningcss: ^1.30.2
   markdown-it-anchor: ^9.2.0
   markdown-it-attrs: ^4.3.1
@@ -41,6 +43,7 @@ catalog:
   mermaid: ^11.12.2
   minisearch: ^7.2.0
   pinia: ^3.0.4
+  posthog-js: ^1.310.1
   rollup-plugin-sass: ^1.15.3
   sass: ^1.93.3
   sass-embedded: ^1.93.3
