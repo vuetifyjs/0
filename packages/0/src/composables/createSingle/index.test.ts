@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Utilities
 import { inject, provide } from 'vue'
 
+// Types
+import type { SingleTicketInput } from './index'
+
 import { createSingle, createSingleContext, useSingle } from './index'
 
 vi.mock('vue', async () => {
@@ -532,5 +535,69 @@ describe('useSingle consumer', () => {
     expect(() => useSingle('custom-single')).toThrow(
       'Context "custom-single" not found. Ensure it\'s provided by an ancestor.',
     )
+  })
+})
+
+describe('custom ticket types', () => {
+  it('should allow extending SingleTicketInput with custom properties', () => {
+    interface TabTicket extends SingleTicketInput {
+      label: string
+      icon?: string
+    }
+
+    const tabs = createSingle<TabTicket>()
+
+    // Register accepts input type with custom properties
+    const ticket = tabs.register({ label: 'Home', icon: 'mdi-home' })
+
+    // Output has input properties
+    expect(ticket.label).toBe('Home')
+    expect(ticket.icon).toBe('mdi-home')
+
+    // Output has selection methods
+    expect(ticket.isSelected.value).toBe(false)
+    ticket.select()
+    expect(ticket.isSelected.value).toBe(true)
+  })
+
+  it('should preserve custom properties in singular computed properties', () => {
+    interface AccordionTicket extends SingleTicketInput {
+      title: string
+      content: string
+    }
+
+    const accordion = createSingle<AccordionTicket>()
+
+    accordion.onboard([
+      { id: 'panel-1', title: 'Section 1', content: 'Content 1' },
+      { id: 'panel-2', title: 'Section 2', content: 'Content 2' },
+    ])
+
+    accordion.select('panel-1')
+
+    // selectedItem has custom properties
+    expect(accordion.selectedItem.value?.title).toBe('Section 1')
+    expect(accordion.selectedItem.value?.content).toBe('Content 1')
+    expect(accordion.selectedItem.value?.isSelected.value).toBe(true)
+  })
+
+  it('should work with createSingleContext and custom types', () => {
+    interface DropdownTicket extends SingleTicketInput {
+      label: string
+      disabled?: boolean
+    }
+
+    const [, , context] = createSingleContext<DropdownTicket>()
+
+    context.onboard([
+      { label: 'Option A' },
+      { label: 'Option B', disabled: true },
+      { label: 'Option C' },
+    ])
+
+    const tickets = context.values()
+    expect(tickets[0]?.label).toBe('Option A')
+    expect(tickets[1]?.label).toBe('Option B')
+    expect(tickets[1]?.disabled).toBe(true)
   })
 })

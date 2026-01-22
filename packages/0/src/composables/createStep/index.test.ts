@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Utilities
 import { inject, provide } from 'vue'
 
+// Types
+import type { StepTicketInput } from './index'
+
 import { createStep, createStepContext, useStep } from './index'
 
 vi.mock('vue', async () => {
@@ -905,5 +908,85 @@ describe('useStep consumer', () => {
     expect(() => useStep('custom-stepper')).toThrow(
       'Context "custom-stepper" not found. Ensure it\'s provided by an ancestor.',
     )
+  })
+})
+
+describe('custom ticket types', () => {
+  it('should allow extending StepTicketInput with custom properties', () => {
+    interface WizardStep extends StepTicketInput {
+      title: string
+      description?: string
+      icon?: string
+    }
+
+    const wizard = createStep<WizardStep>()
+
+    // Register accepts input type with custom properties
+    const ticket = wizard.register({ title: 'Welcome', description: 'Get started', icon: 'mdi-hand-wave' })
+
+    // Output has input properties
+    expect(ticket.title).toBe('Welcome')
+    expect(ticket.description).toBe('Get started')
+    expect(ticket.icon).toBe('mdi-hand-wave')
+
+    // Output has selection methods
+    expect(ticket.isSelected.value).toBe(false)
+    ticket.select()
+    expect(ticket.isSelected.value).toBe(true)
+  })
+
+  it('should preserve custom properties through navigation', () => {
+    interface OnboardingStep extends StepTicketInput {
+      title: string
+      completed?: boolean
+    }
+
+    const onboarding = createStep<OnboardingStep>({ mandatory: 'force' })
+
+    onboarding.onboard([
+      { title: 'Step 1', completed: true },
+      { title: 'Step 2', completed: false },
+      { title: 'Step 3' },
+    ])
+
+    // First step is auto-selected due to mandatory: 'force'
+    expect(onboarding.selectedItem.value?.title).toBe('Step 1')
+    expect(onboarding.selectedItem.value?.completed).toBe(true)
+
+    onboarding.next()
+    expect(onboarding.selectedItem.value?.title).toBe('Step 2')
+    expect(onboarding.selectedItem.value?.completed).toBe(false)
+
+    onboarding.next()
+    expect(onboarding.selectedItem.value?.title).toBe('Step 3')
+    expect(onboarding.selectedItem.value?.completed).toBeUndefined()
+  })
+
+  it('should work with createStepContext and custom types', () => {
+    interface CheckoutStep extends StepTicketInput {
+      label: string
+      optional?: boolean
+    }
+
+    const [, , context] = createStepContext<CheckoutStep>()
+
+    context.onboard([
+      { label: 'Cart' },
+      { label: 'Shipping' },
+      { label: 'Gift Message', optional: true },
+      { label: 'Payment' },
+    ])
+
+    const tickets = context.values()
+    expect(tickets[0]?.label).toBe('Cart')
+    expect(tickets[2]?.label).toBe('Gift Message')
+    expect(tickets[2]?.optional).toBe(true)
+
+    // Can use step methods
+    context.first()
+    expect(context.selectedItem.value?.label).toBe('Cart')
+
+    context.last()
+    expect(context.selectedItem.value?.label).toBe('Payment')
   })
 })

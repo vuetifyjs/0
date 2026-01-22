@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest'
 // Utilities
 import { ref } from 'vue'
 
+// Types
+import type { SelectionTicketInput } from './index'
+
 import { createSelection, createSelectionContext } from './index'
 
 describe('createSelectionContext', () => {
@@ -910,6 +913,102 @@ describe('useSelection', () => {
       ])
 
       expect(selection.selectedIds.size).toBe(0)
+    })
+  })
+
+  describe('custom ticket types', () => {
+    it('should allow extending SelectionTicketInput with custom properties', () => {
+      interface MyTicket extends SelectionTicketInput {
+        label: string
+        icon?: string
+      }
+
+      const selection = createSelection<MyTicket>()
+
+      // Register accepts input type with custom properties
+      const ticket = selection.register({ label: 'Home', icon: 'mdi-home' })
+
+      // Output has input properties
+      expect(ticket.label).toBe('Home')
+      expect(ticket.icon).toBe('mdi-home')
+
+      // Output also has selection methods
+      expect(ticket.isSelected.value).toBe(false)
+      ticket.select()
+      expect(ticket.isSelected.value).toBe(true)
+
+      // selectedItems returns output type with custom properties
+      const selected = Array.from(selection.selectedItems.value)[0]
+      expect(selected?.label).toBe('Home')
+      expect(selected?.isSelected.value).toBe(true)
+    })
+
+    it('should preserve custom properties through onboard', () => {
+      interface TabTicket extends SelectionTicketInput {
+        label: string
+        closable?: boolean
+      }
+
+      const tabs = createSelection<TabTicket>({ multiple: true })
+
+      const tickets = tabs.onboard([
+        { label: 'Home', closable: false },
+        { label: 'Settings', closable: true },
+        { label: 'Profile' },
+      ])
+
+      expect(tickets[0]?.label).toBe('Home')
+      expect(tickets[0]?.closable).toBe(false)
+      expect(tickets[1]?.label).toBe('Settings')
+      expect(tickets[1]?.closable).toBe(true)
+      expect(tickets[2]?.label).toBe('Profile')
+      expect(tickets[2]?.closable).toBeUndefined()
+
+      // All have selection methods
+      for (const ticket of tickets) {
+        expect(typeof ticket.select).toBe('function')
+        expect(typeof ticket.toggle).toBe('function')
+      }
+    })
+
+    it('should preserve custom properties through get()', () => {
+      interface ItemTicket extends SelectionTicketInput {
+        name: string
+        metadata: Record<string, unknown>
+      }
+
+      const selection = createSelection<ItemTicket>()
+
+      selection.register({
+        id: 'item-1',
+        name: 'Test Item',
+        metadata: { priority: 'high' },
+      })
+
+      const ticket = selection.get('item-1')
+
+      expect(ticket?.name).toBe('Test Item')
+      expect(ticket?.metadata).toEqual({ priority: 'high' })
+      expect(ticket?.isSelected.value).toBe(false)
+    })
+
+    it('should work with createSelectionContext and custom types', () => {
+      interface NavTicket extends SelectionTicketInput {
+        path: string
+        exact?: boolean
+      }
+
+      const [, , context] = createSelectionContext<NavTicket>()
+
+      context.onboard([
+        { path: '/home', exact: true },
+        { path: '/about' },
+      ])
+
+      const tickets = context.values()
+      expect(tickets[0]?.path).toBe('/home')
+      expect(tickets[0]?.exact).toBe(true)
+      expect(tickets[1]?.path).toBe('/about')
     })
   })
 })
