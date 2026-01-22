@@ -133,7 +133,6 @@
 
   <!-- Step 8 -->
   <DocsDiscoveryStep
-    :delay="settings.prefersReducedMotion.value ? 0 : 500"
     :enter="() => settings.open()"
     hint="Try toggling levels to see how navigation updates"
     :leave="() => settings.close()"

@@ -42,13 +42,11 @@
     step: ID
     disabled?: boolean
     nextOn?: NextOnCallback
-    /** Delay in ms before showing highlight (for animated elements) */
-    delay?: number
   }>()
 
   const discovery = useDiscovery()
 
-  const ticket = discovery.register({ type: 'step', id: props.step, disabled: props.disabled, delay: props.delay })
+  const ticket = discovery.register({ type: 'step', id: props.step, disabled: props.disabled })
 
   // Cleanup function for nextOn callback
   let nextOnCleanup: (() => void) | void | null = null

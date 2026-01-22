@@ -29,8 +29,6 @@
     prevWhen?: MaybeRefOrGetter<boolean>
     /** Position offset as [x, y] tuple */
     offset?: [number, number]
-    /** Delay in ms before showing highlight (for animated elements) */
-    delay?: number
     /** Plain text description (alternative to default slot) */
     text?: string
   }
@@ -98,7 +96,6 @@
 <template>
   <Discovery.Root
     v-slot="{ isFirst, isLast }"
-    :delay="delay"
     :disabled="disabled"
     :next-on="nextOn"
     :step="step"

@@ -31,8 +31,6 @@ export interface DiscoveryActivatorTicket extends RegistryTicket {
 export interface DiscoveryStepTicketInput extends SelectionTicketInput {
   type: 'step'
   rules?: FormValidationRule[]
-  /** Delay in ms before showing highlight (for animated elements) */
-  delay?: number
 }
 
 /** Output type for step tickets (includes selection methods) */
