@@ -95,14 +95,20 @@
     if (newVal.length === 1) {
       const milestone = store.milestones.find(m => m.number === newVal[0])
       if (milestone) {
-        router.replace({ query: { ...route.query, milestone: milestone.title } })
+        router.replace({
+          query: { ...route.query, milestone: milestone.title },
+          params: { savePosition: true },
+        })
         return
       }
     }
     // Clear milestone param if none or multiple expanded
     if (route.query.milestone) {
       const { milestone: _, ...rest } = route.query
-      router.replace({ query: rest })
+      router.replace({
+        query: rest,
+        params: { savePosition: true },
+      })
     }
   })
 </script>
