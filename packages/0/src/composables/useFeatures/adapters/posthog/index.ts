@@ -1,3 +1,10 @@
+/**
+ * @module PostHogFeatureAdapter
+ *
+ * @remarks
+ * PostHog adapter for feature flags.
+ */
+
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { PostHog } from 'posthog-js'

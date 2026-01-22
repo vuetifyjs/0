@@ -1,3 +1,10 @@
+/**
+ * @module FeaturesAdapter
+ *
+ * @remarks
+ * Abstract class and interface for feature adapters.
+ */
+
 // Types
 import type { ID } from '#v0/types'
 

@@ -1,3 +1,10 @@
+/**
+ * @module FlagsmithFeatureAdapter
+ *
+ * @remarks
+ * Flagsmith adapter for feature flags.
+ */
+
 import flagsmith from 'flagsmith'
 
 // Types

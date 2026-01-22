@@ -1,3 +1,10 @@
+/**
+ * @module LaunchDarklyFeatureAdapter
+ *
+ * @remarks
+ * LaunchDarkly adapter for feature flags.
+ */
+
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { LDClient } from 'launchdarkly-js-client-sdk'
