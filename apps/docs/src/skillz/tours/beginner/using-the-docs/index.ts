@@ -14,49 +14,55 @@ export interface TourDefinition {
 
 /**
  * Returns tour definition for registration by the store.
- * Guided mode: handlers set up UI state, but no advanceWhen (users click next).
+ * Guided mode: handlers set up UI state to show features, users just click next.
  */
-export function defineTour ({ search, settings, sheet }: TourComposables): TourDefinition {
+export function defineTour ({ app, settings, sheet }: TourComposables): TourDefinition {
   return {
     tour: tour as SkillMeta,
     steps: tour.steps.map(s => s.id),
     handlers: {
-      'open-search': {
-        enter: () => {
-          search.close()
-          settings.close()
-        },
-      },
-      'search-tabs': {
-        enter: () => {
-          search.open()
-          search.focus()
-        },
-        leave: () => search.close(),
-      },
       'ask-ai': {
-        enter: () => sheet.close(),
+        leave: () => {
+          sheet.close()
+        },
+        back: () => {
+          sheet.close()
+        },
       },
-      'ask-ai-close': {
-        enter: () => sheet.open(),
-        leave: () => sheet.close(),
+      'ask-ai-sheet': {
+        enter: () => {
+          sheet.open()
+        },
       },
-      'ask-ai-reopen': {
-        enter: () => sheet.close(),
+      'ask-ai-features': {
+        back: () => {
+          sheet.open()
+        },
       },
-      'ask-ai-options': {
-        enter: () => sheet.open(),
-        leave: () => sheet.close(),
-      },
-      'open-settings': {
+      'settings': {
         enter: () => {
           sheet.close()
+        },
+        back: () => {
           settings.close()
         },
       },
       'skill-level': {
-        enter: () => settings.open(),
-        leave: () => settings.close(),
+        enter: () => {
+          settings.open()
+        },
+        leave: () => {
+          settings.close()
+        },
+      },
+      'navigation': {
+        enter: () => {
+          settings.close()
+          app.drawer = true
+        },
+        leave: () => {
+          app.drawer = false
+        },
       },
     },
   }

@@ -1,6 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, IN_BROWSER, useClickOutside, useHydration, useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useClickOutside, useHydration, useWindowEventListener } from '@vuetify/v0'
+
+  // Components
+  import { Discovery } from '@/components/discovery'
 
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
@@ -14,12 +17,9 @@
 
   // Types
   import type { NavItem, NavItemLink } from '@/stores/app'
-  import type { AtomExpose, AtomProps } from '@vuetify/v0'
 
   // Stores
   import { useAppStore } from '@/stores/app'
-
-  const { as = 'nav' } = defineProps<AtomProps>()
 
   const { prefersReducedMotion, showBgGlass } = useSettings()
   const { isSettled } = useHydration()
@@ -65,7 +65,7 @@
   const hasNavContent = computed(() =>
     configuredNav.value.some(item => !('divider' in item)),
   )
-  const navRef = useTemplateRef<AtomExpose>('nav')
+  const navRef = useTemplateRef<HTMLElement>('nav')
 
   // Match Tailwind's md breakpoint (768px) for nav visibility
   const isMobile = shallowRef(true)
@@ -99,7 +99,7 @@
   }, { immediate: true })
 
   useClickOutside(
-    () => navRef.value?.element,
+    () => navRef.value,
     () => {
       if (app.drawer && isMobile.value) {
         app.drawer = false
@@ -116,11 +116,13 @@
 </script>
 
 <template>
-  <Atom
+  <Discovery.Activator
     id="main-navigation"
     ref="nav"
+    active-class="rounded-lg"
     aria-label="Main navigation"
-    :as
+    as="nav"
+    class="flex flex-col fixed w-[230px] py-4 top-0 md:top-[72px] bottom-0"
     :class="[
       'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 translate-x-[-100%] md:translate-x-0 border-r border-solid border-divider z-10',
       showBgGlass ? 'bg-glass-surface' : 'bg-surface',
@@ -128,7 +130,9 @@
       !prefersReducedMotion && 'transition-transform duration-200 ease-in-out',
     ]"
     :inert="!app.drawer && isMobile ? true : undefined"
+    step="navigation"
   >
+
     <!-- URL filter banner -->
     <div v-if="activeFeatures" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant/50 border-b border-divider">
       <p class="text-xs text-on-surface-variant mb-2">
@@ -203,5 +207,5 @@
         </li>
       </template>
     </ul>
-  </Atom>
+  </Discovery.Activator>
 </template>

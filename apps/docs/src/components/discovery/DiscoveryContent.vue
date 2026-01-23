@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER } from '@vuetify/v0'
+  import { IN_BROWSER, isNullOrUndefined, useBreakpoints } from '@vuetify/v0'
 
   // Components
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
@@ -17,14 +17,21 @@
 
   const {
     placement = 'bottom',
-    positionTry = 'flip-block flip-inline',
+    placementMobile,
     offset = 16,
   } = defineProps<{
     placement?: string
-    /** CSS position-try-fallbacks value for automatic repositioning */
-    positionTry?: string
+    /** Override placement on mobile (< 768px) */
+    placementMobile?: string
     offset?: number
   }>()
+
+  // Use mobile placement when screen is narrow (sm and below)
+  const { smAndDown } = useBreakpoints()
+  const activePlacement = toRef(() => {
+    if (!isNullOrUndefined(placementMobile) && smAndDown.value) return placementMobile
+    return placement
+  })
 
   const root = useDiscoveryRootContext('v0:discovery')
   const discovery = useDiscovery()
@@ -55,16 +62,25 @@
       positionArea: 'right',
       alignSelf: 'anchor-center',
     },
+    center: {
+      positionArea: 'center',
+    },
   }
 
   const style = toRef(() => {
+    const currentPlacement = activePlacement.value
+
     if (supportsAnchor) {
       return {
         position: 'fixed' as const,
-        margin: `${offset}px`,
+        inset: `${offset}px`,
+        width: 'max-content',
+        height: 'max-content',
+        // maxWidth: `calc(100vw - ${offset * 2}px)`,
+        maxHeight: `calc(100vh - ${offset * 2}px)`,
+        overflow: 'auto',
         positionAnchor: `--discovery-${root.step}`,
-        positionTryFallbacks: positionTry,
-        ...placementStyles[placement] ?? placementStyles.bottom,
+        ...placementStyles[currentPlacement] ?? placementStyles.bottom,
       }
     }
     // Fallback for browsers without anchor positioning (Safari/iOS)
@@ -76,10 +92,11 @@
       top: { top: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },
       left: { top: '50%', left: `${offset}px`, transform: 'translateY(-50%)' },
       right: { top: '50%', right: `${offset}px`, transform: 'translateY(-50%)' },
+      center: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
     }
     return {
       ...base,
-      ...fallbackStyles[placement] ?? fallbackStyles.bottom,
+      ...fallbackStyles[currentPlacement] ?? fallbackStyles.bottom,
     }
   })
 

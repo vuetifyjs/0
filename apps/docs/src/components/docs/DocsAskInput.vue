@@ -81,7 +81,7 @@
       v-show="!isHidden"
       class="fixed bottom-4 inset-x-0 mx-auto z-40 w-full max-w-sm px-4"
     >
-      <Discovery.Activator class="rounded-2xl" :step="['ask-ai', 'ask-ai-reopen']">
+      <Discovery.Activator class="rounded-2xl" step="ask-ai">
         <DocsAskForm
           ref="form"
           aria-label="Ask a question about this page"

@@ -105,7 +105,7 @@
     :role="isDesktop ? 'complementary' : 'dialog'"
   >
     <!-- Header -->
-    <Discovery.Activator class="rounded-lg" step="ask-ai-options">
+    <Discovery.Activator class="rounded-lg" step="ask-ai-features">
       <header
         :class="[
           'shrink-0 px-4 py-2 border-b border-divider flex items-center justify-between bg-surface',
@@ -158,25 +158,20 @@
             <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
           </button>
 
-          <Discovery.Activator class="rounded-lg" step="ask-ai-close">
-            <button
-              class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-              title="Close"
-              type="button"
-              @click="emit('close')"
-            >
-              <AppIcon icon="close" size="16" />
-            </button>
-          </Discovery.Activator>
+          <button
+            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
+            title="Close"
+            type="button"
+            @click="emit('close')"
+          >
+            <AppIcon icon="close" size="16" />
+          </button>
         </div>
       </header>
     </Discovery.Activator>
 
     <!-- Messages -->
-    <div
-      ref="messages"
-      class="flex-1 overflow-y-auto p-4 space-y-4"
-    >
+    <Discovery.Activator ref="messages" as="div" class="rounded-lg flex-1 h-full" step="ask-ai-sheet">
       <!-- Empty state -->
       <div
         v-if="messages.length === 0"
@@ -203,19 +198,17 @@
       >
         {{ error }}
       </div>
-    </div>
+    </Discovery.Activator>
 
     <!-- Input -->
     <footer class="shrink-0 p-3">
-      <Discovery.Activator class="rounded-2xl" step="ask-ai-follow-up">
-        <DocsAskForm
-          ref="form"
-          aria-label="Ask a follow-up question"
-          :is-loading
-          @stop="emit('stop')"
-          @submit="onSubmit"
-        />
-      </Discovery.Activator>
+      <DocsAskForm
+        ref="form"
+        aria-label="Ask a follow-up question"
+        :is-loading
+        @stop="emit('stop')"
+        @submit="onSubmit"
+      />
     </footer>
   </aside>
 </template>

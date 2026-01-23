@@ -13,8 +13,12 @@ import { useRouter } from 'vue-router'
 import type { DiscoveryStepConfig, DiscoveryTourTicket } from '@/composables/useDiscovery'
 import type { SkillMeta } from '@/types/skill'
 
+// Stores
+import { useAppStore } from '@/stores/app'
+
 /** Composables passed to defineTour for handler creation */
 export interface TourComposables {
+  app: ReturnType<typeof useAppStore>
   search: ReturnType<typeof useSearch>
   settings: ReturnType<typeof useSettings>
   sheet: ReturnType<typeof useAskSheet>
@@ -56,6 +60,7 @@ export const useSkillzStore = defineStore('skillz', () => {
 
   // Composables for tour handlers (called in setup context)
   const composables: TourComposables = {
+    app: useAppStore(),
     search: useSearch(),
     settings: useSettings(),
     sheet: useAskSheet(),

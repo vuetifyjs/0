@@ -2,6 +2,9 @@
   // Framework
   import { useBreakpoints } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useAskSheet } from '@/composables/useAskSheet'
   import { useDiscovery } from '@/composables/useDiscovery'

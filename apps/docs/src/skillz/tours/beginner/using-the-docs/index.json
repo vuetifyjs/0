@@ -7,66 +7,89 @@
   "categories": ["meta"],
   "order": 0,
   "prerequisites": [],
-  "description": "Learn to navigate the v0 documentation effectively.",
-  "estimatedMinutes": 5,
+  "description": "A quick tour of the Vuetify0 documentation site.",
+  "estimatedMinutes": 3,
   "startRoute": "/introduction/why-vuetify0",
   "steps": [
     {
-      "id": "open-search",
-      "title": "Open the Search",
-      "task": "Press Ctrl+K (or Cmd+K on Mac) to open the search dialog. You can also click the search button in the header.",
-      "hint": "Look for the search icon in the top navigation bar",
-      "learn": "How to quickly access the search dialog using keyboard shortcuts"
+      "id": "search",
+      "title": "Search",
+      "task": "This is the search. It finds components, composables, and guides across the entire documentation.",
+      "hint": "",
+      "learn": "Where to find the search"
     },
     {
-      "id": "search-tabs",
-      "title": "Search for something",
-      "task": "Type \"Tabs\" in the search box to find the Tabs component documentation and then press Enter.",
-      "hint": "The search uses fuzzy matching, so partial words work too",
-      "learn": "How to use fuzzy search to find components and documentation"
+      "id": "navigation",
+      "title": "Navigation",
+      "task": "This is the main navigation sidebar. It organizes all documentation into sections: components, composables, guides, and more.",
+      "hint": "",
+      "learn": "Where to find the navigation sidebar",
+      "placement": "right"
+    },
+    {
+      "id": "toc",
+      "title": "Table of Contents",
+      "task": "The TOC shows all headings on the current page. Click any heading to jump directly to that section.",
+      "hint": "Table of Contents is not available on mobile devices.",
+      "learn": "How to navigate within a page",
+      "placement": "left",
+      "skipOnMobile": true
+    },
+    {
+      "id": "page-actions",
+      "title": "Page Actions",
+      "task": "Every page has quick actions: edit on GitHub, report bugs, view source code, and copy as markdown.",
+      "hint": "",
+      "learn": "How to contribute and report issues"
+    },
+    {
+      "id": "page-metadata",
+      "title": "Page Metadata",
+      "task": "Metadata shows the skill level, test coverage, performance tier, and last update date for each feature.",
+      "hint": "",
+      "learn": "How to assess feature quality and complexity"
     },
     {
       "id": "ask-ai",
-      "title": "Open Ask AI",
-      "task": "Press Ctrl+/ (or Cmd+/ on Mac) to open Ask AI, or click the input at the bottom of the page.",
-      "hint": "Ask AI knows the content of the current page and can answer questions about it",
-      "learn": "How to access the AI assistant for context-aware help"
-    },
-    {
-      "id": "ask-ai-close",
-      "title": "Close Ask AI",
-      "task": "Click the close button to dismiss the Ask AI panel.",
+      "title": "Ask AI",
+      "task": "This is Ask AI. It's a context-aware assistant that knows the content of the current page and can answer your questions.",
       "hint": "",
-      "learn": "How to dismiss the Ask AI panel when done"
+      "learn": "Where to find the AI assistant",
+      "placement": "top"
     },
     {
-      "id": "ask-ai-reopen",
-      "title": "Reopen Ask AI",
-      "task": "Click the Ask AI input at the bottom to bring back your conversation. Notice it remembers what you discussed!",
-      "hint": "Your conversation persists until you clear it or refresh the page",
-      "learn": "That conversations persist and can be resumed"
+      "id": "ask-ai-sheet",
+      "title": "Ask AI Panel",
+      "task": "Asking a question opens up the Ask AI panel. Here you can see the conversation history and interact with the assistant.",
+      "hint": "",
+      "learn": "How to use the Ask AI panel",
+      "placement": "left",
+      "placementMobile": "center"
     },
     {
-      "id": "ask-ai-options",
-      "title": "Explore save options",
-      "task": "Notice the toolbar buttons: save to Vuetify Bin for sharing, copy the conversation, or reset to start fresh. Click the close button to dismiss the Ask AI panel.",
-      "hint": "Vuetify Bin creates a shareable link to your conversation",
-      "learn": "How to save, share, and manage AI conversations"
+      "id": "ask-ai-features",
+      "title": "Conversation Tools",
+      "task": "The toolbar has options to save your conversation to Vuetify Bin, copy it, or reset and start fresh.",
+      "hint": "",
+      "learn": "What the Ask AI toolbar does",
+      "placement": "left",
+      "placementMobile": "bottom"
     },
     {
-      "id": "open-settings",
-      "title": "Open Settings",
-      "task": "Click the settings button in the header to open the Settings panel.",
-      "hint": "Skill filters change the visible navigation items",
-      "learn": "Where to find site-wide settings and preferences"
+      "id": "settings",
+      "title": "Settings",
+      "task": "This is the settings panel. It has theme options, layout preferences, and content filters.",
+      "hint": "",
+      "learn": "Where to find settings"
     },
     {
       "id": "skill-level",
-      "title": "Adjust your skill level",
-      "task": "Select one or more skill levels to filter documentation by complexity. Beginner shows fundamentals, Advanced reveals in-depth content.",
-      "hint": "Try toggling levels to see how navigation updates",
-      "learn": "How skill levels filter documentation to match your experience",
-      "placement": "left"
+      "title": "Skill Levels",
+      "task": "These filters control which content appears in the navigation. Beginner shows fundamentals, Intermediate adds detail, and Advanced shows everything.",
+      "hint": "",
+      "learn": "What skill level filters do",
+      "placement": "left",
+      "placementMobile": "top"
     }
   ]
 }

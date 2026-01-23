@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useNavConfigContext } from '@/composables/useNavConfig'
 
@@ -50,46 +53,48 @@
 <template>
   <hr class="my-4">
 
-  <nav
-    aria-label="Document navigation"
-    class="flex gap-2"
-  >
-    <RouterLink
-      v-if="prev && prev !== '/'"
-      :key="prev"
-      class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 hover:border-primary hover:bg-surface-tint transition-colors"
-      :to="prev"
+  <Discovery.Activator class="rounded-lg" step="page-navigator">
+    <nav
+      aria-label="Document navigation"
+      class="flex gap-2"
     >
-      <div class="inline-flex align-center text-xs text-on-surface opacity-60">
-        <AppIcon icon="left" />
+      <RouterLink
+        v-if="prev && prev !== '/'"
+        :key="prev"
+        class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 hover:border-primary hover:bg-surface-tint transition-colors"
+        :to="prev"
+      >
+        <div class="inline-flex align-center text-xs text-on-surface opacity-60">
+          <AppIcon icon="left" />
 
-        Previous page
-      </div>
+          Previous page
+        </div>
 
-      <div class="font-medium ps-1 text-on-surface">
-        {{ prev.split('/').pop()!.replace(/-/g, ' ') }}
-      </div>
-    </RouterLink>
+        <div class="font-medium ps-1 text-on-surface">
+          {{ prev.split('/').pop()!.replace(/-/g, ' ') }}
+        </div>
+      </RouterLink>
 
-    <span v-else class="flex-1 basis-0" />
+      <span v-else class="flex-1 basis-0" />
 
-    <RouterLink
-      v-if="next && next !== '/'"
-      :key="next"
-      class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 text-end hover:border-primary hover:bg-surface-tint transition-colors"
-      :to="next"
-    >
-      <div class="inline-flex align-center text-xs text-on-surface opacity-60">
-        Next page
+      <RouterLink
+        v-if="next && next !== '/'"
+        :key="next"
+        class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 text-end hover:border-primary hover:bg-surface-tint transition-colors"
+        :to="next"
+      >
+        <div class="inline-flex align-center text-xs text-on-surface opacity-60">
+          Next page
 
-        <AppIcon icon="right" />
-      </div>
+          <AppIcon icon="right" />
+        </div>
 
-      <div class="font-medium pe-1 text-on-surface">
-        {{ next.split('/').pop()!.replace(/-/g, ' ') }}
-      </div>
-    </RouterLink>
+        <div class="font-medium pe-1 text-on-surface">
+          {{ next.split('/').pop()!.replace(/-/g, ' ') }}
+        </div>
+      </RouterLink>
 
-    <span v-else class="flex-1 basis-0" />
-  </nav>
+      <span v-else class="flex-1 basis-0" />
+    </nav>
+  </Discovery.Activator>
 </template>
