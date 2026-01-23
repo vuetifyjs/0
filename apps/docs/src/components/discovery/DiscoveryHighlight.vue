@@ -71,10 +71,8 @@
     const activator = discovery.activators.get(id)
     const el = toValue(activator?.element?.value ?? activator?.element)
     const r = el?.getBoundingClientRect()
-    if (!r) {
-      if (rect.value !== null) rect.value = null
-      return
-    }
+    // Don't clear rect if activator not found yet - keep old position for smooth transition
+    if (!r) return
 
     // Use activator-specific padding, fall back to global padding prop
     const p = activator?.padding ?? padding

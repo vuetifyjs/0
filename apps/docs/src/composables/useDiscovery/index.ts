@@ -36,11 +36,24 @@ export interface DiscoveryStepTicketInput extends SelectionTicketInput {
 /** Output type for step tickets (includes selection methods) */
 export type DiscoveryStepTicket = SelectionTicket<DiscoveryStepTicketInput>
 
+/** Input type for tour tickets */
+export interface DiscoveryTourTicketInput {
+  type: 'tour'
+  id: ID
+  steps: ID[]
+  handlers?: Record<ID, DiscoveryStepConfig>
+}
+
+/** Output type for tour tickets */
+export interface DiscoveryTourTicket extends DiscoveryTourTicketInput {
+  unregister: () => void
+}
+
 /** Union of ticket input types */
-export type DiscoveryTicketInput = DiscoveryActivatorTicket | DiscoveryStepTicketInput
+export type DiscoveryTicketInput = DiscoveryActivatorTicket | DiscoveryStepTicketInput | DiscoveryTourTicketInput
 
 /** Union of ticket output types */
-export type DiscoveryTicket = DiscoveryActivatorTicket | DiscoveryStepTicket
+export type DiscoveryTicket = DiscoveryActivatorTicket | DiscoveryStepTicket | DiscoveryTourTicket
 
 type DiscoveryBeforeHandler = (next: () => void, reject: () => void) => void
 
@@ -251,6 +264,26 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
       return steps.register(registration as Partial<DiscoveryStepTicketInput>)
     }
 
+    if (registration.type === 'tour') {
+      const { id, steps: stepIds, handlers } = registration as DiscoveryTourTicketInput
+      tourDefinitions[id as string] = stepIds
+
+      const cleanups: (() => void)[] = []
+      if (handlers) {
+        for (const [stepId, config] of Object.entries(handlers)) {
+          cleanups.push(onStep(stepId, config))
+        }
+      }
+
+      return {
+        ...registration,
+        unregister: () => {
+          delete tourDefinitions[id as string]
+          for (const fn of cleanups) fn()
+        },
+      } as DiscoveryTourTicket
+    }
+
     return registration as DiscoveryTicket
   }
 
@@ -261,10 +294,6 @@ function createDiscovery (options: DiscoveryOptions = {}): DiscoveryContext {
       activators.unregister(id)
     } else if (type === 'step') {
       steps.unregister(id)
-    } else {
-      // Legacy behavior: remove from both (for backwards compatibility)
-      if (activators.has(id)) activators.unregister(id)
-      if (steps.has(id)) steps.unregister(id)
     }
   }
 

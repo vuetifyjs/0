@@ -1,8 +1,5 @@
 <script setup lang="ts">
-  import { definePage, useRoute, useRouter } from 'vue-router/auto'
-
-  // Composables
-  import { useDiscovery } from '@/composables/useDiscovery'
+  import { definePage, useRoute } from 'vue-router/auto'
 
   // Utilities
   import { computed } from 'vue'
@@ -24,8 +21,6 @@
   })
 
   const route = useRoute()
-  const router = useRouter()
-  const discovery = useDiscovery()
   const skillz = useSkillzStore()
 
   const skillId = computed(() => route.params.id as string)
@@ -41,84 +36,69 @@
 
   function startSkill () {
     if (!skill.value) return
-
-    const { id, mode, startRoute, challenge } = skill.value
-
-    // Navigate to start route
-    router.push(startRoute)
-
-    // Start based on mode
-    if (mode === 'tour') {
-      discovery.start(id)
-    } else if (mode === 'challenge' && challenge) {
-      // TODO: Open repl/challenge
-      console.log('Challenge mode not implemented:', challenge)
-    } else if (mode === 'quiz') {
-      // TODO: Start quiz
-      console.log('Quiz mode not implemented')
-    }
+    skillz.start(skill.value)
   }
 </script>
 
 <template>
-  <div class="skill-page">
+  <div class="min-h-[calc(100vh-64px)]">
     <!-- Not found state -->
-    <div v-if="!skill" class="skill-page__not-found">
-      <h1>Skill Not Found</h1>
-      <p>The skill "{{ skillId }}" doesn't exist.</p>
-      <RouterLink class="skill-page__back-link" to="/skillz">
+    <div v-if="!skill" class="flex flex-col items-center justify-center py-16 px-8 text-center">
+      <h1 class="m-0 mb-2 text-2xl">Skill Not Found</h1>
+      <p class="m-0 mb-6 text-on-surface-variant">The skill "{{ skillId }}" doesn't exist.</p>
+      <RouterLink class="text-primary no-underline hover:underline" to="/skillz">
         Back to Skillz
       </RouterLink>
     </div>
 
     <!-- Skill detail -->
     <template v-else>
-      <div class="skill-detail">
-        <header class="skill-detail__header">
-          <RouterLink class="skill-detail__back" to="/skillz">
-            <span class="skill-detail__back-arrow">←</span>
+      <div class="max-w-3xl mx-auto p-8">
+        <header class="flex justify-between items-center mb-8">
+          <RouterLink class="flex items-center gap-2 text-on-surface-variant no-underline text-sm transition-colors hover:text-on-surface" to="/skillz">
+            <span class="text-xl">←</span>
             Back to Skillz
           </RouterLink>
 
-          <div v-if="completed" class="skill-detail__completed">
-            <span class="skill-detail__completed-icon">✓</span>
+          <div v-if="completed" class="flex items-center gap-2 px-4 py-2 bg-success/15 text-success rounded-full text-sm font-medium">
+            <span class="font-bold">✓</span>
             Completed
           </div>
         </header>
 
-        <div class="skill-detail__content">
-          <div class="skill-detail__meta">
+        <div class="bg-surface border border-divider rounded-xl p-8">
+          <div class="flex gap-2 mb-4">
             <span
               v-if="levelMeta"
-              class="skill-detail__level"
+              class="level-badge inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded"
               :style="{ '--level-color': levelMeta.color }"
             >
               {{ levelMeta.label }}
             </span>
-            <span v-if="trackMeta" class="skill-detail__track">
+            <span v-if="trackMeta" class="text-xs font-medium px-2.5 py-1 rounded bg-surface-variant text-on-surface-variant">
               {{ trackMeta.label }}
             </span>
           </div>
 
-          <h1 class="skill-detail__title">{{ skill.name }}</h1>
-          <p class="skill-detail__description">{{ skill.description }}</p>
+          <h1 class="text-2xl font-bold m-0 mb-3 text-on-surface">{{ skill.name }}</h1>
+          <p class="text-base text-on-surface-variant m-0 mb-6 leading-relaxed">{{ skill.description }}</p>
 
-          <div class="skill-detail__info">
-            <div class="skill-detail__info-item">
-              <span class="skill-detail__info-label">Estimated time</span>
-              <span class="skill-detail__info-value">~{{ skill.estimatedMinutes }} minutes</span>
+          <div class="flex flex-wrap gap-6 p-4 bg-surface-variant rounded-lg mb-6">
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium uppercase text-on-surface-variant">Estimated time</span>
+              <span class="text-sm font-semibold text-on-surface">~{{ skill.estimatedMinutes }} minutes</span>
             </div>
-            <div class="skill-detail__info-item">
-              <span class="skill-detail__info-label">Steps</span>
-              <span class="skill-detail__info-value">{{ skill.steps.length }} steps</span>
+            <div class="flex flex-col gap-1">
+              <span class="text-xs font-medium uppercase text-on-surface-variant">Steps</span>
+              <span class="text-sm font-semibold text-on-surface">{{ skill.steps.length }} steps</span>
             </div>
-            <div v-if="skill.categories.length > 0" class="skill-detail__info-item">
-              <span class="skill-detail__info-label">Categories</span>
-              <div class="skill-detail__categories">
+            <div v-if="skill.categories.length > 0" class="flex flex-col gap-1">
+              <span class="text-xs font-medium uppercase text-on-surface-variant">Categories</span>
+              <div class="flex flex-wrap gap-1">
                 <span
                   v-for="cat in skill.categories"
                   :key="cat"
-                  class="skill-detail__category"
+                  class="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded-sm bg-surface text-on-surface-variant"
                 >
                   {{ SKILL_CATEGORY_META[cat].label }}
                 </span>
@@ -126,33 +106,49 @@
             </div>
           </div>
 
-          <div v-if="skill.prerequisites.length > 0" class="skill-detail__prereqs">
-            <span class="skill-detail__prereqs-label">Prerequisites:</span>
+          <div v-if="skill.prerequisites.length > 0" class="flex flex-wrap items-center gap-2 px-4 py-3 bg-warning/10 border border-warning rounded-lg mb-6 text-sm">
+            <span class="font-medium text-warning">Prerequisites:</span>
             <RouterLink
               v-for="prereq in skill.prerequisites"
               :key="prereq"
-              class="skill-detail__prereq-link"
+              class="text-primary no-underline hover:underline"
               :to="`/skillz/${prereq}`"
             >
               {{ prereq }}
             </RouterLink>
           </div>
 
-          <h2 class="skill-detail__steps-title">What you'll learn</h2>
-          <ol class="skill-detail__steps">
+          <h2 class="text-base font-semibold m-0 mb-4 text-on-surface">What you'll learn</h2>
+          <ol class="list-none p-0 m-0 mb-8">
             <li
               v-for="(step, index) in skill.steps"
               :key="index"
-              class="skill-detail__step"
-              :class="{ 'skill-detail__step--completed': progress.completedSteps.includes(index) }"
+              class="flex items-center gap-3 py-3 border-b border-divider last:border-b-0"
             >
-              <span class="skill-detail__step-number">{{ index + 1 }}</span>
-              <span class="skill-detail__step-title">{{ step.learn }}</span>
+              <span
+                class="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded-full shrink-0"
+                :class="progress.completedSteps.includes(index)
+                  ? 'bg-success text-on-success'
+                  : 'bg-surface-variant text-on-surface-variant'"
+              >
+                {{ index + 1 }}
+              </span>
+              <span
+                class="text-sm"
+                :class="progress.completedSteps.includes(index)
+                  ? 'line-through text-on-surface-variant'
+                  : 'text-on-surface'"
+              >
+                {{ step.learn }}
+              </span>
             </li>
           </ol>
 
-          <div class="skill-detail__actions">
-            <button class="skill-detail__start-btn" @click="startSkill">
+          <div class="flex gap-4">
+            <button
+              class="flex-1 px-6 py-3.5 text-base font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:not-disabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="startSkill"
+            >
               Start Skill
             </button>
           </div>
@@ -163,284 +159,9 @@
 </template>
 
 <style scoped>
-.skill-page {
-  min-height: calc(100vh - 64px);
-}
-
-.skill-page__not-found {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
-}
-
-.skill-page__not-found h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.5rem;
-}
-
-.skill-page__not-found p {
-  margin: 0 0 1.5rem;
-  color: var(--v0-on-surface-variant);
-}
-
-.skill-page__back-link {
-  color: var(--v0-primary);
-  text-decoration: none;
-}
-
-.skill-page__back-link:hover {
-  text-decoration: underline;
-}
-
-/* Skill detail */
-.skill-detail {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.skill-detail__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.skill-detail__back {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--v0-on-surface-variant);
-  text-decoration: none;
-  font-size: 0.875rem;
-  transition: color 0.15s;
-}
-
-.skill-detail__back:hover {
-  color: var(--v0-on-surface);
-}
-
-.skill-detail__back-arrow {
-  font-size: 1.25rem;
-}
-
-.skill-detail__completed {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: color-mix(in srgb, var(--v0-success) 15%, transparent);
-  color: var(--v0-success);
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.skill-detail__completed-icon {
-  font-weight: bold;
-}
-
-.skill-detail__content {
-  background: var(--v0-surface);
-  border: 1px solid var(--v0-divider);
-  border-radius: 12px;
-  padding: 2rem;
-}
-
-.skill-detail__meta {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.skill-detail__level {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 4px;
+/* Level badge needs dynamic color via CSS variable */
+.level-badge {
   background: color-mix(in srgb, var(--level-color) 15%, transparent);
   color: var(--level-color);
-}
-
-.skill-detail__track {
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 4px;
-  background: var(--v0-surface-variant);
-  color: var(--v0-on-surface-variant);
-}
-
-.skill-detail__title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0 0 0.75rem;
-  color: var(--v0-on-surface);
-}
-
-.skill-detail__description {
-  font-size: 1rem;
-  color: var(--v0-on-surface-variant);
-  margin: 0 0 1.5rem;
-  line-height: 1.6;
-}
-
-.skill-detail__info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  padding: 1rem;
-  background: var(--v0-surface-variant);
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-}
-
-.skill-detail__info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.skill-detail__info-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  color: var(--v0-on-surface-variant);
-}
-
-.skill-detail__info-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--v0-on-surface);
-}
-
-.skill-detail__categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.skill-detail__category {
-  font-size: 0.625rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: var(--v0-surface);
-  color: var(--v0-on-surface-variant);
-}
-
-.skill-detail__prereqs {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: color-mix(in srgb, var(--v0-warning) 10%, transparent);
-  border: 1px solid var(--v0-warning);
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-}
-
-.skill-detail__prereqs-label {
-  font-weight: 500;
-  color: var(--v0-warning);
-}
-
-.skill-detail__prereq-link {
-  color: var(--v0-primary);
-  text-decoration: none;
-}
-
-.skill-detail__prereq-link:hover {
-  text-decoration: underline;
-}
-
-.skill-detail__steps-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 1rem;
-  color: var(--v0-on-surface);
-}
-
-.skill-detail__steps {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2rem;
-}
-
-.skill-detail__step {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--v0-divider);
-}
-
-.skill-detail__step:last-child {
-  border-bottom: none;
-}
-
-.skill-detail__step-number {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--v0-surface-variant);
-  color: var(--v0-on-surface-variant);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.skill-detail__step--completed .skill-detail__step-number {
-  background: var(--v0-success);
-  color: var(--v0-on-success);
-}
-
-.skill-detail__step-title {
-  font-size: 0.875rem;
-  color: var(--v0-on-surface);
-}
-
-.skill-detail__step--completed .skill-detail__step-title {
-  text-decoration: line-through;
-  color: var(--v0-on-surface-variant);
-}
-
-.skill-detail__actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.skill-detail__start-btn {
-  flex: 1;
-  padding: 0.875rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  background: var(--v0-primary);
-  color: var(--v0-on-primary);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: filter 0.15s;
-}
-
-.skill-detail__start-btn:hover:not(:disabled) {
-  filter: brightness(1.1);
-}
-
-.skill-detail__start-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 </style>

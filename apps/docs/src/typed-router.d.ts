@@ -618,6 +618,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/skillz/': RouteRecordInfo<
+      '/skillz/',
+      '/skillz',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/skillz.[id]': RouteRecordInfo<
+      '/skillz.[id]',
+      '/skillz/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
     '/storybook/': RouteRecordInfo<
       '/storybook/',
       '/storybook',
@@ -1152,6 +1166,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/roadmap.md': {
       routes:
         | '/roadmap'
+      views:
+        | never
+    }
+    'src/pages/skillz/index.md': {
+      routes:
+        | '/skillz/'
+      views:
+        | never
+    }
+    'src/pages/skillz.[id].vue': {
+      routes:
+        | '/skillz.[id]'
       views:
         | never
     }

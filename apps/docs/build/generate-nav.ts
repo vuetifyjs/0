@@ -63,6 +63,7 @@ const SUBCATEGORY_ORDER: Record<string, string[]> = {
 const STANDALONE: Record<string, { order: number, name: string }> = {
   'releases.md': { order: 1, name: 'Release Notes' },
   'roadmap.md': { order: 1.1, name: 'Roadmap' },
+  'skillz/index.md': { order: 1.2, name: 'Skillz' },
   'storybook/index.md': { order: 1.5, name: 'Storybook' },
 }
 

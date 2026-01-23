@@ -112,5 +112,9 @@ declare module 'vue' {
     HomeIntegrations: typeof import('./components/home/HomeIntegrations.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SkillCard: typeof import('./components/skillz/SkillCard.vue')['default']
+    SkillCardDeck: typeof import('./components/skillz/SkillCardDeck.vue')['default']
+    SkillzTour: typeof import('./components/skillz/SkillzTour.vue')['default']
+    SkillzToursDocsIntro: typeof import('./components/skillz/tours/SkillzToursDocsIntro.vue')['default']
   }
 }

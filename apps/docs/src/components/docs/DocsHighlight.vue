@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   // Components
   import { Discovery } from '@/components/discovery'
-  import SkillzToursDocsIntro from '@/skillz/tours/SkillzToursDocsIntro.vue'
+  import SkillzTour from '@/components/skillz/SkillzTour.vue'
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
@@ -15,5 +15,5 @@
 <template>
   <Discovery.Highlight blocking />
 
-  <SkillzToursDocsIntro />
+  <SkillzTour />
 </template>

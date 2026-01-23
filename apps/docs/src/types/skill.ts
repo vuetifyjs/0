@@ -1,7 +1,14 @@
 // Skill level aligns with docs skill filter (1 = Beginner, 2 = Intermediate, 3 = Advanced)
 export type SkillLevel = 1 | 2 | 3
 
-export type SkillMode = 'tour' | 'challenge' | 'quiz'
+/** Skill interaction mode */
+export type SkillMode = 'guided' | 'interactive'
+
+/** Keys that advance to next step */
+export type SkillStepNext =
+  | string // Single key: "Enter"
+  | string[] // Multiple keys: ["Enter", "Space"]
+  | { keys: string[], block?: string[] } // Keys with blocked keys
 
 export interface SkillStep {
   id: string
@@ -9,6 +16,10 @@ export interface SkillStep {
   task: string
   hint: string
   learn: string
+  /** Keys that advance to next step */
+  next?: SkillStepNext
+  /** Popover placement */
+  placement?: string
 }
 
 export interface SkillMeta {
@@ -24,8 +35,6 @@ export interface SkillMeta {
   estimatedMinutes: number
   startRoute: string
   steps: SkillStep[]
-  /** Repl challenge ID (for mode: 'challenge') */
-  challenge?: string
 }
 
 // Tracks align with docs learning tracks
@@ -45,20 +54,6 @@ export type SkillCategory =
   | 'meta' // Learning the docs (Ask AI, search, examples)
   | 'typescript' // Type patterns (generics, inference)
   | 'ssr' // Server-side rendering (hydration, Nuxt)
-
-export interface SkillProgress {
-  skillId: string
-  completedSteps: number[]
-  completed: boolean
-  completedAt?: string
-}
-
-// State for tracking active guided tour
-export interface GuidedTourState {
-  skillId: string
-  currentStepIndex: number
-  startedAt: string
-}
 
 export const SKILL_LEVEL_META: Record<SkillLevel, { label: string, icon: string, color: string }> = {
   1: { label: 'Beginner', icon: 'level-beginner', color: 'var(--v0-success)' },

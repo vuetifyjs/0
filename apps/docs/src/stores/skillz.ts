@@ -1,87 +1,141 @@
+// Composables
+import { useAskSheet } from '@/composables/useAskSheet'
+import { useDiscovery } from '@/composables/useDiscovery'
+import { useSearch } from '@/composables/useSearch'
+import { useSettings } from '@/composables/useSettings'
+
 // Utilities
 import { defineStore } from 'pinia'
+import { shallowRef } from 'vue'
+import { useRouter } from 'vue-router'
 
 // Types
+import type { DiscoveryStepConfig, DiscoveryTourTicket } from '@/composables/useDiscovery'
 import type { SkillMeta } from '@/types/skill'
 
-interface State {
-  items: SkillMeta[]
+/** Composables passed to defineTour for handler creation */
+export interface TourComposables {
+  search: ReturnType<typeof useSearch>
+  settings: ReturnType<typeof useSettings>
+  sheet: ReturnType<typeof useAskSheet>
 }
 
-export const useSkillzStore = defineStore('skillz', {
-  state: (): State => ({
-    items: [
-      {
-        mode: 'tour',
-        id: 'using-the-docs',
-        name: 'Using the Docs',
-        level: 1,
-        track: 'fundamentals',
-        categories: ['meta'],
-        order: 0,
-        prerequisites: [],
-        description: 'Learn to navigate the v0 documentation effectively.',
-        estimatedMinutes: 5,
-        startRoute: '/introduction/what-is-v0',
-        steps: [
-          {
-            id: 'open-search',
-            title: 'Open the Search',
-            task: 'Press Ctrl+K (or Cmd+K on Mac) to open the search dialog. You can also click the search button in the header.',
-            hint: 'Look for the search icon in the top navigation bar',
-            learn: 'How to quickly access the search dialog using keyboard shortcuts',
-          },
-          {
-            id: 'search-tabs',
-            title: 'Search for something',
-            task: 'Type "Tabs" in the search box to find the Tabs component documentation and then press Enter.',
-            hint: 'The search uses fuzzy matching, so partial words work too',
-            learn: 'How to use fuzzy search to find components and documentation',
-          },
-          {
-            id: 'ask-ai',
-            title: 'Open Ask AI',
-            task: 'Press Ctrl+/ (or Cmd+/ on Mac) to open Ask AI, or click the input at the bottom of the page.',
-            hint: 'Ask AI knows the content of the current page and can answer questions about it',
-            learn: 'How to access the AI assistant for context-aware help',
-          },
-          {
-            id: 'ask-ai-close',
-            title: 'Close Ask AI',
-            task: 'Click the close button to dismiss the Ask AI panel.',
-            hint: '',
-            learn: 'How to dismiss the Ask AI panel when done',
-          },
-          {
-            id: 'ask-ai-reopen',
-            title: 'Reopen Ask AI',
-            task: 'Click the Ask AI input at the bottom to bring back your conversation. Notice it remembers what you discussed!',
-            hint: 'Your conversation persists until you clear it or refresh the page',
-            learn: 'That conversations persist and can be resumed',
-          },
-          {
-            id: 'ask-ai-options',
-            title: 'Explore save options',
-            task: 'Notice the toolbar buttons: save to Vuetify Bin for sharing, copy the conversation, or reset to start fresh. Click the close button to dismiss the Ask AI panel.',
-            hint: 'Vuetify Bin creates a shareable link to your conversation',
-            learn: 'How to save, share, and manage AI conversations',
-          },
-          {
-            id: 'open-settings',
-            title: 'Open Settings',
-            task: 'Click the settings button in the header to open the Settings panel.',
-            hint: 'Skill filters change the visible navigation items',
-            learn: 'Where to find site-wide settings and preferences',
-          },
-          {
-            id: 'skill-level',
-            title: 'Adjust your skill level',
-            task: 'Select one or more skill levels to filter documentation by complexity. Beginner shows fundamentals, Advanced reveals in-depth content.',
-            hint: 'Try toggling levels to see how navigation updates',
-            learn: 'How skill levels filter documentation to match your experience',
-          },
-        ],
-      },
-    ],
-  }),
+/** Tour definition returned by defineTour() */
+interface TourDefinition {
+  tour: SkillMeta
+  steps: string[]
+  handlers?: Record<string, DiscoveryStepConfig>
+}
+
+/** SkillMeta with derived path for dynamic import */
+export interface SkillItem extends SkillMeta {
+  /** Path for dynamic import, e.g. 'beginner/using-the-docs' */
+  path: string
+}
+
+// Glob all tour JSON files at build time (eager - metadata needed immediately)
+const tourModules = import.meta.glob<SkillMeta>(
+  '@/skillz/tours/**/index.json',
+  { eager: true, import: 'default' },
+)
+
+// Glob all tour handler files (lazy - loaded on demand)
+const tourHandlers = import.meta.glob<{ defineTour: (composables: TourComposables) => TourDefinition }>(
+  '@/skillz/tours/**/index.ts',
+)
+
+// Transform to SkillItem array with derived paths
+const allTours: SkillItem[] = Object.entries(tourModules).map(([filePath, meta]) => ({
+  ...meta,
+  path: filePath.match(/tours\/(.+)\/index\.json/)?.[1] ?? '',
+})).toSorted((a, b) => a.order - b.order)
+
+export const useSkillzStore = defineStore('skillz', () => {
+  const discovery = useDiscovery()
+  const router = useRouter()
+
+  // Composables for tour handlers (called in setup context)
+  const composables: TourComposables = {
+    search: useSearch(),
+    settings: useSettings(),
+    sheet: useAskSheet(),
+  }
+
+  // Available skills (populated from glob)
+  const items = shallowRef<SkillItem[]>(allTours)
+
+  // Active tour state
+  const active = shallowRef<SkillItem | null>(null)
+  const activeTicket = shallowRef<DiscoveryTourTicket | null>(null)
+
+  async function start (itemOrPath: SkillItem | string) {
+    // Resolve to SkillItem
+    const item = typeof itemOrPath === 'string'
+      ? items.value.find(i => i.path === itemOrPath)
+      : itemOrPath
+
+    if (!item) return
+
+    // Clean up previous tour if any
+    if (activeTicket.value) {
+      activeTicket.value.unregister()
+      activeTicket.value = null
+    }
+
+    // Find and load the tour definition
+    const handlerPath = Object.keys(tourHandlers).find(p => p.includes(item.path))
+    if (!handlerPath || !tourHandlers[handlerPath]) return
+
+    const module = await tourHandlers[handlerPath]()
+    const { steps, handlers } = module.defineTour(composables)
+
+    // Register tour with discovery (store has access to discovery from setup)
+    const ticket = discovery.register({
+      type: 'tour',
+      id: item.id,
+      steps,
+      handlers,
+    }) as DiscoveryTourTicket
+
+    active.value = item
+    activeTicket.value = ticket
+
+    await router.push(item.startRoute)
+    discovery.start(item.id)
+  }
+
+  function stop () {
+    if (active.value) {
+      discovery.stop()
+      active.value = null
+
+      if (activeTicket.value) {
+        activeTicket.value.unregister()
+        activeTicket.value = null
+      }
+    }
+  }
+
+  function complete () {
+    if (active.value) {
+      discovery.complete()
+      active.value = null
+
+      if (activeTicket.value) {
+        activeTicket.value.unregister()
+        activeTicket.value = null
+      }
+    }
+  }
+
+  return {
+    // State
+    items,
+    active,
+
+    // Actions
+    start,
+    stop,
+    complete,
+  }
 })

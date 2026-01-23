@@ -5,8 +5,11 @@
   // Components
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
+  // Composables
+  import { useDiscovery } from '@/composables/useDiscovery'
+
   // Utilities
-  import { nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { shallowRef, toRef, useAttrs, watch } from 'vue'
 
   defineOptions({ name: 'DiscoveryContent', inheritAttrs: false })
 
@@ -24,7 +27,8 @@
   }>()
 
   const root = useDiscoveryRootContext('v0:discovery')
-  const contentRef = useTemplateRef<HTMLElement>('content')
+  const discovery = useDiscovery()
+  const isReady = shallowRef(false)
 
   // Check for CSS Anchor Positioning support
   // Safari/iOS don't support anchor positioning - check for the specific property
@@ -79,29 +83,51 @@
     }
   })
 
-  watch(() => root.isActive.value, async isActive => {
-    if (!IN_BROWSER) return
-    await nextTick()
-    // Extra frame to ensure anchor element is positioned after enter callbacks
-    await new Promise(resolve => requestAnimationFrame(resolve))
-    const el = contentRef.value
-    if (!el?.isConnected) return
+  // Poll for activator to be registered, then show content
+  watch(
+    () => root.isActive.value,
+    isActive => {
+      if (!IN_BROWSER) return
 
-    if (isActive) {
-      el.showPopover?.()
-    } else {
-      el.hidePopover?.()
-    }
-  }, { immediate: true })
+      if (isActive) {
+        isReady.value = false
+        const startTime = performance.now()
+        const TIMEOUT_MS = 2000
+
+        // Poll until activator is registered (with timeout)
+        function checkActivator () {
+          const activator = discovery.activators.get(root.step)
+          if (activator?.element) {
+            // Activator found - wait one more frame for anchor-name CSS
+            requestAnimationFrame(() => {
+              isReady.value = true
+            })
+          } else if (performance.now() - startTime > TIMEOUT_MS) {
+            // Timeout - show content anyway to avoid hanging
+            console.warn(`[DiscoveryContent] Activator for step "${root.step}" not found after ${TIMEOUT_MS}ms`)
+            isReady.value = true
+          } else {
+            // Keep polling
+            requestAnimationFrame(checkActivator)
+          }
+        }
+        requestAnimationFrame(checkActivator)
+      } else {
+        isReady.value = false
+      }
+    },
+    { immediate: true },
+  )
 </script>
 
 <template>
-  <Teleport v-if="root.isActive.value" to="body">
+  <Teleport v-if="isReady" to="body">
     <div
-      ref="content"
       v-bind="attrs"
-      popover="manual"
-      :style
+      :style="{
+        ...style,
+        zIndex: 9999,
+      }"
     >
       <slot />
     </div>
