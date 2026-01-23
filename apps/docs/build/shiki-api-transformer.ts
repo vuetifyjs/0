@@ -245,6 +245,19 @@ export function createApiTransformer (): ShikiTransformer {
   }
 }
 
+/**
+ * Renders inline code for Vue API references.
+ * Returns HTML string if text is a Vue API, null otherwise.
+ */
+export function renderVueApiInlineCode (
+  text: string,
+  escapeHtml: (s: string) => string,
+): string | null {
+  if (!VUE_API_NAMES.has(text)) return null
+  const escaped = escapeHtml(text)
+  return `<code data-api-candidate="${escaped}" data-api-name="${escaped}" data-api-type="vue">${escaped}</code>`
+}
+
 // Export for use in markdown.ts inline code processing
 export { VUE_API_NAMES }
 

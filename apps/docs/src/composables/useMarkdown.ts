@@ -14,7 +14,7 @@
  */
 
 // Build
-import { createApiTransformer, VUE_API_NAMES } from '@build/shiki-api-transformer'
+import { createApiTransformer, renderVueApiInlineCode } from '@build/shiki-api-transformer'
 import { Marked } from 'marked'
 
 // Composables
@@ -104,11 +104,7 @@ function getMarked (hl: Highlighter): Marked {
       },
       codespan ({ text }) {
         // Check if inline code is a Vue API
-        if (VUE_API_NAMES.has(text)) {
-          const escaped = escapeHtml(text)
-          return `<code data-api-candidate="${escaped}" data-api-name="${escaped}" data-api-type="vue">${escaped}</code>`
-        }
-        return `<code>${escapeHtml(text)}</code>`
+        return renderVueApiInlineCode(text, escapeHtml) ?? `<code>${escapeHtml(text)}</code>`
       },
     },
   })
