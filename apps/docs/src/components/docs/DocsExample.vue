@@ -88,8 +88,8 @@
         </span>
 
         <div
-          class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
-          :class="(!shouldPeek || expanded) && 'max-md:opacity-100'"
+          v-if="!shouldPeek || expanded"
+          class="absolute top-3 right-3 z-10 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity max-md:opacity-100"
         >
           <DocsCodeActions
             v-model:wrap="lineWrap"
@@ -119,8 +119,8 @@
           :style="shouldPeek && !expanded ? { maxHeight: peekHeight } : undefined"
         >
           <div
-            class="[&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto"
-            :class="(!shouldPeek || expanded) && '[&_pre]:pt-10'"
+            class="[&_pre]:pt-2 [&_pre_code]:p-4 [&_pre_code]:pr-20 [&_pre_code]:leading-relaxed"
+            :class="(!shouldPeek || expanded) && '[&_pre]:pt-7'"
             v-html="highlightedCode"
           />
         </div>
@@ -144,6 +144,7 @@
 
 <style scoped>
   ::v-deep(.shiki) {
+    overflow: hidden;
     border: none;
     border-top: thin solid var(--v0-divider);
     border-radius: 0;

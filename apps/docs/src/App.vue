@@ -65,11 +65,8 @@
     <router-view />
   </main>
 
-  <!-- API hover popovers for code blocks -->
+  <!-- API hover popovers for code blocks (v0 and Vue APIs) -->
   <DocsApiHover />
-
-  <!-- Vue documentation links for code blocks -->
-  <DocsVueLink />
 
   <!-- Discovery overlay -->
   <DocsHighlight />
@@ -283,8 +280,14 @@
       margin-bottom: 0.5rem;
     }
 
-    .shiki, .shiki span {
+    .shiki {
+      overflow: hidden;
+    }
+
+    .shiki code {
+      display: block;
       overflow-x: auto;
+      padding: 0.5rem 1rem;
     }
 
     table {
@@ -319,12 +322,15 @@
 
   /* DocsMarkup code block padding */
   .docs-markup pre {
-    padding-top: 2.5rem;
+    padding-top: 2rem;
+  }
+
+  .docs-markup pre code {
     padding-bottom: 1rem;
   }
 
   @media (max-width: 768px) {
-    .docs-markup pre {
+    .docs-markup pre code {
       padding-right: 5rem;
     }
   }
@@ -342,7 +348,6 @@
     background-color: var(--shiki-light-bg);
     border: thin solid var(--v0-divider);
     border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
   }
 
   /* Focus indicator for keyboard scrolling (inset to avoid clipping by overflow-hidden parent) */
