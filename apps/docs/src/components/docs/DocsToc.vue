@@ -16,7 +16,7 @@
 <template>
   <aside
     v-if="headings.length > 0 && !isAskOpen"
-    class="hidden xl:block fixed right-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
+    class="hidden xl:block fixed right-4 top-26 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
   >
     <button
       class="text-xs font-medium text-on-surface-variant mb-3 uppercase tracking-wide hover:text-primary hover:underline transition-colors cursor-pointer after:content-['_§']"

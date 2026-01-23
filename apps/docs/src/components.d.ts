@@ -95,6 +95,7 @@ declare module 'vue' {
     DocsMetaSkillLevel: typeof import('./components/docs/meta/DocsMetaSkillLevel.vue')['default']
     DocsNavigator: typeof import('./components/docs/DocsNavigator.vue')['default']
     DocsPageFeatures: typeof import('./components/docs/meta/DocsPageFeatures.vue')['default']
+    DocsPageLogo: typeof import('./components/docs/meta/DocsPageLogo.vue')['default']
     DocsRelated: typeof import('./components/docs/DocsRelated.vue')['default']
     DocsReleases: typeof import('./components/docs/DocsReleases.vue')['default']
     DocsRoadmap: typeof import('./components/docs/DocsRoadmap.vue')['default']

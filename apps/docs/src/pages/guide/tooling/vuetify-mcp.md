@@ -13,6 +13,7 @@ related:
   - /guide/tooling/ai-tools
   - /guide/tooling/vuetify-cli
   - /introduction/getting-started
+logo: vmcp
 ---
 
 # Vuetify MCP

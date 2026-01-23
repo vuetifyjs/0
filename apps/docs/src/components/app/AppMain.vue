@@ -3,6 +3,7 @@
 
   // Components
   import DocsToc from '../docs/DocsToc.vue'
+  import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
   // Composables
   import { useAskSheet } from '@/composables/useAskSheet'
@@ -47,6 +48,8 @@
     ]"
   >
     <div class="max-w-[688px] mx-auto pb-4">
+      <DocsPageLogo :frontmatter="page?.frontmatter" />
+
       <router-view v-slot="{ Component }">
         <Transition :name="pageTransition">
           <component :is="Component" :key="$route.path" ref="page" />

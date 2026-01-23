@@ -74,6 +74,9 @@ bunx @vuetify/cli init --type vuetify0
 
 Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured.
 
+> [!TIP]
+> Use the Skill Filter to narrow down navigation to match your experience level: <AppSkillFilter />
+
 ## Manual Setup
 
 To add v0 to an existing project, follow the steps below.

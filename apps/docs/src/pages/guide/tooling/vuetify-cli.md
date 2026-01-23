@@ -13,6 +13,7 @@ related:
   - /guide/tooling/ai-tools
   - /guide/tooling/vuetify-mcp
   - /guide/integration/nuxt
+logo: vcli
 ---
 
 # Vuetify CLI
