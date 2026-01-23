@@ -18,6 +18,9 @@ related:
 <script setup>
 import GroupExample from '@/examples/components/group/basic.vue'
 import GroupExampleRaw from '@/examples/components/group/basic.vue?raw'
+import { useSettings } from '@/composables/useSettings'
+
+const { lineWrap, showInlineApi, collapsibleNav } = useSettings()
 </script>
 
 # Using the Docs
@@ -274,6 +277,26 @@ Some examples show multiple variants in tabbed code blocks:
 - Use `←` / `→` arrow keys when focused
 - Tab state is independent per code group
 
+::: code-group
+
+```bash pnpm no-filename
+pnpm add @vuetify/v0
+```
+
+```bash npm no-filename
+npm install @vuetify/v0
+```
+
+```bash yarn no-filename
+yarn add @vuetify/v0
+```
+
+```bash bun no-filename
+bun add @vuetify/v0
+```
+
+:::
+
 ### Diagrams
 
 Architecture and flow diagrams use Mermaid. Click any diagram to open an expanded view in a dialog.
@@ -454,15 +477,19 @@ Filter documentation pages by complexity. Selected levels appear in the navigati
 Toggle line wrapping for long lines in code blocks:
 
 <div class="max-w-xs mb-6">
-  <AppSettingsLineWrap />
+  <AppSettingsToggle v-model="lineWrap" label="Line wrapping" description="Wrap long lines in code blocks" />
 </div>
+
+```ts
+const veryLongVariableName = someFunction(argumentOne, argumentTwo, argumentThree, argumentFour, argumentFive)
+```
 
 ### API Reference
 
 Display API details inline on component and composable pages, or show links to dedicated API pages:
 
 <div class="max-w-xs mb-6">
-  <AppSettingsInlineApi />
+  <AppSettingsToggle v-model="showInlineApi" label="Show inline" description="Display API details inline instead of links" />
 </div>
 
 ### Motion
@@ -494,7 +521,7 @@ Toggle visibility of header controls to reduce clutter:
 Group sidebar navigation items into collapsible sections:
 
 <div class="max-w-xs mb-6">
-  <AppSettingsNavigation />
+  <AppSettingsToggle v-model="collapsibleNav" label="Collapsible sections" description="Group navigation items into expandable sections" />
 </div>
 
 ## Accessibility
