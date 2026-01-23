@@ -16,7 +16,6 @@
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-vue-devtools": "catalog:",
     "vite-ssg": "catalog:",
     "vue-router": "catalog:"
   },

@@ -27,7 +27,6 @@
     "unplugin-vue-router": "catalog:",
     "vite": "catalog:",
     "vite-plugin-pwa": "catalog:",
-    "vite-plugin-vue-devtools": "catalog:",
     "vite-plugin-vue-layouts-next": "catalog:",
     "vite-ssg": "catalog:",
     "vite-ssg-sitemap": "catalog:",
