@@ -24,7 +24,7 @@ Have a question that isn't answered here? Try [Ask AI](/guide/using-the-docs#ask
 ::: faq
 ??? What is Vuetify0?
 
-Vuetify0 is a collection of headless UI primitives and composables for Vue 3. It provides unstyled, logic-focused components that handle accessibility, keyboard navigation, and state management while giving you complete control over styling.
+Vuetify0 is a collection of headless UI primitives and composables for Vue 3. It provides unstyled, logic-focused building blocks that handle accessibility, keyboard navigation, and state management while giving you complete control over styling. The library includes 35+ composables covering everything from selection patterns to form validation, plus ready-to-use headless components like Dialog, Tabs, and ExpansionPanel. Get started instantly with `pnpm create vuetify0`.
 
 ??? How is Vuetify0 different from Vuetify?
 
@@ -36,7 +36,7 @@ No. Vuetify0 is a standalone package with no dependency on Vuetify. You can use 
 
 ??? What styling approach should I use?
 
-Vuetify0 is style-agnostic. Use Tailwind CSS, UnoCSS, plain CSS, or any CSS-in-JS solution. All documentation examples use Tailwind-compatible utility classes that work in both Tailwind and UnoCSS.
+Vuetify0 is style-agnostic - use whatever CSS approach you prefer. We recommend [UnoCSS](https://unocss.dev) for its speed and flexibility, but Tailwind CSS v4, plain CSS, CSS Modules, and CSS-in-JS solutions all work well. The theme plugin exposes CSS custom properties (`--v0-primary`, `--v0-surface`, etc.) that you can map to your framework's color system. All documentation examples use Tailwind-compatible utility classes.
 
 ??? Why use composables instead of components?
 
@@ -44,19 +44,39 @@ Components are great for common UI patterns, but composables give you more flexi
 
 ??? Is Vuetify0 accessible?
 
-Yes. Components include proper ARIA attributes, keyboard navigation, and focus management following WAI-ARIA patterns. The headless approach means you are responsible for visual styling, but the accessibility logic is built-in.
+Yes. Components and composables implement WAI-ARIA patterns including proper ARIA attributes, roles, and states. Keyboard navigation is built-in - arrow keys for selection, Enter/Space for activation, Escape for dismissal. Focus management handles trapping focus in modals, restoring focus on close, and roving tabindex for composite widgets. The headless approach means you control the visual styling, but the accessibility logic is built-in.
 
 ??? Does Vuetify0 support SSR?
 
-Yes. All composables and components are SSR-safe. Use the `IN_BROWSER` constant for browser-only code, and the `useHydration` composable for hydration-aware rendering.
+Yes. All composables and components are SSR-safe and work with Nuxt, Vite SSR, and other server-rendering solutions. Use the `IN_BROWSER` constant to guard browser-only code, and the `useHydration` composable for hydration-aware rendering that prevents mismatches. Observer composables (`useResizeObserver`, `useIntersectionObserver`, etc.) automatically skip initialization on the server.
 
 ??? What browsers are supported?
 
-Vuetify0 supports all modern browsers (Chrome, Firefox, Safari, Edge). There is no IE11 support. Some features like the Popover component use newer APIs that may have limited browser support.
+Vuetify0 targets modern evergreen browsers: Chrome 52+, Firefox 52+, Safari 10.1+, and Edge 79+. No IE11 support. Some cutting-edge features like CSS Anchor Positioning (Chrome/Edge 125+) and the native Popover API (Chrome 114+, Firefox 125+, Safari 17+) have more limited support but degrade gracefully. See [Browser Support](/introduction/browser-support) for detailed compatibility tables.
 
 ??? Can I use Vuetify0 with Nuxt?
 
-Yes. Install the package and import components/composables as needed. No special Nuxt module is required, though one may be provided in the future.
+Yes. Create a Nuxt plugin that registers v0 plugins, add `@vuetify/v0` to `build.transpile` in your Nuxt config, and you're ready to go. Components and composables can be imported directly or configured for auto-imports. See [Getting Started](/introduction/getting-started#nuxt-3) for setup instructions and the [Nuxt Guide](/guide/integration/nuxt) for advanced configuration.
+
+??? What version of Vue is required?
+
+Vue 3.5.0 or higher. Vuetify0 uses modern Vue features like `useId()` and improved reactivity that require Vue 3.5+. Node 22+ is recommended for development.
+
+??? Is Vuetify0 tree-shakeable?
+
+Yes. Import only what you need and unused code is eliminated during bundling. Components and composables are individually exportable (`@vuetify/v0/components`, `@vuetify/v0/composables`), and the library has no side effects that prevent tree-shaking.
+
+??? Does Vuetify0 support TypeScript?
+
+Yes. The library is written in TypeScript with full type definitions. Generic components preserve type inference, composables return properly typed refs and functions, and the plugin system is fully typed. No `@types` packages needed.
+
+??? What are plugins in Vuetify0?
+
+Plugins provide app-wide functionality that composables can access via Vue's provide/inject. Core plugins include `createThemePlugin` (theming with CSS variables), `createLocalePlugin` (i18n), `createStoragePlugin` (persistent state), and `createLoggerPlugin` (debug logging). Additional plugins cover breakpoints, hydration, and permissions. Each plugin is optional - install only what you need.
+
+??? How do I get started quickly?
+
+The fastest way is with the CLI: `pnpm create vuetify0`. This scaffolds a complete project with UnoCSS, theming, and example components pre-configured. For existing projects, install `@vuetify/v0` and start importing components and composables directly. See [Getting Started](/introduction/getting-started) for full instructions.
 
 ??? How do I contribute?
 
