@@ -1,18 +1,23 @@
 <script setup lang="ts">
   // Framework
-  import { useDocumentEventListener } from '@vuetify/v0'
+  import { useBreakpoints, useDocumentEventListener } from '@vuetify/v0'
 
   // Components
   import DocsDiscoveryStep from '@/components/docs/DocsDiscoveryStep.vue'
 
   // Types
   import type { NextOnCallback } from '@/components/discovery/DiscoveryRoot.vue'
-  import type { SkillStepNext } from '@/types/skill'
+  import type { SkillStep, SkillStepNext } from '@/types/skill'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
 
   const skillz = useSkillzStore()
+  const { smAndDown } = useBreakpoints()
+
+  function isDisabled (step: SkillStep): boolean {
+    return step.skipOnMobile === true && smAndDown.value
+  }
 
   /**
    * Build a nextOn callback from the step's `next` config.
@@ -49,9 +54,11 @@
     <DocsDiscoveryStep
       v-for="step in skillz.active.steps"
       :key="step.id"
+      :disabled="isDisabled(step)"
       :hint="step.hint"
       :next-on="buildNextOn(step.next)"
       :placement="step.placement"
+      :placement-mobile="step.placementMobile"
       :step="step.id"
       :text="step.task"
       :title="step.title"

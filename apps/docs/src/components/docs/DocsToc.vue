@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useAskSheet } from '@/composables/useAskSheet'
   import { useSettings } from '@/composables/useSettings'
@@ -14,9 +17,12 @@
 </script>
 
 <template>
-  <aside
+  <Discovery.Activator
     v-if="headings.length > 0 && !isAskOpen"
-    class="hidden xl:block fixed right-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
+    as="aside"
+    class="hidden xl:block rounded-lg fixed right-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
+    :padding="8"
+    step="toc"
   >
     <button
       class="text-xs font-medium text-on-surface-variant mb-3 uppercase tracking-wide hover:text-primary hover:underline transition-colors cursor-pointer after:content-['_§']"
@@ -75,5 +81,5 @@
         </li>
       </ul>
     </nav>
-  </aside>
+  </Discovery.Activator>
 </template>

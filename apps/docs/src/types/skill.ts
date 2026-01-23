@@ -18,8 +18,12 @@ export interface SkillStep {
   learn: string
   /** Keys that advance to next step */
   next?: SkillStepNext
-  /** Popover placement */
+  /** Popover placement (desktop) */
   placement?: string
+  /** Popover placement override for mobile */
+  placementMobile?: string
+  /** Skip this step on mobile (smAndDown breakpoint) */
+  skipOnMobile?: boolean
 }
 
 export interface SkillMeta {
