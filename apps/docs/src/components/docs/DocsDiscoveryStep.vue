@@ -31,6 +31,10 @@
     offset?: [number, number]
     /** Plain text description (alternative to default slot) */
     text?: string
+    /** Popover placement */
+    placement?: string
+    /** Popover placement on mobile */
+    placementMobile?: string
   }
 </script>
 
@@ -43,6 +47,11 @@
 
   // Utilities
   import { computed, onBeforeUnmount, toValue, useAttrs, watch } from 'vue'
+
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
+  // Types
+  import { SKILL_LEVEL_META } from '@/types/skill'
 
   defineOptions({ name: 'DocsDiscoveryStep', inheritAttrs: false })
 
@@ -57,6 +66,12 @@
 
   const attrs = useAttrs()
   const discovery = useDiscovery()
+  const skillz = useSkillzStore()
+
+  const levelMeta = computed(() => {
+    if (!skillz.active) return null
+    return SKILL_LEVEL_META[skillz.active.level]
+  })
 
   const offsetStyle = computed(() => {
     if (!props.offset) return undefined
@@ -102,13 +117,20 @@
   >
     <Discovery.Content
       class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs"
+      :placement="props.placement"
+      :placement-mobile="props.placementMobile"
       :style="offsetStyle"
       v-bind="attrs"
     >
       <!-- Header -->
       <div class="flex justify-between items-center mb-4">
-        <span class="text-xs font-bold uppercase tracking-wide px-2 py-1 bg-primary text-on-primary rounded">
+        <span
+          class="skillz-badge inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded"
+          :style="levelMeta ? { '--level-color': levelMeta.color } : undefined"
+          :title="levelMeta ? `${levelMeta.label} level` : undefined"
+        >
           SKILLZ
+          <AppIcon v-if="levelMeta" :icon="levelMeta.icon" :size="14" />
         </span>
 
         <Discovery.Progress class="text-xs text-on-surface-variant" />
@@ -163,3 +185,10 @@
     </Discovery.Content>
   </Discovery.Root>
 </template>
+
+<style scoped>
+.skillz-badge {
+  background: color-mix(in srgb, var(--level-color, var(--v0-primary)) 15%, transparent);
+  color: var(--level-color, var(--v0-primary));
+}
+</style>

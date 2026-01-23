@@ -1,12 +1,14 @@
 <script setup lang="ts">
   import { definePage, useRoute } from 'vue-router/auto'
 
+  // Composables
+  import { useSettings } from '@/composables/useSettings'
+
   // Utilities
   import { computed } from 'vue'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
-  // Types
   import {
     SKILL_CATEGORY_META,
     SKILL_LEVEL_META,
@@ -22,6 +24,7 @@
 
   const route = useRoute()
   const skillz = useSkillzStore()
+  const settings = useSettings()
 
   const skillId = computed(() => route.params.id as string)
   const skill = computed(() => skillz.items.find(s => s.id === skillId.value))
@@ -53,8 +56,8 @@
 
     <!-- Skill detail -->
     <template v-else>
-      <div class="max-w-3xl mx-auto p-8">
-        <header class="flex justify-between items-center mb-8">
+      <div class="max-w-3xl mx-auto p-4">
+        <header class="flex justify-between items-center mb-4">
           <RouterLink class="flex items-center gap-2 text-on-surface-variant no-underline text-sm transition-colors hover:text-on-surface" to="/skillz">
             <span class="text-xl">←</span>
             Back to Skillz
@@ -66,13 +69,17 @@
           </div>
         </header>
 
-        <div class="bg-surface border border-divider rounded-xl p-8">
+        <div
+          class="border border-divider rounded-xl p-4 md:p-8"
+          :class="settings.showBgGlass ? 'bg-glass-surface' : 'bg-surface'"
+        >
           <div class="flex gap-2 mb-4">
             <span
               v-if="levelMeta"
               class="level-badge inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded"
               :style="{ '--level-color': levelMeta.color }"
             >
+              <AppIcon :icon="levelMeta.icon" :size="14" />
               {{ levelMeta.label }}
             </span>
             <span v-if="trackMeta" class="text-xs font-medium px-2.5 py-1 rounded bg-surface-variant text-on-surface-variant">
@@ -144,15 +151,20 @@
             </li>
           </ol>
 
-          <div class="flex gap-4">
-            <button
-              class="flex-1 px-6 py-3.5 text-base font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:not-disabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-              @click="startSkill"
-            >
-              Start Skill
-            </button>
-          </div>
         </div>
+
+        <!-- Sticky button on mobile, inline on desktop -->
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-surface border-t border-divider md:relative md:mt-8 md:p-0 md:bg-transparent md:border-0">
+          <button
+            class="w-full px-6 py-2 md:py-3.5 text-base font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:not-disabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="startSkill"
+          >
+            Start Skill
+          </button>
+        </div>
+
+        <!-- Spacer for fixed button on mobile -->
+        <div class="h-20 md:hidden" />
       </div>
     </template>
   </div>
