@@ -153,7 +153,7 @@
         class="font-semibold inline-flex items-center gap-1 flex-1 min-w-0"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
-          !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
+          !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
         ]"
         :to
         v-bind="props"
