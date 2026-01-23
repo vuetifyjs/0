@@ -30,7 +30,7 @@ A headless component for creating page navigation with proper ARIA support.
 
 The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the [usePagination](/composables/utilities/use-pagination) and [useOverflow](/composables/utilities/use-overflow) composable internally.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
   <BasicExample />
 </DocsExample>
 
