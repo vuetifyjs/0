@@ -78,7 +78,10 @@
         v-if="(showCode || peek) && highlightedCode"
         :id="code ? `${uid}-code` : undefined"
         class="docs-example-code relative bg-pre group"
-        :class="{ 'docs-example-code--wrap': lineWrap }"
+        :class="{
+          'docs-example-code--wrap': lineWrap,
+          'docs-example-code--expanded': !shouldPeek || expanded,
+        }"
       >
         <span
           v-if="fileName && (!shouldPeek || expanded)"
@@ -118,11 +121,7 @@
           class="overflow-hidden transition-[max-height] duration-300 ease-out"
           :style="shouldPeek && !expanded ? { maxHeight: peekHeight } : undefined"
         >
-          <div
-            class="[&_pre]:pt-2 [&_pre_code]:p-4 [&_pre_code]:pr-20 [&_pre_code]:leading-relaxed"
-            :class="(!shouldPeek || expanded) && '[&_pre]:pt-7'"
-            v-html="highlightedCode"
-          />
+          <div v-html="highlightedCode" />
         </div>
 
         <div v-if="shouldPeek && !expanded" class="docs-example-fade absolute left-0 right-0 bottom-0 h-12 rounded-b-lg pointer-events-none" />
@@ -143,19 +142,6 @@
 </template>
 
 <style scoped>
-  ::v-deep(.shiki) {
-    overflow: hidden;
-    border: none;
-    border-top: thin solid var(--v0-divider);
-    border-radius: 0;
-    margin-bottom: 0;
-  }
-
-  .docs-example-code--wrap ::v-deep(pre) {
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
   .docs-example-fade {
     background: var(--v0-pre);
     mask: linear-gradient(transparent, var(--v0-primary));

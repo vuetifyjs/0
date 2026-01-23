@@ -136,13 +136,4 @@
   margin-top: 0;
   margin-bottom: 0;
 }
-
-.docs-code-group__content :deep(pre) {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.docs-code-group__content :deep(.shiki) {
-  border-top: none;
-}
 </style>

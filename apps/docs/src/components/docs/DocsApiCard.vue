@@ -100,7 +100,8 @@
       <div
         v-if="expandedExamples.has(exampleKey) && highlightedExamples[exampleKey]"
         :id="`${uid}-${exampleKey}`"
-        class="relative bg-pre group"
+        class="docs-api-card relative bg-pre group"
+        :class="{ 'docs-api-card--wrap': lineWrap }"
       >
         <DocsCodeActions
           v-model:wrap="lineWrap"
@@ -113,11 +114,7 @@
           :title="item.name"
         />
 
-        <div
-          class="[&_.shiki]:rounded-none [&_.shiki]:border-0 [&_.shiki]:m-0 [&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
-          :class="lineWrap && '[&_pre]:whitespace-pre-wrap [&_pre]:break-words'"
-          v-html="highlightedExamples[exampleKey]?.html ?? ''"
-        />
+        <div v-html="highlightedExamples[exampleKey]?.html ?? ''" />
       </div>
     </template>
   </div>
