@@ -15,7 +15,7 @@
 
 // Utilities
 import { isFunction, isUndefined } from '#v0/utilities'
-import { onScopeDispose, toValue, watch } from 'vue'
+import { onScopeDispose, toRaw, toValue, watch } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -103,7 +103,7 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
     const targetIds = new Set<ID>()
 
     for (const value of transformIn(val)) {
-      const ids = registry.browse(value)
+      const ids = registry.browse(toRaw(value))
       if (ids) {
         for (const id of ids) targetIds.add(id)
       }
