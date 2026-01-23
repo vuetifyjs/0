@@ -4,10 +4,17 @@
  * @remarks
  * Renders markdown to HTML with syntax highlighting for code blocks.
  * Uses marked for parsing and Shiki for code highlighting.
+ *
+ * TODO: Dedupe with build/markdown.ts - shared logic includes:
+ * - Table wrapping (overflow-x-auto)
+ * - Callout detection ([!TIP], [!INFO], etc.)
+ * - Mermaid code block handling
+ * - VUE_API_NAMES inline code detection
+ * - Shiki themes and createApiTransformer()
  */
 
 // Build
-import { createApiTransformer, VUE_FUNCTIONS } from '@build/shiki-api-transformer'
+import { createApiTransformer, VUE_API_NAMES } from '@build/shiki-api-transformer'
 import { Marked } from 'marked'
 
 // Composables
@@ -96,10 +103,10 @@ function getMarked (hl: Highlighter): Marked {
         return `<div data-markup data-code="${encodedCode}" data-language="${escapeHtml(language)}">${highlighted}</div>`
       },
       codespan ({ text }) {
-        // Check if inline code is a Vue function
-        const vueHref = VUE_FUNCTIONS[text]
-        if (vueHref) {
-          return `<code data-vue-href="${escapeHtml(vueHref)}" title="Open Vue documentation">${escapeHtml(text)}</code>`
+        // Check if inline code is a Vue API
+        if (VUE_API_NAMES.has(text)) {
+          const escaped = escapeHtml(text)
+          return `<code data-api-candidate="${escaped}" data-api-name="${escaped}" data-api-type="vue">${escaped}</code>`
         }
         return `<code>${escapeHtml(text)}</code>`
       },

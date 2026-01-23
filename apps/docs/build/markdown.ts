@@ -10,7 +10,7 @@ import Markdown from 'unplugin-vue-markdown/vite'
 import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
 
 // Local
-import { createApiTransformer, VUE_FUNCTIONS } from './shiki-api-transformer'
+import { createApiTransformer, VUE_API_NAMES } from './shiki-api-transformer'
 
 interface MarkdownToken { nesting: number }
 
@@ -160,18 +160,16 @@ export default async function MarkdownPlugin () {
           : '</blockquote>'
       }
 
-      // Inline code: link Vue built-in functions to Vue docs
+      // Inline code: mark Vue API references for hover popovers
       const defaultCodeInline = md.renderer.rules.code_inline
       md.renderer.rules.code_inline = (tokens, index, options, env, self) => {
         const token = tokens[index]
         const content = token.content
 
-        // Check if content is a Vue function
-        const vueHref = VUE_FUNCTIONS[content]
-        if (vueHref) {
+        // Check if content is a Vue API
+        if (VUE_API_NAMES.has(content)) {
           const escaped = md.utils.escapeHtml(content)
-          const escapedHref = md.utils.escapeHtml(vueHref)
-          return `<code data-vue-href="${escapedHref}" title="Open Vue documentation">${escaped}</code>`
+          return `<code data-api-candidate="${escaped}" data-api-name="${escaped}" data-api-type="vue">${escaped}</code>`
         }
 
         // Default rendering for non-Vue inline code
