@@ -40,12 +40,7 @@ import type { ID, MaybeArray } from '#v0/types'
 import type { App } from 'vue'
 
 export type { FeaturesAdapterFlags, FeaturesAdapterInterface, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
-export {
-  FeaturesAdapter,
-  FlagsmithFeatureAdapter,
-  LaunchDarklyFeatureAdapter,
-  PostHogFeatureAdapter,
-} from '#v0/composables/useFeatures/adapters'
+export { FeaturesAdapter } from '#v0/composables/useFeatures/adapters'
 
 /**
  * Input type for feature tickets - what users provide to register().
