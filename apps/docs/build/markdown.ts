@@ -107,7 +107,7 @@ export default async function MarkdownPlugin () {
           : '</p>'
       }
 
-      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!ASKAI]
+      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!ASKAI], > [!DISCORD]
       const defaultBlockquoteOpen = md.renderer.rules.blockquote_open
       const defaultBlockquoteClose = md.renderer.rules.blockquote_close
 
@@ -115,7 +115,7 @@ export default async function MarkdownPlugin () {
         // Look ahead: blockquote_open -> paragraph_open -> inline
         const inlineToken = tokens[index + 2]
         if (inlineToken?.type === 'inline' && inlineToken.content) {
-          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI)\]\s*(.*)/)
+          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI|DISCORD)\]\s*(.*)/)
           if (match) {
             const type = match[1].toLowerCase()
             env._calloutType = type
@@ -126,6 +126,13 @@ export default async function MarkdownPlugin () {
               inlineToken.content = ''
               inlineToken.children = []
               return `<DocsCallout type="${type}" question="${Buffer.from(question).toString('base64')}">`
+            }
+
+            if (type === 'discord') {
+              // Discord callouts have auto-generated content
+              inlineToken.content = ''
+              inlineToken.children = []
+              return `<DocsCallout type="${type}">`
             }
 
             // For other types, strip the marker and keep content

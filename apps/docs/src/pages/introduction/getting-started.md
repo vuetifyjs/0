@@ -467,3 +467,5 @@ import { isObject, isString } from '@vuetify/v0/utilities'
 // Constants only
 import { IN_BROWSER } from '@vuetify/v0/constants'
 ```
+
+> [!DISCORD]

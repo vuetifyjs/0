@@ -9,7 +9,7 @@
   import { computed } from 'vue'
 
   export interface DocsCalloutProps {
-    type: 'tip' | 'info' | 'warning' | 'error' | 'askai'
+    type: 'tip' | 'info' | 'warning' | 'error' | 'askai' | 'discord'
     question?: string
   }
 
@@ -54,6 +54,13 @@
           classes: 'bg-accent/10 border-accent/50 text-accent cursor-pointer hover:bg-accent/20 transition-colors',
         }
       }
+      case 'discord': {
+        return {
+          icon: 'discord',
+          title: 'Discord',
+          classes: 'bg-[#5865F2]/10 border-[#5865F2]/50 text-[#5865F2] cursor-pointer hover:bg-[#5865F2]/20 transition-colors',
+        }
+      }
       default: {
         return {
           icon: 'alert',
@@ -71,6 +78,8 @@
   function onClick () {
     if (props.type === 'askai' && props.question) {
       ask(decodeQuestion(props.question))
+    } else if (props.type === 'discord') {
+      window.open('https://discord.gg/vK6T89eNP7', '_blank', 'noopener,noreferrer')
     }
   }
 </script>
@@ -79,8 +88,8 @@
   <div
     class="my-4 rounded-lg border-l-4 px-4 py-3"
     :class="config.classes"
-    :role="props.type === 'askai' ? 'button' : undefined"
-    :tabindex="props.type === 'askai' ? 0 : undefined"
+    :role="props.type === 'askai' || props.type === 'discord' ? 'button' : undefined"
+    :tabindex="props.type === 'askai' || props.type === 'discord' ? 0 : undefined"
     @click="onClick"
     @keydown.enter="onClick"
     @keydown.space.prevent="onClick"
@@ -94,6 +103,18 @@
 
       <div class="text-on-surface">
         {{ props.question ? decodeQuestion(props.question) : '' }}
+      </div>
+    </template>
+
+    <template v-else-if="props.type === 'discord'">
+      <div class="flex items-center gap-2 font-semibold mb-1">
+        <AppIcon :icon="config.icon" :size="18" />
+
+        <span>{{ config.title }}</span>
+      </div>
+
+      <div class="text-on-surface">
+        Need help? Join our community for support and discussions ↗
       </div>
     </template>
 

@@ -214,9 +214,6 @@ describe('useSelection', () => {
 })
 ```
 
-## Questions?
-
-- [Discord](https://community.vuetifyjs.com) - Real-time chat and questions
-- [GitHub Issues](https://github.com/vuetifyjs/0/issues) - Bug reports and feature requests
+> [!DISCORD]
 
 Thank you for contributing!
