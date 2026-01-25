@@ -8,12 +8,12 @@
   // Utilities
   import { computed } from 'vue'
 
-  export interface DocsAlertProps {
+  export interface DocsCalloutProps {
     type: 'tip' | 'info' | 'warning' | 'error' | 'askai'
     question?: string
   }
 
-  const props = defineProps<DocsAlertProps>()
+  const props = defineProps<DocsCalloutProps>()
 
   const { ask } = useAskSheet()
 

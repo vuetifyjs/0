@@ -125,7 +125,7 @@ export default async function MarkdownPlugin () {
               const question = match[2].trim()
               inlineToken.content = ''
               inlineToken.children = []
-              return `<DocsAlert type="${type}" question="${Buffer.from(question).toString('base64')}">`
+              return `<DocsCallout type="${type}" question="${Buffer.from(question).toString('base64')}">`
             }
 
             // For other types, strip the marker and keep content
@@ -140,7 +140,7 @@ export default async function MarkdownPlugin () {
               }
             }
 
-            return `<DocsAlert type="${type}">`
+            return `<DocsCallout type="${type}">`
           }
         }
 
@@ -152,7 +152,7 @@ export default async function MarkdownPlugin () {
       md.renderer.rules.blockquote_close = (tokens, index, options, env, self) => {
         if (env._calloutType) {
           delete env._calloutType
-          return '</DocsAlert>'
+          return '</DocsCallout>'
         }
 
         return defaultBlockquoteClose
