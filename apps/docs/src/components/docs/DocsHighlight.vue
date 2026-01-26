@@ -16,13 +16,15 @@
   const discovery = useDiscovery()
   const skillz = useSkillzStore()
 
-  const isGuided = toRef(() => skillz.active?.mode === 'guided')
+  // console.log(discovery)
+
+  // const isGuided = toRef(() => skillz.active?.mode === 'guided')
 
   useScrollLock(() => discovery.isActive.value)
 </script>
 
 <template>
-  <Discovery.Highlight :block-activator="isGuided" blocking />
+  <Discovery.Highlight block-activator blocking />
 
   <SkillzTour />
 </template>

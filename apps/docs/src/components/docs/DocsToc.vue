@@ -3,11 +3,11 @@
   import { Discovery } from '@/components/discovery'
 
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
   import { useSettings } from '@/composables/useSettings'
   import { useToc } from '@/composables/useToc'
 
-  const { isOpen: isAskOpen } = useAskSheet()
+  const ask = useAsk()
   const { headings, selectedId, scrollTo } = useToc()
   const { prefersReducedMotion } = useSettings()
 
@@ -18,7 +18,7 @@
 
 <template>
   <Discovery.Activator
-    v-if="headings.length > 0 && !isAskOpen"
+    v-if="headings.length > 0 && !ask.isOpen.value"
     as="aside"
     class="hidden xl:block rounded-lg fixed right-4 top-25 w-[200px] max-h-[calc(100vh-145px)] overflow-y-auto text-sm"
     :padding="8"

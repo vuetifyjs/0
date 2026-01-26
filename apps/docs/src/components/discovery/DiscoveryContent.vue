@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, isNullOrUndefined, useBreakpoints } from '@vuetify/v0'
+  import { IN_BROWSER, isNullOrUndefined, useBreakpoints, useLogger } from '@vuetify/v0'
 
   // Components
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
@@ -14,6 +14,7 @@
   defineOptions({ name: 'DiscoveryContent', inheritAttrs: false })
 
   const attrs = useAttrs()
+  const logger = useLogger()
 
   const {
     placement = 'bottom',
@@ -21,12 +22,10 @@
     offset = 16,
   } = defineProps<{
     placement?: string
-    /** Override placement on mobile (< 768px) */
     placementMobile?: string
     offset?: number
   }>()
 
-  // Use mobile placement when screen is narrow (sm and below)
   const { smAndDown } = useBreakpoints()
   const activePlacement = toRef(() => {
     if (!isNullOrUndefined(placementMobile) && smAndDown.value) return placementMobile
@@ -102,7 +101,7 @@
 
   // Poll for activator to be registered, then show content
   watch(
-    () => root.isActive.value,
+    root.isActive,
     isActive => {
       if (!IN_BROWSER) return
 
@@ -120,8 +119,8 @@
               isReady.value = true
             })
           } else if (performance.now() - startTime > TIMEOUT_MS) {
+            logger.warn(`[DiscoveryContent] Activator for step "${root.step}" not found after ${TIMEOUT_MS}ms`)
             // Timeout - show content anyway to avoid hanging
-            console.warn(`[DiscoveryContent] Activator for step "${root.step}" not found after ${TIMEOUT_MS}ms`)
             isReady.value = true
           } else {
             // Keep polling

@@ -3,7 +3,7 @@
   import AppIcon from '@/components/app/AppIcon.vue'
 
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
 
   // Utilities
   import { computed } from 'vue'
@@ -15,7 +15,7 @@
 
   const props = defineProps<DocsAlertProps>()
 
-  const { ask } = useAskSheet()
+  const ask = useAsk()
 
   const config = computed(() => {
     switch (props.type) {
@@ -70,7 +70,7 @@
 
   function onClick () {
     if (props.type === 'askai' && props.question) {
-      ask(decodeQuestion(props.question))
+      ask.ask(decodeQuestion(props.question))
     }
   }
 </script>

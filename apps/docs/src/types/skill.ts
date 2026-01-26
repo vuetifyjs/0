@@ -36,7 +36,7 @@ export interface SkillMeta {
   order: number
   prerequisites: string[]
   description: string
-  estimatedMinutes: number
+  minutes: number
   startRoute: string
   steps: SkillStep[]
 }

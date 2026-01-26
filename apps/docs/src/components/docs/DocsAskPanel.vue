@@ -9,7 +9,7 @@
 
   // Composables
   import { getBinUrl } from '@/composables/bin'
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
   import { useClipboard } from '@/composables/useClipboard'
   import { useSettings } from '@/composables/useSettings'
 
@@ -17,7 +17,7 @@
   import { computed, nextTick, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { Message } from '@/composables/useAskSheet'
+  import type { Message } from '@/composables/useAsk'
 
   const props = defineProps<{
     messages: readonly Message[]
@@ -35,7 +35,7 @@
   }>()
 
   const breakpoints = useBreakpoints()
-  const { focusTrigger } = useAskSheet()
+  const ask = useAsk()
   const { copied, copy } = useClipboard()
   const { showBgGlass } = useSettings()
 
@@ -82,8 +82,10 @@
     formRef.value?.focus()
   }
 
-  watch(focusTrigger, () => {
-    nextTick(() => focus())
+  watch(ask.focusTrigger, () => {
+    if (ask.isOpen.value) {
+      nextTick(() => focus())
+    }
   })
 
   defineExpose({ focus })
@@ -171,7 +173,7 @@
     </Discovery.Activator>
 
     <!-- Messages -->
-    <Discovery.Activator ref="messages" as="div" class="rounded-lg flex-1 h-full" step="ask-ai-sheet">
+    <Discovery.Activator ref="messages" as="div" class="rounded-lg flex-1 h-full" step="ask-ai-panel">
       <!-- Empty state -->
       <div
         v-if="messages.length === 0"

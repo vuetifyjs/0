@@ -1,67 +1,44 @@
 // Types
-import type { DiscoveryStepConfig } from '@/composables/useDiscovery'
-import type { TourComposables } from '@/stores/skillz'
-import type { SkillMeta } from '@/types/skill'
+import type { UseAskReturn } from '@/composables/useAsk'
+import type { SettingsContext } from '@/composables/useSettings'
 
-// Data
-import tour from './index.json'
-
-export interface TourDefinition {
-  tour: SkillMeta
-  steps: string[]
-  handlers?: Record<string, DiscoveryStepConfig>
+interface TourContext {
+  ask: UseAskReturn
+  settings: SettingsContext
 }
 
 /**
  * Returns tour definition for registration by the store.
  * Guided mode: handlers set up UI state to show features, users just click next.
  */
-export function defineTour ({ app, settings, sheet }: TourComposables): TourDefinition {
+export function defineTour ({ ask, settings }: TourContext) {
   return {
-    tour: tour as SkillMeta,
-    steps: tour.steps.map(s => s.id),
     handlers: {
       'ask-ai': {
-        leave: () => {
-          sheet.close()
-        },
-        back: () => {
-          sheet.close()
-        },
+        leave: () => ask.close(),
+        back: () => ask.close(),
       },
-      'ask-ai-sheet': {
-        enter: () => {
-          sheet.open()
-        },
+      'ask-ai-panel': {
+        enter: () => ask.open(),
       },
       'ask-ai-features': {
-        back: () => {
-          sheet.open()
-        },
+        back: () => ask.open(),
       },
       'settings': {
-        enter: () => {
-          sheet.close()
-        },
-        back: () => {
-          settings.close()
-        },
+        enter: () => ask.close(),
+        back: () => settings.close(),
       },
       'skill-level': {
-        enter: () => {
-          settings.open()
-        },
-        leave: () => {
-          settings.close()
-        },
+        enter: () => settings.open(),
+        leave: () => settings.close(),
       },
       'navigation': {
         enter: () => {
           settings.close()
-          app.drawer = true
+          // TODO: app().drawer = true - needs app store in context
         },
         leave: () => {
-          app.drawer = false
+          // TODO: app().drawer = false - needs app store in context
         },
       },
     },

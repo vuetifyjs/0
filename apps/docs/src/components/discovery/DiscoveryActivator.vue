@@ -28,11 +28,11 @@
   const activatorRef = useTemplateRef<HTMLElement>('activator')
 
   const steps = toArray(step)
-  const tickets = steps.map(id => discovery.register({ id, type: 'activator', element: activatorRef, padding }))
+  const tickets = steps.map(id => discovery.activators.register({ id, element: activatorRef, padding }))
 
   onBeforeUnmount(() => {
     for (const ticket of tickets) {
-      discovery.unregister(ticket.id, 'activator')
+      discovery.activators.unregister(ticket.id)
     }
   })
 

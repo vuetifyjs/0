@@ -1,33 +1,16 @@
 <script lang="ts">
   // Types
-  import type { NextOnCallback } from '@/components/discovery/DiscoveryRoot.vue'
-  import type { DiscoveryStepConfig } from '@/composables/useDiscovery'
-  import type { MaybeRefOrGetter } from 'vue'
-
   type ID = string | number
 
   export interface DocsDiscoveryStepProps {
     /** Unique step identifier */
     step: ID
-    /** Callback to set up auto-advance behavior */
-    nextOn?: NextOnCallback
     /** Whether this step is disabled (will be skipped) */
     disabled?: boolean
     /** Step title */
     title: string
     /** Hint text shown in a muted box below description */
     hint?: string
-    /** Called when step becomes active */
-    enter?: DiscoveryStepConfig['enter']
-    /** Called when step becomes inactive */
-    leave?: DiscoveryStepConfig['leave']
-    /** Called when navigating back to this step */
-    back?: DiscoveryStepConfig['back']
-    /** When truthy, automatically advance to next step */
-    nextWhen?: MaybeRefOrGetter<boolean>
-    /** When truthy, automatically go back to previous step */
-    prevWhen?: MaybeRefOrGetter<boolean>
-    /** Position offset as [x, y] tuple */
     offset?: [number, number]
     /** Plain text description (alternative to default slot) */
     text?: string
@@ -46,13 +29,12 @@
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { computed, onBeforeUnmount, toValue, useAttrs, watch } from 'vue'
+  import { computed, useAttrs } from 'vue'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
-  // Types
-  import { SKILL_LEVEL_META } from '@/types/skill'
 
+  // Types
   defineOptions({ name: 'DocsDiscoveryStep', inheritAttrs: false })
 
   const props = defineProps<DocsDiscoveryStepProps>()
@@ -68,43 +50,10 @@
   const discovery = useDiscovery()
   const skillz = useSkillzStore()
 
-  const levelMeta = computed(() => {
-    if (!skillz.active) return null
-    return SKILL_LEVEL_META[skillz.active.level]
-  })
-
   const offsetStyle = computed(() => {
     if (!props.offset) return undefined
     const [x, y] = props.offset
     return { transform: `translate(${x}px, ${y}px)` }
-  })
-
-  // Register step config if any lifecycle props are provided
-  const hasConfig = props.enter || props.leave || props.back || props.nextWhen
-  const cleanup = hasConfig
-    ? discovery.on(props.step, {
-      enter: props.enter,
-      leave: props.leave,
-      back: props.back,
-      advanceWhen: props.nextWhen,
-    })
-    : undefined
-
-  // Watch prevWhen and go back when condition becomes true while on this step
-  const stopPrevWatcher = props.prevWhen
-    ? watch(
-      () => toValue(props.prevWhen),
-      shouldGoBack => {
-        if (shouldGoBack && discovery.selectedId.value === props.step) {
-          discovery.prev()
-        }
-      },
-    )
-    : undefined
-
-  onBeforeUnmount(() => {
-    cleanup?.()
-    stopPrevWatcher?.()
   })
 </script>
 
@@ -112,7 +61,6 @@
   <Discovery.Root
     v-slot="{ isFirst, isLast }"
     :disabled="disabled"
-    :next-on="nextOn"
     :step="step"
   >
     <Discovery.Content
@@ -124,14 +72,14 @@
     >
       <!-- Header -->
       <div class="flex justify-between items-center mb-4">
-        <span
+        <!-- <span
           class="skillz-badge inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded"
           :style="levelMeta ? { '--level-color': levelMeta.color } : undefined"
           :title="levelMeta ? `${levelMeta.label} level` : undefined"
         >
           SKILLZ
           <AppIcon v-if="levelMeta" :icon="levelMeta.icon" :size="14" />
-        </span>
+        </span> -->
 
         <Discovery.Progress class="text-xs text-on-surface-variant" />
       </div>

@@ -8,7 +8,7 @@
   "order": 0,
   "prerequisites": [],
   "description": "A quick tour of the Vuetify0 documentation site.",
-  "estimatedMinutes": 3,
+  "minutes": 3,
   "startRoute": "/introduction/why-vuetify0",
   "steps": [
     {
@@ -58,7 +58,7 @@
       "placement": "top"
     },
     {
-      "id": "ask-ai-sheet",
+      "id": "ask-ai-panel",
       "title": "Ask AI Panel",
       "task": "Asking a question opens up the Ask AI panel. Here you can see the conversation history and interact with the assistant.",
       "hint": "",

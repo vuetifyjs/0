@@ -6,7 +6,7 @@
   import { Discovery } from '@/components/discovery'
 
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
@@ -44,7 +44,7 @@
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
   const triggerRef = shallowRef<HTMLElement | null>(null)
   const { prefersReducedMotion, showBgGlass } = useSettings()
-  const { open: openAsk, ask } = useAskSheet()
+  const ask = useAsk()
   const transition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
 
   watch(isOpen, async opened => {
@@ -114,8 +114,8 @@
     query.value = ''
     close()
     await router.push(result.path)
-    openAsk()
-    ask(`Tell me about ${result.title}`)
+    ask.open()
+    ask.ask(`Tell me about ${result.title}`)
   }
 
   /** Get flat index accounting for favorites + recents in empty state */

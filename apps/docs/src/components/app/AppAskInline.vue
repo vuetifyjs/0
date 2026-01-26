@@ -1,12 +1,12 @@
 <script setup lang="ts">
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { shallowRef } from 'vue'
 
-  const { ask } = useAskSheet()
+  const ask = useAsk()
   const { showBgGlass } = useSettings()
   const question = shallowRef('')
 
@@ -14,7 +14,7 @@
     const q = question.value.trim()
     if (!q) return
 
-    ask(q)
+    ask.ask(q)
     question.value = ''
   }
 </script>

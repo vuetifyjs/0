@@ -5,58 +5,26 @@
   // Components
   import DocsDiscoveryStep from '@/components/docs/DocsDiscoveryStep.vue'
 
+  // Composables
+  import { useDiscovery } from '@/composables/useDiscovery'
+
   // Types
-  import type { NextOnCallback } from '@/components/discovery/DiscoveryRoot.vue'
-  import type { SkillStep, SkillStepNext } from '@/types/skill'
+  import type { SkillStep } from '@/types/skill'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
 
   const skillz = useSkillzStore()
+  const discovery = useDiscovery ()
   const { smAndDown } = useBreakpoints()
-
-  function isDisabled (step: SkillStep): boolean {
-    return step.skipOnMobile === true && smAndDown.value
-  }
-
-  /**
-   * Build a nextOn callback from the step's `next` config.
-   */
-  function buildNextOn (next: SkillStepNext | undefined): NextOnCallback | undefined {
-    if (!next) return undefined
-
-    const keys = typeof next === 'string'
-      ? [next]
-      : (Array.isArray(next)
-        ? next
-        : next.keys)
-
-    const block = typeof next === 'object' && !Array.isArray(next)
-      ? next.block ?? []
-      : []
-
-    return (advance: () => void) => {
-      return useDocumentEventListener('keydown', (event: KeyboardEvent) => {
-        if (block.includes(event.key)) {
-          event.preventDefault()
-          event.stopPropagation()
-        }
-        if (keys.includes(event.key)) {
-          advance()
-        }
-      })
-    }
-  }
 </script>
 
 <template>
-  <template v-if="skillz.active">
+  <template v-if="discovery.isActive.value">
     <DocsDiscoveryStep
-      v-for="step in skillz.active.steps"
+      v-for="step in discovery.steps.values()"
       :key="step.id"
-      :disabled="isDisabled(step)"
       :hint="step.hint"
-      :next-on="buildNextOn(step.next)"
       :placement="step.placement"
       :placement-mobile="step.placementMobile"
       :step="step.id"

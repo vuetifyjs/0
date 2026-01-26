@@ -24,10 +24,12 @@
   }>()
 
   const app = useAppStore()
-  const { focusTrigger } = useAsk()
+  const ask = useAsk()
 
-  watch(focusTrigger, () => {
-    nextTick(() => focus())
+  watch(ask.focusTrigger, () => {
+    if (!ask.isOpen.value) {
+      nextTick(() => focus())
+    }
   })
 
   const formRef = useTemplateRef<{ focus: () => void }>('form')
