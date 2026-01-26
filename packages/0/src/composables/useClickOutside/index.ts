@@ -26,7 +26,7 @@ import {
 } from '#v0/composables/useEventListener'
 
 // Utilities
-import { isNull, isNullOrUndefined, isString } from '#v0/utilities'
+import { isFunction, isNull, isNullOrUndefined, isString } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, toValue } from 'vue'
 
 // Transformers
@@ -193,7 +193,7 @@ export function useClickOutside (
     const sources = toArray(target)
     return sources
       .map(source => toValue(source))
-      .filter((el): el is HTMLElement => !isNullOrUndefined(el))
+      .filter((el): el is HTMLElement => !!el && isFunction(el.contains))
   }
 
   /**
@@ -263,6 +263,7 @@ export function useClickOutside (
     if (targets.length === 0) return false
 
     return targets.every(el => {
+      if (isNullOrUndefined(el) || !isFunction(el.contains)) return false
       return el !== eventTarget && !el.contains(eventTarget)
     })
   }
