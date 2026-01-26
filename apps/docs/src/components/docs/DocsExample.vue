@@ -7,7 +7,7 @@
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
-  import { computed, ref, useId, useSlots, useTemplateRef, watch } from 'vue'
+  import { computed, ref, shallowRef, toRef, useId, useSlots, useTemplateRef, watch } from 'vue'
 
   // Types
   import type DocsExampleCodePaneType from './DocsExampleCodePane.vue'
@@ -111,6 +111,15 @@
     return !!singleCodePane.value?.highlightedCode
   })
 
+  const hasLoadedOnce = shallowRef(false)
+  watch(hasHighlightedCode, val => {
+    if (val) hasLoadedOnce.value = true
+  })
+
+  const showSkeleton = toRef(() =>
+    showCode.value && hasMultipleFiles.value && !hasLoadedOnce.value,
+  )
+
   function toggleCode () {
     showCode.value = !showCode.value
   }
@@ -133,12 +142,11 @@
     <div class="border border-divider rounded-lg overflow-hidden">
       <!-- Description -->
       <DocsExampleDescription
+        v-if="hasDescription || title"
         :anchor-id="anchorId"
         :title="title"
       >
-        <template v-if="hasDescription">
-          <slot name="description" />
-        </template>
+        <slot name="description" />
       </DocsExampleDescription>
 
       <!-- Preview -->
@@ -180,98 +188,120 @@
         :title="title || fileName"
       />
 
-      <!-- Multi-file tabs -->
-      <Tabs.Root
-        v-if="showCode && hasMultipleFiles"
-        v-model="selectedTab"
-      >
-        <!-- Tab list with overflow -->
-        <div
-          ref="tabs-container"
-          class="flex items-center gap-1 px-3 py-3 bg-surface border-t border-divider min-h-12"
-        >
-          <template v-if="!combinedView">
-            <Tabs.List class="contents" label="Example files">
-              <Tabs.Item
-                v-for="(f, i) in resolvedFiles"
-                :key="f.name"
-                :ref="(el: unknown) => overflow.measure(i, (el as ComponentPublicInstance)?.$el)"
-                class="h-[30px] px-2 text-xs font-medium rounded whitespace-nowrap inline-flex items-center cursor-pointer"
-                :class="[
-                  i >= visibleCount ? 'invisible absolute' : '',
-                  f.name === selectedTab
-                    ? 'bg-primary text-on-primary border border-transparent'
-                    : 'bg-surface-tint border border-divider text-on-surface-tint hover:bg-surface-variant'
-                ]"
-                :value="f.name"
-              >
-                {{ f.name }}
-              </Tabs.Item>
-            </Tabs.List>
+      <!-- Multi-file skeleton -->
+      <div v-if="showSkeleton" class="border-t border-divider" role="status">
+        <span class="sr-only">Loading code...</span>
+        <!-- Fake tab bar -->
+        <div class="flex items-center gap-2 px-3 py-3 bg-surface border-b border-divider">
+          <div class="h-[30px] w-24 bg-surface-tint rounded animate-pulse" />
+          <div class="h-[30px] w-20 bg-surface-tint rounded animate-pulse" />
+          <div class="h-[30px] w-28 bg-surface-tint rounded animate-pulse" />
+        </div>
+        <!-- Fake code area -->
+        <div class="p-4 bg-pre flex flex-col gap-2">
+          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-1/4" />
+          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-3/4" />
+          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-1/2" />
+          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-2/3" />
+          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-1/3" />
+          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-4/5" />
+        </div>
+      </div>
 
-            <!-- Dropdown for hidden files -->
-            <select
-              v-if="hiddenFiles.length > 0"
-              aria-label="Additional files"
-              class="ml-1 h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded text-on-surface cursor-pointer"
-              :value="hiddenFiles.some(f => f.name === selectedTab) ? selectedTab : ''"
-              @change="selectedTab = ($event.target as HTMLSelectElement).value"
+      <!-- Multi-file tabs (invisible while skeleton shows, so code can load) -->
+      <div
+        v-if="showCode && hasMultipleFiles"
+        :class="showSkeleton && 'invisible h-0 overflow-hidden'"
+      >
+        <Tabs.Root v-model="selectedTab">
+          <!-- Tab list with overflow -->
+          <div
+            ref="tabs-container"
+            class="flex items-center gap-1 px-3 py-3 bg-surface border-t border-divider min-h-12"
+          >
+            <template v-if="!combinedView">
+              <Tabs.List class="contents" label="Example files">
+                <Tabs.Item
+                  v-for="(f, i) in resolvedFiles"
+                  :key="f.name"
+                  :ref="(el: unknown) => overflow.measure(i, (el as ComponentPublicInstance)?.$el)"
+                  class="h-[30px] px-2 text-xs font-medium rounded whitespace-nowrap inline-flex items-center cursor-pointer"
+                  :class="[
+                    i >= visibleCount ? 'invisible absolute' : '',
+                    f.name === selectedTab
+                      ? 'bg-primary text-on-primary border border-transparent'
+                      : 'bg-surface-tint border border-divider text-on-surface-tint hover:bg-surface-variant'
+                  ]"
+                  :value="f.name"
+                >
+                  {{ f.name }}
+                </Tabs.Item>
+              </Tabs.List>
+
+              <!-- Dropdown for hidden files -->
+              <select
+                v-if="hiddenFiles.length > 0"
+                aria-label="Additional files"
+                class="ml-1 h-[30px] px-2 text-xs font-medium bg-surface-tint border border-divider rounded text-on-surface cursor-pointer"
+                :value="hiddenFiles.some(f => f.name === selectedTab) ? selectedTab : ''"
+                @change="selectedTab = ($event.target as HTMLSelectElement).value"
+              >
+                <option disabled value="">+{{ hiddenFiles.length }} more</option>
+                <option v-for="f in hiddenFiles" :key="f.name" :value="f.name">
+                  {{ f.name }}
+                </option>
+              </select>
+            </template>
+
+            <span
+              v-else
+              class="px-2 py-1 text-xs font-medium inline-flex items-center line-height-relaxed text-on-surface-variant opacity-60 border border-transparent"
             >
-              <option disabled value="">+{{ hiddenFiles.length }} more</option>
-              <option v-for="f in hiddenFiles" :key="f.name" :value="f.name">
-                {{ f.name }}
-              </option>
-            </select>
+              All files
+            </span>
+
+            <button
+              class="ml-auto size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+              :title="combinedView ? 'Split files' : 'Combine files'"
+              type="button"
+              @click="combinedView = !combinedView"
+            >
+              <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
+            </button>
+          </div>
+
+          <!-- Tabbed panels (single file view) -->
+          <template v-if="!combinedView">
+            <Tabs.Panel
+              v-for="f in resolvedFiles"
+              :key="f.name"
+              :value="f.name"
+            >
+              <DocsExampleCodePane
+                :ref="(el: unknown) => setCodePaneRef(f.name, el)"
+                :code="f.code"
+                :file-name="f.name"
+                :language="f.language || f.name.split('.').pop() || 'text'"
+                :title="f.name"
+              />
+            </Tabs.Panel>
           </template>
 
-          <span
-            v-else
-            class="px-2 py-1 text-xs font-medium inline-flex items-center line-height-relaxed text-on-surface-variant opacity-60 border border-transparent"
-          >
-            All files
-          </span>
-
-          <button
-            class="ml-auto size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-            :title="combinedView ? 'Split files' : 'Combine files'"
-            type="button"
-            @click="combinedView = !combinedView"
-          >
-            <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
-          </button>
-        </div>
-
-        <!-- Tabbed panels (single file view) -->
-        <template v-if="!combinedView">
-          <Tabs.Panel
-            v-for="f in resolvedFiles"
-            :key="f.name"
-            :value="f.name"
-          >
+          <!-- Combined view (all files stacked) -->
+          <template v-else>
             <DocsExampleCodePane
+              v-for="f in resolvedFiles"
+              :key="f.name"
               :ref="(el: unknown) => setCodePaneRef(f.name, el)"
               :code="f.code"
               :file-name="f.name"
               :language="f.language || f.name.split('.').pop() || 'text'"
+              :show-playground="false"
               :title="f.name"
             />
-          </Tabs.Panel>
-        </template>
-
-        <!-- Combined view (all files stacked) -->
-        <template v-else>
-          <DocsExampleCodePane
-            v-for="f in resolvedFiles"
-            :key="f.name"
-            :ref="(el: unknown) => setCodePaneRef(f.name, el)"
-            :code="f.code"
-            :file-name="f.name"
-            :language="f.language || f.name.split('.').pop() || 'text'"
-            :show-playground="false"
-            :title="f.name"
-          />
-        </template>
-      </Tabs.Root>
+          </template>
+        </Tabs.Root>
+      </div>
     </div>
 
     <!-- Peek expand button -->
