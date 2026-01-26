@@ -24,7 +24,31 @@ Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/g
 
 ## Quick Start
 
-### Claude Code (Recommended)
+### Vuetify CLI (Recommended)
+
+Add MCP to existing projects with the [Vuetify CLI](/guide/tooling/vuetify-cli):
+
+::: code-group
+
+```bash pnpm no-filename
+pnpm dlx @vuetify/cli add mcp
+```
+
+```bash npm no-filename
+npx @vuetify/cli add mcp
+```
+
+```bash yarn no-filename
+yarn dlx @vuetify/cli add mcp
+```
+
+```bash bun no-filename
+bunx @vuetify/cli add mcp
+```
+
+:::
+
+### Claude Code
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) is Anthropic's agentic coding tool. Add the hosted MCP server directly via CLI:
 
@@ -38,7 +62,7 @@ Auto-detects your IDE and configures MCP automatically:
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 # Hosted server (recommended)
 pnpm dlx @vuetify/mcp config --remote
 
@@ -46,7 +70,7 @@ pnpm dlx @vuetify/mcp config --remote
 pnpm dlx @vuetify/mcp config
 ```
 
-```bash npm
+```bash npm no-filename
 # Hosted server (recommended)
 npx -y @vuetify/mcp config --remote
 
@@ -54,7 +78,7 @@ npx -y @vuetify/mcp config --remote
 npx -y @vuetify/mcp config
 ```
 
-```bash yarn
+```bash yarn no-filename
 # Hosted server (recommended)
 yarn dlx @vuetify/mcp config --remote
 
@@ -62,7 +86,7 @@ yarn dlx @vuetify/mcp config --remote
 yarn dlx @vuetify/mcp config
 ```
 
-```bash bun
+```bash bun no-filename
 # Hosted server (recommended)
 bunx @vuetify/mcp config --remote
 
@@ -78,19 +102,19 @@ Run locally for offline access or custom configuration:
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 pnpm dlx @vuetify/mcp
 ```
 
-```bash npm
+```bash npm no-filename
 npx -y @vuetify/mcp
 ```
 
-```bash yarn
+```bash yarn no-filename
 yarn dlx @vuetify/mcp
 ```
 
-```bash bun
+```bash bun no-filename
 bunx @vuetify/mcp
 ```
 
@@ -109,9 +133,9 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 | Windsurf | `~/.config/Windsurf/User/mcp.json` |
 | Trae | `~/.config/Trae/User/mcp.json` |
 
-### Hosted Configuration
+::: code-group
 
-```json
+```json Hosted (Recommended) no-filename
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -121,9 +145,7 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 }
 ```
 
-### Local Configuration
-
-```json
+```json Local no-filename
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -133,6 +155,8 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
   }
 }
 ```
+
+:::
 
 ## Available Tools
 
@@ -153,9 +177,55 @@ When using AI to build headless components:
 
 ## Authentication
 
-[Vuetify Bins](https://vuetifyjs.com/features/bins/) require an API key from your Vuetify account:
+[Vuetify Bins](https://vuetifyjs.com/features/bins/) require an API key from your Vuetify account.
 
-```json
+### Vuetify CLI
+
+::: code-group
+
+```bash pnpm no-filename
+pnpm dlx @vuetify/cli add mcp --api-key your-api-key
+```
+
+```bash npm no-filename
+npx @vuetify/cli add mcp --api-key your-api-key
+```
+
+```bash yarn no-filename
+yarn dlx @vuetify/cli add mcp --api-key your-api-key
+```
+
+```bash bun no-filename
+bunx @vuetify/cli add mcp --api-key your-api-key
+```
+
+:::
+
+### Claude Code
+
+```bash
+claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp \
+  -e VUETIFY_API_KEY=your-api-key
+```
+
+### Manual Configuration
+
+::: code-group
+
+```json Hosted (recommended) no-filename
+{
+  "mcpServers": {
+    "vuetify-mcp": {
+      "url": "https://mcp.vuetifyjs.com/mcp",
+      "headers": {
+        "Authorization": "Bearer your-api-key"
+      }
+    }
+  }
+}
+```
+
+```json Local no-filename
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -169,25 +239,27 @@ When using AI to build headless components:
 }
 ```
 
+:::
+
 ## Self-Hosting
 
 Run an HTTP server for team or organization access:
 
 ::: code-group
 
-```bash pnpm
+```bash pnpm no-filename
 pnpm dlx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 
-```bash npm
+```bash npm no-filename
 npx -y @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 
-```bash yarn
+```bash yarn no-filename
 yarn dlx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 
-```bash bun
+```bash bun no-filename
 bunx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 
