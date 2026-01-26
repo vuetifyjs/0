@@ -12,7 +12,13 @@ import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
 // Local
 import { createApiTransformer, renderVueApiInlineCode } from './shiki-api-transformer'
 
-interface MarkdownToken { nesting: number }
+interface MarkdownToken {
+  nesting: number
+  info?: string
+  type?: string
+  content?: string
+  children?: MarkdownToken[]
+}
 
 // Constants
 import { EXTERNAL_LINK_SUFFIX } from '../src/constants/links'
@@ -59,6 +65,28 @@ export default async function MarkdownPlugin () {
         },
       })
 
+      // Example container: ::: example ... :::
+      // Lines starting with / are file paths, rest is markdown description
+      md.use(Container, 'example', {
+        render (tokens: MarkdownToken[], index: number, _options: unknown, env: Record<string, unknown>) {
+          if (tokens[index].nesting === 1) {
+            // Mark that we're entering an example container
+            env._inExample = true
+            env._exampleFilePaths = [] as string[]
+            return '' // Defer opening tag until we know the file path(s)
+          }
+
+          // Closing tag - only emit if we actually opened the component
+          const wasOpened = env._exampleOpened
+          delete env._inExample
+          delete env._exampleFilePaths
+          delete env._exampleOpened
+          delete env._examplePathPara
+
+          return wasOpened ? `</template>\n</DocsExample>\n` : ''
+        },
+      })
+
       // FAQ container: ::: faq ... ::: or ::: faq single ... :::
       // Questions marked with ??? Question text
       md.use(Container, 'faq', {
@@ -75,12 +103,67 @@ export default async function MarkdownPlugin () {
         },
       })
 
+      // Handle headings inside example containers - emit opening tag before first content
+      const defaultHeadingOpen = md.renderer.rules.heading_open
+
+      md.renderer.rules.heading_open = (tokens, index, options, env, self) => {
+        // Inside example container, emit opening tag before first content (heading or paragraph)
+        if (env._inExample && (env._exampleFilePaths as string[])?.length > 0 && !env._exampleOpened) {
+          env._exampleOpened = true
+          const paths = env._exampleFilePaths as string[]
+          const defaultRender = defaultHeadingOpen
+            ? defaultHeadingOpen(tokens, index, options, env, self)
+            : self.renderToken(tokens, index, options)
+
+          if (paths.length === 1) {
+            return `<DocsExample file-path="${paths[0]}">\n<template #description>\n${defaultRender}`
+          } else {
+            const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
+            return `<DocsExample :file-paths="${pathsJson}">\n<template #description>\n${defaultRender}`
+          }
+        }
+
+        return defaultHeadingOpen
+          ? defaultHeadingOpen(tokens, index, options, env, self)
+          : self.renderToken(tokens, index, options)
+      }
+
       // Transform ??? lines into DocsFaqItem components
       const defaultParagraphOpen = md.renderer.rules.paragraph_open
       const defaultParagraphClose = md.renderer.rules.paragraph_close
 
       md.renderer.rules.paragraph_open = (tokens, index, options, env, self) => {
         const inlineToken = tokens[index + 1]
+
+        // Handle example container: lines starting with / are file paths
+        // Multiple paths may be in one paragraph separated by newlines
+        if (env._inExample && inlineToken?.type === 'inline' && inlineToken.content?.startsWith('/')) {
+          const lines = inlineToken.content.split('\n')
+          for (const line of lines) {
+            const trimmed = line.trim()
+            if (trimmed.startsWith('/') && trimmed.length > 1) {
+              ;(env._exampleFilePaths as string[]).push(trimmed.slice(1))
+            }
+          }
+          env._examplePathPara = true
+          inlineToken.content = ''
+          inlineToken.children = []
+          return '' // Don't emit anything yet, wait for all paths
+        }
+
+        // Handle example container: first non-path content, emit opening tag
+        if (env._inExample && (env._exampleFilePaths as string[]).length > 0 && !env._exampleOpened) {
+          env._exampleOpened = true
+          const paths = env._exampleFilePaths as string[]
+          if (paths.length === 1) {
+            return `<DocsExample file-path="${paths[0]}">\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+          } else {
+            const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
+            return `<DocsExample :file-paths="${pathsJson}">\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+          }
+        }
+
+        // Handle FAQ questions
         if (inlineToken?.type === 'inline' && inlineToken.content?.startsWith('??? ')) {
           const question = inlineToken.content.slice(4).trim()
           // Close previous FAQ item if one is open
@@ -97,6 +180,13 @@ export default async function MarkdownPlugin () {
       }
 
       md.renderer.rules.paragraph_close = (tokens, index, options, env, self) => {
+        // Skip closing tag for example file path paragraph
+        if (env._examplePathPara) {
+          delete env._examplePathPara
+          return ''
+        }
+
+        // Skip closing tag for FAQ question paragraph
         if (env._faqQuestionPara) {
           delete env._faqQuestionPara
           return ''
