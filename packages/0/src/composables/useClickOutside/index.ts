@@ -193,7 +193,7 @@ export function useClickOutside (
     const sources = toArray(target)
     return sources
       .map(source => toValue(source))
-      .filter((el): el is HTMLElement => !isNullOrUndefined(el))
+      .filter((el): el is HTMLElement => !!el && isFunction(el.contains))
   }
 
   /**

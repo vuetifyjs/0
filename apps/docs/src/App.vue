@@ -65,11 +65,8 @@
     <router-view />
   </main>
 
-  <!-- API hover popovers for code blocks -->
+  <!-- API hover popovers for code blocks (v0 and Vue APIs) -->
   <DocsApiHover />
-
-  <!-- Vue documentation links for code blocks -->
-  <DocsVueLink />
 
   <!-- Discovery overlay -->
   <DocsHighlight />
@@ -283,8 +280,14 @@
       margin-bottom: 0.5rem;
     }
 
-    .shiki, .shiki span {
+    .shiki {
+      overflow: hidden;
+    }
+
+    .shiki code {
+      display: block;
       overflow-x: auto;
+      padding: 0.5rem 1rem;
     }
 
     table {
@@ -317,22 +320,91 @@
     }
   }
 
-  /* DocsMarkup code block padding */
-  .docs-markup pre {
-    padding-top: 2.5rem;
+  /* DocsMarkup code block styling */
+  .docs-markup .shiki {
+    padding-top: 2rem;
+  }
+
+  .docs-markup .shiki code {
     padding-bottom: 1rem;
   }
 
   @media (max-width: 768px) {
-    .docs-markup pre {
+    .docs-markup .shiki code {
       padding-right: 5rem;
     }
   }
 
-  /* DocsMarkup line wrap toggle */
-  .docs-markup--wrap pre code {
+  .docs-markup--wrap .shiki code {
     white-space: pre-wrap;
     word-break: break-word;
+  }
+
+  /* DocsExample code block styling */
+  .docs-example-code .shiki {
+    border: none;
+    border-top: thin solid var(--v0-divider);
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+
+  .docs-example-code .shiki code {
+    padding-right: 5rem;
+    line-height: 1.625;
+  }
+
+  .docs-example-code--expanded .shiki {
+    padding-top: 2rem;
+  }
+
+  .docs-example-code--wrap .shiki code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* DocsCodeGroup code block styling */
+  .docs-code-group .shiki {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  /* DocsApiCard code block styling */
+  .docs-api-card .shiki {
+    border: none;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .docs-api-card .shiki code {
+    padding: 1rem;
+    padding-right: 5rem;
+    line-height: 1.625;
+  }
+
+  .docs-api-card--wrap .shiki code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* DocsReleases code block styling */
+  .docs-releases pre {
+    background-color: var(--v0-pre);
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+  }
+
+  .docs-releases code {
+    background-color: var(--v0-surface-tint);
+    padding: 0 0.25rem;
+    border-radius: 0.25rem;
+  }
+
+  .docs-releases pre code {
+    background-color: transparent;
+    padding: 0;
   }
 
   /* Shiki theme switching */
@@ -342,7 +414,6 @@
     background-color: var(--shiki-light-bg);
     border: thin solid var(--v0-divider);
     border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
   }
 
   /* Focus indicator for keyboard scrolling (inset to avoid clipping by overflow-hidden parent) */

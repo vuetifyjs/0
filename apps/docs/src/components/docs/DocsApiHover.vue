@@ -7,6 +7,8 @@
    *
    * The Shiki transformer marks potential API references at build time.
    * This component validates them against the actual API data client-side.
+   *
+   * Vue API content is lazily loaded only when a Vue API is first hovered.
    */
   import apiData from 'virtual:api'
 
@@ -20,6 +22,10 @@
 
   // Types
   import type { Api, ComponentApi, ComposableApi } from '@build/generate-api'
+  import type { VueApiEntry } from '@build/vue-api-content'
+
+  // Extended API type to include Vue APIs
+  type ExtendedApi = Api | VueApiEntry
 
   const router = useRouter()
 
@@ -46,9 +52,25 @@
   const componentNames = new Set(Object.keys(apiData.components))
   const composableNames = new Set(Object.keys(apiData.composables))
 
+  // Lazy-loaded Vue API content (cached after first load)
+  let vueApiContent: Record<string, VueApiEntry> | null = null
+  let vueApiPromise: Promise<Record<string, VueApiEntry>> | null = null
+
+  async function getVueApiContent (): Promise<Record<string, VueApiEntry>> {
+    if (vueApiContent) return vueApiContent
+    if (!vueApiPromise) {
+      vueApiPromise = import('@build/vue-api-content').then(m => {
+        vueApiContent = m.VUE_API_CONTENT
+        return vueApiContent
+      })
+    }
+    return vueApiPromise
+  }
+
   // Current hover state
   const activeTarget = shallowRef<HTMLElement | null>(null)
-  const activeApi = shallowRef<Api | null>(null)
+  const activeApi = shallowRef<ExtendedApi | null>(null)
+  const activeApiType = shallowRef<'component' | 'composable' | 'vue' | null>(null)
   const displayName = shallowRef<string>('')
   const _popoverRef = useTemplateRef<HTMLDivElement>('popover')
   const isVisible = ref(false)
@@ -63,7 +85,7 @@
   const position = ref({ top: 0, left: 0 })
   const flipBelow = shallowRef(false)
 
-  function showPopover (target: HTMLElement) {
+  async function showPopover (target: HTMLElement) {
     if (!IN_BROWSER) return
 
     // Cancel any pending hide
@@ -72,7 +94,7 @@
       hideTimeout = null
     }
 
-    const apiType = target.dataset.apiType
+    const apiType = target.dataset.apiType as 'component' | 'composable' | 'vue' | undefined
     const candidate = target.dataset.apiCandidate
     // Use apiName for lookup (handles plugin->composable mapping)
     const apiName = target.dataset.apiName || candidate
@@ -80,16 +102,36 @@
 
     // Reset state
     activeApi.value = null
+    activeApiType.value = null
     displayName.value = candidate
 
-    if (apiType === 'component') {
-      // Component names come as "Popover.Root" format
-      // API data uses same format, so direct lookup
-      if (!componentNames.has(apiName)) return
-      activeApi.value = apiData.components[apiName]
-    } else if (apiType === 'composable') {
-      if (!composableNames.has(apiName)) return
-      activeApi.value = apiData.composables[apiName]
+    switch (apiType) {
+      case 'component': {
+        // Component names come as "Popover.Root" format
+        // API data uses same format, so direct lookup
+        if (!componentNames.has(apiName)) return
+        activeApi.value = apiData.components[apiName]
+        activeApiType.value = 'component'
+
+        break
+      }
+      case 'composable': {
+        if (!composableNames.has(apiName)) return
+        activeApi.value = apiData.composables[apiName]
+        activeApiType.value = 'composable'
+
+        break
+      }
+      case 'vue': {
+        // Lazy load Vue API content
+        const vueContent = await getVueApiContent()
+        if (!vueContent[apiName]) return
+        activeApi.value = vueContent[apiName]
+        activeApiType.value = 'vue'
+
+        break
+      }
+    // No default
     }
 
     if (!activeApi.value) return
@@ -142,6 +184,7 @@
     isVisible.value = false
     activeTarget.value = null
     activeApi.value = null
+    activeApiType.value = null
   }
 
   function scheduleHide () {
@@ -206,13 +249,17 @@
   useDocumentEventListener('mouseenter', onMouseEnter, { capture: true })
   useDocumentEventListener('mouseleave', onMouseLeave, { capture: true })
 
-  // Component-specific computed
+  // Type-specific computed
   const componentApi = computed(() =>
-    activeApi.value?.kind === 'component' ? activeApi.value as ComponentApi : null,
+    activeApiType.value === 'component' ? activeApi.value as ComponentApi : null,
   )
 
   const composableApi = computed(() =>
-    activeApi.value?.kind === 'composable' ? activeApi.value as ComposableApi : null,
+    activeApiType.value === 'composable' ? activeApi.value as ComposableApi : null,
+  )
+
+  const vueApi = computed(() =>
+    activeApiType.value === 'vue' ? activeApi.value as VueApiEntry : null,
   )
 
   const displayProps = computed(() => componentApi.value?.props || [])
@@ -232,10 +279,15 @@
   const apiLink = computed(() => {
     if (!activeApi.value) return null
 
-    if (activeApi.value.kind === 'component') {
+    // Vue APIs link to external Vue documentation
+    if (activeApiType.value === 'vue') {
+      return (activeApi.value as VueApiEntry).href
+    }
+
+    if (activeApiType.value === 'component') {
       // Component names are "Namespace.Part" (e.g., "Popover.Root")
       // Link to /api/namespace#namespace-part
-      const name = activeApi.value.name
+      const name = (activeApi.value as ComponentApi).name
       const dotIndex = name.indexOf('.')
       if (dotIndex !== -1) {
         const namespace = name.slice(0, dotIndex)
@@ -246,14 +298,22 @@
     }
 
     // Composable
-    return `/api/${toKebab(activeApi.value.name)}`
+    return `/api/${toKebab((activeApi.value as ComposableApi).name)}`
   })
+
+  // Whether the link is external (Vue docs) or internal (v0 API page)
+  const isExternalLink = computed(() => activeApiType.value === 'vue')
 
   function navigateToApi () {
     const link = apiLink.value
     if (!link) return
     hidePopover()
-    router.push(link)
+
+    if (isExternalLink.value) {
+      window.open(link, '_blank', 'noopener,noreferrer')
+    } else {
+      router.push(link)
+    }
   }
 </script>
 
@@ -271,137 +331,167 @@
         }"
         @mouseleave="onPopoverMouseLeave"
       >
-        <!-- API view (component or composable) -->
         <!-- Header -->
         <div class="popover-header">
           <span class="popover-name">{{ displayName }}</span>
-          <span class="popover-kind">{{ activeApi.kind }}</span>
+          <span v-if="vueApi" class="popover-kind popover-kind-vue">{{ vueApi.category }}</span>
+          <span v-else class="popover-kind" :class="`popover-kind-${activeApiType}`">{{ (activeApi as Api).kind }}</span>
+          <button aria-label="Close" class="popover-close" type="button" @click.stop="hidePopover">
+            <svg
+              fill="none"
+              height="14"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="14"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        <!-- Description -->
-        <p v-if="activeApi.description" class="popover-description">
-          {{ activeApi.description }}
-        </p>
-
-        <!-- Scrollable content -->
-        <div class="popover-content">
-          <!-- Component API -->
-          <template v-if="componentApi">
-            <div v-if="displayProps.length > 0" class="popover-section">
-              <span class="popover-section-title">Props</span>
-              <ul class="popover-list">
-                <li v-for="prop in displayProps" :key="prop.name">
-                  <div class="popover-item-header">
-                    <span class="popover-item-name">{{ prop.name }}</span>
-                    <code class="popover-type">{{ prop.type }}</code>
-                    <code v-if="prop.default" class="popover-default">{{ prop.default }}</code>
-                  </div>
-                  <p v-if="prop.description" class="popover-item-description">
-                    {{ prop.description }}
-                  </p>
-                </li>
-              </ul>
+        <!-- Vue API content -->
+        <template v-if="vueApi">
+          <p class="popover-description">{{ vueApi.summary }}</p>
+          <div class="popover-content">
+            <div class="popover-vue-section">
+              <span class="popover-vue-label">When to use</span>
+              <p>{{ vueApi.usage }}</p>
             </div>
-
-            <div v-if="displayEvents.length > 0" class="popover-section">
-              <span class="popover-section-title">Events</span>
-              <ul class="popover-list">
-                <li v-for="event in displayEvents" :key="event.name">
-                  <div class="popover-item-header">
-                    <span class="popover-item-name">{{ event.name }}</span>
-                    <code class="popover-type">{{ event.type }}</code>
-                  </div>
-                  <p v-if="event.description" class="popover-item-description">
-                    {{ event.description }}
-                  </p>
-                </li>
-              </ul>
+            <div class="popover-vue-section">
+              <span class="popover-vue-label">Signature</span>
+              <code class="popover-signature">{{ vueApi.signature }}</code>
             </div>
+          </div>
+        </template>
 
-            <div v-if="displaySlots.length > 0" class="popover-section">
-              <span class="popover-section-title">Slots</span>
-              <ul class="popover-list">
-                <li v-for="slot in displaySlots" :key="slot.name">
-                  <div class="popover-item-header">
-                    <span class="popover-item-name">{{ slot.name }}</span>
-                    <code v-if="slot.type" class="popover-type">{{ slot.type }}</code>
-                  </div>
-                  <p v-if="slot.description" class="popover-item-description">
-                    {{ slot.description }}
-                  </p>
-                </li>
-              </ul>
-            </div>
-          </template>
+        <!-- v0 API content (component or composable) -->
+        <template v-else>
+          <!-- Description -->
+          <p v-if="(activeApi as Api).description" class="popover-description">
+            {{ (activeApi as Api).description }}
+          </p>
 
-          <!-- Composable API -->
-          <template v-if="composableApi">
-            <div v-if="displayFunctions.length > 0" class="popover-section">
-              <span class="popover-section-title">Functions</span>
-              <ul class="popover-list">
-                <li v-for="fn in displayFunctions" :key="fn.name">
-                  <div class="popover-item-header">
-                    <span class="popover-item-name">{{ fn.name }}</span>
-                  </div>
-                  <code v-if="fn.signature" class="popover-signature">{{ fn.signature }}</code>
-                  <p v-if="fn.description" class="popover-item-description">
-                    {{ fn.description }}
-                  </p>
-                </li>
-              </ul>
-            </div>
+          <!-- Scrollable content -->
+          <div class="popover-content">
+            <!-- Component API -->
+            <template v-if="componentApi">
+              <div v-if="displayProps.length > 0" class="popover-section">
+                <span class="popover-section-title">Props</span>
+                <ul class="popover-list">
+                  <li v-for="prop in displayProps" :key="prop.name">
+                    <div class="popover-item-header">
+                      <span class="popover-item-name">{{ prop.name }}</span>
+                      <code class="popover-type">{{ prop.type }}</code>
+                      <code v-if="prop.default" class="popover-default">{{ prop.default }}</code>
+                    </div>
+                    <p v-if="prop.description" class="popover-item-description">
+                      {{ prop.description }}
+                    </p>
+                  </li>
+                </ul>
+              </div>
 
-            <div v-if="displayOptions.length > 0" class="popover-section">
-              <span class="popover-section-title">Options</span>
-              <ul class="popover-list">
-                <li v-for="opt in displayOptions" :key="opt.name">
-                  <div class="popover-item-header">
-                    <span class="popover-item-name">{{ opt.name }}</span>
-                    <code class="popover-type">{{ opt.type }}</code>
-                    <code v-if="opt.default" class="popover-default">{{ opt.default }}</code>
-                  </div>
-                  <p v-if="opt.description" class="popover-item-description">
-                    {{ opt.description }}
-                  </p>
-                </li>
-              </ul>
-            </div>
+              <div v-if="displayEvents.length > 0" class="popover-section">
+                <span class="popover-section-title">Events</span>
+                <ul class="popover-list">
+                  <li v-for="event in displayEvents" :key="event.name">
+                    <div class="popover-item-header">
+                      <span class="popover-item-name">{{ event.name }}</span>
+                      <code class="popover-type">{{ event.type }}</code>
+                    </div>
+                    <p v-if="event.description" class="popover-item-description">
+                      {{ event.description }}
+                    </p>
+                  </li>
+                </ul>
+              </div>
 
-            <div v-if="displayProperties.length > 0" class="popover-section">
-              <span class="popover-section-title">Properties</span>
-              <ul class="popover-list">
-                <li v-for="prop in displayProperties" :key="prop.name">
-                  <div class="popover-item-header">
-                    <span class="popover-item-name">{{ prop.name }}</span>
-                    <code class="popover-type">{{ prop.type }}</code>
-                  </div>
-                  <p v-if="prop.description" class="popover-item-description">
-                    {{ prop.description }}
-                  </p>
-                </li>
-              </ul>
-            </div>
+              <div v-if="displaySlots.length > 0" class="popover-section">
+                <span class="popover-section-title">Slots</span>
+                <ul class="popover-list">
+                  <li v-for="slot in displaySlots" :key="slot.name">
+                    <div class="popover-item-header">
+                      <span class="popover-item-name">{{ slot.name }}</span>
+                      <code v-if="slot.type" class="popover-type">{{ slot.type }}</code>
+                    </div>
+                    <p v-if="slot.description" class="popover-item-description">
+                      {{ slot.description }}
+                    </p>
+                  </li>
+                </ul>
+              </div>
+            </template>
 
-            <div v-if="displayMethods.length > 0" class="popover-section">
-              <span class="popover-section-title">Methods</span>
-              <ul class="popover-list">
-                <li v-for="method in displayMethods" :key="method.name">
-                  <div class="popover-item-header">
-                    <span class="popover-item-name">{{ method.name }}</span>
-                    <code class="popover-type">{{ method.type }}</code>
-                  </div>
-                  <p v-if="method.description" class="popover-item-description">
-                    {{ method.description }}
-                  </p>
-                </li>
-              </ul>
-            </div>
-          </template>
-        </div>
+            <!-- Composable API -->
+            <template v-if="composableApi">
+              <div v-if="displayFunctions.length > 0" class="popover-section">
+                <span class="popover-section-title">Functions</span>
+                <ul class="popover-list">
+                  <li v-for="fn in displayFunctions" :key="fn.name">
+                    <div class="popover-item-header">
+                      <span class="popover-item-name">{{ fn.name }}</span>
+                    </div>
+                    <code v-if="fn.signature" class="popover-signature">{{ fn.signature }}</code>
+                    <p v-if="fn.description" class="popover-item-description">
+                      {{ fn.description }}
+                    </p>
+                  </li>
+                </ul>
+              </div>
+
+              <div v-if="displayOptions.length > 0" class="popover-section">
+                <span class="popover-section-title">Options</span>
+                <ul class="popover-list">
+                  <li v-for="opt in displayOptions" :key="opt.name">
+                    <div class="popover-item-header">
+                      <span class="popover-item-name">{{ opt.name }}</span>
+                      <code class="popover-type">{{ opt.type }}</code>
+                      <code v-if="opt.default" class="popover-default">{{ opt.default }}</code>
+                    </div>
+                    <p v-if="opt.description" class="popover-item-description">
+                      {{ opt.description }}
+                    </p>
+                  </li>
+                </ul>
+              </div>
+
+              <div v-if="displayProperties.length > 0" class="popover-section">
+                <span class="popover-section-title">Properties</span>
+                <ul class="popover-list">
+                  <li v-for="prop in displayProperties" :key="prop.name">
+                    <div class="popover-item-header">
+                      <span class="popover-item-name">{{ prop.name }}</span>
+                      <code class="popover-type">{{ prop.type }}</code>
+                    </div>
+                    <p v-if="prop.description" class="popover-item-description">
+                      {{ prop.description }}
+                    </p>
+                  </li>
+                </ul>
+              </div>
+
+              <div v-if="displayMethods.length > 0" class="popover-section">
+                <span class="popover-section-title">Methods</span>
+                <ul class="popover-list">
+                  <li v-for="method in displayMethods" :key="method.name">
+                    <div class="popover-item-header">
+                      <span class="popover-item-name">{{ method.name }}</span>
+                      <code class="popover-type">{{ method.type }}</code>
+                    </div>
+                    <p v-if="method.description" class="popover-item-description">
+                      {{ method.description }}
+                    </p>
+                  </li>
+                </ul>
+              </div>
+            </template>
+          </div>
+        </template>
 
         <!-- Footer link -->
         <div class="popover-footer" @click.prevent.stop="navigateToApi">
-          View API →
+          {{ isExternalLink ? 'View Vue docs ↗' : 'View API →' }}
         </div>
       </div>
     </Transition>
@@ -444,7 +534,12 @@
 .popover-name {
   font-weight: 600;
   font-family: var(--v0-font-mono);
-  color: var(--v0-primary);
+  color: var(--v0-on-surface);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
 }
 
 .popover-kind {
@@ -457,6 +552,28 @@
   opacity: 0.7;
 }
 
+.popover-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: var(--v0-text-secondary);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.popover-close:hover {
+  opacity: 1;
+  background: var(--v0-surface-variant);
+}
+
 .popover-description {
   flex-shrink: 0;
   margin: 12px 0;
@@ -467,7 +584,7 @@
   flex: 1;
   overflow-y: auto;
   margin: 0 -12px;
-  padding: 0 12px;
+  padding: 0 12px 12px;
 }
 
 .popover-section {
@@ -564,6 +681,50 @@
   border-radius: 4px;
   overflow-x: auto;
   white-space: nowrap;
+}
+
+/* Vue API specific styles */
+.popover-kind-component {
+  background: var(--v0-primary);
+  color: var(--v0-on-primary);
+  opacity: 1;
+}
+
+.popover-kind-composable {
+  background: var(--v0-info);
+  color: var(--v0-on-info);
+  opacity: 1;
+}
+
+.popover-kind-vue {
+  background: #41b883;
+  color: #fff;
+  opacity: 1;
+}
+
+.popover-vue-section {
+  margin-bottom: 12px;
+}
+
+.popover-vue-section:last-child {
+  margin-bottom: 0;
+}
+
+.popover-vue-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--v0-primary);
+}
+
+.popover-vue-section p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--v0-on-surface);
 }
 
 .popover-footer {

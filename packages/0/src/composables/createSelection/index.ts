@@ -29,7 +29,7 @@ import { computed, shallowReactive, toRef, toValue } from 'vue'
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
+import type { MaybeRefOrGetter, App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
 
 /**
  * Input type for selection tickets - what users provide to register().
@@ -119,21 +119,21 @@ export interface SelectionContext<
 
 export interface SelectionOptions extends RegistryOptions {
   /** When true, the entire selection instance is disabled. */
-  disabled?: MaybeRef<boolean>
+  disabled?: MaybeRefOrGetter<boolean>
   /**
    * When true, newly registered items are automatically selected if not disabled.
    * Useful for pre-selecting items in multi-select scenarios.
    */
-  enroll?: boolean
+  enroll?: MaybeRefOrGetter<boolean>
   /**
    * Controls mandatory selection behavior:
    * - `false` (default): No mandatory selection enforcement
    * - `true`: Prevents deselecting the last selected item (user must always have one selected)
    * - `'force'`: Automatically selects the first non-disabled item on registration
    */
-  mandatory?: boolean | 'force'
+  mandatory?: MaybeRefOrGetter<boolean | 'force'>
   /** When true, treats the selection as an array */
-  multiple?: boolean
+  multiple?: MaybeRefOrGetter<boolean>
 }
 
 export interface SelectionContextOptions extends SelectionOptions {
@@ -239,7 +239,7 @@ export function createSelection<
   }
 
   function mandate () {
-    if (!mandatory || registry.size === 0 || selectedIds.size > 0) return
+    if (!toValue(mandatory) || registry.size === 0 || selectedIds.size > 0) return
 
     const ticket = seek('first')
 
@@ -252,13 +252,13 @@ export function createSelection<
     const item = registry.get(id)
     if (!item || toValue(item.disabled)) return
 
-    if (!multiple) selectedIds.clear()
+    if (!toValue(multiple)) selectedIds.clear()
     selectedIds.add(id)
   }
 
   function unselect (id: ID) {
     if (toValue(disabled)) return
-    if (mandatory && selectedIds.size === 1) return
+    if (toValue(mandatory) && selectedIds.size === 1) return
 
     selectedIds.delete(id)
   }
@@ -288,8 +288,8 @@ export function createSelection<
 
     const ticket = registry.register(item)
 
-    if (enroll && !toValue(disabled) && !toValue(item.disabled)) selectedIds.add(ticket.id)
-    if (mandatory === 'force') mandate()
+    if (toValue(enroll) && !toValue(disabled) && !toValue(item.disabled)) selectedIds.add(ticket.id)
+    if (toValue(mandatory) === 'force') mandate()
 
     return ticket
   }

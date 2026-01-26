@@ -131,7 +131,7 @@ build/
 
 | Component | Purpose |
 |-----------|---------|
-| `DocsAlert` | GitHub-style callouts (`> [!TIP]`, `> [!WARNING]`, `> [!ERROR]`, `> [!ASKAI]`) |
+| `DocsCallout` | GitHub-style callouts (`> [!TIP]`, `> [!WARNING]`, `> [!ERROR]`, `> [!ASKAI]`) |
 | `DocsExample` | Live examples from `examples/` with code |
 | `DocsMarkup` | Syntax-highlighted code blocks |
 | `DocsApi` | Auto-generated API tables with inline/links toggle |

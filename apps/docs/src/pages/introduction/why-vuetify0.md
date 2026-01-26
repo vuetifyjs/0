@@ -12,17 +12,16 @@ related:
   - /introduction/getting-started
   - /introduction/frequently-asked
   - /guide/fundamentals/composables
+logo: vzero
 ---
 
-# Why Vuetify0
-
-<DocsPageFeatures :frontmatter />
+# Why v0
 
 Choosing a UI foundation is one of the most consequential decisions in a Vue project. This guide compares v0 with other popular options to help you decide.
 
-Use the filter to show content matching your experience level: <AppSkillFilter />
+<DocsPageFeatures :frontmatter />
 
-## Why v0
+## Why Vuetify0
 
 Vuetify0 comes from the creators of [Vuetify](https://vuetifyjs.com)—the most popular Vue component framework with **40K+ GitHub stars**, **2M+ weekly downloads**, and **10+ years** of production use. This isn't a side project or experiment.
 

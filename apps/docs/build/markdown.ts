@@ -10,9 +10,15 @@ import Markdown from 'unplugin-vue-markdown/vite'
 import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki'
 
 // Local
-import { createApiTransformer, VUE_FUNCTIONS } from './shiki-api-transformer'
+import { createApiTransformer, renderVueApiInlineCode } from './shiki-api-transformer'
 
-interface MarkdownToken { nesting: number }
+interface MarkdownToken {
+  nesting: number
+  info?: string
+  type?: string
+  content?: string
+  children?: MarkdownToken[]
+}
 
 // Constants
 import { EXTERNAL_LINK_SUFFIX } from '../src/constants/links'
@@ -53,9 +59,34 @@ export default async function MarkdownPlugin () {
       })
       md.use(Container, 'code-group', {
         render (tokens: MarkdownToken[], index: number) {
-          return tokens[index].nesting === 1
-            ? '<DocsCodeGroup>\n'
-            : '</DocsCodeGroup>\n'
+          if (tokens[index].nesting === 1) {
+            const info = (tokens[index] as MarkdownToken & { info?: string }).info?.trim() || ''
+            const noFilename = info.includes('no-filename')
+            return noFilename ? '<DocsCodeGroup no-filename>\n' : '<DocsCodeGroup>\n'
+          }
+          return '</DocsCodeGroup>\n'
+        },
+      })
+
+      // Example container: ::: example ... :::
+      // Lines starting with / are file paths, rest is markdown description
+      md.use(Container, 'example', {
+        render (tokens: MarkdownToken[], index: number, _options: unknown, env: Record<string, unknown>) {
+          if (tokens[index].nesting === 1) {
+            // Mark that we're entering an example container
+            env._inExample = true
+            env._exampleFilePaths = [] as string[]
+            return '' // Defer opening tag until we know the file path(s)
+          }
+
+          // Closing tag - only emit if we actually opened the component
+          const wasOpened = env._exampleOpened
+          delete env._inExample
+          delete env._exampleFilePaths
+          delete env._exampleOpened
+          delete env._examplePathPara
+
+          return wasOpened ? `</template>\n</DocsExample>\n` : ''
         },
       })
 
@@ -75,12 +106,67 @@ export default async function MarkdownPlugin () {
         },
       })
 
+      // Handle headings inside example containers - emit opening tag before first content
+      const defaultHeadingOpen = md.renderer.rules.heading_open
+
+      md.renderer.rules.heading_open = (tokens, index, options, env, self) => {
+        // Inside example container, emit opening tag before first content (heading or paragraph)
+        if (env._inExample && (env._exampleFilePaths as string[])?.length > 0 && !env._exampleOpened) {
+          env._exampleOpened = true
+          const paths = env._exampleFilePaths as string[]
+          const defaultRender = defaultHeadingOpen
+            ? defaultHeadingOpen(tokens, index, options, env, self)
+            : self.renderToken(tokens, index, options)
+
+          if (paths.length === 1) {
+            return `<DocsExample file-path="${paths[0]}">\n<template #description>\n${defaultRender}`
+          } else {
+            const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
+            return `<DocsExample :file-paths="${pathsJson}">\n<template #description>\n${defaultRender}`
+          }
+        }
+
+        return defaultHeadingOpen
+          ? defaultHeadingOpen(tokens, index, options, env, self)
+          : self.renderToken(tokens, index, options)
+      }
+
       // Transform ??? lines into DocsFaqItem components
       const defaultParagraphOpen = md.renderer.rules.paragraph_open
       const defaultParagraphClose = md.renderer.rules.paragraph_close
 
       md.renderer.rules.paragraph_open = (tokens, index, options, env, self) => {
         const inlineToken = tokens[index + 1]
+
+        // Handle example container: lines starting with / are file paths
+        // Multiple paths may be in one paragraph separated by newlines
+        if (env._inExample && inlineToken?.type === 'inline' && inlineToken.content?.startsWith('/')) {
+          const lines = inlineToken.content.split('\n')
+          for (const line of lines) {
+            const trimmed = line.trim()
+            if (trimmed.startsWith('/') && trimmed.length > 1) {
+              ;(env._exampleFilePaths as string[]).push(trimmed.slice(1))
+            }
+          }
+          env._examplePathPara = true
+          inlineToken.content = ''
+          inlineToken.children = []
+          return '' // Don't emit anything yet, wait for all paths
+        }
+
+        // Handle example container: first non-path content, emit opening tag
+        if (env._inExample && (env._exampleFilePaths as string[]).length > 0 && !env._exampleOpened) {
+          env._exampleOpened = true
+          const paths = env._exampleFilePaths as string[]
+          if (paths.length === 1) {
+            return `<DocsExample file-path="${paths[0]}">\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+          } else {
+            const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
+            return `<DocsExample :file-paths="${pathsJson}">\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+          }
+        }
+
+        // Handle FAQ questions
         if (inlineToken?.type === 'inline' && inlineToken.content?.startsWith('??? ')) {
           const question = inlineToken.content.slice(4).trim()
           // Close previous FAQ item if one is open
@@ -97,6 +183,13 @@ export default async function MarkdownPlugin () {
       }
 
       md.renderer.rules.paragraph_close = (tokens, index, options, env, self) => {
+        // Skip closing tag for example file path paragraph
+        if (env._examplePathPara) {
+          delete env._examplePathPara
+          return ''
+        }
+
+        // Skip closing tag for FAQ question paragraph
         if (env._faqQuestionPara) {
           delete env._faqQuestionPara
           return ''
@@ -107,7 +200,7 @@ export default async function MarkdownPlugin () {
           : '</p>'
       }
 
-      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!ASKAI]
+      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!ASKAI], > [!DISCORD]
       const defaultBlockquoteOpen = md.renderer.rules.blockquote_open
       const defaultBlockquoteClose = md.renderer.rules.blockquote_close
 
@@ -115,7 +208,7 @@ export default async function MarkdownPlugin () {
         // Look ahead: blockquote_open -> paragraph_open -> inline
         const inlineToken = tokens[index + 2]
         if (inlineToken?.type === 'inline' && inlineToken.content) {
-          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI)\]\s*(.*)/)
+          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI|DISCORD)\]\s*(.*)/)
           if (match) {
             const type = match[1].toLowerCase()
             env._calloutType = type
@@ -125,7 +218,14 @@ export default async function MarkdownPlugin () {
               const question = match[2].trim()
               inlineToken.content = ''
               inlineToken.children = []
-              return `<DocsAlert type="${type}" question="${Buffer.from(question).toString('base64')}">`
+              return `<DocsCallout type="${type}" question="${Buffer.from(question).toString('base64')}">`
+            }
+
+            if (type === 'discord') {
+              // Discord callouts have auto-generated content
+              inlineToken.content = ''
+              inlineToken.children = []
+              return `<DocsCallout type="${type}">`
             }
 
             // For other types, strip the marker and keep content
@@ -140,7 +240,7 @@ export default async function MarkdownPlugin () {
               }
             }
 
-            return `<DocsAlert type="${type}">`
+            return `<DocsCallout type="${type}">`
           }
         }
 
@@ -152,7 +252,7 @@ export default async function MarkdownPlugin () {
       md.renderer.rules.blockquote_close = (tokens, index, options, env, self) => {
         if (env._calloutType) {
           delete env._calloutType
-          return '</DocsAlert>'
+          return '</DocsCallout>'
         }
 
         return defaultBlockquoteClose
@@ -160,19 +260,15 @@ export default async function MarkdownPlugin () {
           : '</blockquote>'
       }
 
-      // Inline code: link Vue built-in functions to Vue docs
+      // Inline code: mark Vue API references for hover popovers
       const defaultCodeInline = md.renderer.rules.code_inline
       md.renderer.rules.code_inline = (tokens, index, options, env, self) => {
         const token = tokens[index]
         const content = token.content
 
-        // Check if content is a Vue function
-        const vueHref = VUE_FUNCTIONS[content]
-        if (vueHref) {
-          const escaped = md.utils.escapeHtml(content)
-          const escapedHref = md.utils.escapeHtml(vueHref)
-          return `<code data-vue-href="${escapedHref}" title="Open Vue documentation">${escaped}</code>`
-        }
+        // Check if content is a Vue API
+        const vueCode = renderVueApiInlineCode(content, md.utils.escapeHtml)
+        if (vueCode) return vueCode
 
         // Default rendering for non-Vue inline code
         return defaultCodeInline

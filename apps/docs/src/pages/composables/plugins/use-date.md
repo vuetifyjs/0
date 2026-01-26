@@ -32,7 +32,7 @@ The `useDate` composable provides comprehensive date manipulation capabilities u
 
 The built-in `Vuetify0DateAdapter` requires the `@js-temporal/polyfill` package:
 
-::: code-group
+::: code-group no-filename
 
 ```bash pnpm
 pnpm add @js-temporal/polyfill

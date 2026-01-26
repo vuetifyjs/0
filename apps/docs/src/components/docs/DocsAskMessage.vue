@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import DocsAlert from './DocsAlert.vue'
+  import DocsCallout from './DocsCallout.vue'
   import DocsMarkup from './DocsMarkup.vue'
   import DocsMermaid from './DocsMermaid.vue'
 
@@ -104,7 +104,7 @@
       el.replaceWith(wrapper)
       mountedWrappers.add(wrapper)
 
-      const vnode = h(DocsAlert, { type }, {
+      const vnode = h(DocsCallout, { type }, {
         default: () => h('div', { innerHTML: content }),
       })
       vnode.appContext = appContext ?? null

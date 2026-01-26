@@ -38,7 +38,7 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
 
 The Popover component leverages the CSS Anchor Positioning API to create popovers, tooltips, and dropdown menus without JavaScript-based positioning. It provides v-model support for open/closed state management.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
   <BasicExample />
 </DocsExample>
 

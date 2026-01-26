@@ -24,18 +24,24 @@ The `createContext` factory function is at the heart of all functionality in Vue
 
 ## Usage
 
-```ts
+```ts collapse
 import { shallowRef } from 'vue'
 import { createContext } from '@vuetify/v0'
 import type { ShallowRef } from 'vue'
 
 interface MyContext {
   isDisabled: ShallowRef<boolean>
+  isSelected?: ShallowRef<boolean>
+  type: 'primary' | 'secondary' | 'tertiary'
 }
 
 const [useContext, provideContext] = createContext<MyContext>('namespace')
 
-provideContext({ isDisabled: shallowRef(false) })
+provideContext({
+  isDisabled: shallowRef(false) ,
+  isSelected: shallowRef(true),
+  type: 'primary',
+})
 
 export { useContext }
 ```
@@ -46,7 +52,7 @@ export { useContext }
 
 ```mermaid "Context Hierarchy"
 flowchart TD
-  createContext --> createTrinity
+  createContext:::primary --> createTrinity
   createContext --> createPlugin
   createTrinity --> createRegistry
   createTrinity --> createTokens
@@ -54,5 +60,43 @@ flowchart TD
   createSelection --> createSingle
   createSelection --> createGroup
 ```
+
+## Examples
+
+::: example
+/composables/create-context/context.ts
+/composables/create-context/NotificationProvider.vue
+/composables/create-context/NotificationConsumer.vue
+/composables/create-context/notifications.vue
+
+### Notification System
+
+This example demonstrates the provider/consumer pattern using `createContext`. The context acts as a contract between components that produce state and components that consume it.
+
+```mermaid "Provider/Consumer Data Flow"
+graph LR
+  A["context.ts"]:::info -->|"provideNotifications()"| B["NotificationProvider"]:::success
+  A -->|"useNotifications()"| C["NotificationConsumer"]:::warning
+  B -->|"wraps"| C
+```
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `context.ts` | Defines the `NotificationContext` interface and creates the typed `[useNotifications, provideNotifications]` tuple |
+| `NotificationProvider.vue` | Implements the context—creates reactive state and methods, then calls `provideNotifications()` |
+| `NotificationConsumer.vue` | Consumes the context via `useNotifications()` to display and interact with notifications |
+| `notifications.vue` | Entry point that composes Provider around Consumer |
+
+**Key patterns:**
+
+- Provider components are invisible wrappers that render only `<slot />`
+- Consumers import only from `context.ts`, never from the Provider
+- `shallowReactive` for arrays that mutate in place
+
+Click the buttons to add notifications. Click a notification to dismiss it.
+
+:::
 
 <DocsApi />

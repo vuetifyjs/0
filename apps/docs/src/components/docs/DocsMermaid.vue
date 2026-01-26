@@ -510,6 +510,36 @@
   }
 
   /* Semantic node classes (use with classDef in mermaid) */
+  .docs-mermaid .node.primary rect,
+  .docs-mermaid .node.primary polygon {
+    fill: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid .node.primary .nodeLabel {
+    fill: var(--v0-on-primary) !important;
+    color: var(--v0-on-primary) !important;
+  }
+
+  .docs-mermaid .node.secondary rect,
+  .docs-mermaid .node.secondary polygon {
+    fill: var(--v0-secondary) !important;
+  }
+
+  .docs-mermaid .node.secondary .nodeLabel {
+    fill: var(--v0-on-secondary) !important;
+    color: var(--v0-on-secondary) !important;
+  }
+
+  .docs-mermaid .node.accent rect,
+  .docs-mermaid .node.accent polygon {
+    fill: var(--v0-accent) !important;
+  }
+
+  .docs-mermaid .node.accent .nodeLabel {
+    fill: var(--v0-on-accent) !important;
+    color: var(--v0-on-accent) !important;
+  }
+
   .docs-mermaid .node.success rect,
   .docs-mermaid .node.success polygon {
     fill: var(--v0-success) !important;

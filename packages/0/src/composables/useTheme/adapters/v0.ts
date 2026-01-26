@@ -26,6 +26,7 @@ export interface Vuetify0ThemeOptions {
  */
 export class Vuetify0ThemeAdapter extends ThemeAdapter {
   cspNonce?: string
+  sheet?: CSSStyleSheet
 
   constructor (options: Vuetify0ThemeOptions = {}) {
     super(options.prefix ?? 'v0')
@@ -99,19 +100,10 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
   upsert (styles: string): void {
     if (!IN_BROWSER) return
 
-    const selector = this.stylesheetId.startsWith('#') ? this.stylesheetId : `#${this.stylesheetId}`
-    const id = this.stylesheetId.startsWith('#') ? this.stylesheetId.slice(1) : this.stylesheetId
-    let styleEl = document.querySelector(selector) as HTMLStyleElement | null
-
-    if (!styleEl) {
-      styleEl = document.createElement('style')
-      styleEl.id = id
-
-      if (this.cspNonce) styleEl.setAttribute('nonce', this.cspNonce)
-
-      document.head.append(styleEl)
+    if (!this.sheet) {
+      this.sheet = new CSSStyleSheet()
+      document.adoptedStyleSheets.push(this.sheet)
     }
-
-    styleEl.textContent = styles
+    this.sheet.replaceSync(styles)
   }
 }

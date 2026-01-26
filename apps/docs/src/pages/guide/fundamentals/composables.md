@@ -323,7 +323,7 @@ Minimal. Plugin installation runs once at app startup:
 flowchart LR
     A[app.use] --> B[provide to app root]
     B --> C[Component mounts]
-    C --> D[inject - O(1) lookup]
+    C --> D["inject - O(1) lookup"]
     D --> E[Cache reference]
 ```
 

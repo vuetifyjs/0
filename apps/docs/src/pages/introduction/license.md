@@ -32,7 +32,7 @@ The MIT License allows you to:
 
 ## Full License Text
 
-```txt LICENSE.md
+```txt LICENSE.md collapse
 The MIT License (MIT)
 
 Copyright (c) 2016-now Vuetify, LLC
@@ -58,6 +58,4 @@ THE SOFTWARE.
 
 View the [LICENSE.md](https://github.com/vuetifyjs/0/blob/master/packages/0/README.md) on GitHub.
 
-## Questions?
-
-If you have questions about licensing or using Vuetify0 in your project, feel free to ask in our [Discord community](https://community.vuetifyjs.com).
+> [!DISCORD]

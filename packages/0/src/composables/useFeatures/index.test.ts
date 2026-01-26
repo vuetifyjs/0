@@ -543,6 +543,91 @@ describe('createFeaturesPlugin', () => {
       expect(disposeMock).toHaveBeenCalled()
     })
   })
+
+  describe('with multiple adapters', () => {
+    it('should sync flags from multiple adapters', () => {
+      const adapter1: FeaturesAdapterInterface = {
+        setup: () => ({ 'feature-1': true }),
+      }
+      const adapter2: FeaturesAdapterInterface = {
+        setup: () => ({ 'feature-2': true }),
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.has('feature-1')).toBe(true)
+      expect(context.has('feature-2')).toBe(true)
+    })
+
+    it('should resolve conflicting flags (last one wins)', () => {
+      const adapter1: FeaturesAdapterInterface = {
+        setup: () => ({ 'feature-a': true }),
+      }
+      const adapter2: FeaturesAdapterInterface = {
+        setup: () => ({ 'feature-a': false }),
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+    })
+
+    it('should handle partial overlap', () => {
+      const adapter1: FeaturesAdapterInterface = {
+        setup: () => ({ f1: true, f2: true }),
+      }
+      const adapter2: FeaturesAdapterInterface = {
+        setup: () => ({ f2: false, f3: true }),
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('f1')).toBe(true)
+      expect(context.selectedIds.has('f2')).toBe(false)
+      expect(context.selectedIds.has('f3')).toBe(true)
+    })
+
+    it('should handle empty adapter list', () => {
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [] }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.size).toBe(0)
+    })
+
+    it('should dispose all adapters', () => {
+      const dispose1 = vi.fn()
+      const dispose2 = vi.fn()
+      const adapter1: FeaturesAdapterInterface = {
+        setup: () => ({}),
+        dispose: dispose1,
+      }
+      const adapter2: FeaturesAdapterInterface = {
+        setup: () => ({}),
+        dispose: dispose2,
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
+
+      expect(dispose1).toHaveBeenCalled()
+      expect(dispose2).toHaveBeenCalled()
+    })
+  })
 })
 
 describe('useFeatures', () => {

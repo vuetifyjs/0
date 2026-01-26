@@ -15,7 +15,7 @@
 
 // Utilities
 import { isFunction, isUndefined } from '#v0/utilities'
-import { onScopeDispose, toValue, watch } from 'vue'
+import { onScopeDispose, toRaw, toValue, watch } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -23,10 +23,10 @@ import { toArray } from '#v0/composables/toArray'
 // Types
 import type { SelectionContext, SelectionTicket } from '#v0/composables/createSelection'
 import type { ID } from '#v0/types'
-import type { Ref } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface ProxyModelOptions {
-  multiple?: boolean
+  multiple?: MaybeRefOrGetter<boolean>
   transformIn?: (val: unknown) => unknown
   transformOut?: (val: unknown) => unknown
 }
@@ -72,7 +72,7 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
 
   function transformOut (val: unknown[]) {
     if (isFunction(_transformOut)) return _transformOut(val)
-    return multiple ? val : val[0]
+    return toValue(multiple) ? val : val[0]
   }
 
   const modelAsArray = transformIn(model)
@@ -103,13 +103,13 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
     const targetIds = new Set<ID>()
 
     for (const value of transformIn(val)) {
-      const ids = registry.browse(value)
+      const ids = registry.browse(toRaw(value))
       if (ids) {
         for (const id of ids) targetIds.add(id)
       }
     }
 
-    if (multiple) {
+    if (toValue(multiple)) {
       for (const id of currentIds.difference(targetIds)) {
         registry.selectedIds.delete(id) /* v8 ignore -- edge case: deselection via model */
       }
@@ -124,7 +124,7 @@ export function useProxyModel<Z extends SelectionTicket = SelectionTicket> (
     }
 
     registryWatch.resume()
-  }, { flush: 'sync', deep: multiple })
+  }, { flush: 'sync', deep: toValue(multiple) })
 
   function onRegister (data: unknown) {
     const ticket = data as Z

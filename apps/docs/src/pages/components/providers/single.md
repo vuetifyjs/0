@@ -31,7 +31,7 @@ A headless component for managing single-selection with automatic deselection of
 
 The Single component is a specialization of Selection that enforces single-selection behavior. When an item is selected, any previously selected item is automatically deselected.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
+<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
   <BasicExample />
 </DocsExample>
 
