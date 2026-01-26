@@ -59,9 +59,12 @@ export default async function MarkdownPlugin () {
       })
       md.use(Container, 'code-group', {
         render (tokens: MarkdownToken[], index: number) {
-          return tokens[index].nesting === 1
-            ? '<DocsCodeGroup>\n'
-            : '</DocsCodeGroup>\n'
+          if (tokens[index].nesting === 1) {
+            const info = (tokens[index] as MarkdownToken & { info?: string }).info?.trim() || ''
+            const noFilename = info.includes('no-filename')
+            return noFilename ? '<DocsCodeGroup no-filename>\n' : '<DocsCodeGroup>\n'
+          }
+          return '</DocsCodeGroup>\n'
         },
       })
 

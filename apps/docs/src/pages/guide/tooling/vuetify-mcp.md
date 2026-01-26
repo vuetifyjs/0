@@ -28,21 +28,21 @@ Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/g
 
 Add MCP to existing projects with the [Vuetify CLI](/guide/tooling/vuetify-cli):
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm dlx @vuetify/cli add mcp
 ```
 
-```bash npm no-filename
+```bash npm
 npx @vuetify/cli add mcp
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/cli add mcp
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/cli add mcp
 ```
 
@@ -60,9 +60,9 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 
 Auto-detects your IDE and configures MCP automatically:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 # Hosted server (recommended)
 pnpm dlx @vuetify/mcp config --remote
 
@@ -70,7 +70,7 @@ pnpm dlx @vuetify/mcp config --remote
 pnpm dlx @vuetify/mcp config
 ```
 
-```bash npm no-filename
+```bash npm
 # Hosted server (recommended)
 npx -y @vuetify/mcp config --remote
 
@@ -78,7 +78,7 @@ npx -y @vuetify/mcp config --remote
 npx -y @vuetify/mcp config
 ```
 
-```bash yarn no-filename
+```bash yarn
 # Hosted server (recommended)
 yarn dlx @vuetify/mcp config --remote
 
@@ -86,7 +86,7 @@ yarn dlx @vuetify/mcp config --remote
 yarn dlx @vuetify/mcp config
 ```
 
-```bash bun no-filename
+```bash bun
 # Hosted server (recommended)
 bunx @vuetify/mcp config --remote
 
@@ -100,21 +100,21 @@ bunx @vuetify/mcp config
 
 Run locally for offline access or custom configuration:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm dlx @vuetify/mcp
 ```
 
-```bash npm no-filename
+```bash npm
 npx -y @vuetify/mcp
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/mcp
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/mcp
 ```
 
@@ -133,9 +133,9 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 | Windsurf | `~/.config/Windsurf/User/mcp.json` |
 | Trae | `~/.config/Trae/User/mcp.json` |
 
-::: code-group
+::: code-group no-filename
 
-```json Hosted (Recommended) no-filename
+```json Hosted (Recommended)
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -145,7 +145,7 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 }
 ```
 
-```json Local no-filename
+```json Local
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -181,21 +181,21 @@ When using AI to build headless components:
 
 ### Vuetify CLI
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm dlx @vuetify/cli add mcp --api-key your-api-key
 ```
 
-```bash npm no-filename
+```bash npm
 npx @vuetify/cli add mcp --api-key your-api-key
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/cli add mcp --api-key your-api-key
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/cli add mcp --api-key your-api-key
 ```
 
@@ -210,9 +210,9 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp \
 
 ### Manual Configuration
 
-::: code-group
+::: code-group no-filename
 
-```json Hosted (recommended) no-filename
+```json Hosted (recommended)
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -225,7 +225,7 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp \
 }
 ```
 
-```json Local no-filename
+```json Local
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -245,21 +245,21 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp \
 
 Run an HTTP server for team or organization access:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm dlx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 
-```bash npm no-filename
+```bash npm
 npx -y @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless
 ```
 

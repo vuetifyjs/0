@@ -50,7 +50,7 @@ When building a component framework, you're often reimplementing the same patter
 
 Use `vuetify0 create` to scaffold a new project with v0 pre-configured:
 
-::: code-group
+::: code-group no-filename
 
 ```bash pnpm
 pnpm create vuetify0
@@ -74,7 +74,7 @@ bun create vuetify0
 
 Add v0 to an existing Vue project:
 
-::: code-group
+::: code-group no-filename
 
 ```bash pnpm
 pnpm add @vuetify/v0

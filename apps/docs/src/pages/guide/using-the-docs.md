@@ -277,21 +277,21 @@ Some examples show multiple variants in tabbed code blocks:
 - Use `←` / `→` arrow keys when focused
 - Tab state is independent per code group
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm add @vuetify/v0
 ```
 
-```bash npm no-filename
+```bash npm
 npm install @vuetify/v0
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn add @vuetify/v0
 ```
 
-```bash bun no-filename
+```bash bun
 bun add @vuetify/v0
 ```
 

@@ -6,7 +6,11 @@
   import { useSettings, type PackageManager } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, toValue, useId, useSlots, type VNode, watch } from 'vue'
+  import { cloneVNode, computed, toValue, useId, useSlots, type VNode, watch } from 'vue'
+
+  const props = defineProps<{
+    noFilename?: boolean
+  }>()
 
   const PACKAGE_MANAGERS: PackageManager[] = ['pnpm', 'npm', 'yarn', 'bun']
 
@@ -25,7 +29,8 @@
       typeof node.type === 'object' || typeof node.type === 'function',
     )
     return componentNodes.map((node: VNode, index: number) => ({
-      node,
+      // Clone node with hideFilename prop if set on code-group
+      node: props.noFilename ? cloneVNode(node, { hideFilename: true }) : node,
       label: node.props?.title ?? `Tab ${index + 1}`,
       index,
     }))
