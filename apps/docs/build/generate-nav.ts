@@ -120,6 +120,14 @@ function toNavLink (p: PageInfo): NavItemLink {
   return link
 }
 
+function toStandaloneNavLink (name: string, to: string, frontmatter: Frontmatter): NavItemLink {
+  const link: NavItemLink = { name, to }
+  if (frontmatter.features?.level) link.level = frontmatter.features.level
+  if (frontmatter.features?.emphasized) link.emphasized = true
+  if (frontmatter.features?.devmode) link.devmode = true
+  return link
+}
+
 function createSubcategoryComparator (order: string[]) {
   return (a: [string, PageInfo[]], b: [string, PageInfo[]]) => {
     const aIdx = order.indexOf(a[0])
@@ -199,10 +207,8 @@ async function generateNav (): Promise<NavItem[]> {
     // Handle standalone pages
     if (STANDALONE[relPath]) {
       const { order, name } = STANDALONE[relPath]
-      standalonePages.push({
-        item: { name, to: getUrlPath(file) },
-        order,
-      })
+      const item = toStandaloneNavLink(name, getUrlPath(file), frontmatter)
+      standalonePages.push({ item, order })
       continue
     }
 

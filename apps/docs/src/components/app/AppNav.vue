@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, useClickOutside, useHydration, useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useClickOutside, useFeatures, useHydration, useWindowEventListener } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -21,8 +21,9 @@
   // Stores
   import { useAppStore } from '@/stores/app'
 
-  const { prefersReducedMotion, showBgGlass, devmode } = useSettings()
+  const { prefersReducedMotion, showBgGlass } = useSettings()
   const { isSettled } = useHydration()
+  const devmode = useFeatures().get('devmode')!
 
   const app = useAppStore()
   const { selectedLevels } = useLevelFilterContext()
@@ -41,7 +42,7 @@
       })
   }
 
-  const visibleNav = computed(() => devmode.value ? configuredNav.value : filterDevmode(configuredNav.value))
+  const visibleNav = computed(() => devmode.isSelected.value ? configuredNav.value : filterDevmode(configuredNav.value))
 
   // Provide nested nav context for collapsible sections
   const { provide: provideNavNested } = createNavNested(visibleNav)
@@ -191,6 +192,7 @@
           v-else-if="'to' in nav"
           :id="nav.to"
           class="px-4"
+          :devmode="nav.devmode"
           :emphasized="nav.emphasized"
           :name="nav.name"
           :to="nav.to"

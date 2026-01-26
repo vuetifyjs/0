@@ -82,8 +82,6 @@
 
     <!-- Content -->
     <div class="flex-1 overflow-y-auto p-4 space-y-4">
-      <AppSettingsTour v-if="devmode.isSelected.value" />
-
       <!-- Theme -->
       <AppSettingsTheme />
 
