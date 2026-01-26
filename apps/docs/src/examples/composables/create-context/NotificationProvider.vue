@@ -1,13 +1,17 @@
 <script setup lang="ts">
   import { shallowReactive } from 'vue'
 
-  import { provideNotifications } from './context'
+  import { provideNotifications, type Notification } from './context'
 
-  const notifications = shallowReactive<{ id: number, message: string, type: 'info' | 'success' | 'warning' | 'error' }[]>([])
+  const notifications = shallowReactive<Notification[]>([])
   let nextId = 0
 
-  function notify (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') {
-    notifications.push({ id: nextId++, message, type })
+  function notify (
+    title: string,
+    description?: string,
+    type: Notification['type'] = 'info',
+  ) {
+    notifications.push({ id: nextId++, title, description, type })
   }
 
   function dismiss (id: number) {

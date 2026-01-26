@@ -1,18 +1,16 @@
-// Framework
 import { createContext } from '@vuetify/v0'
-
-// Types
 import type { ShallowReactive } from 'vue'
 
 export interface Notification {
   id: number
-  message: string
+  title: string
+  description?: string
   type: 'info' | 'success' | 'warning' | 'error'
 }
 
 export interface NotificationContext {
   notifications: ShallowReactive<Notification[]>
-  notify: (message: string, type?: Notification['type']) => void
+  notify: (title: string, description?: string, type?: Notification['type']) => void
   dismiss: (id: number) => void
   clear: () => void
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { toRef } from 'vue'
 
-  import { useNotifications } from './context'
+  import { useNotifications, type Notification } from './context'
 
   const { notifications, notify, dismiss, clear } = useNotifications()
 
@@ -37,10 +37,10 @@
     ],
   }
 
-  function addRandom (type: 'info' | 'success' | 'warning' | 'error') {
+  function random (type: Notification['type']) {
     const list = messages[type]
-    const msg = list[Math.floor(Math.random() * list.length)]
-    notify(`${msg?.title}|${msg?.desc}`, type)
+    const msg = list[Math.floor(Math.random() * list.length)]!
+    notify(msg.title, msg.desc, type)
   }
 </script>
 
@@ -50,84 +50,69 @@
     <div class="flex justify-center gap-2">
       <button
         class="w-24 py-1.5 bg-info text-on-info rounded font-medium text-sm hover:opacity-90"
-        @click="addRandom('info')"
+        @click="random('info')"
       >
         + Info
       </button>
       <button
         class="w-24 py-1.5 bg-success text-on-success rounded font-medium text-sm hover:opacity-90"
-        @click="addRandom('success')"
+        @click="random('success')"
       >
         + Success
       </button>
       <button
         class="w-24 py-1.5 bg-warning text-on-warning rounded font-medium text-sm hover:opacity-90"
-        @click="addRandom('warning')"
+        @click="random('warning')"
       >
         + Warning
       </button>
       <button
         class="w-24 py-1.5 bg-error text-on-error rounded font-medium text-sm hover:opacity-90"
-        @click="addRandom('error')"
+        @click="random('error')"
       >
         + Error
       </button>
     </div>
 
-    <!-- Clear button -->
-    <div v-if="count > 0" class="flex justify-center">
-      <button
-        class="px-3 py-1.5 bg-surface-variant text-on-surface-variant rounded text-sm hover:opacity-80"
-        @click="clear"
-      >
-        Clear All ({{ count }})
-      </button>
-    </div>
-
     <!-- Notification display -->
     <div
-      class="flex flex-col gap-2 min-h-32 p-3 bg-surface-variant/30 rounded-lg border border-divider"
+      class="flex flex-col min-h-32 bg-surface-variant/30 rounded-lg border border-divider transition-colors"
       :class="count === 0 ? 'border-dashed' : ''"
     >
-      <TransitionGroup class="flex flex-col gap-2" name="notif" tag="div">
+      <!-- Header -->
+      <div v-if="count > 0" class="flex items-center justify-between px-3 py-2 text-xs text-on-surface-variant/60">
+        <span>{{ count }} notification{{ count > 1 ? 's' : '' }}</span>
+        <button
+          class="hover:text-on-surface-variant transition-colors"
+          @click="clear"
+        >
+          Clear
+        </button>
+      </div>
+
+      <!-- List -->
+      <div v-if="count > 0" class="flex flex-col gap-2 px-3 pb-3">
         <div
           v-for="n in notifications"
           :key="n.id"
-          class="flex items-start justify-between gap-4 px-3 py-2 border rounded cursor-pointer transition-all hover:opacity-80"
+          class="flex items-start justify-between gap-4 px-3 py-2 border rounded cursor-pointer hover:opacity-80"
           :class="styles[n.type]"
           @click="dismiss(n.id)"
         >
           <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-medium">{{ n.message.split('|')[0] }}</span>
-            <span class="text-xs opacity-70">{{ n.message.split('|')[1] }}</span>
+            <span class="text-sm font-medium">{{ n.title }}</span>
+            <span v-if="n.description" class="text-xs opacity-70">{{ n.description }}</span>
           </div>
           <span class="text-xs opacity-60 shrink-0">dismiss</span>
         </div>
-      </TransitionGroup>
+      </div>
 
-      <p
+      <div
         v-if="count === 0"
-        class="text-on-surface-variant text-sm opacity-50 text-center py-8"
+        class="flex-1 flex items-center justify-center text-on-surface-variant text-sm opacity-50"
       >
         No notifications. Click a button above to add one.
-      </p>
+      </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-  .notif-enter-active,
-  .notif-leave-active {
-    transition: all 0.2s ease;
-  }
-
-  .notif-enter-from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-
-  .notif-leave-to {
-    opacity: 0;
-    transform: translateX(10px);
-  }
-</style>
