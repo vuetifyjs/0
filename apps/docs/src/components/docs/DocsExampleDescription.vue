@@ -1,0 +1,96 @@
+<script setup lang="ts">
+  // Utilities
+  import { useScrollToAnchor } from '@/utilities/scroll'
+  import { ref, useSlots, computed } from 'vue'
+
+  defineProps<{
+    title?: string
+    anchorId?: string
+  }>()
+
+  const { scrollToAnchor } = useScrollToAnchor()
+
+  const slots = useSlots()
+  const hasContent = computed(() => !!slots.default)
+  const expanded = ref(false)
+</script>
+
+<template>
+  <div
+    v-if="title || hasContent"
+    class="relative px-5 py-4 border-b border-divider bg-surface-variant"
+    :class="hasContent && !expanded && 'pb-6'"
+  >
+    <h3
+      v-if="title"
+      :id="anchorId"
+      class="font-semibold text-lg m-0"
+    >
+      <a
+        v-if="anchorId"
+        class="header-anchor"
+        :href="`#${anchorId}`"
+        @click.prevent="scrollToAnchor(anchorId)"
+      >{{ title }}</a>
+      <template v-else>{{ title }}</template>
+    </h3>
+
+    <div
+      v-if="hasContent"
+      class="docs-example-description relative text-on-surface-variant"
+      :class="title && 'mt-1'"
+    >
+      <div
+        class="overflow-hidden transition-[max-height] duration-300"
+        :class="expanded ? 'max-h-none' : 'max-h-18'"
+      >
+        <slot />
+      </div>
+      <div
+        v-if="!expanded"
+        class="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-surface-variant to-transparent pointer-events-none"
+      />
+    </div>
+
+    <button
+      v-if="hasContent && !expanded"
+      aria-label="Expand description"
+      class="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+      type="button"
+      @click="expanded = true"
+    >
+      <span>Expand</span>
+      <AppIcon icon="down" :size="14" />
+    </button>
+
+    <button
+      v-if="hasContent && expanded"
+      aria-label="Collapse description"
+      class="absolute top-4 right-4 z-10 inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+      title="Collapse description"
+      type="button"
+      @click="expanded = false"
+    >
+      <AppIcon icon="fullscreen-exit" :size="16" />
+    </button>
+  </div>
+</template>
+
+<style scoped>
+  .docs-example-description :deep(p) {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .docs-example-description :deep(h3) {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+  }
+
+  .docs-example-description :deep(h4) {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+  }
+</style>
