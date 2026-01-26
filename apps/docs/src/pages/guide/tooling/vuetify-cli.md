@@ -33,21 +33,21 @@ The Vuetify CLI is a tooling ecosystem for scaffolding and managing Vuetify proj
 
 Create a new v0 project with the interactive wizard:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm create vuetify0
 ```
 
-```bash npm no-filename
+```bash npm
 npm create vuetify0
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn create vuetify0
 ```
 
-```bash bun no-filename
+```bash bun
 bun create vuetify0
 ```
 
@@ -55,39 +55,35 @@ bun create vuetify0
 
 ## Commands
 
-```mermaid
-flowchart LR
-  CLI["vuetify"]
-  CLI --> init["init"]
-  CLI --> add["add"]
-  CLI --> update["update"]
-  CLI --> docs["docs"]
-  CLI --> analyze["analyze"]
-  CLI --> upgrade["upgrade"]
-
-  add --> eslint["eslint"]
-  add --> mcp["mcp"]
-```
+| Command | Description |
+| - | - |
+| `vuetify init` | Initialize a new project |
+| `vuetify add eslint` | Add ESLint with Vuetify config |
+| `vuetify add mcp` | Add MCP server configuration |
+| `vuetify update` | Update Vuetify packages |
+| `vuetify docs` | Open version-specific documentation |
+| `vuetify analyze` | Scan codebase for usage patterns |
+| `vuetify upgrade` | Self-upgrade the CLI |
 
 ### init
 
 Initialize a new project (wrapper around `create-vuetify0`):
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm dlx @vuetify/cli init my-app
 ```
 
-```bash npm no-filename
+```bash npm
 npx @vuetify/cli init my-app
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/cli init my-app
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/cli init my-app
 ```
 
@@ -97,9 +93,9 @@ bunx @vuetify/cli init my-app
 
 Add integrations to existing projects:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 # Add ESLint with Vuetify config
 pnpm dlx @vuetify/cli add eslint
 
@@ -107,7 +103,7 @@ pnpm dlx @vuetify/cli add eslint
 pnpm dlx @vuetify/cli add mcp
 ```
 
-```bash npm no-filename
+```bash npm
 # Add ESLint with Vuetify config
 npx @vuetify/cli add eslint
 
@@ -115,7 +111,7 @@ npx @vuetify/cli add eslint
 npx @vuetify/cli add mcp
 ```
 
-```bash yarn no-filename
+```bash yarn
 # Add ESLint with Vuetify config
 yarn dlx @vuetify/cli add eslint
 
@@ -123,7 +119,7 @@ yarn dlx @vuetify/cli add eslint
 yarn dlx @vuetify/cli add mcp
 ```
 
-```bash bun no-filename
+```bash bun
 # Add ESLint with Vuetify config
 bunx @vuetify/cli add eslint
 
@@ -140,9 +136,9 @@ bunx @vuetify/cli add mcp
 
 Update all Vuetify packages to their latest versions:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 # Update to latest stable
 pnpm dlx @vuetify/cli update
 
@@ -150,17 +146,17 @@ pnpm dlx @vuetify/cli update
 pnpm dlx @vuetify/cli update --nightly
 ```
 
-```bash npm no-filename
+```bash npm
 npx @vuetify/cli update
 npx @vuetify/cli update --nightly
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/cli update
 yarn dlx @vuetify/cli update --nightly
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/cli update
 bunx @vuetify/cli update --nightly
 ```
@@ -179,21 +175,21 @@ The update command auto-detects and updates:
 
 Open version-specific Vuetify documentation:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm dlx @vuetify/cli docs
 ```
 
-```bash npm no-filename
+```bash npm
 npx @vuetify/cli docs
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/cli docs
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/cli docs
 ```
 
@@ -206,9 +202,9 @@ bunx @vuetify/cli docs
 
 Scan your codebase for Vuetify usage patterns:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 # Console output
 pnpm dlx @vuetify/cli analyze
 
@@ -216,17 +212,17 @@ pnpm dlx @vuetify/cli analyze
 pnpm dlx @vuetify/cli analyze --reporter json
 ```
 
-```bash npm no-filename
+```bash npm
 npx @vuetify/cli analyze
 npx @vuetify/cli analyze --reporter json
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/cli analyze
 yarn dlx @vuetify/cli analyze --reporter json
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/cli analyze
 bunx @vuetify/cli analyze --reporter json
 ```
@@ -245,21 +241,21 @@ The analyzer detects imports of:
 
 Self-upgrade the CLI to the latest version:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm dlx @vuetify/cli upgrade
 ```
 
-```bash npm no-filename
+```bash npm
 npx @vuetify/cli upgrade
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/cli upgrade
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/cli upgrade
 ```
 
@@ -269,28 +265,14 @@ bunx @vuetify/cli upgrade
 
 The interactive wizard guides you through project configuration:
 
-```mermaid
-flowchart TD
-  A[Project Name] --> B{Platform}
-  B --> C[Vue + Vite]
-  B --> D[Nuxt]
-  C --> E{CSS Framework}
-  D --> E
-  E --> F[UnoCSS]
-  E --> G[Tailwind]
-  E --> H[None]
-  F --> I{TypeScript?}
-  G --> I
-  H --> I
-  I --> J{Router}
-  J --> K[Vue Router]
-  J --> L[File-based]
-  J --> M[None]
-  K --> N[Features]
-  L --> N
-  M --> N
-  N --> O[Generate]
-```
+| Step | Options |
+| - | - |
+| Project Name | Your project directory name |
+| Platform | [Vue](https://vuejs.org) + [Vite](https://vite.dev), [Nuxt](https://nuxt.com) |
+| CSS Framework | [UnoCSS](https://unocss.dev), [Tailwind](https://tailwindcss.com), None |
+| TypeScript | Yes, No |
+| Router (Vue only) | [Vue Router](https://router.vuejs.org), File-based, None |
+| Features | ESLint, [Pinia](https://pinia.vuejs.org), [i18n](https://vue-i18n.intlify.dev), MCP, Nuxt Module |
 
 ### Platforms
 
@@ -329,9 +311,9 @@ flowchart TD
 
 For CI/CD pipelines and automation, pass arguments directly:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm create vuetify0 my-app \
   --platform vue \
   --css unocss \
@@ -342,7 +324,7 @@ pnpm create vuetify0 my-app \
   --install
 ```
 
-```bash npm no-filename
+```bash npm
 npm create vuetify0 my-app -- \
   --platform vue \
   --css unocss \
@@ -353,7 +335,7 @@ npm create vuetify0 my-app -- \
   --install
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn create vuetify0 my-app \
   --platform vue \
   --css unocss \
@@ -364,7 +346,7 @@ yarn create vuetify0 my-app \
   --install
 ```
 
-```bash bun no-filename
+```bash bun
 bun create vuetify0 my-app \
   --platform vue \
   --css unocss \
