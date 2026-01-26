@@ -18,8 +18,7 @@
 <template>
   <div
     v-if="title || hasContent"
-    class="relative px-5 py-4 border-b border-divider bg-surface-variant"
-    :class="hasContent && !expanded && 'pb-6'"
+    class="relative px-5 pt-4 border-b border-divider bg-surface-variant"
   >
     <h3
       v-if="title"
@@ -37,7 +36,7 @@
 
     <div
       v-if="hasContent"
-      class="docs-example-description relative text-on-surface-variant"
+      class="docs-example-description text-on-surface-variant"
       :class="title && 'mt-1'"
     >
       <div
@@ -46,11 +45,13 @@
       >
         <slot />
       </div>
-      <div
-        v-if="!expanded"
-        class="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-surface-variant to-transparent pointer-events-none"
-      />
     </div>
+
+    <!-- Fade gradient (positioned relative to outer container) -->
+    <div
+      v-if="hasContent && !expanded"
+      class="docs-description-fade absolute inset-x-0 bottom-0 h-16 pointer-events-none"
+    />
 
     <button
       v-if="hasContent && !expanded"
@@ -75,6 +76,13 @@
     </button>
   </div>
 </template>
+
+<style>
+  .docs-description-fade {
+    background: var(--v0-surface-variant);
+    mask: linear-gradient(transparent, var(--v0-primary));
+  }
+</style>
 
 <style scoped>
   .docs-example-description :deep(p) {
