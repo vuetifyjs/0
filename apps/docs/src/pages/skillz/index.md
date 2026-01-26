@@ -6,6 +6,7 @@ meta:
   - name: keywords
     content: vuetify0, tutorial, interactive, learning, skills, v0
 features:
+  devmode: true
   emphasized: true
   level: 1
   hideNavigator: true

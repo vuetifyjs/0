@@ -21,7 +21,7 @@
   // Stores
   import { useAppStore } from '@/stores/app'
 
-  const { prefersReducedMotion, showBgGlass } = useSettings()
+  const { prefersReducedMotion, showBgGlass, devmode } = useSettings()
   const { isSettled } = useHydration()
 
   const app = useAppStore()
@@ -29,8 +29,22 @@
   const { configuredNav, activeFeatures, clearFilter } = useNavConfigContext()
   const route = useRoute()
 
+  // Filter out devmode items when devmode setting is disabled
+  function filterDevmode (items: NavItem[]): NavItem[] {
+    return items
+      .filter(item => !('devmode' in item && item.devmode))
+      .map(item => {
+        if ('children' in item && item.children) {
+          return { ...item, children: filterDevmode(item.children) }
+        }
+        return item
+      })
+  }
+
+  const visibleNav = computed(() => devmode.value ? configuredNav.value : filterDevmode(configuredNav.value))
+
   // Provide nested nav context for collapsible sections
-  const { provide: provideNavNested } = createNavNested(configuredNav)
+  const { provide: provideNavNested } = createNavNested(visibleNav)
   provideNavNested()
 
   // Find a page by path in nav tree
@@ -63,7 +77,7 @@
 
   // Check if nav has real content (not just dividers)
   const hasNavContent = computed(() =>
-    configuredNav.value.some(item => !('divider' in item)),
+    visibleNav.value.some(item => !('divider' in item)),
   )
   const navRef = useTemplateRef<HTMLElement>('nav')
 
@@ -168,7 +182,7 @@
         </li>
       </template>
 
-      <template v-for="(nav, i) in configuredNav" :key="i">
+      <template v-for="(nav, i) in visibleNav" :key="i">
         <li v-if="'divider' in nav" class="px-4">
           <AppDivider />
         </li>

@@ -19,6 +19,7 @@ export interface NavItemLink {
   to: string
   level?: 1 | 2 | 3
   emphasized?: boolean
+  devmode?: boolean
   children?: NavItem[]
 }
 
@@ -41,6 +42,7 @@ interface PageInfo {
   hidden: boolean
   level?: 1 | 2 | 3
   emphasized?: boolean
+  devmode?: boolean
 }
 
 // Section configuration - defines structure and ordering
@@ -114,6 +116,7 @@ function toNavLink (p: PageInfo): NavItemLink {
   const link: NavItemLink = { name: p.name, to: p.urlPath }
   if (p.level) link.level = p.level
   if (p.emphasized) link.emphasized = p.emphasized
+  if (p.devmode) link.devmode = p.devmode
   return link
 }
 
@@ -176,6 +179,7 @@ function createPageInfo (relPath: string, file: string, name: string, frontmatte
     hidden: false,
     level: frontmatter.features?.level,
     emphasized: frontmatter.features?.emphasized,
+    devmode: frontmatter.features?.devmode,
   }
 }
 
