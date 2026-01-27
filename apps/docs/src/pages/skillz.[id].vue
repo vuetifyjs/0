@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useHead } from '@unhead/vue'
   import { definePage } from 'vue-router/auto'
 
   // Components
@@ -26,6 +27,15 @@
   const ask = useAsk()
   const router = useRouter()
   const tour = discovery.tours.get(params.value.id)
+
+  useHead({
+    title: () => tour ? `${tour.name} - Skillz` : 'Skill Not Found - Skillz',
+    meta: [
+      { key: 'description', name: 'description', content: () => tour?.description ?? 'The requested skill could not be found.' },
+      { key: 'og:title', property: 'og:title', content: () => tour ? `${tour.name} - Vuetify0 Skillz` : 'Skill Not Found' },
+      { key: 'og:description', property: 'og:description', content: () => tour?.description ?? 'The requested skill could not be found.' },
+    ],
+  })
 
   async function onClick (stepId?: string) {
     if (!tour) return
