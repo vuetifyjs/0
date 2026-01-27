@@ -44,9 +44,7 @@ The Group component is a specialization of Selection that enforces multi-selecti
 
 <template>
   <Group.Root>
-    <Group.Item value="apple" />
-
-    <Group.Item value="banana" />
+    <Group.Item />
   </Group.Root>
 </template>
 ```
