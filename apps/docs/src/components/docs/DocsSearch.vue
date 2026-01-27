@@ -38,14 +38,7 @@
     }
   })
 
-  watch(search.focusTrigger, async () => {
-    if (search.isOpen.value) {
-      await nextTick()
-      inputRef.value?.focus()
-    }
-  })
-
-  watch(search.selectedIndex, async () => {
+  watch(search.selection.index, async () => {
     await nextTick()
     const container = resultsRef.value
     const selected = container?.querySelector('[data-selected="true"]') as HTMLElement | null
@@ -55,22 +48,18 @@
   })
 
   function navigate (result?: SearchResult | SavedResult) {
-    const selected = result ?? search.getSelected()
+    const selected = result ?? search.selection.current()
     if (selected) {
       search.addRecent(selected)
-      search.query.value = ''
+      search.text.value = ''
       router.push(selected.path)
       search.close()
     }
   }
 
-  function toggleFavorite (e: Event, result: SearchResult | SavedResult) {
+  function toggleFavorite (e: Event, id: string) {
     e.stopPropagation()
-    if (search.isFavorite(result.id)) {
-      search.removeFavorite(result.id)
-    } else {
-      search.addFavorite(result)
-    }
+    search.favorite(id)
   }
 
   function dismissResult (e: Event, id: string) {
@@ -78,20 +67,15 @@
     search.dismiss(id)
   }
 
-  function handleRemoveRecent (e: Event, id: string) {
+  function handleRemove (e: Event, id: string) {
     e.stopPropagation()
-    search.removeRecent(id)
-  }
-
-  function handleRemoveFavorite (e: Event, id: string) {
-    e.stopPropagation()
-    search.removeFavorite(id)
+    search.remove(id)
   }
 
   async function askAbout (e: Event, result: SearchResult | SavedResult) {
     e.stopPropagation()
     search.addRecent(result)
-    search.query.value = ''
+    search.text.value = ''
     search.close()
     await router.push(result.path)
     ask.open()
@@ -121,31 +105,31 @@
   useDocumentEventListener('keydown', onKeydown)
 
   function onHover (index: number) {
-    search.selectedIndex.value = index
+    search.selection.index.value = index
   }
 
   function getFlatIndex (groupIndex: number, itemIndex: number): number {
     let flat = 0
     for (let g = 0; g < groupIndex; g++) {
-      flat += search.displayedResults.value[g]?.items.length ?? 0
+      flat += search.results.value[g]?.items.length ?? 0
     }
     return flat + itemIndex
   }
 
   /** Get the ID of the currently selected result for aria-activedescendant */
   function getActiveDescendantId (): string | undefined {
-    const count = search.query.value.trim()
-      ? search.displayedResults.value.reduce((sum, g) => sum + g.items.length, 0)
-      : search.favorites.value.length + search.recentSearches.value.length
+    const count = search.text.value.trim()
+      ? search.results.value.reduce((sum, g) => sum + g.items.length, 0)
+      : search.favorites.value.length + search.recents.value.length
 
-    if (count === 0 || search.selectedIndex.value < 0) return undefined
-    return `search-result-${search.selectedIndex.value}`
+    if (count === 0 || search.selection.index.value < 0) return undefined
+    return `search-result-${search.selection.index.value}`
   }
 
   /** Check if there are any results to show */
   function hasResults (): boolean {
-    if (search.query.value.trim()) {
-      return search.displayedResults.value.length > 0
+    if (search.text.value.trim()) {
+      return search.results.value.length > 0
     }
     return search.hasEmptyStateContent.value
   }
@@ -180,7 +164,7 @@
           />
           <input
             ref="input"
-            v-model="search.query.value"
+            v-model="search.text.value"
             :aria-activedescendant="getActiveDescendantId()"
             aria-autocomplete="list"
             aria-controls="search-listbox"
@@ -235,7 +219,7 @@
           </div>
 
           <!-- Empty query state: show favorites and recents -->
-          <template v-else-if="!search.query.value.trim()">
+          <template v-else-if="!search.text.value.trim()">
             <!-- Favorites section -->
             <div v-if="search.favorites.value.length > 0" aria-label="Favorites" role="group">
               <div class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50 flex items-center justify-between">
@@ -245,14 +229,14 @@
                 v-for="(result, itemIndex) in search.favorites.value"
                 :id="`search-result-${getEmptyStateIndex('favorites', itemIndex)}`"
                 :key="result.id"
-                :aria-selected="getEmptyStateIndex('favorites', itemIndex) === search.selectedIndex.value"
+                :aria-selected="getEmptyStateIndex('favorites', itemIndex) === search.selection.index.value"
                 :class="[
                   'group w-full px-4 py-2 flex items-center gap-3 text-left transition-colors cursor-pointer',
-                  getEmptyStateIndex('favorites', itemIndex) === search.selectedIndex.value
+                  getEmptyStateIndex('favorites', itemIndex) === search.selection.index.value
                     ? 'bg-primary/10 text-primary'
                     : 'hover:bg-surface-variant text-on-surface',
                 ]"
-                :data-selected="getEmptyStateIndex('favorites', itemIndex) === selectedIndex"
+                :data-selected="getEmptyStateIndex('favorites', itemIndex) === search.selection.index.value"
                 role="option"
                 tabindex="-1"
                 @click="navigate(result)"
@@ -273,9 +257,9 @@
                   role="button"
                   tabindex="0"
                   title="Remove from favorites"
-                  @click="handleRemoveFavorite($event, result.id)"
-                  @keydown.enter.stop="handleRemoveFavorite($event, result.id)"
-                  @keydown.space.stop.prevent="handleRemoveFavorite($event, result.id)"
+                  @click="handleRemove($event, result.id)"
+                  @keydown.enter.stop="handleRemove($event, result.id)"
+                  @keydown.space.stop.prevent="handleRemove($event, result.id)"
                 >
                   <AppIcon aria-hidden="true" icon="close" size="16" />
                 </span>
@@ -283,22 +267,22 @@
             </div>
 
             <!-- Recents section -->
-            <div v-if="search.recentSearches.value.length > 0" aria-label="Recent searches" role="group">
+            <div v-if="search.recents.value.length > 0" aria-label="Recent searches" role="group">
               <div class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50">
                 Recent
               </div>
               <div
-                v-for="(result, itemIndex) in search.recentSearches.value"
+                v-for="(result, itemIndex) in search.recents.value"
                 :id="`search-result-${getEmptyStateIndex('recents', itemIndex)}`"
                 :key="result.id"
-                :aria-selected="getEmptyStateIndex('recents', itemIndex) === search.selectedIndex.value"
+                :aria-selected="getEmptyStateIndex('recents', itemIndex) === search.selection.index.value"
                 :class="[
                   'group w-full px-4 py-2 flex items-center gap-3 text-left transition-colors cursor-pointer',
-                  getEmptyStateIndex('recents', itemIndex) === search.selectedIndex.value
+                  getEmptyStateIndex('recents', itemIndex) === search.selection.index.value
                     ? 'bg-primary/10 text-primary'
                     : 'hover:bg-surface-variant text-on-surface',
                 ]"
-                :data-selected="getEmptyStateIndex('recents', itemIndex) === selectedIndex"
+                :data-selected="getEmptyStateIndex('recents', itemIndex) === search.selection.index.value"
                 role="option"
                 tabindex="-1"
                 @click="navigate(result)"
@@ -321,9 +305,9 @@
                     role="button"
                     tabindex="0"
                     title="Add to favorites"
-                    @click="toggleFavorite($event, result)"
-                    @keydown.enter.stop="toggleFavorite($event, result)"
-                    @keydown.space.stop.prevent="toggleFavorite($event, result)"
+                    @click="toggleFavorite($event, result.id)"
+                    @keydown.enter.stop="toggleFavorite($event, result.id)"
+                    @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
                   >
                     <AppIcon aria-hidden="true" icon="star-outline" size="16" />
                   </span>
@@ -334,9 +318,9 @@
                     role="button"
                     tabindex="0"
                     title="Remove from recent"
-                    @click="handleRemoveRecent($event, result.id)"
-                    @keydown.enter.stop="handleRemoveRecent($event, result.id)"
-                    @keydown.space.stop.prevent="handleRemoveRecent($event, result.id)"
+                    @click="handleRemove($event, result.id)"
+                    @keydown.enter.stop="handleRemove($event, result.id)"
+                    @keydown.space.stop.prevent="handleRemove($event, result.id)"
                   >
                     <AppIcon aria-hidden="true" icon="close" size="16" />
                   </span>
@@ -356,17 +340,17 @@
 
           <!-- No results state -->
           <div
-            v-else-if="search.displayedResults.value.length === 0"
+            v-else-if="search.results.value.length === 0"
             class="px-4 py-8 text-center text-on-surface-variant"
             role="status"
           >
-            No results found for "{{ search.query.value }}"
+            No results found for "{{ search.text.value }}"
           </div>
 
           <!-- Search results -->
           <template v-else>
             <div
-              v-for="(group, groupIndex) in search.displayedResults.value"
+              v-for="(group, groupIndex) in search.results.value"
               :key="group.category"
               :aria-label="group.category"
               role="group"
@@ -378,14 +362,14 @@
                 v-for="(result, itemIndex) in group.items"
                 :id="`search-result-${getFlatIndex(groupIndex, itemIndex)}`"
                 :key="result.id"
-                :aria-selected="getFlatIndex(groupIndex, itemIndex) === search.selectedIndex.value"
+                :aria-selected="getFlatIndex(groupIndex, itemIndex) === search.selection.index.value"
                 :class="[
                   'group w-full px-4 py-2 flex items-center gap-2 text-left transition-colors cursor-pointer',
-                  getFlatIndex(groupIndex, itemIndex) === search.selectedIndex.value
+                  getFlatIndex(groupIndex, itemIndex) === search.selection.index.value
                     ? 'bg-primary/10 text-primary'
                     : 'hover:bg-surface-variant text-on-surface',
                 ]"
-                :data-selected="getFlatIndex(groupIndex, itemIndex) === selectedIndex"
+                :data-selected="getFlatIndex(groupIndex, itemIndex) === search.selection.index.value"
                 role="option"
                 tabindex="-1"
                 @click="navigate(result)"
@@ -411,9 +395,9 @@
                     role="button"
                     tabindex="0"
                     :title="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
-                    @click="toggleFavorite($event, result)"
-                    @keydown.enter.stop="toggleFavorite($event, result)"
-                    @keydown.space.stop.prevent="toggleFavorite($event, result)"
+                    @click="toggleFavorite($event, result.id)"
+                    @keydown.enter.stop="toggleFavorite($event, result.id)"
+                    @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
                   >
                     <AppIcon
                       aria-hidden="true"
