@@ -8,6 +8,7 @@
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
   import { useNavConfigContext } from '@/composables/useNavConfig'
+  import { useNavigation } from '@/composables/useNavigation'
   import { createNavNested } from '@/composables/useNavNested'
   import { useSettings } from '@/composables/useSettings'
 
@@ -26,6 +27,7 @@
   const devmode = useFeatures().get('devmode')!
 
   const app = useAppStore()
+  const navigation = useNavigation()
   const { selectedLevels } = useLevelFilterContext()
   const { configuredNav, activeFeatures, clearFilter } = useNavConfigContext()
   const route = useRoute()
@@ -116,16 +118,16 @@
   useClickOutside(
     () => navRef.value,
     () => {
-      if (app.drawer && isMobile.value) {
-        app.drawer = false
+      if (navigation.isOpen.value && isMobile.value) {
+        navigation.close()
       }
     },
     { ignore: ['[data-app-bar]'] },
   )
 
   watch(route, () => {
-    if (app.drawer && isMobile.value) {
-      app.drawer = false
+    if (navigation.isOpen.value && isMobile.value) {
+      navigation.close()
     }
   }, { immediate: true })
 </script>
@@ -141,10 +143,10 @@
     :class="[
       'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 translate-x-[-100%] md:translate-x-0 border-r border-solid border-divider z-10',
       showBgGlass ? 'bg-glass-surface' : 'bg-surface',
-      app.drawer && '!translate-x-0',
+      navigation.isOpen.value && '!translate-x-0',
       !prefersReducedMotion && 'transition-transform duration-200 ease-in-out',
     ]"
-    :inert="!app.drawer && isMobile ? true : undefined"
+    :inert="!navigation.isOpen.value && isMobile ? true : undefined"
     step="navigation"
   >
 

@@ -35,6 +35,7 @@
   const root = useDiscoveryRootContext('v0:discovery')
   const discovery = useDiscovery()
   const isReady = shallowRef(false)
+  const isDev = import.meta.env.DEV
 
   // Check for CSS Anchor Positioning support
   // Safari/iOS don't support anchor positioning - check for the specific property
@@ -153,6 +154,10 @@
         zIndex: 9999,
       }"
     >
+      <div v-if="isDev" class="font-mono text-xs text-on-surface-variant/50 mb-1">
+        {{ root.step }}
+      </div>
+
       <slot />
     </div>
   </Teleport>

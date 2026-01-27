@@ -6,6 +6,7 @@
   import { Discovery } from '@/components/discovery'
 
   // Composables
+  import { useNavigation } from '@/composables/useNavigation'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
@@ -16,12 +17,9 @@
   // Types
   import type { AtomProps } from '@vuetify/v0'
 
-  // Stores
-  import { useAppStore } from '@/stores/app'
-
   const { as = 'header' } = defineProps<AtomProps>()
 
-  const app = useAppStore()
+  const navigation = useNavigation()
   const storage = useStorage()
   const route = useRoute()
 
@@ -64,13 +62,13 @@
 
       <button
         v-if="!isHomePage"
-        :aria-expanded="app.drawer"
-        :aria-label="app.drawer ? 'Close navigation' : 'Open navigation'"
+        :aria-expanded="navigation.isOpen.value"
+        :aria-label="navigation.isOpen.value ? 'Close navigation' : 'Open navigation'"
         class="pa-1 cursor-pointer md:hidden bg-transparent border-0 inline-flex align-center"
         type="button"
-        @click="app.drawer = !app.drawer"
+        @click="navigation.toggle()"
       >
-        <AppIcon :icon="app.drawer ? 'close' : 'menu'" />
+        <AppIcon :icon="navigation.isOpen.value ? 'close' : 'menu'" />
       </button>
 
       <Discovery.Activator class="rounded-2xl" step="search">

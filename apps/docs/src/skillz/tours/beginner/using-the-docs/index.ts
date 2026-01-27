@@ -1,9 +1,11 @@
 // Types
 import type { UseAskReturn } from '@/composables/useAsk'
+import type { NavigationContext } from '@/composables/useNavigation'
 import type { SettingsContext } from '@/composables/useSettings'
 
 interface TourContext {
   ask: UseAskReturn
+  navigation: NavigationContext
   settings: SettingsContext
 }
 
@@ -11,10 +13,11 @@ interface TourContext {
  * Returns tour definition for registration by the store.
  * Guided mode: handlers set up UI state to show features, users just click next.
  */
-export function defineTour ({ ask, settings }: TourContext) {
+export function defineTour ({ ask, navigation, settings }: TourContext) {
   return {
     handlers: {
       'ask-ai': {
+        enter: () => ask.close(),
         leave: () => ask.close(),
         back: () => ask.close(),
       },
@@ -22,6 +25,7 @@ export function defineTour ({ ask, settings }: TourContext) {
         enter: () => ask.open(),
       },
       'ask-ai-features': {
+        enter: () => ask.open(),
         back: () => ask.open(),
       },
       'settings': {
@@ -30,15 +34,16 @@ export function defineTour ({ ask, settings }: TourContext) {
       },
       'skill-level': {
         enter: () => settings.open(),
+        back: () => settings.close(),
         leave: () => settings.close(),
       },
       'navigation': {
         enter: () => {
           settings.close()
-          // TODO: app().drawer = true - needs app store in context
+          navigation.open()
         },
-        leave: () => {
-          // TODO: app().drawer = false - needs app store in context
+        back: () => {
+          navigation.close()
         },
       },
     },

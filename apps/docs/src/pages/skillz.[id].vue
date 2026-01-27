@@ -8,6 +8,7 @@
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useDiscovery } from '@/composables/useDiscovery'
+  import { useNavigation } from '@/composables/useNavigation'
   import { useParams } from '@/composables/useRoute'
   import { useSettings } from '@/composables/useSettings'
 
@@ -25,6 +26,7 @@
   const params = useParams<{ id: string }>()
   const discovery = useDiscovery()
   const ask = useAsk()
+  const navigation = useNavigation()
   const router = useRouter()
   const tour = discovery.tours.get(params.value.id)
 
@@ -41,7 +43,7 @@
     if (!tour) return
 
     await router.push(tour.startRoute)
-    discovery.start(tour.id, { stepId, context: { ask, settings } })
+    discovery.start(tour.id, { stepId, context: { ask, navigation, settings } })
   }
 </script>
 

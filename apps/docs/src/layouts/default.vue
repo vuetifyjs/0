@@ -7,6 +7,7 @@
   import { useDiscovery } from '@/composables/useDiscovery'
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
+  import { useNavigation } from '@/composables/useNavigation'
   import { useScrollLock } from '@/composables/useScrollLock'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
@@ -32,6 +33,7 @@
   const breakpoints = useBreakpoints()
   const discovery = useDiscovery()
   const ask = useAsk()
+  const navigation = useNavigation()
   const { isOpen: isSearchOpen } = useSearch()
   const { isOpen: isSettingsOpen, close: closeSettings, prefersReducedMotion, forceReducedMotion } = useSettings()
 
@@ -50,7 +52,7 @@
     return false
   })
 
-  const isMobileNavOpen = toRef(() => app.drawer && !breakpoints.mdAndUp.value)
+  const isMobileNavOpen = toRef(() => navigation.isOpen.value && !breakpoints.mdAndUp.value)
 
   useScrollLock(isSettingsOpen)
   useScrollLock(isMobileNavOpen)
@@ -82,7 +84,7 @@
       <div
         v-if="isMobileNavOpen"
         class="fixed inset-0 bg-black/30 z-9"
-        @click="app.drawer = false"
+        @click="navigation.close()"
       />
     </Transition>
 

@@ -9,10 +9,7 @@
   import { useAsk } from '@/composables/useAsk'
 
   // Utilities
-  import { computed, onMounted, shallowRef, useTemplateRef, nextTick, watch } from 'vue'
-
-  // Stores
-  import { useAppStore } from '@/stores/app'
+  import { onMounted, shallowRef, useTemplateRef, nextTick, watch } from 'vue'
 
   const props = defineProps<{
     hasMessages?: boolean
@@ -23,7 +20,6 @@
     reopen: []
   }>()
 
-  const app = useAppStore()
   const ask = useAsk()
 
   watch(ask.focusTrigger, () => {
@@ -34,10 +30,6 @@
 
   const formRef = useTemplateRef<{ focus: () => void }>('form')
   const isNearBottom = shallowRef(false)
-  const isMobile = shallowRef(true)
-
-  // Hide when near bottom, or when drawer is open on mobile (< 768px)
-  const isHidden = computed(() => isNearBottom.value || (app.drawer && isMobile.value))
 
   function onSubmit (question: string) {
     emit('submit', question)
@@ -61,17 +53,10 @@
     isNearBottom.value = distanceFromBottom < 200
   }
 
-  function updateMobile () {
-    if (!IN_BROWSER) return
-    isMobile.value = window.innerWidth < 768
-  }
-
   useWindowEventListener('scroll', onScroll, { passive: true })
-  useWindowEventListener('resize', updateMobile, { passive: true })
 
   onMounted(() => {
     onScroll()
-    updateMobile()
   })
 
   defineExpose({ focus })
@@ -80,7 +65,7 @@
 <template>
   <Transition name="fade">
     <div
-      v-show="!isHidden"
+      v-show="!isNearBottom"
       class="fixed bottom-4 inset-x-0 mx-auto z-40 w-full max-w-sm px-4"
     >
       <Discovery.Activator class="rounded-2xl" step="ask-ai">
