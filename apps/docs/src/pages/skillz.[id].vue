@@ -27,11 +27,11 @@
   const router = useRouter()
   const tour = discovery.tours.get(params.value.id)
 
-  async function onClick () {
+  async function onClick (stepId?: string) {
     if (!tour) return
 
     await router.push(tour.startRoute)
-    discovery.start(tour.id, { ask, settings })
+    discovery.start(tour.id, { stepId, context: { ask, settings } })
   }
 </script>
 
@@ -85,7 +85,8 @@
             <li
               v-for="(step, index) in tour.steps"
               :key="index"
-              class="flex items-center gap-3 py-3 border-b border-divider last:border-b-0"
+              class="flex items-center gap-3 py-3 border-b border-divider last:border-b-0 cursor-pointer transition-colors hover:bg-surface-variant/50 -mx-2 px-2 rounded"
+              @click="onClick(step.id)"
             >
               <span
                 class="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded-full shrink-0 bg-surface-variant text-on-surface-variant"
@@ -100,7 +101,7 @@
           </ol>
           <button
             class="w-full px-6 py-2 md:py-3.5 text-base font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:not-disabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="onClick(tour.id)"
+            @click="onClick()"
           >
             Start Skill
           </button>

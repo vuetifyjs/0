@@ -53,6 +53,8 @@ export type DiscoveryTourStep = {
   learn: string
   placement?: 'top' | 'bottom' | 'left' | 'right' | 'auto'
   placementMobile?: 'top' | 'bottom' | 'left' | 'right' | 'auto'
+  /** Step has no activator element - hides highlight and skips activator polling */
+  noActivator?: boolean
 }
 
 export type DiscoveryTour = {
@@ -86,6 +88,7 @@ type StepHandlers = {
   enter?: StepHandler
   leave?: StepHandler
   back?: StepHandler
+  completed?: StepHandler
 }
 type HandlersMap = Partial<Record<ID, StepHandlers>>
 
@@ -113,7 +116,7 @@ export interface DiscoveryContext {
   selectedId: StepContext<DiscoveryStepTicket>['selectedId']
   total: number
 
-  start: (id: ID, context?: Record<string, unknown>) => Promise<void>
+  start: (id: ID, options?: { stepId?: ID, context?: Record<string, unknown> }) => Promise<void>
   stop: () => void
   complete: () => void
   reset: () => void
@@ -165,20 +168,26 @@ export function createDiscovery (): DiscoveryContext {
     handlers[ticket.id]?.back?.()
   }
 
+  function onCompleted (ticket: DiscoveryStepTicket) {
+    handlers[ticket.id]?.completed?.()
+  }
+
   function attachHandlers () {
     steps.on('enter', onEnter)
     steps.on('leave', onLeave)
     steps.on('back', onBack)
+    steps.on('completed', onCompleted)
   }
 
   function detachHandlers () {
     steps.off('enter', onEnter)
     steps.off('leave', onLeave)
     steps.off('back', onBack)
+    steps.off('completed', onCompleted)
     handlers = {}
   }
 
-  async function start (id: ID, context?: Record<string, unknown>) {
+  async function start (id: ID, options?: { stepId?: ID, context?: Record<string, unknown> }) {
     if (!IN_BROWSER || !tours.has(id) || isStarting) return
 
     isStarting = true
@@ -196,7 +205,7 @@ export function createDiscovery (): DiscoveryContext {
         try {
           const module = await globTourDefinitions[path]()
           if (module?.defineTour) {
-            const definition = module.defineTour(context)
+            const definition = module.defineTour(options?.context)
             handlers = definition.handlers ?? {}
           } else {
             console.error(`[v0:discovery] Tour definition for "${id}" missing defineTour export`)
@@ -213,7 +222,13 @@ export function createDiscovery (): DiscoveryContext {
       isComplete.value = false
 
       tour.select()
-      steps.first()
+
+      // Start at specific step if provided, otherwise first
+      if (options?.stepId && steps.has(options.stepId)) {
+        steps.select(options.stepId)
+      } else {
+        steps.first()
+      }
 
       // Emit enter for initial step
       const initial = steps.selectedItem.value
@@ -257,6 +272,7 @@ export function createDiscovery (): DiscoveryContext {
       }
     }
 
+    steps.emit('completed', current)
     steps.emit('leave', current)
     steps.next()
 
@@ -297,8 +313,9 @@ export function createDiscovery (): DiscoveryContext {
       }
     }
 
-    // Emit leave for current step if navigating away
+    // Emit completed and leave for current step if navigating away
     if (current && current.id !== id) {
+      steps.emit('completed', current)
       steps.emit('leave', current)
     }
 

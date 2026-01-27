@@ -107,6 +107,14 @@
 
       if (isActive) {
         isReady.value = false
+
+        // Skip polling for steps with no activator
+        const step = discovery.steps.get(root.step)
+        if (step?.noActivator) {
+          isReady.value = true
+          return
+        }
+
         const startTime = performance.now()
         const TIMEOUT_MS = 2000
 

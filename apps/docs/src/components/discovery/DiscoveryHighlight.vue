@@ -71,6 +71,13 @@
       return
     }
 
+    // Clear rect for steps with no activator (scrim still shows, just no cutout)
+    const step = discovery.steps.get(id)
+    if (step?.noActivator) {
+      if (rect.value !== null) rect.value = null
+      return
+    }
+
     const activator = discovery.activators.get(id)
     const el = toValue(activator?.element?.value ?? activator?.element)
     const r = el?.getBoundingClientRect()
@@ -142,7 +149,8 @@
 
   onBeforeUnmount(stopLoop)
 
-  const isVisible = toRef(() => discovery.isActive.value && rect.value !== null)
+  const isVisible = toRef(() => discovery.isActive.value)
+  const showCutout = toRef(() => rect.value !== null)
 
   // Clip-path that covers everything except the cutout (for blocking clicks)
   const clipPath = toRef(() => {
@@ -165,10 +173,10 @@
 
   <Teleport to="body">
     <Transition name="discovery-highlight">
-      <div v-if="isVisible && rect" class="fixed inset-0 z-9998 pointer-events-none">
+      <div v-if="isVisible" class="fixed inset-0 z-9998 pointer-events-none">
         <!-- Click-blocking layer for backdrop (when blocking is enabled) -->
         <div
-          v-if="blocking"
+          v-if="blocking && showCutout && rect"
           aria-hidden="true"
           class="absolute inset-0 pointer-events-auto cursor-default"
           :style="{ clipPath }"
@@ -176,7 +184,7 @@
 
         <!-- Click-blocking layer for activator (when blockActivator is enabled) -->
         <div
-          v-if="blockActivator"
+          v-if="blockActivator && showCutout && rect"
           aria-hidden="true"
           class="absolute pointer-events-auto cursor-default"
           :style="{
@@ -193,41 +201,51 @@
           aria-hidden="true"
           :class="['absolute inset-0 pointer-events-none w-screen h-screen', { 'smooth-tracking': !userPrefersReducedMotion }]"
         >
-          <defs>
-            <mask id="discovery-highlight-mask">
-              <!-- White background = visible -->
-              <rect fill="white" height="100%" width="100%" />
-              <!-- Black cutout = transparent -->
-              <rect
-                fill="black"
-                :height="rect.height"
-                :rx="borderRadius"
-                :ry="borderRadius"
-                :width="rect.width"
-                :x="rect.x"
-                :y="rect.y"
-              />
-            </mask>
-          </defs>
-          <!-- Backdrop with mask applied -->
+          <!-- With cutout mask -->
+          <template v-if="showCutout && rect">
+            <defs>
+              <mask id="discovery-highlight-mask">
+                <!-- White background = visible -->
+                <rect fill="white" height="100%" width="100%" />
+                <!-- Black cutout = transparent -->
+                <rect
+                  fill="black"
+                  :height="rect.height"
+                  :rx="borderRadius"
+                  :ry="borderRadius"
+                  :width="rect.width"
+                  :x="rect.x"
+                  :y="rect.y"
+                />
+              </mask>
+            </defs>
+            <!-- Backdrop with mask applied -->
+            <rect
+              :fill="`rgba(0, 0, 0, ${opacity})`"
+              height="100%"
+              mask="url(#discovery-highlight-mask)"
+              width="100%"
+            />
+            <!-- Border around the cutout -->
+            <rect
+              class="stroke-primary"
+              fill="none"
+              :height="rect.height"
+              :rx="borderRadius"
+              :ry="borderRadius"
+              stroke-width="2"
+              :width="rect.width"
+              :x="rect.x"
+              :y="rect.y"
+            />
+          </template>
+
+          <!-- Full scrim without cutout (for noActivator steps) -->
           <rect
+            v-else
             :fill="`rgba(0, 0, 0, ${opacity})`"
             height="100%"
-            mask="url(#discovery-highlight-mask)"
             width="100%"
-          />
-
-          <!-- Border around the cutout -->
-          <rect
-            class="stroke-primary"
-            fill="none"
-            :height="rect.height"
-            :rx="borderRadius"
-            :ry="borderRadius"
-            stroke-width="2"
-            :width="rect.width"
-            :x="rect.x"
-            :y="rect.y"
           />
         </svg>
       </div>
