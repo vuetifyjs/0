@@ -7,7 +7,8 @@ import { useRoute } from 'vue-router'
 
 // Types
 import type { NavItem, NavItemCategory, NavItemLink } from '@/stores/app'
-import type { ID, NestedContext, NestedRegistration, NestedTicket } from '@vuetify/v0'
+import type { NestedContext, NestedRegistration, NestedTicket } from '@vuetify/v0'
+import type { ID } from '@vuetify/v0/types'
 import type { MaybeRefOrGetter } from 'vue'
 
 // =============================================================================
