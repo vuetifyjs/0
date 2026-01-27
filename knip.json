@@ -30,7 +30,8 @@
         "src/examples/guide/building-frameworks/my-ui/vite.config.ts",
         "src/components/app/AppBrowserIcon.vue",
         "src/components/docs/DocsBrowserSupport.vue",
-        "src/skillz/tours/**/index.ts"
+        "src/skillz/tours/**/index.ts",
+        "src/stores/skillz.ts"
       ],
       "paths": {
         "@/*": [

@@ -1,22 +1,11 @@
 <script setup lang="ts">
-  // Framework
-  import { useBreakpoints, useDocumentEventListener } from '@vuetify/v0'
-
   // Components
   import DocsDiscoveryStep from '@/components/docs/DocsDiscoveryStep.vue'
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
-  // Types
-  import type { SkillStep } from '@/types/skill'
-
-  // Stores
-  import { useSkillzStore } from '@/stores/skillz'
-
-  const skillz = useSkillzStore()
-  const discovery = useDiscovery ()
-  const { smAndDown } = useBreakpoints()
+  const discovery = useDiscovery()
 </script>
 
 <template>

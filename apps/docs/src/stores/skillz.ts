@@ -12,7 +12,7 @@ export const useSkillzStore = defineStore('skillz', () => {
     //
   }
 
-  async function start (id: string) {
+  async function start (_id: string) {
     console.log(discovery)
   }
 
