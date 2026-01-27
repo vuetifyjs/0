@@ -69,9 +69,9 @@ export const themes = {
       'on-primary': '#1a1a1a',
       'on-secondary': '#ffffff',
       'on-accent': '#ffffff',
-      'on-error': '#ffffff',
-      'on-info': '#ffffff',
-      'on-success': '#ffffff',
+      'on-error': '#1a1a1a',
+      'on-info': '#1a1a1a',
+      'on-success': '#1a1a1a',
       'on-warning': '#1a1a1a',
       'on-background': '#e0e0e0',
       'on-surface': '#e0e0e0',
@@ -250,13 +250,13 @@ export const themes = {
 /**
  * Get all theme configs for createThemePlugin.
  */
-export function getAllThemeConfigs () {
-  return Object.fromEntries(
-    Object.entries(themes).map(([id, theme]) => [
-      id,
-      { dark: theme.dark, colors: theme.colors },
-    ]),
-  ) as Record<ThemeId, { dark: boolean, colors: Record<string, string> }>
+export function getAllThemeConfigs (): Record<ThemeId, { dark: boolean, colors: Record<string, string> }> {
+  const result = {} as Record<ThemeId, { dark: boolean, colors: Record<string, string> }>
+  for (const id of Object.keys(themes) as ThemeId[]) {
+    const theme = themes[id]
+    result[id] = { dark: theme.dark, colors: { ...theme.colors } }
+  }
+  return result
 }
 
 /**
