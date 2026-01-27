@@ -11,12 +11,12 @@
     }
   }>()
 
-  const { isDark } = useThemeToggle()
+  const toggle = useThemeToggle()
 
   const logo = toRef(() => props.frontmatter?.logo)
   const src = toRef(() => {
     if (!logo.value) return null
-    const variant = isDark.value ? 'dark' : 'light'
+    const variant = toggle.isDark.value ? 'dark' : 'light'
     return `https://cdn.vuetifyjs.com/docs/images/one/logos/${logo.value}-logo-${variant}.svg`
   })
 </script>

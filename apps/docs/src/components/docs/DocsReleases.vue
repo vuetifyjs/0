@@ -51,9 +51,9 @@
   const route = useRoute()
   const router = useRouter()
   const store = useReleasesStore()
-  const { adapter } = useDate()
-  const { copied: copiedLink, copy: copyLink } = useClipboard()
-  const { copied: copiedMarkdown, copy: copyMarkdown } = useClipboard()
+  const date = useDate()
+  const linkClipboard = useClipboard()
+  const markdownClipboard = useClipboard()
 
   const model = shallowRef<Release>()
   const search = shallowRef('')
@@ -81,8 +81,8 @@
   const publishedOn = computed(() => {
     if (!model.value?.published_at) return undefined
 
-    const date = adapter.date(model.value.published_at)
-    return date ? adapter.format(date, 'fullDateWithWeekday') : undefined
+    const d = date.adapter.date(model.value.published_at)
+    return d ? date.adapter.format(d, 'fullDateWithWeekday') : undefined
   })
 
   const renderedBody = computed(() => {
@@ -111,12 +111,12 @@
 
   async function copyReleaseLink () {
     if (!model.value || !IN_BROWSER) return
-    await copyLink(`${window.location.origin}/releases/?version=${model.value.tag_name}`)
+    await linkClipboard.copy(`${window.location.origin}/releases/?version=${model.value.tag_name}`)
   }
 
   async function copyReleaseMarkdown () {
     if (!model.value?.body) return
-    await copyMarkdown(model.value.body)
+    await markdownClipboard.copy(model.value.body)
   }
 
   function selectRelease (release: Release) {
@@ -260,21 +260,21 @@
           <button
             aria-label="Copy markdown"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
-            :title="copiedMarkdown ? 'Copied!' : 'Copy markdown'"
+            :title="markdownClipboard.copied.value ? 'Copied!' : 'Copy markdown'"
             type="button"
             @click="copyReleaseMarkdown"
           >
-            <AppIcon :icon="copiedMarkdown ? 'success' : 'copy'" :size="18" />
+            <AppIcon :icon="markdownClipboard.copied.value ? 'success' : 'copy'" :size="18" />
           </button>
 
           <button
             aria-label="Copy link"
             class="p-1.5 rounded hover:bg-surface-tint focus-visible:bg-surface-tint inline-flex opacity-50 hover:opacity-80 focus-visible:opacity-80 focus-visible:outline-none"
-            :title="copiedLink ? 'Copied!' : 'Copy link'"
+            :title="linkClipboard.copied.value ? 'Copied!' : 'Copy link'"
             type="button"
             @click="copyReleaseLink"
           >
-            <AppIcon :icon="copiedLink ? 'success' : 'share'" :size="18" />
+            <AppIcon :icon="linkClipboard.copied.value ? 'success' : 'share'" :size="18" />
           </button>
 
           <a

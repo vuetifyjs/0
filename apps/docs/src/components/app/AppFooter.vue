@@ -20,9 +20,8 @@
   const app = useAppStore()
   const releases = useReleasesStore()
   const logger = useLogger()
-  const { showBgGlass } = useSettings()
-
-  const { icon: themeIcon, title: themeTitle, toggle: toggleTheme } = useThemeToggle()
+  const settings = useSettings()
+  const toggle = useThemeToggle()
 
   const links = [
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
@@ -56,7 +55,7 @@
 </script>
 
 <template>
-  <footer class="app-footer py-4 border-t border-divider/50" :class="[inset && 'md:ml-[230px]', showBgGlass ? 'bg-glass-surface' : 'bg-surface']">
+  <footer class="app-footer py-4 border-t border-divider/50" :class="[inset && 'md:ml-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']">
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex flex-col md:flex-row items-center gap-4 text-sm opacity-60">
         <AppCopyright />
@@ -111,13 +110,13 @@
         <div class="hidden md:block w-px h-5 bg-divider" />
 
         <button
-          :aria-label="themeTitle"
+          :aria-label="toggle.title.value"
           class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-tint transition-colors text-on-surface"
-          :title="themeTitle"
+          :title="toggle.title.value"
           type="button"
-          @click="toggleTheme"
+          @click="toggle.toggle"
         >
-          <AppIcon :icon="themeIcon" :size="20" />
+          <AppIcon :icon="toggle.icon.value" :size="20" />
         </button>
       </div>
     </div>

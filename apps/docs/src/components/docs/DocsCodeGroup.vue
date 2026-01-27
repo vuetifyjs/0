@@ -16,7 +16,7 @@
 
   const slots = useSlots()
   const uid = useId()
-  const { packageManager } = useSettings()
+  const settings = useSettings()
 
   const single = createSingle({ mandatory: 'force', events: true })
   const proxy = useProxyRegistry(single)
@@ -42,7 +42,7 @@
   }, { immediate: true })
 
   // Select user's preferred package manager when preference or children change
-  watch([children, packageManager], ([items, pm]) => {
+  watch([children, () => settings.packageManager.value], ([items, pm]) => {
     // Validate package manager preference
     if (!PACKAGE_MANAGERS.includes(pm)) return
 

@@ -34,27 +34,27 @@
   const discovery = useDiscovery()
   const ask = useAsk()
   const navigation = useNavigation()
-  const { isOpen: isSearchOpen } = useSearch()
-  const { isOpen: isSettingsOpen, close: closeSettings, prefersReducedMotion, forceReducedMotion } = useSettings()
+  const search = useSearch()
+  const settings = useSettings()
 
   // Force reduced motion during tours so elements don't animate
   watch(() => discovery.isActive.value, active => {
-    forceReducedMotion.value = active
+    settings.forceReducedMotion.value = active
   })
 
-  const fadeTransition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
-  const slideTransition = toRef(() => prefersReducedMotion.value ? undefined : 'slide')
+  const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
+  const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
   const isModalOpen = computed(() => {
-    if (isSearchOpen.value) return true
-    if (isSettingsOpen.value) return true
+    if (search.isOpen.value) return true
+    if (settings.isOpen.value) return true
     if (ask.isOpen.value && !breakpoints.lgAndUp.value) return true
     return false
   })
 
   const isMobileNavOpen = toRef(() => navigation.isOpen.value && !breakpoints.mdAndUp.value)
 
-  useScrollLock(isSettingsOpen)
+  useScrollLock(settings.isOpen)
   useScrollLock(isMobileNavOpen)
 </script>
 
@@ -91,15 +91,15 @@
     <!-- Settings backdrop -->
     <Transition :name="fadeTransition">
       <div
-        v-if="isSettingsOpen"
+        v-if="settings.isOpen.value"
         class="fixed inset-0 bg-black/30 z-40"
-        @click="closeSettings"
+        @click="settings.close"
       />
     </Transition>
 
     <!-- Settings sheet -->
     <Transition :name="slideTransition">
-      <AppSettingsSheet v-if="isSettingsOpen" />
+      <AppSettingsSheet v-if="settings.isOpen.value" />
     </Transition>
   </div>
 </template>

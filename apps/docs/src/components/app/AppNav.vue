@@ -22,14 +22,14 @@
   // Stores
   import { useAppStore } from '@/stores/app'
 
-  const { prefersReducedMotion, showBgGlass } = useSettings()
-  const { isSettled } = useHydration()
+  const settings = useSettings()
+  const hydration = useHydration()
   const devmode = useFeatures().get('devmode')!
 
   const app = useAppStore()
   const navigation = useNavigation()
-  const { selectedLevels } = useLevelFilterContext()
-  const { configuredNav, activeFeatures, clearFilter } = useNavConfigContext()
+  const levelFilter = useLevelFilterContext()
+  const navConfig = useNavConfigContext()
   const route = useRoute()
 
   // Filter out devmode items when devmode setting is disabled
@@ -44,7 +44,7 @@
       })
   }
 
-  const visibleNav = computed(() => devmode.isSelected.value ? configuredNav.value : filterDevmode(configuredNav.value))
+  const visibleNav = computed(() => devmode.isSelected.value ? navConfig.configuredNav.value : filterDevmode(navConfig.configuredNav.value))
 
   // Provide nested nav context for collapsible sections
   const { provide: provideNavNested } = createNavNested(visibleNav)
@@ -69,12 +69,12 @@
 
   // Current page info when it's filtered out (by skill level OR feature filter)
   const filteredOutPage = computed(() => {
-    const hasSkillFilter = selectedLevels.size > 0
-    const hasFeatureFilter = !!activeFeatures.value
+    const hasSkillFilter = levelFilter.selectedLevels.size > 0
+    const hasFeatureFilter = !!navConfig.activeFeatures.value
     if (!hasSkillFilter && !hasFeatureFilter) return null
     const path = route.path
     // Check against configuredNav which is filtered by both skill level and features
-    if (hasPage(configuredNav.value, path)) return null
+    if (hasPage(navConfig.configuredNav.value, path)) return null
     return findPage(app.nav, path)
   })
 
@@ -96,7 +96,7 @@
   useWindowEventListener('resize', updateMobile, { passive: true })
 
   // Scroll active link into view after hydration settles
-  watch(isSettled, settled => {
+  watch(hydration.isSettled, settled => {
     if (!settled || !IN_BROWSER) return
     // Wait for sections to fully expand before scrolling
     // 300ms accounts for expand animation (200ms) + buffer
@@ -142,9 +142,9 @@
     class="flex flex-col fixed w-[230px] py-4 top-0 md:top-[72px] bottom-0"
     :class="[
       'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 translate-x-[-100%] md:translate-x-0 border-r border-solid border-divider z-50',
-      showBgGlass ? 'bg-glass-surface' : 'bg-surface',
+      settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       navigation.isOpen.value && '!translate-x-0',
-      !prefersReducedMotion && 'transition-transform duration-200 ease-in-out',
+      !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
     ]"
     :inert="!navigation.isOpen.value && isMobile ? true : undefined"
     :padding="-4"
@@ -152,14 +152,14 @@
   >
 
     <!-- URL filter banner -->
-    <div v-if="activeFeatures" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant/50 border-b border-divider">
+    <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant/50 border-b border-divider">
       <p class="text-xs text-on-surface-variant mb-2">
         Showing docs for your project
       </p>
       <button
         class="text-xs text-primary hover:underline"
         type="button"
-        @click="clearFilter"
+        @click="navConfig.clearFilter"
       >
         Show all docs
       </button>
@@ -209,7 +209,7 @@
         />
       </template>
 
-      <template v-if="selectedLevels.size > 0">
+      <template v-if="levelFilter.selectedLevels.size > 0">
         <!-- Skip divider if Active page section already added one and nav has no real content -->
         <li v-if="!filteredOutPage || hasNavContent" class="px-4">
           <AppDivider />

@@ -7,7 +7,7 @@
     tag?: 'h2' | 'h3' | 'h4'
   }>()
 
-  const { scrollToAnchor } = useScrollToAnchor()
+  const scroll = useScrollToAnchor()
 </script>
 
 <template>
@@ -18,7 +18,7 @@
     <a
       class="header-anchor"
       :href="`#${id}`"
-      @click.prevent="scrollToAnchor(id)"
+      @click.prevent="scroll.scrollToAnchor(id)"
     ><slot /></a>
   </component>
 </template>

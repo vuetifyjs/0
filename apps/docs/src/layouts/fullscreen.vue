@@ -21,12 +21,12 @@
   const navConfig = createNavConfig(levelFilter.filteredNav)
   navConfig.provide()
 
-  const { isOpen: isSettingsOpen, close: closeSettings, prefersReducedMotion } = useSettings()
+  const settings = useSettings()
 
-  const fadeTransition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
-  const slideTransition = toRef(() => prefersReducedMotion.value ? undefined : 'slide')
+  const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
+  const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
-  useScrollLock(isSettingsOpen)
+  useScrollLock(settings.isOpen)
 </script>
 
 <template>
@@ -38,7 +38,7 @@
       Skip to main content
     </a>
 
-    <div class="flex flex-col" :inert="isSettingsOpen || undefined" style="min-height: calc(100vh - 72px)">
+    <div class="flex flex-col" :inert="settings.isOpen.value || undefined" style="min-height: calc(100vh - 72px)">
       <AppBanner />
       <AppBar />
       <main id="main-content" class="flex-1 flex flex-col">
@@ -49,15 +49,15 @@
     <!-- Settings backdrop -->
     <Transition :name="fadeTransition">
       <div
-        v-if="isSettingsOpen"
+        v-if="settings.isOpen.value"
         class="fixed inset-0 bg-black/30 z-40"
-        @click="closeSettings"
+        @click="settings.close"
       />
     </Transition>
 
     <!-- Settings sheet -->
     <Transition :name="slideTransition">
-      <AppSettingsSheet v-if="isSettingsOpen" />
+      <AppSettingsSheet v-if="settings.isOpen.value" />
     </Transition>
   </div>
 </template>

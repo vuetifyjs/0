@@ -20,7 +20,7 @@
 
   const isUser = toRef(() => props.role === 'user')
   const isAssistant = toRef(() => props.role === 'assistant')
-  const { html } = useMarkdown(toRef(() => isAssistant.value ? props.content : undefined))
+  const markdown = useMarkdown(toRef(() => isAssistant.value ? props.content : undefined))
 
   const contentRef = useTemplateRef<HTMLElement>('content')
   const appContext = getCurrentInstance()?.appContext
@@ -151,10 +151,10 @@
   >
     <!-- Rendered markdown -->
     <div
-      v-if="html"
+      v-if="markdown.html"
       ref="content"
       class="markdown-body"
-      v-html="html"
+      v-html="markdown.html"
     />
 
     <!-- Streaming indicator -->

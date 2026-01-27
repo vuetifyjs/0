@@ -3,17 +3,17 @@
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
-  const { open } = useSearch()
-  const { showBgGlass } = useSettings()
+  const search = useSearch()
+  const settings = useSettings()
 </script>
 
 <template>
   <button
     aria-label="Search (Ctrl+K)"
-    :class="['inline-flex items-center gap-1.5 rounded-full border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 focus-visible:border-primary focus-visible:outline-none transition-colors', showBgGlass ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['inline-flex items-center gap-1.5 rounded-full border border-divider pl-1.5 pr-1.5 py-1.5 hover:border-primary/50 focus-visible:border-primary focus-visible:outline-none transition-colors', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     title="Search (Ctrl+K)"
     type="button"
-    @click="open"
+    @click="search.open"
   >
     <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
       <AppIcon icon="search" size="12" />

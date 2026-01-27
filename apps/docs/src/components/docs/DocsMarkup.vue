@@ -19,13 +19,13 @@
     collapseLines: 15,
   })
 
-  const { lineWrap: defaultLineWrap } = useSettings()
+  const settings = useSettings()
 
   // Local state initialized from global default, per-instance
-  const lineWrap = shallowRef(defaultLineWrap.value)
+  const lineWrap = shallowRef(settings.lineWrap.value)
 
   // Sync when global setting changes
-  watch(defaultLineWrap, val => {
+  watch(() => settings.lineWrap.value, val => {
     lineWrap.value = val
   })
 

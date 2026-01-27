@@ -8,7 +8,7 @@
     anchorId?: string
   }>()
 
-  const { scrollToAnchor } = useScrollToAnchor()
+  const scroll = useScrollToAnchor()
 
   const slots = useSlots()
   const hasContent = computed(() => !!slots.default)
@@ -29,7 +29,7 @@
         v-if="anchorId"
         class="header-anchor"
         :href="`#${anchorId}`"
-        @click.prevent="scrollToAnchor(anchorId)"
+        @click.prevent="scroll.scrollToAnchor(anchorId)"
       >{{ title }}</a>
       <template v-else>{{ title }}</template>
     </h3>

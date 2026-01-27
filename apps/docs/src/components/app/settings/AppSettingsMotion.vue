@@ -5,7 +5,7 @@
   // Types
   import type { SingleSelectOption } from './AppSettingsSingleSelect.vue'
 
-  const { reduceMotion } = useSettings()
+  const settings = useSettings()
 
   const motionOptions: SingleSelectOption<DocSettings['reduceMotion']>[] = [
     { id: 'system', value: 'system', label: 'System default' },
@@ -18,7 +18,7 @@
   <section>
     <AppSettingsHeader icon="vapor" title="Motion" />
     <AppSettingsSingleSelect
-      v-model="reduceMotion"
+      v-model="settings.reduceMotion.value"
       aria-label="Motion preference"
       layout="radio"
       :options="motionOptions"

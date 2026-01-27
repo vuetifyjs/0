@@ -5,7 +5,7 @@
   // Composables
   import { useSettings } from '@/composables/useSettings'
 
-  const { toggle } = useSettings()
+  const settings = useSettings()
 
   let preloaded = false
   function preload () {
@@ -22,7 +22,7 @@
       class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
       title="Settings"
       type="button"
-      @click="toggle"
+      @click="settings.toggle"
       @focus="preload"
       @mouseenter="preload"
     >

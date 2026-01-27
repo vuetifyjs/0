@@ -34,10 +34,10 @@
   })
 
   // Auto-resolve component and code from filePath(s)
-  const { resolve, resolveMultiple } = useExamples()
+  const examples = useExamples()
   const auto = computed(() => {
-    if (props.filePaths?.length) return resolveMultiple(props.filePaths)
-    if (props.filePath) return resolve(props.filePath)
+    if (props.filePaths?.length) return examples.resolveMultiple(props.filePaths)
+    if (props.filePath) return examples.resolve(props.filePath)
     return null
   })
 

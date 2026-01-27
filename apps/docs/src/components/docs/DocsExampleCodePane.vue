@@ -23,10 +23,10 @@
 
   const expanded = defineModel<boolean>('expanded', { default: false })
 
-  const { lineWrap: defaultLineWrap } = useSettings()
-  const lineWrap = shallowRef(defaultLineWrap.value)
+  const settings = useSettings()
+  const lineWrap = shallowRef(settings.lineWrap.value)
 
-  watch(defaultLineWrap, val => {
+  watch(() => settings.lineWrap.value, val => {
     lineWrap.value = val
   })
 

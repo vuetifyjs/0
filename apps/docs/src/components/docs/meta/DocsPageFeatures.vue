@@ -19,7 +19,7 @@
   // Data
   import metrics from '@/data/metrics.json'
 
-  const { scrollToAnchor } = useScrollToAnchor()
+  const scroll = useScrollToAnchor()
   const logger = useLogger()
 
   interface MetricCoverage {
@@ -59,7 +59,7 @@
   const base = 'https://github.com/vuetifyjs/0'
   const loading = shallowRef(false)
   const copyError = shallowRef(false)
-  const { copied, copy } = useClipboard()
+  const clipboard = useClipboard()
 
   const route = useRoute()
 
@@ -178,17 +178,17 @@
   })
 
   // Last updated date from git history
-  const { adapter } = useDate()
+  const date = useDate()
   const lastUpdated = toRef(() => {
     // Try exact path, then without trailing slash
     const path = route.path.replace(/\/$/, '') || '/'
     const pageDate = pageDates[path]
     if (!pageDate?.updated) return null
 
-    const date = adapter.date(pageDate.updated)
-    if (!adapter.isValid(date)) return null
+    const d = date.adapter.date(pageDate.updated)
+    if (!date.adapter.isValid(d)) return null
 
-    return adapter.format(date, 'normalDate')
+    return date.adapter.format(d, 'normalDate')
   })
 
   // Provide page metadata context for child components
@@ -225,7 +225,7 @@
       let raw = atob(content)
       raw = replace('DocsPageFeatures', raw)
 
-      await copy(raw)
+      await clipboard.copy(raw)
     } catch (error) {
       logger.error('Failed to copy page', error)
       copyError.value = true
@@ -277,9 +277,9 @@
         />
 
         <DocsActionChip
-          :color="copyError ? 'text-error' : copied ? 'text-success' : 'text-on-surface'"
-          :icon="loading ? 'loading' : copyError ? 'alert' : copied ? 'success' : 'markdown'"
-          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : copied ? 'Copied' : 'Copy Page as Markdown'"
+          :color="copyError ? 'text-error' : clipboard.copied.value ? 'text-success' : 'text-on-surface'"
+          :icon="loading ? 'loading' : copyError ? 'alert' : clipboard.copied.value ? 'success' : 'markdown'"
+          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : clipboard.copied.value ? 'Copied' : 'Copy Page as Markdown'"
           title="Copy Page as Markdown"
           @click="onClickCopy"
         />
@@ -338,7 +338,7 @@
           :icon="benchmark.icon"
           :text="benchmark.label"
           title="View performance benchmarks"
-          @click.prevent="scrollToAnchor('benchmarks')"
+          @click.prevent="scroll.scrollToAnchor('benchmarks')"
         />
 
         <!-- 5. Last Updated - Reference (is it maintained?) -->

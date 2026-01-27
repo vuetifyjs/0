@@ -12,24 +12,24 @@
 
   const features = useFeatures()
   const storage = useStorage()
-  const { close, reset: resetSettings, hasChanges: settingsHasChanges, lineWrap, showInlineApi, collapsibleNav, showBgGlass } = useSettings()
-  const { hasChanges: levelHasChanges, clear: clearLevels } = useLevelFilterContext()
+  const settings = useSettings()
+  const levelFilter = useLevelFilterContext()
 
-  const hasChanges = computed(() => settingsHasChanges.value || levelHasChanges.value)
+  const hasChanges = computed(() => settings.hasChanges.value || levelFilter.hasChanges.value)
 
   function reset () {
-    resetSettings()
-    clearLevels()
+    settings.reset()
+    levelFilter.clear()
   }
 
   const devmode = features.get('devmode')!
 
-  const { isEditing: isEditingTheme, clearPreview } = useCustomThemes()
+  const themes = useCustomThemes()
 
   onUnmounted(() => {
-    if (isEditingTheme.value) {
-      clearPreview()
-      isEditingTheme.value = false
+    if (themes.editing.value) {
+      themes.clearPreview()
+      themes.editing.value = false
     }
   })
 
@@ -47,7 +47,7 @@
 
   function onKeydown (e: KeyboardEvent) {
     if (e.key === 'Escape') {
-      close()
+      settings.close()
     }
   }
 </script>
@@ -57,7 +57,7 @@
     ref="sheet"
     aria-labelledby="settings-title"
     aria-modal="true"
-    :class="['fixed inset-y-0 right-0 flex flex-col z-50 w-[320px] max-w-full shadow-xl outline-none', showBgGlass ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['fixed inset-y-0 right-0 flex flex-col z-50 w-[320px] max-w-full shadow-xl outline-none', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     role="dialog"
     tabindex="-1"
     @keydown="onKeydown"
@@ -74,7 +74,7 @@
         class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
         title="Close"
         type="button"
-        @click="close"
+        @click="settings.close"
       >
         <AppIcon icon="close" size="18" />
       </button>
@@ -86,13 +86,13 @@
       <AppSettingsTheme />
 
       <!-- Other settings (hidden when editing theme) -->
-      <template v-if="!isEditingTheme">
+      <template v-if="!themes.editing.value">
         <!-- Skill Level -->
         <AppSettingsSkillLevel />
 
         <!-- Code Examples -->
         <AppSettingsToggleSection
-          v-model="lineWrap"
+          v-model="settings.lineWrap.value"
           description="Wrap long lines in code blocks"
           icon="markdown"
           label="Line wrapping"
@@ -107,7 +107,7 @@
 
         <!-- API Reference -->
         <AppSettingsToggleSection
-          v-model="showInlineApi"
+          v-model="settings.showInlineApi.value"
           description="Display API details inline instead of links"
           icon="beaker"
           label="Show inline"
@@ -116,7 +116,7 @@
 
         <!-- Navigation -->
         <AppSettingsToggleSection
-          v-model="collapsibleNav"
+          v-model="settings.collapsibleNav.value"
           description="Group navigation items into expandable sections"
           icon="menu"
           label="Collapsible sections"

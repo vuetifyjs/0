@@ -17,11 +17,11 @@
   const breakpoints = useBreakpoints()
   const isDesktop = computed(() => breakpoints.lgAndUp.value)
   const fullscreen = shallowRef(false)
-  const { prefersReducedMotion } = useSettings()
+  const settings = useSettings()
 
-  const fadeTransition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
+  const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
   const panelTransition = toRef(() => {
-    if (prefersReducedMotion.value) return undefined
+    if (settings.prefersReducedMotion.value) return undefined
     return isDesktop.value ? 'fade' : 'slide'
   })
 

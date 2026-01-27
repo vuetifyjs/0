@@ -13,7 +13,7 @@
 
   const params = useParams<{ name: string }>()
   const data = apiData as ApiData
-  const { toKebab } = useApiHelpers()
+  const helpers = useApiHelpers()
 
   const itemName = computed(() => {
     const slug = params.value.name
@@ -93,14 +93,14 @@
           :key="api.name"
         >
           <DocsHeaderAnchor
-            :id="toKebab(api.name)"
+            :id="helpers.toKebab(api.name)"
             tag="h2"
           >
             {{ api.name }}
           </DocsHeaderAnchor>
 
           <template v-if="api.props.length > 0">
-            <DocsHeaderAnchor :id="`${toKebab(api.name)}-props`">
+            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-props`">
               Props
             </DocsHeaderAnchor>
 
@@ -116,7 +116,7 @@
           </template>
 
           <template v-if="api.events.length > 0">
-            <DocsHeaderAnchor :id="`${toKebab(api.name)}-events`">
+            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-events`">
               Events
             </DocsHeaderAnchor>
 
@@ -132,7 +132,7 @@
           </template>
 
           <template v-if="api.slots.length > 0">
-            <DocsHeaderAnchor :id="`${toKebab(api.name)}-slots`">
+            <DocsHeaderAnchor :id="`${helpers.toKebab(api.name)}-slots`">
               Slots
             </DocsHeaderAnchor>
 

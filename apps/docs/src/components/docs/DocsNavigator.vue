@@ -12,7 +12,7 @@
   // Types
   import type { NavItem } from '@/stores/app'
 
-  const { configuredNav } = useNavConfigContext()
+  const navConfig = useNavConfigContext()
   const route = useRoute()
 
   // Flatten nav items to route paths
@@ -32,10 +32,10 @@
   const next = shallowRef<string | false>(false)
 
   watch(
-    [() => route.path, configuredNav],
+    [() => route.path, navConfig.configuredNav],
     ([path]) => {
       const pages: string[] = []
-      for (const nav of configuredNav.value) {
+      for (const nav of navConfig.configuredNav.value) {
         if (!('children' in nav) && !('to' in nav)) continue
         pages.push(...flattenRoutes(nav as NavItem))
       }

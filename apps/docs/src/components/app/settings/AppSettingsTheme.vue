@@ -11,21 +11,21 @@
   // Themes
   import { exportThemeAsVuetifyConfig, themes, type ThemeDefinition, type ThemeId } from '@/themes'
 
-  const { preference, setPreference, theme } = useThemeToggle()
-  const { customThemes, isEditing, create, update, remove, getCurrentTheme, clearPreview } = useCustomThemes()
-  const { copied, copy } = useClipboard()
-  const { showDotGrid, showMeshTransition, showBgGlass } = useSettings()
+  const toggle = useThemeToggle()
+  const themes_ = useCustomThemes()
+  const clipboard = useClipboard()
+  const settings = useSettings()
 
   // Editor state
   const editingTheme = shallowRef<ThemeDefinition | null>(null)
   const previousPreference = shallowRef<ThemePreference>('system')
 
   // Current active theme (resolves 'system' to actual theme)
-  const currentThemeId = computed<ThemeId>(() => theme.selectedId.value as ThemeId)
+  const currentThemeId = computed<ThemeId>(() => toggle.theme.selectedId.value as ThemeId)
 
   function exportTheme () {
     const config = exportThemeAsVuetifyConfig(currentThemeId.value)
-    copy(config)
+    clipboard.copy(config)
   }
 
   interface ThemeOption {
@@ -55,7 +55,7 @@
 
   // Custom themes as options
   const customOptions = computed<ThemeOption[]>(() =>
-    customThemes.value.map(t => ({
+    themes_.customThemes.value.map(t => ({
       id: t.id as ThemePreference,
       label: t.label,
       icon: t.icon,
@@ -66,9 +66,9 @@
 
   // Editor actions
   function startCreate () {
-    const current = getCurrentTheme()
-    previousPreference.value = preference.value
-    isEditing.value = true
+    const current = themes_.current()
+    previousPreference.value = toggle.preference.value
+    themes_.editing.value = true
     editingTheme.value = {
       id: '',
       label: 'My Theme',
@@ -79,30 +79,30 @@
   }
 
   function startEdit (themeId: string) {
-    const custom = customThemes.value.find(t => t.id === themeId)
+    const custom = themes_.customThemes.value.find(t => t.id === themeId)
     if (custom) {
-      previousPreference.value = preference.value
-      isEditing.value = true
+      previousPreference.value = toggle.preference.value
+      themes_.editing.value = true
       editingTheme.value = { ...custom }
     }
   }
 
   function handleSave (themeData: CustomTheme) {
     // Clear inline preview styles before applying saved theme
-    clearPreview()
+    themes_.clearPreview()
 
-    if (themeData.id && customThemes.value.some(t => t.id === themeData.id)) {
+    if (themeData.id && themes_.customThemes.value.some(t => t.id === themeData.id)) {
       // Update existing
-      update(themeData.id, {
+      themes_.update(themeData.id, {
         label: themeData.label,
         dark: themeData.dark,
         colors: themeData.colors,
       })
       // Select the updated theme
-      setPreference(themeData.id as ThemePreference)
+      toggle.setPreference(themeData.id as ThemePreference)
     } else {
       // Create new
-      const newTheme = create({
+      const newTheme = themes_.create({
         id: '',
         label: themeData.label,
         icon: 'theme-custom',
@@ -110,27 +110,27 @@
         colors: themeData.colors,
       })
       // Select the new theme
-      setPreference(newTheme.id as ThemePreference)
+      toggle.setPreference(newTheme.id as ThemePreference)
     }
-    isEditing.value = false
+    themes_.editing.value = false
     editingTheme.value = null
   }
 
   function handleCancel () {
     // Clear inline preview styles and restore previous theme
-    clearPreview()
-    setPreference(previousPreference.value)
-    isEditing.value = false
+    themes_.clearPreview()
+    toggle.setPreference(previousPreference.value)
+    themes_.editing.value = false
     editingTheme.value = null
   }
 
   function handleDelete (id: string) {
     // Clear inline preview styles
-    clearPreview()
-    remove(id)
+    themes_.clearPreview()
+    themes_.remove(id)
     // Switch to previous theme or system
-    setPreference(previousPreference.value === id ? 'system' : previousPreference.value)
-    isEditing.value = false
+    toggle.setPreference(previousPreference.value === id ? 'system' : previousPreference.value)
+    themes_.editing.value = false
     editingTheme.value = null
   }
 </script>
@@ -157,7 +157,7 @@
           type="button"
           @click="exportTheme"
         >
-          <AppIcon :icon="copied ? 'check-circle' : 'copy'" size="14" />
+          <AppIcon :icon="clipboard.copied.value ? 'check-circle' : 'copy'" size="14" />
         </button>
       </h3>
 
@@ -168,15 +168,15 @@
           <button
             v-for="option in modeOptions"
             :key="option.id"
-            :aria-pressed="preference === option.id"
+            :aria-pressed="toggle.preference.value === option.id"
             :class="[
               'flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-              preference === option.id
+              toggle.preference.value === option.id
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-divider hover:border-primary/50 text-on-surface',
             ]"
             type="button"
-            @click="setPreference(option.id)"
+            @click="toggle.setPreference(option.id)"
           >
             <AppIcon :icon="option.icon" size="16" />
             <span>{{ option.label }}</span>
@@ -190,15 +190,15 @@
         <button
           v-for="option in accessibilityOptions"
           :key="option.id"
-          :aria-pressed="preference === option.id"
+          :aria-pressed="toggle.preference.value === option.id"
           :class="[
             'w-full flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
-            preference === option.id
+            toggle.preference.value === option.id
               ? 'border-primary bg-primary/10 text-primary'
               : 'border-divider hover:border-primary/50 text-on-surface',
           ]"
           type="button"
-          @click="setPreference(option.id)"
+          @click="toggle.setPreference(option.id)"
         >
           <AppIcon :icon="option.icon" size="16" />
           <span>{{ option.label }}</span>
@@ -212,15 +212,15 @@
           <button
             v-for="option in vuetifyOptions"
             :key="option.id"
-            :aria-pressed="preference === option.id"
+            :aria-pressed="toggle.preference.value === option.id"
             :class="[
               'flex flex-col items-start gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors',
-              preference === option.id
+              toggle.preference.value === option.id
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-divider hover:border-primary/50 text-on-surface',
             ]"
             type="button"
-            @click="setPreference(option.id)"
+            @click="toggle.setPreference(option.id)"
           >
             <div class="flex items-center gap-2">
               <AppIcon :icon="option.icon" size="16" />
@@ -238,15 +238,15 @@
           <button
             v-for="option in customOptions"
             :key="option.id"
-            :aria-pressed="preference === option.id"
+            :aria-pressed="toggle.preference.value === option.id"
             :class="[
               'flex flex-col items-start gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors group relative',
-              preference === option.id
+              toggle.preference.value === option.id
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-divider hover:border-primary/50 text-on-surface',
             ]"
             type="button"
-            @click="setPreference(option.id)"
+            @click="toggle.setPreference(option.id)"
           >
             <div class="flex items-center gap-2 w-full">
               <AppIcon :icon="option.icon" size="16" />
@@ -270,17 +270,17 @@
         <div class="text-xs font-medium text-on-surface-variant mb-2">Background Effects</div>
         <div class="space-y-1">
           <AppSettingsToggle
-            v-model="showDotGrid"
+            v-model="settings.showDotGrid.value"
             description="Decorative dots in the corner"
             label="Dot grid pattern"
           />
           <AppSettingsToggle
-            v-model="showMeshTransition"
+            v-model="settings.showMeshTransition.value"
             description="Animate background on scroll"
             label="Mesh transition"
           />
           <AppSettingsToggle
-            v-model="showBgGlass"
+            v-model="settings.showBgGlass.value"
             description="Frosted glass effect on UI surfaces"
             label="Glass surface effect"
           />

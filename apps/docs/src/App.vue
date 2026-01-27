@@ -18,23 +18,23 @@
   import { useRoute } from 'vue-router'
 
   useScrollPersist()
-  const { prefersReducedMotion, showDotGrid, showMeshTransition } = useSettings()
+  const settings = useSettings()
 
   const route = useRoute()
   watch(() => route.fullPath, (to, from) => {
     if (!IN_BROWSER) return
     if (to.includes('#') || history.state?.scroll) return
     if (to === from) return
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
+    window.scrollTo({ top: 0, behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth' })
   })
 
-  const { preference } = useThemeToggle()
-  const showMesh = toRef(() => preference.value !== 'high-contrast')
+  const toggle = useThemeToggle()
+  const showMesh = toRef(() => toggle.preference.value !== 'high-contrast')
   const showBottomMesh = shallowRef(false)
 
   useWindowEventListener('scroll', () => {
     if (!IN_BROWSER) return
-    showBottomMesh.value = showMeshTransition.value && window.scrollY > 200
+    showBottomMesh.value = settings.showMeshTransition.value && window.scrollY > 200
   }, { passive: true })
 
   const head = injectHead()
@@ -61,7 +61,7 @@
 <template>
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-top" />
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
-  <main class="min-h-screen pt-[72px] text-on-background" :class="{ 'dot-grid': showDotGrid }">
+  <main class="min-h-screen pt-[72px] text-on-background" :class="{ 'dot-grid': settings.showDotGrid.value }">
     <router-view />
   </main>
 

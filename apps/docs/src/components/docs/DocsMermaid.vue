@@ -10,8 +10,8 @@
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, useTemplateRef, watch } from 'vue'
 
-  const { prefersReducedMotion, showBgGlass } = useSettings()
-  const { copied, copy } = useClipboard()
+  const settings = useSettings()
+  const clipboard = useClipboard()
   const logger = useLogger()
 
   // Types
@@ -237,7 +237,7 @@
   }
 
   function copySvg () {
-    copy(svg.value)
+    clipboard.copy(svg.value)
   }
 
   function downloadSvg () {
@@ -286,7 +286,7 @@
       </figure>
     </Dialog.Activator>
 
-    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl border border-divider', showBgGlass ? 'bg-glass-surface' : 'bg-surface', prefersReducedMotion && 'reduce-motion']">
+    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl border border-divider', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface', settings.prefersReducedMotion.value && 'reduce-motion']">
       <!-- Header toolbar -->
       <div class="flex items-center justify-between gap-2 p-2 border-b border-divider">
         <Dialog.Title as="span" class="sr-only">
@@ -341,14 +341,14 @@
         <!-- Action buttons -->
         <div class="flex items-center gap-1">
           <button
-            :aria-label="copied ? 'Copied!' : 'Copy SVG'"
+            :aria-label="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
             class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
-            :title="copied ? 'Copied!' : 'Copy SVG'"
+            :title="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
             type="button"
             @click="copySvg"
           >
             <svg
-              v-if="!copied"
+              v-if="!clipboard.copied.value"
               class="w-4 h-4"
               fill="none"
               stroke="currentColor"

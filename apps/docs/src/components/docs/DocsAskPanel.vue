@@ -36,8 +36,8 @@
 
   const breakpoints = useBreakpoints()
   const ask = useAsk()
-  const { copied, copy } = useClipboard()
-  const { showBgGlass } = useSettings()
+  const clipboard = useClipboard()
+  const settings = useSettings()
 
   const messagesRef = useTemplateRef<HTMLElement | null>('messages')
   const formRef = useTemplateRef<{ focus: () => void }>('form')
@@ -75,7 +75,7 @@
   }
 
   function copyConversation () {
-    copy(getConversationMarkdown())
+    clipboard.copy(getConversationMarkdown())
   }
 
   function focus () {
@@ -97,7 +97,7 @@
     :aria-modal="!isDesktop"
     :class="[
       'flex flex-col z-50',
-      showBgGlass ? 'bg-glass-surface' : 'bg-surface',
+      settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       isDesktop && fullscreen
         ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
         : isDesktop
@@ -137,11 +137,11 @@
           <button
             v-if="messages.length > 0"
             class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            :title="copied ? 'Copied!' : 'Copy conversation'"
+            :title="clipboard.copied.value ? 'Copied!' : 'Copy conversation'"
             type="button"
             @click="copyConversation"
           >
-            <AppIcon :icon="copied ? 'success' : 'copy'" size="16" />
+            <AppIcon :icon="clipboard.copied.value ? 'success' : 'copy'" size="16" />
           </button>
 
           <button
