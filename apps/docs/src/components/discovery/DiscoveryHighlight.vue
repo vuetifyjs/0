@@ -226,10 +226,20 @@
               mask="url(#discovery-highlight-mask)"
               width="100%"
             />
+            <!-- Glow effect around the cutout (offset outward so stroke is outside only) -->
+            <rect
+              :class="['fill-none stroke-primary', { 'highlight-glow': !userPrefersReducedMotion }]"
+              :height="rect.height + 3"
+              :rx="borderRadius + 1.5"
+              :ry="borderRadius + 1.5"
+              stroke-width="3"
+              :width="rect.width + 3"
+              :x="rect.x - 1.5"
+              :y="rect.y - 1.5"
+            />
             <!-- Border around the cutout -->
             <rect
-              class="stroke-primary"
-              fill="none"
+              class="stroke-primary fill-none"
               :height="rect.height"
               :rx="borderRadius"
               :ry="borderRadius"
@@ -273,5 +283,19 @@ svg.smooth-tracking rect {
     height 0.15s ease-out,
     rx 0.15s ease-out,
     ry 0.15s ease-out;
+}
+
+/* Pulsing glow effect for highlighted area */
+.highlight-glow {
+  animation: highlight-pulse 2s ease-in-out infinite;
+}
+
+@keyframes highlight-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 </style>
