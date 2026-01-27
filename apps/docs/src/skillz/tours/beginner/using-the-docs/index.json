@@ -65,7 +65,7 @@
       "hint": "",
       "learn": "How to use the Ask AI panel",
       "placement": "left",
-      "placementMobile": "bottom"
+      "placementMobile": "top"
     },
     {
       "id": "ask-ai-features",
