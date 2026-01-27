@@ -1,13 +1,13 @@
 <script setup lang="ts">
   // Framework
-  import { useLogger } from '@vuetify/v0'
+  import { useIntersectionObserver, useLogger } from '@vuetify/v0'
 
   // Composables
   import { useSettings } from '@/composables/useSettings'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { computed, onMounted } from 'vue'
+  import { computed, shallowRef } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -23,6 +23,8 @@
   const settings = useSettings()
   const toggle = useThemeToggle()
 
+  const footerRef = shallowRef<HTMLElement>()
+
   const links = [
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
     { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-[#5865F2]' },
@@ -30,7 +32,7 @@
 
   const latestRelease = computed(() => releases.releases[0])
 
-  onMounted(async () => {
+  async function fetchGitHubData () {
     // Fetch latest commit
     try {
       const octokit = await import('@/plugins/octokit').then(m => m.default)
@@ -51,11 +53,21 @@
     if (releases.releases.length === 0) {
       await releases.fetch()
     }
-  })
+  }
+
+  useIntersectionObserver(
+    footerRef,
+    entries => {
+      if (entries[0]?.isIntersecting) {
+        fetchGitHubData()
+      }
+    },
+    { once: true },
+  )
 </script>
 
 <template>
-  <footer class="app-footer py-4 border-t border-divider/50" :class="[inset && 'md:ml-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']">
+  <footer ref="footerRef" class="app-footer py-4 border-t border-divider/50" :class="[inset && 'md:ml-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']">
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex flex-col md:flex-row items-center gap-4 text-sm opacity-60">
         <AppCopyright />
