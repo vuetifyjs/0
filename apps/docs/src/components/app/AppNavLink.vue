@@ -12,7 +12,8 @@
   import { RouterLink, useRoute } from 'vue-router'
 
   // Types
-  import type { AtomProps, ID } from '@vuetify/v0'
+  import type { AtomProps } from '@vuetify/v0'
+  import type { ID } from '@vuetify/v0/types'
   import type { RouterLinkProps } from 'vue-router'
 
   export interface ComponentProps extends AtomProps, Partial<RouterLinkProps> {

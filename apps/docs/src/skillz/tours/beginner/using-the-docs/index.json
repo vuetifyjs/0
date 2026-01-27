@@ -47,7 +47,8 @@
       "title": "Page Metadata",
       "task": "Metadata shows the skill level, test coverage, performance tier, and last update date for each feature.",
       "hint": "",
-      "learn": "How to assess feature quality and complexity"
+      "learn": "How to assess feature quality and complexity",
+      "placementMobile": "top"
     },
     {
       "id": "ask-ai",
@@ -64,7 +65,7 @@
       "hint": "",
       "learn": "How to use the Ask AI panel",
       "placement": "left",
-      "placementMobile": "center"
+      "placementMobile": "bottom"
     },
     {
       "id": "ask-ai-features",
@@ -90,6 +91,14 @@
       "learn": "What skill level filters do",
       "placement": "left",
       "placementMobile": "top"
+    },
+    {
+      "id": "conclusion",
+      "title": "Conclusion",
+      "task": "That's it for the tour! You're now ready to explore the Vuetify0 documentation like a pro.",
+      "hint": "",
+      "learn": "You're all set!",
+      "noActivator": true
     }
   ]
 }

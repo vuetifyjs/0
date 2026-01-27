@@ -1,6 +1,6 @@
 <script lang="ts">
   // Types
-  type ID = string | number
+  import type { ID } from '@vuetify/v0/types'
 
   export interface DocsDiscoveryStepProps {
     /** Unique step identifier */

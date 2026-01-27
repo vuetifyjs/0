@@ -45,6 +45,9 @@ export function defineTour ({ ask, navigation, settings }: TourContext) {
         back: () => {
           navigation.close()
         },
+        completed: () => {
+          navigation.close()
+        },
       },
     },
   }

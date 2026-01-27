@@ -141,12 +141,13 @@
     as="nav"
     class="flex flex-col fixed w-[230px] py-4 top-0 md:top-[72px] bottom-0"
     :class="[
-      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 translate-x-[-100%] md:translate-x-0 border-r border-solid border-divider z-10',
+      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 translate-x-[-100%] md:translate-x-0 border-r border-solid border-divider z-50',
       showBgGlass ? 'bg-glass-surface' : 'bg-surface',
       navigation.isOpen.value && '!translate-x-0',
       !prefersReducedMotion && 'transition-transform duration-200 ease-in-out',
     ]"
     :inert="!navigation.isOpen.value && isMobile ? true : undefined"
+    :padding="-4"
     step="navigation"
   >
 

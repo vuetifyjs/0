@@ -107,7 +107,11 @@
     :role="isDesktop ? 'complementary' : 'dialog'"
   >
     <!-- Header -->
-    <Discovery.Activator class="rounded-lg" step="ask-ai-features">
+    <Discovery.Activator
+      class="rounded-lg"
+      :padding="-4"
+      step="ask-ai-features"
+    >
       <header
         :class="[
           'shrink-0 px-4 py-2 border-b border-divider flex items-center justify-between bg-surface',
@@ -173,7 +177,13 @@
     </Discovery.Activator>
 
     <!-- Messages -->
-    <Discovery.Activator ref="messages" as="div" class="rounded-lg flex-1 h-full" step="ask-ai-panel">
+    <Discovery.Activator
+      ref="messages"
+      as="div"
+      class="rounded-lg flex-1 h-full"
+      :padding="-4"
+      step="ask-ai-panel"
+    >
       <!-- Empty state -->
       <div
         v-if="messages.length === 0"

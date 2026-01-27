@@ -3,9 +3,8 @@
   import { createContext } from '@vuetify/v0'
 
   // Types
+  import type { ID } from '@vuetify/v0/types'
   import type { Ref } from 'vue'
-
-  type ID = string | number
 
   export interface DiscoveryRootContext {
     step: ID

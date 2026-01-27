@@ -23,7 +23,6 @@ import { readonly, shallowRef, toRef } from 'vue'
 import type {
   ContextTrinity,
   FormValidationRule,
-  ID,
   RegistryTicket,
   RegistryContext,
   StepTicketInput,
@@ -32,7 +31,9 @@ import type {
   SingleTicket,
   SingleContext,
   SingleTicketInput,
+  useBreakpoints,
 } from '@vuetify/v0'
+import type { ID } from '@vuetify/v0/types'
 import type { App, Ref, ShallowRef } from 'vue'
 
 export type DiscoveryActivatorTicket = RegistryTicket & {
@@ -55,6 +56,8 @@ export type DiscoveryTourStep = {
   placementMobile?: 'top' | 'bottom' | 'left' | 'right' | 'auto'
   /** Step has no activator element - hides highlight and skips activator polling */
   noActivator?: boolean
+  /** Skip this step on mobile devices */
+  skipOnMobile?: boolean
 }
 
 export type DiscoveryTour = {
@@ -197,7 +200,14 @@ export function createDiscovery (): DiscoveryContext {
       if (!tour) return
 
       steps.reset()
-      steps.onboard(tour.steps)
+
+      const breakpoints = options?.context?.breakpoints as ReturnType<typeof useBreakpoints>
+      const isMobile = breakpoints?.isMobile?.value ?? false
+      const filteredSteps = isMobile
+        ? tour.steps.filter(step => !step.skipOnMobile)
+        : tour.steps
+
+      steps.onboard(filteredSteps)
 
       const path = Object.keys(globTourDefinitions).find(p => p.includes(`/${id}/`))
 

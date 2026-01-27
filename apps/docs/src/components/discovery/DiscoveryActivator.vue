@@ -8,7 +8,8 @@
   // Utilities
   import { nextTick, onBeforeUnmount, onMounted, toRef, useTemplateRef, watch } from 'vue'
 
-  type ID = string | number
+  // Types
+  import type { ID } from '@vuetify/v0/types'
 
   const {
     step,
