@@ -1,6 +1,9 @@
 <script setup lang="ts">
   // Framework
-  import { Atom, IN_BROWSER, useClickOutside, useHydration, useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useClickOutside, useFeatures, useHydration, useWindowEventListener } from '@vuetify/v0'
+
+  // Components
+  import { Discovery } from '@/components/discovery'
 
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
@@ -14,23 +17,35 @@
 
   // Types
   import type { NavItem, NavItemLink } from '@/stores/app'
-  import type { AtomExpose, AtomProps } from '@vuetify/v0'
 
   // Stores
   import { useAppStore } from '@/stores/app'
 
-  const { as = 'nav' } = defineProps<AtomProps>()
-
   const { prefersReducedMotion, showBgGlass } = useSettings()
   const { isSettled } = useHydration()
+  const devmode = useFeatures().get('devmode')!
 
   const app = useAppStore()
   const { selectedLevels } = useLevelFilterContext()
   const { configuredNav, activeFeatures, clearFilter } = useNavConfigContext()
   const route = useRoute()
 
+  // Filter out devmode items when devmode setting is disabled
+  function filterDevmode (items: NavItem[]): NavItem[] {
+    return items
+      .filter(item => !('devmode' in item && item.devmode))
+      .map(item => {
+        if ('children' in item && item.children) {
+          return { ...item, children: filterDevmode(item.children) }
+        }
+        return item
+      })
+  }
+
+  const visibleNav = computed(() => devmode.isSelected.value ? configuredNav.value : filterDevmode(configuredNav.value))
+
   // Provide nested nav context for collapsible sections
-  const { provide: provideNavNested } = createNavNested(configuredNav)
+  const { provide: provideNavNested } = createNavNested(visibleNav)
   provideNavNested()
 
   // Find a page by path in nav tree
@@ -63,9 +78,9 @@
 
   // Check if nav has real content (not just dividers)
   const hasNavContent = computed(() =>
-    configuredNav.value.some(item => !('divider' in item)),
+    visibleNav.value.some(item => !('divider' in item)),
   )
-  const navRef = useTemplateRef<AtomExpose>('nav')
+  const navRef = useTemplateRef<HTMLElement>('nav')
 
   // Match Tailwind's md breakpoint (768px) for nav visibility
   const isMobile = shallowRef(true)
@@ -99,7 +114,7 @@
   }, { immediate: true })
 
   useClickOutside(
-    () => navRef.value?.element,
+    () => navRef.value,
     () => {
       if (app.drawer && isMobile.value) {
         app.drawer = false
@@ -116,11 +131,13 @@
 </script>
 
 <template>
-  <Atom
+  <Discovery.Activator
     id="main-navigation"
     ref="nav"
+    active-class="rounded-lg"
     aria-label="Main navigation"
-    :as
+    as="nav"
+    class="flex flex-col fixed w-[230px] py-4 top-0 md:top-[72px] bottom-0"
     :class="[
       'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 translate-x-[-100%] md:translate-x-0 border-r border-solid border-divider z-10',
       showBgGlass ? 'bg-glass-surface' : 'bg-surface',
@@ -128,7 +145,9 @@
       !prefersReducedMotion && 'transition-transform duration-200 ease-in-out',
     ]"
     :inert="!app.drawer && isMobile ? true : undefined"
+    step="navigation"
   >
+
     <!-- URL filter banner -->
     <div v-if="activeFeatures" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant/50 border-b border-divider">
       <p class="text-xs text-on-surface-variant mb-2">
@@ -164,7 +183,7 @@
         </li>
       </template>
 
-      <template v-for="(nav, i) in configuredNav" :key="i">
+      <template v-for="(nav, i) in visibleNav" :key="i">
         <li v-if="'divider' in nav" class="px-4">
           <AppDivider />
         </li>
@@ -173,6 +192,7 @@
           v-else-if="'to' in nav"
           :id="nav.to"
           class="px-4"
+          :devmode="nav.devmode"
           :emphasized="nav.emphasized"
           :name="nav.name"
           :to="nav.to"
@@ -203,5 +223,5 @@
         </li>
       </template>
     </ul>
-  </Atom>
+  </Discovery.Activator>
 </template>

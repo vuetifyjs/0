@@ -1,30 +1,40 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER } from '@vuetify/v0'
+  import { IN_BROWSER, isNullOrUndefined, useBreakpoints, useLogger } from '@vuetify/v0'
 
   // Components
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
+  // Composables
+  import { useDiscovery } from '@/composables/useDiscovery'
+
   // Utilities
-  import { nextTick, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { shallowRef, toRef, useAttrs, watch } from 'vue'
 
   defineOptions({ name: 'DiscoveryContent', inheritAttrs: false })
 
   const attrs = useAttrs()
+  const logger = useLogger()
 
   const {
     placement = 'bottom',
-    positionTry = 'flip-block flip-inline',
+    placementMobile,
     offset = 16,
   } = defineProps<{
     placement?: string
-    /** CSS position-try-fallbacks value for automatic repositioning */
-    positionTry?: string
+    placementMobile?: string
     offset?: number
   }>()
 
+  const { smAndDown } = useBreakpoints()
+  const activePlacement = toRef(() => {
+    if (!isNullOrUndefined(placementMobile) && smAndDown.value) return placementMobile
+    return placement
+  })
+
   const root = useDiscoveryRootContext('v0:discovery')
-  const contentRef = useTemplateRef<HTMLElement>('content')
+  const discovery = useDiscovery()
+  const isReady = shallowRef(false)
 
   // Check for CSS Anchor Positioning support
   // Safari/iOS don't support anchor positioning - check for the specific property
@@ -51,16 +61,25 @@
       positionArea: 'right',
       alignSelf: 'anchor-center',
     },
+    center: {
+      positionArea: 'center',
+    },
   }
 
   const style = toRef(() => {
+    const currentPlacement = activePlacement.value
+
     if (supportsAnchor) {
       return {
         position: 'fixed' as const,
-        margin: `${offset}px`,
+        inset: `${offset}px`,
+        width: 'max-content',
+        height: 'max-content',
+        // maxWidth: `calc(100vw - ${offset * 2}px)`,
+        maxHeight: `calc(100vh - ${offset * 2}px)`,
+        overflow: 'auto',
         positionAnchor: `--discovery-${root.step}`,
-        positionTryFallbacks: positionTry,
-        ...placementStyles[placement] ?? placementStyles.bottom,
+        ...placementStyles[currentPlacement] ?? placementStyles.bottom,
       }
     }
     // Fallback for browsers without anchor positioning (Safari/iOS)
@@ -72,36 +91,59 @@
       top: { top: `${offset}px`, left: '50%', transform: 'translateX(-50%)' },
       left: { top: '50%', left: `${offset}px`, transform: 'translateY(-50%)' },
       right: { top: '50%', right: `${offset}px`, transform: 'translateY(-50%)' },
+      center: { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
     }
     return {
       ...base,
-      ...fallbackStyles[placement] ?? fallbackStyles.bottom,
+      ...fallbackStyles[currentPlacement] ?? fallbackStyles.bottom,
     }
   })
 
-  watch(() => root.isActive.value, async isActive => {
-    if (!IN_BROWSER) return
-    await nextTick()
-    // Extra frame to ensure anchor element is positioned after enter callbacks
-    await new Promise(resolve => requestAnimationFrame(resolve))
-    const el = contentRef.value
-    if (!el?.isConnected) return
+  // Poll for activator to be registered, then show content
+  watch(
+    root.isActive,
+    isActive => {
+      if (!IN_BROWSER) return
 
-    if (isActive) {
-      el.showPopover?.()
-    } else {
-      el.hidePopover?.()
-    }
-  }, { immediate: true })
+      if (isActive) {
+        isReady.value = false
+        const startTime = performance.now()
+        const TIMEOUT_MS = 2000
+
+        // Poll until activator is registered (with timeout)
+        function checkActivator () {
+          const activator = discovery.activators.get(root.step)
+          if (activator?.element) {
+            // Activator found - wait one more frame for anchor-name CSS
+            requestAnimationFrame(() => {
+              isReady.value = true
+            })
+          } else if (performance.now() - startTime > TIMEOUT_MS) {
+            logger.warn(`[DiscoveryContent] Activator for step "${root.step}" not found after ${TIMEOUT_MS}ms`)
+            // Timeout - show content anyway to avoid hanging
+            isReady.value = true
+          } else {
+            // Keep polling
+            requestAnimationFrame(checkActivator)
+          }
+        }
+        requestAnimationFrame(checkActivator)
+      } else {
+        isReady.value = false
+      }
+    },
+    { immediate: true },
+  )
 </script>
 
 <template>
-  <Teleport v-if="root.isActive.value" to="body">
+  <Teleport v-if="isReady" to="body">
     <div
-      ref="content"
       v-bind="attrs"
-      popover="manual"
-      :style
+      :style="{
+        ...style,
+        zIndex: 9999,
+      }"
     >
       <slot />
     </div>

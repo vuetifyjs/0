@@ -20,13 +20,7 @@ export default function zero (app: App) {
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin())
   app.use(createStoragePlugin())
-  app.use(
-    createDiscoveryPlugin({
-      tours: {
-        'docs-intro': ['open-search', 'search-tabs', 'ask-ai', 'ask-ai-close', 'ask-ai-reopen', 'ask-ai-options', 'open-settings', 'skill-level'],
-      },
-    }),
-  )
+  app.use(createDiscoveryPlugin())
   app.use(
     createFeaturesPlugin({
       features: {

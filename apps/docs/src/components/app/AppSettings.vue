@@ -16,7 +16,7 @@
 </script>
 
 <template>
-  <Discovery.Activator class="rounded-lg" step="open-settings">
+  <Discovery.Activator class="rounded-lg" step="settings">
     <button
       aria-label="Open settings"
       class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"

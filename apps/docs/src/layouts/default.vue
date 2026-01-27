@@ -2,8 +2,11 @@
   // Framework
   import { useBreakpoints } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
   import { useDiscovery } from '@/composables/useDiscovery'
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
@@ -31,7 +34,7 @@
 
   const breakpoints = useBreakpoints()
   const discovery = useDiscovery()
-  const { isOpen: isAskOpen } = useAskSheet()
+  const ask = useAsk()
   const { isOpen: isSearchOpen } = useSearch()
   const { isOpen: isSettingsOpen, close: closeSettings, prefersReducedMotion, forceReducedMotion } = useSettings()
 
@@ -46,7 +49,7 @@
   const isModalOpen = computed(() => {
     if (isSearchOpen.value) return true
     if (isSettingsOpen.value) return true
-    if (isAskOpen.value && !breakpoints.lgAndUp.value) return true
+    if (ask.isOpen.value && !breakpoints.lgAndUp.value) return true
     return false
   })
 

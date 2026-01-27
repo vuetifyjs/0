@@ -23,6 +23,7 @@
     /** Whether this is a top-level item (renders differently) */
     depth?: number
     emphasized?: boolean
+    devmode?: boolean
   }
 
   const {
@@ -32,6 +33,7 @@
     name,
     depth = 0,
     emphasized,
+    devmode,
     to,
     ...props
   } = defineProps<ComponentProps>()
@@ -72,6 +74,7 @@
       name: value.name,
       to: isNavItemLink(value) ? value.to : undefined,
       emphasized: isNavItemLink(value) ? value.emphasized : undefined,
+      devmode: isNavItemLink(value) ? value.devmode : undefined,
       depth: depth + 1,
     }
   }
@@ -160,7 +163,7 @@
         @click="onOpen"
       >
         <span class="truncate">{{ name }}</span>
-        <span v-if="emphasized" class="w-2 h-2 rounded-[2px] bg-success shrink-0" />
+        <span v-if="emphasized" class="w-2 h-2 rounded-[2px] shrink-0" :class="devmode ? 'bg-error' : 'bg-success'" />
       </Atom>
 
       <!-- Category header (not navigable) -->

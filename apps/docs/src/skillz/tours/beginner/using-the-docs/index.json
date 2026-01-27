@@ -1,0 +1,95 @@
+{
+  "mode": "guided",
+  "id": "using-the-docs",
+  "name": "Using the Docs",
+  "level": 1,
+  "track": "essentials",
+  "categories": ["meta"],
+  "order": 0,
+  "prerequisites": [],
+  "description": "A quick tour of the Vuetify0 documentation site.",
+  "minutes": 3,
+  "startRoute": "/introduction/why-vuetify0",
+  "steps": [
+    {
+      "id": "search",
+      "title": "Search",
+      "task": "This is the search. It finds components, composables, and guides across the entire documentation.",
+      "hint": "",
+      "learn": "Where to find the search"
+    },
+    {
+      "id": "navigation",
+      "title": "Navigation",
+      "task": "This is the main navigation sidebar. It organizes all documentation into sections: components, composables, guides, and more.",
+      "hint": "",
+      "learn": "Where to find the navigation sidebar",
+      "placement": "right"
+    },
+    {
+      "id": "toc",
+      "title": "Table of Contents",
+      "task": "The TOC shows all headings on the current page. Click any heading to jump directly to that section.",
+      "hint": "Table of Contents is not available on mobile devices.",
+      "learn": "How to navigate within a page",
+      "placement": "left",
+      "skipOnMobile": true
+    },
+    {
+      "id": "page-actions",
+      "title": "Page Actions",
+      "task": "Every page has quick actions: edit on GitHub, report bugs, view source code, and copy as markdown.",
+      "hint": "",
+      "learn": "How to contribute and report issues"
+    },
+    {
+      "id": "page-metadata",
+      "title": "Page Metadata",
+      "task": "Metadata shows the skill level, test coverage, performance tier, and last update date for each feature.",
+      "hint": "",
+      "learn": "How to assess feature quality and complexity"
+    },
+    {
+      "id": "ask-ai",
+      "title": "Ask AI",
+      "task": "This is Ask AI. It's a context-aware assistant that knows the content of the current page and can answer your questions.",
+      "hint": "",
+      "learn": "Where to find the AI assistant",
+      "placement": "top"
+    },
+    {
+      "id": "ask-ai-panel",
+      "title": "Ask AI Panel",
+      "task": "Asking a question opens up the Ask AI panel. Here you can see the conversation history and interact with the assistant.",
+      "hint": "",
+      "learn": "How to use the Ask AI panel",
+      "placement": "left",
+      "placementMobile": "center"
+    },
+    {
+      "id": "ask-ai-features",
+      "title": "Conversation Tools",
+      "task": "The toolbar has options to save your conversation to Vuetify Bin, copy it, or reset and start fresh.",
+      "hint": "",
+      "learn": "What the Ask AI toolbar does",
+      "placement": "left",
+      "placementMobile": "bottom"
+    },
+    {
+      "id": "settings",
+      "title": "Settings",
+      "task": "This is the settings panel. It has theme options, layout preferences, and content filters.",
+      "hint": "",
+      "learn": "Where to find settings"
+    },
+    {
+      "id": "skill-level",
+      "title": "Skill Levels",
+      "task": "These filters control which content appears in the navigation. Beginner shows fundamentals, Intermediate adds detail, and Advanced shows everything.",
+      "hint": "",
+      "learn": "What skill level filters do",
+      "placement": "left",
+      "placementMobile": "top"
+    }
+  ]
+}

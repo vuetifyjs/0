@@ -5,16 +5,13 @@
   // Types
   import type { Ref } from 'vue'
 
-  export type NextOnCallback = (next: () => void) => (() => void) | void
-
   type ID = string | number
 
   export interface DiscoveryRootContext {
     step: ID
     isActive: DiscoveryContext['isActive']
     index: Readonly<Ref<number>>
-    total: DiscoveryContext['total']
-    all: DiscoveryContext['all']
+    total: Ref<number>
     isFirst: DiscoveryContext['isFirst']
     isLast: DiscoveryContext['isLast']
     canGoBack: DiscoveryContext['canGoBack']
@@ -34,60 +31,42 @@
   import { useDiscovery, type DiscoveryContext } from '@/composables/useDiscovery'
 
   // Utilities
-  import { onBeforeUnmount, toRef, watch } from 'vue'
+  import { onBeforeUnmount, toRef } from 'vue'
 
   defineOptions({ name: 'DiscoveryRoot', inheritAttrs: false })
 
-  const props = defineProps<{
+  const {
+    step,
+    disabled,
+  } = defineProps<{
     step: ID
     disabled?: boolean
-    nextOn?: NextOnCallback
   }>()
 
   const discovery = useDiscovery()
 
-  const ticket = discovery.register({ type: 'step', id: props.step, disabled: props.disabled })
-
-  // Cleanup function for nextOn callback
-  let nextOnCleanup: (() => void) | void | null = null
-
-  onBeforeUnmount(() => {
-    discovery.unregister(ticket.id, 'step')
-    nextOnCleanup?.()
+  const ticket = discovery.roots.upsert(step, {
+    disabled: toRef(() => disabled),
   })
 
-  // Sync disabled prop changes to the registry
-  watch(() => props.disabled, disabled => {
-    discovery.steps.upsert(ticket.id, { disabled })
+  onBeforeUnmount(() => {
+    discovery.roots.unregister(ticket.id)
   })
 
   const titleId = `${ticket.id}-title`
   const descriptionId = `${ticket.id}-description`
 
   const isActive = toRef(() => discovery.isActive.value && discovery.selectedId.value === ticket.id)
-  const total = toRef(() => discovery.total.value)
-  const all = toRef(() => discovery.all.value)
-  const index = toRef(() => discovery.get(props.step)?.index ?? -1)
+  const total = toRef(() => discovery.total)
+  const index = toRef(() => discovery.steps.selectedIndex.value)
   const isFirst = toRef(() => index.value === 0)
   const isLast = toRef(() => index.value === total.value - 1)
 
-  // Handle nextOn callback when step becomes active
-  // flush: 'sync' ensures cleanup runs before other watchers/handlers
-  watch(isActive, active => {
-    if (active && props.nextOn) {
-      nextOnCleanup = props.nextOn(() => discovery.next())
-    } else if (nextOnCleanup) {
-      nextOnCleanup()
-      nextOnCleanup = null
-    }
-  }, { immediate: true, flush: 'sync' })
-
   provideDiscoveryRootContext('v0:discovery', {
-    step: props.step,
+    step,
     isActive,
     index,
     total,
-    all,
     isFirst,
     isLast,
     canGoBack: discovery.canGoBack,

@@ -436,6 +436,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/essentials/using-the-docs': RouteRecordInfo<
+      '/guide/essentials/using-the-docs',
+      '/guide/essentials/using-the-docs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/features/accessibility': RouteRecordInfo<
       '/guide/features/accessibility',
       '/guide/features/accessibility',
@@ -541,13 +548,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/guide/using-the-docs': RouteRecordInfo<
-      '/guide/using-the-docs',
-      '/guide/using-the-docs',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/introduction/browser-support': RouteRecordInfo<
       '/introduction/browser-support',
       '/introduction/browser-support',
@@ -616,6 +616,20 @@ declare module 'vue-router/auto-routes' {
       '/roadmap',
       Record<never, never>,
       Record<never, never>,
+      | never
+    >,
+    '/skillz/': RouteRecordInfo<
+      '/skillz/',
+      '/skillz',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/skillz.[id]': RouteRecordInfo<
+      '/skillz.[id]',
+      '/skillz/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
       | never
     >,
     '/storybook/': RouteRecordInfo<
@@ -999,6 +1013,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/guide/essentials/using-the-docs.md': {
+      routes:
+        | '/guide/essentials/using-the-docs'
+      views:
+        | never
+    }
     'src/pages/guide/features/accessibility.md': {
       routes:
         | '/guide/features/accessibility'
@@ -1089,12 +1109,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/guide/using-the-docs.md': {
-      routes:
-        | '/guide/using-the-docs'
-      views:
-        | never
-    }
     'src/pages/introduction/browser-support.md': {
       routes:
         | '/introduction/browser-support'
@@ -1152,6 +1166,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/roadmap.md': {
       routes:
         | '/roadmap'
+      views:
+        | never
+    }
+    'src/pages/skillz/index.md': {
+      routes:
+        | '/skillz/'
+      views:
+        | never
+    }
+    'src/pages/skillz.[id].vue': {
+      routes:
+        | '/skillz.[id]'
       views:
         | never
     }

@@ -6,14 +6,14 @@
   import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
   import { useRouterLinks } from '@/composables/useRouterLinks'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
 
-  const { isOpen: isAskOpen } = useAskSheet()
+  const ask = useAsk()
   const { prefersReducedMotion } = useSettings()
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
   const mainRef = useTemplateRef<HTMLElement>('main')
@@ -44,7 +44,7 @@
     :class="[
       'pa-4 pb-6 ml-0 md:ml-[230px] relative z-0',
       !prefersReducedMotion && 'transition-[padding] duration-200',
-      isAskOpen ? 'xl:pr-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pr-[232px]',
+      ask.isOpen.value ? 'xl:pr-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pr-[232px]',
     ]"
   >
     <div class="max-w-[688px] mx-auto pb-4">

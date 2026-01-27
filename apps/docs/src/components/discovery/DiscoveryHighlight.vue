@@ -19,6 +19,8 @@
     padding?: number
     /** Whether clicking the backdrop blocks interaction (default: false) */
     blocking?: boolean
+    /** Whether clicking the highlighted element also blocks interaction (default: false) */
+    blockActivator?: boolean
   }
   export interface DiscoveryHighlightSlotProps {
 
@@ -47,6 +49,7 @@
     padding = 0,
     opacity = 0.75,
     blocking = false,
+    blockActivator = false,
   } = defineProps<DiscoveryHighlightProps>()
 
   const discovery = useDiscovery(namespace)
@@ -71,10 +74,8 @@
     const activator = discovery.activators.get(id)
     const el = toValue(activator?.element?.value ?? activator?.element)
     const r = el?.getBoundingClientRect()
-    if (!r) {
-      if (rect.value !== null) rect.value = null
-      return
-    }
+    // Don't clear rect if activator not found yet - keep old position for smooth transition
+    if (!r) return
 
     // Use activator-specific padding, fall back to global padding prop
     const p = activator?.padding ?? padding
@@ -165,12 +166,26 @@
   <Teleport to="body">
     <Transition name="discovery-highlight">
       <div v-if="isVisible && rect" class="fixed inset-0 z-9998 pointer-events-none">
-        <!-- Click-blocking layer (when blocking is enabled) -->
+        <!-- Click-blocking layer for backdrop (when blocking is enabled) -->
         <div
           v-if="blocking"
           aria-hidden="true"
           class="absolute inset-0 pointer-events-auto cursor-default"
           :style="{ clipPath }"
+        />
+
+        <!-- Click-blocking layer for activator (when blockActivator is enabled) -->
+        <div
+          v-if="blockActivator"
+          aria-hidden="true"
+          class="absolute pointer-events-auto cursor-default"
+          :style="{
+            left: `${rect.x}px`,
+            top: `${rect.y}px`,
+            width: `${rect.width}px`,
+            height: `${rect.height}px`,
+            borderRadius: `${borderRadius}px`,
+          }"
         />
 
         <!-- SVG Backdrop (visual only) -->

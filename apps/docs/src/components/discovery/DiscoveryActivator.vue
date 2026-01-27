@@ -14,22 +14,25 @@
     step,
     as = 'span',
     padding,
+    activeClass,
   } = defineProps<{
     step: ID | ID[]
     as?: string
     /** Padding around the highlighted area */
     padding?: number
+    /** Class to apply when this step is active */
+    activeClass?: string
   }>()
 
   const discovery = useDiscovery()
   const activatorRef = useTemplateRef<HTMLElement>('activator')
 
   const steps = toArray(step)
-  const tickets = steps.map(id => discovery.register({ id, type: 'activator', element: activatorRef, padding }))
+  const tickets = steps.map(id => discovery.activators.register({ id, element: activatorRef, padding }))
 
   onBeforeUnmount(() => {
     for (const ticket of tickets) {
-      discovery.unregister(ticket.id, 'activator')
+      discovery.activators.unregister(ticket.id)
     }
   })
 
@@ -52,10 +55,12 @@
     anchorName: tickets.map(t => `--discovery-${t.id}`).join(', '),
     scrollMarginBottom: '100px',
   }))
+
+  const isActive = toRef(() => steps.includes(discovery.selectedId.value as ID))
 </script>
 
 <template>
-  <component :is="as" ref="activator" :style>
+  <component :is="as" ref="activator" :class="isActive && activeClass" :style>
     <slot />
   </component>
 </template>

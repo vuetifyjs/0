@@ -2,12 +2,27 @@
   // Components
   import { useDiscoveryRootContext } from './DiscoveryRoot.vue'
 
+  // Composables
+  import { useDiscovery } from '@/composables/useDiscovery'
+
+  // Utilities
+  import { useRouter } from 'vue-router'
+
   defineOptions({ name: 'DiscoverySkip' })
 
   const root = useDiscoveryRootContext('v0:discovery')
+  const discovery = useDiscovery()
+  const router = useRouter()
 
   function skip () {
-    root.stop()
+    const tour = discovery.tours.selectedItem.value
+
+    if (root.isLast.value) {
+      discovery.complete()
+      router.push(tour?.completeRoute ?? (tour?.id ? `/skillz/${tour.id}` : '/skillz'))
+    } else {
+      root.stop()
+    }
   }
 </script>
 

@@ -8,7 +8,7 @@
 </script>
 
 <template>
-  <h2 :id="root.titleId">
+  <h2 :id="root.titleId" data-discovery-title>
     <slot />
   </h2>
 </template>

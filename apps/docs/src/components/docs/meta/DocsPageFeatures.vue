@@ -4,6 +4,9 @@
   // Framework
   import { isUndefined, useDate, useLogger } from '@vuetify/v0'
 
+  // Components
+  import { Discovery } from '@/components/discovery'
+
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
   import { providePageMeta } from '@/composables/usePageMeta'
@@ -238,109 +241,115 @@
 <template>
   <div class="mt-4 mb-8 flex flex-col gap-4">
     <!-- Action chips -->
-    <div class="inline-flex gap-2 flex-wrap">
-      <DocsActionChip
-        color="text-info"
-        :href="edit"
-        icon="pencil"
-        text="Edit this page"
-        title="Edit documentation page"
-      />
+    <Discovery.Activator class="rounded-lg" :padding="8" step="page-actions">
+      <div class="inline-flex gap-2 flex-wrap">
+        <DocsActionChip
+          color="text-info"
+          :href="edit"
+          icon="pencil"
+          text="Edit this page"
+          title="Edit documentation page"
+        />
 
-      <DocsActionChip
-        color="text-error"
-        :href="reportBugLink"
-        icon="vuetify-issues"
-        text="Report a Bug"
-        title="Open Vuetify Issues"
-      />
+        <DocsActionChip
+          color="text-error"
+          :href="reportBugLink"
+          icon="vuetify-issues"
+          text="Report a Bug"
+          title="Open Vuetify Issues"
+        />
 
-      <DocsActionChip
-        v-if="label"
-        color="text-warning"
-        :href="label"
-        icon="alert"
-        text="Open issues"
-        title="View Issues on GitHub"
-      />
+        <DocsActionChip
+          v-if="label"
+          color="text-warning"
+          :href="label"
+          icon="alert"
+          text="Open issues"
+          title="View Issues on GitHub"
+        />
 
-      <DocsActionChip
-        v-if="github"
-        :href="github"
-        icon="github"
-        text="View on GitHub"
-        title="View source code on GitHub"
-      />
+        <DocsActionChip
+          v-if="github"
+          :href="github"
+          icon="github"
+          text="View on GitHub"
+          title="View source code on GitHub"
+        />
 
-      <DocsActionChip
-        :color="copyError ? 'text-error' : copied ? 'text-success' : 'text-on-surface'"
-        :icon="loading ? 'loading' : copyError ? 'alert' : copied ? 'success' : 'markdown'"
-        :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : copied ? 'Copied' : 'Copy Page as Markdown'"
-        title="Copy Page as Markdown"
-        @click="onClickCopy"
-      />
-    </div>
+        <DocsActionChip
+          :color="copyError ? 'text-error' : copied ? 'text-success' : 'text-on-surface'"
+          :icon="loading ? 'loading' : copyError ? 'alert' : copied ? 'success' : 'markdown'"
+          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : copied ? 'Copied' : 'Copy Page as Markdown'"
+          title="Copy Page as Markdown"
+          @click="onClickCopy"
+        />
+      </div>
+    </Discovery.Activator>
+
+    <hr>
 
     <!-- Inline metadata -->
     <!-- Order: Classification → Skill Level → Quality → Performance → Reference -->
-    <div
-      v-if="!isUndefined(renderless) || level || coverage || benchmark || lastUpdated"
-      class="flex items-center flex-wrap text-xs text-on-surface-variant pt-3 border-t border-divider gap-3 md:gap-2"
-    >
-      <!-- 1. Renderless - Feature classification (what is it?) -->
-      <DocsMetaItem
-        v-if="renderless === true"
-        color="text-secondary"
-        icon="renderless"
-        text="Renderless"
-        title="Component renders no DOM element by default"
-      />
-      <DocsMetaItem
-        v-if="renderless === false"
-        color="text-secondary"
-        icon="layers"
-        text="Renders element"
-        title="Component renders a DOM element by default"
-      />
+    <Discovery.Activator class="rounded-lg" :padding="8" step="page-metadata">
+      <div
+        v-if="!isUndefined(renderless) || level || coverage || benchmark || lastUpdated"
+        class="flex items-center flex-wrap text-xs text-on-surface-variant gap-3 md:gap-2"
+      >
+        <!-- 1. Renderless - Feature classification (what is it?) -->
+        <DocsMetaItem
+          v-if="renderless === true"
+          color="text-secondary"
+          icon="renderless"
+          text="Renderless"
+          title="Component renders no DOM element by default"
+        />
+        <DocsMetaItem
+          v-if="renderless === false"
+          color="text-secondary"
+          icon="layers"
+          text="Renders element"
+          title="Component renders a DOM element by default"
+        />
 
-      <!-- 2. Level - Skill level (should I use it?) -->
-      <DocsMetaItem
-        v-if="level"
-        :color="level.color"
-        :icon="level.icon"
-        :text="level.label"
-        :title="`${level.label} skill level`"
-      />
+        <!-- 2. Level - Skill level (should I use it?) -->
+        <DocsMetaItem
+          v-if="level"
+          :color="level.color"
+          :icon="level.icon"
+          :text="level.label"
+          :title="`${level.label} skill level`"
+        />
 
-      <!-- 3. Coverage - Quality signal (is it tested?) -->
-      <DocsMetaItem
-        v-if="coverage && testFileLink"
-        :color="coverage.color"
-        :href="testFileLink"
-        icon="test"
-        :text="coverage.label"
-        :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
-      />
+        <!-- 3. Coverage - Quality signal (is it tested?) -->
+        <DocsMetaItem
+          v-if="coverage && testFileLink"
+          :color="coverage.color"
+          :href="testFileLink"
+          icon="test"
+          :text="coverage.label"
+          :title="`Statements: ${itemMetrics?.coverage?.statements}%${itemMetrics?.coverage?.functions != null ? `, Functions: ${itemMetrics.coverage.functions}%` : ''}, Branches: ${itemMetrics?.coverage?.branches}%`"
+        />
 
-      <!-- 4. Benchmark - Performance (is it fast?) -->
-      <DocsMetaItem
-        v-if="benchmark"
-        :color="benchmark.color"
-        href="#benchmarks"
-        :icon="benchmark.icon"
-        :text="benchmark.label"
-        title="View performance benchmarks"
-        @click.prevent="scrollToAnchor('benchmarks')"
-      />
+        <!-- 4. Benchmark - Performance (is it fast?) -->
+        <DocsMetaItem
+          v-if="benchmark"
+          :color="benchmark.color"
+          href="#benchmarks"
+          :icon="benchmark.icon"
+          :text="benchmark.label"
+          title="View performance benchmarks"
+          @click.prevent="scrollToAnchor('benchmarks')"
+        />
 
-      <!-- 5. Last Updated - Reference (is it maintained?) -->
-      <DocsMetaItem
-        v-if="lastUpdated"
-        color="text-secondary"
-        icon="calendar-clock"
-        :text="lastUpdated"
-        title="Last updated"
-      />
-    </div>
+        <!-- 5. Last Updated - Reference (is it maintained?) -->
+        <DocsMetaItem
+          v-if="lastUpdated"
+          color="text-secondary"
+          icon="calendar-clock"
+          :text="lastUpdated"
+          title="Last updated"
+        />
+      </div>
+    </Discovery.Activator>
   </div>
 </template>
