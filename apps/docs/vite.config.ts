@@ -22,6 +22,7 @@ import generateNavPlugin from './build/generate-nav'
 import generatePageDatesPlugin from './build/generate-page-dates'
 import generateSearchIndexPlugin from './build/generate-search-index'
 import Markdown from './build/markdown'
+import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig({
@@ -36,9 +37,13 @@ export default defineConfig({
   ssgOptions: {
     dirStyle: 'nested',
     async includedRoutes (paths) {
-      const apiSlugs = await getApiSlugs()
+      const [apiSlugs, skillzSlugs] = await Promise.all([
+        getApiSlugs(),
+        getSkillzSlugs(),
+      ])
       const apiRoutes = apiSlugs.map(slug => `/api/${slug}`)
-      return [...paths, ...apiRoutes]
+      const skillzRoutes = skillzSlugs.map(slug => `/skillz/${slug}`)
+      return [...paths, ...apiRoutes, ...skillzRoutes]
     },
     onFinished () {
       generateSitemap({
