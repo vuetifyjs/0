@@ -53,7 +53,7 @@
   } = defineProps<DiscoveryHighlightProps>()
 
   const discovery = useDiscovery(namespace)
-  const { userPrefersReducedMotion } = useSettings()
+  const settings = useSettings()
 
   const rect = shallowRef<{
     x: number
@@ -199,7 +199,7 @@
         <!-- SVG Backdrop (visual only) -->
         <svg
           aria-hidden="true"
-          :class="['absolute inset-0 pointer-events-none w-screen h-screen', { 'smooth-tracking': !userPrefersReducedMotion }]"
+          :class="['absolute inset-0 pointer-events-none w-screen h-screen', { 'smooth-tracking': !settings.userPrefersReducedMotion.value }]"
         >
           <!-- With cutout mask -->
           <template v-if="showCutout && rect">
@@ -228,7 +228,7 @@
             />
             <!-- Glow effect around the cutout (offset outward so stroke is outside only) -->
             <rect
-              :class="['fill-none stroke-primary', { 'highlight-glow': !userPrefersReducedMotion }]"
+              :class="['fill-none stroke-primary', { 'highlight-glow': !settings.userPrefersReducedMotion.value }]"
               :height="rect.height + 3"
               :rx="borderRadius + 1.5"
               :ry="borderRadius + 1.5"

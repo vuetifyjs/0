@@ -5,11 +5,11 @@
   // Utilities
   import { toRef } from 'vue'
 
-  const { adapter } = useDate()
+  const date = useDate()
 
   const year = toRef(() => {
-    const today = adapter.date()
-    return today ? adapter.getYear(today) : new Date().getFullYear()
+    const today = date.adapter.date()
+    return today ? date.adapter.getYear(today) : new Date().getFullYear()
   })
 </script>
 

@@ -17,10 +17,10 @@
 
   const wrap = defineModel<boolean>('wrap', { default: false })
 
-  const { copied, copy } = useClipboard()
+  const clipboard = useClipboard()
 
   function copyCode () {
-    copy(props.code)
+    clipboard.copy(props.code)
   }
 
   function openInBin () {
@@ -65,9 +65,9 @@
 
     <AppIconButton
       v-if="showCopy"
-      :aria-label="!copied ? 'Copy code' : 'Copied'"
-      :icon="!copied ? 'copy' : 'success'"
-      :title="!copied ? 'Copy code' : 'Copied'"
+      :aria-label="!clipboard.copied.value ? 'Copy code' : 'Copied'"
+      :icon="!clipboard.copied.value ? 'copy' : 'success'"
+      :title="!clipboard.copied.value ? 'Copy code' : 'Copied'"
       type="button"
       @click="copyCode"
     />

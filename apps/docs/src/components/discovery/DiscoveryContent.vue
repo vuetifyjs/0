@@ -26,9 +26,9 @@
     offset?: number
   }>()
 
-  const { smAndDown } = useBreakpoints()
+  const breakpoints = useBreakpoints()
   const activePlacement = toRef(() => {
-    if (!isNullOrUndefined(placementMobile) && smAndDown.value) return placementMobile
+    if (!isNullOrUndefined(placementMobile) && breakpoints.smAndDown.value) return placementMobile
     return placement
   })
 
