@@ -69,6 +69,16 @@
             <span class="text-xl">←</span>
             Back to Skillz
           </RouterLink>
+
+          <div class="flex items-center gap-4">
+            <SkillDuration class="text-sm text-on-surface-variant" :minutes="tour.minutes" />
+            <button
+              class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
+              @click="onClick()"
+            >
+              Start
+            </button>
+          </div>
         </header>
 
         <div
@@ -77,6 +87,7 @@
         >
           <div class="flex gap-2 mb-4">
             <SkillLevelBadge :level="tour.level" />
+            <SkillModeBadge :mode="tour.mode" />
             <!-- <span v-if="trackMeta" class="text-xs font-medium px-2.5 py-1 rounded bg-surface-variant text-on-surface-variant">
               {{ trackMeta.label }}
             </span> -->

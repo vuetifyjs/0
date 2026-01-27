@@ -3,16 +3,16 @@
   import { computed } from 'vue'
 
   // Types
-  import type { SkillLevel } from '@/types/skill'
+  import type { SkillMode } from '@/types/skill'
 
-  import { SKILL_LEVEL_META } from '@/types/skill'
+  import { SKILL_MODE_META } from '@/types/skill'
 
   const props = withDefaults(defineProps<{
-    /** Skill level (1, 2, or 3) */
-    level: SkillLevel
-    /** Show the level icon */
+    /** Skill mode ('guided' or 'interactive') */
+    mode: SkillMode
+    /** Show the mode icon */
     showIcon?: boolean
-    /** Show the level label */
+    /** Show the mode label */
     showLabel?: boolean
     /** Icon size in pixels */
     iconSize?: number
@@ -22,14 +22,14 @@
     iconSize: 14,
   })
 
-  const meta = computed(() => SKILL_LEVEL_META[props.level])
+  const meta = computed(() => SKILL_MODE_META[props.mode])
 </script>
 
 <template>
   <span
-    class="skill-level-badge"
-    :style="{ '--level-color': meta.color }"
-    :title="meta.title"
+    class="skill-mode-badge"
+    :style="{ '--mode-color': meta.color }"
+    :title="meta.description"
   >
     <AppIcon v-if="showIcon" :icon="meta.icon" :size="iconSize" />
     <span v-if="showLabel">{{ meta.label }}</span>
@@ -37,7 +37,7 @@
 </template>
 
 <style scoped>
-.skill-level-badge {
+.skill-mode-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -45,7 +45,7 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 4px;
-  background: color-mix(in srgb, var(--level-color) 15%, transparent);
-  color: var(--level-color);
+  background: color-mix(in srgb, var(--mode-color) 15%, transparent);
+  color: var(--mode-color);
 }
 </style>

@@ -61,10 +61,15 @@ export type SkillCategory =
   | 'typescript' // Type patterns (generics, inference)
   | 'ssr' // Server-side rendering (hydration, Nuxt)
 
-export const SKILL_LEVEL_META: Record<SkillLevel, { label: string, icon: string, color: string }> = {
-  1: { label: 'Beginner', icon: 'level-beginner', color: 'var(--v0-success)' },
-  2: { label: 'Intermediate', icon: 'level-intermediate', color: 'var(--v0-info)' },
-  3: { label: 'Advanced', icon: 'level-advanced', color: 'var(--v0-warning)' },
+export const SKILL_LEVEL_META: Record<SkillLevel, { label: string, icon: string, color: string, title: string }> = {
+  1: { label: 'Beginner', icon: 'level-beginner', color: 'var(--v0-success)', title: 'Beginner experience level' },
+  2: { label: 'Intermediate', icon: 'level-intermediate', color: 'var(--v0-info)', title: 'Intermediate experience level' },
+  3: { label: 'Advanced', icon: 'level-advanced', color: 'var(--v0-warning)', title: 'Advanced experience level' },
+}
+
+export const SKILL_MODE_META: Record<SkillMode, { label: string, icon: string, color: string, description: string }> = {
+  guided: { label: 'Guided', icon: 'compass', color: 'var(--v0-primary)', description: 'A passive walkthrough. Just click next to continue.' },
+  interactive: { label: 'Interactive', icon: 'keyboard', color: 'var(--v0-accent)', description: 'Hands-on practice. Complete tasks to progress.' },
 }
 
 export const SKILL_TRACK_META: Record<SkillTrack, { label: string, description: string }> = {
