@@ -15,11 +15,6 @@ related:
   - /components/disclosure/expansion-panel
 ---
 
-<script setup>
-import BasicExample from '@/examples/components/popover/basic.vue'
-import BasicExampleRaw from '@/examples/components/popover/basic.vue?raw'
-</script>
-
 # Popover
 
 A headless component for creating popovers and tooltips using modern CSS anchor positioning.
@@ -38,9 +33,9 @@ A headless component for creating popovers and tooltips using modern CSS anchor 
 
 The Popover component leverages the CSS Anchor Positioning API to create popovers, tooltips, and dropdown menus without JavaScript-based positioning. It provides v-model support for open/closed state management.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
-  <BasicExample />
-</DocsExample>
+::: example
+/components/popover/basic
+:::
 
 ## Anatomy
 

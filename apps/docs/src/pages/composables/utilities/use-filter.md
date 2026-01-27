@@ -15,11 +15,6 @@ related:
   - /composables/utilities/use-virtual
 ---
 
-<script setup lang="ts">
-import LiveSearchExample from '@/examples/composables/use-filter/live-search.vue'
-import LiveSearchExampleRaw from '@/examples/composables/use-filter/live-search.vue?raw'
-</script>
-
 # useFilter
 
 A composable for filtering arrays of items based on search queries, supporting both primitive values and complex objects with customizable filtering logic.
@@ -52,13 +47,9 @@ console.log(filtered.value)
 
 ## Examples
 
-### Live Search
-
-Real-time filtering with highlighted matching terms.
-
-<DocsExample file="live-search.vue" :code="LiveSearchExampleRaw">
-  <LiveSearchExample />
-</DocsExample>
+::: example
+/composables/use-filter/live-search
+:::
 
 ## Architecture
 

@@ -15,11 +15,6 @@ related:
   - /composables/system/use-intersection-observer
 ---
 
-<script setup>
-import BasicExample from '@/examples/composables/use-lazy/basic.vue'
-import BasicExampleRaw from '@/examples/composables/use-lazy/basic.vue?raw'
-</script>
-
 # useLazy
 
 A composable for deferring content rendering until first activation, with optional reset on deactivation.
@@ -30,9 +25,9 @@ A composable for deferring content rendering until first activation, with option
 
 The `useLazy` composable tracks whether content has been activated at least once. Content renders only after first activation (unless eager mode is enabled), reducing initial render cost for components like dialogs, menus, and tooltips.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
-  <BasicExample />
-</DocsExample>
+::: example
+/composables/use-lazy/basic
+:::
 
 ## Architecture
 

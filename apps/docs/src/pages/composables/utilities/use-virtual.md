@@ -15,11 +15,6 @@ related:
   - /composables/utilities/use-overflow
 ---
 
-<script setup>
-import VirtualListExample from '@/examples/composables/use-virtual/basic.vue'
-import VirtualListExampleRaw from '@/examples/composables/use-virtual/basic.vue?raw'
-</script>
-
 # useVirtual
 
 Virtual scrolling composable for efficiently rendering large lists by only rendering visible items.
@@ -30,9 +25,9 @@ Virtual scrolling composable for efficiently rendering large lists by only rende
 
 The `useVirtual` composable efficiently renders large lists by only mounting visible items plus a small overscan buffer. Pass an array of items and configure the item height to get back sliced items, scroll handlers, and positioning values.
 
-<DocsExample file="basic.vue" :code="VirtualListExampleRaw">
-  <VirtualListExample />
-</DocsExample>
+::: example
+/composables/use-virtual/basic
+:::
 
 ## Architecture
 

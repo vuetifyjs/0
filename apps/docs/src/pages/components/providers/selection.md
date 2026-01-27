@@ -17,11 +17,6 @@ related:
   - /components/providers/group
 ---
 
-<script setup>
-import BasicExample from '@/examples/components/selection/basic.vue'
-import BasicExampleRaw from '@/examples/components/selection/basic.vue?raw'
-</script>
-
 # Selection
 
 A headless component for managing selection state in collections with support for single and multi-selection patterns.
@@ -32,9 +27,9 @@ A headless component for managing selection state in collections with support fo
 
 The Selection component provides a wrapper and item pattern for managing selection state in collections. It uses the `createSelection` composable internally and provides full v-model support with automatic state synchronization.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
-  <BasicExample />
-</DocsExample>
+::: example
+/components/selection/basic
+:::
 
 ## Anatomy
 

@@ -16,11 +16,6 @@ related:
   - /components/disclosure/expansion-panel
 ---
 
-<script setup>
-  import BasicExample from '@/examples/components/dialog/basic.vue'
-  import BasicExampleRaw from '@/examples/components/dialog/basic.vue?raw'
-</script>
-
 # Dialog
 
 A headless modal dialog component using the native HTML dialog element.
@@ -39,9 +34,9 @@ A headless modal dialog component using the native HTML dialog element.
 
 The Dialog component leverages the native `showModal()` API for proper modal behavior including focus trapping, backdrop rendering, and escape key handling. It provides v-model support for open/closed state management.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
-  <BasicExample />
-</DocsExample>
+::: example
+/components/dialog/basic
+:::
 
 ## Anatomy
 

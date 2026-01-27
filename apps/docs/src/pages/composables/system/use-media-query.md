@@ -15,11 +15,6 @@ related:
   - /composables/system/use-event-listener
 ---
 
-<script setup>
-import BasicExample from '@/examples/composables/use-media-query/basic.vue'
-import BasicExampleRaw from '@/examples/composables/use-media-query/basic.vue?raw'
-</script>
-
 # useMediaQuery
 
 A composable for reactive CSS media query matching with automatic cleanup.
@@ -30,9 +25,9 @@ A composable for reactive CSS media query matching with automatic cleanup.
 
 The `useMediaQuery` composable wraps the browser's `matchMedia` API, providing reactive updates when the media query state changes. It supports static strings, refs, and getter functions for dynamic queries.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
-  <BasicExample />
-</DocsExample>
+::: example
+/composables/use-media-query/basic
+:::
 
 ## Architecture
 

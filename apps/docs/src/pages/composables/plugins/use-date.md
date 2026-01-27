@@ -15,13 +15,6 @@ related:
   - /composables/foundation/create-plugin
 ---
 
-<script setup>
-import BasicExample from '@/examples/composables/use-date/basic.vue'
-import BasicExampleRaw from '@/examples/composables/use-date/basic.vue?raw'
-import CalendarExample from '@/examples/composables/use-date/calendar.vue'
-import CalendarExampleRaw from '@/examples/composables/use-date/calendar.vue?raw'
-</script>
-
 # useDate
 
 The `useDate` composable provides comprehensive date manipulation capabilities using the adapter pattern. The default adapter uses the [Temporal API](https://tc39.es/proposal-temporal/docs/) for modern, immutable date operations with locale-aware formatting via `Intl.DateTimeFormat`. Integrates with `useLocale` for automatic locale synchronization.
@@ -76,9 +69,9 @@ app.use(
 
 Once the plugin is installed, use the `useDate` composable in any component:
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
-  <BasicExample />
-</DocsExample>
+::: example
+/composables/use-date/basic
+:::
 
 <DocsApi />
 
@@ -235,13 +228,9 @@ The `formatByString()` method supports these tokens:
 
 The following examples demonstrate common date operations using the default Temporal adapter:
 
-### Mini Calendar
-
-The mini calendar example shows how to render a simple month view calendar using `useDate` for date calculations and formatting.
-
-<DocsExample file="calendar.vue" :code="CalendarExampleRaw">
-  <CalendarExample />
-</DocsExample>
+::: example
+/composables/use-date/calendar
+:::
 
 ## Locale Integration
 

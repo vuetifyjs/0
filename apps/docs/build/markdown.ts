@@ -70,6 +70,8 @@ export default async function MarkdownPlugin () {
 
       // Example container: ::: example ... :::
       // Lines starting with / are file paths, rest is markdown description
+      // Single file without description: renders with peek, no description slot
+      // Multiple files or with description: renders with description slot
       md.use(Container, 'example', {
         render (tokens: MarkdownToken[], index: number, _options: unknown, env: Record<string, unknown>) {
           if (tokens[index].nesting === 1) {
@@ -79,14 +81,29 @@ export default async function MarkdownPlugin () {
             return '' // Defer opening tag until we know the file path(s)
           }
 
-          // Closing tag - only emit if we actually opened the component
+          // Closing tag
           const wasOpened = env._exampleOpened
+          const paths = env._exampleFilePaths as string[]
+
           delete env._inExample
           delete env._exampleFilePaths
           delete env._exampleOpened
           delete env._examplePathPara
 
-          return wasOpened ? `</template>\n</DocsExample>\n` : ''
+          // If opened with description, close the description template
+          if (wasOpened) {
+            return `</template>\n</DocsExample>\n`
+          }
+
+          // If we have paths but no description content, emit simple peek version
+          if (paths?.length === 1) {
+            return `<DocsExample file-path="${paths[0]}" peek />\n`
+          } else if (paths?.length > 1) {
+            const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
+            return `<DocsExample :file-paths="${pathsJson}" />\n`
+          }
+
+          return ''
         },
       })
 

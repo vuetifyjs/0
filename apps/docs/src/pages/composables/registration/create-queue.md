@@ -15,11 +15,6 @@ related:
 - /composables/registration/create-timeline
 ---
 
-<script setup lang="ts">
-import TaskRunnerExample from '@/examples/composables/create-queue/task-runner.vue'
-import TaskRunnerExampleRaw from '@/examples/composables/create-queue/task-runner.vue?raw'
-</script>
-
 # createQueue
 
 A queue composable for managing time-based collections with automatic timeout-based removal, pause/resume functionality, and FIFO (First In, First Out) ordering.
@@ -46,13 +41,9 @@ console.log(queue.size) // 3
 
 ## Examples
 
-### Task Runner
-
-A background task queue with progress tracking and FIFO ordering.
-
-<DocsExample file="task-runner.vue" :code="TaskRunnerExampleRaw">
-  <TaskRunnerExample />
-</DocsExample>
+::: example
+/composables/create-queue/task-runner
+:::
 
 ## Architecture
 

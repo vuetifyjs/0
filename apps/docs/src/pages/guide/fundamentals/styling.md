@@ -14,19 +14,6 @@ related:
   - /introduction/getting-started
 ---
 
-<script setup>
-import DataAttributesExample from '@/examples/guide/styling/data-attributes.vue'
-import DataAttributesExampleRaw from '@/examples/guide/styling/data-attributes.vue?raw'
-import CssModulesExample from '@/examples/guide/styling/css-modules.vue'
-import CssModulesExampleRaw from '@/examples/guide/styling/css-modules.vue?raw'
-import SlotPropsExample from '@/examples/guide/styling/slot-props.vue'
-import SlotPropsExampleRaw from '@/examples/guide/styling/slot-props.vue?raw'
-import TransitionsExample from '@/examples/guide/styling/transitions.vue'
-import TransitionsExampleRaw from '@/examples/guide/styling/transitions.vue?raw'
-import CompoundStatesExample from '@/examples/guide/styling/compound-states.vue'
-import CompoundStatesExampleRaw from '@/examples/guide/styling/compound-states.vue?raw'
-</script>
-
 # Styling Headless Components
 
 v0 components are headless—they provide behavior and accessibility, you provide the styling. This guide covers two first-class patterns for styling based on component state.
@@ -75,17 +62,17 @@ Data attribute selectors let you style based on state purely in CSS. This works 
 
 Use the `data-[attr]:` [variant](https://unocss.dev/transformers/variant-group) to apply classes when an attribute is present:
 
-<DocsExample file="data-attributes.vue" :code="DataAttributesExampleRaw">
-  <DataAttributesExample />
-</DocsExample>
+::: example
+/guide/styling/data-attributes
+:::
 
 ### CSS Modules
 
 Target data attributes in your [module styles](https://vuejs.org/api/sfc-css-features#css-modules):
 
-<DocsExample file="css-modules.vue" :code="CssModulesExampleRaw">
-  <CssModulesExample />
-</DocsExample>
+::: example
+/guide/styling/css-modules
+:::
 
 ### Plain CSS
 
@@ -117,9 +104,9 @@ Standard [attribute selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/
 - **Conditional rendering** (icons, badges, text)
 - **Dynamic inline styles** (progress bars, animations)
 
-<DocsExample file="slot-props.vue" :code="SlotPropsExampleRaw">
-  <SlotPropsExample />
-</DocsExample>
+::: example
+/guide/styling/slot-props
+:::
 
 > [!WARNING]
 > Always spread `attrs` on your interactive element. It contains [ARIA attributes](/guide/features/accessibility) required for accessibility, plus data attributes for CSS styling.
@@ -130,9 +117,9 @@ Standard [attribute selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/
 
 Add CSS transitions for smooth state changes:
 
-<DocsExample file="transitions.vue" :code="TransitionsExampleRaw">
-  <TransitionsExample />
-</DocsExample>
+::: example
+/guide/styling/transitions
+:::
 
 ### Focus States
 
@@ -154,9 +141,9 @@ Combine focus-visible with selection state for keyboard navigation feedback:
 
 Style combinations using CSS attribute selectors:
 
-<DocsExample file="compound-states.vue" :code="CompoundStatesExampleRaw">
-  <CompoundStatesExample />
-</DocsExample>
+::: example
+/guide/styling/compound-states
+:::
 
 ### Parent-Child Styling
 

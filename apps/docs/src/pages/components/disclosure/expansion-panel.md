@@ -15,11 +15,6 @@ related:
   - /components/disclosure/popover
 ---
 
-<script setup>
-import BasicExample from '@/examples/components/expansion-panel/basic.vue'
-import BasicExampleRaw from '@/examples/components/expansion-panel/basic.vue?raw'
-</script>
-
 # ExpansionPanel
 
 A component for creating accordion-style expansion panels with proper ARIA support.
@@ -30,9 +25,9 @@ A component for creating accordion-style expansion panels with proper ARIA suppo
 
 The ExpansionPanel component provides a wrapper and item pattern for managing expansion state in accordion-style interfaces. It uses the `createSelection` composable internally and provides full v-model support with automatic state synchronization.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
-  <BasicExample />
-</DocsExample>
+::: example
+/components/expansion-panel/basic
+:::
 
 ## Anatomy
 

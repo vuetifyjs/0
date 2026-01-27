@@ -16,8 +16,6 @@ related:
 ---
 
 <script setup>
-import GroupExample from '@/examples/components/group/basic.vue'
-import GroupExampleRaw from '@/examples/components/group/basic.vue?raw'
 import { useSettings } from '@/composables/useSettings'
 
 const { lineWrap, showInlineApi, collapsibleNav } = useSettings()
@@ -235,9 +233,9 @@ Examples render as functional components you can interact with directly:
 - See real behavior without leaving the docs
 - Examples use the same code shown below them
 
-<DocsExample file="basic.vue" :code="GroupExampleRaw">
-  <GroupExample />
-</DocsExample>
+::: example
+/components/group/basic
+:::
 
 ### Code Toggle
 

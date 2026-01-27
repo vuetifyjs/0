@@ -15,15 +15,6 @@ related:
   - /components/providers/group
 ---
 
-<script setup>
-import BasicExample from '@/examples/components/checkbox/basic.vue'
-import BasicExampleRaw from '@/examples/components/checkbox/basic.vue?raw'
-import GroupExample from '@/examples/components/checkbox/group.vue'
-import GroupExampleRaw from '@/examples/components/checkbox/group.vue?raw'
-import IndeterminateExample from '@/examples/components/checkbox/indeterminate.vue'
-import IndeterminateExampleRaw from '@/examples/components/checkbox/indeterminate.vue?raw'
-</script>
-
 # Checkbox
 
 A headless checkbox component with dual-mode support: standalone boolean binding or group multi-selection with tri-state.
@@ -37,9 +28,9 @@ The Checkbox component supports two modes:
 - **Standalone mode**: Use `v-model` on `Checkbox.Root` for simple boolean state
 - **Group mode**: Wrap in `Checkbox.Group` for multi-selection with array v-model
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
-  <BasicExample />
-</DocsExample>
+::: example
+/components/checkbox/basic
+:::
 
 ## Anatomy
 
@@ -89,9 +80,9 @@ The Checkbox component supports two modes:
 
 Wrap checkboxes in `Checkbox.Group` for multi-selection with array-based v-model:
 
-<DocsExample file="group.vue" :code="GroupExampleRaw" peek>
-  <GroupExample />
-</DocsExample>
+::: example
+/components/checkbox/group
+:::
 
 ## Accessibility
 
@@ -145,9 +136,9 @@ For custom form integration, use `Checkbox.HiddenInput` explicitly:
 
 Use `Checkbox.SelectAll` within a group for "select all" patterns. It automatically reflects the group's aggregate state and toggles all items on click:
 
-<DocsExample file="indeterminate.vue" :code="IndeterminateExampleRaw" peek>
-  <IndeterminateExample />
-</DocsExample>
+::: example
+/components/checkbox/indeterminate
+:::
 
 The `SelectAll` component:
 - Binds to the group's `isAllSelected` and `isMixed` state

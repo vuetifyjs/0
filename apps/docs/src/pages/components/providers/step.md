@@ -16,11 +16,6 @@ related:
   - /components/providers/single
 ---
 
-<script setup>
-import BasicExample from '@/examples/components/step/basic.vue'
-import BasicExampleRaw from '@/examples/components/step/basic.vue?raw'
-</script>
-
 # Step
 
 A headless component for navigation through multi-step processes like wizards and forms.
@@ -31,9 +26,9 @@ A headless component for navigation through multi-step processes like wizards an
 
 The Step component extends Single with navigation methods for moving through a sequence of items. It provides methods for first, last, next, previous, and step-by-count navigation with automatic disabled item skipping.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
-  <BasicExample />
-</DocsExample>
+::: example
+/components/step/basic
+:::
 
 ## Anatomy
 

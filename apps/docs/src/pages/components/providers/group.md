@@ -16,11 +16,6 @@ related:
   - /components/providers/selection
 ---
 
-<script setup>
-import BasicExample from '@/examples/components/group/basic.vue'
-import BasicExampleRaw from '@/examples/components/group/basic.vue?raw'
-</script>
-
 # Group
 
 A headless component for managing multi-selection with batch operations and tri-state support.
@@ -31,9 +26,9 @@ A headless component for managing multi-selection with batch operations and tri-
 
 The Group component is a specialization of Selection that enforces multi-selection behavior and supports batch operations on arrays of IDs. It always uses array-based v-model binding.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw" peek>
-  <BasicExample />
-</DocsExample>
+::: example
+/components/group/basic
+:::
 
 ## Anatomy
 

@@ -16,13 +16,6 @@ related:
   - /components/forms/checkbox
 ---
 
-<script setup>
-import GroupExample from '@/examples/components/radio/group.vue'
-import GroupExampleRaw from '@/examples/components/radio/group.vue?raw'
-import MandatoryExample from '@/examples/components/radio/mandatory.vue'
-import MandatoryExampleRaw from '@/examples/components/radio/mandatory.vue?raw'
-</script>
-
 # Radio
 
 A headless radio button component for single-selection groups with keyboard navigation and roving tabindex.
@@ -33,9 +26,9 @@ A headless radio button component for single-selection groups with keyboard navi
 
 Radio buttons must be used within a `Radio.Group`. Use `v-model` on the group to bind the selected value:
 
-<DocsExample file="group.vue" :code="GroupExampleRaw" peek>
-  <GroupExample />
-</DocsExample>
+::: example
+/components/radio/group
+:::
 
 ## Anatomy
 
@@ -76,9 +69,9 @@ Radio buttons must be used within a `Radio.Group`. Use `v-model` on the group to
 
 Radio groups are inherently mandatory—once a selection is made, it can only be changed, not cleared. Use `mandatory="force"` to automatically select the first non-disabled option on mount:
 
-<DocsExample file="mandatory.vue" :code="MandatoryExampleRaw" peek>
-  <MandatoryExample />
-</DocsExample>
+::: example
+/components/radio/mandatory
+:::
 
 ## Accessibility
 
