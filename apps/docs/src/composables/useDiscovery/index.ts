@@ -67,6 +67,8 @@ export type DiscoveryTour = {
   description: string
   minutes: number
   startRoute: string
+  /** Route to navigate to after tour completion */
+  completeRoute?: string
   steps: DiscoveryTourStep[]
 }
 

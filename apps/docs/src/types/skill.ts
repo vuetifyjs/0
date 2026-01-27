@@ -38,11 +38,13 @@ export interface SkillMeta {
   description: string
   minutes: number
   startRoute: string
+  /** Route to navigate to after tour completion */
+  completeRoute?: string
   steps: SkillStep[]
 }
 
 // Tracks align with docs learning tracks
-export type SkillTrack = 'fundamentals' | 'features' | 'integration'
+export type SkillTrack = 'essentials' | 'fundamentals' | 'features' | 'integration'
 
 // Categories for multi-tag filtering
 export type SkillCategory =
@@ -66,6 +68,10 @@ export const SKILL_LEVEL_META: Record<SkillLevel, { label: string, icon: string,
 }
 
 export const SKILL_TRACK_META: Record<SkillTrack, { label: string, description: string }> = {
+  essentials: {
+    label: 'Essentials',
+    description: 'Getting started — navigating the docs, key concepts, first steps',
+  },
   fundamentals: {
     label: 'Fundamentals',
     description: 'Understanding the system — Trinity, Context, Registry patterns',
