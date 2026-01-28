@@ -69,6 +69,7 @@
         ask,
         breakpoints,
         navigation,
+        router,
         search,
         settings,
       },
