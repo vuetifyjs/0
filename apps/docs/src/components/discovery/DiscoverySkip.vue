@@ -8,20 +8,26 @@
   // Utilities
   import { useRouter } from 'vue-router'
 
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
+
   defineOptions({ name: 'DiscoverySkip' })
 
   const root = useDiscoveryRootContext('v0:discovery')
   const discovery = useDiscovery()
+  const skillz = useSkillzStore()
   const router = useRouter()
 
   function skip () {
     const tour = discovery.tours.selectedItem.value
+    const returnRoute = tour?.id ? `/skillz/${tour.id}` : '/skillz'
 
     if (root.isLast.value) {
-      discovery.complete()
-      router.push(tour?.completeRoute ?? (tour?.id ? `/skillz/${tour.id}` : '/skillz'))
+      skillz.complete()
+      router.push(tour?.completeRoute ?? returnRoute)
     } else {
-      root.stop()
+      skillz.stop()
+      router.push(returnRoute)
     }
   }
 </script>
