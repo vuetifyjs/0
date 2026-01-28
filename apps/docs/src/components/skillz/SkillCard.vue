@@ -11,7 +11,7 @@
 
 <template>
   <RouterLink
-    class="block p-4 border border-divider rounded-lg bg-surface no-underline text-inherit transition-[border-color,box-shadow] duration-200 hover:border-primary hover:shadow-md"
+    class="flex flex-col h-full p-4 border border-divider rounded-lg bg-surface no-underline text-inherit transition-[border-color,box-shadow] duration-200 hover:border-primary hover:shadow-md"
     :class="{ 'border-success': completed }"
     :to="`/skillz/${skill.id}`"
   >
@@ -25,15 +25,16 @@
       </span>
     </div>
 
-    <h3 class="text-lg font-semibold m-0 mb-2 text-on-surface">{{ skill.name }}</h3>
-    <p class="text-sm text-on-surface-variant m-0 mb-3 leading-relaxed">{{ skill.description }}</p>
+    <h3 class="text-lg font-semibold m-0 mb-2 text-on-surface line-clamp-1">{{ skill.name }}</h3>
+    <p class="text-sm text-on-surface-variant m-0 mb-3 leading-relaxed line-clamp-2">{{ skill.description }}</p>
 
-    <SkillCategoryTags :categories="skill.categories" class="mb-3" />
+    <div class="mt-auto pt-4">
+      <SkillPrerequisites class="mb-3" :prerequisites="skill.prerequisites" />
 
-    <div class="flex justify-end text-xs text-on-surface-variant">
-      <SkillDuration :minutes="skill.minutes" />
+      <div class="flex justify-between items-center text-xs text-on-surface-variant">
+        <SkillCategoryTags :categories="skill.categories" />
+        <SkillDuration :minutes="skill.minutes" />
+      </div>
     </div>
-
-    <SkillPrerequisites class="mt-2" :prerequisites="skill.prerequisites" />
   </RouterLink>
 </template>

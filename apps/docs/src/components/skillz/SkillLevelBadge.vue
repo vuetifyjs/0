@@ -27,25 +27,14 @@
 
 <template>
   <span
-    class="skill-level-badge"
-    :style="{ '--level-color': meta.color }"
+    class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded"
+    :style="{
+      background: `color-mix(in srgb, ${meta.color} 15%, transparent)`,
+      color: meta.color,
+    }"
     :title="meta.title"
   >
     <AppIcon v-if="showIcon" :icon="meta.icon" :size="iconSize" />
     <span v-if="showLabel">{{ meta.label }}</span>
   </span>
 </template>
-
-<style scoped>
-.skill-level-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--level-color) 15%, transparent);
-  color: var(--level-color);
-}
-</style>
