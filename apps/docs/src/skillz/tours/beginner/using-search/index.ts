@@ -61,6 +61,14 @@ export function defineTour (context: TourContext) {
       'search-history': {
         enter: () => {
           if (!search.isOpen.value) search.open()
+          if (search.recents.value.length === 0) {
+            search.addRecent({
+              id: '/components/disclosure/tabs',
+              title: 'Tabs',
+              category: 'Component',
+              path: '/components/disclosure/tabs',
+            })
+          }
           search.clear()
         },
         back: () => {
