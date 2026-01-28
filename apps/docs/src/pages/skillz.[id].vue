@@ -17,7 +17,11 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
+  import { computed } from 'vue'
   import { useRouter } from 'vue-router'
+
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
 
   definePage({
     meta: {
@@ -29,12 +33,21 @@
   const settings = useSettings()
   const params = useParams<{ id: string }>()
   const discovery = useDiscovery()
+  const store = useSkillzStore()
   const ask = useAsk()
   const navigation = useNavigation()
   const search = useSearch()
   const breakpoints = useBreakpoints()
   const router = useRouter()
   const tour = discovery.tours.get(params.value.id)
+
+  const done = computed(() => store.steps(params.value.id))
+  const progress = computed(() => store.get(params.value.id))
+  const label = computed(() => {
+    if (!progress.value) return 'Start'
+    if (progress.value.status === 'completed') return 'Restart'
+    return 'Resume'
+  })
 
   useHead({
     title: () => tour ? `${tour.name} - Skillz` : 'Skill Not Found - Skillz',
@@ -50,7 +63,7 @@
 
     await router.push(tour.startRoute)
 
-    discovery.start(tour.id, {
+    store.start(tour.id, {
       stepId,
       context: {
         ask,
@@ -94,21 +107,19 @@
               class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
               @click="onClick()"
             >
-              Start
+              {{ label }}
             </button>
           </div>
         </header>
 
         <div
-          class="border border-divider rounded-xl p-4 md:p-8"
+          class="border border-divider rounded-xl p-4 md:p-6"
           :class="settings.showBgGlass ? 'bg-glass-surface' : 'bg-surface'"
         >
-          <div class="flex gap-2 mb-4">
+          <div class="flex items-center gap-2 mb-4">
             <SkillLevelBadge :level="tour.level" />
             <SkillModeBadge :mode="tour.mode" />
-            <!-- <span v-if="trackMeta" class="text-xs font-medium px-2.5 py-1 rounded bg-surface-variant text-on-surface-variant">
-              {{ trackMeta.label }}
-            </span> -->
+            <SkillMasteredBadge v-if="progress?.status === 'completed'" class="ml-auto" />
           </div>
 
           <h1 class="text-2xl font-bold m-0 mb-3 text-on-surface">{{ tour.name }}</h1>
@@ -120,7 +131,7 @@
 
           <h2 class="text-base font-semibold m-0 mb-4 text-on-surface">What you'll learn</h2>
 
-          <ol class="list-none p-0 m-0 mb-8">
+          <ol class="list-none p-0 m-0" :class="{ 'mb-8': progress?.status !== 'completed' }">
             <li
               v-for="(step, index) in tour.steps"
               :key="index"
@@ -128,22 +139,33 @@
               @click="onClick(step.id)"
             >
               <span
+                v-if="done.includes(String(step.id))"
+                class="flex items-center justify-center w-6 h-6 shrink-0 text-success"
+              >
+                <AppIcon icon="check" :size="18" />
+              </span>
+              <span
+                v-else
                 class="flex items-center justify-center w-6 h-6 text-xs font-semibold rounded-full shrink-0 bg-surface-variant text-on-surface-variant"
               >
                 {{ index + 1 }}
               </span>
 
-              <span class="text-sm text-on-surface">
+              <span
+                class="text-sm"
+                :class="done.includes(String(step.id)) ? 'text-on-surface-variant line-through' : 'text-on-surface'"
+              >
                 {{ step.learn }}
               </span>
             </li>
           </ol>
 
           <button
+            v-if="progress?.status !== 'completed'"
             class="w-full px-6 py-2 text-base font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:not-disabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
             @click="onClick()"
           >
-            Start Skill
+            {{ label }} Skill
           </button>
         </div>
       </div>

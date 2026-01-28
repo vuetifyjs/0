@@ -1,27 +1,41 @@
 <script setup lang="ts">
+  // Utilities
+  import { computed } from 'vue'
+
   // Types
   import type { SkillMeta } from '@/types/skill'
 
-  defineProps<{
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
+
+  const props = defineProps<{
     skill: SkillMeta
   }>()
 
-  const completed = false // TODO: hook up progress tracking
+  const store = useSkillzStore()
+  const done = computed(() => store.completed(props.skill.id))
+  const isLocked = computed(() => store.locked(props.skill.id))
 </script>
 
 <template>
-  <RouterLink
-    class="flex flex-col h-full p-4 border border-divider rounded-lg bg-surface no-underline text-inherit transition-[border-color,box-shadow] duration-200 hover:border-primary hover:shadow-md"
-    :class="{ 'border-success': completed }"
-    :to="`/skillz/${skill.id}`"
+  <component
+    :is="isLocked ? 'div' : 'RouterLink'"
+    class="flex flex-col h-full p-4 border border-divider rounded-lg bg-surface no-underline text-inherit transition-[border-color,box-shadow] duration-200"
+    :class="{
+      'border-success': done,
+      'opacity-60 cursor-not-allowed': isLocked,
+      'hover:border-primary hover:shadow-md': !isLocked,
+    }"
+    :to="isLocked ? undefined : `/skillz/${skill.id}`"
   >
     <div class="flex justify-between items-center mb-2">
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <SkillLevelBadge :level="skill.level" />
         <SkillModeBadge :mode="skill.mode" />
       </div>
-      <span v-if="completed" class="text-success flex items-center">
-        <AppIcon icon="check" :size="16" />
+      <SkillMasteredBadge v-if="done" :show-label="false" />
+      <span v-else-if="isLocked" class="text-on-surface-variant flex items-center">
+        <AppIcon icon="lock" :size="16" />
       </span>
     </div>
 
@@ -36,5 +50,5 @@
         <SkillDuration :minutes="skill.minutes" />
       </div>
     </div>
-  </RouterLink>
+  </component>
 </template>

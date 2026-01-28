@@ -7,6 +7,7 @@
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
@@ -34,8 +35,8 @@
 
   const root = useDiscoveryRootContext('v0:discovery')
   const discovery = useDiscovery()
+  const settings = useSettings()
   const isReady = shallowRef(false)
-  const isDev = import.meta.env.DEV
   const contentRef = useTemplateRef<HTMLElement>('content')
 
   // Check for CSS Anchor Positioning support
@@ -157,18 +158,29 @@
     <div
       ref="content"
       v-bind="attrs"
-      class="outline-none"
+      :class="['outline-none', { 'discovery-content': !settings.userPrefersReducedMotion.value }]"
       :style="{
         ...style,
         zIndex: 9999,
       }"
       tabindex="-1"
     >
-      <div v-if="isDev" class="font-mono text-xs text-on-surface-variant/50 mb-1">
-        {{ root.step }}
-      </div>
-
       <slot />
     </div>
   </Teleport>
 </template>
+
+<style scoped>
+.discovery-content {
+  scale: 1;
+  opacity: 1;
+  transition:
+    scale 0.25s cubic-bezier(0.17, 0.89, 0.32, 1.28),
+    opacity 0.15s ease-out;
+
+  @starting-style {
+    scale: 0.92;
+    opacity: 0;
+  }
+}
+</style>
