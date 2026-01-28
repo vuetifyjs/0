@@ -13,6 +13,7 @@
   import { useDiscovery } from '@/composables/useDiscovery'
   import { useNavigation } from '@/composables/useNavigation'
   import { useParams } from '@/composables/useRoute'
+  import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
@@ -30,6 +31,7 @@
   const discovery = useDiscovery()
   const ask = useAsk()
   const navigation = useNavigation()
+  const search = useSearch()
   const breakpoints = useBreakpoints()
   const router = useRouter()
   const tour = discovery.tours.get(params.value.id)
@@ -54,6 +56,7 @@
         ask,
         breakpoints,
         navigation,
+        search,
         settings,
       },
     })

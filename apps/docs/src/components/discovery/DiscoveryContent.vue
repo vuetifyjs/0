@@ -9,7 +9,7 @@
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { shallowRef, toRef, useAttrs, watch } from 'vue'
+  import { nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   defineOptions({ name: 'DiscoveryContent', inheritAttrs: false })
 
@@ -36,6 +36,7 @@
   const discovery = useDiscovery()
   const isReady = shallowRef(false)
   const isDev = import.meta.env.DEV
+  const contentRef = useTemplateRef<HTMLElement>('content')
 
   // Check for CSS Anchor Positioning support
   // Safari/iOS don't support anchor positioning - check for the specific property
@@ -143,16 +144,25 @@
     },
     { immediate: true },
   )
+
+  watch(isReady, ready => {
+    if (ready) {
+      nextTick(() => contentRef.value?.focus())
+    }
+  })
 </script>
 
 <template>
   <Teleport v-if="isReady" to="body">
     <div
+      ref="content"
       v-bind="attrs"
+      class="outline-none"
       :style="{
         ...style,
         zIndex: 9999,
       }"
+      tabindex="-1"
     >
       <div v-if="isDev" class="font-mono text-xs text-on-surface-variant/50 mb-1">
         {{ root.step }}

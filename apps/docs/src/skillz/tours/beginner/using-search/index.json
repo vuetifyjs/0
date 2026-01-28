@@ -1,0 +1,89 @@
+{
+  "mode": "guided",
+  "id": "using-search",
+  "name": "Using Search",
+  "level": 1,
+  "track": "essentials",
+  "categories": ["meta"],
+  "order": 1,
+  "prerequisites": [],
+  "description": "Master the documentation search to find components, composables, and guides quickly.",
+  "minutes": 2,
+  "startRoute": "/introduction/getting-started",
+  "steps": [
+    {
+      "id": "search",
+      "title": "Search Button",
+      "task": "This is the search button. It opens the search panel where you can find components, composables, and guides.",
+      "hint": "Keyboard shortcut: Ctrl+K (or Cmd+K on Mac)",
+      "learn": "Where to find search"
+    },
+    {
+      "id": "search-input",
+      "title": "Search Input",
+      "task": "This is where you type your search query. Results update instantly as you type.",
+      "hint": "Arrow keys navigate results, Enter selects.",
+      "learn": "Where to type search queries",
+      "placement": "bottom"
+    },
+    {
+      "id": "search-results",
+      "title": "Search Results",
+      "task": "Results are grouped by category: Components, Composables, Guides, and more. The best matches appear first.",
+      "hint": "",
+      "learn": "How search results are organized",
+      "placement": "bottom"
+    },
+    {
+      "id": "search-favorite",
+      "title": "Favorite Results",
+      "task": "The star icon adds a result to your favorites. Favorites appear at the top when search is empty for quick access.",
+      "hint": "",
+      "learn": "What the favorite button does",
+      "placement": "left",
+      "placementMobile": "bottom"
+    },
+    {
+      "id": "search-ask-ai",
+      "title": "Ask AI",
+      "task": "This button navigates to the page and asks AI about the topic. Great for getting a quick overview.",
+      "hint": "",
+      "learn": "What the Ask AI button does",
+      "placement": "left",
+      "placementMobile": "bottom"
+    },
+    {
+      "id": "search-dismiss",
+      "title": "Dismiss Results",
+      "task": "The X icon hides a result for the current session. Useful for filtering out irrelevant matches.",
+      "hint": "",
+      "learn": "What the dismiss button does",
+      "placement": "left",
+      "placementMobile": "bottom"
+    },
+    {
+      "id": "search-history",
+      "title": "Search History",
+      "task": "Recent searches appear here when the search field is empty. History persists between sessions.",
+      "hint": "",
+      "learn": "Where to find search history",
+      "placement": "bottom"
+    },
+    {
+      "id": "search-favorited",
+      "title": "Favorited!",
+      "task": "We just added Tabs to your favorites. Notice it now appears at the top for quick access anytime you open search.",
+      "hint": "",
+      "learn": "How favorites work in practice",
+      "placement": "bottom"
+    },
+    {
+      "id": "conclusion",
+      "title": "You're a Search Pro!",
+      "task": "That covers the search features. Use Ctrl+K anytime to quickly find what you need.",
+      "hint": "",
+      "learn": "Ready to search like a pro",
+      "noActivator": true
+    }
+  ]
+}
