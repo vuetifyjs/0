@@ -376,7 +376,7 @@
               </div>
               <!-- First result gets Discovery.Activator for tour -->
               <Discovery.Activator
-                v-if="groupIndex === 0 && group.items.length > 0"
+                v-if="groupIndex === 0 && group.items[0]"
                 class="rounded-lg"
                 step="search-results"
               >
@@ -431,6 +431,7 @@
                         />
                       </span>
                     </Discovery.Activator>
+
                     <!-- Ask AI button -->
                     <Discovery.Activator
                       class="rounded-lg"
@@ -453,6 +454,7 @@
                         <AppIcon aria-hidden="true" icon="create" size="16" />
                       </span>
                     </Discovery.Activator>
+
                     <!-- Dismiss button -->
                     <Discovery.Activator
                       class="rounded-lg"
