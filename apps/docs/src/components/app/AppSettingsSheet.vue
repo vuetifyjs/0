@@ -69,15 +69,7 @@
         <span id="settings-title" class="font-medium">Settings</span>
       </div>
 
-      <button
-        aria-label="Close settings"
-        class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-        title="Close"
-        type="button"
-        @click="settings.close"
-      >
-        <AppIcon icon="close" size="18" />
-      </button>
+      <AppCloseButton label="Close settings" @click="settings.close" />
     </header>
 
     <!-- Content -->

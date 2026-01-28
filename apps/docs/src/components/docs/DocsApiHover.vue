@@ -336,18 +336,7 @@
           <span class="popover-name">{{ displayName }}</span>
           <span v-if="vueApi" class="popover-kind popover-kind-vue">{{ vueApi.category }}</span>
           <span v-else class="popover-kind" :class="`popover-kind-${activeApiType}`">{{ (activeApi as Api).kind }}</span>
-          <button aria-label="Close" class="popover-close" type="button" @click.stop="hidePopover">
-            <svg
-              fill="none"
-              height="14"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-              width="14"
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+          <AppCloseButton class="ml-auto" @click.stop="hidePopover" />
         </div>
 
         <!-- Vue API content -->
@@ -550,28 +539,6 @@
   background: var(--v0-surface-light);
   border-radius: 4px;
   opacity: 0.7;
-}
-
-.popover-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin-left: auto;
-  padding: 0;
-  background: none;
-  border: none;
-  border-radius: 4px;
-  color: var(--v0-text-secondary);
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.15s, background 0.15s;
-}
-
-.popover-close:hover {
-  opacity: 1;
-  background: var(--v0-surface-variant);
 }
 
 .popover-description {

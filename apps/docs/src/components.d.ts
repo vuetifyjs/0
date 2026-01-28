@@ -16,6 +16,7 @@ declare module 'vue' {
     AppBar: typeof import('./components/app/AppBar.vue')['default']
     AppBrowserIcon: typeof import('./components/app/AppBrowserIcon.vue')['default']
     AppChip: typeof import('./components/app/AppChip.vue')['default']
+    AppCloseButton: typeof import('./components/app/AppCloseButton.vue')['default']
     AppCopyright: typeof import('./components/app/AppCopyright.vue')['default']
     AppDivider: typeof import('./components/app/AppDivider.vue')['default']
     AppFooter: typeof import('./components/app/AppFooter.vue')['default']

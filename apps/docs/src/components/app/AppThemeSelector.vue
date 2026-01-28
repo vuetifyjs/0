@@ -60,6 +60,12 @@
       position-area="bottom span-left"
       position-try="bottom span-left, bottom span-right, top span-left, top span-right"
     >
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-3 ps-1">
+        <span class="text-xs font-semibold text-on-surface">Theme</span>
+        <AppCloseButton size="sm" @click="isOpen = false" />
+      </div>
+
       <!-- Mode -->
       <div class="mb-3">
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Mode</div>
