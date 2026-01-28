@@ -31,6 +31,8 @@
 
   const breakpoints = useBreakpoints()
   const activePlacement = toRef(() => {
+    // Last step always uses center placement
+    if (discovery.isLast.value) return 'center'
     if (!isNullOrUndefined(placementMobile) && breakpoints.smAndDown.value) return placementMobile
     return placement
   })
@@ -123,10 +125,10 @@
         const startTime = performance.now()
         const TIMEOUT_MS = 2000
 
-        // Poll until activator is registered (with timeout)
+        // Poll until activator is registered and DOM element exists (with timeout)
         function checkActivator () {
           const activator = discovery.activators.get(root.step)
-          if (activator?.element) {
+          if (activator?.element?.value) {
             // Activator found - wait one more frame for anchor-name CSS
             requestAnimationFrame(() => {
               isReady.value = true
