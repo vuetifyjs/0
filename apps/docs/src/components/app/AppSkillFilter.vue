@@ -5,7 +5,11 @@
   // Composables
   import { useLevelFilterContext } from '@/composables/useLevelFilter'
 
+  // Utilities
+  import { ref } from 'vue'
+
   const levelFilter = useLevelFilterContext()
+  const isOpen = ref(false)
 
   const levelConfig: Record<number, { label: string, bg: string, text: string }> = {
     1: { label: 'Beginner', bg: 'bg-success border-success', text: 'text-on-success' },
@@ -15,7 +19,7 @@
 </script>
 
 <template>
-  <Popover.Root class="hidden md:block">
+  <Popover.Root v-model="isOpen" class="hidden md:block">
     <Popover.Activator
       aria-label="Filter by skill level"
       class="relative bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
@@ -32,6 +36,12 @@
     </Popover.Activator>
 
     <Popover.Content class="p-2 rounded-lg bg-surface border border-divider shadow-lg min-w-[160px] !mt-1" position-area="bottom span-left">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-2 ps-1">
+        <span class="text-xs font-semibold text-on-surface">Skill Level</span>
+        <AppCloseButton size="sm" @click="isOpen = false" />
+      </div>
+
       <button
         v-for="level in levelFilter.levels"
         :key="level"

@@ -164,14 +164,7 @@
             <AppIcon :icon="fullscreen ? 'fullscreen-exit' : 'fullscreen'" size="16" />
           </button>
 
-          <button
-            class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-            title="Close"
-            type="button"
-            @click="emit('close')"
-          >
-            <AppIcon icon="close" size="16" />
-          </button>
+          <AppCloseButton @click="emit('close')" />
         </div>
       </header>
     </Discovery.Activator>

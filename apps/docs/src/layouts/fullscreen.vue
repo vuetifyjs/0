@@ -1,17 +1,22 @@
 <script setup lang="ts">
+  // Framework
+  import { useBreakpoints } from '@vuetify/v0'
+
   // Composables
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
+  import { useNavigation } from '@/composables/useNavigation'
   import { useScrollLock } from '@/composables/useScrollLock'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { defineAsyncComponent, toRef } from 'vue'
+  import { computed, defineAsyncComponent, toRef } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
 
   const AppSettingsSheet = defineAsyncComponent(() => import('@/components/app/AppSettingsSheet.vue'))
+  const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
 
   const app = useAppStore()
   const levelFilter = createLevelFilter(() => app.nav)
@@ -21,12 +26,18 @@
   const navConfig = createNavConfig(levelFilter.filteredNav)
   navConfig.provide()
 
+  const breakpoints = useBreakpoints()
+  const navigation = useNavigation()
   const settings = useSettings()
 
   const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
   const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
+  const isModalOpen = computed(() => settings.isOpen.value)
+  const isMobileNavOpen = toRef(() => navigation.isOpen.value && !breakpoints.mdAndUp.value)
+
   useScrollLock(settings.isOpen)
+  useScrollLock(isMobileNavOpen)
 </script>
 
 <template>
@@ -38,13 +49,23 @@
       Skip to main content
     </a>
 
-    <div class="flex flex-col" :inert="settings.isOpen.value || undefined" style="min-height: calc(100vh - 72px)">
+    <div class="flex flex-col min-h-[calc(100vh-72px)]" :inert="isModalOpen || undefined">
       <AppBanner />
+      <AppNav />
       <AppBar />
       <main id="main-content" class="flex-1 flex flex-col">
         <router-view />
       </main>
     </div>
+
+    <!-- Mobile nav backdrop -->
+    <Transition :name="fadeTransition">
+      <div
+        v-if="isMobileNavOpen"
+        class="fixed inset-0 bg-black/30 z-9"
+        @click="navigation.close()"
+      />
+    </Transition>
 
     <!-- Settings backdrop -->
     <Transition :name="fadeTransition">
@@ -59,6 +80,8 @@
     <Transition :name="slideTransition">
       <AppSettingsSheet v-if="settings.isOpen.value" />
     </Transition>
+
+    <DocsSearch />
   </div>
 </template>
 
