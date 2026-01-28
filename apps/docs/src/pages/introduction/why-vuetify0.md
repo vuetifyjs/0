@@ -195,3 +195,5 @@ This lets you leverage v0's selection patterns while keeping Vuetify's styled co
 | Utility composables | VueUse (pairs with any) |
 
 Still unsure? Start with the [Getting Started](/introduction/getting-started) guide and try Vuetify0's selection patterns. If they click, you're in the right place.
+
+> [!TOUR] using-the-docs

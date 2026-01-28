@@ -217,7 +217,7 @@ export default async function MarkdownPlugin () {
           : '</p>'
       }
 
-      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!ASKAI], > [!DISCORD]
+      // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!ASKAI], > [!DISCORD], > [!TOUR]
       const defaultBlockquoteOpen = md.renderer.rules.blockquote_open
       const defaultBlockquoteClose = md.renderer.rules.blockquote_close
 
@@ -225,7 +225,7 @@ export default async function MarkdownPlugin () {
         // Look ahead: blockquote_open -> paragraph_open -> inline
         const inlineToken = tokens[index + 2]
         if (inlineToken?.type === 'inline' && inlineToken.content) {
-          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI|DISCORD)\]\s*(.*)/)
+          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI|DISCORD|TOUR)\]\s*(.*)/)
           if (match) {
             const type = match[1].toLowerCase()
             env._calloutType = type
@@ -245,6 +245,14 @@ export default async function MarkdownPlugin () {
               return `<DocsCallout type="${type}">`
             }
 
+            if (type === 'tour') {
+              // For tour callouts, the rest of the line is the tour ID
+              const tourId = match[2].trim()
+              inlineToken.content = ''
+              inlineToken.children = []
+              return `<DocsCallout type="${type}" tour-id="${tourId}">`
+            }
+
             // For other types, strip the marker and keep content
             const remainder = match[2]
             inlineToken.content = remainder
@@ -253,6 +261,7 @@ export default async function MarkdownPlugin () {
             if (inlineToken.children?.length) {
               const firstChild = inlineToken.children[0]
               if (firstChild?.type === 'text') {
+                // Only TIP|INFO|WARNING|ERROR reach here - ASKAI, DISCORD, TOUR return early with cleared content
                 firstChild.content = firstChild.content.replace(/^\[!(TIP|INFO|WARNING|ERROR)\]\s*/, '')
               }
             }

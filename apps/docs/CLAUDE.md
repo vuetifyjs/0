@@ -185,7 +185,7 @@ import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
 - **Always prefer @vuetify/v0 composables** over raw browser APIs or custom implementations. Check `mcp__vuetify-mcp__get_vuetify0_composable_list` before writing event listeners, observers, or state management.
 - UnoCSS utilities for all styling
 - Prefer markdown for documentation pages
-- **Callouts**: Use `> [!TIP]`, `> [!WARNING]`, `> [!ERROR]` for alerts. Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user.
+- **Callouts**: Use `> [!TIP]`, `> [!WARNING]`, `> [!ERROR]` for alerts. Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user. Use `> [!TOUR] tour-id` to embed a clickable tour callout—the tour name and description are pulled from the discovery registry automatically.
 - **Vue code in markdown fences**: Indent `<script>` and `<style>` content by 2 spaces for visual alignment with `<template>`
 - Examples: `src/examples/components/{component}/` or `src/examples/composables/{composable}/`
 - Component docs: `pages/components/{category}/{component}.md`
