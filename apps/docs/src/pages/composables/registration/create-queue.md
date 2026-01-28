@@ -23,27 +23,27 @@ A queue composable for managing time-based collections with automatic timeout-ba
 
 ## Usage
 
-The `createQueue` composable provides a powerful interface for managing time-based queues. Built on top of `createRegistry`, it automatically manages timeouts for items, ensuring only the first item in the queue is active at any time. When an item expires or is removed, the next item in the queue automatically becomes active.
+```ts collapse
+import { createQueue, type QueueTicket } from '@vuetify/v0'
 
-```ts
-import { createQueue } from '@vuetify/v0'
+interface Task extends QueueTicket {
+  name: string
+  priority: number
+}
 
-const queue = createQueue()
+const queue = createQueue<Task>({ timeout: 5000 })
 
-const item1 = queue.register({ value: 'First' })
-const item2 = queue.register({ value: 'Second' })
-const item3 = queue.register({ value: 'Third' })
+const task = queue.register({ name: 'Build assets', priority: 1 })
 
-console.log(item1.isPaused) // false (first item is active)
-console.log(item2.isPaused) // true (waiting in queue)
-console.log(queue.size) // 3
+console.log(task.isPaused) // false (first item is active)
+console.log(queue.size) // 1
+
+// Pause all timers
+queue.pause()
+
+// Resume timers
+queue.resume()
 ```
-
-## Examples
-
-::: example
-/composables/create-queue/task-runner
-:::
 
 ## Architecture
 
@@ -51,10 +51,49 @@ console.log(queue.size) // 3
 
 ```mermaid "Queue Hierarchy"
 flowchart TD
-  createRegistry --> createQueue
+  createRegistry --> createQueue:::primary
   createQueue --> timeout[auto-timeout]
   createQueue --> pause/resume
   createQueue --> first[first item active]
 ```
+
+## Examples
+
+::: example
+/composables/create-queue/context.ts
+/composables/create-queue/UploadProvider.vue
+/composables/create-queue/UploadConsumer.vue
+/composables/create-queue/uploads.vue
+
+### Upload Queue
+
+This example demonstrates sequential processing with `createQueue`. Unlike notifications that display simultaneously, the queue processes **one item at a time**—the first item uploads while others wait their turn.
+
+```mermaid "Provider/Consumer Data Flow"
+graph LR
+  A["context.ts"]:::info -->|"provideUploads()"| B["UploadProvider"]:::success
+  A -->|"useUploads()"| C["UploadConsumer"]:::warning
+  B -->|"wraps"| C
+```
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `context.ts` | Defines `UploadInput`/`Upload` types and the context with `first`, `add`, `cancel` |
+| `UploadProvider.vue` | Creates the queue, exposes `first` computed, watches it to start processing |
+| `UploadConsumer.vue` | Displays first item with progress bar, pending items in FIFO order |
+| `uploads.vue` | Entry point that composes Provider around Consumer |
+
+**Key patterns:**
+
+- Expose `first` as a computed from `proxy.values[0]`
+- Watch `first` to react when a new item becomes active
+- `useProxyRegistry` for reactive access to queue items
+- Items auto-advance when the first one completes
+
+Click "Add File" multiple times to see queuing behavior. Only one file uploads at a time.
+
+:::
 
 <DocsApi />
