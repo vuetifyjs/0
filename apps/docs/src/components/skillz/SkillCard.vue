@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Components
+  import SkillMasteredBadge from './SkillMasteredBadge.vue'
+
   // Utilities
   import { computed } from 'vue'
 

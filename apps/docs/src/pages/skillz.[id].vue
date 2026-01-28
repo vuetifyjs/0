@@ -6,6 +6,7 @@
   import { useBreakpoints } from '@vuetify/v0'
 
   // Components
+  import SkillMasteredBadge from '@/components/skillz/SkillMasteredBadge.vue'
   import SkillzTour from '@/components/skillz/SkillzTour.vue'
 
   // Composables
