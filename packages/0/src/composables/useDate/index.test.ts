@@ -446,20 +446,61 @@ describe('useDate', () => {
         }
       })
 
-      it('should get diff in days', () => {
-        const dateA = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
-        const dateB = Temporal.PlainDateTime.from('2024-06-10T10:00:00')
-        const diff = adapter.getDiff(dateA, dateB, 'days')
-
-        expect(diff).toBe(5)
+      it.each([
+        ['2025-01-07T23:30:00', '2025-01-07T10:00:00', 0],
+        ['2025-01-08T09:30:00', '2025-01-07T10:00:00', 0],
+        ['2025-01-08T10:00:00', '2025-01-07T10:00:00', 1],
+        ['2025-01-08T10:00:00', '2025-01-07T10:00:00', 1],
+        ['2025-01-09T09:59:59', '2025-01-07T10:00:00', 1],
+        ['2025-01-09T10:00:00', '2025-01-07T10:00:00', 2],
+        ['2025-01-09T10:00:01', '2025-01-07T10:00:00', 2],
+        // cross a week
+        ['2025-01-19T10:00:00', '2025-01-07T10:00:00', 12],
+        // cross more weeks
+        ['2025-03-07T10:00:00', '2025-01-07T10:00:00', 59],
+        // negative
+        ['2025-01-07T10:00:00', '2025-01-08T09:30:00', 0],
+        ['2025-01-07T10:00:00', '2025-01-09T09:59:59', -1],
+        ['2025-01-07T10:00:00', '2025-01-09T10:00:00', -2],
+        ['2025-01-07T10:00:00', '2025-01-09T10:00:01', -2],
+      ] as const)('should get diff in days for (%s ~ %s)', (to, from, result) => {
+        expect(
+          adapter.getDiff(
+            adapter.parseISO(to),
+            adapter.parseISO(from),
+            'days',
+          ),
+        )
+          .toBe(result)
       })
 
-      it('should get diff in hours', () => {
-        const dateA = Temporal.PlainDateTime.from('2024-06-15T15:00:00')
-        const dateB = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
-        const diff = adapter.getDiff(dateA, dateB, 'hours')
-
-        expect(diff).toBe(5)
+      it.each([
+        ['2025-01-07T10:30:00', '2025-01-07T10:00:00', 0],
+        ['2025-01-07T10:59:59', '2025-01-07T10:00:00', 0],
+        ['2025-01-07T11:00:00', '2025-01-07T10:00:00', 1],
+        ['2025-01-07T11:59:59', '2025-01-07T10:00:00', 1],
+        ['2025-01-07T12:00:00', '2025-01-07T10:00:00', 2],
+        ['2025-01-07T12:00:01', '2025-01-07T10:00:00', 2],
+        // cross a day
+        ['2025-01-08T12:00:00', '2025-01-07T10:00:00', 26],
+        // cross more days
+        ['2025-02-13T21:00:00', '2025-01-07T10:00:00', 899],
+        // symmetry
+        ['2025-01-07T10:00:00', '2025-01-07T10:30:00', 0], //
+        ['2025-01-07T10:00:00', '2025-01-07T10:59:59', 0], //
+        ['2025-01-07T10:00:00', '2025-01-07T11:00:00', -1],
+        ['2025-01-07T10:00:00', '2025-01-07T11:59:59', -1], //
+        ['2025-01-07T10:00:00', '2025-01-07T12:00:00', -2],
+        ['2025-01-07T10:00:00', '2025-01-07T12:00:01', -2],
+      ] as const)('should get diff in hours for (%s ~ %s)', (to, from, result) => {
+        expect(
+          adapter.getDiff(
+            adapter.parseISO(to),
+            adapter.parseISO(from),
+            'hours',
+          ),
+        )
+          .toBe(result)
       })
 
       it('should get diff in minutes', () => {
@@ -478,20 +519,57 @@ describe('useDate', () => {
         expect(diff).toBe(30)
       })
 
-      it('should get diff in weeks', () => {
-        const dateA = Temporal.PlainDateTime.from('2024-06-22T10:00:00')
-        const dateB = Temporal.PlainDateTime.from('2024-06-01T10:00:00')
-        const diff = adapter.getDiff(dateA, dateB, 'weeks')
-
-        expect(diff).toBe(3)
+      it.each([
+        ['2025-01-11', '2025-01-07', 0],
+        ['2025-01-20', '2025-01-07', 1],
+        ['2025-01-20', '2025-01-07', 1],
+        ['2025-01-21', '2025-01-07', 2],
+        ['2025-01-22', '2025-01-07', 2],
+        // cross a year
+        ['2025-06-15', '2024-09-15', 39],
+        // cross more years
+        ['2026-01-20', '2024-01-20', 104],
+        // symmetry
+        ['2025-01-07', '2025-01-08', 0],
+        ['2025-01-07', '2025-01-20', -1],
+        ['2025-01-07', '2025-01-21', -2],
+        ['2025-01-07', '2025-01-22', -2],
+      ] as const)('should get diff in weeks for (%s ~ %s)', (to, from, result) => {
+        expect(
+          adapter.getDiff(
+            adapter.parseISO(to),
+            adapter.parseISO(from),
+            'weeks',
+          ),
+        )
+          .toBe(result)
       })
 
-      it('should get diff in months', () => {
-        const dateA = Temporal.PlainDateTime.from('2024-09-15T10:00:00')
-        const dateB = Temporal.PlainDateTime.from('2024-06-15T10:00:00')
-        const diff = adapter.getDiff(dateA, dateB, 'months')
-
-        expect(diff).toBe(3)
+      it.each([
+        ['2024-01-25', '2024-01-05', 0],
+        ['2024-02-29', '2024-02-01', 0],
+        ['2024-03-01', '2024-02-01', 1],
+        ['2025-03-31', '2025-02-01', 1],
+        ['2025-04-01', '2025-02-01', 2],
+        ['2025-04-30', '2025-02-01', 2],
+        // cross a year
+        ['2025-06-15', '2024-09-15', 9],
+        // cross more years
+        ['2025-06-15', '2023-09-15', 21],
+        // symmetry
+        ['2024-01-05', '2024-01-06', 0],
+        ['2025-02-01', '2025-03-31', -1],
+        ['2025-02-01', '2025-04-01', -2],
+        ['2025-02-01', '2025-04-30', -2],
+      ] as const)('should get diff in months for (%s ~ %s)', (to, from, result) => {
+        expect(
+          adapter.getDiff(
+            adapter.parseISO(to),
+            adapter.parseISO(from),
+            'months',
+          ),
+        )
+          .toBe(result)
       })
 
       it('should get diff in years', () => {

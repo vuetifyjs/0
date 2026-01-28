@@ -539,12 +539,12 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
 
     switch (unitKey) {
       case 'years': { return duration.years }
-      case 'months': { return duration.months + duration.years * 12 }
-      case 'weeks': { return duration.weeks + Math.floor(duration.days / 7) }
-      case 'days': { return duration.days + duration.weeks * 7 }
-      case 'hours': { return Math.round(duration.total({ unit: 'hours' })) }
-      case 'minutes': { return Math.round(duration.total({ unit: 'minutes' })) }
-      case 'seconds': { return Math.round(duration.total({ unit: 'seconds' })) }
+      case 'months': { return duration.months }
+      case 'weeks': { return duration.weeks }
+      case 'days': { return duration.days }
+      case 'hours': { return duration.hours }
+      case 'minutes': { return duration.minutes }
+      case 'seconds': { return duration.seconds }
       default: { return duration.days }
     }
   }
