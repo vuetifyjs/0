@@ -173,7 +173,7 @@
 
   <Teleport to="body">
     <Transition name="discovery-highlight">
-      <div v-if="isVisible" class="fixed inset-0 z-9998 pointer-events-none">
+      <div v-if="isVisible" class="fixed inset-0 pointer-events-none" style="z-index: 9998">
         <!-- Click-blocking layer for backdrop (when blocking is enabled) -->
         <div
           v-if="blocking && showCutout && rect"
