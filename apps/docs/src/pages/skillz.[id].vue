@@ -135,8 +135,7 @@
             <li
               v-for="(step, index) in tour.steps"
               :key="index"
-              class="flex items-center gap-3 py-3 border-b border-divider last:border-b-0 cursor-pointer transition-colors hover:bg-surface-variant/50 -mx-2 px-2"
-              @click="onClick(step.id)"
+              class="flex items-center gap-3 py-3 border-b border-divider last:border-b-0"
             >
               <span
                 v-if="done.includes(String(step.id))"

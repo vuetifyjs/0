@@ -249,6 +249,8 @@ export function createDiscovery (): DiscoveryContext {
   }
 
   function stop () {
+    const current = steps.selectedItem.value
+    if (current) steps.emit('leave', current)
     detachHandlers()
     isActive.value = false
   }
@@ -263,6 +265,8 @@ export function createDiscovery (): DiscoveryContext {
   }
 
   function complete () {
+    const current = steps.selectedItem.value
+    if (current) steps.emit('leave', current)
     detachHandlers()
     isActive.value = false
     isComplete.value = true

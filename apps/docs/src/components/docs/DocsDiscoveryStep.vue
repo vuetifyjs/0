@@ -23,13 +23,14 @@
 
 <script setup lang="ts">
   // Components
+  import AppBurst from '@/components/app/AppBurst.vue'
   import { Discovery } from '@/components/discovery'
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { computed, useAttrs } from 'vue'
+  import { computed, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import { SKILL_LEVEL_META } from '@/types/skill'
@@ -37,6 +38,8 @@
   defineOptions({ name: 'DocsDiscoveryStep', inheritAttrs: false })
 
   const props = defineProps<DocsDiscoveryStepProps>()
+
+  const burstRef = useTemplateRef<InstanceType<typeof AppBurst>>('burst')
 
   defineSlots<{
     /** Main description content */
@@ -54,6 +57,16 @@
     return SKILL_LEVEL_META[discovery.tours.selectedItem.value?.level || '']
   })
 
+  const isLastStep = computed(() => {
+    const index = discovery.steps.selectedIndex.value
+    const total = discovery.steps.values().length
+    return index === total - 1 && discovery.selectedId.value === props.step
+  })
+
+  watch(isLastStep, val => {
+    if (val) setTimeout(() => burstRef.value?.trigger(), 500)
+  })
+
   const offsetStyle = computed(() => {
     if (!props.offset) return undefined
     const [x, y] = props.offset
@@ -69,13 +82,14 @@
   >
     <Discovery.Content
       class="p-4 bg-surface border border-divider rounded-xl shadow-xl max-w-xs"
+      :no-overflow="isLastStep"
       :placement="props.placement"
       :placement-mobile="props.placementMobile"
       :style="offsetStyle"
       v-bind="attrs"
     >
       <!-- Header -->
-      <div class="flex justify-between items-center mb-4">
+      <div v-if="!isLastStep" class="flex justify-between items-center mb-4">
         <span
           class="skillz-badge inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded"
           :style="levelMeta ? { '--level-color': levelMeta.color } : undefined"
@@ -88,13 +102,18 @@
         <Discovery.Progress class="text-xs text-on-surface-variant" />
       </div>
 
+      <!-- Celebration burst on last step -->
+      <div v-if="isLastStep" class="flex justify-center mb-2">
+        <AppBurst ref="burst" disabled emoji="🎉" :size="64" />
+      </div>
+
       <!-- Title -->
-      <Discovery.Title class="text-lg font-semibold text-on-surface mb-1">
+      <Discovery.Title class="text-lg font-semibold text-on-surface mb-1" :class="{ 'text-center': isLastStep }">
         {{ title }}
       </Discovery.Title>
 
       <!-- Description -->
-      <Discovery.Description class="text-sm text-on-surface-variant mb-4">
+      <Discovery.Description class="text-sm text-on-surface-variant" :class="isLastStep ? 'text-center mb-8' : 'mb-4'">
         <slot>{{ text }}</slot>
 
         <p

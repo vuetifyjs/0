@@ -118,6 +118,13 @@ export const useSkillzStore = defineStore('skillz', () => {
     }
   }
 
+  function dismiss (id: string): void {
+    const existing = data.value.tours[id]
+    if (existing?.status === 'in-progress') {
+      delete data.value.tours[id]
+    }
+  }
+
   // Step completion listener
   function onStep (ticket: unknown) {
     if (active.value) {
@@ -168,12 +175,25 @@ export const useSkillzStore = defineStore('skillz', () => {
   const items = computed(() => discovery.tours.values())
   const done = computed(() => active.value ? steps(active.value) : [])
 
+  // Find any tour that was started but not completed (and not currently active)
+  const pendingTour = computed(() => {
+    if (active.value) return null
+    for (const [id, progress] of Object.entries(data.value.tours)) {
+      if (progress.status === 'in-progress') {
+        const tour = discovery.tours.get(id)
+        if (tour) return { tour, progress }
+      }
+    }
+    return null
+  })
+
   return {
     // Actions
     start,
     stop,
     complete,
     reset,
+    dismiss,
 
     // Queries
     get,
@@ -187,5 +207,6 @@ export const useSkillzStore = defineStore('skillz', () => {
     items,
     active,
     done,
+    pendingTour,
   }
 })

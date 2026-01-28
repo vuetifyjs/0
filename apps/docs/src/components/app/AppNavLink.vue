@@ -50,7 +50,7 @@
     return 'expand'
   })
 
-  const isActive = computed(() => to && route.path === to)
+  const isActive = computed(() => to && (route.path === to || route.path.startsWith(`${to}/`)))
   // Check children Map directly for reactivity
   const childIds = computed(() => navNested.nested.children.get(id) ?? [])
   const hasChildren = computed(() => childIds.value.length > 0)
@@ -151,13 +151,13 @@
       <!-- Link (navigable) -->
       <Atom
         v-if="to"
-        :active-class
         :aria-current="isActive ? 'page' : undefined"
         :as
         class="font-semibold inline-flex items-center gap-1 flex-1 min-w-0"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
+          isActive && activeClass,
         ]"
         :to
         v-bind="props"

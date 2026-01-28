@@ -21,10 +21,12 @@
     placement = 'bottom',
     placementMobile,
     offset = 16,
+    noOverflow = false,
   } = defineProps<{
     placement?: string
     placementMobile?: string
     offset?: number
+    noOverflow?: boolean
   }>()
 
   const breakpoints = useBreakpoints()
@@ -80,7 +82,7 @@
         height: 'max-content',
         // maxWidth: `calc(100vw - ${offset * 2}px)`,
         maxHeight: `calc(100vh - ${offset * 2}px)`,
-        overflow: 'auto',
+        overflow: noOverflow ? 'visible' : 'auto',
         positionAnchor: `--discovery-${root.step}`,
         ...placementStyles[currentPlacement] ?? placementStyles.bottom,
       }
