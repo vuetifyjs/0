@@ -14,6 +14,7 @@
 
   // Utilities
   import { computed } from 'vue'
+  import { useRouter } from 'vue-router'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
@@ -38,6 +39,7 @@
   const breakpoints = useBreakpoints()
   const discovery = useDiscovery()
   const navigation = useNavigation()
+  const router = useRouter()
   const search = useSearch()
   const settings = useSettings()
   const skillz = useSkillzStore()
@@ -127,6 +129,7 @@
           ask,
           breakpoints,
           navigation,
+          router,
           search,
           settings,
         },
