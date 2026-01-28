@@ -115,9 +115,8 @@
       if (isActive) {
         isReady.value = false
 
-        // Skip polling for steps with no activator
         const step = discovery.steps.get(root.step)
-        if (step?.noActivator) {
+        if (step?.noActivator || discovery.isLast.value) {
           isReady.value = true
           return
         }

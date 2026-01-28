@@ -71,9 +71,8 @@
       return
     }
 
-    // Clear rect for steps with no activator (scrim still shows, just no cutout)
     const step = discovery.steps.get(id)
-    if (step?.noActivator) {
+    if (step?.noActivator || discovery.isLast.value) {
       if (rect.value !== null) rect.value = null
       return
     }
