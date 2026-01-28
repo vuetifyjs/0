@@ -29,9 +29,6 @@
       "./date": "./dist/date/index.mjs",
       "./types": "./dist/types/index.mjs",
       "./utilities": "./dist/utilities/index.mjs",
-      "./features/flagsmith": "./dist/composables/useFeatures/adapters/flagsmith/index.mjs",
-      "./features/launchdarkly": "./dist/composables/useFeatures/adapters/launchdarkly/index.mjs",
-      "./features/posthog": "./dist/composables/useFeatures/adapters/posthog/index.mjs",
       "./package.json": "./package.json",
       "./browser": "./dist/browser/index.js"
     }
@@ -93,18 +90,6 @@
     "./utilities": {
       "development": "./src/utilities/index.ts",
       "default": "./dist/utilities/index.mjs"
-    },
-    "./features/flagsmith": {
-      "development": "./src/composables/useFeatures/adapters/flagsmith/index.ts",
-      "default": "./dist/composables/useFeatures/adapters/flagsmith/index.mjs"
-    },
-    "./features/launchdarkly": {
-      "development": "./src/composables/useFeatures/adapters/launchdarkly/index.ts",
-      "default": "./dist/composables/useFeatures/adapters/launchdarkly/index.mjs"
-    },
-    "./features/posthog": {
-      "development": "./src/composables/useFeatures/adapters/posthog/index.ts",
-      "default": "./dist/composables/useFeatures/adapters/posthog/index.mjs"
     },
     "./package.json": "./package.json",
     "./browser": {
