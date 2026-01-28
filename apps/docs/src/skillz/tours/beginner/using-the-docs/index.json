@@ -93,12 +93,11 @@
       "placementMobile": "top"
     },
     {
-      "id": "conclusion",
-      "title": "Conclusion",
+      "id": "complete",
+      "title": "Tour Complete!",
       "task": "That's it for the tour! You're now ready to explore the Vuetify0 documentation like a pro.",
       "hint": "",
-      "learn": "You're all set!",
-      "noActivator": true
+      "learn": "You're all set!"
     }
   ]
 }
