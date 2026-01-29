@@ -550,20 +550,24 @@ export class Vuetify0DateAdapter implements DateAdapter<PlainDateTime> {
   }
 
   getWeek (date: PlainDateTime, firstDayOfWeek = 0, minimalDays = 1): number {
-    const startOfYear = this.startOfYear(date)
-    const startOfFirstWeek = this.startOfWeek(startOfYear, firstDayOfWeek)
+    const currentWeekStart = this.startOfWeek(date, firstDayOfWeek)
+    const currentWeekEnd = this.addDays(currentWeekStart, 6)
 
-    // Adjust if the first week doesn't have enough days
-    let firstWeekStart = startOfFirstWeek
-
-    if (startOfYear.day - startOfFirstWeek.day < minimalDays) {
-      firstWeekStart = startOfFirstWeek.add({ weeks: 1 })
+    let year = this.getYear(currentWeekStart)
+    if (year < this.getYear(currentWeekEnd)) {
+      const nextYearStart = new Temporal.PlainDateTime(year + 1, 1, 1)
+      const nextYearFirstWeekSize = 7 - this.getDiff(nextYearStart, this.startOfWeek(nextYearStart, firstDayOfWeek), 'days')
+      if (nextYearFirstWeekSize >= minimalDays) {
+        year++
+      }
     }
 
-    const startOfCurrentWeek = this.startOfWeek(date, firstDayOfWeek)
-    const diff = this.getDiff(startOfCurrentWeek, firstWeekStart, 'weeks')
-
-    return Math.max(1, diff + 1)
+    const yearStart = new Temporal.PlainDateTime(year, 1, 1)
+    const firstWeekSize = 7 - this.getDiff(yearStart, this.startOfWeek(yearStart, firstDayOfWeek), 'days')
+    const firstDayOfWeek1 = firstWeekSize >= minimalDays
+      ? yearStart.add({ days: firstWeekSize }).add({ weeks: -1 })
+      : yearStart.add({ days: firstWeekSize })
+    return 1 + this.getDiff(currentWeekStart, firstDayOfWeek1, 'weeks')
   }
 
   getDaysInMonth (date: PlainDateTime): number {
