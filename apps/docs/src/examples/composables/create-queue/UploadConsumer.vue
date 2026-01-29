@@ -34,7 +34,7 @@
 
     <!-- Upload status container (consistent sizing) -->
     <div
-      class="p-4 border-2 rounded-lg transition-colors"
+      class="p-4 border rounded-lg transition-colors"
       :class="first ? 'bg-surface border-primary' : 'border-dashed border-divider'"
     >
       <!-- Active upload -->
@@ -81,7 +81,7 @@
         </div>
         <div class="h-2" />
         <div class="text-right text-xs font-mono mt-1 invisible">0%</div>
-        <span class="absolute inset-0 flex items-center justify-center font-medium text-on-surface-variant/50">
+        <span class="absolute inset-0 flex items-center justify-center text-on-surface-variant text-sm opacity-50">
           No files in queue
         </span>
       </div>
