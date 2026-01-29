@@ -5,7 +5,7 @@ export default defineConfig({
     presetWind4(),
   ],
   // Wind4 uses color-mix with oklch - opacity modifiers (bg-surface/50)
-  // don't work with CSS variables. Use color-mix shortcuts instead.
+  // don't work with CSS variables. Color-mix utilities are in tokens.css.
   shortcuts: {
     // Glass effects
     'bg-glass-surface': '[background:var(--v0-glass-surface)] backdrop-blur-12',
@@ -119,6 +119,7 @@ export default defineConfig({
       'vue': 'var(--v0-vue)',
       'mastered': 'var(--v0-mastered)',
       'github': 'var(--v0-github)',
+      'tour': '#7C4DFF',
     },
     borderColor: {
       DEFAULT: 'var(--v0-divider)',

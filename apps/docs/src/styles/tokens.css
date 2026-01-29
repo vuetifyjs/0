@@ -24,39 +24,44 @@
 
 /**
  * Color-mix utility classes for theme colors with opacity.
- * Uses "transparent X%" syntax to avoid minifier stripping spaces
- * between var() and percentage.
+ * Wind4 opacity modifiers (bg-success/10) don't work with CSS variables,
+ * so we define these manually with hover variants.
  */
 
 /* Success */
 .bg-success-10 { background: color-mix(in srgb, var(--v0-success), transparent 90%); }
-.bg-success-20 { background: color-mix(in srgb, var(--v0-success), transparent 80%); }
+.bg-success-20, .hover\:bg-success-20:hover { background: color-mix(in srgb, var(--v0-success), transparent 80%); }
 .border-success-50 { border-color: color-mix(in srgb, var(--v0-success), transparent 50%); }
 
 /* Info */
 .bg-info-10 { background: color-mix(in srgb, var(--v0-info), transparent 90%); }
-.bg-info-20 { background: color-mix(in srgb, var(--v0-info), transparent 80%); }
+.bg-info-20, .hover\:bg-info-20:hover { background: color-mix(in srgb, var(--v0-info), transparent 80%); }
 .border-info-50 { border-color: color-mix(in srgb, var(--v0-info), transparent 50%); }
 
 /* Warning */
 .bg-warning-10 { background: color-mix(in srgb, var(--v0-warning), transparent 90%); }
-.bg-warning-20 { background: color-mix(in srgb, var(--v0-warning), transparent 80%); }
+.bg-warning-20, .hover\:bg-warning-20:hover { background: color-mix(in srgb, var(--v0-warning), transparent 80%); }
 .border-warning-50 { border-color: color-mix(in srgb, var(--v0-warning), transparent 50%); }
 
 /* Error */
 .bg-error-10 { background: color-mix(in srgb, var(--v0-error), transparent 90%); }
-.bg-error-20 { background: color-mix(in srgb, var(--v0-error), transparent 80%); }
+.bg-error-20, .hover\:bg-error-20:hover { background: color-mix(in srgb, var(--v0-error), transparent 80%); }
 .border-error-50 { border-color: color-mix(in srgb, var(--v0-error), transparent 50%); }
 
 /* Accent */
 .bg-accent-10 { background: color-mix(in srgb, var(--v0-accent), transparent 90%); }
-.bg-accent-20 { background: color-mix(in srgb, var(--v0-accent), transparent 80%); }
+.bg-accent-20, .hover\:bg-accent-20:hover { background: color-mix(in srgb, var(--v0-accent), transparent 80%); }
 .border-accent-50 { border-color: color-mix(in srgb, var(--v0-accent), transparent 50%); }
 
 /* Discord */
 .bg-discord-10 { background: color-mix(in srgb, var(--v0-discord), transparent 90%); }
-.bg-discord-20 { background: color-mix(in srgb, var(--v0-discord), transparent 80%); }
+.bg-discord-20, .hover\:bg-discord-20:hover { background: color-mix(in srgb, var(--v0-discord), transparent 80%); }
 .border-discord-50 { border-color: color-mix(in srgb, var(--v0-discord), transparent 50%); }
+
+/* Tour */
+.bg-tour-10 { background: color-mix(in srgb, #7C4DFF, transparent 90%); }
+.bg-tour-20, .hover\:bg-tour-20:hover { background: color-mix(in srgb, #7C4DFF, transparent 80%); }
+.border-tour-50 { border-color: color-mix(in srgb, #7C4DFF, transparent 50%); }
 
 /* Surface variant */
 .bg-surface-variant-10 { background: color-mix(in srgb, var(--v0-surface-variant), transparent 90%); }
