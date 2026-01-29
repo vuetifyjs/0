@@ -46,20 +46,13 @@ export interface SkillMeta {
 // Tracks align with docs learning tracks
 export type SkillTrack = 'essentials' | 'fundamentals' | 'features' | 'integration'
 
-// Categories for multi-tag filtering
+// Categories for skill tours
 export type SkillCategory =
-  | 'components' // Headless UI components (Tabs, Dialog, Disclosure)
-  | 'composables' // Logic building blocks (createSingle, useEventListener)
-  | 'patterns' // Architectural patterns (Trinity, Context, Registry)
-  | 'forms' // Input and validation (createForm, field state)
-  | 'data' // Collections and processing (useFilter, usePagination)
-  | 'browser' // DOM and events (observers, hotkeys, media queries)
-  | 'theming' // Design tokens and themes (useTheme, createTokens)
-  | 'accessibility' // ARIA and keyboard (focus management, screen readers)
-  | 'library-building' // Build your own library (plugins, adapters, extending v0)
-  | 'meta' // Learning the docs (Ask AI, search, examples)
-  | 'typescript' // Type patterns (generics, inference)
-  | 'ssr' // Server-side rendering (hydration, Nuxt)
+  | 'meta' // Learning the docs (navigation, search, Ask AI)
+  // | 'patterns' // Architectural patterns (Trinity, Context, Registry)
+  // | 'theming' // Design tokens and themes (useTheme, createTokens)
+  // | 'accessibility' // ARIA and keyboard (focus management, screen readers)
+  // | 'library-building' // Build your own library (plugins, adapters, extending v0)
 
 export const SKILL_LEVEL_META: Record<SkillLevel, { label: string, icon: string, color: string, title: string }> = {
   1: { label: 'Beginner', icon: 'level-beginner', color: 'var(--v0-success)', title: 'Beginner experience level' },
@@ -92,16 +85,9 @@ export const SKILL_TRACK_META: Record<SkillTrack, { label: string, description: 
 }
 
 export const SKILL_CATEGORY_META: Record<SkillCategory, { label: string, icon: string }> = {
-  'components': { label: 'Components', icon: 'layers' },
-  'composables': { label: 'Composables', icon: 'puzzle' },
-  'patterns': { label: 'Patterns', icon: 'map' },
-  'forms': { label: 'Forms', icon: 'form' },
-  'data': { label: 'Data', icon: 'database' },
-  'browser': { label: 'Browser', icon: 'monitor' },
-  'theming': { label: 'Theming', icon: 'palette' },
-  'accessibility': { label: 'Accessibility', icon: 'accessibility' },
-  'library-building': { label: 'Library Building', icon: 'package' },
-  'meta': { label: 'Learning', icon: 'book' },
-  'typescript': { label: 'TypeScript', icon: 'typescript' },
-  'ssr': { label: 'SSR', icon: 'server' },
+  meta: { label: 'Learning', icon: 'book' },
+  // 'patterns': { label: 'Patterns', icon: 'map' },
+  // 'theming': { label: 'Theming', icon: 'palette' },
+  // 'accessibility': { label: 'Accessibility', icon: 'accessibility' },
+  // 'library-building': { label: 'Library Building', icon: 'package' },
 }

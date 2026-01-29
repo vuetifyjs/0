@@ -44,10 +44,20 @@
 
   const done = computed(() => store.steps(params.value.id))
   const progress = computed(() => store.get(params.value.id))
+  const isCompleted = computed(() => progress.value?.status === 'completed')
   const label = computed(() => {
     if (!progress.value) return 'Start'
-    if (progress.value.status === 'completed') return 'Restart'
+    if (isCompleted.value) return 'Restart'
     return 'Resume'
+  })
+
+  // Find next tour in the same track by order
+  const nextTour = computed(() => {
+    if (!tour || !isCompleted.value) return null
+    const allTours = discovery.tours.values()
+    return allTours
+      .filter(t => t.track === tour.track && t.order > tour.order)
+      .toSorted((a, b) => a.order - b.order)[0] ?? null
   })
 
   useHead({
@@ -127,10 +137,10 @@
             />
           </div>
 
-          <div v-if="tour.categories.length" class="flex items-center gap-2 mb-4 text-xs text-on-surface-variant">
+          <!-- <div v-if="tour.categories.length > 0" class="flex items-center gap-2 mb-4 text-xs text-on-surface-variant">
             <span class="font-medium">Category:</span>
             <SkillCategoryTags :categories="tour.categories" />
-          </div>
+          </div> -->
 
           <h1 class="text-2xl font-bold m-0 mb-3 text-on-surface">{{ tour.name }}</h1>
           <p class="text-base text-on-surface-variant m-0 mb-6 leading-relaxed md:pr-26">{{ tour.description }}</p>
@@ -141,7 +151,7 @@
 
           <h2 class="text-base font-semibold m-0 mb-4 text-on-surface">You'll learn how to:</h2>
 
-          <ol class="list-none p-0 m-0" :class="{ 'mb-8': progress?.status !== 'completed' }">
+          <ol class="list-none p-0 m-0 mb-8">
             <li
               v-for="(step, index) in tour.steps"
               :key="index"
@@ -169,8 +179,27 @@
             </li>
           </ol>
 
+          <!-- Completed: Next tour primary, restart secondary -->
+          <template v-if="isCompleted">
+            <RouterLink
+              v-if="nextTour"
+              class="flex items-center justify-center gap-2 w-full px-6 py-2 text-base font-semibold bg-primary text-on-primary no-underline rounded-lg transition-[filter] hover:brightness-110"
+              :to="`/skillz/${nextTour.id}`"
+            >
+              Next: {{ nextTour.name }}
+              <span class="text-lg">→</span>
+            </RouterLink>
+            <button
+              class="w-full mt-3 px-6 py-2 text-sm text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface"
+              @click="onClick()"
+            >
+              Restart this tour
+            </button>
+          </template>
+
+          <!-- Not completed: Start/Resume -->
           <button
-            v-if="progress?.status !== 'completed'"
+            v-else
             class="w-full px-6 py-2 text-base font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:not-disabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
             @click="onClick()"
           >

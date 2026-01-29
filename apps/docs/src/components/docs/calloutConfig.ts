@@ -11,7 +11,7 @@ export interface CalloutConfig {
 
 export type CalloutType = 'tip' | 'info' | 'warning' | 'error' | 'askai' | 'discord' | 'tour'
 
-export const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
+const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
   tip: {
     icon: 'lightbulb',
     title: 'Tip',
@@ -49,7 +49,7 @@ export const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
   },
 }
 
-export const DEFAULT_CALLOUT_CONFIG: CalloutConfig = {
+const DEFAULT_CALLOUT_CONFIG: CalloutConfig = {
   icon: 'alert',
   title: 'Note',
   classes: 'bg-surface-variant-10 border-divider text-on-surface',
