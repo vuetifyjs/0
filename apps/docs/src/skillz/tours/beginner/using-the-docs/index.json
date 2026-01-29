@@ -7,97 +7,97 @@
   "categories": ["meta"],
   "order": 0,
   "prerequisites": [],
-  "description": "A quick tour of the Vuetify0 documentation site.",
+  "description": "Learn where everything lives and how to get the most out of the docs.",
   "minutes": 3,
   "startRoute": "/introduction/why-vuetify0",
   "steps": [
     {
       "id": "search",
       "title": "Search",
-      "task": "This is the search. It finds components, composables, and guides across the entire documentation.",
+      "task": "Find anything instantly. Search covers components, composables, guides—even deep API references.",
       "hint": "",
-      "learn": "Where to find the search"
+      "learn": "Instantly locate any component or guide"
     },
     {
       "id": "navigation",
       "title": "Navigation",
-      "task": "This is the main navigation sidebar. It organizes all documentation into sections: components, composables, guides, and more.",
+      "task": "Your map to everything. Browse by category or expand sections to explore what's available.",
       "hint": "",
-      "learn": "Where to find the navigation sidebar",
+      "learn": "Navigate the full documentation structure",
       "placement": "right"
     },
     {
       "id": "toc",
       "title": "Table of Contents",
-      "task": "The TOC shows all headings on the current page. Click any heading to jump directly to that section.",
-      "hint": "Table of Contents is not available on mobile devices.",
-      "learn": "How to navigate within a page",
+      "task": "Jump to any section. Click a heading to skip straight there—no scrolling required.",
+      "hint": "Not available on mobile devices.",
+      "learn": "Jump directly to any section on a page",
       "placement": "left",
       "skipOnMobile": true
     },
     {
       "id": "page-actions",
       "title": "Page Actions",
-      "task": "Every page has quick actions: edit on GitHub, report bugs, view source code, and copy as markdown.",
+      "task": "Spot something wrong? Edit it on GitHub, report it, or grab the source—directly from any page.",
       "hint": "",
-      "learn": "How to contribute and report issues"
+      "learn": "Report issues or contribute improvements"
     },
     {
       "id": "page-metadata",
       "title": "Page Metadata",
-      "task": "Metadata shows the skill level, test coverage, performance tier, and last update date for each feature.",
+      "task": "Know what you're getting into. Skill level, test coverage, and performance tier—at a glance.",
       "hint": "",
-      "learn": "How to assess feature quality and complexity",
+      "learn": "Assess feature complexity before diving in",
       "placementMobile": "top"
     },
     {
       "id": "ask-ai",
       "title": "Ask AI",
-      "task": "This is Ask AI. It's a context-aware assistant that knows the content of the current page and can answer your questions.",
+      "task": "Stuck? Ask AI knows this page inside out. Ask anything and get an answer in seconds.",
       "hint": "",
-      "learn": "Where to find the AI assistant",
+      "learn": "Get instant answers without leaving the page",
       "placement": "top"
     },
     {
       "id": "ask-ai-panel",
       "title": "Ask AI Panel",
-      "task": "Asking a question opens up the Ask AI panel. Here you can see the conversation history and interact with the assistant.",
+      "task": "Your conversation lives here. Scroll back through history or pick up where you left off.",
       "hint": "",
-      "learn": "How to use the Ask AI panel",
+      "learn": "Continue conversations across sessions",
       "placement": "left",
       "placementMobile": "top"
     },
     {
       "id": "ask-ai-features",
       "title": "Conversation Tools",
-      "task": "The toolbar has options to save your conversation to Vuetify Bin, copy it, or reset and start fresh.",
+      "task": "Save, copy, or start fresh. Your AI conversations can be exported to Vuetify Bin for later.",
       "hint": "",
-      "learn": "What the Ask AI toolbar does",
+      "learn": "Save and export AI conversations",
       "placement": "left",
       "placementMobile": "bottom"
     },
     {
       "id": "settings",
       "title": "Settings",
-      "task": "This is the settings panel. It has theme options, layout preferences, and content filters.",
+      "task": "Make it yours. Toggle themes, adjust layout, and filter content to match how you work.",
       "hint": "",
-      "learn": "Where to find settings"
+      "learn": "Customize the docs to your preferences"
     },
     {
       "id": "skill-level",
       "title": "Skill Levels",
-      "task": "These filters control which content appears in the navigation. Beginner shows fundamentals, Intermediate adds detail, and Advanced shows everything.",
+      "task": "Show what matters. Beginner sticks to fundamentals. Advanced unlocks everything.",
       "hint": "",
-      "learn": "What skill level filters do",
+      "learn": "Filter content to match your experience",
       "placement": "left",
       "placementMobile": "top"
     },
     {
       "id": "complete",
-      "title": "Tour Complete!",
-      "task": "That's it for the tour! You're now ready to explore the Vuetify0 documentation like a pro.",
+      "title": "Tour Complete",
+      "task": "You've got the lay of the land. Go explore—or dive into another tour when you're ready.",
       "hint": "",
-      "learn": "You're all set!"
+      "learn": "Confidently navigate the entire docs site"
     }
   ]
 }

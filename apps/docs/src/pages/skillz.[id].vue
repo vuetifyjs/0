@@ -80,9 +80,6 @@
 
 <template>
   <div class="min-h-[calc(100vh-64px)]">
-    <!-- SkillzTour for testing -->
-    <SkillzTour />
-
     <!-- Not found state -->
     <div v-if="!tour" class="flex flex-col items-center justify-center py-16 px-8 text-center">
       <h1 class="m-0 mb-2 text-2xl">Skill Not Found</h1>
@@ -118,16 +115,21 @@
           class="border border-divider rounded-xl p-4 md:p-6"
           :class="settings.showBgGlass ? 'bg-glass-surface' : 'bg-surface'"
         >
-          <div class="flex items-center gap-2 mb-4">
+          <div class="flex items-center gap-2 mb-3">
             <SkillLevelBadge :level="tour.level" />
 
             <SkillModeBadge :mode="tour.mode" />
 
             <SkillMasteredBadge
               v-if="progress?.status === 'completed'"
-              class="position-absolute top-2 right-2 md:top-4"
+              class="position-absolute top-2 right-0 md:top-4"
               :size="breakpoints.mdAndDown.value ? 72 : 128"
             />
+          </div>
+
+          <div v-if="tour.categories.length" class="flex items-center gap-2 mb-4 text-xs text-on-surface-variant">
+            <span class="font-medium">Category:</span>
+            <SkillCategoryTags :categories="tour.categories" />
           </div>
 
           <h1 class="text-2xl font-bold m-0 mb-3 text-on-surface">{{ tour.name }}</h1>
@@ -137,7 +139,7 @@
 
           <!-- <SkillPrerequisites class="mb-6" :prerequisites="skill.prerequisites" variant="box" /> -->
 
-          <h2 class="text-base font-semibold m-0 mb-4 text-on-surface">What you'll learn</h2>
+          <h2 class="text-base font-semibold m-0 mb-4 text-on-surface">You'll learn how to:</h2>
 
           <ol class="list-none p-0 m-0" :class="{ 'mb-8': progress?.status !== 'completed' }">
             <li
