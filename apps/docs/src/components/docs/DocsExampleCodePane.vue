@@ -1,9 +1,12 @@
 <script setup lang="ts">
+  // Framework
+  import { useIntersectionObserver, useLogger } from '@vuetify/v0'
+
   // Composables
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, onMounted, shallowRef, watch } from 'vue'
+  import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 
   import { SHIKI_THEMES } from '@/constants/shiki'
 
@@ -34,33 +37,37 @@
   const highlightedCode = shallowRef<string>()
   const isLoading = shallowRef(false)
 
+  const logger = useLogger()
+
   async function highlight () {
     if (highlightedCode.value || !props.code) return
     isLoading.value = true
-    const { useHighlighter } = await import('@/composables/useHighlighter')
-    const { highlighter } = useHighlighter()
-    if (!highlighter.value) {
-      await new Promise<void>(resolve => {
-        const unwatch = watch(highlighter, h => {
-          if (h) {
-            unwatch()
-            resolve()
-          }
-        })
+    try {
+      const { useHighlighter } = await import('@/composables/useHighlighter')
+      const { highlighter, getHighlighter } = useHighlighter()
+      const hl = highlighter.value ?? await getHighlighter()
+      highlightedCode.value = hl.codeToHtml(props.code, {
+        lang: props.language,
+        themes: SHIKI_THEMES,
+        defaultColor: false,
       })
+    } catch (error) {
+      logger.error('Failed to highlight code', error)
+    } finally {
+      isLoading.value = false
     }
-    highlightedCode.value = highlighter.value!.codeToHtml(props.code, {
-      lang: props.language,
-      themes: SHIKI_THEMES,
-      defaultColor: false,
-    })
-    isLoading.value = false
   }
 
-  // Trigger highlight on mount
-  onMounted(() => {
-    highlight()
-  })
+  // Trigger highlight on mount and when visible (belt and suspenders for mobile Safari)
+  const containerRef = useTemplateRef<HTMLElement>('container')
+  onMounted(highlight)
+  useIntersectionObserver(
+    containerRef,
+    entries => {
+      if (entries[0]?.isIntersecting) highlight()
+    },
+    { once: true },
+  )
 
   // Re-highlight when code changes
   watch(() => props.code, () => {
@@ -78,6 +85,7 @@
 
 <template>
   <div
+    ref="container"
     class="docs-example-code relative bg-pre group"
     :class="{
       'docs-example-code--wrap': lineWrap,
