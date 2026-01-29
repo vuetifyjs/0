@@ -125,7 +125,7 @@
 
             <SkillMasteredBadge
               v-if="progress?.status === 'completed'"
-              class="position-absolute top-2 right-2 md:top-4 md:right-4"
+              class="position-absolute top-2 right-2 md:top-4"
               :size="breakpoints.mdAndDown.value ? 72 : 128"
             />
           </div>
