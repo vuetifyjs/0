@@ -5,10 +5,9 @@
   // Composables
   import { usePlayground } from '@/composables/playground'
   import { useHighlightCode } from '@/composables/useHighlightCode'
-  import { useIdleCallback } from '@/composables/useIdleCallback'
 
   // Utilities
-  import { computed, onMounted, ref } from 'vue'
+  import { computed, ref } from 'vue'
 
   const items = ref([
     { id: 1, label: 'Option A' },
@@ -51,12 +50,7 @@
   </Selection.Root>
 </template>`
 
-  const highlighter = useHighlightCode(code, { immediate: false })
-
-  onMounted(() => {
-    // Defer syntax highlighting to idle time to avoid blocking main thread
-    useIdleCallback(() => highlighter.highlight(), 2000)
-  })
+  const highlighter = useHighlightCode(code, { idle: true })
 
   const playgroundUrl = computed(() => usePlayground(code))
 </script>
