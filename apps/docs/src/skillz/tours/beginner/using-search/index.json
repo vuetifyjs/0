@@ -31,8 +31,7 @@
       "title": "Search Results",
       "task": "Results are grouped by category: Components, Composables, Guides, and more. The best matches appear first.",
       "hint": "",
-      "learn": "How search results are organized",
-      "placement": "bottom"
+      "learn": "How search results are organized"
     },
     {
       "id": "search-favorite",
