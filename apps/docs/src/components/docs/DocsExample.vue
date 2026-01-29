@@ -2,6 +2,9 @@
   // Framework
   import { createOverflow, Tabs } from '@vuetify/v0'
 
+  // Components
+  import DocsSkeleton from './DocsSkeleton.vue'
+
   // Composables
   import { useExamples } from '@/composables/useExamples'
 
@@ -191,22 +194,20 @@
       />
 
       <!-- Multi-file skeleton -->
-      <div v-if="showSkeleton" class="border-t border-divider" role="status">
-        <span class="sr-only">Loading code...</span>
+      <div v-if="showSkeleton" class="border-t border-divider">
         <!-- Fake tab bar -->
         <div class="flex items-center gap-2 px-3 py-3 bg-surface border-b border-divider">
-          <div class="h-[30px] w-24 bg-surface-tint rounded animate-pulse" />
-          <div class="h-[30px] w-20 bg-surface-tint rounded animate-pulse" />
-          <div class="h-[30px] w-28 bg-surface-tint rounded animate-pulse" />
+          <DocsSkeleton
+            direction="row"
+            gap="gap-2"
+            height="h-[30px]"
+            :lines="3"
+            :widths="['w-24', 'w-20', 'w-28']"
+          />
         </div>
         <!-- Fake code area -->
-        <div class="p-4 bg-pre flex flex-col gap-2">
-          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-1/4" />
-          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-3/4" />
-          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-1/2" />
-          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-2/3" />
-          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-1/3" />
-          <div class="h-4 bg-surface-tint/50 rounded animate-pulse w-4/5" />
+        <div class="p-4 bg-pre">
+          <DocsSkeleton :lines="6" :widths="['w-1/4', 'w-3/4', 'w-1/2', 'w-2/3', 'w-1/3', 'w-4/5']" />
         </div>
       </div>
 

@@ -2,6 +2,10 @@
   // Framework
   import { ExpansionPanel } from '@vuetify/v0'
 
+  // Components
+  import DocsProgressBar from './DocsProgressBar.vue'
+  import DocsSkeleton from './DocsSkeleton.vue'
+
   // Utilities
   import { computed, onBeforeMount, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
@@ -118,11 +122,9 @@
     <!-- Loading -->
     <div v-if="store.isLoading" class="space-y-8">
       <div v-for="i in 3" :key="i" class="space-y-4">
-        <div class="h-6 bg-surface-tint rounded animate-pulse w-24" />
-        <div class="border border-divider rounded-lg p-4 space-y-3">
-          <div class="h-5 bg-surface-tint rounded animate-pulse w-1/3" />
-          <div class="h-4 bg-surface-tint rounded animate-pulse w-full" />
-          <div class="h-2 bg-surface-tint rounded animate-pulse w-full" />
+        <DocsSkeleton height="h-6" :lines="1" :widths="['w-24']" />
+        <div class="border border-divider rounded-lg p-4">
+          <DocsSkeleton gap="gap-3" :lines="3" :widths="['w-1/3', 'w-full', 'w-full']" />
         </div>
       </div>
     </div>
@@ -207,18 +209,11 @@
                     </p>
 
                     <!-- Progress bar -->
-                    <div class="mt-3 flex items-center gap-3">
-                      <div class="flex-1 h-2 bg-surface-tint rounded-full overflow-hidden">
-                        <div
-                          class="h-full rounded-full transition-all duration-300"
-                          :class="group.key === 'done' ? 'bg-success' : 'bg-primary'"
-                          :style="{ width: `${getProgress(milestone)}%` }"
-                        />
-                      </div>
-                      <span class="text-xs font-medium tabular-nums w-12 text-right">
-                        {{ getProgress(milestone) }}%
-                      </span>
-                    </div>
+                    <DocsProgressBar
+                      class="mt-3"
+                      :color="group.key === 'done' ? 'success' : 'primary'"
+                      :value="getProgress(milestone)"
+                    />
 
                     <div class="mt-2 text-xs opacity-70 flex items-center gap-2">
                       <span>{{ milestone.closed_issues }} closed · {{ milestone.open_issues }} open</span>
@@ -251,8 +246,8 @@
                 </div>
 
                 <!-- Loading issues -->
-                <div v-if="milestone.issuesLoading" class="p-4 space-y-2">
-                  <div v-for="i in 3" :key="i" class="h-4 bg-surface-tint rounded animate-pulse" />
+                <div v-if="milestone.issuesLoading" class="p-4">
+                  <DocsSkeleton :lines="3" />
                 </div>
 
                 <!-- Issues list -->

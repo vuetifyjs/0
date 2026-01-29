@@ -19,6 +19,9 @@
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
 
+  // Config
+  import { type CalloutType, getCalloutConfig } from './calloutConfig'
+
   /**
    * Callout props - certain props are required based on type:
    * - type: 'askai' requires `question`
@@ -26,7 +29,7 @@
    * - type: 'tip' | 'info' | 'warning' | 'error' | 'discord' have no additional required props
    */
   export interface DocsCalloutProps {
-    type: 'tip' | 'info' | 'warning' | 'error' | 'askai' | 'discord' | 'tour'
+    type: CalloutType
     /** Base64-encoded question for askai callouts */
     question?: string
     /** Tour ID from discovery registry for tour callouts */
@@ -53,66 +56,7 @@
     return found
   })
 
-  const config = computed(() => {
-    switch (props.type) {
-      case 'tip': {
-        return {
-          icon: 'lightbulb',
-          title: 'Tip',
-          classes: 'bg-success/10 border-success/50 text-success',
-        }
-      }
-      case 'info': {
-        return {
-          icon: 'info',
-          title: 'Info',
-          classes: 'bg-info/10 border-info/50 text-info',
-        }
-      }
-      case 'warning': {
-        return {
-          icon: 'alert',
-          title: 'Warning',
-          classes: 'bg-warning/10 border-warning/50 text-warning',
-        }
-      }
-      case 'error': {
-        return {
-          icon: 'error',
-          title: 'Error',
-          classes: 'bg-error/10 border-error/50 text-error',
-        }
-      }
-      case 'askai': {
-        return {
-          icon: 'create',
-          title: 'Ask AI',
-          classes: 'bg-accent/10 border-accent/50 text-accent cursor-pointer hover:bg-accent/20 transition-colors',
-        }
-      }
-      case 'discord': {
-        return {
-          icon: 'discord',
-          title: 'Discord',
-          classes: 'bg-[#5865F2]/10 border-[#5865F2]/50 text-[#5865F2] cursor-pointer hover:bg-[#5865F2]/20 transition-colors',
-        }
-      }
-      case 'tour': {
-        return {
-          icon: 'compass',
-          title: 'Interactive Tour',
-          classes: 'bg-[#7C4DFF]/10 border-[#7C4DFF]/50 text-[#7C4DFF] cursor-pointer hover:bg-[#7C4DFF]/20 transition-colors',
-        }
-      }
-      default: {
-        return {
-          icon: 'alert',
-          title: 'Note',
-          classes: 'bg-surface-variant/10 border-divider text-on-surface',
-        }
-      }
-    }
-  })
+  const config = computed(() => getCalloutConfig(props.type))
 
   function decodeQuestion (encoded: string): string {
     return decodeURIComponent(escape(atob(encoded)))

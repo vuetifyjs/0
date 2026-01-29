@@ -197,7 +197,7 @@
               :key="group"
               aria-hidden="true"
             >
-              <div class="px-4 py-2 bg-surface-variant/50">
+              <div class="px-4 py-2 bg-surface-variant-50">
                 <div class="h-3 bg-surface-tint rounded animate-pulse w-20" />
               </div>
               <div
@@ -231,7 +231,7 @@
               role="group"
               step="search-favorited"
             >
-              <div class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50 flex items-center justify-between">
+              <div class="px-4 py-2 section-label bg-surface-variant-50 flex items-center justify-between">
                 <span>Favorites</span>
               </div>
               <div
@@ -262,7 +262,7 @@
                 </div>
                 <span
                   aria-label="Remove from favorites"
-                  class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                  class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                   role="button"
                   tabindex="0"
                   title="Remove from favorites"
@@ -284,7 +284,7 @@
               role="group"
               step="search-history"
             >
-              <div class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50">
+              <div class="px-4 py-2 section-label bg-surface-variant-50">
                 Recent
               </div>
               <div
@@ -317,7 +317,7 @@
                   <!-- Favorite toggle -->
                   <span
                     aria-label="Add to favorites"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Add to favorites"
@@ -330,7 +330,7 @@
                   <!-- Remove button -->
                   <span
                     aria-label="Remove from recent searches"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Remove from recent"
@@ -374,14 +374,14 @@
               <Discovery.Activator
                 v-if="groupIndex === 0"
                 as="div"
-                class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50 rounded-lg"
+                class="px-4 py-2 section-label bg-surface-variant-50 rounded-lg"
                 step="search-results"
               >
                 {{ group.category }}
               </Discovery.Activator>
               <div
                 v-else
-                class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50"
+                class="px-4 py-2 section-label bg-surface-variant-50"
               >
                 {{ group.category }}
               </div>
@@ -421,7 +421,7 @@
                     <span
                       :aria-label="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
                       :class="[
-                        'inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors cursor-pointer',
+                        'btn-action cursor-pointer',
                         search.isFavorite(group.items[0].id) || discovery.isActive.value ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
                       ]"
                       role="button"
@@ -448,7 +448,7 @@
                     <span
                       aria-label="Ask AI about this page"
                       :class="[
-                        'inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-primary focus-visible:text-primary cursor-pointer',
+                        'btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary cursor-pointer',
                         discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
                       ]"
                       role="button"
@@ -471,7 +471,7 @@
                     <span
                       aria-label="Dismiss result"
                       :class="[
-                        'inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant cursor-pointer',
+                        'btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant cursor-pointer',
                         discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
                       ]"
                       role="button"
@@ -518,7 +518,7 @@
                   <span
                     :aria-label="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
                     :class="[
-                      'inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors cursor-pointer',
+                      'btn-action cursor-pointer',
                       search.isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
                     ]"
                     role="button"
@@ -537,7 +537,7 @@
                   <!-- Ask AI button -->
                   <span
                     aria-label="Ask AI about this page"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Ask AI"
@@ -550,7 +550,7 @@
                   <!-- Dismiss button -->
                   <span
                     aria-label="Dismiss result"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Dismiss result"
@@ -584,15 +584,3 @@
     </div>
   </Transition>
 </template>
-
-<style scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.15s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-</style>

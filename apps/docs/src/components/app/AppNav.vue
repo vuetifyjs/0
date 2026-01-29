@@ -161,7 +161,7 @@
     </header>
 
     <!-- URL filter banner -->
-    <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant/50 border-b border-divider">
+    <div v-if="navConfig.activeFeatures.value" class="-mt-4 px-4 py-3 mb-4 bg-surface-variant-50 border-b border-divider">
       <p class="text-xs text-on-surface-variant mb-2">
         Showing docs for your project
       </p>
@@ -176,7 +176,7 @@
 
     <ul class="flex gap-2 flex-col">
       <template v-if="filteredOutPage">
-        <li class="px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wide">
+        <li class="px-4 section-label">
           Active page
         </li>
 

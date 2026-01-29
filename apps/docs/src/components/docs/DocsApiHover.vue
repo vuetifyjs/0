@@ -15,6 +15,12 @@
   // Framework
   import { IN_BROWSER, useDocumentEventListener } from '@vuetify/v0'
 
+  // Components
+  import DocsApiHoverSection from './DocsApiHoverSection.vue'
+
+  // Composables
+  import { usePopoverPosition } from '@/composables/usePopoverPosition'
+
   // Utilities
   import { toKebab } from '@/utilities/strings'
   import { computed, onScopeDispose, ref, shallowRef, useTemplateRef } from 'vue'
@@ -82,8 +88,10 @@
   const HIDE_DELAY = 100 // Grace period when moving to popover
 
   // Position state
-  const position = ref({ top: 0, left: 0 })
-  const flipBelow = shallowRef(false)
+  const { position, flipped: flipBelow, calculate: calculatePosition } = usePopoverPosition({
+    maxWidth: 450,
+    maxHeight: 400,
+  })
 
   async function showPopover (target: HTMLElement) {
     if (!IN_BROWSER) return
@@ -141,29 +149,7 @@
     activeTarget.value = target
 
     // Calculate position relative to viewport
-    const rect = target.getBoundingClientRect()
-    const popoverMaxWidth = 450
-    const popoverMaxHeight = 400
-    const viewportWidth = window.innerWidth
-    const gap = 8
-    const padding = 12
-
-    // Clamp horizontal position to keep popover within viewport
-    let left = rect.left + window.scrollX
-    if (rect.left + popoverMaxWidth > viewportWidth - padding) {
-      left = Math.max(padding, viewportWidth - popoverMaxWidth - padding + window.scrollX)
-    }
-
-    // Flip below if not enough space above
-    const spaceAbove = rect.top - gap
-    flipBelow.value = spaceAbove < popoverMaxHeight
-
-    position.value = {
-      top: flipBelow.value
-        ? rect.bottom + window.scrollY + gap
-        : rect.top + window.scrollY,
-      left,
-    }
+    calculatePosition(target)
 
     isVisible.value = true
   }
@@ -365,123 +351,25 @@
           <div class="popover-content">
             <!-- Component API -->
             <template v-if="componentApi">
-              <div v-if="displayProps.length > 0" class="popover-section">
-                <span class="popover-section-title">Props</span>
-                <ul class="popover-list">
-                  <li v-for="prop in displayProps" :key="prop.name">
-                    <div class="popover-item-header">
-                      <span class="popover-item-name">{{ prop.name }}</span>
-                      <code class="popover-type">{{ prop.type }}</code>
-                      <code v-if="prop.default" class="popover-default">{{ prop.default }}</code>
-                    </div>
-                    <p v-if="prop.description" class="popover-item-description">
-                      {{ prop.description }}
-                    </p>
-                  </li>
-                </ul>
-              </div>
-
-              <div v-if="displayEvents.length > 0" class="popover-section">
-                <span class="popover-section-title">Events</span>
-                <ul class="popover-list">
-                  <li v-for="event in displayEvents" :key="event.name">
-                    <div class="popover-item-header">
-                      <span class="popover-item-name">{{ event.name }}</span>
-                      <code class="popover-type">{{ event.type }}</code>
-                    </div>
-                    <p v-if="event.description" class="popover-item-description">
-                      {{ event.description }}
-                    </p>
-                  </li>
-                </ul>
-              </div>
-
-              <div v-if="displaySlots.length > 0" class="popover-section">
-                <span class="popover-section-title">Slots</span>
-                <ul class="popover-list">
-                  <li v-for="slot in displaySlots" :key="slot.name">
-                    <div class="popover-item-header">
-                      <span class="popover-item-name">{{ slot.name }}</span>
-                      <code v-if="slot.type" class="popover-type">{{ slot.type }}</code>
-                    </div>
-                    <p v-if="slot.description" class="popover-item-description">
-                      {{ slot.description }}
-                    </p>
-                  </li>
-                </ul>
-              </div>
+              <DocsApiHoverSection :items="displayProps" title="Props" />
+              <DocsApiHoverSection :items="displayEvents" title="Events" />
+              <DocsApiHoverSection :items="displaySlots" title="Slots" />
             </template>
 
             <!-- Composable API -->
             <template v-if="composableApi">
-              <div v-if="displayFunctions.length > 0" class="popover-section">
-                <span class="popover-section-title">Functions</span>
-                <ul class="popover-list">
-                  <li v-for="fn in displayFunctions" :key="fn.name">
-                    <div class="popover-item-header">
-                      <span class="popover-item-name">{{ fn.name }}</span>
-                    </div>
-                    <code v-if="fn.signature" class="popover-signature">{{ fn.signature }}</code>
-                    <p v-if="fn.description" class="popover-item-description">
-                      {{ fn.description }}
-                    </p>
-                  </li>
-                </ul>
-              </div>
-
-              <div v-if="displayOptions.length > 0" class="popover-section">
-                <span class="popover-section-title">Options</span>
-                <ul class="popover-list">
-                  <li v-for="opt in displayOptions" :key="opt.name">
-                    <div class="popover-item-header">
-                      <span class="popover-item-name">{{ opt.name }}</span>
-                      <code class="popover-type">{{ opt.type }}</code>
-                      <code v-if="opt.default" class="popover-default">{{ opt.default }}</code>
-                    </div>
-                    <p v-if="opt.description" class="popover-item-description">
-                      {{ opt.description }}
-                    </p>
-                  </li>
-                </ul>
-              </div>
-
-              <div v-if="displayProperties.length > 0" class="popover-section">
-                <span class="popover-section-title">Properties</span>
-                <ul class="popover-list">
-                  <li v-for="prop in displayProperties" :key="prop.name">
-                    <div class="popover-item-header">
-                      <span class="popover-item-name">{{ prop.name }}</span>
-                      <code class="popover-type">{{ prop.type }}</code>
-                    </div>
-                    <p v-if="prop.description" class="popover-item-description">
-                      {{ prop.description }}
-                    </p>
-                  </li>
-                </ul>
-              </div>
-
-              <div v-if="displayMethods.length > 0" class="popover-section">
-                <span class="popover-section-title">Methods</span>
-                <ul class="popover-list">
-                  <li v-for="method in displayMethods" :key="method.name">
-                    <div class="popover-item-header">
-                      <span class="popover-item-name">{{ method.name }}</span>
-                      <code class="popover-type">{{ method.type }}</code>
-                    </div>
-                    <p v-if="method.description" class="popover-item-description">
-                      {{ method.description }}
-                    </p>
-                  </li>
-                </ul>
-              </div>
+              <DocsApiHoverSection :items="displayFunctions" show-signature title="Functions" />
+              <DocsApiHoverSection :items="displayOptions" title="Options" />
+              <DocsApiHoverSection :items="displayProperties" title="Properties" />
+              <DocsApiHoverSection :items="displayMethods" title="Methods" />
             </template>
           </div>
         </template>
 
         <!-- Footer link -->
-        <div class="popover-footer" @click.prevent.stop="navigateToApi">
+        <button class="popover-footer" type="button" @click.stop="navigateToApi">
           {{ isExternalLink ? 'View Vue docs ↗' : 'View API →' }}
-        </div>
+        </button>
       </div>
     </Transition>
   </Teleport>
@@ -706,17 +594,6 @@
 
 .popover-footer:hover {
   text-decoration: underline;
-}
-
-/* Transition */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>
 

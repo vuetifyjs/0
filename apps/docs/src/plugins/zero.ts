@@ -71,6 +71,13 @@ export default function zero (app: App) {
     createThemePlugin({
       default: savedTheme,
       target: 'html',
+      palette: {
+        brand: {
+          discord: '#5865f2',
+          vue: '#41b883',
+          mastered: '#ff8000',
+        },
+      },
       themes: getAllThemeConfigs(),
     }),
   )

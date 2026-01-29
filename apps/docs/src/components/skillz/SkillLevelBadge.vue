@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Components
+  import DocsBadge from '@/components/docs/DocsBadge.vue'
+
   // Utilities
   import { computed } from 'vue'
 
@@ -26,15 +29,13 @@
 </script>
 
 <template>
-  <span
-    class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded"
-    :style="{
-      background: `color-mix(in srgb, ${meta.color} 15%, transparent)`,
-      color: meta.color,
-    }"
+  <DocsBadge
+    :color="meta.color"
+    :icon="meta.icon"
+    :icon-size="iconSize"
+    :label="meta.label"
+    :show-icon="showIcon"
+    :show-label="showLabel"
     :title="meta.title"
-  >
-    <AppIcon v-if="showIcon" :icon="meta.icon" :size="iconSize" />
-    <span v-if="showLabel">{{ meta.label }}</span>
-  </span>
+  />
 </template>

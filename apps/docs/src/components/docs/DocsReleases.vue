@@ -3,8 +3,10 @@
   import { markedEmoji } from 'marked-emoji'
 
   // Framework
-  // Vuetify0
   import { IN_BROWSER, Popover, useDate, useFilter } from '@vuetify/v0'
+
+  // Components
+  import DocsSkeleton from './DocsSkeleton.vue'
 
   // Composables
   import { useClipboard } from '@/composables/useClipboard'
@@ -310,9 +312,9 @@
       <div v-if="model.zipball_url && model.tarball_url" class="border-t border-divider p-3">
         <h3 class="text-lg font-semibold mb-3">Assets</h3>
 
-        <div class="border border-divider rounded-lg overflow-hidden">
+        <div class="border border-divider rounded-lg overflow-hidden divide-y divide-divider">
           <a
-            class="flex items-center gap-3 px-3 py-2 hover:bg-surface-tint transition-colors"
+            class="list-item"
             :href="model.zipball_url"
             rel="noopener"
             target="_blank"
@@ -322,10 +324,8 @@
             <AppIcon class="ml-auto opacity-50" icon="download" :size="18" />
           </a>
 
-          <div class="border-t border-divider" />
-
           <a
-            class="flex items-center gap-3 px-3 py-2 hover:bg-surface-tint transition-colors"
+            class="list-item"
             :href="model.tarball_url"
             rel="noopener"
             target="_blank"
@@ -339,11 +339,12 @@
     </div>
 
     <!-- Loading skeleton -->
-    <div v-else-if="store.isLoading" class="p-4 space-y-4">
-      <div class="h-6 bg-surface-tint rounded animate-pulse w-1/3" />
-      <div class="h-4 bg-surface-tint rounded animate-pulse w-full" />
-      <div class="h-4 bg-surface-tint rounded animate-pulse w-full" />
-      <div class="h-4 bg-surface-tint rounded animate-pulse w-2/3" />
+    <div v-else-if="store.isLoading" class="p-4">
+      <DocsSkeleton
+        gap="gap-4"
+        :lines="4"
+        :widths="['w-1/3', 'w-full', 'w-full', 'w-2/3']"
+      />
     </div>
   </div>
 </template>

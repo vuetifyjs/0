@@ -1,6 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { Features } from 'lightningcss'
 import UnocssVitePlugin from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
 import VueRouter from 'unplugin-vue-router/vite'
@@ -30,9 +29,7 @@ export default defineConfig({
     sourcemap: true,
   },
   css: {
-    lightningcss: {
-      exclude: Features.LightDark,
-    },
+    transformer: 'postcss', // Use postcss instead of lightningcss to preserve color-mix syntax
   },
   ssgOptions: {
     dirStyle: 'nested',
