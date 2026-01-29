@@ -13,6 +13,8 @@ import { useIdleCallback } from './composables/useIdleCallback'
 import { registerPlugins } from './plugins'
 import pinia from './plugins/pinia'
 import routerOptions from './plugins/router'
+import './styles/tokens.css'
+import './styles/transitions.css'
 import 'virtual:uno.css'
 
 export const createApp = ViteSSG(

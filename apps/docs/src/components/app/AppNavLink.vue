@@ -153,7 +153,7 @@
         v-if="to"
         :aria-current="isActive ? 'page' : undefined"
         :as
-        class="font-semibold inline-flex items-center gap-1 flex-1 min-w-0"
+        class="font-semibold icon-text flex-1 min-w-0"
         :class="[
           'hover:underline hover:text-primary focus-visible:underline focus-visible:text-primary',
           !isTopLevel && !hasChildren && 'opacity-70 hover:opacity-100 focus-visible:opacity-100',
@@ -168,17 +168,21 @@
       </Atom>
 
       <!-- Category header (not navigable) -->
-      <div
+      <span
         v-else
         class="font-semibold flex-1 min-w-0 truncate"
         :class="[
-          isCollapsible && 'cursor-pointer hover:text-primary',
+          isCollapsible && 'cursor-pointer hover:text-primary focus-visible:text-primary',
           containsActivePage && 'text-primary underline',
         ]"
+        :role="isCollapsible ? 'button' : undefined"
+        :tabindex="isCollapsible ? 0 : undefined"
         @click="onOpen"
+        @keydown.enter="onOpen"
+        @keydown.space.prevent="onOpen"
       >
         {{ name }}
-      </div>
+      </span>
     </div>
 
     <!-- Children (always visible for nested items, conditional for top-level) -->
@@ -200,22 +204,3 @@
     </Transition>
   </li>
 </template>
-
-<style scoped>
-  /* Expand: ease-out (content settles in) */
-  .expand-enter-active {
-    grid-template-rows: 1fr;
-    transition: grid-template-rows 200ms cubic-bezier(0.33, 1, 0.68, 1);
-  }
-
-  /* Collapse: ease-in (snaps shut) */
-  .expand-leave-active {
-    grid-template-rows: 1fr;
-    transition: grid-template-rows 150ms cubic-bezier(0.32, 0, 0.67, 0);
-  }
-
-  .expand-enter-from,
-  .expand-leave-to {
-    grid-template-rows: 0fr;
-  }
-</style>

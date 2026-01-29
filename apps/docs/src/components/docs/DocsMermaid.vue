@@ -301,7 +301,7 @@
         <div class="flex items-center gap-1">
           <button
             aria-label="Zoom out"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             title="Zoom out"
             type="button"
             @click="zoomOut"
@@ -313,7 +313,7 @@
 
           <button
             aria-label="Zoom in"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             title="Zoom in"
             type="button"
             @click="zoomIn"
@@ -325,7 +325,7 @@
 
           <button
             aria-label="Reset view"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             title="Reset view"
             type="button"
             @click="resetZoom"
@@ -342,7 +342,7 @@
         <div class="flex items-center gap-1">
           <button
             :aria-label="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             :title="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
             type="button"
             @click="copySvg"
@@ -369,7 +369,7 @@
 
           <button
             aria-label="Download SVG"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             title="Download SVG"
             type="button"
             @click="downloadSvg"
@@ -381,7 +381,7 @@
 
           <div class="w-px h-4 bg-divider mx-1" />
 
-          <Dialog.Close aria-label="Close diagram" class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider" title="Close">
+          <Dialog.Close aria-label="Close diagram" class="btn-icon" title="Close">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>

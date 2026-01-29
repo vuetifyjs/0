@@ -122,7 +122,7 @@
         <div class="pt-4 pb-2 border-t border-divider flex justify-between">
           <button
             aria-label="Enter Developer Mode"
-            class="inline-flex items-center gap-1 text-xs focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
+            class="icon-text text-xs focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
             :class="[devmode.isSelected.value ? 'text-error hover:text-error' : 'text-on-surface/40 hover:text-primary' ]"
             type="button"
             @click="devmode.toggle()"

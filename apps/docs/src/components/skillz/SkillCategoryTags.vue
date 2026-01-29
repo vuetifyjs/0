@@ -19,7 +19,7 @@
     <span
       v-for="cat in categories"
       :key="cat"
-      class="px-2 py-1 text-[10px] font-medium tracking-wide rounded-lg bg-surface-variant/60 text-on-surface-variant border border-divider/50"
+      class="px-2 py-1 text-[10px] font-medium tracking-wide rounded-lg bg-surface-variant-60 text-on-surface-variant border border-divider-50"
       :class="variant === 'compact' ? 'text-[9px] px-1.5' : ''"
     >
       {{ SKILL_CATEGORY_META[cat].label }}

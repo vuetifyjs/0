@@ -69,12 +69,12 @@
     </div>
 
     <div class="flex flex-wrap gap-x-4 gap-y-1 text-on-surface text-sm">
-      <span v-for="b in browsers" :key="b.browser" class="inline-flex items-center gap-1">
+      <span v-for="b in browsers" :key="b.browser" class="icon-text">
         <AppBrowserIcon :browser="b.browser" :size="16" />
         {{ b.name }} {{ b.version }}
       </span>
 
-      <span v-if="!versions.safari" class="inline-flex items-center gap-1 text-on-surface/60">
+      <span v-if="!versions.safari" class="icon-text text-on-surface/60">
         <AppBrowserIcon browser="safari" class="opacity-50" :size="16" />
         Safari —
       </span>

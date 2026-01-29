@@ -1,6 +1,7 @@
 <script setup lang="ts">
   // Components
   import SkillMasteredBadge from './SkillMasteredBadge.vue'
+  import DocsCard from '@/components/docs/DocsCard.vue'
 
   // Utilities
   import { computed } from 'vue'
@@ -21,14 +22,11 @@
 </script>
 
 <template>
-  <component
-    :is="isLocked ? 'div' : 'RouterLink'"
-    class="flex flex-col h-full p-4 border border-divider rounded-lg bg-surface no-underline text-inherit transition-[border-color,box-shadow] duration-200"
-    :class="{
-      'border-success': done,
-      'opacity-60 cursor-not-allowed': isLocked,
-      'hover:border-primary hover:shadow-md': !isLocked,
-    }"
+  <DocsCard
+    class="flex flex-col h-full"
+    :class="{ 'border-success': done }"
+    :disabled="isLocked"
+    hoverable
     :to="isLocked ? undefined : `/skillz/${skill.id}`"
   >
     <div class="flex justify-between items-center mb-2">
@@ -53,5 +51,5 @@
         <SkillDuration :minutes="skill.minutes" />
       </div>
     </div>
-  </component>
+  </DocsCard>
 </template>

@@ -61,7 +61,7 @@
       <RouterLink
         v-if="prev && prev !== '/'"
         :key="prev"
-        class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 hover:border-primary hover:bg-surface-tint transition-colors"
+        class="flex-1 basis-0 list-item-bordered capitalize pa-2"
         :to="prev"
       >
         <div class="inline-flex align-center text-xs text-on-surface opacity-60">
@@ -80,7 +80,7 @@
       <RouterLink
         v-if="next && next !== '/'"
         :key="next"
-        class="flex-1 basis-0 cursor-pointer capitalize border border-divider rounded-lg pa-2 text-end hover:border-primary hover:bg-surface-tint transition-colors"
+        class="flex-1 basis-0 list-item-bordered capitalize pa-2 text-end"
         :to="next"
       >
         <div class="inline-flex align-center text-xs text-on-surface opacity-60">

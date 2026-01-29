@@ -10,7 +10,7 @@
 </script>
 
 <template>
-  <span class="inline-flex items-center gap-1 font-medium">
+  <span class="icon-text font-medium">
     <AppIcon icon="calendar-clock" :size="iconSize" />
     {{ minutes }}m
   </span>

@@ -20,7 +20,7 @@
 <template>
   <a
     v-if="href"
-    class="docs-meta-item inline-flex items-center gap-1 hover:text-on-surface transition-colors"
+    class="docs-meta-item icon-text hover:text-on-surface transition-colors"
     :href="href"
     :rel="isExternal ? 'noopener noreferrer' : undefined"
     :target="isExternal ? '_blank' : undefined"
@@ -33,7 +33,7 @@
 
   <span
     v-else
-    class="docs-meta-item inline-flex items-center gap-1"
+    class="docs-meta-item icon-text"
     :title="title"
   >
     <AppIcon :class="color" :icon="icon" size="1em" />

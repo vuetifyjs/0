@@ -25,7 +25,7 @@
     step="toc"
   >
     <button
-      class="text-xs font-medium text-on-surface-variant mb-3 uppercase tracking-wide hover:text-primary hover:underline transition-colors cursor-pointer after:content-['_§']"
+      class="section-label mb-3 hover:text-primary hover:underline transition-colors cursor-pointer after:content-['_§']"
       type="button"
       @click="scrollToTop"
     >

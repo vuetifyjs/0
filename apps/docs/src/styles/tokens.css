@@ -1,0 +1,67 @@
+/**
+ * Design tokens as CSS custom properties.
+ * These complement the UnoCSS theme colors.
+ */
+
+:root {
+  /* Easing functions */
+  --ease-snappy-in: cubic-bezier(0.32, 0, 0.67, 0);
+  --ease-snappy-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Durations */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* Z-index layers */
+  --z-content: 1;
+  --z-chrome: 100;
+  --z-dropdown: 200;
+  --z-modal: 500;
+  --z-overlay: 1000;
+}
+
+/**
+ * Color-mix utility classes for theme colors with opacity.
+ * Uses "transparent X%" syntax to avoid minifier stripping spaces
+ * between var() and percentage.
+ */
+
+/* Success */
+.bg-success-10 { background: color-mix(in srgb, var(--v0-success), transparent 90%); }
+.bg-success-20 { background: color-mix(in srgb, var(--v0-success), transparent 80%); }
+.border-success-50 { border-color: color-mix(in srgb, var(--v0-success), transparent 50%); }
+
+/* Info */
+.bg-info-10 { background: color-mix(in srgb, var(--v0-info), transparent 90%); }
+.bg-info-20 { background: color-mix(in srgb, var(--v0-info), transparent 80%); }
+.border-info-50 { border-color: color-mix(in srgb, var(--v0-info), transparent 50%); }
+
+/* Warning */
+.bg-warning-10 { background: color-mix(in srgb, var(--v0-warning), transparent 90%); }
+.bg-warning-20 { background: color-mix(in srgb, var(--v0-warning), transparent 80%); }
+.border-warning-50 { border-color: color-mix(in srgb, var(--v0-warning), transparent 50%); }
+
+/* Error */
+.bg-error-10 { background: color-mix(in srgb, var(--v0-error), transparent 90%); }
+.bg-error-20 { background: color-mix(in srgb, var(--v0-error), transparent 80%); }
+.border-error-50 { border-color: color-mix(in srgb, var(--v0-error), transparent 50%); }
+
+/* Accent */
+.bg-accent-10 { background: color-mix(in srgb, var(--v0-accent), transparent 90%); }
+.bg-accent-20 { background: color-mix(in srgb, var(--v0-accent), transparent 80%); }
+.border-accent-50 { border-color: color-mix(in srgb, var(--v0-accent), transparent 50%); }
+
+/* Discord */
+.bg-discord-10 { background: color-mix(in srgb, var(--v0-discord), transparent 90%); }
+.bg-discord-20 { background: color-mix(in srgb, var(--v0-discord), transparent 80%); }
+.border-discord-50 { border-color: color-mix(in srgb, var(--v0-discord), transparent 50%); }
+
+/* Surface variant */
+.bg-surface-variant-10 { background: color-mix(in srgb, var(--v0-surface-variant), transparent 90%); }
+.bg-surface-variant-50 { background: color-mix(in srgb, var(--v0-surface-variant), transparent 50%); }
+.bg-surface-variant-60 { background: color-mix(in srgb, var(--v0-surface-variant), transparent 40%); }
+
+/* Divider */
+.border-divider-50 { border-color: color-mix(in srgb, var(--v0-divider), transparent 50%); }

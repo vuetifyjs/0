@@ -11,7 +11,7 @@
   <ExpansionPanel.Item>
     <ExpansionPanel.Activator
       v-slot="{ isSelected }"
-      class="w-full px-4 py-3 border border-divider rounded-lg bg-surface hover:bg-surface-tint cursor-pointer flex items-center gap-3 text-left transition-colors"
+      class="w-full list-item-bordered flex items-center gap-3 text-left"
     >
       <span
         class="w-5 h-5 rounded-full border border-divider flex items-center justify-center text-xs font-mono shrink-0 transition-colors"
