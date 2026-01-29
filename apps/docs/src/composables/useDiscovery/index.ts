@@ -97,6 +97,7 @@ type HandlersMap = Partial<Record<ID, StepHandlers>>
 
 export interface TourDefinition {
   handlers?: HandlersMap
+  exit?: StepHandler
 }
 
 export interface TourDefinitionModule {
@@ -157,6 +158,7 @@ export function createDiscovery (): DiscoveryContext {
 
   // Handler state
   let handlers: HandlersMap = {}
+  let exitHandler: StepHandler | undefined
   let isStarting = false
 
   function onEnter (ticket: DiscoveryStepTicket) {
@@ -188,6 +190,7 @@ export function createDiscovery (): DiscoveryContext {
     steps.off('back', onBack)
     steps.off('completed', onCompleted)
     handlers = {}
+    exitHandler = undefined
   }
 
   async function start (id: ID, options?: { stepId?: ID, context?: Record<string, unknown> }) {
@@ -217,6 +220,7 @@ export function createDiscovery (): DiscoveryContext {
           if (module?.defineTour) {
             const definition = module.defineTour(options?.context)
             handlers = definition.handlers ?? {}
+            exitHandler = definition.exit
           } else {
             console.error(`[v0:discovery] Tour definition for "${id}" missing defineTour export`)
           }
@@ -251,6 +255,7 @@ export function createDiscovery (): DiscoveryContext {
   function stop () {
     const current = steps.selectedItem.value
     if (current) steps.emit('leave', current)
+    exitHandler?.()
     detachHandlers()
     isActive.value = false
   }
@@ -267,6 +272,7 @@ export function createDiscovery (): DiscoveryContext {
   function complete () {
     const current = steps.selectedItem.value
     if (current) steps.emit('leave', current)
+    exitHandler?.()
     detachHandlers()
     isActive.value = false
     isComplete.value = true
