@@ -1,18 +1,20 @@
 <script setup lang="ts">
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
-  import { ref, useSlots, computed } from 'vue'
+  import { shallowRef, useSlots, computed } from 'vue'
 
   defineProps<{
-    title?: string
     anchorId?: string
+    collapse?: boolean
+    title?: string
   }>()
 
   const scroll = useScrollToAnchor()
-
   const slots = useSlots()
+
+  const expanded = shallowRef(false)
+
   const hasContent = computed(() => !!slots.default)
-  const expanded = ref(false)
 </script>
 
 <template>
@@ -53,27 +55,29 @@
       class="docs-description-fade absolute inset-x-0 bottom-0 h-16 pointer-events-none"
     />
 
-    <button
-      v-if="hasContent && !expanded"
-      aria-label="Expand description"
-      class="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
-      type="button"
-      @click="expanded = true"
-    >
-      <span>Expand</span>
-      <AppIcon icon="down" :size="14" />
-    </button>
+    <template v-if="hasContent">
+      <button
+        v-if="!expanded && collapse"
+        aria-label="Expand description"
+        class="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center justify-center gap-1 px-2 py-1 text-xs text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+        type="button"
+        @click="expanded = true"
+      >
+        <span>Expand</span>
+        <AppIcon icon="down" :size="14" />
+      </button>
 
-    <button
-      v-if="hasContent && expanded"
-      aria-label="Collapse description"
-      class="absolute top-4 right-4 z-10 inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
-      title="Collapse description"
-      type="button"
-      @click="expanded = false"
-    >
-      <AppIcon icon="fullscreen-exit" :size="16" />
-    </button>
+      <button
+        v-if="!collapse || expanded"
+        :aria-label="`${expanded ? 'Collapse' : 'Expand'} description`"
+        class="absolute top-3 right-3 z-10 inline-flex items-center justify-center size-7 text-on-primary bg-primary rounded cursor-pointer transition-200 hover:bg-primary/85"
+        :title="`${expanded ? 'Collapse' : 'Expand'} description`"
+        type="button"
+        @click="expanded = !expanded"
+      >
+        <AppIcon :icon="expanded ? 'fullscreen-exit' : 'fullscreen'" :size="16" />
+      </button>
+    </template>
   </div>
 </template>
 
