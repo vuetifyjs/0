@@ -18,6 +18,9 @@ export function defineTour (context: TourContext) {
   }
 
   return {
+    exit: () => {
+      search.close()
+    },
     handlers: {
       'search': {
         enter: () => {
@@ -26,7 +29,7 @@ export function defineTour (context: TourContext) {
       },
       'search-input': {
         enter: () => {
-          search.open()
+          search.query('Tabs')
         },
         back: () => {
           search.close()
@@ -36,31 +39,25 @@ export function defineTour (context: TourContext) {
         enter: () => {
           search.query('Tabs')
         },
-        back: () => {
-          search.clear()
-        },
       },
       'search-favorite': {
         enter: () => {
-          if (!search.isOpen.value) search.open()
           search.query('Tabs')
         },
       },
       'search-ask-ai': {
         enter: () => {
-          if (!search.isOpen.value) search.open()
           search.query('Tabs')
         },
       },
       'search-dismiss': {
         enter: () => {
-          if (!search.isOpen.value) search.open()
           search.query('Tabs')
         },
       },
       'search-history': {
         enter: () => {
-          if (!search.isOpen.value) search.open()
+          search.open()
           if (search.recents.value.length === 0) {
             search.addRecent({
               id: '/components/disclosure/tabs',
@@ -77,8 +74,7 @@ export function defineTour (context: TourContext) {
       },
       'search-favorited': {
         enter: () => {
-          if (!search.isOpen.value) search.open()
-          // Favorite the Tabs page directly
+          search.open()
           const tabsPage = {
             id: '/components/disclosure/tabs',
             title: 'Tabs',

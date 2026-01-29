@@ -27,6 +27,13 @@
       "placement": "bottom"
     },
     {
+      "id": "search-results",
+      "title": "Search Results",
+      "task": "Results are grouped by category: Components, Composables, Guides, and more. The best matches appear first.",
+      "hint": "",
+      "learn": "How search results are organized"
+    },
+    {
       "id": "search-favorite",
       "title": "Favorite Results",
       "task": "The star icon adds a result to your favorites. Favorites appear at the top when search is empty for quick access.",
