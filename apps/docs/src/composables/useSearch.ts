@@ -399,7 +399,7 @@ export function useSearch (): UseSearchReturn {
   })
 
   function open () {
-    if (!IN_BROWSER) return
+    if (!IN_BROWSER || isOpen.value) return
 
     isOpen.value = true
     text.value = ''
