@@ -1,6 +1,9 @@
 // Framework
 import { IN_BROWSER } from '@vuetify/v0/constants'
 
+// Composables
+import { useIdleCallback } from '@/composables/useIdleCallback'
+
 async function initAnalytics () {
   const Swetrix = await import('swetrix')
   Swetrix.init('zBsmiQsAi0Bj', {
@@ -11,9 +14,5 @@ async function initAnalytics () {
 }
 
 if (IN_BROWSER) {
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(initAnalytics, { timeout: 2000 })
-  } else {
-    setTimeout(initAnalytics, 0)
-  }
+  useIdleCallback(initAnalytics, 2000)
 }

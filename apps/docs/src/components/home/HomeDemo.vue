@@ -5,6 +5,7 @@
   // Composables
   import { usePlayground } from '@/composables/playground'
   import { useHighlightCode } from '@/composables/useHighlightCode'
+  import { useIdleCallback } from '@/composables/useIdleCallback'
 
   // Utilities
   import { computed, onMounted, ref } from 'vue'
@@ -54,11 +55,7 @@
 
   onMounted(() => {
     // Defer syntax highlighting to idle time to avoid blocking main thread
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      requestIdleCallback(() => highlighter.highlight(), { timeout: 2000 })
-    } else {
-      setTimeout(() => highlighter.highlight(), 100)
-    }
+    useIdleCallback(() => highlighter.highlight(), 2000)
   })
 
   const playgroundUrl = computed(() => usePlayground(code))
