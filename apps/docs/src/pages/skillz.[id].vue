@@ -120,12 +120,18 @@
         >
           <div class="flex items-center gap-2 mb-4">
             <SkillLevelBadge :level="tour.level" />
+
             <SkillModeBadge :mode="tour.mode" />
-            <SkillMasteredBadge v-if="progress?.status === 'completed'" class="ml-auto" />
+
+            <SkillMasteredBadge
+              v-if="progress?.status === 'completed'"
+              class="position-absolute top-2 right-2 md:top-4 md:right-4"
+              :size="breakpoints.mdAndDown.value ? 72 : 128"
+            />
           </div>
 
           <h1 class="text-2xl font-bold m-0 mb-3 text-on-surface">{{ tour.name }}</h1>
-          <p class="text-base text-on-surface-variant m-0 mb-6 leading-relaxed">{{ tour.description }}</p>
+          <p class="text-base text-on-surface-variant m-0 mb-6 leading-relaxed md:pr-26">{{ tour.description }}</p>
 
           <!-- <SkillMetadata class="mb-6" :skill="skill" /> -->
 
