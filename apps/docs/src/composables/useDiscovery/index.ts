@@ -2,15 +2,30 @@
  * @module useDiscovery
  *
  * @remarks
- * Composable for managing guided tours through documentation.
+ * Composable for managing guided and interactive tours through documentation.
  * Handles tour navigation, step progression, dynamic handler loading,
  * and integration with form validation.
  *
  * Key features:
- * - Event-based lifecycle (enter/leave/back) for UI synchronization
- * - Dynamic handler loading from tour definition modules
+ * - Unified `enter` handler runs on any step entry (forward, back, resume)
+ * - Async handler support via Promise return or `done()` callback
+ * - Interactive tour support with `done()` for user-action-driven progression
  * - Form validation integration per step
  * - Activator and root registry for positioning
+ *
+ * Handler execution:
+ * - `enter(ctx)` - Runs when entering a step (any direction)
+ * - `leave()` - Runs when leaving a step (any direction)
+ * - `completed()` - Runs when step is completed (going forward only)
+ *
+ * Handler context:
+ * - `done()` - Call to signal async setup complete (for interactive tours)
+ * - `direction` - How user arrived: 'forward' | 'back' | 'resume' | 'jump'
+ *
+ * Async patterns:
+ * - Return Promise: `enter: async () => { await setup() }`
+ * - Use done(): `enter: ({ done }) => { watchForAction(done) }`
+ * - Sync (default): `enter: () => { doSetup() }`
  */
 
 // Framework
@@ -86,18 +101,44 @@ export type DiscoveryTourTicketInput = SingleTicketInput & DiscoveryTour & {
 
 export type DiscoveryTourTicket = SingleTicket<DiscoveryTourTicketInput>
 
-type StepHandler = () => void
-type StepHandlers = {
-  enter?: StepHandler
-  leave?: StepHandler
-  back?: StepHandler
-  completed?: StepHandler
+/** Direction of navigation when entering a step */
+export type StepDirection = 'forward' | 'back' | 'resume' | 'jump'
+
+/** Context passed to step handlers */
+export interface StepHandlerContext {
+  /** Call when async setup is complete (for interactive tours) */
+  done: () => void
+  /** How the user arrived at this step */
+  direction: StepDirection
 }
+
+/**
+ * Step handler function signature.
+ * Supports multiple patterns:
+ * - Sync: `() => { doSetup() }`
+ * - Async Promise: `async () => { await setup() }`
+ * - Async callback: `({ done }) => { watchForAction(done) }`
+ * - With direction: `({ direction }) => { if (direction === 'back') ... }`
+ */
+export type StepHandler = (ctx: StepHandlerContext) => void | Promise<void>
+
+/** Simple handler for leave/completed (no async needed) */
+export type SimpleHandler = () => void
+
+export type StepHandlers = {
+  /** Runs when entering a step (any direction: forward, back, resume, jump) */
+  enter?: StepHandler
+  /** Runs when leaving a step (any direction) */
+  leave?: SimpleHandler
+  /** Runs when step is completed successfully (forward only, before leave) */
+  completed?: SimpleHandler
+}
+
 type HandlersMap = Partial<Record<ID, StepHandlers>>
 
 export interface TourDefinition {
   handlers?: HandlersMap
-  exit?: StepHandler
+  exit?: SimpleHandler
 }
 
 export interface TourDefinitionModule {
@@ -115,6 +156,8 @@ export interface DiscoveryContext {
   isComplete: Readonly<ShallowRef<boolean>>
   isFirst: Readonly<ShallowRef<boolean>>
   isLast: Readonly<ShallowRef<boolean>>
+  /** Whether the current step's handler has completed (for interactive tours) */
+  isReady: Readonly<ShallowRef<boolean>>
   canGoBack: Readonly<Ref<boolean>>
   canGoNext: Readonly<Ref<boolean>>
   selectedId: StepContext<DiscoveryStepTicket>['selectedId']
@@ -125,7 +168,7 @@ export interface DiscoveryContext {
   complete: () => void
   reset: () => void
   next: () => Promise<void>
-  prev: () => void
+  prev: () => Promise<void>
   step: (index: number) => Promise<void>
 }
 
@@ -150,47 +193,87 @@ export function createDiscovery (): DiscoveryContext {
 
   const isActive = shallowRef(false)
   const isComplete = shallowRef(false)
+  const isReady = shallowRef(true)
 
   const isFirst = toRef(() => steps.selectedIndex.value === 0)
   const isLast = toRef(() => steps.selectedIndex.value === steps.size - 1)
-  const canGoBack = toRef(() => steps.selectedIndex.value > 0)
-  const canGoNext = toRef(() => steps.selectedIndex.value < steps.size - 1)
+  const canGoBack = toRef(() => isReady.value && steps.selectedIndex.value > 0)
+  const canGoNext = toRef(() => isReady.value && steps.selectedIndex.value < steps.size - 1)
 
   // Handler state
   let handlers: HandlersMap = {}
-  let exitHandler: StepHandler | undefined
+  let exitHandler: SimpleHandler | undefined
   let isStarting = false
 
-  function onEnter (ticket: DiscoveryStepTicket) {
-    handlers[ticket.id]?.enter?.()
+  /**
+   * Invoke a step handler with async support.
+   * Handles three patterns:
+   * 1. Sync handler (no done call, no Promise) - resolves immediately
+   * 2. Promise return - awaits the Promise
+   * 3. done() callback - resolves when done() is called
+   */
+  async function invokeEnterHandler (
+    handler: StepHandler | undefined,
+    direction: StepDirection,
+  ): Promise<void> {
+    if (!handler) {
+      isReady.value = true
+      return
+    }
+
+    isReady.value = false
+
+    return new Promise<void>(resolve => {
+      let resolved = false
+
+      function done () {
+        if (resolved) return
+        resolved = true
+        isReady.value = true
+        resolve()
+      }
+
+      const ctx: StepHandlerContext = { done, direction }
+
+      try {
+        const result = handler(ctx)
+
+        // If handler returns a Promise, await it then auto-done
+        if (result instanceof Promise) {
+          result
+            .then(() => done())
+            .catch(error => {
+              console.error('[v0:discovery] Handler error:', error)
+              done()
+            })
+        } else if (handler.length === 0) {
+          // Handler takes no arguments - sync handler, auto-done
+          done()
+        }
+        // Otherwise, handler uses done() callback - wait for it
+      } catch (error) {
+        console.error('[v0:discovery] Handler error:', error)
+        done()
+      }
+    })
+  }
+
+  async function onEnter (ticket: DiscoveryStepTicket, direction: StepDirection) {
+    // Emit event for external listeners (e.g., tests, debugging)
+    steps.emit('enter', ticket)
+    // Invoke handler with async support
+    const handler = handlers[ticket.id]?.enter
+    await invokeEnterHandler(handler, direction)
   }
 
   function onLeave (ticket: DiscoveryStepTicket) {
+    steps.emit('leave', ticket)
     handlers[ticket.id]?.leave?.()
   }
 
-  function onBack (ticket: DiscoveryStepTicket) {
-    handlers[ticket.id]?.back?.()
-  }
-
   function onCompleted (ticket: DiscoveryStepTicket) {
+    steps.emit('completed', ticket)
     handlers[ticket.id]?.completed?.()
-  }
-
-  function attachHandlers () {
-    steps.on('enter', onEnter)
-    steps.on('leave', onLeave)
-    steps.on('back', onBack)
-    steps.on('completed', onCompleted)
-  }
-
-  function detachHandlers () {
-    steps.off('enter', onEnter)
-    steps.off('leave', onLeave)
-    steps.off('back', onBack)
-    steps.off('completed', onCompleted)
-    handlers = {}
-    exitHandler = undefined
   }
 
   async function start (id: ID, options?: { stepId?: ID, context?: Record<string, unknown> }) {
@@ -230,12 +313,13 @@ export function createDiscovery (): DiscoveryContext {
         }
       }
 
-      attachHandlers()
-
       isActive.value = true
       isComplete.value = false
 
       tour.select()
+
+      // Determine direction based on whether resuming at a specific step
+      const direction: StepDirection = options?.stepId ? 'resume' : 'forward'
 
       // Start at specific step if provided, otherwise first
       if (options?.stepId && steps.has(options.stepId)) {
@@ -244,9 +328,11 @@ export function createDiscovery (): DiscoveryContext {
         steps.first()
       }
 
-      // Emit enter for initial step
+      // Run enter handler for initial step
       const initial = steps.selectedItem.value
-      if (initial) steps.emit('enter', initial)
+      if (initial) {
+        await onEnter(initial, direction)
+      }
     } finally {
       isStarting = false
     }
@@ -254,31 +340,39 @@ export function createDiscovery (): DiscoveryContext {
 
   function stop () {
     const current = steps.selectedItem.value
-    if (current) steps.emit('leave', current)
+    if (current) onLeave(current)
     exitHandler?.()
-    detachHandlers()
+    handlers = {}
+    exitHandler = undefined
     isActive.value = false
+    isReady.value = true
   }
 
   function reset () {
-    detachHandlers()
+    handlers = {}
+    exitHandler = undefined
     form.reset()
     steps.reset()
     tours.reset()
     isActive.value = false
     isComplete.value = false
+    isReady.value = true
   }
 
   function complete () {
     const current = steps.selectedItem.value
-    if (current) steps.emit('leave', current)
+    if (current) onLeave(current)
     exitHandler?.()
-    detachHandlers()
+    handlers = {}
+    exitHandler = undefined
     isActive.value = false
     isComplete.value = true
+    isReady.value = true
   }
 
   async function next () {
+    if (!isReady.value) return
+
     const current = steps.selectedItem.value
     if (!current) return
 
@@ -292,32 +386,38 @@ export function createDiscovery (): DiscoveryContext {
       }
     }
 
-    steps.emit('completed', current)
-    steps.emit('leave', current)
+    onCompleted(current)
+    onLeave(current)
     steps.next()
 
-    // Emit enter with newly selected item after navigation
+    // Run enter handler for new step
     const newItem = steps.selectedItem.value
     if (newItem && newItem.id !== current.id) {
-      steps.emit('enter', newItem)
+      await onEnter(newItem, 'forward')
     }
   }
 
-  function prev () {
+  async function prev () {
+    if (!isReady.value) return
+
     const current = steps.selectedItem.value
     if (!current) return
 
+    // Emit back event for current step (for backwards compatibility)
     steps.emit('back', current)
+    onLeave(current)
     steps.prev()
 
-    // Emit enter with newly selected item after navigation
+    // Run enter handler for new step (same handler, different direction)
     const newItem = steps.selectedItem.value
     if (newItem && newItem.id !== current.id) {
-      steps.emit('enter', newItem)
+      await onEnter(newItem, 'back')
     }
   }
 
   async function step (index: number) {
+    if (!isReady.value) return
+
     const current = steps.selectedItem.value
     const id = steps.lookup(index - 1)
     if (isUndefined(id)) return
@@ -333,18 +433,18 @@ export function createDiscovery (): DiscoveryContext {
       }
     }
 
-    // Emit completed and leave for current step if navigating away
+    // Leave current step if navigating away
     if (current && current.id !== id) {
-      steps.emit('completed', current)
-      steps.emit('leave', current)
+      onCompleted(current)
+      onLeave(current)
     }
 
     steps.select(id)
 
-    // Emit enter for newly selected step
+    // Run enter handler for new step
     const newItem = steps.selectedItem.value
     if (newItem && (!current || newItem.id !== current.id)) {
-      steps.emit('enter', newItem)
+      await onEnter(newItem, 'jump')
     }
   }
 
@@ -359,6 +459,7 @@ export function createDiscovery (): DiscoveryContext {
     isComplete: readonly(isComplete),
     isFirst: readonly(isFirst),
     isLast: readonly(isLast),
+    isReady: readonly(isReady),
     canGoBack: readonly(canGoBack),
     canGoNext: readonly(canGoNext),
     selectedId: steps.selectedId,
