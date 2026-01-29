@@ -7,65 +7,65 @@
   "categories": ["meta"],
   "order": 1,
   "prerequisites": [],
-  "description": "Master the documentation search to find components, composables, and guides quickly.",
+  "description": "Find exactly what you need in seconds with search, favorites, and keyboard shortcuts.",
   "minutes": 2,
   "startRoute": "/introduction/getting-started",
   "steps": [
     {
       "id": "search",
       "title": "Search Button",
-      "task": "This is the search button. It opens the search panel where you can find components, composables, and guides.",
+      "task": "Your fastest path to anything. Open search and start typing to find components, composables, and guides.",
       "hint": "Keyboard shortcut: Ctrl+K (or Cmd+K on Mac)",
-      "learn": "Where to find search"
+      "learn": "Access search from anywhere"
     },
     {
       "id": "search-input",
       "title": "Search Input",
-      "task": "This is where you type your search query. Results update instantly as you type.",
+      "task": "Type and watch. Results appear instantly as you type—no waiting, no Enter key needed.",
       "hint": "Arrow keys navigate results, Enter selects.",
-      "learn": "Where to type search queries",
+      "learn": "Get instant results as you type",
       "placement": "bottom"
     },
     {
       "id": "search-results",
       "title": "Search Results",
-      "task": "Results are grouped by category: Components, Composables, Guides, and more. The best matches appear first.",
+      "task": "Organized by type. Components, composables, guides—scroll or arrow through to find what you need.",
       "hint": "",
-      "learn": "How search results are organized"
+      "learn": "Navigate categorized search results"
     },
     {
       "id": "search-favorite",
       "title": "Favorite Results",
-      "task": "The star icon adds a result to your favorites. Favorites appear at the top when search is empty for quick access.",
+      "task": "Bookmark your go-tos. Star anything you use often and it'll be waiting at the top next time.",
       "hint": "",
-      "learn": "What the favorite button does",
+      "learn": "Quick-access your most-used pages",
       "placement": "left",
       "placementMobile": "bottom"
     },
     {
       "id": "search-ask-ai",
       "title": "Ask AI",
-      "task": "This button navigates to the page and asks AI about the topic. Great for getting a quick overview.",
+      "task": "Skip the reading. Hit this to jump straight to a page and ask AI to explain it.",
       "hint": "",
-      "learn": "What the Ask AI button does",
+      "learn": "Get AI explanations for any topic",
       "placement": "left",
       "placementMobile": "bottom"
     },
     {
       "id": "search-dismiss",
       "title": "Dismiss Results",
-      "task": "The X icon hides a result for the current session. Useful for filtering out irrelevant matches.",
+      "task": "Too many results? Dismiss irrelevant matches and focus on what matters.",
       "hint": "",
-      "learn": "What the dismiss button does",
+      "learn": "Filter out noise from search results",
       "placement": "left",
       "placementMobile": "bottom"
     },
     {
       "id": "search-history",
       "title": "Search History",
-      "task": "Recent searches appear here when the search field is empty. History persists between sessions.",
+      "task": "Pick up where you left off. Recent searches stick around between sessions.",
       "hint": "",
-      "learn": "Where to find search history",
+      "learn": "Resume previous searches instantly",
       "placement": "bottom"
     },
     {
@@ -73,15 +73,15 @@
       "title": "Favorited!",
       "task": "We just added Tabs to your favorites. Notice it now appears at the top for quick access anytime you open search.",
       "hint": "",
-      "learn": "How favorites work in practice",
+      "learn": "See favorites in action",
       "placement": "bottom"
     },
     {
       "id": "conclusion",
-      "title": "You're a Search Pro!",
-      "task": "That covers the search features. Use Ctrl+K anytime to quickly find what you need.",
+      "title": "That's Search",
+      "task": "Hit Ctrl+K whenever you need something—it's the fastest way around the docs.",
       "hint": "",
-      "learn": "Ready to search like a pro",
+      "learn": "Search like a power user",
       "noActivator": true
     }
   ]
