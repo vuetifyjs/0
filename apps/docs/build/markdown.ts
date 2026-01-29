@@ -68,27 +68,35 @@ export default async function MarkdownPlugin () {
         },
       })
 
-      // Example container: ::: example ... :::
+      // Example container: ::: example ... ::: or ::: example collapse ... :::
       // Lines starting with / are file paths, rest is markdown description
       // Single file without description: renders with peek, no description slot
       // Multiple files or with description: renders with description slot
+      // "collapse" modifier: adds collapse prop for inline expand/collapse button
       md.use(Container, 'example', {
         render (tokens: MarkdownToken[], index: number, _options: unknown, env: Record<string, unknown>) {
           if (tokens[index].nesting === 1) {
             // Mark that we're entering an example container
+            const info = (tokens[index] as MarkdownToken & { info?: string }).info?.trim() || ''
+            const isCollapse = info.includes('collapse')
             env._inExample = true
             env._exampleFilePaths = [] as string[]
+            env._exampleCollapse = isCollapse
             return '' // Defer opening tag until we know the file path(s)
           }
 
           // Closing tag
           const wasOpened = env._exampleOpened
           const paths = env._exampleFilePaths as string[]
+          const collapse = env._exampleCollapse
 
           delete env._inExample
           delete env._exampleFilePaths
           delete env._exampleOpened
           delete env._examplePathPara
+          delete env._exampleCollapse
+
+          const collapseAttr = collapse ? ' collapse' : ''
 
           // If opened with description, close the description template
           if (wasOpened) {
@@ -97,10 +105,10 @@ export default async function MarkdownPlugin () {
 
           // If we have paths but no description content, emit simple peek version
           if (paths?.length === 1) {
-            return `<DocsExample file-path="${paths[0]}" peek />\n`
+            return `<DocsExample file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'} />\n`
           } else if (paths?.length > 1) {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
-            return `<DocsExample :file-paths="${pathsJson}" />\n`
+            return `<DocsExample :file-paths="${pathsJson}"${collapseAttr} />\n`
           }
 
           return ''
@@ -131,15 +139,17 @@ export default async function MarkdownPlugin () {
         if (env._inExample && (env._exampleFilePaths as string[])?.length > 0 && !env._exampleOpened) {
           env._exampleOpened = true
           const paths = env._exampleFilePaths as string[]
+          const collapse = env._exampleCollapse
+          const collapseAttr = collapse ? ' collapse' : ''
           const defaultRender = defaultHeadingOpen
             ? defaultHeadingOpen(tokens, index, options, env, self)
             : self.renderToken(tokens, index, options)
 
           if (paths.length === 1) {
-            return `<DocsExample file-path="${paths[0]}">\n<template #description>\n${defaultRender}`
+            return `<DocsExample file-path="${paths[0]}"${collapseAttr}>\n<template #description>\n${defaultRender}`
           } else {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
-            return `<DocsExample :file-paths="${pathsJson}">\n<template #description>\n${defaultRender}`
+            return `<DocsExample :file-paths="${pathsJson}"${collapseAttr}>\n<template #description>\n${defaultRender}`
           }
         }
 
@@ -175,11 +185,13 @@ export default async function MarkdownPlugin () {
         if (env._inExample && (env._exampleFilePaths as string[]).length > 0 && !env._exampleOpened) {
           env._exampleOpened = true
           const paths = env._exampleFilePaths as string[]
+          const collapse = env._exampleCollapse
+          const collapseAttr = collapse ? ' collapse' : ''
           if (paths.length === 1) {
-            return `<DocsExample file-path="${paths[0]}">\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+            return `<DocsExample file-path="${paths[0]}"${collapseAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
           } else {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
-            return `<DocsExample :file-paths="${pathsJson}">\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+            return `<DocsExample :file-paths="${pathsJson}"${collapseAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
           }
         }
 

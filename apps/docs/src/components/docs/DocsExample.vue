@@ -26,6 +26,7 @@
     title?: string
     id?: string
     code?: string
+    collapse?: boolean
     files?: ExampleFile[]
     peek?: boolean
     peekLines?: number
@@ -144,6 +145,7 @@
       <DocsExampleDescription
         v-if="hasDescription || title"
         :anchor-id="anchorId"
+        :collapse="collapse"
         :title="title"
       >
         <slot name="description" />
