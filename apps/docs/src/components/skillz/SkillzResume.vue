@@ -9,13 +9,17 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { useRouter } from 'vue-router'
+  import { toRef } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
 
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
 
   const store = useSkillzStore()
+  const route = useRoute()
   const router = useRouter()
+
+  const isSkillzPage = toRef(() => route.path.startsWith('/skillz/'))
   const ask = useAsk()
   const breakpoints = useBreakpoints()
   const navigation = useNavigation()
@@ -53,7 +57,7 @@
   <Teleport to="body">
     <Transition name="slide-up">
       <div
-        v-if="store.pendingTour"
+        v-if="store.pendingTour && !isSkillzPage"
         class="fixed top-16 inset-x-0 mx-auto w-max z-50 flex items-center gap-3 px-4 py-3 bg-surface border border-divider rounded-xl shadow-xl"
       >
         <span class="text-sm text-on-surface">
