@@ -8,6 +8,7 @@ import App from './App.vue'
 
 // Composables
 import { useHighlighter } from './composables/useHighlighter'
+import { useIdleCallback } from './composables/useIdleCallback'
 
 import { registerPlugins } from './plugins'
 import pinia from './plugins/pinia'
@@ -54,11 +55,7 @@ export const createApp = ViteSSG(
         localStorage.removeItem('vuetify:dynamic-reload')
 
         // Preload Shiki highlighter on idle to avoid lag on first "Show Code" click
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(() => {
-            useHighlighter().getHighlighter()
-          })
-        }
+        useIdleCallback(() => useHighlighter().getHighlighter())
       })
     }
   },
