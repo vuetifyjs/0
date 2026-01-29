@@ -45,7 +45,7 @@ const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
   tour: {
     icon: 'compass',
     title: 'Interactive Tour',
-    classes: 'bg-[#7C4DFF]/10 border-[#7C4DFF]/50 text-[#7C4DFF] cursor-pointer hover:bg-[#7C4DFF]/20 transition-colors',
+    classes: 'bg-tour-10 border-tour-50 text-tour cursor-pointer hover:bg-tour-20 transition-colors',
   },
 }
 
