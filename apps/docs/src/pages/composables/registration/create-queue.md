@@ -24,7 +24,8 @@ A queue composable for managing time-based collections with automatic timeout-ba
 ## Usage
 
 ```ts collapse
-import { createQueue, type QueueTicket } from '@vuetify/v0'
+import { createQueue } from '@vuetify/v0'
+import type { QueueTicket } from '@vuetify/v0'
 
 interface Task extends QueueTicket {
   name: string
@@ -35,7 +36,7 @@ const queue = createQueue<Task>({ timeout: 5000 })
 
 const task = queue.register({ name: 'Build assets', priority: 1 })
 
-console.log(task.isPaused) // false (first item is active)
+console.log(task.isPaused.value) // false (first item is active)
 console.log(queue.size) // 1
 
 // Pause all timers

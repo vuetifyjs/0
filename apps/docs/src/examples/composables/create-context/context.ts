@@ -10,7 +10,11 @@ export interface Notification {
 
 export interface NotificationContext {
   notifications: ShallowReactive<Notification[]>
-  notify: (title: string, description?: string, type?: Notification['type']) => void
+  notify: (
+    title: string,
+    description?: string,
+    type?: Notification['type'],
+  ) => void
   dismiss: (id: number) => void
   clear: () => void
 }

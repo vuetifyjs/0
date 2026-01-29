@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { toRef } from 'vue'
-
-  import { useNotifications, type Notification } from './context'
+  import { useNotifications } from './context'
+  import type { Notification } from './context'
 
   const { notifications, notify, dismiss, clear } = useNotifications()
 
