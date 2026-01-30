@@ -7,7 +7,6 @@
 
   // Components
   import SkillMasteredBadge from '@/components/skillz/SkillMasteredBadge.vue'
-  import SkillzTour from '@/components/skillz/SkillzTour.vue'
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
@@ -53,9 +52,8 @@
 
   // Find next tour in the same track by order
   const nextTour = computed(() => {
-    if (!tour || !isCompleted.value) return null
-    const allTours = discovery.tours.values()
-    return allTours
+    if (!tour) return null
+    return discovery.tours.values()
       .filter(t => t.track === tour.track && t.order > tour.order)
       .toSorted((a, b) => a.order - b.order)[0] ?? null
   })
@@ -86,6 +84,12 @@
       },
     })
   }
+
+  function onClickNext () {
+    if (!nextTour.value) return
+
+    router.push(`/skillz/${nextTour.value.id}`)
+  }
 </script>
 
 <template>
@@ -94,7 +98,7 @@
     <div v-if="!tour" class="flex flex-col items-center justify-center py-16 px-8 text-center">
       <h1 class="m-0 mb-2 text-2xl">Skill Not Found</h1>
 
-      <!-- <p class="m-0 mb-6 text-on-surface-variant">The skill "{{ skillId }}" doesn't exist.</p> -->
+      <p class="m-0 mb-6 text-on-surface-variant">The skill "{{ params.id }}" doesn't exist.</p>
 
       <RouterLink class="text-primary no-underline hover:underline" to="/skillz">
         Back to Skillz
@@ -112,7 +116,26 @@
 
           <div class="flex items-center gap-4">
             <SkillDuration class="text-sm text-on-surface-variant" :minutes="tour.minutes" />
+
+            <!-- Completed with next tour: Next is primary, Restart is secondary -->
+            <template v-if="isCompleted && nextTour">
+              <button
+                class="px-4 py-1.5 text-sm font-semibold text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface"
+                @click="onClick()"
+              >
+                Restart
+              </button>
+              <button
+                class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
+                @click="onClickNext()"
+              >
+                Next: {{ nextTour.name }}
+              </button>
+            </template>
+
+            <!-- Otherwise: single primary button -->
             <button
+              v-else
               class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
               @click="onClick()"
             >
@@ -145,13 +168,9 @@
           <h1 class="text-2xl font-bold m-0 mb-3 text-on-surface">{{ tour.name }}</h1>
           <p class="text-base text-on-surface-variant m-0 mb-6 leading-relaxed md:pr-26">{{ tour.description }}</p>
 
-          <!-- <SkillMetadata class="mb-6" :skill="skill" /> -->
-
-          <!-- <SkillPrerequisites class="mb-6" :prerequisites="skill.prerequisites" variant="box" /> -->
-
           <h2 class="text-base font-semibold m-0 mb-4 text-on-surface">You'll learn how to:</h2>
 
-          <ol class="list-none p-0 m-0 mb-8">
+          <ol class="list-none p-0 m-0">
             <li
               v-for="(step, index) in tour.steps"
               :key="index"
@@ -179,28 +198,10 @@
             </li>
           </ol>
 
-          <!-- Completed: Next tour primary, restart secondary -->
-          <template v-if="isCompleted">
-            <RouterLink
-              v-if="nextTour"
-              class="flex items-center justify-center gap-2 w-full px-6 py-2 text-base font-semibold bg-primary text-on-primary no-underline rounded-lg transition-[filter] hover:brightness-110"
-              :to="`/skillz/${nextTour.id}`"
-            >
-              Next: {{ nextTour.name }}
-              <span class="text-lg">→</span>
-            </RouterLink>
-            <button
-              class="w-full mt-3 px-6 py-2 text-sm text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface"
-              @click="onClick()"
-            >
-              Restart this tour
-            </button>
-          </template>
-
           <!-- Not completed: Start/Resume -->
           <button
-            v-else
-            class="w-full px-6 py-2 text-base font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:not-disabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+            v-if="!isCompleted"
+            class="w-full px-6 py-2 text-base font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:not-disabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed mt-8"
             @click="onClick()"
           >
             {{ label }} Skill

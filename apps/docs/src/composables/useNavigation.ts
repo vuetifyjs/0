@@ -69,7 +69,11 @@ export function useNavigation (): NavigationContext {
   }
 
   function toggle () {
-    isOpen.value = !isOpen.value
+    if (isOpen.value) {
+      close()
+    } else {
+      open()
+    }
   }
 
   context = {
