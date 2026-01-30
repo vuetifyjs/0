@@ -54,7 +54,7 @@
   background: none;
   border: none;
   border-radius: 4px;
-  color: var(--v0-text-secondary);
+  color: var(--v0-on-surface-variant);
   cursor: pointer;
   opacity: 0.6;
   transition: opacity 0.15s, background 0.15s;

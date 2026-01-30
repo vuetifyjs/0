@@ -394,8 +394,8 @@
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  min-width: 320px;
-  max-width: 450px;
+  width: 450px;
+  max-width: calc(100vw - 24px);
   max-height: 400px;
   padding: 12px;
   background: var(--v0-surface);
@@ -437,7 +437,7 @@
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background: var(--v0-surface-light);
+  background: var(--v0-surface-tint);
   border-radius: 4px;
   opacity: 0.7;
 }
@@ -445,7 +445,7 @@
 .popover-description {
   flex-shrink: 0;
   margin: 12px 0;
-  color: var(--v0-text-secondary);
+  color: var(--v0-on-surface-variant);
 }
 
 .popover-content {

@@ -20,21 +20,28 @@
 
 <style scoped>
 .popover-section {
-  margin-bottom: 12px;
-}
-
-.popover-section:last-child {
   margin-bottom: 0;
 }
 
 .popover-section-label {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: block;
-  margin-bottom: 4px;
+  margin: 0 -12px;
+  padding: 8px 12px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--v0-primary);
+  color: var(--v0-on-surface-variant);
+  background: var(--v0-surface-tint);
+  border-top: 1px solid var(--v0-divider);
+  border-bottom: 1px solid var(--v0-divider);
+}
+
+.popover-section:first-child .popover-section-label {
+  border-top: none;
 }
 
 .popover-section-content {
@@ -45,6 +52,7 @@
 
 .popover-section-content :deep(p) {
   margin: 0;
+  padding: 6px 0;
 }
 
 .popover-section-content :deep(code) {
