@@ -12,6 +12,13 @@ const TABS_PAGE = {
   path: '/components/disclosure/tabs',
 }
 
+const GETTING_STARTED_PAGE = {
+  id: '/introduction/getting-started',
+  title: 'Getting Started',
+  category: 'Getting Started',
+  path: '/introduction/getting-started',
+}
+
 /**
  * Search tour handlers.
  * Opens search modal and manages query state to demonstrate features.
@@ -47,8 +54,8 @@ export function defineTour (context: TourContext) {
         },
       },
 
-      // Step 3: Search results (show results for "Tabs")
-      'search-results': {
+      // Step 3: Search categories (show results for "Tabs" to demonstrate categories)
+      'search-categories': {
         enter: () => {
           search.open()
           search.query('Tabs')
@@ -83,10 +90,8 @@ export function defineTour (context: TourContext) {
       'search-history': {
         enter: () => {
           search.open()
-          // Ensure there's a recent entry to show
-          if (search.recents.value.length === 0) {
-            search.addRecent(TABS_PAGE)
-          }
+          // Use Getting Started (not Tabs) since Tabs is already in favorites
+          search.addRecent(GETTING_STARTED_PAGE)
           search.clear()
         },
       },

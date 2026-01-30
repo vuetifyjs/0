@@ -39,7 +39,7 @@
   const search = useSearch()
   const breakpoints = useBreakpoints()
   const router = useRouter()
-  const tour = discovery.tours.get(params.value.id)
+  const tour = computed(() => discovery.tours.get(params.value.id))
 
   const done = computed(() => store.steps(params.value.id))
   const progress = computed(() => store.get(params.value.id))
@@ -52,27 +52,28 @@
 
   // Find next tour in the same track by order
   const nextTour = computed(() => {
-    if (!tour) return null
+    if (!tour.value) return null
     return discovery.tours.values()
-      .filter(t => t.track === tour.track && t.order > tour.order)
+      .filter(t => t.track === tour.value!.track && t.order > tour.value!.order)
       .toSorted((a, b) => a.order - b.order)[0] ?? null
   })
 
   useHead({
-    title: () => tour ? `${tour.name} - Skillz` : 'Skill Not Found - Skillz',
+    title: () => tour.value ? `${tour.value.name} - Skillz` : 'Skill Not Found - Skillz',
     meta: [
-      { key: 'description', name: 'description', content: () => tour?.description ?? 'The requested skill could not be found.' },
-      { key: 'og:title', property: 'og:title', content: () => tour ? `${tour.name} - Vuetify0 Skillz` : 'Skill Not Found' },
-      { key: 'og:description', property: 'og:description', content: () => tour?.description ?? 'The requested skill could not be found.' },
+      { key: 'description', name: 'description', content: () => tour.value?.description ?? 'The requested skill could not be found.' },
+      { key: 'og:title', property: 'og:title', content: () => tour.value ? `${tour.value.name} - Vuetify0 Skillz` : 'Skill Not Found' },
+      { key: 'og:description', property: 'og:description', content: () => tour.value?.description ?? 'The requested skill could not be found.' },
     ],
   })
 
   async function onClick (stepId?: string) {
-    if (!tour) return
+    const currentTour = tour.value
+    if (!currentTour) return
 
-    await router.push(tour.startRoute)
+    await router.push(currentTour.startRoute)
 
-    store.start(tour.id, {
+    store.start(currentTour.id, {
       stepId,
       context: {
         ask,
@@ -126,7 +127,7 @@
                 Restart
               </button>
               <button
-                class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
+                class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
                 @click="onClickNext()"
               >
                 Next: {{ nextTour.name }}
@@ -136,7 +137,7 @@
             <!-- Otherwise: single primary button -->
             <button
               v-else
-              class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border-none rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
+              class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
               @click="onClick()"
             >
               {{ label }}
