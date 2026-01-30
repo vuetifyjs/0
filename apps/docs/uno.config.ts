@@ -12,6 +12,7 @@ export default defineConfig({
     'bg-glass-warning': '[background:color-mix(in_srgb,var(--v0-warning)_70%,transparent)] backdrop-blur-12',
 
     // Layout
+    'max-w-900': '[max-width:900px]',
     'icon-text': 'inline-flex items-center gap-1',
     'center-x': 'left-1/2 -translate-x-1/2',
 
@@ -50,6 +51,7 @@ export default defineConfig({
     'disabled-state': 'opacity-50 cursor-not-allowed',
 
   },
+  safelist: ['max-w-900'],
   preflights: [
     {
       getCSS: () => `
