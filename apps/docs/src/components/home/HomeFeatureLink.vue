@@ -26,7 +26,7 @@
     :to="isInternal ? to : undefined"
   >
     <div class="w-12 h-12 shrink-0 rounded-lg bg-primary flex items-center justify-center text-on-primary group-hover:bg-primary transition-colors">
-      <AppIcon :icon :size="22" />
+      <AppIcon class="!opacity-100" :icon :size="22" />
     </div>
 
     <div class="flex-1 min-w-0">
