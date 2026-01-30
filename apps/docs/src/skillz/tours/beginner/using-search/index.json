@@ -27,6 +27,13 @@
       "placement": "bottom"
     },
     {
+      "id": "search-categories",
+      "title": "Search Categories",
+      "task": "Organized by type. Components, composables, guides—scroll or arrow through to find what you need.",
+      "hint": "",
+      "learn": "Navigate categorized search results"
+    },
+    {
       "id": "search-results",
       "title": "Search Results",
       "task": "Organized by type. Components, composables, guides—scroll or arrow through to find what you need.",

@@ -401,9 +401,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/use-filter': RouteRecordInfo<
-      '/composables/utilities/use-filter',
-      '/composables/utilities/use-filter',
+    '/composables/utilities/create-filter': RouteRecordInfo<
+      '/composables/utilities/create-filter',
+      '/composables/utilities/create-filter',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -983,9 +983,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/utilities/use-filter.md': {
+    'src/pages/composables/utilities/create-filter.md': {
       routes:
-        | '/composables/utilities/use-filter'
+        | '/composables/utilities/create-filter'
       views:
         | never
     }

@@ -13,7 +13,7 @@ import { bench, describe } from 'vitest'
 // Utilities
 import { ref } from 'vue'
 
-import { createFilter, useFilter } from './index'
+import { createFilter } from './index'
 
 // =============================================================================
 // FIXTURES - Created once, reused across read-only benchmarks
@@ -185,7 +185,8 @@ describe('useFilter benchmarks', () => {
 
     bench('Reactive filter: access computed 100 times (1,000 items)', () => {
       const query = ref(LOOKUP_USER_1K)
-      const { items: filtered } = useFilter(query, itemsRef1k)
+      const filter = createFilter()
+      const { items: filtered } = filter.apply(query, itemsRef1k)
       for (let i = 0; i < 100; i++) {
         void filtered.value
       }
@@ -193,7 +194,8 @@ describe('useFilter benchmarks', () => {
 
     bench('Reactive filter: access computed 100 times (10,000 items)', () => {
       const query = ref(LOOKUP_USER_10K)
-      const { items: filtered } = useFilter(query, itemsRef10k)
+      const filter = createFilter()
+      const { items: filtered } = filter.apply(query, itemsRef10k)
       for (let i = 0; i < 100; i++) {
         void filtered.value
       }
@@ -201,7 +203,8 @@ describe('useFilter benchmarks', () => {
 
     bench('Reactive filter: update query 10 times (1,000 items)', () => {
       const query = ref(LOOKUP_USER_1K)
-      const { items: filtered } = useFilter(query, itemsRef1k)
+      const filter = createFilter()
+      const { items: filtered } = filter.apply(query, itemsRef1k)
       for (let i = 0; i < 10; i++) {
         query.value = `User ${500 + i}`
         void filtered.value
@@ -210,7 +213,8 @@ describe('useFilter benchmarks', () => {
 
     bench('Reactive filter: update query 10 times (10,000 items)', () => {
       const query = ref(LOOKUP_USER_10K)
-      const { items: filtered } = useFilter(query, itemsRef10k)
+      const filter = createFilter()
+      const { items: filtered } = filter.apply(query, itemsRef10k)
       for (let i = 0; i < 10; i++) {
         query.value = `User ${5000 + i}`
         void filtered.value

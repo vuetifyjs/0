@@ -110,7 +110,7 @@ Detailed API reference for each composable including options, properties, and me
 
 | Composable | Description |
 | - | - |
-| [useFilter](/api/use-filter) | Array filtering |
+| [createFilter](/api/create-filter) | Array filtering |
 | [useOverflow](/api/use-overflow) | Item capacity computation |
 | [usePagination](/api/use-pagination) | Pagination state |
 | [useVirtual](/api/use-virtual) | Virtual scrolling |
