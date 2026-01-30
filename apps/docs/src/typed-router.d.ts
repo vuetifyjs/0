@@ -415,9 +415,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/use-pagination': RouteRecordInfo<
-      '/composables/utilities/use-pagination',
-      '/composables/utilities/use-pagination',
+    '/composables/utilities/create-pagination': RouteRecordInfo<
+      '/composables/utilities/create-pagination',
+      '/composables/utilities/create-pagination',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -995,9 +995,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/utilities/use-pagination.md': {
+    'src/pages/composables/utilities/create-pagination.md': {
       routes:
-        | '/composables/utilities/use-pagination'
+        | '/composables/utilities/create-pagination'
       views:
         | never
     }

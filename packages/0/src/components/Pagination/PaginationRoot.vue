@@ -31,9 +31,9 @@
 
   // Composables
   import { createOverflow } from '#v0/composables/createOverflow'
+  import { createPagination } from '#v0/composables/createPagination'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
-  import { createPagination } from '#v0/composables/usePagination'
 
   // Utilities
   import { isNullOrUndefined } from '#v0/utilities'
@@ -41,8 +41,8 @@
 
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
+  import type { PaginationContext, PaginationTicket } from '#v0/composables/createPagination'
   import type { RegistryContext } from '#v0/composables/createRegistry'
-  import type { PaginationContext, PaginationTicket } from '#v0/composables/usePagination'
 
   export const [usePaginationRoot, providePaginationRoot] = createContext<PaginationContext>()
   export const [usePaginationControls, providePaginationControls] = createContext<RegistryContext>({ suffix: 'controls' })
