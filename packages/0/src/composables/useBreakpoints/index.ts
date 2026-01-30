@@ -81,14 +81,14 @@ export interface BreakpointsContextOptions extends BreakpointsOptions {}
  */
 function createDefaultBreakpoints () {
   return {
-    mobileBreakpoint: 'md',
+    mobileBreakpoint: 'lg',
     breakpoints: {
       xs: 0,
       sm: 600,
-      md: 960,
-      lg: 1280,
-      xl: 1920,
-      xxl: 2560,
+      md: 840,
+      lg: 1145,
+      xl: 1545,
+      xxl: 2138,
     },
   } as const
 }
@@ -108,14 +108,14 @@ function createDefaultBreakpoints () {
  *
  * export const [useBreakpoints, provideBreakpoints] = createBreakpoints({
  *   namespace: 'v0:breakpoints',
- *   mobileBreakpoint: 'sm',
+ *   mobileBreakpoint: 'md',
  *   breakpoints: {
  *     xs: 0,
- *     sm: 680,
- *     md: 1024,
- *     lg: 1280,
- *     xl: 1920,
- *     xxl: 2560,
+ *     sm: 600,
+ *     md: 840,
+ *     lg: 1145,
+ *     xl: 1545,
+ *     xxl: 2138,
  *   },
  * })
  * ```
@@ -266,14 +266,14 @@ export function createBreakpointsContext<
  * app.use(
  *   createBreakpointsPlugin({
  *     namespace: 'v0:breakpoints',
- *     mobileBreakpoint: 'sm',
+ *     mobileBreakpoint: 'md',
  *     breakpoints: {
  *       xs: 0,
- *       sm: 680,
- *       md: 1024,
- *       lg: 1280,
- *       xl: 1920,
- *       xxl: 2560,
+ *       sm: 600,
+ *       md: 840,
+ *       lg: 1145,
+ *       xl: 1545,
+ *       xxl: 2138,
  *     },
  *   })
  * )
