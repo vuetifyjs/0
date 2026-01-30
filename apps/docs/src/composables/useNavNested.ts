@@ -1,5 +1,5 @@
 // Framework
-import { createContext, createNested } from '@vuetify/v0'
+import { createContext, createNested, isArray, isString } from '@vuetify/v0'
 
 // Utilities
 import { nextTick, onMounted, shallowRef, toValue, watch } from 'vue'
@@ -7,25 +7,17 @@ import { useRoute } from 'vue-router'
 
 // Types
 import type { NavItem, NavItemCategory, NavItemLink } from '@/stores/app'
-import type { NestedContext, NestedRegistration, NestedTicket } from '@vuetify/v0'
+import type { NestedContext, NestedRegistration, NestedTicketInput } from '@vuetify/v0'
 import type { ID } from '@vuetify/v0/types'
-import type { MaybeRefOrGetter } from 'vue'
-
-// =============================================================================
-// Type Guards
-// =============================================================================
+import type { MaybeRefOrGetter, ShallowRef } from 'vue'
 
 export function isNavItemLink (item: NavItem): item is NavItemLink {
-  return 'to' in item && typeof item.to === 'string'
+  return 'to' in item && isString(item.to)
 }
 
 export function isNavItemCategory (item: NavItem): item is NavItemCategory {
-  return 'children' in item && Array.isArray(item.children) && !('to' in item)
+  return 'children' in item && isArray(item.children) && !('to' in item)
 }
-
-// =============================================================================
-// Transformation
-// =============================================================================
 
 type NavNestedValue = NavItemLink | NavItemCategory
 
@@ -36,8 +28,8 @@ type NavNestedValue = NavItemLink | NavItemCategory
 export function navToNestedItems (
   items: NavItem[],
   parentId?: string,
-): NestedRegistration<NavNestedValue>[] {
-  const result: NestedRegistration<NavNestedValue>[] = []
+): NestedRegistration<NestedTicketInput<NavNestedValue>>[] {
+  const result: NestedRegistration<NestedTicketInput<NavNestedValue>>[] = []
   let categoryIndex = 0
 
   for (const item of items) {
@@ -70,12 +62,11 @@ export function navToNestedItems (
 // =============================================================================
 
 export interface NavNestedContext {
-  nested: NestedContext<NestedTicket<NavNestedValue>>
-  getValue: (id: ID) => NavNestedValue | undefined
+  nested: NestedContext<NestedTicketInput<NavNestedValue>>
   /** True during initial state restoration (animations should be disabled) */
-  isRestoring: Readonly<ReturnType<typeof shallowRef<boolean>>>
+  isRestoring: Readonly<ShallowRef<boolean>>
   /** True after initial state restoration + animations complete (safe to scroll on expand) */
-  scrollEnabled: Readonly<ReturnType<typeof shallowRef<boolean>>>
+  scrollEnabled: Readonly<ShallowRef<boolean>>
 }
 
 const [useNavNestedContext, provideNavNestedContext] = createContext<NavNestedContext>('docs:nav-nested')
@@ -88,7 +79,7 @@ export { useNavNestedContext }
  */
 export function createNavNested (nav: MaybeRefOrGetter<NavItem[]>) {
   const route = useRoute()
-  const nested = createNested<NestedTicket<NavNestedValue>>({ open: 'multiple' })
+  const nested = createNested<NestedTicketInput<NavNestedValue>>({ open: 'multiple' })
   const isRestoring = shallowRef(true)
   const scrollEnabled = shallowRef(false)
 
@@ -124,14 +115,8 @@ export function createNavNested (nav: MaybeRefOrGetter<NavItem[]>) {
     }, 350)
   })
 
-  // Helper to get the NavItem value
-  function getValue (id: ID): NavNestedValue | undefined {
-    return nested.get(id)?.value
-  }
-
   const context: NavNestedContext = {
     nested,
-    getValue,
     isRestoring,
     scrollEnabled,
   }

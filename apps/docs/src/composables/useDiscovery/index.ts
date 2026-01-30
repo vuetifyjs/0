@@ -37,6 +37,7 @@ import { readonly, shallowRef, toRef } from 'vue'
 // Types
 import type {
   ContextTrinity,
+  FormContext,
   FormValidationRule,
   RegistryTicket,
   RegistryContext,
@@ -150,7 +151,7 @@ export interface DiscoveryContext {
   roots: RegistryContext<DiscoveryRootTicket>
   steps: StepContext<DiscoveryStepTicket>
   tours: SingleContext<DiscoveryTourTicket>
-  form: ReturnType<typeof createForm>
+  form: FormContext
 
   isActive: Readonly<ShallowRef<boolean>>
   isComplete: Readonly<ShallowRef<boolean>>
