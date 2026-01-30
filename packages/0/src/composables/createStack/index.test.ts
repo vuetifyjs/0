@@ -34,7 +34,7 @@ describe('createStack', () => {
     it('should use custom baseZIndex', () => {
       const isActive = ref(false)
 
-      const result = effectScope().run(() => useStack(isActive, { baseZIndex: 1000 }))!
+      const result = effectScope().run(() => useStack(isActive, undefined, { baseZIndex: 1000 }))!
 
       expect(result.zIndex.value).toBe(1000)
       expect(result.styles.value).toEqual({ zIndex: 1000 })
@@ -62,8 +62,8 @@ describe('createStack', () => {
       const isActive1 = ref(true)
       const isActive2 = ref(true)
 
-      const result1 = effectScope().run(() => useStack(isActive1, { increment: 5 }))!
-      const result2 = effectScope().run(() => useStack(isActive2, { increment: 5 }))!
+      const result1 = effectScope().run(() => useStack(isActive1, undefined, { increment: 5 }))!
+      const result2 = effectScope().run(() => useStack(isActive2, undefined, { increment: 5 }))!
 
       await nextTick()
 
@@ -125,7 +125,7 @@ describe('createStack', () => {
     it('should not register when disableGlobalStack is true', async () => {
       const isActive = ref(true)
 
-      effectScope().run(() => useStack(isActive, { disableGlobalStack: true }))
+      effectScope().run(() => useStack(isActive, undefined, { disableGlobalStack: true }))
       await nextTick()
 
       expect(stack.registry.size).toBe(0)
@@ -208,7 +208,7 @@ describe('createStack', () => {
 
       expect(stack.isBlocking.value).toBe(false)
 
-      effectScope().run(() => useStack(isActive, { blocking: true }))
+      effectScope().run(() => useStack(isActive, undefined, { blocking: true }))
       await nextTick()
 
       expect(stack.isBlocking.value).toBe(true)
@@ -218,7 +218,7 @@ describe('createStack', () => {
       const isActive = ref(true)
       const onDismiss = vi.fn()
 
-      effectScope().run(() => useStack(isActive, { onDismiss }))
+      effectScope().run(() => useStack(isActive, onDismiss))
       await nextTick()
 
       stack.dismiss()
@@ -230,7 +230,7 @@ describe('createStack', () => {
       const isActive = ref(true)
       const onDismiss = vi.fn()
 
-      effectScope().run(() => useStack(isActive, { onDismiss, blocking: true }))
+      effectScope().run(() => useStack(isActive, onDismiss, { blocking: true }))
       await nextTick()
 
       stack.dismiss()
@@ -289,10 +289,10 @@ describe('createStack', () => {
       const onDismiss2 = vi.fn()
 
       const result1 = effectScope().run(() =>
-        useStack(ref(true), { onDismiss: onDismiss1 }),
+        useStack(ref(true), onDismiss1),
       )!
       effectScope().run(() =>
-        useStack(ref(true), { onDismiss: onDismiss2 }),
+        useStack(ref(true), onDismiss2),
       )
 
       await nextTick()
@@ -308,7 +308,7 @@ describe('createStack', () => {
       const onDismiss = vi.fn()
 
       const result = effectScope().run(() =>
-        useStack(ref(true), { onDismiss, blocking: true }),
+        useStack(ref(true), onDismiss, { blocking: true }),
       )!
 
       await nextTick()
@@ -323,7 +323,7 @@ describe('createStack', () => {
         throw new Error('Callback error')
       })
 
-      effectScope().run(() => useStack(ref(true), { onDismiss }))
+      effectScope().run(() => useStack(ref(true), onDismiss))
       await nextTick()
 
       // Should throw but not crash
@@ -611,7 +611,7 @@ describe('createStack', () => {
       const Child = defineComponent({
         setup () {
           // Child uses disableGlobalStack but should still register with parent
-          useStack(childActive, { disableGlobalStack: true })
+          useStack(childActive, undefined, { disableGlobalStack: true })
           return () => null
         },
       })

@@ -85,7 +85,7 @@ export interface StackOptions {
    *
    * @example
    * ```ts
-   * const { zIndex } = useStack(isOpen, { baseZIndex: 1000 })
+   * const { zIndex } = useStack(isOpen, onDismiss, { baseZIndex: 1000 })
    * // First overlay: 1000, second: 1010, etc.
    * ```
    */
@@ -98,7 +98,7 @@ export interface StackOptions {
    *
    * @example
    * ```ts
-   * const { zIndex } = useStack(isOpen, { increment: 100 })
+   * const { zIndex } = useStack(isOpen, onDismiss, { increment: 100 })
    * // First overlay: 2000, second: 2100, etc.
    * ```
    */
@@ -110,20 +110,6 @@ export interface StackOptions {
    * @remarks When true, the overlay tracks parent/child relationships but doesn't register in the global stack. Useful for nested overlays that shouldn't affect global z-index or scrim.
    */
   disableGlobalStack?: boolean
-  /**
-   * Callback invoked when overlay should be dismissed
-   *
-   * @remarks Called by `stack.dismiss()` when scrim is clicked. Typically sets isActive to false.
-   *
-   * @example
-   * ```ts
-   * const isOpen = shallowRef(false)
-   * const { styles } = useStack(isOpen, {
-   *   onDismiss: () => { isOpen.value = false }
-   * })
-   * ```
-   */
-  onDismiss?: () => void
   /**
    * Whether this overlay blocks scrim dismissal
    *
@@ -188,7 +174,8 @@ export interface StackReturn {
  * Register an overlay in the global z-index stack.
  *
  * @param isActive Reactive boolean controlling when this overlay is active
- * @param options Configuration for z-index, callbacks, and behavior
+ * @param onDismiss Callback invoked when overlay should be dismissed (e.g., scrim click)
+ * @param options Configuration for z-index and behavior
  * @returns Stack return object with reactive state and styles
  *
  * @see https://0.vuetifyjs.com/composables/plugins/create-stack#use-stack
@@ -200,8 +187,8 @@ export interface StackReturn {
  *   import { useStack } from '@vuetify/v0'
  *
  *   const isOpen = shallowRef(false)
- *   const { styles, globalTop } = useStack(isOpen, {
- *     onDismiss: () => { isOpen.value = false }
+ *   const { styles, globalTop } = useStack(isOpen, () => {
+ *     isOpen.value = false
  *   })
  * </script>
  *
@@ -214,13 +201,13 @@ export interface StackReturn {
  */
 export function useStack (
   isActive: Readonly<Ref<boolean>>,
+  onDismiss?: () => void,
   options: StackOptions = {},
 ): StackReturn {
   const {
     baseZIndex = 2000,
     increment = 10,
     disableGlobalStack = false,
-    onDismiss,
     blocking = false,
   } = options
 

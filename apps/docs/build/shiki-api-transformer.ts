@@ -32,6 +32,7 @@ const V0_COMPONENTS = new Set([
   'Pagination',
   'Popover',
   'Radio',
+  'Scrim',
   'Selection',
   'Single',
   'Step',
@@ -48,6 +49,9 @@ const V0_COMPOSABLES = new Set([
   // Registration
   'createRegistry',
   'createStack',
+  'createStackContext',
+  'createStackPlugin',
+  'useStack',
   'useQueue',
   'useTimeline',
   'useTokens',

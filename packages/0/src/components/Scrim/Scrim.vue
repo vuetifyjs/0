@@ -1,8 +1,8 @@
 /**
- * @module ScrimRoot
+ * @module Scrim
  *
  * @remarks
- * Root component for scrim/backdrop overlays. Integrates with createStack
+ * Scrim/backdrop component for overlays. Integrates with createStack
  * to provide a shared backdrop for all active overlays. Automatically
  * positions itself behind the topmost overlay and handles dismiss behavior.
  *
@@ -14,7 +14,7 @@
   import type { AtomProps } from '#v0/components/Atom'
   import type { StackContext } from '#v0/composables/createStack'
 
-  export interface ScrimRootProps extends AtomProps {
+  export interface ScrimProps extends AtomProps {
     /**
      * Custom stack context to use instead of the global stack
      *
@@ -41,7 +41,7 @@
     teleportTo?: string | HTMLElement
   }
 
-  export interface ScrimRootSlotProps {
+  export interface ScrimSlotProps {
     /** Whether any overlays are active */
     isActive: boolean
     /** Whether the topmost overlay is blocking */
@@ -61,12 +61,12 @@
   import { stack as globalStack } from '#v0/composables/createStack'
 
   // Utilities
-  import { toRef } from 'vue'
+  import { toRef, useAttrs } from 'vue'
 
-  defineOptions({ name: 'ScrimRoot' })
+  defineOptions({ name: 'Scrim', inheritAttrs: false })
 
   defineSlots<{
-    default: (props: ScrimRootSlotProps) => any
+    default: (props: ScrimSlotProps) => any
   }>()
 
   const {
@@ -75,7 +75,9 @@
     transition = 'fade',
     teleport = true,
     teleportTo = 'body',
-  } = defineProps<ScrimRootProps>()
+  } = defineProps<ScrimProps>()
+
+  const attrs = useAttrs()
 
   function onClick () {
     if (!stack.isBlocking.value) {
@@ -83,7 +85,7 @@
     }
   }
 
-  const slotProps = toRef((): ScrimRootSlotProps => ({
+  const slotProps = toRef((): ScrimSlotProps => ({
     isActive: stack.isActive.value,
     isBlocking: stack.isBlocking.value,
     zIndex: stack.scrimZIndex.value,
@@ -105,6 +107,7 @@
         v-if="stack.isActive.value"
         :as
         :style
+        v-bind="attrs"
         @click="onClick"
       >
         <slot v-bind="slotProps" />
@@ -120,6 +123,7 @@
       v-if="stack.isActive.value"
       :as
       :style
+      v-bind="attrs"
       @click="onClick"
     >
       <slot v-bind="slotProps" />

@@ -93,8 +93,7 @@
   const contentRef = useTemplateRef('content')
 
   // Register with global stack for z-index coordination
-  const { styles, globalTop, zIndex } = useStack(context.isOpen, {
-    onDismiss: () => context.close(),
+  const { styles, globalTop, zIndex } = useStack(context.isOpen, () => context.close(), {
     blocking,
     disableGlobalStack,
   })
