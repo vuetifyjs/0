@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Utilities
 import { nextTick, ref } from 'vue'
 
-import { useVirtual } from './index'
+import { createVirtual } from './index'
 
 // Mock useHydration
 const mockIsHydrated = ref(true)
@@ -24,7 +24,7 @@ vi.mock('#v0/constants/globals', async () => {
   }
 })
 
-describe('useVirtual', () => {
+describe('createVirtual', () => {
   let mockContainer: HTMLElement
 
   beforeEach(() => {
@@ -107,7 +107,7 @@ describe('useVirtual', () => {
 
   it('should create a virtual context with required properties', () => {
     const items = ref([1, 2, 3, 4, 5])
-    const virtual = useVirtual(items)
+    const virtual = createVirtual(items)
 
     expect(virtual).toHaveProperty('element')
     expect(virtual).toHaveProperty('items')
@@ -121,7 +121,7 @@ describe('useVirtual', () => {
 
   it('should handle empty items array', () => {
     const items = ref<number[]>([])
-    const virtual = useVirtual(items)
+    const virtual = createVirtual(items)
 
     expect(virtual.items.value).toEqual([])
     expect(virtual.offset.value).toBe(0)
@@ -130,7 +130,7 @@ describe('useVirtual', () => {
 
   it('should render initial visible items with fixed height', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+    const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
     // Assign refs
     virtual.element.value = mockContainer
@@ -144,7 +144,7 @@ describe('useVirtual', () => {
 
   it('should update visible range when items change', async () => {
     const items = ref([1, 2, 3])
-    const virtual = useVirtual(items, { itemHeight: 50 })
+    const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
@@ -162,7 +162,7 @@ describe('useVirtual', () => {
 
   it('should handle item resize', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50 })
+    const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
@@ -179,7 +179,7 @@ describe('useVirtual', () => {
 
   it('should handle scroll events', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50 })
+    const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
@@ -197,7 +197,7 @@ describe('useVirtual', () => {
 
   it('should handle scrollend events', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50 })
+    const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
@@ -212,7 +212,7 @@ describe('useVirtual', () => {
 
   it('scrolls to index', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50 })
+    const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
@@ -226,7 +226,7 @@ describe('useVirtual', () => {
 
   it('should calculate padding correctly', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50 })
+    const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
@@ -240,7 +240,7 @@ describe('useVirtual', () => {
 
   it('should work with dynamic heights (null itemHeight)', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: null })
+    const virtual = createVirtual(items, { itemHeight: null })
 
     virtual.element.value = mockContainer
 
@@ -252,7 +252,7 @@ describe('useVirtual', () => {
 
   it('should include index in computed items', async () => {
     const items = ref([{ id: 1 }, { id: 2 }, { id: 3 }])
-    const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+    const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
     virtual.element.value = mockContainer
 
@@ -269,7 +269,7 @@ describe('useVirtual', () => {
 
   it('should handle force recalculation', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50 })
+    const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
@@ -284,7 +284,7 @@ describe('useVirtual', () => {
 
   it('should parse string itemHeight', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: '50' })
+    const virtual = createVirtual(items, { itemHeight: '50' })
 
     virtual.element.value = mockContainer
 
@@ -295,7 +295,7 @@ describe('useVirtual', () => {
 
   it('should parse string container height', async () => {
     const items = ref(Array.from({ length: 10 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50, height: '600' })
+    const virtual = createVirtual(items, { itemHeight: 50, height: '600' })
 
     virtual.element.value = mockContainer
 
@@ -306,7 +306,7 @@ describe('useVirtual', () => {
 
   it('should respect custom overscan option', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtual = useVirtual(items, { itemHeight: 50, height: 500, overscan: 10 })
+    const virtual = createVirtual(items, { itemHeight: 50, height: 500, overscan: 10 })
 
     virtual.element.value = mockContainer
 
@@ -320,8 +320,8 @@ describe('useVirtual', () => {
 
   it('should use default overscan when not specified', async () => {
     const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtualDefault = useVirtual(items, { itemHeight: 50, height: 500 })
-    const virtualExplicit = useVirtual(items, { itemHeight: 50, height: 500, overscan: 5 })
+    const virtualDefault = createVirtual(items, { itemHeight: 50, height: 500 })
+    const virtualExplicit = createVirtual(items, { itemHeight: 50, height: 500, overscan: 5 })
 
     virtualDefault.element.value = mockContainer
     virtualExplicit.element.value = mockContainer
@@ -335,7 +335,7 @@ describe('useVirtual', () => {
   describe('reverse direction', () => {
     it('scrolls to bottom initially with reverse direction', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500, direction: 'reverse' })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500, direction: 'reverse' })
 
       virtual.element.value = mockContainer
 
@@ -347,7 +347,7 @@ describe('useVirtual', () => {
 
     it('should maintain scroll position at bottom when new items added in reverse mode', async () => {
       const items = ref(Array.from({ length: 10 }, (_, i) => ({ id: i, text: `Message ${i}` })))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500, direction: 'reverse' })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500, direction: 'reverse' })
 
       virtual.element.value = mockContainer
 
@@ -369,7 +369,7 @@ describe('useVirtual', () => {
   describe('scroll anchoring', () => {
     it('should maintain scroll position when prepending items with anchor="start"', async () => {
       const items = ref(Array.from({ length: 20 }, (_, i) => ({ id: i, text: `Item ${i}` })))
-      const virtual = useVirtual(items, {
+      const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
         anchor: 'start',
@@ -399,7 +399,7 @@ describe('useVirtual', () => {
 
     it('should maintain scroll position at end with anchor="end"', async () => {
       const items = ref(Array.from({ length: 20 }, (_, i) => ({ id: i, text: `Item ${i}` })))
-      const virtual = useVirtual(items, {
+      const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
         anchor: 'end',
@@ -427,7 +427,7 @@ describe('useVirtual', () => {
 
       const anchorFn = vi.fn((_items: readonly unknown[]) => 10)
 
-      const virtual = useVirtual(items, {
+      const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
         anchor: anchorFn,
@@ -450,7 +450,7 @@ describe('useVirtual', () => {
       const onStartReached = vi.fn()
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
 
-      const virtual = useVirtual(items, {
+      const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
         onStartReached,
@@ -480,7 +480,7 @@ describe('useVirtual', () => {
       const onEndReached = vi.fn()
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
 
-      const virtual = useVirtual(items, {
+      const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
         onEndReached,
@@ -511,7 +511,7 @@ describe('useVirtual', () => {
       const onEndReached = vi.fn()
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
 
-      const virtual = useVirtual(items, {
+      const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
         onStartReached,
@@ -539,14 +539,14 @@ describe('useVirtual', () => {
   describe('state management', () => {
     it('should initialize with ok state', () => {
       const items = ref(Array.from({ length: 10 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50 })
+      const virtual = createVirtual(items, { itemHeight: 50 })
 
       expect(virtual.state.value).toBe('ok')
     })
 
     it('should reset state and scroll position', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
 
@@ -570,7 +570,7 @@ describe('useVirtual', () => {
 
     it('should reset to bottom for reverse direction', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, {
+      const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
         direction: 'reverse',
@@ -596,7 +596,7 @@ describe('useVirtual', () => {
   describe('enhanced scrollTo', () => {
     it('scrolls to index with smooth behavior', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
 
@@ -612,7 +612,7 @@ describe('useVirtual', () => {
 
     it('scrolls with block="center" positioning', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
 
@@ -628,7 +628,7 @@ describe('useVirtual', () => {
 
     it('scrolls with block="end" positioning', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
 
@@ -642,7 +642,7 @@ describe('useVirtual', () => {
 
     it('scrolls with custom offset', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
 
@@ -656,7 +656,7 @@ describe('useVirtual', () => {
 
     it('skips scrolling with block="nearest" when already visible', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
 
@@ -672,7 +672,7 @@ describe('useVirtual', () => {
 
     it('scrolls to exact index without off-by-one error', async () => {
       const items = ref(Array.from({ length: 10_000 }, (_, i) => i))
-      const { element, items: virtualItems, offset, scrollTo } = useVirtual(items, { itemHeight: 80, height: 600, overscan: 1 })
+      const { element, items: virtualItems, offset, scrollTo } = createVirtual(items, { itemHeight: 80, height: 600, overscan: 1 })
 
       element.value = mockContainer
 
@@ -712,7 +712,7 @@ describe('useVirtual', () => {
     it('should not scroll when item is already visible', async () => {
       const sourceItems = ref(Array.from({ length: 100 }, (_, i) => i))
 
-      const { element, items, scrollTo } = useVirtual(sourceItems, {
+      const { element, items, scrollTo } = createVirtual(sourceItems, {
         itemHeight: 50,
         overscan: 1,
       })
@@ -731,7 +731,7 @@ describe('useVirtual', () => {
     it('should scroll up when item is above viewport', async () => {
       const sourceItems = ref(Array.from({ length: 100 }, (_, i) => i))
 
-      const { element, scrollTo } = useVirtual(sourceItems, {
+      const { element, scrollTo } = createVirtual(sourceItems, {
         itemHeight: 50,
         overscan: 1,
       })
@@ -759,7 +759,7 @@ describe('useVirtual', () => {
     it('should scroll to end when reset in reverse mode', async () => {
       const sourceItems = ref(Array.from({ length: 100 }, (_, i) => i))
 
-      const { element, reset } = useVirtual(sourceItems, {
+      const { element, reset } = createVirtual(sourceItems, {
         itemHeight: 50,
         overscan: 1,
         direction: 'reverse',
@@ -778,7 +778,7 @@ describe('useVirtual', () => {
     it('should handle reset with empty items in reverse mode', async () => {
       const sourceItems = ref<number[]>([])
 
-      const { element, reset } = useVirtual(sourceItems, {
+      const { element, reset } = createVirtual(sourceItems, {
         itemHeight: 50,
         overscan: 1,
         direction: 'reverse',
@@ -795,7 +795,7 @@ describe('useVirtual', () => {
   describe('scrollTo with block="nearest"', () => {
     it('should scroll down when item is below viewport', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
       await nextTick()
@@ -814,7 +814,7 @@ describe('useVirtual', () => {
 
     it('should scroll up when item is above viewport', async () => {
       const items = ref(Array.from({ length: 100 }, (_, i) => i))
-      const virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+      const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
       await nextTick()
@@ -838,10 +838,10 @@ describe('useVirtual', () => {
       const { effectScope } = await import('vue')
       const scope = effectScope()
 
-      let virtual: ReturnType<typeof useVirtual>
+      let virtual: ReturnType<typeof createVirtual>
 
       scope.run(() => {
-        virtual = useVirtual(items, { itemHeight: 50, height: 500 })
+        virtual = createVirtual(items, { itemHeight: 50, height: 500 })
         virtual.element.value = mockContainer
       })
 

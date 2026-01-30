@@ -62,6 +62,7 @@ declare module 'vue' {
     DocsApi: typeof import('./components/docs/DocsApi.vue')['default']
     DocsApiCard: typeof import('./components/docs/DocsApiCard.vue')['default']
     DocsApiHover: typeof import('./components/docs/DocsApiHover.vue')['default']
+    DocsApiHoverList: typeof import('./components/docs/DocsApiHoverList.vue')['default']
     DocsApiHoverSection: typeof import('./components/docs/DocsApiHoverSection.vue')['default']
     DocsApiLinks: typeof import('./components/docs/DocsApiLinks.vue')['default']
     DocsApiSection: typeof import('./components/docs/DocsApiSection.vue')['default']

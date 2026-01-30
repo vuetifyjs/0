@@ -16,6 +16,7 @@
   import { IN_BROWSER, useDocumentEventListener } from '@vuetify/v0'
 
   // Components
+  import DocsApiHoverList from './DocsApiHoverList.vue'
   import DocsApiHoverSection from './DocsApiHoverSection.vue'
 
   // Composables
@@ -329,14 +330,12 @@
         <template v-if="vueApi">
           <p class="popover-description">{{ vueApi.summary }}</p>
           <div class="popover-content">
-            <div class="popover-vue-section">
-              <span class="popover-vue-label">When to use</span>
+            <DocsApiHoverSection title="When to use">
               <p>{{ vueApi.usage }}</p>
-            </div>
-            <div class="popover-vue-section">
-              <span class="popover-vue-label">Signature</span>
-              <code class="popover-signature">{{ vueApi.signature }}</code>
-            </div>
+            </DocsApiHoverSection>
+            <DocsApiHoverSection title="Signature">
+              <code>{{ vueApi.signature }}</code>
+            </DocsApiHoverSection>
           </div>
         </template>
 
@@ -351,17 +350,31 @@
           <div class="popover-content">
             <!-- Component API -->
             <template v-if="componentApi">
-              <DocsApiHoverSection :items="displayProps" title="Props" />
-              <DocsApiHoverSection :items="displayEvents" title="Events" />
-              <DocsApiHoverSection :items="displaySlots" title="Slots" />
+              <DocsApiHoverSection v-if="displayProps.length > 0" title="Props">
+                <DocsApiHoverList :items="displayProps" />
+              </DocsApiHoverSection>
+              <DocsApiHoverSection v-if="displayEvents.length > 0" title="Events">
+                <DocsApiHoverList :items="displayEvents" />
+              </DocsApiHoverSection>
+              <DocsApiHoverSection v-if="displaySlots.length > 0" title="Slots">
+                <DocsApiHoverList :items="displaySlots" />
+              </DocsApiHoverSection>
             </template>
 
             <!-- Composable API -->
             <template v-if="composableApi">
-              <DocsApiHoverSection :items="displayFunctions" show-signature title="Functions" />
-              <DocsApiHoverSection :items="displayOptions" title="Options" />
-              <DocsApiHoverSection :items="displayProperties" title="Properties" />
-              <DocsApiHoverSection :items="displayMethods" title="Methods" />
+              <DocsApiHoverSection v-if="displayFunctions.length > 0" title="Functions">
+                <DocsApiHoverList :items="displayFunctions" show-signature />
+              </DocsApiHoverSection>
+              <DocsApiHoverSection v-if="displayOptions.length > 0" title="Options">
+                <DocsApiHoverList :items="displayOptions" />
+              </DocsApiHoverSection>
+              <DocsApiHoverSection v-if="displayProperties.length > 0" title="Properties">
+                <DocsApiHoverList :items="displayProperties" />
+              </DocsApiHoverSection>
+              <DocsApiHoverSection v-if="displayMethods.length > 0" title="Methods">
+                <DocsApiHoverList :items="displayMethods" />
+              </DocsApiHoverSection>
             </template>
           </div>
         </template>
@@ -459,31 +472,6 @@
   background: #41b883;
   color: #fff;
   opacity: 1;
-}
-
-.popover-vue-section {
-  margin-bottom: 12px;
-}
-
-.popover-vue-section:last-child {
-  margin-bottom: 0;
-}
-
-.popover-vue-label {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--v0-primary);
-}
-
-.popover-vue-section p {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--v0-on-surface);
 }
 
 .popover-footer {

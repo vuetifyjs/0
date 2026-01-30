@@ -11,7 +11,7 @@ meta:
 related:
   - /composables/utilities/create-filter
   - /composables/utilities/create-pagination
-  - /composables/utilities/use-virtual
+  - /composables/utilities/create-virtual
   - /composables/utilities/create-overflow
 ---
 
@@ -27,7 +27,7 @@ Standalone helpers for common UI patterns. These composables don't depend on con
 | - | - |
 | [createFilter](/composables/utilities/create-filter) | Filter arrays with search queries |
 | [createPagination](/composables/utilities/create-pagination) | Page navigation state |
-| [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling for large lists |
+| [createVirtual](/composables/utilities/create-virtual) | Virtual scrolling for large lists |
 | [createOverflow](/composables/utilities/create-overflow) | Compute visible item capacity |
 
 > [!TIP]
@@ -117,17 +117,17 @@ const pagination = createPagination({
 pagination.items.value  // [{ type: 'page', value: 1 }, { type: 'page', value: 2 }, ...]
 ```
 
-## useVirtual
+## createVirtual
 
 Virtual scrolling for large datasets:
 
 ```ts
-import { useVirtual } from '@vuetify/v0'
+import { createVirtual } from '@vuetify/v0'
 
 const items = ref(Array.from({ length: 10000 }, (_, i) => `Item ${i}`))
 
-// useVirtual takes items as first arg, options as second
-const virtual = useVirtual(items, {
+// createVirtual takes items as first arg, options as second
+const virtual = createVirtual(items, {
   itemHeight: 40,
 })
 ```
@@ -151,7 +151,7 @@ const virtual = useVirtual(items, {
 ### Variable Height
 
 ```ts
-const virtual = useVirtual(items, {
+const virtual = createVirtual(items, {
   height: 400,  // Container height (or use element ref)
 })
 ```
@@ -257,7 +257,7 @@ const query = ref('')
 const filter = createFilter()
 const { items: filtered } = filter.apply(query, items)
 
-const virtual = useVirtual(filtered, {
+const virtual = createVirtual(filtered, {
   itemHeight: 40,
 })
 ```
@@ -268,7 +268,7 @@ For large datasets that need all three utilities working together:
 
 ```ts collapse
 import { shallowRef, computed } from 'vue'
-import { createFilter, createPagination, useVirtual } from '@vuetify/v0'
+import { createFilter, createPagination, createVirtual } from '@vuetify/v0'
 
 // Source data
 const items = shallowRef(Array.from({ length: 10000 }, (_, i) => ({
@@ -295,7 +295,7 @@ const pageItems = computed(() => {
 })
 
 // 4. Virtual scroll the current page
-const virtual = useVirtual(pageItems, { itemHeight: 40 })
+const virtual = createVirtual(pageItems, { itemHeight: 40 })
 ```
 
 ```vue

@@ -84,7 +84,7 @@ const V0_COMPOSABLES = new Set([
   'createFilter',
   'createOverflow',
   'createPagination',
-  'useVirtual',
+  'createVirtual',
   // Transformers
   'toArray',
   'toReactive',

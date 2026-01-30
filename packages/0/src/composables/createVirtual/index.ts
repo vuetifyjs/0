@@ -1,5 +1,5 @@
 /**
- * @module useVirtual
+ * @module createVirtual
  *
  * @remarks
  * Virtual scrolling composable for efficiently rendering large lists.
@@ -20,6 +20,10 @@
 // Constants
 import { IN_BROWSER } from '#v0/constants/globals'
 
+// Foundational
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createTrinity } from '#v0/composables/createTrinity'
+
 // Composables
 import { useResizeObserver } from '#v0/composables/useResizeObserver'
 
@@ -28,7 +32,8 @@ import { clamp, isFunction, isNumber } from '#v0/utilities'
 import { computed, onScopeDispose, readonly, ref, shallowRef, watch } from 'vue'
 
 // Types
-import type { ComputedRef, Ref, ShallowRef } from 'vue'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type VirtualDirection = 'forward' | 'reverse'
 export type VirtualState = 'loading' | 'empty' | 'error' | 'ok'
@@ -112,9 +117,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { element } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { element } = virtual
    * </script>
    *
    * <template>
@@ -132,9 +138,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { items } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { items } = virtual
    * </script>
    *
    * <template>
@@ -151,9 +158,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { offset } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { offset } = virtual
    * </script>
    *
    * <template>
@@ -168,9 +176,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { size } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { size } = virtual
    * </script>
    *
    * <template>
@@ -185,9 +194,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { state } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { state } = virtual
    * </script>
    *
    * <template>
@@ -205,9 +215,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { scrollTo } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { scrollTo } = virtual
    * </script>
    *
    * <template>
@@ -223,9 +234,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { element, scroll } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { element, scroll } = virtual
    * </script>
    *
    * <template>
@@ -244,9 +256,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { scroll, scrollend } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { scroll, scrollend } = virtual
    * </script>
    *
    * <template>
@@ -265,9 +278,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { resize } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { resize } = virtual
    * </script>
    *
    * <template>
@@ -282,9 +296,10 @@ export interface VirtualContext<T = unknown> {
    * @example
    * ```vue
    * <script setup lang="ts">
-   *   import { useVirtual } from '@vuetify/v0'
+   *   import { createVirtual } from '@vuetify/v0'
    *
-   *   const { reset } = useVirtual(items)
+   *   const virtual = createVirtual(items)
+   *   const { reset } = virtual
    * </script>
    *
    * <template>
@@ -298,6 +313,11 @@ export interface VirtualContext<T = unknown> {
   reset: () => void
 }
 
+export interface VirtualContextOptions extends VirtualOptions {
+  /** Namespace for dependency injection */
+  namespace?: string
+}
+
 /**
  * Virtual scrolling composable for efficiently rendering large lists
  *
@@ -305,34 +325,35 @@ export interface VirtualContext<T = unknown> {
  * @param options Configuration options
  * @returns Virtual scrolling context
  *
- * @see https://0.vuetifyjs.com/composables/utilities/use-virtual
+ * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
  *
  * @example
  * ```vue
  * <script setup lang="ts">
- *   import { useVirtual } from '@vuetify/v0'
+ *   import { createVirtual } from '@vuetify/v0'
  *
  *   const items = ref(Array.from({ length: 10000 }, (_, i) => ({ id: i, name: `Item ${i}` })))
+ *   const virtual = createVirtual(items)
  * </script>
  *
  * <template>
  *   <div
- *     ref="element"
+ *     ref="virtual.element"
  *     style="height: 600px; overflow-y: auto;"
- *     @scroll="scroll"
+ *     @scroll="virtual.scroll"
  *   >
- *     <div :style="{ height: `${offset}px` }" />
+ *     <div :style="{ height: `${virtual.offset.value}px` }" />
  *
- *     <div v-for="item in items" :key="item.index">
+ *     <div v-for="item in virtual.items.value" :key="item.index">
  *       {{ item.raw.name }}
  *     </div>
  *
- *     <div :style="{ height: `${size}px` }" />
+ *     <div :style="{ height: `${virtual.size.value}px` }" />
  *   </div>
  * </template>
  * ```
  */
-export function useVirtual<T = unknown> (
+export function createVirtual<T = unknown> (
   items: Ref<readonly T[]>,
   _options: VirtualOptions = {},
 ): VirtualContext<T> {
@@ -652,4 +673,80 @@ export function useVirtual<T = unknown> (
     resize,
     reset,
   }
+}
+
+/**
+ * Creates a virtual scrolling context with dependency injection support.
+ *
+ * @param items Reactive array of items to virtualize
+ * @param options Configuration options including namespace
+ * @template T The type of the items
+ * @returns Trinity tuple: [useVirtual, provideVirtual, defaultVirtual]
+ *
+ * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
+ *
+ * @example
+ * ```ts
+ * // Create injectable context
+ * const [useVirtual, provideVirtual, virtual] = createVirtualContext(items, {
+ *   namespace: 'my-virtual',
+ *   overscan: 10,
+ * })
+ *
+ * // In parent component
+ * provideVirtual()
+ *
+ * // In child component
+ * const virtual = useVirtual()
+ * ```
+ */
+export function createVirtualContext<T = unknown> (
+  items: Ref<readonly T[]>,
+  _options: VirtualContextOptions = {},
+): ContextTrinity<VirtualContext<T>> {
+  const {
+    namespace = 'v0:virtual',
+    ...options
+  } = _options
+
+  const [useVirtualContext, _provideVirtualContext] = createContext<VirtualContext<T>>(namespace)
+
+  const context = createVirtual<T>(items, options)
+
+  function provideVirtualContext (_context: VirtualContext<T> = context, app?: App): VirtualContext<T> {
+    return _provideVirtualContext(_context, app)
+  }
+
+  return createTrinity<VirtualContext<T>>(useVirtualContext, provideVirtualContext, context)
+}
+
+/**
+ * Returns the current virtual context from dependency injection.
+ *
+ * @param namespace The namespace for the virtual context. Defaults to `v0:virtual`.
+ * @template T The type of the items
+ * @returns The current virtual context.
+ *
+ * @throws An error if the virtual context is not found and no default is provided.
+ *
+ * @see https://0.vuetifyjs.com/composables/utilities/create-virtual
+ *
+ * @example
+ * ```vue
+ * <script lang="ts" setup>
+ *   import { createVirtual } from '@vuetify/v0'
+ *
+ *   // Inject virtual context provided by parent
+ *   const virtual = useVirtual()
+ * </script>
+ *
+ * <template>
+ *   <div>
+ *     <p>Visible items: {{ virtual.items.value.length }}</p>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useVirtual<T = unknown> (namespace = 'v0:virtual'): VirtualContext<T> {
+  return useContext<VirtualContext<T>>(namespace)
 }

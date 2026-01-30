@@ -123,7 +123,7 @@ Standalone helpers:
 | - | - |
 | [createFilter](/composables/utilities/create-filter) | Array filtering |
 | [createPagination](/composables/utilities/create-pagination) | Page navigation |
-| [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling |
+| [createVirtual](/composables/utilities/create-virtual) | Virtual scrolling |
 
 ## Usage Patterns
 

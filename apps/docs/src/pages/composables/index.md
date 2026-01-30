@@ -168,7 +168,7 @@ Standalone helpers for common UI patterns.
 | [createFilter](/composables/utilities/create-filter) | Filter arrays based on search queries |
 | [createOverflow](/composables/utilities/create-overflow) | Compute item capacity for responsive truncation |
 | [createPagination](/composables/utilities/create-pagination) | Pagination state with navigation methods |
-| [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling for large lists |
+| [createVirtual](/composables/utilities/create-virtual) | Virtual scrolling for large lists |
 
 ## Transformers
 

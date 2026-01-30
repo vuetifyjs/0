@@ -422,9 +422,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/use-virtual': RouteRecordInfo<
-      '/composables/utilities/use-virtual',
-      '/composables/utilities/use-virtual',
+    '/composables/utilities/create-virtual': RouteRecordInfo<
+      '/composables/utilities/create-virtual',
+      '/composables/utilities/create-virtual',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1001,9 +1001,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/utilities/use-virtual.md': {
+    'src/pages/composables/utilities/create-virtual.md': {
       routes:
-        | '/composables/utilities/use-virtual'
+        | '/composables/utilities/create-virtual'
       views:
         | never
     }
