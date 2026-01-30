@@ -426,11 +426,19 @@
     color: var(--shiki-light);
   }
 
-  [data-theme] .shiki {
-    background-color: light-dark(var(--shiki-light-bg), var(--shiki-dark-bg));
+  [data-theme="light"] .shiki {
+    background-color: var(--shiki-light-bg);
   }
 
-  [data-theme] .shiki span {
-    color: light-dark(var(--shiki-light), var(--shiki-dark));
+  [data-theme="dark"] .shiki {
+    background-color: var(--shiki-dark-bg);
+  }
+
+  [data-theme="light"] .shiki span {
+    color: var(--shiki-light);
+  }
+
+  [data-theme="dark"] .shiki span {
+    color: var(--shiki-dark);
   }
 </style>
