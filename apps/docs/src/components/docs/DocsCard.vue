@@ -24,22 +24,23 @@
     disabled?: boolean
   }
 
-  const props = withDefaults(defineProps<DocsCardProps>(), {
-    hoverable: false,
-    disabled: false,
-  })
+  const {
+    hoverable = false,
+    disabled = false,
+    ...props
+  } = defineProps<DocsCardProps>()
 
   const isExternal = toRef(() => props.href?.startsWith('http'))
 
   const componentAs = computed(() => {
-    if (props.disabled) return 'div'
+    if (disabled) return 'div'
     if (props.to) return RouterLink
     if (props.href) return 'a'
     return props.as ?? 'div'
   })
 
   const linkProps = computed(() => {
-    if (props.disabled) return {}
+    if (disabled) return {}
     if (props.to) return { to: props.to }
     if (props.href) {
       return {
@@ -51,13 +52,13 @@
     return {}
   })
 
-  const isInteractive = computed(() => !props.disabled && (props.to || props.href || props.hoverable))
+  const isInteractive = computed(() => !disabled && (props.to || props.href || hoverable))
 </script>
 
 <template>
   <Atom
     :as="componentAs"
-    class="block p-4 border border-divider rounded-lg bg-surface no-underline text-inherit transition-[border-color,box-shadow] duration-200"
+    class="p-4 border border-divider rounded-lg bg-surface no-underline text-inherit transition-[border-color,box-shadow] duration-200"
     :class="{
       'opacity-60 cursor-not-allowed': disabled,
       'hover:border-primary hover:shadow-md cursor-pointer': isInteractive && !disabled,
