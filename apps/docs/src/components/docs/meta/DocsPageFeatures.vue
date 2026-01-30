@@ -13,7 +13,7 @@
 
   // Utilities
   import { useScrollToAnchor } from '@/utilities/scroll'
-  import { shallowRef, toRef } from 'vue'
+  import { onBeforeUnmount, shallowRef, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Data
@@ -60,6 +60,12 @@
   const loading = shallowRef(false)
   const copyError = shallowRef(false)
   const clipboard = useClipboard()
+
+  let errorTimeout: ReturnType<typeof setTimeout>
+
+  onBeforeUnmount(() => {
+    clearTimeout(errorTimeout)
+  })
 
   const route = useRoute()
 
@@ -229,7 +235,7 @@
     } catch (error) {
       logger.error('Failed to copy page', error)
       copyError.value = true
-      setTimeout(() => {
+      errorTimeout = setTimeout(() => {
         copyError.value = false
       }, 3000)
     } finally {

@@ -125,32 +125,38 @@ export const useSkillzStore = defineStore('skillz', () => {
     }
   }
 
-  // Step completion listener
-  function onStep (ticket: unknown) {
+  // Track current step on enter (for resume)
+  function onEnter (ticket: unknown) {
+    if (active.value) {
+      const stepId = String((ticket as DiscoveryStepTicket).id)
+      update(active.value, { lastStep: stepId })
+    }
+  }
+
+  // Record step completion
+  function onComplete (ticket: unknown) {
     if (active.value) {
       record(active.value, String((ticket as DiscoveryStepTicket).id))
     }
   }
 
   function cleanup () {
-    discovery.steps.off('completed', onStep)
+    discovery.steps.off('enter', onEnter)
+    discovery.steps.off('completed', onComplete)
     active.value = null
   }
 
   async function start (id: string, options?: Parameters<typeof discovery.start>[1]) {
     active.value = id
     begin(id)
-    discovery.steps.on('completed', onStep)
+    discovery.steps.on('enter', onEnter)
+    discovery.steps.on('completed', onComplete)
 
-    // If no stepId provided, find first incomplete step before starting
+    // If no stepId provided, resume from last step they were on
     let stepId = options?.stepId
     if (!stepId) {
-      const tour = discovery.tours.get(id)
-      const completed = steps(id)
-      if (tour && completed.length > 0) {
-        const next = tour.steps.find(s => !completed.includes(String(s.id)))
-        stepId = next?.id
-      }
+      const progress = get(id)
+      stepId = progress?.lastStep
     }
 
     await discovery.start(id, { ...options, stepId })

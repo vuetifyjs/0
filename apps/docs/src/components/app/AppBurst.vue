@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Utilities
-  import { ref, shallowRef, nextTick } from 'vue'
+  import { nextTick, onBeforeUnmount, ref, shallowRef } from 'vue'
 
   const {
     disabled = false,
@@ -14,6 +14,10 @@
   const particlesEl = ref<HTMLElement>()
 
   let timeout: ReturnType<typeof setTimeout>
+
+  onBeforeUnmount(() => {
+    clearTimeout(timeout)
+  })
 
   const colors = [
     '#ff6b6b', // red
