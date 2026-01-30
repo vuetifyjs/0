@@ -2,6 +2,15 @@
 
 VitePress-style documentation for @vuetify/v0. SSG build with vite-ssg.
 
+## Commit Convention
+
+**Always use `docs` as the type for changes in this app.** Never use `fix(docs)` or `feat(docs)`.
+
+```
+docs: message                  # No scope needed
+docs(ComponentName): message   # With scope when specific
+```
+
 ## Commands
 
 ```bash

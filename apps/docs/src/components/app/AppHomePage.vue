@@ -4,7 +4,7 @@
 
 <template>
   <main id="main-content" class="pa-4 pb-6 relative z-0">
-    <div class="max-w-[900px] mx-auto pb-4">
+    <div class="max-w-900 mx-auto pb-4">
       <router-view />
     </div>
   </main>

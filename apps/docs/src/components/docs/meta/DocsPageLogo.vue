@@ -23,7 +23,14 @@
 
 <template>
   <div v-if="src" class="flex justify-center mt-4 mb-8 docs-page-logo">
-    <img alt="" aria-hidden="true" class="h-24" :src="src">
+    <img
+      alt=""
+      aria-hidden="true"
+      class="h-24 w-auto"
+      height="96"
+      :src="src"
+      width="96"
+    >
   </div>
 </template>
 
