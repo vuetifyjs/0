@@ -429,10 +429,10 @@ export function createStackContext (
 
   return {
     registry,
-    isActive,
-    top,
-    scrimZIndex,
-    isBlocking,
+    isActive: readonly(isActive),
+    top: readonly(top),
+    scrimZIndex: readonly(scrimZIndex),
+    isBlocking: readonly(isBlocking),
     dismiss,
   }
 }
@@ -462,19 +462,9 @@ function createStackContextTrinity () {
  */
 export const [useStackContext, provideStackContext, stack] = createStackContextTrinity()
 
+/** Options for the stack plugin (reserved for future use) */
 export interface StackPluginOptions {
-  /**
-   * Base z-index when stack is empty
-   *
-   * @default 2000
-   */
-  baseZIndex?: number
-  /**
-   * Z-index increment between overlays
-   *
-   * @default 10
-   */
-  increment?: number
+  // Reserved for future configuration options
 }
 
 /**

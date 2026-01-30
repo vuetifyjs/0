@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Note: For SSR applications, install the plugin in main.ts:
+  // import { createStackPlugin } from '@vuetify/v0'
+  // app.use(createStackPlugin())
   import { stack } from '@vuetify/v0'
   import { computed, onScopeDispose, shallowRef, watch } from 'vue'
   import { provideOverlays } from './context'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useStack } from '@vuetify/v0'
+  import { useHotkey, useStack } from '@vuetify/v0'
   import { computed } from 'vue'
   import { useOverlays } from './context'
 
@@ -26,6 +26,14 @@
   const nextClosed = computed(() =>
     overlays.find(o => !o.isOpen.value),
   )
+
+  // Escape key dismisses the topmost non-blocking overlay
+  useHotkey('Escape', () => {
+    const topStack = stacks.find(s => s.globalTop.value)
+    if (topStack && !topStack.overlay.blocking) {
+      close(topStack.overlay.id)
+    }
+  })
 </script>
 
 <template>
@@ -71,10 +79,14 @@
     <!-- Overlays -->
     <Teleport to="body">
       <TransitionGroup name="modal">
-        <template v-for="({ overlay, color, styles, globalTop, zIndex }, index) in stacks" :key="overlay.id">
+        <template v-for="({ overlay, color, styles, globalTop, zIndex, id }, index) in stacks" :key="overlay.id">
           <div
             v-if="overlay.isOpen.value"
+            :aria-describedby="`${id}-desc`"
+            :aria-labelledby="`${id}-title`"
+            aria-modal="true"
             class="fixed inset-0 flex items-center justify-center pointer-events-none p-4"
+            role="dialog"
             :style="{
               ...styles.value,
               transform: `translate(${index * 16}px, ${index * 16}px)`,
@@ -87,7 +99,7 @@
               <!-- Header -->
               <div class="px-4 py-3 border-b border-divider">
                 <div class="flex items-center justify-between">
-                  <h3 class="text-lg font-semibold text-on-surface">
+                  <h3 :id="`${id}-title`" class="text-lg font-semibold text-on-surface">
                     {{ overlay.title }}
                   </h3>
                   <div class="flex items-center gap-2">
@@ -109,7 +121,7 @@
 
               <!-- Content -->
               <div class="p-4 space-y-4">
-                <p class="text-sm text-on-surface leading-relaxed">
+                <p :id="`${id}-desc`" class="text-sm text-on-surface leading-relaxed">
                   This overlay demonstrates z-index stacking. Open multiple overlays
                   to see how they layer. The topmost overlay receives focus and
                   handles the escape key.
