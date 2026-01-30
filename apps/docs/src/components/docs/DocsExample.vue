@@ -6,6 +6,8 @@
   import DocsSkeleton from './DocsSkeleton.vue'
 
   // Composables
+  import { getMultiFileBinUrl } from '@/composables/bin'
+  import { usePlaygroundMulti } from '@/composables/playground'
   import { useExamples } from '@/composables/useExamples'
 
   // Utilities
@@ -139,6 +141,20 @@
   const fileName = computed(() =>
     props.file?.split('/').pop() || (props.filePath ? `${props.filePath.split('/').pop()}.vue` : ''),
   )
+
+  function openAllInPlayground () {
+    if (!resolvedFiles.value?.length) return
+    const files = resolvedFiles.value.map(f => ({ name: f.name, code: f.code }))
+    const url = usePlaygroundMulti(files)
+    window.open(url, '_blank')
+  }
+
+  function openAllInBin () {
+    if (!resolvedFiles.value?.length) return
+    const files = resolvedFiles.value.map(f => ({ name: f.name, code: f.code, language: f.language }))
+    const url = getMultiFileBinUrl(files, props.title)
+    window.open(url, '_blank')
+  }
 </script>
 
 <template>
@@ -263,14 +279,34 @@
               All files
             </span>
 
-            <button
-              class="ml-auto size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-              :title="combinedView ? 'Split files' : 'Combine files'"
-              type="button"
-              @click="combinedView = !combinedView"
-            >
-              <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
-            </button>
+            <div class="ml-auto flex items-center gap-1">
+              <button
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                title="Open in Playground"
+                type="button"
+                @click="openAllInPlayground"
+              >
+                <AppIcon icon="vuetify-play" :size="16" />
+              </button>
+
+              <button
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                title="Open in Bin"
+                type="button"
+                @click="openAllInBin"
+              >
+                <AppIcon icon="vuetify-bin" :size="16" />
+              </button>
+
+              <button
+                class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
+                :title="combinedView ? 'Split files' : 'Combine files'"
+                type="button"
+                @click="combinedView = !combinedView"
+              >
+                <AppIcon :icon="combinedView ? 'split' : 'combine'" :size="16" />
+              </button>
+            </div>
           </div>
 
           <!-- Tabbed panels (single file view) -->

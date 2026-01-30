@@ -29,3 +29,22 @@ export function getBinUrl (code: string, language: string, title?: string) {
   if (title) params.set('title', title)
   return `https://bin.vuetifyjs.com?${params}`
 }
+
+export interface BinFile {
+  name: string
+  code: string
+  language?: string
+}
+
+export function getMultiFileBinUrl (files: BinFile[], title?: string) {
+  const payload = files.map(f => ({
+    name: f.name,
+    content: f.code,
+    language: f.language ?? BIN_LANGUAGE_MAP[f.name.split('.').pop() ?? ''] ?? 'text',
+  }))
+  const json = JSON.stringify(payload)
+  const hash = compressAndEncode(json)
+  const params = new URLSearchParams({ files: hash })
+  if (title) params.set('title', title)
+  return `https://bin.vuetifyjs.com?${params}`
+}
