@@ -121,7 +121,7 @@ Standalone helpers:
 
 | Composable | Purpose |
 | - | - |
-| [useFilter](/composables/utilities/use-filter) | Array filtering |
+| [createFilter](/composables/utilities/create-filter) | Array filtering |
 | [usePagination](/composables/utilities/use-pagination) | Page navigation |
 | [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling |
 

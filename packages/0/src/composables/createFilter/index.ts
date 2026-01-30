@@ -213,43 +213,6 @@ export function createFilterContext<
 }
 
 /**
- * A reusable function for filtering an array of items.
- *
- * @param query The query to filter by.
- * @param items The items to filter.
- * @param options The filter options.
- * @template Z The type of the items.
- * @returns The filtered items.
- *
- * @see https://0.vuetifyjs.com/composables/utilities/use-filter
- *
- * @example
- * ```ts
- * import { ref } from 'vue'
- * import { useFilter } from '@vuetify/v0'
- *
- * const items = ref([
- *   { name: 'John Doe', age: 30 },
- *   { name: 'Jane Doe', age: 25 },
- *   { name: 'Peter Jones', age: 40 },
- * ])
- *
- * const query = ref('doe')
- * const { items: filtered } = useFilter(query, items, { keys: ['name'] })
- *
- * console.log(filtered.value) // [ { name: 'John Doe', age: 30 }, { name: 'Jane Doe', age: 25 } ]
- * ```
- */
-export function useFilter<Z extends FilterItem> (
-  query: FilterQuery,
-  items: MaybeRef<Z[]>,
-  options: FilterOptions = {},
-): FilterResult<Z> {
-  const ctx = createFilter<Z>(options)
-  return ctx.apply(query, items)
-}
-
-/**
  * Returns the current filter context from dependency injection.
  *
  * @param namespace The namespace for the filter context. Defaults to `'v0:filter'`.
@@ -262,14 +225,14 @@ export function useFilter<Z extends FilterItem> (
  * @example
  * ```vue
  * <script setup lang="ts">
- *   import { useFilterContext } from '@vuetify/v0'
+ *   import { useFilter } from '@vuetify/v0'
  *
- *   const filter = useFilterContext()
+ *   const filter = useFilter()
  *   const { items } = filter.apply(query, products)
  * </script>
  * ```
  */
-export function useFilterContext<
+export function useFilter<
   Z extends FilterItem = FilterItem,
   E extends FilterContext<Z> = FilterContext<Z>,
 > (namespace = 'v0:filter'): E {

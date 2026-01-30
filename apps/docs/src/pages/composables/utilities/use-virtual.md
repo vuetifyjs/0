@@ -11,7 +11,7 @@ features:
   github: /composables/useVirtual/
   level: 2
 related:
-  - /composables/utilities/use-filter
+  - /composables/utilities/create-filter
   - /composables/utilities/use-overflow
 ---
 

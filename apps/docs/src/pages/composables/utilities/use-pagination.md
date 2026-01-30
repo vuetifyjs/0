@@ -11,7 +11,7 @@ features:
   github: /composables/usePagination/
   level: 2
 related:
-  - /composables/utilities/use-filter
+  - /composables/utilities/create-filter
   - /components/semantic/pagination
 ---
 

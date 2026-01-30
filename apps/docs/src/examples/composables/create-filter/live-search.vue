@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useFilter } from '@vuetify/v0'
+  import { createFilter } from '@vuetify/v0'
   import { computed, shallowRef } from 'vue'
 
   const cities = [
@@ -18,7 +18,8 @@
   ]
 
   const query = shallowRef('')
-  const { items } = useFilter(query, cities, { keys: ['name', 'country'] })
+  const filter = createFilter({ keys: ['name', 'country'] })
+  const { items } = filter.apply(query, cities)
 
   function highlight (text: string) {
     if (!query.value) return text

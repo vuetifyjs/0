@@ -3,7 +3,7 @@
   import { markedEmoji } from 'marked-emoji'
 
   // Framework
-  import { IN_BROWSER, Popover, useDate, useFilter } from '@vuetify/v0'
+  import { createFilter, IN_BROWSER, Popover, useDate } from '@vuetify/v0'
 
   // Components
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -93,9 +93,8 @@
   })
 
   const releases = toRef(() => store.releases)
-  const { items: filteredReleases } = useFilter(search, releases, {
-    keys: ['tag_name', 'name'],
-  })
+  const filter = createFilter({ keys: ['tag_name', 'name'] })
+  const { items: filteredReleases } = filter.apply(search, releases)
 
   function genEmoji (count: number) {
     if (count >= 100) return '\uD83D\uDCAB'

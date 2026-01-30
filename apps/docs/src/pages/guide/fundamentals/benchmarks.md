@@ -36,7 +36,7 @@ Headless UI libraries must be fast—they're foundational infrastructure. v0 ben
 | - | - |
 | [createRegistry](/composables/registration/create-registry) | Foundation for all collections—performance here affects everything |
 | [createTokens](/composables/registration/create-tokens) | Design tokens can grow large—alias resolution must scale |
-| [useFilter](/composables/utilities/use-filter) | Search/filter on large datasets must remain responsive |
+| [createFilter](/composables/utilities/create-filter) | Search/filter on large datasets must remain responsive |
 | [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling is performance-critical by definition |
 | [useDate](/composables/plugins/use-date) | Date operations are frequent in UIs |
 
