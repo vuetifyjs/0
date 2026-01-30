@@ -55,6 +55,7 @@
           alt="Vuetify0 Logo"
           decoding="async"
           fetchpriority="high"
+          height="52"
           :src
           width="128"
         >
