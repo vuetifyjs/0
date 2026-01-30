@@ -166,7 +166,7 @@ Standalone helpers for common UI patterns.
 | Name | Description |
 | - | - |
 | [createFilter](/composables/utilities/create-filter) | Filter arrays based on search queries |
-| [useOverflow](/composables/utilities/use-overflow) | Compute item capacity for responsive truncation |
+| [createOverflow](/composables/utilities/create-overflow) | Compute item capacity for responsive truncation |
 | [usePagination](/composables/utilities/use-pagination) | Pagination state with navigation methods |
 | [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling for large lists |
 

@@ -30,9 +30,9 @@
   import { createContext } from '#v0/composables/createContext'
 
   // Composables
+  import { createOverflow } from '#v0/composables/createOverflow'
   import { createRegistry } from '#v0/composables/createRegistry'
   import { useLocale } from '#v0/composables/useLocale'
-  import { createOverflow } from '#v0/composables/useOverflow'
   import { createPagination } from '#v0/composables/usePagination'
 
   // Utilities
