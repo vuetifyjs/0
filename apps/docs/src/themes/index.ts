@@ -85,7 +85,7 @@ export const themes = {
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
-      'github': '#f0f6fc',
+      'github': '#24292f',
     },
   },
   'high-contrast': {
@@ -122,7 +122,7 @@ export const themes = {
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
-      'github': '#f0f6fc',
+      'github': '#24292f',
     },
   },
   'blackguard': {
@@ -159,7 +159,7 @@ export const themes = {
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
-      'github': '#f0f6fc',
+      'github': '#24292f',
     },
   },
   'polaris': {
@@ -196,7 +196,7 @@ export const themes = {
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
-      'github': '#f0f6fc',
+      'github': '#24292f',
     },
   },
   'nebula': {
@@ -233,7 +233,7 @@ export const themes = {
       'discord': '{palette.brand.discord}',
       'vue': '{palette.brand.vue}',
       'mastered': '{palette.brand.mastered}',
-      'github': '#f0f6fc',
+      'github': '#24292f',
     },
   },
   'odyssey': {
