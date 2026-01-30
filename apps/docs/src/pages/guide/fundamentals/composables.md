@@ -122,7 +122,7 @@ Standalone helpers:
 | Composable | Purpose |
 | - | - |
 | [createFilter](/composables/utilities/create-filter) | Array filtering |
-| [usePagination](/composables/utilities/use-pagination) | Page navigation |
+| [createPagination](/composables/utilities/create-pagination) | Page navigation |
 | [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling |
 
 ## Usage Patterns
@@ -337,13 +337,13 @@ Yes. Composables are designed for composition:
 import {
   createSelection,
   useFilter,
-  usePagination,
+  createPagination,
 } from '@vuetify/v0'
 
 // Each composable manages its own state
 const selection = createSelection({ multiple: true })
 const filter = useFilter()
-const pagination = usePagination({ itemsPerPage: 10 })
+const pagination = createPagination({ itemsPerPage: 10 })
 
 // Wire them together
 const filtered = filter.apply(query, items)

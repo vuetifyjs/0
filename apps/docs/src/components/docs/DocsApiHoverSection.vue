@@ -1,73 +1,63 @@
 <script setup lang="ts">
   /**
    * Reusable section component for DocsApiHover popover content.
-   * Renders a titled list of API items (props, events, slots, functions, etc.)
+   * Used by both Vue API and v0 API sections for consistency.
    */
-  export interface ApiItem {
-    name: string
-    type?: string
-    default?: string
-    signature?: string
-    description?: string
-  }
-
   defineProps<{
-    /** Section title (e.g., "Props", "Events", "Functions") */
+    /** Section title (e.g., "Props", "When to use") */
     title: string
-    /** List of API items to display */
-    items: ApiItem[]
-    /** Show signature instead of type (for functions) */
-    showSignature?: boolean
   }>()
 </script>
 
 <template>
-  <div v-if="items.length > 0" class="popover-section">
-    <span class="sticky top-0 z-1 block mx-[-12px] py-2 px-3 text-[11px] font-semibold uppercase tracking-[0.5px] text-on-surface/60 bg-surface-tint border-y border-divider">
-      {{ title }}
-    </span>
-    <ul class="m-0 p-0 list-none">
-      <li
-        v-for="(item, i) in items"
-        :key="item.name"
-        class="mx-[-12px] py-1.5 px-3"
-        :class="i < items.length - 1 ? 'border-b border-divider/50' : ''"
-      >
-        <div class="flex items-baseline gap-2">
-          <span class="font-mono text-xs font-medium text-primary">{{ item.name }}</span>
-          <code
-            v-if="item.type && !showSignature"
-            class="py-0.5 px-1.5 font-mono text-[11px] text-on-surface/60 bg-surface-variant rounded overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px]"
-          >
-            {{ item.type }}
-          </code>
-          <code
-            v-if="item.default"
-            class="ml-auto py-0.5 px-1.5 font-mono text-[10px] bg-surface-variant rounded"
-          >
-            {{ item.default }}
-          </code>
-        </div>
-        <code
-          v-if="item.signature && showSignature"
-          class="block mt-1 py-1 px-2 font-mono text-[11px] text-on-surface/60 bg-surface-variant rounded overflow-x-auto whitespace-nowrap"
-        >
-          {{ item.signature }}
-        </code>
-        <p
-          v-if="item.description"
-          class="mt-1 mb-0 text-[11px] leading-[1.4] text-on-surface/60"
-        >
-          {{ item.description }}
-        </p>
-      </li>
-    </ul>
+  <div class="popover-section">
+    <span class="popover-section-label">{{ title }}</span>
+    <div class="popover-section-content">
+      <slot />
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* First section in container should not have top border */
-.popover-section:first-child > span {
-  border-top: none;
+.popover-section {
+  margin-bottom: 12px;
+}
+
+.popover-section:last-child {
+  margin-bottom: 0;
+}
+
+.popover-section-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--v0-primary);
+}
+
+.popover-section-content {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--v0-on-surface);
+}
+
+.popover-section-content :deep(p) {
+  margin: 0;
+}
+
+.popover-section-content :deep(code) {
+  display: block;
+  margin-top: 4px;
+  padding: 4px 6px;
+  font-family: var(--v0-font-mono);
+  font-size: 11px;
+  color: var(--v0-on-surface);
+  opacity: 0.7;
+  background: var(--v0-surface-variant);
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 </style>

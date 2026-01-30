@@ -83,7 +83,7 @@ const V0_COMPOSABLES = new Set([
   // Utilities
   'createFilter',
   'createOverflow',
-  'usePagination',
+  'createPagination',
   'useVirtual',
   // Transformers
   'toArray',
