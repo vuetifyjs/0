@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useVirtual } from '@vuetify/v0'
+  import { createVirtual } from '@vuetify/v0'
   import { computed, shallowRef } from 'vue'
 
   const items = shallowRef(
@@ -10,6 +10,7 @@
     })),
   )
 
+  const virtual = createVirtual(items, { itemHeight: 40 })
   const {
     element,
     items: virtualItems,
@@ -17,7 +18,7 @@
     size,
     scroll,
     scrollTo,
-  } = useVirtual(items, { itemHeight: 40 })
+  } = virtual
 
   const stats = computed(() => ({
     total: items.value.length,
