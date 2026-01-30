@@ -10,7 +10,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { nextTick, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
+  import { nextTick, onBeforeUnmount, shallowRef, toRef, useAttrs, useTemplateRef, watch } from 'vue'
 
   defineOptions({ name: 'DiscoveryContent', inheritAttrs: false })
 
@@ -106,6 +106,12 @@
     }
   })
 
+  // Unmount guard for rAF polling
+  let isUnmounted = false
+  onBeforeUnmount(() => {
+    isUnmounted = true
+  })
+
   // Poll for activator to be registered, then show content
   watch(
     root.isActive,
@@ -126,11 +132,13 @@
 
         // Poll until activator is registered and DOM element exists (with timeout)
         function checkActivator () {
+          if (isUnmounted) return
+
           const activator = discovery.activators.get(root.step)
           if (activator?.element?.value) {
             // Activator found - wait one more frame for anchor-name CSS
             requestAnimationFrame(() => {
-              isReady.value = true
+              if (!isUnmounted) isReady.value = true
             })
           } else if (performance.now() - startTime > TIMEOUT_MS) {
             logger.warn(`[DiscoveryContent] Activator for step "${root.step}" not found after ${TIMEOUT_MS}ms`)

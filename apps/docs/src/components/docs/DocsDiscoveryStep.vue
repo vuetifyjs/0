@@ -30,7 +30,7 @@
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
-  import { computed, useAttrs, useTemplateRef, watch } from 'vue'
+  import { computed, onBeforeUnmount, useAttrs, useTemplateRef, watch } from 'vue'
 
   // Types
   import { SKILL_LEVEL_META } from '@/types/skill'
@@ -63,8 +63,14 @@
     return index === total - 1 && discovery.selectedId.value === props.step
   })
 
+  let burstTimeout: ReturnType<typeof setTimeout>
+
   watch(isLastStep, val => {
-    if (val) setTimeout(() => burstRef.value?.trigger(), 500)
+    if (val) burstTimeout = setTimeout(() => burstRef.value?.trigger(), 500)
+  })
+
+  onBeforeUnmount(() => {
+    clearTimeout(burstTimeout)
   })
 
   const offsetStyle = computed(() => {
