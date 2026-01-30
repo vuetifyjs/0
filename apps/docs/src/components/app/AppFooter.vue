@@ -7,7 +7,7 @@
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { computed, shallowRef } from 'vue'
+  import { toRef, useTemplateRef } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -23,16 +23,16 @@
   const settings = useSettings()
   const toggle = useThemeToggle()
 
-  const footerRef = shallowRef<HTMLElement>()
+  const footerRef = useTemplateRef<HTMLElement | null>('footer')
 
   const links = [
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
-    { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-[#5865F2]' },
+    { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-discord' },
   ]
 
-  const latestRelease = computed(() => releases.releases[0])
+  const latest = toRef(() => releases.releases[0])
 
-  async function fetchGitHubData () {
+  async function fetch () {
     // Fetch latest commit
     try {
       const octokit = await import('@/plugins/octokit').then(m => m.default)
@@ -55,39 +55,42 @@
     }
   }
 
-  // Only fetch GitHub data when footer becomes visible
   useIntersectionObserver(
     footerRef,
     entries => {
-      if (entries[0]?.isIntersecting) {
-        fetchGitHubData()
-      }
+      if (!entries[0]?.isIntersecting) return
+
+      fetch()
     },
     { once: true },
   )
 </script>
 
 <template>
-  <footer class="app-footer py-4 border-t border-divider/50" :class="[inset && 'md:ml-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']">
+  <footer
+    ref="footer"
+    class="app-footer py-4 border-t border-divider/50"
+    :class="[inset && 'md:ml-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+  >
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex flex-col md:flex-row items-center gap-4 text-sm opacity-60">
         <AppCopyright />
 
-        <template v-if="app.stats.commit || latestRelease">
+        <template v-if="app.stats.commit || latest">
           <div class="hidden md:block w-px h-4 bg-divider" />
 
           <div class="flex items-center gap-4">
             <AppLink
-              v-if="latestRelease"
+              v-if="latest"
               class="flex items-center gap-1 hover:text-primary hover:underline"
-              :title="`Last Released: ${new Date(latestRelease.published_at).toLocaleString()}`"
-              :to="`/releases?version=${latestRelease.tag_name}`"
+              :title="`Last Released: ${new Date(latest.published_at ?? '').toLocaleString()}`"
+              :to="`/releases?version=${latest.tag_name}`"
             >
               <AppIcon icon="tag" :size="14" />
-              {{ latestRelease.tag_name }}
+              {{ latest.tag_name }}
             </AppLink>
 
-            <template v-if="latestRelease && app.stats.commit">
+            <template v-if="latest && app.stats.commit">
               <div class="w-px h-4 bg-divider" />
             </template>
 
