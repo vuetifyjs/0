@@ -17,7 +17,7 @@ import { ref } from 'vue'
 import type { VirtualContext } from './index'
 import type { Ref } from 'vue'
 
-import { useVirtual } from './index'
+import { createVirtual } from './index'
 
 // =============================================================================
 // MOCKS - Required for lifecycle-dependent code
@@ -88,7 +88,7 @@ function createVirtualInstance (count: number): VirtualContext<BenchmarkItem> {
         ? ITEMS_10K
         : ITEMS_100K)
   const itemsRef = ref(items) as Ref<readonly BenchmarkItem[]>
-  const virtual = useVirtual(itemsRef, { itemHeight: 50, height: 600 })
+  const virtual = createVirtual(itemsRef, { itemHeight: 50, height: 600 })
   virtual.element.value = createMockContainer()
   return virtual
 }
@@ -109,17 +109,17 @@ describe('useVirtual benchmarks', () => {
   describe('initialization', () => {
     bench('Initialize with 1,000 items', () => {
       const items = ref(ITEMS_1K) as Ref<readonly BenchmarkItem[]>
-      useVirtual(items, { itemHeight: 50, height: 600 })
+      createVirtual(items, { itemHeight: 50, height: 600 })
     })
 
     bench('Initialize with 10,000 items', () => {
       const items = ref(ITEMS_10K) as Ref<readonly BenchmarkItem[]>
-      useVirtual(items, { itemHeight: 50, height: 600 })
+      createVirtual(items, { itemHeight: 50, height: 600 })
     })
 
     bench('Initialize with 100,000 items', () => {
       const items = ref(ITEMS_100K) as Ref<readonly BenchmarkItem[]>
-      useVirtual(items, { itemHeight: 50, height: 600 })
+      createVirtual(items, { itemHeight: 50, height: 600 })
     })
   })
 
@@ -209,7 +209,7 @@ describe('useVirtual benchmarks', () => {
 
     bench('Resize with variable heights (1,000 items)', () => {
       const items = ref(ITEMS_1K) as Ref<readonly BenchmarkItem[]>
-      const virtual = useVirtual(items, { itemHeight: null, height: 600 })
+      const virtual = createVirtual(items, { itemHeight: null, height: 600 })
       virtual.element.value = createMockContainer()
       for (let i = 0; i < 100; i++) {
         virtual.resize(i, 50 + (i % 10) * 10)
