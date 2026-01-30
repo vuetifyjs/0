@@ -336,13 +336,13 @@ Yes. Composables are designed for composition:
 ```ts
 import {
   createSelection,
-  useFilter,
+  createFilter,
   createPagination,
 } from '@vuetify/v0'
 
 // Each composable manages its own state
 const selection = createSelection({ multiple: true })
-const filter = useFilter()
+const filter = createFilter()
 const pagination = createPagination({ itemsPerPage: 10 })
 
 // Wire them together
