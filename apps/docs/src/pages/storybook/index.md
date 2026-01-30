@@ -13,7 +13,7 @@ features:
   hidden: true
 related:
   - /components
-  - /guide/using-the-docs
+  - /guide/essentials/using-the-docs
 ---
 
 # Storybook

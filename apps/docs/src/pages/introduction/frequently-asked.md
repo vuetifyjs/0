@@ -19,7 +19,7 @@ Common questions and answers about Vuetify0.
 
 <DocsPageFeatures :frontmatter />
 
-Have a question that isn't answered here? Try [Ask AI](/guide/using-the-docs#ask-ai) for instant answers, join our [Discord community](https://community.vuetifyjs.com), or open an [issue on GitHub](https://github.com/vuetifyjs/0/issues).
+Have a question that isn't answered here? Try [Ask AI](/guide/essentials/using-the-docs#ask-ai) for instant answers, join our [Discord community](https://community.vuetifyjs.com), or open an [issue on GitHub](https://github.com/vuetifyjs/0/issues).
 
 ::: faq
 ??? What is Vuetify0?

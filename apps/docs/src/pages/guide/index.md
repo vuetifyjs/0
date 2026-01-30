@@ -15,7 +15,7 @@ related:
 
 # Guide
 
-Learn v0's patterns and build headless UI systems. Start with [Getting Started](/introduction/getting-started) if you haven't installed v0 yet, or see [Using the Docs](/guide/using-the-docs) for navigation tips and AI assistance.
+Learn v0's patterns and build headless UI systems. Start with [Getting Started](/introduction/getting-started) if you haven't installed v0 yet, or see [Using the Docs](/guide/essentials/using-the-docs) for navigation tips and AI assistance.
 
 <DocsPageFeatures :frontmatter />
 
