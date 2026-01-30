@@ -32,6 +32,11 @@ export default defineConfig({
     transformer: 'postcss', // Use postcss instead of lightningcss to preserve color-mix syntax
   },
   ssgOptions: {
+    // Disable beasties critical CSS extraction. Beasties inconsistently inlines
+    // UnoCSS utilities (some classes get inlined, others don't) causing layout
+    // shift when the external CSS loads. With this disabled, CSS loads as a
+    // blocking resource - all styles available before first paint, zero CLS.
+    beastiesOptions: false,
     dirStyle: 'nested',
     async includedRoutes (paths) {
       const [apiSlugs, skillzSlugs] = await Promise.all([
