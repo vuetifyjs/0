@@ -47,6 +47,7 @@ const V0_COMPOSABLES = new Set([
   'createTrinity',
   // Registration
   'createRegistry',
+  'createStack',
   'useQueue',
   'useTimeline',
   'useTokens',
