@@ -23,7 +23,7 @@ A headless component for creating page navigation with proper ARIA support.
 
 ## Usage
 
-The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the [usePagination](/composables/utilities/use-pagination) and [useOverflow](/composables/utilities/use-overflow) composable internally.
+The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the [usePagination](/composables/utilities/use-pagination) and [createOverflow](/composables/utilities/create-overflow) composable internally.
 
 ::: example
 /components/pagination/basic

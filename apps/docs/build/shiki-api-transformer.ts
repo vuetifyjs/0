@@ -82,7 +82,7 @@ const V0_COMPOSABLES = new Set([
   'useTheme',
   // Utilities
   'createFilter',
-  'useOverflow',
+  'createOverflow',
   'usePagination',
   'useVirtual',
   // Transformers

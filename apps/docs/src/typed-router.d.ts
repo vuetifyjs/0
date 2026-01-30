@@ -408,9 +408,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/use-overflow': RouteRecordInfo<
-      '/composables/utilities/use-overflow',
-      '/composables/utilities/use-overflow',
+    '/composables/utilities/create-overflow': RouteRecordInfo<
+      '/composables/utilities/create-overflow',
+      '/composables/utilities/create-overflow',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -989,9 +989,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/utilities/use-overflow.md': {
+    'src/pages/composables/utilities/create-overflow.md': {
       routes:
-        | '/composables/utilities/use-overflow'
+        | '/composables/utilities/create-overflow'
       views:
         | never
     }
