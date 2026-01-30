@@ -27,7 +27,7 @@ type NavNestedValue = NavItemLink | NavItemCategory
  */
 export function navToNestedItems (
   items: NavItem[],
-  parentId?: string,
+  parentId?: ID,
 ): NestedRegistration<NestedTicketInput<NavNestedValue>>[] {
   const result: NestedRegistration<NestedTicketInput<NavNestedValue>>[] = []
   let categoryIndex = 0
@@ -37,7 +37,7 @@ export function navToNestedItems (
     if ('divider' in item) continue
 
     // Determine ID: route path for links, synthetic for categories
-    const id = isNavItemLink(item)
+    const id: ID = isNavItemLink(item)
       ? item.to
       : `category-${parentId ?? 'root'}-${categoryIndex++}`
 
