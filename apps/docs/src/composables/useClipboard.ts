@@ -2,7 +2,7 @@
 import { IN_BROWSER, useLogger } from '@vuetify/v0'
 
 // Utilities
-import { shallowRef, type ShallowRef } from 'vue'
+import { onScopeDispose, shallowRef, type ShallowRef } from 'vue'
 
 export interface UseClipboardReturn {
   copied: ShallowRef<boolean>
@@ -34,6 +34,10 @@ export function useClipboard (timeout = 2000): UseClipboardReturn {
       return false
     }
   }
+
+  onScopeDispose(() => {
+    if (timeoutId) clearTimeout(timeoutId)
+  }, true)
 
   return { copied, copy, reset }
 }
