@@ -87,7 +87,7 @@ Optionally register features at runtime:
 
 ### Built-in Adapters
 
-Vuetify 0 includes adapters for popular feature flag services. Each adapter is imported from its own subpath to avoid bundling unused provider SDKs.
+Vuetify0 includes adapters for popular feature flag services. Each adapter is imported from its own subpath to avoid bundling unused provider SDKs.
 
 #### Flagsmith
 

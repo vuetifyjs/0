@@ -9,7 +9,7 @@ features:
   order: 1
   level: 1
 related:
-  - /guide/using-the-docs
+  - /guide/essentials/using-the-docs
   - /composables
   - /components
 ---
