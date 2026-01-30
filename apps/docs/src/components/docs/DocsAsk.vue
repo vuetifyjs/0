@@ -13,7 +13,9 @@
 
   // Utilities
   import { computed, nextTick, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { useRoute } from 'vue-router'
 
+  const route = useRoute()
   const breakpoints = useBreakpoints()
   const isDesktop = computed(() => breakpoints.lgAndUp.value)
   const fullscreen = shallowRef(false)
@@ -41,6 +43,11 @@
       triggerRef.value?.focus()
       triggerRef.value = null
     }
+  })
+
+  // Exit fullscreen on route change
+  watch(() => route.path, () => {
+    fullscreen.value = false
   })
 
   async function onSubmit (question: string) {
