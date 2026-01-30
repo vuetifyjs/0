@@ -34,13 +34,6 @@
       "learn": "Navigate categorized search results"
     },
     {
-      "id": "search-results",
-      "title": "Search Results",
-      "task": "Organized by type. Components, composables, guides—scroll or arrow through to find what you need.",
-      "hint": "",
-      "learn": "Navigate categorized search results"
-    },
-    {
       "id": "search-favorite",
       "title": "Favorite Results",
       "task": "Bookmark your go-tos. Star anything you use often and it'll be waiting at the top next time.",

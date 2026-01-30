@@ -375,7 +375,7 @@
                 v-if="groupIndex === 0"
                 as="div"
                 class="px-4 py-2 section-label bg-surface-variant-50 rounded-lg"
-                step="search-results"
+                step="search-categories"
               >
                 {{ group.category }}
               </Discovery.Activator>
