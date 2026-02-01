@@ -7,7 +7,6 @@ import { useLogger } from '@vuetify/v0'
 import App from './App.vue'
 
 // Composables
-import { useHighlighter } from './composables/useHighlighter'
 import { useIdleCallback } from './composables/useIdleCallback'
 
 import { registerPlugins } from './plugins'
@@ -57,7 +56,10 @@ export const createApp = ViteSSG(
         localStorage.removeItem('vuetify:dynamic-reload')
 
         // Preload Shiki highlighter on idle to avoid lag on first "Show Code" click
-        useIdleCallback(() => useHighlighter().getHighlighter())
+        useIdleCallback(async () => {
+          const { useHighlighter } = await import('./composables/useHighlighter')
+          useHighlighter().getHighlighter()
+        })
       })
     }
   },
