@@ -1,13 +1,16 @@
 <script setup lang="ts">
-  // Components
-  import DocsSearch from '@/components/docs/DocsSearch.vue'
-
   // Composables
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
 
+  // Utilities
+  import { defineAsyncComponent } from 'vue'
+
   // Stores
   import { useAppStore } from '@/stores/app'
+
+  // Lazy load modal component (behind user interaction)
+  const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
 
   const app = useAppStore()
   const levelFilter = createLevelFilter(() => app.nav)
