@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { useTheme } from '@vuetify/v0'
+
   // Composables
   import { useSettings } from '@/composables/useSettings'
 
@@ -19,6 +22,7 @@
     collapseLines: 15,
   })
 
+  const theme = useTheme()
   const settings = useSettings()
 
   // Local state initialized from global default, per-instance
@@ -82,6 +86,7 @@
 
       <div
         class="transition-[max-height] duration-300 ease-out"
+        :data-theme="theme.isDark.value ? 'dark' : 'light'"
         :style="shouldCollapse && !expanded ? { maxHeight: collapsedHeight } : undefined"
       >
         <slot />
