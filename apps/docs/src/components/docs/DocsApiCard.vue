@@ -7,7 +7,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { shallowRef, watch } from 'vue'
+  import { computed, shallowRef, watch } from 'vue'
 
   // Types
   import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '@build/generate-api'
@@ -31,6 +31,11 @@
   })
 
   const key = `${props.kind}-${props.item.name}`
+
+  const language = computed(() => {
+    if (!('example' in props.item) || !props.item.example) return null
+    return /^<(?:template|script)/.test(props.item.example.trim()) ? 'vue' : 'ts'
+  })
 </script>
 
 <template>
@@ -101,6 +106,13 @@
         :class="{ 'docs-api-card--wrap': lineWrap.value }"
         :data-theme="theme.isDark.value ? 'dark' : 'light'"
       >
+        <span
+          v-if="language"
+          class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50 uppercase"
+        >
+          {{ language }}
+        </span>
+
         <DocsCodeActions
           v-model:wrap="lineWrap"
           bin

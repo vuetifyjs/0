@@ -318,7 +318,23 @@ export default async function MarkdownPlugin () {
         fromHighlighter(highlighter as HighlighterGeneric<BundledLanguage, BundledTheme>, {
           themes: SHIKI_THEMES,
           defaultColor: false,
-          transformers: [createApiTransformer()],
+          transformers: [
+            createApiTransformer(),
+            {
+              name: 'language-class',
+              code (node) {
+                const lang = this.options.lang || 'text'
+                // Normalize: typescript -> ts, javascript -> js, etc.
+                const langMap: Record<string, string> = {
+                  typescript: 'ts',
+                  javascript: 'js',
+                  markdown: 'md',
+                }
+                const displayLang = langMap[lang] ?? lang
+                this.addClassToHast(node, `language-${displayLang}`)
+              },
+            },
+          ],
         }),
       )
 
