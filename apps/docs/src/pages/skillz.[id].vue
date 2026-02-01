@@ -109,10 +109,10 @@
     <!-- Skill detail -->
     <template v-else>
       <div class="max-w-3xl mx-auto p-4">
-        <header class="flex justify-between items-center mb-4">
-          <RouterLink class="flex items-center gap-2 text-on-surface-variant no-underline text-sm transition-colors hover:text-on-surface" to="/skillz">
+        <header class="flex flex-wrap justify-between items-center gap-2 mb-4">
+          <RouterLink class="flex items-center gap-2 text-on-surface-variant no-underline text-sm transition-colors hover:text-on-surface whitespace-nowrap" to="/skillz">
             <span class="text-xl">←</span>
-            Back to Skillz
+            <span class="hidden sm:inline">Back to Skillz</span>
           </RouterLink>
 
           <div class="flex items-center gap-4">
@@ -121,13 +121,13 @@
             <!-- Completed with next tour: Next is primary, Restart is secondary -->
             <template v-if="isCompleted && nextTour">
               <button
-                class="px-4 py-1.5 text-sm font-semibold text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface"
+                class="px-4 py-1.5 text-sm font-semibold text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface whitespace-nowrap"
                 @click="onClick()"
               >
                 Restart
               </button>
               <button
-                class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
+                class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110 whitespace-nowrap"
                 @click="onClickNext()"
               >
                 Next: {{ nextTour.name }}
