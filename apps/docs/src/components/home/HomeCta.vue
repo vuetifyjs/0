@@ -39,7 +39,7 @@ const selected = ref([])
     {
       title: 'Using the Docs',
       description: 'Learn how to navigate the documentation and get the most out of it.',
-      to: '/guide/using-the-docs',
+      to: '/guide/essentials/using-the-docs',
       icon: 'map',
       cta: 'Learn How',
     },
