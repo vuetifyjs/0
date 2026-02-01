@@ -38,8 +38,8 @@
   })
 
   const src = toRef(() => theme.isDark.value
-    ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.png'
-    : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png',
+    ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.svg'
+    : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.svg',
   )
 </script>
 
