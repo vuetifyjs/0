@@ -3,12 +3,11 @@
   import { useIntersectionObserver, useLogger, useTheme } from '@vuetify/v0'
 
   // Composables
+  import { useCodeHighlighter } from '@/composables/useCodeHighlighter'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
-
-  import { SHIKI_THEMES } from '@/constants/shiki'
 
   const props = withDefaults(defineProps<{
     code: string
@@ -39,19 +38,14 @@
   const isLoading = shallowRef(false)
 
   const logger = useLogger()
+  const { highlight: highlightCode } = useCodeHighlighter()
 
   async function highlight () {
     if (highlightedCode.value || !props.code) return
     isLoading.value = true
     try {
-      const { useHighlighter } = await import('@/composables/useHighlighter')
-      const { highlighter, getHighlighter } = useHighlighter()
-      const hl = highlighter.value ?? await getHighlighter()
-      highlightedCode.value = hl.codeToHtml(props.code, {
-        lang: props.language,
-        themes: SHIKI_THEMES,
-        defaultColor: false,
-      })
+      const result = await highlightCode({ code: props.code, language: props.language })
+      highlightedCode.value = result.html
     } catch (error) {
       logger.error('Failed to highlight code', error)
     } finally {

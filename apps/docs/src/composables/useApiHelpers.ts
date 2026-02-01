@@ -1,5 +1,5 @@
-// Transformers
-import { createApiTransformer } from '@build/shiki-api-transformer'
+// Composables
+import { useCodeHighlighter } from './useCodeHighlighter'
 
 // Utilities
 import { useScrollToAnchor } from '@/utilities/scroll'
@@ -8,9 +8,6 @@ import { ref, type Ref, shallowReactive, useId } from 'vue'
 
 // Types
 import type { ApiMethod, ApiProperty } from '@build/generate-api'
-
-// Constants
-import { SHIKI_THEMES } from '@/constants/shiki'
 
 type ExampleState = { html: string, code: string }
 
@@ -26,6 +23,7 @@ export interface UseApiHelpersReturn {
 
 export function useApiHelpers (): UseApiHelpersReturn {
   const { scrollToAnchor } = useScrollToAnchor()
+  const { highlight } = useCodeHighlighter()
   const uid = useId()
   const expanded = ref<Set<string>>(new Set())
   const highlighted = shallowReactive<Record<string, ExampleState>>({})
@@ -39,20 +37,10 @@ export function useApiHelpers (): UseApiHelpersReturn {
       newSet.add(key)
       expanded.value = newSet
       if (code && !highlighted[key]) {
-        const { useHighlighter } = await import('@/composables/useHighlighter')
-        const { highlighter, getHighlighter } = useHighlighter()
-        const hl = highlighter.value ?? await getHighlighter()
         // Detect language: Vue SFC if it starts with <template> or <script, otherwise TypeScript
         const isVue = /^<(?:template|script)/.test(code.trim())
-        highlighted[key] = {
-          code,
-          html: hl.codeToHtml(code, {
-            lang: isVue ? 'vue' : 'typescript',
-            themes: SHIKI_THEMES,
-            defaultColor: false,
-            transformers: [createApiTransformer()],
-          }),
-        }
+        const result = await highlight({ code, language: isVue ? 'vue' : 'typescript' })
+        highlighted[key] = { code, html: result.html }
       }
     }
   }

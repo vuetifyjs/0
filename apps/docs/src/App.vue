@@ -374,6 +374,7 @@
     border: none;
     border-radius: 0;
     margin: 0;
+    padding-top: 2rem;
   }
 
   .docs-api-card .shiki code {
