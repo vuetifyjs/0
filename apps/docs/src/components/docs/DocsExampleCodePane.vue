@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useIntersectionObserver, useLogger } from '@vuetify/v0'
+  import { useIntersectionObserver, useLogger, useTheme } from '@vuetify/v0'
 
   // Composables
   import { useSettings } from '@/composables/useSettings'
@@ -26,6 +26,7 @@
 
   const expanded = defineModel<boolean>('expanded', { default: false })
 
+  const theme = useTheme()
   const settings = useSettings()
   const lineWrap = shallowRef(settings.lineWrap.value)
 
@@ -128,6 +129,7 @@
 
     <div
       class="overflow-hidden transition-[max-height] duration-300 ease-out"
+      :data-theme="theme.isDark.value ? 'dark' : 'light'"
       :style="shouldPeek && !expanded ? { maxHeight: peekHeight } : undefined"
     >
       <div v-if="highlightedCode" v-html="highlightedCode" />

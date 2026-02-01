@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { useTheme } from '@vuetify/v0'
+
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
@@ -18,6 +21,7 @@
   }>()
 
   const api = useApiHelpers()
+  const theme = useTheme()
   const settings = useSettings()
 
   const lineWrap = shallowRef(settings.lineWrap.value)
@@ -95,6 +99,7 @@
         :id="`${api.uid}-${key}`"
         class="docs-api-card relative bg-pre group"
         :class="{ 'docs-api-card--wrap': lineWrap.value }"
+        :data-theme="theme.isDark.value ? 'dark' : 'light'"
       >
         <DocsCodeActions
           v-model:wrap="lineWrap"
