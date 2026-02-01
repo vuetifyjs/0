@@ -1,9 +1,6 @@
 // Transformers
 import { createApiTransformer } from '@build/shiki-api-transformer'
 
-// Composables
-import { useHighlighter } from '@/composables/useHighlighter'
-
 // Utilities
 import { useScrollToAnchor } from '@/utilities/scroll'
 import { toKebab } from '@/utilities/strings'
@@ -28,7 +25,6 @@ export interface UseApiHelpersReturn {
 }
 
 export function useApiHelpers (): UseApiHelpersReturn {
-  const { highlighter, getHighlighter } = useHighlighter()
   const { scrollToAnchor } = useScrollToAnchor()
   const uid = useId()
   const expanded = ref<Set<string>>(new Set())
@@ -43,6 +39,8 @@ export function useApiHelpers (): UseApiHelpersReturn {
       newSet.add(key)
       expanded.value = newSet
       if (code && !highlighted[key]) {
+        const { useHighlighter } = await import('@/composables/useHighlighter')
+        const { highlighter, getHighlighter } = useHighlighter()
         const hl = highlighter.value ?? await getHighlighter()
         // Detect language: Vue SFC if it starts with <template> or <script, otherwise TypeScript
         const isVue = /^<(?:template|script)/.test(code.trim())

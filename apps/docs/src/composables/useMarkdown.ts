@@ -17,9 +17,6 @@
 import { createApiTransformer, renderVueApiInlineCode } from '@build/shiki-api-transformer'
 import { Marked } from 'marked'
 
-// Composables
-import { useHighlighter } from './useHighlighter'
-
 // Utilities
 import { processLinks } from '@/utilities/processLinks'
 import { type MaybeRefOrGetter, onMounted, shallowRef, type ShallowRef, toValue, watch } from 'vue'
@@ -116,7 +113,6 @@ function getMarked (hl: Highlighter): Marked {
  * Provides reactive markdown rendering with syntax-highlighted code blocks.
  */
 export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): UseMarkdownReturn {
-  const { highlighter, getHighlighter } = useHighlighter()
   const html = shallowRef('')
 
   async function render (source?: string) {
@@ -126,6 +122,8 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): Use
       return
     }
 
+    const { useHighlighter } = await import('./useHighlighter')
+    const { highlighter, getHighlighter } = useHighlighter()
     const hl = highlighter.value ?? await getHighlighter()
     const marked = getMarked(hl)
 

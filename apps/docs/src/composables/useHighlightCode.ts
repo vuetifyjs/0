@@ -2,7 +2,6 @@
 import { createApiTransformer } from '@build/shiki-api-transformer'
 
 // Composables
-import { useHighlighter } from './useHighlighter'
 import { useIdleCallback } from './useIdleCallback'
 
 // Utilities
@@ -28,12 +27,16 @@ export interface UseHighlightCodeOptions {
  * Provides reactive code highlighting using Shiki.
  * Handles highlighter initialization and automatic re-highlighting on code changes.
  */
+async function loadHighlighter () {
+  const { useHighlighter } = await import('./useHighlighter')
+  return useHighlighter()
+}
+
 export function useHighlightCode (
   code: MaybeRefOrGetter<string | undefined>,
   options: UseHighlightCodeOptions = {},
 ) {
   const { lang = 'vue', immediate = true, idle = false, idleTimeout = 2000, debounce = 50 } = options
-  const { highlighter, getHighlighter } = useHighlighter()
   const highlightedCode = shallowRef('')
   const isLoading = shallowRef(false)
   const showLoader = shallowRef(false)
@@ -57,6 +60,7 @@ export function useHighlightCode (
       showLoader.value = true
     }, 100)
 
+    const { highlighter, getHighlighter } = await loadHighlighter()
     const hl = highlighter.value ?? await getHighlighter()
 
     highlightedCode.value = hl.codeToHtml(value, {
