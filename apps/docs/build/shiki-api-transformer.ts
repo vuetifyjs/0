@@ -5,95 +5,21 @@
  * Marks potential API references at build time. Client-side component
  * validates against actual API data and handles display.
  *
- * NOTE: This module is imported client-side, so no Node.js APIs allowed.
- * Lists must be manually maintained. Run `pnpm dev:docs` to verify new
- * composables/components get hover treatment.
+ * Component and composable whitelists are auto-generated from source
+ * directories by generate-api-whitelist.ts at build time.
  */
 
 // Types
 import type { ShikiTransformer } from 'shiki'
 
+// Auto-generated whitelists from packages/0/src/
+import { V0_COMPONENTS, V0_COMPOSABLES } from './generated/api-whitelist'
 // Vue API content - import only keys for build-time detection
 import { VUE_API_CONTENT } from './vue-api-content'
 
 // Component pattern: Namespace.Part (e.g., Popover.Root, ExpansionPanel.Item)
 // Tokens come through as combined strings like "Popover.Root"
 const COMPONENT_PATTERN = /^([A-Z][a-zA-Z]*)(?:\.([A-Z][a-zA-Z]*))?$/
-
-// v0 component namespaces - only these get API hover treatment
-// Sync with: packages/0/src/components/
-const V0_COMPONENTS = new Set([
-  'Atom',
-  'Avatar',
-  'Checkbox',
-  'Dialog',
-  'ExpansionPanel',
-  'Group',
-  'Pagination',
-  'Popover',
-  'Radio',
-  'Scrim',
-  'Selection',
-  'Single',
-  'Step',
-  'Tabs',
-])
-
-// v0 composables with API entries
-// Sync with: packages/0/src/composables/
-const V0_COMPOSABLES = new Set([
-  // Foundation
-  'createContext',
-  'createPlugin',
-  'createTrinity',
-  // Registration
-  'createRegistry',
-  'createStack',
-  'createStackContext',
-  'createStackPlugin',
-  'useStack',
-  'useQueue',
-  'useTimeline',
-  'useTokens',
-  // Selection
-  'createSelection',
-  'createSingle',
-  'createGroup',
-  'createStep',
-  // Forms
-  'useForm',
-  // Reactivity
-  'useProxyModel',
-  'useProxyRegistry',
-  // System
-  'useClickOutside',
-  'useEventListener',
-  'useHotkey',
-  'useIntersectionObserver',
-  'useLazy',
-  'useMediaQuery',
-  'useMutationObserver',
-  'useResizeObserver',
-  'useToggleScope',
-  // Plugins
-  'useBreakpoints',
-  'useDate',
-  'useFeatures',
-  'useHydration',
-  'useLocale',
-  'useLogger',
-  'usePermissions',
-  'useStorage',
-  'useTheme',
-  // Utilities
-  'createFilter',
-  'createOverflow',
-  'createPagination',
-  'createVirtual',
-  // Transformers
-  'toArray',
-  'toReactive',
-])
 
 // Trinity return values that map to their factory function
 // createContext returns [useContext, provideContext]
@@ -108,55 +34,59 @@ const TRINITY_RETURNS: Record<string, string> = {
 const VUE_API_NAMES = new Set(Object.keys(VUE_API_CONTENT))
 
 /**
- * Maps create* variants to their parent use* composable.
- * Returns the composable name if valid, null otherwise.
+ * Maps composable names to their canonical API page.
+ * Returns the API name if valid, null otherwise.
  *
  * Patterns:
- * - createX -> useX (e.g., createGroup -> useGroup)
- * - createXContext -> useX (e.g., createGroupContext -> useGroup)
- * - createXPlugin -> useX (e.g., createThemePlugin -> useTheme)
- * - createFallbackX -> useX (e.g., createFallbackHydration -> useHydration)
- * - useContext/provideContext -> createContext (trinity returns)
+ * - createX -> createX (the canonical API page)
+ * - useX -> createX (trinity return maps to factory)
+ * - createXContext -> createX (variant maps to base)
+ * - createXPlugin -> createX or useX (createStackPlugin -> createStack, createStoragePlugin -> useStorage)
+ * - useContext/provideContext -> createContext (special trinity returns)
  */
 function resolveComposable (name: string): { apiName: string } | null {
-  // Direct match - it's a known v0 composable
-  if (V0_COMPOSABLES.has(name)) {
-    return { apiName: name }
-  }
-
-  // Check trinity return values (e.g., useContext -> createContext)
+  // Check special trinity return values first (e.g., useContext -> createContext)
   const trinityParent = TRINITY_RETURNS[name]
   if (trinityParent) {
     return { apiName: trinityParent }
   }
 
-  // Try to map create* variants to their use* parent
-  if (!name.startsWith('create')) return null
-
-  // Remove 'create' prefix
-  let base = name.slice(6) // 'createGroup' -> 'Group'
-
-  // Handle suffixes: Plugin, Context, Fallback
-  base = base.replace(/(Plugin|Context|Fallback)$/, '')
-
-  // Handle special case: createFallbackX -> useX
-  base = base.replace(/^Fallback/, '')
-
-  if (!base) return null
-
-  // Check if the create* version exists directly
-  const createVersion = `create${base}`
-  if (V0_COMPOSABLES.has(createVersion)) {
-    return { apiName: createVersion }
+  // Not in whitelist at all? Skip.
+  if (!V0_COMPOSABLES.has(name)) {
+    return null
   }
 
-  // Check if the use* version exists
-  const useVersion = `use${base}`
-  if (V0_COMPOSABLES.has(useVersion)) {
-    return { apiName: useVersion }
+  // For useX, check if createX exists (trinity pattern)
+  // useStack -> createStack, useGroup -> createGroup
+  if (name.startsWith('use')) {
+    const base = name.slice(3) // 'useStack' -> 'Stack'
+    const createVersion = `create${base}`
+    if (V0_COMPOSABLES.has(createVersion)) {
+      return { apiName: createVersion }
+    }
   }
 
-  return null
+  // For createXContext/createXPlugin, map to createX or useX
+  // createStackPlugin -> createStack, createStoragePlugin -> useStorage
+  if (name.startsWith('create')) {
+    const withoutPrefix = name.slice(6) // 'createStackPlugin' -> 'StackPlugin'
+    const base = withoutPrefix.replace(/(Plugin|Context)$/, '')
+    if (base && base !== withoutPrefix) {
+      // Try createX first (trinity factories)
+      const createVersion = `create${base}`
+      if (V0_COMPOSABLES.has(createVersion)) {
+        return { apiName: createVersion }
+      }
+      // Fall back to useX (plugin composables like useStorage, useTheme)
+      const useVersion = `use${base}`
+      if (V0_COMPOSABLES.has(useVersion)) {
+        return { apiName: useVersion }
+      }
+    }
+  }
+
+  // Direct match - use as-is (createX, toX, etc.)
+  return { apiName: name }
 }
 
 /**
