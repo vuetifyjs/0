@@ -1,10 +1,9 @@
 <script setup lang="ts">
   import { useHotkey, useStack } from '@vuetify/v0'
   import { computed } from 'vue'
-  import { useOverlaySelection } from './context'
-  import type { OverlayValue } from './context'
+  import { useOverlays } from './context'
 
-  const selection = useOverlaySelection()
+  const { overlays, activeCount, open, close, closeAll } = useOverlays()
 
   // Color schemes for each overlay
   const colors = [
@@ -13,32 +12,27 @@
     { accent: 'text-amber-500', bg: 'bg-amber-500', badge: 'bg-amber-500/10 text-amber-500' },
   ]
 
-  // Create stack entries for each registered overlay ticket
-  // ticket.isSelected = overlay is open
-  // ticket.value = { title, blocking }
-  const stacks = selection.values().map((ticket, index) => {
-    const overlay = ticket.value as OverlayValue
-
-    return {
-      ticket,
-      color: colors[index % colors.length]!,
-      ...useStack(ticket.isSelected, () => ticket.unselect(), {
-        blocking: overlay.blocking,
-      }),
-    }
-  })
+  // Create stack entries for each overlay
+  const stacks = overlays.map((overlay, index) => ({
+    overlay,
+    color: colors[index % colors.length]!,
+    ...useStack(
+      overlay.isOpen,
+      () => close(overlay.id),
+      { blocking: overlay.blocking },
+    ),
+  }))
 
   // Find next closed overlay to open from within an overlay
   const nextClosed = computed(() =>
-    stacks.find(s => !s.ticket.isSelected.value),
+    overlays.find(o => !o.isOpen.value),
   )
 
   // Escape key dismisses the topmost non-blocking overlay
   useHotkey('Escape', () => {
     const topStack = stacks.find(s => s.globalTop.value)
-    const overlay = topStack?.ticket.value as OverlayValue | undefined
-    if (topStack && !overlay?.blocking) {
-      topStack.ticket.unselect()
+    if (topStack && !topStack.overlay.blocking) {
+      close(topStack.overlay.id)
     }
   })
 </script>
@@ -49,17 +43,17 @@
     <div class="flex flex-col gap-4">
       <div class="grid grid-cols-3 gap-3 max-w-md mx-auto">
         <button
-          v-for="({ ticket }, index) in stacks"
-          :key="ticket.id"
+          v-for="(stack, index) in stacks"
+          :key="stack.overlay.id"
           class="px-4 py-2 text-sm font-medium rounded-md transition-colors text-center"
           :class="[
-            ticket.isSelected.value
+            stack.overlay.isOpen.value
               ? `${colors[index]!.bg} text-white border border-transparent`
               : 'border border-divider hover:bg-surface-tint'
           ]"
-          @click="ticket.toggle()"
+          @click="stack.overlay.isOpen.value ? close(stack.overlay.id) : open(stack.overlay.id)"
         >
-          {{ (ticket.value as OverlayValue).title }}
+          {{ stack.overlay.title }}
         </button>
       </div>
 
@@ -67,14 +61,14 @@
       <div class="flex items-center justify-center gap-2 text-sm h-6">
         <span class="text-on-surface-variant">Stack:</span>
         <div class="flex items-center gap-1">
-          <template v-if="selection.selectedIds.size > 0">
-            <template v-for="({ ticket, zIndex }, index) in stacks" :key="ticket.id">
+          <template v-if="activeCount > 0">
+            <template v-for="(stack, index) in stacks" :key="stack.overlay.id">
               <span
-                v-if="ticket.isSelected.value"
+                v-if="stack.overlay.isOpen.value"
                 class="px-2 py-0.5 rounded text-xs font-mono"
                 :class="colors[index]!.badge"
               >
-                {{ zIndex.value }}
+                {{ stack.zIndex.value }}
               </span>
             </template>
           </template>
@@ -86,9 +80,9 @@
     <!-- Overlays -->
     <Teleport to="body">
       <TransitionGroup name="modal">
-        <template v-for="({ ticket, color, styles, globalTop, zIndex, id }, index) in stacks" :key="ticket.id">
+        <template v-for="({ overlay, color, styles, globalTop, zIndex, id }, index) in stacks" :key="overlay.id">
           <div
-            v-if="ticket.isSelected.value"
+            v-if="overlay.isOpen.value"
             :aria-describedby="`${id}-desc`"
             :aria-labelledby="`${id}-title`"
             aria-modal="true"
@@ -107,7 +101,7 @@
               <div class="px-4 py-3 border-b border-divider">
                 <div class="flex items-center justify-between">
                   <h3 :id="`${id}-title`" class="text-lg font-semibold text-on-surface">
-                    {{ (ticket.value as OverlayValue).title }}
+                    {{ overlay.title }}
                   </h3>
                   <div class="flex items-center gap-2">
                     <span class="px-2 py-0.5 rounded text-xs font-mono" :class="color.badge">
@@ -135,7 +129,7 @@
                 </p>
 
                 <div
-                  v-if="(ticket.value as OverlayValue).blocking"
+                  v-if="overlay.blocking"
                   class="px-3 py-2 rounded-md bg-warning/10 border border-warning/20 text-warning text-sm"
                 >
                   Blocking mode — clicking the scrim won't close this overlay.
@@ -145,24 +139,24 @@
                   v-if="nextClosed"
                   class="w-full px-4 py-2 text-sm font-medium rounded-md transition-colors"
                   :class="`${color.bg} text-white hover:opacity-90`"
-                  @click="nextClosed.ticket.select()"
+                  @click="open(nextClosed.id)"
                 >
-                  Open {{ (nextClosed.ticket.value as OverlayValue).title }}
+                  Open {{ nextClosed.title }}
                 </button>
               </div>
 
               <!-- Footer -->
               <div class="flex gap-3 justify-end p-4 pt-0">
                 <button
-                  v-if="selection.selectedIds.size > 1"
+                  v-if="activeCount > 1"
                   class="px-4 py-2 text-sm font-medium rounded-md text-error hover:bg-error/10 transition-colors"
-                  @click="selection.selectedIds.clear()"
+                  @click="closeAll"
                 >
                   Close All
                 </button>
                 <button
                   class="px-4 py-2 text-sm font-medium rounded-md border border-divider hover:bg-surface-tint transition-colors"
-                  @click="ticket.unselect()"
+                  @click="close(overlay.id)"
                 >
                   Close
                 </button>
