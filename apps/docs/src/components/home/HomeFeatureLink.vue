@@ -1,10 +1,9 @@
 <script setup lang="ts">
-  // Framework
-  import { Atom } from '@vuetify/v0'
+  // Components
+  import DocsCard from '@/components/docs/DocsCard.vue'
 
   // Utilities
   import { toRef } from 'vue'
-  import { RouterLink } from 'vue-router'
 
   export interface HomeFeatureLinkProps {
     icon: string
@@ -20,15 +19,14 @@
 </script>
 
 <template>
-  <Atom
-    :as="isInternal ? RouterLink : 'a'"
-    class="group flex items-center gap-5 p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary/50 focus-visible:bg-surface/50 focus-visible:border-primary/50 focus-visible:outline-none transition-all cursor-pointer"
-    v-bind="isInternal
-      ? { to }
-      : { href: to, target: '_blank', rel: 'noopener noreferrer' }"
+  <DocsCard
+    class="group flex items-center gap-5 rounded-xl"
+    hoverable
+    :href="isInternal ? undefined : to"
+    :to="isInternal ? to : undefined"
   >
     <div class="w-12 h-12 shrink-0 rounded-lg bg-primary flex items-center justify-center text-on-primary group-hover:bg-primary transition-colors">
-      <AppIcon :icon :size="22" />
+      <AppIcon class="!opacity-100" :icon :size="22" />
     </div>
 
     <div class="flex-1 min-w-0">
@@ -47,5 +45,5 @@
         {{ description }}
       </p>
     </div>
-  </Atom>
+  </DocsCard>
 </template>

@@ -1,6 +1,6 @@
 {
   "name": "playground",
-  "version": "0.0.24",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,7 +16,6 @@
     "unplugin-vue": "catalog:",
     "unplugin-vue-components": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-vue-devtools": "catalog:",
     "vite-ssg": "catalog:",
     "vue-router": "catalog:"
   },

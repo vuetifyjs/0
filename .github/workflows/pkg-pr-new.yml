@@ -33,4 +33,5 @@ jobs:
         run: pnpm build
 
       - name: Release
-        run: pnpm dlx pkg-pr-new publish --compact --pnpm './packages/*' --only-templates
+        # TODO: Add './packages/paper' once @vuetify/paper is published to npm
+        run: pnpm dlx pkg-pr-new publish --compact --pnpm './packages/0' --only-templates

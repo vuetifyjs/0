@@ -93,7 +93,7 @@ export interface UseTocReturn {
  */
 export function useToc (options: UseTocOptions = {}): UseTocReturn {
   const {
-    selector = 'h2[id], h3[id], h4[id]',
+    selector = 'h2[id]:not([data-discovery-title]), h3[id]:not([data-discovery-title]), h4[id]:not([data-discovery-title])',
     container = IN_BROWSER ? document : undefined,
   } = options
 

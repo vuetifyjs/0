@@ -5,6 +5,9 @@
  * Content component for dialogs. Renders the dialog panel using the native
  * dialog element with `showModal()` for proper modal behavior including
  * focus trapping, backdrop, and escape key handling.
+ *
+ * Integrates with createStack for z-index coordination when multiple
+ * dialogs are open simultaneously.
  */
 
 <script lang="ts">
@@ -16,6 +19,20 @@
     namespace?: string
     /** Close dialog when clicking outside content @default true */
     closeOnClickOutside?: boolean
+    /**
+     * Whether this dialog blocks scrim dismissal
+     *
+     * @default false
+     * @remarks When true, clicking the scrim will not dismiss this dialog. Use for critical dialogs requiring explicit user action.
+     */
+    blocking?: boolean
+    /**
+     * Disable global stack participation
+     *
+     * @default false
+     * @remarks When true, the dialog tracks parent/child relationships but doesn't register in the global stack.
+     */
+    disableGlobalStack?: boolean
   }
 
   export interface DialogContentEmits {
@@ -26,6 +43,10 @@
   export interface DialogContentSlotProps {
     /** Whether the dialog is currently open */
     isOpen: boolean
+    /** Whether this dialog is the topmost in the global stack */
+    globalTop: boolean
+    /** Calculated z-index for the dialog */
+    zIndex: number
     /** Attributes to bind to the dialog element */
     attrs: {
       'id': string
@@ -44,6 +65,7 @@
   import { useDialogContext } from './DialogRoot.vue'
 
   // Composables
+  import { useStack } from '#v0/composables/createStack'
   import { useClickOutside } from '#v0/composables/useClickOutside'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
@@ -60,6 +82,8 @@
     as = 'dialog',
     namespace = 'v0:dialog',
     closeOnClickOutside = true,
+    blocking = false,
+    disableGlobalStack = false,
   } = defineProps<DialogContentProps>()
 
   const emit = defineEmits<DialogContentEmits>()
@@ -67,6 +91,12 @@
   const context = useDialogContext(namespace)
 
   const contentRef = useTemplateRef('content')
+
+  // Register with global stack for z-index coordination
+  const { styles, globalTop, zIndex } = useStack(context.isOpen, () => context.close(), {
+    blocking,
+    disableGlobalStack,
+  })
 
   onMounted(() => {
     if (context.isOpen.value) {
@@ -110,6 +140,8 @@
 
   const slotProps = toRef((): DialogContentSlotProps => ({
     isOpen: context.isOpen.value,
+    globalTop: globalTop.value,
+    zIndex: zIndex.value,
     attrs: {
       'id': context.id,
       'role': 'dialog',
@@ -124,6 +156,7 @@
   <Atom
     ref="content"
     :as
+    :style="styles"
     v-bind="slotProps.attrs"
     @cancel="onCancel"
     @close="onClose"

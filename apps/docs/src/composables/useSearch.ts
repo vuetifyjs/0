@@ -23,7 +23,7 @@ import MiniSearch from 'minisearch'
 import { IN_BROWSER, useHotkey, useLogger, useStorage, useToggleScope } from '@vuetify/v0'
 
 // Utilities
-import { computed, readonly, shallowRef, watch } from 'vue'
+import { computed, readonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { SearchDocument } from '@build/generate-search-index'
@@ -52,6 +52,17 @@ export interface SavedResult {
   path: string
 }
 
+export interface SearchSelection {
+  /** Currently selected result index */
+  index: ShallowRef<number>
+  /** Get the currently selected result */
+  current: () => SearchResult | SavedResult | undefined
+  /** Select previous result */
+  prev: () => void
+  /** Select next result */
+  next: () => void
+}
+
 export interface UseSearchReturn {
   /** Whether the search modal is open */
   isOpen: Readonly<Ref<boolean>>
@@ -59,54 +70,38 @@ export interface UseSearchReturn {
   isLoading: Readonly<Ref<boolean>>
   /** Error message if search index failed to load */
   error: Readonly<Ref<string | null>>
-  /** Current search query */
-  query: ShallowRef<string>
-  /** Search results */
-  results: ComputedRef<SearchResult[]>
-  /** Results grouped by category */
-  groupedResults: ComputedRef<GroupedResults[]>
+  /** Current search query text */
+  text: ShallowRef<string>
   /** Results filtered by dismissed IDs, grouped by category */
-  displayedResults: ComputedRef<GroupedResults[]>
-  /** Currently selected result index */
-  selectedIndex: ShallowRef<number>
+  results: ComputedRef<GroupedResults[]>
   /** User's favorited pages */
   favorites: Readonly<Ref<SavedResult[]>>
   /** Recently visited pages from search */
-  recentSearches: Readonly<Ref<SavedResult[]>>
-  /** IDs of temporarily dismissed results */
-  dismissedIds: Readonly<Ref<Set<string>>>
+  recents: Readonly<Ref<SavedResult[]>>
   /** Whether there's content to show in empty state (favorites or recents) */
   hasEmptyStateContent: ComputedRef<boolean>
+  /** Keyboard selection state and controls */
+  selection: SearchSelection
   /** Open the search modal */
   open: () => void
   /** Close the search modal */
   close: () => void
-  /** Toggle the search modal */
-  toggle: () => void
+  /** Open search with a query */
+  query: (text: string) => void
   /** Clear the search query */
   clear: () => void
-  /** Request focus on the search input */
-  focus: () => void
-  /** Focus trigger counter (watch this to focus input) */
-  focusTrigger: Readonly<Ref<number>>
-  /** Get the currently selected result */
-  getSelected: () => SearchResult | SavedResult | undefined
-  /** Add a result to favorites */
-  addFavorite: (result: SearchResult | SavedResult) => void
-  /** Remove a result from favorites */
-  removeFavorite: (id: string) => void
-  /** Check if a result is favorited */
+  /** Toggle favorite status for an ID */
+  favorite: (id: string) => void
+  /** Remove from favorites */
+  unfavorite: (id: string) => void
+  /** Check if an ID is favorited */
   isFavorite: (id: string) => boolean
-  /** Dismiss a result temporarily (until query change, close, or navigation) */
+  /** Remove from favorites or recents */
+  remove: (id: string) => void
+  /** Dismiss a result temporarily (until query change or close) */
   dismiss: (id: string) => void
-  /** Clear all dismissed results */
-  clearDismissed: () => void
   /** Add to recent searches */
   addRecent: (result: SearchResult | SavedResult) => void
-  /** Remove from recent searches */
-  removeRecent: (id: string) => void
-  /** Clear all recent searches */
-  clearRecents: () => void
 }
 
 // Singleton state - shared across all instances
@@ -115,12 +110,13 @@ let indexPromise: Promise<void> | null = null
 const isOpen = shallowRef(false)
 const isLoading = shallowRef(false)
 const error = shallowRef<string | null>(null)
-const focusTrigger = shallowRef(0)
+const text = shallowRef('')
+const selectedIndex = shallowRef(0)
 const logger = useLogger()
 
 // Persistent state - loaded from storage on first use
 const favorites = shallowRef<SavedResult[]>([])
-const recentSearches = shallowRef<SavedResult[]>([])
+const recents = shallowRef<SavedResult[]>([])
 let storage: StorageContext | null = null
 let storageInitialized = false
 
@@ -143,7 +139,7 @@ function initStorage (): void {
 
   const storedRecents = storage.get<SavedResult[]>('search:recents')
   if (storedRecents.value) {
-    recentSearches.value = storedRecents.value
+    recents.value = storedRecents.value
   }
 }
 
@@ -154,7 +150,7 @@ function persistFavorites (): void {
 
 /** Persist recents to storage */
 function persistRecents (): void {
-  storage?.set('search:recents', recentSearches.value)
+  storage?.set('search:recents', recents.value)
 }
 
 async function loadIndex (): Promise<void> {
@@ -306,6 +302,25 @@ function groupByCategory (results: SearchResult[]): GroupedResults[] {
     })
 }
 
+/** Find a result by ID from all available sources */
+function findResult (id: string): SearchResult | SavedResult | undefined {
+  // Check favorites first
+  const fav = favorites.value.find(f => f.id === id)
+  if (fav) return fav
+
+  // Check recents
+  const recent = recents.value.find(r => r.id === id)
+  if (recent) return recent
+
+  // Check current search results
+  if (miniSearch && text.value.trim()) {
+    const results = search(text.value)
+    return results.find(r => r.id === id)
+  }
+
+  return undefined
+}
+
 /**
  * Creates a search instance for documentation.
  *
@@ -316,7 +331,12 @@ function groupByCategory (results: SearchResult[]): GroupedResults[] {
  * <script setup lang="ts">
  *  import { useSearch } from '@/composables/useSearch'
  *
- *  const { isOpen, query, displayedResults, open, close } = useSearch()
+ *  const search = useSearch()
+ *
+ *  search.open()           // Open search modal
+ *  search.query('Tabs')    // Open and search for "Tabs"
+ *  search.favorite('id')   // Toggle favorite
+ *  search.close()          // Close modal
  * </script>
  * ```
  */
@@ -324,14 +344,12 @@ export function useSearch (): UseSearchReturn {
   // Initialize storage on first use
   initStorage()
 
-  const query = shallowRef('')
-  const selectedIndex = shallowRef(0)
-
-  const results = computed(() => search(query.value))
-  const groupedResults = computed(() => groupByCategory(results.value))
+  // Depend on isLoading to re-run search after index loads
+  const rawResults = computed(() => isLoading.value ? [] : search(text.value))
+  const groupedResults = computed(() => groupByCategory(rawResults.value))
 
   // Filter out dismissed results
-  const displayedResults = computed<GroupedResults[]>(() => {
+  const results = computed<GroupedResults[]>(() => {
     if (dismissedIds.value.size === 0) {
       return groupedResults.value
     }
@@ -345,34 +363,34 @@ export function useSearch (): UseSearchReturn {
   })
 
   // Check if we have content to show in empty state
-  const hasEmptyStateContent = computed(() => {
-    return favorites.value.length > 0 || recentSearches.value.length > 0
+  const hasEmptyStateContent = toRef(() => {
+    return favorites.value.length > 0 || recents.value.length > 0
   })
 
   // Get total selectable items count (for keyboard navigation)
   function getSelectableCount (): number {
-    if (query.value.trim()) {
-      return displayedResults.value.reduce((sum, g) => sum + g.items.length, 0)
+    if (text.value.trim()) {
+      return results.value.reduce((sum, g) => sum + g.items.length, 0)
     }
     // In empty state, count favorites + recents
-    return favorites.value.length + recentSearches.value.length
+    return favorites.value.length + recents.value.length
   }
 
   // Reset selection when results change
-  watch(results, () => {
+  watch(rawResults, () => {
     selectedIndex.value = 0
   })
 
-  // Clear dismissed results when query changes
-  watch(query, () => {
+  // Clear dismissed results when text changes
+  watch(text, () => {
     if (dismissedIds.value.size > 0) {
       dismissedIds.value = new Set()
     }
   })
 
   // Reset selection when favorites or recents change (to avoid out-of-bounds)
-  watch([favorites, recentSearches], () => {
-    if (!query.value.trim()) {
+  watch([favorites, recents], () => {
+    if (!text.value.trim()) {
       const total = getSelectableCount()
       if (selectedIndex.value >= total) {
         selectedIndex.value = Math.max(0, total - 1)
@@ -381,10 +399,10 @@ export function useSearch (): UseSearchReturn {
   })
 
   function open () {
-    if (!IN_BROWSER) return
+    if (!IN_BROWSER || isOpen.value) return
 
     isOpen.value = true
-    query.value = ''
+    text.value = ''
     selectedIndex.value = 0
     clearDismissed()
 
@@ -402,25 +420,38 @@ export function useSearch (): UseSearchReturn {
     clearDismissed()
   }
 
-  function toggle () {
-    if (isOpen.value) {
-      close()
-    } else {
-      open()
-    }
-  }
+  function query (value: string) {
+    if (!IN_BROWSER) return
 
-  function clear () {
-    query.value = ''
+    // Open if not already open
+    if (!isOpen.value) {
+      isOpen.value = true
+      clearDismissed()
+
+      // Load index lazily
+      if (!miniSearch) {
+        isLoading.value = true
+        loadIndex().finally(() => {
+          isLoading.value = false
+        })
+      }
+    }
+
+    text.value = value
     selectedIndex.value = 0
   }
 
-  function getSelected (): SearchResult | SavedResult | undefined {
+  function clear () {
+    text.value = ''
+    selectedIndex.value = 0
+  }
+
+  function getCurrent (): SearchResult | SavedResult | undefined {
     const index = selectedIndex.value
 
     // If searching, get from displayed results
-    if (query.value.trim()) {
-      const flatResults = displayedResults.value.flatMap(g => g.items)
+    if (text.value.trim()) {
+      const flatResults = results.value.flatMap(g => g.items)
       return flatResults[index]
     }
 
@@ -429,7 +460,7 @@ export function useSearch (): UseSearchReturn {
     if (index < favCount) {
       return favorites.value[index]
     }
-    return recentSearches.value[index - favCount]
+    return recents.value[index - favCount]
   }
 
   function selectPrev () {
@@ -445,32 +476,37 @@ export function useSearch (): UseSearchReturn {
   }
 
   // Favorites management
-  function addFavorite (result: SearchResult | SavedResult) {
-    // Don't add duplicates
-    if (favorites.value.some(f => f.id === result.id)) return
+  function favorite (id: string) {
+    if (isFavorite(id)) {
+      unfavorite(id)
+    } else {
+      const result = findResult(id)
+      if (!result) return
 
-    // Remove from recents if present
-    if (recentSearches.value.some(r => r.id === result.id)) {
-      recentSearches.value = recentSearches.value.filter(r => r.id !== result.id)
-      persistRecents()
+      // Remove from recents if present
+      if (recents.value.some(r => r.id === id)) {
+        recents.value = recents.value.filter(r => r.id !== id)
+        persistRecents()
+      }
+
+      favorites.value = [
+        {
+          id: result.id,
+          title: result.title,
+          category: result.category,
+          path: result.path,
+        },
+        ...favorites.value,
+      ]
+      persistFavorites()
     }
-
-    favorites.value = [
-      {
-        id: result.id,
-        title: result.title,
-        category: result.category,
-        path: result.path,
-      },
-      ...favorites.value,
-    ]
-    persistFavorites()
   }
 
-  function removeFavorite (id: string) {
-    const favorite = favorites.value.find(f => f.id === id)
-    if (favorite) {
-      addRecent(favorite)
+  function unfavorite (id: string) {
+    const fav = favorites.value.find(f => f.id === id)
+    if (fav) {
+      // Move to recents when unfavoriting
+      addRecent(fav)
     }
     favorites.value = favorites.value.filter(f => f.id !== id)
     persistFavorites()
@@ -480,15 +516,26 @@ export function useSearch (): UseSearchReturn {
     return favorites.value.some(f => f.id === id)
   }
 
+  // Remove from favorites or recents
+  function remove (id: string) {
+    if (isFavorite(id)) {
+      favorites.value = favorites.value.filter(f => f.id !== id)
+      persistFavorites()
+    } else {
+      recents.value = recents.value.filter(r => r.id !== id)
+      persistRecents()
+    }
+  }
+
   // Recent searches management
   function addRecent (result: SearchResult | SavedResult) {
     // Don't add if already in favorites
     if (favorites.value.some(f => f.id === result.id)) return
 
     // Remove if already exists (will be re-added at front)
-    const filtered = recentSearches.value.filter(r => r.id !== result.id)
+    const filtered = recents.value.filter(r => r.id !== result.id)
 
-    recentSearches.value = [
+    recents.value = [
       {
         id: result.id,
         title: result.title,
@@ -497,16 +544,6 @@ export function useSearch (): UseSearchReturn {
       },
       ...filtered,
     ].slice(0, MAX_RECENTS)
-    persistRecents()
-  }
-
-  function removeRecent (id: string) {
-    recentSearches.value = recentSearches.value.filter(r => r.id !== id)
-    persistRecents()
-  }
-
-  function clearRecents () {
-    recentSearches.value = []
     persistRecents()
   }
 
@@ -523,8 +560,12 @@ export function useSearch (): UseSearchReturn {
     }
   }
 
-  function focus () {
-    focusTrigger.value++
+  // Selection object for keyboard navigation
+  const selection: SearchSelection = {
+    index: selectedIndex,
+    current: getCurrent,
+    prev: selectPrev,
+    next: selectNext,
   }
 
   // Keyboard navigation - only active when modal is open
@@ -538,29 +579,21 @@ export function useSearch (): UseSearchReturn {
     isOpen: readonly(isOpen),
     isLoading: readonly(isLoading),
     error: readonly(error),
-    query,
+    text,
     results,
-    groupedResults,
-    displayedResults,
-    selectedIndex,
     favorites: readonly(favorites),
-    recentSearches: readonly(recentSearches),
-    dismissedIds: readonly(dismissedIds),
+    recents: readonly(recents),
     hasEmptyStateContent,
+    selection,
     open,
     close,
-    toggle,
+    query,
     clear,
-    getSelected,
-    addFavorite,
-    removeFavorite,
+    favorite,
+    unfavorite,
     isFavorite,
+    remove,
     dismiss,
-    clearDismissed,
     addRecent,
-    removeRecent,
-    clearRecents,
-    focus,
-    focusTrigger: readonly(focusTrigger),
   }
 }

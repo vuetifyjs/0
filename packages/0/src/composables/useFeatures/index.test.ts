@@ -1,7 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { createApp } from 'vue'
+import { createApp, watchEffect } from 'vue'
+
+// Types
+import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from './adapters'
 
 import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
 
@@ -13,6 +16,7 @@ describe('createFeatures', () => {
       expect(context).toBeDefined()
       expect(context.variation).toBeDefined()
       expect(context.register).toBeDefined()
+      expect(context.size).toBe(0)
     })
 
     it('should register boolean features', () => {
@@ -23,6 +27,7 @@ describe('createFeatures', () => {
         },
       })
 
+      expect(context.size).toBe(2)
       expect(context.collection.size).toBe(2)
       expect(context.collection.has('feature-a')).toBe(true)
       expect(context.collection.has('feature-b')).toBe(true)
@@ -319,6 +324,12 @@ describe('createFeatures', () => {
       expect(context.variation('null-feature', 'default')).toBe('default')
       expect(context.variation('undefined-feature', 'default')).toBe('default')
     })
+
+    it('should handle null feature value', () => {
+      const context = createFeatures({})
+      context.register({ id: 'null-val', value: null as any })
+      expect(context.variation('null-val', 'fallback')).toBe('fallback')
+    })
   })
 })
 
@@ -391,6 +402,231 @@ describe('createFeaturesPlugin', () => {
     expect(featuresFromSetup.variation('layout-mode')).toBe('compact')
 
     app.unmount()
+  })
+
+  describe('with adapter', () => {
+    it('should sync initial flags from adapter', () => {
+      const mockAdapter: FeaturesAdapterInterface = {
+        setup: () => {
+          return {
+            'feature-a': true,
+            'feature-b': { $value: true, $variation: 'test' },
+          }
+        },
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: mockAdapter }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.get('feature-a')?.value).toBe(true)
+      expect(context.selectedIds.has('feature-a')).toBe(true)
+
+      expect(context.get('feature-b')?.value).toEqual({ $value: true, $variation: 'test' })
+      expect(context.variation('feature-b')).toBe('test')
+    })
+
+    it('should sync updated flags from adapter', () => {
+      let updateCallback: ((flags: FeaturesAdapterFlags) => void) | undefined
+
+      const mockAdapter: FeaturesAdapterInterface = {
+        setup: onUpdate => {
+          updateCallback = onUpdate
+          return {}
+        },
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: mockAdapter }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.has('feature-new')).toBe(false)
+
+      updateCallback?.({
+        'feature-new': true,
+      })
+
+      expect(context.has('feature-new')).toBe(true)
+      expect(context.selectedIds.has('feature-new')).toBe(true)
+    })
+
+    it('should update existing flags from adapter', () => {
+      let updateCallback: ((flags: FeaturesAdapterFlags) => void) | undefined
+
+      const mockAdapter: FeaturesAdapterInterface = {
+        setup: onUpdate => {
+          updateCallback = onUpdate
+          return {
+            'feature-boolean': true,
+            'feature-object': { $value: true, $variation: 'test' },
+            'feature-to-enable': false,
+            'feature-object-to-enable': { $value: false, $variation: 'test' },
+          }
+        },
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: mockAdapter }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-boolean')).toBe(true)
+      expect(context.selectedIds.has('feature-object')).toBe(true)
+      expect(context.selectedIds.has('feature-to-enable')).toBe(false)
+      expect(context.selectedIds.has('feature-object-to-enable')).toBe(false)
+
+      updateCallback?.({
+        'feature-boolean': false,
+        'feature-object': { $value: false, $variation: 'test' },
+        'feature-to-enable': true,
+        'feature-object-to-enable': { $value: true, $variation: 'test' },
+      })
+
+      expect(context.selectedIds.has('feature-boolean')).toBe(false)
+      expect(context.selectedIds.has('feature-object')).toBe(false)
+      expect(context.selectedIds.has('feature-to-enable')).toBe(true)
+      expect(context.selectedIds.has('feature-object-to-enable')).toBe(true)
+    })
+
+    it('should be reactive when flags are updated from adapter', async () => {
+      let updateCallback: ((flags: FeaturesAdapterFlags) => void) | undefined
+
+      const mockAdapter: FeaturesAdapterInterface = {
+        setup: onUpdate => {
+          updateCallback = onUpdate
+          return {
+            'reactive-feature': true,
+          }
+        },
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: mockAdapter }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      let isFeatureEnabled = false
+      const stop = app.runWithContext(() => {
+        return watchEffect(() => {
+          isFeatureEnabled = context.selectedIds.has('reactive-feature')
+        })
+      })
+
+      expect(isFeatureEnabled).toBe(true)
+
+      updateCallback?.({
+        'reactive-feature': false,
+      })
+
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(isFeatureEnabled).toBe(false)
+      stop()
+    })
+
+    it('should call adapter dispose when scope is disposed', () => {
+      const disposeMock = vi.fn()
+      const mockAdapter: FeaturesAdapterInterface = {
+        setup: () => ({}),
+        dispose: disposeMock,
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: mockAdapter }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
+
+      expect(disposeMock).toHaveBeenCalled()
+    })
+  })
+
+  describe('with multiple adapters', () => {
+    it('should sync flags from multiple adapters', () => {
+      const adapter1: FeaturesAdapterInterface = {
+        setup: () => ({ 'feature-1': true }),
+      }
+      const adapter2: FeaturesAdapterInterface = {
+        setup: () => ({ 'feature-2': true }),
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.has('feature-1')).toBe(true)
+      expect(context.has('feature-2')).toBe(true)
+    })
+
+    it('should resolve conflicting flags (last one wins)', () => {
+      const adapter1: FeaturesAdapterInterface = {
+        setup: () => ({ 'feature-a': true }),
+      }
+      const adapter2: FeaturesAdapterInterface = {
+        setup: () => ({ 'feature-a': false }),
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('feature-a')).toBe(false)
+    })
+
+    it('should handle partial overlap', () => {
+      const adapter1: FeaturesAdapterInterface = {
+        setup: () => ({ f1: true, f2: true }),
+      }
+      const adapter2: FeaturesAdapterInterface = {
+        setup: () => ({ f2: false, f3: true }),
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.selectedIds.has('f1')).toBe(true)
+      expect(context.selectedIds.has('f2')).toBe(false)
+      expect(context.selectedIds.has('f3')).toBe(true)
+    })
+
+    it('should handle empty adapter list', () => {
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [] }))
+
+      const context = app.runWithContext(() => useFeatures())
+
+      expect(context.size).toBe(0)
+    })
+
+    it('should dispose all adapters', () => {
+      const dispose1 = vi.fn()
+      const dispose2 = vi.fn()
+      const adapter1: FeaturesAdapterInterface = {
+        setup: () => ({}),
+        dispose: dispose1,
+      }
+      const adapter2: FeaturesAdapterInterface = {
+        setup: () => ({}),
+        dispose: dispose2,
+      }
+
+      const app = createApp({})
+      app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
+
+      const container = document.createElement('div')
+      app.mount(container)
+      app.unmount()
+
+      expect(dispose1).toHaveBeenCalled()
+      expect(dispose2).toHaveBeenCalled()
+    })
   })
 })
 

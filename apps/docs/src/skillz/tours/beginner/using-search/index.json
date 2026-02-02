@@ -1,0 +1,88 @@
+{
+  "mode": "guided",
+  "id": "using-search",
+  "name": "Using Search",
+  "level": 1,
+  "track": "essentials",
+  "categories": ["meta"],
+  "order": 1,
+  "prerequisites": [],
+  "description": "Find exactly what you need in seconds with search, favorites, and keyboard shortcuts.",
+  "minutes": 2,
+  "startRoute": "/introduction/getting-started",
+  "steps": [
+    {
+      "id": "search",
+      "title": "Search Button",
+      "task": "Your fastest path to anything. Open search and start typing to find components, composables, and guides.",
+      "hint": "Keyboard shortcut: Ctrl+K (or Cmd+K on Mac)",
+      "learn": "Access search from anywhere"
+    },
+    {
+      "id": "search-input",
+      "title": "Search Input",
+      "task": "Type and watch. Results appear instantly as you type—no waiting, no Enter key needed.",
+      "hint": "Arrow keys navigate results, Enter selects.",
+      "learn": "Get instant results as you type",
+      "placement": "bottom"
+    },
+    {
+      "id": "search-categories",
+      "title": "Search Categories",
+      "task": "Organized by type. Components, composables, guides—scroll or arrow through to find what you need.",
+      "hint": "",
+      "learn": "Navigate categorized search results"
+    },
+    {
+      "id": "search-favorite",
+      "title": "Favorite Results",
+      "task": "Bookmark your go-tos. Star anything you use often and it'll be waiting at the top next time.",
+      "hint": "",
+      "learn": "Quick-access your most-used pages",
+      "placement": "left",
+      "placementMobile": "bottom"
+    },
+    {
+      "id": "search-ask-ai",
+      "title": "Ask AI",
+      "task": "Skip the reading. Hit this to jump straight to a page and ask AI to explain it.",
+      "hint": "",
+      "learn": "Get AI explanations for any topic",
+      "placement": "left",
+      "placementMobile": "bottom"
+    },
+    {
+      "id": "search-dismiss",
+      "title": "Dismiss Results",
+      "task": "Too many results? Dismiss irrelevant matches and focus on what matters.",
+      "hint": "",
+      "learn": "Filter out noise from search results",
+      "placement": "left",
+      "placementMobile": "bottom"
+    },
+    {
+      "id": "search-history",
+      "title": "Search History",
+      "task": "Pick up where you left off. Recent searches stick around between sessions.",
+      "hint": "",
+      "learn": "Resume previous searches instantly",
+      "placement": "bottom"
+    },
+    {
+      "id": "search-favorited",
+      "title": "Favorited!",
+      "task": "We just added Tabs to your favorites. Notice it now appears at the top for quick access anytime you open search.",
+      "hint": "",
+      "learn": "See favorites in action",
+      "placement": "bottom"
+    },
+    {
+      "id": "conclusion",
+      "title": "That's Search",
+      "task": "Hit Ctrl+K whenever you need something—it's the fastest way around the docs.",
+      "hint": "",
+      "learn": "Search like a power user",
+      "noActivator": true
+    }
+  ]
+}

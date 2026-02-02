@@ -16,11 +16,6 @@ related:
   - /components/disclosure/dialog
 ---
 
-<script setup>
-import BasicExample from '@/examples/components/tabs/basic.vue'
-import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
-</script>
-
 # Tabs
 
 A component for creating accessible tabbed interfaces with proper ARIA support and keyboard navigation.
@@ -31,13 +26,13 @@ A component for creating accessible tabbed interfaces with proper ARIA support a
 
 The Tabs component provides a compound pattern for building accessible tab interfaces. It uses the `createStep` composable internally for navigation and provides full v-model support with automatic state synchronization.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
-  <BasicExample />
-</DocsExample>
+::: example
+/components/tabs/basic
+:::
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue Anatomy playground no-filename
 <script setup lang="ts">
   import { Tabs } from '@vuetify/v0'
 </script>

@@ -293,6 +293,106 @@ describe('useMutationObserver', () => {
     expect(callback).toHaveBeenCalledTimes(2)
     expect(isActive.value).toBe(true)
   })
+
+  it('should cleanup hydration watch when stop is called before hydration', async () => {
+    const localMockObserver = {
+      observe: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    globalThis.MutationObserver = vi.fn(function (this: any) {
+      return localMockObserver
+    }) as any
+    window.MutationObserver = globalThis.MutationObserver
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    // Start with not hydrated
+    mockIsHydrated.value = false
+
+    const { stop, isActive } = useMutationObserver(target, callback)
+
+    // Stop before hydration occurs
+    stop()
+
+    // Now trigger hydration - observer should NOT be created
+    mockIsHydrated.value = true
+    await nextTick()
+
+    expect(isActive.value).toBe(false)
+    expect(globalThis.MutationObserver).not.toHaveBeenCalled()
+  })
+
+  it('should cleanup observer when target changes to null while paused', async () => {
+    const localMockObserver = {
+      observe: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    globalThis.MutationObserver = vi.fn(function (this: any) {
+      return localMockObserver
+    }) as any
+    window.MutationObserver = globalThis.MutationObserver
+
+    mockIsHydrated.value = true
+
+    const target = ref<Element | null>(element)
+    const callback = vi.fn()
+
+    const { pause, isActive } = useMutationObserver(target, callback)
+    await nextTick()
+
+    expect(isActive.value).toBe(true)
+    expect(localMockObserver.observe).toHaveBeenCalledTimes(1)
+
+    // Pause the observer
+    pause()
+    expect(localMockObserver.disconnect).toHaveBeenCalledTimes(1)
+
+    // Change target to null while paused
+    target.value = null
+    await nextTick()
+
+    // Observer should be cleaned up (disconnect called again during cleanup)
+    expect(localMockObserver.disconnect).toHaveBeenCalledTimes(2)
+    expect(isActive.value).toBe(false)
+  })
+
+  it('should not create ghost observer when target changes while paused then resumed', async () => {
+    const localMockObserver = {
+      observe: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    globalThis.MutationObserver = vi.fn(function (this: any) {
+      return localMockObserver
+    }) as any
+    window.MutationObserver = globalThis.MutationObserver
+
+    mockIsHydrated.value = true
+
+    const element2 = document.createElement('div')
+    const target = ref<Element | null>(element)
+    const callback = vi.fn()
+
+    const { pause, resume, isActive } = useMutationObserver(target, callback)
+    await nextTick()
+
+    expect(isActive.value).toBe(true)
+
+    // Pause
+    pause()
+
+    // Change target while paused
+    target.value = element2
+    await nextTick()
+
+    // Resume should create new observer for new target
+    resume()
+    await nextTick()
+
+    expect(isActive.value).toBe(true)
+    // Original observe + new observe after resume
+    expect(localMockObserver.observe).toHaveBeenCalledTimes(2)
+  })
 })
 
 describe('useMutationObserver SSR', () => {

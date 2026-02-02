@@ -6,13 +6,17 @@
   import { useSettings, type PackageManager } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, toValue, useId, useSlots, type VNode, watch } from 'vue'
+  import { cloneVNode, computed, toValue, useId, useSlots, type VNode, watch } from 'vue'
+
+  const props = defineProps<{
+    noFilename?: boolean
+  }>()
 
   const PACKAGE_MANAGERS: PackageManager[] = ['pnpm', 'npm', 'yarn', 'bun']
 
   const slots = useSlots()
   const uid = useId()
-  const { packageManager } = useSettings()
+  const settings = useSettings()
 
   const single = createSingle({ mandatory: 'force', events: true })
   const proxy = useProxyRegistry(single)
@@ -25,7 +29,8 @@
       typeof node.type === 'object' || typeof node.type === 'function',
     )
     return componentNodes.map((node: VNode, index: number) => ({
-      node,
+      // Clone node with hideFilename prop if set on code-group
+      node: props.noFilename ? cloneVNode(node, { hideFilename: true }) : node,
       label: node.props?.title ?? `Tab ${index + 1}`,
       index,
     }))
@@ -37,7 +42,7 @@
   }, { immediate: true })
 
   // Select user's preferred package manager when preference or children change
-  watch([children, packageManager], ([items, pm]) => {
+  watch([children, () => settings.packageManager.value], ([items, pm]) => {
     // Validate package manager preference
     if (!PACKAGE_MANAGERS.includes(pm)) return
 
@@ -132,17 +137,8 @@
 </template>
 
 <style scoped>
-.docs-code-group__content :deep(.docs-markup) {
+.docs-code-group__content > [role="tabpanel"] > * {
   margin-top: 0;
   margin-bottom: 0;
-}
-
-.docs-code-group__content :deep(pre) {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.docs-code-group__content :deep(.shiki) {
-  border-top: none;
 }
 </style>

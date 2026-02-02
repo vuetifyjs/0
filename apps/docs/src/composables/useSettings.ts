@@ -23,6 +23,7 @@ export interface DocSettings {
   collapsibleNav: boolean
   showDotGrid: boolean
   showMeshTransition: boolean
+  showBgGlass: boolean
 }
 
 export interface SettingsContext {
@@ -31,6 +32,10 @@ export interface SettingsContext {
   reduceMotion: ShallowRef<DocSettings['reduceMotion']>
   packageManager: ShallowRef<DocSettings['packageManager']>
   prefersReducedMotion: Ref<boolean>
+  /** User's actual reduced motion preference (ignores tour override) */
+  userPrefersReducedMotion: Ref<boolean>
+  /** Temporarily force reduced motion (e.g., during tours) */
+  forceReducedMotion: ShallowRef<boolean>
   showInlineApi: ShallowRef<boolean>
   showSkillFilter: ShallowRef<boolean>
   showThemeToggle: ShallowRef<boolean>
@@ -38,6 +43,7 @@ export interface SettingsContext {
   collapsibleNav: ShallowRef<boolean>
   showDotGrid: ShallowRef<boolean>
   showMeshTransition: ShallowRef<boolean>
+  showBgGlass: ShallowRef<boolean>
   hasChanges: ShallowRef<boolean>
   open: () => void
   close: () => void
@@ -56,6 +62,7 @@ const DEFAULTS: DocSettings = {
   collapsibleNav: true,
   showDotGrid: true,
   showMeshTransition: true,
+  showBgGlass: true,
 }
 
 // Create context
@@ -100,6 +107,7 @@ export function createSettingsContext (): SettingsContext {
 
   // Reactive state
   const isOpen = shallowRef(false)
+  const forceReducedMotion = shallowRef(false)
   const lineWrap = shallowRef(DEFAULTS.lineWrap)
   const reduceMotion = shallowRef<DocSettings['reduceMotion']>(DEFAULTS.reduceMotion)
   const packageManager = shallowRef<DocSettings['packageManager']>(DEFAULTS.packageManager)
@@ -110,6 +118,7 @@ export function createSettingsContext (): SettingsContext {
   const collapsibleNav = shallowRef(DEFAULTS.collapsibleNav)
   const showDotGrid = shallowRef(DEFAULTS.showDotGrid)
   const showMeshTransition = shallowRef(DEFAULTS.showMeshTransition)
+  const showBgGlass = shallowRef(DEFAULTS.showBgGlass)
 
   // Load stored preferences
   loadSetting(storage, 'lineWrap', lineWrap)
@@ -122,17 +131,24 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'collapsibleNav', collapsibleNav)
   loadSetting(storage, 'showDotGrid', showDotGrid)
   loadSetting(storage, 'showMeshTransition', showMeshTransition)
+  loadSetting(storage, 'showBgGlass', showBgGlass)
 
   // Persist on change
-  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, showMeshTransition }
+  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, showMeshTransition, showBgGlass }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
 
-  // Computed effective reduced motion based on setting
-  const prefersReducedMotion = toRef(() => {
+  // User's actual preference (ignores tour override - used for highlight animations)
+  const userPrefersReducedMotion = toRef(() => {
     if (reduceMotion.value === 'system') return systemReducedMotion.value
     return reduceMotion.value === 'on'
+  })
+
+  // Computed effective reduced motion based on setting (or forced during tours)
+  const prefersReducedMotion = toRef(() => {
+    if (forceReducedMotion.value) return true
+    return userPrefersReducedMotion.value
   })
 
   // Check if any setting differs from defaults
@@ -146,7 +162,8 @@ export function createSettingsContext (): SettingsContext {
     showSocialLinks.value !== DEFAULTS.showSocialLinks ||
     collapsibleNav.value !== DEFAULTS.collapsibleNav ||
     showDotGrid.value !== DEFAULTS.showDotGrid ||
-    showMeshTransition.value !== DEFAULTS.showMeshTransition
+    showMeshTransition.value !== DEFAULTS.showMeshTransition ||
+    showBgGlass.value !== DEFAULTS.showBgGlass
   ))
 
   // Track trigger element for focus restoration
@@ -186,14 +203,17 @@ export function createSettingsContext (): SettingsContext {
     collapsibleNav.value = DEFAULTS.collapsibleNav
     showDotGrid.value = DEFAULTS.showDotGrid
     showMeshTransition.value = DEFAULTS.showMeshTransition
+    showBgGlass.value = DEFAULTS.showBgGlass
   }
 
   return {
     isOpen,
+    forceReducedMotion,
     lineWrap,
     reduceMotion,
     packageManager,
     prefersReducedMotion,
+    userPrefersReducedMotion,
     showInlineApi,
     showSkillFilter,
     showThemeToggle,
@@ -201,6 +221,7 @@ export function createSettingsContext (): SettingsContext {
     collapsibleNav,
     showDotGrid,
     showMeshTransition,
+    showBgGlass,
     hasChanges,
     open,
     close,

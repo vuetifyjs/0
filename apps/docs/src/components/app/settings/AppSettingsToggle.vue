@@ -32,7 +32,7 @@
       :aria-label="`Toggle ${label.toLowerCase()}`"
       :class="[
         'relative w-11 h-6 rounded-full transition-colors shrink-0',
-        model ? 'bg-primary' : 'bg-surface-variant',
+        model ? 'bg-primary' : 'bg-on-surface/20',
       ]"
       role="switch"
       type="button"

@@ -12,7 +12,7 @@
   // Themes
   import type { ThemeId } from '@/themes'
 
-  const { icon, title, preference, setPreference } = useThemeToggle()
+  const toggle = useThemeToggle()
 
   const isOpen = ref(false)
 
@@ -41,7 +41,7 @@
   ]
 
   function selectTheme (id: ThemePreference) {
-    setPreference(id)
+    toggle.setPreference(id)
   }
 </script>
 
@@ -50,9 +50,9 @@
     <Popover.Activator
       aria-label="Select theme"
       class="bg-surface-tint text-on-surface-tint pa-1 inline-flex rounded hover:bg-surface-variant transition-all cursor-pointer"
-      :title="title"
+      :title="toggle.title.value"
     >
-      <AppIcon :icon />
+      <AppIcon :icon="toggle.icon.value" />
     </Popover.Activator>
 
     <Popover.Content
@@ -60,6 +60,12 @@
       position-area="bottom span-left"
       position-try="bottom span-left, bottom span-right, top span-left, top span-right"
     >
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-3 ps-1">
+        <span class="text-xs font-semibold text-on-surface">Theme</span>
+        <AppCloseButton size="sm" @click="isOpen = false" />
+      </div>
+
       <!-- Mode -->
       <div class="mb-3">
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Mode</div>
@@ -67,10 +73,10 @@
           <button
             v-for="option in modeOptions"
             :key="option.id"
-            :aria-pressed="preference === option.id"
+            :aria-pressed="toggle.preference.value === option.id"
             :class="[
               'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              preference === option.id
+              toggle.preference.value === option.id
                 ? 'bg-primary/15 text-primary'
                 : 'hover:bg-surface-tint text-on-surface',
             ]"
@@ -89,10 +95,10 @@
         <button
           v-for="option in accessibilityOptions"
           :key="option.id"
-          :aria-pressed="preference === option.id"
+          :aria-pressed="toggle.preference.value === option.id"
           :class="[
             'w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-            preference === option.id
+            toggle.preference.value === option.id
               ? 'bg-primary/15 text-primary'
               : 'hover:bg-surface-tint text-on-surface',
           ]"
@@ -111,10 +117,10 @@
           <button
             v-for="option in vuetifyOptions"
             :key="option.id"
-            :aria-pressed="preference === option.id"
+            :aria-pressed="toggle.preference.value === option.id"
             :class="[
               'flex flex-col items-start gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-              preference === option.id
+              toggle.preference.value === option.id
                 ? 'bg-primary/15 text-primary'
                 : 'hover:bg-surface-tint text-on-surface',
             ]"

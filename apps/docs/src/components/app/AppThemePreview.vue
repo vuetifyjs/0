@@ -9,18 +9,18 @@
     theme: string
   }>()
 
-  const { allThemes } = useCustomThemes()
+  const themes = useCustomThemes()
 
   const colors = computed(() => {
-    const theme = allThemes.value[props.theme]
-    if (!theme) return []
+    const t = themes.allThemes.value[props.theme]
+    if (!t) return []
 
     return [
-      theme.colors.primary,
-      theme.colors.secondary,
-      theme.colors.accent,
-      theme.colors.surface,
-      theme.colors.background,
+      t.colors.primary,
+      t.colors.secondary,
+      t.colors.accent,
+      t.colors.surface,
+      t.colors.background,
     ]
   })
 </script>

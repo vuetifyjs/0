@@ -197,8 +197,8 @@ describe('useBreakpoints', () => {
 
       context.update()
 
-      expect(context.name.value).toBe('md')
-      expect(context.md.value).toBe(true)
+      expect(context.name.value).toBe('lg')
+      expect(context.lg.value).toBe(true)
     })
   })
 
@@ -244,7 +244,7 @@ describe('useBreakpoints', () => {
 
       expect(context.name.value).toBe('md')
       expect(context.md.value).toBe(true)
-      expect(context.isMobile.value).toBe(false) // md is default mobile breakpoint
+      expect(context.isMobile.value).toBe(true) // lg is default mobile breakpoint
       expect(context.mdAndUp.value).toBe(true)
       expect(context.mdAndDown.value).toBe(true)
     })
@@ -415,7 +415,7 @@ describe('useBreakpoints', () => {
     })
 
     it('should handle custom mobile breakpoint as string', () => {
-      mockWindow.innerWidth = 1200
+      mockWindow.innerWidth = 1100
 
       const context = createBreakpoints({
         namespace: 'v0:breakpoints',
@@ -424,7 +424,7 @@ describe('useBreakpoints', () => {
 
       context.update()
 
-      expect(context.isMobile.value).toBe(true) // 1200 < 1280 (lg breakpoint)
+      expect(context.isMobile.value).toBe(true) // 1100 < 1145 (lg breakpoint)
     })
 
     it('should handle custom mobile breakpoint as number', () => {
@@ -450,7 +450,7 @@ describe('useBreakpoints', () => {
 
       context.update()
 
-      expect(context.isMobile.value).toBe(false) // 1000 >= 960 (md breakpoint)
+      expect(context.isMobile.value).toBe(false) // 1000 >= 840 (md breakpoint)
     })
   })
 
@@ -498,7 +498,7 @@ describe('useBreakpoints', () => {
     })
 
     it('should handle breakpoint exactly at threshold', () => {
-      mockWindow.innerWidth = 960 // Exactly at md breakpoint
+      mockWindow.innerWidth = 840 // Exactly at md breakpoint
 
       const context = createBreakpoints()
       context.update()

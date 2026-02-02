@@ -18,7 +18,7 @@
     :aria-label="`Step ${current} of ${root.total.value}`"
     role="status"
   >
-    <slot :current :text :total="root.all.value">
+    <slot :current :text :total="root.total.value">
       {{ text }}
     </slot>
   </span>

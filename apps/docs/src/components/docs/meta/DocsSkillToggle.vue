@@ -9,9 +9,9 @@
     level: Level
   }>()
 
-  const { toggle, isSelected } = useLevelFilterContext()
+  const levelFilter = useLevelFilterContext()
 
-  const checked = computed(() => isSelected(props.level))
+  const checked = computed(() => levelFilter.isSelected(props.level))
 
   const colorClass = computed(() => {
     switch (props.level) {
@@ -38,7 +38,7 @@
     :class="checked ? colorClass : 'border-divider hover:border-on-surface-variant'"
     title="Toggle filter"
     type="button"
-    @click="toggle(level)"
+    @click="levelFilter.toggle(level)"
   >
     <AppIcon v-if="checked" icon="check" size="14" />
   </button>

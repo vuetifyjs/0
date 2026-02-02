@@ -1,12 +1,13 @@
 <script setup lang="ts">
   // Framework
-  import { useLogger } from '@vuetify/v0'
+  import { useIntersectionObserver, useLogger } from '@vuetify/v0'
 
   // Composables
+  import { useSettings } from '@/composables/useSettings'
   import { useThemeToggle } from '@/composables/useThemeToggle'
 
   // Utilities
-  import { computed, onMounted } from 'vue'
+  import { toRef, useTemplateRef } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -19,17 +20,19 @@
   const app = useAppStore()
   const releases = useReleasesStore()
   const logger = useLogger()
+  const settings = useSettings()
+  const toggle = useThemeToggle()
 
-  const { icon: themeIcon, title: themeTitle, toggle: toggleTheme } = useThemeToggle()
+  const footerRef = useTemplateRef<HTMLElement | null>('footer')
 
   const links = [
     { icon: 'github', href: 'https://github.com/vuetifyjs/0', label: 'GitHub', bg: 'bg-[#24292f]' },
-    { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-[#5865F2]' },
+    { icon: 'discord', href: 'https://discord.gg/vK6T89eNP7', label: 'Discord', bg: 'bg-discord' },
   ]
 
-  const latestRelease = computed(() => releases.releases[0])
+  const latest = toRef(() => releases.releases[0])
 
-  onMounted(async () => {
+  async function fetch () {
     // Fetch latest commit
     try {
       const octokit = await import('@/plugins/octokit').then(m => m.default)
@@ -50,30 +53,44 @@
     if (releases.releases.length === 0) {
       await releases.fetch()
     }
-  })
+  }
+
+  useIntersectionObserver(
+    footerRef,
+    entries => {
+      if (!entries[0]?.isIntersecting) return
+
+      fetch()
+    },
+    { once: true },
+  )
 </script>
 
 <template>
-  <footer class="app-footer py-4 border-t border-divider/50 bg-glass-surface" :class="inset && 'md:ml-[230px]'">
+  <footer
+    ref="footer"
+    class="app-footer py-4 border-t border-divider/50"
+    :class="[inset && 'md:ml-[230px]', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+  >
     <div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex flex-col md:flex-row items-center gap-4 text-sm opacity-60">
         <AppCopyright />
 
-        <template v-if="app.stats.commit || latestRelease">
+        <template v-if="app.stats.commit || latest">
           <div class="hidden md:block w-px h-4 bg-divider" />
 
           <div class="flex items-center gap-4">
             <AppLink
-              v-if="latestRelease"
+              v-if="latest"
               class="flex items-center gap-1 hover:text-primary hover:underline"
-              :title="`Last Released: ${new Date(latestRelease.published_at).toLocaleString()}`"
-              :to="`/releases?version=${latestRelease.tag_name}`"
+              :title="`Last Released: ${new Date(latest.published_at ?? '').toLocaleString()}`"
+              :to="`/releases?version=${latest.tag_name}`"
             >
               <AppIcon icon="tag" :size="14" />
-              {{ latestRelease.tag_name }}
+              {{ latest.tag_name }}
             </AppLink>
 
-            <template v-if="latestRelease && app.stats.commit">
+            <template v-if="latest && app.stats.commit">
               <div class="w-px h-4 bg-divider" />
             </template>
 
@@ -109,13 +126,13 @@
         <div class="hidden md:block w-px h-5 bg-divider" />
 
         <button
-          :aria-label="themeTitle"
+          :aria-label="toggle.title.value"
           class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-tint transition-colors text-on-surface"
-          :title="themeTitle"
+          :title="toggle.title.value"
           type="button"
-          @click="toggleTheme"
+          @click="toggle.toggle"
         >
-          <AppIcon :icon="themeIcon" :size="20" />
+          <AppIcon :icon="toggle.icon.value" :size="20" />
         </button>
       </div>
     </div>

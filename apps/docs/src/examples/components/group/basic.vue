@@ -11,10 +11,11 @@
       <Group.Item
         v-for="item in ['apple', 'banana', 'cherry']"
         :key="item"
-        v-slot="{ isSelected, toggle }"
+        v-slot="{ isSelected, toggle, attrs }"
         :value="item"
       >
         <button
+          v-bind="attrs"
           class="px-3 py-1.5 border rounded text-left text-sm"
           :class="isSelected ? 'bg-surface-tint border-primary' : 'bg-surface border-divider'"
           @click="toggle"
@@ -25,5 +26,5 @@
     </div>
   </Group.Root>
 
-  <p class="mt-4">Selected: {{ selected.join(', ') }}</p>
+  <div class="mt-4">Selected: {{ selected.join(', ') }}</div>
 </template>

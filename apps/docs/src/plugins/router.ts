@@ -16,6 +16,9 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
     // SSR safety - scrollBehavior only runs client-side but guard for clarity
     if (!IN_BROWSER) return { top: 0 }
 
+    // Avoid scrolling up (requires explicit params field)
+    if ((to.params as any).savePosition) return {}
+
     // If the user navigated via browser back/forward, restore their position
     if (savedPosition) return savedPosition
 

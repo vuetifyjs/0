@@ -4,14 +4,18 @@
  * @remarks
  * Renders markdown to HTML with syntax highlighting for code blocks.
  * Uses marked for parsing and Shiki for code highlighting.
+ *
+ * TODO: Dedupe with build/markdown.ts - shared logic includes:
+ * - Table wrapping (overflow-x-auto)
+ * - Callout detection ([!TIP], [!INFO], etc.)
+ * - Mermaid code block handling
+ * - VUE_API_NAMES inline code detection
+ * - Shiki themes and createApiTransformer()
  */
 
 // Build
-import { createApiTransformer, VUE_FUNCTIONS } from '@build/shiki-api-transformer'
+import { createApiTransformer, renderVueApiInlineCode } from '@build/shiki-api-transformer'
 import { Marked } from 'marked'
-
-// Composables
-import { useHighlighter } from './useHighlighter'
 
 // Utilities
 import { processLinks } from '@/utilities/processLinks'
@@ -96,12 +100,8 @@ function getMarked (hl: Highlighter): Marked {
         return `<div data-markup data-code="${encodedCode}" data-language="${escapeHtml(language)}">${highlighted}</div>`
       },
       codespan ({ text }) {
-        // Check if inline code is a Vue function
-        const vueHref = VUE_FUNCTIONS[text]
-        if (vueHref) {
-          return `<code data-vue-href="${escapeHtml(vueHref)}" title="Open Vue documentation">${escapeHtml(text)}</code>`
-        }
-        return `<code>${escapeHtml(text)}</code>`
+        // Check if inline code is a Vue API
+        return renderVueApiInlineCode(text, escapeHtml) ?? `<code>${escapeHtml(text)}</code>`
       },
     },
   })
@@ -113,7 +113,6 @@ function getMarked (hl: Highlighter): Marked {
  * Provides reactive markdown rendering with syntax-highlighted code blocks.
  */
 export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): UseMarkdownReturn {
-  const { highlighter, getHighlighter } = useHighlighter()
   const html = shallowRef('')
 
   async function render (source?: string) {
@@ -123,6 +122,8 @@ export function useMarkdown (content: MaybeRefOrGetter<string | undefined>): Use
       return
     }
 
+    const { useHighlighter } = await import('./useHighlighter')
+    const { highlighter, getHighlighter } = useHighlighter()
     const hl = highlighter.value ?? await getHighlighter()
     const marked = getMarked(hl)
 

@@ -329,6 +329,9 @@ describe('createThemePlugin', () => {
   })
 
   it('should inject CSS variables into DOM', async () => {
+    const mockStyleSheets: CSSStyleSheet[] = []
+    const spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
+
     const app = createApp({
       template: '<div>Test</div>',
     })
@@ -352,12 +355,13 @@ describe('createThemePlugin', () => {
 
     await nextTick()
 
-    const styleEl = document.querySelector('#v0-theme-stylesheet')
-    expect(styleEl).toBeTruthy()
-    expect(styleEl?.textContent).toContain('--v0-primary: #1976d2')
-    expect(styleEl?.textContent).toContain('--v0-secondary: #424242')
+    expect(mockStyleSheets.length).toBeGreaterThan(0)
+    const styleContent = mockStyleSheets[0]!.cssRules?.[0]?.cssText || ''
+    expect(styleContent).toContain('--v0-primary: #1976d2')
+    expect(styleContent).toContain('--v0-secondary: #424242')
 
     app.unmount()
+    spy.mockRestore()
   })
 
   it('should apply theme class to target element', async () => {

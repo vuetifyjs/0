@@ -15,29 +15,6 @@ related:
   - /composables/foundation/create-trinity
 ---
 
-<script setup>
-import TabsBasic from '@/examples/guide/building-frameworks/pattern-a/tabs-basic.vue'
-import TabsBasicRaw from '@/examples/guide/building-frameworks/pattern-a/tabs-basic.vue?raw'
-import TabsKeyboard from '@/examples/guide/building-frameworks/pattern-a/tabs-keyboard.vue'
-import TabsKeyboardRaw from '@/examples/guide/building-frameworks/pattern-a/tabs-keyboard.vue?raw'
-import Accordion from '@/examples/guide/building-frameworks/pattern-a/accordion.vue'
-import AccordionRaw from '@/examples/guide/building-frameworks/pattern-a/accordion.vue?raw'
-import Button from '@/examples/guide/building-frameworks/pattern-b/button.vue'
-import ButtonRaw from '@/examples/guide/building-frameworks/pattern-b/button.vue?raw'
-import Card from '@/examples/guide/building-frameworks/pattern-b/card.vue'
-import CardRaw from '@/examples/guide/building-frameworks/pattern-b/card.vue?raw'
-import Input from '@/examples/guide/building-frameworks/pattern-b/input.vue'
-import InputRaw from '@/examples/guide/building-frameworks/pattern-b/input.vue?raw'
-import PluginSetup from '@/examples/guide/building-frameworks/plugins/setup.vue'
-import PluginSetupRaw from '@/examples/guide/building-frameworks/plugins/setup.vue?raw'
-import HydrationGuard from '@/examples/guide/building-frameworks/ssr/hydration-guard.vue'
-import HydrationGuardRaw from '@/examples/guide/building-frameworks/ssr/hydration-guard.vue?raw'
-import TypeExtension from '@/examples/guide/building-frameworks/typescript/type-extension.vue'
-import TypeExtensionRaw from '@/examples/guide/building-frameworks/typescript/type-extension.vue?raw'
-import MyUiDemo from '@/examples/guide/building-frameworks/my-ui/demo.vue'
-import MyUiDemoRaw from '@/examples/guide/building-frameworks/my-ui/demo.vue?raw'
-</script>
-
 # Building Frameworks
 
 When building a component framework, you're often reimplementing the same patterns: selection state, keyboard navigation, form validation, and focus management. v0 provides these behaviors as headless primitives so you can focus on what makes your framework unique—its design language.
@@ -50,7 +27,7 @@ When building a component framework, you're often reimplementing the same patter
 
 Use `vuetify0 create` to scaffold a new project with v0 pre-configured:
 
-::: code-group
+::: code-group no-filename
 
 ```bash pnpm
 pnpm create vuetify0
@@ -74,7 +51,7 @@ bun create vuetify0
 
 Add v0 to an existing Vue project:
 
-::: code-group
+::: code-group no-filename
 
 ```bash pnpm
 pnpm add @vuetify/v0
@@ -183,25 +160,25 @@ Registry internals aren't directly exposed for template iteration. `useProxyRegi
 
 Use v0's composables directly when you need complex state management—selection, navigation, validation—but want full control over rendering.
 
-<DocsExample file="tabs-basic.vue" :code="TabsBasicRaw">
-  <TabsBasic />
-</DocsExample>
+::: example
+/guide/building-frameworks/pattern-a/tabs-basic
+:::
 
 ### Adding Keyboard Navigation
 
 v0 composables handle state; you add the interaction layer:
 
-<DocsExample file="tabs-keyboard.vue" :code="TabsKeyboardRaw">
-  <TabsKeyboard />
-</DocsExample>
+::: example
+/guide/building-frameworks/pattern-a/tabs-keyboard
+:::
 
 ### Multi-Selection with Groups
 
 Use `createGroup` for checkbox-style multi-selection with tri-state support:
 
-<DocsExample file="accordion.vue" :code="AccordionRaw">
-  <Accordion />
-</DocsExample>
+::: example
+/guide/building-frameworks/pattern-a/accordion
+:::
 
 > [!ASKAI] How does this compare to v0's built-in Tabs component?
 
@@ -213,9 +190,9 @@ Wrap v0's headless components with your design system's styling. v0 handles beha
 
 The `Atom` component provides polymorphic rendering via the `as` prop—render as any HTML element while keeping your component's API consistent:
 
-<DocsExample file="button.vue" :code="ButtonRaw">
-  <Button />
-</DocsExample>
+::: example
+/guide/building-frameworks/pattern-b/button
+:::
 
 > [!TIP]
 > The example uses [BEM naming](https://getbem.com/)—a convention for organizing CSS in component libraries. Blocks (`.my-button`), elements (`__icon`), and modifiers (`--filled`, `--primary`) create predictable, collision-free class names.
@@ -224,25 +201,25 @@ The `Atom` component provides polymorphic rendering via the `as` prop—render a
 
 Wrap v0's compound components with custom CSS. The components expose data attributes like `data-state` for styling different states:
 
-<DocsExample file="card.vue" :code="CardRaw">
-  <Card />
-</DocsExample>
+::: example
+/guide/building-frameworks/pattern-b/card
+:::
 
 ### Form Components
 
 v0's form components handle focus, keyboard interaction, and ARIA attributes. Apply your styles via classes:
 
-<DocsExample file="input.vue" :code="InputRaw">
-  <Input />
-</DocsExample>
+::: example
+/guide/building-frameworks/pattern-b/input
+:::
 
 ## Plugin Architecture
 
 v0's plugins follow Vue's [plugin pattern](https://vuejs.org/guide/reusability/plugins.html) with additional structure for namespaced context provision.
 
-<DocsExample file="setup.vue" :code="PluginSetupRaw">
-  <PluginSetup />
-</DocsExample>
+::: example
+/guide/building-frameworks/plugins/setup
+:::
 
 > [!TIP]
 > v0 plugins are designed to be order-independent. Each plugin gracefully handles missing dependencies by providing sensible fallbacks.
@@ -265,17 +242,17 @@ const { isHydrated } = useHydration()
 
 The `isHydrated` shallowRef is `false` during SSR and becomes `true` after the root component mounts. This prevents hydration mismatches when rendering browser-dependent content.
 
-<DocsExample file="hydration-guard.vue" :code="HydrationGuardRaw">
-  <HydrationGuard />
-</DocsExample>
+::: example
+/guide/building-frameworks/ssr/hydration-guard
+:::
 
 ## TypeScript Patterns
 
 v0 uses generics extensively. When extending composables, provide your custom ticket and context types:
 
-<DocsExample file="type-extension.vue" :code="TypeExtensionRaw">
-  <TypeExtension />
-</DocsExample>
+::: example
+/guide/building-frameworks/typescript/type-extension
+:::
 
 Vue's [shallowReactive](https://vuejs.org/api/reactivity-advanced.html#shallowreactive) and [computed](https://vuejs.org/api/reactivity-core.html#computed) are used internally—understanding these helps when debugging reactivity issues.
 
@@ -283,9 +260,9 @@ Vue's [shallowReactive](https://vuejs.org/api/reactivity-advanced.html#shallowre
 
 To see everything come together, we've included a complete example library that demonstrates the patterns in this guide.
 
-<DocsExample file="demo.vue" :code="MyUiDemoRaw">
-  <MyUiDemo />
-</DocsExample>
+::: example
+/guide/building-frameworks/my-ui/demo
+:::
 
 The example package includes:
 

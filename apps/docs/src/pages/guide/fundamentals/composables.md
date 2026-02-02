@@ -121,9 +121,9 @@ Standalone helpers:
 
 | Composable | Purpose |
 | - | - |
-| [useFilter](/composables/utilities/use-filter) | Array filtering |
-| [usePagination](/composables/utilities/use-pagination) | Page navigation |
-| [useVirtual](/composables/utilities/use-virtual) | Virtual scrolling |
+| [createFilter](/composables/utilities/create-filter) | Array filtering |
+| [createPagination](/composables/utilities/create-pagination) | Page navigation |
+| [createVirtual](/composables/utilities/create-virtual) | Virtual scrolling |
 
 ## Usage Patterns
 
@@ -323,7 +323,7 @@ Minimal. Plugin installation runs once at app startup:
 flowchart LR
     A[app.use] --> B[provide to app root]
     B --> C[Component mounts]
-    C --> D[inject - O(1) lookup]
+    C --> D["inject - O(1) lookup"]
     D --> E[Cache reference]
 ```
 
@@ -336,14 +336,14 @@ Yes. Composables are designed for composition:
 ```ts
 import {
   createSelection,
-  useFilter,
-  usePagination,
+  createFilter,
+  createPagination,
 } from '@vuetify/v0'
 
 // Each composable manages its own state
 const selection = createSelection({ multiple: true })
-const filter = useFilter()
-const pagination = usePagination({ itemsPerPage: 10 })
+const filter = createFilter()
+const pagination = createPagination({ itemsPerPage: 10 })
 
 // Wire them together
 const filtered = filter.apply(query, items)

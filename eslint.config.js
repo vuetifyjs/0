@@ -86,14 +86,9 @@ export default vuetify({
   },
 },
 {
-  files: ['apps/docs/src/examples/**/*.vue'],
+  files: ['apps/docs/src/examples/**/*.vue', 'apps/docs/src/examples/**/*.ts'],
   rules: {
-    'perfectionist/sort-imports': ['error', {
-      type: 'natural',
-      order: 'asc',
-      ignoreCase: true,
-      newlinesBetween: 'always',
-    }],
+    'perfectionist/sort-imports': 'off',
   },
 },
 {

@@ -9,10 +9,8 @@
   import { useAsk } from '@/composables/useAsk'
 
   // Utilities
-  import { computed, onMounted, shallowRef, useTemplateRef, nextTick, watch } from 'vue'
-
-  // Stores
-  import { useAppStore } from '@/stores/app'
+  import { onMounted, shallowRef, toRef, useTemplateRef, nextTick, watch } from 'vue'
+  import { useRoute } from 'vue-router'
 
   const props = defineProps<{
     hasMessages?: boolean
@@ -23,19 +21,20 @@
     reopen: []
   }>()
 
-  const app = useAppStore()
-  const { focusTrigger } = useAsk()
+  const ask = useAsk()
+  const route = useRoute()
 
-  watch(focusTrigger, () => {
-    nextTick(() => focus())
+  // Hide on skillz pages (they have their own focused UI)
+  const isVisible = toRef(() => !route.path.startsWith('/skillz'))
+
+  watch(ask.focusTrigger, () => {
+    if (!ask.isOpen.value) {
+      nextTick(() => focus())
+    }
   })
 
   const formRef = useTemplateRef<{ focus: () => void }>('form')
   const isNearBottom = shallowRef(false)
-  const isMobile = shallowRef(true)
-
-  // Hide when near bottom, or when drawer is open on mobile (< 768px)
-  const isHidden = computed(() => isNearBottom.value || (app.drawer && isMobile.value))
 
   function onSubmit (question: string) {
     emit('submit', question)
@@ -59,17 +58,10 @@
     isNearBottom.value = distanceFromBottom < 200
   }
 
-  function updateMobile () {
-    if (!IN_BROWSER) return
-    isMobile.value = window.innerWidth < 768
-  }
-
   useWindowEventListener('scroll', onScroll, { passive: true })
-  useWindowEventListener('resize', updateMobile, { passive: true })
 
   onMounted(() => {
     onScroll()
-    updateMobile()
   })
 
   defineExpose({ focus })
@@ -78,10 +70,11 @@
 <template>
   <Transition name="fade">
     <div
-      v-show="!isHidden"
-      class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-sm px-4"
+      v-if="isVisible"
+      v-show="!isNearBottom"
+      class="fixed bottom-4 inset-x-0 mx-auto z-40 w-full max-w-sm px-4"
     >
-      <Discovery.Activator class="rounded-2xl" :step="['ask-ai', 'ask-ai-reopen']">
+      <Discovery.Activator class="rounded-2xl" step="ask-ai">
         <DocsAskForm
           ref="form"
           aria-label="Ask a question about this page"
@@ -94,15 +87,3 @@
     </div>
   </Transition>
 </template>
-
-<style scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.2s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-</style>

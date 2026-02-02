@@ -35,7 +35,6 @@ function flattenRoutes (nav: NavItem): string[] {
 
 export const useAppStore = defineStore('app', {
   state: () => ({
-    drawer: false,
     nav: navData as NavItem[],
     stats: {
       commit: null as Commit | null,

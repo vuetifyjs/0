@@ -40,7 +40,7 @@ export default defineNuxtConfig({
       { from: '@vuetify/v0', name: 'createGroup' },
       { from: '@vuetify/v0', name: 'createSingle' },
       { from: '@vuetify/v0', name: 'createStep' },
-      { from: '@vuetify/v0', name: 'usePagination' },
+      { from: '@vuetify/v0', name: 'createPagination' },
       { from: '@vuetify/v0', name: 'useForm' },
       { from: '@vuetify/v0', name: 'useHydration' },
       { from: '@vuetify/v0', name: 'useBreakpoints' },
@@ -169,7 +169,7 @@ To sync theme changes back to the cookie:
 | `useHydration` | Full | Designed for SSR/client state sync |
 | `useBreakpoints` | Partial | Returns defaults on server, measures on client |
 | `useStorage` | Partial | Uses memory adapter on server |
-| `usePagination` | Full | Width-based calculation defers to client |
+| `createPagination` | Full | Width-based calculation defers to client |
 | Observer composables | Partial | No-op on server, activate on client |
 
 ## Common Patterns

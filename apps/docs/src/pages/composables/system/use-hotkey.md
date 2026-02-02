@@ -15,11 +15,6 @@ related:
   - /composables/system/use-click-outside
 ---
 
-<script setup lang="ts">
-import CommandPaletteExample from '@/examples/composables/use-hotkey/command-palette.vue'
-import CommandPaletteExampleRaw from '@/examples/composables/use-hotkey/command-palette.vue?raw'
-</script>
-
 # useHotkey
 
 A composable for handling hotkey combinations and sequences with platform-aware modifiers and automatic cleanup.
@@ -70,13 +65,9 @@ The `useHotkey` composable registers hotkey handlers on the window with automati
 
 ## Examples
 
-### Command Palette
-
-A searchable command palette with keyboard navigation and platform-aware shortcuts.
-
-<DocsExample file="command-palette.vue" :code="CommandPaletteExampleRaw">
-  <CommandPaletteExample />
-</DocsExample>
+::: example
+/composables/use-hotkey/command-palette
+:::
 
 ## Architecture
 

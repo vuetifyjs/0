@@ -275,17 +275,75 @@ function resolveImportPath (importPath: string): string | null {
 }
 
 /**
+ * Utility types that wrap other types and need special handling.
+ * For each, we extract the first type argument as the base type.
+ */
+const UTILITY_TYPES = new Set(['Omit', 'Pick', 'Partial', 'Required', 'Readonly'])
+
+/**
+ * Parse a utility type expression to extract the base interface name and omitted keys.
+ * e.g., "Omit<SelectionContext<Z, E>, 'register' | 'onboard'>" returns:
+ *   { interfaceName: 'SelectionContext', omittedKeys: ['register', 'onboard'] }
+ */
+function parseUtilityType (extendsClause: string): { interfaceName: string, omittedKeys: Set<string> } | null {
+  // Check if this is a utility type wrapper
+  const utilityMatch = extendsClause.match(/^(\w+)<(.+)>$/)
+  if (!utilityMatch) return null
+
+  const [, utilityName, innerContent] = utilityMatch
+  if (!UTILITY_TYPES.has(utilityName)) return null
+
+  // For Omit<BaseType<...>, 'key1' | 'key2'>, we need to extract BaseType and the keys
+  // Split on the first comma that's not inside angle brackets
+  let depth = 0
+  let splitIndex = -1
+  for (let i = 0; i < innerContent.length; i++) {
+    const char = innerContent.charAt(i)
+    if (char === '<') depth++
+    else if (char === '>') depth--
+    else if (char === ',' && depth === 0) {
+      splitIndex = i
+      break
+    }
+  }
+
+  // Extract the base interface (first argument)
+  const baseTypeStr = splitIndex > 0
+    ? innerContent.slice(0, splitIndex).trim()
+    : innerContent.trim()
+
+  // Extract interface name without generics
+  const interfaceName = baseTypeStr.replace(/<.*>$/, '')
+
+  // Extract omitted keys (for Omit)
+  const omittedKeys = new Set<string>()
+  if (utilityName === 'Omit' && splitIndex > 0) {
+    const keysStr = innerContent.slice(splitIndex + 1).trim()
+    // Parse string literals like "'register' | 'onboard'"
+    const keyMatches = keysStr.matchAll(/'([^']+)'/g)
+    for (const match of keyMatches) {
+      omittedKeys.add(match[1])
+    }
+  }
+
+  return { interfaceName, omittedKeys }
+}
+
+/**
  * Get the interface declaration for a base interface referenced in an extends clause.
  * Handles cross-file resolution by parsing imports and loading source files.
+ * Also handles utility types like Omit, Pick, Partial that wrap interfaces.
  */
 function resolveBaseInterface (
   sourceFile: ReturnType<Project['addSourceFileAtPath']>,
   extendsClause: string,
-): InterfaceDeclaration | undefined {
+): { iface: InterfaceDeclaration, omittedKeys: Set<string> } | undefined {
   const proj = getProject()
 
-  // Extract interface name from extends clause (e.g., "SingleContext<Z>" -> "SingleContext")
-  const interfaceName = extendsClause.replace(/<.*>$/, '')
+  // Check if this is a utility type wrapper (e.g., Omit<...>, Pick<...>)
+  const utilityParsed = parseUtilityType(extendsClause)
+  const interfaceName = utilityParsed?.interfaceName ?? extendsClause.replace(/<.*>$/, '')
+  const omittedKeys = utilityParsed?.omittedKeys ?? new Set<string>()
 
   // Find the import declaration for this interface
   const importDecl = sourceFile.getImportDeclarations().find(decl => {
@@ -310,7 +368,10 @@ function resolveBaseInterface (
     }
   }
 
-  return baseSourceFile.getInterface(interfaceName)
+  const iface = baseSourceFile.getInterface(interfaceName)
+  if (!iface) return undefined
+
+  return { iface, omittedKeys }
 }
 
 function getJsDocInfo (node: JSDocableNode): { description?: string, example?: string } {
@@ -347,14 +408,17 @@ function extractInterfaceMembers (
     const seen = new Set<string>()
 
     // Recursive function to extract from interface and its base interfaces
-    function extractFromInterface (current: InterfaceDeclaration) {
+    // omittedFromParent contains keys to skip when processing parent interfaces
+    function extractFromInterface (current: InterfaceDeclaration, omittedFromParent = new Set<string>()) {
       // First, process base interfaces via extends clause
       // We manually resolve because getBaseDeclarations() doesn't work across files
       const extendsClauses = current.getExtends()
       for (const ext of extendsClauses) {
-        const baseInterface = resolveBaseInterface(current.getSourceFile(), ext.getText())
-        if (baseInterface) {
-          extractFromInterface(baseInterface)
+        const resolved = resolveBaseInterface(current.getSourceFile(), ext.getText())
+        if (resolved) {
+          // Combine omitted keys from this level with any from parent
+          const combinedOmitted = new Set([...omittedFromParent, ...resolved.omittedKeys])
+          extractFromInterface(resolved.iface, combinedOmitted)
         }
       }
 
@@ -362,6 +426,7 @@ function extractInterfaceMembers (
       for (const prop of current.getProperties()) {
         const name = prop.getName()
         if (seen.has(name)) continue // Skip if already added by derived
+        if (omittedFromParent.has(name)) continue // Skip if omitted by Omit<>
         seen.add(name)
 
         const type = prop.getType().getText(prop)
@@ -377,6 +442,7 @@ function extractInterfaceMembers (
       for (const method of current.getMethods()) {
         const name = method.getName()
         if (seen.has(name)) continue
+        if (omittedFromParent.has(name)) continue // Skip if omitted by Omit<>
         seen.add(name)
 
         const params = method.getParameters().map(p => `${p.getName()}: ${p.getType().getText(p)}`).join(', ')
@@ -403,14 +469,17 @@ function extractOptionsMembers (
   const seen = new Set<string>()
 
   // Recursive function to extract from interface and its base interfaces
-  function extractFromInterface (current: InterfaceDeclaration) {
+  // omittedFromParent contains keys to skip when processing parent interfaces
+  function extractFromInterface (current: InterfaceDeclaration, omittedFromParent = new Set<string>()) {
     // First, process base interfaces via extends clause
     // We manually resolve because getBaseDeclarations() doesn't work across files
     const extendsClauses = current.getExtends()
     for (const ext of extendsClauses) {
-      const baseInterface = resolveBaseInterface(current.getSourceFile(), ext.getText())
-      if (baseInterface) {
-        extractFromInterface(baseInterface)
+      const resolved = resolveBaseInterface(current.getSourceFile(), ext.getText())
+      if (resolved) {
+        // Combine omitted keys from this level with any from parent
+        const combinedOmitted = new Set([...omittedFromParent, ...resolved.omittedKeys])
+        extractFromInterface(resolved.iface, combinedOmitted)
       }
     }
 
@@ -418,6 +487,7 @@ function extractOptionsMembers (
     for (const prop of current.getProperties()) {
       const name = prop.getName()
       if (seen.has(name)) continue // Skip if already added by derived
+      if (omittedFromParent.has(name)) continue // Skip if omitted by Omit<>
       seen.add(name)
 
       const type = prop.getType().getText(prop)

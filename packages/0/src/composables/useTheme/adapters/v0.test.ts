@@ -162,14 +162,18 @@ describe('vuetify0ThemeAdapter', () => {
   })
 
   describe('browser environment', () => {
+    let spy: ReturnType<typeof vi.spyOn>
+    let mockStyleSheets: CSSStyleSheet[]
+
     beforeEach(() => {
       mockInBrowser.value = true
+      mockStyleSheets = []
+      spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
     })
 
     afterEach(() => {
       mockInBrowser.value = false
-      // Clean up any injected styles
-      for (const el of document.querySelectorAll('style[id^="v0"]')) el.remove()
+      spy.mockRestore()
     })
 
     it('should create and inject stylesheet', () => {
@@ -177,9 +181,9 @@ describe('vuetify0ThemeAdapter', () => {
 
       adapter.upsert(':root { --primary: #1976d2; }')
 
-      const styleEl = document.querySelector('#v0-theme-stylesheet')
-      expect(styleEl).not.toBeNull()
-      expect(styleEl?.textContent).toContain('--primary: #1976d2')
+      const styleEls = document.adoptedStyleSheets
+      expect(styleEls.length).toBe(1)
+      expect(styleEls[0]!.cssRules[0]?.cssText).toContain('--primary: #1976d2')
     })
 
     it('should update existing stylesheet', () => {
@@ -188,18 +192,9 @@ describe('vuetify0ThemeAdapter', () => {
       adapter.upsert(':root { --primary: #1976d2; }')
       adapter.upsert(':root { --primary: #2196f3; }')
 
-      const styleEls = document.querySelectorAll('#v0-theme-stylesheet')
+      const styleEls = document.adoptedStyleSheets
       expect(styleEls.length).toBe(1)
-      expect(styleEls[0]?.textContent).toContain('--primary: #2196f3')
-    })
-
-    it('should set CSP nonce when provided', () => {
-      const adapter = new Vuetify0ThemeAdapter({ cspNonce: 'abc123' })
-
-      adapter.upsert(':root { --primary: #1976d2; }')
-
-      const styleEl = document.querySelector('#v0-theme-stylesheet')
-      expect(styleEl?.getAttribute('nonce')).toBe('abc123')
+      expect(styleEls[0]!.cssRules[0]?.cssText).toContain('--primary: #2196f3')
     })
 
     it('should set data-theme attribute on target element', async () => {
@@ -289,14 +284,29 @@ describe('vuetify0ThemeAdapter', () => {
       scope.stop()
     })
 
-    it('should handle stylesheetId starting with #', () => {
-      const adapter = new Vuetify0ThemeAdapter({ stylesheetId: '#my-styles' })
+    it('should use adoptedStyleSheets when available', () => {
+      const replaceSyncMock = vi.fn()
+      const CSSStyleSheetMock = vi.fn(function () {
+        return { replaceSync: replaceSyncMock }
+      })
+      vi.stubGlobal('CSSStyleSheet', CSSStyleSheetMock)
 
-      adapter.upsert(':root { --test: red; }')
+      Object.defineProperty(document, 'adoptedStyleSheets', {
+        value: [],
+        writable: true,
+        configurable: true,
+      })
 
-      const styleEl = document.querySelector('#my-styles')
-      expect(styleEl).not.toBeNull()
-      expect(styleEl?.id).toBe('my-styles')
+      const adapter = new Vuetify0ThemeAdapter()
+      const styles = ':root { --primary: #1976d2; }'
+
+      adapter.upsert(styles)
+
+      expect(CSSStyleSheetMock).toHaveBeenCalled()
+      expect(replaceSyncMock).toHaveBeenCalledWith(styles)
+      expect((document as any).adoptedStyleSheets).toHaveLength(1)
+
+      vi.unstubAllGlobals()
     })
   })
 })

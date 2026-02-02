@@ -2,7 +2,7 @@
 import { createApiTransformer } from '@build/shiki-api-transformer'
 
 // Composables
-import { useHighlighter } from './useHighlighter'
+import { useIdleCallback } from './useIdleCallback'
 
 // Utilities
 import { type MaybeRefOrGetter, onMounted, onScopeDispose, shallowRef, toValue, watch } from 'vue'
@@ -15,6 +15,10 @@ export interface UseHighlightCodeOptions {
   lang?: string
   /** Whether to highlight immediately on mount. Defaults to true */
   immediate?: boolean
+  /** Defer initial highlighting to idle time. Defaults to false */
+  idle?: boolean
+  /** Timeout for idle callback in ms. Defaults to 2000 */
+  idleTimeout?: number
   /** Debounce delay in ms for code changes. Defaults to 50 */
   debounce?: number
 }
@@ -23,12 +27,16 @@ export interface UseHighlightCodeOptions {
  * Provides reactive code highlighting using Shiki.
  * Handles highlighter initialization and automatic re-highlighting on code changes.
  */
+async function loadHighlighter () {
+  const { useHighlighter } = await import('./useHighlighter')
+  return useHighlighter()
+}
+
 export function useHighlightCode (
   code: MaybeRefOrGetter<string | undefined>,
   options: UseHighlightCodeOptions = {},
 ) {
-  const { lang = 'vue', immediate = true, debounce = 50 } = options
-  const { highlighter, getHighlighter } = useHighlighter()
+  const { lang = 'vue', immediate = true, idle = false, idleTimeout = 2000, debounce = 50 } = options
   const highlightedCode = shallowRef('')
   const isLoading = shallowRef(false)
   const showLoader = shallowRef(false)
@@ -52,6 +60,7 @@ export function useHighlightCode (
       showLoader.value = true
     }, 100)
 
+    const { highlighter, getHighlighter } = await loadHighlighter()
     const hl = highlighter.value ?? await getHighlighter()
 
     highlightedCode.value = hl.codeToHtml(value, {
@@ -74,7 +83,13 @@ export function useHighlightCode (
   if (immediate) {
     onMounted(() => {
       const value = toValue(code)
-      if (value) highlight(value)
+      if (!value) return
+
+      if (idle) {
+        useIdleCallback(() => highlight(value), idleTimeout)
+      } else {
+        highlight(value)
+      }
     })
 
     watch(

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Components
-  import DocsAlert from './DocsAlert.vue'
+  import DocsCallout from './DocsCallout.vue'
   import DocsMarkup from './DocsMarkup.vue'
   import DocsMermaid from './DocsMermaid.vue'
 
@@ -20,7 +20,7 @@
 
   const isUser = toRef(() => props.role === 'user')
   const isAssistant = toRef(() => props.role === 'assistant')
-  const { html } = useMarkdown(toRef(() => isAssistant.value ? props.content : undefined))
+  const markdown = useMarkdown(toRef(() => isAssistant.value ? props.content : undefined))
 
   const contentRef = useTemplateRef<HTMLElement>('content')
   const appContext = getCurrentInstance()?.appContext
@@ -104,7 +104,7 @@
       el.replaceWith(wrapper)
       mountedWrappers.add(wrapper)
 
-      const vnode = h(DocsAlert, { type }, {
+      const vnode = h(DocsCallout, { type }, {
         default: () => h('div', { innerHTML: content }),
       })
       vnode.appContext = appContext ?? null
@@ -151,10 +151,10 @@
   >
     <!-- Rendered markdown -->
     <div
-      v-if="html"
+      v-if="markdown.html"
       ref="content"
       class="markdown-body"
-      v-html="html"
+      v-html="markdown.html"
     />
 
     <!-- Streaming indicator -->
