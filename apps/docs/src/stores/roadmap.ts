@@ -42,20 +42,37 @@ function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
   return Date.now() - entry.timestamp < CACHE_TTL
 }
 
-function getHorizon (milestone: GitHubMilestone): TimeHorizon {
-  if (milestone.state === 'closed') return 'done'
-  if (!milestone.due_on) return 'later'
+/**
+ * Assigns horizons based on due date order:
+ * - 1st by due date = now (actively being worked on)
+ * - 2nd-3rd = next
+ * - 4th+ or no due date = later
+ */
+function assignHorizons (milestones: GitHubMilestone[]): Milestone[] {
+  // Separate by due date presence
+  const withDueDate = milestones.filter(m => m.due_on)
+  const withoutDueDate = milestones.filter(m => !m.due_on)
 
-  const now = Date.now()
-  const due = new Date(milestone.due_on).getTime()
-  const daysUntilDue = (due - now) / (1000 * 60 * 60 * 24)
+  // Sort by due date (ascending - soonest first)
+  withDueDate.sort((a, b) =>
+    new Date(a.due_on!).getTime() - new Date(b.due_on!).getTime(),
+  )
 
-  // Now: due within 30 days or overdue
-  if (daysUntilDue <= 30) return 'now'
-  // Next: due within 90 days
-  if (daysUntilDue <= 90) return 'next'
-  // Later: everything else
-  return 'later'
+  // Assign horizons by position
+  const assigned: Milestone[] = withDueDate.map((m, index) => {
+    let horizon: TimeHorizon = 'later'
+    if (index === 0) horizon = 'now'
+    else if (index <= 2) horizon = 'next'
+    return { ...m, horizon }
+  })
+
+  // Milestones without due dates are "later"
+  const later: Milestone[] = withoutDueDate.map(m => ({
+    ...m,
+    horizon: 'later',
+  }))
+
+  return [...assigned, ...later]
 }
 
 function isRateLimited (status: number): boolean {
@@ -114,7 +131,7 @@ export const useRoadmapStore = defineStore('roadmap', {
         ])
 
         this.milestones = [
-          ...openMilestones.map(m => ({ ...m, horizon: getHorizon(m) })),
+          ...assignHorizons(openMilestones),
           ...closedMilestones.map(m => ({ ...m, horizon: 'done' as TimeHorizon })),
         ]
 
