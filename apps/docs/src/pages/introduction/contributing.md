@@ -73,7 +73,7 @@ pnpm dev:docs
 
 ### Project Structure
 
-```text
+```txt
 ├── packages/
 │   └── 0/              # @vuetify/v0 - main package
 │       ├── src/
@@ -140,7 +140,7 @@ Use descriptive branch names:
 
 Follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
 
-```text
+```txt
 type(scope): subject
 ```
 
@@ -214,10 +214,22 @@ describe('useSelection', () => {
 })
 ```
 
-## Questions?
+## Skillz Feedback
 
-- [Discord](https://community.vuetifyjs.com) - Real-time chat and questions
-- [GitHub Issues](https://github.com/vuetifyjs/0/issues) - Bug reports and feature requests
+[Vuetify0 Skillz](/skillz) is our interactive tutorial system currently in beta. We're actively developing new content and improving the learning experience.
+
+### How to Give Feedback
+
+- **Content issues**: Typos, unclear instructions, or incorrect examples
+- **Technical problems**: Bugs in the interactive editor or validation
+- **Suggestions**: New skill ideas or improvements to existing ones
+
+When reporting issues, please include:
+
+- The skill name and step number
+- What you expected vs what happened
+- Browser and OS information
+
+> [!DISCORD]
 
 Thank you for contributing!
-

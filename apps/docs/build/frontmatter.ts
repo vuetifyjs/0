@@ -13,6 +13,7 @@ export interface Frontmatter {
     hidden?: boolean
     level?: 1 | 2 | 3
     emphasized?: boolean
+    devmode?: boolean
   }
 }
 
@@ -84,6 +85,8 @@ export function parseFrontmatter (content: string): ParseResult {
         features.level = Number.parseInt(trimmed.slice(6).trim(), 10) as 1 | 2 | 3
       } else if (trimmed.startsWith('emphasized:')) {
         features.emphasized = trimmed.slice(11).trim() === 'true'
+      } else if (trimmed.startsWith('devmode:')) {
+        features.devmode = trimmed.slice(8).trim() === 'true'
       }
     }
   }

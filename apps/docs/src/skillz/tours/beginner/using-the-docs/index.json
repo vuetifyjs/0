@@ -1,0 +1,103 @@
+{
+  "mode": "guided",
+  "id": "using-the-docs",
+  "name": "Using the Docs",
+  "level": 1,
+  "track": "essentials",
+  "categories": ["meta"],
+  "order": 0,
+  "prerequisites": [],
+  "description": "Learn where everything lives and how to get the most out of the docs.",
+  "minutes": 3,
+  "startRoute": "/introduction/why-vuetify0",
+  "steps": [
+    {
+      "id": "search",
+      "title": "Search",
+      "task": "Find anything instantly. Search covers components, composables, guides—even deep API references.",
+      "hint": "",
+      "learn": "Instantly locate any component or guide"
+    },
+    {
+      "id": "navigation",
+      "title": "Navigation",
+      "task": "Your map to everything. Browse by category or expand sections to explore what's available.",
+      "hint": "",
+      "learn": "Navigate the full documentation structure",
+      "placement": "right"
+    },
+    {
+      "id": "toc",
+      "title": "Table of Contents",
+      "task": "Jump to any section. Click a heading to skip straight there—no scrolling required.",
+      "hint": "Not available on mobile devices.",
+      "learn": "Jump directly to any section on a page",
+      "placement": "left",
+      "skipOnMobile": true
+    },
+    {
+      "id": "page-actions",
+      "title": "Page Actions",
+      "task": "Spot something wrong? Edit it on GitHub, report it, or grab the source—directly from any page.",
+      "hint": "",
+      "learn": "Report issues or contribute improvements"
+    },
+    {
+      "id": "page-metadata",
+      "title": "Page Metadata",
+      "task": "Know what you're getting into. Skill level, test coverage, and performance tier—at a glance.",
+      "hint": "",
+      "learn": "Assess feature complexity before diving in",
+      "placementMobile": "top"
+    },
+    {
+      "id": "ask-ai",
+      "title": "Ask AI",
+      "task": "Stuck? Ask AI knows this page inside out. Ask anything and get an answer in seconds.",
+      "hint": "",
+      "learn": "Get instant answers without leaving the page",
+      "placement": "top"
+    },
+    {
+      "id": "ask-ai-panel",
+      "title": "Ask AI Panel",
+      "task": "Your conversation lives here. Scroll back through history or pick up where you left off.",
+      "hint": "",
+      "learn": "Continue conversations across sessions",
+      "placement": "left",
+      "placementMobile": "top"
+    },
+    {
+      "id": "ask-ai-features",
+      "title": "Conversation Tools",
+      "task": "Save, copy, or start fresh. Your AI conversations can be exported to Vuetify Bin for later.",
+      "hint": "",
+      "learn": "Save and export AI conversations",
+      "placement": "left",
+      "placementMobile": "bottom"
+    },
+    {
+      "id": "settings",
+      "title": "Settings",
+      "task": "Make it yours. Toggle themes, adjust layout, and filter content to match how you work.",
+      "hint": "",
+      "learn": "Customize the docs to your preferences"
+    },
+    {
+      "id": "skill-level",
+      "title": "Skill Levels",
+      "task": "Show what matters. Beginner sticks to fundamentals. Advanced unlocks everything.",
+      "hint": "",
+      "learn": "Filter content to match your experience",
+      "placement": "left",
+      "placementMobile": "top"
+    },
+    {
+      "id": "complete",
+      "title": "Tour Complete",
+      "task": "You've got the lay of the land. Go explore—or dive into another tour when you're ready.",
+      "hint": "",
+      "learn": "Confidently navigate the entire docs site"
+    }
+  ]
+}

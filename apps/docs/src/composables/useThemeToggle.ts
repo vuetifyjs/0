@@ -57,7 +57,7 @@ export interface UseThemeToggleReturn {
 }
 
 // Shared singleton state - ensures all consumers see the same preference
-const preference = shallowRef<ThemePreference>('system')
+const preference = shallowRef<ThemePreference>('dark')
 
 /**
  * Check if a preference is valid (preset or custom theme)
@@ -85,7 +85,7 @@ export function useThemeToggle (): UseThemeToggleReturn {
     const storedPreference = storage.get<string>('theme')
     preference.value = isValidPreference(storedPreference.value)
       ? storedPreference.value
-      : 'system'
+      : 'dark'
 
     // Watch preference and system theme changes together
     // When preference is 'system', react to prefersDark changes

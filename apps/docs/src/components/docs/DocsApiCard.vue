@@ -1,10 +1,13 @@
 <script setup lang="ts">
+  // Framework
+  import { useTheme } from '@vuetify/v0'
+
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { shallowRef, watch } from 'vue'
+  import { computed, shallowRef, watch } from 'vue'
 
   // Types
   import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '@build/generate-api'
@@ -17,23 +20,22 @@
     headingTag?: 'h3' | 'h4'
   }>()
 
-  const {
-    uid,
-    expandedExamples,
-    highlightedExamples,
-    scrollToAnchor,
-    toggleExample,
-    formatSignature,
-  } = useApiHelpers()
+  const api = useApiHelpers()
+  const theme = useTheme()
+  const settings = useSettings()
 
-  const { lineWrap: defaultLineWrap } = useSettings()
-  const lineWrap = shallowRef(defaultLineWrap.value)
+  const lineWrap = shallowRef(settings.lineWrap.value)
 
-  watch(defaultLineWrap, val => {
+  watch(settings.lineWrap, val => {
     lineWrap.value = val
   })
 
-  const exampleKey = `${props.kind}-${props.item.name}`
+  const key = `${props.kind}-${props.item.name}`
+
+  const language = computed(() => {
+    if (!('example' in props.item) || !props.item.example) return null
+    return /^<(?:template|script)/.test(props.item.example.trim()) ? 'vue' : 'ts'
+  })
 </script>
 
 <template>
@@ -47,7 +49,7 @@
         <a
           class="header-anchor"
           :href="`#${item.name}`"
-          @click.prevent="scrollToAnchor(item.name)"
+          @click.prevent="api.scrollToAnchor(item.name)"
         >
           <span class="text-sm font-semibold font-mono text-primary">{{ item.name }}</span>
 
@@ -64,7 +66,7 @@
         v-if="item.type || ('signature' in item && item.signature)"
         class="text-xs mt-1 inline-block font-mono bg-surface-variant px-1.5 py-0.5 rounded"
       >
-        {{ 'signature' in item ? item.signature : ['option', 'prop', 'event', 'slot'].includes(kind) ? item.type : formatSignature(item as ApiProperty | ApiMethod) }}
+        {{ 'signature' in item ? item.signature : ['option', 'prop', 'event', 'slot'].includes(kind) ? item.type : api.formatSignature(item as ApiProperty | ApiMethod) }}
       </code>
 
       <p
@@ -86,38 +88,43 @@
     <template v-if="'example' in item && item.example">
       <div class="border-t border-divider bg-surface-tint">
         <button
-          :aria-controls="`${uid}-${exampleKey}`"
-          :aria-expanded="expandedExamples.has(exampleKey)"
+          :aria-controls="`${api.uid}-${key}`"
+          :aria-expanded="api.expanded.value.has(key)"
           class="w-full px-4 py-3 bg-transparent border-none font-inherit text-sm cursor-pointer flex items-center gap-2 text-on-surface transition-colors hover:bg-surface hover:text-primary focus-visible:bg-surface focus-visible:text-primary"
           type="button"
-          @click="toggleExample(exampleKey, item.example)"
+          @click="api.toggle(key, item.example)"
         >
-          <AppIcon v-if="expandedExamples.has(exampleKey)" icon="chevron-up" :size="16" />
+          <AppIcon v-if="api.expanded.value.has(key)" icon="chevron-up" :size="16" />
           <AppIcon v-else icon="code" :size="16" />
         </button>
       </div>
 
       <div
-        v-if="expandedExamples.has(exampleKey) && highlightedExamples[exampleKey]"
-        :id="`${uid}-${exampleKey}`"
-        class="relative bg-pre group"
+        v-if="api.expanded.value.has(key) && api.highlighted[key]"
+        :id="`${api.uid}-${key}`"
+        class="docs-api-card relative bg-pre group"
+        :class="{ 'docs-api-card--wrap': lineWrap.value }"
+        :data-theme="theme.isDark.value ? 'dark' : 'light'"
       >
+        <span
+          v-if="language"
+          class="absolute top-3 left-3 z-10 px-1.5 py-0.5 text-xs font-mono opacity-50 uppercase"
+        >
+          {{ language }}
+        </span>
+
         <DocsCodeActions
           v-model:wrap="lineWrap"
           bin
           class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
-          :code="highlightedExamples[exampleKey]?.code ?? ''"
+          :code="api.highlighted[key]?.code ?? ''"
           language="typescript"
           show-copy
           show-wrap
           :title="item.name"
         />
 
-        <div
-          class="[&_.shiki]:rounded-none [&_.shiki]:border-0 [&_.shiki]:m-0 [&_pre]:p-4 [&_pre]:pr-20 [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:m-0 [&_pre]:border-0 [&_pre]:outline-0"
-          :class="lineWrap && '[&_pre]:whitespace-pre-wrap [&_pre]:break-words'"
-          v-html="highlightedExamples[exampleKey]?.html ?? ''"
-        />
+        <div v-html="api.highlighted[key]?.html ?? ''" />
       </div>
     </template>
   </div>

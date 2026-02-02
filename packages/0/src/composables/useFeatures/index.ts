@@ -12,6 +12,7 @@
  * - Auto-selection of enabled features
  * - Multi-select support for feature combinations
  * - Perfect for A/B testing, progressive rollout, feature toggles
+ * - Adapter pattern for external feature flag services
  *
  * Inheritance chain: useRegistry → createSelection → createGroup → createFeatures
  * Integrates with useTokens for token-based features.
@@ -27,24 +28,58 @@ import { createGroup } from '#v0/composables/createGroup'
 import { createTokens } from '#v0/composables/createTokens'
 
 // Utilities
-import { isBoolean, isObject } from '#v0/utilities'
+import { isArray, isBoolean, isFunction, isObject } from '#v0/utilities'
 
 // Types
-import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
+import type { GroupContext, GroupTicket, GroupTicketInput } from '#v0/composables/createGroup'
 import type { RegistryOptions } from '#v0/composables/createRegistry'
-import type { TokenCollection, TokenValue } from '#v0/composables/createTokens'
+import type { TokenCollection } from '#v0/composables/createTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ID } from '#v0/types'
+import type { FeaturesAdapterInterface, FeaturesAdapterFlags } from '#v0/composables/useFeatures/adapters'
+import type { ID, MaybeArray } from '#v0/types'
 import type { App } from 'vue'
 
-export interface FeatureTicket extends GroupTicket<TokenValue> {}
+export type { FeaturesAdapterFlags, FeaturesAdapterInterface, FeaturesAdapterValue } from '#v0/composables/useFeatures/adapters'
+export { FeaturesAdapter } from '#v0/composables/useFeatures/adapters'
 
-export interface FeatureContext<Z extends FeatureTicket = FeatureTicket> extends GroupContext<Z> {
-  /* Get the variation value of a feature, or a fallback if not set */
+/**
+ * Input type for feature tickets - what users provide to register().
+ */
+export interface FeatureTicketInput extends GroupTicketInput {}
+
+/**
+ * Output type for feature tickets - what users receive from get().
+ */
+export type FeatureTicket<Z extends FeatureTicketInput = FeatureTicketInput> = GroupTicket<Z>
+
+export interface FeatureContext<
+  Z extends FeatureTicketInput = FeatureTicketInput,
+  E extends FeatureTicket<Z> = FeatureTicket<Z>,
+> extends Omit<GroupContext<Z, E>, 'register'> {
+  /**
+   * Get the variation value of a feature, or a fallback if not set.
+   *
+   * @param id The feature ID.
+   * @param fallback The fallback value if the feature has no variation.
+   */
   variation: (id: ID, fallback?: unknown) => unknown
+  /**
+   * Sync feature flags from an external source.
+   *
+   * @param flags The flags to sync, typically from an adapter.
+   *
+   * @remarks This updates existing flags and registers new ones.
+   * Use this when adapter flags change to update the registry.
+   */
+  sync: (flags: FeaturesAdapterFlags) => void
+  /** Register a feature (accepts input type, returns output type) */
+  register: (registration?: Partial<Z>) => E
 }
 
 export interface FeatureOptions extends RegistryOptions {
+  /**
+   * Static feature flags to register.
+   */
   features?: Record<ID, boolean | TokenCollection>
 }
 
@@ -52,7 +87,14 @@ export interface FeatureContextOptions extends FeatureOptions {
   namespace?: string
 }
 
-export interface FeaturePluginOptions extends FeatureContextOptions {}
+export interface FeaturePluginOptions extends FeatureContextOptions {
+  /**
+   * Feature flag adapter for external services.
+   *
+   * @remarks Adapters provide dynamic flag values from external services.
+   */
+  adapter?: MaybeArray<FeaturesAdapterInterface>
+}
 
 /**
  * Creates a new features instance.
@@ -78,15 +120,17 @@ export interface FeaturePluginOptions extends FeatureContextOptions {}
  * ```
  */
 export function createFeatures<
-  Z extends FeatureTicket = FeatureTicket,
-  E extends FeatureContext<Z> = FeatureContext<Z>,
-> (_options: FeatureOptions = {}): E {
+  Z extends FeatureTicketInput = FeatureTicketInput,
+  E extends FeatureTicket<Z> = FeatureTicket<Z>,
+  R extends FeatureContext<Z, E> = FeatureContext<Z, E>,
+> (_options: FeatureOptions = {}): R {
   const { features, ...options } = _options
+
   const tokens = createTokens(features, { flat: true })
-  const registry = createGroup<Z, E>(options)
+  const registry = createGroup<Z, E>({ ...options, reactive: true })
 
   for (const [id, { value }] of tokens.entries()) {
-    register({ id, value } as Partial<Z>)
+    register({ id, value } as unknown as Partial<Z>)
   }
 
   function variation (id: ID, fallback: unknown = null) {
@@ -97,13 +141,13 @@ export function createFeatures<
     return isObject(ticket.value) ? ticket.value.$variation ?? fallback : ticket.value ?? fallback
   }
 
-  function register (registration: Partial<Z> = {}): Z {
-    const item: Partial<Z> = {
+  function register (registration: Partial<Z> = {} as Partial<Z>): E {
+    const item = {
       value: false,
       ...registration,
     }
 
-    const ticket = registry.register(item)
+    const ticket = registry.register(item as unknown as Partial<Z>)
 
     if (
       (isBoolean(ticket.value) && ticket.value === true) || (
@@ -119,14 +163,37 @@ export function createFeatures<
     return ticket
   }
 
+  function sync (flags: FeaturesAdapterFlags): void {
+    for (const [id, value] of Object.entries(flags)) {
+      const existing = registry.get(id)
+
+      if (existing) {
+        const shouldSelect = isBoolean(value)
+          ? value === true
+          : isObject(value) && isBoolean(value.$value) && value.$value === true
+
+        registry.upsert(id, { value } as unknown as Partial<E>)
+
+        if (shouldSelect) {
+          registry.select(id)
+        } else {
+          registry.unselect(id)
+        }
+      } else {
+        register({ id, value } as Partial<Z>)
+      }
+    }
+  }
+
   return {
     ...registry,
     variation,
     register,
+    sync,
     get size () {
       return registry.size
     },
-  } as E
+  } as unknown as R
 }
 
 /**
@@ -153,18 +220,19 @@ export function createFeatures<
  * ```
  */
 export function createFeaturesContext<
-  Z extends FeatureTicket = FeatureTicket,
-  E extends FeatureContext<Z> = FeatureContext<Z>,
-> (_options: FeatureContextOptions = {}): ContextTrinity<E> {
+  Z extends FeatureTicketInput = FeatureTicketInput,
+  E extends FeatureTicket<Z> = FeatureTicket<Z>,
+  R extends FeatureContext<Z, E> = FeatureContext<Z, E>,
+> (_options: FeatureContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:features', ...options } = _options
-  const [useFeaturesContext, _provideFeaturesContext] = createContext<E>(namespace)
-  const context = createFeatures<Z, E>(options)
+  const [useFeaturesContext, _provideFeaturesContext] = createContext<R>(namespace)
+  const context = createFeatures<Z, E, R>(options)
 
-  function provideFeaturesContext (_context: E = context, app?: App): E {
+  function provideFeaturesContext (_context: R = context, app?: App): R {
     return _provideFeaturesContext(_context, app)
   }
 
-  return createTrinity<E>(useFeaturesContext, provideFeaturesContext, context)
+  return createTrinity<R>(useFeaturesContext, provideFeaturesContext, context)
 }
 
 /**
@@ -198,16 +266,34 @@ export function createFeaturesContext<
  * ```
  */
 export function createFeaturesPlugin<
-  Z extends FeatureTicket = FeatureTicket,
-  E extends FeatureContext<Z> = FeatureContext<Z>,
+  Z extends FeatureTicketInput = FeatureTicketInput,
+  E extends FeatureTicket<Z> = FeatureTicket<Z>,
+  R extends FeatureContext<Z, E> = FeatureContext<Z, E>,
 > (_options: FeaturePluginOptions = {}) {
-  const { namespace = 'v0:features', ...options } = _options
-  const [, provideFeaturesContext, context] = createFeaturesContext<Z, E>({ ...options, namespace })
+  const { namespace = 'v0:features', adapter, ...options } = _options
+  const [, provideFeaturesContext, context] = createFeaturesContext<Z, E, R>({ ...options, namespace })
 
   return createPlugin({
     namespace,
     provide: (app: App) => {
       provideFeaturesContext(context, app)
+    },
+    setup: (app: App) => {
+      if (!adapter) return
+
+      const adapters = isArray(adapter) ? adapter : [adapter]
+
+      for (const adapter of adapters) {
+        const initialFlags = adapter.setup(flags => {
+          context.sync(flags)
+        })
+
+        context.sync(initialFlags)
+
+        if (isFunction(adapter.dispose)) {
+          app.onUnmount(() => adapter.dispose!())
+        }
+      }
     },
   })
 }
@@ -238,8 +324,9 @@ export function createFeaturesPlugin<
  * ```
  */
 export function useFeatures<
-  Z extends FeatureTicket = FeatureTicket,
-  E extends FeatureContext<Z> = FeatureContext<Z>,
-> (namespace = 'v0:features'): E {
-  return useContext<E>(namespace)
+  Z extends FeatureTicketInput = FeatureTicketInput,
+  E extends FeatureTicket<Z> = FeatureTicket<Z>,
+  R extends FeatureContext<Z, E> = FeatureContext<Z, E>,
+> (namespace = 'v0:features'): R {
+  return useContext<R>(namespace)
 }

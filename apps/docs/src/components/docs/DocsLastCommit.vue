@@ -59,7 +59,7 @@
 <template>
   <a
     v-if="app.stats.commit"
-    class="inline-flex items-center gap-1"
+    class="icon-text"
     :href="app.stats.commit.html_url"
     rel="noopener nofollow"
     target="_blank"

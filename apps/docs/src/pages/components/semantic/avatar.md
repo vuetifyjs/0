@@ -15,11 +15,6 @@ related:
   - /components/primitives/atom
 ---
 
-<script setup>
-import BasicExample from '@/examples/components/avatar/basic.vue'
-import BasicExampleRaw from '@/examples/components/avatar/basic.vue?raw'
-</script>
-
 # Avatar
 
 A headless component for managing image loading with priority-based fallback system.
@@ -30,9 +25,9 @@ A headless component for managing image loading with priority-based fallback sys
 
 The Avatar component provides a robust image loading system with automatic fallback handling. It manages multiple image sources with priority ordering and only displays the highest-priority loaded image or fallback content.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
-  <BasicExample />
-</DocsExample>
+::: example
+/components/avatar/basic
+:::
 
 ## Anatomy
 

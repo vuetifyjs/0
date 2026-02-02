@@ -2,6 +2,15 @@
 
 VitePress-style documentation for @vuetify/v0. SSG build with vite-ssg.
 
+## Commit Convention
+
+**Always use `docs` as the type for changes in this app.** Never use `fix(docs)` or `feat(docs)`.
+
+```
+docs: message                  # No scope needed
+docs(ComponentName): message   # With scope when specific
+```
+
 ## Commands
 
 ```bash
@@ -13,11 +22,42 @@ pnpm preview   # Preview build
 ## Stack
 
 - **SSG**: vite-ssg (generates static HTML)
-- **Routing**: unplugin-vue-router (file-based)
+- **Routing**: unplugin-vue-router (file-based) + vite-plugin-vue-layouts-next
 - **Markdown**: unplugin-vue-markdown + Shiki + Mermaid
 - **Styling**: UnoCSS with `presetWind4()` (Tailwind v4 syntax, integrated reset)
 - **State**: Pinia
 - **PWA**: vite-plugin-pwa
+
+## Routing & Layouts
+
+Available layouts: `default`, `fullscreen`, `home` (in `src/layouts/`)
+
+### Independent Routes with Custom Layouts
+
+Files inside a folder with an `index.md` are treated as **nested routes** that inherit the parent's layout. To create a route with its own independent layout, use **dot notation** at the pages root:
+
+```
+# WRONG - [id].vue inherits index.md's default layout
+pages/
+  skillz/
+    index.md      → /skillz (default layout)
+    [id].vue      → /skillz/:id (NESTED, inherits default layout)
+
+# CORRECT - dot notation creates independent route
+pages/
+  skillz/
+    index.md      → /skillz (default layout)
+  skillz.[id].vue → /skillz/:id (independent, uses its own layout)
+```
+
+Set layout in Vue files with `definePage()`:
+```ts
+definePage({
+  meta: {
+    layout: 'fullscreen',
+  },
+})
+```
 
 ## UnoCSS Theme
 
@@ -100,7 +140,7 @@ build/
 
 | Component | Purpose |
 |-----------|---------|
-| `DocsAlert` | GitHub-style callouts (`> [!TIP]`, `> [!WARNING]`, `> [!ERROR]`, `> [!ASKAI]`) |
+| `DocsCallout` | GitHub-style callouts (`> [!TIP]`, `> [!WARNING]`, `> [!ERROR]`, `> [!ASKAI]`) |
 | `DocsExample` | Live examples from `examples/` with code |
 | `DocsMarkup` | Syntax-highlighted code blocks |
 | `DocsApi` | Auto-generated API tables with inline/links toggle |
@@ -154,7 +194,7 @@ import BasicExampleRaw from '@/examples/components/tabs/basic.vue?raw'
 - **Always prefer @vuetify/v0 composables** over raw browser APIs or custom implementations. Check `mcp__vuetify-mcp__get_vuetify0_composable_list` before writing event listeners, observers, or state management.
 - UnoCSS utilities for all styling
 - Prefer markdown for documentation pages
-- **Callouts**: Use `> [!TIP]`, `> [!WARNING]`, `> [!ERROR]` for alerts. Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user.
+- **Callouts**: Use `> [!TIP]`, `> [!WARNING]`, `> [!ERROR]` for alerts. Use `> [!ASKAI] question` to prompt Ask AI—phrase as a question the user would ask (e.g., "How do I add validation?"), not a question to the user. Use `> [!TOUR] tour-id` to embed a clickable tour callout—the tour name and description are pulled from the discovery registry automatically.
 - **Vue code in markdown fences**: Indent `<script>` and `<style>` content by 2 spaces for visual alignment with `<template>`
 - Examples: `src/examples/components/{component}/` or `src/examples/composables/{composable}/`
 - Component docs: `pages/components/{category}/{component}.md`

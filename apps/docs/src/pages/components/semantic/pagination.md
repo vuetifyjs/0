@@ -12,13 +12,8 @@ features:
   renderless: false
   level: 2
 related:
-  - /composables/utilities/use-pagination
+  - /composables/utilities/create-pagination
 ---
-
-<script setup>
-import BasicExample from '@/examples/components/pagination/basic.vue'
-import BasicExampleRaw from '@/examples/components/pagination/basic.vue?raw'
-</script>
 
 # Pagination
 
@@ -28,11 +23,11 @@ A headless component for creating page navigation with proper ARIA support.
 
 ## Usage
 
-The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the [usePagination](/composables/utilities/use-pagination) and [useOverflow](/composables/utilities/use-overflow) composable internally.
+The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the [createPagination](/composables/utilities/create-pagination) and [createOverflow](/composables/utilities/create-overflow) composable internally.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
-  <BasicExample />
-</DocsExample>
+::: example
+/components/pagination/basic
+:::
 
 ## Anatomy
 

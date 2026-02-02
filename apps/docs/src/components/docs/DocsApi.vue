@@ -19,7 +19,7 @@
   const route = useRoute()
   const data = apiData as ApiData
   const { showInlineApi: defaultInlineApi } = useSettings()
-  const { toKebab } = useApiHelpers()
+  const helpers = useApiHelpers()
 
   // Local state initialized from global default, syncs when global changes
   const showInlineApi = shallowRef(defaultInlineApi.value)
@@ -110,19 +110,19 @@
       v-else
       :key="api.name"
     >
-      <DocsHeaderAnchor :id="toKebab(api.name)" class="mt-8">
+      <DocsHeaderAnchor :id="helpers.toKebab(api.name)" class="mt-8">
         {{ api.name }}
       </DocsHeaderAnchor>
 
       <DocsApiSection
-        :anchor-id="`${toKebab(api.name)}-props`"
+        :anchor-id="`${helpers.toKebab(api.name)}-props`"
         :items="api.props"
         kind="prop"
         title="Props"
       />
 
       <DocsApiSection
-        :anchor-id="`${toKebab(api.name)}-events`"
+        :anchor-id="`${helpers.toKebab(api.name)}-events`"
         class="mt-8"
         :items="api.events"
         kind="event"
@@ -130,7 +130,7 @@
       />
 
       <DocsApiSection
-        :anchor-id="`${toKebab(api.name)}-slots`"
+        :anchor-id="`${helpers.toKebab(api.name)}-slots`"
         class="mt-8"
         :items="api.slots"
         kind="slot"

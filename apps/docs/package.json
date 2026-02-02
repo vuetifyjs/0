@@ -1,6 +1,6 @@
 {
   "name": "@vuetify-private/docs",
-  "version": "0.0.24",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,7 +15,6 @@
     "@shikijs/themes": "catalog:",
     "@types/markdown-it-attrs": "catalog:",
     "@unhead/vue": "catalog:",
-    "lightningcss": "catalog:",
     "markdown-it-anchor": "catalog:",
     "markdown-it-attrs": "catalog:",
     "shiki": "catalog:",
@@ -27,7 +26,6 @@
     "unplugin-vue-router": "catalog:",
     "vite": "catalog:",
     "vite-plugin-pwa": "catalog:",
-    "vite-plugin-vue-devtools": "catalog:",
     "vite-plugin-vue-layouts-next": "catalog:",
     "vite-ssg": "catalog:",
     "vite-ssg-sitemap": "catalog:",

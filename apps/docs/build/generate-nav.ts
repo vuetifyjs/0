@@ -19,6 +19,7 @@ export interface NavItemLink {
   to: string
   level?: 1 | 2 | 3
   emphasized?: boolean
+  devmode?: boolean
   children?: NavItem[]
 }
 
@@ -41,6 +42,7 @@ interface PageInfo {
   hidden: boolean
   level?: 1 | 2 | 3
   emphasized?: boolean
+  devmode?: boolean
 }
 
 // Section configuration - defines structure and ordering
@@ -54,7 +56,7 @@ const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootP
 
 // Subcategory ordering within sections
 const SUBCATEGORY_ORDER: Record<string, string[]> = {
-  guide: ['fundamentals', 'features', 'integration', 'tooling'],
+  guide: ['essentials', 'fundamentals', 'features', 'integration', 'tooling'],
   components: ['primitives', 'providers', 'disclosure', 'forms', 'semantic'],
   composables: ['foundation', 'registration', 'selection', 'forms', 'reactivity', 'system', 'plugins', 'utilities', 'transformers'],
 }
@@ -63,6 +65,7 @@ const SUBCATEGORY_ORDER: Record<string, string[]> = {
 const STANDALONE: Record<string, { order: number, name: string }> = {
   'releases.md': { order: 1, name: 'Release Notes' },
   'roadmap.md': { order: 1.1, name: 'Roadmap' },
+  'skillz/index.md': { order: 1.2, name: 'Skillz' },
   'storybook/index.md': { order: 1.5, name: 'Storybook' },
 }
 
@@ -113,6 +116,15 @@ function toNavLink (p: PageInfo): NavItemLink {
   const link: NavItemLink = { name: p.name, to: p.urlPath }
   if (p.level) link.level = p.level
   if (p.emphasized) link.emphasized = p.emphasized
+  if (p.devmode) link.devmode = p.devmode
+  return link
+}
+
+function toStandaloneNavLink (name: string, to: string, frontmatter: Frontmatter): NavItemLink {
+  const link: NavItemLink = { name, to }
+  if (frontmatter.features?.level) link.level = frontmatter.features.level
+  if (frontmatter.features?.emphasized) link.emphasized = true
+  if (frontmatter.features?.devmode) link.devmode = true
   return link
 }
 
@@ -175,6 +187,7 @@ function createPageInfo (relPath: string, file: string, name: string, frontmatte
     hidden: false,
     level: frontmatter.features?.level,
     emphasized: frontmatter.features?.emphasized,
+    devmode: frontmatter.features?.devmode,
   }
 }
 
@@ -194,10 +207,8 @@ async function generateNav (): Promise<NavItem[]> {
     // Handle standalone pages
     if (STANDALONE[relPath]) {
       const { order, name } = STANDALONE[relPath]
-      standalonePages.push({
-        item: { name, to: getUrlPath(file) },
-        order,
-      })
+      const item = toStandaloneNavLink(name, getUrlPath(file), frontmatter)
+      standalonePages.push({ item, order })
       continue
     }
 

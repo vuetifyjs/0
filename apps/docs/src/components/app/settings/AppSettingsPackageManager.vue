@@ -5,7 +5,7 @@
   // Types
   import type { SingleSelectOption } from './AppSettingsSingleSelect.vue'
 
-  const { packageManager } = useSettings()
+  const settings = useSettings()
 
   const packageManagerOptions: SingleSelectOption<PackageManager>[] = [
     { id: 'pnpm', value: 'pnpm', label: 'pnpm' },
@@ -19,7 +19,7 @@
   <section>
     <AppSettingsHeader icon="download" title="Package Manager" />
     <AppSettingsSingleSelect
-      v-model="packageManager"
+      v-model="settings.packageManager.value"
       aria-label="Package manager"
       :columns="4"
       mono

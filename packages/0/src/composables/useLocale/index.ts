@@ -33,7 +33,7 @@ import { instanceExists, isString } from '#v0/utilities'
 import { toArray } from '#v0/composables/toArray'
 
 // Types
-import type { SingleContext, SingleOptions, SingleTicket } from '#v0/composables/createSingle'
+import type { SingleContext, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { TokenCollection } from '#v0/composables/createTokens'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
@@ -47,9 +47,20 @@ export type { LocaleAdapter } from '#v0/composables/useLocale/adapters'
 
 export type LocaleRecord = TokenCollection
 
-export type LocaleTicket = SingleTicket
+/**
+ * Input type for locale tickets - what users provide to register().
+ */
+export interface LocaleTicketInput extends SingleTicketInput {}
 
-export interface LocaleContext<Z extends LocaleTicket> extends SingleContext<Z> {
+/**
+ * Output type for locale tickets - what users receive from get().
+ */
+export type LocaleTicket<Z extends LocaleTicketInput = LocaleTicketInput> = SingleTicket<Z>
+
+export interface LocaleContext<
+  Z extends LocaleTicketInput = LocaleTicketInput,
+  E extends LocaleTicket<Z> = LocaleTicket<Z>,
+> extends Omit<SingleContext<Z, E>, 'register'> {
   /**
    * Translate a message key with optional parameters and fallback.
    *
@@ -74,6 +85,8 @@ export interface LocaleContext<Z extends LocaleTicket> extends SingleContext<Z> 
    */
   t: (key: string, params?: Record<string, unknown>, fallback?: string) => string
   n: (value: number) => string
+  /** Register a locale (accepts input type, returns output type) */
+  register: (registration?: Partial<Z>) => E
 }
 
 export interface LocaleOptions<Z extends LocaleRecord = LocaleRecord> extends SingleOptions {
@@ -99,15 +112,16 @@ export interface LocalePluginOptions extends LocaleContextOptions {}
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
 export function createLocale<
-  Z extends LocaleTicket = LocaleTicket,
-  E extends LocaleContext<Z> = LocaleContext<Z>,
-> (_options: LocaleOptions = {}): E {
+  Z extends LocaleTicketInput = LocaleTicketInput,
+  E extends LocaleTicket<Z> = LocaleTicket<Z>,
+  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
+> (_options: LocaleOptions = {}): R {
   const { adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
   const tokens = createTokens(messages)
   const registry = createSingle<Z, E>(options)
 
   for (const id in messages) {
-    registry.register({ id } as Partial<Z>)
+    registry.register({ id } as unknown as Partial<Z>)
 
     if (id === options.default && !registry.selectedId.value) {
       registry.select(id as ID)
@@ -165,13 +179,14 @@ export function createLocale<
     get size () {
       return registry.size
     },
-  } as E
+  } as unknown as R
 }
 
 export function createLocaleFallback<
-  Z extends LocaleTicket = LocaleTicket,
-  E extends LocaleContext<Z> = LocaleContext<Z>,
-> (): E {
+  Z extends LocaleTicketInput = LocaleTicketInput,
+  E extends LocaleTicket<Z> = LocaleTicket<Z>,
+  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
+> (): R {
   return {
     size: 0,
     t: (
@@ -180,7 +195,7 @@ export function createLocaleFallback<
       fallback?: string,
     ) => fallback ?? key,
     n: String,
-  } as unknown as E
+  } as unknown as R
 }
 
 /**
@@ -214,18 +229,19 @@ export function createLocaleFallback<
  * ```
  */
 export function createLocaleContext<
-  Z extends LocaleTicket = LocaleTicket,
-  E extends LocaleContext<Z> = LocaleContext<Z>,
-> (_options: LocaleContextOptions = {}): ContextTrinity<E> {
+  Z extends LocaleTicketInput = LocaleTicketInput,
+  E extends LocaleTicket<Z> = LocaleTicket<Z>,
+  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
+> (_options: LocaleContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:locale', ...options } = _options
-  const [useLocaleContext, _provideLocaleContext] = createContext<E>(namespace)
-  const context = createLocale<Z, E>(options)
+  const [useLocaleContext, _provideLocaleContext] = createContext<R>(namespace)
+  const context = createLocale<Z, E, R>(options)
 
-  function provideLocaleContext (_context: E = context, app?: App): E {
+  function provideLocaleContext (_context: R = context, app?: App): R {
     return _provideLocaleContext(_context, app)
   }
 
-  return createTrinity<E>(useLocaleContext, provideLocaleContext, context)
+  return createTrinity<R>(useLocaleContext, provideLocaleContext, context)
 }
 
 /**
@@ -241,11 +257,12 @@ export function createLocaleContext<
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
 export function createLocalePlugin<
-  Z extends LocaleTicket = LocaleTicket,
-  E extends LocaleContext<Z> = LocaleContext<Z>,
+  Z extends LocaleTicketInput = LocaleTicketInput,
+  E extends LocaleTicket<Z> = LocaleTicket<Z>,
+  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
 > (_options: LocalePluginOptions = {}) {
   const { namespace = 'v0:locale', adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
-  const [, provideLocaleContext, context] = createLocaleContext<Z, E>({ ...options, namespace, adapter, messages })
+  const [, provideLocaleContext, context] = createLocaleContext<Z, E, R>({ ...options, namespace, adapter, messages })
 
   return createPlugin({
     namespace,
@@ -263,15 +280,16 @@ export function createLocalePlugin<
  * @see https://0.vuetifyjs.com/composables/plugins/use-locale
  */
 export function useLocale<
-  Z extends LocaleTicket = LocaleTicket,
-  E extends LocaleContext<Z> = LocaleContext<Z>,
-> (namespace = 'v0:locale'): E {
-  const fallback = createLocaleFallback<Z, E>()
+  Z extends LocaleTicketInput = LocaleTicketInput,
+  E extends LocaleTicket<Z> = LocaleTicket<Z>,
+  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
+> (namespace = 'v0:locale'): R {
+  const fallback = createLocaleFallback<Z, E, R>()
 
   if (!instanceExists()) return fallback
 
   try {
-    return useContext<E>(namespace, fallback)
+    return useContext<R>(namespace, fallback)
   } catch {
     return fallback
   }

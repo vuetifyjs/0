@@ -15,11 +15,6 @@ related:
   - /composables/selection/create-selection
 ---
 
-<script setup>
-import BasicExample from '@/examples/composables/create-nested/basic.vue'
-import BasicExampleRaw from '@/examples/composables/create-nested/basic.vue?raw'
-</script>
-
 # createNested
 
 The `createNested` composable extends `createGroup` to manage hierarchical tree structures. It provides parent-child relationship tracking, open/close state management, tree traversal utilities, and pluggable open strategies.
@@ -30,9 +25,9 @@ The `createNested` composable extends `createGroup` to manage hierarchical tree 
 
 The `createNested` composable manages hierarchical tree structures with parent-child relationships, open/close states, and tree traversal.
 
-<DocsExample file="basic.vue" :code="BasicExampleRaw">
-  <BasicExample />
-</DocsExample>
+::: example
+/composables/create-nested/basic
+:::
 
 ## Architecture
 

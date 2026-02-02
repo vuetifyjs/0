@@ -80,7 +80,7 @@ app.use(
 
 ### Basic Plugin
 
-```ts plugins/analytics.ts
+```ts src/plugins/analytics.ts
 import { createContext, createPlugin } from '@vuetify/v0'
 
 interface AnalyticsContext {
@@ -109,7 +109,7 @@ export { useAnalytics }
 
 ### Plugin with Options
 
-```ts plugins/analytics.ts
+```ts src/plugins/analytics.ts
 interface AnalyticsOptions {
   apiKey: string
   debug?: boolean
@@ -142,7 +142,7 @@ app.use(createAnalyticsPlugin({ apiKey: 'xxx', debug: true }))
 
 For extensible plugins that support multiple backends:
 
-```ts plugins/logger.ts
+```ts src/plugins/logger.ts collapse
 interface LoggerAdapter {
   log: (level: string, message: string) => void
 }

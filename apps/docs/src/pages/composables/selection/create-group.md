@@ -15,11 +15,6 @@ related:
   - /components/providers/group
 ---
 
-<script setup lang="ts">
-import ChipFilterExample from '@/examples/composables/create-group/chip-filter.vue'
-import ChipFilterExampleRaw from '@/examples/composables/create-group/chip-filter.vue?raw'
-</script>
-
 # createGroup
 
 The `createGroup` composable is designed to manage a group of related components, allowing for shared state and behavior across them. It supports tri-state (mixed/indeterminate) for checkbox trees and similar use cases where items can be selected, unselected, or in a mixed state.
@@ -58,13 +53,9 @@ console.log(group.selectedIndexes.value) // Set {}
 
 ## Examples
 
-### Chip Filter
-
-Multi-select chips with tri-state "select all" and live result filtering.
-
-<DocsExample file="chip-filter.vue" :code="ChipFilterExampleRaw">
-  <ChipFilterExample />
-</DocsExample>
+::: example
+/composables/create-group/chip-filter
+:::
 
 ## Architecture
 

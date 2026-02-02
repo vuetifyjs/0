@@ -9,7 +9,7 @@ features:
   order: 1
   level: 1
 related:
-  - /guide/using-the-docs
+  - /guide/essentials/using-the-docs
   - /composables
   - /components
 ---
@@ -28,21 +28,21 @@ The fastest way to start a new Vuetify0 project is with the CLI.
 
 Standalone scaffolding tool for Vuetify0 projects using <AppIcon icon="vuetify-create" class="align-sub" /> [Vuetify Create](https://github.com/vuetifyjs/cli/tree/master/packages/create0).
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm create vuetify0
 ```
 
-```bash npm no-filename
+```bash npm
 npm create vuetify0
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn create vuetify0
 ```
 
-```bash bun no-filename
+```bash bun
 bun create vuetify0
 ```
 
@@ -52,21 +52,21 @@ bun create vuetify0
 
 Full-featured CLI with additional presets and options using <AppIcon icon="vuetify-cli" class="align-sub" /> [Vuetify CLI](/guide/tooling/vuetify-cli).
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm dlx @vuetify/cli init --type vuetify0
 ```
 
-```bash npm no-filename
+```bash npm
 npx @vuetify/cli init --type vuetify0
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn dlx @vuetify/cli init --type vuetify0
 ```
 
-```bash bun no-filename
+```bash bun
 bunx @vuetify/cli init --type vuetify0
 ```
 
@@ -74,27 +74,30 @@ bunx @vuetify/cli init --type vuetify0
 
 Both options scaffold a complete project with UnoCSS, theming, and example components pre-configured.
 
+> [!TIP]
+> Use the Skill Filter to narrow down navigation to match your experience level: <AppSkillFilter />
+
 ## Manual Setup
 
 To add v0 to an existing project, follow the steps below.
 
 ### Create Vue Project
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm create vue@latest
 ```
 
-```bash npm no-filename
+```bash npm
 npm create vue@latest
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn create vue
 ```
 
-```bash bun no-filename
+```bash bun
 bun create vue@latest
 ```
 
@@ -104,21 +107,21 @@ bun create vue@latest
 
 Install `@vuetify/v0` with your preferred package manager:
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm add @vuetify/v0
 ```
 
-```bash npm no-filename
+```bash npm
 npm install @vuetify/v0
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn add @vuetify/v0
 ```
 
-```bash bun no-filename
+```bash bun
 bun add @vuetify/v0
 ```
 
@@ -127,11 +130,10 @@ bun add @vuetify/v0
 Create a plugin file to configure v0:
 
 ```ts src/plugins/vuetify0.ts
-import { createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
+import { createThemePlugin } from '@vuetify/v0'
 import type { App } from 'vue'
 
 export default function zero (app: App) {
-  app.use(createHydrationPlugin())
   app.use(
     createThemePlugin({
       default: 'light',
@@ -212,21 +214,21 @@ v0 is style-agnostic. Choose your preferred CSS framework and map theme colors t
 
 #### 1. Install
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm add -D unocss @unocss/preset-wind
 ```
 
-```bash npm no-filename
+```bash npm
 npm install -D unocss @unocss/preset-wind
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn add -D unocss @unocss/preset-wind
 ```
 
-```bash bun no-filename
+```bash bun
 bun add -D unocss @unocss/preset-wind
 ```
 
@@ -286,21 +288,21 @@ Now use utility classes in your components:
 
 #### 1. Install
 
-::: code-group
+::: code-group no-filename
 
-```bash pnpm no-filename
+```bash pnpm
 pnpm add -D tailwindcss @tailwindcss/vite
 ```
 
-```bash npm no-filename
+```bash npm
 npm install -D tailwindcss @tailwindcss/vite
 ```
 
-```bash yarn no-filename
+```bash yarn
 yarn add -D tailwindcss @tailwindcss/vite
 ```
 
-```bash bun no-filename
+```bash bun
 bun add -D tailwindcss @tailwindcss/vite
 ```
 
@@ -392,11 +394,10 @@ v0 works with Nuxt 3 via a standard plugin.
 
 ### 1. Create Plugin
 
-```ts plugins/v0.ts
-import { createHydrationPlugin, createThemePlugin } from '@vuetify/v0'
+```ts plugins/vuetify0.ts collapse
+import { createThemePlugin } from '@vuetify/v0'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(createHydrationPlugin())
   nuxtApp.vueApp.use(
     createThemePlugin({
       default: 'light',
@@ -466,3 +467,5 @@ import { isObject, isString } from '@vuetify/v0/utilities'
 // Constants only
 import { IN_BROWSER } from '@vuetify/v0/constants'
 ```
+
+> [!DISCORD]

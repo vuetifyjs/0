@@ -13,6 +13,7 @@ related:
   - /guide/tooling/ai-tools
   - /guide/tooling/vuetify-cli
   - /introduction/getting-started
+logo: vmcp
 ---
 
 # Vuetify MCP
@@ -23,7 +24,31 @@ Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/g
 
 ## Quick Start
 
-### Claude Code (Recommended)
+### Vuetify CLI (Recommended)
+
+Add MCP to existing projects with the [Vuetify CLI](/guide/tooling/vuetify-cli):
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm dlx @vuetify/cli add mcp
+```
+
+```bash npm
+npx @vuetify/cli add mcp
+```
+
+```bash yarn
+yarn dlx @vuetify/cli add mcp
+```
+
+```bash bun
+bunx @vuetify/cli add mcp
+```
+
+:::
+
+### Claude Code
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) is Anthropic's agentic coding tool. Add the hosted MCP server directly via CLI:
 
@@ -35,7 +60,7 @@ claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
 
 Auto-detects your IDE and configures MCP automatically:
 
-::: code-group
+::: code-group no-filename
 
 ```bash pnpm
 # Hosted server (recommended)
@@ -75,7 +100,7 @@ bunx @vuetify/mcp config
 
 Run locally for offline access or custom configuration:
 
-::: code-group
+::: code-group no-filename
 
 ```bash pnpm
 pnpm dlx @vuetify/mcp
@@ -108,9 +133,9 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 | Windsurf | `~/.config/Windsurf/User/mcp.json` |
 | Trae | `~/.config/Trae/User/mcp.json` |
 
-### Hosted Configuration
+::: code-group no-filename
 
-```json
+```json Hosted (Recommended)
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -120,9 +145,7 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 }
 ```
 
-### Local Configuration
-
-```json
+```json Local
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -132,6 +155,8 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
   }
 }
 ```
+
+:::
 
 ## Available Tools
 
@@ -152,9 +177,55 @@ When using AI to build headless components:
 
 ## Authentication
 
-[Vuetify Bins](https://vuetifyjs.com/features/bins/) require an API key from your Vuetify account:
+[Vuetify Bins](https://vuetifyjs.com/features/bins/) require an API key from your Vuetify account.
 
-```json
+### Vuetify CLI
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm dlx @vuetify/cli add mcp --api-key your-api-key
+```
+
+```bash npm
+npx @vuetify/cli add mcp --api-key your-api-key
+```
+
+```bash yarn
+yarn dlx @vuetify/cli add mcp --api-key your-api-key
+```
+
+```bash bun
+bunx @vuetify/cli add mcp --api-key your-api-key
+```
+
+:::
+
+### Claude Code
+
+```bash
+claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp \
+  -e VUETIFY_API_KEY=your-api-key
+```
+
+### Manual Configuration
+
+::: code-group no-filename
+
+```json Hosted (recommended)
+{
+  "mcpServers": {
+    "vuetify-mcp": {
+      "url": "https://mcp.vuetifyjs.com/mcp",
+      "headers": {
+        "Authorization": "Bearer your-api-key"
+      }
+    }
+  }
+}
+```
+
+```json Local
 {
   "mcpServers": {
     "vuetify-mcp": {
@@ -168,11 +239,13 @@ When using AI to build headless components:
 }
 ```
 
+:::
+
 ## Self-Hosting
 
 Run an HTTP server for team or organization access:
 
-::: code-group
+::: code-group no-filename
 
 ```bash pnpm
 pnpm dlx @vuetify/mcp --transport=http --port=3000 --host=0.0.0.0 --stateless

@@ -3,15 +3,17 @@
   import { useBreakpoints } from '@vuetify/v0'
 
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
+  import { useDiscovery } from '@/composables/useDiscovery'
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
+  import { useNavigation } from '@/composables/useNavigation'
   import { useScrollLock } from '@/composables/useScrollLock'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, defineAsyncComponent, toRef } from 'vue'
+  import { computed, defineAsyncComponent, toRef, watch } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -29,23 +31,30 @@
   navConfig.provide()
 
   const breakpoints = useBreakpoints()
-  const { isOpen: isAskOpen } = useAskSheet()
-  const { isOpen: isSearchOpen } = useSearch()
-  const { isOpen: isSettingsOpen, close: closeSettings, prefersReducedMotion } = useSettings()
+  const discovery = useDiscovery()
+  const ask = useAsk()
+  const navigation = useNavigation()
+  const search = useSearch()
+  const settings = useSettings()
 
-  const fadeTransition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
-  const slideTransition = toRef(() => prefersReducedMotion.value ? undefined : 'slide')
+  // Force reduced motion during tours so elements don't animate
+  watch(() => discovery.isActive.value, active => {
+    settings.forceReducedMotion.value = active
+  })
+
+  const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
+  const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
   const isModalOpen = computed(() => {
-    if (isSearchOpen.value) return true
-    if (isSettingsOpen.value) return true
-    if (isAskOpen.value && !breakpoints.lgAndUp.value) return true
+    if (search.isOpen.value) return true
+    if (settings.isOpen.value) return true
+    if (ask.isOpen.value && !breakpoints.lgAndUp.value) return true
     return false
   })
 
-  const isMobileNavOpen = toRef(() => app.drawer && !breakpoints.mdAndUp.value)
+  const isMobileNavOpen = toRef(() => navigation.isOpen.value && !breakpoints.mdAndUp.value)
 
-  useScrollLock(isSettingsOpen)
+  useScrollLock(settings.isOpen)
   useScrollLock(isMobileNavOpen)
 </script>
 
@@ -70,18 +79,27 @@
 
     <DocsSearch />
 
+    <!-- Mobile nav backdrop -->
+    <Transition :name="fadeTransition">
+      <div
+        v-if="isMobileNavOpen"
+        class="fixed inset-0 bg-black/30 z-9"
+        @click="navigation.close()"
+      />
+    </Transition>
+
     <!-- Settings backdrop -->
     <Transition :name="fadeTransition">
       <div
-        v-if="isSettingsOpen"
+        v-if="settings.isOpen.value"
         class="fixed inset-0 bg-black/30 z-40"
-        @click="closeSettings"
+        @click="settings.close"
       />
     </Transition>
 
     <!-- Settings sheet -->
     <Transition :name="slideTransition">
-      <AppSettingsSheet v-if="isSettingsOpen" />
+      <AppSettingsSheet v-if="settings.isOpen.value" />
     </Transition>
   </div>
 </template>

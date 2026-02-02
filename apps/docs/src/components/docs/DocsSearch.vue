@@ -6,7 +6,8 @@
   import { Discovery } from '@/components/discovery'
 
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
+  import { useDiscovery } from '@/composables/useDiscovery'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
@@ -17,37 +18,18 @@
   // Types
   import type { SavedResult, SearchResult } from '@/composables/useSearch'
 
-  const {
-    isOpen,
-    isLoading,
-    error,
-    query,
-    displayedResults,
-    selectedIndex,
-    favorites,
-    recentSearches,
-    hasEmptyStateContent,
-    focusTrigger,
-    open,
-    close,
-    getSelected,
-    addFavorite,
-    removeFavorite,
-    isFavorite,
-    dismiss,
-    addRecent,
-    removeRecent,
-  } = useSearch()
+  const search = useSearch()
+  const discovery = useDiscovery()
 
   const router = useRouter()
   const inputRef = useTemplateRef<HTMLInputElement>('input')
   const resultsRef = useTemplateRef<HTMLDivElement>('results')
   const triggerRef = shallowRef<HTMLElement | null>(null)
-  const { prefersReducedMotion } = useSettings()
-  const { open: openAsk, ask } = useAskSheet()
-  const transition = toRef(() => prefersReducedMotion.value ? undefined : 'fade')
+  const settings = useSettings()
+  const ask = useAsk()
+  const transition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
 
-  watch(isOpen, async opened => {
+  watch(search.isOpen, async opened => {
     if (opened) {
       triggerRef.value = document.activeElement as HTMLElement | null
       await nextTick()
@@ -58,64 +40,48 @@
     }
   })
 
-  watch(focusTrigger, async () => {
-    if (isOpen.value) {
-      await nextTick()
-      inputRef.value?.focus()
-    }
-  })
-
-  watch(selectedIndex, async () => {
+  watch(search.selection.index, async () => {
     await nextTick()
     const container = resultsRef.value
     const selected = container?.querySelector('[data-selected="true"]') as HTMLElement | null
     if (selected) {
-      selected.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
+      selected.scrollIntoView({ block: 'nearest', behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth' })
     }
   })
 
   function navigate (result?: SearchResult | SavedResult) {
-    const selected = result ?? getSelected()
+    const selected = result ?? search.selection.current()
     if (selected) {
-      addRecent(selected)
-      query.value = ''
+      search.addRecent(selected)
+      search.text.value = ''
       router.push(selected.path)
-      close()
+      search.close()
     }
   }
 
-  function toggleFavorite (e: Event, result: SearchResult | SavedResult) {
+  function toggleFavorite (e: Event, id: string) {
     e.stopPropagation()
-    if (isFavorite(result.id)) {
-      removeFavorite(result.id)
-    } else {
-      addFavorite(result)
-    }
+    search.favorite(id)
   }
 
   function dismissResult (e: Event, id: string) {
     e.stopPropagation()
-    dismiss(id)
+    search.dismiss(id)
   }
 
-  function handleRemoveRecent (e: Event, id: string) {
+  function handleRemove (e: Event, id: string) {
     e.stopPropagation()
-    removeRecent(id)
-  }
-
-  function handleRemoveFavorite (e: Event, id: string) {
-    e.stopPropagation()
-    removeFavorite(id)
+    search.remove(id)
   }
 
   async function askAbout (e: Event, result: SearchResult | SavedResult) {
     e.stopPropagation()
-    addRecent(result)
-    query.value = ''
-    close()
+    search.addRecent(result)
+    search.text.value = ''
+    search.close()
     await router.push(result.path)
-    openAsk()
-    ask(`Tell me about ${result.title}`)
+    ask.open()
+    ask.ask(`Tell me about ${result.title}`)
   }
 
   /** Get flat index accounting for favorites + recents in empty state */
@@ -123,16 +89,16 @@
     if (section === 'favorites') {
       return itemIndex
     }
-    return favorites.value.length + itemIndex
+    return search.favorites.value.length + itemIndex
   }
 
   function onKeydown (e: KeyboardEvent) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault()
-      isOpen.value ? close() : open()
+      search.isOpen.value ? search.close() : search.open()
     }
 
-    if (e.key === 'Enter' && isOpen.value) {
+    if (e.key === 'Enter' && search.isOpen.value) {
       e.preventDefault()
       navigate()
     }
@@ -141,57 +107,57 @@
   useDocumentEventListener('keydown', onKeydown)
 
   function onHover (index: number) {
-    selectedIndex.value = index
+    search.selection.index.value = index
   }
 
   function getFlatIndex (groupIndex: number, itemIndex: number): number {
     let flat = 0
     for (let g = 0; g < groupIndex; g++) {
-      flat += displayedResults.value[g]?.items.length ?? 0
+      flat += search.results.value[g]?.items.length ?? 0
     }
     return flat + itemIndex
   }
 
   /** Get the ID of the currently selected result for aria-activedescendant */
   function getActiveDescendantId (): string | undefined {
-    const count = query.value.trim()
-      ? displayedResults.value.reduce((sum, g) => sum + g.items.length, 0)
-      : favorites.value.length + recentSearches.value.length
+    const count = search.text.value.trim()
+      ? search.results.value.reduce((sum, g) => sum + g.items.length, 0)
+      : search.favorites.value.length + search.recents.value.length
 
-    if (count === 0 || selectedIndex.value < 0) return undefined
-    return `search-result-${selectedIndex.value}`
+    if (count === 0 || search.selection.index.value < 0) return undefined
+    return `search-result-${search.selection.index.value}`
   }
 
   /** Check if there are any results to show */
   function hasResults (): boolean {
-    if (query.value.trim()) {
-      return displayedResults.value.length > 0
+    if (search.text.value.trim()) {
+      return search.results.value.length > 0
     }
-    return hasEmptyStateContent.value
+    return search.hasEmptyStateContent.value
   }
 </script>
 
 <template>
   <Transition :name="transition">
     <div
-      v-if="isOpen"
-      class="fixed inset-0 bg-black/50 z-50"
-      @click="close"
+      v-if="search.isOpen.value"
+      class="fixed inset-0 bg-black/30 z-50"
+      @click="search.close"
     />
   </Transition>
 
   <Transition :name="transition">
     <div
-      v-if="isOpen"
+      v-if="search.isOpen.value"
       aria-label="Search Documentation"
       aria-modal="true"
-      class="fixed left-1/2 top-[20%] -translate-x-1/2 w-full max-w-2xl z-50 px-4"
+      class="fixed inset-x-0 top-[20%] mx-auto w-full max-w-2xl z-50 px-4"
       role="dialog"
     >
-      <div class="bg-glass-surface rounded-lg shadow-xl border border-divider overflow-hidden">
+      <div :class="['rounded-lg shadow-xl border border-divider overflow-hidden', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']">
         <Discovery.Activator
-          class="flex-1 bg-transparent flex border-b border-divider outline-none text-on-surface rounded-lg rounded-b-0 items-center gap-3 px-4 py-3 "
-          step="search-tabs"
+          class="flex-1 bg-transparent flex border-b border-divider outline-none text-on-surface rounded-lg rounded-b-0 items-center gap-3 px-4 py-3"
+          step="search-input"
         >
           <AppIcon
             aria-hidden="true"
@@ -200,7 +166,7 @@
           />
           <input
             ref="input"
-            v-model="query"
+            v-model="search.text.value"
             :aria-activedescendant="getActiveDescendantId()"
             aria-autocomplete="list"
             aria-controls="search-listbox"
@@ -224,14 +190,14 @@
           role="listbox"
         >
           <!-- Loading skeleton -->
-          <div v-if="isLoading" role="status">
+          <div v-if="search.isLoading.value" role="status">
             <span class="sr-only">Loading search results...</span>
             <div
               v-for="group in 2"
               :key="group"
               aria-hidden="true"
             >
-              <div class="px-4 py-2 bg-surface-variant/50">
+              <div class="px-4 py-2 bg-surface-variant-50">
                 <div class="h-3 bg-surface-tint rounded animate-pulse w-20" />
               </div>
               <div
@@ -247,32 +213,39 @@
 
           <!-- Error state -->
           <div
-            v-else-if="error"
+            v-else-if="search.error.value"
             class="px-4 py-8 text-center text-error"
             role="alert"
           >
-            {{ error }}
+            {{ search.error.value }}
           </div>
 
           <!-- Empty query state: show favorites and recents -->
-          <template v-else-if="!query.trim()">
+          <template v-else-if="!search.text.value.trim()">
             <!-- Favorites section -->
-            <div v-if="favorites.length > 0" aria-label="Favorites" role="group">
-              <div class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50 flex items-center justify-between">
+            <Discovery.Activator
+              v-if="search.favorites.value.length > 0"
+              aria-label="Favorites"
+              as="div"
+              class="rounded-lg"
+              role="group"
+              step="search-favorited"
+            >
+              <div class="px-4 py-2 section-label bg-surface-variant-50 flex items-center justify-between">
                 <span>Favorites</span>
               </div>
               <div
-                v-for="(result, itemIndex) in favorites"
+                v-for="(result, itemIndex) in search.favorites.value"
                 :id="`search-result-${getEmptyStateIndex('favorites', itemIndex)}`"
                 :key="result.id"
-                :aria-selected="getEmptyStateIndex('favorites', itemIndex) === selectedIndex"
+                :aria-selected="getEmptyStateIndex('favorites', itemIndex) === search.selection.index.value"
                 :class="[
                   'group w-full px-4 py-2 flex items-center gap-3 text-left transition-colors cursor-pointer',
-                  getEmptyStateIndex('favorites', itemIndex) === selectedIndex
+                  getEmptyStateIndex('favorites', itemIndex) === search.selection.index.value
                     ? 'bg-primary/10 text-primary'
                     : 'hover:bg-surface-variant text-on-surface',
                 ]"
-                :data-selected="getEmptyStateIndex('favorites', itemIndex) === selectedIndex"
+                :data-selected="getEmptyStateIndex('favorites', itemIndex) === search.selection.index.value"
                 role="option"
                 tabindex="-1"
                 @click="navigate(result)"
@@ -289,36 +262,43 @@
                 </div>
                 <span
                   aria-label="Remove from favorites"
-                  class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                  class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                   role="button"
                   tabindex="0"
                   title="Remove from favorites"
-                  @click="handleRemoveFavorite($event, result.id)"
-                  @keydown.enter.stop="handleRemoveFavorite($event, result.id)"
-                  @keydown.space.stop.prevent="handleRemoveFavorite($event, result.id)"
+                  @click="handleRemove($event, result.id)"
+                  @keydown.enter.stop="handleRemove($event, result.id)"
+                  @keydown.space.stop.prevent="handleRemove($event, result.id)"
                 >
                   <AppIcon aria-hidden="true" icon="close" size="16" />
                 </span>
               </div>
-            </div>
+            </Discovery.Activator>
 
             <!-- Recents section -->
-            <div v-if="recentSearches.length > 0" aria-label="Recent searches" role="group">
-              <div class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50">
+            <Discovery.Activator
+              v-if="search.recents.value.length > 0"
+              aria-label="Recent searches"
+              as="div"
+              class="rounded-lg"
+              role="group"
+              step="search-history"
+            >
+              <div class="px-4 py-2 section-label bg-surface-variant-50">
                 Recent
               </div>
               <div
-                v-for="(result, itemIndex) in recentSearches"
+                v-for="(result, itemIndex) in search.recents.value"
                 :id="`search-result-${getEmptyStateIndex('recents', itemIndex)}`"
                 :key="result.id"
-                :aria-selected="getEmptyStateIndex('recents', itemIndex) === selectedIndex"
+                :aria-selected="getEmptyStateIndex('recents', itemIndex) === search.selection.index.value"
                 :class="[
                   'group w-full px-4 py-2 flex items-center gap-3 text-left transition-colors cursor-pointer',
-                  getEmptyStateIndex('recents', itemIndex) === selectedIndex
+                  getEmptyStateIndex('recents', itemIndex) === search.selection.index.value
                     ? 'bg-primary/10 text-primary'
                     : 'hover:bg-surface-variant text-on-surface',
                 ]"
-                :data-selected="getEmptyStateIndex('recents', itemIndex) === selectedIndex"
+                :data-selected="getEmptyStateIndex('recents', itemIndex) === search.selection.index.value"
                 role="option"
                 tabindex="-1"
                 @click="navigate(result)"
@@ -337,36 +317,36 @@
                   <!-- Favorite toggle -->
                   <span
                     aria-label="Add to favorites"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-warning focus-visible:text-warning opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Add to favorites"
-                    @click="toggleFavorite($event, result)"
-                    @keydown.enter.stop="toggleFavorite($event, result)"
-                    @keydown.space.stop.prevent="toggleFavorite($event, result)"
+                    @click="toggleFavorite($event, result.id)"
+                    @keydown.enter.stop="toggleFavorite($event, result.id)"
+                    @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
                   >
                     <AppIcon aria-hidden="true" icon="star-outline" size="16" />
                   </span>
                   <!-- Remove button -->
                   <span
                     aria-label="Remove from recent searches"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Remove from recent"
-                    @click="handleRemoveRecent($event, result.id)"
-                    @keydown.enter.stop="handleRemoveRecent($event, result.id)"
-                    @keydown.space.stop.prevent="handleRemoveRecent($event, result.id)"
+                    @click="handleRemove($event, result.id)"
+                    @keydown.enter.stop="handleRemove($event, result.id)"
+                    @keydown.space.stop.prevent="handleRemove($event, result.id)"
                   >
                     <AppIcon aria-hidden="true" icon="close" size="16" />
                   </span>
                 </div>
               </div>
-            </div>
+            </Discovery.Activator>
 
             <!-- No content placeholder -->
             <div
-              v-if="!hasEmptyStateContent"
+              v-if="!search.hasEmptyStateContent.value"
               class="px-4 py-8 text-center text-on-surface-variant"
               role="status"
             >
@@ -376,40 +356,153 @@
 
           <!-- No results state -->
           <div
-            v-else-if="displayedResults.length === 0"
+            v-else-if="search.results.value.length === 0"
             class="px-4 py-8 text-center text-on-surface-variant"
             role="status"
           >
-            No results found for "{{ query }}"
+            No results found for "{{ search.text.value }}"
           </div>
 
           <!-- Search results -->
           <template v-else>
             <div
-              v-for="(group, groupIndex) in displayedResults"
+              v-for="(group, groupIndex) in search.results.value"
               :key="group.category"
               :aria-label="group.category"
               role="group"
             >
-              <div class="px-4 py-2 text-xs font-medium text-on-surface-variant uppercase tracking-wide bg-surface-variant/50">
+              <Discovery.Activator
+                v-if="groupIndex === 0"
+                as="div"
+                class="px-4 py-2 section-label bg-surface-variant-50 rounded-lg"
+                step="search-categories"
+              >
+                {{ group.category }}
+              </Discovery.Activator>
+              <div
+                v-else
+                class="px-4 py-2 section-label bg-surface-variant-50"
+              >
                 {{ group.category }}
               </div>
+              <!-- First result with nested activators for tour steps 4-6 -->
               <div
-                v-for="(result, itemIndex) in group.items"
-                :id="`search-result-${getFlatIndex(groupIndex, itemIndex)}`"
-                :key="result.id"
-                :aria-selected="getFlatIndex(groupIndex, itemIndex) === selectedIndex"
+                v-if="groupIndex === 0 && group.items[0]"
+                :id="`search-result-0`"
+                :aria-selected="0 === search.selection.index.value"
                 :class="[
                   'group w-full px-4 py-2 flex items-center gap-2 text-left transition-colors cursor-pointer',
-                  getFlatIndex(groupIndex, itemIndex) === selectedIndex
+                  0 === search.selection.index.value
                     ? 'bg-primary/10 text-primary'
                     : 'hover:bg-surface-variant text-on-surface',
                 ]"
-                :data-selected="getFlatIndex(groupIndex, itemIndex) === selectedIndex"
+                :data-selected="0 === search.selection.index.value"
+                role="option"
+                tabindex="-1"
+                @click="navigate(group.items[0])"
+                @mouseenter="onHover(0)"
+              >
+                <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <span class="font-medium">{{ group.items[0].title }}</span>
+                  <span
+                    v-if="group.items[0].headings.length > 0"
+                    class="text-xs text-on-surface-variant truncate"
+                  >
+                    {{ group.items[0].headings.slice(0, 3).join(' → ') }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <!-- Favorite toggle -->
+                  <Discovery.Activator
+                    class="rounded-lg"
+                    :padding="4"
+                    step="search-favorite"
+                  >
+                    <span
+                      :aria-label="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
+                      :class="[
+                        'btn-action cursor-pointer',
+                        search.isFavorite(group.items[0].id) || discovery.isActive.value ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
+                      ]"
+                      role="button"
+                      tabindex="0"
+                      :title="search.isFavorite(group.items[0].id) ? 'Remove from favorites' : 'Add to favorites'"
+                      @click="toggleFavorite($event, group.items[0].id)"
+                      @keydown.enter.stop="toggleFavorite($event, group.items[0].id)"
+                      @keydown.space.stop.prevent="toggleFavorite($event, group.items[0].id)"
+                    >
+                      <AppIcon
+                        aria-hidden="true"
+                        :icon="search.isFavorite(group.items[0].id) ? 'star' : 'star-outline'"
+                        size="16"
+                      />
+                    </span>
+                  </Discovery.Activator>
+
+                  <!-- Ask AI button -->
+                  <Discovery.Activator
+                    class="rounded-lg"
+                    :padding="4"
+                    step="search-ask-ai"
+                  >
+                    <span
+                      aria-label="Ask AI about this page"
+                      :class="[
+                        'btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary cursor-pointer',
+                        discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
+                      ]"
+                      role="button"
+                      tabindex="0"
+                      title="Ask AI"
+                      @click="askAbout($event, group.items[0])"
+                      @keydown.enter.stop="askAbout($event, group.items[0])"
+                      @keydown.space.stop.prevent="askAbout($event, group.items[0])"
+                    >
+                      <AppIcon aria-hidden="true" icon="create" size="16" />
+                    </span>
+                  </Discovery.Activator>
+
+                  <!-- Dismiss button -->
+                  <Discovery.Activator
+                    class="rounded-lg"
+                    :padding="4"
+                    step="search-dismiss"
+                  >
+                    <span
+                      aria-label="Dismiss result"
+                      :class="[
+                        'btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant cursor-pointer',
+                        discovery.isActive.value ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
+                      ]"
+                      role="button"
+                      tabindex="0"
+                      title="Dismiss result"
+                      @click="dismissResult($event, group.items[0].id)"
+                      @keydown.enter.stop="dismissResult($event, group.items[0].id)"
+                      @keydown.space.stop.prevent="dismissResult($event, group.items[0].id)"
+                    >
+                      <AppIcon aria-hidden="true" icon="close" size="16" />
+                    </span>
+                  </Discovery.Activator>
+                </div>
+              </div>
+              <!-- Remaining results in first group (skip first) -->
+              <div
+                v-for="(result, itemIndex) in groupIndex === 0 ? group.items.slice(1) : group.items"
+                :id="`search-result-${getFlatIndex(groupIndex, groupIndex === 0 ? itemIndex + 1 : itemIndex)}`"
+                :key="result.id"
+                :aria-selected="getFlatIndex(groupIndex, groupIndex === 0 ? itemIndex + 1 : itemIndex) === search.selection.index.value"
+                :class="[
+                  'group w-full px-4 py-2 flex items-center gap-2 text-left transition-colors cursor-pointer',
+                  getFlatIndex(groupIndex, groupIndex === 0 ? itemIndex + 1 : itemIndex) === search.selection.index.value
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-surface-variant text-on-surface',
+                ]"
+                :data-selected="getFlatIndex(groupIndex, groupIndex === 0 ? itemIndex + 1 : itemIndex) === search.selection.index.value"
                 role="option"
                 tabindex="-1"
                 @click="navigate(result)"
-                @mouseenter="onHover(getFlatIndex(groupIndex, itemIndex))"
+                @mouseenter="onHover(getFlatIndex(groupIndex, groupIndex === 0 ? itemIndex + 1 : itemIndex))"
               >
                 <div class="flex-1 min-w-0 flex flex-col gap-0.5">
                   <span class="font-medium">{{ result.title }}</span>
@@ -423,28 +516,28 @@
                 <div class="flex items-center gap-1 shrink-0">
                   <!-- Favorite toggle -->
                   <span
-                    :aria-label="isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
+                    :aria-label="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
                     :class="[
-                      'inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors cursor-pointer',
-                      isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
+                      'btn-action cursor-pointer',
+                      search.isFavorite(result.id) ? 'opacity-100 text-warning' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-on-surface/60 hover:text-warning focus-visible:text-warning',
                     ]"
                     role="button"
                     tabindex="0"
-                    :title="isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
-                    @click="toggleFavorite($event, result)"
-                    @keydown.enter.stop="toggleFavorite($event, result)"
-                    @keydown.space.stop.prevent="toggleFavorite($event, result)"
+                    :title="search.isFavorite(result.id) ? 'Remove from favorites' : 'Add to favorites'"
+                    @click="toggleFavorite($event, result.id)"
+                    @keydown.enter.stop="toggleFavorite($event, result.id)"
+                    @keydown.space.stop.prevent="toggleFavorite($event, result.id)"
                   >
                     <AppIcon
                       aria-hidden="true"
-                      :icon="isFavorite(result.id) ? 'star' : 'star-outline'"
+                      :icon="search.isFavorite(result.id) ? 'star' : 'star-outline'"
                       size="16"
                     />
                   </span>
                   <!-- Ask AI button -->
                   <span
                     aria-label="Ask AI about this page"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-primary focus-visible:text-primary opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Ask AI"
@@ -457,7 +550,7 @@
                   <!-- Dismiss button -->
                   <span
                     aria-label="Dismiss result"
-                    class="inline-flex p-1.5 rounded-lg hover:bg-surface-variant focus-visible:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
+                    class="btn-action text-on-surface/60 hover:text-on-surface-variant focus-visible:text-on-surface-variant opacity-0 group-hover:opacity-100 focus-visible:opacity-100 cursor-pointer"
                     role="button"
                     tabindex="0"
                     title="Dismiss result"
@@ -491,15 +584,3 @@
     </div>
   </Transition>
 </template>
-
-<style scoped>
-  .fade-enter-active,
-  .fade-leave-active {
-    transition: opacity 0.15s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-</style>

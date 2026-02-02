@@ -19,6 +19,8 @@
     padding?: number
     /** Whether clicking the backdrop blocks interaction (default: false) */
     blocking?: boolean
+    /** Whether clicking the highlighted element also blocks interaction (default: false) */
+    blockActivator?: boolean
   }
   export interface DiscoveryHighlightSlotProps {
 
@@ -27,10 +29,11 @@
 
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, isNull, useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER } from '@vuetify/v0'
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
+  import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { onBeforeUnmount, shallowRef, toRef, toValue, watch } from 'vue'
@@ -46,9 +49,11 @@
     padding = 0,
     opacity = 0.75,
     blocking = false,
+    blockActivator = false,
   } = defineProps<DiscoveryHighlightProps>()
 
   const discovery = useDiscovery(namespace)
+  const settings = useSettings()
 
   const rect = shallowRef<{
     x: number
@@ -62,87 +67,89 @@
   function updateRect () {
     const id = discovery.selectedId.value
     if (!id || !discovery.isActive.value) {
-      rect.value = null
+      if (rect.value !== null) rect.value = null
+      return
+    }
+
+    const step = discovery.steps.get(id)
+    if (step?.noActivator || discovery.isLast.value) {
+      if (rect.value !== null) rect.value = null
       return
     }
 
     const activator = discovery.activators.get(id)
     const el = toValue(activator?.element?.value ?? activator?.element)
     const r = el?.getBoundingClientRect()
-    if (!r) {
-      rect.value = null
-      return
-    }
+    // Don't clear rect if activator not found yet - keep old position for smooth transition
+    if (!r) return
 
     // Use activator-specific padding, fall back to global padding prop
     const p = activator?.padding ?? padding
 
-    rect.value = {
+    const newRect = {
       x: r.x - p,
       y: r.y - p,
       width: r.width + p * 2,
       height: r.height + p * 2,
     }
 
+    // Only update if position/size actually changed
+    if (
+      !rect.value ||
+      rect.value.x !== newRect.x ||
+      rect.value.y !== newRect.y ||
+      rect.value.width !== newRect.width ||
+      rect.value.height !== newRect.height
+    ) {
+      rect.value = newRect
+    }
+
     if (el) {
       const styles = getComputedStyle(el)
-      borderRadius.value = Number.parseFloat(styles.borderRadius) || 0
+      const newRadius = Number.parseFloat(styles.borderRadius) || 0
+      if (borderRadius.value !== newRadius) {
+        borderRadius.value = newRadius
+      }
     }
   }
 
-  let delayTimeoutId: ReturnType<typeof setTimeout> | null = null
+  // Continuous RAF loop for smooth tracking
+  let rafLoopId: number | null = null
+
+  function startLoop () {
+    if (rafLoopId !== null || !IN_BROWSER) return
+
+    function loop () {
+      updateRect()
+      rafLoopId = requestAnimationFrame(loop)
+    }
+    rafLoopId = requestAnimationFrame(loop)
+  }
+
+  function stopLoop () {
+    if (rafLoopId !== null) {
+      cancelAnimationFrame(rafLoopId)
+      rafLoopId = null
+    }
+    rect.value = null
+  }
 
   watch(
-    [() => discovery.selectedId.value, () => discovery.isActive.value],
-    () => {
-      if (!IN_BROWSER) return
-
-      // Clear any pending delayed update
-      if (delayTimeoutId) {
-        clearTimeout(delayTimeoutId)
-        delayTimeoutId = null
-      }
-
-      const id = discovery.selectedId.value
-      const step = id ? discovery.steps.get(id) : undefined
-      const delay = step?.delay ?? 0
-
-      if (delay > 0) {
-        // Hide highlight during delay
-        rect.value = null
-        delayTimeoutId = setTimeout(() => {
-          requestAnimationFrame(updateRect)
-          delayTimeoutId = null
-        }, delay)
+    () => discovery.isActive.value,
+    active => {
+      if (active) {
+        startLoop()
       } else {
-        requestAnimationFrame(updateRect)
+        stopLoop()
       }
     },
     { immediate: true },
   )
-  let rafId: number | null = null
-  function scheduleUpdate () {
-    if (rafId) return
-    rafId = requestAnimationFrame(() => {
-      updateRect()
-      rafId = null
-    })
-  }
-  function cancelScheduledUpdate () {
-    if (isNull(rafId)) return
-    cancelAnimationFrame(rafId)
-    rafId = null
-  }
-  useWindowEventListener(['scroll', 'resize'], scheduleUpdate, { passive: true })
-  onBeforeUnmount(() => {
-    cancelScheduledUpdate()
-    if (delayTimeoutId) {
-      clearTimeout(delayTimeoutId)
-      delayTimeoutId = null
-    }
-  })
 
-  const isVisible = toRef(() => discovery.isActive.value && rect.value !== null)
+  onBeforeUnmount(stopLoop)
+
+  const isVisible = toRef(() => discovery.isActive.value)
+  const showCutout = toRef(() => rect.value !== null)
 
   // Clip-path that covers everything except the cutout (for blocking clicks)
   const clipPath = toRef(() => {
@@ -165,55 +172,89 @@
 
   <Teleport to="body">
     <Transition name="discovery-highlight">
-      <div v-if="isVisible && rect" class="fixed inset-0 z-9998 pointer-events-none">
-        <!-- Click-blocking layer (when blocking is enabled) -->
+      <div v-if="isVisible" class="fixed inset-0 pointer-events-none" style="z-index: 9998">
+        <!-- Click-blocking layer for backdrop (when blocking is enabled) -->
         <div
-          v-if="blocking"
+          v-if="blocking && showCutout && rect"
           aria-hidden="true"
           class="absolute inset-0 pointer-events-auto cursor-default"
           :style="{ clipPath }"
         />
 
+        <!-- Click-blocking layer for activator (when blockActivator is enabled) -->
+        <div
+          v-if="blockActivator && showCutout && rect"
+          aria-hidden="true"
+          class="absolute pointer-events-auto cursor-default"
+          :style="{
+            left: `${rect.x}px`,
+            top: `${rect.y}px`,
+            width: `${rect.width}px`,
+            height: `${rect.height}px`,
+            borderRadius: `${borderRadius}px`,
+          }"
+        />
+
         <!-- SVG Backdrop (visual only) -->
         <svg
           aria-hidden="true"
-          class="absolute inset-0 pointer-events-none w-screen h-screen"
+          :class="['absolute inset-0 pointer-events-none w-screen h-screen', { 'smooth-tracking': !settings.userPrefersReducedMotion.value }]"
         >
-          <defs>
-            <mask id="discovery-highlight-mask">
-              <!-- White background = visible -->
-              <rect fill="white" height="100%" width="100%" />
-              <!-- Black cutout = transparent -->
-              <rect
-                fill="black"
-                :height="rect.height"
-                :rx="borderRadius"
-                :ry="borderRadius"
-                :width="rect.width"
-                :x="rect.x"
-                :y="rect.y"
-              />
-            </mask>
-          </defs>
-          <!-- Backdrop with mask applied -->
+          <!-- With cutout mask -->
+          <template v-if="showCutout && rect">
+            <defs>
+              <mask id="discovery-highlight-mask">
+                <!-- White background = visible -->
+                <rect fill="white" height="100%" width="100%" />
+                <!-- Black cutout = transparent -->
+                <rect
+                  fill="black"
+                  :height="rect.height"
+                  :rx="borderRadius"
+                  :ry="borderRadius"
+                  :width="rect.width"
+                  :x="rect.x"
+                  :y="rect.y"
+                />
+              </mask>
+            </defs>
+            <!-- Backdrop with mask applied -->
+            <rect
+              :fill="`rgba(0, 0, 0, ${opacity})`"
+              height="100%"
+              mask="url(#discovery-highlight-mask)"
+              width="100%"
+            />
+            <!-- Glow effect around the cutout (offset outward so stroke is outside only) -->
+            <rect
+              :class="['fill-none stroke-primary', { 'highlight-glow': !settings.userPrefersReducedMotion.value }]"
+              :height="rect.height + 3"
+              :rx="borderRadius + 1.5"
+              :ry="borderRadius + 1.5"
+              stroke-width="3"
+              :width="rect.width + 3"
+              :x="rect.x - 1.5"
+              :y="rect.y - 1.5"
+            />
+            <!-- Border around the cutout -->
+            <rect
+              class="stroke-primary fill-none"
+              :height="rect.height"
+              :rx="borderRadius"
+              :ry="borderRadius"
+              stroke-width="2"
+              :width="rect.width"
+              :x="rect.x"
+              :y="rect.y"
+            />
+          </template>
+
+          <!-- Full scrim without cutout (for noActivator steps) -->
           <rect
+            v-else
             :fill="`rgba(0, 0, 0, ${opacity})`"
             height="100%"
-            mask="url(#discovery-highlight-mask)"
             width="100%"
-          />
-
-          <!-- Border around the cutout -->
-          <rect
-            class="stroke-primary"
-            fill="none"
-            :height="rect.height"
-            :rx="borderRadius"
-            :ry="borderRadius"
-            stroke-width="2"
-            :width="rect.width"
-            :x="rect.x"
-            :y="rect.y"
           />
         </svg>
       </div>
@@ -230,5 +271,30 @@
 .discovery-highlight-enter-from,
 .discovery-highlight-leave-to {
   opacity: 0;
+}
+
+/* Smooth position tracking when user prefers motion */
+svg.smooth-tracking rect {
+  transition:
+    x 0.15s ease-out,
+    y 0.15s ease-out,
+    width 0.15s ease-out,
+    height 0.15s ease-out,
+    rx 0.15s ease-out,
+    ry 0.15s ease-out;
+}
+
+/* Pulsing glow effect for highlighted area */
+.highlight-glow {
+  animation: highlight-pulse 2s ease-in-out infinite;
+}
+
+@keyframes highlight-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 </style>

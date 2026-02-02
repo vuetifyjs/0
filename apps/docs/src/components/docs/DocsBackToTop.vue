@@ -8,7 +8,7 @@
   // Utilities
   import { shallowRef } from 'vue'
 
-  const { prefersReducedMotion } = useSettings()
+  const settings = useSettings()
   const show = shallowRef(false)
 
   function updateOverflow () {
@@ -21,7 +21,7 @@
 
   function scrollToTop () {
     if (!IN_BROWSER) return
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
+    window.scrollTo({ top: 0, behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth' })
   }
 </script>
 

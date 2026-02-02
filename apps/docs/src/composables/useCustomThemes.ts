@@ -16,12 +16,12 @@ export interface CustomTheme extends ThemeDefinition {
 export interface UseCustomThemesReturn {
   customThemes: typeof customThemes
   allThemes: ReturnType<typeof computed<Record<string, ThemeDefinition>>>
-  isEditing: typeof isEditing
+  editing: typeof isEditing
   create: (theme: Omit<CustomTheme, 'custom'>) => CustomTheme
   update: (id: string, theme: Partial<Omit<CustomTheme, 'id' | 'custom'>>) => void
   remove: (id: string) => void
-  getCurrentTheme: () => ThemeDefinition | undefined
-  previewTheme: (colors: Record<string, string>, dark: boolean) => void
+  current: () => ThemeDefinition | undefined
+  preview: (colors: Record<string, string>, dark: boolean) => void
   clearPreview: () => void
 }
 
@@ -220,7 +220,7 @@ export function useCustomThemes (): UseCustomThemesReturn {
   /**
    * Get the currently selected theme definition with resolved colors
    */
-  function getCurrentTheme (): ThemeDefinition | undefined {
+  function current (): ThemeDefinition | undefined {
     const selectedId = theme.selectedId.value
     if (!selectedId) {
       // Return light theme with resolved colors
@@ -261,7 +261,7 @@ export function useCustomThemes (): UseCustomThemesReturn {
   /**
    * Preview theme colors in real-time by setting CSS variables directly
    */
-  function previewTheme (colors: Record<string, string>, dark: boolean): void {
+  function preview (colors: Record<string, string>, dark: boolean): void {
     if (!IN_BROWSER) return
     const root = document.documentElement
     for (const [key, value] of Object.entries(colors)) {
@@ -290,12 +290,12 @@ export function useCustomThemes (): UseCustomThemesReturn {
   return {
     customThemes,
     allThemes,
-    isEditing,
+    editing: isEditing,
     create,
     update,
     remove,
-    getCurrentTheme,
-    previewTheme,
+    current,
+    preview,
     clearPreview,
   }
 }

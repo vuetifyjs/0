@@ -3,20 +3,21 @@
 
   // Components
   import DocsToc from '../docs/DocsToc.vue'
+  import DocsPageLogo from '../docs/meta/DocsPageLogo.vue'
 
   // Composables
-  import { useAskSheet } from '@/composables/useAskSheet'
+  import { useAsk } from '@/composables/useAsk'
   import { useRouterLinks } from '@/composables/useRouterLinks'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
   import { computed, shallowRef, toRef, useTemplateRef } from 'vue'
 
-  const { isOpen: isAskOpen } = useAskSheet()
-  const { prefersReducedMotion } = useSettings()
+  const ask = useAsk()
+  const settings = useSettings()
   const page = shallowRef<{ frontmatter?: Record<string, unknown> }>()
   const mainRef = useTemplateRef<HTMLElement>('main')
-  const pageTransition = toRef(() => prefersReducedMotion.value ? undefined : 'page')
+  const pageTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'page')
 
   useRouterLinks(mainRef)
 
@@ -42,11 +43,13 @@
     ref="main"
     :class="[
       'pa-4 pb-6 ml-0 md:ml-[230px] relative z-0',
-      !prefersReducedMotion && 'transition-[padding] duration-200',
-      isAskOpen ? 'xl:pr-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pr-[232px]',
+      !settings.prefersReducedMotion.value && 'transition-[padding] duration-200',
+      ask.isOpen.value ? 'xl:pr-[calc(clamp(280px,calc(100vw-230px-688px-64px),500px)+32px)]' : 'xl:pr-[232px]',
     ]"
   >
     <div class="max-w-[688px] mx-auto pb-4">
+      <DocsPageLogo :frontmatter="page?.frontmatter" />
+
       <router-view v-slot="{ Component }">
         <Transition :name="pageTransition">
           <component :is="Component" :key="$route.path" ref="page" />

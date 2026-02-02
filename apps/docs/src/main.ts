@@ -7,11 +7,13 @@ import { useLogger } from '@vuetify/v0'
 import App from './App.vue'
 
 // Composables
-import { useHighlighter } from './composables/useHighlighter'
+import { useIdleCallback } from './composables/useIdleCallback'
 
 import { registerPlugins } from './plugins'
 import pinia from './plugins/pinia'
 import routerOptions from './plugins/router'
+import './styles/tokens.css'
+import './styles/transitions.css'
 import 'virtual:uno.css'
 
 export const createApp = ViteSSG(
@@ -54,11 +56,10 @@ export const createApp = ViteSSG(
         localStorage.removeItem('vuetify:dynamic-reload')
 
         // Preload Shiki highlighter on idle to avoid lag on first "Show Code" click
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(() => {
-            useHighlighter().getHighlighter()
-          })
-        }
+        useIdleCallback(async () => {
+          const { useHighlighter } = await import('./composables/useHighlighter')
+          useHighlighter().getHighlighter()
+        })
       })
     }
   },

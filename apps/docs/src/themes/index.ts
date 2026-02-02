@@ -45,6 +45,10 @@ export const themes = {
       'on-surface-variant': '#666666',
       'glass-surface': 'rgba(255, 255, 255, 0.85)',
       'scrollbar-thumb': '#b0b0b0',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
     },
   },
   'dark': {
@@ -69,15 +73,19 @@ export const themes = {
       'on-primary': '#1a1a1a',
       'on-secondary': '#ffffff',
       'on-accent': '#ffffff',
-      'on-error': '#ffffff',
-      'on-info': '#ffffff',
-      'on-success': '#ffffff',
+      'on-error': '#1a1a1a',
+      'on-info': '#1a1a1a',
+      'on-success': '#1a1a1a',
       'on-warning': '#1a1a1a',
       'on-background': '#e0e0e0',
       'on-surface': '#e0e0e0',
       'on-surface-variant': '#a0a0a0',
       'glass-surface': 'rgba(26, 26, 26, 0.7)',
       'scrollbar-thumb': '#505050',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
     },
   },
   'high-contrast': {
@@ -111,6 +119,10 @@ export const themes = {
       'on-surface-variant': '#ffffff',
       'glass-surface': 'rgba(0, 0, 0, 0.85)',
       'scrollbar-thumb': '#ffffff',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
     },
   },
   'blackguard': {
@@ -144,6 +156,10 @@ export const themes = {
       'on-surface-variant': '#a0a0b0',
       'glass-surface': 'rgba(26, 22, 64, 0.7)',
       'scrollbar-thumb': 'rgba(167, 139, 250, 0.4)',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
     },
   },
   'polaris': {
@@ -177,6 +193,10 @@ export const themes = {
       'on-surface-variant': '#a8a29e',
       'glass-surface': 'rgba(28, 25, 23, 0.7)',
       'scrollbar-thumb': 'rgba(249, 115, 22, 0.4)',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
     },
   },
   'nebula': {
@@ -210,6 +230,10 @@ export const themes = {
       'on-surface-variant': '#94a3b8',
       'glass-surface': 'rgba(30, 41, 59, 0.7)',
       'scrollbar-thumb': 'rgba(96, 165, 250, 0.4)',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
     },
   },
   'odyssey': {
@@ -243,6 +267,10 @@ export const themes = {
       'on-surface-variant': '#57534e',
       'glass-surface': 'rgba(250, 249, 246, 0.85)',
       'scrollbar-thumb': '#a8a29e',
+      'discord': '{palette.brand.discord}',
+      'vue': '{palette.brand.vue}',
+      'mastered': '{palette.brand.mastered}',
+      'github': '#24292f',
     },
   },
 } as const satisfies Record<string, ThemeDefinition>
@@ -250,13 +278,13 @@ export const themes = {
 /**
  * Get all theme configs for createThemePlugin.
  */
-export function getAllThemeConfigs () {
-  return Object.fromEntries(
-    Object.entries(themes).map(([id, theme]) => [
-      id,
-      { dark: theme.dark, colors: theme.colors },
-    ]),
-  ) as Record<ThemeId, { dark: boolean, colors: Record<string, string> }>
+export function getAllThemeConfigs (): Record<ThemeId, { dark: boolean, colors: Record<string, string> }> {
+  const result = {} as Record<ThemeId, { dark: boolean, colors: Record<string, string> }>
+  for (const id of Object.keys(themes) as ThemeId[]) {
+    const theme = themes[id]
+    result[id] = { dark: theme.dark, colors: { ...theme.colors } }
+  }
+  return result
 }
 
 /**

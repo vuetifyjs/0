@@ -4,23 +4,32 @@
 
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
+  import { useLevelFilterContext } from '@/composables/useLevelFilter'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { onUnmounted, useTemplateRef, watch } from 'vue'
+  import { computed, onUnmounted, useTemplateRef, watch } from 'vue'
 
   const features = useFeatures()
   const storage = useStorage()
-  const { close, reset, hasChanges, lineWrap, showInlineApi, collapsibleNav } = useSettings()
+  const settings = useSettings()
+  const levelFilter = useLevelFilterContext()
+
+  const hasChanges = computed(() => settings.hasChanges.value || levelFilter.hasChanges.value)
+
+  function reset () {
+    settings.reset()
+    levelFilter.clear()
+  }
 
   const devmode = features.get('devmode')!
 
-  const { isEditing: isEditingTheme, clearPreview } = useCustomThemes()
+  const themes = useCustomThemes()
 
   onUnmounted(() => {
-    if (isEditingTheme.value) {
-      clearPreview()
-      isEditingTheme.value = false
+    if (themes.editing.value) {
+      themes.clearPreview()
+      themes.editing.value = false
     }
   })
 
@@ -38,7 +47,7 @@
 
   function onKeydown (e: KeyboardEvent) {
     if (e.key === 'Escape') {
-      close()
+      settings.close()
     }
   }
 </script>
@@ -48,7 +57,7 @@
     ref="sheet"
     aria-labelledby="settings-title"
     aria-modal="true"
-    class="fixed inset-y-0 right-0 flex flex-col z-50 bg-glass-surface w-[320px] max-w-full shadow-xl outline-none"
+    :class="['fixed inset-y-0 right-0 flex flex-col z-50 w-[320px] max-w-full shadow-xl outline-none', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     role="dialog"
     tabindex="-1"
     @keydown="onKeydown"
@@ -60,32 +69,22 @@
         <span id="settings-title" class="font-medium">Settings</span>
       </div>
 
-      <button
-        aria-label="Close settings"
-        class="inline-flex p-2 rounded-lg hover:bg-surface-variant transition-colors text-on-surface/60 hover:text-on-surface-variant"
-        title="Close"
-        type="button"
-        @click="close"
-      >
-        <AppIcon icon="close" size="18" />
-      </button>
+      <AppCloseButton label="Close settings" @click="settings.close" />
     </header>
 
     <!-- Content -->
     <div class="flex-1 overflow-y-auto p-4 space-y-4">
-      <AppSettingsTour v-if="devmode.isSelected.value" />
-
       <!-- Theme -->
       <AppSettingsTheme />
 
       <!-- Other settings (hidden when editing theme) -->
-      <template v-if="!isEditingTheme">
+      <template v-if="!themes.editing.value">
         <!-- Skill Level -->
         <AppSettingsSkillLevel />
 
         <!-- Code Examples -->
         <AppSettingsToggleSection
-          v-model="lineWrap"
+          v-model="settings.lineWrap.value"
           description="Wrap long lines in code blocks"
           icon="markdown"
           label="Line wrapping"
@@ -100,7 +99,7 @@
 
         <!-- API Reference -->
         <AppSettingsToggleSection
-          v-model="showInlineApi"
+          v-model="settings.showInlineApi.value"
           description="Display API details inline instead of links"
           icon="beaker"
           label="Show inline"
@@ -109,7 +108,7 @@
 
         <!-- Navigation -->
         <AppSettingsToggleSection
-          v-model="collapsibleNav"
+          v-model="settings.collapsibleNav.value"
           description="Group navigation items into expandable sections"
           icon="menu"
           label="Collapsible sections"
@@ -120,11 +119,11 @@
         <AppSettingsHeaderButtons />
 
         <!-- Reset -->
-        <div v-if="hasChanges" class="pt-2 pb-4 border-t border-divider flex justify-between">
+        <div class="pt-4 pb-2 border-t border-divider flex justify-between">
           <button
             aria-label="Enter Developer Mode"
-            class="inline-flex items-center gap-1 text-xs hover:text-error focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
-            :class="[devmode.isSelected.value ? 'text-error' : 'text-on-surface/40' ]"
+            class="icon-text text-xs focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
+            :class="[devmode.isSelected.value ? 'text-error hover:text-error' : 'text-on-surface/40 hover:text-primary' ]"
             type="button"
             @click="devmode.toggle()"
           >
@@ -134,6 +133,7 @@
           </button>
 
           <button
+            v-if="hasChanges"
             aria-label="Reset all settings to defaults"
             class="text-xs text-on-surface/40 hover:text-error hover:underline focus-visible:text-error focus-visible:underline focus-visible:outline-none transition-colors"
             type="button"

@@ -1,13 +1,11 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { Features } from 'lightningcss'
 import UnocssVitePlugin from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
 import VueRouter from 'unplugin-vue-router/vite'
 import Vue from 'unplugin-vue/rolldown'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import VueDevTools from 'vite-plugin-vue-devtools'
 import Layouts from 'vite-plugin-vue-layouts-next'
 import generateSitemap from 'vite-ssg-sitemap'
 
@@ -23,6 +21,7 @@ import generateNavPlugin from './build/generate-nav'
 import generatePageDatesPlugin from './build/generate-page-dates'
 import generateSearchIndexPlugin from './build/generate-search-index'
 import Markdown from './build/markdown'
+import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig({
@@ -30,16 +29,23 @@ export default defineConfig({
     sourcemap: true,
   },
   css: {
-    lightningcss: {
-      exclude: Features.LightDark,
-    },
+    transformer: 'postcss', // Use postcss instead of lightningcss to preserve color-mix syntax
   },
   ssgOptions: {
+    // Disable beasties critical CSS extraction. Beasties inconsistently inlines
+    // UnoCSS utilities (some classes get inlined, others don't) causing layout
+    // shift when the external CSS loads. With this disabled, CSS loads as a
+    // blocking resource - all styles available before first paint, zero CLS.
+    beastiesOptions: false,
     dirStyle: 'nested',
     async includedRoutes (paths) {
-      const apiSlugs = await getApiSlugs()
+      const [apiSlugs, skillzSlugs] = await Promise.all([
+        getApiSlugs(),
+        getSkillzSlugs(),
+      ])
       const apiRoutes = apiSlugs.map(slug => `/api/${slug}`)
-      return [...paths, ...apiRoutes]
+      const skillzRoutes = skillzSlugs.map(slug => `/skillz/${slug}`)
+      return [...paths, ...apiRoutes, ...skillzRoutes]
     },
     onFinished () {
       generateSitemap({
@@ -55,7 +61,6 @@ export default defineConfig({
     Vue({
       include: [/\.vue$/, /\.md$/],
     }),
-    process.env.NODE_ENV !== 'production' && VueDevTools(),
     await Markdown(),
     Components({
       dirs: ['src/components'],

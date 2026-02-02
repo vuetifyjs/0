@@ -11,7 +11,7 @@
     clickable?: boolean
   }>()
 
-  const { scrollToAnchor } = useScrollToAnchor()
+  const scroll = useScrollToAnchor()
   const pageMeta = usePageMetaOptional()
 
   const resolvedBenchmark = computed(() => props.benchmark ?? pageMeta?.benchmark.value ?? null)
@@ -27,6 +27,6 @@
     :icon="resolvedBenchmark.icon"
     :text="resolvedBenchmark.label"
     :title="isClickable ? 'View performance benchmarks' : undefined"
-    @click.prevent="isClickable && scrollToAnchor('benchmarks')"
+    @click.prevent="isClickable && scroll.scrollToAnchor('benchmarks')"
   />
 </template>

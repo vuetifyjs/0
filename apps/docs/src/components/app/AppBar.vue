@@ -6,6 +6,7 @@
   import { Discovery } from '@/components/discovery'
 
   // Composables
+  import { useNavigation } from '@/composables/useNavigation'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
@@ -16,12 +17,9 @@
   // Types
   import type { AtomProps } from '@vuetify/v0'
 
-  // Stores
-  import { useAppStore } from '@/stores/app'
-
   const { as = 'header' } = defineProps<AtomProps>()
 
-  const app = useAppStore()
+  const navigation = useNavigation()
   const storage = useStorage()
   const route = useRoute()
 
@@ -31,7 +29,7 @@
   const features = useFeatures()
   const theme = useTheme()
   const search = useSearch()
-  const { showSkillFilter, showThemeToggle, showSocialLinks } = useSettings()
+  const settings = useSettings()
 
   const devmode = features.get('devmode')!
 
@@ -40,15 +38,15 @@
   })
 
   const src = toRef(() => theme.isDark.value
-    ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.png'
-    : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.png',
+    ? 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-dark.svg'
+    : 'https://cdn.vuetifyjs.com/docs/images/logos/vzero-logo-light.svg',
   )
 </script>
 
 <template>
   <Atom
     :as
-    class="flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1 bg-glass-surface"
+    :class="['flex items-center justify-between h-[48px] fixed left-0 top-[24px] right-0 px-3 text-on-surface border-b border-solid border-divider z-1', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     data-app-bar
   >
     <div class="flex items-center gap-2">
@@ -57,6 +55,7 @@
           alt="Vuetify0 Logo"
           decoding="async"
           fetchpriority="high"
+          height="52"
           :src
           width="128"
         >
@@ -64,19 +63,19 @@
 
       <button
         v-if="!isHomePage"
-        :aria-expanded="app.drawer"
-        :aria-label="app.drawer ? 'Close navigation' : 'Open navigation'"
+        :aria-expanded="navigation.isOpen.value"
+        :aria-label="navigation.isOpen.value ? 'Close navigation' : 'Open navigation'"
         class="pa-1 cursor-pointer md:hidden bg-transparent border-0 inline-flex align-center"
         type="button"
-        @click="app.drawer = !app.drawer"
+        @click="navigation.toggle()"
       >
-        <AppIcon :icon="app.drawer ? 'close' : 'menu'" />
+        <AppIcon :icon="navigation.isOpen.value ? 'close' : 'menu'" />
       </button>
 
-      <Discovery.Activator class="rounded-2xl" step="open-search">
+      <Discovery.Activator class="rounded-2xl" step="search">
         <button
           aria-label="Search (Ctrl+K)"
-          class="inline-flex items-center gap-1.5 md:bg-glass-surface rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors"
+          :class="['inline-flex items-center gap-1.5 rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors', settings.showBgGlass.value ? 'md:bg-glass-surface' : 'md:bg-surface']"
           title="Search (Ctrl+K)"
           type="button"
           @click="search.open()"
@@ -91,12 +90,12 @@
     </div>
 
     <div class="flex align-center items-center gap-3">
-      <AppSkillFilter v-if="!isHomePage && showSkillFilter && breakpoints.width.value >= 440" />
+      <AppSkillFilter v-if="!isHomePage && settings.showSkillFilter.value && breakpoints.width.value >= 440" />
 
-      <AppThemeToggle v-if="isHomePage || showThemeToggle" />
+      <AppThemeToggle v-if="isHomePage || settings.showThemeToggle.value" />
 
       <a
-        v-if="isHomePage || showSocialLinks"
+        v-if="isHomePage || settings.showSocialLinks.value"
         aria-label="Discord Community (opens in new tab)"
         class="bg-[#5865F2] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://discord.gg/vK6T89eNP7"
@@ -108,7 +107,7 @@
       </a>
 
       <a
-        v-if="isHomePage || showSocialLinks"
+        v-if="isHomePage || settings.showSocialLinks.value"
         aria-label="GitHub Repository (opens in new tab)"
         class="bg-[#24292f] text-white pa-1 inline-flex rounded opacity-90 hover:opacity-100"
         href="https://github.com/vuetifyjs/0"

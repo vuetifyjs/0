@@ -18,23 +18,23 @@
   import { useRoute } from 'vue-router'
 
   useScrollPersist()
-  const { prefersReducedMotion, showDotGrid, showMeshTransition } = useSettings()
+  const settings = useSettings()
 
   const route = useRoute()
   watch(() => route.fullPath, (to, from) => {
     if (!IN_BROWSER) return
     if (to.includes('#') || history.state?.scroll) return
     if (to === from) return
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion.value ? 'auto' : 'smooth' })
+    window.scrollTo({ top: 0, behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth' })
   })
 
-  const { preference } = useThemeToggle()
-  const showMesh = toRef(() => preference.value !== 'high-contrast')
+  const toggle = useThemeToggle()
+  const showMesh = toRef(() => toggle.preference.value !== 'high-contrast')
   const showBottomMesh = shallowRef(false)
 
   useWindowEventListener('scroll', () => {
     if (!IN_BROWSER) return
-    showBottomMesh.value = showMeshTransition.value && window.scrollY > 200
+    showBottomMesh.value = settings.showMeshTransition.value && window.scrollY > 200
   }, { passive: true })
 
   const head = injectHead()
@@ -61,15 +61,12 @@
 <template>
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-top" />
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
-  <main class="min-h-screen pt-[72px] text-on-background" :class="{ 'dot-grid': showDotGrid }">
+  <main class="min-h-screen pt-[72px] text-on-background" :class="{ 'dot-grid': settings.showDotGrid.value }">
     <router-view />
   </main>
 
-  <!-- API hover popovers for code blocks -->
+  <!-- API hover popovers for code blocks (v0 and Vue APIs) -->
   <DocsApiHover />
-
-  <!-- Vue documentation links for code blocks -->
-  <DocsVueLink />
 
   <!-- Discovery overlay -->
   <DocsHighlight />
@@ -141,6 +138,7 @@
       background:
         radial-gradient(circle, color-mix(in srgb, var(--v0-on-background) 10%, transparent) 1px, transparent 1px);
       background-size: 24px 24px;
+      background-position: 18px 0;
       mask-image: linear-gradient(
         225deg,
         black 0%,
@@ -282,8 +280,14 @@
       margin-bottom: 0.5rem;
     }
 
-    .shiki, .shiki span {
+    .shiki {
+      overflow: hidden;
+    }
+
+    .shiki code {
+      display: block;
       overflow-x: auto;
+      padding: 0.5rem 1rem;
     }
 
     table {
@@ -316,21 +320,92 @@
     }
   }
 
-  /* DocsMarkup code block padding */
-  .docs-markup pre {
-    padding-top: 2.5rem;
+  /* DocsMarkup code block styling */
+  .docs-markup .shiki {
+    padding-top: 2rem;
+  }
+
+  .docs-markup .shiki code {
+    padding-bottom: 1rem;
   }
 
   @media (max-width: 768px) {
-    .docs-markup pre {
+    .docs-markup .shiki code {
       padding-right: 5rem;
     }
   }
 
-  /* DocsMarkup line wrap toggle */
-  .docs-markup--wrap pre code {
+  .docs-markup--wrap .shiki code {
     white-space: pre-wrap;
     word-break: break-word;
+  }
+
+  /* DocsExample code block styling */
+  .docs-example-code .shiki {
+    border: none;
+    border-top: thin solid var(--v0-divider);
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+
+  .docs-example-code .shiki code {
+    padding-right: 5rem;
+    line-height: 1.625;
+  }
+
+  .docs-example-code--expanded .shiki {
+    padding-top: 2rem;
+  }
+
+  .docs-example-code--wrap .shiki code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* DocsCodeGroup code block styling */
+  .docs-code-group .shiki {
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  /* DocsApiCard code block styling */
+  .docs-api-card .shiki {
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    padding-top: 2rem;
+  }
+
+  .docs-api-card .shiki code {
+    padding: 1rem;
+    padding-right: 5rem;
+    line-height: 1.625;
+  }
+
+  .docs-api-card--wrap .shiki code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* DocsReleases code block styling */
+  .docs-releases pre {
+    background-color: var(--v0-pre);
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+  }
+
+  .docs-releases code {
+    background-color: var(--v0-surface-tint);
+    padding: 0 0.25rem;
+    border-radius: 0.25rem;
+  }
+
+  .docs-releases pre code {
+    background-color: transparent;
+    padding: 0;
   }
 
   /* Shiki theme switching */
@@ -340,7 +415,6 @@
     background-color: var(--shiki-light-bg);
     border: thin solid var(--v0-divider);
     border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
   }
 
   /* Focus indicator for keyboard scrolling (inset to avoid clipping by overflow-hidden parent) */
@@ -353,11 +427,19 @@
     color: var(--shiki-light);
   }
 
-  [data-theme] .shiki {
-    background-color: light-dark(var(--shiki-light-bg), var(--shiki-dark-bg));
+  [data-theme="light"] .shiki {
+    background-color: var(--shiki-light-bg);
   }
 
-  [data-theme] .shiki span {
-    color: light-dark(var(--shiki-light), var(--shiki-dark));
+  [data-theme="dark"] .shiki {
+    background-color: var(--shiki-dark-bg);
+  }
+
+  [data-theme="light"] .shiki span {
+    color: var(--shiki-light);
+  }
+
+  [data-theme="dark"] .shiki span {
+    color: var(--shiki-dark);
   }
 </style>

@@ -114,6 +114,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/providers/scrim': RouteRecordInfo<
+      '/components/providers/scrim',
+      '/components/providers/scrim',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/providers/selection': RouteRecordInfo<
       '/components/providers/selection',
       '/components/providers/selection',
@@ -184,6 +191,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/create-stack': RouteRecordInfo<
+      '/composables/plugins/create-stack',
+      '/composables/plugins/create-stack',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-breakpoints': RouteRecordInfo<
       '/composables/plugins/use-breakpoints',
       '/composables/plugins/use-breakpoints',
@@ -229,6 +243,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-permissions': RouteRecordInfo<
       '/composables/plugins/use-permissions',
       '/composables/plugins/use-permissions',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-stack': RouteRecordInfo<
+      '/composables/plugins/use-stack',
+      '/composables/plugins/use-stack',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -401,30 +422,30 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/use-filter': RouteRecordInfo<
-      '/composables/utilities/use-filter',
-      '/composables/utilities/use-filter',
+    '/composables/utilities/create-filter': RouteRecordInfo<
+      '/composables/utilities/create-filter',
+      '/composables/utilities/create-filter',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/use-overflow': RouteRecordInfo<
-      '/composables/utilities/use-overflow',
-      '/composables/utilities/use-overflow',
+    '/composables/utilities/create-overflow': RouteRecordInfo<
+      '/composables/utilities/create-overflow',
+      '/composables/utilities/create-overflow',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/use-pagination': RouteRecordInfo<
-      '/composables/utilities/use-pagination',
-      '/composables/utilities/use-pagination',
+    '/composables/utilities/create-pagination': RouteRecordInfo<
+      '/composables/utilities/create-pagination',
+      '/composables/utilities/create-pagination',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/use-virtual': RouteRecordInfo<
-      '/composables/utilities/use-virtual',
-      '/composables/utilities/use-virtual',
+    '/composables/utilities/create-virtual': RouteRecordInfo<
+      '/composables/utilities/create-virtual',
+      '/composables/utilities/create-virtual',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -432,6 +453,13 @@ declare module 'vue-router/auto-routes' {
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/guide/essentials/using-the-docs': RouteRecordInfo<
+      '/guide/essentials/using-the-docs',
+      '/guide/essentials/using-the-docs',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -541,13 +569,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/guide/using-the-docs': RouteRecordInfo<
-      '/guide/using-the-docs',
-      '/guide/using-the-docs',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/introduction/browser-support': RouteRecordInfo<
       '/introduction/browser-support',
       '/introduction/browser-support',
@@ -616,6 +637,20 @@ declare module 'vue-router/auto-routes' {
       '/roadmap',
       Record<never, never>,
       Record<never, never>,
+      | never
+    >,
+    '/skillz/': RouteRecordInfo<
+      '/skillz/',
+      '/skillz',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/skillz.[id]': RouteRecordInfo<
+      '/skillz.[id]',
+      '/skillz/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
       | never
     >,
     '/storybook/': RouteRecordInfo<
@@ -723,6 +758,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/providers/scrim.md': {
+      routes:
+        | '/components/providers/scrim'
+      views:
+        | never
+    }
     'src/pages/components/providers/selection.md': {
       routes:
         | '/components/providers/selection'
@@ -783,6 +824,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/plugins/create-stack.md': {
+      routes:
+        | '/composables/plugins/create-stack'
+      views:
+        | never
+    }
     'src/pages/composables/plugins/use-breakpoints.md': {
       routes:
         | '/composables/plugins/use-breakpoints'
@@ -822,6 +869,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-permissions.md': {
       routes:
         | '/composables/plugins/use-permissions'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-stack.md': {
+      routes:
+        | '/composables/plugins/use-stack'
       views:
         | never
     }
@@ -969,33 +1022,39 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/utilities/use-filter.md': {
+    'src/pages/composables/utilities/create-filter.md': {
       routes:
-        | '/composables/utilities/use-filter'
+        | '/composables/utilities/create-filter'
       views:
         | never
     }
-    'src/pages/composables/utilities/use-overflow.md': {
+    'src/pages/composables/utilities/create-overflow.md': {
       routes:
-        | '/composables/utilities/use-overflow'
+        | '/composables/utilities/create-overflow'
       views:
         | never
     }
-    'src/pages/composables/utilities/use-pagination.md': {
+    'src/pages/composables/utilities/create-pagination.md': {
       routes:
-        | '/composables/utilities/use-pagination'
+        | '/composables/utilities/create-pagination'
       views:
         | never
     }
-    'src/pages/composables/utilities/use-virtual.md': {
+    'src/pages/composables/utilities/create-virtual.md': {
       routes:
-        | '/composables/utilities/use-virtual'
+        | '/composables/utilities/create-virtual'
       views:
         | never
     }
     'src/pages/guide/index.md': {
       routes:
         | '/guide/'
+      views:
+        | never
+    }
+    'src/pages/guide/essentials/using-the-docs.md': {
+      routes:
+        | '/guide/essentials/using-the-docs'
       views:
         | never
     }
@@ -1089,12 +1148,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/guide/using-the-docs.md': {
-      routes:
-        | '/guide/using-the-docs'
-      views:
-        | never
-    }
     'src/pages/introduction/browser-support.md': {
       routes:
         | '/introduction/browser-support'
@@ -1152,6 +1205,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/roadmap.md': {
       routes:
         | '/roadmap'
+      views:
+        | never
+    }
+    'src/pages/skillz/index.md': {
+      routes:
+        | '/skillz/'
+      views:
+        | never
+    }
+    'src/pages/skillz.[id].vue': {
+      routes:
+        | '/skillz.[id]'
       views:
         | never
     }

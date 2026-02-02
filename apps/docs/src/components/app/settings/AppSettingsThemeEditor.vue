@@ -20,12 +20,12 @@
     delete: [id: string]
   }>()
 
-  const { previewTheme } = useCustomThemes()
+  const customThemes = useCustomThemes()
   const themeSystem = useTheme()
 
   // Debounce preview updates to avoid lag during color picker drag
   const debouncedPreview = debounce((colors: Record<string, string>, dark: boolean) => {
-    previewTheme(colors, dark)
+    customThemes.preview(colors, dark)
   }, 16) // ~60fps
 
   // Color groups for organized editing
@@ -94,7 +94,7 @@
   )
 
   // Apply immediately on mount (debounce skips first call otherwise)
-  previewTheme(draft.colors, draft.dark)
+  customThemes.preview(draft.colors, draft.dark)
 
   function handleSave () {
     const theme: CustomTheme = {

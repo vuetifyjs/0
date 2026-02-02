@@ -86,14 +86,14 @@
 
     <div class="grid grid-cols-3 md:flex gap-4 md:gap-12 justify-center text-center mt-12">
       <div>
-        <div class="text-2xl md:text-3xl font-bold">{{ stats.stars }}</div>
+        <div class="text-2xl md:text-3xl font-bold min-w-[4ch]">{{ stats.stars }}</div>
         <div class="text-sm opacity-60">GitHub Stars</div>
       </div>
 
       <div class="hidden md:block w-px bg-divider" />
 
       <div>
-        <div class="text-2xl md:text-3xl font-bold">{{ stats.downloads }}</div>
+        <div class="text-2xl md:text-3xl font-bold min-w-[4ch]">{{ stats.downloads }}</div>
         <div class="text-sm opacity-60">Monthly Downloads</div>
       </div>
 

@@ -10,8 +10,8 @@
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useId, useTemplateRef, watch } from 'vue'
 
-  const { prefersReducedMotion } = useSettings()
-  const { copied, copy } = useClipboard()
+  const settings = useSettings()
+  const clipboard = useClipboard()
   const logger = useLogger()
 
   // Types
@@ -237,7 +237,7 @@
   }
 
   function copySvg () {
-    copy(svg.value)
+    clipboard.copy(svg.value)
   }
 
   function downloadSvg () {
@@ -286,7 +286,7 @@
       </figure>
     </Dialog.Activator>
 
-    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl bg-glass-surface border border-divider', prefersReducedMotion && 'reduce-motion']">
+    <Dialog.Content :class="['docs-mermaid-dialog m-auto rounded-xl border border-divider', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface', settings.prefersReducedMotion.value && 'reduce-motion']">
       <!-- Header toolbar -->
       <div class="flex items-center justify-between gap-2 p-2 border-b border-divider">
         <Dialog.Title as="span" class="sr-only">
@@ -301,7 +301,7 @@
         <div class="flex items-center gap-1">
           <button
             aria-label="Zoom out"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             title="Zoom out"
             type="button"
             @click="zoomOut"
@@ -313,7 +313,7 @@
 
           <button
             aria-label="Zoom in"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             title="Zoom in"
             type="button"
             @click="zoomIn"
@@ -325,7 +325,7 @@
 
           <button
             aria-label="Reset view"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             title="Reset view"
             type="button"
             @click="resetZoom"
@@ -341,14 +341,14 @@
         <!-- Action buttons -->
         <div class="flex items-center gap-1">
           <button
-            :aria-label="copied ? 'Copied!' : 'Copy SVG'"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
-            :title="copied ? 'Copied!' : 'Copy SVG'"
+            :aria-label="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
+            class="btn-icon"
+            :title="clipboard.copied.value ? 'Copied!' : 'Copy SVG'"
             type="button"
             @click="copySvg"
           >
             <svg
-              v-if="!copied"
+              v-if="!clipboard.copied.value"
               class="w-4 h-4"
               fill="none"
               stroke="currentColor"
@@ -369,7 +369,7 @@
 
           <button
             aria-label="Download SVG"
-            class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider"
+            class="btn-icon"
             title="Download SVG"
             type="button"
             @click="downloadSvg"
@@ -381,7 +381,7 @@
 
           <div class="w-px h-4 bg-divider mx-1" />
 
-          <Dialog.Close aria-label="Close diagram" class="p-1.5 rounded-md hover:bg-surface border border-transparent hover:border-divider" title="Close">
+          <Dialog.Close aria-label="Close diagram" class="btn-icon" title="Close">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
             </svg>
@@ -510,6 +510,36 @@
   }
 
   /* Semantic node classes (use with classDef in mermaid) */
+  .docs-mermaid .node.primary rect,
+  .docs-mermaid .node.primary polygon {
+    fill: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid .node.primary .nodeLabel {
+    fill: var(--v0-on-primary) !important;
+    color: var(--v0-on-primary) !important;
+  }
+
+  .docs-mermaid .node.secondary rect,
+  .docs-mermaid .node.secondary polygon {
+    fill: var(--v0-secondary) !important;
+  }
+
+  .docs-mermaid .node.secondary .nodeLabel {
+    fill: var(--v0-on-secondary) !important;
+    color: var(--v0-on-secondary) !important;
+  }
+
+  .docs-mermaid .node.accent rect,
+  .docs-mermaid .node.accent polygon {
+    fill: var(--v0-accent) !important;
+  }
+
+  .docs-mermaid .node.accent .nodeLabel {
+    fill: var(--v0-on-accent) !important;
+    color: var(--v0-on-accent) !important;
+  }
+
   .docs-mermaid .node.success rect,
   .docs-mermaid .node.success polygon {
     fill: var(--v0-success) !important;
@@ -625,7 +655,7 @@
 
   @keyframes backdrop-fade {
     from { background: rgb(0 0 0 / 0); }
-    to { background: rgb(0 0 0 / 0.5); }
+    to { background: rgb(0 0 0 / 0.3); }
   }
 
   .docs-mermaid-dialog[open] {
@@ -642,6 +672,6 @@
   }
 
   .docs-mermaid-dialog.reduce-motion[open]::backdrop {
-    background: rgb(0 0 0 / 0.5);
+    background: rgb(0 0 0 / 0.3);
   }
 </style>
