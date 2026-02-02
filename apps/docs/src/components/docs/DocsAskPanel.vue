@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints } from '@vuetify/v0'
+  import { isNull, useBreakpoints } from '@vuetify/v0'
 
   // Components
   import DocsAskMessage from './DocsAskMessage.vue'
@@ -39,21 +39,71 @@
   const clipboard = useClipboard()
   const settings = useSettings()
 
-  const messagesRef = useTemplateRef<HTMLElement | null>('messages')
+  const messagesRef = useTemplateRef<{ $el: HTMLElement } | null>('messages')
   const formRef = useTemplateRef<{ focus: () => void }>('form')
 
   const isDesktop = computed(() => breakpoints.lgAndUp.value)
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll until response fills the viewport
+  let shouldAutoScroll = true
+  let lockedScrollTop: number | null = null
+
+  function getMessagesEl () {
+    return messagesRef.value?.$el
+  }
+
+  function updateScroll () {
+    const container = getMessagesEl()
+    if (!container) return
+
+    // If we've locked the scroll position, maintain it
+    if (!isNull(lockedScrollTop)) {
+      container.scrollTop = lockedScrollTop
+      return
+    }
+
+    if (!shouldAutoScroll) return
+
+    // Scroll to bottom first
+    container.scrollTop = container.scrollHeight
+
+    // Find the user's question (second-to-last message)
+    const messages = container.querySelectorAll(':scope > *')
+    const userMessage = messages.at(-2)
+    if (!userMessage) return
+
+    const containerRect = container.getBoundingClientRect()
+    const userRect = userMessage.getBoundingClientRect()
+    const padding = Number.parseFloat(getComputedStyle(container).paddingTop) || 0
+
+    // Lock scroll when user's question reaches the container top
+    if (userRect.top <= containerRect.top + padding) {
+      shouldAutoScroll = false
+      // Keep user's question at the top
+      const offset = userRect.top - (containerRect.top + padding)
+      lockedScrollTop = container.scrollTop + offset
+      container.scrollTop = lockedScrollTop
+    }
+  }
+
   watch(
     () => props.messages,
     async () => {
       await nextTick()
-      if (!messagesRef.value) return
-
-      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+      updateScroll()
     },
     { deep: true },
+  )
+
+  // Reset auto-scroll when starting a new message
+  watch(
+    () => props.isLoading,
+    loading => {
+      if (!loading) return
+
+      shouldAutoScroll = true
+      lockedScrollTop = null
+    },
   )
 
   function onSubmit (question: string) {
