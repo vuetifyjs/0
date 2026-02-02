@@ -141,7 +141,7 @@ interface RegistryTicket {
 flowchart LR
     R[createRegistry] --> S[createSelection]
     R --> T[createTokens]
-    R --> F[useForm]
+    R --> F[createForm]
     S --> Si[createSingle]
     S --> G[createGroup]
     Si --> St[createStep]
@@ -155,7 +155,7 @@ flowchart LR
 | `createGroup` | Selection | Tri-state, batch ops |
 | `createStep` | Single | Navigation (next/prev/first/last) |
 | `createTokens` | Registry | Alias resolution |
-| `useForm` | Registry | Validation |
+| `createForm` | Registry | Validation |
 
 ## Selection System
 
