@@ -31,7 +31,7 @@
   const mountedWrappers = new Set<HTMLElement>()
   let mermaidMounted = false
 
-  watch(html, async () => {
+  watch(markdown.html, async () => {
     await nextTick()
     mountDynamicComponents()
     mountAlertComponents()
@@ -138,7 +138,7 @@
 <template>
   <div
     v-if="isUser"
-    class="flex justify-end"
+    class="flex justify-end mb-2"
   >
     <div class="max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm leading-relaxed bg-primary text-on-primary">
       <div class="whitespace-pre-wrap break-words">{{ content }}</div>
@@ -151,10 +151,10 @@
   >
     <!-- Rendered markdown -->
     <div
-      v-if="markdown.html"
+      v-if="markdown.html.value"
       ref="content"
       class="markdown-body"
-      v-html="markdown.html"
+      v-html="markdown.html.value"
     />
 
     <!-- Streaming indicator -->
