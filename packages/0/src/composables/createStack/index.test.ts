@@ -678,4 +678,290 @@ describe('createStack', () => {
       expect(() => scope.stop()).not.toThrow()
     })
   })
+
+  describe('edge cases', () => {
+    it('should have correct globalTop after rapid toggle cycles', async () => {
+      vi.useFakeTimers()
+
+      const isActive1 = ref(true)
+      const isActive2 = ref(false)
+
+      const result1 = effectScope().run(() => useStack(isActive1))!
+      const result2 = effectScope().run(() => useStack(isActive2))!
+
+      await nextTick()
+      vi.runAllTimers()
+
+      // Rapid toggle: A open, B open, B close, B open
+      isActive2.value = true
+      await nextTick()
+      isActive2.value = false
+      await nextTick()
+      isActive2.value = true
+      await nextTick()
+      vi.runAllTimers()
+
+      // Final state: both open, B should be top
+      expect(result1.globalTop.value).toBe(false)
+      expect(result2.globalTop.value).toBe(true)
+
+      vi.useRealTimers()
+    })
+
+    it('should maintain z-index when middle overlay closes', async () => {
+      const isActive1 = ref(true)
+      const isActive2 = ref(true)
+      const isActive3 = ref(true)
+
+      const result1 = effectScope().run(() => useStack(isActive1))!
+      const result2 = effectScope().run(() => useStack(isActive2))!
+      const result3 = effectScope().run(() => useStack(isActive3))!
+
+      await nextTick()
+
+      expect(result1.zIndex.value).toBe(2000)
+      expect(result2.zIndex.value).toBe(2010)
+      expect(result3.zIndex.value).toBe(2020)
+
+      // Close middle overlay
+      isActive2.value = false
+      await nextTick()
+
+      // First and third should keep their z-indexes
+      expect(result1.zIndex.value).toBe(2000)
+      expect(result3.zIndex.value).toBe(2020)
+      expect(stack.registry.size).toBe(2)
+    })
+
+    it('should get new z-index when overlay is reopened', async () => {
+      const isActive1 = ref(true)
+      const isActive2 = ref(true)
+
+      const result1 = effectScope().run(() => useStack(isActive1))!
+      effectScope().run(() => useStack(isActive2))
+
+      await nextTick()
+
+      expect(result1.zIndex.value).toBe(2000)
+
+      // Close and reopen first overlay
+      isActive1.value = false
+      await nextTick()
+      isActive1.value = true
+      await nextTick()
+
+      // Should get new z-index (on top now)
+      expect(result1.zIndex.value).toBe(2020)
+    })
+
+    it('should no-op when dismissing non-existent ID', async () => {
+      const onDismiss = vi.fn()
+
+      effectScope().run(() => useStack(ref(true), onDismiss))
+      await nextTick()
+
+      // Dismiss with fake ID should not throw or call any callback
+      expect(() => stack.dismiss('non-existent-id')).not.toThrow()
+      expect(onDismiss).not.toHaveBeenCalled()
+    })
+
+    it('should handle multiple blocking overlays correctly', async () => {
+      const onDismiss1 = vi.fn()
+      const onDismiss2 = vi.fn()
+
+      effectScope().run(() => useStack(ref(true), onDismiss1, { blocking: true }))
+      effectScope().run(() => useStack(ref(true), onDismiss2, { blocking: true }))
+
+      await nextTick()
+
+      // Top is blocking
+      expect(stack.isBlocking.value).toBe(true)
+
+      // Dismiss should not call either callback
+      stack.dismiss()
+      expect(onDismiss1).not.toHaveBeenCalled()
+      expect(onDismiss2).not.toHaveBeenCalled()
+    })
+
+    it('should handle onDismiss that opens another overlay', async () => {
+      const isActive1 = ref(true)
+      const isActive2 = ref(false)
+
+      const onDismiss1 = vi.fn(() => {
+        // Opening another overlay during dismiss
+        isActive2.value = true
+      })
+
+      effectScope().run(() => useStack(isActive1, onDismiss1))
+      effectScope().run(() => useStack(isActive2))
+
+      await nextTick()
+
+      expect(stack.registry.size).toBe(1)
+
+      // Dismiss should trigger callback which opens overlay 2
+      stack.dismiss()
+
+      expect(onDismiss1).toHaveBeenCalled()
+      expect(isActive2.value).toBe(true)
+
+      await nextTick()
+
+      // Overlay 2 should now be in stack
+      expect(stack.registry.size).toBe(2)
+    })
+
+    it('should handle concurrent activation in same tick', async () => {
+      vi.useFakeTimers()
+
+      const isActive1 = ref(false)
+      const isActive2 = ref(false)
+
+      const result1 = effectScope().run(() => useStack(isActive1))!
+      const result2 = effectScope().run(() => useStack(isActive2))!
+
+      // Activate both in same tick
+      isActive1.value = true
+      isActive2.value = true
+
+      await nextTick()
+      vi.runAllTimers()
+
+      // Both should be registered with different z-indexes
+      expect(stack.registry.size).toBe(2)
+      expect(result1.zIndex.value).toBe(2000)
+      expect(result2.zIndex.value).toBe(2010)
+
+      vi.useRealTimers()
+    })
+
+    it('should handle parent unmount while children are active', async () => {
+      vi.useFakeTimers()
+
+      let pluginContext: ReturnType<typeof useStackContext> | undefined
+
+      const parentActive = ref(true)
+      const childActive = ref(true)
+
+      const Child = defineComponent({
+        setup () {
+          useStack(childActive)
+          return () => null
+        },
+      })
+
+      const Parent = defineComponent({
+        setup () {
+          pluginContext = useStackContext()
+          useStack(parentActive)
+          return () => parentActive.value ? h(Child) : null
+        },
+      })
+
+      const wrapper = mount(Parent, {
+        global: {
+          plugins: [createStackPlugin()],
+        },
+      })
+
+      await nextTick()
+      vi.runAllTimers()
+
+      // Both should be in plugin's isolated registry
+      expect(pluginContext!.registry.size).toBe(2)
+
+      // Deactivate parent (unmounts child)
+      parentActive.value = false
+      await nextTick()
+      vi.runAllTimers()
+
+      // Wrapper needs to re-render
+      await wrapper.vm.$nextTick()
+
+      // Stack should be empty (parent removed itself, child unmounted)
+      expect(pluginContext!.registry.size).toBe(0)
+
+      vi.useRealTimers()
+    })
+
+    it('should handle scope disposal during active state', async () => {
+      const isActive = ref(true)
+
+      const scope = effectScope()
+      const result = scope.run(() => useStack(isActive))!
+
+      await nextTick()
+
+      expect(stack.registry.has(result.id)).toBe(true)
+
+      // Dispose scope while overlay is active
+      scope.stop()
+
+      // Should be removed from registry
+      expect(stack.registry.has(result.id)).toBe(false)
+    })
+
+    it('should maintain correct order with many overlays', async () => {
+      vi.useFakeTimers()
+
+      const overlays = Array.from({ length: 10 }, () => ref(true))
+      const results = overlays.map(isActive =>
+        effectScope().run(() => useStack(isActive))!,
+      )
+
+      await nextTick()
+      vi.runAllTimers()
+
+      // Verify z-index order
+      for (const [index, result] of results.entries()) {
+        expect(result.zIndex.value).toBe(2000 + index * 10)
+      }
+
+      // Only last should be globalTop
+      for (const [index, result] of results.entries()) {
+        expect(result.globalTop.value).toBe(index === 9)
+      }
+
+      // Close some in random order
+      overlays[3]!.value = false
+      overlays[7]!.value = false
+      overlays[1]!.value = false
+
+      await nextTick()
+      vi.runAllTimers()
+
+      expect(stack.registry.size).toBe(7)
+      // Last remaining should be globalTop
+      expect(results[9]!.globalTop.value).toBe(true)
+
+      vi.useRealTimers()
+    })
+
+    it('should handle dismiss called multiple times rapidly', async () => {
+      const isActive = ref(true)
+      const onDismiss = vi.fn(() => {
+        isActive.value = false
+      })
+
+      effectScope().run(() => useStack(isActive, onDismiss))
+      await nextTick()
+
+      expect(stack.registry.size).toBe(1)
+
+      // Call dismiss - should trigger onDismiss which sets isActive to false
+      stack.dismiss()
+
+      await nextTick()
+
+      // Overlay should be removed now
+      expect(stack.registry.size).toBe(0)
+      expect(onDismiss).toHaveBeenCalledTimes(1)
+
+      // Subsequent dismisses should no-op (stack is empty)
+      stack.dismiss()
+      stack.dismiss()
+
+      expect(onDismiss).toHaveBeenCalledTimes(1)
+    })
+  })
 })
