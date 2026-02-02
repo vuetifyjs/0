@@ -124,14 +124,14 @@ bunx @vuetify/mcp
 
 Manual configuration for each IDE. Use the interactive setup above for automatic configuration.
 
-| IDE | Config File |
-| - | - |
-| Claude Code | `~/.claude.json` or project `.mcp.json` |
-| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
-| VS Code (Copilot) | `~/.config/Code/User/settings.json` |
-| Cursor | `~/.config/Cursor/User/mcp.json` |
-| Windsurf | `~/.config/Windsurf/User/mcp.json` |
-| Trae | `~/.config/Trae/User/mcp.json` |
+| IDE | Config File (Linux) | Config File (macOS) |
+| - | - | - |
+| Claude Code | `~/.claude.json` or `.mcp.json` | `~/.claude.json` or `.mcp.json` |
+| Claude Desktop | N/A | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| VS Code | `~/.config/Code/User/mcp.json` | `~/Library/Application Support/Code/User/mcp.json` |
+| Cursor | `~/.config/Cursor/User/mcp.json` | `~/Library/Application Support/Cursor/User/mcp.json` |
+| Windsurf | `~/.config/Windsurf/User/mcp.json` | `~/Library/Application Support/Windsurf/User/mcp.json` |
+| Trae | `~/.config/Trae/User/mcp.json` | `~/Library/Application Support/Trae/User/mcp.json` |
 
 ::: code-group no-filename
 
@@ -166,6 +166,12 @@ Manual configuration for each IDE. Use the interactive setup above for automatic
 | `get_vuetify0_composable_guide` | Detailed composable documentation |
 | `get_vuetify0_component_list` | List all headless components |
 | `get_vuetify0_component_guide` | Component documentation and examples |
+| `get_vuetify0_exports_list` | Package subpath exports |
+| `get_vuetify0_installation_guide` | Setup instructions |
+| `get_vuetify0_package_guide` | Package-specific documentation |
+
+> [!TIP]
+> The MCP server also includes tools for Vuetify 3/4 APIs, installation guides, and [Vuetify Bins](https://bin.vuetifyjs.com). Run `tools/list` to see all available tools.
 
 ## Workflow
 
