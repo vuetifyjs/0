@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, useClickOutside, useFeatures, useHydration, useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useClickOutside, useFeatures, useWindowEventListener } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -23,7 +23,6 @@
   import { useAppStore } from '@/stores/app'
 
   const settings = useSettings()
-  const hydration = useHydration()
   const devmode = useFeatures().get('devmode')!
 
   const app = useAppStore()
@@ -47,7 +46,7 @@
   const visibleNav = computed(() => devmode.isSelected.value ? navConfig.configuredNav.value : filterDevmode(navConfig.configuredNav.value))
 
   // Provide nested nav context for collapsible sections
-  const { provide: provideNavNested } = createNavNested(visibleNav)
+  const { provide: provideNavNested, scrollEnabled } = createNavNested(visibleNav)
   provideNavNested()
 
   // Find a page by path in nav tree
@@ -95,24 +94,21 @@
   onMounted(updateMobile)
   useWindowEventListener('resize', updateMobile, { passive: true })
 
-  // Scroll active link into view after hydration settles
-  watch(hydration.isSettled, settled => {
-    if (!settled || !IN_BROWSER) return
-    // Wait for sections to fully expand before scrolling
-    // 300ms accounts for expand animation (200ms) + buffer
-    setTimeout(() => {
-      const nav = document.querySelector('#main-navigation')
-      const activeLink = nav?.querySelector<HTMLElement>('[aria-current="page"]')
-      if (activeLink && nav) {
-        const navRect = nav.getBoundingClientRect()
-        const linkRect = activeLink.getBoundingClientRect()
-        // Only scroll if link is outside visible area
-        if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
-          const linkRelativeTop = linkRect.top - navRect.top + nav.scrollTop
-          nav.scrollTop = Math.max(0, linkRelativeTop - 100) // 100px from top, not centered
-        }
+  // Scroll active link into view after nav sections are ready
+  watch(scrollEnabled, enabled => {
+    if (!enabled || !IN_BROWSER) return
+    const nav = document.querySelector('#main-navigation')
+    // Find the exact route match, not just any active ancestor
+    const activeLink = nav?.querySelector<HTMLElement>(`a[href="${route.path}"]`)
+    if (activeLink && nav) {
+      const navRect = nav.getBoundingClientRect()
+      const linkRect = activeLink.getBoundingClientRect()
+      // Only scroll if link is outside visible area
+      if (linkRect.top < navRect.top || linkRect.bottom > navRect.bottom) {
+        const linkRelativeTop = linkRect.top - navRect.top + nav.scrollTop
+        nav.scrollTop = Math.max(0, linkRelativeTop - 100) // 100px from top, not centered
       }
-    }, 300)
+    }
   }, { immediate: true })
 
   useClickOutside(
