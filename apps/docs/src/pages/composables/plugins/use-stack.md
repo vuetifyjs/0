@@ -8,7 +8,7 @@ meta:
 features:
   category: Plugin
   label: 'E: useStack'
-  github: /composables/createStack/
+  github: /composables/useStack/
   level: 2
 related:
 - /composables/registration/create-registry

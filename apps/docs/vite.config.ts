@@ -15,6 +15,7 @@ import type { ViteSSGOptions } from 'vite-ssg'
 import { getApiSlugs } from './build/api-names'
 import copyMarkdownPlugin from './build/copy-markdown'
 import generateApiPlugin from './build/generate-api'
+import generateApiWhitelistPlugin from './build/generate-api-whitelist'
 import generateExamplesPlugin from './build/generate-examples'
 import generateLlmsFullPlugin from './build/generate-llms-full'
 import generateNavPlugin from './build/generate-nav'
@@ -54,6 +55,7 @@ export default defineConfig({
     },
   } as ViteSSGOptions,
   plugins: [
+    generateApiWhitelistPlugin(),
     VueRouter({
       dts: './src/typed-router.d.ts',
       extensions: ['.vue', '.md'],

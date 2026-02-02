@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils'
 import { h, nextTick, shallowRef, toRef } from 'vue'
 
 // Types
-import type { StackContext } from '#v0/composables/createStack'
+import type { StackContext } from '#v0/composables/useStack'
 
 import { Scrim } from './index'
 
