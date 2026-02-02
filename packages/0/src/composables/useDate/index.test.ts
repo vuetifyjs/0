@@ -524,51 +524,68 @@ describe('useDate', () => {
         expect(diff).toBe(0)
       })
 
-      it('should get week number for date', () => {
-        const week = adapter.getWeek(testDate)
-
-        expect(typeof week).toBe('number')
-        expect(week).toBeGreaterThanOrEqual(1)
-        expect(week).toBeLessThanOrEqual(53)
-      })
-
       it('should respect firstDayOfWeek parameter in getWeek', () => {
-        const jan1 = Temporal.PlainDateTime.from('2024-01-01T10:00:00')
-        const weekSunday = adapter.getWeek(jan1, 0)
-        const weekMonday = adapter.getWeek(jan1, 1)
+        const jan5 = Temporal.PlainDateTime.from('2025-01-05T10:00:00')
 
-        expect(typeof weekSunday).toBe('number')
-        expect(typeof weekMonday).toBe('number')
-        expect(weekSunday).toBeGreaterThanOrEqual(1)
-        expect(weekMonday).toBeGreaterThanOrEqual(1)
-      })
-
-      it('should respect minimalDays parameter in getWeek', () => {
-        const jan1 = Temporal.PlainDateTime.from('2024-01-01T10:00:00')
-        const week1Day = adapter.getWeek(jan1, 0, 1)
-        const week4Day = adapter.getWeek(jan1, 0, 4)
-
-        expect(typeof week1Day).toBe('number')
-        expect(typeof week4Day).toBe('number')
+        expect(adapter.getWeek(jan5, 0)).toBe(2)
+        expect(adapter.getWeek(jan5, 1)).toBe(1)
       })
 
       it('should return correct week for mid-year date', () => {
-        // June 15, 2024 is in week 24 or 25 depending on calculation
-        const week = adapter.getWeek(testDate, 0)
-
-        expect(week).toBeGreaterThan(20)
-        expect(week).toBeLessThan(30)
+        expect(adapter.getWeek(adapter.parseISO('2024-06-15'))).toBe(24)
       })
 
       it('should handle year boundary weeks', () => {
-        const dec31 = Temporal.PlainDateTime.from('2024-12-31T10:00:00')
-        const jan1 = Temporal.PlainDateTime.from('2025-01-01T10:00:00')
+        expect(adapter.getWeek(adapter.parseISO('2024-12-28'))).toBe(52)
+        expect(adapter.getWeek(adapter.parseISO('2024-12-29'))).toBe(1)
+        expect(adapter.getWeek(adapter.parseISO('2024-12-31'))).toBe(1)
+        expect(adapter.getWeek(adapter.parseISO('2025-01-01'))).toBe(1)
+        expect(adapter.getWeek(adapter.parseISO('2025-01-04'))).toBe(1)
+        expect(adapter.getWeek(adapter.parseISO('2025-01-05'))).toBe(2)
+      })
 
-        const weekDec = adapter.getWeek(dec31)
-        const weekJan = adapter.getWeek(jan1)
+      it('should handle year boundary weeks with non-US settings', () => {
+        expect(adapter.getWeek(adapter.parseISO('2026-12-27'), 1, 4)).toBe(52)
+        expect(adapter.getWeek(adapter.parseISO('2026-12-28'), 1, 4)).toBe(53)
+        expect(adapter.getWeek(adapter.parseISO('2026-12-31'), 1, 4)).toBe(53)
+        expect(adapter.getWeek(adapter.parseISO('2027-01-01'), 1, 4)).toBe(53)
+        expect(adapter.getWeek(adapter.parseISO('2027-01-03'), 1, 4)).toBe(53)
+        expect(adapter.getWeek(adapter.parseISO('2027-01-04'), 1, 4)).toBe(1)
+      })
 
-        expect(weekDec).toBeGreaterThanOrEqual(1)
-        expect(weekJan).toBeGreaterThanOrEqual(1)
+      it('should correctly calculate when year starts with a full week', () => {
+        const adapter1 = new Vuetify0DateAdapter('en-US') // first day = 7 | minimal days = 1
+        expect(adapter1.getWeek(adapter1.parseISO('2022-12-25'))).toBe(53)
+        expect(adapter1.getWeek(adapter1.parseISO('2022-12-31'))).toBe(53)
+        expect(adapter1.getWeek(adapter1.parseISO('2023-01-01'))).toBe(1)
+        expect(adapter1.getWeek(adapter1.parseISO('2023-01-07'))).toBe(1)
+
+        const adapter2 = new Vuetify0DateAdapter('pt-PT') // first day = 7 | minimal days = 4
+        expect(adapter2.getWeek(adapter2.parseISO('2022-12-25'), 0, 4)).toBe(52)
+        expect(adapter2.getWeek(adapter2.parseISO('2022-12-31'), 0, 4)).toBe(52)
+        expect(adapter2.getWeek(adapter2.parseISO('2023-01-01'), 0, 4)).toBe(1)
+        expect(adapter2.getWeek(adapter2.parseISO('2023-01-07'), 0, 4)).toBe(1)
+      })
+
+      it('should adjust fallback to week start from locale', () => {
+        const adapter1 = new Vuetify0DateAdapter('en-US')
+        expect(adapter1.getWeek(adapter1.parseISO('2025-01-04'))).toBe(1) // saturday
+        expect(adapter1.getWeek(adapter1.parseISO('2025-01-05'))).toBe(2) // sunday
+
+        const adapter2 = new Vuetify0DateAdapter('fr-FR')
+        expect(adapter2.getWeek(adapter2.parseISO('2025-01-05'), 1, 4)).toBe(1) // sunday
+        expect(adapter2.getWeek(adapter2.parseISO('2025-01-06'), 1, 4)).toBe(2) // monday
+      })
+    })
+
+    describe('week numbers with first-day-of-week', () => {
+      it('should calculate weeks correctly when adapting for UK', () => {
+        const adapter1 = new Vuetify0DateAdapter('en-US')
+        expect(adapter1.getWeek(adapter1.parseISO('2025-03-16'))).toBe(12)
+        expect(adapter1.getWeek(adapter1.parseISO('2025-03-16'), 1, 4)).toBe(11)
+
+        const adapter2 = new Vuetify0DateAdapter('en-GB')
+        expect(adapter2.getWeek(adapter2.parseISO('2025-03-16'), 1, 4)).toBe(11)
       })
     })
 
