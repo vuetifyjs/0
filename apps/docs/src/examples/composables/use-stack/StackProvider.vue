@@ -2,19 +2,10 @@
   // Note: For SSR applications, install the plugin in main.ts:
   // import { createStackPlugin } from '@vuetify/v0'
   // app.use(createStackPlugin())
-  import { Scrim, stack } from '@vuetify/v0'
-  import { onScopeDispose, watch } from 'vue'
-  import { overlayDefinitions, provideOverlaySelection } from './context'
-
-  // Provide selection context and register overlays
-  const selection = provideOverlaySelection()
-
-  for (const overlay of overlayDefinitions) {
-    selection.register({
-      id: overlay.id,
-      value: overlay,
-    })
-  }
+  import { stack } from '@vuetify/v0'
+  import { computed, onScopeDispose, shallowRef, watch } from 'vue'
+  import { provideOverlays } from './context'
+  import type { Overlay } from './context'
 
   // Block body scroll when overlays are active
   watch(() => stack.isActive.value, active => {
@@ -24,6 +15,42 @@
   onScopeDispose(() => {
     document.body.style.overflow = ''
   })
+
+  // Define overlays with their own isOpen state
+  const overlays: Overlay[] = [
+    { id: 'modal-1', title: 'Settings', isOpen: shallowRef(false) },
+    { id: 'modal-2', title: 'Confirm', isOpen: shallowRef(false) },
+    { id: 'modal-3', title: 'Alert', isOpen: shallowRef(false), blocking: true },
+  ]
+
+  const activeCount = computed(() =>
+    overlays.filter(o => o.isOpen.value).length,
+  )
+
+  function open (id: string) {
+    const overlay = overlays.find(o => o.id === id)
+    if (overlay) overlay.isOpen.value = true
+  }
+
+  function close (id: string) {
+    const overlay = overlays.find(o => o.id === id)
+    if (overlay) overlay.isOpen.value = false
+  }
+
+  function closeAll () {
+    for (const o of overlays) {
+      o.isOpen.value = false
+    }
+  }
+
+  provideOverlays({
+    overlays,
+    stack: stack,
+    activeCount,
+    open,
+    close,
+    closeAll,
+  })
 </script>
 
 <template>
@@ -31,7 +58,16 @@
     <slot />
 
     <!-- Scrim (shared backdrop for all overlays) -->
-    <Scrim class="fixed inset-0 bg-black/50 transition-opacity" />
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          v-if="stack.isActive.value"
+          class="fixed inset-0 bg-black/50 transition-opacity"
+          :style="{ zIndex: stack.scrimZIndex.value }"
+          @click="stack.dismiss()"
+        />
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
