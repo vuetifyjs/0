@@ -173,7 +173,7 @@
     <Discovery.Activator
       ref="messages"
       as="div"
-      class="rounded-lg flex-1 h-full pa-4"
+      class="rounded-lg flex-1 h-full pa-4 overflow-y-auto"
       :padding="-4"
       step="ask-ai-panel"
     >
