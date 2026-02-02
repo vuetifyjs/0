@@ -191,13 +191,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/plugins/create-stack': RouteRecordInfo<
-      '/composables/plugins/create-stack',
-      '/composables/plugins/create-stack',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/composables/plugins/use-breakpoints': RouteRecordInfo<
       '/composables/plugins/use-breakpoints',
       '/composables/plugins/use-breakpoints',
@@ -821,12 +814,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/foundation/create-trinity.md': {
       routes:
         | '/composables/foundation/create-trinity'
-      views:
-        | never
-    }
-    'src/pages/composables/plugins/create-stack.md': {
-      routes:
-        | '/composables/plugins/create-stack'
       views:
         | never
     }

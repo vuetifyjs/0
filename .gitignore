@@ -41,3 +41,6 @@ storybook-static
 /playground/src/Playground.vue
 
 .vite-ssg-temp
+
+# Auto-generated files
+apps/docs/build/generated/
