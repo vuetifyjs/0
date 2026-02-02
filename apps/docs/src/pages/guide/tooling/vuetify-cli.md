@@ -29,9 +29,61 @@ The Vuetify CLI is a tooling ecosystem for scaffolding and managing Vuetify proj
 | [@vuetify/cli](https://www.npmjs.com/package/@vuetify/cli) | `vuetify` | Full CLI with all commands |
 | [create-vuetify0](https://www.npmjs.com/package/create-vuetify0) | `create-vuetify0` | Scaffold [v0](/introduction/getting-started) projects |
 
+## Installation
+
+Install the CLI globally to access all commands:
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm add -g @vuetify/cli
+```
+
+```bash npm
+npm install -g @vuetify/cli
+```
+
+```bash yarn
+yarn global add @vuetify/cli
+```
+
+```bash bun
+bun add -g @vuetify/cli
+```
+
+:::
+
+Or run commands without installing using `dlx`/`npx`:
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm dlx @vuetify/cli <command>
+```
+
+```bash npm
+npx @vuetify/cli <command>
+```
+
+```bash yarn
+yarn dlx @vuetify/cli <command>
+```
+
+```bash bun
+bunx @vuetify/cli <command>
+```
+
+:::
+
 ## Quick Start
 
 Create a new v0 project with the interactive wizard:
+
+```bash
+vuetify init
+```
+
+Or use the standalone scaffolding package without installing the CLI:
 
 ::: code-group no-filename
 
@@ -168,8 +220,10 @@ The update command auto-detects and updates:
 - `vuetify`
 - `@vuetify/*` packages
 - `vuetify-nuxt-module`
+- `@nuxtjs/vuetify`
 - `vite-plugin-vuetify`
 - `eslint-plugin-vuetify`
+- `eslint-config-vuetify`
 
 ### docs
 
@@ -272,7 +326,7 @@ The interactive wizard guides you through project configuration:
 | CSS Framework | [UnoCSS](https://unocss.dev), [Tailwind](https://tailwindcss.com), None |
 | TypeScript | Yes, No |
 | Router (Vue only) | [Vue Router](https://router.vuejs.org), File-based, None |
-| Features | ESLint, [Pinia](https://pinia.vuejs.org), [i18n](https://vue-i18n.intlify.dev), MCP, Nuxt Module |
+| Features | ESLint, [Pinia](https://pinia.vuejs.org), [i18n](https://vue-i18n.intlify.dev), MCP |
 
 ### Platforms
 
@@ -305,7 +359,6 @@ The interactive wizard guides you through project configuration:
 | [Pinia](https://pinia.vuejs.org) | State management |
 | [i18n](https://vue-i18n.intlify.dev) | Internationalization |
 | MCP | [Vuetify MCP](/guide/tooling/vuetify-mcp) server config |
-| Nuxt Module | [vuetify-nuxt-module](https://github.com/userquin/vuetify-nuxt-module) (Nuxt only) |
 
 ## Non-Interactive Mode
 
@@ -315,45 +368,37 @@ For CI/CD pipelines and automation, pass arguments directly:
 
 ```bash pnpm
 pnpm create vuetify0 my-app \
-  --platform vue \
-  --css unocss \
-  --typescript \
-  --router router \
-  --features eslint,pinia \
-  --package-manager pnpm \
+  --platform=vue \
+  --css=unocss \
+  --router=router \
+  --features=eslint,pinia \
   --install
 ```
 
 ```bash npm
 npm create vuetify0 my-app -- \
-  --platform vue \
-  --css unocss \
-  --typescript \
-  --router router \
-  --features eslint,pinia \
-  --package-manager npm \
+  --platform=vue \
+  --css=unocss \
+  --router=router \
+  --features=eslint,pinia \
   --install
 ```
 
 ```bash yarn
 yarn create vuetify0 my-app \
-  --platform vue \
-  --css unocss \
-  --typescript \
-  --router router \
-  --features eslint,pinia \
-  --package-manager yarn \
+  --platform=vue \
+  --css=unocss \
+  --router=router \
+  --features=eslint,pinia \
   --install
 ```
 
 ```bash bun
 bun create vuetify0 my-app \
-  --platform vue \
-  --css unocss \
-  --typescript \
-  --router router \
-  --features eslint,pinia \
-  --package-manager bun \
+  --platform=vue \
+  --css=unocss \
+  --router=router \
+  --features=eslint,pinia \
   --install
 ```
 
@@ -365,10 +410,9 @@ bun create vuetify0 my-app \
 | - | - | - |
 | `--platform` | `vue`, `nuxt` | Target platform |
 | `--css` | `unocss`, `tailwindcss`, `none` | CSS framework |
-| `--typescript` | flag | Enable TypeScript |
+| `--no-typescript` | flag | Use JavaScript instead of TypeScript |
 | `--router` | `router`, `file-router`, `none` | Router type (Vue only) |
-| `--features` | comma-separated | Features to include |
-| `--package-manager` | `pnpm`, `npm`, `yarn`, `bun` | Package manager |
+| `--features` | `eslint`, `pinia`, `i18n`, `mcp` | Features to include (comma-separated) |
 | `--install` | flag | Auto-install dependencies |
 | `--force` | flag | Overwrite existing directory |
 
