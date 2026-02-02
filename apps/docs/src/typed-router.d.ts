@@ -114,6 +114,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/providers/scrim': RouteRecordInfo<
+      '/components/providers/scrim',
+      '/components/providers/scrim',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/providers/selection': RouteRecordInfo<
       '/components/providers/selection',
       '/components/providers/selection',
@@ -184,6 +191,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/create-stack': RouteRecordInfo<
+      '/composables/plugins/create-stack',
+      '/composables/plugins/create-stack',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-breakpoints': RouteRecordInfo<
       '/composables/plugins/use-breakpoints',
       '/composables/plugins/use-breakpoints',
@@ -229,6 +243,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/plugins/use-permissions': RouteRecordInfo<
       '/composables/plugins/use-permissions',
       '/composables/plugins/use-permissions',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/plugins/use-stack': RouteRecordInfo<
+      '/composables/plugins/use-stack',
+      '/composables/plugins/use-stack',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -737,6 +758,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/providers/scrim.md': {
+      routes:
+        | '/components/providers/scrim'
+      views:
+        | never
+    }
     'src/pages/components/providers/selection.md': {
       routes:
         | '/components/providers/selection'
@@ -797,6 +824,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/plugins/create-stack.md': {
+      routes:
+        | '/composables/plugins/create-stack'
+      views:
+        | never
+    }
     'src/pages/composables/plugins/use-breakpoints.md': {
       routes:
         | '/composables/plugins/use-breakpoints'
@@ -836,6 +869,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-permissions.md': {
       routes:
         | '/composables/plugins/use-permissions'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-stack.md': {
+      routes:
+        | '/composables/plugins/use-stack'
       views:
         | never
     }

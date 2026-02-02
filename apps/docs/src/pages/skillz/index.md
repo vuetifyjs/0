@@ -6,11 +6,7 @@ meta:
   - name: keywords
     content: vuetify0, tutorial, interactive, learning, skills, v0
 features:
-  devmode: true
-  emphasized: true
   level: 1
-  hideNavigator: true
-  hideFeedback: true
 ---
 
 <script setup>
@@ -23,5 +19,9 @@ features:
 # Vuetify0 Skillz
 
 Master v0 through interactive coding challenges. Each skill teaches a focused concept with hands-on practice.
+
+> [!WARNING]
+> Skillz is currently in beta. Content is still being created and may change over time. If you have any feedback or suggestions, please
+> [let us know](/introduction/contributing#skillz-feedback).
 
 <SkillCardDeck :items="skillz.items" />

@@ -1,14 +1,7 @@
 <script setup lang="ts">
-  // Utilities
-  import { toRef } from 'vue'
-
-  const props = defineProps<{
+  defineProps<{
     frontmatter?: Record<string, unknown>
   }>()
-
-  const features = toRef(() => props.frontmatter?.features as Record<string, unknown> | undefined)
-  const hideNavigator = toRef(() => features.value?.hideNavigator === true)
-  const hideFeedback = toRef(() => features.value?.hideFeedback === true)
 </script>
 
 <template>
@@ -17,10 +10,10 @@
 
     <DocsRelated :frontmatter="frontmatter" />
 
-    <DocsFeedback v-if="!hideFeedback" :frontmatter="frontmatter" />
+    <DocsFeedback :frontmatter="frontmatter" />
 
     <DocsBackToTop />
 
-    <DocsNavigator v-if="!hideNavigator" />
+    <DocsNavigator />
   </section>
 </template>

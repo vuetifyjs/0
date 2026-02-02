@@ -214,6 +214,22 @@ describe('useSelection', () => {
 })
 ```
 
+## Skillz Feedback
+
+[Vuetify0 Skillz](/skillz) is our interactive tutorial system currently in beta. We're actively developing new content and improving the learning experience.
+
+### How to Give Feedback
+
+- **Content issues**: Typos, unclear instructions, or incorrect examples
+- **Technical problems**: Bugs in the interactive editor or validation
+- **Suggestions**: New skill ideas or improvements to existing ones
+
+When reporting issues, please include:
+
+- The skill name and step number
+- What you expected vs what happened
+- Browser and OS information
+
 > [!DISCORD]
 
 Thank you for contributing!
