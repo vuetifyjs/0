@@ -3,7 +3,7 @@
   import { IN_BROWSER } from '@vuetify/v0/constants'
 
   // Utilities
-  import { shallowRef, watch } from 'vue'
+  import { shallowRef, toRef, watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   const props = defineProps<{
@@ -23,6 +23,10 @@
   const API_URL = `${import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'}/docs/feedback`
 
   const route = useRoute()
+
+  // Hide on skillz pages (they have their own focused UI)
+  const isVisible = toRef(() => !route.path.startsWith('/skillz'))
+
   const state = shallowRef<FeedbackState>('idle')
   const rating = shallowRef<Rating | null>(null)
   const comment = shallowRef('')
@@ -85,7 +89,10 @@
 </script>
 
 <template>
-  <section class="mt-8 py-6 border-t border-divider">
+  <section
+    v-if="isVisible"
+    class="mt-8 py-6 border-t border-divider"
+  >
     <!-- Idle: Show question -->
     <div
       v-if="state === 'idle'"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useHead } from '@unhead/vue'
-  import { definePage } from 'vue-router/auto'
+  import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
   import { useBreakpoints } from '@vuetify/v0'
