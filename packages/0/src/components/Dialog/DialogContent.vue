@@ -65,8 +65,8 @@
   import { useDialogContext } from './DialogRoot.vue'
 
   // Composables
-  import { useStack } from '#v0/composables/createStack'
   import { useClickOutside } from '#v0/composables/useClickOutside'
+  import { useStack } from '#v0/composables/useStack'
   import { useToggleScope } from '#v0/composables/useToggleScope'
 
   // Utilities

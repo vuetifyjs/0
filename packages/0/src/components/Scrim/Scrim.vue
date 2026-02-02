@@ -12,7 +12,7 @@
 <script lang="ts">
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { StackContext } from '#v0/composables/createStack'
+  import type { StackContext } from '#v0/composables/useStack'
 
   export interface ScrimProps extends AtomProps {
     /**
@@ -58,7 +58,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { stack as globalStack } from '#v0/composables/createStack'
+  import { stack as globalStack } from '#v0/composables/useStack'
 
   // Utilities
   import { toRef, useAttrs } from 'vue'
