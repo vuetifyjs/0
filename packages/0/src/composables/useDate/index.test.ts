@@ -295,6 +295,23 @@ describe('useDate', () => {
         expect(result.month).toBe(8) // August
       })
 
+      it('should keep days when adding months', () => {
+        const result1 = adapter.addMonths(testDate, -1)
+
+        expect(result1.month).toBe(5) // May
+        expect(result1.day).toBe(15)
+
+        const result2 = adapter.addMonths(adapter.parseISO('2024-01-31'), 1)
+
+        expect(result2.month).toBe(2) // February
+        expect(result2.day).toBe(29)
+
+        const result3 = adapter.addMonths(result2, 1)
+
+        expect(result3.month).toBe(3) // March
+        expect(result3.day).toBe(29)
+      })
+
       it('should handle negative amounts', () => {
         const result = adapter.addDays(testDate, -5)
 
