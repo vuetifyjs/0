@@ -321,6 +321,7 @@
                 :code="f.code"
                 :file-name="f.name"
                 :language="f.language || f.name.split('.').pop() || 'text'"
+                :show-playground="false"
                 :title="f.name"
               />
             </Tabs.Panel>
