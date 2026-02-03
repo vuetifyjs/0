@@ -283,11 +283,31 @@ bunx @vuetify/cli analyze --reporter json
 
 :::
 
-The analyzer detects imports of:
+The analyzer scans your project and detects all imports from `@vuetify/v0`:
 
-- Components (`VBtn`, `VCard`, etc.)
-- Composables (`useDisplay`, `useTheme`, etc.)
-- Types and utilities
+- **Components** — `VBtn`, `VCard`, `VDataTable`, etc.
+- **Composables** — `useDisplay`, `useTheme`, `useFilter`, etc.
+- **Plugins** — `createVuetify`, `createIconsPlugin`, etc.
+- **Utilities and constants**
+
+#### Custom Documentation URL
+
+After analyzing your project, the CLI generates a **personalized documentation URL**:
+
+```
+https://0.vuetifyjs.com/?features=VBtn,VCard,useDisplay,...
+```
+
+This URL filters the v0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.
+
+#### Migration Planning
+
+The analyze command is invaluable for migration planning:
+
+1. Run `vuetify analyze` on your existing Vuetify 3 project
+2. Review which components and composables you're using
+3. Check the generated URL to see v0 equivalents and migration paths
+4. Use `--reporter json` to integrate with CI/CD or custom tooling
 
 > [!ASKAI] How can I use the analyze command to plan a Vuetify migration?
 
