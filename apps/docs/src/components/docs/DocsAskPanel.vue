@@ -68,7 +68,7 @@
     container.scrollTop = container.scrollHeight
 
     // Find the user's question (second-to-last message)
-    const messages = container.querySelectorAll(':scope > *')
+    const messages = [...container.querySelectorAll(':scope > *')]
     const userMessage = messages.at(-2)
     if (!userMessage) return
 
