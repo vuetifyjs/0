@@ -294,8 +294,8 @@ The analyzer scans your project and detects all imports from `@vuetify/v0`:
 
 After analyzing your project, the CLI generates a **personalized documentation URL**:
 
-```
-https://0.vuetifyjs.com/?features=VBtn,VCard,useDisplay,...
+```txt
+https://0.vuetifyjs.com/?features=Dialog,Avatar,useDisplay,...
 ```
 
 This URL filters the v0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.
