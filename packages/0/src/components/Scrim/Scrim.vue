@@ -2,9 +2,11 @@
  * @module Scrim
  *
  * @remarks
- * Scrim/backdrop component for overlays. Integrates with createStack
- * to provide a shared backdrop for all active overlays. Automatically
- * positions itself behind the topmost overlay and handles dismiss behavior.
+ * Scrim/backdrop component for overlays. Integrates with useStack
+ * to render one backdrop per active overlay. The cumulative visual
+ * effect creates natural opacity stacking.
+ *
+ * Requires createStackPlugin to be installed at app level.
  *
  * @see https://0.vuetifyjs.com/components/providers/scrim
  */
@@ -12,15 +14,9 @@
 <script lang="ts">
   // Types
   import type { AtomProps } from '#v0/components/Atom'
-  import type { StackContext } from '#v0/composables/useStack'
+  import type { StackTicket } from '#v0/composables/useStack'
 
   export interface ScrimProps extends AtomProps {
-    /**
-     * Custom stack context to use instead of the global stack
-     *
-     * @remarks Useful when multiple independent overlay systems exist in an app.
-     */
-    stack?: StackContext
     /**
      * Transition name for enter/leave animations
      *
@@ -42,13 +38,13 @@
   }
 
   export interface ScrimSlotProps {
-    /** Whether any overlays are active */
-    isActive: boolean
-    /** Whether the topmost overlay is blocking */
-    isBlocking: boolean
-    /** Z-index for the scrim (one below top overlay) */
+    /** The ticket for this scrim layer */
+    ticket: StackTicket
+    /** Z-index for this scrim layer (one below the overlay) */
     zIndex: number
-    /** Dismiss the topmost non-blocking overlay */
+    /** Whether this ticket's overlay blocks scrim dismissal */
+    isBlocking: boolean
+    /** Dismiss this overlay */
     dismiss: () => void
   }
 </script>
@@ -61,7 +57,7 @@
   import { useStack } from '#v0/composables/useStack'
 
   // Utilities
-  import { toRef, useAttrs } from 'vue'
+  import { computed, useAttrs } from 'vue'
 
   defineOptions({ name: 'Scrim', inheritAttrs: false })
 
@@ -71,31 +67,34 @@
 
   const {
     as = 'div',
-    stack = useStack(),
     transition = 'fade',
     teleport = true,
     teleportTo = 'body',
   } = defineProps<ScrimProps>()
 
   const attrs = useAttrs()
+  const stack = useStack()
 
-  function onClick () {
-    const top = stack.top.value
-    if (top && !stack.isBlocking.value) {
-      top.dismiss()
+  const tickets = computed(() => Array.from(stack.selectedItems.value))
+
+  function onDismiss (ticket: StackTicket) {
+    if (!ticket.blocking) {
+      ticket.dismiss()
     }
   }
 
-  const slotProps = toRef((): ScrimSlotProps => ({
-    isActive: stack.isActive.value,
-    isBlocking: stack.isBlocking.value,
-    zIndex: stack.scrimZIndex.value,
-    dismiss: onClick,
-  }))
+  function getSlotProps (ticket: StackTicket): ScrimSlotProps {
+    return {
+      ticket,
+      zIndex: ticket.zIndex.value - 1,
+      isBlocking: ticket.blocking,
+      dismiss: () => onDismiss(ticket),
+    }
+  }
 
-  const style = toRef(() => ({
-    zIndex: stack.scrimZIndex.value,
-  }))
+  function getStyle (ticket: StackTicket) {
+    return { zIndex: ticket.zIndex.value - 1 }
+  }
 </script>
 
 <template>
@@ -103,31 +102,33 @@
     v-if="teleport"
     :to="teleportTo"
   >
-    <Transition :name="transition">
+    <TransitionGroup :name="transition">
       <Atom
-        v-if="stack.isActive.value"
+        v-for="ticket in tickets"
+        :key="ticket.id"
         :as
-        :style
+        :style="getStyle(ticket)"
         v-bind="attrs"
-        @click="onClick"
+        @click="() => onDismiss(ticket)"
       >
-        <slot v-bind="slotProps" />
+        <slot v-bind="getSlotProps(ticket)" />
       </Atom>
-    </Transition>
+    </TransitionGroup>
   </Teleport>
 
-  <Transition
+  <TransitionGroup
     v-else
     :name="transition"
   >
     <Atom
-      v-if="stack.isActive.value"
+      v-for="ticket in tickets"
+      :key="ticket.id"
       :as
-      :style
+      :style="getStyle(ticket)"
       v-bind="attrs"
-      @click="onClick"
+      @click="() => onDismiss(ticket)"
     >
-      <slot v-bind="slotProps" />
+      <slot v-bind="getSlotProps(ticket)" />
     </Atom>
-  </Transition>
+  </TransitionGroup>
 </template>
