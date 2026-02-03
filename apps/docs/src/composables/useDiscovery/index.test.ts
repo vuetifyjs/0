@@ -678,9 +678,6 @@ describe('useDiscovery', () => {
       discovery.complete()
       expect(discovery.isComplete.value).toBe(true)
 
-      // Need to start again since complete() sets isActive to false
-      discovery.tours.onboard([mockTour as any])
-
       discovery.reset()
 
       expect(discovery.isComplete.value).toBe(false)

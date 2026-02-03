@@ -1,22 +1,43 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Composables
+import { createStackPlugin } from '#v0/composables/useStack'
+
 // Utilities
 import { mount } from '@vue/test-utils'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { Dialog } from './index'
 
+// Create fresh stack plugin for each test to avoid "Ticket already exists" warnings
+let stackPlugin: ReturnType<typeof createStackPlugin>
+
 // Mock showModal and close for happy-dom
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = vi.fn()
   HTMLDialogElement.prototype.close = vi.fn()
+  stackPlugin = createStackPlugin()
 })
+
+// Helper to mount with stack plugin
+function mountWithStack<T extends Parameters<typeof mount>[0]> (
+  component: T,
+  options: Parameters<typeof mount<T>>[1] = {},
+) {
+  return mount(component, {
+    ...options,
+    global: {
+      ...options?.global,
+      plugins: [...(options?.global?.plugins ?? []), stackPlugin],
+    },
+  })
+}
 
 describe('dialog', () => {
   describe('root', () => {
     describe('rendering', () => {
       it('should render as renderless by default', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h('div', { class: 'test-child' }, 'Content'),
           },
@@ -27,7 +48,7 @@ describe('dialog', () => {
       })
 
       it('should render children in default slot', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h('span', { class: 'test-child' }, 'Child content'),
           },
@@ -42,7 +63,7 @@ describe('dialog', () => {
       it('should support v-model for open state', async () => {
         const isOpen = ref(false)
 
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: {
             'modelValue': isOpen.value,
             'onUpdate:modelValue': (v: unknown) => {
@@ -64,7 +85,7 @@ describe('dialog', () => {
       })
 
       it('should open dialog when modelValue becomes true', async () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: {
             modelValue: false,
           },
@@ -80,7 +101,7 @@ describe('dialog', () => {
       })
 
       it('should default to closed', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => 'Content'),
           },
@@ -92,7 +113,7 @@ describe('dialog', () => {
 
     describe('context provision', () => {
       it('should provide context with default namespace', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => [
               h(Dialog.Activator, {}, () => 'Open'),
@@ -108,7 +129,7 @@ describe('dialog', () => {
       })
 
       it('should provide context with custom namespace', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: {
             namespace: 'custom-dialog',
           },
@@ -129,7 +150,7 @@ describe('dialog', () => {
       it('should expose isOpen, open, close, and id in slot props', () => {
         let slotProps: any
 
-        mount(Dialog.Root, {
+        mountWithStack(Dialog.Root, {
           slots: {
             default: (props: any) => {
               slotProps = props
@@ -150,7 +171,7 @@ describe('dialog', () => {
   describe('activator', () => {
     describe('rendering', () => {
       it('should render as button by default', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
@@ -161,7 +182,7 @@ describe('dialog', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Activator, { as: 'div' }, () => 'Open'),
           },
@@ -172,7 +193,7 @@ describe('dialog', () => {
       })
 
       it('should set type=button when as=button', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
@@ -185,7 +206,7 @@ describe('dialog', () => {
 
     describe('accessibility', () => {
       it('should have aria-haspopup=dialog', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
@@ -196,7 +217,7 @@ describe('dialog', () => {
       })
 
       it('should have aria-expanded=false when closed', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Activator, {}, () => 'Open'),
           },
@@ -207,7 +228,7 @@ describe('dialog', () => {
       })
 
       it('should have aria-expanded=true when open', async () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(Dialog.Activator, {}, () => 'Open'),
@@ -220,7 +241,7 @@ describe('dialog', () => {
       })
 
       it('should set data-dialog-open when open', async () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(Dialog.Activator, {}, () => 'Open'),
@@ -235,7 +256,7 @@ describe('dialog', () => {
 
     describe('click handling', () => {
       it('should open dialog on click', async () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => [
               h(Dialog.Activator, {}, () => 'Open'),
@@ -255,7 +276,7 @@ describe('dialog', () => {
   describe('content', () => {
     describe('rendering', () => {
       it('should render as dialog by default', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => 'Content'),
           },
@@ -266,7 +287,7 @@ describe('dialog', () => {
       })
 
       it('should render children in default slot', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => h('p', 'Dialog content')),
           },
@@ -278,7 +299,7 @@ describe('dialog', () => {
 
     describe('accessibility', () => {
       it('should have role=dialog', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => 'Content'),
           },
@@ -289,7 +310,7 @@ describe('dialog', () => {
       })
 
       it('should have aria-modal=true', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => 'Content'),
           },
@@ -300,7 +321,7 @@ describe('dialog', () => {
       })
 
       it('should have aria-labelledby pointing to title', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: { id: 'test-dialog' },
           slots: {
             default: () => h(Dialog.Content, {}, () => [
@@ -314,7 +335,7 @@ describe('dialog', () => {
       })
 
       it('should have aria-describedby pointing to description', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: { id: 'test-dialog' },
           slots: {
             default: () => h(Dialog.Content, {}, () => [
@@ -330,7 +351,7 @@ describe('dialog', () => {
 
     describe('modal behavior', () => {
       it('should call showModal when opened', async () => {
-        mount(Dialog.Root, {
+        mountWithStack(Dialog.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(Dialog.Content, {}, () => 'Content'),
@@ -342,7 +363,7 @@ describe('dialog', () => {
       })
 
       it('should call close when closed', async () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: {
             modelValue: true,
           },
@@ -367,7 +388,7 @@ describe('dialog', () => {
       it('should emit cancel event', async () => {
         const onCancel = vi.fn()
 
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(Dialog.Content, { onCancel }, () => 'Content'),
@@ -384,7 +405,7 @@ describe('dialog', () => {
       it('should emit close event', async () => {
         const onClose = vi.fn()
 
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: { modelValue: true },
           slots: {
             default: () => h(Dialog.Content, { onClose }, () => 'Content'),
@@ -422,7 +443,7 @@ describe('dialog', () => {
           toJSON: () => ({}),
         }))
 
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: {
             'modelValue': isOpen.value,
             'onUpdate:modelValue': (v: unknown) => {
@@ -473,7 +494,7 @@ describe('dialog', () => {
         outsideEl.id = 'outside'
         document.body.append(outsideEl)
 
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: {
             'modelValue': isOpen.value,
             'onUpdate:modelValue': (v: unknown) => {
@@ -511,7 +532,7 @@ describe('dialog', () => {
         outsideEl.id = 'outside'
         document.body.append(outsideEl)
 
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: {
             'modelValue': isOpen.value,
             'onUpdate:modelValue': (v: unknown) => {
@@ -550,7 +571,7 @@ describe('dialog', () => {
   describe('close', () => {
     describe('rendering', () => {
       it('should render as button by default', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => [
               h(Dialog.Close, {}, () => 'Close'),
@@ -563,7 +584,7 @@ describe('dialog', () => {
       })
 
       it('should set type=button when as=button', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => [
               h(Dialog.Close, {}, () => 'Close'),
@@ -578,7 +599,7 @@ describe('dialog', () => {
 
     describe('accessibility', () => {
       it('should have aria-label=Close', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => [
               h(Dialog.Close, {}, () => 'Close'),
@@ -595,7 +616,7 @@ describe('dialog', () => {
       it('should close dialog on click', async () => {
         const isOpen = ref(true)
 
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: {
             'modelValue': isOpen.value,
             'onUpdate:modelValue': (v: unknown) => {
@@ -621,7 +642,7 @@ describe('dialog', () => {
   describe('title', () => {
     describe('rendering', () => {
       it('should render as h2 by default', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => [
               h(Dialog.Title, {}, () => 'Title'),
@@ -634,7 +655,7 @@ describe('dialog', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => [
               h(Dialog.Title, { as: 'span' }, () => 'Title'),
@@ -649,7 +670,7 @@ describe('dialog', () => {
 
     describe('accessibility', () => {
       it('should have correct id for aria-labelledby', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: { id: 'test-dialog' },
           slots: {
             default: () => h(Dialog.Content, {}, () => [
@@ -667,7 +688,7 @@ describe('dialog', () => {
   describe('description', () => {
     describe('rendering', () => {
       it('should render as p by default', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => [
               h(Dialog.Description, {}, () => 'Description'),
@@ -680,7 +701,7 @@ describe('dialog', () => {
       })
 
       it('should render as custom element when as prop is provided', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           slots: {
             default: () => h(Dialog.Content, {}, () => [
               h(Dialog.Description, { as: 'span' }, () => 'Description'),
@@ -695,7 +716,7 @@ describe('dialog', () => {
 
     describe('accessibility', () => {
       it('should have correct id for aria-describedby', () => {
-        const wrapper = mount(Dialog.Root, {
+        const wrapper = mountWithStack(Dialog.Root, {
           props: { id: 'test-dialog' },
           slots: {
             default: () => h(Dialog.Content, {}, () => [
@@ -714,7 +735,7 @@ describe('dialog', () => {
     it('should work as complete dialog with all sub-components', async () => {
       let isOpen = false
 
-      const wrapper = mount(Dialog.Root, {
+      const wrapper = mountWithStack(Dialog.Root, {
         props: {
           'id': 'complete-dialog',
           'modelValue': isOpen,
@@ -752,7 +773,7 @@ describe('dialog', () => {
     })
 
     it('should use custom namespace for isolation', () => {
-      const wrapper = mount(defineComponent({
+      const wrapper = mountWithStack(defineComponent({
         render: () => [
           h(Dialog.Root, { namespace: 'dialog-1' }, () => [
             h(Dialog.Activator, { namespace: 'dialog-1' }, () => 'Open 1'),
@@ -774,7 +795,7 @@ describe('dialog', () => {
 
   describe('edge cases', () => {
     it('should handle rapid open/close cycles', async () => {
-      const wrapper = mount(Dialog.Root, {
+      const wrapper = mountWithStack(Dialog.Root, {
         props: {
           modelValue: false,
         },
@@ -794,7 +815,7 @@ describe('dialog', () => {
     })
 
     it('should handle missing title and description', () => {
-      const wrapper = mount(Dialog.Root, {
+      const wrapper = mountWithStack(Dialog.Root, {
         props: { id: 'no-title-dialog' },
         slots: {
           default: () => h(Dialog.Content, {}, () => 'Just content'),
@@ -810,7 +831,7 @@ describe('dialog', () => {
     it('should handle dialog without trigger (controlled)', async () => {
       const isOpen = ref(true)
 
-      const wrapper = mount(Dialog.Root, {
+      const wrapper = mountWithStack(Dialog.Root, {
         props: {
           modelValue: isOpen.value,
         },

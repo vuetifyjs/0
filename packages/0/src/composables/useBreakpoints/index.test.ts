@@ -16,6 +16,7 @@ vi.mock('vue', async () => {
     getCurrentInstance: vi.fn(),
     onMounted: vi.fn(),
     onScopeDispose: vi.fn(),
+    inject: vi.fn(),
   }
 })
 

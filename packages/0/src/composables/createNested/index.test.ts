@@ -1060,10 +1060,13 @@ describe('createNestedContext', () => {
 
 describe('useNested', () => {
   it('should throw when context not provided', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const { useNested } = await import('./index')
 
     expect(() => {
       useNested('non-existent:namespace')
     }).toThrow()
+
+    warnSpy.mockRestore()
   })
 })

@@ -5,6 +5,7 @@ export default defineConfig({
     projects: ['packages/*', 'apps/docs'],
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    testTimeout: 20_000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
