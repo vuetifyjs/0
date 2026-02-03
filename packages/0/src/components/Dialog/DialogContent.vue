@@ -26,13 +26,6 @@
      * @remarks When true, clicking the scrim will not dismiss this dialog. Use for critical dialogs requiring explicit user action.
      */
     blocking?: boolean
-    /**
-     * Disable global stack participation
-     *
-     * @default false
-     * @remarks When true, the dialog tracks parent/child relationships but doesn't register in the global stack.
-     */
-    disableGlobalStack?: boolean
   }
 
   export interface DialogContentEmits {
@@ -83,7 +76,6 @@
     namespace = 'v0:dialog',
     closeOnClickOutside = true,
     blocking = false,
-    disableGlobalStack = false,
   } = defineProps<DialogContentProps>()
 
   const emit = defineEmits<DialogContentEmits>()
@@ -93,16 +85,19 @@
   const contentRef = useTemplateRef('content')
 
   // Register with global stack for z-index coordination
-  const { styles, globalTop, zIndex } = useStack(context.isOpen, () => context.close(), {
+  const stack = useStack()
+  const ticket = stack.register({
+    onDismiss: () => context.close(),
     blocking,
-    disableGlobalStack,
   })
 
-  onMounted(() => {
-    if (context.isOpen.value) {
-      (contentRef.value?.element as HTMLDialogElement | undefined)?.showModal()
+  watch(context.isOpen, isOpen => {
+    if (isOpen) {
+      ticket.select()
+    } else {
+      ticket.unselect()
     }
-  })
+  }, { immediate: true })
 
   watch(context.isOpen, isOpen => {
     const element = contentRef.value?.element as HTMLDialogElement | undefined
@@ -112,6 +107,12 @@
       element.showModal?.()
     } else {
       element.close?.()
+    }
+  })
+
+  onMounted(() => {
+    if (context.isOpen.value) {
+      (contentRef.value?.element as HTMLDialogElement | undefined)?.showModal()
     }
   })
 
@@ -138,10 +139,12 @@
     emit('close', e)
   }
 
+  const styles = toRef(() => ({ zIndex: ticket.zIndex.value }))
+
   const slotProps = toRef((): DialogContentSlotProps => ({
     isOpen: context.isOpen.value,
-    globalTop: globalTop.value,
-    zIndex: zIndex.value,
+    globalTop: ticket.globalTop.value,
+    zIndex: ticket.zIndex.value,
     attrs: {
       'id': context.id,
       'role': 'dialog',
