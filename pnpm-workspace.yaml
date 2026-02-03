@@ -30,9 +30,9 @@ catalog:
   eslint-plugin-storybook: ^10.1.11
   eslint-plugin-vuejs-accessibility: ^2.4.1
   fflate: ^0.8.2
+  flagsmith: ^10.0.0
   happy-dom: ^20.1.0
   knip: ^5.80.0
-  flagsmith: ^10.0.0
   launchdarkly-js-client-sdk: ^3.9.0
   markdown-it-anchor: ^9.2.0
   markdown-it-attrs: ^4.3.1
@@ -54,7 +54,7 @@ catalog:
   swetrix: ^3.7.2
   ts-morph: 27.0.2
   tsdown: ^0.16.8
-  tsx: ^4.21.0
+  tsx: 4.21.0
   typescript: 5.9.3
   unocss: ^66.5.10
   unplugin-auto-import: ^20.2.0

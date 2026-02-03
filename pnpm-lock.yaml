@@ -151,7 +151,7 @@ catalogs:
       specifier: ^0.16.8
       version: 0.16.8
     tsx:
-      specifier: ^4.21.0
+      specifier: 4.21.0
       version: 4.21.0
     typescript:
       specifier: 5.9.3
@@ -259,6 +259,9 @@ importers:
       simple-git-hooks:
         specifier: 'catalog:'
         version: 2.13.1
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -3904,6 +3907,7 @@ packages:
 
   flagsmith@10.0.0:
     resolution: {integrity: sha512-JEO4V6nO6ic4ahi5uZRVBYKFil9IuRkLWemKZuFv3QVUCxluQfgymwiuPSs4/LqwFqQ+89SuubaawHxUxUPTzg==}
+    deprecated: This package has moved to @flagsmith/flagsmith. Please update your dependencies.
 
   flat-cache@4.0.1:
     resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
