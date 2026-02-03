@@ -2,7 +2,7 @@
   // Note: For SSR applications, install the plugin in main.ts:
   // import { createStackPlugin } from '@vuetify/v0'
   // app.use(createStackPlugin())
-  import { useStack } from '@vuetify/v0'
+  import { Scrim, useStack } from '@vuetify/v0'
   import { computed, onScopeDispose, shallowRef, watch } from 'vue'
   import { provideOverlays } from './context'
   import type { Overlay } from './context'
@@ -45,14 +45,6 @@
     }
   }
 
-  // Dismiss topmost non-blocking overlay (for scrim click)
-  function dismissTop () {
-    const top = stack.top.value
-    if (top && !stack.isBlocking.value) {
-      top.dismiss()
-    }
-  }
-
   provideOverlays({
     overlays,
     stack,
@@ -67,17 +59,8 @@
   <div class="relative">
     <slot />
 
-    <!-- Scrim (shared backdrop for all overlays) -->
-    <Teleport to="body">
-      <Transition name="fade">
-        <div
-          v-if="stack.isActive.value"
-          class="fixed inset-0 bg-black/50 transition-opacity"
-          :style="{ zIndex: stack.scrimZIndex.value }"
-          @click="dismissTop"
-        />
-      </Transition>
-    </Teleport>
+    <!-- Scrim renders one backdrop per overlay for cumulative opacity -->
+    <Scrim class="fixed inset-0 bg-black/30 transition-opacity" />
   </div>
 </template>
 

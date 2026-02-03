@@ -2,80 +2,74 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h, nextTick, shallowRef, toRef, type Ref, type ShallowRef } from 'vue'
+import { computed, h, nextTick, shallowRef } from 'vue'
+
+// Types
+import type { StackTicket } from '#v0/composables/useStack'
 
 import { Scrim } from './index'
 
-/**
- * Minimal stack interface - only what Scrim actually uses
- */
-interface MockStack {
-  isActive: Readonly<Ref<boolean>>
-  isBlocking: Readonly<Ref<boolean>>
-  scrimZIndex: Readonly<Ref<number>>
-  top: Readonly<Ref<{ dismiss: () => void } | undefined>>
-}
+// Mock useStack
+const mockSelectedItems = shallowRef(new Set<StackTicket>())
 
-interface MockStackRefs {
-  isActive: ShallowRef<boolean>
-  isBlocking: ShallowRef<boolean>
-  scrimZIndex: ShallowRef<number>
-}
+vi.mock('#v0/composables/useStack', () => ({
+  useStack: () => ({
+    selectedItems: computed(() => mockSelectedItems.value),
+  }),
+}))
 
-interface MockStackResult {
-  stack: MockStack
-  refs: MockStackRefs
-  ticketDismiss: ReturnType<typeof vi.fn>
-}
-
-interface MockStackOverrides {
-  isActive?: boolean
-  isBlocking?: boolean
-  scrimZIndex?: number
-}
-
-// Create a mock stack context for testing
-function createMockStack (overrides: MockStackOverrides = {}): MockStackResult {
-  const isActive = shallowRef(overrides.isActive ?? false)
-  const isBlocking = shallowRef(overrides.isBlocking ?? false)
-  const scrimZIndex = shallowRef(overrides.scrimZIndex ?? 1999)
-  const ticketDismiss = vi.fn()
-
-  const stack: MockStack = {
-    isActive: toRef(() => isActive.value),
-    isBlocking: toRef(() => isBlocking.value),
-    scrimZIndex: toRef(() => scrimZIndex.value),
-    top: toRef(() => isActive.value ? { dismiss: ticketDismiss } : undefined),
-  }
-
+function createMockTicket (overrides: {
+  id?: string
+  zIndex?: number
+  blocking?: boolean
+} = {}): StackTicket {
+  const dismiss = vi.fn()
   return {
-    stack,
-    refs: { isActive, isBlocking, scrimZIndex },
-    ticketDismiss,
-  }
+    id: overrides.id ?? 'ticket-1',
+    zIndex: computed(() => overrides.zIndex ?? 2000),
+    blocking: overrides.blocking ?? false,
+    dismiss,
+    // Minimal ticket properties for testing
+    index: 0,
+    value: undefined,
+    valueIsIndex: true,
+    isSelected: computed(() => true),
+    select: vi.fn(),
+    unselect: vi.fn(),
+    toggle: vi.fn(),
+    disabled: false,
+    globalTop: computed(() => true),
+  } as unknown as StackTicket
 }
 
 describe('scrim', () => {
+  beforeEach(() => {
+    mockSelectedItems.value = new Set()
+    document.body.innerHTML = ''
+  })
+
   describe('rendering', () => {
-    it('should render when stack is active', () => {
-      const stack = createMockStack({ isActive: true })
+    it('should render one scrim per selected ticket', async () => {
+      const ticket1 = createMockTicket({ id: 'ticket-1', zIndex: 2000 })
+      const ticket2 = createMockTicket({ id: 'ticket-2', zIndex: 2010 })
+      mockSelectedItems.value = new Set([ticket1, ticket2])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
         slots: {
           default: () => h('span', 'Scrim content'),
         },
       })
 
-      expect(wrapper.find('span').exists()).toBe(true)
-      expect(wrapper.find('span').text()).toBe('Scrim content')
+      await nextTick()
+      expect(wrapper.findAll('span').length).toBe(2)
     })
 
-    it('should not render when stack is inactive', () => {
-      const stack = createMockStack({ isActive: false })
+    it('should not render when no tickets are selected', () => {
+      mockSelectedItems.value = new Set()
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
         slots: {
           default: () => h('span', 'Scrim content'),
         },
@@ -84,120 +78,117 @@ describe('scrim', () => {
       expect(wrapper.find('span').exists()).toBe(false)
     })
 
-    it('should render as div by default', () => {
-      const stack = createMockStack({ isActive: true })
+    it('should render as div by default', async () => {
+      const ticket = createMockTicket()
+      mockSelectedItems.value = new Set([ticket])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
       })
 
-      // Find the Atom inside the Transition
-      const atom = wrapper.find('div')
-      expect(atom.exists()).toBe(true)
+      await nextTick()
+      expect(wrapper.find('div').exists()).toBe(true)
     })
 
-    it('should render as custom element when as prop is provided', () => {
-      const stack = createMockStack({ isActive: true })
+    it('should render as custom element when as prop is provided', async () => {
+      const ticket = createMockTicket()
+      mockSelectedItems.value = new Set([ticket])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false, as: 'section' },
+        props: { teleport: false, as: 'section' },
       })
 
-      const atom = wrapper.find('section')
-      expect(atom.exists()).toBe(true)
+      await nextTick()
+      expect(wrapper.find('section').exists()).toBe(true)
     })
   })
 
   describe('z-index', () => {
-    it('should apply z-index from stack context', () => {
-      const stack = createMockStack({ isActive: true, scrimZIndex: 2500 })
+    it('should apply z-index one below the ticket zIndex', async () => {
+      const ticket = createMockTicket({ zIndex: 2500 })
+      mockSelectedItems.value = new Set([ticket])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
       })
 
+      await nextTick()
       const atom = wrapper.find('div')
-      expect((atom.element as HTMLElement).style.zIndex).toBe('2500')
+      expect((atom.element as HTMLElement).style.zIndex).toBe('2499')
     })
 
-    it('should update z-index when stack changes', async () => {
-      const stack = createMockStack({ isActive: true, scrimZIndex: 1999 }) as any
+    it('should apply different z-indexes for each ticket', async () => {
+      const ticket1 = createMockTicket({ id: 'ticket-1', zIndex: 2000 })
+      const ticket2 = createMockTicket({ id: 'ticket-2', zIndex: 2010 })
+      mockSelectedItems.value = new Set([ticket1, ticket2])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
       })
 
-      const atom = wrapper.find('div')
-      expect((atom.element as HTMLElement).style.zIndex).toBe('1999')
-
-      stack.refs.scrimZIndex.value = 2099
       await nextTick()
-
-      expect((atom.element as HTMLElement).style.zIndex).toBe('2099')
+      const atoms = wrapper.findAll('div')
+      expect(atoms.length).toBe(2)
+      expect((atoms[0]!.element as HTMLElement).style.zIndex).toBe('1999')
+      expect((atoms[1]!.element as HTMLElement).style.zIndex).toBe('2009')
     })
   })
 
   describe('dismiss behavior', () => {
-    it('should call stack.dismiss on click when not blocking', async () => {
-      const stack = createMockStack({ isActive: true, isBlocking: false })
+    it('should call ticket.dismiss on click when not blocking', async () => {
+      const ticket = createMockTicket({ blocking: false })
+      mockSelectedItems.value = new Set([ticket])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
       })
 
-      const atom = wrapper.find('div')
-      await atom.trigger('click')
-
-      expect(stack.ticketDismiss).toHaveBeenCalledTimes(1)
-    })
-
-    it('should NOT call stack.dismiss on click when blocking', async () => {
-      const stack = createMockStack({ isActive: true, isBlocking: true })
-
-      const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
-      })
-
-      const atom = wrapper.find('div')
-      await atom.trigger('click')
-
-      expect(stack.ticketDismiss).not.toHaveBeenCalled()
-    })
-
-    it('should respect blocking state changes', async () => {
-      const stack = createMockStack({ isActive: true, isBlocking: false }) as any
-
-      const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
-      })
-
-      const atom = wrapper.find('div')
-
-      // First click - not blocking
-      await atom.trigger('click')
-      expect(stack.ticketDismiss).toHaveBeenCalledTimes(1)
-
-      // Change to blocking
-      stack.refs.isBlocking.value = true
       await nextTick()
+      await wrapper.find('div').trigger('click')
 
-      // Second click - now blocking
-      await atom.trigger('click')
-      expect(stack.ticketDismiss).toHaveBeenCalledTimes(1) // Still 1, not called again
+      expect(ticket.dismiss).toHaveBeenCalledTimes(1)
+    })
+
+    it('should NOT call ticket.dismiss on click when blocking', async () => {
+      const ticket = createMockTicket({ blocking: true })
+      mockSelectedItems.value = new Set([ticket])
+
+      const wrapper = mount(Scrim, {
+        props: { teleport: false },
+      })
+
+      await nextTick()
+      await wrapper.find('div').trigger('click')
+
+      expect(ticket.dismiss).not.toHaveBeenCalled()
+    })
+
+    it('should dismiss correct ticket when multiple exist', async () => {
+      const ticket1 = createMockTicket({ id: 'ticket-1', zIndex: 2000, blocking: false })
+      const ticket2 = createMockTicket({ id: 'ticket-2', zIndex: 2010, blocking: false })
+      mockSelectedItems.value = new Set([ticket1, ticket2])
+
+      const wrapper = mount(Scrim, {
+        props: { teleport: false },
+      })
+
+      await nextTick()
+      const atoms = wrapper.findAll('div')
+
+      // Click second scrim
+      await atoms[1]!.trigger('click')
+
+      expect(ticket1.dismiss).not.toHaveBeenCalled()
+      expect(ticket2.dismiss).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('teleport', () => {
-    beforeEach(() => {
-      // Clean up any teleported content
-      document.body.innerHTML = ''
-    })
-
     it('should teleport to body by default', async () => {
-      const stack = createMockStack({ isActive: true })
+      const ticket = createMockTicket()
+      mockSelectedItems.value = new Set([ticket])
 
       mount(Scrim, {
-        props: { stack: stack.stack as any },
         attachTo: document.body,
         slots: {
           default: () => h('span', { class: 'scrim-content' }, 'Content'),
@@ -205,35 +196,35 @@ describe('scrim', () => {
       })
 
       await nextTick()
-
-      // Content should be in body via teleport
       const content = document.body.querySelector('.scrim-content')
       expect(content).toBeTruthy()
     })
 
-    it('should render inline when teleport is false', () => {
-      const stack = createMockStack({ isActive: true })
+    it('should render inline when teleport is false', async () => {
+      const ticket = createMockTicket()
+      mockSelectedItems.value = new Set([ticket])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
         slots: {
           default: () => h('span', { class: 'scrim-content' }, 'Content'),
         },
       })
 
+      await nextTick()
       expect(wrapper.find('.scrim-content').exists()).toBe(true)
     })
 
     it('should teleport to custom target', async () => {
-      const stack = createMockStack({ isActive: true })
+      const ticket = createMockTicket()
+      mockSelectedItems.value = new Set([ticket])
 
-      // Create custom teleport target
       const target = document.createElement('div')
       target.id = 'custom-target'
       document.body.append(target)
 
       mount(Scrim, {
-        props: { stack: stack.stack as any, teleportTo: '#custom-target' },
+        props: { teleportTo: '#custom-target' },
         attachTo: document.body,
         slots: {
           default: () => h('span', { class: 'scrim-content' }, 'Content'),
@@ -241,7 +232,6 @@ describe('scrim', () => {
       })
 
       await nextTick()
-
       const content = target.querySelector('.scrim-content')
       expect(content).toBeTruthy()
 
@@ -250,12 +240,13 @@ describe('scrim', () => {
   })
 
   describe('slot props', () => {
-    it('should expose isActive slot prop', () => {
+    it('should expose ticket in slot props', async () => {
       let slotProps: any
-      const stack = createMockStack({ isActive: true })
+      const ticket = createMockTicket({ id: 'test-ticket' })
+      mockSelectedItems.value = new Set([ticket])
 
       mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
         slots: {
           default: (props: any) => {
             slotProps = props
@@ -264,16 +255,18 @@ describe('scrim', () => {
         },
       })
 
+      await nextTick()
       expect(slotProps).toBeDefined()
-      expect(slotProps.isActive).toBe(true)
+      expect(slotProps.ticket.id).toBe('test-ticket')
     })
 
-    it('should expose isBlocking slot prop', () => {
+    it('should expose zIndex in slot props', async () => {
       let slotProps: any
-      const stack = createMockStack({ isActive: true, isBlocking: true })
+      const ticket = createMockTicket({ zIndex: 3000 })
+      mockSelectedItems.value = new Set([ticket])
 
       mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
         slots: {
           default: (props: any) => {
             slotProps = props
@@ -282,32 +275,36 @@ describe('scrim', () => {
         },
       })
 
+      await nextTick()
+      expect(slotProps.zIndex).toBe(2999)
+    })
+
+    it('should expose isBlocking in slot props', async () => {
+      let slotProps: any
+      const ticket = createMockTicket({ blocking: true })
+      mockSelectedItems.value = new Set([ticket])
+
+      mount(Scrim, {
+        props: { teleport: false },
+        slots: {
+          default: (props: any) => {
+            slotProps = props
+            return h('div', 'Content')
+          },
+        },
+      })
+
+      await nextTick()
       expect(slotProps.isBlocking).toBe(true)
-    })
-
-    it('should expose zIndex slot prop', () => {
-      let slotProps: any
-      const stack = createMockStack({ isActive: true, scrimZIndex: 3000 })
-
-      mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
-        slots: {
-          default: (props: any) => {
-            slotProps = props
-            return h('div', 'Content')
-          },
-        },
-      })
-
-      expect(slotProps.zIndex).toBe(3000)
     })
 
     it('should expose dismiss function in slot props', async () => {
       let slotProps: any
-      const stack = createMockStack({ isActive: true })
+      const ticket = createMockTicket()
+      mockSelectedItems.value = new Set([ticket])
 
       mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
         slots: {
           default: (props: any) => {
             slotProps = props
@@ -316,109 +313,99 @@ describe('scrim', () => {
         },
       })
 
+      await nextTick()
       expect(typeof slotProps.dismiss).toBe('function')
 
-      // Call the slot prop dismiss
       slotProps.dismiss()
-      expect(stack.ticketDismiss).toHaveBeenCalledTimes(1)
+      expect(ticket.dismiss).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('transition', () => {
-    it('should use fade transition by default', () => {
-      const stack = createMockStack({ isActive: true })
+    it('should use fade transition by default', async () => {
+      const ticket = createMockTicket()
+      mockSelectedItems.value = new Set([ticket])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
       })
 
-      // Transition component should be rendered
-      const transition = wrapper.findComponent({ name: 'Transition' })
+      await nextTick()
+      const transition = wrapper.findComponent({ name: 'TransitionGroup' })
       expect(transition.exists()).toBe(true)
       expect(transition.props('name')).toBe('fade')
     })
 
-    it('should use custom transition when specified', () => {
-      const stack = createMockStack({ isActive: true })
+    it('should use custom transition when specified', async () => {
+      const ticket = createMockTicket()
+      mockSelectedItems.value = new Set([ticket])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false, transition: 'slide' },
+        props: { teleport: false, transition: 'slide' },
       })
 
-      const transition = wrapper.findComponent({ name: 'Transition' })
+      await nextTick()
+      const transition = wrapper.findComponent({ name: 'TransitionGroup' })
       expect(transition.props('name')).toBe('slide')
     })
   })
 
   describe('reactivity', () => {
-    it('should show/hide when stack.isActive changes', async () => {
-      const stack = createMockStack({ isActive: false }) as any
+    it('should add/remove scrims when tickets change', async () => {
+      const ticket1 = createMockTicket({ id: 'ticket-1' })
+      mockSelectedItems.value = new Set([ticket1])
 
       const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
-        slots: {
-          default: () => h('span', { class: 'scrim-content' }, 'Content'),
-        },
-      })
-
-      // Initially hidden
-      expect(wrapper.find('.scrim-content').exists()).toBe(false)
-
-      // Activate stack
-      stack.refs.isActive.value = true
-      await nextTick()
-
-      expect(wrapper.find('.scrim-content').exists()).toBe(true)
-
-      // Deactivate stack
-      stack.refs.isActive.value = false
-      await nextTick()
-
-      expect(wrapper.find('.scrim-content').exists()).toBe(false)
-    })
-  })
-
-  describe('integration', () => {
-    it('should work with multiple scrims using different stack contexts', () => {
-      const stack1 = createMockStack({ isActive: true, scrimZIndex: 1999 })
-      const stack2 = createMockStack({ isActive: true, scrimZIndex: 2999 })
-
-      // Mount two scrims separately to verify each gets correct z-index
-      const wrapper1 = mount(Scrim, {
-        props: { stack: stack1.stack as any, teleport: false },
-      })
-      const wrapper2 = mount(Scrim, {
-        props: { stack: stack2.stack as any, teleport: false },
-      })
-
-      const scrim1 = wrapper1.find('div')
-      const scrim2 = wrapper2.find('div')
-
-      expect(scrim1.exists()).toBe(true)
-      expect(scrim2.exists()).toBe(true)
-      expect((scrim1.element as HTMLElement).style.zIndex).toBe('1999')
-      expect((scrim2.element as HTMLElement).style.zIndex).toBe('2999')
-    })
-
-    it('should handle rapid activation/deactivation', async () => {
-      const stack = createMockStack({ isActive: false }) as any
-
-      const wrapper = mount(Scrim, {
-        props: { stack: stack.stack as any, teleport: false },
+        props: { teleport: false },
         slots: {
           default: () => h('span', 'Content'),
         },
       })
 
-      // Rapid toggles
-      stack.refs.isActive.value = true
       await nextTick()
-      stack.refs.isActive.value = false
-      await nextTick()
-      stack.refs.isActive.value = true
+      expect(wrapper.findAll('span').length).toBe(1)
+
+      // Add second ticket
+      const ticket2 = createMockTicket({ id: 'ticket-2' })
+      mockSelectedItems.value = new Set([ticket1, ticket2])
       await nextTick()
 
-      expect(wrapper.find('span').exists()).toBe(true)
+      expect(wrapper.findAll('span').length).toBe(2)
+
+      // Remove first ticket
+      mockSelectedItems.value = new Set([ticket2])
+      await nextTick()
+
+      expect(wrapper.findAll('span').length).toBe(1)
+
+      // Remove all
+      mockSelectedItems.value = new Set()
+      await nextTick()
+
+      expect(wrapper.findAll('span').length).toBe(0)
+    })
+  })
+
+  describe('cumulative opacity', () => {
+    it('should render multiple scrims allowing visual stacking', async () => {
+      const ticket1 = createMockTicket({ id: 'ticket-1', zIndex: 2000 })
+      const ticket2 = createMockTicket({ id: 'ticket-2', zIndex: 2010 })
+      const ticket3 = createMockTicket({ id: 'ticket-3', zIndex: 2020 })
+      mockSelectedItems.value = new Set([ticket1, ticket2, ticket3])
+
+      const wrapper = mount(Scrim, {
+        props: { teleport: false },
+        attrs: { class: 'scrim-layer' },
+      })
+
+      await nextTick()
+      const layers = wrapper.findAll('.scrim-layer')
+      expect(layers.length).toBe(3)
+
+      // Each should have its own z-index
+      expect((layers[0]!.element as HTMLElement).style.zIndex).toBe('1999')
+      expect((layers[1]!.element as HTMLElement).style.zIndex).toBe('2009')
+      expect((layers[2]!.element as HTMLElement).style.zIndex).toBe('2019')
     })
   })
 })
