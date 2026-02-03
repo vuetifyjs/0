@@ -70,8 +70,7 @@ These features have broad browser support with proper feature detection:
 All composables use the `IN_BROWSER` constant and `useHydration` composable to ensure safe server-side rendering:
 
 ```ts
-import { IN_BROWSER } from '#v0/constants/globals'
-import { useHydration } from '#v0/composables'
+import { IN_BROWSER, useHydration } from '@vuetify/v0'
 
 const { isHydrated } = useHydration()
 
@@ -93,7 +92,7 @@ import {
   SUPPORTS_OBSERVER,
   SUPPORTS_INTERSECTION_OBSERVER,
   SUPPORTS_MUTATION_OBSERVER,
-} from '#v0/constants/globals'
+} from '@vuetify/v0'
 ```
 
 ## Documentation Site
