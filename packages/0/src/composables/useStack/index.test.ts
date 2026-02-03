@@ -1,367 +1,288 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { createApp, defineComponent, effectScope, h, nextTick, ref } from 'vue'
+import { defineComponent, nextTick, ref, watch } from 'vue'
+
+// Types
+import type { StackContext } from '.'
 
 import {
+  createStack,
   createStackContext,
   createStackPlugin,
-  provideStackContext,
-  stack,
   useStack,
-  useStackContext,
 } from '.'
 
-describe('createStack', () => {
-  // Reset global registry between tests using the shared context
-  beforeEach(() => {
-    stack.registry.clear()
-  })
+describe('useStack', () => {
+  describe('createStack', () => {
+    it('should create stack with default options', () => {
+      const stack = createStack()
 
-  describe('useStack', () => {
-    it('should return initial state when inactive', () => {
-      const isActive = ref(false)
+      expect(stack.isActive.value).toBe(false)
+      expect(stack.top.value).toBeUndefined()
+      expect(stack.scrimZIndex.value).toBe(0)
+      expect(stack.isBlocking.value).toBe(false)
+    })
 
-      const result = effectScope().run(() => useStack(isActive))!
+    it('should register tickets', () => {
+      const stack = createStack()
 
-      expect(result.zIndex.value).toBe(2000)
-      expect(result.globalTop.value).toBe(true)
-      expect(result.localTop.value).toBe(true)
-      expect(result.styles.value).toEqual({ zIndex: 2000 })
+      const ticket = stack.register()
+
+      expect(ticket).toBeDefined()
+      expect(ticket.id).toBeDefined()
+      expect(ticket.blocking).toBe(false)
+    })
+
+    it('should register tickets with options', () => {
+      const onDismiss = vi.fn()
+      const stack = createStack()
+
+      const ticket = stack.register({ onDismiss, blocking: true })
+
+      expect(ticket.blocking).toBe(true)
+      expect(ticket.onDismiss).toBe(onDismiss)
+    })
+
+    it('should track selection with select/unselect', async () => {
+      const stack = createStack()
+      const ticket = stack.register()
+
+      expect(ticket.isSelected.value).toBe(false)
+      expect(stack.isActive.value).toBe(false)
+
+      ticket.select()
+      await nextTick()
+
+      expect(ticket.isSelected.value).toBe(true)
+      expect(stack.isActive.value).toBe(true)
+
+      ticket.unselect()
+      await nextTick()
+
+      expect(ticket.isSelected.value).toBe(false)
+      expect(stack.isActive.value).toBe(false)
     })
 
     it('should use custom baseZIndex', () => {
-      const isActive = ref(false)
+      const stack = createStack({ baseZIndex: 1000 })
+      const ticket = stack.register()
 
-      const result = effectScope().run(() => useStack(isActive, undefined, { baseZIndex: 1000 }))!
+      ticket.select()
 
-      expect(result.zIndex.value).toBe(1000)
-      expect(result.styles.value).toEqual({ zIndex: 1000 })
+      expect(ticket.zIndex.value).toBe(1000)
     })
 
-    it('should increment z-index for multiple overlays', async () => {
-      const isActive1 = ref(true)
-      const isActive2 = ref(false)
+    it('should increment z-index for multiple selected tickets', async () => {
+      const stack = createStack()
 
-      const result1 = effectScope().run(() => useStack(isActive1))!
-      const result2 = effectScope().run(() => useStack(isActive2))!
+      const ticket1 = stack.register()
+      const ticket2 = stack.register()
 
+      ticket1.select()
       await nextTick()
 
-      expect(result1.zIndex.value).toBe(2000)
-      expect(result2.zIndex.value).toBe(2000) // Not active yet
+      expect(ticket1.zIndex.value).toBe(2000)
 
-      isActive2.value = true
+      ticket2.select()
       await nextTick()
 
-      expect(result2.zIndex.value).toBe(2010)
+      expect(ticket1.zIndex.value).toBe(2000)
+      expect(ticket2.zIndex.value).toBe(2010)
     })
 
     it('should use custom increment', async () => {
-      const isActive1 = ref(true)
-      const isActive2 = ref(true)
+      const stack = createStack({ increment: 5 })
 
-      const result1 = effectScope().run(() => useStack(isActive1, undefined, { increment: 5 }))!
-      const result2 = effectScope().run(() => useStack(isActive2, undefined, { increment: 5 }))!
+      const ticket1 = stack.register()
+      const ticket2 = stack.register()
 
+      ticket1.select()
+      ticket2.select()
       await nextTick()
 
-      expect(result1.zIndex.value).toBe(2000)
-      expect(result2.zIndex.value).toBe(2005)
+      expect(ticket1.zIndex.value).toBe(2000)
+      expect(ticket2.zIndex.value).toBe(2005)
     })
 
     it('should update globalTop when stack changes', async () => {
-      vi.useFakeTimers()
-      const isActive1 = ref(true)
-      const isActive2 = ref(false)
+      const stack = createStack()
 
-      const result1 = effectScope().run(() => useStack(isActive1))!
-      const result2 = effectScope().run(() => useStack(isActive2))!
+      const ticket1 = stack.register()
+      const ticket2 = stack.register()
 
+      ticket1.select()
       await nextTick()
-      vi.runAllTimers()
 
-      expect(result1.globalTop.value).toBe(true)
+      expect(ticket1.globalTop.value).toBe(true)
 
-      isActive2.value = true
+      ticket2.select()
       await nextTick()
-      vi.runAllTimers()
 
-      expect(result1.globalTop.value).toBe(false)
-      expect(result2.globalTop.value).toBe(true)
+      expect(ticket1.globalTop.value).toBe(false)
+      expect(ticket2.globalTop.value).toBe(true)
 
-      vi.useRealTimers()
+      ticket2.unselect()
+      await nextTick()
+
+      expect(ticket1.globalTop.value).toBe(true)
     })
 
-    it('should remove from stack when deactivated', async () => {
-      const isActive1 = ref(true)
-      const isActive2 = ref(true)
+    it('should track top ticket', async () => {
+      const stack = createStack()
 
-      effectScope().run(() => useStack(isActive1))!
-      const result2 = effectScope().run(() => useStack(isActive2))!
+      const ticket1 = stack.register()
+      const ticket2 = stack.register()
 
+      expect(stack.top.value).toBeUndefined()
+
+      ticket1.select()
       await nextTick()
 
-      expect(result2.zIndex.value).toBe(2010)
+      expect(stack.top.value?.id).toBe(ticket1.id)
 
-      // Deactivate first overlay
-      isActive1.value = false
+      ticket2.select()
       await nextTick()
 
-      // Second overlay should still have same z-index
-      expect(result2.zIndex.value).toBe(2010)
-    })
-
-    it('should generate unique ids', () => {
-      const isActive = ref(false)
-
-      const result1 = effectScope().run(() => useStack(isActive))!
-      const result2 = effectScope().run(() => useStack(isActive))!
-
-      expect(result1.id).not.toBe(result2.id)
-    })
-
-    it('should not register when disableGlobalStack is true', async () => {
-      const isActive = ref(true)
-
-      effectScope().run(() => useStack(isActive, undefined, { disableGlobalStack: true }))
-      await nextTick()
-
-      expect(stack.registry.size).toBe(0)
-    })
-
-    it('should clean up timeout on scope dispose', async () => {
-      vi.useFakeTimers()
-      const isActive = ref(true)
-      const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout')
-
-      const scope = effectScope()
-      scope.run(() => useStack(isActive))
-
-      await nextTick()
-
-      scope.stop()
-
-      // Should have called clearTimeout during cleanup
-      expect(clearTimeoutSpy).toHaveBeenCalled()
-
-      clearTimeoutSpy.mockRestore()
-      vi.useRealTimers()
-    })
-
-    it('should clear pending timeout before creating new one', async () => {
-      vi.useFakeTimers()
-      const isActive1 = ref(true)
-      const isActive2 = ref(false)
-      const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout')
-
-      effectScope().run(() => useStack(isActive1))
-      effectScope().run(() => useStack(isActive2))
-
-      await nextTick()
-
-      // Rapidly toggle to trigger multiple watchEffect runs
-      isActive2.value = true
-      await nextTick()
-      isActive2.value = false
-      await nextTick()
-      isActive2.value = true
-      await nextTick()
-
-      // Should have called clearTimeout to prevent stale updates
-      expect(clearTimeoutSpy.mock.calls.length).toBeGreaterThan(0)
-
-      clearTimeoutSpy.mockRestore()
-      vi.useRealTimers()
-    })
-  })
-
-  describe('stack', () => {
-    it('should track active state', async () => {
-      const isActive = ref(false)
-
-      expect(stack.isActive.value).toBe(false)
-
-      effectScope().run(() => useStack(isActive))
-      isActive.value = true
-      await nextTick()
-
-      expect(stack.isActive.value).toBe(true)
+      expect(stack.top.value?.id).toBe(ticket2.id)
     })
 
     it('should provide scrim z-index below top overlay', async () => {
-      const isActive = ref(true)
+      const stack = createStack()
 
-      effectScope().run(() => useStack(isActive))
+      const ticket = stack.register()
+      ticket.select()
       await nextTick()
 
       expect(stack.scrimZIndex.value).toBe(1999) // 2000 - 1
     })
 
-    it('should return 0 for scrimZIndex when stack is empty', () => {
-      expect(stack.scrimZIndex.value).toBe(0)
-    })
-
     it('should track blocking state', async () => {
-      const isActive = ref(true)
+      const stack = createStack()
 
       expect(stack.isBlocking.value).toBe(false)
 
-      effectScope().run(() => useStack(isActive, undefined, { blocking: true }))
+      const ticket = stack.register({ blocking: true })
+      ticket.select()
       await nextTick()
 
       expect(stack.isBlocking.value).toBe(true)
     })
 
-    it('should call onDismiss when dismiss is called', async () => {
-      const isActive = ref(true)
+    it('should call onDismiss when ticket.dismiss is called', async () => {
       const onDismiss = vi.fn()
+      const stack = createStack()
 
-      effectScope().run(() => useStack(isActive, onDismiss))
+      const ticket = stack.register({ onDismiss })
+      ticket.select()
       await nextTick()
 
-      stack.dismiss()
+      ticket.dismiss()
 
       expect(onDismiss).toHaveBeenCalled()
+      expect(ticket.isSelected.value).toBe(false)
     })
 
-    it('should not call onDismiss when blocking', async () => {
-      const isActive = ref(true)
+    it('should not dismiss when blocking', async () => {
       const onDismiss = vi.fn()
+      const stack = createStack()
 
-      effectScope().run(() => useStack(isActive, onDismiss, { blocking: true }))
+      const ticket = stack.register({ onDismiss, blocking: true })
+      ticket.select()
       await nextTick()
 
-      stack.dismiss()
+      ticket.dismiss()
 
       expect(onDismiss).not.toHaveBeenCalled()
+      expect(ticket.isSelected.value).toBe(true)
     })
 
-    it('should safely handle dismiss when stack is empty', () => {
+    it('should generate unique ids', () => {
+      const stack = createStack()
+
+      const ticket1 = stack.register()
+      const ticket2 = stack.register()
+
+      expect(ticket1.id).not.toBe(ticket2.id)
+    })
+
+    it('should handle toggle', async () => {
+      const stack = createStack()
+      const ticket = stack.register()
+
+      expect(ticket.isSelected.value).toBe(false)
+
+      ticket.toggle()
+      await nextTick()
+
+      expect(ticket.isSelected.value).toBe(true)
+
+      ticket.toggle()
+      await nextTick()
+
+      expect(ticket.isSelected.value).toBe(false)
+    })
+
+    it('should update z-index when selection order changes', async () => {
+      const stack = createStack()
+
+      const ticket1 = stack.register()
+      const ticket2 = stack.register()
+
+      ticket1.select()
+      ticket2.select()
+      await nextTick()
+
+      expect(ticket1.zIndex.value).toBe(2000)
+      expect(ticket2.zIndex.value).toBe(2010)
+
+      // Unselect and reselect first ticket
+      ticket1.unselect()
+      await nextTick()
+      ticket1.select()
+      await nextTick()
+
+      // Now ticket1 is on top
+      expect(ticket2.zIndex.value).toBe(2000)
+      expect(ticket1.zIndex.value).toBe(2010)
+    })
+
+    it('should safely handle dismiss when not selected', () => {
+      const onDismiss = vi.fn()
+      const stack = createStack()
+
+      const ticket = stack.register({ onDismiss })
+
       // Should not throw
-      expect(() => stack.dismiss()).not.toThrow()
-    })
-
-    it('should return top overlay entry', async () => {
-      const isActive1 = ref(true)
-      const isActive2 = ref(true)
-
-      effectScope().run(() => useStack(isActive1))
-      const result2 = effectScope().run(() => useStack(isActive2))!
-
-      await nextTick()
-
-      expect(stack.top.value?.id).toBe(result2.id)
-      expect(stack.top.value?.zIndex).toBe(2010)
-    })
-
-    it('should update when overlays close', async () => {
-      const isActive1 = ref(true)
-      const isActive2 = ref(true)
-
-      const result1 = effectScope().run(() => useStack(isActive1))!
-
-      effectScope().run(() => useStack(isActive2))
-      await nextTick()
-
-      expect(stack.registry.size).toBe(2)
-
-      isActive2.value = false
-      await nextTick()
-
-      expect(stack.registry.size).toBe(1)
-      expect(stack.top.value?.id).toBe(result1.id)
-    })
-
-    it('should provide registry access', async () => {
-      const isActive = ref(true)
-
-      const result = effectScope().run(() => useStack(isActive))!
-      await nextTick()
-
-      expect(stack.registry.has(result.id)).toBe(true)
-      expect(stack.registry.get(result.id)?.zIndex).toBe(2000)
-    })
-
-    it('should dismiss specific overlay by ID', async () => {
-      const onDismiss1 = vi.fn()
-      const onDismiss2 = vi.fn()
-
-      const result1 = effectScope().run(() =>
-        useStack(ref(true), onDismiss1),
-      )!
-      effectScope().run(() =>
-        useStack(ref(true), onDismiss2),
-      )
-
-      await nextTick()
-
-      // Dismiss specific overlay (first one, not top)
-      stack.dismiss(result1.id)
-
-      expect(onDismiss1).toHaveBeenCalled()
-      expect(onDismiss2).not.toHaveBeenCalled()
-    })
-
-    it('should not dismiss blocking overlay by ID', async () => {
-      const onDismiss = vi.fn()
-
-      const result = effectScope().run(() =>
-        useStack(ref(true), onDismiss, { blocking: true }),
-      )!
-
-      await nextTick()
-
-      stack.dismiss(result.id)
-
-      expect(onDismiss).not.toHaveBeenCalled()
-    })
-
-    it('should handle onDismiss callback that throws', async () => {
-      const onDismiss = vi.fn(() => {
-        throw new Error('Callback error')
-      })
-
-      effectScope().run(() => useStack(ref(true), onDismiss))
-      await nextTick()
-
-      // Should throw but not crash
-      expect(() => stack.dismiss()).toThrow('Callback error')
+      expect(() => ticket.dismiss()).not.toThrow()
       expect(onDismiss).toHaveBeenCalled()
     })
   })
 
   describe('createStackContext', () => {
-    it('should create context with default registry', () => {
-      const context = createStackContext()
+    it('should create context trinity', () => {
+      const [useCtx, provideCtx, ctx] = createStackContext()
 
-      expect(context.registry).toBeDefined()
-      expect(context.isActive.value).toBe(false)
-      expect(context.top.value).toBeUndefined()
-      expect(context.scrimZIndex.value).toBe(0)
-      expect(context.isBlocking.value).toBe(false)
-      expect(typeof context.dismiss).toBe('function')
+      expect(useCtx).toBeTypeOf('function')
+      expect(provideCtx).toBeTypeOf('function')
+      expect(ctx).toBeDefined()
+      expect(ctx.isActive.value).toBe(false)
     })
 
-    it('should return readonly refs', () => {
-      const context = createStackContext()
+    it('should use custom namespace', () => {
+      const [, , ctx] = createStackContext({ namespace: 'my:stack' })
 
-      // These should be readonly (computed refs from toRef)
-      expect(context.isActive.value).toBe(false)
-      expect(context.top.value).toBeUndefined()
-      expect(context.scrimZIndex.value).toBe(0)
-      expect(context.isBlocking.value).toBe(false)
+      expect(ctx).toBeDefined()
     })
 
-    it('should track state from provided registry', async () => {
-      const context = createStackContext()
+    it('should pass options to createStack', () => {
+      const [, , ctx] = createStackContext({ baseZIndex: 5000 })
 
-      context.registry.register({ id: 'test-1', zIndex: 2000 })
+      const ticket = ctx.register()
+      ticket.select()
 
-      expect(context.isActive.value).toBe(true)
-      expect(context.top.value?.id).toBe('test-1')
-      expect(context.scrimZIndex.value).toBe(1999)
+      expect(ticket.zIndex.value).toBe(5000)
     })
   })
 
@@ -373,32 +294,14 @@ describe('createStack', () => {
       expect(typeof plugin.install).toBe('function')
     })
 
-    it('should create fresh registry per app', () => {
-      const plugin = createStackPlugin()
-
-      const app1 = createApp({ render: () => null })
-      const app2 = createApp({ render: () => null })
-
-      app1.use(plugin)
-      app2.use(plugin)
-
-      // Each app should have its own registry (can't easily test this without mounting)
-      // Just verify plugin installs without error
-      expect(true).toBe(true)
-    })
-
     it('should provide context at app level', () => {
       const plugin = createStackPlugin()
-      const app = createApp({ render: () => null })
 
-      app.use(plugin)
-
-      // Context should be providable
       let contextFound = false
       const TestComponent = defineComponent({
         setup () {
           try {
-            const ctx = useStackContext()
+            const ctx = useStack()
             contextFound = !!ctx
           } catch {
             contextFound = false
@@ -415,553 +318,192 @@ describe('createStack', () => {
 
       expect(contextFound).toBe(true)
     })
+  })
 
-    it('should isolate state between apps', async () => {
-      const plugin1 = createStackPlugin()
-      const plugin2 = createStackPlugin()
+  describe('useStack', () => {
+    it('should return context from provider', () => {
+      const plugin = createStackPlugin()
 
-      let context1: ReturnType<typeof useStackContext> | undefined
-      let context2: ReturnType<typeof useStackContext> | undefined
+      let stack: StackContext | undefined
 
-      const TestComponent1 = defineComponent({
+      const TestComponent = defineComponent({
         setup () {
-          context1 = useStackContext()
+          stack = useStack()
           return () => null
         },
       })
 
-      const TestComponent2 = defineComponent({
-        setup () {
-          context2 = useStackContext()
-          return () => null
-        },
+      mount(TestComponent, {
+        global: { plugins: [plugin] },
       })
 
-      mount(TestComponent1, { global: { plugins: [plugin1] } })
-      mount(TestComponent2, { global: { plugins: [plugin2] } })
-
-      // Register in first context
-      context1!.registry.register({ id: 'app1-overlay', zIndex: 2000 })
-
-      await nextTick()
-
-      // First context should have the overlay
-      expect(context1!.isActive.value).toBe(true)
-      expect(context1!.registry.size).toBe(1)
-
-      // Second context should be empty (isolated)
-      expect(context2!.isActive.value).toBe(false)
-      expect(context2!.registry.size).toBe(0)
+      expect(stack).toBeDefined()
+      expect(stack!.isActive.value).toBe(false)
     })
   })
 
-  describe('provideStackContext', () => {
-    it('should provide context to component tree', () => {
-      let childContext: ReturnType<typeof useStackContext> | undefined
+  describe('integration with watch', () => {
+    it('should work with watch for reactive toggling', async () => {
+      const stack = createStack()
+      const isOpen = ref(false)
 
-      const Parent = defineComponent({
-        setup () {
-          const context = createStackContext()
-          provideStackContext(context)
-          return () => h(Child)
+      const ticket = stack.register({
+        onDismiss: () => {
+          isOpen.value = false
         },
       })
 
-      const Child = defineComponent({
-        setup () {
-          childContext = useStackContext()
-          return () => null
-        },
-      })
+      // Typical component pattern
+      watch(isOpen, v => v ? ticket.select() : ticket.unselect(), { immediate: true })
 
-      mount(Parent)
+      expect(ticket.isSelected.value).toBe(false)
+      expect(stack.isActive.value).toBe(false)
 
-      expect(childContext).toBeDefined()
-      expect(childContext!.registry).toBeDefined()
-    })
-  })
-
-  describe('parent/child nesting', () => {
-    it('should track localTop based on children', async () => {
-      vi.useFakeTimers()
-
-      let parentResult: ReturnType<typeof useStack> | undefined
-
-      const parentActive = ref(true)
-      const childActive = ref(false)
-
-      const Child = defineComponent({
-        setup () {
-          useStack(childActive)
-          return () => null
-        },
-      })
-
-      const Parent = defineComponent({
-        setup () {
-          parentResult = useStack(parentActive)
-          return () => h(Child)
-        },
-      })
-
-      mount(Parent, {
-        global: {
-          plugins: [createStackPlugin()],
-        },
-      })
-
+      isOpen.value = true
       await nextTick()
-      vi.runAllTimers()
 
-      // Parent should be localTop when no children are active
-      expect(parentResult!.localTop.value).toBe(true)
+      expect(ticket.isSelected.value).toBe(true)
+      expect(stack.isActive.value).toBe(true)
 
-      // Activate child
-      childActive.value = true
+      isOpen.value = false
       await nextTick()
-      vi.runAllTimers()
 
-      // Parent should no longer be localTop
-      expect(parentResult!.localTop.value).toBe(false)
-
-      // Deactivate child
-      childActive.value = false
-      await nextTick()
-      vi.runAllTimers()
-
-      // Parent should be localTop again
-      expect(parentResult!.localTop.value).toBe(true)
-
-      vi.useRealTimers()
-    })
-
-    it('should handle grandchild nesting', async () => {
-      vi.useFakeTimers()
-
-      let grandparentResult: ReturnType<typeof useStack> | undefined
-      let parentResult: ReturnType<typeof useStack> | undefined
-      let _childResult: ReturnType<typeof useStack> | undefined
-
-      const grandparentActive = ref(true)
-      const parentActive = ref(false)
-      const childActive = ref(false)
-
-      const Grandchild = defineComponent({
-        setup () {
-          _childResult = useStack(childActive)
-          return () => null
-        },
-      })
-
-      const Parent = defineComponent({
-        setup () {
-          parentResult = useStack(parentActive)
-          return () => h(Grandchild)
-        },
-      })
-
-      const Grandparent = defineComponent({
-        setup () {
-          grandparentResult = useStack(grandparentActive)
-          return () => h(Parent)
-        },
-      })
-
-      mount(Grandparent, {
-        global: {
-          plugins: [createStackPlugin()],
-        },
-      })
-
-      await nextTick()
-      vi.runAllTimers()
-
-      // Initially only grandparent is active
-      expect(grandparentResult!.localTop.value).toBe(true)
-
-      // Activate parent (child of grandparent)
-      parentActive.value = true
-      await nextTick()
-      vi.runAllTimers()
-
-      expect(grandparentResult!.localTop.value).toBe(false)
-      expect(parentResult!.localTop.value).toBe(true)
-
-      // Activate grandchild (child of parent)
-      childActive.value = true
-      await nextTick()
-      vi.runAllTimers()
-
-      expect(grandparentResult!.localTop.value).toBe(false)
-      expect(parentResult!.localTop.value).toBe(false)
-      expect(_childResult!.localTop.value).toBe(true)
-
-      vi.useRealTimers()
-    })
-
-    it('should still track parent when disableGlobalStack is true', async () => {
-      vi.useFakeTimers()
-
-      let parentResult: ReturnType<typeof useStack> | undefined
-      let pluginContext: ReturnType<typeof useStackContext> | undefined
-
-      const parentActive = ref(true)
-      const childActive = ref(false)
-
-      const Child = defineComponent({
-        setup () {
-          // Child uses disableGlobalStack but should still register with parent
-          useStack(childActive, undefined, { disableGlobalStack: true })
-          return () => null
-        },
-      })
-
-      const Parent = defineComponent({
-        setup () {
-          pluginContext = useStackContext()
-          parentResult = useStack(parentActive)
-          return () => h(Child)
-        },
-      })
-
-      mount(Parent, {
-        global: {
-          plugins: [createStackPlugin()],
-        },
-      })
-
-      await nextTick()
-      vi.runAllTimers()
-
-      // Parent should be localTop when child is inactive
-      expect(parentResult!.localTop.value).toBe(true)
-
-      // Activate child (with disableGlobalStack)
-      childActive.value = true
-      await nextTick()
-      vi.runAllTimers()
-
-      // Parent should not be localTop because child registered with it
-      expect(parentResult!.localTop.value).toBe(false)
-
-      // Plugin context registry should only have parent (child used disableGlobalStack)
-      expect(pluginContext!.registry.size).toBe(1)
-
-      vi.useRealTimers()
-    })
-  })
-
-  describe('server-side rendering', () => {
-    it('should set globalTop synchronously when IN_BROWSER is false', async () => {
-      // This test verifies the SSR code path exists and works correctly
-      // In the actual SSR environment, IN_BROWSER would be false
-      // Here we test that the sync path sets globalTop immediately
-
-      const isActive = ref(true)
-
-      // Using effectScope simulates non-browser context (no setTimeout delay)
-      const result = effectScope().run(() => useStack(isActive))!
-
-      // In SSR, globalTop should be set immediately (before any timers)
-      // The value starts as true (default)
-      expect(result.globalTop.value).toBe(true)
-    })
-
-    it('should not create memory leaks in SSR context', () => {
-      // Test that scope disposal properly cleans up
-      const scope = effectScope()
-      const isActive = ref(true)
-
-      scope.run(() => useStack(isActive))
-
-      // Dispose should not throw
-      expect(() => scope.stop()).not.toThrow()
+      expect(ticket.isSelected.value).toBe(false)
+      expect(stack.isActive.value).toBe(false)
     })
   })
 
   describe('edge cases', () => {
-    it('should have correct globalTop after rapid toggle cycles', async () => {
-      vi.useFakeTimers()
+    it('should maintain correct order with many overlays', async () => {
+      const stack = createStack()
 
-      const isActive1 = ref(true)
-      const isActive2 = ref(false)
+      const tickets = Array.from({ length: 10 }, () => stack.register())
 
-      const result1 = effectScope().run(() => useStack(isActive1))!
-      const result2 = effectScope().run(() => useStack(isActive2))!
-
+      // Select all
+      for (const ticket of tickets) {
+        ticket.select()
+      }
       await nextTick()
-      vi.runAllTimers()
 
-      // Rapid toggle: A open, B open, B close, B open
-      isActive2.value = true
-      await nextTick()
-      isActive2.value = false
-      await nextTick()
-      isActive2.value = true
-      await nextTick()
-      vi.runAllTimers()
+      // Verify z-index order
+      for (const [index, ticket] of tickets.entries()) {
+        expect(ticket.zIndex.value).toBe(2000 + index * 10)
+      }
 
-      // Final state: both open, B should be top
-      expect(result1.globalTop.value).toBe(false)
-      expect(result2.globalTop.value).toBe(true)
+      // Only last should be globalTop
+      for (const [index, ticket] of tickets.entries()) {
+        expect(ticket.globalTop.value).toBe(index === 9)
+      }
 
-      vi.useRealTimers()
+      // Unselect some
+      tickets[3]!.unselect()
+      tickets[7]!.unselect()
+      tickets[1]!.unselect()
+      await nextTick()
+
+      // Last remaining should still be globalTop
+      expect(tickets[9]!.globalTop.value).toBe(true)
     })
 
-    it('should maintain z-index when middle overlay closes', async () => {
-      const isActive1 = ref(true)
-      const isActive2 = ref(true)
-      const isActive3 = ref(true)
+    it('should handle rapid toggle cycles', async () => {
+      const stack = createStack()
 
-      const result1 = effectScope().run(() => useStack(isActive1))!
-      const result2 = effectScope().run(() => useStack(isActive2))!
-      const result3 = effectScope().run(() => useStack(isActive3))!
+      const ticket1 = stack.register()
+      const ticket2 = stack.register()
 
+      ticket1.select()
       await nextTick()
 
-      expect(result1.zIndex.value).toBe(2000)
-      expect(result2.zIndex.value).toBe(2010)
-      expect(result3.zIndex.value).toBe(2020)
-
-      // Close middle overlay
-      isActive2.value = false
+      // Rapid toggle
+      ticket2.select()
+      ticket2.unselect()
+      ticket2.select()
       await nextTick()
 
-      // First and third should keep their z-indexes
-      expect(result1.zIndex.value).toBe(2000)
-      expect(result3.zIndex.value).toBe(2020)
-      expect(stack.registry.size).toBe(2)
+      // Both should be selected, ticket2 on top
+      expect(ticket1.isSelected.value).toBe(true)
+      expect(ticket2.isSelected.value).toBe(true)
+      expect(ticket1.globalTop.value).toBe(false)
+      expect(ticket2.globalTop.value).toBe(true)
     })
 
-    it('should get new z-index when overlay is reopened', async () => {
-      const isActive1 = ref(true)
-      const isActive2 = ref(true)
+    it('should handle concurrent selection in same tick', async () => {
+      const stack = createStack()
 
-      const result1 = effectScope().run(() => useStack(isActive1))!
-      effectScope().run(() => useStack(isActive2))
+      const ticket1 = stack.register()
+      const ticket2 = stack.register()
+
+      // Select both in same tick
+      ticket1.select()
+      ticket2.select()
 
       await nextTick()
 
-      expect(result1.zIndex.value).toBe(2000)
-
-      // Close and reopen first overlay
-      isActive1.value = false
-      await nextTick()
-      isActive1.value = true
-      await nextTick()
-
-      // Should get new z-index (on top now)
-      expect(result1.zIndex.value).toBe(2020)
+      expect(stack.selectedIds.size).toBe(2)
+      expect(ticket1.zIndex.value).toBe(2000)
+      expect(ticket2.zIndex.value).toBe(2010)
     })
 
-    it('should no-op when dismissing non-existent ID', async () => {
-      const onDismiss = vi.fn()
+    it('should handle unregister while selected', async () => {
+      const stack = createStack()
 
-      effectScope().run(() => useStack(ref(true), onDismiss))
+      const ticket = stack.register()
+      ticket.select()
       await nextTick()
 
-      // Dismiss with fake ID should not throw or call any callback
-      expect(() => stack.dismiss('non-existent-id')).not.toThrow()
-      expect(onDismiss).not.toHaveBeenCalled()
+      expect(stack.isActive.value).toBe(true)
+      expect(stack.size).toBe(1)
+
+      stack.unregister(ticket.id)
+
+      expect(stack.size).toBe(0)
+      expect(stack.isActive.value).toBe(false)
+    })
+
+    it('should handle dismiss that opens another overlay', async () => {
+      const stack = createStack()
+      const isOpen2 = ref(false)
+
+      const ticket1 = stack.register({
+        onDismiss: () => {
+          isOpen2.value = true
+        },
+      })
+      const ticket2 = stack.register()
+
+      watch(isOpen2, v => v ? ticket2.select() : ticket2.unselect())
+
+      ticket1.select()
+      await nextTick()
+
+      expect(stack.selectedIds.size).toBe(1)
+
+      // Dismiss should trigger callback which opens ticket2
+      ticket1.dismiss()
+      await nextTick()
+
+      expect(isOpen2.value).toBe(true)
+      expect(ticket2.isSelected.value).toBe(true)
     })
 
     it('should handle multiple blocking overlays correctly', async () => {
       const onDismiss1 = vi.fn()
       const onDismiss2 = vi.fn()
+      const stack = createStack()
 
-      effectScope().run(() => useStack(ref(true), onDismiss1, { blocking: true }))
-      effectScope().run(() => useStack(ref(true), onDismiss2, { blocking: true }))
+      const ticket1 = stack.register({ onDismiss: onDismiss1, blocking: true })
+      const ticket2 = stack.register({ onDismiss: onDismiss2, blocking: true })
 
+      ticket1.select()
+      ticket2.select()
       await nextTick()
 
-      // Top is blocking
       expect(stack.isBlocking.value).toBe(true)
 
-      // Dismiss should not call either callback
-      stack.dismiss()
-      expect(onDismiss1).not.toHaveBeenCalled()
+      // Dismiss should not work on blocking
+      ticket2.dismiss()
       expect(onDismiss2).not.toHaveBeenCalled()
-    })
-
-    it('should handle onDismiss that opens another overlay', async () => {
-      const isActive1 = ref(true)
-      const isActive2 = ref(false)
-
-      const onDismiss1 = vi.fn(() => {
-        // Opening another overlay during dismiss
-        isActive2.value = true
-      })
-
-      effectScope().run(() => useStack(isActive1, onDismiss1))
-      effectScope().run(() => useStack(isActive2))
-
-      await nextTick()
-
-      expect(stack.registry.size).toBe(1)
-
-      // Dismiss should trigger callback which opens overlay 2
-      stack.dismiss()
-
-      expect(onDismiss1).toHaveBeenCalled()
-      expect(isActive2.value).toBe(true)
-
-      await nextTick()
-
-      // Overlay 2 should now be in stack
-      expect(stack.registry.size).toBe(2)
-    })
-
-    it('should handle concurrent activation in same tick', async () => {
-      vi.useFakeTimers()
-
-      const isActive1 = ref(false)
-      const isActive2 = ref(false)
-
-      const result1 = effectScope().run(() => useStack(isActive1))!
-      const result2 = effectScope().run(() => useStack(isActive2))!
-
-      // Activate both in same tick
-      isActive1.value = true
-      isActive2.value = true
-
-      await nextTick()
-      vi.runAllTimers()
-
-      // Both should be registered with different z-indexes
-      expect(stack.registry.size).toBe(2)
-      expect(result1.zIndex.value).toBe(2000)
-      expect(result2.zIndex.value).toBe(2010)
-
-      vi.useRealTimers()
-    })
-
-    it('should handle parent unmount while children are active', async () => {
-      vi.useFakeTimers()
-
-      let pluginContext: ReturnType<typeof useStackContext> | undefined
-
-      const parentActive = ref(true)
-      const childActive = ref(true)
-
-      const Child = defineComponent({
-        setup () {
-          useStack(childActive)
-          return () => null
-        },
-      })
-
-      const Parent = defineComponent({
-        setup () {
-          pluginContext = useStackContext()
-          useStack(parentActive)
-          return () => parentActive.value ? h(Child) : null
-        },
-      })
-
-      const wrapper = mount(Parent, {
-        global: {
-          plugins: [createStackPlugin()],
-        },
-      })
-
-      await nextTick()
-      vi.runAllTimers()
-
-      // Both should be in plugin's isolated registry
-      expect(pluginContext!.registry.size).toBe(2)
-
-      // Deactivate parent (unmounts child)
-      parentActive.value = false
-      await nextTick()
-      vi.runAllTimers()
-
-      // Wrapper needs to re-render
-      await wrapper.vm.$nextTick()
-
-      // Stack should be empty (parent removed itself, child unmounted)
-      expect(pluginContext!.registry.size).toBe(0)
-
-      vi.useRealTimers()
-    })
-
-    it('should handle scope disposal during active state', async () => {
-      const isActive = ref(true)
-
-      const scope = effectScope()
-      const result = scope.run(() => useStack(isActive))!
-
-      await nextTick()
-
-      expect(stack.registry.has(result.id)).toBe(true)
-
-      // Dispose scope while overlay is active
-      scope.stop()
-
-      // Should be removed from registry
-      expect(stack.registry.has(result.id)).toBe(false)
-    })
-
-    it('should maintain correct order with many overlays', async () => {
-      vi.useFakeTimers()
-
-      const overlays = Array.from({ length: 10 }, () => ref(true))
-      const results = overlays.map(isActive =>
-        effectScope().run(() => useStack(isActive))!,
-      )
-
-      await nextTick()
-      vi.runAllTimers()
-
-      // Verify z-index order
-      for (const [index, result] of results.entries()) {
-        expect(result.zIndex.value).toBe(2000 + index * 10)
-      }
-
-      // Only last should be globalTop
-      for (const [index, result] of results.entries()) {
-        expect(result.globalTop.value).toBe(index === 9)
-      }
-
-      // Close some in random order
-      overlays[3]!.value = false
-      overlays[7]!.value = false
-      overlays[1]!.value = false
-
-      await nextTick()
-      vi.runAllTimers()
-
-      expect(stack.registry.size).toBe(7)
-      // Last remaining should be globalTop
-      expect(results[9]!.globalTop.value).toBe(true)
-
-      vi.useRealTimers()
-    })
-
-    it('should handle dismiss called multiple times rapidly', async () => {
-      const isActive = ref(true)
-      const onDismiss = vi.fn(() => {
-        isActive.value = false
-      })
-
-      effectScope().run(() => useStack(isActive, onDismiss))
-      await nextTick()
-
-      expect(stack.registry.size).toBe(1)
-
-      // Call dismiss - should trigger onDismiss which sets isActive to false
-      stack.dismiss()
-
-      await nextTick()
-
-      // Overlay should be removed now
-      expect(stack.registry.size).toBe(0)
-      expect(onDismiss).toHaveBeenCalledTimes(1)
-
-      // Subsequent dismisses should no-op (stack is empty)
-      stack.dismiss()
-      stack.dismiss()
-
-      expect(onDismiss).toHaveBeenCalledTimes(1)
+      expect(ticket2.isSelected.value).toBe(true)
     })
   })
 })

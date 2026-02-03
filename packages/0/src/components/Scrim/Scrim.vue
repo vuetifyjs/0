@@ -58,7 +58,7 @@
   import { Atom } from '#v0/components/Atom'
 
   // Composables
-  import { stack as globalStack } from '#v0/composables/useStack'
+  import { useStack } from '#v0/composables/useStack'
 
   // Utilities
   import { toRef, useAttrs } from 'vue'
@@ -71,7 +71,7 @@
 
   const {
     as = 'div',
-    stack = globalStack,
+    stack = useStack(),
     transition = 'fade',
     teleport = true,
     teleportTo = 'body',
@@ -80,8 +80,9 @@
   const attrs = useAttrs()
 
   function onClick () {
-    if (!stack.isBlocking.value) {
-      stack.dismiss()
+    const top = stack.top.value
+    if (top && !stack.isBlocking.value) {
+      top.dismiss()
     }
   }
 
@@ -89,7 +90,7 @@
     isActive: stack.isActive.value,
     isBlocking: stack.isBlocking.value,
     zIndex: stack.scrimZIndex.value,
-    dismiss: () => stack.dismiss(),
+    dismiss: onClick,
   }))
 
   const style = toRef(() => ({
