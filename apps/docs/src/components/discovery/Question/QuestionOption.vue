@@ -8,11 +8,10 @@
 
 <script lang="ts">
   // Framework
-// v0
   import { Atom, createContext } from '@vuetify/v0'
 
   // Types
-  import type { AtomProps } from '@vuetify/v0'
+  import type { AtomExpose, AtomProps } from '@vuetify/v0'
   import type { Ref } from 'vue'
 
   export type QuestionOptionState = 'selected' | 'unselected'
@@ -39,6 +38,12 @@
     questionNamespace?: string
     /** Namespace for context provision to children (Indicator) */
     namespace?: string
+    /** Accessible label for this option */
+    ariaLabel?: string
+    /** ID of element that labels this option */
+    ariaLabelledby?: string
+    /** ID of element that describes this option */
+    ariaDescribedby?: string
   }
 
   export interface QuestionOptionSlotProps {
@@ -66,6 +71,9 @@
       'role': 'radio' | 'checkbox'
       'aria-checked': boolean
       'aria-disabled': boolean | undefined
+      'aria-label': string | undefined
+      'aria-labelledby': string | undefined
+      'aria-describedby': string | undefined
       'tabindex': 0 | -1
       'data-state': QuestionOptionState
       'data-correct': boolean | undefined
@@ -81,18 +89,25 @@
   import { useQuestionRoot } from './QuestionRoot.vue'
 
   // Utilities
-  import { computed, onUnmounted, toRef, toValue, useAttrs } from 'vue'
+  import { computed, onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   defineOptions({ name: 'QuestionOption', inheritAttrs: false })
 
   const attrs = useAttrs()
+  const rootRef = useTemplateRef<AtomExpose>('root')
 
-  const props = withDefaults(defineProps<QuestionOptionProps>(), {
-    as: 'button',
-    disabled: false,
-    questionNamespace: 'v0:question:root',
-    namespace: 'v0:question:option',
-  })
+  const {
+    as = 'button',
+    renderless,
+    value,
+    label,
+    disabled = false,
+    questionNamespace = 'v0:question:root',
+    namespace = 'v0:question:option',
+    ariaLabel,
+    ariaLabelledby,
+    ariaDescribedby,
+  } = defineProps<QuestionOptionProps>()
 
   defineSlots<{
     /**
@@ -101,43 +116,83 @@
     default: (props: QuestionOptionSlotProps) => any
   }>()
 
-  const question = useQuestionRoot(props.questionNamespace)
+  const question = useQuestionRoot(questionNamespace)
+
+  // Element ref for focus management during arrow key navigation
+  const el = toRef(() => (rootRef.value?.element as HTMLElement | null | undefined) ?? undefined)
 
   // Register with parent selection context
   const ticket = question.register({
-    value: props.value,
-    label: props.label,
-    disabled: toRef(() => props.disabled),
+    value,
+    label,
+    disabled: toRef(() => disabled),
+    el,
   })
 
   const isSelected = ticket.isSelected
-  const isCorrect = question.isCorrect(props.value)
-  const isDisabled = toRef(() => props.disabled || toValue(question.isSubmitted))
+  const isCorrect = question.isCorrect(value)
+  const isDisabled = toRef(() => disabled || toValue(question.isSubmitted))
   const state = computed((): QuestionOptionState => toValue(isSelected) ? 'selected' : 'unselected')
 
-  // Roving tabindex for keyboard navigation
+  // Roving tabindex: tabbable if selected, or first non-disabled when none selected
   const isTabbable = computed(() => {
     if (isDisabled.value) return false
     if (toValue(isSelected)) return true
-    // First option is tabbable when none selected
-    return question.selectedIds.size === 0
+    if (question.selectedIds.size > 0) return false
+    // First non-disabled option is tabbable when none selected
+    for (const item of question.values()) {
+      if (!toValue(item.disabled)) return item.id === ticket.id
+    }
+    return false
   })
 
-  function onClick () {
+  function select () {
     if (isDisabled.value) return
 
-    if (question.mode === 'single') {
+    if (toValue(question.mode) === 'single') {
       ticket.select()
     } else {
       ticket.toggle()
     }
   }
 
+  function onClick () {
+    select()
+  }
+
   function onKeydown (e: KeyboardEvent) {
+    // Enter/Space always selects
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault()
-      onClick()
+      select()
+      return
     }
+
+    // Arrow key navigation only for single mode (radio behavior)
+    if (toValue(question.mode) !== 'single') return
+
+    const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
+    if (!keys.includes(e.key)) return
+
+    e.preventDefault()
+
+    const items = [...question.values()].filter(item => !toValue(item.disabled))
+    const currentIndex = items.findIndex(item => item.id === ticket.id)
+    if (currentIndex === -1) return
+
+    let nextIndex: number
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      nextIndex = currentIndex === 0 ? items.length - 1 : currentIndex - 1
+    } else {
+      nextIndex = currentIndex === items.length - 1 ? 0 : currentIndex + 1
+    }
+
+    const nextItem = items[nextIndex]
+    if (!nextItem) return
+
+    // Radio pattern: selection follows focus
+    nextItem.select()
+    toValue(nextItem.el)?.focus()
   }
 
   onUnmounted(() => {
@@ -145,17 +200,17 @@
   })
 
   const context: QuestionOptionContext = {
-    value: props.value,
+    value,
     isSelected,
     isCorrect,
     isSubmitted: question.isSubmitted,
   }
 
-  provideQuestionOption(props.namespace, context)
+  provideQuestionOption(namespace, context)
 
   const slotProps = toRef((): QuestionOptionSlotProps => ({
-    value: props.value,
-    label: props.label,
+    value,
+    label,
     isSelected: toValue(isSelected),
     isCorrect,
     isDisabled: isDisabled.value,
@@ -164,10 +219,13 @@
     select: ticket.select,
     toggle: ticket.toggle,
     attrs: {
-      'type': props.as === 'button' ? 'button' : undefined,
-      'role': question.mode === 'single' ? 'radio' : 'checkbox',
+      'type': as === 'button' ? 'button' : undefined,
+      'role': toValue(question.mode) === 'single' ? 'radio' : 'checkbox',
       'aria-checked': toValue(isSelected),
       'aria-disabled': isDisabled.value || undefined,
+      'aria-label': ariaLabel || label || undefined,
+      'aria-labelledby': ariaLabelledby || undefined,
+      'aria-describedby': ariaDescribedby || undefined,
       'tabindex': isTabbable.value ? 0 : -1,
       'data-state': state.value,
       'data-correct': toValue(question.isSubmitted) ? isCorrect : undefined,
@@ -178,6 +236,7 @@
 
 <template>
   <Atom
+    ref="root"
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :data-question-option="value"

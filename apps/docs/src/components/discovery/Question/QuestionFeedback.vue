@@ -8,8 +8,17 @@
  */
 
 <script lang="ts">
+  // Framework
+  import { Atom } from '@vuetify/v0'
+
   // Types
   import type { QuestionResult } from './QuestionRoot.vue'
+  import type { AtomProps } from '@vuetify/v0'
+
+  export interface QuestionFeedbackProps extends AtomProps {
+    /** Namespace for connecting to parent QuestionRoot */
+    namespace?: string
+  }
 
   export interface QuestionFeedbackSlotProps {
     /** The result of the submission */
@@ -33,11 +42,10 @@
   defineOptions({ name: 'QuestionFeedback' })
 
   const {
+    as = 'div',
+    renderless,
     namespace = 'v0:question:root',
-  } = defineProps<{
-    /** Namespace for connecting to parent QuestionRoot */
-    namespace?: string
-  }>()
+  } = defineProps<QuestionFeedbackProps>()
 
   defineSlots<{
     /** Default slot shown for any result */
@@ -64,10 +72,13 @@
 </script>
 
 <template>
-  <div
+  <Atom
     v-if="isSubmitted"
+    :id="`${question.id}-feedback`"
     aria-live="polite"
+    :as
     :data-question-feedback="result"
+    :renderless
     role="status"
   >
     <!-- Named slots for specific results -->
@@ -83,5 +94,5 @@
 
     <!-- Default slot always available -->
     <slot v-bind="slotProps" />
-  </div>
+  </Atom>
 </template>

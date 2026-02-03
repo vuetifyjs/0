@@ -10,6 +10,7 @@ export type {
   QuestionRootContext,
   QuestionRootProps,
   QuestionRootSlotProps,
+  QuestionTicket,
 } from './QuestionRoot.vue'
 
 export type {
@@ -19,7 +20,11 @@ export type {
   QuestionOptionState,
 } from './QuestionOption.vue'
 
-export type { QuestionFeedbackSlotProps } from './QuestionFeedback.vue'
+export type { QuestionFeedbackProps, QuestionFeedbackSlotProps } from './QuestionFeedback.vue'
+
+export type { QuestionStemProps } from './QuestionStem.vue'
+
+export type { QuestionIndicatorProps, QuestionIndicatorSlotProps } from './QuestionIndicator.vue'
 
 // Components
 import Feedback from './QuestionFeedback.vue'

@@ -6,6 +6,19 @@
  * Provides proper labeling for accessibility.
  */
 
+<script lang="ts">
+  // Framework
+  import { Atom } from '@vuetify/v0'
+
+  // Types
+  import type { AtomProps } from '@vuetify/v0'
+
+  export interface QuestionStemProps extends AtomProps {
+    /** Namespace for connecting to parent QuestionRoot */
+    namespace?: string
+  }
+</script>
+
 <script setup lang="ts">
   // Components
   import { useQuestionRoot } from './QuestionRoot.vue'
@@ -13,11 +26,10 @@
   defineOptions({ name: 'QuestionStem' })
 
   const {
+    as = 'div',
+    renderless,
     namespace = 'v0:question:root',
-  } = defineProps<{
-    /** Namespace for connecting to parent QuestionRoot */
-    namespace?: string
-  }>()
+  } = defineProps<QuestionStemProps>()
 
   defineSlots<{
     /** The question text */
@@ -28,11 +40,12 @@
 </script>
 
 <template>
-  <div
+  <Atom
     :id="`${question.id}-stem`"
-    class="question-stem"
+    :as
     data-question-stem
+    :renderless
   >
     <slot />
-  </div>
+  </Atom>
 </template>

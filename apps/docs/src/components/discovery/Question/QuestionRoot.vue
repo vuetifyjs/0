@@ -10,10 +10,11 @@
 
 <script lang="ts">
   // Framework
-  import { createContext, createSelection } from '@vuetify/v0'
+  import { Atom, createContext, createSelection } from '@vuetify/v0'
 
   // Types
-  import type { Ref } from 'vue'
+  import type { AtomProps } from '@vuetify/v0'
+  import type { MaybeRef, Ref } from 'vue'
 
   type ID = string | number
 
@@ -23,30 +24,40 @@
   /** Result state after submission */
   export type QuestionResult = 'correct' | 'incorrect' | 'partial' | null
 
+  /** Ticket for question options with element reference for focus management */
+  export interface QuestionTicket {
+    id: ID
+    value: string
+    disabled?: MaybeRef<boolean>
+    el?: MaybeRef<HTMLElement | null | undefined>
+    isSelected: Ref<boolean>
+    select: () => void
+    unselect: () => void
+    toggle: () => void
+  }
+
   export interface QuestionRootContext {
     /** Unique identifier for this question */
     readonly id: string
     /** Selection mode */
-    readonly mode: QuestionMode
+    readonly mode: Ref<QuestionMode>
     /** Whether the question has been submitted */
     readonly isSubmitted: Ref<boolean>
     /** Result after submission */
     readonly result: Ref<QuestionResult>
-    /** The correct answer value(s) */
-    readonly correctAnswers: Set<string>
+    /** The correct answer value(s) - reactive */
+    readonly correctAnswers: Ref<Set<string>>
     /** Set of selected IDs */
     readonly selectedIds: Set<ID>
     /** Whether an option value is the correct answer */
     isCorrect: (value: string) => boolean
     /** Register an option */
-    register: (option: { value: string, label?: string, disabled?: Ref<boolean> }) => {
-      id: ID
+    register: (option: {
       value: string
-      isSelected: Ref<boolean>
-      select: () => void
-      unselect: () => void
-      toggle: () => void
-    }
+      label?: string
+      disabled?: MaybeRef<boolean>
+      el?: MaybeRef<HTMLElement | null | undefined>
+    }) => QuestionTicket
     /** Unregister an option */
     unregister: (id: ID) => void
     /** Submit the answer */
@@ -55,9 +66,11 @@
     resetQuestion: () => void
     /** Get selected values */
     getSelectedValues: () => string[]
+    /** Iterator over registered options (for keyboard navigation) */
+    values: () => IterableIterator<QuestionTicket>
   }
 
-  export interface QuestionRootProps {
+  export interface QuestionRootProps extends AtomProps {
     /** Unique identifier (auto-generated if not provided) */
     id?: string
     /**
@@ -118,11 +131,15 @@
 
   defineOptions({ name: 'QuestionRoot' })
 
-  const props = withDefaults(defineProps<QuestionRootProps>(), {
-    mode: 'single',
-    disabled: false,
-    namespace: 'v0:question:root',
-  })
+  const {
+    as = 'div',
+    renderless,
+    id: _id,
+    mode = 'single',
+    correctAnswer,
+    disabled = false,
+    namespace = 'v0:question:root',
+  } = defineProps<QuestionRootProps>()
 
   const emit = defineEmits<QuestionRootEmits>()
 
@@ -135,13 +152,13 @@
 
   const model = defineModel<string | string[]>()
 
-  const id = props.id ?? vueUseId()
+  const id = _id ?? vueUseId()
 
-  // Normalize correct answers to a Set
+  // Normalize correct answers to a Set (reactive)
   const correctAnswers = computed(() => {
-    const answers = Array.isArray(props.correctAnswer)
-      ? props.correctAnswer
-      : [props.correctAnswer]
+    const answers = Array.isArray(correctAnswer)
+      ? correctAnswer
+      : [correctAnswer]
     return new Set<string>(answers)
   })
 
@@ -151,24 +168,24 @@
 
   // Use v0's createSelection for selection management
   const selection = createSelection({
-    multiple: props.mode === 'multiple',
-    disabled: toRef(() => props.disabled || isSubmitted.value),
+    multiple: mode === 'multiple',
+    disabled: toRef(() => disabled || isSubmitted.value),
   })
 
-  // Map from ticket ID to value for reverse lookup
-  const idToValue = new Map<ID, string>()
+  // Map from ticket ID to full ticket info for keyboard navigation
+  const ticketRegistry = new Map<ID, QuestionTicket>()
 
   // Sync selection back to v-model
   watch(() => selection.selectedIds.size, () => {
     const values = getSelectedValues()
-    model.value = props.mode === 'single' ? values[0] : values
+    model.value = mode === 'single' ? values[0] : values
   })
 
   function getSelectedValues (): string[] {
     const values: string[] = []
     for (const ticketId of selection.selectedIds) {
-      const value = idToValue.get(ticketId)
-      if (value !== undefined) values.push(value)
+      const ticket = ticketRegistry.get(ticketId)
+      if (ticket) values.push(ticket.value)
     }
     return values
   }
@@ -177,31 +194,44 @@
     return correctAnswers.value.has(value)
   }
 
-  function register (option: { value: string, label?: string, disabled?: Ref<boolean> }) {
-    const ticket = selection.register({
+  function register (option: {
+    value: string
+    label?: string
+    disabled?: MaybeRef<boolean>
+    el?: MaybeRef<HTMLElement | null | undefined>
+  }): QuestionTicket {
+    const selectionTicket = selection.register({
       value: option.value,
       disabled: option.disabled ?? ref(false),
     })
 
-    idToValue.set(ticket.id, option.value)
-
-    return {
-      id: ticket.id,
+    const ticket: QuestionTicket = {
+      id: selectionTicket.id,
       value: option.value,
-      isSelected: ticket.isSelected,
-      select: ticket.select,
-      unselect: ticket.unselect,
-      toggle: ticket.toggle,
+      disabled: option.disabled,
+      el: option.el,
+      isSelected: selectionTicket.isSelected,
+      select: selectionTicket.select,
+      unselect: selectionTicket.unselect,
+      toggle: selectionTicket.toggle,
     }
+
+    ticketRegistry.set(ticket.id, ticket)
+
+    return ticket
   }
 
   function unregister (ticketId: ID) {
-    idToValue.delete(ticketId)
+    ticketRegistry.delete(ticketId)
     selection.unregister(ticketId)
   }
 
+  function* values (): IterableIterator<QuestionTicket> {
+    yield* ticketRegistry.values()
+  }
+
   function submit () {
-    if (props.disabled || isSubmitted.value || selection.selectedIds.size === 0) return
+    if (disabled || isSubmitted.value || selection.selectedIds.size === 0) return
 
     isSubmitted.value = true
 
@@ -209,7 +239,7 @@
     const selectedValues = getSelectedValues()
     const correctArr = Array.from(correctAnswers.value)
 
-    if (props.mode === 'single') {
+    if (mode === 'single') {
       result.value = selectedValues[0] === correctArr[0] ? 'correct' : 'incorrect'
     } else {
       // Multiple mode: check if all correct answers are selected and no incorrect ones
@@ -234,12 +264,14 @@
     result.value = null
   }
 
+  const modeRef = toRef(() => mode)
+
   const context: QuestionRootContext = {
     id,
-    mode: props.mode,
+    mode: modeRef,
     isSubmitted,
     result,
-    correctAnswers: correctAnswers.value,
+    correctAnswers, // Pass the computed ref, not .value
     selectedIds: selection.selectedIds,
     isCorrect,
     register,
@@ -247,16 +279,17 @@
     submit,
     resetQuestion,
     getSelectedValues,
+    values,
   }
 
-  provideQuestionRoot(props.namespace, context)
+  provideQuestionRoot(namespace, context)
 
   const slotProps = toRef((): QuestionRootSlotProps => ({
     id,
-    mode: props.mode,
+    mode,
     selected: getSelectedValues(),
     isSubmitted: isSubmitted.value,
-    isDisabled: props.disabled,
+    isDisabled: disabled,
     result: result.value,
     hasSelection: selection.selectedIds.size > 0,
     submit,
@@ -265,14 +298,17 @@
 </script>
 
 <template>
-  <div
+  <Atom
     :id
+    :aria-describedby="isSubmitted ? `${id}-feedback` : undefined"
     :aria-labelledby="`${id}-stem`"
+    :as
     :data-question-mode="mode"
     :data-question-result="result"
     :data-question-submitted="isSubmitted || undefined"
-    role="group"
+    :renderless
+    :role="mode === 'single' ? 'radiogroup' : 'group'"
   >
     <slot v-bind="slotProps" />
-  </div>
+  </Atom>
 </template>
