@@ -41,6 +41,22 @@ app.mount('#app')
 > [!TIP]
 > For client-side only apps, you can skip plugin installation and use the default `stack` singleton directly. The plugin is required for SSR to ensure each request gets its own stack instance.
 
+## Scrim Integration
+
+Use the [Scrim](/components/providers/scrim) component alongside `useStack` to provide a backdrop for your overlays. The Scrim automatically positions itself below the topmost overlay:
+
+```vue
+<script setup lang="ts">
+import { Scrim } from '@vuetify/v0'
+</script>
+
+<template>
+  <Scrim class="fixed inset-0 bg-black/50" />
+</template>
+```
+
+The Scrim reads from the same stack context, so its z-index is always coordinated with your registered overlays.
+
 ## Usage
 
 Use the `useStack` composable to register an overlay and receive its z-index and position in the stack:
