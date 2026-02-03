@@ -1,468 +1,323 @@
 /**
- * @module createStack
+ * @module useStack
  *
- * @see https://0.vuetifyjs.com/composables/plugins/create-stack
+ * @see https://0.vuetifyjs.com/composables/plugins/use-stack
  *
  * @remarks
- * A composable for managing overlay z-index stacking with:
+ * Overlay z-index stacking composable with:
  * - Global reactive registry of active overlays
- * - Automatic z-index calculation (last + increment)
- * - `globalTop` tracking - is this overlay topmost globally?
- * - `localTop` tracking - does this overlay have no active children?
- * - Parent/child tracking via injection for nested overlays
- * - Automatic registration via `useToggleScope`
- * - SSR-safe with per-app isolation via plugin
+ * - Automatic z-index calculation based on selection order
+ * - `globalTop` tracking - is this ticket topmost globally?
+ * - Manual select/unselect for explicit control
+ * - Auto-cleanup when registered within component setup
  *
- * Built on createRegistry for consistent ticket-based management.
+ * Built on createSelection for consistent ticket-based management.
  */
 
-import { createContext, createPlugin, createRegistry, createTrinity } from '#v0/composables'
-import { IN_BROWSER } from '#v0/constants/globals'
+// Foundational
+import { createContext, useContext } from '#v0/composables/createContext'
+import { createPlugin } from '#v0/composables/createPlugin'
+import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { useToggleScope } from '#v0/composables/useToggleScope'
+import { createSelection } from '#v0/composables/createSelection'
 
 // Utilities
-import { useId } from '#v0/utilities'
-import {
-  getCurrentInstance,
-  inject,
-  onScopeDispose,
-  provide,
-  readonly,
-  shallowReactive,
-  shallowRef,
-  toRef,
-  watchEffect,
-} from 'vue'
+import { instanceExists, useId } from '#v0/utilities'
+import { computed, onScopeDispose, toRef } from 'vue'
 
 // Types
-import type { RegistryContext, RegistryTicket } from '#v0/composables/createRegistry'
-import type { ID } from '#v0/types'
-import type { App, InjectionKey, Ref, ShallowRef } from 'vue'
+import type { SelectionContext, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
+import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { App, ComputedRef, Ref } from 'vue'
 
 /**
- * Parent/child context for nested overlays.
- * Injected to track active children within a parent overlay.
+ * Input type for stack tickets - what users provide to register().
  */
-interface StackProvide {
-  children: Set<ID>
-}
-
-const StackSymbol: InjectionKey<StackProvide> = Symbol.for('v0:stack')
-
-/**
- * Stack ticket representing an active overlay in the z-index stack.
- */
-export interface StackTicket extends RegistryTicket {
-  /**
-   * The calculated z-index for this overlay
-   *
-   * @remarks Automatically calculated based on position in stack. First overlay gets baseZIndex, each subsequent overlay adds increment.
-   */
-  zIndex: number
+export interface StackTicketInput extends SelectionTicketInput {
   /**
    * Callback invoked when the overlay should be dismissed
    *
-   * @remarks Called by `stack.dismiss()` when scrim is clicked or programmatic dismiss is triggered. Typically sets isActive to false.
+   * @remarks Called by `ticket.dismiss()` or when scrim is clicked.
+   * Typically sets isActive to false.
    */
   onDismiss?: () => void
   /**
    * Whether this overlay blocks scrim dismissal
    *
    * @default false
-   * @remarks When true, clicking the scrim will not dismiss this overlay. Use for critical dialogs requiring explicit user action.
+   * @remarks When true, clicking the scrim will not dismiss this overlay.
+   * Use for critical dialogs requiring explicit user action.
    */
   blocking?: boolean
 }
 
-export interface StackOptions {
+/**
+ * Output type for stack tickets - what users receive from register().
+ */
+export type StackTicket<Z extends StackTicketInput = StackTicketInput> = SelectionTicket<Z> & {
+  /**
+   * Callback invoked when the overlay should be dismissed
+   */
+  onDismiss?: () => void
+  /**
+   * Whether this overlay blocks scrim dismissal
+   */
+  blocking: boolean
+  /**
+   * The calculated z-index for this overlay
+   *
+   * @remarks Automatically calculated based on selection order.
+   * First selected overlay gets baseZIndex, each subsequent adds increment.
+   */
+  zIndex: ComputedRef<number>
+  /**
+   * Whether this overlay is the topmost in the global stack
+   *
+   * @remarks Useful for determining which overlay should handle
+   * global keyboard events (e.g., Escape key).
+   */
+  globalTop: ComputedRef<boolean>
+  /**
+   * Dismiss this overlay
+   *
+   * @remarks If blocking is false, calls onDismiss callback and unselects.
+   * If blocking is true, does nothing.
+   */
+  dismiss: () => void
+}
+
+/**
+ * Context returned by createStack.
+ */
+export interface StackContext<
+  Z extends StackTicketInput = StackTicketInput,
+  E extends StackTicket<Z> = StackTicket<Z>,
+> extends Omit<SelectionContext<Z, E>, 'register'> {
+  /**
+   * Whether any overlays are selected (active)
+   *
+   * @remarks Reactive boolean for conditional scrim rendering.
+   */
+  isActive: Readonly<Ref<boolean>>
+  /**
+   * The topmost selected overlay ticket
+   *
+   * @remarks Access to the current top overlay for inspection.
+   */
+  top: Readonly<Ref<E | undefined>>
+  /**
+   * Z-index for the scrim (one below top overlay)
+   *
+   * @remarks Position scrim behind the topmost overlay but above all others.
+   */
+  scrimZIndex: Readonly<Ref<number>>
+  /**
+   * Whether the topmost overlay blocks scrim clicks
+   *
+   * @remarks When true, the topmost overlay has `blocking: true`
+   * and scrim clicks should be ignored.
+   */
+  isBlocking: Readonly<Ref<boolean>>
+  /**
+   * Register an overlay ticket
+   *
+   * @param input Partial ticket data
+   * @returns Stack ticket with z-index and top tracking
+   *
+   * @remarks When called within component setup, the ticket is automatically
+   * unregistered when the component unmounts.
+   */
+  register: (input?: Partial<Z>) => E
+}
+
+export interface StackOptions extends SelectionOptions {
   /**
    * Base z-index when stack is empty
    *
    * @default 2000
-   * @remarks First overlay receives this z-index. Subsequent overlays add increment to the previous overlay's z-index.
-   *
-   * @example
-   * ```ts
-   * const { zIndex } = useStack(isOpen, onDismiss, { baseZIndex: 1000 })
-   * // First overlay: 1000, second: 1010, etc.
-   * ```
+   * @remarks First overlay receives this z-index.
    */
   baseZIndex?: number
   /**
    * Z-index increment between overlays
    *
    * @default 10
-   * @remarks Gap between overlay z-indexes allows room for overlay-internal elements (dropdowns, tooltips within dialogs).
-   *
-   * @example
-   * ```ts
-   * const { zIndex } = useStack(isOpen, onDismiss, { increment: 100 })
-   * // First overlay: 2000, second: 2100, etc.
-   * ```
+   * @remarks Gap between overlay z-indexes allows room for
+   * overlay-internal elements (dropdowns, tooltips within dialogs).
    */
   increment?: number
-  /**
-   * Disable global stack participation
-   *
-   * @default false
-   * @remarks When true, the overlay tracks parent/child relationships but doesn't register in the global stack. Useful for nested overlays that shouldn't affect global z-index or scrim.
-   */
-  disableGlobalStack?: boolean
-  /**
-   * Whether this overlay blocks scrim dismissal
-   *
-   * @default false
-   * @remarks When true, clicking the scrim will not dismiss this overlay. Use for critical dialogs requiring explicit user action.
-   */
-  blocking?: boolean
 }
 
-export interface StackReturn {
-  /**
-   * Whether this overlay is the topmost in the global stack
-   *
-   * @remarks Useful for determining which overlay should handle global keyboard events (e.g., Escape key).
-   *
-   * @example
-   * ```ts
-   * const { globalTop } = useStack(isOpen)
-   *
-   * useHotkey('Escape', () => {
-   *   if (globalTop.value) close()
-   * })
-   * ```
-   */
-  globalTop: Readonly<ShallowRef<boolean>>
-  /**
-   * Whether this overlay has no active children
-   *
-   * @remarks True when no nested overlays are open within this overlay. Useful for determining if this overlay is the "active" one for keyboard navigation.
-   */
-  localTop: Readonly<ShallowRef<boolean>>
-  /**
-   * Computed styles object with z-index
-   *
-   * @remarks Bind directly to element style attribute for automatic z-index management.
-   *
-   * @example
-   * ```vue
-   * <template>
-   *   <div v-if="isOpen" :style="styles" class="fixed inset-0">
-   *     Modal content
-   *   </div>
-   * </template>
-   * ```
-   */
-  styles: Readonly<Ref<{ readonly zIndex: number }>>
-  /**
-   * The calculated z-index value
-   *
-   * @remarks Direct access to the z-index number if styles object isn't suitable.
-   */
-  zIndex: Readonly<ShallowRef<number>>
-  /**
-   * Unique identifier for this stack entry
-   *
-   * @remarks Auto-generated ID used for registration tracking.
-   */
-  id: ID
+export interface StackContextOptions extends StackOptions {
+  namespace?: string
 }
+
+export interface StackPluginOptions extends StackContextOptions {}
 
 /**
- * Register an overlay in the global z-index stack.
+ * Creates a new stack instance for managing overlay z-indexes.
  *
- * @param isActive Reactive boolean controlling when this overlay is active
- * @param onDismiss Callback invoked when overlay should be dismissed (e.g., scrim click)
- * @param options Configuration for z-index and behavior
- * @returns Stack return object with reactive state and styles
+ * @param options Configuration options
+ * @returns Stack context with registry methods and scrim helpers
  *
- * @see https://0.vuetifyjs.com/composables/plugins/create-stack#use-stack
- *
- * @example
- * ```vue
- * <script setup>
- *   import { shallowRef } from 'vue'
- *   import { useStack } from '@vuetify/v0'
- *
- *   const isOpen = shallowRef(false)
- *   const { styles, globalTop } = useStack(isOpen, () => {
- *     isOpen.value = false
- *   })
- * </script>
- *
- * <template>
- *   <div v-if="isOpen" :style="styles" class="fixed inset-0">
- *     Modal content
- *   </div>
- * </template>
- * ```
- */
-export function useStack (
-  isActive: Readonly<Ref<boolean>>,
-  onDismiss?: () => void,
-  options: StackOptions = {},
-): StackReturn {
-  const {
-    baseZIndex = 2000,
-    increment = 10,
-    disableGlobalStack = false,
-    blocking = false,
-  } = options
-
-  const id = useId()
-  const vm = getCurrentInstance()
-
-  // Get parent context for nested overlays (only in component context)
-  const parent = vm ? inject(StackSymbol, undefined) : undefined
-
-  // Provide scope for children (only in component context)
-  const scope: StackProvide = shallowReactive({
-    children: new Set<ID>(),
-  })
-  if (vm) {
-    provide(StackSymbol, scope)
-  }
-
-  const zIndex = shallowRef(baseZIndex)
-  const globalTop = shallowRef(true)
-
-  // Get registry from context (SSR-safe: each app gets its own registry)
-  let registry: RegistryContext<StackTicket>
-  try {
-    registry = useStackContext().registry
-  } catch {
-    // Fallback for usage outside provided context (e.g., tests with effectScope)
-    registry = stack.registry
-  }
-
-  useToggleScope(isActive, () => {
-    // Calculate z-index based on current stack
-    const last = registry.seek('last')
-    zIndex.value = last ? last.zIndex + increment : baseZIndex
-
-    if (!disableGlobalStack) {
-      registry.register({
-        id,
-        zIndex: zIndex.value,
-        onDismiss,
-        blocking,
-      })
-    }
-
-    // Register with parent if nested
-    parent?.children.add(id)
-
-    onScopeDispose(() => {
-      if (!disableGlobalStack) {
-        registry.unregister(id)
-      }
-      parent?.children.delete(id)
-    })
-  })
-
-  // Track if this is the topmost overlay
-  if (!disableGlobalStack) {
-    let timeoutId: ReturnType<typeof setTimeout> | undefined
-
-    watchEffect(() => {
-      const top = registry.seek('last')
-      const isTop = top?.id === id
-
-      // Clear any pending timeout to prevent stale updates
-      if (timeoutId) clearTimeout(timeoutId)
-
-      if (IN_BROWSER) {
-        // Browser: Delay globalTop update to next macrotask.
-        // Synchronous updates during rapid open/close cause z-index to change
-        // before DOM rendering completes, resulting in visual flash.
-        timeoutId = setTimeout(() => {
-          globalTop.value = isTop
-        })
-      } else {
-        // SSR: Set immediately to avoid hydration mismatch
-        globalTop.value = isTop
-      }
-    })
-
-    onScopeDispose(() => {
-      if (timeoutId) clearTimeout(timeoutId)
-    })
-  }
-
-  const localTop = toRef(() => scope.children.size === 0)
-
-  return {
-    globalTop: readonly(globalTop),
-    localTop: readonly(localTop),
-    styles: readonly(toRef(() => ({ zIndex: zIndex.value }))),
-    zIndex: readonly(zIndex),
-    id,
-  }
-}
-
-// ============================================================================
-// Stack Context (for scrim integration)
-// ============================================================================
-
-export interface StackContext {
-  /**
-   * The global registry of active overlays
-   *
-   * @remarks Direct access to the underlying registry for advanced use cases. Prefer using context methods for most operations.
-   */
-  registry: RegistryContext<StackTicket>
-  /**
-   * Whether any overlays are active
-   *
-   * @remarks Reactive boolean for conditional scrim rendering.
-   *
-   * @example
-   * ```vue
-   * <template>
-   *   <div v-if="stack.isActive.value" class="scrim" />
-   * </template>
-   * ```
-   */
-  isActive: Readonly<Ref<boolean>>
-  /**
-   * The topmost overlay entry
-   *
-   * @remarks Access to the current top overlay ticket for inspection.
-   */
-  top: Readonly<Ref<StackTicket | undefined>>
-  /**
-   * Z-index for the scrim (one below top overlay)
-   *
-   * @remarks Position scrim behind the topmost overlay but above all others.
-   *
-   * @example
-   * ```vue
-   * <template>
-   *   <div
-   *     v-if="stack.isActive.value"
-   *     class="scrim"
-   *     :style="{ zIndex: stack.scrimZIndex.value }"
-   *   />
-   * </template>
-   * ```
-   */
-  scrimZIndex: Readonly<Ref<number>>
-  /**
-   * Whether the scrim should block clicks
-   *
-   * @remarks When true, the topmost overlay has `blocking: true` and scrim clicks should be ignored.
-   */
-  isBlocking: Readonly<Ref<boolean>>
-  /**
-   * Dismiss an overlay
-   *
-   * @param id Optional ID of specific overlay to dismiss. If omitted, dismisses topmost non-blocking overlay.
-   * @remarks Calls the overlay's `onDismiss` callback if not blocking.
-   *
-   * @see https://0.vuetifyjs.com/composables/plugins/create-stack#dismiss
-   *
-   * @example
-   * ```vue
-   * <template>
-   *   <div
-   *     v-if="stack.isActive.value"
-   *     class="scrim"
-   *     :style="{ zIndex: stack.scrimZIndex.value }"
-   *     @click="stack.dismiss()"
-   *   />
-   * </template>
-   * ```
-   */
-  dismiss: (id?: ID) => void
-}
-
-/**
- * Create a stack context with its own registry.
- *
- * @param registry Optional registry instance. If not provided, creates a new reactive one.
- * @returns Stack context with reactive state and methods
- *
- * @remarks Used internally by the plugin. For manual context creation in advanced scenarios.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/create-stack#create-stack-context
+ * @see https://0.vuetifyjs.com/composables/plugins/use-stack
  *
  * @example
  * ```ts
- * import { createStackContext, provideStackContext } from '@vuetify/v0'
+ * import { createStack } from '@vuetify/v0'
  *
- * // Create and provide custom context
- * const context = createStackContext()
- * provideStackContext(context)
+ * const stack = createStack({ baseZIndex: 1000 })
+ *
+ * const ticket = stack.register({
+ *   onDismiss: () => console.log('dismissed'),
+ *   blocking: false,
+ * })
+ *
+ * ticket.select()  // Activate overlay
+ * console.log(ticket.zIndex.value)  // 1000
+ *
+ * ticket.unselect()  // Deactivate overlay
  * ```
  */
-export function createStackContext (
-  registry: RegistryContext<StackTicket> = createRegistry<StackTicket>({ reactive: true }),
-): StackContext {
-  const isActive = toRef(() => registry.size > 0)
-  const top = toRef(() => registry.seek('last'))
-  const scrimZIndex = toRef(() => {
-    const top = registry.seek('last')
-    return top ? top.zIndex - 1 : 0
+export function createStack<
+  Z extends StackTicketInput = StackTicketInput,
+  E extends StackTicket<Z> = StackTicket<Z>,
+  R extends StackContext<Z, E> = StackContext<Z, E>,
+> (_options: StackOptions = {}): R {
+  const {
+    baseZIndex = 2000,
+    increment = 10,
+    ...options
+  } = _options
+
+  const selection = createSelection<StackTicketInput, StackTicket>({
+    ...options,
+    multiple: true,
   })
+
+  const isActive = toRef(() => selection.selectedIds.size > 0)
+
+  const top = toRef(() => {
+    const ids = Array.from(selection.selectedIds)
+    if (ids.length === 0) return undefined
+    return selection.get(ids.at(-1)!) as E | undefined
+  })
+
+  const scrimZIndex = toRef(() => {
+    const ticket = top.value
+    return ticket ? ticket.zIndex.value - 1 : 0
+  })
+
   const isBlocking = toRef(() => top.value?.blocking ?? false)
 
-  function dismiss (id?: ID) {
-    const ticket = id ? registry.get(id) : registry.seek('last')
-    if (ticket?.blocking) return
-    ticket?.onDismiss?.()
+  function ids () {
+    return Array.from(selection.selectedIds)
+  }
+
+  function register (input: Partial<Z> = {} as Partial<Z>): E {
+    const id = input.id ?? useId()
+    const blocking = input.blocking ?? false
+    const onDismiss = input.onDismiss
+
+    const zIndex = computed(() => {
+      const position = ids().indexOf(id)
+      if (position === -1) return baseZIndex
+      return baseZIndex + position * increment
+    })
+
+    const globalTop = computed(() => {
+      const list = ids()
+      if (list.length === 0) return false
+      return list.at(-1) === id
+    })
+
+    function dismiss () {
+      if (blocking) return
+      onDismiss?.()
+      selection.unselect(id)
+    }
+
+    const ticket = selection.register({
+      blocking,
+      onDismiss,
+      zIndex,
+      globalTop,
+      dismiss,
+      ...input,
+      id,
+    } as unknown as Partial<Z>)
+
+    // Auto-cleanup when called within component setup
+    if (instanceExists()) {
+      onScopeDispose(() => {
+        selection.unregister(id)
+      }, true)
+    }
+
+    return ticket as unknown as E
   }
 
   return {
-    registry,
-    isActive: readonly(isActive),
-    top: readonly(top),
-    scrimZIndex: readonly(scrimZIndex),
-    isBlocking: readonly(isBlocking),
-    dismiss,
-  }
-}
-
-// ============================================================================
-// Context Trinity
-// ============================================================================
-
-function createStackContextTrinity () {
-  const [useStackContext, _provideStackContext] = createContext<StackContext>('v0:stack')
-  const context = createStackContext()
-
-  function provideStackContext (_context: StackContext = context, app?: App) {
-    return _provideStackContext(_context, app)
-  }
-
-  return createTrinity(useStackContext, provideStackContext, context)
+    ...selection,
+    register,
+    isActive,
+    top,
+    scrimZIndex,
+    isBlocking,
+    get size () {
+      return selection.size
+    },
+  } as unknown as R
 }
 
 /**
- * Trinity exports for stack context.
+ * Creates a stack context trinity for provide/inject usage.
  *
- * @remarks
- * - `useStackContext` - Get the current stack context (throws if not provided)
- * - `provideStackContext` - Provide stack context to component tree
- * - `stack` - Default global stack context instance
+ * @param options Configuration options including namespace
+ * @returns Trinity of [useStackContext, provideStackContext, context]
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-stack
+ *
+ * @example
+ * ```ts
+ * import { createStackContext } from '@vuetify/v0'
+ *
+ * const [useMyStack, provideMyStack, myStack] = createStackContext({
+ *   namespace: 'my:stack',
+ *   baseZIndex: 3000,
+ * })
+ *
+ * // In parent component:
+ * provideMyStack()
+ *
+ * // In child component:
+ * const stack = useMyStack()
+ * ```
  */
-export const [useStackContext, provideStackContext, stack] = createStackContextTrinity()
+export function createStackContext<
+  Z extends StackTicketInput = StackTicketInput,
+  E extends StackTicket<Z> = StackTicket<Z>,
+  R extends StackContext<Z, E> = StackContext<Z, E>,
+> (_options: StackContextOptions = {}): ContextTrinity<R> {
+  const { namespace = 'v0:stack', ...options } = _options
+  const [useStackContext, _provideStackContext] = createContext<R>(namespace)
+  const context = createStack<Z, E, R>(options)
 
-/** Options for the stack plugin (reserved for future use) */
-export interface StackPluginOptions {
-  // Reserved for future configuration options
+  function provideStackContext (_context: R = context, app?: App): R {
+    return _provideStackContext(_context, app)
+  }
+
+  return createTrinity<R>(useStackContext, provideStackContext, context)
 }
 
 /**
  * Creates a Vue plugin to provide stack context at app level.
  *
- * @param options Configuration options for the stack plugin
+ * @param options Configuration options
  * @returns Vue plugin instance
  *
- * @remarks Creates a fresh registry per app instance for SSR safety. Each app gets isolated overlay state.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/create-stack#create-stack-plugin
+ * @see https://0.vuetifyjs.com/composables/plugins/use-stack
  *
  * @example
  * ```ts
@@ -470,17 +325,89 @@ export interface StackPluginOptions {
  * import { createStackPlugin } from '@vuetify/v0'
  *
  * const app = createApp(App)
- * app.use(createStackPlugin())
+ * app.use(createStackPlugin({ baseZIndex: 2000 }))
  * app.mount('#app')
  * ```
  */
-export function createStackPlugin (_options: StackPluginOptions = {}) {
+export function createStackPlugin<
+  Z extends StackTicketInput = StackTicketInput,
+  E extends StackTicket<Z> = StackTicket<Z>,
+  R extends StackContext<Z, E> = StackContext<Z, E>,
+> (_options: StackPluginOptions = {}) {
+  const { namespace = 'v0:stack', ...options } = _options
+  const [, provideStackContext, context] = createStackContext<Z, E, R>({ ...options, namespace })
+
   return createPlugin({
-    namespace: 'v0:stack',
-    provide: app => {
-      // Create fresh registry per app to avoid SSR state leakage
-      const registry = createRegistry<StackTicket>({ reactive: true })
-      provideStackContext(createStackContext(registry), app)
+    namespace,
+    provide: (app: App) => {
+      provideStackContext(context, app)
     },
   })
+}
+
+// Lazy singleton fallback for when no provider exists
+let fallbackStack: StackContext | undefined
+
+function getStackFallback (): StackContext {
+  if (!fallbackStack) {
+    fallbackStack = createStack()
+  }
+  return fallbackStack
+}
+
+/**
+ * Returns the current stack context.
+ *
+ * @param namespace The namespace for the stack context. Defaults to 'v0:stack'.
+ * @returns The stack context instance
+ *
+ * @remarks Falls back to an internal shared instance if no provider exists.
+ * For SSR safety, use createStackPlugin to provide isolated context per app.
+ *
+ * Tickets registered within component setup are automatically unregistered
+ * when the component is unmounted.
+ *
+ * @see https://0.vuetifyjs.com/composables/plugins/use-stack
+ *
+ * @example
+ * ```vue
+ * <script setup lang="ts">
+ *   import { shallowRef, watch } from 'vue'
+ *   import { useStack } from '@vuetify/v0'
+ *
+ *   const stack = useStack()
+ *   const isOpen = shallowRef(false)
+ *
+ *   // Ticket is auto-cleaned up when component unmounts
+ *   const ticket = stack.register({
+ *     onDismiss: () => { isOpen.value = false },
+ *   })
+ *
+ *   // Sync selection state with isOpen
+ *   watch(isOpen, v => v ? ticket.select() : ticket.unselect())
+ * </script>
+ *
+ * <template>
+ *   <button @click="isOpen = true">Open</button>
+ *   <div v-if="isOpen" :style="{ zIndex: ticket.zIndex.value }">
+ *     <p>Dialog content</p>
+ *     <button @click="ticket.dismiss()">Close</button>
+ *   </div>
+ * </template>
+ * ```
+ */
+export function useStack<
+  Z extends StackTicketInput = StackTicketInput,
+  E extends StackTicket<Z> = StackTicket<Z>,
+  R extends StackContext<Z, E> = StackContext<Z, E>,
+> (namespace = 'v0:stack'): R {
+  const fallback = getStackFallback() as unknown as R
+
+  if (!instanceExists()) return fallback
+
+  try {
+    return useContext<R>(namespace)
+  } catch {
+    return fallback
+  }
 }

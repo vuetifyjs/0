@@ -2,34 +2,57 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { h, nextTick, shallowRef, toRef } from 'vue'
-
-// Types
-import type { StackContext } from '#v0/composables/useStack'
+import { h, nextTick, shallowRef, toRef, type Ref, type ShallowRef } from 'vue'
 
 import { Scrim } from './index'
 
+/**
+ * Minimal stack interface - only what Scrim actually uses
+ */
+interface MockStack {
+  isActive: Readonly<Ref<boolean>>
+  isBlocking: Readonly<Ref<boolean>>
+  scrimZIndex: Readonly<Ref<number>>
+  top: Readonly<Ref<{ dismiss: () => void } | undefined>>
+}
+
+interface MockStackRefs {
+  isActive: ShallowRef<boolean>
+  isBlocking: ShallowRef<boolean>
+  scrimZIndex: ShallowRef<number>
+}
+
+interface MockStackResult {
+  stack: MockStack
+  refs: MockStackRefs
+  ticketDismiss: ReturnType<typeof vi.fn>
+}
+
+interface MockStackOverrides {
+  isActive?: boolean
+  isBlocking?: boolean
+  scrimZIndex?: number
+}
+
 // Create a mock stack context for testing
-function createMockStack (overrides: Partial<{
-  isActive: boolean
-  isBlocking: boolean
-  scrimZIndex: number
-}> = {}): StackContext {
+function createMockStack (overrides: MockStackOverrides = {}): MockStackResult {
   const isActive = shallowRef(overrides.isActive ?? false)
   const isBlocking = shallowRef(overrides.isBlocking ?? false)
   const scrimZIndex = shallowRef(overrides.scrimZIndex ?? 1999)
-  const dismiss = vi.fn()
+  const ticketDismiss = vi.fn()
+
+  const stack: MockStack = {
+    isActive: toRef(() => isActive.value),
+    isBlocking: toRef(() => isBlocking.value),
+    scrimZIndex: toRef(() => scrimZIndex.value),
+    top: toRef(() => isActive.value ? { dismiss: ticketDismiss } : undefined),
+  }
 
   return {
-    registry: {} as any,
-    isActive: toRef(() => isActive.value),
-    top: toRef(() => undefined),
-    scrimZIndex: toRef(() => scrimZIndex.value),
-    isBlocking: toRef(() => isBlocking.value),
-    dismiss,
-    // Expose refs for test manipulation
-    _refs: { isActive, isBlocking, scrimZIndex },
-  } as StackContext & { _refs: any }
+    stack,
+    refs: { isActive, isBlocking, scrimZIndex },
+    ticketDismiss,
+  }
 }
 
 describe('scrim', () => {
@@ -38,7 +61,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: () => h('span', 'Scrim content'),
         },
@@ -52,7 +75,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: false })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: () => h('span', 'Scrim content'),
         },
@@ -65,7 +88,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
       })
 
       // Find the Atom inside the Transition
@@ -77,7 +100,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false, as: 'section' },
+        props: { stack: stack.stack as any, teleport: false, as: 'section' },
       })
 
       const atom = wrapper.find('section')
@@ -90,7 +113,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true, scrimZIndex: 2500 })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
       })
 
       const atom = wrapper.find('div')
@@ -101,13 +124,13 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true, scrimZIndex: 1999 }) as any
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
       })
 
       const atom = wrapper.find('div')
       expect((atom.element as HTMLElement).style.zIndex).toBe('1999')
 
-      stack._refs.scrimZIndex.value = 2099
+      stack.refs.scrimZIndex.value = 2099
       await nextTick()
 
       expect((atom.element as HTMLElement).style.zIndex).toBe('2099')
@@ -119,48 +142,48 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true, isBlocking: false })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
       })
 
       const atom = wrapper.find('div')
       await atom.trigger('click')
 
-      expect(stack.dismiss).toHaveBeenCalledTimes(1)
+      expect(stack.ticketDismiss).toHaveBeenCalledTimes(1)
     })
 
     it('should NOT call stack.dismiss on click when blocking', async () => {
       const stack = createMockStack({ isActive: true, isBlocking: true })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
       })
 
       const atom = wrapper.find('div')
       await atom.trigger('click')
 
-      expect(stack.dismiss).not.toHaveBeenCalled()
+      expect(stack.ticketDismiss).not.toHaveBeenCalled()
     })
 
     it('should respect blocking state changes', async () => {
       const stack = createMockStack({ isActive: true, isBlocking: false }) as any
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
       })
 
       const atom = wrapper.find('div')
 
       // First click - not blocking
       await atom.trigger('click')
-      expect(stack.dismiss).toHaveBeenCalledTimes(1)
+      expect(stack.ticketDismiss).toHaveBeenCalledTimes(1)
 
       // Change to blocking
-      stack._refs.isBlocking.value = true
+      stack.refs.isBlocking.value = true
       await nextTick()
 
       // Second click - now blocking
       await atom.trigger('click')
-      expect(stack.dismiss).toHaveBeenCalledTimes(1) // Still 1, not called again
+      expect(stack.ticketDismiss).toHaveBeenCalledTimes(1) // Still 1, not called again
     })
   })
 
@@ -174,7 +197,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       mount(Scrim, {
-        props: { stack },
+        props: { stack: stack.stack as any },
         attachTo: document.body,
         slots: {
           default: () => h('span', { class: 'scrim-content' }, 'Content'),
@@ -192,7 +215,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: () => h('span', { class: 'scrim-content' }, 'Content'),
         },
@@ -210,7 +233,7 @@ describe('scrim', () => {
       document.body.append(target)
 
       mount(Scrim, {
-        props: { stack, teleportTo: '#custom-target' },
+        props: { stack: stack.stack as any, teleportTo: '#custom-target' },
         attachTo: document.body,
         slots: {
           default: () => h('span', { class: 'scrim-content' }, 'Content'),
@@ -232,7 +255,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: (props: any) => {
             slotProps = props
@@ -250,7 +273,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true, isBlocking: true })
 
       mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: (props: any) => {
             slotProps = props
@@ -267,7 +290,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true, scrimZIndex: 3000 })
 
       mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: (props: any) => {
             slotProps = props
@@ -284,7 +307,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: (props: any) => {
             slotProps = props
@@ -297,7 +320,7 @@ describe('scrim', () => {
 
       // Call the slot prop dismiss
       slotProps.dismiss()
-      expect(stack.dismiss).toHaveBeenCalledTimes(1)
+      expect(stack.ticketDismiss).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -306,7 +329,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
       })
 
       // Transition component should be rendered
@@ -319,7 +342,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: true })
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false, transition: 'slide' },
+        props: { stack: stack.stack as any, teleport: false, transition: 'slide' },
       })
 
       const transition = wrapper.findComponent({ name: 'Transition' })
@@ -332,7 +355,7 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: false }) as any
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: () => h('span', { class: 'scrim-content' }, 'Content'),
         },
@@ -342,13 +365,13 @@ describe('scrim', () => {
       expect(wrapper.find('.scrim-content').exists()).toBe(false)
 
       // Activate stack
-      stack._refs.isActive.value = true
+      stack.refs.isActive.value = true
       await nextTick()
 
       expect(wrapper.find('.scrim-content').exists()).toBe(true)
 
       // Deactivate stack
-      stack._refs.isActive.value = false
+      stack.refs.isActive.value = false
       await nextTick()
 
       expect(wrapper.find('.scrim-content').exists()).toBe(false)
@@ -362,10 +385,10 @@ describe('scrim', () => {
 
       // Mount two scrims separately to verify each gets correct z-index
       const wrapper1 = mount(Scrim, {
-        props: { stack: stack1, teleport: false },
+        props: { stack: stack1.stack as any, teleport: false },
       })
       const wrapper2 = mount(Scrim, {
-        props: { stack: stack2, teleport: false },
+        props: { stack: stack2.stack as any, teleport: false },
       })
 
       const scrim1 = wrapper1.find('div')
@@ -381,18 +404,18 @@ describe('scrim', () => {
       const stack = createMockStack({ isActive: false }) as any
 
       const wrapper = mount(Scrim, {
-        props: { stack, teleport: false },
+        props: { stack: stack.stack as any, teleport: false },
         slots: {
           default: () => h('span', 'Content'),
         },
       })
 
       // Rapid toggles
-      stack._refs.isActive.value = true
+      stack.refs.isActive.value = true
       await nextTick()
-      stack._refs.isActive.value = false
+      stack.refs.isActive.value = false
       await nextTick()
-      stack._refs.isActive.value = true
+      stack.refs.isActive.value = true
       await nextTick()
 
       expect(wrapper.find('span').exists()).toBe(true)

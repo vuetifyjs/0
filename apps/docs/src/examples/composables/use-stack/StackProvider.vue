@@ -2,10 +2,12 @@
   // Note: For SSR applications, install the plugin in main.ts:
   // import { createStackPlugin } from '@vuetify/v0'
   // app.use(createStackPlugin())
-  import { stack } from '@vuetify/v0'
+  import { useStack } from '@vuetify/v0'
   import { computed, onScopeDispose, shallowRef, watch } from 'vue'
   import { provideOverlays } from './context'
   import type { Overlay } from './context'
+
+  const stack = useStack()
 
   // Block body scroll when overlays are active
   watch(() => stack.isActive.value, active => {
@@ -43,9 +45,17 @@
     }
   }
 
+  // Dismiss topmost non-blocking overlay (for scrim click)
+  function dismissTop () {
+    const top = stack.top.value
+    if (top && !stack.isBlocking.value) {
+      top.dismiss()
+    }
+  }
+
   provideOverlays({
     overlays,
-    stack: stack,
+    stack,
     activeCount,
     open,
     close,
@@ -64,7 +74,7 @@
           v-if="stack.isActive.value"
           class="fixed inset-0 bg-black/50 transition-opacity"
           :style="{ zIndex: stack.scrimZIndex.value }"
-          @click="stack.dismiss()"
+          @click="dismissTop"
         />
       </Transition>
     </Teleport>
