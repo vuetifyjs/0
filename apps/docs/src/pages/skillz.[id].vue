@@ -91,6 +91,10 @@
 
     router.push(`/skillz/${nextTour.value.id}`)
   }
+
+  function onReset () {
+    store.reset(params.value.id)
+  }
 </script>
 
 <template>
@@ -117,6 +121,16 @@
 
           <div class="flex items-center gap-4">
             <SkillDuration class="text-sm text-on-surface-variant" :minutes="tour.minutes" />
+
+            <!-- Reset button (shows when there's progress) -->
+            <button
+              v-if="progress"
+              class="px-3 py-1.5 text-sm font-medium text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface whitespace-nowrap"
+              title="Reset progress"
+              @click="onReset()"
+            >
+              Reset
+            </button>
 
             <!-- Completed with next tour: Next is primary, Restart is secondary -->
             <template v-if="isCompleted && nextTour">
