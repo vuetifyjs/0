@@ -159,7 +159,16 @@
 
   watch(isReady, ready => {
     if (ready) {
-      nextTick(() => contentRef.value?.focus())
+      nextTick(() => {
+        // Don't steal focus from input elements (for interactive tours)
+        const active = document.activeElement
+        const isInputFocused = active?.tagName === 'INPUT' ||
+          active?.tagName === 'TEXTAREA' ||
+          active?.getAttribute('contenteditable') === 'true'
+        if (!isInputFocused) {
+          contentRef.value?.focus()
+        }
+      })
     }
   })
 </script>

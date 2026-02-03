@@ -78,7 +78,7 @@
           :class="['inline-flex items-center gap-1.5 rounded-full md:border md:border-divider md:pl-1.5 md:pr-1.5 md:py-1.5 hover:border-primary/50 transition-colors', settings.showBgGlass.value ? 'md:bg-glass-surface' : 'md:bg-surface']"
           title="Search (Ctrl+K)"
           type="button"
-          @click="search.open()"
+          @click="search.focus()"
         >
           <span class="shrink-0 size-6 rounded-full bg-primary text-on-primary flex items-center justify-center">
             <AppIcon icon="search" size="12" />
