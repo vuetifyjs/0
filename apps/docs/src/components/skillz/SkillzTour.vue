@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useDocumentEventListener, useHotkey } from '@vuetify/v0'
+  import { useDocumentEventListener, useHotkey, useToggleScope } from '@vuetify/v0'
 
   // Components
   import DocsDiscoveryStep from '@/components/docs/DocsDiscoveryStep.vue'
@@ -14,17 +14,17 @@
   const GUIDED_ALLOWED_KEYS = new Set(['Escape', 'Tab', 'ArrowLeft', 'ArrowRight', 'Enter'])
 
   // Block keyboard input during guided tours
-  useDocumentEventListener('keydown', (e: KeyboardEvent) => {
-    if (!discovery.isActive.value) return
-
-    const tour = discovery.tours.selectedItem.value
-    if (tour?.mode !== 'guided') return
-
-    if (GUIDED_ALLOWED_KEYS.has(e.key)) return
-
-    e.preventDefault()
-    e.stopPropagation()
-  }, { capture: true })
+  useToggleScope(
+    () => discovery.isActive.value && discovery.tours.selectedItem.value?.mode === 'guided',
+    () => {
+      useDocumentEventListener('keydown', (e: KeyboardEvent) => {
+        if (!GUIDED_ALLOWED_KEYS.has(e.key)) {
+          e.preventDefault()
+          e.stopImmediatePropagation()
+        }
+      }, { capture: true })
+    },
+  )
 
   // Hotkey navigation for guided tours
   function isGuidedTourActive () {
