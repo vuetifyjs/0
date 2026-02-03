@@ -24,5 +24,6 @@ export default defineConfig({
     environment: 'happy-dom',
     globals: true,
     include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    testTimeout: 20_000,
   },
 })

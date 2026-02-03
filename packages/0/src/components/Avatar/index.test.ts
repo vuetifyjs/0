@@ -359,6 +359,10 @@ describe('avatar', () => {
 
     describe('renderless mode', () => {
       it('should support renderless mode with slot props', () => {
+        // Suppress Vue warning about runtime directive on non-element root
+        // This is expected when using v-show with renderless components
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
         let slotProps: any
 
         const wrapper = mount(Avatar.Root, {
@@ -375,6 +379,8 @@ describe('avatar', () => {
 
         expect(slotProps).toBeDefined()
         expect(wrapper.find('.custom-img').exists()).toBe(true)
+
+        warnSpy.mockRestore()
       })
     })
   })

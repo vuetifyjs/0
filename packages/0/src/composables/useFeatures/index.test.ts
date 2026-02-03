@@ -533,7 +533,7 @@ describe('createFeaturesPlugin', () => {
         dispose: disposeMock,
       }
 
-      const app = createApp({})
+      const app = createApp({ render: () => null })
       app.use(createFeaturesPlugin({ adapter: mockAdapter }))
 
       const container = document.createElement('div')
@@ -617,7 +617,7 @@ describe('createFeaturesPlugin', () => {
         dispose: dispose2,
       }
 
-      const app = createApp({})
+      const app = createApp({ render: () => null })
       app.use(createFeaturesPlugin({ adapter: [adapter1, adapter2] }))
 
       const container = document.createElement('div')

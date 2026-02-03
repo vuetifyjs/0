@@ -1213,8 +1213,12 @@ describe('splitKeyCombination', () => {
   })
 
   it('returns empty for invalid combinations', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     expect(splitKeyCombination('')).toEqual({ keys: [], separators: [] })
     expect(splitKeyCombination('+a')).toEqual({ keys: [], separators: [] })
+
+    warnSpy.mockRestore()
   })
 
   it('handles literal minus as key', () => {
@@ -1295,7 +1299,11 @@ describe('splitKeySequence', () => {
   })
 
   it('returns empty for invalid sequences', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     expect(splitKeySequence('')).toEqual([])
+
+    warnSpy.mockRestore()
   })
 
   it('handles literal minus in combination', () => {
