@@ -13,7 +13,7 @@
 import type { ShikiTransformer } from 'shiki'
 
 // Auto-generated whitelists from packages/0/src/
-import { V0_COMPONENTS, V0_COMPOSABLES } from './generated/api-whitelist'
+import { V0_COMPONENTS, V0_COMPOSABLES, V0_COMPOSABLE_TO_DIR } from './generated/api-whitelist'
 // Vue API content - import only keys for build-time detection
 import { VUE_API_CONTENT } from './vue-api-content'
 
@@ -34,15 +34,18 @@ const TRINITY_RETURNS: Record<string, string> = {
 const VUE_API_NAMES = new Set(Object.keys(VUE_API_CONTENT))
 
 /**
- * Maps composable names to their canonical API page.
+ * Maps composable names to their canonical API page (directory name).
  * Returns the API name if valid, null otherwise.
  *
- * Patterns:
- * - createX -> createX (the canonical API page)
- * - useX -> createX (trinity return maps to factory)
- * - createXContext -> createX (variant maps to base)
- * - createXPlugin -> createX or useX (createStackPlugin -> createStack, createStoragePlugin -> useStorage)
- * - useContext/provideContext -> createContext (special trinity returns)
+ * Uses the V0_COMPOSABLE_TO_DIR mapping generated from source directories.
+ * Each function name maps to its containing directory, which is the API cache key.
+ *
+ * Examples:
+ * - createStackPlugin -> useStack (the directory containing it)
+ * - createStackContext -> useStack
+ * - useStack -> useStack
+ * - createSelection -> createSelection
+ * - useContext -> createContext (trinity return value)
  */
 function resolveComposable (name: string): { apiName: string } | null {
   // Check special trinity return values first (e.g., useContext -> createContext)
@@ -56,36 +59,13 @@ function resolveComposable (name: string): { apiName: string } | null {
     return null
   }
 
-  // For useX, check if createX exists (trinity pattern)
-  // useStack -> createStack, useGroup -> createGroup
-  if (name.startsWith('use')) {
-    const base = name.slice(3) // 'useStack' -> 'Stack'
-    const createVersion = `create${base}`
-    if (V0_COMPOSABLES.has(createVersion)) {
-      return { apiName: createVersion }
-    }
+  // Use the mapping to get the directory name (API cache key)
+  const dirName = V0_COMPOSABLE_TO_DIR[name]
+  if (dirName) {
+    return { apiName: dirName }
   }
 
-  // For createXContext/createXPlugin, map to createX or useX
-  // createStackPlugin -> createStack, createStoragePlugin -> useStorage
-  if (name.startsWith('create')) {
-    const withoutPrefix = name.slice(6) // 'createStackPlugin' -> 'StackPlugin'
-    const base = withoutPrefix.replace(/(Plugin|Context)$/, '')
-    if (base && base !== withoutPrefix) {
-      // Try createX first (trinity factories)
-      const createVersion = `create${base}`
-      if (V0_COMPOSABLES.has(createVersion)) {
-        return { apiName: createVersion }
-      }
-      // Fall back to useX (plugin composables like useStorage, useTheme)
-      const useVersion = `use${base}`
-      if (V0_COMPOSABLES.has(useVersion)) {
-        return { apiName: useVersion }
-      }
-    }
-  }
-
-  // Direct match - use as-is (createX, toX, etc.)
+  // Fallback: use the name as-is (shouldn't happen if whitelist is in sync)
   return { apiName: name }
 }
 
