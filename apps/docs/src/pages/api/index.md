@@ -28,14 +28,18 @@ Detailed API reference for each component including props, events, and slots.
 | - | - |
 | [Atom](/api/atom) | Polymorphic element base component |
 | [Avatar](/api/avatar) | Image with fallback support |
+| [Checkbox](/api/checkbox) | Checkbox with indeterminate support |
 | [Dialog](/api/dialog) | Modal dialog with focus management |
 | [ExpansionPanel](/api/expansion-panel) | Collapsible accordion panels |
 | [Group](/api/group) | Multi-selection with tri-state |
 | [Pagination](/api/pagination) | Page navigation component |
 | [Popover](/api/popover) | Anchor-positioned popups |
+| [Radio](/api/radio) | Radio button group |
+| [Scrim](/api/scrim) | Overlay backdrop |
 | [Selection](/api/selection) | Multi-selection state provider |
 | [Single](/api/single) | Single-selection provider |
 | [Step](/api/step) | Sequential navigation provider |
+| [Tabs](/api/tabs) | Tabbed navigation |
 
 ## Composables
 
@@ -65,6 +69,7 @@ Detailed API reference for each composable including options, properties, and me
 | [createSelection](/api/create-selection) | General selection state |
 | [createSingle](/api/create-single) | Single-selection with auto-deselection |
 | [createGroup](/api/create-group) | Multi-selection with tri-state |
+| [createNested](/api/create-nested) | Hierarchical tree management |
 | [createStep](/api/create-step) | Sequential navigation |
 
 ### Forms
@@ -88,6 +93,7 @@ Detailed API reference for each composable including options, properties, and me
 | [useHotkey](/api/use-hotkey) | Hotkey combinations |
 | [useClickOutside](/api/use-click-outside) | Click outside detection |
 | [useIntersectionObserver](/api/use-intersection-observer) | Visibility detection |
+| [useLazy](/api/use-lazy) | Deferred content rendering |
 | [useMutationObserver](/api/use-mutation-observer) | DOM change detection |
 | [useResizeObserver](/api/use-resize-observer) | Element size changes |
 | [useMediaQuery](/api/use-media-query) | CSS media query matching |
@@ -98,11 +104,13 @@ Detailed API reference for each composable including options, properties, and me
 | Composable | Description |
 | - | - |
 | [useBreakpoints](/api/use-breakpoints) | Responsive breakpoints |
+| [useDate](/api/use-date) | Date manipulation with adapters |
 | [useFeatures](/api/use-features) | Feature flags |
 | [useHydration](/api/use-hydration) | SSR hydration |
 | [useLocale](/api/use-locale) | Internationalization |
 | [useLogger](/api/use-logger) | Logging with adapters |
 | [usePermissions](/api/use-permissions) | Role-based access |
+| [useStack](/api/use-stack) | Overlay z-index stacking |
 | [useStorage](/api/use-storage) | Reactive browser storage |
 | [useTheme](/api/use-theme) | Theme management |
 

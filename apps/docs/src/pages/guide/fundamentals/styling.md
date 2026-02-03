@@ -56,7 +56,7 @@ All v0 components expose state via `data-*` attributes in the `attrs` object:
 
 ## Styling with Data Attributes
 
-Data attribute selectors let you style based on state purely in CSS. This works with [Tailwind](/introduction/getting-started#tailwind), [UnoCSS](/introduction/getting-started#unocss), plain CSS, or any framework supporting attribute selectors.
+Data attribute selectors let you style based on state purely in CSS. This works with [Tailwind](/introduction/getting-started#tailwind-css-v4), [UnoCSS](/introduction/getting-started#unocss), plain CSS, or any framework supporting attribute selectors.
 
 ### Tailwind / UnoCSS
 
