@@ -46,9 +46,16 @@ async function getComponentNames (): Promise<string[]> {
  *
  * This automatically picks up any exported function matching composable patterns
  * (useX, createX, toX, provideX) without needing manual maintenance.
+ *
+ * Returns both a set of all names and a mapping from function name to directory name
+ * (the directory name is the API cache key).
  */
-async function getComposableNames (): Promise<string[]> {
+async function getComposableData (): Promise<{
+  names: string[]
+  toDir: Record<string, string>
+}> {
   const names = new Set<string>()
+  const toDir: Record<string, string> = {}
   const dirs = await readdir(COMPOSABLES_DIR)
 
   // Pattern for composable function names we care about
@@ -69,28 +76,40 @@ async function getComposableNames (): Promise<string[]> {
       const fnName = match[1]
       if (COMPOSABLE_PATTERN.test(fnName)) {
         names.add(fnName)
+        toDir[fnName] = dir
       }
     }
 
     // Also add the directory name itself (the primary export)
     names.add(dir)
+    toDir[dir] = dir
   }
 
   // Add trinity return values that are commonly used
   names.add('useContext')
   names.add('provideContext')
+  toDir['useContext'] = 'createContext'
+  toDir['provideContext'] = 'createContext'
 
-  return Array.from(names).toSorted()
+  return {
+    names: Array.from(names).toSorted(),
+    toDir,
+  }
 }
 
 /**
  * Generate the whitelist TypeScript file
  */
 export async function generateApiWhitelist (): Promise<void> {
-  const [components, composables] = await Promise.all([
+  const [components, composableData] = await Promise.all([
     getComponentNames(),
-    getComposableNames(),
+    getComposableData(),
   ])
+
+  const { names: composables, toDir } = composableData
+
+  // Sort toDir entries for stable output
+  const toDirEntries = Object.entries(toDir).toSorted((a, b) => a[0].localeCompare(b[0]))
 
   const content = `/**
  * AUTO-GENERATED - DO NOT EDIT
@@ -120,6 +139,14 @@ ${components.map(c => `  '${c}',`).join('\n')}
 export const V0_COMPOSABLES = new Set([
 ${composables.map(c => `  '${c}',`).join('\n')}
 ])
+
+/**
+ * Maps composable function names to their directory name (API cache key).
+ * Used by the shiki-api-transformer to resolve the correct API page.
+ */
+export const V0_COMPOSABLE_TO_DIR: Record<string, string> = {
+${toDirEntries.map(([fn, dir]) => `  '${fn}': '${dir}',`).join('\n')}
+}
 `
 
   // Only write if content changed to avoid triggering Vite's file watcher loop
