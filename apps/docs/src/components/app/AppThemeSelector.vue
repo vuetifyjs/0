@@ -31,6 +31,9 @@
 
   const accessibilityOptions: ThemeOption[] = [
     { id: 'high-contrast', label: 'High Contrast', icon: 'theme-high-contrast', theme: 'high-contrast' },
+    { id: 'protanopia', label: 'Protanopia', icon: 'theme-protanopia', theme: 'protanopia' },
+    { id: 'deuteranopia', label: 'Deuteranopia', icon: 'theme-deuteranopia', theme: 'deuteranopia' },
+    { id: 'tritanopia', label: 'Tritanopia', icon: 'theme-tritanopia', theme: 'tritanopia' },
   ]
 
   const vuetifyOptions: ThemeOption[] = [
@@ -92,22 +95,27 @@
       <!-- Accessibility -->
       <div class="mb-3">
         <div class="text-xs font-medium text-on-surface-variant mb-2 px-1">Accessibility</div>
-        <button
-          v-for="option in accessibilityOptions"
-          :key="option.id"
-          :aria-pressed="toggle.preference.value === option.id"
-          :class="[
-            'w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs font-medium transition-colors',
-            toggle.preference.value === option.id
-              ? 'bg-primary/15 text-primary'
-              : 'hover:bg-surface-tint text-on-surface',
-          ]"
-          type="button"
-          @click="selectTheme(option.id)"
-        >
-          <AppIcon :icon="option.icon" size="14" />
-          <span>{{ option.label }}</span>
-        </button>
+        <div class="grid grid-cols-2 gap-1">
+          <button
+            v-for="option in accessibilityOptions"
+            :key="option.id"
+            :aria-pressed="toggle.preference.value === option.id"
+            :class="[
+              'flex flex-col items-start gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors',
+              toggle.preference.value === option.id
+                ? 'bg-primary/15 text-primary'
+                : 'hover:bg-surface-tint text-on-surface',
+            ]"
+            type="button"
+            @click="selectTheme(option.id)"
+          >
+            <div class="flex items-center gap-1.5">
+              <AppIcon :icon="option.icon" size="14" />
+              <span>{{ option.label }}</span>
+            </div>
+            <AppThemePreview v-if="option.theme" :theme="option.theme" />
+          </button>
+        </div>
       </div>
 
       <!-- Vuetify Themes -->

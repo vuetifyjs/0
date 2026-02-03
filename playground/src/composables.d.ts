@@ -12,10 +12,13 @@ declare global {
   const DEFAULT_LIGHT: typeof import('../../packages/paper/src/composables/useTheme/index').DEFAULT_LIGHT
   const EffectScope: typeof import('vue').EffectScope
   const FeaturesAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FeaturesAdapter
+  const FlagsmithFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').FlagsmithFeatureAdapter
   const IN_BROWSER: typeof import('../../packages/0/src/constants/globals').IN_BROWSER
+  const LaunchDarklyFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').LaunchDarklyFeatureAdapter
   const MemoryAdapter: typeof import('../../packages/0/src/composables/useStorage/index').MemoryAdapter
   const PermissionAdapter: typeof import('../../packages/0/src/composables/usePermissions/index').PermissionAdapter
   const PinoLoggerAdapter: typeof import('../../packages/0/src/composables/useLogger/index').PinoLoggerAdapter
+  const PostHogFeatureAdapter: typeof import('../../packages/0/src/composables/useFeatures/index').PostHogFeatureAdapter
   const SELF_CLOSING_TAGS: typeof import('../../packages/0/src/constants/htmlElements').SELF_CLOSING_TAGS
   const SUPPORTS_INTERSECTION_OBSERVER: typeof import('../../packages/0/src/constants/globals').SUPPORTS_INTERSECTION_OBSERVER
   const SUPPORTS_MATCH_MEDIA: typeof import('../../packages/0/src/constants/globals').SUPPORTS_MATCH_MEDIA
@@ -382,10 +385,13 @@ declare module 'vue' {
     readonly DEFAULT_LIGHT: UnwrapRef<typeof import('../../packages/paper/src/composables/useTheme/index')['DEFAULT_LIGHT']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly FeaturesAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['FeaturesAdapter']>
+    readonly FlagsmithFeatureAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['FlagsmithFeatureAdapter']>
     readonly IN_BROWSER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['IN_BROWSER']>
+    readonly LaunchDarklyFeatureAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['LaunchDarklyFeatureAdapter']>
     readonly MemoryAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useStorage/index')['MemoryAdapter']>
     readonly PermissionAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/usePermissions/index')['PermissionAdapter']>
     readonly PinoLoggerAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useLogger/index')['PinoLoggerAdapter']>
+    readonly PostHogFeatureAdapter: UnwrapRef<typeof import('../../packages/0/src/composables/useFeatures/index')['PostHogFeatureAdapter']>
     readonly SELF_CLOSING_TAGS: UnwrapRef<typeof import('../../packages/0/src/constants/htmlElements')['SELF_CLOSING_TAGS']>
     readonly SUPPORTS_INTERSECTION_OBSERVER: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_INTERSECTION_OBSERVER']>
     readonly SUPPORTS_MATCH_MEDIA: UnwrapRef<typeof import('../../packages/0/src/constants/globals')['SUPPORTS_MATCH_MEDIA']>
