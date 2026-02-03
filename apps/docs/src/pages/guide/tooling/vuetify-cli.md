@@ -300,14 +300,13 @@ https://0.vuetifyjs.com/?features=VBtn,VCard,useDisplay,...
 
 This URL filters the v0 documentation to show **only the features you're actually using**, giving you a focused, clutter-free reference tailored to your project. Share this URL with your team to onboard developers faster.
 
-#### Migration Planning
+#### JSON Output
 
-The analyze command is invaluable for migration planning:
+Use `--reporter json` to integrate with CI/CD pipelines or custom tooling:
 
-1. Run `vuetify analyze` on your existing Vuetify 3 project
-2. Review which components and composables you're using
-3. Check the generated URL to see v0 equivalents and migration paths
-4. Use `--reporter json` to integrate with CI/CD or custom tooling
+```bash
+vuetify analyze --reporter json --output report.json
+```
 
 > [!ASKAI] How can I use the analyze command to plan a Vuetify migration?
 
