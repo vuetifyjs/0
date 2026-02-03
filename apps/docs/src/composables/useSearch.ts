@@ -23,7 +23,7 @@ import MiniSearch from 'minisearch'
 import { IN_BROWSER, useHotkey, useLogger, useStorage, useToggleScope } from '@vuetify/v0'
 
 // Utilities
-import { computed, readonly, shallowRef, toRef, watch } from 'vue'
+import { computed, nextTick, readonly, shallowRef, watch } from 'vue'
 
 // Types
 import type { SearchDocument } from '@build/generate-search-index'
@@ -86,6 +86,10 @@ export interface UseSearchReturn {
   open: () => void
   /** Close the search modal */
   close: () => void
+  /** Open and focus the search input */
+  focus: () => Promise<void>
+  /** Input element ref (bind with :ref="search.inputRef") */
+  inputRef: ShallowRef<HTMLInputElement | null>
   /** Open search with a query */
   query: (text: string) => void
   /** Clear the search query */
@@ -104,9 +108,9 @@ export interface UseSearchReturn {
   addRecent: (result: SearchResult | SavedResult) => void
 }
 
-// Singleton state - shared across all instances
 let miniSearch: MiniSearch<SearchDocument> | null = null
 let indexPromise: Promise<void> | null = null
+const inputRef = shallowRef<HTMLInputElement | null>(null)
 const isOpen = shallowRef(false)
 const isLoading = shallowRef(false)
 const error = shallowRef<string | null>(null)
@@ -211,7 +215,6 @@ function search (query: string): SearchResult[] {
   const searchTerms = queryTerms.filter(t => t !== 'api')
 
   const results = miniSearch.search(query, {
-    limit: 20,
     // Field importance
     boost: { title: 5, headings: 2, content: 1 },
     // Fuzzy/prefix matching
@@ -225,9 +228,9 @@ function search (query: string): SearchResult[] {
     // Note: boostDocument is called per-term per-document, so boosts compound
     // for multi-term queries. We normalize by term count to maintain consistent ratios.
     boostDocument: (_, term, doc) => {
-      const title = (doc.title as string).toLowerCase()
-      const category = doc.category as string
-      const path = doc.path as string
+      const title = (doc?.title as string ?? '').toLowerCase()
+      const category = doc?.category as string ?? ''
+      const path = doc?.path as string ?? ''
       let boost = 1
 
       // === Exact/partial title match boosting ===
@@ -272,7 +275,7 @@ function search (query: string): SearchResult[] {
     },
   })
 
-  return results.map(result => ({
+  return results.slice(0, 20).map(result => ({
     id: result.id,
     title: result.title as string,
     category: result.category as string,
@@ -321,6 +324,246 @@ function findResult (id: string): SearchResult | SavedResult | undefined {
   return undefined
 }
 
+// Depend on isLoading to re-run search after index loads
+const rawResults = computed(() => isLoading.value ? [] : search(text.value))
+const groupedResults = computed(() => groupByCategory(rawResults.value))
+
+// Filter out dismissed results
+const results = computed<GroupedResults[]>(() => {
+  if (dismissedIds.value.size === 0) {
+    return groupedResults.value
+  }
+
+  return groupedResults.value
+    .map(group => ({
+      category: group.category,
+      items: group.items.filter(item => !dismissedIds.value.has(item.id)),
+    }))
+    .filter(group => group.items.length > 0)
+})
+
+// Check if we have content to show in empty state
+const hasEmptyStateContent = computed(() => {
+  return favorites.value.length > 0 || recents.value.length > 0
+})
+
+/** Get total selectable items count (for keyboard navigation) */
+function getSelectableCount (): number {
+  if (text.value.trim()) {
+    return results.value.reduce((sum, g) => sum + g.items.length, 0)
+  }
+  // In empty state, count favorites + recents
+  return favorites.value.length + recents.value.length
+}
+
+function getCurrent (): SearchResult | SavedResult | undefined {
+  const index = selectedIndex.value
+
+  // If searching, get from displayed results
+  if (text.value.trim()) {
+    const flatResults = results.value.flatMap(g => g.items)
+    return flatResults[index]
+  }
+
+  // In empty state, get from favorites first, then recents
+  const favCount = favorites.value.length
+  if (index < favCount) {
+    return favorites.value[index]
+  }
+  return recents.value[index - favCount]
+}
+
+function selectPrev () {
+  const total = getSelectableCount()
+  if (total === 0) return
+  selectedIndex.value = (selectedIndex.value - 1 + total) % total
+}
+
+function selectNext () {
+  const total = getSelectableCount()
+  if (total === 0) return
+  selectedIndex.value = (selectedIndex.value + 1) % total
+}
+
+function clearDismissed () {
+  if (dismissedIds.value.size > 0) {
+    dismissedIds.value = new Set()
+  }
+}
+
+function open () {
+  if (!IN_BROWSER || isOpen.value) return
+
+  isOpen.value = true
+  text.value = ''
+  selectedIndex.value = 0
+  clearDismissed()
+
+  // Load index lazily
+  if (!miniSearch) {
+    isLoading.value = true
+    loadIndex().finally(() => {
+      isLoading.value = false
+    })
+  }
+}
+
+function close () {
+  isOpen.value = false
+  clearDismissed()
+}
+
+async function focus () {
+  if (!IN_BROWSER) return
+
+  open()
+  // Wait for v-if to render the modal and ref to be bound
+  await nextTick()
+  await nextTick()
+  inputRef.value?.focus()
+}
+
+function query (value: string) {
+  if (!IN_BROWSER) return
+
+  // Open if not already open
+  if (!isOpen.value) {
+    isOpen.value = true
+    clearDismissed()
+
+    // Load index lazily
+    if (!miniSearch) {
+      isLoading.value = true
+      loadIndex().finally(() => {
+        isLoading.value = false
+      })
+    }
+  }
+
+  text.value = value
+  selectedIndex.value = 0
+}
+
+function clear () {
+  text.value = ''
+  selectedIndex.value = 0
+}
+
+// Favorites management
+function favorite (id: string) {
+  if (isFavorite(id)) {
+    unfavorite(id)
+  } else {
+    const result = findResult(id)
+    if (!result) return
+
+    // Remove from recents if present
+    if (recents.value.some(r => r.id === id)) {
+      recents.value = recents.value.filter(r => r.id !== id)
+      persistRecents()
+    }
+
+    favorites.value = [
+      {
+        id: result.id,
+        title: result.title,
+        category: result.category,
+        path: result.path,
+      },
+      ...favorites.value,
+    ]
+    persistFavorites()
+  }
+}
+
+function unfavorite (id: string) {
+  const fav = favorites.value.find(f => f.id === id)
+  if (fav) {
+    // Move to recents when unfavoriting
+    addRecent(fav)
+  }
+  favorites.value = favorites.value.filter(f => f.id !== id)
+  persistFavorites()
+}
+
+function isFavorite (id: string): boolean {
+  return favorites.value.some(f => f.id === id)
+}
+
+// Remove from favorites or recents
+function remove (id: string) {
+  if (isFavorite(id)) {
+    favorites.value = favorites.value.filter(f => f.id !== id)
+    persistFavorites()
+  } else {
+    recents.value = recents.value.filter(r => r.id !== id)
+    persistRecents()
+  }
+}
+
+// Recent searches management
+function addRecent (result: SearchResult | SavedResult) {
+  // Don't add if already in favorites
+  if (favorites.value.some(f => f.id === result.id)) return
+
+  // Remove if already exists (will be re-added at front)
+  const filtered = recents.value.filter(r => r.id !== result.id)
+
+  recents.value = [
+    {
+      id: result.id,
+      title: result.title,
+      category: result.category,
+      path: result.path,
+    },
+    ...filtered,
+  ].slice(0, MAX_RECENTS)
+  persistRecents()
+}
+
+// Dismiss management (session-only)
+function dismiss (id: string) {
+  const newSet = new Set(dismissedIds.value)
+  newSet.add(id)
+  dismissedIds.value = newSet
+}
+
+// Reset selection when results change
+watch(rawResults, () => {
+  selectedIndex.value = 0
+})
+
+// Clear dismissed results when text changes
+watch(text, () => {
+  if (dismissedIds.value.size > 0) {
+    dismissedIds.value = new Set()
+  }
+})
+
+// Reset selection when favorites or recents change (to avoid out-of-bounds)
+watch([favorites, recents], () => {
+  if (!text.value.trim()) {
+    const total = getSelectableCount()
+    if (selectedIndex.value >= total) {
+      selectedIndex.value = Math.max(0, total - 1)
+    }
+  }
+})
+
+// Keyboard navigation - only active when modal is open
+useToggleScope(() => isOpen.value, () => {
+  useHotkey('escape', close, { inputs: true })
+  useHotkey('up', selectPrev, { inputs: true })
+  useHotkey('down', selectNext, { inputs: true })
+})
+
+const selection: SearchSelection = {
+  index: selectedIndex,
+  current: getCurrent,
+  prev: selectPrev,
+  next: selectNext,
+}
+
 /**
  * Creates a search instance for documentation.
  *
@@ -341,239 +584,8 @@ function findResult (id: string): SearchResult | SavedResult | undefined {
  * ```
  */
 export function useSearch (): UseSearchReturn {
-  // Initialize storage on first use
+  // Initialize storage on first use (requires component context)
   initStorage()
-
-  // Depend on isLoading to re-run search after index loads
-  const rawResults = computed(() => isLoading.value ? [] : search(text.value))
-  const groupedResults = computed(() => groupByCategory(rawResults.value))
-
-  // Filter out dismissed results
-  const results = computed<GroupedResults[]>(() => {
-    if (dismissedIds.value.size === 0) {
-      return groupedResults.value
-    }
-
-    return groupedResults.value
-      .map(group => ({
-        category: group.category,
-        items: group.items.filter(item => !dismissedIds.value.has(item.id)),
-      }))
-      .filter(group => group.items.length > 0)
-  })
-
-  // Check if we have content to show in empty state
-  const hasEmptyStateContent = toRef(() => {
-    return favorites.value.length > 0 || recents.value.length > 0
-  })
-
-  // Get total selectable items count (for keyboard navigation)
-  function getSelectableCount (): number {
-    if (text.value.trim()) {
-      return results.value.reduce((sum, g) => sum + g.items.length, 0)
-    }
-    // In empty state, count favorites + recents
-    return favorites.value.length + recents.value.length
-  }
-
-  // Reset selection when results change
-  watch(rawResults, () => {
-    selectedIndex.value = 0
-  })
-
-  // Clear dismissed results when text changes
-  watch(text, () => {
-    if (dismissedIds.value.size > 0) {
-      dismissedIds.value = new Set()
-    }
-  })
-
-  // Reset selection when favorites or recents change (to avoid out-of-bounds)
-  watch([favorites, recents], () => {
-    if (!text.value.trim()) {
-      const total = getSelectableCount()
-      if (selectedIndex.value >= total) {
-        selectedIndex.value = Math.max(0, total - 1)
-      }
-    }
-  })
-
-  function open () {
-    if (!IN_BROWSER || isOpen.value) return
-
-    isOpen.value = true
-    text.value = ''
-    selectedIndex.value = 0
-    clearDismissed()
-
-    // Load index lazily
-    if (!miniSearch) {
-      isLoading.value = true
-      loadIndex().finally(() => {
-        isLoading.value = false
-      })
-    }
-  }
-
-  function close () {
-    isOpen.value = false
-    clearDismissed()
-  }
-
-  function query (value: string) {
-    if (!IN_BROWSER) return
-
-    // Open if not already open
-    if (!isOpen.value) {
-      isOpen.value = true
-      clearDismissed()
-
-      // Load index lazily
-      if (!miniSearch) {
-        isLoading.value = true
-        loadIndex().finally(() => {
-          isLoading.value = false
-        })
-      }
-    }
-
-    text.value = value
-    selectedIndex.value = 0
-  }
-
-  function clear () {
-    text.value = ''
-    selectedIndex.value = 0
-  }
-
-  function getCurrent (): SearchResult | SavedResult | undefined {
-    const index = selectedIndex.value
-
-    // If searching, get from displayed results
-    if (text.value.trim()) {
-      const flatResults = results.value.flatMap(g => g.items)
-      return flatResults[index]
-    }
-
-    // In empty state, get from favorites first, then recents
-    const favCount = favorites.value.length
-    if (index < favCount) {
-      return favorites.value[index]
-    }
-    return recents.value[index - favCount]
-  }
-
-  function selectPrev () {
-    const total = getSelectableCount()
-    if (total === 0) return
-    selectedIndex.value = (selectedIndex.value - 1 + total) % total
-  }
-
-  function selectNext () {
-    const total = getSelectableCount()
-    if (total === 0) return
-    selectedIndex.value = (selectedIndex.value + 1) % total
-  }
-
-  // Favorites management
-  function favorite (id: string) {
-    if (isFavorite(id)) {
-      unfavorite(id)
-    } else {
-      const result = findResult(id)
-      if (!result) return
-
-      // Remove from recents if present
-      if (recents.value.some(r => r.id === id)) {
-        recents.value = recents.value.filter(r => r.id !== id)
-        persistRecents()
-      }
-
-      favorites.value = [
-        {
-          id: result.id,
-          title: result.title,
-          category: result.category,
-          path: result.path,
-        },
-        ...favorites.value,
-      ]
-      persistFavorites()
-    }
-  }
-
-  function unfavorite (id: string) {
-    const fav = favorites.value.find(f => f.id === id)
-    if (fav) {
-      // Move to recents when unfavoriting
-      addRecent(fav)
-    }
-    favorites.value = favorites.value.filter(f => f.id !== id)
-    persistFavorites()
-  }
-
-  function isFavorite (id: string): boolean {
-    return favorites.value.some(f => f.id === id)
-  }
-
-  // Remove from favorites or recents
-  function remove (id: string) {
-    if (isFavorite(id)) {
-      favorites.value = favorites.value.filter(f => f.id !== id)
-      persistFavorites()
-    } else {
-      recents.value = recents.value.filter(r => r.id !== id)
-      persistRecents()
-    }
-  }
-
-  // Recent searches management
-  function addRecent (result: SearchResult | SavedResult) {
-    // Don't add if already in favorites
-    if (favorites.value.some(f => f.id === result.id)) return
-
-    // Remove if already exists (will be re-added at front)
-    const filtered = recents.value.filter(r => r.id !== result.id)
-
-    recents.value = [
-      {
-        id: result.id,
-        title: result.title,
-        category: result.category,
-        path: result.path,
-      },
-      ...filtered,
-    ].slice(0, MAX_RECENTS)
-    persistRecents()
-  }
-
-  // Dismiss management (session-only)
-  function dismiss (id: string) {
-    const newSet = new Set(dismissedIds.value)
-    newSet.add(id)
-    dismissedIds.value = newSet
-  }
-
-  function clearDismissed () {
-    if (dismissedIds.value.size > 0) {
-      dismissedIds.value = new Set()
-    }
-  }
-
-  // Selection object for keyboard navigation
-  const selection: SearchSelection = {
-    index: selectedIndex,
-    current: getCurrent,
-    prev: selectPrev,
-    next: selectNext,
-  }
-
-  // Keyboard navigation - only active when modal is open
-  useToggleScope(() => isOpen.value, () => {
-    useHotkey('escape', close, { inputs: true })
-    useHotkey('up', selectPrev, { inputs: true })
-    useHotkey('down', selectNext, { inputs: true })
-  })
 
   return {
     isOpen: readonly(isOpen),
@@ -587,6 +599,8 @@ export function useSearch (): UseSearchReturn {
     selection,
     open,
     close,
+    focus,
+    inputRef,
     query,
     clear,
     favorite,
