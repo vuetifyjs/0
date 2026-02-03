@@ -9,7 +9,7 @@
  * Or automatically via the Vite plugin in vite.config.ts
  */
 
-import { readdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -155,6 +155,7 @@ ${toDirEntries.map(([fn, dir]) => `  '${fn}': '${dir}',`).join('\n')}
     return // No changes, skip write to prevent restart loop
   }
 
+  await mkdir(dirname(OUTPUT_FILE), { recursive: true })
   await writeFile(OUTPUT_FILE, content)
   console.log(`[generate-api-whitelist] Generated ${OUTPUT_FILE}`)
   console.log(`  Components: ${components.length}`)
