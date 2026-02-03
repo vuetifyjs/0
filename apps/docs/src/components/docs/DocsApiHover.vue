@@ -190,6 +190,9 @@
     // Skip during navigation to avoid event storms on iOS Safari
     if (isNavigating.value) return
 
+    // Skip if user is holding mouse button (likely selecting text)
+    if (e.buttons !== 0) return
+
     const eventTarget = e.target
     if (!(eventTarget instanceof Element)) return
 
