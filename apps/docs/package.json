@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 8000",
-    "prebuild": "tsx build/generate-api-whitelist.ts",
     "build": "vite-ssg build",
     "preview": "vite preview"
   },

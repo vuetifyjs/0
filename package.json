@@ -41,6 +41,7 @@
     "release:patch": "bumpp patch -r",
     "release:minor": "bumpp minor -r",
     "release:major": "bumpp major -r",
+    "postinstall": "tsx apps/docs/build/generate-api-whitelist.ts",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
@@ -63,6 +64,7 @@
     "knip": "catalog:",
     "sherif": "catalog:",
     "simple-git-hooks": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
