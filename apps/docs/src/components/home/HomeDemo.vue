@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { Selection } from '@vuetify/v0'
+  import { Selection, useTheme } from '@vuetify/v0'
 
   // Composables
   import { usePlayground } from '@/composables/playground'
@@ -50,6 +50,7 @@
   </Selection.Root>
 </template>`
 
+  const theme = useTheme()
   const highlighter = useHighlightCode(code, { idle: true })
 
   const playgroundUrl = computed(() => usePlayground(code))
@@ -80,7 +81,7 @@
         <div
           v-if="highlighter.highlightedCode.value"
           class="flex-1 overflow-y-auto [&_pre]:p-4 [&_pre]:text-xs [&_pre]:md:text-sm [&_pre]:overflow-x-auto [&_pre]:leading-relaxed [&_pre]:m-0"
-
+          :data-theme="theme.isDark.value ? 'dark' : 'light'"
           v-html="highlighter.highlightedCode.value"
         />
         <pre v-else class="p-4 text-xs md:text-sm overflow-x-auto leading-relaxed m-0"><code>{{ code }}</code></pre>
