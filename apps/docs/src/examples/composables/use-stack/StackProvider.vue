@@ -2,12 +2,14 @@
   // Note: For SSR applications, install the plugin in main.ts:
   // import { createStackPlugin } from '@vuetify/v0'
   // app.use(createStackPlugin())
-  import { Scrim, useStack } from '@vuetify/v0'
-  import { computed, onScopeDispose, shallowRef, watch } from 'vue'
+  import { createStack, Scrim } from '@vuetify/v0'
+  import { computed, onScopeDispose, provide, shallowRef, watch } from 'vue'
   import { provideOverlays } from './context'
   import type { Overlay } from './context'
 
-  const stack = useStack()
+  // Create isolated stack for this example (doesn't interfere with app's global stack)
+  const stack = createStack()
+  provide('v0:stack', stack)
 
   // Block body scroll when overlays are active
   watch(() => stack.isActive.value, active => {

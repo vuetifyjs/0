@@ -45,10 +45,7 @@
 
   // Escape key dismisses the topmost non-blocking overlay
   useHotkey('Escape', () => {
-    const topTicket = tickets.find(t => t.ticket.globalTop.value)
-    if (topTicket && !topTicket.overlay.blocking) {
-      close(topTicket.overlay.id)
-    }
+    stack.top.value?.dismiss()
   })
 </script>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useDocumentEventListener } from '@vuetify/v0'
+  import { useBreakpoints, useDocumentEventListener, useStack, useToggleScope } from '@vuetify/v0'
 
   // Components
   import DocsAskInput from './DocsAskInput.vue'
@@ -8,7 +8,6 @@
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
-  import { useScrollLock } from '@/composables/useScrollLock'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
@@ -20,8 +19,8 @@
   const isDesktop = computed(() => breakpoints.lgAndUp.value)
   const fullscreen = shallowRef(false)
   const settings = useSettings()
+  const stack = useStack()
 
-  const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
   const panelTransition = toRef(() => {
     if (settings.prefersReducedMotion.value) return undefined
     return isDesktop.value ? 'fade' : 'slide'
@@ -29,7 +28,23 @@
 
   const ask = useAsk()
 
-  useScrollLock(() => ask.isOpen.value && fullscreen.value && isDesktop.value)
+  // Register with stack only in mobile modal mode (not desktop floating panel)
+  const stackZIndex = shallowRef<number | undefined>(undefined)
+
+  useToggleScope(() => !isDesktop.value, () => {
+    const ticket = stack.register({
+      onDismiss: () => ask.close(),
+    })
+
+    watch(ask.isOpen, isOpen => {
+      if (isOpen) ticket.select()
+      else ticket.unselect()
+    }, { immediate: true })
+
+    watch(ticket.zIndex, z => {
+      stackZIndex.value = z
+    }, { immediate: true })
+  })
 
   const panelRef = useTemplateRef<InstanceType<typeof DocsAskPanel>>('panel')
   const triggerRef = shallowRef<HTMLElement | null>(null)
@@ -91,15 +106,6 @@
     @submit="onSubmit"
   />
 
-  <!-- Backdrop (mobile only) -->
-  <Transition :name="fadeTransition">
-    <div
-      v-if="ask.isOpen.value && !isDesktop"
-      class="fixed inset-0 bg-black/30 z-40"
-      @click="ask.close"
-    />
-  </Transition>
-
   <!-- Chat panel -->
   <Transition :name="panelTransition">
     <DocsAskPanel
@@ -109,6 +115,7 @@
       :error="ask.error.value"
       :is-loading="ask.isLoading.value"
       :messages="ask.messages.value"
+      :z-index="stackZIndex"
       @clear="ask.clear"
       @close="ask.close"
       @stop="ask.stop"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useDocumentEventListener } from '@vuetify/v0'
+  import { useDocumentEventListener, useStack } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -20,6 +20,17 @@
 
   const search = useSearch()
   const discovery = useDiscovery()
+  const stack = useStack()
+
+  // Register with stack for z-index coordination
+  const ticket = stack.register({
+    onDismiss: () => search.close(),
+  })
+
+  watch(search.isOpen, isOpen => {
+    if (isOpen) ticket.select()
+    else ticket.unselect()
+  }, { immediate: true })
 
   const router = useRouter()
   const inputRef = useTemplateRef<HTMLInputElement>('input')
@@ -141,18 +152,11 @@
   <Transition :name="transition">
     <div
       v-if="search.isOpen.value"
-      class="fixed inset-0 bg-black/30 z-50"
-      @click="search.close"
-    />
-  </Transition>
-
-  <Transition :name="transition">
-    <div
-      v-if="search.isOpen.value"
       aria-label="Search Documentation"
       aria-modal="true"
-      class="fixed inset-x-0 top-[20%] mx-auto w-full max-w-2xl z-50 px-4"
+      class="fixed inset-x-0 top-[20%] mx-auto w-full max-w-2xl px-4"
       role="dialog"
+      :style="{ zIndex: ticket.zIndex.value }"
     >
       <div :class="['rounded-lg shadow-xl border border-divider overflow-hidden', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']">
         <Discovery.Activator

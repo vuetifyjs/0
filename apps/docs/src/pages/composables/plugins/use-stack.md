@@ -62,18 +62,25 @@ The Scrim reads from the same stack context, so its z-index is always coordinate
 Use the `useStack` composable to register an overlay and receive its z-index and position in the stack:
 
 ```ts collapse
-import { shallowRef } from 'vue'
+import { shallowRef, watch } from 'vue'
 import { useStack } from '@vuetify/v0'
 
 const isOpen = shallowRef(false)
 
-const stack = useStack(isOpen, () => {
-  isOpen.value = false
+const stack = useStack()
+const ticket = stack.register({
+  onDismiss: () => { isOpen.value = false }
 })
 
-// stack.styles.value = { zIndex: 2000 } when first overlay
-// stack.styles.value = { zIndex: 2010 } when second overlay
-// stack.globalTop.value = true when this is the topmost overlay
+// Activate when opening, deactivate when closing
+watch(isOpen, open => {
+  if (open) ticket.select()
+  else ticket.unselect()
+})
+
+// ticket.zIndex.value = 2000 when first overlay
+// ticket.zIndex.value = 2010 when second overlay
+// ticket.globalTop.value = true when this is the topmost overlay
 ```
 
 ## Architecture
@@ -119,10 +126,11 @@ graph LR
 
 **Key patterns:**
 
-- `useStack(isActive)` registers overlay when active
-- `globalTop` determines if this overlay should handle escape key
-- `styles` provides the z-index CSS
-- Scrim uses `stack.scrimZIndex` to position below top overlay
+- `stack.register({ onDismiss })` creates a ticket for the overlay
+- `ticket.select()` / `ticket.unselect()` activates/deactivates the overlay
+- `ticket.globalTop` determines if this overlay should handle escape key
+- `ticket.zIndex` provides the z-index value
+- Scrim reads from the stack context to position below the top overlay
 
 Click a button to open an overlay. Open multiple overlays to observe z-index layering.
 
