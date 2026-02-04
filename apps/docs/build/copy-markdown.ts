@@ -21,8 +21,8 @@ export default function copyMarkdownPlugin (): Plugin {
         copyFileSync(file, destPath)
       }
 
-      // Copy SKILL.md from packages/0 to dist root
-      const skillSrc = '../../packages/0/SKILL.md'
+      // Copy SKILL.md from skills/vuetify0 to dist root
+      const skillSrc = '../../skills/vuetify0/SKILL.md'
       const skillDest = join(outDir, 'SKILL.md')
       if (existsSync(skillSrc)) {
         copyFileSync(skillSrc, skillDest)
