@@ -27,7 +27,7 @@
 
   export interface AvatarContext extends SelectionContext<AvatarTicket> {}
 
-  export const [useAvatarRoot, provideAvatarContext] = createContext<AvatarContext>()
+  export const [useAvatarRoot, provideAvatarRoot] = createContext<AvatarContext>()
 </script>
 
 <script setup lang="ts">
@@ -50,7 +50,7 @@
     multiple: false,
   })
 
-  provideAvatarContext(namespace, selection)
+  provideAvatarRoot(namespace, selection)
 </script>
 
 <template>
