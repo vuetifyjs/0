@@ -317,7 +317,7 @@ describe('useSingle', () => {
   })
 
   describe('enroll option', () => {
-    it('should auto-select all non-disabled items with enroll', () => {
+    it('should auto-select last non-disabled item with enroll (single-select)', () => {
       const single = createSingle({ enroll: true })
 
       single.onboard([
@@ -325,10 +325,9 @@ describe('useSingle', () => {
         { id: 'item-2', value: 'value-2' },
       ])
 
-      // Enroll adds all items to selectedIds (inherits from useSelection)
-      expect(single.selectedIds.size).toBe(2)
-      // But selectedId returns the first one
-      expect(single.selectedId.value).toBe('item-1')
+      // Single-select: enroll replaces selection, so only last item is selected
+      expect(single.selectedIds.size).toBe(1)
+      expect(single.selectedId.value).toBe('item-2')
     })
 
     it('should skip disabled items with enroll', () => {
