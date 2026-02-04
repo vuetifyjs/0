@@ -1,7 +1,7 @@
 /**
- * @module useRegistry
+ * @module createRegistry
  *
- * @see https://0.vuetifyjs.com/composables/registration/use-registry
+ * @see https://0.vuetifyjs.com/composables/registration/create-registry
  *
  * @remarks
  * A foundational composable for managing collections of items (tickets) with:
@@ -17,7 +17,7 @@
  */
 
 // Foundational
-import { createContext } from '#v0/composables/createContext'
+import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
@@ -29,7 +29,7 @@ import { shallowReactive } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { ID } from '#v0/types'
+import type { Extensible, ID } from '#v0/types'
 import type { App } from 'vue'
 
 export interface RegistryTicket<V = unknown> {
@@ -51,8 +51,43 @@ export interface RegistryTicket<V = unknown> {
   valueIsIndex: boolean
 }
 
+/** Valid event names for registry operations */
+export type RegistryEventName =
+  | 'register:ticket'
+  | 'unregister:ticket'
+  | 'update:ticket'
+  | 'clear:registry'
+  | 'reindex:registry'
+
+/** Maps event names to their payload types */
+export type RegistryEventMap<Z extends RegistryTicket> = {
+  'register:ticket': Z
+  'unregister:ticket': Z
+  'update:ticket': Z
+  'clear:registry': undefined
+  'reindex:registry': undefined
+}
+
 /** Callback signature for registry event listeners */
-export type RegistryEventCallback = (data: unknown) => void
+export type RegistryEventCallback<
+  Z extends RegistryTicket = RegistryTicket,
+  K extends RegistryEventName = RegistryEventName,
+> = (data: RegistryEventMap<Z>[K]) => void
+
+/** Resolves callback type: typed for known events, unknown for custom events */
+type EventHandler<Z extends RegistryTicket, K extends string> =
+  K extends RegistryEventName
+    ? (data: RegistryEventMap<Z>[K]) => void
+    : (data: unknown) => void
+
+/** Resolves payload type: typed for known events, unknown for custom events */
+type EventPayload<Z extends RegistryTicket, K extends string> =
+  K extends RegistryEventName
+    ? RegistryEventMap<Z>[K]
+    : unknown
+
+/** Internal callback type for event listeners storage */
+type InternalEventCallback = (data: unknown) => void
 
 export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   /**
@@ -150,7 +185,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const unique = registry.browse('unique-value') // ['ticket-3']
    * ```
    */
-  browse: (value: unknown) => ID[] | undefined
+  browse: (value: Z['value']) => ID[] | undefined
   /**
    * lookup a ticket by index number
    *
@@ -377,7 +412,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * registry.register({ id: 'ticket-id' }) // Console: Ticket registered: { id: 'ticket-id', ... }
    * ```
   */
-  on: (event: string, cb: RegistryEventCallback) => void
+  on: <K extends Extensible<RegistryEventName>>(event: K, cb: EventHandler<Z, K>) => void
   /**
    * Stop listening for registry events
    *
@@ -407,7 +442,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * })
    * ```
   */
-  off: (event: string, cb: RegistryEventCallback) => void
+  off: <K extends Extensible<RegistryEventName>>(event: K, cb: EventHandler<Z, K>) => void
   /**
    * Emit an event with data
    *
@@ -430,7 +465,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * registry.emit('custom-event', { message: 'Hello, World!' }) // Console: Custom event received: { message: 'Hello, World!' }
    * ```
   */
-  emit: (event: string, data: unknown) => void
+  emit: <K extends Extensible<RegistryEventName>>(event: K, data: EventPayload<Z, K>) => void
   /**
    * Clears the registry and removes all listeners
    *
@@ -632,7 +667,7 @@ export function createRegistry<
   const catalog = new Map<unknown, ID[]>()
   const directory = new Map<number, ID>()
   const cache = new Map<'keys' | 'values' | 'entries', unknown[]>()
-  const listeners = new Map<string, Set<RegistryEventCallback>>()
+  const listeners = new Map<string, Set<InternalEventCallback>>()
 
   let indexDependentCount = 0
   let needsReindex = false
@@ -647,7 +682,7 @@ export function createRegistry<
     for (const cb of cbs) cb(data)
   }
 
-  function on (event: string, cb: RegistryEventCallback) {
+  function on (event: string, cb: InternalEventCallback) {
     if (!events) {
       logger.warn(`Events are disabled. Initialize with \`createRegistry({ events: true })\` to enable.`)
       return
@@ -657,7 +692,7 @@ export function createRegistry<
     listeners.get(event)!.add(cb)
   }
 
-  function off (event: string, cb: RegistryEventCallback) {
+  function off (event: string, cb: InternalEventCallback) {
     if (!events) {
       logger.warn(`Events are disabled. Initialize with \`createRegistry({ events: true })\` to enable.`)
       return
@@ -723,9 +758,7 @@ export function createRegistry<
   }
 
   function browse (value: unknown) {
-    if (indexDependentCount > 0 && needsReindex) {
-      reindex()
-    }
+    if (needsReindex) reindex()
     return catalog.get(value)
   }
 
@@ -933,7 +966,7 @@ export function createRegistry<
     const willReindex = indexDependentCount > 0 && ticket.index < collection.size
     if (!willReindex) invalidate()
 
-    emit('unregister:ticket', ticket)
+    queueEmit('unregister:ticket', ticket)
 
     minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
     if (willReindex) {
@@ -944,32 +977,32 @@ export function createRegistry<
   }
 
   function offboard (ids: ID[]) {
-    const removed: Z[] = []
+    batch(() => {
+      const removed: Z[] = []
 
-    for (const id of ids) {
-      const ticket = collection.get(id)
-      if (!ticket) continue
+      for (const id of ids) {
+        const ticket = collection.get(id)
+        if (!ticket) continue
 
-      if (ticket.valueIsIndex) {
-        indexDependentCount--
+        if (ticket.valueIsIndex) {
+          indexDependentCount--
+        }
+
+        minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
+        collection.delete(ticket.id)
+        directory.delete(ticket.index)
+        unassign(ticket.value, ticket.id)
+        removed.push(ticket)
       }
 
-      minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
-      collection.delete(ticket.id)
-      directory.delete(ticket.index)
-      unassign(ticket.value, ticket.id)
-      removed.push(ticket)
-    }
+      if (removed.length === 0) return
 
-    if (removed.length === 0) return
+      for (const ticket of removed) {
+        queueEmit('unregister:ticket', ticket)
+      }
 
-    invalidate()
-
-    for (const ticket of removed) {
-      queueEmit('unregister:ticket', ticket)
-    }
-
-    needsReindex = true
+      needsReindex = true
+    })
   }
 
   function seek (
@@ -1079,4 +1112,31 @@ export function createRegistryContext<
   }
 
   return createTrinity<E>(useRegistryContext, provideRegistryContext, context)
+}
+
+/**
+ * Uses an existing registry from context.
+ *
+ * @param namespace The namespace for the registry context. Defaults to `'v0:registry'`.
+ * @template Z The type of registry ticket that extends RegistryTicket.
+ * @template E The type of registry context that extends RegistryContext<Z>.
+ * @returns The registry instance.
+ *
+ * @see https://0.vuetifyjs.com/composables/registration/create-registry#use-registry
+ *
+ * @example
+ * ```ts
+ * import { useRegistry } from '@vuetify/v0'
+ *
+ * // In a child component (after provideRegistry was called by an ancestor):
+ * const registry = useRegistry()
+ *
+ * registry.register({ id: 'item-1', value: 'Value 1' })
+ * ```
+ */
+export function useRegistry<
+  Z extends RegistryTicket = RegistryTicket,
+  E extends RegistryContext<Z> = RegistryContext<Z>,
+> (namespace = 'v0:registry'): E {
+  return useContext<E>(namespace)
 }

@@ -83,6 +83,47 @@ export type DeepPartial<T> = T extends object ? {
 export type MaybeArray<T> = T | T[]
 
 /**
+ * Preserves string literal autocomplete while allowing arbitrary strings
+ *
+ * @template T The string literal union to preserve
+ *
+ * @remarks
+ * TypeScript normally collapses `'a' | 'b' | string` into just `string`,
+ * losing IDE autocomplete for the known values. This type uses the
+ * `string & {}` trick to prevent that collapse.
+ *
+ * Use for extensible APIs where you want autocomplete for known values
+ * but still accept custom strings: event names, theme tokens, CSS classes, etc.
+ *
+ * @example
+ * ```ts
+ * type Color = 'red' | 'blue' | 'green'
+ *
+ * // WITHOUT Extensible - autocomplete lost
+ * type BadColor = Color | string  // collapses to just `string`
+ *
+ * // WITH Extensible - autocomplete preserved
+ * type GoodColor = Extensible<Color>
+ *
+ * function setColor(c: GoodColor) {}
+ * setColor('red')      // autocomplete suggests 'red' | 'blue' | 'green'
+ * setColor('purple')   // also OK - custom value accepted
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Event system with typed + custom events
+ * type KnownEvent = 'click' | 'hover' | 'focus'
+ *
+ * function on<K extends Extensible<KnownEvent>>(event: K, cb: Callback<K>) {}
+ *
+ * on('click', ...)     // autocomplete works
+ * on('custom', ...)    // custom events allowed
+ * ```
+ */
+export type Extensible<T extends string> = T | (string & {})
+
+/**
  * Keyboard activation mode for navigable components
  *
  * @remarks

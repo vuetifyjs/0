@@ -19,6 +19,16 @@ Vue 3 headless UI primitives and composables. Unstyled, logic-focused building b
 | `range(length, start)` | Create sequential number array |
 | `debounce(fn, delay)` | Debounce with `.clear()` and `.immediate()` |
 
+### Use Built-in Types (`#v0/types`)
+
+| Type | Purpose |
+|------|---------|
+| `ID` | Identifier type (`string \| number`) for registry tickets |
+| `Extensible<T>` | Preserves string literal autocomplete while allowing arbitrary strings |
+| `MaybeArray<T>` | Union accepting single value or array (`T \| T[]`) |
+| `DeepPartial<T>` | Recursively makes all properties optional |
+| `Activation` | Keyboard activation mode (`'automatic' \| 'manual'`) |
+
 ### Use Built-in Constants (`#v0/constants/globals`)
 
 | Constant | Purpose |
