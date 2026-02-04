@@ -122,7 +122,7 @@ export function createBreadcrumbs<
     ...singleOptions
   } = _options
 
-  const single = createSingle<Z, E>(singleOptions)
+  const single = createSingle<Z, E>({ ...singleOptions, reactive: true })
 
   // Derived state
   const depth = toRef(() => single.size)
