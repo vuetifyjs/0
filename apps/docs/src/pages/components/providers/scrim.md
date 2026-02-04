@@ -121,17 +121,20 @@ By default, Scrim teleports to `body`. Disable teleport for inline rendering:
 
 ## Custom Stack Context
 
-For isolated overlay systems, provide a custom stack context:
+For isolated overlay systems, create a custom stack and provide it via Vue's injection system:
 
 ```vue
 <script setup lang="ts">
-  import { Scrim, createStackContext } from '@vuetify/v0'
+  import { provide } from 'vue'
+  import { createStack, Scrim } from '@vuetify/v0'
 
-  const customStack = createStackContext()
+  // Create isolated stack (doesn't interfere with global stack)
+  const stack = createStack()
+  provide('v0:stack', stack)
 </script>
 
 <template>
-  <Scrim :stack="customStack" class="fixed inset-0 bg-black/50" />
+  <Scrim class="fixed inset-0 bg-black/50" />
 </template>
 ```
 

@@ -1,19 +1,17 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints } from '@vuetify/v0'
+  import { IN_BROWSER, Scrim, useBreakpoints, useStack } from '@vuetify/v0'
 
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useDiscovery } from '@/composables/useDiscovery'
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
-  import { useNavigation } from '@/composables/useNavigation'
-  import { useScrollLock } from '@/composables/useScrollLock'
   import { useSearch } from '@/composables/useSearch'
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, defineAsyncComponent, toRef, watch } from 'vue'
+  import { computed, defineAsyncComponent, onScopeDispose, toRef, watch } from 'vue'
 
   // Stores
   import { useAppStore } from '@/stores/app'
@@ -33,16 +31,15 @@
   const breakpoints = useBreakpoints()
   const discovery = useDiscovery()
   const ask = useAsk()
-  const navigation = useNavigation()
   const search = useSearch()
   const settings = useSettings()
+  const stack = useStack()
 
   // Force reduced motion during tours so elements don't animate
   watch(() => discovery.isActive.value, active => {
     settings.forceReducedMotion.value = active
   })
 
-  const fadeTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'fade')
   const slideTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'slide')
 
   const isModalOpen = computed(() => {
@@ -52,10 +49,16 @@
     return false
   })
 
-  const isMobileNavOpen = toRef(() => navigation.isOpen.value && !breakpoints.mdAndUp.value)
+  // Unified scroll lock via stack
+  watch(() => stack.isActive.value, active => {
+    if (!IN_BROWSER) return
+    document.body.style.overflow = active ? 'hidden' : ''
+  }, { immediate: true })
 
-  useScrollLock(settings.isOpen)
-  useScrollLock(isMobileNavOpen)
+  onScopeDispose(() => {
+    if (!IN_BROWSER) return
+    document.body.style.overflow = ''
+  })
 </script>
 
 <template>
@@ -79,23 +82,8 @@
 
     <DocsSearch />
 
-    <!-- Mobile nav backdrop -->
-    <Transition :name="fadeTransition">
-      <div
-        v-if="isMobileNavOpen"
-        class="fixed inset-0 bg-black/30 z-9"
-        @click="navigation.close()"
-      />
-    </Transition>
-
-    <!-- Settings backdrop -->
-    <Transition :name="fadeTransition">
-      <div
-        v-if="settings.isOpen.value"
-        class="fixed inset-0 bg-black/30 z-40"
-        @click="settings.close"
-      />
-    </Transition>
+    <!-- Unified scrim for all overlays (teleport disabled to share stacking context) -->
+    <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
 
     <!-- Settings sheet -->
     <Transition :name="slideTransition">

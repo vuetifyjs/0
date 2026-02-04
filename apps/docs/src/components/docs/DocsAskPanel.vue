@@ -24,6 +24,7 @@
     isLoading: boolean
     error: string | null
     fullscreen?: boolean
+    zIndex?: number
   }>()
 
   const emit = defineEmits<{
@@ -146,7 +147,7 @@
     aria-labelledby="ask-title"
     :aria-modal="!isDesktop"
     :class="[
-      'flex flex-col z-50',
+      'flex flex-col',
       settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       isDesktop && fullscreen
         ? 'fixed inset-4 rounded-lg border border-divider shadow-lg'
@@ -155,6 +156,7 @@
           : 'fixed inset-0',
     ]"
     :role="isDesktop ? 'complementary' : 'dialog'"
+    :style="{ zIndex: props.zIndex ?? 50 }"
   >
     <!-- Header -->
     <Discovery.Activator

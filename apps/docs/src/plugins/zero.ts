@@ -1,5 +1,5 @@
 // Framework
-import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
+import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
 import { Vuetify0DateAdapter } from '@vuetify/v0/date'
 
 // Composables
@@ -20,6 +20,7 @@ export default function zero (app: App) {
   app.use(createHydrationPlugin())
   app.use(createBreakpointsPlugin())
   app.use(createStoragePlugin())
+  app.use(createStackPlugin())
   app.use(createDiscoveryPlugin())
   app.use(
     createFeaturesPlugin({

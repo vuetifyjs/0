@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { IN_BROWSER, useClickOutside, useFeatures, useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER, useClickOutside, useFeatures, useStack, useWindowEventListener } from '@vuetify/v0'
 
   // Components
   import { Discovery } from '@/components/discovery'
@@ -24,6 +24,7 @@
 
   const settings = useSettings()
   const devmode = useFeatures().get('devmode')!
+  const stack = useStack()
 
   const app = useAppStore()
   const navigation = useNavigation()
@@ -94,6 +95,16 @@
   onMounted(updateMobile)
   useWindowEventListener('resize', updateMobile, { passive: true })
 
+  // Register with stack for z-index coordination (mobile only)
+  const ticket = stack.register({
+    onDismiss: () => navigation.close(),
+  })
+
+  watch(() => navigation.isOpen.value && isMobile.value, isOpen => {
+    if (isOpen) ticket.select()
+    else ticket.unselect()
+  }, { immediate: true })
+
   // Scroll active link into view after nav sections are ready
   watch(scrollEnabled, enabled => {
     if (!enabled || !IN_BROWSER) return
@@ -137,7 +148,7 @@
     as="nav"
     class="flex flex-col fixed w-[230px] py-4 top-0 md:top-[72px] bottom-0"
     :class="[
-      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 translate-x-[-100%] md:translate-x-0 border-r border-solid border-divider z-50',
+      'flex flex-col fixed w-[230px] overflow-y-auto py-4 top-0 md:top-[72px] bottom-0 translate-x-[-100%] md:translate-x-0 border-r border-solid border-divider',
       settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface',
       navigation.isOpen.value && '!translate-x-0',
       !settings.prefersReducedMotion.value && 'transition-transform duration-200 ease-in-out',
@@ -145,6 +156,7 @@
     :inert="!navigation.isOpen.value && isMobile ? true : undefined"
     :padding="-4"
     step="navigation"
+    :style="{ zIndex: ticket.zIndex.value }"
   >
     <!-- Mobile header -->
     <header class="md:hidden shrink-0 px-4 py-3 -mt-4 mb-4 border-b border-divider flex items-center justify-between bg-surface">

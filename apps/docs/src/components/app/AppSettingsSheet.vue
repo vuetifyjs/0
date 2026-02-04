@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useFeatures, useStorage } from '@vuetify/v0'
+  import { useFeatures, useStack, useStorage } from '@vuetify/v0'
 
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
@@ -14,6 +14,17 @@
   const storage = useStorage()
   const settings = useSettings()
   const levelFilter = useLevelFilterContext()
+  const stack = useStack()
+
+  // Register with stack for z-index coordination
+  const ticket = stack.register({
+    onDismiss: () => settings.close(),
+  })
+
+  watch(settings.isOpen, isOpen => {
+    if (isOpen) ticket.select()
+    else ticket.unselect()
+  }, { immediate: true })
 
   const hasChanges = computed(() => settings.hasChanges.value || levelFilter.hasChanges.value)
 
@@ -57,8 +68,9 @@
     ref="sheet"
     aria-labelledby="settings-title"
     aria-modal="true"
-    :class="['fixed inset-y-0 right-0 flex flex-col z-50 w-[320px] max-w-full shadow-xl outline-none', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
+    :class="['fixed inset-y-0 right-0 flex flex-col w-[320px] max-w-full shadow-xl outline-none', settings.showBgGlass.value ? 'bg-glass-surface' : 'bg-surface']"
     role="dialog"
+    :style="{ zIndex: ticket.zIndex.value }"
     tabindex="-1"
     @keydown="onKeydown"
   >
