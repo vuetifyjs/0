@@ -51,30 +51,39 @@ app.mount('#app')
 
 ## Usage
 
-Once the plugin is installed, use the `useBreakpoints` composable in any component:
+Once the plugin is installed, use the `useBreakpoints` composable in any component. Destructure the properties you need for automatic ref unwrapping in templates:
 
 ```vue UseBreakpoints
 <script setup lang="ts">
   import { useBreakpoints } from '@vuetify/v0'
 
-  const breakpoints = useBreakpoints()
+  const { isMobile, mdAndUp, name, width, height } = useBreakpoints()
+
+  // In script, access .value
+  if (isMobile.value) {
+    console.log('Mobile detected')
+  }
 </script>
 
 <template>
   <div>
-    <nav v-if="breakpoints.mdAndUp">
+    <!-- Destructured refs auto-unwrap in templates -->
+    <nav v-if="mdAndUp">
       <!-- Desktop navigation -->
     </nav>
     <nav v-else>
       <!-- Mobile navigation -->
     </nav>
 
-    <p v-if="breakpoints.isMobile">Mobile layout active</p>
-    <p>Current breakpoint: {{ breakpoints.name }}</p>
-    <p>Viewport: {{ breakpoints.width }} x {{ breakpoints.height }}</p>
+    <p v-if="isMobile">Mobile layout active</p>
+    <p>Current breakpoint: {{ name }}</p>
+    <p>Viewport: {{ width }} x {{ height }}</p>
   </div>
 </template>
 ```
+
+> [!TIP]
+> When using the composable without destructuring, access `.value` in templates: `v-if="breakpoints.isMobile.value"`. Destructuring to top-level variables enables Vue's automatic ref unwrapping.
 
 ## Architecture
 
@@ -93,17 +102,17 @@ flowchart LR
 
 ## Reactivity
 
-All breakpoint properties are reactive and automatically update when the viewport size changes.
+All breakpoint properties are `Readonly<ShallowRef>` and automatically update when the viewport size changes. Use `.value` in script; destructure for template auto-unwrapping.
 
-| Property | Reactive | Notes |
-| - | :-: | - |
-| `name` | <AppSuccessIcon /> | Current breakpoint name |
-| `width` | <AppSuccessIcon /> | Viewport width in pixels |
-| `height` | <AppSuccessIcon /> | Viewport height in pixels |
-| `isMobile` | <AppSuccessIcon /> | Below mobile breakpoint threshold |
-| `xs` / `sm` / `md` / `lg` / `xl` / `xxl` | <AppSuccessIcon /> | Exact breakpoint matches |
-| `smAndUp` / `mdAndUp` / `lgAndUp` / `xlAndUp` / `xxlAndUp` | <AppSuccessIcon /> | At or above breakpoint |
-| `smAndDown` / `mdAndDown` / `lgAndDown` / `xlAndDown` / `xxlAndDown` | <AppSuccessIcon /> | At or below breakpoint |
-| `breakpoints` | <AppErrorIcon /> | Static config object |
+| Property | Type | Notes |
+| - | - | - |
+| `name` | `ShallowRef<BreakpointName>` | Current breakpoint name |
+| `width` | `ShallowRef<number>` | Viewport width in pixels |
+| `height` | `ShallowRef<number>` | Viewport height in pixels |
+| `isMobile` | `ShallowRef<boolean>` | Below mobile breakpoint threshold |
+| `xs` / `sm` / `md` / `lg` / `xl` / `xxl` | `ShallowRef<boolean>` | Exact breakpoint matches |
+| `smAndUp` / `mdAndUp` / etc. | `ShallowRef<boolean>` | At or above breakpoint |
+| `smAndDown` / `mdAndDown` / etc. | `ShallowRef<boolean>` | At or below breakpoint |
+| `breakpoints` | `Record<string, number>` | Static config object (not reactive) |
 
 <DocsApi />

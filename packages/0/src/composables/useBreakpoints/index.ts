@@ -331,13 +331,20 @@ export function createBreakpointsPlugin<
  * <script setup lang="ts">
  *   import { useBreakpoints } from '@vuetify/v0'
  *
+ *   // Destructure for template auto-unwrapping
  *   const { isMobile, mdAndUp } = useBreakpoints()
+ *
+ *   // In script, use .value
+ *   if (isMobile.value) {
+ *     console.log('Mobile detected')
+ *   }
  * </script>
  *
  * <template>
  *   <div class="pa-4">
- *     <p v-if="isMobile.value">Mobile layout active</p>
- *     <p v-else-if="mdAndUp.value">Medium and up layout active</p>
+ *     <!-- Destructured refs auto-unwrap in templates -->
+ *     <p v-if="isMobile">Mobile layout active</p>
+ *     <p v-else-if="mdAndUp">Medium and up layout active</p>
  *   </div>
  * </template>
  * ```
