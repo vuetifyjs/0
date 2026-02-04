@@ -73,4 +73,13 @@ flowchart LR
   hydrate --> isHydrated
 ```
 
+## Reactivity
+
+Hydration state is reactive and updates when the root component mounts.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `isHydrated` | <AppSuccessIcon /> | True after root component mounts |
+| `isSettled` | <AppSuccessIcon /> | True after next tick post-hydration |
+
 <DocsApi />

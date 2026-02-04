@@ -77,4 +77,8 @@ flowchart LR
   Adapter --> output[console/file/etc]
 ```
 
+## Reactivity
+
+The logger uses internal reactive state for level and enabled, but exposes only functions. There are no reactive properties — all interactions are through imperative methods.
+
 <DocsApi />

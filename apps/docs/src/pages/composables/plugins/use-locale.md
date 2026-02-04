@@ -89,4 +89,15 @@ flowchart TD
   Adapter --> useLocale
 ```
 
+## Reactivity
+
+Locale selection is reactive via `createSingle`. Translation methods return static strings.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `selectedId` | <AppSuccessIcon /> | Current locale ID |
+| `selectedItem` | <AppSuccessIcon /> | Current locale ticket |
+| `selectedValue` | <AppSuccessIcon /> | Current locale value |
+| `selectedIndex` | <AppSuccessIcon /> | Index in registry |
+
 <DocsApi />

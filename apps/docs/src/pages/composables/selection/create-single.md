@@ -55,4 +55,19 @@ flowchart TD
   createSelection --> createSingle
 ```
 
+## Reactivity
+
+Single-selection state is **always reactive**. All computed properties update automatically when the selection changes.
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `selectedId` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| `selectedItem` | <AppSuccessIcon /> | Computed from `selectedId` |
+| `selectedValue` | <AppSuccessIcon /> | Computed from `selectedItem` |
+| `selectedIndex` | <AppSuccessIcon /> | Computed from `selectedItem` |
+| ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+
+> [!TIP] Perfect for UI controls
+> `selectedId`, `selectedValue`, and `selectedIndex` work directly in templates without any extra setup.
+
 <DocsApi />

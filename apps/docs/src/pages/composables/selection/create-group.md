@@ -69,4 +69,21 @@ flowchart TD
   createGroup --> selectedIds[selectedIds Set]
 ```
 
+## Reactivity
+
+Group selection state is **always reactive**, including the tri-state `mixedIds` set.
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — always reactive |
+| `mixedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — tracks indeterminate state |
+| `selectedIndexes` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| `isAllSelected` | <AppSuccessIcon /> | Computed from `selectedIds` and collection size |
+| `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
+| ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+
+> [!TIP] Tri-state support
+> `mixedIds` is reactive and updates automatically for indeterminate checkbox states in tree structures.
+
 <DocsApi />

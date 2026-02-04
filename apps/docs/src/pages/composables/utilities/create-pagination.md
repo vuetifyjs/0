@@ -95,4 +95,18 @@ providePagination()
 const pagination = usePagination()
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `page` | <AppSuccessIcon /> | ShallowRef, supports v-model binding |
+| `items` | <AppSuccessIcon /> | Computed, visible page buttons with ellipsis |
+| `pageStart` | <AppSuccessIcon /> | Computed, start index for current page |
+| `pageStop` | <AppSuccessIcon /> | Computed, end index for current page |
+| `isFirst` | <AppSuccessIcon /> | Computed, true when on first page |
+| `isLast` | <AppSuccessIcon /> | Computed, true when on last page |
+
+> [!TIP] v-model support
+> Pass a ref as the `page` option to enable two-way binding with your component's page state.
+
 <DocsApi />

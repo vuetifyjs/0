@@ -57,6 +57,22 @@ import { useForm } from '@vuetify/v0'
 const form = useForm()
 ```
 
+## Reactivity
+
+`createForm` adds **reactive validation state** on top of `createRegistry`. Form-level and field-level state are fully reactive.
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isValid` | <AppSuccessIcon /> | Computed from all fields |
+| `isValidating` | <AppSuccessIcon /> | Computed from all fields |
+| `ticket.value` | <AppSuccessIcon /> | ShallowRef, triggers validation on change |
+| `ticket.errors` | <AppSuccessIcon /> | ShallowRef array |
+| `ticket.isValid` | <AppSuccessIcon /> | ShallowRef (null/true/false) |
+| `ticket.isPristine` | <AppSuccessIcon /> | ShallowRef boolean |
+| `ticket.isValidating` | <AppSuccessIcon /> | ShallowRef boolean |
+| `get(id)` | <AppErrorIcon /> | Returns ticket with reactive refs |
+| `values()` | <AppErrorIcon /> | Use `useProxyRegistry()` for reactive collection |
+
 ## Architecture
 
 `createForm` extends `createRegistry` with validation capabilities:

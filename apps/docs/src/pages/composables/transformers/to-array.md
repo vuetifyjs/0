@@ -43,4 +43,14 @@ flowchart LR
   wrap --> output
 ```
 
+## Reactivity
+
+`toArray` is a **pure transformer function**. It does not track reactivity or return reactive values.
+
+> [!TIP] Use inside computed for reactivity
+> Wrap in `computed()` if you need reactive array normalization:
+```ts
+const items = computed(() => toArray(props.items))
+```
+
 <DocsApi />

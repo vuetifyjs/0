@@ -520,6 +520,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/guide/fundamentals/reactivity': RouteRecordInfo<
+      '/guide/fundamentals/reactivity',
+      '/guide/fundamentals/reactivity',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/fundamentals/styling': RouteRecordInfo<
       '/guide/fundamentals/styling',
       '/guide/fundamentals/styling',
@@ -1096,6 +1103,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/guide/fundamentals/plugins.md': {
       routes:
         | '/guide/fundamentals/plugins'
+      views:
+        | never
+    }
+    'src/pages/guide/fundamentals/reactivity.md': {
+      routes:
+        | '/guide/fundamentals/reactivity'
       views:
         | never
     }

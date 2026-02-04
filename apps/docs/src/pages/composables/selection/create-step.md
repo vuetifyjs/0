@@ -77,4 +77,20 @@ flowchart TD
   createStep --> step
 ```
 
+## Reactivity
+
+Step navigation state is **always reactive**. Navigation guards (`canPrev`, `canNext`) update automatically.
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `selectedId` | <AppSuccessIcon /> | Computed — current step ID |
+| `selectedIndex` | <AppSuccessIcon /> | Computed — current step position |
+| `selectedItem` | <AppSuccessIcon /> | Computed — current step ticket |
+| `selectedValue` | <AppSuccessIcon /> | Computed — current step value |
+| `canPrev` | <AppSuccessIcon /> | Computed — `false` at first step (bounded mode) |
+| `canNext` | <AppSuccessIcon /> | Computed — `false` at last step (bounded mode) |
+
+> [!TIP] Navigation guards
+> Use `canPrev` and `canNext` to disable navigation buttons. They respect the `circular` option automatically.
+
 <DocsApi />

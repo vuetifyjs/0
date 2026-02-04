@@ -51,6 +51,20 @@ flowchart LR
   reactive --> template[Vue template]
 ```
 
+## Reactivity
+
+`useProxyRegistry` returns a **fully reactive object** that syncs with registry events. Use it to expose registry data in Vue templates.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `keys` | <AppSuccessIcon /> | Updates on register/unregister |
+| `values` | <AppSuccessIcon /> | Updates on register/unregister/update |
+| `entries` | <AppSuccessIcon /> | Updates on any ticket change |
+| `size` | <AppSuccessIcon /> | Updates on register/unregister |
+
+> [!TIP] Deep vs shallow
+> Pass `{ deep: true }` for `reactive()`, or omit for `shallowReactive()` (default). Shallow is more performant when ticket internals don't need tracking.
+
 <DocsApi />
 
 ## Frequently Asked Questions

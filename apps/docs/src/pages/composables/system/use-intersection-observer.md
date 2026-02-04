@@ -70,4 +70,20 @@ flowchart TD
   useIntersectionObserver --> Animations["Entrance Animations"]
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isActive` | <AppSuccessIcon /> | Computed from observer ref |
+| `isIntersecting` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+
+### useElementIntersection
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isIntersecting` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `intersectionRatio` | <AppSuccessIcon /> | ShallowRef, readonly (0.0 to 1.0) |
+
 <DocsApi />

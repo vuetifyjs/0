@@ -238,4 +238,14 @@ flowchart TD
   createTokens --> useFeatures
 ```
 
+## Reactivity
+
+Feature flags inherit reactivity from `createGroup`. Selection state is reactive, but lookup methods return static values.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `selectedIds` | <AppSuccessIcon /> | Set of enabled feature IDs |
+| `selectedItems` | <AppSuccessIcon /> | Computed array of enabled features |
+| ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+
 <DocsApi />

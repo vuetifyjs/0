@@ -99,4 +99,16 @@ Click the buttons to add notifications. Click a notification to dismiss it.
 
 :::
 
+## Reactivity
+
+`createContext` is a **factory function** that returns plain functions. It does not introduce reactivity itself—reactivity comes from the values you provide.
+
+| Return | Reactive | Notes |
+| - | :-: | - |
+| `useContext()` | <AppErrorIcon /> | Function, returns injected value |
+| Injected value | <AppSuccessIcon /> | If you provide refs/reactive objects |
+
+> [!TIP] Reactivity is what you provide
+> The context system is a transport layer. If you provide `ref()` or `reactive()` values, consumers get reactive access. Plain objects remain plain.
+
 <DocsApi />

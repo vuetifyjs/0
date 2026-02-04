@@ -52,6 +52,13 @@ console.log(timeline.size) // 3
 /composables/create-timeline/canvas
 :::
 
+## Reactivity
+
+`createTimeline` uses **minimal reactivity** like its parent `createRegistry`. History state is managed internally without reactive primitives.
+
+> [!TIP] Need reactive history?
+> Wrap with `useProxyRegistry(timeline)` for full template reactivity on the active timeline.
+
 ## Architecture
 
 `createTimeline` extends `createRegistry` with bounded history and overflow management:

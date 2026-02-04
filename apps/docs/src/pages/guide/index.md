@@ -53,8 +53,9 @@ For understanding the system architecture.
 | [Core](/guide/fundamentals/core) | Trinity, Context, Registry patterns |
 | [Components](/guide/fundamentals/components) | Component categories, Atom primitive, slot props |
 | [Composables](/guide/fundamentals/composables) | Composables vs components, when to use each |
+| [Reactivity](/guide/fundamentals/reactivity) | Minimal reactivity philosophy, opt-in patterns, performance |
 | [Plugins](/guide/fundamentals/plugins) | Using and creating Vue plugins |
-| [Benchmarks](/guide/fundamentals/benchmarks) | Performance tiers, metrics, minimal reactivity tradeoffs |
+| [Benchmarks](/guide/fundamentals/benchmarks) | Performance tiers, metrics methodology |
 
 ### Track B: Features
 

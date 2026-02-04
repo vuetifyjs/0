@@ -54,4 +54,11 @@ flowchart TD
 
 Each branch extends the base ticket pattern with domain-specific capabilities. See individual composable docs for their extension hierarchies.
 
+## Reactivity
+
+`createRegistry` uses **minimal reactivity by default** for performance. Collection methods are not reactive unless you opt in.
+
+> [!TIP] Need reactive collections?
+> Wrap with `useProxyRegistry(registry)` for full template reactivity, or pass `reactive: true` when creating the registry.
+
 <DocsApi />

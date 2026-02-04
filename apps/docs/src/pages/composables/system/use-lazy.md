@@ -39,6 +39,15 @@ stateDiagram-v2
   Booted --> Idle: reset() / onAfterLeave()
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isBooted` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `hasContent` | <AppSuccessIcon /> | Computed from `isBooted \|\| eager \|\| active` |
+| `active` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter, watched for changes |
+| `eager` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter in options |
+
 <DocsApi />
 
 ## Eager Mode

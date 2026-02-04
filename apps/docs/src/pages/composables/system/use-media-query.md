@@ -43,4 +43,15 @@ flowchart TD
   useMediaQuery --> useBreakpoints
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `matches` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `query` | <AppSuccessIcon /> | Computed, accepts MaybeRefOrGetter |
+| `mediaQueryList` | <AppSuccessIcon /> | ShallowRef, readonly (MediaQueryList or null) |
+
+> [!TIP] Dynamic queries
+> Pass a ref or getter to `useMediaQuery` for dynamic query updates. The composable re-evaluates when the query changes.
+
 <DocsApi />

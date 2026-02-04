@@ -136,4 +136,18 @@ Click a button to open an overlay. Open multiple overlays to observe z-index lay
 
 :::
 
+## Reactivity
+
+Stack state and ticket properties are reactive for automatic UI updates.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `isActive` | <AppSuccessIcon /> | Any overlays selected |
+| `top` | <AppSuccessIcon /> | Topmost overlay ticket |
+| `scrimZIndex` | <AppSuccessIcon /> | Z-index for scrim element |
+| `isBlocking` | <AppSuccessIcon /> | Top overlay blocks dismissal |
+| ticket `zIndex` | <AppSuccessIcon /> | Computed from selection order |
+| ticket `globalTop` | <AppSuccessIcon /> | True if topmost |
+| ticket `isSelected` | <AppSuccessIcon /> | Overlay active state |
+
 <DocsApi />
