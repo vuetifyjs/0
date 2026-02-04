@@ -68,4 +68,16 @@ flowchart LR
   selectedIds -- transformOut --> model
 ```
 
+## Reactivity
+
+`useProxyModel` creates **bidirectional reactive sync** between a ref and a selection registry. It uses Vue watchers internally for automatic propagation.
+
+| Behavior | Reactive | Notes |
+| - | :-: | - |
+| Model → Selection | <AppSuccessIcon /> | Changes to model auto-select items |
+| Selection → Model | <AppSuccessIcon /> | Selection changes update model |
+
+> [!TIP] Automatic cleanup
+> The watchers are disposed automatically via `onScopeDispose`. The returned `stop()` function allows early manual cleanup.
+
 <DocsApi />

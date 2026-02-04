@@ -53,6 +53,27 @@ selection.select('a')
 
 > [!ASKAI] How do I choose between composables and components for my use case?
 
+## Quick Reactivity Note
+
+v0 uses **minimal reactivity** for performance. Unlike Vue's default approach where everything is deeply reactive, v0 only makes reactive what *must* be reactive.
+
+**Selection state is always reactive** — `selectedId`, `selectedIds`, and `isSelected` update your templates automatically. This covers 90% of use cases.
+
+**Registry collections are NOT reactive by default** — methods like `registry.values()` return snapshots. If you need template updates when items change, wrap with `useProxyRegistry()`:
+
+```ts
+// ❌ Won't update template when items change
+const items = registry.values()
+
+// ✅ Reactive — template updates automatically
+const proxy = useProxyRegistry(registry)
+// Use proxy.values in your template
+```
+
+> [!TIP]
+> This is intentional! Most apps only need selection reactivity.
+> For the full picture, see the [Reactivity Guide](/guide/fundamentals/reactivity).
+
 ## Categories
 
 ### Foundation

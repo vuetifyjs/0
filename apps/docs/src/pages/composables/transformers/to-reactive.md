@@ -44,4 +44,21 @@ flowchart LR
   toValue --> unwrapped[plain value]
 ```
 
+## Reactivity
+
+`toReactive` converts a `MaybeRef` into a **fully reactive proxy** with automatic ref unwrapping. This is the primary way to eliminate `.value` syntax.
+
+| Behavior | Reactive | Notes |
+| - | :-: | - |
+| Object access | <AppSuccessIcon /> | Properties are reactive, refs auto-unwrapped |
+| Map operations | <AppSuccessIcon /> | `get`/`set`/`entries` unwrap ref values |
+| Set operations | <AppSuccessIcon /> | Iteration unwraps ref values |
+| Array access | <AppSuccessIcon /> | Index access unwraps nested refs |
+
+> [!TIP] When to use
+> Use `toReactive` when you want to:
+- Eliminate `.value` in templates
+- Pass reactive state to non-Vue code expecting plain objects
+- Create reactive proxies over ref-wrapped collections
+
 <DocsApi />

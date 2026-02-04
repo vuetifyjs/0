@@ -91,4 +91,19 @@ flowchart LR
   viewport --> breakpoint[name/flags]
 ```
 
+## Reactivity
+
+All breakpoint properties are reactive and automatically update when the viewport size changes.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `name` | <AppSuccessIcon /> | Current breakpoint name |
+| `width` | <AppSuccessIcon /> | Viewport width in pixels |
+| `height` | <AppSuccessIcon /> | Viewport height in pixels |
+| `isMobile` | <AppSuccessIcon /> | Below mobile breakpoint threshold |
+| `xs` / `sm` / `md` / `lg` / `xl` / `xxl` | <AppSuccessIcon /> | Exact breakpoint matches |
+| `smAndUp` / `mdAndUp` / `lgAndUp` / `xlAndUp` / `xxlAndUp` | <AppSuccessIcon /> | At or above breakpoint |
+| `smAndDown` / `mdAndDown` / `lgAndDown` / `xlAndDown` / `xxlAndDown` | <AppSuccessIcon /> | At or below breakpoint |
+| `breakpoints` | <AppErrorIcon /> | Static config object |
+
 <DocsApi />

@@ -95,4 +95,17 @@ provideVirtual()
 const virtual = useVirtual()
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `element` | <AppSuccessIcon /> | Ref, assign scroll container |
+| `items` | <AppSuccessIcon /> | Computed, visible items with index |
+| `offset` | <AppSuccessIcon /> | ShallowRef, readonly (top spacer height) |
+| `size` | <AppSuccessIcon /> | ShallowRef, readonly (bottom spacer height) |
+| `state` | <AppSuccessIcon /> | ShallowRef (`'loading'` \| `'empty'` \| `'error'` \| `'ok'`) |
+
+> [!TIP] Source items
+> The `items` ref passed to `createVirtual()` is watched for changes. When items change, the virtual scroller updates automatically.
+
 <DocsApi />

@@ -56,6 +56,13 @@ const features = createTokens({
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
+## Reactivity
+
+`createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
+
+> [!TIP] For reactive theming
+> Use [useTheme](/composables/plugins/use-theme) which builds on `createTokens` with proper reactivity for theme switching.
+
 ## Architecture
 
 `createTokens` extends `createRegistry` and powers token-based systems:

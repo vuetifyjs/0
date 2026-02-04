@@ -29,6 +29,22 @@ The `createNested` composable manages hierarchical tree structures with parent-c
 /composables/create-nested/basic
 :::
 
+## Reactivity
+
+`createNested` uses **shallowReactive** for tree state, making structural changes reactive while keeping traversal methods non-reactive for performance.
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `children` | <AppSuccessIcon /> | ShallowReactive Map |
+| `parents` | <AppSuccessIcon /> | ShallowReactive Map |
+| `openedIds` | <AppSuccessIcon /> | ShallowReactive Set |
+| `openedItems` | <AppSuccessIcon /> | Computed from openedIds |
+| `roots` | <AppSuccessIcon /> | Computed, root nodes |
+| `leaves` | <AppSuccessIcon /> | Computed, leaf nodes |
+| `ticket.isOpen` | <AppSuccessIcon /> | Ref via toRef() |
+| `ticket.isLeaf` | <AppSuccessIcon /> | Ref via toRef() |
+| `ticket.depth` | <AppSuccessIcon /> | Ref via toRef() |
+
 ## Architecture
 
 `createNested` extends `createGroup` with hierarchical tree management:

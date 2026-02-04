@@ -58,6 +58,16 @@ flowchart LR
   apply --> computed[filtered items]
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `query` | <AppSuccessIcon /> | ShallowRef, updated on each `apply()` |
+| `items` (from apply) | <AppSuccessIcon /> | Computed, filters reactively |
+
+> [!TIP] Reactive filtering
+> Both the query and items passed to `apply()` can be reactive. The filtered result automatically updates when either changes.
+
 <DocsApi />
 
 ## Examples

@@ -40,4 +40,11 @@ flowchart TD
   useClickOutside --> Popovers
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isActive` | <AppSuccessIcon /> | Computed from `!isPaused` |
+| `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
+
 <DocsApi />

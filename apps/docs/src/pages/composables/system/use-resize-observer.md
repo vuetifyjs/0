@@ -68,4 +68,19 @@ flowchart TD
   useResizeObserver --> VirtualLists["Virtual Lists"]
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isActive` | <AppSuccessIcon /> | Computed from observer ref |
+| `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+
+### useElementSize
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `width` | <AppSuccessIcon /> | ShallowRef |
+| `height` | <AppSuccessIcon /> | ShallowRef |
+
 <DocsApi />

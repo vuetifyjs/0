@@ -63,4 +63,11 @@ flowchart TD
   useToggleScope --> DebugMode["Debug Mode"]
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isActive` | <AppSuccessIcon /> | Computed from scope ref |
+| `source` | <AppSuccessIcon /> | WatchSource, triggers scope on/off |
+
 <DocsApi />

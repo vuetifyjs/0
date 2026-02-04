@@ -95,4 +95,17 @@ flowchart TD
   Adapter --> CSS[CSS Variables]
 ```
 
+## Reactivity
+
+Theme selection and computed colors are reactive. Switching themes automatically updates CSS variables.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `selectedId` | <AppSuccessIcon /> | Current theme ID |
+| `selectedItem` | <AppSuccessIcon /> | Current theme ticket |
+| `selectedValue` | <AppSuccessIcon /> | Current theme colors |
+| `selectedIndex` | <AppSuccessIcon /> | Index in registry |
+| `colors` | <AppSuccessIcon /> | Resolved colors with aliases |
+| `isDark` | <AppSuccessIcon /> | Current theme is dark |
+
 <DocsApi />

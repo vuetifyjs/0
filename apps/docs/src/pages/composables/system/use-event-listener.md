@@ -73,4 +73,16 @@ flowchart LR
   useEventListener --> Components["Custom Components"]
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `target` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter, watched for changes |
+| `event` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter, watched for changes |
+| `listener` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+| `options` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter, watched for changes |
+
+> [!TIP] Reactive inputs
+> All parameters accept reactive values. When any input changes, listeners are automatically re-registered.
+
 <DocsApi />

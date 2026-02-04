@@ -81,4 +81,12 @@ flowchart TD
   useHotkey --> Components["Command Palette, Shortcuts"]
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isActive` | <AppSuccessIcon /> | Computed from cleanup ref |
+| `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `keys` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter, watched for changes |
+
 <DocsApi />

@@ -46,6 +46,13 @@ queue.pause()
 queue.resume()
 ```
 
+## Reactivity
+
+`createQueue` extends `createRegistry` with **minimal reactivity** for performance. Timeout state is managed internally.
+
+> [!TIP] Need reactive queue items?
+> Wrap with `useProxyRegistry(queue)` for full template reactivity.
+
 ## Architecture
 
 `createQueue` extends `createRegistry` with FIFO ordering and timeout management:

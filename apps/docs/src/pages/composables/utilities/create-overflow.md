@@ -62,4 +62,17 @@ flowchart LR
   capacity --> isOverflowing
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `container` | <AppSuccessIcon /> | ShallowRef, assign element for tracking |
+| `width` | <AppSuccessIcon /> | ShallowRef, readonly (from ResizeObserver) |
+| `capacity` | <AppSuccessIcon /> | Computed from width and measurements |
+| `total` | <AppSuccessIcon /> | Computed, sum of all item widths |
+| `isOverflowing` | <AppSuccessIcon /> | Computed from total vs available width |
+| `gap` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter |
+| `reserved` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter |
+| `itemWidth` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter (uniform mode) |
+
 <DocsApi />

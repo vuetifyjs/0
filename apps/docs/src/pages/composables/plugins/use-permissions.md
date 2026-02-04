@@ -117,4 +117,14 @@ flowchart LR
   condition --> result[boolean]
 ```
 
+## Reactivity
+
+Permissions are stored in a token registry. There are no reactive properties — all interactions are through lookup methods (`can()`, `get()`, `has()`).
+
+> [!TIP] Using with reactive state
+> Wrap `can()` in a computed to react to permission changes:
+```ts
+const canEdit = computed(() => permissions.can(user.role, 'edit', 'post'))
+```
+
 <DocsApi />

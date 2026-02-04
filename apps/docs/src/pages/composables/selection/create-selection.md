@@ -55,4 +55,18 @@ flowchart TD
   createSingle --> createStep
 ```
 
+## Reactivity
+
+Selection state is **always reactive**. Collection methods follow the base `createRegistry` pattern.
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `selectedIds` | <AppSuccessIcon /> | `shallowReactive(Set)` — always reactive |
+| `selectedItems` | <AppSuccessIcon /> | Computed from `selectedIds` |
+| `selectedValues` | <AppSuccessIcon /> | Computed from `selectedItems` |
+| ticket `isSelected` | <AppSuccessIcon /> | Computed from `selectedIds` |
+
+> [!TIP] Selection vs Collection
+> Most UI patterns only need **selection reactivity** (which is always on). You rarely need the collection itself to be reactive.
+
 <DocsApi />

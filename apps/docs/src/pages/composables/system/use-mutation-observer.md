@@ -69,4 +69,12 @@ flowchart TD
   useMutationObserver --> AttributeWatch["Attribute Watching"]
 ```
 
+## Reactivity
+
+| Property/Method | Reactive | Notes |
+| - | :-: | - |
+| `isActive` | <AppSuccessIcon /> | Computed from observer ref |
+| `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
+| `target` | <AppSuccessIcon /> | Accepts MaybeRef, watched for changes |
+
 <DocsApi />

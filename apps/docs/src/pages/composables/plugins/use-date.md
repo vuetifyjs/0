@@ -410,3 +410,12 @@ This is intentional to prevent hydration mismatches. For SSR apps needing curren
    ```
 
 3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline
+
+## Reactivity
+
+The date context provides minimal reactivity, with the adapter being a static instance.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `locale` | <AppSuccessIcon /> | Computed from `useLocale` if available |
+| `adapter` | <AppErrorIcon /> | Static adapter instance |
