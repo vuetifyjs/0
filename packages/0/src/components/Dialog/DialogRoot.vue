@@ -58,7 +58,7 @@
   }>()
 
   defineEmits<{
-    'update:modelValue': [value: boolean]
+    'update:model-value': [value: boolean]
   }>()
 
   const {

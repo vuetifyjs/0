@@ -4,7 +4,7 @@ export { default as ExpansionPanelHeader } from './ExpansionPanelHeader.vue'
 export { provideExpansionPanelItem, useExpansionPanelItem } from './ExpansionPanelItem.vue'
 export { default as ExpansionPanelItem } from './ExpansionPanelItem.vue'
 
-export { provideExpansionPanelSelection, useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
+export { provideExpansionPanelRoot, useExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 export { default as ExpansionPanelRoot } from './ExpansionPanelRoot.vue'
 
 export type { ExpansionPanelActivatorProps, ExpansionPanelActivatorSlotProps } from './ExpansionPanelActivator.vue'

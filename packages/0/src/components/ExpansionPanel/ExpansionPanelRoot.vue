@@ -68,7 +68,7 @@
     toggle: (id: ID) => void
   }
 
-  export const [useExpansionPanelRoot, provideExpansionPanelSelection] = createContext<SelectionContext<SelectionTicket>>()
+  export const [useExpansionPanelRoot, provideExpansionPanelRoot] = createContext<SelectionContext<SelectionTicket>>()
 </script>
 
 /**
@@ -119,7 +119,7 @@
     toggle: selection.toggle,
   }))
 
-  provideExpansionPanelSelection(namespace, selection)
+  provideExpansionPanelRoot(namespace, selection)
 </script>
 
 <template>
