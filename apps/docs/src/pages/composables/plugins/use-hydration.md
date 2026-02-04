@@ -40,18 +40,24 @@ app.mount('#app')
 
 ## Usage
 
-Once the plugin is installed, use the `useHydration` composable in any component:
+Once the plugin is installed, use the `useHydration` composable in any component. Destructure the properties for automatic ref unwrapping in templates:
 
 ```vue UseHydration
 <script setup lang="ts">
   import { useHydration } from '@vuetify/v0'
 
-  const hydration = useHydration()
+  const { isHydrated, isSettled } = useHydration()
+
+  // In script, access .value
+  if (isHydrated.value) {
+    console.log('Hydration complete')
+  }
 </script>
 
 <template>
   <div>
-    <p v-if="hydration.isHydrated.value">
+    <!-- Destructured refs auto-unwrap in templates -->
+    <p v-if="isHydrated">
       Application is hydrated - browser features available
     </p>
     <p v-else>
@@ -75,11 +81,11 @@ flowchart LR
 
 ## Reactivity
 
-Hydration state is reactive and updates when the root component mounts.
+All properties are `Readonly<ShallowRef>` and update when the root component mounts. Use `.value` in script; destructure for template auto-unwrapping.
 
-| Property | Reactive | Notes |
-| - | :-: | - |
-| `isHydrated` | <AppSuccessIcon /> | True after root component mounts |
-| `isSettled` | <AppSuccessIcon /> | True after next tick post-hydration |
+| Property | Type | Notes |
+| - | - | - |
+| `isHydrated` | `ShallowRef<boolean>` | True after root component mounts |
+| `isSettled` | `ShallowRef<boolean>` | True after next tick post-hydration |
 
 <DocsApi />
