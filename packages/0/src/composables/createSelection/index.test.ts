@@ -519,7 +519,7 @@ describe('useSelection', () => {
     })
 
     it('should auto-enroll non-disabled items when enroll is true', () => {
-      const selection = createSelection({ enroll: true })
+      const selection = createSelection({ enroll: true, multiple: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },
@@ -530,6 +530,20 @@ describe('useSelection', () => {
       expect(selection.selectedIds.size).toBe(2)
       expect(selection.selectedIds.has('item-1')).toBe(true)
       expect(selection.selectedIds.has('item-2')).toBe(false)
+      expect(selection.selectedIds.has('item-3')).toBe(true)
+    })
+
+    it('should replace selection on enroll when multiple is false', () => {
+      const selection = createSelection({ enroll: true })
+
+      selection.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+        { id: 'item-3', value: 'value-3' },
+      ])
+
+      // Single-select: only last enrolled item should be selected
+      expect(selection.selectedIds.size).toBe(1)
       expect(selection.selectedIds.has('item-3')).toBe(true)
     })
 
@@ -873,7 +887,7 @@ describe('useSelection', () => {
     })
 
     it('should handle mandatory with enroll', () => {
-      const selection = createSelection({ mandatory: true, enroll: true })
+      const selection = createSelection({ mandatory: true, enroll: true, multiple: true })
 
       selection.onboard([
         { id: 'item-1', value: 'value-1' },

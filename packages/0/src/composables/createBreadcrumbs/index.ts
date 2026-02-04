@@ -122,7 +122,7 @@ export function createBreadcrumbs<
     ...singleOptions
   } = _options
 
-  const single = createSingle<Z, E>({ ...singleOptions, reactive: true })
+  const single = createSingle<Z, E>({ ...singleOptions, reactive: true, enroll: true })
 
   // Derived state
   const depth = toRef(() => single.size)
@@ -211,27 +211,8 @@ export function createBreadcrumbs<
     return [head, ...middle, ...tail]
   })
 
-  // Auto-select last item when registering
-  const originalRegister = single.register.bind(single)
-  function register (ticket?: Partial<Z>): E {
-    const result = originalRegister(ticket)
-    single.select(result.id)
-    return result
-  }
-
-  const originalOnboard = single.onboard.bind(single)
-  function onboard (registrations: Partial<Z>[]): E[] {
-    const results = originalOnboard(registrations)
-    if (results.length > 0) {
-      single.select(results.at(-1)!.id)
-    }
-    return results
-  }
-
   return {
     ...single,
-    register,
-    onboard,
     select,
     first,
     prev,
