@@ -1,4 +1,4 @@
-import { copyFileSync, mkdirSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync } from 'node:fs'
 import { glob } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 
@@ -21,7 +21,15 @@ export default function copyMarkdownPlugin (): Plugin {
         copyFileSync(file, destPath)
       }
 
-      console.log(`[copy-markdown] Copied ${files.length} markdown files`)
+      // Copy SKILL.md from packages/0 to dist root
+      const skillSrc = '../../packages/0/SKILL.md'
+      const skillDest = join(outDir, 'SKILL.md')
+      if (existsSync(skillSrc)) {
+        copyFileSync(skillSrc, skillDest)
+        console.log(`[copy-markdown] Copied ${files.length} markdown files + SKILL.md`)
+      } else {
+        console.log(`[copy-markdown] Copied ${files.length} markdown files (SKILL.md not found)`)
+      }
     },
   }
 }

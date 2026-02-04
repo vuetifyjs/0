@@ -226,6 +226,9 @@ function generateLlmsTxt (pages: PageInfo[]): string {
     lines.push('')
   }
 
+  // AI Resources section
+  lines.push('## AI Resources', '', `- [SKILL.md](${BASE_URL}/SKILL.md): Compact reference with patterns, anti-patterns, and TypeScript types for AI coding assistants`, `- [Vuetify MCP](${BASE_URL}/guide/tooling/vuetify-mcp): Model Context Protocol server for structured API access`, '')
+
   return lines.join('\n')
 }
 

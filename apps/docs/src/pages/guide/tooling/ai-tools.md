@@ -31,37 +31,52 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | - | - | - | - |
 | <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
 | <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
+| <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | ~7KB | Patterns & anti-patterns | Claude Code, Clawdbot skills |
 
 > [!ASKAI] When should I use llms.txt vs llms-full.txt?
 
-## Usage Examples
+## Usage
 
-### ChatGPT / Claude.ai
+Whether you're a developer prompting an AI assistant or an agent consuming v0 documentation programmatically, choose the approach that fits your workflow.
 
-Paste the URL directly in chat:
+::: code-group
 
-```txt
-Read https://0.vuetifyjs.com/llms-full.txt and help me build a multi-select dropdown using v0 composables.
+```md I'm a Human
+**Claude Code / Codex** — Add Vuetify MCP for structured API access:
+> claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
+
+Or fetch docs directly in your session:
+> WebFetch https://0.vuetifyjs.com/llms-full.txt
+
+**Cursor / Windsurf** — Add to .cursorrules or configure MCP:
+> @https://0.vuetifyjs.com/llms.txt
+
+See [Vuetify MCP](/guide/tooling/vuetify-mcp) for IDE configuration.
+
+**ChatGPT / Claude.ai** — Paste the URL in chat:
+> Read https://0.vuetifyjs.com/llms-full.txt and help me build a multi-select dropdown.
 ```
 
-### Cursor / Windsurf
+```md I'm an Agent
+**With MCP (recommended)** — Always-current structured access:
+- `get_vuetify0_skill` — Latest SKILL.md reference
+- `get_vuetify0_composable_list` — Browse all composables
+- `get_vuetify0_composable_guide` — Detailed composable docs
+- `get_vuetify0_component_list` — Browse headless components
+- `get_vuetify0_component_guide` — Component docs and examples
 
-Add to your project's `.cursorrules` or AI context:
+**Without MCP** — Fetch SKILL.md at session start:
+> WebFetch https://0.vuetifyjs.com/SKILL.md
 
-```txt
-@https://0.vuetifyjs.com/llms.txt
+**What's in SKILL.md:**
+- Core composables (useTheme, useLocale, useBreakpoints, etc.)
+- Selection system (useSingle, useGroup, useStep)
+- Component compound patterns (Root/Item pairs)
+- Registry & Trinity patterns
+- Common mistakes to avoid
 ```
 
-### Claude Code
-
-Fetch the documentation in your session:
-
-```txt
-WebFetch https://0.vuetifyjs.com/llms-full.txt
-```
-
-> [!TIP]
-> For the best experience with Claude, use [Vuetify MCP](/guide/tooling/vuetify-mcp) instead. It provides structured API access rather than raw text.
+:::
 
 ## What's Included
 
@@ -73,6 +88,8 @@ WebFetch https://0.vuetifyjs.com/llms-full.txt
 - FAQ and contributing guides
 
 **llms-full.txt** includes the complete content of every documentation page, stripped of Vue components and frontmatter for cleaner LLM consumption.
+
+**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on practical usage patterns, the selection/registry systems, common mistakes, and TypeScript integration — ideal for project-level context files.
 
 ## How It Works
 
