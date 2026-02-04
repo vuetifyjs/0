@@ -6,6 +6,9 @@
  * and common transformations. All exports are tree-shakeable.
  */
 
+// Constants
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Types
 import type { DeepPartial } from '#v0/types'
 
@@ -348,6 +351,10 @@ let idCounter = 0
 export function useId (): string {
   if (instanceExists()) {
     return vueUseId()
+  }
+
+  if (__DEV__ && !IN_BROWSER) {
+    console.warn('[v0 warn] useId() called outside component context during SSR. Provide explicit ID to avoid hydration mismatch.')
   }
 
   return `v0-${idCounter++}`

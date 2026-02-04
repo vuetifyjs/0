@@ -1,7 +1,8 @@
-// Utilities
 import { describe, expect, it, vi } from 'vitest'
 
-// Composables
+// Utilities
+import { isReactive, nextTick, watchEffect } from 'vue'
+
 import { createRegistry, createRegistryContext } from './index'
 
 describe('createRegistry', () => {
@@ -406,6 +407,17 @@ describe('createRegistry', () => {
       warnSpy.mockRestore()
     })
 
+    it('should warn when attempting to remove listener without events enabled', () => {
+      const registry = createRegistry({ events: false })
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      registry.off('register:ticket', vi.fn())
+
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Events are disabled'))
+
+      warnSpy.mockRestore()
+    })
+
     it('should support multiple listeners for same event', () => {
       const registry = createRegistry({ events: true })
       const listener1 = vi.fn()
@@ -566,6 +578,36 @@ describe('createRegistry', () => {
 
       const found2 = registry.seek('first', -100)
       expect(found2?.id).toBe('item-1')
+    })
+
+    it('should seek last from specific index', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'item-1', value: 'a' })
+      registry.register({ id: 'item-2', value: 'b' })
+      registry.register({ id: 'item-3', value: 'c' })
+
+      const found = registry.seek('last', 1)
+      expect(found?.id).toBe('item-2')
+    })
+
+    it('should seek last with predicate from offset', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'item-1', value: 'apple' })
+      registry.register({ id: 'item-2', value: 'banana' })
+      registry.register({ id: 'item-3', value: 'apricot' })
+
+      const found = registry.seek('last', 2, t => (t.value as string).startsWith('a'))
+      expect(found?.id).toBe('item-3')
+    })
+
+    it('should seek last from beginning when from is 0', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'item-1', value: 'a' })
+      registry.register({ id: 'item-2', value: 'b' })
+      registry.register({ id: 'item-3', value: 'c' })
+
+      const found = registry.seek('last', 0)
+      expect(found?.id).toBe('item-1')
     })
   })
 
@@ -868,5 +910,69 @@ describe('createRegistryContext', () => {
 
     expect(context1.size).toBe(1)
     expect(context2.size).toBe(0)
+  })
+})
+
+describe('reactive option', () => {
+  it('should create reactive collection when enabled', () => {
+    const registry = createRegistry({ reactive: true })
+    expect(isReactive(registry.collection)).toBe(true)
+  })
+
+  it('should not create reactive collection when disabled', () => {
+    const registry = createRegistry({ reactive: false })
+    expect(isReactive(registry.collection)).toBe(false)
+  })
+
+  it('should create reactive tickets when enabled', () => {
+    const registry = createRegistry({ reactive: true })
+    const ticket = registry.register({ id: 'test' })
+    expect(isReactive(ticket)).toBe(true)
+  })
+
+  it('should not create reactive tickets when disabled', () => {
+    const registry = createRegistry({ reactive: false })
+    const ticket = registry.register({ id: 'test' })
+    expect(isReactive(ticket)).toBe(false)
+  })
+
+  it('should trigger reactivity on collection changes', async () => {
+    const registry = createRegistry({ reactive: true })
+    const sizes: number[] = []
+
+    watchEffect(() => {
+      sizes.push(registry.collection.size)
+    })
+
+    expect(sizes).toEqual([0])
+
+    registry.register({ id: 'item-1' })
+    await nextTick()
+    expect(sizes).toEqual([0, 1])
+
+    registry.register({ id: 'item-2' })
+    await nextTick()
+    expect(sizes).toEqual([0, 1, 2])
+
+    registry.unregister('item-1')
+    await nextTick()
+    expect(sizes).toEqual([0, 1, 2, 1])
+  })
+
+  it('should trigger reactivity when getting updated ticket from collection', async () => {
+    const registry = createRegistry({ reactive: true })
+    registry.register({ id: 'test', value: 'initial' })
+    const values: unknown[] = []
+
+    watchEffect(() => {
+      const ticket = registry.get('test')
+      values.push(ticket?.value)
+    })
+
+    expect(values).toEqual(['initial'])
+
+    registry.upsert('test', { value: 'updated' })
+    await nextTick()
+    expect(values).toEqual(['initial', 'updated'])
   })
 })
