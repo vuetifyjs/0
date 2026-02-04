@@ -2,98 +2,90 @@
  * @module createBreadcrumbs
  *
  * @remarks
- * Lightweight breadcrumb composable for hierarchical navigation.
+ * Breadcrumb navigation composable built on createSingle.
  *
  * Key features:
- * - No registry overhead - just a path array
- * - Direct ref support for v-model compatibility
- * - Navigation methods: first, prev, select, push, pop
- * - Computed visible items with collapse/ellipsis
+ * - Extends createSingle for consistent registry patterns
+ * - Navigation methods: first, prev, select (with truncation)
+ * - Computed visible tickets with ellipsis collapse
  * - Trinity pattern for dependency injection
  *
- * Unlike registry-based composables, breadcrumbs track a path array
- * making it efficient for deep hierarchies.
+ * Inheritance chain: createRegistry → createSelection → createSingle → createBreadcrumbs
  */
 
 // Foundational
 import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
+// Composables
+import { createSingle } from '#v0/composables/createSingle'
+
 // Utilities
-import { computed, isRef, shallowRef, toValue } from 'vue'
+import { computed, toRef, toValue } from 'vue'
 
 // Types
+import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { ID } from '#v0/types'
+import type { App, ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
-export interface BreadcrumbItem {
-  /** Arbitrary metadata */
-  [key: string]: unknown
-  /** Unique identifier */
-  id: string | number
-  /** Display text */
+/**
+ * Input type for breadcrumb tickets.
+ */
+export interface BreadcrumbTicketInput<V = unknown> extends SingleTicketInput<V> {
+  /** Display text for the breadcrumb */
   text: string
-  /** Optional href for anchor rendering */
-  href?: string
-  /** Optional icon */
-  icon?: string
-  /** Whether item is disabled */
-  disabled?: boolean
 }
 
-export type BreadcrumbTicket =
-  | { type: 'item', value: BreadcrumbItem, index: number }
-  | { type: 'ellipsis', value: string, collapsed: BreadcrumbItem[] }
+/**
+ * Output type for breadcrumb tickets.
+ */
+export type BreadcrumbTicket<Z extends BreadcrumbTicketInput = BreadcrumbTicketInput> = SingleTicket<Z>
 
-export interface BreadcrumbsContext {
-  /** Current path (array of items from root to current) */
-  path: ShallowRef<BreadcrumbItem[]>
-  /** Current depth (0 = empty, 1 = root only) */
-  depth: ComputedRef<number>
-  /** Separator character */
-  separator: string
+/**
+ * Rendered ticket for display (with collapse support).
+ */
+export type BreadcrumbRenderTicket<V = unknown> =
+  | { type: 'crumb', value: BreadcrumbTicket<BreadcrumbTicketInput<V>>, index: number }
+  | { type: 'ellipsis', value: string, collapsed: BreadcrumbTicket<BreadcrumbTicketInput<V>>[] }
+
+/**
+ * Context returned by createBreadcrumbs.
+ */
+export interface BreadcrumbsContext<
+  Z extends BreadcrumbTicketInput = BreadcrumbTicketInput,
+  E extends BreadcrumbTicket<Z> = BreadcrumbTicket<Z>,
+> extends Omit<SingleContext<Z, E>, 'select'> {
+  /** Number of items in the path */
+  depth: Readonly<Ref<number>>
+  /** Whether at root level (depth <= 1) */
+  isRoot: Readonly<Ref<boolean>>
+  /** Whether path is empty (depth === 0) */
+  isEmpty: Readonly<Ref<boolean>>
+  /** Visible tickets with ellipsis for rendering */
+  tickets: ComputedRef<BreadcrumbRenderTicket<Z['value']>[]>
   /** Ellipsis character, or false if disabled */
   ellipsis: string | false
-  /** Visible breadcrumb items for rendering (with collapse support) */
-  items: ComputedRef<BreadcrumbTicket[]>
-  /** Current (last) item in the path */
-  current: ComputedRef<BreadcrumbItem | undefined>
-  /** Parent of current item */
-  parent: ComputedRef<BreadcrumbItem | undefined>
-  /** Root (first) item in the path */
-  root: ComputedRef<BreadcrumbItem | undefined>
-  /** Whether at root level (depth <= 1) */
-  isRoot: ComputedRef<boolean>
-  /** Whether path is empty */
-  isEmpty: ComputedRef<boolean>
-  /** Go to root (keep only first item) */
+  /** Navigate to root (first item) */
   first: () => void
-  /** Go up one level */
+  /** Navigate up one level (remove last item) */
   prev: () => void
-  /** Navigate to specific item by index (truncates path) */
-  select: (index: number) => void
-  /** Push a new item onto the path */
-  push: (item: BreadcrumbItem) => void
-  /** Replace entire path */
-  replace: (items: BreadcrumbItem[]) => void
-  /** Pop the last item and return it */
-  pop: () => BreadcrumbItem | undefined
+  /** Navigate to specific item by id (truncates path) */
+  select: (id: ID) => void
 }
 
-export interface BreadcrumbsOptions {
-  /** Initial path or ref for v-model. @default [] */
-  path?: BreadcrumbItem[] | ShallowRef<BreadcrumbItem[]>
-  /** Maximum visible items before collapsing middle items. @default 0 (no collapse) */
+export interface BreadcrumbsOptions extends SingleOptions {
+  /** Maximum visible items before collapsing. @default Infinity */
   visible?: MaybeRefOrGetter<number>
-  /** Separator character. @default '/' */
-  separator?: string
-  /** Ellipsis character for collapsed items. @default '…' */
+  /** Ellipsis character. @default '…' */
   ellipsis?: string | false
 }
 
-export interface BreadcrumbsContextOptions extends BreadcrumbsOptions {
-  /** Namespace for dependency injection */
-  namespace?: string
+export interface BreadcrumbsContextOptions extends SingleContextOptions {
+  /** Maximum visible items before collapsing. @default Infinity */
+  visible?: MaybeRefOrGetter<number>
+  /** Ellipsis character. @default '…' */
+  ellipsis?: string | false
 }
 
 /**
@@ -106,135 +98,152 @@ export interface BreadcrumbsContextOptions extends BreadcrumbsOptions {
  * ```ts
  * import { createBreadcrumbs } from '@vuetify/v0'
  *
- * // Basic usage
- * const breadcrumbs = createBreadcrumbs({
- *   path: [
- *     { id: 'home', text: 'Home', href: '/' },
- *     { id: 'products', text: 'Products', href: '/products' },
- *   ]
- * })
+ * const breadcrumbs = createBreadcrumbs()
  *
- * breadcrumbs.push({ id: 'phones', text: 'Phones', href: '/products/phones' })
- * breadcrumbs.prev() // Go back to Products
+ * breadcrumbs.register({ text: 'Home' })
+ * breadcrumbs.register({ text: 'Products' })
+ * breadcrumbs.register({ text: 'Electronics' })
  *
- * // With v-model (pass a ref)
- * const path = shallowRef([{ id: 'home', text: 'Home' }])
- * const breadcrumbs = createBreadcrumbs({ path })
- * // Mutating breadcrumbs.path or the passed ref syncs both
+ * breadcrumbs.tickets.value // [{ type: 'crumb', ... }, ...]
+ *
+ * // Navigate back
+ * breadcrumbs.prev() // removes Electronics
+ * breadcrumbs.first() // truncates to Home
  * ```
  */
-export function createBreadcrumbs (_options: BreadcrumbsOptions = {}): BreadcrumbsContext {
+export function createBreadcrumbs<
+  Z extends BreadcrumbTicketInput = BreadcrumbTicketInput,
+  E extends BreadcrumbTicket<Z> = BreadcrumbTicket<Z>,
+  R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
+> (_options: BreadcrumbsOptions = {}): R {
   const {
-    path: _path = [],
-    visible: _visible = 0,
-    separator = '/',
+    visible: _visible = Infinity,
     ellipsis = '…',
+    ...singleOptions
   } = _options
 
-  const path: ShallowRef<BreadcrumbItem[]> = isRef(_path) ? _path : shallowRef(_path)
+  const single = createSingle<Z, E>(singleOptions)
 
-  const depth = computed(() => path.value.length)
-  const isEmpty = computed(() => path.value.length === 0)
-  const isRoot = computed(() => path.value.length <= 1)
+  // Derived state
+  const depth = toRef(() => single.size)
+  const isRoot = toRef(() => depth.value <= 1)
+  const isEmpty = toRef(() => depth.value === 0)
 
-  const current = computed(() => path.value.at(-1))
-  const parent = computed(() => path.value.at(-2))
-  const root = computed(() => path.value.at(0))
+  /**
+   * Select an item and truncate everything after it.
+   */
+  function select (id: ID) {
+    const ticket = single.get(id)
+    if (!ticket) return
 
+    const index = ticket.index
+    const items = single.values()
+
+    // Offboard all items after the selected one
+    const toRemove = items
+      .filter(item => item.index > index)
+      .map(item => item.id)
+
+    if (toRemove.length > 0) {
+      single.offboard(toRemove)
+    }
+
+    single.select(id)
+  }
+
+  /**
+   * Navigate to root (first item).
+   */
   function first () {
-    if (path.value.length > 1) {
-      path.value = path.value.slice(0, 1)
-    }
+    const root = single.seek('first')
+    if (root) select(root.id)
   }
 
+  /**
+   * Navigate up one level (select previous item, removing current).
+   */
   function prev () {
-    if (path.value.length > 1) {
-      path.value = path.value.slice(0, -1)
-    }
+    if (single.size <= 1) return
+
+    const currentIndex = single.selectedIndex.value
+    if (currentIndex <= 0) return
+
+    const prevId = single.lookup(currentIndex - 1)
+    if (prevId) select(prevId)
   }
 
-  function select (index: number) {
-    if (index < 0) {
-      path.value = []
-    } else if (index < path.value.length - 1) {
-      path.value = path.value.slice(0, index + 1)
-    }
-  }
-
-  function push (item: BreadcrumbItem) {
-    path.value = [...path.value, item]
-  }
-
-  function replace (items: BreadcrumbItem[]) {
-    path.value = items
-  }
-
-  function pop (): BreadcrumbItem | undefined {
-    if (path.value.length === 0) return undefined
-    const item = path.value.at(-1)
-    path.value = path.value.slice(0, -1)
-    return item
-  }
-
-  function toItem (item: BreadcrumbItem, index: number): BreadcrumbTicket {
-    return { type: 'item', value: item, index }
-  }
-
-  function toEllipsis (collapsed: BreadcrumbItem[]): BreadcrumbTicket | false {
-    return ellipsis === false ? false : { type: 'ellipsis', value: ellipsis, collapsed }
-  }
-
-  const items = computed<BreadcrumbTicket[]>(() => {
-    const pathValue = path.value
+  /**
+   * Computed tickets for rendering with collapse support.
+   */
+  const tickets = computed<BreadcrumbRenderTicket<Z['value']>[]>(() => {
     const visible = toValue(_visible)
-    const count = pathValue.length
+    const items = single.values()
 
-    // No collapse if visible is 0 or path fits within visible
-    if (visible <= 0 || count <= visible) {
-      return pathValue.map(toItem)
+    if (items.length === 0) return []
+    if (visible <= 0) return []
+    if (visible >= items.length || ellipsis === false) {
+      return items.map((value, index) => ({ type: 'crumb' as const, value, index }))
     }
 
-    // Need at least 3 visible to show: first + ellipsis + last
-    if (visible < 3) {
-      return pathValue.map(toItem)
-    }
+    // Always show first and last, collapse middle
+    // visible=4 with 6 items: [0] [...] [4] [5]
+    // visible=3 with 6 items: [0] [...] [5]
 
-    // Calculate how many items to show at start and end
-    // Always show first item and last (visible - 2) items
-    // Example: visible=4, count=6 → [0, ellipsis, 3, 4, 5]
-    const endCount = visible - 2 // Reserve 1 for first, 1 for ellipsis
-    const startIndex = count - endCount
+    // Calculate how many items to show at the end (excluding first)
+    const tailCount = Math.max(1, visible - 2)
+    const collapseStart = 1
+    const collapseEnd = items.length - tailCount
 
-    const firstItem = toItem(pathValue[0]!, 0)
-    const collapsed = pathValue.slice(1, startIndex)
-    const ellipsisTicket = toEllipsis(collapsed)
-    const endItems = pathValue.slice(startIndex).map((item, i) => toItem(item, startIndex + i))
+    // Build first item
+    const head: BreadcrumbRenderTicket<Z['value']> = { type: 'crumb', value: items[0]!, index: 0 }
 
-    if (ellipsisTicket === false) {
-      return [firstItem, ...endItems]
-    }
+    // Build middle section (ellipsis or nothing)
+    const middle: BreadcrumbRenderTicket<Z['value']>[] = collapseEnd > collapseStart
+      ? [{ type: 'ellipsis', value: ellipsis, collapsed: items.slice(collapseStart, collapseEnd) }]
+      : []
 
-    return [firstItem, ellipsisTicket, ...endItems]
+    // Build tail items
+    const startIndex = Math.max(1, collapseEnd)
+    const tail: BreadcrumbRenderTicket<Z['value']>[] = items
+      .slice(startIndex)
+      .map((value, i) => ({ type: 'crumb' as const, value, index: startIndex + i }))
+
+    return [head, ...middle, ...tail]
   })
 
+  // Auto-select last item when registering
+  const originalRegister = single.register.bind(single)
+  function register (ticket?: Partial<Z>): E {
+    const result = originalRegister(ticket)
+    single.select(result.id)
+    return result
+  }
+
+  const originalOnboard = single.onboard.bind(single)
+  function onboard (registrations: Partial<Z>[]): E[] {
+    const results = originalOnboard(registrations)
+    if (results.length > 0) {
+      single.select(results.at(-1)!.id)
+    }
+    return results
+  }
+
   return {
-    path,
-    depth,
-    separator,
-    ellipsis,
-    items,
-    current,
-    parent,
-    root,
-    isRoot,
-    isEmpty,
+    ...single,
+    register,
+    onboard,
+    select,
     first,
     prev,
-    select,
-    push,
-    replace,
-    pop,
-  }
+    depth,
+    isRoot,
+    isEmpty,
+    tickets,
+    ellipsis,
+    get size () {
+      return single.size
+    },
+  } as R
 }
 
 /**
@@ -245,35 +254,30 @@ export function createBreadcrumbs (_options: BreadcrumbsOptions = {}): Breadcrum
  *
  * @example
  * ```ts
- * // With default namespace 'v0:breadcrumbs'
- * const [useBreadcrumbs, provideBreadcrumbsContext] = createBreadcrumbsContext({
- *   path: [{ id: 'home', text: 'Home' }]
- * })
- *
- * // Or with custom namespace
- * const [useBreadcrumbs, provideBreadcrumbsContext] = createBreadcrumbsContext({
- *   namespace: 'my-breadcrumbs',
- *   path: [{ id: 'home', text: 'Home' }]
- * })
+ * const [useBreadcrumbs, provideBreadcrumbs] = createBreadcrumbsContext()
  *
  * // Parent component
- * provideBreadcrumbsContext()
+ * provideBreadcrumbs()
  *
  * // Child component
  * const breadcrumbs = useBreadcrumbs()
- * breadcrumbs.push({ id: 'page', text: 'Page' })
+ * breadcrumbs.register({ text: 'Details' })
  * ```
  */
-export function createBreadcrumbsContext (_options: BreadcrumbsContextOptions = {}): ContextTrinity<BreadcrumbsContext> {
+export function createBreadcrumbsContext<
+  Z extends BreadcrumbTicketInput = BreadcrumbTicketInput,
+  E extends BreadcrumbTicket<Z> = BreadcrumbTicket<Z>,
+  R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
+> (_options: BreadcrumbsContextOptions = {}): ContextTrinity<R> {
   const { namespace = 'v0:breadcrumbs', ...options } = _options
-  const [useBreadcrumbsContext, _provideBreadcrumbsContext] = createContext<BreadcrumbsContext>(namespace)
-  const context = createBreadcrumbs(options)
+  const [useBreadcrumbsContext, _provideBreadcrumbsContext] = createContext<R>(namespace)
+  const context = createBreadcrumbs<Z, E, R>(options)
 
-  function provideBreadcrumbsContext (_context: BreadcrumbsContext = context, app?: App): BreadcrumbsContext {
+  function provideBreadcrumbsContext (_context: R = context, app?: App): R {
     return _provideBreadcrumbsContext(_context, app)
   }
 
-  return createTrinity<BreadcrumbsContext>(useBreadcrumbsContext, provideBreadcrumbsContext, context)
+  return createTrinity<R>(useBreadcrumbsContext, provideBreadcrumbsContext, context)
 }
 
 /**
@@ -285,29 +289,25 @@ export function createBreadcrumbsContext (_options: BreadcrumbsContextOptions = 
  * @example
  * ```vue
  * <script setup lang="ts">
- * import { useBreadcrumbs } from '@vuetify/v0'
+ *   import { useBreadcrumbs } from '@vuetify/v0'
  *
- * const breadcrumbs = useBreadcrumbs()
+ *   const breadcrumbs = useBreadcrumbs()
  * </script>
  *
  * <template>
- *   <nav aria-label="Breadcrumb">
- *     <ol>
- *       <li v-for="item in breadcrumbs.items.value" :key="item.type === 'item' ? item.value.id : 'ellipsis'">
- *         <template v-if="item.type === 'item'">
- *           <a :href="item.value.href" @click.prevent="breadcrumbs.select(item.index)">
- *             {{ item.value.text }}
- *           </a>
- *         </template>
- *         <template v-else>
- *           <span>{{ item.value }}</span>
- *         </template>
- *       </li>
- *     </ol>
+ *   <nav>
+ *     <template v-for="ticket in breadcrumbs.tickets.value" :key="ticket.type === 'crumb' ? ticket.value.id : 'ellipsis'">
+ *       <span v-if="ticket.type === 'ellipsis'">{{ ticket.value }}</span>
+ *       <a v-else @click="breadcrumbs.select(ticket.value.id)">{{ ticket.value.text }}</a>
+ *     </template>
  *   </nav>
  * </template>
  * ```
  */
-export function useBreadcrumbs (namespace = 'v0:breadcrumbs'): BreadcrumbsContext {
-  return useContext<BreadcrumbsContext>(namespace)
+export function useBreadcrumbs<
+  Z extends BreadcrumbTicketInput = BreadcrumbTicketInput,
+  E extends BreadcrumbTicket<Z> = BreadcrumbTicket<Z>,
+  R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
+> (namespace = 'v0:breadcrumbs'): R {
+  return useContext<R>(namespace)
 }

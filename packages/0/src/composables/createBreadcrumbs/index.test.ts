@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { inject, provide, shallowRef } from 'vue'
-
-// Types
-import type { BreadcrumbItem } from './index'
+import { inject, provide } from 'vue'
 
 import { createBreadcrumbs, createBreadcrumbsContext, useBreadcrumbs } from './index'
 
@@ -20,506 +17,392 @@ vi.mock('vue', async () => {
 const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
-function createPath (...items: Array<{ id: string, text: string }>): BreadcrumbItem[] {
-  return items.map(item => ({ ...item }))
-}
-
 describe('createBreadcrumbs', () => {
-  describe('navigation', () => {
-    describe('first', () => {
-      it('should keep only the root item', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-            { id: 'phones', text: 'Phones' },
-          ),
-        })
+  describe('initialization', () => {
+    it('should create empty by default', () => {
+      const breadcrumbs = createBreadcrumbs()
 
-        breadcrumbs.first()
-
-        expect(breadcrumbs.path.value).toHaveLength(1)
-        expect(breadcrumbs.path.value[0]!.id).toBe('home')
-      })
-
-      it('should do nothing when already at root', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath({ id: 'home', text: 'Home' }),
-        })
-
-        breadcrumbs.first()
-
-        expect(breadcrumbs.path.value).toHaveLength(1)
-      })
-
-      it('should do nothing when path is empty', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
-        breadcrumbs.first()
-
-        expect(breadcrumbs.path.value).toHaveLength(0)
-      })
+      expect(breadcrumbs.size).toBe(0)
+      expect(breadcrumbs.depth.value).toBe(0)
+      expect(breadcrumbs.isEmpty.value).toBe(true)
     })
 
-    describe('prev', () => {
-      it('should remove the last item', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-            { id: 'phones', text: 'Phones' },
-          ),
-        })
+    it('should register items and auto-select last', () => {
+      const breadcrumbs = createBreadcrumbs()
 
-        breadcrumbs.prev()
+      breadcrumbs.register({ text: 'Home' })
 
-        expect(breadcrumbs.path.value).toHaveLength(2)
-        expect(breadcrumbs.current.value?.id).toBe('products')
-      })
-
-      it('should not go below root', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath({ id: 'home', text: 'Home' }),
-        })
-
-        breadcrumbs.prev()
-
-        expect(breadcrumbs.path.value).toHaveLength(1)
-        expect(breadcrumbs.current.value?.id).toBe('home')
-      })
-
-      it('should do nothing when path is empty', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
-        breadcrumbs.prev()
-
-        expect(breadcrumbs.path.value).toHaveLength(0)
-      })
+      expect(breadcrumbs.size).toBe(1)
+      expect(breadcrumbs.depth.value).toBe(1)
+      expect(breadcrumbs.isRoot.value).toBe(true)
+      expect(breadcrumbs.selectedItem.value?.text).toBe('Home')
     })
 
-    describe('select', () => {
-      it('should truncate path to specified index', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-            { id: 'phones', text: 'Phones' },
-            { id: 'iphone', text: 'iPhone' },
-          ),
-        })
+    it('should onboard multiple items and select last', () => {
+      const breadcrumbs = createBreadcrumbs()
 
-        breadcrumbs.select(1)
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+      ])
 
-        expect(breadcrumbs.path.value).toHaveLength(2)
-        expect(breadcrumbs.current.value?.id).toBe('products')
-      })
-
-      it('should do nothing when selecting current item', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-          ),
-        })
-
-        breadcrumbs.select(1)
-
-        expect(breadcrumbs.path.value).toHaveLength(2)
-      })
-
-      it('should clear path when index is negative', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-          ),
-        })
-
-        breadcrumbs.select(-1)
-
-        expect(breadcrumbs.path.value).toHaveLength(0)
-      })
-
-      it('should select root when index is 0', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-            { id: 'phones', text: 'Phones' },
-          ),
-        })
-
-        breadcrumbs.select(0)
-
-        expect(breadcrumbs.path.value).toHaveLength(1)
-        expect(breadcrumbs.current.value?.id).toBe('home')
-      })
-    })
-
-    describe('push', () => {
-      it('should add item to end of path', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath({ id: 'home', text: 'Home' }),
-        })
-
-        breadcrumbs.push({ id: 'products', text: 'Products' })
-
-        expect(breadcrumbs.path.value).toHaveLength(2)
-        expect(breadcrumbs.current.value?.id).toBe('products')
-      })
-
-      it('should work on empty path', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
-        breadcrumbs.push({ id: 'home', text: 'Home' })
-
-        expect(breadcrumbs.path.value).toHaveLength(1)
-        expect(breadcrumbs.current.value?.id).toBe('home')
-      })
-    })
-
-    describe('pop', () => {
-      it('should remove and return the last item', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-          ),
-        })
-
-        const popped = breadcrumbs.pop()
-
-        expect(popped?.id).toBe('products')
-        expect(breadcrumbs.path.value).toHaveLength(1)
-      })
-
-      it('should return undefined on empty path', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
-        const popped = breadcrumbs.pop()
-
-        expect(popped).toBeUndefined()
-      })
-    })
-
-    describe('replace', () => {
-      it('should replace entire path', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath({ id: 'home', text: 'Home' }),
-        })
-
-        breadcrumbs.replace(createPath(
-          { id: 'dashboard', text: 'Dashboard' },
-          { id: 'settings', text: 'Settings' },
-        ))
-
-        expect(breadcrumbs.path.value).toHaveLength(2)
-        expect(breadcrumbs.root.value?.id).toBe('dashboard')
-        expect(breadcrumbs.current.value?.id).toBe('settings')
-      })
+      expect(breadcrumbs.size).toBe(3)
+      expect(breadcrumbs.selectedItem.value?.text).toBe('Electronics')
+      expect(breadcrumbs.selectedIndex.value).toBe(2)
     })
   })
 
-  describe('computed properties', () => {
+  describe('derived state', () => {
     describe('depth', () => {
-      it('should return path length', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-          ),
-        })
+      it('should return size', () => {
+        const breadcrumbs = createBreadcrumbs()
 
-        expect(breadcrumbs.depth.value).toBe(2)
-      })
+        breadcrumbs.onboard([
+          { text: 'A' },
+          { text: 'B' },
+          { text: 'C' },
+        ])
 
-      it('should return 0 for empty path', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
-        expect(breadcrumbs.depth.value).toBe(0)
-      })
-    })
-
-    describe('isEmpty', () => {
-      it('should be true when path is empty', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
-        expect(breadcrumbs.isEmpty.value).toBe(true)
-      })
-
-      it('should be false when path has items', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath({ id: 'home', text: 'Home' }),
-        })
-
-        expect(breadcrumbs.isEmpty.value).toBe(false)
+        expect(breadcrumbs.depth.value).toBe(3)
       })
     })
 
     describe('isRoot', () => {
-      it('should be true when path has only root', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath({ id: 'home', text: 'Home' }),
-        })
+      it('should be true when depth <= 1', () => {
+        const breadcrumbs = createBreadcrumbs()
 
         expect(breadcrumbs.isRoot.value).toBe(true)
-      })
 
-      it('should be true when path is empty', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
+        breadcrumbs.register({ text: 'Home' })
         expect(breadcrumbs.isRoot.value).toBe(true)
-      })
 
-      it('should be false when path has multiple items', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-          ),
-        })
-
+        breadcrumbs.register({ text: 'Products' })
         expect(breadcrumbs.isRoot.value).toBe(false)
       })
     })
 
-    describe('current', () => {
-      it('should return last item', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-          ),
-        })
+    describe('isEmpty', () => {
+      it('should be true when empty', () => {
+        const breadcrumbs = createBreadcrumbs()
 
-        expect(breadcrumbs.current.value?.id).toBe('products')
-      })
+        expect(breadcrumbs.isEmpty.value).toBe(true)
 
-      it('should return undefined for empty path', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
-        expect(breadcrumbs.current.value).toBeUndefined()
-      })
-    })
-
-    describe('parent', () => {
-      it('should return second-to-last item', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-            { id: 'phones', text: 'Phones' },
-          ),
-        })
-
-        expect(breadcrumbs.parent.value?.id).toBe('products')
-      })
-
-      it('should return undefined when at root', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath({ id: 'home', text: 'Home' }),
-        })
-
-        expect(breadcrumbs.parent.value).toBeUndefined()
-      })
-    })
-
-    describe('root', () => {
-      it('should return first item', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-          ),
-        })
-
-        expect(breadcrumbs.root.value?.id).toBe('home')
-      })
-
-      it('should return undefined for empty path', () => {
-        const breadcrumbs = createBreadcrumbs({ path: [] })
-
-        expect(breadcrumbs.root.value).toBeUndefined()
+        breadcrumbs.register({ text: 'Home' })
+        expect(breadcrumbs.isEmpty.value).toBe(false)
       })
     })
   })
 
-  describe('items (visible tickets)', () => {
-    it('should return all items when no collapse', () => {
-      const breadcrumbs = createBreadcrumbs({
-        path: createPath(
-          { id: 'home', text: 'Home' },
-          { id: 'products', text: 'Products' },
-          { id: 'phones', text: 'Phones' },
-        ),
+  describe('navigation', () => {
+    describe('first', () => {
+      it('should truncate to first item', () => {
+        const breadcrumbs = createBreadcrumbs()
+
+        breadcrumbs.onboard([
+          { text: 'Home' },
+          { text: 'Products' },
+          { text: 'Electronics' },
+        ])
+
+        breadcrumbs.first()
+
+        expect(breadcrumbs.size).toBe(1)
+        expect(breadcrumbs.selectedItem.value?.text).toBe('Home')
       })
 
-      expect(breadcrumbs.items.value).toHaveLength(3)
-      expect(breadcrumbs.items.value.every(i => i.type === 'item')).toBe(true)
+      it('should do nothing when at root', () => {
+        const breadcrumbs = createBreadcrumbs()
+
+        breadcrumbs.register({ text: 'Home' })
+
+        breadcrumbs.first()
+
+        expect(breadcrumbs.size).toBe(1)
+      })
+
+      it('should do nothing when empty', () => {
+        const breadcrumbs = createBreadcrumbs()
+
+        breadcrumbs.first()
+
+        expect(breadcrumbs.size).toBe(0)
+      })
     })
 
-    it('should include index in item tickets', () => {
-      const breadcrumbs = createBreadcrumbs({
-        path: createPath(
-          { id: 'home', text: 'Home' },
-          { id: 'products', text: 'Products' },
-        ),
+    describe('prev', () => {
+      it('should remove last item and select previous', () => {
+        const breadcrumbs = createBreadcrumbs()
+
+        breadcrumbs.onboard([
+          { text: 'Home' },
+          { text: 'Products' },
+          { text: 'Electronics' },
+        ])
+
+        breadcrumbs.prev()
+
+        expect(breadcrumbs.size).toBe(2)
+        expect(breadcrumbs.selectedItem.value?.text).toBe('Products')
       })
 
-      const items = breadcrumbs.items.value.filter((i): i is { type: 'item', value: BreadcrumbItem, index: number } => i.type === 'item')
-      expect(items[0]!.index).toBe(0)
-      expect(items[1]!.index).toBe(1)
+      it('should not remove when at root', () => {
+        const breadcrumbs = createBreadcrumbs()
+
+        breadcrumbs.register({ text: 'Home' })
+
+        breadcrumbs.prev()
+
+        expect(breadcrumbs.size).toBe(1)
+      })
     })
 
-    describe('collapse behavior', () => {
-      it('should collapse middle items when visible is set', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-            { id: 'electronics', text: 'Electronics' },
-            { id: 'phones', text: 'Phones' },
-            { id: 'iphone', text: 'iPhone' },
-          ),
-          visible: 4,
-        })
+    describe('select', () => {
+      it('should truncate to selected item by id', () => {
+        const breadcrumbs = createBreadcrumbs()
 
-        const items = breadcrumbs.items.value
+        const items = breadcrumbs.onboard([
+          { text: 'Home' },
+          { text: 'Products' },
+          { text: 'Electronics' },
+          { text: 'Phones' },
+        ])
 
-        expect(items).toHaveLength(4)
-        expect(items[0]!.type).toBe('item')
-        expect((items[0] as { type: 'item', value: BreadcrumbItem }).value.id).toBe('home')
-        expect(items[1]!.type).toBe('ellipsis')
-        expect((items[1] as { type: 'ellipsis', collapsed: BreadcrumbItem[] }).collapsed).toHaveLength(2)
-        expect(items[2]!.type).toBe('item')
-        expect((items[2] as { type: 'item', value: BreadcrumbItem }).value.id).toBe('phones')
-        expect(items[3]!.type).toBe('item')
-        expect((items[3] as { type: 'item', value: BreadcrumbItem }).value.id).toBe('iphone')
+        breadcrumbs.select(items[1]!.id)
+
+        expect(breadcrumbs.size).toBe(2)
+        expect(breadcrumbs.selectedItem.value?.text).toBe('Products')
       })
 
-      it('should not collapse when path fits within visible', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-          ),
-          visible: 4,
-        })
+      it('should do nothing for unknown id', () => {
+        const breadcrumbs = createBreadcrumbs()
 
-        expect(breadcrumbs.items.value).toHaveLength(2)
-        expect(breadcrumbs.items.value.every(i => i.type === 'item')).toBe(true)
+        breadcrumbs.onboard([
+          { text: 'Home' },
+          { text: 'Products' },
+        ])
+
+        breadcrumbs.select('unknown-id')
+
+        expect(breadcrumbs.size).toBe(2)
+      })
+    })
+
+    describe('register', () => {
+      it('should add item and select it', () => {
+        const breadcrumbs = createBreadcrumbs()
+
+        breadcrumbs.register({ text: 'Home' })
+        const product = breadcrumbs.register({ text: 'Products' })
+
+        expect(breadcrumbs.size).toBe(2)
+        expect(breadcrumbs.selectedId.value).toBe(product.id)
       })
 
-      it('should not collapse when visible is 0', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'products', text: 'Products' },
-            { id: 'phones', text: 'Phones' },
-            { id: 'iphone', text: 'iPhone' },
-          ),
-          visible: 0,
-        })
+      it('should return the registered ticket', () => {
+        const breadcrumbs = createBreadcrumbs()
 
-        expect(breadcrumbs.items.value).toHaveLength(4)
+        const ticket = breadcrumbs.register({ text: 'Home' })
+
+        expect(ticket.text).toBe('Home')
+        expect(ticket.id).toBeDefined()
+        expect(ticket.index).toBe(0)
       })
 
-      it('should include collapsed items in ellipsis ticket', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'a', text: 'A' },
-            { id: 'b', text: 'B' },
-            { id: 'c', text: 'C' },
-            { id: 'd', text: 'D' },
-          ),
-          visible: 3,
-        })
+      it('should use provided id', () => {
+        const breadcrumbs = createBreadcrumbs()
 
-        const ellipsis = breadcrumbs.items.value.find((i): i is { type: 'ellipsis', value: string, collapsed: BreadcrumbItem[] } => i.type === 'ellipsis')
+        const ticket = breadcrumbs.register({ id: 'custom-id', text: 'Home' })
 
-        expect(ellipsis).toBeDefined()
-        expect(ellipsis!.collapsed.map(i => i.id)).toEqual(['a', 'b', 'c'])
+        expect(ticket.id).toBe('custom-id')
       })
+    })
 
-      it('should use custom ellipsis character', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'a', text: 'A' },
-            { id: 'b', text: 'B' },
-            { id: 'c', text: 'C' },
-          ),
-          visible: 3,
-          ellipsis: '...',
-        })
+    describe('unregister', () => {
+      it('should remove item by id', () => {
+        const breadcrumbs = createBreadcrumbs()
 
-        const ellipsis = breadcrumbs.items.value.find((i): i is { type: 'ellipsis', value: string, collapsed: BreadcrumbItem[] } => i.type === 'ellipsis')
+        const items = breadcrumbs.onboard([
+          { text: 'Home' },
+          { text: 'Products' },
+        ])
 
-        expect(ellipsis!.value).toBe('...')
+        breadcrumbs.unregister(items[1]!.id)
+
+        expect(breadcrumbs.size).toBe(1)
       })
+    })
 
-      it('should not include ellipsis when ellipsis is false', () => {
-        const breadcrumbs = createBreadcrumbs({
-          path: createPath(
-            { id: 'home', text: 'Home' },
-            { id: 'a', text: 'A' },
-            { id: 'b', text: 'B' },
-            { id: 'c', text: 'C' },
-          ),
-          visible: 3,
-          ellipsis: false,
-        })
+    describe('clear', () => {
+      it('should remove all items', () => {
+        const breadcrumbs = createBreadcrumbs()
 
-        expect(breadcrumbs.items.value.every(i => i.type === 'item')).toBe(true)
+        breadcrumbs.onboard([
+          { text: 'Home' },
+          { text: 'Products' },
+        ])
+
+        breadcrumbs.clear()
+
+        expect(breadcrumbs.size).toBe(0)
+        expect(breadcrumbs.isEmpty.value).toBe(true)
       })
     })
   })
 
-  describe('v-model support', () => {
-    it('should accept a ref for path', () => {
-      const path = shallowRef<BreadcrumbItem[]>([{ id: 'home', text: 'Home' }])
-      const breadcrumbs = createBreadcrumbs({ path })
-
-      breadcrumbs.push({ id: 'products', text: 'Products' })
-
-      expect(path.value).toHaveLength(2)
-      expect(path.value[1]!.id).toBe('products')
-    })
-
-    it('should sync when external ref changes', () => {
-      const path = shallowRef<BreadcrumbItem[]>([{ id: 'home', text: 'Home' }])
-      const breadcrumbs = createBreadcrumbs({ path })
-
-      path.value = [{ id: 'dashboard', text: 'Dashboard' }]
-
-      expect(breadcrumbs.current.value?.id).toBe('dashboard')
-    })
-  })
-
-  describe('options', () => {
-    it('should use default separator', () => {
+  describe('tickets (rendering)', () => {
+    it('should return empty array when empty', () => {
       const breadcrumbs = createBreadcrumbs()
 
-      expect(breadcrumbs.separator).toBe('/')
+      expect(breadcrumbs.tickets.value).toEqual([])
     })
 
-    it('should use custom separator', () => {
-      const breadcrumbs = createBreadcrumbs({ separator: '>' })
-
-      expect(breadcrumbs.separator).toBe('>')
-    })
-
-    it('should use default ellipsis', () => {
+    it('should return all items as crumbs when no collapse needed', () => {
       const breadcrumbs = createBreadcrumbs()
 
-      expect(breadcrumbs.ellipsis).toBe('…')
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+      ])
+
+      expect(breadcrumbs.tickets.value).toHaveLength(2)
+      expect(breadcrumbs.tickets.value[0]!.type).toBe('crumb')
+      expect(breadcrumbs.tickets.value[1]!.type).toBe('crumb')
+
+      if (breadcrumbs.tickets.value[0]!.type === 'crumb') {
+        expect(breadcrumbs.tickets.value[0]!.value.text).toBe('Home')
+        expect(breadcrumbs.tickets.value[0]!.index).toBe(0)
+      }
     })
 
-    it('should allow disabling ellipsis', () => {
-      const breadcrumbs = createBreadcrumbs({ ellipsis: false })
+    it('should collapse middle items when exceeding visible', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 3 })
 
-      expect(breadcrumbs.ellipsis).toBe(false)
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+        { text: 'Phones' },
+        { text: 'iPhone' },
+      ])
+
+      expect(breadcrumbs.tickets.value).toHaveLength(3)
+      expect(breadcrumbs.tickets.value[0]!.type).toBe('crumb')
+      expect(breadcrumbs.tickets.value[1]!.type).toBe('ellipsis')
+      expect(breadcrumbs.tickets.value[2]!.type).toBe('crumb')
+
+      // Check ellipsis contains collapsed items
+      const ellipsis = breadcrumbs.tickets.value[1]!
+      if (ellipsis.type === 'ellipsis') {
+        expect(ellipsis.collapsed).toHaveLength(3)
+        expect(ellipsis.collapsed[0]!.text).toBe('Products')
+        expect(ellipsis.collapsed[1]!.text).toBe('Electronics')
+        expect(ellipsis.collapsed[2]!.text).toBe('Phones')
+      }
+    })
+
+    it('should show more tail items with larger visible', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 4 })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+        { text: 'Phones' },
+        { text: 'iPhone' },
+        { text: 'Cases' },
+      ])
+
+      // visible=4: [Home] [...] [iPhone] [Cases]
+      expect(breadcrumbs.tickets.value).toHaveLength(4)
+      expect(breadcrumbs.tickets.value[0]!.type).toBe('crumb')
+      expect(breadcrumbs.tickets.value[1]!.type).toBe('ellipsis')
+      expect(breadcrumbs.tickets.value[2]!.type).toBe('crumb')
+      expect(breadcrumbs.tickets.value[3]!.type).toBe('crumb')
+
+      if (breadcrumbs.tickets.value[2]!.type === 'crumb') {
+        expect(breadcrumbs.tickets.value[2]!.value.text).toBe('iPhone')
+        expect(breadcrumbs.tickets.value[2]!.index).toBe(4)
+      }
+    })
+
+    it('should return all items when ellipsis is disabled', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 2, ellipsis: false })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+        { text: 'Phones' },
+      ])
+
+      expect(breadcrumbs.tickets.value).toHaveLength(4)
+      expect(breadcrumbs.tickets.value.every(t => t.type === 'crumb')).toBe(true)
+    })
+
+    it('should use custom ellipsis character', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 2, ellipsis: '...' })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+      ])
+
+      const ellipsis = breadcrumbs.tickets.value.find(t => t.type === 'ellipsis')
+      expect(ellipsis?.value).toBe('...')
+    })
+
+    it('should return empty when visible is 0', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 0 })
+
+      breadcrumbs.register({ text: 'Home' })
+
+      expect(breadcrumbs.tickets.value).toEqual([])
+    })
+  })
+
+  describe('inherited registry methods', () => {
+    it('should provide get()', () => {
+      const breadcrumbs = createBreadcrumbs()
+
+      const ticket = breadcrumbs.register({ id: 'home', text: 'Home' })
+
+      expect(breadcrumbs.get('home')).toBe(ticket)
+    })
+
+    it('should provide has()', () => {
+      const breadcrumbs = createBreadcrumbs()
+
+      breadcrumbs.register({ id: 'home', text: 'Home' })
+
+      expect(breadcrumbs.has('home')).toBe(true)
+      expect(breadcrumbs.has('unknown')).toBe(false)
+    })
+
+    it('should provide values()', () => {
+      const breadcrumbs = createBreadcrumbs()
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+      ])
+
+      const values = breadcrumbs.values()
+      expect(values).toHaveLength(2)
+      expect(values[0]!.text).toBe('Home')
+      expect(values[1]!.text).toBe('Products')
+    })
+
+    it('should provide keys()', () => {
+      const breadcrumbs = createBreadcrumbs()
+
+      breadcrumbs.onboard([
+        { id: 'a', text: 'Home' },
+        { id: 'b', text: 'Products' },
+      ])
+
+      expect(breadcrumbs.keys()).toEqual(['a', 'b'])
     })
   })
 })
@@ -529,41 +412,39 @@ describe('createBreadcrumbsContext', () => {
     vi.clearAllMocks()
   })
 
-  it('should create a trinity tuple', () => {
-    const [use, provide, context] = createBreadcrumbsContext()
+  it('should return trinity tuple', () => {
+    const [use, provideCtx, context] = createBreadcrumbsContext()
 
     expect(typeof use).toBe('function')
-    expect(typeof provide).toBe('function')
+    expect(typeof provideCtx).toBe('function')
     expect(context).toBeDefined()
-    expect(context.path).toBeDefined()
+    expect(context.register).toBeDefined()
   })
 
-  it('should use default namespace', () => {
-    const [, provideBreadcrumbsContext, context] = createBreadcrumbsContext()
+  it('should provide context with default namespace', () => {
+    const [, provideBreadcrumbs, context] = createBreadcrumbsContext()
 
-    provideBreadcrumbsContext()
+    provideBreadcrumbs()
 
     expect(mockProvide).toHaveBeenCalledWith('v0:breadcrumbs', context)
   })
 
-  it('should use custom namespace', () => {
-    const [, provideBreadcrumbsContext, context] = createBreadcrumbsContext({
+  it('should provide context with custom namespace', () => {
+    const [, provideBreadcrumbs, context] = createBreadcrumbsContext({
       namespace: 'custom:breadcrumbs',
     })
 
-    provideBreadcrumbsContext()
+    provideBreadcrumbs()
 
     expect(mockProvide).toHaveBeenCalledWith('custom:breadcrumbs', context)
   })
 
   it('should pass options to createBreadcrumbs', () => {
     const [, , context] = createBreadcrumbsContext({
-      path: [{ id: 'home', text: 'Home' }],
-      separator: '>',
+      visible: 3,
     })
 
-    expect(context.path.value).toHaveLength(1)
-    expect(context.separator).toBe('>')
+    expect(context.ellipsis).toBe('…')
   })
 })
 
@@ -572,21 +453,31 @@ describe('useBreadcrumbs', () => {
     vi.clearAllMocks()
   })
 
-  it('should inject with default namespace', () => {
+  it('should inject context with default namespace', () => {
     const mockContext = createBreadcrumbs()
     mockInject.mockReturnValue(mockContext)
 
-    useBreadcrumbs()
+    const result = useBreadcrumbs()
 
     expect(mockInject).toHaveBeenCalledWith('v0:breadcrumbs', undefined)
+    expect(result).toBe(mockContext)
   })
 
-  it('should inject with custom namespace', () => {
+  it('should inject context with custom namespace', () => {
     const mockContext = createBreadcrumbs()
     mockInject.mockReturnValue(mockContext)
 
-    useBreadcrumbs('custom:breadcrumbs')
+    const result = useBreadcrumbs('custom:breadcrumbs')
 
     expect(mockInject).toHaveBeenCalledWith('custom:breadcrumbs', undefined)
+    expect(result).toBe(mockContext)
+  })
+
+  it('should throw when context is not provided', () => {
+    mockInject.mockReturnValue(undefined)
+
+    expect(() => useBreadcrumbs()).toThrow(
+      'Context "v0:breadcrumbs" not found. Ensure it\'s provided by an ancestor.',
+    )
   })
 })
