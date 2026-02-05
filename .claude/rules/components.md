@@ -95,3 +95,24 @@ export * from './SelectionRoot.vue'
 export type { SelectionRootProps, SelectionRootSlotProps } from './SelectionRoot.vue'
 export { default as SelectionRoot } from './SelectionRoot.vue'
 ```
+
+## Z-Index and Layering
+
+When implementing z-index or layering changes:
+
+1. **Verify stacking context** by testing visually in browser
+2. **Overlays must appear above content** they're meant to cover, not behind
+3. **Check parent stacking contexts** — a high z-index inside a low context won't escape
+4. **Document z-index values** used in component comments
+
+**Common issues:**
+- Scrim appearing over dialog content instead of behind
+- Popovers clipped by overflow:hidden parents
+- Multiple overlays fighting for top layer
+
+**Verification checklist for overlay components:**
+- [ ] Overlay covers intended content
+- [ ] Scrim appears behind modal content
+- [ ] Focus trap works correctly
+- [ ] Escape key dismisses in correct order
+- [ ] Nested overlays stack correctly
