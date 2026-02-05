@@ -170,16 +170,21 @@ import { createRegistry } from '@vuetify/v0'
 
 const registry = createRegistry({ reactive: true })
 
-// Now collection access is reactive
-registry.values()  // Triggers reactivity
-registry.size      // Triggers reactivity
+// The collection Map is now shallowReactive
+registry.collection.size  // Reactive
+registry.collection.values()  // Reactive iteration
 ```
 
 ```vue playground
 <script setup>
+  import { computed } from 'vue'
   import { createRegistry } from '@vuetify/v0'
 
   const registry = createRegistry({ reactive: true })
+
+  // Use computed to access reactive collection
+  const items = computed(() => Array.from(registry.collection.values()))
+  const size = computed(() => registry.collection.size)
 
   let count = 0
   function onAdd() {
@@ -192,9 +197,9 @@ registry.size      // Triggers reactivity
 
 <template>
   <button @click="onAdd">Add Item</button>
-  <p>Count: {{ registry.size }}</p>
+  <p>Count: {{ size }}</p>
   <ul>
-    <li v-for="item in registry.values()" :key="item.id">
+    <li v-for="item in items" :key="item.id">
       {{ item.value }}
     </li>
   </ul>
@@ -202,7 +207,7 @@ registry.size      // Triggers reactivity
 ```
 
 > [!TIP]
-> The `reactive` option uses `shallowReactive` internally—top-level changes trigger updates, but nested object mutations won't.
+> The `reactive` option wraps the internal `collection` Map with `shallowReactive`. Access `registry.collection` directly for reactive tracking.
 
 ### Pattern 2: Events
 
