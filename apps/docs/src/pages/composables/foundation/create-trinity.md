@@ -81,15 +81,4 @@ flowchart LR
   C --> Fallback
 ```
 
-## Reactivity
-
-`createTrinity` is a **factory function** that returns a tuple of functions and a default context. It does not introduce reactivity—it structures access to contexts you create.
-
-| Return | Reactive | Notes |
-| - | :-: | - |
-| `defaultContext` | <AppSuccessIcon /> | If the context object contains refs/reactive |
-
-> [!TIP] Trinity is a pattern, not a reactive primitive
-> The trinity pattern organizes your context into a consistent tuple. Reactivity depends on what you put in `defaultContext`.
-
 <DocsApi />

@@ -100,11 +100,4 @@ flowchart LR
   install --> app.runWithContext
 ```
 
-## Reactivity
-
-`createPlugin` is a **factory function** that returns a Vue plugin object. It does not introduce reactivity—it's a vehicle for providing contexts at app level.
-
-> [!TIP] Reactivity lives in what you provide
-> The plugin is just the delivery mechanism. Reactive state comes from the contexts you provide via `provideContext()`.
-
 <DocsApi />
