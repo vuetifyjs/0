@@ -56,9 +56,37 @@ Each branch extends the base ticket pattern with domain-specific capabilities. S
 
 ## Reactivity
 
-`createRegistry` uses **minimal reactivity by default** for performance. Collection methods are not reactive unless you opt in.
+`createRegistry` uses **minimal reactivity by default** for performance. Collection methods (`values()`, `keys()`, `size`) are not reactive unless you opt in.
 
-> [!TIP] Need reactive collections?
-> Wrap with `useProxyRegistry(registry)` for full template reactivity, or pass `reactive: true` when creating the registry.
+### Collection-Level Reactivity
+
+For reactive access to the collection (size, values, keys), wrap with `useProxyRegistry`:
+
+```ts
+import { createRegistry, useProxyRegistry } from '@vuetify/v0'
+
+const registry = createRegistry({ events: true })
+const proxy = useProxyRegistry(registry)
+
+proxy.size    // Reactive
+proxy.values  // Reactive
+proxy.keys    // Reactive
+```
+
+> [!IMPORTANT]
+> `useProxyRegistry` requires `{ events: true }` on the registry.
+
+### Ticket-Level Reactivity
+
+For reactive access to individual ticket properties, use `{ reactive: true }`:
+
+```ts
+const registry = createRegistry({ reactive: true })
+const ticket = registry.register({ id: 'item-1', value: 'Apple' })
+
+ticket.value = 'Orange'  // Will trigger re-renders
+```
+
+See [Reactivity Guide](/guide/fundamentals/reactivity) for detailed patterns and common pitfalls.
 
 <DocsApi />

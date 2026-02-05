@@ -161,53 +161,26 @@ This is intentional. Most UI patterns only need to react to *selection changes*,
 
 When you need reactive collections, v0 provides three patterns.
 
-### Pattern 1: reactive option
+### Pattern 1: useProxyRegistry
 
-Enable reactivity at creation time with `{ reactive: true }`:
+The recommended way to get reactive collection access. Wrap any registry with `useProxyRegistry()`:
 
 ```ts
-import { createRegistry } from '@vuetify/v0'
+import { createRegistry, useProxyRegistry } from '@vuetify/v0'
 
-const registry = createRegistry({ reactive: true })
+const registry = createRegistry({ events: true })
+const proxy = useProxyRegistry(registry)
 
-// The collection Map is now shallowReactive
-registry.collection.size  // Reactive
-registry.collection.values()  // Reactive iteration
+// proxy.size, proxy.values, proxy.keys are all reactive
+proxy.size  // Updates when items register/unregister
 ```
 
-```vue playground
-<script setup>
-  import { computed } from 'vue'
-  import { createRegistry } from '@vuetify/v0'
+::: example
+/guide/fundamentals/reactivity/proxy-registry
+:::
 
-  const registry = createRegistry({ reactive: true })
-
-  // Use computed to access reactive collection
-  const items = computed(() => Array.from(registry.collection.values()))
-  const size = computed(() => registry.collection.size)
-
-  let count = 0
-  function onAdd() {
-    registry.register({
-      id: `item-${count++}`,
-      value: `Item ${count}`,
-    })
-  }
-</script>
-
-<template>
-  <button @click="onAdd">Add Item</button>
-  <p>Count: {{ size }}</p>
-  <ul>
-    <li v-for="item in items" :key="item.id">
-      {{ item.value }}
-    </li>
-  </ul>
-</template>
-```
-
-> [!TIP]
-> The `reactive` option wraps the internal `collection` Map with `shallowReactive`. Access `registry.collection` directly for reactive tracking.
+> [!IMPORTANT]
+> `useProxyRegistry` requires `{ events: true }` on the registry. Without events, the proxy never receives updates and stays stale.
 
 ### Pattern 2: Events
 
@@ -229,125 +202,64 @@ registry.on('unregister:ticket', function (ticket) {
 
 Events are lightweight and precise—you react only to what you care about.
 
-### Pattern 3: useProxyRegistry
+### Pattern 3: reactive option
 
-Wrap any registry for full template reactivity:
+Enable ticket-level reactivity with `{ reactive: true }`:
 
 ```ts
-import { createRegistry, useProxyRegistry } from '@vuetify/v0'
+import { createRegistry } from '@vuetify/v0'
 
-const registry = createRegistry({ events: true })
-const proxy = useProxyRegistry(registry)
+const registry = createRegistry({ reactive: true })
+const ticket = registry.register({ id: 'item-1', value: 'Apple' })
 
-// proxy.values is now reactive
-// proxy.keys is now reactive
-// proxy.size is now reactive
+// Tickets are shallowReactive — mutations trigger reactivity
+ticket.value = 'Orange'  // Will trigger re-renders
 ```
 
-```vue playground
-<script setup>
-  import { createRegistry, useProxyRegistry } from '@vuetify/v0'
-
-  const registry = createRegistry({ events: true })
-  const proxy = useProxyRegistry(registry)
-
-  let count = 0
-  function onAdd() {
-    registry.register({
-      id: `item-${count++}`,
-      value: `Item ${count}`,
-    })
-  }
-</script>
-
-<template>
-  <button @click="onAdd">Add Item</button>
-  <p>Count: {{ proxy.size }}</p>
-  <ul>
-    <li v-for="item in proxy.values" :key="item.id">
-      {{ item.value }}
-    </li>
-  </ul>
-</template>
-```
+::: example
+/guide/fundamentals/reactivity/reactive-tickets
+:::
 
 > [!TIP]
-> `useProxyRegistry` requires `{ events: true }` on the registry. The proxy subscribes to these events to provide reactivity.
+> Use `reactive: true` when you need to watch individual ticket properties. Combine with `useProxyRegistry` for both collection-level and ticket-level reactivity.
 
 ## Common Pitfalls
 
-### Expecting template updates from registry methods
+These interactive examples demonstrate the most common reactivity mistakes. Each shows the ❌ broken pattern and the ✅ fix.
 
-```vue
-<template>
-  <!-- Won't update when items are added/removed! -->
-  <div v-for="item in registry.values()" :key="item.id">
-    {{ item.value }}
-  </div>
-</template>
-```
+### Pitfall 1: Expecting template updates from registry methods
 
-The template renders once with the initial values. Adding items via `registry.register()` won't trigger a re-render because `values()` returns a non-reactive array.
+The template renders once with the initial values. Adding items via `registry.register()` won't trigger a re-render because `values()` returns a non-reactive snapshot.
 
-### Use the proxy for reactive collections
+::: example
+/guide/fundamentals/reactivity/non-reactive
+:::
 
-```vue
-<script setup>
-  import { createRegistry, useProxyRegistry } from '@vuetify/v0'
+**Fix:** Use `useProxyRegistry` for reactive collection access (see Pattern 1 above).
 
-  const registry = createRegistry({ events: true })
-  const proxy = useProxyRegistry(registry)
-</script>
+### Pitfall 2: Using useProxyRegistry without events
 
-<template>
-  <div v-for="item in proxy.values" :key="item.id">
-    {{ item.value }}
-  </div>
-</template>
-```
+`useProxyRegistry` subscribes to `register:ticket` and `unregister:ticket` events. Without `{ events: true }`, those events never fire and the proxy stays stale.
 
-### Watching non-reactive data
+::: example
+/guide/fundamentals/reactivity/footgun-no-events
+:::
 
-```ts
-// This watch will never fire!
-watch(
-  () => registry.values(),
-  values => console.log('Updated:', values)
-)
-```
+### Pitfall 3: Watching registry.size directly
 
-### Use events or proxy for change detection
+`registry.size` is a getter on a plain object — Vue's reactivity system doesn't track it.
 
-```ts
-import { watch } from 'vue'
-import { useProxyRegistry } from '@vuetify/v0'
+::: example
+/guide/fundamentals/reactivity/footgun-watching-size
+:::
 
-// Option 1: Events
-registry.on('register:ticket', function () {
-  console.log('Registry changed')
-})
+### Pitfall 4: Mutating tickets without reactive: true
 
-// Option 2: Watch the proxy
-const proxy = useProxyRegistry(registry)
-watch(
-  () => proxy.values,
-  values => console.log('Updated:', values)
-)
-```
+By default, tickets are plain objects. Direct mutations won't trigger re-renders.
 
-### Using registry.size in computed
-
-```ts
-// Won't update!
-const hasItems = computed(() => registry.size > 0)
-```
-
-### Use proxy.size
-
-```ts
-const proxy = useProxyRegistry(registry)
-const hasItems = computed(() => proxy.size > 0)
-```
+::: example
+/guide/fundamentals/reactivity/footgun-ticket-mutation
+:::
 
 ## Performance Implications
 
@@ -414,6 +326,7 @@ See [Benchmarks](/guide/fundamentals/benchmarks) for detailed measurements and m
 | Selection UI (tabs, lists) | Built-in reactivity <AppSuccessIcon /> |
 | Static lists that rarely change | Non-reactive `values()` |
 | Dynamic lists in templates | `useProxyRegistry` |
+| Watch individual ticket properties | `reactive: true` |
 | Debugging/logging | Events |
 | Large datasets (>1,000 items) | Non-reactive + manual refresh |
 | Real-time updates | Events + targeted updates |
