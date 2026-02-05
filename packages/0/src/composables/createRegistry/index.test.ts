@@ -870,6 +870,71 @@ describe('batch operations', () => {
       expect(registry.size).toBe(2)
     })
   })
+
+  it('should defer user-called emit() during batch', () => {
+    const registry = createRegistry({ events: true })
+    const listener = vi.fn()
+    const callOrder: string[] = []
+
+    registry.on('custom-event', () => {
+      callOrder.push('custom')
+      listener()
+    })
+
+    registry.batch(() => {
+      registry.emit('custom-event', 'payload')
+      callOrder.push('after-emit')
+    })
+    callOrder.push('after-batch')
+
+    expect(listener).toHaveBeenCalledOnce()
+    expect(callOrder).toEqual([
+      'after-emit',
+      'custom',
+      'after-batch',
+    ])
+  })
+
+  it('should defer clear() events during batch', () => {
+    const registry = createRegistry({ events: true })
+    const clearListener = vi.fn()
+
+    registry.register({ id: 'item-1' })
+    registry.register({ id: 'item-2' })
+
+    registry.on('clear:registry', clearListener)
+
+    registry.batch(() => {
+      registry.clear()
+
+      // State is immediately cleared
+      expect(registry.size).toBe(0)
+      // Events not yet emitted
+      expect(clearListener).not.toHaveBeenCalled()
+    })
+
+    // Events emitted after batch completes
+    expect(clearListener).toHaveBeenCalledOnce()
+  })
+
+  it('should update valueIsIndex and catalog on upsert', () => {
+    const registry = createRegistry()
+
+    // Register with no value - valueIsIndex should be true
+    const ticket = registry.register({ id: 'item-1' })
+    expect(ticket.valueIsIndex).toBe(true)
+    expect(ticket.value).toBe(0)
+
+    // Upsert with explicit value - valueIsIndex should become false
+    const updated = registry.upsert('item-1', { value: 'explicit' })
+    expect(updated.valueIsIndex).toBe(false)
+    expect(updated.value).toBe('explicit')
+
+    // Catalog should reflect the new value
+    expect(registry.browse('explicit')).toEqual(['item-1'])
+    // Old index-based value should no longer be in catalog
+    expect(registry.browse(0)).toBeUndefined()
+  })
 })
 
 describe('createRegistryContext', () => {

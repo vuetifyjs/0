@@ -268,7 +268,7 @@ export function createTheme<
 
   const isDark = toRef(() => (registry.selectedItem.value as InternalTicket | undefined)?.dark ?? false)
 
-  function cycle (themes: ID[] = names.value) {
+  function cycle (themes: readonly ID[] = names.value) {
     const current = themes.indexOf(registry.selectedId.value ?? '')
     const next = current === -1 ? 0 : (current + 1) % themes.length
 

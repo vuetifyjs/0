@@ -162,12 +162,12 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const ids = registry.keys() // ['ticket-1', 'ticket-2']
    * ```
    */
-  keys: () => ID[]
+  keys: () => readonly ID[]
   /**
    * Browse for an ID(s) by value
    *
    * @param value The value to browse for.
-   * @remarks Returns a single ID or an array of IDs if multiple tickets share the same value.
+   * @remarks Returns an array of IDs that share the given value, or undefined if no match is found.
    *
    * @see https://0.vuetifyjs.com/composables/registration/use-registry#browse
    *
@@ -268,7 +268,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const values = registry.values() // [{ id: 'ticket-1', ... }, { id: 'ticket-2', ... }]
    * ```
    */
-  values: () => Z[]
+  values: () => readonly Z[]
   /**
    * Get all entries of registered tickets
    *
@@ -288,7 +288,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
    * const entries = registry.entries() // [['ticket-1', { id: 'ticket-1', ... }], ['ticket-2', { id: 'ticket-2', ... }]]
    * ```
   */
-  entries: () => [ID, Z][]
+  entries: () => readonly [ID, Z][]
   /**
    * Register a new ticket
    *
@@ -310,7 +310,7 @@ export interface RegistryContext<Z extends RegistryTicket = RegistryTicket> {
   */
   register: (ticket?: Partial<Z>) => Z
   /**
-   * Unregister an ticket by ID
+   * Unregister a ticket by ID
    *
    * @param id The ID of the ticket to unregister.
    * @remarks Removes the ticket from the registry and reindexes the remaining tickets. This operation invalidates cached results from `keys()`, `values()`, and `entries()`.
@@ -799,9 +799,9 @@ export function createRegistry<
     else catalog.set(value, next)
   }
 
-  function keys () {
+  function keys (): readonly ID[] {
     const cached = cache.get('keys')
-    if (!isUndefined(cached)) return cached as ID[]
+    if (!isUndefined(cached)) return cached as readonly ID[]
 
     const keys = Array.from(collection.keys())
 
@@ -810,9 +810,9 @@ export function createRegistry<
     return keys
   }
 
-  function values () {
+  function values (): readonly Z[] {
     const cached = cache.get('values')
-    if (!isUndefined(cached)) return cached as Z[]
+    if (!isUndefined(cached)) return cached as readonly Z[]
 
     const values = Array.from(collection.values())
 
@@ -821,9 +821,9 @@ export function createRegistry<
     return values
   }
 
-  function entries () {
+  function entries (): readonly [ID, Z][] {
     const cached = cache.get('entries')
-    if (!isUndefined(cached)) return cached as [ID, Z][]
+    if (!isUndefined(cached)) return cached as readonly [ID, Z][]
 
     const entries = Array.from(collection.entries())
 
