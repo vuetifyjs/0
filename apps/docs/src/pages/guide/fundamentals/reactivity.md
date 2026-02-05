@@ -231,7 +231,7 @@ Wrap any registry for full template reactivity:
 ```ts
 import { createRegistry, useProxyRegistry } from '@vuetify/v0'
 
-const registry = createRegistry()
+const registry = createRegistry({ events: true })
 const proxy = useProxyRegistry(registry)
 
 // proxy.values is now reactive
@@ -243,7 +243,7 @@ const proxy = useProxyRegistry(registry)
 <script setup>
   import { createRegistry, useProxyRegistry } from '@vuetify/v0'
 
-  const registry = createRegistry()
+  const registry = createRegistry({ events: true })
   const proxy = useProxyRegistry(registry)
 
   let count = 0
@@ -267,7 +267,7 @@ const proxy = useProxyRegistry(registry)
 ```
 
 > [!TIP]
-> `useProxyRegistry` automatically enables events on the underlying registry. You only pay the reactivity cost when you use the proxy.
+> `useProxyRegistry` requires `{ events: true }` on the registry. The proxy subscribes to these events to provide reactivity.
 
 ## Common Pitfalls
 
@@ -290,7 +290,7 @@ The template renders once with the initial values. Adding items via `registry.re
 <script setup>
   import { createRegistry, useProxyRegistry } from '@vuetify/v0'
 
-  const registry = createRegistry()
+  const registry = createRegistry({ events: true })
   const proxy = useProxyRegistry(registry)
 </script>
 
@@ -456,7 +456,7 @@ When in doubt, check the composable's API reference—each documents its reactiv
 Yes. The proxy wraps the same underlying registry:
 
 ```ts
-const registry = createRegistry()
+const registry = createRegistry({ events: true })
 const proxy = useProxyRegistry(registry)
 
 // Both access the same data
@@ -473,7 +473,7 @@ v0 composables work alongside any state management. If you're storing a registry
 
 ```ts
 // In Pinia store
-const registry = createRegistry()
+const registry = createRegistry({ events: true })
 const proxy = useProxyRegistry(registry)
 
 // Expose proxy for reactive access
