@@ -161,7 +161,50 @@ This is intentional. Most UI patterns only need to react to *selection changes*,
 
 When you need reactive collections, v0 provides three patterns.
 
-### Pattern 1: Events
+### Pattern 1: reactive option
+
+Enable reactivity at creation time with `{ reactive: true }`:
+
+```ts
+import { createRegistry } from '@vuetify/v0'
+
+const registry = createRegistry({ reactive: true })
+
+// Now collection access is reactive
+registry.values()  // Triggers reactivity
+registry.size      // Triggers reactivity
+```
+
+```vue playground
+<script setup>
+  import { createRegistry } from '@vuetify/v0'
+
+  const registry = createRegistry({ reactive: true })
+
+  let count = 0
+  function onAdd() {
+    registry.register({
+      id: `item-${count++}`,
+      value: `Item ${count}`,
+    })
+  }
+</script>
+
+<template>
+  <button @click="onAdd">Add Item</button>
+  <p>Count: {{ registry.size }}</p>
+  <ul>
+    <li v-for="item in registry.values()" :key="item.id">
+      {{ item.value }}
+    </li>
+  </ul>
+</template>
+```
+
+> [!TIP]
+> The `reactive` option uses `shallowReactive` internally—top-level changes trigger updates, but nested object mutations won't.
+
+### Pattern 2: Events
 
 Subscribe to specific changes imperatively:
 
@@ -181,12 +224,12 @@ registry.on('unregister:ticket', function (ticket) {
 
 Events are lightweight and precise—you react only to what you care about.
 
-### Pattern 2: useProxyRegistry
+### Pattern 3: useProxyRegistry
 
 Wrap any registry for full template reactivity:
 
 ```ts
-import { useProxyRegistry } from '@vuetify/v0'
+import { createRegistry, useProxyRegistry } from '@vuetify/v0'
 
 const registry = createRegistry()
 const proxy = useProxyRegistry(registry)
@@ -225,24 +268,6 @@ const proxy = useProxyRegistry(registry)
 
 > [!TIP]
 > `useProxyRegistry` automatically enables events on the underlying registry. You only pay the reactivity cost when you use the proxy.
-
-### Pattern 3: toReactive
-
-Convert a ref's contents to a reactive object for cleaner access:
-
-```ts
-import { ref } from 'vue'
-import { toReactive } from '@vuetify/v0'
-
-const source = ref({ count: 0, name: 'test' })
-const state = toReactive(source)
-
-// Access without .value
-state.count  // 0
-state.name   // 'test'
-```
-
-Useful when you have a ref containing an object and want to avoid `.value` everywhere.
 
 ## Common Pitfalls
 
