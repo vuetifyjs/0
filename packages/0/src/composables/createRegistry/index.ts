@@ -673,13 +673,23 @@ export function createRegistry<
   let needsReindex = false
   let minDirtyIndex = Infinity
   let batching = false
-  let pendingEmits: Array<{ event: string, data: unknown }> = []
+  let batched: Array<{ event: string, data: unknown }> = []
 
-  function emit (event: string, data: unknown = undefined) {
-    if (!events) return
+  function dispatch (event: string, data: unknown) {
     const cbs = listeners.get(event)
     if (!cbs) return
     for (const cb of cbs) cb(data)
+  }
+
+  function emit (event: string, data: unknown = undefined) {
+    if (!events) return
+
+    if (batching) {
+      batched.push({ event, data })
+      return
+    }
+
+    dispatch(event, data)
   }
 
   function on (event: string, cb: InternalEventCallback) {
@@ -838,33 +848,25 @@ export function createRegistry<
     cache.clear()
   }
 
-  function queueEmit (event: string, data: unknown) {
-    if (batching) {
-      pendingEmits.push({ event, data })
-    } else {
-      emit(event, data)
-    }
-  }
-
   function batch<R> (fn: () => R): R {
     if (batching) return fn()
 
     batching = true
-    pendingEmits = []
+    batched = []
 
     try {
       const result = fn()
 
       cache.clear()
 
-      for (const { event, data } of pendingEmits) {
-        emit(event, data)
+      for (const { event, data } of batched) {
+        dispatch(event, data)
       }
 
       return result
     } finally {
       batching = false
-      pendingEmits = []
+      batched = []
     }
   }
 
@@ -945,7 +947,7 @@ export function createRegistry<
 
     assign(ticket.value, ticket.id)
     invalidate()
-    queueEmit('register:ticket', ticket)
+    emit('register:ticket', ticket)
 
     return ticket
   }
@@ -966,7 +968,7 @@ export function createRegistry<
     const willReindex = indexDependentCount > 0 && ticket.index < collection.size
     if (!willReindex) invalidate()
 
-    queueEmit('unregister:ticket', ticket)
+    emit('unregister:ticket', ticket)
 
     minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
     if (willReindex) {
@@ -998,7 +1000,7 @@ export function createRegistry<
       if (removed.length === 0) return
 
       for (const ticket of removed) {
-        queueEmit('unregister:ticket', ticket)
+        emit('unregister:ticket', ticket)
       }
 
       needsReindex = true
