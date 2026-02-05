@@ -673,7 +673,7 @@ export function createRegistry<
   let needsReindex = false
   let minDirtyIndex = Infinity
   let batching = false
-  let pendingEmits: Array<{ event: string, data: unknown }> = []
+  let batched: Array<{ event: string, data: unknown }> = []
 
   function emit (event: string, data: unknown = undefined) {
     if (!events) return
@@ -838,9 +838,9 @@ export function createRegistry<
     cache.clear()
   }
 
-  function queueEmit (event: string, data: unknown) {
+  function dispatch (event: string, data: unknown) {
     if (batching) {
-      pendingEmits.push({ event, data })
+      batched.push({ event, data })
     } else {
       emit(event, data)
     }
@@ -850,21 +850,21 @@ export function createRegistry<
     if (batching) return fn()
 
     batching = true
-    pendingEmits = []
+    batched = []
 
     try {
       const result = fn()
 
       cache.clear()
 
-      for (const { event, data } of pendingEmits) {
+      for (const { event, data } of batched) {
         emit(event, data)
       }
 
       return result
     } finally {
       batching = false
-      pendingEmits = []
+      batched = []
     }
   }
 
@@ -945,7 +945,7 @@ export function createRegistry<
 
     assign(ticket.value, ticket.id)
     invalidate()
-    queueEmit('register:ticket', ticket)
+    dispatch('register:ticket', ticket)
 
     return ticket
   }
@@ -966,7 +966,7 @@ export function createRegistry<
     const willReindex = indexDependentCount > 0 && ticket.index < collection.size
     if (!willReindex) invalidate()
 
-    queueEmit('unregister:ticket', ticket)
+    dispatch('unregister:ticket', ticket)
 
     minDirtyIndex = Math.min(minDirtyIndex, ticket.index)
     if (willReindex) {
@@ -998,7 +998,7 @@ export function createRegistry<
       if (removed.length === 0) return
 
       for (const ticket of removed) {
-        queueEmit('unregister:ticket', ticket)
+        dispatch('unregister:ticket', ticket)
       }
 
       needsReindex = true
