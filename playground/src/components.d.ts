@@ -51,6 +51,7 @@ declare module 'vue' {
     RadioRoot: typeof import('./../../packages/0/src/components/Radio/RadioRoot.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Scrim: typeof import('./../../packages/0/src/components/Scrim/Scrim.vue')['default']
     SelectionItem: typeof import('./../../packages/0/src/components/Selection/SelectionItem.vue')['default']
     SelectionRoot: typeof import('./../../packages/0/src/components/Selection/SelectionRoot.vue')['default']
     SingleItem: typeof import('./../../packages/0/src/components/Single/SingleItem.vue')['default']
