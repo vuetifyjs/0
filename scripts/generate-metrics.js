@@ -176,20 +176,15 @@ function main () {
       metrics[name].benchmarks = {}
 
       for (const group of file.groups || []) {
-        // Find the fastest benchmark in each group (rank 1)
-        const fastest = group.benchmarks?.find(b => b.rank === 1)
-        if (!fastest) continue
-
-        // Use group name as key (e.g., "registration", "lookup operations")
-        const groupName = group.fullName.split(' > ').pop() || 'default'
-
-        metrics[name].benchmarks[groupName] = {
-          name: fastest.name,
-          hz: Math.round(fastest.hz),
-          hzLabel: formatHz(fastest.hz),
-          mean: fastest.mean,
-          meanLabel: formatTime(fastest.mean),
-          rme: Math.round(fastest.rme * 10) / 10,
+        for (const b of group.benchmarks || []) {
+          metrics[name].benchmarks[b.name] = {
+            name: b.name,
+            hz: Math.round(b.hz),
+            hzLabel: formatHz(b.hz),
+            mean: b.mean,
+            meanLabel: formatTime(b.mean),
+            rme: Math.round(b.rme * 10) / 10,
+          }
         }
       }
 
