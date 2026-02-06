@@ -98,6 +98,12 @@ Before writing custom logic, check:
 | Form validation | `createForm` |
 | Shared state (provide/inject) | `createContext` or `createTrinity` |
 | Collection tracking | `createRegistry` |
+| Overflow detection | `createOverflow` |
+| Stacking / z-index layers | `useStack` |
+| Filtering arrays | `createFilter` |
+| Pagination | `createPagination` |
+| Virtual scrolling | `createVirtual` |
+| Proxy model (v-model) | `useProxyModel` |
 | SSR check | `IN_BROWSER` |
 | Type guards | `isString`, `isNumber`, `isObject`, etc. |
 
@@ -248,22 +254,22 @@ registry.ids    // string[]
 
 ### Data Utilities
 
-#### useFilter — Array Filtering
+#### createFilter — Array Filtering
 ```ts
-import { useFilter } from '@vuetify/v0'
+import { createFilter } from '@vuetify/v0'
 
-const { apply } = useFilter({ keys: ['name', 'email'] })
+const { apply } = createFilter({ keys: ['name', 'email'] })
 const query = shallowRef('')
 const users = shallowRef([...])
 
 const filtered = apply(query, users)
 ```
 
-#### usePagination
+#### createPagination — Page Navigation
 ```ts
-import { usePagination } from '@vuetify/v0'
+import { createPagination } from '@vuetify/v0'
 
-const pagination = usePagination({
+const pagination = createPagination({
   page: 1,
   itemsPerPage: 10,
   length: 100
@@ -275,11 +281,11 @@ pagination.first()
 pagination.last()
 ```
 
-#### useVirtual — Virtual Scrolling
+#### createVirtual — Virtual Scrolling
 ```ts
-import { useVirtual } from '@vuetify/v0'
+import { createVirtual } from '@vuetify/v0'
 
-const { virtualItems, totalHeight, scrollTo } = useVirtual({
+const { virtualItems, totalHeight, scrollTo } = createVirtual({
   items: largeList,
   itemHeight: 48
 })
@@ -478,6 +484,7 @@ import { Radio } from '@vuetify/v0'
 | `Pagination` | Page navigation |
 | `Popover` | Toggle overlay (CSS anchor positioning) |
 | `Radio` | Radio buttons with roving tabindex |
+| `Scrim` | Overlay backdrop |
 | `Selection` | Generic selection container |
 | `Single` | Single selection container |
 | `Step` | Stepper/wizard |
@@ -626,20 +633,24 @@ Foundation (no dependencies)
 └── createTrinity    → [use, provide, default] pattern
 
 Registry (uses Foundation)
-└── createRegistry   → Collection management
+├── createRegistry    → Collection management
+└── useProxyRegistry  → External registry proxy
 
 Selection (uses Registry)
-├── createSelection  → Multi-select (base)
-├── createSingle     → Single-select
-├── createGroup      → Multi + tri-state
-├── createStep       → Sequential navigation
-└── createNested     → Hierarchical
+├── createSelection   → Multi-select (base)
+├── createSingle      → Single-select
+├── createGroup       → Multi + tri-state
+├── createStep        → Sequential navigation
+└── createNested      → Hierarchical
 
-Forms (uses Registry)
-├── createForm       → Validation
-├── createTokens     → Design tokens
-├── createQueue      → FIFO with timeout
-└── createTimeline   → Undo/redo
+Data (uses Registry)
+├── createForm        → Validation
+├── createFilter      → Array filtering
+├── createPagination  → Page navigation
+├── createVirtual     → Virtual scrolling
+├── createTokens      → Design tokens
+├── createQueue       → FIFO with timeout
+└── createTimeline    → Undo/redo
 ```
 
 ---
@@ -664,9 +675,14 @@ Forms (uses Registry)
 | Ranges | `range` |
 | DOM observation | `useResizeObserver`, `useIntersectionObserver` |
 | Events | `useEventListener`, `useHotkey`, `useClickOutside` |
-| Filtering | `useFilter` |
-| Pagination | `usePagination` |
-| Virtual lists | `useVirtual` |
+| Filtering | `createFilter` |
+| Pagination | `createPagination` |
+| Virtual lists | `createVirtual` |
+| Overflow | `createOverflow` |
+| Stacking | `useStack` |
+| Storage | `useStorage` |
+| Lazy loading | `useLazy`, `useHydration` |
+| Proxy v-model | `useProxyModel` |
 
 ---
 
