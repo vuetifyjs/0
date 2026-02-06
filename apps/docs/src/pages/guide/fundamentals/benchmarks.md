@@ -178,6 +178,12 @@ By keeping reactivity minimal, v0 composables stay predictable—you know exactl
 Compare [createRegistry](/composables/registration/create-registry) benchmarks with [useProxyRegistry](/composables/reactivity/use-proxy-registry) to see the reactivity overhead. It's worth it when needed, but shouldn't be the default.
 :::
 
+## Explorer
+
+Browse all benchmark results. Filter by composable, performance tier, or search for specific operations.
+
+<BenchmarkExplorer />
+
 ## Contributing Benchmarks
 
 New composables should include benchmarks if they:
