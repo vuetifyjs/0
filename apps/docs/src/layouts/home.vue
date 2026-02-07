@@ -9,7 +9,8 @@
   // Stores
   import { useAppStore } from '@/stores/app'
 
-  // Lazy load modal component (behind user interaction)
+  // Lazy load modal components (behind user interaction)
+  const HomeAskDialog = defineAsyncComponent(() => import('@/components/home/HomeAskDialog.vue'))
   const DocsSearch = defineAsyncComponent(() => import('@/components/docs/DocsSearch.vue'))
 
   const app = useAppStore()
@@ -28,6 +29,7 @@
     <AppHomePage />
     <AppFooter />
 
+    <HomeAskDialog />
     <DocsSearch />
   </div>
 </template>

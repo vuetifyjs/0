@@ -50,6 +50,13 @@ export default defineConfig({
     // Disabled
     'disabled-state': 'opacity-50 cursor-not-allowed',
 
+    // Homepage
+    'text-gradient': '[background:linear-gradient(135deg,var(--v0-on-background)_30%,var(--v0-primary)_70%)] bg-clip-text [-webkit-text-fill-color:transparent]',
+    'text-gradient-accent': '[background:linear-gradient(135deg,var(--v0-primary),var(--v0-accent))] bg-clip-text [-webkit-text-fill-color:transparent]',
+    'section-overline': 'text-xs font-semibold uppercase tracking-widest text-primary',
+    'stat-number': 'text-4xl md:text-5xl font-extrabold tabular-nums',
+    'stat-label': 'text-xs uppercase tracking-widest opacity-50',
+
   },
   safelist: ['max-w-900'],
   preflights: [

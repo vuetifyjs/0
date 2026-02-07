@@ -2,8 +2,13 @@
   // Framework
   import { useLogger } from '@vuetify/v0'
 
+  // Composables
+  import { useAsk } from '@/composables/useAsk'
+
   // Utilities
   import { onMounted, ref } from 'vue'
+
+  const ask = useAsk()
 
   const logger = useLogger()
   const stats = ref({
@@ -40,10 +45,11 @@
 </script>
 
 <template>
-  <section class="home-hero text-center py-16 md:py-24">
+  <section class="home-hero relative text-center py-24 md:py-32 lg:py-40">
+
     <img
       alt="Vuetify0 Logo"
-      class="mx-auto h-[164px] w-auto mb-8"
+      class="relative mx-auto h-[120px] md:h-[164px] w-auto mb-10"
       decoding="async"
       fetchpriority="high"
       height="164"
@@ -51,58 +57,75 @@
       width="189"
     >
 
-    <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-      Headless UI primitives
+    <h1 class="relative text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-none mb-6">
+      The AI-native headless framework
       <br>
-      <span class="text-primary">for Vue</span>
+      <span class="text-gradient">for Vue</span>
     </h1>
 
-    <p class="text-lg md:text-xl opacity-60 max-w-[640px] mx-auto mb-10 leading-relaxed">
-      Unstyled, accessible components and composables for building design systems and modern applications.
+    <p class="relative text-lg md:text-xl opacity-60 max-w-[640px] mx-auto mb-10 leading-relaxed">
+      Composable-first primitives. AI-integrated docs. Published benchmarks. Built by Vuetify.
     </p>
 
-    <div class="grid grid-cols-2 md:flex gap-4 justify-center mb-12">
-      <router-link
-        class="px-8 py-3 bg-primary text-on-primary rounded-lg font-semibold hover:opacity-90 transition-opacity text-lg text-center whitespace-nowrap"
-        to="/introduction/getting-started"
-      >
-        Get Started
-      </router-link>
+    <div class="relative flex flex-col items-center gap-6 mb-16">
+      <div class="grid grid-cols-2 md:flex gap-4 justify-center">
+        <router-link
+          class="home-hero-cta-primary px-8 py-3.5 bg-primary text-on-primary rounded-xl font-semibold text-lg text-center whitespace-nowrap transition-all duration-150"
+          to="/introduction/getting-started"
+        >
+          Get Started
+        </router-link>
 
-      <router-link
-        class="px-8 py-3 bg-surface text-on-surface rounded-lg font-semibold hover:bg-surface-tint transition-colors text-lg border text-center whitespace-nowrap"
-        to="/introduction/why-vuetify0"
-      >
-        Why Vuetify0
-      </router-link>
+        <button
+          class="px-8 py-3.5 bg-surface text-on-surface rounded-xl font-semibold text-lg border text-center whitespace-nowrap hover:bg-surface-tint hover:border-primary transition-all duration-150 inline-flex items-center justify-center gap-2"
+          type="button"
+          @click="ask.open(); ask.focus()"
+        >
+          <AppIcon icon="create" :size="18" />
+          Try Ask AI
+        </button>
+      </div>
+
+      <HomeCopyCommand command="pnpm add @vuetify/v0" />
     </div>
 
-    <router-link
-      class="text-sm opacity-60 hover:opacity-100 hover:text-primary transition-all"
-      to="/introduction/why-vuetify0#quick-comparison"
-    >
-      See how Vuetify0 compares to other libraries →
-    </router-link>
-
-    <div class="grid grid-cols-3 md:flex gap-4 md:gap-12 justify-center text-center mt-12">
+    <div class="relative grid grid-cols-2 md:flex gap-4 md:gap-12 justify-center text-center">
       <div>
-        <div class="text-2xl md:text-3xl font-bold min-w-[4ch]">{{ stats.stars }}</div>
-        <div class="text-sm opacity-60">GitHub Stars</div>
+        <div class="stat-number min-w-[4ch]">{{ stats.stars }}</div>
+        <div class="stat-label">GitHub Stars</div>
       </div>
 
       <div class="hidden md:block w-px bg-divider" />
 
       <div>
-        <div class="text-2xl md:text-3xl font-bold min-w-[4ch]">{{ stats.downloads }}</div>
-        <div class="text-sm opacity-60">Monthly Downloads</div>
+        <div class="stat-number min-w-[4ch]">{{ stats.downloads }}</div>
+        <div class="stat-label">Monthly Downloads</div>
       </div>
 
       <div class="hidden md:block w-px bg-divider" />
 
       <div>
-        <div class="text-2xl md:text-3xl font-bold">40+</div>
-        <div class="text-sm opacity-60">Composables</div>
+        <div class="stat-number">100%</div>
+        <div class="stat-label">TypeScript</div>
+      </div>
+
+      <div class="hidden md:block w-px bg-divider" />
+
+      <div>
+        <div class="stat-number">AI</div>
+        <div class="stat-label">Native</div>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+
+  .home-hero-cta-primary {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--v0-primary) 15%, transparent);
+  }
+
+  .home-hero-cta-primary:hover {
+    box-shadow: 0 0 20px 4px color-mix(in srgb, var(--v0-primary) 15%, transparent);
+  }
+</style>

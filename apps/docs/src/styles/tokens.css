@@ -20,6 +20,48 @@
   --z-dropdown: 200;
   --z-modal: 500;
   --z-overlay: 1000;
+
+  /* Homepage reveal animation */
+  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-reveal: 600ms;
+  --reveal-stagger: 80ms;
+}
+
+/* Scroll reveal animation system */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition:
+    opacity var(--duration-reveal) var(--ease-reveal),
+    transform var(--duration-reveal) var(--ease-reveal);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-reveal-stagger] > * {
+  opacity: 0;
+  transform: translateY(1rem);
+  transition:
+    opacity var(--duration-reveal) var(--ease-reveal),
+    transform var(--duration-reveal) var(--ease-reveal);
+  transition-delay: calc(var(--reveal-index, 0) * var(--reveal-stagger));
+}
+
+[data-reveal-stagger].is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-stagger] > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /**

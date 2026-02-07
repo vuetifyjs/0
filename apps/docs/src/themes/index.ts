@@ -31,7 +31,7 @@ export const themes = {
       'surface': '#ffffff',
       'surface-tint': '#f5f5f5',
       'surface-variant': '#e8e8e8',
-      'divider': '#d0d0d0',
+      'divider': '#e0e0e0',
       'pre': '{light.colors.surface-tint}',
       'on-primary': '#ffffff',
       'on-secondary': '#ffffff',
