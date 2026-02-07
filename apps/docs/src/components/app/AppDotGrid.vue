@@ -2,23 +2,23 @@
   // Utilities
   import { computed } from 'vue'
 
-  const props = withDefaults(defineProps<{
-    /** Where the visible region ends and fade begins (%). Default: 15 */
+  const {
+    coverage = 15,
+    density = 24,
+    origin = 'bottom left',
+  } = defineProps<{
     coverage?: number
-    /** Gap between dots in pixels. Default: 24 */
     density?: number
-  }>(), {
-    coverage: 15,
-    density: 24,
-  })
+    origin?: string
+  }>()
 
   const maskStyle = computed(() => {
-    const fadeEnd = props.coverage + 20
-    const gradient = `radial-gradient(ellipse at bottom left, transparent 0%, transparent ${props.coverage}%, black ${fadeEnd}%)`
+    const fadeEnd = coverage + 20
+    const gradient = `radial-gradient(ellipse at ${origin}, transparent 0%, transparent ${coverage}%, black ${fadeEnd}%)`
     return {
       maskImage: gradient,
       WebkitMaskImage: gradient,
-      backgroundSize: `${props.density}px ${props.density}px`,
+      backgroundSize: `${density}px ${density}px`,
     }
   })
 </script>

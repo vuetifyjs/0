@@ -22,27 +22,34 @@
   const codeSnippets: Record<string, string> = {
     composable: `<script setup lang="ts">
   import { createSelection } from '@vuetify/v0'
-  import { ref } from 'vue'
-
-  const items = ref([
-    { id: 1, label: 'Option A' },
-    { id: 2, label: 'Option B' },
-    { id: 3, label: 'Option C' },
-  ])
 
   const selection = createSelection({
-    items,
     multiple: true,
   })
 
-  // Pure reactive state — no components needed
-  selection.select(1)
-  selection.selected(1) // true
-<\/script>`,
+  const items = selection.onboard([
+    { id: 1, value: 'Option A' },
+    { id: 2, value: 'Option B' },
+    { id: 3, value: 'Option C' },
+  ])
+<\/script>
+
+<template>
+  <button
+    v-for="item in items"
+    :key="item.id"
+    :class="{ selected: item.isSelected.value }"
+    @click="item.toggle"
+  >
+    {{ item.value }}
+  </button>
+
+  <p>Selected: {{ [...selection.selectedIds].join(', ') }}</p>
+</template>`,
 
     component: `<script setup lang="ts">
   import { Selection } from '@vuetify/v0'
-  import { ref } from 'vue'
+  import { shallowRef } from 'vue'
 
   const items = [
     { id: 1, label: 'Option A' },
@@ -50,7 +57,7 @@
     { id: 3, label: 'Option C' },
   ]
 
-  const selected = ref([])
+  const selected = shallowRef([])
 <\/script>
 
 <template>
@@ -58,12 +65,12 @@
     <Selection.Item
       v-for="item in items"
       :key="item.id"
-      v-slot="{ isSelected, toggle }"
+      v-slot="{ attrs }"
       :value="item.id"
     >
       <button
-        :class="isSelected && 'selected'"
-        @click="toggle"
+        v-bind="attrs"
+        class="data-[selected]:bg-primary"
       >
         {{ item.label }}
       </button>
@@ -92,9 +99,9 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
       <!-- Code panel -->
-      <div class="demo-code rounded-xl border overflow-hidden bg-surface flex flex-col h-[510px]">
+      <div class="demo-code rounded-xl border overflow-hidden bg-surface flex flex-col h-[350px] md:h-[510px]">
         <Tabs.Root v-model="activeTab">
-          <Tabs.List class="px-4 py-2 bg-surface-tint border-b flex items-center gap-2" label="Code examples">
+          <Tabs.List class="px-2 py-2 bg-surface-tint border-b flex items-center gap-2" label="Code examples">
             <Tabs.Item
               as="button"
               class="px-3 py-1 rounded-md text-xs font-medium transition-colors text-on-surface opacity-60 hover:opacity-100 hover:bg-surface-variant data-[selected]:bg-primary data-[selected]:text-on-primary data-[selected]:opacity-100 data-[selected]:hover:bg-primary"
@@ -110,12 +117,21 @@
             >
               Component
             </Tabs.Item>
+
+            <div class="flex-1" />
+
+            <DocsCodeActions
+              :code="currentCode"
+              language="vue"
+              playground
+              show-copy
+            />
           </Tabs.List>
         </Tabs.Root>
 
         <div
           v-if="highlighter.highlightedCode.value"
-          class="flex-1 overflow-y-auto [&_pre]:p-4 [&_pre]:text-xs [&_pre]:md:text-sm [&_pre]:overflow-x-auto [&_pre]:leading-relaxed [&_pre]:m-0"
+          class="flex-1 overflow-y-auto [&_pre]:px-4 [&_pre]:py-4 [&_pre]:text-xs [&_pre]:md:text-sm [&_pre]:overflow-x-auto [&_pre]:leading-relaxed [&_pre]:m-0"
           :data-theme="theme.isDark.value ? 'dark' : 'light'"
           v-html="highlighter.highlightedCode.value"
         />
@@ -158,9 +174,7 @@
             to="/components/providers/selection"
           >
             View Selection docs
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-            </svg>
+            <AppIcon icon="right" :size="12" />
           </router-link>
         </div>
       </div>

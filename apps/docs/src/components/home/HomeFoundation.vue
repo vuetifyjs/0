@@ -1,10 +1,10 @@
 <script setup lang="ts">
   const frameworks = [
-    { name: 'Vite', icon: 'vite', href: 'https://vite.dev' },
-    { name: 'Nuxt', icon: 'nuxt', href: 'https://nuxt.com' },
-    { name: 'Tailwind CSS', icon: 'tailwind', href: 'https://tailwindcss.com' },
-    { name: 'UnoCSS', icon: 'unocss', href: 'https://unocss.dev' },
-    { name: 'Vuetify Play', icon: 'vuetify-play', href: 'https://play.vuetifyjs.com' },
+    { name: 'Vite', icon: 'vite', to: 'https://vite.dev' },
+    { name: 'Nuxt', icon: 'nuxt', to: 'https://nuxt.com' },
+    { name: 'Tailwind CSS', icon: 'tailwind', to: 'https://tailwindcss.com' },
+    { name: 'UnoCSS', icon: 'unocss', to: 'https://unocss.dev' },
+    { name: 'Vuetify Play', icon: 'vuetify-play', to: 'https://play.vuetifyjs.com' },
     { name: 'Vuetify Create', icon: 'vuetify-create', to: '/guide/tooling/vuetify-cli' },
     { name: 'Vuetify CLI', icon: 'vuetify-cli', to: '/guide/tooling/vuetify-cli' },
     { name: 'Vuetify MCP', icon: 'vuetify-mcp', to: '/guide/tooling/vuetify-mcp' },
@@ -68,19 +68,15 @@
       <p class="text-sm opacity-60 text-center mb-6">Works with</p>
 
       <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-center gap-3 sm:gap-4 max-w-[640px] mx-auto">
-        <component
-          :is="fw.href ? 'a' : 'router-link'"
+        <AppLink
           v-for="fw in frameworks"
           :key="fw.name"
           class="flex items-center justify-center sm:justify-start gap-2 px-4 sm:px-5 py-2.5 rounded-lg border bg-surface hover:border-primary transition-all duration-150"
-          :href="fw.href"
-          :rel="fw.href ? 'noopener' : undefined"
-          :target="fw.href ? '_blank' : undefined"
           :to="fw.to"
         >
           <AppIcon :icon="fw.icon" :size="18" />
           <span class="text-sm font-medium">{{ fw.name }}</span>
-        </component>
+        </AppLink>
       </div>
     </div>
   </section>

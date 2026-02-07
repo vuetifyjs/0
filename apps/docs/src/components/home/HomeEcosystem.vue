@@ -36,7 +36,7 @@
       <div class="flex items-center justify-between mb-8">
         <div>
           <p class="section-overline mb-2">Explore</p>
-          <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-2">14 components. 40+ composables.</h2>
+          <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-2">Components and composables for every use case.</h2>
           <p class="opacity-60">Growing every release.</p>
         </div>
 
@@ -52,14 +52,16 @@
         <router-link
           v-for="(component, i) in components"
           :key="component.name"
-          class="component-card p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary transition-all group"
+          class="component-card relative overflow-hidden p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary transition-all group"
           :style="{ '--reveal-index': i }"
           :to="component.to"
         >
-          <div class="font-semibold mb-1 group-hover:text-primary transition-colors">
+          <AppDotGrid v-if="component.name === 'Selection'" :coverage="50" :density="16" origin="top right" />
+
+          <div class="relative font-semibold mb-1 group-hover:text-primary transition-colors">
             {{ component.name }}
           </div>
-          <div class="text-sm opacity-60">
+          <div class="relative text-sm opacity-60">
             {{ component.description }}
           </div>
         </router-link>
@@ -106,7 +108,7 @@
           to="/composables"
         >
           <span class="font-mono text-sm text-primary">...</span>
-          <span class="text-xs opacity-60 ml-2">20+ more</span>
+          <span class="text-xs opacity-60 ml-2">and more</span>
         </router-link>
       </div>
 
