@@ -138,7 +138,7 @@
 <template>
   <div
     v-if="isUser"
-    class="flex justify-end mb-2"
+    class="flex justify-end mb-4"
   >
     <div class="max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm leading-relaxed bg-primary text-on-primary">
       <div class="whitespace-pre-wrap break-words">{{ content }}</div>
