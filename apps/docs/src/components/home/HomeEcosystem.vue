@@ -30,13 +30,14 @@
 </script>
 
 <template>
-  <section class="home-ecosystem py-16 md:py-20">
+  <section class="home-ecosystem py-20 md:py-28">
     <!-- Components -->
     <div class="mb-16">
       <div class="flex items-center justify-between mb-8">
         <div>
-          <h2 class="text-2xl md:text-3xl font-bold mb-2">Components</h2>
-          <p class="opacity-60">Headless primitives ready for your styles</p>
+          <p class="section-overline mb-2">Explore</p>
+          <h2 class="text-2xl md:text-4xl font-bold tracking-tight mb-2">14 components. 40+ composables.</h2>
+          <p class="opacity-60">Growing every release.</p>
         </div>
 
         <AppLink
@@ -49,9 +50,10 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <router-link
-          v-for="component in components"
+          v-for="(component, i) in components"
           :key="component.name"
-          class="component-card p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-all group"
+          class="component-card p-4 rounded-xl border bg-surface hover:bg-surface/50 hover:border-primary transition-all group"
+          :style="{ '--reveal-index': i }"
           :to="component.to"
         >
           <div class="font-semibold mb-1 group-hover:text-primary transition-colors">
@@ -89,9 +91,10 @@
 
       <div class="grid grid-cols-2 md:flex md:flex-wrap gap-3">
         <router-link
-          v-for="composable in composables"
+          v-for="(composable, i) in composables"
           :key="composable.name"
-          class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-colors"
+          class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 hover:border-primary transition-colors"
+          :style="{ '--reveal-index': i }"
           :to="composable.to"
         >
           <span class="font-mono text-sm">{{ composable.name }}</span>
@@ -99,7 +102,7 @@
         </router-link>
 
         <router-link
-          class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 hover:border-primary/50 transition-colors"
+          class="composable-chip px-4 py-2 rounded-lg border bg-surface hover:bg-surface/50 hover:border-primary transition-colors"
           to="/composables"
         >
           <span class="font-mono text-sm text-primary">...</span>

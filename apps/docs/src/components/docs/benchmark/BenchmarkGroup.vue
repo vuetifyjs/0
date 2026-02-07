@@ -19,7 +19,7 @@
   const contentId = computed(() => `benchmark-group-${props.group.id}`)
   const description = computed(() => {
     const parts = props.group.name.split(' > ')
-    const key = parts[parts.length - 1]!.toLowerCase()
+    const key = parts.at(-1)!.toLowerCase()
     return GROUP_DESCRIPTIONS[key]
   })
 </script>
