@@ -5,37 +5,10 @@
  * Visual separator between breadcrumb items. Registers with the parent
  * BreadcrumbsRoot and self-measures width. Supports inline override of
  * the global divider character via the divider prop.
+ * Renders as a list item by default with role="presentation" and aria-hidden.
  */
 
 <script lang="ts">
-  // Types
-  import type { AtomProps } from '#v0/components/Atom'
-
-  export interface BreadcrumbsDividerProps extends AtomProps {
-    /** Namespace for dependency injection */
-    namespace?: string
-    /** Unique identifier (auto-generated if not provided) */
-    id?: string
-    /** Override divider character (uses global from Root if not provided) */
-    divider?: string
-  }
-
-  export interface BreadcrumbsDividerSlotProps {
-    /** Unique identifier */
-    id: string
-    /** Resolved divider character */
-    divider: string
-    /** Whether this divider is currently visible */
-    isVisible: boolean
-    /** Attributes to bind to the divider element */
-    attrs: {
-      'aria-hidden': 'true'
-      'data-visible': true | undefined
-    }
-  }
-</script>
-
-<script setup lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
@@ -44,8 +17,35 @@
   import { onUnmounted, toRef, toValue, useTemplateRef, watch } from 'vue'
 
   // Types
-  import type { BreadcrumbsTicket } from './types'
+  import type { AtomProps } from '#v0/components/Atom'
+  import type { ID } from '#v0/types'
 
+  export interface BreadcrumbsDividerProps extends AtomProps {
+    /** Namespace for dependency injection */
+    namespace?: string
+    /** Unique identifier (auto-generated if not provided) */
+    id?: ID
+    /** Override divider character (uses global from Root if not provided) */
+    divider?: string
+  }
+
+  export interface BreadcrumbsDividerSlotProps {
+    /** Unique identifier */
+    id: ID
+    /** Resolved divider character */
+    divider: string
+    /** Whether this divider is currently visible */
+    isVisible: boolean
+    /** Attributes to bind to the divider element */
+    attrs: {
+      'role': 'presentation'
+      'aria-hidden': 'true'
+      'data-visible': true | undefined
+    }
+  }
+</script>
+
+<script setup lang="ts">
   defineOptions({ name: 'BreadcrumbsDivider' })
 
   defineSlots<{
@@ -53,43 +53,44 @@
   }>()
 
   const {
-    as = 'span',
+    as = 'li',
     renderless,
     namespace = 'v0:breadcrumbs',
     id,
     divider,
   } = defineProps<BreadcrumbsDividerProps>()
 
-  const el = useTemplateRef('el')
-  const breadcrumbs = useBreadcrumbsRoot(namespace)
+  const elRef = useTemplateRef('el')
+  const context = useBreadcrumbsRoot(namespace)
 
-  const ticket = breadcrumbs.group.register({
+  const ticket = context.group.register({
     id,
-    type: 'divider',
-  } as Partial<BreadcrumbsTicket>)
+    type: 'divider' as const,
+  })
 
   // Measure element for overflow calculation
   watch(
-    () => el.value?.element,
+    () => elRef.value?.element,
     element => {
-      breadcrumbs.overflow.measure(ticket.index, element ?? undefined)
+      context.overflow.measure(ticket.index, element ?? undefined)
     },
     { immediate: true },
   )
 
   onUnmounted(() => {
-    breadcrumbs.overflow.measure(ticket.index, undefined)
-    breadcrumbs.group.unregister(ticket.id)
+    context.overflow.measure(ticket.index, undefined)
+    context.group.unregister(ticket.id)
   })
 
-  const resolvedDivider = toRef(() => divider ?? breadcrumbs.divider.value)
+  const resolvedDivider = toRef(() => divider ?? context.divider.value)
   const isVisible = toRef(() => toValue(ticket.isSelected))
 
   const slotProps = toRef((): BreadcrumbsDividerSlotProps => ({
-    id: String(ticket.id),
+    id: ticket.id,
     divider: resolvedDivider.value,
     isVisible: isVisible.value,
     attrs: {
+      'role': 'presentation',
       'aria-hidden': 'true',
       'data-visible': isVisible.value || undefined,
     },

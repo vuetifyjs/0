@@ -4,19 +4,31 @@
  * @remarks
  * Root component for responsive breadcrumb navigation using declarative children.
  *
- * Uses a Group context with enrollment to track items, and Overflow context
- * to determine which items fit. Visibility is controlled via selection state:
- * - Items start selected (visible) via enroll option
- * - Overflow calculation determines capacity
- * - Items beyond capacity are unselected (hidden)
- * - Ellipsis becomes selected (visible) when truncating
+ * Uses createBreadcrumbs composable as its backing model (like TabsRoot uses createStep).
+ * Also creates a Group context with enrollment for overflow tracking, and Overflow
+ * context to determine which items fit. Visibility is controlled via selection state.
  */
 
 <script lang="ts">
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
+  // Composables
+  import { createBreadcrumbs } from '#v0/composables/createBreadcrumbs'
+  import { createGroup } from '#v0/composables/createGroup'
+  import { createOverflow } from '#v0/composables/createOverflow'
+
+  // Utilities
+  import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+
   // Types
+  import type { ID } from '#v0/types'
   import type { BreadcrumbsRootContext, BreadcrumbsTicket } from './types'
 
   export type { BreadcrumbsRootContext, BreadcrumbsTicket, BreadcrumbsTicketType } from './types'
@@ -30,8 +42,8 @@
     divider?: string
     /** Default ellipsis character/text */
     ellipsis?: string
-    /** Gap between items in pixels */
-    gap?: number
+    /** Maximum visible breadcrumb items before collapsing. @default Infinity */
+    visible?: number
   }
 
   export interface BreadcrumbsRootSlotProps {
@@ -41,9 +53,20 @@
     capacity: number
     /** Total number of registered items */
     total: number
+    /** Current depth of the breadcrumb path */
+    depth: number
+    /** Whether at root level */
+    isRoot: boolean
+    /** Navigate to root */
+    first: () => void
+    /** Navigate up one level */
+    prev: () => void
+    /** Navigate to a specific item */
+    select: (id: ID) => void
     /** Attributes to bind to the root element */
     attrs: {
       'aria-label': 'Breadcrumb'
+      'role': 'navigation' | undefined
     }
   }
 
@@ -51,16 +74,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-
-  // Composables
-  import { createGroup } from '#v0/composables/createGroup'
-  import { createOverflow } from '#v0/composables/createOverflow'
-
-  // Utilities
-  import { computed, toRef, useTemplateRef, watch } from 'vue'
-
   defineOptions({ name: 'BreadcrumbsRoot' })
 
   defineSlots<{
@@ -72,10 +85,18 @@
     as = 'nav',
     divider = '/',
     ellipsis = '…',
-    gap = 8,
+    visible = Infinity,
   } = defineProps<BreadcrumbsRootProps>()
 
   const container = useTemplateRef('container')
+  const itemGap = shallowRef(0)
+
+  // Create breadcrumbs composable as backing model (like TabsRoot uses createStep)
+  const breadcrumbs = createBreadcrumbs({
+    visible,
+    ellipsis,
+    enroll: true,
+  })
 
   // Create Group with enroll: true so items start selected (visible)
   const group = createGroup<BreadcrumbsTicket>({
@@ -85,10 +106,21 @@
 
   // Create Overflow for width measurement
   const overflow = createOverflow({
-    container: () => container.value?.element,
-    gap: toRef(() => gap),
+    container: () => container.value?.element as Element | undefined,
+    gap: itemGap,
     reverse: true, // Prioritize trailing items (current path)
   })
+
+  /* v8 ignore start -- browser-only measurement code */
+  watch(() => container.value?.element, el => {
+    if (!IN_BROWSER || !el) return
+
+    requestAnimationFrame(() => {
+      const style = getComputedStyle(el)
+      itemGap.value = Number.parseFloat(style.gap) || 0
+    })
+  }, { immediate: true })
+  /* v8 ignore stop */
 
   const isOverflowing = toRef(() => overflow.isOverflowing.value)
 
@@ -110,21 +142,17 @@
 
       // Overflow - need to hide some items and show ellipsis
       // Since reverse: true, capacity counts from the end
-      // We need to unselect items from the start that don't fit
       const items = group.values()
       const hiddenCount = size - capacity
 
       let hidden = 0
       for (const ticket of items) {
         if (ticket.type === 'ellipsis') {
-          // Show ellipsis when truncating
           group.select(ticket.id)
         } else if (hidden < hiddenCount) {
-          // Hide items from the start
           group.unselect(ticket.id)
           hidden++
         } else {
-          // Show remaining items
           if (!ticket.isSelected.value) {
             group.select(ticket.id)
           }
@@ -136,11 +164,11 @@
 
   // Provide context to children
   provideBreadcrumbsRoot(namespace, {
+    breadcrumbs,
     group,
     overflow,
     divider: computed(() => divider),
     ellipsis: computed(() => ellipsis),
-    gap: computed(() => gap),
     isOverflowing,
   })
 
@@ -148,8 +176,14 @@
     isOverflowing: overflow.isOverflowing.value,
     capacity: overflow.capacity.value,
     total: group.size,
+    depth: breadcrumbs.depth.value,
+    isRoot: breadcrumbs.isRoot.value,
+    first: breadcrumbs.first,
+    prev: breadcrumbs.prev,
+    select: breadcrumbs.select,
     attrs: {
       'aria-label': 'Breadcrumb',
+      'role': as === 'nav' ? undefined : 'navigation',
     },
   }))
 </script>
@@ -159,8 +193,6 @@
     ref="container"
     :as
     v-bind="slotProps.attrs"
-    class="flex"
-    :style="{ gap: `${gap}px` }"
   >
     <slot v-bind="slotProps" />
   </Atom>

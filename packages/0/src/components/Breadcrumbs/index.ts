@@ -1,93 +1,46 @@
 export { default as BreadcrumbsDivider } from './BreadcrumbsDivider.vue'
 export { default as BreadcrumbsEllipsis } from './BreadcrumbsEllipsis.vue'
 export { default as BreadcrumbsItem } from './BreadcrumbsItem.vue'
+export { default as BreadcrumbsLink } from './BreadcrumbsLink.vue'
 export { default as BreadcrumbsList } from './BreadcrumbsList.vue'
+export { default as BreadcrumbsPage } from './BreadcrumbsPage.vue'
 export { provideBreadcrumbsRoot, useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
+
 export { default as BreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
-export type {
-  BreadcrumbsDividerProps,
-  BreadcrumbsDividerSlotProps,
-} from './BreadcrumbsDivider.vue'
-
-export type {
-  BreadcrumbsEllipsisProps,
-  BreadcrumbsEllipsisSlotProps,
-} from './BreadcrumbsEllipsis.vue'
-
-export type {
-  BreadcrumbsItemProps,
-  BreadcrumbsItemSlotProps,
-} from './BreadcrumbsItem.vue'
-
-export type {
-  BreadcrumbsListProps,
-  BreadcrumbsListSlotProps,
-} from './BreadcrumbsList.vue'
-
-export type {
-  BreadcrumbsRootProps,
-  BreadcrumbsRootSlotProps,
-} from './BreadcrumbsRoot.vue'
-
-export type {
-  BreadcrumbsRootContext,
-  BreadcrumbsTicket,
-  BreadcrumbsTicketType,
-} from './types'
+export type { BreadcrumbsDividerProps, BreadcrumbsDividerSlotProps } from './BreadcrumbsDivider.vue'
+export type { BreadcrumbsEllipsisProps, BreadcrumbsEllipsisSlotProps } from './BreadcrumbsEllipsis.vue'
+export type { BreadcrumbsItemProps, BreadcrumbsItemSlotProps } from './BreadcrumbsItem.vue'
+export type { BreadcrumbsLinkProps, BreadcrumbsLinkSlotProps } from './BreadcrumbsLink.vue'
+export type { BreadcrumbsListProps, BreadcrumbsListSlotProps } from './BreadcrumbsList.vue'
+export type { BreadcrumbsPageProps, BreadcrumbsPageSlotProps } from './BreadcrumbsPage.vue'
+export type { BreadcrumbsRootProps, BreadcrumbsRootSlotProps } from './BreadcrumbsRoot.vue'
 
 // Components
 import Divider from './BreadcrumbsDivider.vue'
 import Ellipsis from './BreadcrumbsEllipsis.vue'
 import Item from './BreadcrumbsItem.vue'
+import Link from './BreadcrumbsLink.vue'
 import List from './BreadcrumbsList.vue'
+import Page from './BreadcrumbsPage.vue'
 import Root from './BreadcrumbsRoot.vue'
 
 /**
  * Breadcrumbs component for responsive navigation trails.
  *
- * Uses declarative children for flexible composition. Items, dividers,
- * and ellipsis register with the root and self-measure for overflow detection.
- * Visibility is automatically managed based on available space.
- *
  * @see https://0.vuetifyjs.com/components/breadcrumbs
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { Breadcrumbs } from '@vuetify/v0'
- * </script>
- *
- * <template>
- *   <Breadcrumbs.Root divider="/" as="nav">
- *     <Breadcrumbs.List as="ol">
- *       <Breadcrumbs.Item as="li">
- *         <a href="/">Home</a>
- *       </Breadcrumbs.Item>
- *       <Breadcrumbs.Divider />
- *       <Breadcrumbs.Ellipsis />
- *       <Breadcrumbs.Divider />
- *       <Breadcrumbs.Item as="li">
- *         <a href="/about">About</a>
- *       </Breadcrumbs.Item>
- *       <Breadcrumbs.Divider />
- *       <Breadcrumbs.Item as="li">Team</Breadcrumbs.Item>
- *     </Breadcrumbs.List>
- *   </Breadcrumbs.Root>
- * </template>
- * ```
  */
 export const Breadcrumbs = {
   /**
    * Root component for breadcrumb navigation.
-   * Creates Group + Overflow context for managing items.
+   * Creates breadcrumbs composable + Group + Overflow context.
    *
    * @see https://0.vuetifyjs.com/components/breadcrumbs#breadcrumbsroot
    */
   Root,
   /**
    * Semantic list wrapper for breadcrumb items.
-   * Typically renders as `<ol>`.
+   * Renders with role="list".
    *
    * @see https://0.vuetifyjs.com/components/breadcrumbs#breadcrumbslist
    */
@@ -100,8 +53,22 @@ export const Breadcrumbs = {
    */
   Item,
   /**
+   * Navigable breadcrumb link.
+   * Renders as an anchor with href prop.
+   *
+   * @see https://0.vuetifyjs.com/components/breadcrumbs#breadcrumbslink
+   */
+  Link,
+  /**
+   * Current page indicator.
+   * Renders with aria-current="page".
+   *
+   * @see https://0.vuetifyjs.com/components/breadcrumbs#breadcrumbspage
+   */
+  Page,
+  /**
    * Visual separator between breadcrumb items.
-   * Supports inline divider override.
+   * Renders with role="presentation".
    *
    * @see https://0.vuetifyjs.com/components/breadcrumbs#breadcrumbsdivider
    */

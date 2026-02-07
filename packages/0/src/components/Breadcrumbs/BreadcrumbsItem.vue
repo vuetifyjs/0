@@ -3,26 +3,37 @@
  *
  * @remarks
  * Individual breadcrumb item that registers with the parent BreadcrumbsRoot.
- * Self-measures width for overflow calculation. Visibility is controlled
- * via selection state (v-show bound to isSelected).
+ * Registers with both the breadcrumbs composable (navigation model) and the
+ * group context (overflow visibility). Self-measures width for overflow calculation.
+ * Visibility is controlled via group selection state (v-show bound to isSelected).
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+  import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
+
+  // Utilities
+  import { onUnmounted, toRef, toValue, useTemplateRef, watch } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { ID } from '#v0/types'
 
   export interface BreadcrumbsItemProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
     /** Unique identifier (auto-generated if not provided) */
-    id?: string
+    id?: ID
     /** Value associated with this item */
     value?: unknown
+    /** Display text for the breadcrumb (used by composable model) */
+    text?: string
   }
 
   export interface BreadcrumbsItemSlotProps {
     /** Unique identifier */
-    id: string
+    id: ID
     /** Whether this item is currently visible */
     isVisible: boolean
     /** Attributes to bind to the item element */
@@ -33,16 +44,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-  import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
-
-  // Utilities
-  import { onUnmounted, toRef, toValue, useTemplateRef, watch } from 'vue'
-
-  // Types
-  import type { BreadcrumbsTicket } from './types'
-
   defineOptions({ name: 'BreadcrumbsItem' })
 
   defineSlots<{
@@ -55,35 +56,45 @@
     namespace = 'v0:breadcrumbs',
     id,
     value,
+    text = '',
   } = defineProps<BreadcrumbsItemProps>()
 
-  const el = useTemplateRef('el')
-  const breadcrumbs = useBreadcrumbsRoot(namespace)
+  const elRef = useTemplateRef('el')
+  const context = useBreadcrumbsRoot(namespace)
 
-  const ticket = breadcrumbs.group.register({
+  // Register with breadcrumbs composable (navigation model)
+  const crumb = context.breadcrumbs.register({
     id,
     value,
-    type: 'item',
-  } as Partial<BreadcrumbsTicket>)
+    text,
+  })
+
+  // Register with group context (overflow visibility)
+  const ticket = context.group.register({
+    id: crumb.id,
+    value,
+    type: 'item' as const,
+  })
 
   // Measure element for overflow calculation
   watch(
-    () => el.value?.element,
+    () => elRef.value?.element,
     element => {
-      breadcrumbs.overflow.measure(ticket.index, element ?? undefined)
+      context.overflow.measure(ticket.index, element ?? undefined)
     },
     { immediate: true },
   )
 
   onUnmounted(() => {
-    breadcrumbs.overflow.measure(ticket.index, undefined)
-    breadcrumbs.group.unregister(ticket.id)
+    context.overflow.measure(ticket.index, undefined)
+    context.group.unregister(ticket.id)
+    context.breadcrumbs.unregister(crumb.id)
   })
 
   const isVisible = toRef(() => toValue(ticket.isSelected))
 
   const slotProps = toRef((): BreadcrumbsItemSlotProps => ({
-    id: String(ticket.id),
+    id: ticket.id,
     isVisible: isVisible.value,
     attrs: {
       'data-visible': isVisible.value || undefined,

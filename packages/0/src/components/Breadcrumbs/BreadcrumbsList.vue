@@ -8,6 +8,9 @@
  */
 
 <script lang="ts">
+  // Components
+  import { Atom } from '#v0/components/Atom'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -17,11 +20,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { Atom } from '#v0/components/Atom'
-  // Composables
-  import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
-
   defineOptions({ name: 'BreadcrumbsList' })
 
   defineSlots<{
@@ -30,20 +28,12 @@
 
   const {
     as = 'ol',
-    namespace = 'v0:breadcrumbs',
     renderless,
-  } = defineProps<BreadcrumbsListProps & { namespace?: string }>()
-
-  const breadcrumbs = useBreadcrumbsRoot(namespace)
+  } = defineProps<BreadcrumbsListProps>()
 </script>
 
 <template>
-  <Atom
-    :as
-    class="flex list-none m-0 p-0"
-    :renderless
-    :style="{ gap: `${breadcrumbs.gap.value}px` }"
-  >
+  <Atom :as :renderless role="list">
     <slot />
   </Atom>
 </template>

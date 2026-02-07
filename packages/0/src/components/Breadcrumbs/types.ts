@@ -5,6 +5,7 @@
  */
 
 // Types
+import type { BreadcrumbsContext } from '#v0/composables/createBreadcrumbs'
 import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
 import type { OverflowContext } from '#v0/composables/createOverflow'
 import type { ComputedRef, Ref } from 'vue'
@@ -17,7 +18,9 @@ export interface BreadcrumbsTicket extends GroupTicket {
 }
 
 export interface BreadcrumbsRootContext {
-  /** Group context for managing item registration and selection */
+  /** Breadcrumbs composable context for navigation and state */
+  breadcrumbs: BreadcrumbsContext
+  /** Group context for managing item registration and selection (overflow) */
   group: GroupContext<BreadcrumbsTicket>
   /** Overflow context for width measurement and capacity calculation */
   overflow: OverflowContext
@@ -25,8 +28,6 @@ export interface BreadcrumbsRootContext {
   divider: ComputedRef<string>
   /** Default ellipsis character/text */
   ellipsis: ComputedRef<string>
-  /** Gap between items */
-  gap: ComputedRef<number>
   /** Whether items are being truncated */
   isOverflowing: Readonly<Ref<boolean>>
 }
