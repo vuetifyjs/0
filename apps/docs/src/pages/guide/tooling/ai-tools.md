@@ -31,7 +31,7 @@ v0 provides machine-readable documentation files following the [llms.txt](https:
 | - | - | - | - |
 | <a href="/llms.txt" target="_blank" class="v0-link">llms.txt↗</a> | {{ llmsStats.llms.sizeFormatted }} | Curated index with links | Quick context, navigation |
 | <a href="/llms-full.txt" target="_blank" class="v0-link whitespace-nowrap">llms-full.txt↗</a> | {{ llmsStats.llmsFull.sizeFormatted }} | Complete documentation | Deep understanding, code generation |
-| <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | ~14KB | Patterns & anti-patterns | Claude Code, Cursor, Windsurf |
+| <a href="/SKILL.md" target="_blank" class="v0-link">SKILL.md↗</a> | ~5KB | Patterns & anti-patterns | Claude Code, Cursor, Windsurf |
 
 > [!ASKAI] When should I use llms.txt vs llms-full.txt?
 
@@ -89,12 +89,12 @@ WebFetch https://0.vuetifyjs.com/SKILL.md
 
 **What's in SKILL.md:**
 
-- All composables (createSelection, createForm, useTheme, etc.)
-- Headless components (Tabs, Dialog, Checkbox, Radio, etc.)
-- Selection system (createSingle, createGroup, createStep)
-- Registry & Trinity patterns
-- Code style (shallowRef, function declarations)
-- Common mistakes to avoid
+- Decision tree mapping needs to composables
+- Code style conventions (shallowRef, function declarations)
+- Anti-patterns to avoid
+- Composition hierarchy
+- Summary lookup table
+- Links to [REFERENCE.md](/references/REFERENCE.md) for detailed API examples
 
 ## What's Included
 
@@ -107,7 +107,7 @@ WebFetch https://0.vuetifyjs.com/SKILL.md
 
 **llms-full.txt** includes the complete content of every documentation page, stripped of Vue components and frontmatter for cleaner LLM consumption.
 
-**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on practical usage patterns, the selection/registry systems, common mistakes, and TypeScript integration. Install it via [skills.sh](https://skills.sh) (`npx skills add vuetifyjs/0`) to make it available across Claude Code, Cursor, Windsurf, and 35+ other agents.
+**SKILL.md** is a compact reference optimized for AI coding assistants. It focuses on decision trees, code conventions, anti-patterns, and the composition hierarchy. Detailed API examples live in a separate [REFERENCE.md](/references/REFERENCE.md) that agents load on demand. Install via [skills.sh](https://skills.sh) (`npx skills add vuetifyjs/0`) to make it available across Claude Code, Cursor, Windsurf, and 35+ other agents.
 
 ## How It Works
 
