@@ -20,11 +20,13 @@
  *
  * Handler context:
  * - `done()` - Call to signal async setup complete (for interactive tours)
+ * - `next()` - Advance to next step (auto-calls done internally)
  * - `direction` - How user arrived: 'forward' | 'back' | 'resume' | 'jump'
  *
  * Async patterns:
  * - Return Promise: `enter: async () => { await setup() }`
  * - Use done(): `enter: ({ done }) => { watchForAction(done) }`
+ * - Use next(): `enter: ({ next }) => { watchForAction(next) }` (auto-advances)
  * - Sync (default): `enter: () => { doSetup() }`
  */
 
@@ -32,7 +34,7 @@
 import { createContext, createForm, createPlugin, createRegistry, createSingle, createStep, createTrinity, IN_BROWSER, isUndefined, useContext } from '@vuetify/v0'
 
 // Utilities
-import { readonly, shallowRef, toRef } from 'vue'
+import { effectScope, readonly, shallowRef, toRef } from 'vue'
 
 // Types
 import type {
@@ -50,7 +52,7 @@ import type {
   useBreakpoints,
 } from '@vuetify/v0'
 import type { ID } from '@vuetify/v0/types'
-import type { App, Ref, ShallowRef } from 'vue'
+import type { App, EffectScope, Ref, ShallowRef } from 'vue'
 
 export type DiscoveryActivatorTicket = RegistryTicket & {
   element: ShallowRef<HTMLElement | null>
@@ -109,6 +111,8 @@ export type StepDirection = 'forward' | 'back' | 'resume' | 'jump'
 export interface StepHandlerContext {
   /** Call when async setup is complete (for interactive tours) */
   done: () => void
+  /** Advance to the next step (auto-calls done internally) */
+  next: () => Promise<void>
   /** How the user arrived at this step */
   direction: StepDirection
 }
@@ -119,6 +123,7 @@ export interface StepHandlerContext {
  * - Sync: `() => { doSetup() }`
  * - Async Promise: `async () => { await setup() }`
  * - Async callback: `({ done }) => { watchForAction(done) }`
+ * - Auto-advance: `({ next }) => { watchForAction(next) }`
  * - With direction: `({ direction }) => { if (direction === 'back') ... }`
  */
 export type StepHandler = (ctx: StepHandlerContext) => void | Promise<void>
@@ -159,6 +164,8 @@ export interface DiscoveryContext {
   isLast: Readonly<ShallowRef<boolean>>
   /** Whether the current step's handler has completed (for interactive tours) */
   isReady: Readonly<ShallowRef<boolean>>
+  /** Whether the current tour is interactive mode */
+  isInteractive: Readonly<Ref<boolean>>
   canGoBack: Readonly<Ref<boolean>>
   canGoNext: Readonly<Ref<boolean>>
   selectedId: StepContext<DiscoveryStepTicket>['selectedId']
@@ -200,10 +207,12 @@ export function createDiscovery (): DiscoveryContext {
   const isLast = toRef(() => steps.selectedIndex.value === steps.size - 1)
   const canGoBack = toRef(() => isReady.value && steps.selectedIndex.value > 0)
   const canGoNext = toRef(() => isReady.value && steps.selectedIndex.value < steps.size - 1)
+  const isInteractive = toRef(() => tours.selectedItem.value?.mode === 'interactive')
 
   // Handler state
   let handlers: HandlersMap = {}
   let exitHandler: SimpleHandler | undefined
+  let stepScope: EffectScope | null = null
   let isStarting = false
 
   /**
@@ -217,12 +226,19 @@ export function createDiscovery (): DiscoveryContext {
     handler: StepHandler | undefined,
     direction: StepDirection,
   ): Promise<void> {
+    // Stop previous step's scope if any
+    stepScope?.stop()
+    stepScope = null
+
     if (!handler) {
       isReady.value = true
       return
     }
 
     isReady.value = false
+
+    // Create effect scope so composables work inside handlers
+    stepScope = effectScope()
 
     return new Promise<void>(resolve => {
       let resolved = false
@@ -234,28 +250,38 @@ export function createDiscovery (): DiscoveryContext {
         resolve()
       }
 
-      const ctx: StepHandlerContext = { done, direction }
+      const ctx: StepHandlerContext = {
+        done,
+        next: async () => {
+          done()
+          await next()
+        },
+        direction,
+      }
 
-      try {
-        const result = handler(ctx)
+      // Run handler inside effect scope
+      stepScope!.run(() => {
+        try {
+          const result = handler(ctx)
 
-        // If handler returns a Promise, await it then auto-done
-        if (result instanceof Promise) {
-          result
-            .then(() => done())
-            .catch(error => {
-              console.error('[v0:discovery] Handler error:', error)
-              done()
-            })
-        } else if (handler.length === 0) {
-          // Handler takes no arguments - sync handler, auto-done
+          // If handler returns a Promise, await it then auto-done
+          if (result instanceof Promise) {
+            result
+              .then(() => done())
+              .catch(error => {
+                console.error('[v0:discovery] Handler error:', error)
+                done()
+              })
+          } else if (handler.length === 0) {
+            // Handler takes no arguments - sync handler, auto-done
+            done()
+          }
+          // Otherwise, handler uses done() callback - wait for it
+        } catch (error) {
+          console.error('[v0:discovery] Handler error:', error)
           done()
         }
-        // Otherwise, handler uses done() callback - wait for it
-      } catch (error) {
-        console.error('[v0:discovery] Handler error:', error)
-        done()
-      }
+      })
     })
   }
 
@@ -270,6 +296,9 @@ export function createDiscovery (): DiscoveryContext {
   function onLeave (ticket: DiscoveryStepTicket) {
     steps.emit('leave', ticket)
     handlers[ticket.id]?.leave?.()
+    // Stop step's effect scope to clean up composables
+    stepScope?.stop()
+    stepScope = null
   }
 
   function onCompleted (ticket: DiscoveryStepTicket) {
@@ -350,6 +379,8 @@ export function createDiscovery (): DiscoveryContext {
   }
 
   function reset () {
+    stepScope?.stop()
+    stepScope = null
     handlers = {}
     exitHandler = undefined
     form.reset()
@@ -461,6 +492,7 @@ export function createDiscovery (): DiscoveryContext {
     isFirst: readonly(isFirst),
     isLast: readonly(isLast),
     isReady: readonly(isReady),
+    isInteractive: readonly(isInteractive),
     canGoBack: readonly(canGoBack),
     canGoNext: readonly(canGoNext),
     selectedId: steps.selectedId,
