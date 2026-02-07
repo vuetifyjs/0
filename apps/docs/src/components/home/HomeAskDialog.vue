@@ -59,6 +59,27 @@
       e.preventDefault()
       ask.close()
     }
+
+    if (e.key === 'Tab' && ask.isOpen.value) {
+      const dialog = document.querySelector('[role="dialog"]') as HTMLElement
+      if (!dialog) return
+
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      )
+      if (focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable.at(-1)
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
   }
 
   useDocumentEventListener('keydown', onKeydown)

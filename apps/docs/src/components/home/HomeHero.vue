@@ -6,18 +6,20 @@
   import { useAsk } from '@/composables/useAsk'
 
   // Utilities
-  import { onMounted, ref } from 'vue'
+  import { onMounted, shallowRef } from 'vue'
 
   const ask = useAsk()
 
   const logger = useLogger()
-  const stats = ref({
+  const stats = shallowRef({
     stars: '—',
     downloads: '—',
   })
 
   onMounted(async () => {
     try {
+      const newStats = { stars: '—', downloads: '—' }
+
       const [ghRes, npmRes] = await Promise.all([
         fetch('https://api.github.com/repos/vuetifyjs/0'),
         fetch('https://api.npmjs.org/downloads/point/last-month/@vuetify/v0'),
@@ -25,13 +27,15 @@
 
       if (ghRes.ok) {
         const gh = await ghRes.json()
-        stats.value.stars = formatNumber(gh.stargazers_count)
+        newStats.stars = formatNumber(gh.stargazers_count)
       }
 
       if (npmRes.ok) {
         const npm = await npmRes.json()
-        stats.value.downloads = formatNumber(npm.downloads)
+        newStats.downloads = formatNumber(npm.downloads)
       }
+
+      stats.value = newStats
     } catch (error) {
       logger.warn('Failed to fetch stats', error)
     }
@@ -64,7 +68,7 @@
     </h1>
 
     <p class="relative text-lg md:text-xl opacity-60 max-w-[640px] mx-auto mb-10 leading-relaxed">
-      Composable-first primitives. AI-integrated docs. Published benchmarks. Built by Vuetify.
+      Accessible composable-first primitives with AI-integrated docs, published benchmarks, and the backing of Vuetify.
     </p>
 
     <div class="relative flex flex-col items-center gap-6 mb-16">
@@ -77,6 +81,7 @@
         </router-link>
 
         <button
+          aria-haspopup="dialog"
           class="px-8 py-3.5 bg-surface text-on-surface rounded-xl font-semibold text-lg border text-center whitespace-nowrap hover:bg-surface-tint hover:border-primary transition-all duration-150 inline-flex items-center justify-center gap-2"
           type="button"
           @click="ask.open(); ask.focus()"
@@ -112,8 +117,8 @@
       <div class="hidden md:block w-px bg-divider" />
 
       <div>
-        <div class="stat-number">AI</div>
-        <div class="stat-label">Native</div>
+        <div class="stat-number">0</div>
+        <div class="stat-label">Style Opinions</div>
       </div>
     </div>
   </section>
