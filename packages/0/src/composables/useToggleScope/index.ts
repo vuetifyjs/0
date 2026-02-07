@@ -132,9 +132,7 @@ export function useToggleScope (
     }
   }, { immediate: true })
 
-  onScopeDispose(() => {
-    stop()
-  })
+  onScopeDispose(stop, true)
 
   return controls
 }
