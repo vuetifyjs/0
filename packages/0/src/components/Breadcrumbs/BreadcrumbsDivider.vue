@@ -5,7 +5,7 @@
  * Visual separator between breadcrumb items. Registers with the parent
  * BreadcrumbsRoot and self-measures width. Supports inline override of
  * the global divider character via the divider prop.
- * Renders as a list item by default with role="presentation" and aria-hidden.
+ * Renders as a list item by default with aria-hidden.
  */
 
 <script lang="ts">
@@ -14,7 +14,7 @@
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useTemplateRef, watch } from 'vue'
+  import { onUnmounted, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -38,7 +38,6 @@
     isVisible: boolean
     /** Attributes to bind to the divider element */
     attrs: {
-      'role': 'presentation'
       'aria-hidden': 'true'
       'data-visible': true | undefined
     }
@@ -83,14 +82,13 @@
   })
 
   const resolvedDivider = toRef(() => divider ?? context.divider.value)
-  const isVisible = toRef(() => toValue(ticket.isSelected))
+  const isVisible = toRef(() => ticket.isSelected.value)
 
   const slotProps = toRef((): BreadcrumbsDividerSlotProps => ({
     id: ticket.id,
     divider: resolvedDivider.value,
     isVisible: isVisible.value,
     attrs: {
-      'role': 'presentation',
       'aria-hidden': 'true',
       'data-visible': isVisible.value || undefined,
     },

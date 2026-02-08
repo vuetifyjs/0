@@ -14,7 +14,7 @@ export type { BreadcrumbsItemProps, BreadcrumbsItemSlotProps } from './Breadcrum
 export type { BreadcrumbsLinkProps, BreadcrumbsLinkSlotProps } from './BreadcrumbsLink.vue'
 export type { BreadcrumbsListProps, BreadcrumbsListSlotProps } from './BreadcrumbsList.vue'
 export type { BreadcrumbsPageProps, BreadcrumbsPageSlotProps } from './BreadcrumbsPage.vue'
-export type { BreadcrumbsRootProps, BreadcrumbsRootSlotProps } from './BreadcrumbsRoot.vue'
+export type { BreadcrumbsRootContext, BreadcrumbsRootProps, BreadcrumbsRootSlotProps, BreadcrumbsTicket, BreadcrumbsTicketType } from './BreadcrumbsRoot.vue'
 
 // Components
 import Divider from './BreadcrumbsDivider.vue'
@@ -68,7 +68,7 @@ export const Breadcrumbs = {
   Page,
   /**
    * Visual separator between breadcrumb items.
-   * Renders with role="presentation".
+   * Renders with aria-hidden="true".
    *
    * @see https://0.vuetifyjs.com/components/breadcrumbs#breadcrumbsdivider
    */

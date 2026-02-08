@@ -351,19 +351,6 @@ describe('breadcrumbs', () => {
       expect(wrapper.find('li').exists()).toBe(true)
     })
 
-    it('should have role="presentation"', async () => {
-      const wrapper = mount(Breadcrumbs.Root, {
-        slots: {
-          default: () => h(Breadcrumbs.Divider as never),
-        },
-      })
-
-      await nextTick()
-
-      const li = wrapper.find('li')
-      expect(li.attributes('role')).toBe('presentation')
-    })
-
     it('should have aria-hidden="true"', async () => {
       const wrapper = mount(Breadcrumbs.Root, {
         slots: {
@@ -418,7 +405,7 @@ describe('breadcrumbs', () => {
       expect(dividerProps!.divider).toBe('>')
     })
 
-    it('should expose attrs with role and aria-hidden', async () => {
+    it('should expose attrs with aria-hidden', async () => {
       let dividerProps: Record<string, unknown> | undefined
 
       mount(Breadcrumbs.Root, {
@@ -435,7 +422,6 @@ describe('breadcrumbs', () => {
       await nextTick()
 
       const attrs = dividerProps!.attrs as Record<string, unknown>
-      expect(attrs.role).toBe('presentation')
       expect(attrs['aria-hidden']).toBe('true')
     })
   })
@@ -651,7 +637,6 @@ describe('breadcrumbs', () => {
 
       const html = await renderToString(app)
 
-      expect(html).toContain('role="presentation"')
       expect(html).toContain('aria-hidden="true"')
     })
 

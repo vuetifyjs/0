@@ -25,19 +25,18 @@
   import { createOverflow } from '#v0/composables/createOverflow'
 
   // Utilities
-  import { computed, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
+  import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
   import type { BreadcrumbsRootContext, BreadcrumbsTicket } from './types'
 
   export type { BreadcrumbsRootContext, BreadcrumbsTicket, BreadcrumbsTicketType } from './types'
 
-  export interface BreadcrumbsRootProps {
+  export interface BreadcrumbsRootProps extends AtomProps {
     /** Namespace for dependency injection */
     namespace?: string
-    /** Polymorphic element type */
-    as?: string
     /** Default divider character/text */
     divider?: string
     /** Default ellipsis character/text */
@@ -83,6 +82,7 @@
   const {
     namespace = 'v0:breadcrumbs',
     as = 'nav',
+    renderless,
     divider = '/',
     ellipsis = '…',
     visible = Infinity,
@@ -122,7 +122,7 @@
   }, { immediate: true })
   /* v8 ignore stop */
 
-  const isOverflowing = toRef(() => overflow.isOverflowing.value)
+  const isOverflowing = overflow.isOverflowing
 
   // Watch capacity changes and update selection
   watch(
@@ -167,8 +167,8 @@
     breadcrumbs,
     group,
     overflow,
-    divider: computed(() => divider),
-    ellipsis: computed(() => ellipsis),
+    divider: toRef(() => divider),
+    ellipsis: toRef(() => ellipsis),
     isOverflowing,
   })
 
@@ -192,6 +192,7 @@
   <Atom
     ref="container"
     :as
+    :renderless
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />

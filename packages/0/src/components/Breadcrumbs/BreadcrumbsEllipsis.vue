@@ -14,7 +14,7 @@
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useTemplateRef, watch } from 'vue'
+  import { onUnmounted, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -83,7 +83,7 @@
   })
 
   const resolvedEllipsis = toRef(() => ellipsis ?? context.ellipsis.value)
-  const isVisible = toRef(() => toValue(ticket.isSelected))
+  const isVisible = toRef(() => ticket.isSelected.value)
 
   const slotProps = toRef((): BreadcrumbsEllipsisSlotProps => ({
     id: ticket.id,
