@@ -17,7 +17,11 @@ export interface UseHighlighterReturn {
 
 let highlighterPromise: Promise<HighlighterCore> | null = null
 const highlighter = shallowRef<HighlighterCore | null>(null)
-const logger = useLogger()
+
+let _logger: ReturnType<typeof useLogger> | undefined
+function getLogger () {
+  return _logger ??= useLogger()
+}
 
 /**
  * Safari/WebKit has issues with complex lookbehind patterns in Shiki grammars
@@ -55,7 +59,7 @@ async function createSharedHighlighter (): Promise<HighlighterCore> {
       })
     }
 
-    logger.info('Using Shiki WASM engine for syntax highlighting (browser lacks advanced RegExp support)')
+    getLogger().info('Using Shiki WASM engine for syntax highlighting (browser lacks advanced RegExp support)')
     const { createOnigurumaEngine } = await import('shiki/engine/oniguruma')
     return createHighlighterCore({
       themes: SHIKI_THEME_IMPORTS,

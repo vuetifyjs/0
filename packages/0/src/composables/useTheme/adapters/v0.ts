@@ -102,8 +102,15 @@ export class Vuetify0ThemeAdapter extends ThemeAdapter {
 
     if (!this.sheet) {
       this.sheet = new CSSStyleSheet()
-      document.adoptedStyleSheets.push(this.sheet)
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.sheet]
     }
     this.sheet.replaceSync(styles)
+  }
+
+  dispose (): void {
+    if (this.sheet) {
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter(s => s !== this.sheet)
+      this.sheet = undefined
+    }
   }
 }

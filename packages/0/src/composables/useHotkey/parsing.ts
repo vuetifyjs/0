@@ -4,7 +4,10 @@ import { useLogger } from '#v0/composables/useLogger'
 // Utilities
 import { normalizeKey } from './aliases'
 
-const logger = useLogger()
+let _logger: ReturnType<typeof useLogger> | undefined
+function getLogger () {
+  return _logger ??= useLogger()
+}
 
 // Constants
 export const MODIFIERS = ['ctrl', 'shift', 'alt', 'meta', 'cmd'] as const
@@ -31,7 +34,7 @@ export function splitKeyCombination (combination: string, isInternal = false): C
   const emptyResult: CombinationResult = { keys: [], separators: [] }
 
   if (!combination) {
-    if (!isInternal) logger.warn('Invalid hotkey combination: empty string provided')
+    if (!isInternal) getLogger().warn('Invalid hotkey combination: empty string provided')
     return emptyResult
   }
 
@@ -53,7 +56,7 @@ export function splitKeyCombination (combination: string, isInternal = false): C
   )
 
   if (hasInvalidStructure) {
-    if (!isInternal) logger.warn(`Invalid hotkey combination: "${combination}" has invalid structure`)
+    if (!isInternal) getLogger().warn(`Invalid hotkey combination: "${combination}" has invalid structure`)
     return emptyResult
   }
 
@@ -96,7 +99,7 @@ export function splitKeyCombination (combination: string, isInternal = false): C
   const hasInvalidMinus = keys.some(key => key.length > 1 && key.includes('-') && key !== '--')
   /* v8 ignore start -- edge case: invalid minus in combination */
   if (hasInvalidMinus) {
-    if (!isInternal) logger.warn(`Invalid hotkey combination: "${combination}" has invalid structure`)
+    if (!isInternal) getLogger().warn(`Invalid hotkey combination: "${combination}" has invalid structure`)
     return emptyResult
   }
 
@@ -119,7 +122,7 @@ export function splitKeyCombination (combination: string, isInternal = false): C
  */
 export function splitKeySequence (str: string): string[] {
   if (!str) {
-    logger.warn('Invalid hotkey sequence: empty string provided')
+    getLogger().warn('Invalid hotkey sequence: empty string provided')
     return []
   }
 
@@ -129,7 +132,7 @@ export function splitKeySequence (str: string): string[] {
   const hasInvalidEnd = str.endsWith('-') && !str.endsWith('+-') && !str.endsWith('_-') && str !== '-' && str !== '---'
 
   if (hasInvalidStart || hasInvalidEnd) {
-    logger.warn(`Invalid hotkey sequence: "${str}" contains invalid combinations`)
+    getLogger().warn(`Invalid hotkey sequence: "${str}" contains invalid combinations`)
     return []
   }
 
@@ -195,7 +198,7 @@ export function splitKeySequence (str: string): string[] {
 
   /* v8 ignore start -- edge case: invalid combination in sequence */
   if (!areAllValid) {
-    logger.warn(`Invalid hotkey sequence: "${str}" contains invalid combinations`)
+    getLogger().warn(`Invalid hotkey sequence: "${str}" contains invalid combinations`)
     return []
   }
   /* v8 ignore stop */
