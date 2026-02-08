@@ -288,7 +288,7 @@ export function createSelection<
 
     const ticket = registry.register(item)
 
-    if (toValue(enroll) && !toValue(disabled) && !toValue(item.disabled)) selectedIds.add(ticket.id)
+    if (toValue(enroll) && !toValue(disabled) && !toValue(item.disabled)) select(ticket.id)
     if (toValue(mandatory) === 'force') mandate()
 
     return ticket
