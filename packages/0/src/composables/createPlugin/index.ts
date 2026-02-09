@@ -24,6 +24,13 @@ export interface Plugin {
   install: (app: App, ...options: unknown[]) => void
 }
 
+const INSTALLED = Symbol.for('v0:installed-plugins')
+
+function getInstalled (app: App): Set<string> {
+  const ctx = app._context as unknown as Record<symbol, Set<string>>
+  return ctx[INSTALLED] ??= new Set<string>()
+}
+
 /**
  * Creates a new Vue plugin.
  *
@@ -53,6 +60,11 @@ export function createPlugin<Z extends Plugin = Plugin> (options: PluginOptions)
     install (app: App) {
       app.runWithContext(() => {
         options.provide(app)
+
+        const installed = getInstalled(app)
+        if (installed.has(options.namespace)) return
+        installed.add(options.namespace)
+
         options.setup?.(app)
       })
     },

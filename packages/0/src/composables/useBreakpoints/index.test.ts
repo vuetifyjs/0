@@ -373,6 +373,7 @@ describe('useBreakpoints', () => {
     it('should call app.runWithContext during installation', () => {
       const plugin = createBreakpointsPlugin()
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
         mixin: vi.fn(),
@@ -387,6 +388,7 @@ describe('useBreakpoints', () => {
     it('should work with empty options', () => {
       const plugin = createBreakpointsPlugin({})
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
         mixin: vi.fn(),
@@ -513,6 +515,7 @@ describe('useBreakpoints', () => {
     it('should register mixin on app.mixin during install', () => {
       const plugin = createBreakpointsPlugin()
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
         mixin: vi.fn(),
@@ -531,6 +534,7 @@ describe('useBreakpoints', () => {
       let registeredMixin: any
 
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
         mixin: vi.fn((mixin: any) => {
@@ -554,6 +558,7 @@ describe('useBreakpoints', () => {
       let registeredMixin: any
 
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
         mixin: vi.fn((mixin: any) => {
@@ -580,6 +585,7 @@ describe('useBreakpoints', () => {
       let registeredMixin: any
 
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
         mixin: vi.fn((mixin: any) => {
@@ -610,6 +616,7 @@ describe('useBreakpoints', () => {
       })
 
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
         mixin: vi.fn((mixin: any) => {

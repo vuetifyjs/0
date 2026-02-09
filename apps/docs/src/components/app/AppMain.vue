@@ -19,6 +19,10 @@
   const mainRef = useTemplateRef<HTMLElement>('main')
   const pageTransition = toRef(() => settings.prefersReducedMotion.value ? undefined : 'page')
 
+  function onLeave (_el: Element, done: () => void) {
+    done()
+  }
+
   useRouterLinks(mainRef)
 
   // Extract page metadata from frontmatter
@@ -51,7 +55,11 @@
       <DocsPageLogo :frontmatter="page?.frontmatter" />
 
       <router-view v-slot="{ Component }">
-        <Transition :name="pageTransition">
+        <Transition
+          :css="!!pageTransition"
+          :name="pageTransition"
+          @leave="onLeave"
+        >
           <component :is="Component" :key="$route.path" ref="page" />
         </Transition>
       </router-view>
@@ -64,16 +72,12 @@
 </template>
 
 <style>
-  /* Hide-on-leave: leaving element disappears instantly, entering fades in */
+  /* Enter fade, leave is handled by JS hook (display:none breaks transitionend) */
   .page-enter-active {
     transition: opacity 0.15s ease;
   }
 
   .page-enter-from {
     opacity: 0;
-  }
-
-  .page-leave-active {
-    display: none;
   }
 </style>

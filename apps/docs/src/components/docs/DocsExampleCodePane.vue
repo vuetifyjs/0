@@ -7,7 +7,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+  import { computed, onMounted, onScopeDispose, shallowRef, useTemplateRef, watch } from 'vue'
 
   const props = withDefaults(defineProps<{
     code: string
@@ -74,6 +74,10 @@
   const lineCount = computed(() => props.code?.split('\n').length ?? 0)
   const shouldPeek = computed(() => props.peek && lineCount.value > props.peekLines)
   const peekHeight = computed(() => `${props.peekLines * 1.5 + 1}rem`)
+
+  onScopeDispose(() => {
+    highlightedCode.value = undefined
+  }, true)
 
   defineExpose({ highlight, highlightedCode, isLoading })
 </script>

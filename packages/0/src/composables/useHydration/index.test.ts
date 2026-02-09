@@ -92,6 +92,7 @@ describe('useHydration', () => {
     it('should call app.runWithContext and app.mixin when installed', () => {
       const plugin = createHydrationPlugin()
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
         provide: vi.fn(),
@@ -106,6 +107,7 @@ describe('useHydration', () => {
     it('should provide hydration context when installed', () => {
       const plugin = createHydrationPlugin()
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
         provide: vi.fn(),
@@ -119,6 +121,7 @@ describe('useHydration', () => {
     it('should add mixin that calls hydrate on root component mount', () => {
       const plugin = createHydrationPlugin()
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
         provide: vi.fn(),
@@ -136,6 +139,7 @@ describe('useHydration', () => {
     it('should only hydrate on root component (no parent)', () => {
       const plugin = createHydrationPlugin()
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
         provide: vi.fn(),
@@ -192,6 +196,7 @@ describe('useHydration', () => {
     it('should handle hydration of child components correctly', () => {
       const plugin = createHydrationPlugin()
       const mockApp = {
+        _context: {},
         runWithContext: vi.fn(callback => callback()),
         mixin: vi.fn(),
         provide: vi.fn(),
