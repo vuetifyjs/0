@@ -169,6 +169,9 @@ describe('vuetify0ThemeAdapter', () => {
       mockInBrowser.value = true
       mockStyleSheets = []
       spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
+      vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(v => {
+        mockStyleSheets = v as CSSStyleSheet[]
+      })
     })
 
     afterEach(() => {

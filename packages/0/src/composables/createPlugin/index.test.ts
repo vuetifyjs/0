@@ -15,6 +15,7 @@ describe('createPlugin', () => {
   beforeEach(() => {
     mockRunWithContext = vi.fn(callback => callback())
     mockApp = {
+      _context: {},
       runWithContext: mockRunWithContext,
     } as any
 

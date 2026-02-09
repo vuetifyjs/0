@@ -103,6 +103,7 @@ export function useHighlightCode (
   onScopeDispose(() => {
     if (debounceTimer) clearTimeout(debounceTimer)
     if (loadingTimer) clearTimeout(loadingTimer)
+    highlightedCode.value = ''
   })
 
   return {
