@@ -62,7 +62,7 @@
 
       fetch()
     },
-    { once: true },
+    { once: true, rootMargin: '200px' },
   )
 </script>
 
