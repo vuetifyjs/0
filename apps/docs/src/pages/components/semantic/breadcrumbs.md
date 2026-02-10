@@ -13,6 +13,8 @@ features:
   level: 2
 related:
   - /composables/utilities/create-breadcrumbs
+  - /composables/selection/create-group
+  - /composables/utilities/create-overflow
   - /components/semantic/pagination
 ---
 
@@ -24,7 +26,7 @@ A headless component for creating responsive breadcrumb navigation with proper A
 
 ## Usage
 
-The Breadcrumbs component provides a compound component pattern for building navigation trails. It uses the [createBreadcrumbs](/composables/utilities/create-breadcrumbs) and [createOverflow](/composables/utilities/create-overflow) composable internally.
+The Breadcrumbs component provides a compound component pattern for building navigation trails. It uses [createBreadcrumbs](/composables/utilities/create-breadcrumbs), [createGroup](/composables/selection/create-group), and [createOverflow](/composables/utilities/create-overflow) internally.
 
 ::: example
 /components/breadcrumbs/basic
@@ -70,15 +72,26 @@ The Root component composes three internal systems: [createBreadcrumbs](/composa
 
 ```mermaid "Breadcrumbs Architecture"
 flowchart TD
-  Root["Breadcrumbs.Root"]
   Breadcrumbs["createBreadcrumbs"]
-  Group["createGroup"]
   Overflow["createOverflow"]
+  Group["createGroup"]
+  Root["Breadcrumbs.Root"]:::primary
+  List["Breadcrumbs.List"]
+  Item["Breadcrumbs.Item"]
+  Divider["Breadcrumbs.Divider"]
+  Ellipsis["Breadcrumbs.Ellipsis"]
+  Link["Breadcrumbs.Link"]
+  Page["Breadcrumbs.Page"]
 
-  Root --> Breadcrumbs
-  Root --> Group
-  Root --> Overflow
-  Overflow -->|"capacity"| Group
+  Breadcrumbs --> Root
+  Overflow --> Root
+  Group --> Root
+  Root --> List
+  List --> Item
+  List --> Divider
+  List --> Ellipsis
+  Item --> Link
+  Item --> Page
 ```
 
 The Root creates three internal composables: `createBreadcrumbs` manages the navigation model, `createGroup` tracks item visibility, and `createOverflow` measures widths to determine how many items fit.

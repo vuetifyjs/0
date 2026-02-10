@@ -88,7 +88,7 @@
     gap = 8,
   } = defineProps<BreadcrumbsRootProps>()
 
-  const container = useTemplateRef('container')
+  const containerRef = useTemplateRef('container')
 
   // Create breadcrumbs composable as backing model (like TabsRoot uses createStep)
   const breadcrumbs = createBreadcrumbs({
@@ -97,22 +97,19 @@
     enroll: true,
   })
 
-  // Create Group with enroll: true so items start selected (visible)
   const group = createGroup<BreadcrumbsTicket>({
     enroll: true,
     multiple: true,
   })
 
-  // Create Overflow for width measurement
   const overflow = createOverflow({
-    container: () => container.value?.element as Element | undefined,
+    container: () => containerRef.value?.element as Element | undefined,
     gap,
-    reverse: true, // Prioritize trailing items (current path)
+    reverse: true,
   })
 
   const isOverflowing = overflow.isOverflowing
 
-  // Watch capacity changes and update selection
   watch(
     [() => overflow.capacity.value, () => group.size],
     ([capacity, size]) => {
@@ -128,8 +125,6 @@
         return
       }
 
-      // Overflow - need to hide some items and show ellipsis
-      // Since reverse: true, capacity counts from the end
       const items = group.values()
       const hiddenCount = size - capacity
 
@@ -150,7 +145,6 @@
     { immediate: true },
   )
 
-  // Provide context to children
   provideBreadcrumbsRoot(namespace, {
     breadcrumbs,
     group,
