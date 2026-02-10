@@ -140,6 +140,31 @@ const theme = inject('theme') // Could be undefined!
 const [useTheme, provideTheme] = createContext<ThemeContext>('Theme')
 ```
 
+### ❌ Don't override `register` without overriding `onboard`
+```ts
+// Bad — inherited onboard calls base register via closure, skipping your logic
+function register (item) {
+  const ticket = registry.register({ ...defaults, ...item })
+  doCustomStuff(ticket)
+  return ticket
+}
+return { ...registry, register } // onboard still calls base register!
+```
+
+### ✅ Always pair custom `register` with batched `onboard`
+```ts
+// Good — onboard routes through your register and batches cache/events
+function register (item) {
+  const ticket = registry.register({ ...defaults, ...item })
+  doCustomStuff(ticket)
+  return ticket
+}
+function onboard (items) {
+  return registry.batch(() => items.map(item => register(item)))
+}
+return { ...registry, register, onboard }
+```
+
 ### ❌ Don't write SSR checks manually
 ```ts
 // Bad

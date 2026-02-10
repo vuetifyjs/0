@@ -416,10 +416,15 @@ export function createQueue<
 
   onScopeDispose(dispose, true)
 
+  function onboard (registrations: Partial<Z>[]): E[] {
+    return registry.batch(() => registrations.map(registration => register(registration)))
+  }
+
   return {
     ...registry,
     register,
     unregister,
+    onboard,
     offboard,
     pause,
     resume,

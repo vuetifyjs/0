@@ -289,7 +289,9 @@ export function createGroup<
   }
 
   function onboard (registrations: Partial<Z>[]): E[] {
-    return registrations.map(registration => register(registration))
+    const tickets = selection.batch(() => registrations.map(registration => register(registration)))
+    if (toValue(mandatory) === 'force') selection.mandate()
+    return tickets
   }
 
   function reset () {

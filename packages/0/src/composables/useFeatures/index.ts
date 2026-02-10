@@ -185,10 +185,15 @@ export function createFeatures<
     }
   }
 
+  function onboard (registrations: Partial<Z>[]): E[] {
+    return registry.batch(() => registrations.map(registration => register(registration)))
+  }
+
   return {
     ...registry,
     variation,
     register,
+    onboard,
     sync,
     get size () {
       return registry.size

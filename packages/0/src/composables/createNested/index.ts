@@ -587,7 +587,7 @@ export function createNested<
   }
 
   function onboard (registrations: NestedRegistration<Z>[]): E[] {
-    return registrations.map(registration => register(registration))
+    return group.batch(() => registrations.map(registration => register(registration)))
   }
 
   function clear (): void {
