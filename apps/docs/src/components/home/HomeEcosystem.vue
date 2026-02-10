@@ -56,7 +56,8 @@
           :style="{ '--reveal-index': i }"
           :to="component.to"
         >
-          <AppDotGrid v-if="component.name === 'Selection'" :coverage="50" :density="16" origin="top right" />
+          <AppDotGrid v-if="i === 0" :coverage="50" :density="16" />
+          <AppDotGrid v-else-if="i === components.length - 1" :coverage="50" :density="16" origin="top right" />
 
           <div class="relative font-semibold mb-1 group-hover:text-primary transition-colors">
             {{ component.name }}
