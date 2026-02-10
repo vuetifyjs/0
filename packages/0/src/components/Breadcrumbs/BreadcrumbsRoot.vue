@@ -10,9 +10,6 @@
  */
 
 <script lang="ts">
-  // Constants
-  import { IN_BROWSER } from '#v0/constants/globals'
-
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -25,7 +22,7 @@
   import { createOverflow } from '#v0/composables/createOverflow'
 
   // Utilities
-  import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -43,6 +40,8 @@
     ellipsis?: string
     /** Maximum visible breadcrumb items before collapsing. @default Infinity */
     visible?: number
+    /** Gap between items in pixels. @default 8 */
+    gap?: number
   }
 
   export interface BreadcrumbsRootSlotProps {
@@ -86,10 +85,10 @@
     divider = '/',
     ellipsis = '…',
     visible = Infinity,
+    gap = 8,
   } = defineProps<BreadcrumbsRootProps>()
 
   const container = useTemplateRef('container')
-  const itemGap = shallowRef(0)
 
   // Create breadcrumbs composable as backing model (like TabsRoot uses createStep)
   const breadcrumbs = createBreadcrumbs({
@@ -107,20 +106,9 @@
   // Create Overflow for width measurement
   const overflow = createOverflow({
     container: () => container.value?.element as Element | undefined,
-    gap: itemGap,
+    gap,
     reverse: true, // Prioritize trailing items (current path)
   })
-
-  /* v8 ignore start -- browser-only measurement code */
-  watch(() => container.value?.element, el => {
-    if (!IN_BROWSER || !el) return
-
-    requestAnimationFrame(() => {
-      const style = getComputedStyle(el)
-      itemGap.value = Number.parseFloat(style.gap) || 0
-    })
-  }, { immediate: true })
-  /* v8 ignore stop */
 
   const isOverflowing = overflow.isOverflowing
 

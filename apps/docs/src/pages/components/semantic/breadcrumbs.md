@@ -64,27 +64,76 @@ The Breadcrumbs component provides a compound component pattern for building nav
 </template>
 ```
 
-<DocsApi />
+## Architecture
 
-## Features
+The Root component composes three internal systems: [createBreadcrumbs](/composables/utilities/create-breadcrumbs) for navigation state, [createGroup](/composables/selection/create-group) for visibility tracking, and [createOverflow](/composables/utilities/create-overflow) for width measurement.
+
+```mermaid "Breadcrumbs Architecture"
+flowchart TD
+  Root["Breadcrumbs.Root"]
+  Breadcrumbs["createBreadcrumbs"]
+  Group["createGroup"]
+  Overflow["createOverflow"]
+
+  Root --> Breadcrumbs
+  Root --> Group
+  Root --> Overflow
+  Overflow -->|"capacity"| Group
+```
+
+The Root creates three internal composables: `createBreadcrumbs` manages the navigation model, `createGroup` tracks item visibility, and `createOverflow` measures widths to determine how many items fit.
+
+## Examples
 
 ::: example
 /components/breadcrumbs/overflow
 
-### Overflow Detection
+### Responsive Overflow
 
-The Root component uses [createOverflow](/composables/utilities/create-overflow) to measure item widths and determine how many fit. When items overflow, items from the beginning are hidden and the Ellipsis indicator appears.
+Breadcrumb trails can easily exceed their container in sidebars, mobile viewports, or resizable panels. Rather than wrapping or clipping, the Root measures each item's width via [createOverflow](/composables/utilities/create-overflow) and hides items from the beginning when space runs out. The Ellipsis component appears automatically to indicate hidden items.
+
+**Key patterns:**
+
+- Items without an `href` render as `Breadcrumbs.Page` with `aria-current="page"`
+- The Ellipsis is placed after the first item (`v-if="index === 1"`) so the root crumb always stays visible
+- `shrink-0` and `whitespace-nowrap` on items prevent text from wrapping before overflow kicks in
+
+Drag the slider to shrink the container and watch items collapse into the ellipsis.
 
 :::
 
 ::: example
-/components/breadcrumbs/custom-divider
+/components/breadcrumbs/AppBreadcrumbs.vue
+/components/breadcrumbs/useBreadcrumbItems.ts
 
-### Custom Dividers
+### Route-Derived Breadcrumbs
 
-The default divider is `/`, set on the Root. Use the Divider slot for rich content like icons.
+In most applications, breadcrumbs mirror the current URL. Rather than manually maintaining a list of items, this example derives the trail reactively from [useRoute()](https://router.vuejs.org/api/interfaces/Router.html#currentRoute). When no `items` prop is provided, `AppBreadcrumbs` automatically uses the route-derived trail.
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `useBreadcrumbItems.ts` | Composable that reads [route.path](https://router.vuejs.org/api/interfaces/RouteLocationNormalizedLoaded.html#path), splits it into segments, and returns a reactive breadcrumb array |
+| `AppBreadcrumbs.vue` | Reusable component — falls back to `useBreadcrumbItems` when no `items` prop is provided |
+
+**Key patterns:**
+
+- The composable wraps its logic in a `computed` so the trail updates automatically when [route.path](https://router.vuejs.org/api/interfaces/RouteLocationNormalizedLoaded.html#path) changes during navigation
+- Path segments are title-cased with a simple regex (`replace(/\b\w/g, ...)`)
+- Segments that don't resolve to a real route (like category folders) render as plain text instead of links
+- The last segment omits `href`, which causes `AppBreadcrumbs` to render it as a `Breadcrumbs.Page` with `aria-current="page"`
+- Pass explicit `items` for static trails, or omit the prop to derive from the current route
+
+Navigate to a different page in the docs and watch the breadcrumb trail update.
 
 :::
+
+<DocsApi />
+
+## Recipes
+
+Common patterns for integrating Breadcrumbs into your application.
 
 ### Links and Current Page
 

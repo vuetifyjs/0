@@ -20,7 +20,7 @@
 <template>
   <div
     v-if="title || hasContent"
-    class="relative px-5 pt-4 border-b border-divider bg-surface-variant"
+    class="relative px-5 py-4 border-b border-divider bg-surface-variant"
   >
     <h3
       v-if="title"
