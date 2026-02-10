@@ -34,12 +34,12 @@
     id: ID
     /** Resolved ellipsis character */
     ellipsis: string
-    /** Whether the ellipsis is visible (items are overflowing) */
-    isVisible: boolean
+    /** Whether the ellipsis is currently selected (visible) */
+    isSelected: boolean
     /** Attributes to bind to the ellipsis element */
     attrs: {
       'aria-hidden': 'true'
-      'data-visible': true | undefined
+      'data-selected': true | undefined
     }
   }
 </script>
@@ -83,22 +83,22 @@
   })
 
   const resolvedEllipsis = toRef(() => ellipsis ?? context.ellipsis.value)
-  const isVisible = toRef(() => ticket.isSelected.value)
+  const isSelected = toRef(() => ticket.isSelected.value)
 
   const slotProps = toRef((): BreadcrumbsEllipsisSlotProps => ({
     id: ticket.id,
     ellipsis: resolvedEllipsis.value,
-    isVisible: isVisible.value,
+    isSelected: isSelected.value,
     attrs: {
       'aria-hidden': 'true',
-      'data-visible': isVisible.value || undefined,
+      'data-selected': isSelected.value || undefined,
     },
   }))
 </script>
 
 <template>
   <Atom
-    v-show="isVisible"
+    v-show="isSelected"
     ref="el"
     :as
     :renderless

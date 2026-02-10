@@ -215,7 +215,7 @@ describe('breadcrumbs', () => {
 
       expect(itemProps).toBeDefined()
       expect(itemProps!.id).toBeDefined()
-      expect(typeof itemProps!.isVisible).toBe('boolean')
+      expect(typeof itemProps!.isSelected).toBe('boolean')
       expect(itemProps!.attrs).toBeDefined()
     })
   })
@@ -382,7 +382,7 @@ describe('breadcrumbs', () => {
 
       expect(dividerProps).toBeDefined()
       expect(dividerProps!.divider).toBe('/')
-      expect(typeof dividerProps!.isVisible).toBe('boolean')
+      expect(typeof dividerProps!.isSelected).toBe('boolean')
       expect(dividerProps!.id).toBeDefined()
     })
 
@@ -469,7 +469,7 @@ describe('breadcrumbs', () => {
       await nextTick()
 
       expect(ellipsisProps).toBeDefined()
-      expect(typeof ellipsisProps!.isVisible).toBe('boolean')
+      expect(typeof ellipsisProps!.isSelected).toBe('boolean')
       expect(ellipsisProps!.id).toBeDefined()
       expect(ellipsisProps!.ellipsis).toBeDefined()
     })

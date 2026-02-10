@@ -5,7 +5,7 @@
  * Individual breadcrumb item that registers with the parent BreadcrumbsRoot.
  * Registers with both the breadcrumbs composable (navigation model) and the
  * group context (overflow visibility). Self-measures width for overflow calculation.
- * Visibility is controlled via group selection state (v-show bound to isSelected).
+ * Visibility is controlled via group selection state (v-show bound to isSelected from the group ticket).
  */
 
 <script lang="ts">
@@ -34,11 +34,11 @@
   export interface BreadcrumbsItemSlotProps {
     /** Unique identifier */
     id: ID
-    /** Whether this item is currently visible */
-    isVisible: boolean
+    /** Whether this item is currently selected (visible) */
+    isSelected: boolean
     /** Attributes to bind to the item element */
     attrs: {
-      'data-visible': true | undefined
+      'data-selected': true | undefined
     }
   }
 </script>
@@ -91,20 +91,20 @@
     context.breadcrumbs.unregister(crumb.id)
   })
 
-  const isVisible = toRef(() => ticket.isSelected.value)
+  const isSelected = toRef(() => ticket.isSelected.value)
 
   const slotProps = toRef((): BreadcrumbsItemSlotProps => ({
     id: ticket.id,
-    isVisible: isVisible.value,
+    isSelected: isSelected.value,
     attrs: {
-      'data-visible': isVisible.value || undefined,
+      'data-selected': isSelected.value || undefined,
     },
   }))
 </script>
 
 <template>
   <Atom
-    v-show="isVisible"
+    v-show="isSelected"
     ref="el"
     :as
     :renderless

@@ -34,12 +34,12 @@
     id: ID
     /** Resolved divider character */
     divider: string
-    /** Whether this divider is currently visible */
-    isVisible: boolean
+    /** Whether this divider is currently selected (visible) */
+    isSelected: boolean
     /** Attributes to bind to the divider element */
     attrs: {
       'aria-hidden': 'true'
-      'data-visible': true | undefined
+      'data-selected': true | undefined
     }
   }
 </script>
@@ -82,22 +82,22 @@
   })
 
   const resolvedDivider = toRef(() => divider ?? context.divider.value)
-  const isVisible = toRef(() => ticket.isSelected.value)
+  const isSelected = toRef(() => ticket.isSelected.value)
 
   const slotProps = toRef((): BreadcrumbsDividerSlotProps => ({
     id: ticket.id,
     divider: resolvedDivider.value,
-    isVisible: isVisible.value,
+    isSelected: isSelected.value,
     attrs: {
       'aria-hidden': 'true',
-      'data-visible': isVisible.value || undefined,
+      'data-selected': isSelected.value || undefined,
     },
   }))
 </script>
 
 <template>
   <Atom
-    v-show="isVisible"
+    v-show="isSelected"
     ref="el"
     :as
     :renderless
