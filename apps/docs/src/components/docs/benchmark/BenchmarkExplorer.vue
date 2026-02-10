@@ -25,12 +25,9 @@
     summary,
     filter,
     composableSelection,
-    tierSelection,
     expandedGroups,
-    sortBy,
     expandAll,
     collapseAll,
-    clearFilters,
   } = useBenchmarkData({ composable: props.composable })
 
   // Default expand behavior: expand all when not collapsed
@@ -63,11 +60,6 @@
     return composableTiers.value.get(composableName) ?? 'good'
   }
 
-  // Visible benchmark count for filter status
-  const visibleBenchmarkCount = computed(() =>
-    filteredGroups.value.reduce((sum, g) => sum + g.benchmarks.length, 0),
-  )
-
   const allExpanded = computed(() =>
     filteredGroups.value.length > 0
     && filteredGroups.value.every(g => expandedGroups.selected(g.id)),
@@ -81,14 +73,6 @@
     composableSelection.toggle(name)
   }
 
-  // Tier selection: register items and use toggle
-  function handleTierToggle (tier: string) {
-    if (!tierSelection.has(tier)) {
-      tierSelection.register({ id: tier })
-    }
-    tierSelection.toggle(tier)
-  }
-
   // Expand/collapse: register group and toggle
   function handleGroupToggle (id: string) {
     if (!expandedGroups.has(id)) {
@@ -98,7 +82,7 @@
   }
 
   // Derive selected composable names from group selectedIds
-  const selectedComposableNames = computed(() => Array.from(composableSelection.selectedIds))
+  const selectedComposableNames = computed(() => Array.from(composableSelection.selectedIds) as string[])
 </script>
 
 <template>
