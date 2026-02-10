@@ -133,7 +133,7 @@ Create a plugin file to configure v0:
 import { createThemePlugin } from '@vuetify/v0'
 import type { App } from 'vue'
 
-export default function zero (app: App) {
+export default function vuetify0 (app: App) {
   app.use(
     createThemePlugin({
       default: 'light',
