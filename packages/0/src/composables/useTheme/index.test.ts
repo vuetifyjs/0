@@ -329,8 +329,11 @@ describe('createThemePlugin', () => {
   })
 
   it('should inject CSS variables into DOM', async () => {
-    const mockStyleSheets: CSSStyleSheet[] = []
+    let mockStyleSheets: CSSStyleSheet[] = []
     const spy = vi.spyOn(document, 'adoptedStyleSheets', 'get').mockImplementation(() => mockStyleSheets)
+    vi.spyOn(document, 'adoptedStyleSheets', 'set').mockImplementation(v => {
+      mockStyleSheets = v as CSSStyleSheet[]
+    })
 
     const app = createApp({
       template: '<div>Test</div>',

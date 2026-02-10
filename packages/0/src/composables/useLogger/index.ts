@@ -29,7 +29,6 @@ import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
 // Utilities
 import { instanceExists } from '#v0/utilities'
-import { shallowRef } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -108,8 +107,8 @@ export function createLogger<
     enabled: initialEnabled = __LOGGER_ENABLED__,
   } = options
 
-  const currentLevel = shallowRef(initialLevel)
-  const isEnabled = shallowRef(initialEnabled)
+  let currentLevel = initialLevel
+  let isEnabled = initialEnabled
 
   function value (level: LogLevel): number {
     const levels: Record<LogLevel, number> = {
@@ -125,8 +124,8 @@ export function createLogger<
   }
 
   function can (level: LogLevel): boolean {
-    if (!isEnabled.value) return false
-    return value(level) >= value(currentLevel.value)
+    if (!isEnabled) return false
+    return value(level) >= value(currentLevel)
   }
 
   function format (message: string): string {
@@ -158,23 +157,23 @@ export function createLogger<
   }
 
   function level (newLevel: LogLevel) {
-    currentLevel.value = newLevel
+    currentLevel = newLevel
   }
 
   function current () {
-    return currentLevel.value
+    return currentLevel
   }
 
   function enabled () {
-    return isEnabled.value
+    return isEnabled
   }
 
   function enable () {
-    isEnabled.value = true
+    isEnabled = true
   }
 
   function disable () {
-    isEnabled.value = false
+    isEnabled = false
   }
 
   return {
