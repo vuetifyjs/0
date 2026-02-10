@@ -226,6 +226,20 @@ function generateLlmsTxt (pages: PageInfo[]): string {
     lines.push('')
   }
 
+  // Top-level pages (releases, roadmap, etc.)
+  const topLevelPages = pages
+    .filter(p => p.category === '.' && p.path !== '')
+    .toSorted((a, b) => a.title.localeCompare(b.title))
+
+  if (topLevelPages.length > 0) {
+    lines.push('## Resources', '')
+    for (const page of topLevelPages) {
+      const desc = page.description ? `: ${page.description}` : ''
+      lines.push(`- [${page.title}](${BASE_URL}${page.path})${desc}`)
+    }
+    lines.push('')
+  }
+
   // AI Resources section
   lines.push('## AI Resources', '', `- [SKILL.md](${BASE_URL}/SKILL.md): Compact reference with patterns, anti-patterns, and TypeScript types for AI coding assistants`, `- [Vuetify MCP](${BASE_URL}/guide/tooling/vuetify-mcp): Model Context Protocol server for structured API access`, '')
 
