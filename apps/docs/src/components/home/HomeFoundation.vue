@@ -72,6 +72,7 @@
           v-for="fw in frameworks"
           :key="fw.name"
           class="flex items-center justify-center sm:justify-start gap-2 px-4 sm:px-5 py-2.5 rounded-lg border bg-surface hover:border-primary transition-all duration-150"
+          no-suffix
           :to="fw.to"
         >
           <AppIcon :icon="fw.icon" :size="18" />

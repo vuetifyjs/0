@@ -15,9 +15,11 @@
   export interface AppLinkProps extends AtomProps {
     /** Link destination - internal path or external URL */
     to: string
+    /** Hide the external link suffix icon */
+    noSuffix?: boolean
   }
 
-  const { as: _as, to, ...props } = defineProps<AppLinkProps>()
+  const { as: _as, to, noSuffix, ...props } = defineProps<AppLinkProps>()
 
   const isExternal = toRef(() => to.startsWith('http://') || to.startsWith('https://'))
 
@@ -27,7 +29,7 @@
     : { to },
   )
 
-  const suffix = toRef(() => isExternal.value ? EXTERNAL_LINK_SUFFIX : '')
+  const suffix = toRef(() => !noSuffix && isExternal.value ? EXTERNAL_LINK_SUFFIX : '')
 </script>
 
 <template>
