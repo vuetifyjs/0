@@ -31,7 +31,8 @@
         "src/components/app/AppBrowserIcon.vue",
         "src/components/docs/DocsBrowserSupport.vue",
         "src/skillz/tours/**/index.ts",
-        "src/stores/skillz.ts"
+        "src/stores/skillz.ts",
+        "src/examples/**"
       ],
       "paths": {
         "@/*": [
