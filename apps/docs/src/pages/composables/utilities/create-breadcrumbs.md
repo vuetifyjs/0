@@ -38,7 +38,7 @@ The `createBreadcrumbs` composable manages an ordered path of items. When you se
 flowchart TD
   createRegistry --> createSelection
   createSelection --> createSingle
-  createSingle --> createBreadcrumbs
+  createSingle --> createBreadcrumbs:::primary
 ```
 
 The [Breadcrumbs component](/components/semantic/breadcrumbs) consumes `createBreadcrumbs` as its backing model, similar to how `Tabs.Root` uses `createStep`.
