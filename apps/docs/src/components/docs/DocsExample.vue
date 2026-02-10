@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createOverflow, Tabs } from '@vuetify/v0'
+  import { createOverflow, isUndefined, Tabs } from '@vuetify/v0'
 
   // Components
   import DocsSkeleton from './DocsSkeleton.vue'
@@ -28,6 +28,7 @@
     file?: string
     filePath?: string
     filePaths?: string[]
+    fileOrders?: (number | undefined)[]
     title?: string
     id?: string
     code?: string
@@ -54,6 +55,16 @@
     props.files ?? ('files' in (auto.value || {}) ? (auto.value as { files?: ExampleFile[] }).files : undefined),
   )
 
+  // Sort files by display order if fileOrders specified
+  const displayFiles = computed(() => {
+    const files = resolvedFiles.value
+    if (!files?.length || !props.fileOrders?.some(o => !isUndefined(o))) return files
+    return files
+      .map((f, i) => ({ file: f, order: props.fileOrders![i] ?? Infinity }))
+      .toSorted((a, b) => a.order - b.order)
+      .map(x => x.file)
+  })
+
   const slots = useSlots()
   const hasDescription = computed(() => !!slots.description)
   const descriptionExpanded = ref(false)
@@ -66,10 +77,10 @@
   const combinedView = ref(false)
 
   // Multi-file support
-  const hasMultipleFiles = computed(() => resolvedFiles.value && resolvedFiles.value.length > 1)
+  const hasMultipleFiles = computed(() => displayFiles.value && displayFiles.value.length > 1)
   const selectedTab = ref<string>()
 
-  watch(() => resolvedFiles.value, files => {
+  watch(() => displayFiles.value, files => {
     if (files?.length && !selectedTab.value) {
       selectedTab.value = files[0]?.name
     }
@@ -84,17 +95,17 @@
   })
 
   const visibleCount = computed(() => {
-    if (!resolvedFiles.value?.length) return 0
+    if (!displayFiles.value?.length) return 0
     const cap = overflow.capacity.value
-    if (cap === Infinity || cap >= resolvedFiles.value.length) {
-      return resolvedFiles.value.length
+    if (cap === Infinity || cap >= displayFiles.value.length) {
+      return displayFiles.value.length
     }
     return Math.max(1, cap - 1)
   })
 
   const hiddenFiles = computed(() => {
-    if (!resolvedFiles.value?.length) return []
-    return resolvedFiles.value.slice(visibleCount.value)
+    if (!displayFiles.value?.length) return []
+    return displayFiles.value.slice(visibleCount.value)
   })
 
   // Code pane refs for triggering highlight
@@ -143,15 +154,15 @@
   )
 
   function openAllInPlayground () {
-    if (!resolvedFiles.value?.length) return
-    const files = resolvedFiles.value.map(f => ({ name: f.name, code: f.code }))
+    if (!displayFiles.value?.length) return
+    const files = displayFiles.value.map(f => ({ name: f.name, code: f.code }))
     const url = usePlaygroundMulti(files)
     window.open(url, '_blank')
   }
 
   function openAllInBin () {
-    if (!resolvedFiles.value?.length) return
-    const files = resolvedFiles.value.map(f => ({ name: f.name, code: f.code, language: f.language }))
+    if (!displayFiles.value?.length) return
+    const files = displayFiles.value.map(f => ({ name: f.name, code: f.code, language: f.language }))
     const url = getMultiFileBinUrl(files, props.title)
     window.open(url, '_blank')
   }
@@ -177,7 +188,7 @@
       </div>
 
       <!-- Code toggle button -->
-      <div v-if="!peek && (resolvedCode || resolvedFiles?.length)" class="border-t border-divider bg-surface-tint">
+      <div v-if="!peek && (resolvedCode || displayFiles?.length)" class="border-t border-divider bg-surface-tint">
         <button
           :aria-controls="`${uid}-code`"
           :aria-expanded="showCode"
@@ -189,7 +200,7 @@
           <AppIcon v-else-if="showCode && hasHighlightedCode" icon="chevron-up" :size="16" />
           <AppIcon v-else class="transition-colors group-hover:text-primary" icon="code" :size="16" />
           <span v-if="hasMultipleFiles" class="ml-auto opacity-60 font-mono text-[0.8125rem]">
-            {{ resolvedFiles!.length }} file(s)
+            {{ displayFiles!.length }} file(s)
           </span>
           <span v-else-if="fileName" class="ml-auto opacity-60 font-mono text-[0.8125rem]">{{ fileName }}</span>
         </button>
@@ -241,7 +252,7 @@
             <template v-if="!combinedView">
               <Tabs.List class="contents" label="Example files">
                 <Tabs.Item
-                  v-for="(f, i) in resolvedFiles"
+                  v-for="(f, i) in displayFiles"
                   :key="f.name"
                   :ref="(el: unknown) => overflow.measure(i, (el as ComponentPublicInstance)?.$el)"
                   class="h-[30px] px-2 text-xs font-medium rounded whitespace-nowrap inline-flex items-center cursor-pointer"
@@ -312,7 +323,7 @@
           <!-- Tabbed panels (single file view) -->
           <template v-if="!combinedView">
             <Tabs.Panel
-              v-for="f in resolvedFiles"
+              v-for="f in displayFiles"
               :key="f.name"
               :value="f.name"
             >
@@ -330,7 +341,7 @@
           <!-- Combined view (all files stacked) -->
           <template v-else>
             <DocsExampleCodePane
-              v-for="f in resolvedFiles"
+              v-for="f in displayFiles"
               :key="f.name"
               :ref="(el: unknown) => setCodePaneRef(f.name, el)"
               :code="f.code"

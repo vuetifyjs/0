@@ -81,6 +81,7 @@ export default async function MarkdownPlugin () {
             const isCollapse = info.includes('collapse')
             env._inExample = true
             env._exampleFilePaths = [] as string[]
+            env._exampleFileOrders = [] as (number | undefined)[]
             env._exampleCollapse = isCollapse
             return '' // Defer opening tag until we know the file path(s)
           }
@@ -88,10 +89,13 @@ export default async function MarkdownPlugin () {
           // Closing tag
           const wasOpened = env._exampleOpened
           const paths = env._exampleFilePaths as string[]
+          const orders = env._exampleFileOrders as (number | undefined)[]
+          const hasOrders = orders?.some(o => o !== undefined)
           const collapse = env._exampleCollapse
 
           delete env._inExample
           delete env._exampleFilePaths
+          delete env._exampleFileOrders
           delete env._exampleOpened
           delete env._examplePathPara
           delete env._exampleCollapse
@@ -108,7 +112,8 @@ export default async function MarkdownPlugin () {
             return `<DocsExample file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'} />\n`
           } else if (paths?.length > 1) {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
-            return `<DocsExample :file-paths="${pathsJson}"${collapseAttr} />\n`
+            const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
+            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr} />\n`
           }
 
           return ''
@@ -139,6 +144,8 @@ export default async function MarkdownPlugin () {
         if (env._inExample && (env._exampleFilePaths as string[])?.length > 0 && !env._exampleOpened) {
           env._exampleOpened = true
           const paths = env._exampleFilePaths as string[]
+          const orders = env._exampleFileOrders as (number | undefined)[]
+          const hasOrders = orders?.some(o => o !== undefined)
           const collapse = env._exampleCollapse
           const collapseAttr = collapse ? ' collapse' : ''
           const defaultRender = defaultHeadingOpen
@@ -149,7 +156,8 @@ export default async function MarkdownPlugin () {
             return `<DocsExample file-path="${paths[0]}"${collapseAttr}>\n<template #description>\n${defaultRender}`
           } else {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
-            return `<DocsExample :file-paths="${pathsJson}"${collapseAttr}>\n<template #description>\n${defaultRender}`
+            const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
+            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}>\n<template #description>\n${defaultRender}`
           }
         }
 
@@ -172,7 +180,15 @@ export default async function MarkdownPlugin () {
           for (const line of lines) {
             const trimmed = line.trim()
             if (trimmed.startsWith('/') && trimmed.length > 1) {
-              ;(env._exampleFilePaths as string[]).push(trimmed.slice(1))
+              // Parse optional display order: /path/to/file 2
+              const orderMatch = trimmed.match(/^(\/\S+)\s+(\d+)$/)
+              if (orderMatch) {
+                ;(env._exampleFilePaths as string[]).push(orderMatch[1].slice(1))
+                ;(env._exampleFileOrders as (number | undefined)[]).push(Number(orderMatch[2]))
+              } else {
+                ;(env._exampleFilePaths as string[]).push(trimmed.slice(1))
+                ;(env._exampleFileOrders as (number | undefined)[]).push(undefined)
+              }
             }
           }
           env._examplePathPara = true
@@ -185,13 +201,16 @@ export default async function MarkdownPlugin () {
         if (env._inExample && (env._exampleFilePaths as string[]).length > 0 && !env._exampleOpened) {
           env._exampleOpened = true
           const paths = env._exampleFilePaths as string[]
+          const orders = env._exampleFileOrders as (number | undefined)[]
+          const hasOrders = orders?.some(o => o !== undefined)
           const collapse = env._exampleCollapse
           const collapseAttr = collapse ? ' collapse' : ''
           if (paths.length === 1) {
             return `<DocsExample file-path="${paths[0]}"${collapseAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
           } else {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
-            return `<DocsExample :file-paths="${pathsJson}"${collapseAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+            const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
+            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
           }
         }
 
