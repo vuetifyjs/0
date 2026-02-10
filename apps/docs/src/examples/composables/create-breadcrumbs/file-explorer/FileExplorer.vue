@@ -14,7 +14,7 @@
   const anchor = shallowRef<'start' | 'end'>('end')
   const breadcrumbs = createBreadcrumbs<FileBreadcrumbTicketInput>({
     visible: 4,
-    anchor, reactive: true,
+    anchor,
   })
 
   const current = computed(() => breadcrumbs.selectedValue.value ?? tree)
@@ -54,22 +54,26 @@
         v-for="ticket in breadcrumbs.tickets.value"
         :key="ticket.type === 'crumb' ? ticket.value.id : 'ellipsis'"
       >
-        <Popover.Root v-if="ticket.type === 'ellipsis'">
-          <Popover.Activator class="text-on-surface-variant px-1 cursor-pointer hover:text-primary">
-            {{ ticket.value }}
-          </Popover.Activator>
+        <template v-if="ticket.type === 'ellipsis'">
+          <span class="text-on-surface-variant">/</span>
 
-          <Popover.Content class="py-1 rounded-lg bg-surface border border-divider shadow-lg" position-area="top">
-            <button
-              v-for="crumb in ticket.collapsed"
-              :key="crumb.id"
-              class="block w-full px-3 py-1.5 text-sm text-left text-primary hover:bg-surface-tint cursor-pointer"
-              @click="navigate(crumb.id)"
-            >
-              {{ crumb.text }}
-            </button>
-          </Popover.Content>
-        </Popover.Root>
+          <Popover.Root>
+            <Popover.Activator class="text-on-surface-variant px-1 cursor-pointer hover:text-primary">
+              {{ ticket.value }}
+            </Popover.Activator>
+
+            <Popover.Content class="py-1 rounded-lg bg-surface border border-divider shadow-lg" position-area="top">
+              <button
+                v-for="crumb in ticket.collapsed"
+                :key="crumb.id"
+                class="block w-full px-3 py-1.5 text-sm text-left text-primary hover:bg-surface-tint cursor-pointer"
+                @click="navigate(crumb.id)"
+              >
+                {{ crumb.text }}
+              </button>
+            </Popover.Content>
+          </Popover.Root>
+        </template>
 
         <template v-else>
           <span v-if="ticket.index > 0" class="text-on-surface-variant">/</span>
