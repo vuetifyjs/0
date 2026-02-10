@@ -79,6 +79,8 @@ export interface BreadcrumbsOptions extends SingleOptions {
   visible?: MaybeRefOrGetter<number>
   /** Ellipsis character. @default '…' */
   ellipsis?: string | false
+  /** Which end to anchor when collapsing. 'end' keeps last items visible, 'start' keeps first items visible. @default 'end' */
+  anchor?: MaybeRefOrGetter<'start' | 'end'>
 }
 
 export interface BreadcrumbsContextOptions extends SingleContextOptions {
@@ -86,6 +88,8 @@ export interface BreadcrumbsContextOptions extends SingleContextOptions {
   visible?: MaybeRefOrGetter<number>
   /** Ellipsis character. @default '…' */
   ellipsis?: string | false
+  /** Which end to anchor when collapsing. 'end' keeps last items visible, 'start' keeps first items visible. @default 'end' */
+  anchor?: MaybeRefOrGetter<'start' | 'end'>
 }
 
 /**
@@ -119,6 +123,7 @@ export function createBreadcrumbs<
   const {
     visible: _visible = Infinity,
     ellipsis = '…',
+    anchor: _anchor = 'end',
     ...singleOptions
   } = _options
 
@@ -177,6 +182,7 @@ export function createBreadcrumbs<
    */
   const tickets = computed<BreadcrumbRenderTicket<Z['value']>[]>(() => {
     const visible = toValue(_visible)
+    const anchor = toValue(_anchor)
     const items = single.values()
 
     if (items.length === 0) return []
@@ -185,24 +191,38 @@ export function createBreadcrumbs<
       return items.map((value, index) => ({ type: 'crumb' as const, value, index }))
     }
 
-    // Always show first and last, collapse middle
-    // visible=4 with 6 items: [0] [...] [4] [5]
-    // visible=3 with 6 items: [0] [...] [5]
+    if (anchor === 'start') {
+      // Keep first items visible, collapse from end
+      // visible=4 with 6 items: [0] [1] [2] [...] [5]
+      const headCount = Math.max(1, visible - 2)
+      const collapseStart = headCount
+      const collapseEnd = items.length - 1
 
-    // Calculate how many items to show at the end (excluding first)
+      const head: BreadcrumbRenderTicket<Z['value']>[] = items
+        .slice(0, headCount)
+        .map((value, i) => ({ type: 'crumb' as const, value, index: i }))
+
+      const middle: BreadcrumbRenderTicket<Z['value']>[] = collapseEnd > collapseStart
+        ? [{ type: 'ellipsis', value: ellipsis, collapsed: items.slice(collapseStart, collapseEnd) }]
+        : []
+
+      const tail: BreadcrumbRenderTicket<Z['value']> = { type: 'crumb', value: items.at(-1)!, index: items.length - 1 }
+
+      return [...head, ...middle, tail]
+    }
+
+    // anchor === 'end': keep last items visible, collapse from start (default)
+    // visible=4 with 6 items: [0] [...] [4] [5]
     const tailCount = Math.max(1, visible - 2)
     const collapseStart = 1
     const collapseEnd = items.length - tailCount
 
-    // Build first item
     const head: BreadcrumbRenderTicket<Z['value']> = { type: 'crumb', value: items[0]!, index: 0 }
 
-    // Build middle section (ellipsis or nothing)
     const middle: BreadcrumbRenderTicket<Z['value']>[] = collapseEnd > collapseStart
       ? [{ type: 'ellipsis', value: ellipsis, collapsed: items.slice(collapseStart, collapseEnd) }]
       : []
 
-    // Build tail items
     const startIndex = Math.max(1, collapseEnd)
     const tail: BreadcrumbRenderTicket<Z['value']>[] = items
       .slice(startIndex)

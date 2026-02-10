@@ -26,29 +26,9 @@ A composable that extends `createSingle` for breadcrumb navigation with automati
 
 The `createBreadcrumbs` composable manages an ordered path of items. When you select an earlier item, everything after it is removed. The `tickets` computed property provides a render-ready array with ellipsis support for long trails.
 
-```ts collapse
-import { createBreadcrumbs } from '@vuetify/v0'
-
-const breadcrumbs = createBreadcrumbs({ visible: 4 })
-
-breadcrumbs.register({ text: 'Home' })
-breadcrumbs.register({ text: 'Products' })
-breadcrumbs.register({ text: 'Electronics' })
-breadcrumbs.register({ text: 'Phones' })
-breadcrumbs.register({ text: 'iPhone' })
-
-// Derived state
-breadcrumbs.depth.value      // 5
-breadcrumbs.isRoot.value     // false
-breadcrumbs.tickets.value    // [Home, ..., Phones, iPhone]
-
-// Navigate back (truncates path)
-breadcrumbs.prev()           // removes iPhone, selects Phones
-breadcrumbs.first()          // truncates to Home only
-
-// Select with truncation
-breadcrumbs.select(home.id)  // removes everything after Home
-```
+::: example
+/composables/create-breadcrumbs/basic
+:::
 
 ## Architecture
 
@@ -84,11 +64,29 @@ Breadcrumb state is **always reactive**. All derived properties update automatic
 ## Examples
 
 ::: example
-/composables/create-breadcrumbs/navigation
+/composables/create-breadcrumbs/file-explorer/FileExplorer.vue
+/composables/create-breadcrumbs/file-explorer/tree.ts
 
-### Navigation
+### File Explorer
 
-Interactive navigation using `prev()`, `first()`, and `select()`. Add crumbs dynamically and watch the trail update with ellipsis collapse when exceeding the visible limit.
+A file explorer that uses `createBreadcrumbs` to track the user's position in a folder tree. Clicking a folder calls `register()` to push it onto the trail, while clicking a breadcrumb calls `select()` to navigate back — automatically truncating everything after the selected crumb. Hidden crumbs are accessible through a Popover on the ellipsis.
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `file-explorer.vue` | Interactive file browser with breadcrumb navigation, ellipsis popover, and anchor toggle |
+| `tree.ts` | Typed folder tree data and `FolderNode` interface |
+
+**Key patterns:**
+
+- `FileBreadcrumbTicketInput` extends `BreadcrumbTicketInput<FolderNode>` so `selectedValue` is properly typed — no casting needed
+- Each folder node is stored as the ticket's `value`, keeping the breadcrumb trail and folder listing in sync through the registry itself
+- The `anchor` option controls truncation direction — `'end'` (default) keeps the last crumbs visible, `'start'` keeps the first crumbs visible
+- The `Popover` component renders inside the ellipsis, letting users click hidden crumbs to jump directly to any collapsed level
+- `isRoot` controls whether the back button is visible
+
+Drill into **Home > Documents > Projects > v0-app > src** to see the ellipsis appear, then toggle **Anchor start** to flip the truncation direction.
 
 :::
 
