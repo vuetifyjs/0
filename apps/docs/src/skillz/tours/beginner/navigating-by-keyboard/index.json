@@ -1,0 +1,62 @@
+{
+  "mode": "interactive",
+  "id": "navigating-by-keyboard",
+  "name": "Navigating by Keyboard",
+  "level": 1,
+  "track": "essentials",
+  "categories": ["meta"],
+  "order": 2,
+  "prerequisites": ["using-the-docs", "using-search"],
+  "description": "Maneuver through the docs with ease using keyboard shortcuts and navigation tips.",
+  "minutes": 2,
+  "startRoute": "/introduction/why-vuetify0",
+  "steps": [
+    {
+      "id": "search",
+      "title": "Open Search",
+      "task": "Press Ctrl+K (or Cmd+K on Mac) to open search from anywhere.",
+      "hint": "This shortcut works on any page.",
+      "learn": "Open search instantly with a keyboard shortcut"
+    },
+    {
+      "id": "search-input",
+      "title": "Search for Something",
+      "task": "Type 'Tabs' to search.",
+      "hint": "Results appear as you type.",
+      "learn": "Find anything with instant search",
+      "placement": "bottom"
+    },
+    {
+      "id": "select-result",
+      "title": "Select Result",
+      "task": "Use arrow keys to highlight a result, then press Enter.",
+      "hint": "Enter opens the highlighted page.",
+      "learn": "Jump to any page with Enter",
+      "placement": "bottom"
+    },
+    {
+      "id": "reopen-search",
+      "title": "Back to Search",
+      "task": "Press Ctrl+K again to reopen search.",
+      "hint": "Search is always one shortcut away.",
+      "learn": "Return to search from anywhere",
+      "noActivator": true
+    },
+    {
+      "id": "close-search",
+      "title": "Close Search",
+      "task": "Press Escape to close search without navigating.",
+      "hint": "Escape dismisses the search modal.",
+      "learn": "Dismiss search quickly with Escape",
+      "noActivator": true
+    },
+    {
+      "id": "complete",
+      "title": "Keyboard Pro",
+      "task": "You're now navigating like a pro. Ctrl+K, arrows, Enter, Escape—that's all you need.",
+      "hint": "",
+      "learn": "Navigate the entire docs without a mouse",
+      "noActivator": true
+    }
+  ]
+}

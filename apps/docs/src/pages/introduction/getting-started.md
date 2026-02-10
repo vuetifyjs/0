@@ -459,7 +459,7 @@ import { ExpansionPanel, createSelection } from '@vuetify/v0'
 import { ExpansionPanel, Single, Group } from '@vuetify/v0/components'
 
 // Composables only
-import { createSelection, useTheme, useForm } from '@vuetify/v0/composables'
+import { createSelection, useTheme, createForm } from '@vuetify/v0/composables'
 
 // Utilities only
 import { isObject, isString } from '@vuetify/v0/utilities'

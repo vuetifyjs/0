@@ -17,6 +17,7 @@ export interface UseHighlighterReturn {
 
 let highlighterPromise: Promise<HighlighterCore> | null = null
 const highlighter = shallowRef<HighlighterCore | null>(null)
+
 const logger = useLogger()
 
 /**

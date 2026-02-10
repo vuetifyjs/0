@@ -10,7 +10,7 @@
     {
       icon: 'book',
       title: 'SKILL.md',
-      description: '700+ line reference with decision trees and anti-patterns for AI coding tools.',
+      description: 'Comprehensive reference with decision trees and anti-patterns for AI coding tools.',
       command: 'npx skills add vuetifyjs/0',
       to: '/guide/tooling/ai-tools#usage',
     },
@@ -50,10 +50,13 @@
       <div
         v-for="(feature, i) in features"
         :key="feature.title"
-        class="p-6 rounded-xl border bg-surface hover:border-primary hover:bg-surface-tint hover:shadow-md transition-all duration-150 flex flex-col"
+        class="relative overflow-hidden p-6 rounded-xl border bg-surface hover:border-primary hover:bg-surface-tint hover:shadow-md transition-all duration-150 flex flex-col"
         :style="{ '--reveal-index': i }"
       >
-        <div class="flex items-center gap-3 mb-3">
+        <AppDotGrid v-if="feature.title === 'Vuetify MCP'" :coverage="60" :density="18" origin="top right" />
+        <AppDotGrid v-else-if="feature.title === 'AI-Ready Scaffold'" :coverage="60" :density="18" />
+
+        <div class="relative flex items-center gap-3 mb-3">
           <div class="w-10 h-10 shrink-0 rounded-lg bg-primary flex items-center justify-center text-on-primary">
             <AppIcon class="!opacity-100" :icon="feature.icon" :size="20" />
           </div>
@@ -61,9 +64,9 @@
           <h3 class="text-lg font-semibold">{{ feature.title }}</h3>
         </div>
 
-        <p class="opacity-60 text-sm leading-relaxed mb-4">{{ feature.description }}</p>
+        <p class="relative opacity-60 text-sm leading-relaxed mb-4">{{ feature.description }}</p>
 
-        <div class="mt-auto flex flex-col gap-4">
+        <div class="relative mt-auto flex flex-col gap-4">
           <HomeCopyCommand
             v-if="feature.command"
             :command="feature.command"

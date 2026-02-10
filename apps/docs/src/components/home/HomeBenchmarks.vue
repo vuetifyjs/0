@@ -52,11 +52,13 @@
       class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"
     >
       <div
-        class="p-6 rounded-xl border bg-surface text-center"
+        class="relative overflow-hidden p-6 rounded-xl border bg-surface text-center"
         :style="{ '--reveal-index': 0 }"
       >
-        <div class="stat-number">{{ opsCount }}K+</div>
-        <div class="stat-label">ops/s peak</div>
+        <AppDotGrid :coverage="60" :density="12" origin="top left" />
+
+        <div class="relative stat-number">{{ opsCount }}K+</div>
+        <div class="relative stat-label">ops/s peak</div>
       </div>
 
       <div
@@ -119,9 +121,7 @@
         to="/guide/fundamentals/benchmarks"
       >
         Learn more about benchmarks
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-        </svg>
+        <AppIcon icon="right" :size="12" />
       </router-link>
     </div>
   </section>

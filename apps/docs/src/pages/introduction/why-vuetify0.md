@@ -43,18 +43,21 @@ Most headless libraries give you components. v0 gives you **composables that opt
 import { createSelection } from '@vuetify/v0'
 
 // Pure logic - no components needed
-const selection = createSelection()
+const selection = createSelection({ multiple: true })
 
-// Register items first
-selection.register({ id: 'item-1', value: 'Item 1' })
-selection.register({ id: 'item-2', value: 'Item 2' })
+// Register items
+const items = selection.onboard([
+  { id: 'item-1', value: 'Item 1' },
+  { id: 'item-2', value: 'Item 2' },
+])
 
 // Then select
 selection.select('item-1')
 selection.select('item-2')
 
-console.log(selection.selected.value) // ['item-1', 'item-2']
-console.log(selection.isSelected('item-1')) // true
+console.log([...selection.selectedIds]) // ['item-1', 'item-2']
+console.log(selection.selected('item-1')) // true
+console.log(items[0].isSelected.value) // true
 ```
 
 Compare this to other libraries where you must wrap everything in components to access selection state.
@@ -155,10 +158,10 @@ v0 and Vuetify share the same DNA. You can use v0 composables inside a Vuetify a
 
   const selection = createSelection({ multiple: true })
 
-  selection.onboard([
-    { id: 1, title: 'Option A' },
-    { id: 2, title: 'Option B' },
-    { id: 3, title: 'Option C' },
+  const items = selection.onboard([
+    { id: 1, value: 'Option A' },
+    { id: 2, value: 'Option B' },
+    { id: 3, value: 'Option C' },
   ])
 </script>
 
@@ -166,13 +169,13 @@ v0 and Vuetify share the same DNA. You can use v0 composables inside a Vuetify a
   <VCard title="Select Options">
     <div class="d-flex ga-2 pa-4">
       <VBtn
-        v-for="item in selection.values()"
+        v-for="item in items"
         :key="item.id"
         :color="item.isSelected.value ? 'primary' : undefined"
         :variant="item.isSelected.value ? 'flat' : 'outlined'"
         @click="item.toggle()"
       >
-        {{ item.title }}
+        {{ item.value }}
       </VBtn>
     </div>
   </VCard>

@@ -56,6 +56,7 @@ export default defineConfig({
     'section-overline': 'text-xs font-semibold uppercase tracking-widest text-primary',
     'stat-number': 'text-4xl md:text-5xl font-extrabold tabular-nums',
     'stat-label': 'text-xs uppercase tracking-widest opacity-50',
+    'home-card': 'p-6 rounded-xl border bg-surface hover:border-primary hover:bg-surface-tint hover:shadow-md transition-all duration-150',
 
   },
   safelist: ['max-w-900'],
