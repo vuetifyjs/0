@@ -307,7 +307,9 @@ export function createSelection<
   }
 
   function onboard (registrations: Partial<Z>[]): E[] {
-    return registrations.map(registration => register(registration))
+    const tickets = registry.batch(() => registrations.map(registration => register(registration)))
+    if (toValue(mandatory) === 'force') mandate()
+    return tickets
   }
 
   function reset () {

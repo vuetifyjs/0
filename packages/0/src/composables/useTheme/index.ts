@@ -294,11 +294,16 @@ export function createTheme<
     return registry.register(item as unknown as Partial<SingleTicketInput<ThemeColors>>) as unknown as E
   }
 
+  function onboard (registrations: Partial<Z>[]): E[] {
+    return registry.batch(() => registrations.map(registration => register(registration)))
+  }
+
   return {
     ...registry,
     colors,
     isDark,
     register,
+    onboard,
     cycle,
     get size () {
       return registry.size
