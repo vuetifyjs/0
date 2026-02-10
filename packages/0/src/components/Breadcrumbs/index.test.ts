@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils'
 import { createSSRApp, defineComponent, h, nextTick } from 'vue'
 
 // Types
-import type { BreadcrumbsLinkSlotProps, BreadcrumbsPageSlotProps, BreadcrumbsRootSlotProps } from './index'
+import type { BreadcrumbsPageSlotProps, BreadcrumbsRootSlotProps } from './index'
 
 import { Breadcrumbs } from './index'
 
@@ -243,26 +243,10 @@ describe('breadcrumbs', () => {
       expect(wrapper.find('a').attributes('href')).toBe('/products')
     })
 
-    it('should expose slot props with href', () => {
-      let linkProps: BreadcrumbsLinkSlotProps | undefined
-
-      mount(Breadcrumbs.Link, {
-        props: { href: '/about' },
-        slots: {
-          default: (props: BreadcrumbsLinkSlotProps) => {
-            linkProps = props
-            return h('span', 'About')
-          },
-        },
-      })
-
-      expect(linkProps).toBeDefined()
-      expect(linkProps!.href).toBe('/about')
-    })
-
     it('should render with custom element via as prop', () => {
       const wrapper = mount(Breadcrumbs.Link, {
-        props: { as: 'button', href: '/home' },
+        props: { as: 'button' },
+        attrs: { href: '/home' },
         slots: {
           default: () => 'Home',
         },
@@ -270,21 +254,6 @@ describe('breadcrumbs', () => {
 
       expect(wrapper.find('button').exists()).toBe(true)
       expect(wrapper.find('a').exists()).toBe(false)
-    })
-
-    it('should render without href when not provided', () => {
-      let linkProps: BreadcrumbsLinkSlotProps | undefined
-
-      mount(Breadcrumbs.Link, {
-        slots: {
-          default: (props: BreadcrumbsLinkSlotProps) => {
-            linkProps = props
-            return h('span', 'Link')
-          },
-        },
-      })
-
-      expect(linkProps!.href).toBeUndefined()
     })
   })
 
