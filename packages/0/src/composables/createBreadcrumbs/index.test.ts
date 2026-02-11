@@ -873,6 +873,162 @@ describe('createBreadcrumbs', () => {
     })
   })
 
+  describe('anchor option', () => {
+    it('should default to end anchor (keep last items visible)', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 3 })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+        { text: 'Phones' },
+        { text: 'iPhone' },
+      ])
+
+      const tickets = breadcrumbs.tickets.value
+      // anchor='end': [Home] [...] [iPhone]
+      expect(tickets).toHaveLength(3)
+      expect(tickets[0]!.type).toBe('crumb')
+      expect(tickets[1]!.type).toBe('ellipsis')
+      expect(tickets[2]!.type).toBe('crumb')
+
+      if (tickets[0]!.type === 'crumb') {
+        expect(tickets[0]!.value.text).toBe('Home')
+      }
+      if (tickets[2]!.type === 'crumb') {
+        expect(tickets[2]!.value.text).toBe('iPhone')
+      }
+    })
+
+    it('should keep first items visible with anchor start', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 3, anchor: 'start' })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+        { text: 'Phones' },
+        { text: 'iPhone' },
+      ])
+
+      const tickets = breadcrumbs.tickets.value
+      // anchor='start', visible=3: headCount = max(1, 3-2) = 1
+      // [Home] [...] [iPhone]
+      expect(tickets).toHaveLength(3)
+      expect(tickets[0]!.type).toBe('crumb')
+      expect(tickets[1]!.type).toBe('ellipsis')
+      expect(tickets[2]!.type).toBe('crumb')
+
+      if (tickets[0]!.type === 'crumb') {
+        expect(tickets[0]!.value.text).toBe('Home')
+      }
+      if (tickets[2]!.type === 'crumb') {
+        expect(tickets[2]!.value.text).toBe('iPhone')
+      }
+    })
+
+    it('should show more head items with anchor start and larger visible', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 4, anchor: 'start' })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+        { text: 'Phones' },
+        { text: 'iPhone' },
+        { text: 'Cases' },
+      ])
+
+      const tickets = breadcrumbs.tickets.value
+      // anchor='start', visible=4: headCount = max(1, 4-2) = 2
+      // [Home] [Products] [...] [Cases]
+      expect(tickets).toHaveLength(4)
+      expect(tickets[0]!.type).toBe('crumb')
+      expect(tickets[1]!.type).toBe('crumb')
+      expect(tickets[2]!.type).toBe('ellipsis')
+      expect(tickets[3]!.type).toBe('crumb')
+
+      if (tickets[0]!.type === 'crumb') {
+        expect(tickets[0]!.value.text).toBe('Home')
+      }
+      if (tickets[1]!.type === 'crumb') {
+        expect(tickets[1]!.value.text).toBe('Products')
+      }
+      if (tickets[3]!.type === 'crumb') {
+        expect(tickets[3]!.value.text).toBe('Cases')
+      }
+    })
+
+    it('should include correct collapsed items with anchor start', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 3, anchor: 'start' })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+        { text: 'Phones' },
+        { text: 'iPhone' },
+      ])
+
+      const ellipsis = breadcrumbs.tickets.value.find(t => t.type === 'ellipsis')
+      expect(ellipsis).toBeDefined()
+
+      if (ellipsis?.type === 'ellipsis') {
+        // headCount=1, collapseStart=1, collapseEnd=4
+        expect(ellipsis.collapsed).toHaveLength(3)
+        expect(ellipsis.collapsed[0]!.text).toBe('Products')
+        expect(ellipsis.collapsed[1]!.text).toBe('Electronics')
+        expect(ellipsis.collapsed[2]!.text).toBe('Phones')
+      }
+    })
+
+    it('should accept reactive anchor option', () => {
+      const anchor = ref<'start' | 'end'>('end')
+      const breadcrumbs = createBreadcrumbs({ visible: 3, anchor })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+        { text: 'Phones' },
+        { text: 'iPhone' },
+      ])
+
+      // anchor='end': last crumb visible
+      let lastCrumb = breadcrumbs.tickets.value.at(-1)!
+      if (lastCrumb.type === 'crumb') {
+        expect(lastCrumb.value.text).toBe('iPhone')
+      }
+
+      // Switch to start anchor
+      anchor.value = 'start'
+
+      // anchor='start': first crumb still visible, last still visible
+      const firstCrumb = breadcrumbs.tickets.value[0]!
+      if (firstCrumb.type === 'crumb') {
+        expect(firstCrumb.value.text).toBe('Home')
+      }
+
+      lastCrumb = breadcrumbs.tickets.value.at(-1)!
+      if (lastCrumb.type === 'crumb') {
+        expect(lastCrumb.value.text).toBe('iPhone')
+      }
+    })
+
+    it('should not collapse when visible equals item count regardless of anchor', () => {
+      const breadcrumbs = createBreadcrumbs({ visible: 3, anchor: 'start' })
+
+      breadcrumbs.onboard([
+        { text: 'Home' },
+        { text: 'Products' },
+        { text: 'Electronics' },
+      ])
+
+      expect(breadcrumbs.tickets.value).toHaveLength(3)
+      expect(breadcrumbs.tickets.value.every(t => t.type === 'crumb')).toBe(true)
+    })
+  })
+
   describe('reactive updates', () => {
     it('should reflect added items in tickets', () => {
       const breadcrumbs = createBreadcrumbs()

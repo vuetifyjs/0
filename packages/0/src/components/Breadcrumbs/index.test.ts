@@ -3,7 +3,7 @@ import { renderToString } from 'vue/server-renderer'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { createSSRApp, defineComponent, h, nextTick } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
 // Types
 import type { BreadcrumbsPageSlotProps, BreadcrumbsRootSlotProps } from './index'
@@ -534,6 +534,113 @@ describe('breadcrumbs', () => {
       expect(wrapper.find('[role="list"]').exists()).toBe(true)
     })
 
+    it('should track depth across multiple items', async () => {
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: (props: BreadcrumbsRootSlotProps) => {
+            slotProps = props
+            return [
+              h(Breadcrumbs.Item as never, {}, () => 'Home'),
+              h(Breadcrumbs.Item as never, {}, () => 'Products'),
+              h(Breadcrumbs.Item as never, {}, () => 'Electronics'),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+
+      expect(slotProps!.depth).toBe(3)
+      expect(slotProps!.isRoot).toBe(false)
+    })
+
+    it('should register items with both breadcrumbs and group contexts', async () => {
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: (props: BreadcrumbsRootSlotProps) => {
+            slotProps = props
+            return [
+              h(Breadcrumbs.Item as never, {}, () => 'Home'),
+              h(Breadcrumbs.Divider as never),
+              h(Breadcrumbs.Item as never, {}, () => 'Products'),
+              h(Breadcrumbs.Divider as never),
+              h(Breadcrumbs.Ellipsis as never),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+
+      // total = group size: 2 items + 2 dividers + 1 ellipsis = 5
+      expect(slotProps!.total).toBe(5)
+      // depth = breadcrumbs size: only items register with breadcrumbs
+      expect(slotProps!.depth).toBe(2)
+    })
+
+    it('should unregister items on unmount', async () => {
+      const showThird = ref(true)
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      mount(defineComponent({
+        setup () {
+          return () => h(Breadcrumbs.Root as never, {}, {
+            default: (props: BreadcrumbsRootSlotProps) => {
+              slotProps = props
+              const children = [
+                h(Breadcrumbs.Item as never, { key: 'a' }, () => 'Home'),
+                h(Breadcrumbs.Item as never, { key: 'b' }, () => 'Products'),
+              ]
+              if (showThird.value) {
+                children.push(h(Breadcrumbs.Item as never, { key: 'c' }, () => 'Electronics'))
+              }
+              return children
+            },
+          })
+        },
+      }))
+
+      await nextTick()
+      expect(slotProps!.depth).toBe(3)
+      expect(slotProps!.total).toBe(3)
+
+      showThird.value = false
+      await nextTick()
+
+      expect(slotProps!.depth).toBe(2)
+      expect(slotProps!.total).toBe(2)
+    })
+
+    it('should handle dynamic item addition', async () => {
+      const items = ref(['Home', 'Products'])
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      mount(defineComponent({
+        setup () {
+          return () => h(Breadcrumbs.Root as never, {}, {
+            default: (props: BreadcrumbsRootSlotProps) => {
+              slotProps = props
+              return items.value.map(text =>
+                h(Breadcrumbs.Item as never, { key: text }, () => text),
+              )
+            },
+          })
+        },
+      }))
+
+      await nextTick()
+      expect(slotProps!.depth).toBe(2)
+
+      items.value = ['Home', 'Products', 'Electronics']
+      await nextTick()
+
+      expect(slotProps!.depth).toBe(3)
+    })
+
     it('should work with namespace isolation', async () => {
       let rootProps1: Record<string, unknown> | undefined
       let rootProps2: Record<string, unknown> | undefined
@@ -562,6 +669,132 @@ describe('breadcrumbs', () => {
       expect(rootProps2).toBeDefined()
       expect(rootProps1!.depth).toBe(1)
       expect(rootProps2!.depth).toBe(1)
+    })
+
+    it('should register ellipsis with group alongside items', async () => {
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: (props: BreadcrumbsRootSlotProps) => {
+            slotProps = props
+            return [
+              h(Breadcrumbs.Item as never, {}, () => 'Home'),
+              h(Breadcrumbs.Ellipsis as never),
+              h(Breadcrumbs.Item as never, {}, () => 'Products'),
+              h(Breadcrumbs.Item as never, {}, () => 'Electronics'),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+
+      // 3 items + 1 ellipsis = 4 group tickets
+      expect(slotProps!.total).toBe(4)
+      // Only items register with breadcrumbs composable
+      expect(slotProps!.depth).toBe(3)
+    })
+
+    it('should expose data-selected on items', async () => {
+      let itemProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.Item as never, {}, {
+            default: (props: Record<string, unknown>) => {
+              itemProps = props
+              return h('span', 'Home')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const attrs = itemProps!.attrs as Record<string, unknown>
+      // Enrolled items start selected
+      expect(attrs['data-selected']).toBe(true)
+    })
+
+    it('should expose data-selected on dividers', async () => {
+      let dividerProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => h(Breadcrumbs.Divider as never, {}, {
+            default: (props: Record<string, unknown>) => {
+              dividerProps = props
+              return h('span', '/')
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      const attrs = dividerProps!.attrs as Record<string, unknown>
+      expect(attrs['data-selected']).toBe(true)
+    })
+
+    it('should propagate root divider prop to divider children', async () => {
+      let dividerProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        props: { divider: ' → ' },
+        slots: {
+          default: () => h(Breadcrumbs.Divider as never, {}, {
+            default: (props: Record<string, unknown>) => {
+              dividerProps = props
+              return h('span', String(props.divider))
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      expect(dividerProps!.divider).toBe(' → ')
+    })
+
+    it('should allow divider child to override root divider', async () => {
+      let dividerProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        props: { divider: ' → ' },
+        slots: {
+          default: () => h(Breadcrumbs.Divider as never, { divider: '|' }, {
+            default: (props: Record<string, unknown>) => {
+              dividerProps = props
+              return h('span', String(props.divider))
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      expect(dividerProps!.divider).toBe('|')
+    })
+
+    it('should propagate root ellipsis prop to ellipsis children', async () => {
+      let ellipsisProps: Record<string, unknown> | undefined
+
+      mount(Breadcrumbs.Root, {
+        props: { ellipsis: '---' },
+        slots: {
+          default: () => h(Breadcrumbs.Ellipsis as never, {}, {
+            default: (props: Record<string, unknown>) => {
+              ellipsisProps = props
+              return h('span', String(props.ellipsis))
+            },
+          }),
+        },
+      })
+
+      await nextTick()
+
+      expect(ellipsisProps!.ellipsis).toBe('---')
     })
   })
 
