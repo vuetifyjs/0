@@ -90,7 +90,6 @@
 
   const containerRef = useTemplateRef('container')
 
-  // Create breadcrumbs composable as backing model (like TabsRoot uses createStep)
   const breadcrumbs = createBreadcrumbs({
     visible,
     ellipsis,
