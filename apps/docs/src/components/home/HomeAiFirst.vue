@@ -4,7 +4,7 @@
       icon: 'vuetify-mcp',
       title: 'Vuetify MCP',
       description: 'One command connects Claude, Cursor, or Windsurf to every v0 API.',
-      command: 'claude mcp add vuetify-mcp https://mcp.vuetifyjs.com/mcp',
+      command: 'claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp',
       to: '/guide/tooling/vuetify-mcp',
     },
     {
