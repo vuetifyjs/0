@@ -47,7 +47,11 @@
 </script>
 
 <template>
-  <Atom :as :renderless v-bind="slotProps.attrs">
+  <Atom
+    :as
+    :renderless
+    v-bind="slotProps.attrs"
+  >
     <slot v-bind="slotProps" />
   </Atom>
 </template>

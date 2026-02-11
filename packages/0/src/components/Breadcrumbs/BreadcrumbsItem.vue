@@ -76,7 +76,6 @@
     type: 'item' as const,
   })
 
-  // Measure element for overflow calculation
   watch(
     () => elRef.value?.element,
     element => {

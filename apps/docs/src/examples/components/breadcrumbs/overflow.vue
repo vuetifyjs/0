@@ -21,7 +21,7 @@
 
       <input
         v-model.number="width"
-        class="grow"
+        class="grow accent-primary"
         max="600"
         min="150"
         type="range"

@@ -62,13 +62,11 @@
   const elRef = useTemplateRef('el')
   const context = useBreadcrumbsRoot(namespace)
 
-  // Register as ellipsis type - Root's watcher controls visibility based on overflow
   const ticket = context.group.register({
     id,
     type: 'ellipsis' as const,
   })
 
-  // Measure element for overflow calculation
   watch(
     () => elRef.value?.element,
     element => {

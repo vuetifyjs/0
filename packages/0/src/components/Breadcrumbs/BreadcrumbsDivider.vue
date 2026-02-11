@@ -56,7 +56,7 @@
     renderless,
     namespace = 'v0:breadcrumbs',
     id,
-    divider,
+    divider: _divider,
   } = defineProps<BreadcrumbsDividerProps>()
 
   const elRef = useTemplateRef('el')
@@ -67,7 +67,6 @@
     type: 'divider' as const,
   })
 
-  // Measure element for overflow calculation
   watch(
     () => elRef.value?.element,
     element => {
@@ -81,12 +80,12 @@
     context.group.unregister(ticket.id)
   })
 
-  const resolvedDivider = toRef(() => divider ?? context.divider.value)
+  const divider = toRef(() => _divider ?? context.divider.value)
   const isSelected = toRef(() => ticket.isSelected.value)
 
   const slotProps = toRef((): BreadcrumbsDividerSlotProps => ({
     id: ticket.id,
-    divider: resolvedDivider.value,
+    divider: divider.value,
     isSelected: isSelected.value,
     attrs: {
       'aria-hidden': 'true',
@@ -104,7 +103,7 @@
     v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps">
-      {{ resolvedDivider }}
+      {{ divider }}
     </slot>
   </Atom>
 </template>
