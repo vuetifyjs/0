@@ -15,6 +15,7 @@ related:
   - /composables/utilities/create-breadcrumbs
   - /composables/selection/create-group
   - /composables/utilities/create-overflow
+  - /composables/plugins/use-locale
   - /components/semantic/pagination
 ---
 
@@ -34,7 +35,7 @@ The Breadcrumbs component provides a compound component pattern for building nav
 
 ## Anatomy
 
-```vue Anatomy playground
+```vue playground
 <script setup lang="ts">
   import { Breadcrumbs } from '@vuetify/v0'
 </script>
@@ -43,7 +44,7 @@ The Breadcrumbs component provides a compound component pattern for building nav
   <Breadcrumbs.Root>
     <Breadcrumbs.List>
       <Breadcrumbs.Item>
-        <Breadcrumbs.Link href="/">Home</Breadcrumbs.Link>
+        <Breadcrumbs.Link />
       </Breadcrumbs.Item>
 
       <Breadcrumbs.Divider />
@@ -53,13 +54,7 @@ The Breadcrumbs component provides a compound component pattern for building nav
       <Breadcrumbs.Divider />
 
       <Breadcrumbs.Item>
-        <Breadcrumbs.Link href="/about">About</Breadcrumbs.Link>
-      </Breadcrumbs.Item>
-
-      <Breadcrumbs.Divider />
-
-      <Breadcrumbs.Item>
-        <Breadcrumbs.Page>Current</Breadcrumbs.Page>
+        <Breadcrumbs.Page />
       </Breadcrumbs.Item>
     </Breadcrumbs.List>
   </Breadcrumbs.Root>
@@ -143,6 +138,47 @@ Navigate to a different page in the docs and watch the breadcrumb trail update.
 :::
 
 <DocsApi />
+
+## Plugins
+
+Breadcrumbs integrates with v0's plugin system for internationalization.
+
+### Locale
+
+The Root uses [useLocale](/composables/plugins/use-locale) internally for the navigation landmark's `aria-label`. Without any configuration, it defaults to `"Breadcrumb"`.
+
+**Override with a prop** — no plugin needed:
+
+```vue
+<template>
+  <Breadcrumbs.Root label="Fil d'Ariane">
+    <!-- ... -->
+  </Breadcrumbs.Root>
+</template>
+```
+
+**Override with the locale plugin** — for app-wide i18n:
+
+```ts main.ts
+import { createApp } from 'vue'
+import { createLocalePlugin } from '@vuetify/v0'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(
+  createLocalePlugin({
+    messages: {
+      en: { 'Breadcrumbs.label': 'Breadcrumb' },
+      fr: { 'Breadcrumbs.label': "Fil d'Ariane" },
+    },
+  })
+)
+
+app.mount('#app')
+```
+
+The `label` prop takes priority over locale messages, so you can still override individual instances when needed.
 
 ## Recipes
 

@@ -20,6 +20,7 @@
   import { createBreadcrumbs } from '#v0/composables/createBreadcrumbs'
   import { createGroup } from '#v0/composables/createGroup'
   import { createOverflow } from '#v0/composables/createOverflow'
+  import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
   import { toRef, useTemplateRef, watch } from 'vue'
@@ -42,6 +43,8 @@
     visible?: number
     /** Gap between items in pixels. @default 8 */
     gap?: number
+    /** Accessible label for the navigation landmark */
+    label?: string
   }
 
   export interface BreadcrumbsRootSlotProps {
@@ -63,7 +66,7 @@
     select: (id: ID) => void
     /** Attributes to bind to the root element */
     attrs: {
-      'aria-label': 'Breadcrumb'
+      'aria-label': string
       'role': 'navigation' | undefined
     }
   }
@@ -85,9 +88,11 @@
     divider = '/',
     ellipsis = '…',
     visible = Infinity,
-    gap = 8,
+    gap = 6,
+    label,
   } = defineProps<BreadcrumbsRootProps>()
 
+  const locale = useLocale()
   const containerRef = useTemplateRef('container')
 
   const breadcrumbs = createBreadcrumbs({
@@ -163,7 +168,7 @@
     prev: breadcrumbs.prev,
     select: breadcrumbs.select,
     attrs: {
-      'aria-label': 'Breadcrumb',
+      'aria-label': label ?? locale.t('Breadcrumbs.label', undefined, 'Breadcrumb'),
       'role': as === 'nav' ? undefined : 'navigation',
     },
   }))

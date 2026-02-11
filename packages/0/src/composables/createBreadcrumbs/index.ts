@@ -19,6 +19,7 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { createSingle } from '#v0/composables/createSingle'
+import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
 import { computed, toRef, toValue } from 'vue'
@@ -124,10 +125,11 @@ export function createBreadcrumbs<
     visible: _visible = Infinity,
     ellipsis = '…',
     anchor: _anchor = 'end',
-    ...singleOptions
+    ...options
   } = _options
 
-  const single = createSingle<Z, E>({ ...singleOptions, reactive: true, enroll: true })
+  const single = createSingle<Z, E>({ ...options, reactive: true, events: true, enroll: true })
+  const proxy = useProxyRegistry(single)
 
   // Derived state
   const depth = toRef(() => single.size)
@@ -183,7 +185,7 @@ export function createBreadcrumbs<
   const tickets = computed<BreadcrumbRenderTicket<Z['value']>[]>(() => {
     const visible = toValue(_visible)
     const anchor = toValue(_anchor)
-    const items = single.values()
+    const items = proxy.values as readonly E[]
 
     if (items.length === 0) return []
     if (visible <= 0) return []

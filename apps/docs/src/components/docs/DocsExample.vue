@@ -236,7 +236,7 @@
           <!-- Tab list with overflow -->
           <div
             ref="tabs-container"
-            class="flex items-center gap-1 px-3 py-3 bg-surface border-t border-divider min-h-12"
+            class="flex items-center gap-2 px-3 py-3 bg-surface border-t border-divider min-h-12"
           >
             <template v-if="!combinedView">
               <Tabs.List class="contents" label="Example files">

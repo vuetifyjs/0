@@ -11,12 +11,19 @@
   // Components
   import { Atom } from '#v0/components/Atom'
 
+  // Utilities
+  import { toRef } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
   export interface BreadcrumbsListProps extends AtomProps {}
 
-  export interface BreadcrumbsListSlotProps {}
+  export interface BreadcrumbsListSlotProps {
+    attrs: {
+      role: 'list'
+    }
+  }
 </script>
 
 <script setup lang="ts">
@@ -30,10 +37,16 @@
     as = 'ol',
     renderless,
   } = defineProps<BreadcrumbsListProps>()
+
+  const slotProps = toRef((): BreadcrumbsListSlotProps => ({
+    attrs: {
+      role: 'list',
+    },
+  }))
 </script>
 
 <template>
-  <Atom :as :renderless role="list">
-    <slot />
+  <Atom :as :renderless v-bind="slotProps.attrs">
+    <slot v-bind="slotProps" />
   </Atom>
 </template>
