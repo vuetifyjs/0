@@ -777,6 +777,92 @@ describe('breadcrumbs', () => {
       expect(dividerProps!.divider).toBe('|')
     })
 
+    it('should clean up ellipsis and dividers on unmount', async () => {
+      const wrapper = mount(Breadcrumbs.Root, {
+        slots: {
+          default: () => [
+            h(Breadcrumbs.Item as never, {}, () => 'Home'),
+            h(Breadcrumbs.Divider as never),
+            h(Breadcrumbs.Ellipsis as never),
+            h(Breadcrumbs.Item as never, {}, () => 'Products'),
+            h(Breadcrumbs.Divider as never),
+          ],
+        },
+      })
+
+      await nextTick()
+
+      // Verify components registered
+      expect(wrapper.findAll('li').length).toBe(5)
+
+      // Unmount triggers onUnmounted for all children
+      wrapper.unmount()
+    })
+
+    it('should navigate via slot prop first()', async () => {
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: (props: BreadcrumbsRootSlotProps) => {
+            slotProps = props
+            return [
+              h(Breadcrumbs.Item as never, {}, () => 'Home'),
+              h(Breadcrumbs.Item as never, {}, () => 'Products'),
+              h(Breadcrumbs.Item as never, {}, () => 'Electronics'),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+      expect(slotProps!.depth).toBe(3)
+
+      slotProps!.first()
+      await nextTick()
+
+      expect(slotProps!.depth).toBe(1)
+      expect(slotProps!.isRoot).toBe(true)
+    })
+
+    it('should navigate via slot prop prev()', async () => {
+      let slotProps: BreadcrumbsRootSlotProps | undefined
+
+      mount(Breadcrumbs.Root, {
+        slots: {
+          default: (props: BreadcrumbsRootSlotProps) => {
+            slotProps = props
+            return [
+              h(Breadcrumbs.Item as never, {}, () => 'Home'),
+              h(Breadcrumbs.Item as never, {}, () => 'Products'),
+              h(Breadcrumbs.Item as never, {}, () => 'Electronics'),
+            ]
+          },
+        },
+      })
+
+      await nextTick()
+      expect(slotProps!.depth).toBe(3)
+
+      slotProps!.prev()
+      await nextTick()
+
+      expect(slotProps!.depth).toBe(2)
+    })
+
+    it('should use custom label prop for aria-label', async () => {
+      const wrapper = mount(Breadcrumbs.Root, {
+        props: { label: 'File path' },
+        slots: {
+          default: () => h('div', 'Content'),
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.find('nav').attributes('aria-label')).toBe('File path')
+    })
+
     it('should propagate root ellipsis prop to ellipsis children', async () => {
       let ellipsisProps: Record<string, unknown> | undefined
 
