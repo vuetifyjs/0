@@ -7,7 +7,7 @@
  * Key features:
  * - Extends createSingle for consistent registry patterns
  * - Navigation methods: first, prev, select (with truncation)
- * - Computed visible tickets with ellipsis collapse
+ * - Derived state: depth, isRoot, isEmpty
  * - Trinity pattern for dependency injection
  *
  * Inheritance chain: createRegistry → createSelection → createSingle → createBreadcrumbs
@@ -19,16 +19,15 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { createSingle } from '#v0/composables/createSingle'
-import { useProxyRegistry } from '#v0/composables/useProxyRegistry'
 
 // Utilities
-import { computed, toRef, toValue } from 'vue'
+import { toRef } from 'vue'
 
 // Types
 import type { SingleContext, SingleContextOptions, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
+import type { App, Ref } from 'vue'
 
 /**
  * Input type for breadcrumb tickets.
@@ -44,13 +43,6 @@ export interface BreadcrumbTicketInput<V = unknown> extends SingleTicketInput<V>
 export type BreadcrumbTicket<Z extends BreadcrumbTicketInput = BreadcrumbTicketInput> = SingleTicket<Z>
 
 /**
- * Rendered ticket for display (with collapse support).
- */
-export type BreadcrumbRenderTicket<V = unknown> =
-  | { type: 'crumb', value: BreadcrumbTicket<BreadcrumbTicketInput<V>>, index: number }
-  | { type: 'ellipsis', value: string, collapsed: BreadcrumbTicket<BreadcrumbTicketInput<V>>[] }
-
-/**
  * Context returned by createBreadcrumbs.
  */
 export interface BreadcrumbsContext<
@@ -63,10 +55,6 @@ export interface BreadcrumbsContext<
   isRoot: Readonly<Ref<boolean>>
   /** Whether path is empty (depth === 0) */
   isEmpty: Readonly<Ref<boolean>>
-  /** Visible tickets with ellipsis for rendering */
-  tickets: ComputedRef<BreadcrumbRenderTicket<Z['value']>[]>
-  /** Ellipsis character, or false if disabled */
-  ellipsis: string | false
   /** Navigate to root (first item) */
   first: () => void
   /** Navigate up one level (remove last item) */
@@ -75,26 +63,12 @@ export interface BreadcrumbsContext<
   select: (id: ID) => void
 }
 
-export interface BreadcrumbsOptions extends SingleOptions {
-  /** Maximum visible items before collapsing. @default Infinity */
-  visible?: MaybeRefOrGetter<number>
-  /** Ellipsis character. @default '…' */
-  ellipsis?: string | false
-  /** Which end to anchor when collapsing. 'end' keeps last items visible, 'start' keeps first items visible. @default 'end' */
-  anchor?: MaybeRefOrGetter<'start' | 'end'>
-}
+export interface BreadcrumbsOptions extends SingleOptions {}
 
-export interface BreadcrumbsContextOptions extends SingleContextOptions {
-  /** Maximum visible items before collapsing. @default Infinity */
-  visible?: MaybeRefOrGetter<number>
-  /** Ellipsis character. @default '…' */
-  ellipsis?: string | false
-  /** Which end to anchor when collapsing. 'end' keeps last items visible, 'start' keeps first items visible. @default 'end' */
-  anchor?: MaybeRefOrGetter<'start' | 'end'>
-}
+export interface BreadcrumbsContextOptions extends SingleContextOptions {}
 
 /**
- * Creates a breadcrumbs instance.
+ * Creates a breadcrumbs navigation model.
  *
  * @param options The options for the breadcrumbs instance.
  * @returns A breadcrumbs context with navigation methods.
@@ -109,27 +83,21 @@ export interface BreadcrumbsContextOptions extends SingleContextOptions {
  * breadcrumbs.register({ text: 'Products' })
  * breadcrumbs.register({ text: 'Electronics' })
  *
- * breadcrumbs.tickets.value // [{ type: 'crumb', ... }, ...]
- *
  * // Navigate back
  * breadcrumbs.prev() // removes Electronics
  * breadcrumbs.first() // truncates to Home
+ *
+ * // Derived state
+ * breadcrumbs.depth.value // 1
+ * breadcrumbs.isRoot.value // true
  * ```
  */
 export function createBreadcrumbs<
   Z extends BreadcrumbTicketInput = BreadcrumbTicketInput,
   E extends BreadcrumbTicket<Z> = BreadcrumbTicket<Z>,
   R extends BreadcrumbsContext<Z, E> = BreadcrumbsContext<Z, E>,
-> (_options: BreadcrumbsOptions = {}): R {
-  const {
-    visible: _visible = Infinity,
-    ellipsis = '…',
-    anchor: _anchor = 'end',
-    ...options
-  } = _options
-
-  const single = createSingle<Z, E>({ ...options, reactive: true, events: true, enroll: true })
-  const proxy = useProxyRegistry(single)
+> (options: BreadcrumbsOptions = {}): R {
+  const single = createSingle<Z, E>({ ...options, reactive: true, enroll: true })
 
   // Derived state
   const depth = toRef(() => single.size)
@@ -179,60 +147,6 @@ export function createBreadcrumbs<
     if (prevId) select(prevId)
   }
 
-  /**
-   * Computed tickets for rendering with collapse support.
-   */
-  const tickets = computed<BreadcrumbRenderTicket<Z['value']>[]>(() => {
-    const visible = toValue(_visible)
-    const anchor = toValue(_anchor)
-    const items = proxy.values as readonly E[]
-
-    if (items.length === 0) return []
-    if (visible <= 0) return []
-    if (visible >= items.length || ellipsis === false) {
-      return items.map((value, index) => ({ type: 'crumb' as const, value, index }))
-    }
-
-    if (anchor === 'start') {
-      // Keep first items visible, collapse from end
-      // visible=4 with 6 items: [0] [1] [2] [...] [5]
-      const headCount = Math.max(1, visible - 2)
-      const collapseStart = headCount
-      const collapseEnd = items.length - 1
-
-      const head: BreadcrumbRenderTicket<Z['value']>[] = items
-        .slice(0, headCount)
-        .map((value, i) => ({ type: 'crumb' as const, value, index: i }))
-
-      const middle: BreadcrumbRenderTicket<Z['value']>[] = collapseEnd > collapseStart
-        ? [{ type: 'ellipsis', value: ellipsis, collapsed: items.slice(collapseStart, collapseEnd) }]
-        : []
-
-      const tail: BreadcrumbRenderTicket<Z['value']> = { type: 'crumb', value: items.at(-1)!, index: items.length - 1 }
-
-      return [...head, ...middle, tail]
-    }
-
-    // anchor === 'end': keep last items visible, collapse from start (default)
-    // visible=4 with 6 items: [0] [...] [4] [5]
-    const tailCount = Math.max(1, visible - 2)
-    const collapseStart = 1
-    const collapseEnd = items.length - tailCount
-
-    const head: BreadcrumbRenderTicket<Z['value']> = { type: 'crumb', value: items[0]!, index: 0 }
-
-    const middle: BreadcrumbRenderTicket<Z['value']>[] = collapseEnd > collapseStart
-      ? [{ type: 'ellipsis', value: ellipsis, collapsed: items.slice(collapseStart, collapseEnd) }]
-      : []
-
-    const startIndex = Math.max(1, collapseEnd)
-    const tail: BreadcrumbRenderTicket<Z['value']>[] = items
-      .slice(startIndex)
-      .map((value, i) => ({ type: 'crumb' as const, value, index: startIndex + i }))
-
-    return [head, ...middle, ...tail]
-  })
-
   return {
     ...single,
     select,
@@ -241,8 +155,6 @@ export function createBreadcrumbs<
     depth,
     isRoot,
     isEmpty,
-    tickets,
-    ellipsis,
     get size () {
       return single.size
     },
@@ -299,9 +211,8 @@ export function createBreadcrumbsContext<
  *
  * <template>
  *   <nav>
- *     <template v-for="ticket in breadcrumbs.tickets.value" :key="ticket.type === 'crumb' ? ticket.value.id : 'ellipsis'">
- *       <span v-if="ticket.type === 'ellipsis'">{{ ticket.value }}</span>
- *       <a v-else @click="breadcrumbs.select(ticket.value.id)">{{ ticket.value.text }}</a>
+ *     <template v-for="ticket in breadcrumbs.values()" :key="ticket.id">
+ *       <a @click="breadcrumbs.select(ticket.id)">{{ ticket.text }}</a>
  *     </template>
  *   </nav>
  * </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import { computed, shallowRef } from 'vue'
-  import { Checkbox, createBreadcrumbs, Popover } from '@vuetify/v0'
+  import { computed } from 'vue'
+  import { createBreadcrumbs } from '@vuetify/v0'
   import { tree } from './tree'
 
   import type { BreadcrumbTicketInput } from '@vuetify/v0'
@@ -11,15 +11,11 @@
     value: T
   }
 
-  const anchor = shallowRef<'start' | 'end'>('end')
-
-  const breadcrumbs = createBreadcrumbs<FileBreadcrumbTicketInput>({
-    visible: 4,
-    anchor,
-  })
+  const breadcrumbs = createBreadcrumbs<FileBreadcrumbTicketInput>()
 
   const current = computed(() => breadcrumbs.selectedValue.value ?? tree)
   const children = computed(() => current.value.children ?? [])
+  const items = computed(() => breadcrumbs.values())
 
   function isFolder (node: FolderNode) {
     return !!node.children
@@ -52,40 +48,17 @@
   <div class="space-y-3">
     <nav class="flex items-center gap-1.5 text-sm min-h-6">
       <template
-        v-for="ticket in breadcrumbs.tickets.value"
-        :key="ticket.type === 'crumb' ? ticket.value.id : 'ellipsis'"
+        v-for="(ticket, i) in items"
+        :key="ticket.id"
       >
-        <template v-if="ticket.type === 'ellipsis'">
-          <span class="text-on-surface-variant">/</span>
+        <span v-if="i > 0" class="text-on-surface-variant">/</span>
 
-          <Popover.Root>
-            <Popover.Activator class="text-on-surface-variant px-1 cursor-pointer hover:text-primary">
-              {{ ticket.value }}
-            </Popover.Activator>
-
-            <Popover.Content class="py-1 rounded-lg bg-surface border border-divider shadow-lg" position-area="top">
-              <button
-                v-for="crumb in ticket.collapsed"
-                :key="crumb.id"
-                class="block w-full px-3 py-1.5 text-sm text-left text-primary hover:bg-surface-tint cursor-pointer"
-                @click="navigate(crumb.id)"
-              >
-                {{ crumb.text }}
-              </button>
-            </Popover.Content>
-          </Popover.Root>
-        </template>
-
-        <template v-else>
-          <span v-if="ticket.index > 0" class="text-on-surface-variant">/</span>
-
-          <button
-            class="text-primary hover:underline cursor-pointer"
-            @click="navigate(ticket.value.id)"
-          >
-            {{ ticket.value.text }}
-          </button>
-        </template>
+        <button
+          class="text-primary hover:underline cursor-pointer"
+          @click="navigate(ticket.id)"
+        >
+          {{ ticket.text }}
+        </button>
       </template>
     </nav>
 
@@ -112,19 +85,9 @@
       </button>
     </div>
 
-    <div class="flex items-center gap-4 text-xs text-on-surface-variant">
-      <span>Visible: 4</span>
-
-      <label class="flex items-center gap-1.5 cursor-pointer">
-        <Checkbox.Root
-          class="size-4 border border-divider rounded flex items-center justify-center text-xs data-[checked]:bg-primary data-[checked]:border-primary data-[checked]:text-on-primary"
-          :model-value="anchor === 'start'"
-          @update:model-value="anchor = $event ? 'start' : 'end'"
-        >
-          <Checkbox.Indicator>&#10003;</Checkbox.Indicator>
-        </Checkbox.Root>
-        <span>Anchor start</span>
-      </label>
+    <div class="text-xs text-on-surface-variant">
+      Depth: {{ breadcrumbs.depth.value }} &middot;
+      At root: {{ breadcrumbs.isRoot.value }}
     </div>
   </div>
 </template>

@@ -2,9 +2,9 @@
 title: createBreadcrumbs - Breadcrumb Navigation for Vue 3
 meta:
 - name: description
-  content: Breadcrumb navigation composable extending createSingle. Path truncation, depth tracking, ellipsis collapse, and navigation methods for hierarchical trails.
+  content: Breadcrumb navigation composable extending createSingle. Path truncation, depth tracking, and navigation methods for hierarchical trails.
 - name: keywords
-  content: createBreadcrumbs, breadcrumbs, navigation, composable, Vue 3, createSingle, path truncation, ellipsis
+  content: createBreadcrumbs, breadcrumbs, navigation, composable, Vue 3, createSingle, path truncation
 features:
   category: Composable
   label: 'E: createBreadcrumbs'
@@ -18,13 +18,13 @@ related:
 
 # createBreadcrumbs
 
-A composable that extends `createSingle` for breadcrumb navigation with automatic path truncation and ellipsis collapse.
+A composable that extends `createSingle` for breadcrumb navigation with automatic path truncation.
 
 <DocsPageFeatures :frontmatter />
 
 ## Usage
 
-The `createBreadcrumbs` composable manages an ordered path of items. When you select an earlier item, everything after it is removed. The `tickets` computed property provides a render-ready array with ellipsis support for long trails.
+The `createBreadcrumbs` composable manages an ordered path of items. When you select an earlier item, everything after it is removed. Use `values()` to iterate the current trail for rendering.
 
 ::: example
 /composables/create-breadcrumbs/basic
@@ -32,7 +32,7 @@ The `createBreadcrumbs` composable manages an ordered path of items. When you se
 
 ## Architecture
 
-`createBreadcrumbs` extends `createSingle` with path truncation and render ticket computation:
+`createBreadcrumbs` extends `createSingle` with path truncation and derived navigation state:
 
 ```mermaid "Breadcrumbs Hierarchy"
 flowchart TD
@@ -52,7 +52,6 @@ Breadcrumb state is **always reactive**. All derived properties update automatic
 | `depth` | <AppSuccessIcon /> | Ref — count of registered items |
 | `isRoot` | <AppSuccessIcon /> | Ref — `depth <= 1` |
 | `isEmpty` | <AppSuccessIcon /> | Ref — `depth === 0` |
-| `tickets` | <AppSuccessIcon /> | Computed — render array with ellipsis |
 | `selectedId` | <AppSuccessIcon /> | Computed — current (last) item ID |
 | `selectedItem` | <AppSuccessIcon /> | Computed — current item ticket |
 | `selectedValue` | <AppSuccessIcon /> | Computed — current item value |
@@ -69,24 +68,22 @@ Breadcrumb state is **always reactive**. All derived properties update automatic
 
 ### File Explorer
 
-A file explorer that uses `createBreadcrumbs` to track the user's position in a folder tree. Clicking a folder calls `register()` to push it onto the trail, while clicking a breadcrumb calls `select()` to navigate back — automatically truncating everything after the selected crumb. Hidden crumbs are accessible through a Popover on the ellipsis.
+A file explorer that uses `createBreadcrumbs` to track the user's position in a folder tree. Clicking a folder calls `register()` to push it onto the trail, while clicking a breadcrumb calls `select()` to navigate back — automatically truncating everything after the selected crumb.
 
 **File breakdown:**
 
 | File | Role |
 |------|------|
-| `file-explorer.vue` | Interactive file browser with breadcrumb navigation, ellipsis popover, and anchor toggle |
+| `file-explorer.vue` | Interactive file browser with breadcrumb navigation and back button |
 | `tree.ts` | Typed folder tree data and `FolderNode` interface |
 
 **Key patterns:**
 
 - `FileBreadcrumbTicketInput` extends `BreadcrumbTicketInput<FolderNode>` so `selectedValue` is properly typed — no casting needed
 - Each folder node is stored as the ticket's `value`, keeping the breadcrumb trail and folder listing in sync through the registry itself
-- The `anchor` option controls truncation direction — `'end'` (default) keeps the last crumbs visible, `'start'` keeps the first crumbs visible
-- The `Popover` component renders inside the ellipsis, letting users click hidden crumbs to jump directly to any collapsed level
 - `isRoot` controls whether the back button is visible
 
-Drill into **Home > Documents > Projects > v0-app > src** to see the ellipsis appear, then toggle **Anchor start** to flip the truncation direction.
+Drill into **Home > Documents > Projects > v0-app > src** to see the trail grow, then click an earlier crumb to truncate back.
 
 :::
 

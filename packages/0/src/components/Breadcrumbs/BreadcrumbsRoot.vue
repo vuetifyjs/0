@@ -39,8 +39,6 @@
     divider?: string
     /** Default ellipsis character/text */
     ellipsis?: string
-    /** Maximum visible breadcrumb items before collapsing. @default Infinity */
-    visible?: number
     /** Gap between items in pixels. @default 8 */
     gap?: number
     /** Accessible label for the navigation landmark */
@@ -87,7 +85,6 @@
     renderless,
     divider = '/',
     ellipsis = '…',
-    visible = Infinity,
     gap = 6,
     label,
   } = defineProps<BreadcrumbsRootProps>()
@@ -95,11 +92,7 @@
   const locale = useLocale()
   const containerRef = useTemplateRef('container')
 
-  const breadcrumbs = createBreadcrumbs({
-    visible,
-    ellipsis,
-    enroll: true,
-  })
+  const breadcrumbs = createBreadcrumbs({ enroll: true })
 
   const group = createGroup<BreadcrumbsTicket>({
     enroll: true,
