@@ -266,17 +266,18 @@
       margin-bottom: .5rem;
     }
 
-    ul, ol {
+    > ul, > ol {
       list-style-type: disc;
       padding-left: 1.5rem;
     }
 
-    ul:not(:last-child),
-    ol:not(:last-child) {
+    > ul:not(:last-child),
+    > ol:not(:last-child) {
       margin-bottom: 1rem;
     }
 
-    li:not(:last-child) {
+    > ul > li:not(:last-child),
+    > ol > li:not(:last-child) {
       margin-bottom: 0.5rem;
     }
 

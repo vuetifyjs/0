@@ -14,6 +14,7 @@ declare module 'vue' {
     AppAskInline: typeof import('./components/app/AppAskInline.vue')['default']
     AppBanner: typeof import('./components/app/AppBanner.vue')['default']
     AppBar: typeof import('./components/app/AppBar.vue')['default']
+    AppBreadcrumbs: typeof import('./components/app/AppBreadcrumbs.vue')['default']
     AppBrowserIcon: typeof import('./components/app/AppBrowserIcon.vue')['default']
     AppBurst: typeof import('./components/app/AppBurst.vue')['default']
     AppChip: typeof import('./components/app/AppChip.vue')['default']
