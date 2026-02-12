@@ -36,6 +36,13 @@
       "skipOnMobile": true
     },
     {
+      "id": "breadcrumbs",
+      "title": "Breadcrumbs",
+      "task": "See where you are. Breadcrumbs show your path through the docs—click any segment to jump back.",
+      "hint": "",
+      "learn": "Navigate back through the documentation hierarchy"
+    },
+    {
       "id": "page-actions",
       "title": "Page Actions",
       "task": "Spot something wrong? Edit it on GitHub, report it, or grab the source—directly from any page.",

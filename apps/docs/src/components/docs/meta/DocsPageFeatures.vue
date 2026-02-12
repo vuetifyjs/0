@@ -246,6 +246,10 @@
 
 <template>
   <div class="mt-4 mb-8 flex flex-col gap-4">
+    <Discovery.Activator class="rounded-lg" :padding="8" step="breadcrumbs">
+      <AppBreadcrumbs />
+    </Discovery.Activator>
+
     <!-- Action chips -->
     <Discovery.Activator class="rounded-lg" :padding="8" step="page-actions">
       <div class="inline-flex gap-2 flex-wrap">
