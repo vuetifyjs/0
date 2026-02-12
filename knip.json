@@ -32,7 +32,11 @@
         "src/components/docs/DocsBrowserSupport.vue",
         "src/skillz/tours/**/index.ts",
         "src/stores/skillz.ts",
+        "src/data/**",
         "src/examples/**"
+      ],
+      "ignoreDependencies": [
+        "@vue/repl"
       ],
       "paths": {
         "@/*": [
