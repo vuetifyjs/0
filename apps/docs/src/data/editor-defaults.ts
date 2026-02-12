@@ -1,3 +1,119 @@
+// ── Template files (matching Vuetify Play's v0 template) ────────────────
+
+export const MAIN_TS = `import { createApp } from 'vue'
+import App from './App.vue'
+import { createThemePlugin } from '@vuetify/v0'
+import './uno.config.ts'
+
+const theme = createThemePlugin({
+  default: 'light',
+  themes: {
+    light: {
+      dark: false,
+      colors: {
+        'primary': '#3b82f6',
+        'secondary': '#64748b',
+        'accent': '#6366f1',
+        'error': '#ef4444',
+        'info': '#1867c0',
+        'success': '#22c55e',
+        'warning': '#f59e0b',
+        'background': '#ffffff',
+        'surface': '#ffffff',
+        'surface-tint': '#f5f5f5',
+        'surface-variant': '#e8e8e8',
+        'divider': '#e0e0e0',
+        'on-primary': '#ffffff',
+        'on-secondary': '#ffffff',
+        'on-accent': '#1a1a1a',
+        'on-error': '#ffffff',
+        'on-info': '#ffffff',
+        'on-success': '#1a1a1a',
+        'on-warning': '#1a1a1a',
+        'on-background': '#212121',
+        'on-surface': '#212121',
+        'on-surface-variant': '#666666',
+      },
+    },
+    dark: {
+      dark: true,
+      colors: {
+        'primary': '#c4b5fd',
+        'secondary': '#94a3b8',
+        'accent': '#c084fc',
+        'error': '#f87171',
+        'info': '#38bdf8',
+        'success': '#4ade80',
+        'warning': '#fb923c',
+        'background': '#121212',
+        'surface': '#1a1a1a',
+        'surface-tint': '#2a2a2a',
+        'surface-variant': '#1e1e1e',
+        'divider': '#404040',
+        'on-primary': '#1a1a1a',
+        'on-secondary': '#ffffff',
+        'on-accent': '#ffffff',
+        'on-error': '#1a1a1a',
+        'on-info': '#1a1a1a',
+        'on-success': '#1a1a1a',
+        'on-warning': '#1a1a1a',
+        'on-background': '#e0e0e0',
+        'on-surface': '#e0e0e0',
+        'on-surface-variant': '#a0a0a0',
+      },
+    },
+  },
+})
+
+const app = createApp(App)
+app.use(theme)
+app.mount('#app')
+`
+
+export const UNO_CONFIG_TS = `// @ts-expect-error - esm.sh import
+import defineConfig from 'https://esm.sh/@unocss/runtime'
+// @ts-expect-error - esm.sh import
+import presetWind4 from 'https://esm.sh/@unocss/preset-wind4'
+
+defineConfig({
+  defaults: {
+    presets: [presetWind4()],
+    theme: {
+      colors: {
+        'primary': 'var(--v0-primary)',
+        'secondary': 'var(--v0-secondary)',
+        'accent': 'var(--v0-accent)',
+        'error': 'var(--v0-error)',
+        'info': 'var(--v0-info)',
+        'success': 'var(--v0-success)',
+        'warning': 'var(--v0-warning)',
+        'background': 'var(--v0-background)',
+        'surface': 'var(--v0-surface)',
+        'surface-tint': 'var(--v0-surface-tint)',
+        'surface-variant': 'var(--v0-surface-variant)',
+        'divider': 'var(--v0-divider)',
+        'pre': 'var(--v0-pre)',
+        'on-primary': 'var(--v0-on-primary)',
+        'on-secondary': 'var(--v0-on-secondary)',
+        'on-accent': 'var(--v0-on-accent)',
+        'on-error': 'var(--v0-on-error)',
+        'on-info': 'var(--v0-on-info)',
+        'on-success': 'var(--v0-on-success)',
+        'on-warning': 'var(--v0-on-warning)',
+        'on-background': 'var(--v0-on-background)',
+        'on-surface': 'var(--v0-on-surface)',
+        'on-surface-variant': 'var(--v0-on-surface-variant)',
+      },
+      borderColor: {
+        DEFAULT: 'var(--v0-divider)',
+      },
+    },
+  },
+})
+`
+
+// ── Default App.vue ─────────────────────────────────────────────────────
+
 export const DEFAULT_CODE = `<script setup lang="ts">
   import { createStep } from '@vuetify/v0'
   import { computed } from 'vue'
@@ -20,64 +136,43 @@ export const DEFAULT_CODE = `<script setup lang="ts">
 </script>
 
 <template>
-  <div style="max-width: 480px; margin: 0 auto; padding: 32px 16px; font-family: sans-serif;">
+  <div class="max-w-md mx-auto p-8 font-sans min-h-screen bg-background text-on-background">
     <!-- Stepper Track -->
-    <div style="position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: 48px;">
+    <div class="relative flex items-center justify-between mb-12">
       <!-- Background Line -->
-      <div style="position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: #e0e0e0;" />
+      <div class="absolute top-5 left-0 right-0 h-0.5 bg-divider" />
 
       <!-- Progress Line -->
       <div
-        :style="{
-          position: 'absolute',
-          top: '20px',
-          left: 0,
-          height: '2px',
-          background: '#1867c0',
-          transition: 'width 0.4s ease',
-          width: (currentIndex / (steps.length - 1)) * 100 + '%',
-        }"
+        class="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-400"
+        :style="{ width: (currentIndex / (steps.length - 1)) * 100 + '%' }"
       />
 
       <!-- Steps -->
       <div
         v-for="(step, i) in steps"
         :key="step.id"
-        style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer;"
+        class="relative z-1 flex flex-col items-center cursor-pointer"
         @click="!step.disabled && stepper.select(step.id)"
       >
         <div
-          :style="{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '14px',
-            fontWeight: 600,
-            transition: 'all 0.3s',
-            background: i <= currentIndex ? '#1867c0' : '#fff',
-            color: i <= currentIndex ? '#fff' : '#888',
-            border: i <= currentIndex ? 'none' : step.disabled ? '2px dashed #ccc' : '2px solid #e0e0e0',
-            transform: i === currentIndex ? 'scale(1.15)' : 'scale(0.9)',
-            boxShadow: i === currentIndex ? '0 0 0 4px rgba(24, 103, 192, 0.2)' : 'none',
-            opacity: step.disabled ? 0.5 : 1,
-          }"
+          class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300"
+          :class="[
+            i <= currentIndex ? 'bg-primary text-on-primary' : step.disabled ? 'bg-surface border-2 border-dashed border-divider' : 'bg-surface border-2 border-solid border-divider',
+            i === currentIndex ? 'scale-115 shadow-[0_0_0_4px_rgba(59,130,246,0.2)]' : 'scale-90',
+            step.disabled ? 'opacity-50' : '',
+          ]"
         >
           <span v-if="i < currentIndex">&#10003;</span>
           <span v-else>{{ step.icon }}</span>
         </div>
 
         <span
-          :style="{
-            marginTop: '8px',
-            fontSize: '12px',
-            fontWeight: 500,
-            color: i === currentIndex ? '#1867c0' : '#888',
-            textDecoration: step.disabled ? 'line-through' : 'none',
-            opacity: step.disabled ? 0.5 : 1,
-          }"
+          class="mt-2 text-xs font-medium"
+          :class="[
+            i === currentIndex ? 'text-primary' : 'text-on-surface-variant',
+            step.disabled ? 'line-through opacity-50' : '',
+          ]"
         >
           {{ step.label }}
         </span>
@@ -85,38 +180,38 @@ export const DEFAULT_CODE = `<script setup lang="ts">
     </div>
 
     <!-- Controls -->
-    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <div class="flex items-center justify-center gap-2">
       <button
+        class="px-3 py-1.5 text-sm rounded border border-solid border-divider bg-surface cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         :disabled="isFirst"
-        :style="{ padding: '6px 12px', fontSize: '13px', borderRadius: '4px', border: '1px solid #e0e0e0', background: '#fff', cursor: isFirst ? 'not-allowed' : 'pointer', opacity: isFirst ? 0.4 : 1 }"
         @click="stepper.first()"
       >
         First
       </button>
       <button
+        class="px-4 py-1.5 text-sm rounded border-none bg-surface-tint text-primary cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         :disabled="isFirst"
-        :style="{ padding: '6px 16px', fontSize: '13px', borderRadius: '4px', border: 'none', background: isFirst ? '#e3f2fd' : '#bbdefb', color: '#1867c0', cursor: isFirst ? 'not-allowed' : 'pointer', opacity: isFirst ? 0.4 : 1 }"
         @click="stepper.prev()"
       >
         Prev
       </button>
       <button
+        class="px-4 py-1.5 text-sm rounded border-none bg-primary text-on-primary cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         :disabled="isLast"
-        :style="{ padding: '6px 16px', fontSize: '13px', borderRadius: '4px', border: 'none', background: '#1867c0', color: '#fff', cursor: isLast ? 'not-allowed' : 'pointer', opacity: isLast ? 0.4 : 1 }"
         @click="stepper.next()"
       >
         Next
       </button>
       <button
+        class="px-3 py-1.5 text-sm rounded border border-solid border-divider bg-surface cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
         :disabled="isLast"
-        :style="{ padding: '6px 12px', fontSize: '13px', borderRadius: '4px', border: '1px solid #e0e0e0', background: '#fff', cursor: isLast ? 'not-allowed' : 'pointer', opacity: isLast ? 0.4 : 1 }"
         @click="stepper.last()"
       >
         Last
       </button>
     </div>
 
-    <p style="margin-top: 24px; text-align: center; font-size: 12px; color: #888;">
+    <p class="mt-6 text-center text-xs text-on-surface-variant">
       Step {{ currentIndex + 1 }} of {{ stepper.size }} · Payment step is disabled (auto-skipped)
     </p>
   </div>

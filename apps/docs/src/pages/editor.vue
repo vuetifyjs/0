@@ -8,11 +8,11 @@
   // Utilities
   import { Repl, useStore, useVueImportMap } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
-  import { computed, onMounted, ref, shallowRef } from 'vue'
+  import { computed, onMounted, shallowRef } from 'vue'
   import '@vue/repl/style.css'
 
   // Data
-  import { DEFAULT_CODE } from '@/data/editor-defaults'
+  import { DEFAULT_CODE, MAIN_TS, UNO_CONFIG_TS } from '@/data/editor-defaults'
 
   definePage({
     meta: {
@@ -28,10 +28,12 @@
     ],
   })
 
+  // ── Theme ──────────────────────────────────────────────────────────────
   const theme = useTheme()
   const isDark = computed(() => theme.isDark.value)
   const replTheme = computed(() => isDark.value ? 'dark' : 'light')
 
+  // ── REPL Setup ─────────────────────────────────────────────────────────
   const { importMap: builtinImportMap, vueVersion } = useVueImportMap({
     runtimeDev: 'https://cdn.jsdelivr.net/npm/@vue/runtime-dom/dist/runtime-dom.esm-browser.js',
     runtimeProd: 'https://cdn.jsdelivr.net/npm/@vue/runtime-dom/dist/runtime-dom.esm-browser.prod.js',
@@ -41,75 +43,85 @@
   const importMap = computed(() => ({
     imports: {
       ...builtinImportMap.value?.imports,
-      '@vuetify/v0': 'https://esm.sh/@vuetify/v0',
+      '@vuetify/v0': 'https://cdn.jsdelivr.net/npm/@vuetify/v0@latest/dist/index.mjs',
     },
   }))
 
   const store = useStore({
     builtinImportMap: importMap,
     vueVersion,
-    showOutput: ref(true),
+    showOutput: shallowRef(true),
   })
 
   const isReady = shallowRef(false)
 
-  onMounted(() => {
-    store.setFiles({ 'App.vue': DEFAULT_CODE }, 'App.vue')
+  onMounted(async () => {
+    await store.setFiles(
+      {
+        'src/main.ts': MAIN_TS,
+        'src/uno.config.ts': UNO_CONFIG_TS,
+        'src/App.vue': DEFAULT_CODE,
+      },
+      'src/main.ts',
+    )
+    store.setActive('src/App.vue')
     isReady.value = true
   })
 </script>
 
 <template>
   <div class="h-screen flex flex-col">
-    <div class="flex items-center justify-between px-4 py-2 border-b border-divider">
-      <RouterLink
-        class="flex items-center gap-2 text-on-surface no-underline text-sm font-medium"
-        to="/"
-      >
-        <span class="text-lg">←</span>
-        <span>Back</span>
-      </RouterLink>
+    <!-- Header -->
+    <header class="flex items-center justify-between h-[48px] px-3 border-b border-divider bg-surface">
+      <div class="flex items-center gap-3">
+        <RouterLink
+          aria-label="Back to docs"
+          class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors no-underline text-on-surface"
+          title="Back to docs"
+          to="/"
+        >
+          <AppIcon icon="arrow-left" :size="18" />
+        </RouterLink>
 
-      <span class="text-sm font-semibold text-on-surface">v0 Editor</span>
+        <span class="text-sm font-semibold text-on-surface">v0 Editor</span>
+      </div>
 
-      <div class="w-16" />
-    </div>
+      <AppThemeToggle />
+    </header>
 
-    <div v-if="isReady" class="editor-repl" :class="{ dark: isDark }">
-      <Repl
-        :auto-resize="true"
-        :clear-console="true"
-        :editor="Monaco"
-        layout="horizontal"
-        :preview-theme="true"
-        :show-compile-output="false"
-        :show-import-map="false"
-        :show-ts-config="false"
-        :store="store"
-        :theme="replTheme"
-      />
-    </div>
+    <!-- REPL Editor -->
+    <Transition name="fade">
+      <div v-if="isReady" class="editor-repl flex-1 min-h-0 p-2" :class="{ dark: isDark }">
+        <Repl
+          :auto-resize="true"
+          :clear-console="true"
+          :editor="Monaco"
+          layout="horizontal"
+          :preview-theme="true"
+          :show-compile-output="false"
+          :show-import-map="false"
+          :show-ts-config="false"
+          :store="store"
+          :theme="replTheme"
+        />
+      </div>
+    </Transition>
   </div>
 </template>
 
 <style scoped>
   .editor-repl {
     position: relative;
-    flex: 1;
-    min-height: 0;
     overflow: hidden;
   }
 
   .editor-repl :deep(.vue-repl) {
-    position: absolute;
-    inset: 0;
+    height: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--v0-divider);
+    overflow: hidden;
     --color-branding: var(--v0-primary);
     --color-branding-dark: var(--v0-primary);
-  }
-
-  /* Hide file tabs (single file mode) */
-  .editor-repl :deep(.tab-buttons) {
-    display: none !important;
   }
 
   /* Hide editor floating toggles (auto-save / show error) */
@@ -128,9 +140,20 @@
 
   /* Dark theme overrides for @vue/repl */
   .editor-repl.dark :deep(.vue-repl) {
-    --bg: #1a1a1a;
-    --bg-soft: #242424;
-    --border: #383838;
-    --text-light: #aaa;
+    --bg: var(--v0-background);
+    --bg-soft: var(--v0-surface);
+    --border: var(--v0-divider);
+    --text-light: var(--v0-on-surface-variant);
+  }
+
+  /* Fade on mount */
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.2s;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
   }
 </style>
