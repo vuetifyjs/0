@@ -136,7 +136,7 @@ export const DEFAULT_CODE = `<script setup lang="ts">
 </script>
 
 <template>
-  <div class="max-w-md mx-auto p-8 font-sans min-h-screen bg-background text-on-background">
+  <div class="p-8 font-sans min-h-screen bg-background text-on-background">
     <!-- Stepper Track -->
     <div class="relative flex items-center justify-between mb-12">
       <!-- Background Line -->

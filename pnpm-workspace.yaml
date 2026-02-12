@@ -21,6 +21,7 @@ catalog:
   '@unhead/vue': 2.0.19
   '@vitest/coverage-v8': ^4.0.16
   '@vue/test-utils': ^2.4.6
+  '@vue/repl': ^4.7.1
   '@vue/tsconfig': ^0.8.1
   '@vuetify/github-releaser': ^4.0.3
   bumpp: ^10.3.2

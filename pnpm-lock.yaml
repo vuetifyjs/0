@@ -48,6 +48,9 @@ catalogs:
     '@vitest/coverage-v8':
       specifier: ^4.0.16
       version: 4.0.16
+    '@vue/repl':
+      specifier: ^4.7.1
+      version: 4.7.1
     '@vue/test-utils':
       specifier: ^2.4.6
       version: 2.4.6
@@ -286,6 +289,9 @@ importers:
       '@unhead/addons':
         specifier: 'catalog:'
         version: 2.0.19(rollup@2.79.2)
+      '@vue/repl':
+        specifier: 'catalog:'
+        version: 4.7.1
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
@@ -2689,6 +2695,9 @@ packages:
   '@vue/reactivity@3.5.26':
     resolution: {integrity: sha512-9EnYB1/DIiUYYnzlnUBgwU32NNvLp/nhxLXeWRhHUEeWNTn1ECxX8aGO7RTXeX6PPcxe3LLuNBFoJbV4QZ+CFQ==}
 
+  '@vue/repl@4.7.1':
+    resolution: {integrity: sha512-8w5Z3cyqBJ5ufzXO2eut2stzb7aX/ZnSva2d3ee8eEINEB7FG2JYwc14eAHHHGGuoXOGN5v4cyb5ti/YZGcwlg==}
+
   '@vue/runtime-core@3.5.24':
     resolution: {integrity: sha512-RYP/byyKDgNIqfX/gNb2PB55dJmM97jc9wyF3jK7QUInYKypK2exmZMNwnjueWwGceEkP6NChd3D2ZVEp9undQ==}
 
@@ -4020,6 +4029,7 @@ packages:
   glob@11.1.0:
     resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   globals@11.12.0:
@@ -8904,6 +8914,8 @@ snapshots:
   '@vue/reactivity@3.5.26':
     dependencies:
       '@vue/shared': 3.5.26
+
+  '@vue/repl@4.7.1': {}
 
   '@vue/runtime-core@3.5.24':
     dependencies:

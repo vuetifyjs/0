@@ -443,6 +443,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/editor': RouteRecordInfo<
+      '/editor',
+      '/editor',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -1037,6 +1044,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/utilities/create-virtual.md': {
       routes:
         | '/composables/utilities/create-virtual'
+      views:
+        | never
+    }
+    'src/pages/editor.vue': {
+      routes:
+        | '/editor'
       views:
         | never
     }

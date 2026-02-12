@@ -53,6 +53,8 @@
     showOutput: shallowRef(true),
   })
 
+  const previewHead = '<style>body{margin:0}#app{min-height:100vh}</style>'
+
   const isReady = shallowRef(false)
 
   onMounted(async () => {
@@ -97,6 +99,7 @@
           :clear-console="true"
           :editor="Monaco"
           layout="horizontal"
+          :preview-options="{ headHTML: previewHead }"
           :preview-theme="true"
           :show-compile-output="false"
           :show-import-map="false"
