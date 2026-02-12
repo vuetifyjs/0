@@ -24,9 +24,41 @@ Vuetify MCP is a [Model Context Protocol](https://modelcontextprotocol.io/docs/g
 
 ## Quick Start
 
-### Vuetify CLI (Recommended)
+### Interactive Setup (Recommended)
 
-Add MCP to existing projects with the [Vuetify CLI](/guide/tooling/vuetify-cli):
+Auto-detects your IDE and configures the hosted MCP server automatically:
+
+::: code-group no-filename
+
+```bash pnpm
+pnpm dlx @vuetify/mcp config --remote
+```
+
+```bash npm
+npx -y @vuetify/mcp config --remote
+```
+
+```bash yarn
+yarn dlx @vuetify/mcp config --remote
+```
+
+```bash bun
+bunx @vuetify/mcp config --remote
+```
+
+:::
+
+### Claude Code
+
+[Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) is Anthropic's agentic coding tool. Add the hosted MCP server directly via CLI:
+
+```bash
+claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
+```
+
+### Vuetify CLI
+
+Add Vuetify AI rules and context to your project with the [Vuetify CLI](/guide/tooling/vuetify-cli):
 
 ::: code-group no-filename
 
@@ -48,53 +80,8 @@ bunx @vuetify/cli add mcp
 
 :::
 
-### Claude Code
-
-[Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) is Anthropic's agentic coding tool. Add the hosted MCP server directly via CLI:
-
-```bash
-claude mcp add --transport http vuetify-mcp https://mcp.vuetifyjs.com/mcp
-```
-
-### Interactive Setup
-
-Auto-detects your IDE and configures MCP automatically:
-
-::: code-group no-filename
-
-```bash pnpm
-# Hosted server (recommended)
-pnpm dlx @vuetify/mcp config --remote
-
-# Local server
-pnpm dlx @vuetify/mcp config
-```
-
-```bash npm
-# Hosted server (recommended)
-npx -y @vuetify/mcp config --remote
-
-# Local server
-npx -y @vuetify/mcp config
-```
-
-```bash yarn
-# Hosted server (recommended)
-yarn dlx @vuetify/mcp config --remote
-
-# Local server
-yarn dlx @vuetify/mcp config
-```
-
-```bash bun
-# Hosted server (recommended)
-bunx @vuetify/mcp config --remote
-
-# Local server
-bunx @vuetify/mcp config
-```
-
-:::
+> [!NOTE]
+> The CLI `add mcp` command sets up [Ruler](https://github.com/intellectronica/ruler) project rules for AI context — it does not configure the MCP server connection. Use the interactive setup above to connect your IDE to the Vuetify MCP server.
 
 ### Local Server
 
