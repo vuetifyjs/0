@@ -50,7 +50,11 @@ Each component and composable page follows a consistent structure: overview, usa
 
 ### Page Header
 
-Every page includes a header area (shown at the top of this page) with quick actions and metadata.
+Every page includes a header area (shown at the top of this page) with breadcrumbs, quick actions, and metadata.
+
+**Breadcrumbs** show your current location in the documentation hierarchy. Click any segment to navigate back to that level:
+
+<AppBreadcrumbs class="my-4" />
 
 **Actions:**
 

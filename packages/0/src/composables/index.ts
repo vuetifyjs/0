@@ -1,4 +1,5 @@
 // Composables
+export * from './createBreadcrumbs'
 export * from './createContext'
 export * from './createPlugin'
 export * from './createTrinity'

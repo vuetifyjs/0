@@ -149,6 +149,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/semantic/breadcrumbs': RouteRecordInfo<
+      '/components/semantic/breadcrumbs',
+      '/components/semantic/breadcrumbs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/semantic/pagination': RouteRecordInfo<
       '/components/semantic/pagination',
       '/components/semantic/pagination',
@@ -411,6 +418,13 @@ declare module 'vue-router/auto-routes' {
     '/composables/transformers/to-reactive': RouteRecordInfo<
       '/composables/transformers/to-reactive',
       '/composables/transformers/to-reactive',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/utilities/create-breadcrumbs': RouteRecordInfo<
+      '/composables/utilities/create-breadcrumbs',
+      '/composables/utilities/create-breadcrumbs',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -795,6 +809,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/components/semantic/breadcrumbs.md': {
+      routes:
+        | '/components/semantic/breadcrumbs'
+      views:
+        | never
+    }
     'src/pages/components/semantic/pagination.md': {
       routes:
         | '/components/semantic/pagination'
@@ -1020,6 +1040,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/transformers/to-reactive.md': {
       routes:
         | '/composables/transformers/to-reactive'
+      views:
+        | never
+    }
+    'src/pages/composables/utilities/create-breadcrumbs.md': {
+      routes:
+        | '/composables/utilities/create-breadcrumbs'
       views:
         | never
     }
