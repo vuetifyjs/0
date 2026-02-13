@@ -2,7 +2,7 @@
   import { shallowRef } from 'vue'
   import { Breadcrumbs } from '@vuetify/v0'
 
-  const width = shallowRef(300)
+  const width = shallowRef(332)
 
   const items = [
     { text: 'Home', href: '/' },
@@ -23,7 +23,7 @@
         v-model.number="width"
         class="grow accent-primary"
         max="600"
-        min="150"
+        min="200"
         type="range"
       >
 
@@ -31,15 +31,15 @@
     </label>
 
     <div
-      class="border border-divider rounded-lg p-4 overflow-hidden"
+      class="border border-divider border-dashed rounded-lg p-4 overflow-hidden"
       :style="{ width: `${width}px` }"
     >
       <Breadcrumbs.Root>
-        <Breadcrumbs.List class="flex items-center gap-2 list-none m-0 p-0 text-sm">
+        <Breadcrumbs.List class="flex items-center gap-2 list-none text-sm">
           <template v-for="(item, index) in items" :key="item.text">
             <Breadcrumbs.Divider
               v-if="index > 0"
-              class="text-on-surface-variant list-none shrink-0 flex items-center m-0"
+              class="text-on-surface-variant shrink-0 flex items-center"
             >
               <svg class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
@@ -48,10 +48,10 @@
 
             <Breadcrumbs.Ellipsis
               v-if="index === 1"
-              class="text-on-surface-variant list-none shrink-0 m-0"
+              class="text-on-surface-variant shrink-0"
             />
 
-            <Breadcrumbs.Item class="list-none shrink-0 m-0" :text="item.text">
+            <Breadcrumbs.Item class="shrink-0" :text="item.text">
               <Breadcrumbs.Page
                 v-if="!item.href"
                 class="text-on-surface-variant whitespace-nowrap"

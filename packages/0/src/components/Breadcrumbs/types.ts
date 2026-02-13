@@ -8,7 +8,7 @@
 import type { BreadcrumbsContext } from '#v0/composables/createBreadcrumbs'
 import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
 import type { OverflowContext } from '#v0/composables/createOverflow'
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
 
 export type BreadcrumbsTicketType = 'item' | 'divider' | 'ellipsis'
 
@@ -30,4 +30,8 @@ export interface BreadcrumbsRootContext {
   ellipsis: Ref<string>
   /** Whether items are being truncated */
   isOverflowing: Readonly<Ref<boolean>>
+  /** Measured ellipsis width in pixels (set by BreadcrumbsEllipsis) */
+  ellipsisWidth: ShallowRef<number>
+  /** Route element measurement — first item/divider go to reserved space, rest to overflow */
+  measureElement: (index: number, type: 'item' | 'divider', el: Element | undefined) => void
 }

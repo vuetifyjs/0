@@ -70,13 +70,13 @@
   watch(
     () => elRef.value?.element,
     element => {
-      context.overflow.measure(ticket.index, element ?? undefined)
+      context.measureElement(ticket.index, 'divider', element ?? undefined)
     },
     { immediate: true },
   )
 
   onUnmounted(() => {
-    context.overflow.measure(ticket.index, undefined)
+    context.measureElement(ticket.index, 'divider', undefined)
     context.group.unregister(ticket.id)
   })
 

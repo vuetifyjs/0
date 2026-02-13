@@ -111,6 +111,17 @@ Drag the slider to shrink the container and watch items collapse into the ellips
 :::
 
 ::: example
+/components/breadcrumbs/mobile
+
+### Mobile Overflow
+
+On narrow viewports, the breadcrumb trail automatically collapses leading items behind an ellipsis. The Root reserves space for the ellipsis element before computing how many items fit, preventing visual clipping. No configuration is needed — `createOverflow` with `reverse: true` ensures the trailing (most relevant) items stay visible.
+
+The container below is capped at `max-w-sm` to simulate a mobile viewport. On actual mobile devices, the breadcrumbs would fill the full screen width and overflow naturally.
+
+:::
+
+::: example
 /components/breadcrumbs/AppBreadcrumbs.vue
 /components/breadcrumbs/useBreadcrumbItems.ts
 
