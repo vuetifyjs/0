@@ -59,6 +59,20 @@
     if (!IN_BROWSER) return
     document.body.style.overflow = ''
   })
+
+  // Prefetch editor dependencies during idle time so
+  // "Open in Editor" (new tab) loads from HTTP cache
+  if (IN_BROWSER) {
+    function prefetchEditor () {
+      import('@vue/repl').catch(() => {})
+      import('@vue/repl/monaco-editor').catch(() => {})
+    }
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(prefetchEditor)
+    } else {
+      setTimeout(prefetchEditor, 3000)
+    }
+  }
 </script>
 
 <template>

@@ -1,12 +1,13 @@
 // ── Template files (matching Vuetify Play's v0 template) ────────────────
 
-export const MAIN_TS = `import { createApp } from 'vue'
+export function createMainTs (defaultTheme: 'light' | 'dark' = 'light'): string {
+  return `import { createApp } from 'vue'
 import App from './App.vue'
 import { createThemePlugin } from '@vuetify/v0'
 import './uno.config.ts'
 
 const theme = createThemePlugin({
-  default: 'light',
+  default: '${defaultTheme}',
   themes: {
     light: {
       dark: false,
@@ -68,7 +69,15 @@ const theme = createThemePlugin({
 const app = createApp(App)
 app.use(theme)
 app.mount('#app')
+
+// Reveal after UnoCSS runtime processes initial styles
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    document.getElementById('app')!.style.opacity = '1'
+  })
+})
 `
+}
 
 export const UNO_CONFIG_TS = `// @ts-expect-error - esm.sh import
 import defineConfig from 'https://esm.sh/@unocss/runtime'

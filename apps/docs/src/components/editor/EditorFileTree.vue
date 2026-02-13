@@ -14,27 +14,85 @@
 
   const tree = createNested()
 
+  // Derive tree from store.files so it works with any loaded file set
+  const BUILT_IN_PROJECT = ['import-map.json', 'tsconfig.json']
+
+  // Build nested tree structure from file paths
+  // e.g. 'src/pagination/basic.vue' → src > pagination > basic.vue
+  const srcFiles: string[] = []
+  const projectFiles: string[] = []
+
+  for (const [filename, file] of Object.entries(props.store.files)) {
+    if (BUILT_IN_PROJECT.includes(filename)) continue
+
+    if (file.hidden) {
+      projectFiles.push(filename)
+    } else {
+      srcFiles.push(filename)
+    }
+  }
+
+  function buildChildren (files: string[], root: string) {
+    const folders = new Set<string>()
+    const direct: { id: string, value: string }[] = []
+
+    for (const filepath of files) {
+      // Strip root prefix (e.g. 'src/' → 'pagination/basic.vue')
+      const rel = filepath.startsWith(root + '/') ? filepath.slice(root.length + 1) : filepath
+      const slashIdx = rel.indexOf('/')
+
+      if (slashIdx === -1) {
+        // Direct child file
+        direct.push({ id: filepath, value: rel })
+      } else {
+        // Nested — collect intermediate folder
+        folders.add(rel.slice(0, slashIdx))
+      }
+    }
+
+    const children: { id: string, value: string, children?: ReturnType<typeof buildChildren> }[] = []
+
+    // Add folders first (sorted)
+    for (const folder of [...folders].toSorted()) {
+      const folderId = `${root}/${folder}`
+      const nested = files.filter(f => f.startsWith(folderId + '/'))
+      children.push({
+        id: folderId,
+        value: folder,
+        children: buildChildren(nested, folderId),
+      })
+    }
+
+    // Then direct files
+    children.push(...direct)
+    return children
+  }
+
   tree.onboard([
     {
       id: 'src',
       value: 'src',
-      children: [
-        { id: 'src/App.vue', value: 'App.vue' },
-      ],
+      children: buildChildren(srcFiles, 'src'),
     },
     {
       id: 'project',
       value: 'project',
       children: [
-        { id: 'src/main.ts', value: 'main.ts' },
-        { id: 'src/uno.config.ts', value: 'uno.config.ts' },
-        { id: 'import-map.json', value: 'import-map.json' },
-        { id: 'tsconfig.json', value: 'tsconfig.json' },
+        ...projectFiles.map(f => ({ id: f, value: f.split('/').pop()! })),
+        ...BUILT_IN_PROJECT.map(f => ({ id: f, value: f })),
       ],
     },
   ])
 
   tree.open('src')
+
+  // Auto-open all nested folders under src
+  for (const id of tree.keys()) {
+    const s = id as string
+    if (s.startsWith('src/') && !/\.\w+$/.test(s)) {
+      tree.open(id)
+    }
+  }
 
   const proxy = useProxyRegistry(tree)
   const activeFile = computed(() => props.store.activeFile.filename)
@@ -224,7 +282,7 @@
       <div
         class="group/row flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none hover:bg-surface-tint transition-colors"
         :class="isFile(id) && id === activeFile ? 'opacity-100 bg-surface-tint' : 'opacity-80'"
-        :style="{ paddingLeft: `${tree.getDepth(id) * 12 + 8}px` }"
+        :style="{ paddingLeft: `${tree.getDepth(id) * 8 + 8}px` }"
         @click="onClick(id)"
       >
         <template v-if="!isFile(id)">
@@ -257,7 +315,7 @@
         <!-- Delete item -->
         <button
           v-if="deletable(id)"
-          class="shrink-0 opacity-0 group-hover/row:opacity-60 hover:!opacity-100 transition-opacity"
+          class="shrink-0 inline-flex items-center justify-center opacity-0 group-hover/row:opacity-60 hover:!opacity-100 transition-opacity"
           title="Delete"
           @click.stop="remove(id)"
         >
@@ -269,7 +327,7 @@
       <div
         v-if="inputAfter === id"
         class="flex items-center gap-1.5 py-1 pr-2"
-        :style="{ paddingLeft: `${(tree.getDepth(creating!) + 1) * 12 + 8}px` }"
+        :style="{ paddingLeft: `${(tree.getDepth(creating!) + 1) * 8 + 8}px` }"
       >
         <span class="w-[14px]" />
         <input

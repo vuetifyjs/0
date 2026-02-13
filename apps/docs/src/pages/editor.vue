@@ -7,17 +7,21 @@
 
   // Components
   import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
+  import EditorExamples from '@/components/editor/EditorExamples.vue'
   import EditorFileTree from '@/components/editor/EditorFileTree.vue'
   import EditorTabs from '@/components/editor/EditorTabs.vue'
+
+  // Composables
+  import { decodeEditorHash } from '@/composables/editorLink'
 
   // Utilities
   import { Repl, useStore, useVueImportMap } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
-  import { computed, onMounted, shallowRef } from 'vue'
   import '@vue/repl/style.css'
+  import { computed, onMounted, shallowRef, watchEffect } from 'vue'
 
   // Data
-  import { DEFAULT_CODE, MAIN_TS, UNO_CONFIG_TS } from '@/data/editor-defaults'
+  import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/editor-defaults'
 
   definePage({
     meta: {
@@ -58,24 +62,111 @@
     showOutput: shallowRef(true),
   })
 
-  const previewHead = '<style>body{margin:0}#app{min-height:100vh}</style>'
+  // Wind4 preflight reset + @property defaults.
+  // The UnoCSS runtime doesn't inject preflights or @property rules,
+  // so we provide the essential reset and opacity defaults that
+  // color-mix() based utilities (border-divider, bg-surface, etc.) rely on.
+  const previewHead = computed(() => `<style>
+    @property --un-border-opacity { syntax: "<percentage>"; inherits: false; initial-value: 100% }
+    @property --un-bg-opacity { syntax: "<percentage>"; inherits: false; initial-value: 100% }
+    @property --un-text-opacity { syntax: "<percentage>"; inherits: false; initial-value: 100% }
+    @property --un-shadow-opacity { syntax: "<percentage>"; inherits: false; initial-value: 100% }
+    @property --un-ring-opacity { syntax: "<percentage>"; inherits: false; initial-value: 100% }
+    @property --un-divide-opacity { syntax: "<percentage>"; inherits: false; initial-value: 100% }
+    @property --un-border-style { syntax: "*"; inherits: false; initial-value: solid }
+    *, ::before, ::after, ::backdrop { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid }
+    html, :host { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; -webkit-tap-highlight-color: transparent }
+    body { margin: 0; background-color: ${isDark.value ? '#121212' : '#ffffff'} }
+    #app { min-height: 100vh; opacity: 0; transition: opacity 0.15s }
+    button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer }
+    *:focus-visible { outline: 2px solid var(--v0-primary); outline-offset: 2px }
+    dialog::backdrop { background: rgb(0 0 0 / 0.3) }
+  </style>`)
 
   const isReady = shallowRef(false)
   const sidebarOpen = shallowRef(true)
+  const showExamples = shallowRef(false)
+  const fileTreeKey = shallowRef(0)
+
+  // Map nested file paths to their flat alias paths (e.g. src/dir/Foo.vue → src/Foo.vue)
+  // so edits to nested files propagate to the alias the REPL uses for imports
+  const aliasMap = shallowRef(new Map<string, string>())
 
   onMounted(async () => {
+    const hash = window.location.hash.slice(1)
+    const decoded = hash ? decodeEditorHash(hash) : null
+
+    if (decoded) {
+      history.replaceState(null, '', window.location.pathname)
+      await loadExample(decoded)
+    } else {
+      await store.setFiles(
+        {
+          'src/main.ts': createMainTs(isDark.value ? 'dark' : 'light'),
+          'src/uno.config.ts': UNO_CONFIG_TS,
+          'src/App.vue': DEFAULT_CODE,
+        },
+        'src/main.ts',
+      )
+      store.files['src/main.ts']!.hidden = true
+      store.files['src/uno.config.ts']!.hidden = true
+      store.setActive('src/App.vue')
+    }
+
+    isReady.value = true
+  })
+
+  async function loadExample (files: Record<string, string>) {
+    showExamples.value = false
+
+    // Create hidden flat aliases for nested files so the REPL's runtime
+    // import resolution works. The REPL resolves all `./X` as `src/X`,
+    // so `src/dir/Foo.vue` needs a hidden `src/Foo.vue` alias.
+    const aliases: Record<string, string> = {}
+    const nextAliasMap = new Map<string, string>()
+
+    for (const [path, code] of Object.entries(files)) {
+      const rel = path.replace(/^src\//, '')
+      const parts = rel.split('/')
+      if (parts.length > 1) {
+        const flatPath = `src/${parts.at(-1)}`
+        if (!files[flatPath]) {
+          aliases[flatPath] = code
+          nextAliasMap.set(path, flatPath)
+        }
+      }
+    }
+
+    aliasMap.value = nextAliasMap
+
     await store.setFiles(
       {
-        'src/main.ts': MAIN_TS,
+        'src/main.ts': createMainTs(isDark.value ? 'dark' : 'light'),
         'src/uno.config.ts': UNO_CONFIG_TS,
-        'src/App.vue': DEFAULT_CODE,
+        ...files,
+        ...aliases,
       },
       'src/main.ts',
     )
     store.files['src/main.ts']!.hidden = true
     store.files['src/uno.config.ts']!.hidden = true
-    store.setActive('src/App.vue')
-    isReady.value = true
+    for (const key of Object.keys(aliases)) {
+      if (store.files[key]) store.files[key]!.hidden = true
+    }
+
+    // Activate the first user file, not the generated App.vue wrapper
+    const userFile = Object.keys(files).find(f => f !== 'src/App.vue') ?? 'src/App.vue'
+    store.setActive(userFile)
+    fileTreeKey.value++
+  }
+
+  // Sync edits from nested files to their flat aliases
+  watchEffect(() => {
+    const file = store.activeFile
+    const flatPath = aliasMap.value.get(file.filename)
+    if (flatPath && store.files[flatPath]) {
+      store.files[flatPath]!.code = file.code
+    }
   })
 </script>
 
@@ -93,10 +184,40 @@
           <AppIcon icon="arrow-left" :size="18" />
         </RouterLink>
 
-        <span class="text-sm font-semibold text-on-surface">v0 Editor</span>
+        <img
+          alt="Vuetify Play"
+          class="h-8"
+          :src="isDark
+            ? 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg'
+            : 'https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-light.svg'"
+        >
       </div>
 
       <div class="flex items-center gap-2">
+        <div class="relative">
+          <button
+            aria-label="Load example"
+            class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
+            title="Load example"
+            @click="showExamples = !showExamples"
+          >
+            <AppIcon icon="examples" :size="18" />
+          </button>
+
+          <div
+            v-if="showExamples"
+            class="fixed inset-0 z-40"
+            @click="showExamples = false"
+          />
+
+          <div
+            v-if="showExamples"
+            class="absolute top-full right-0 mt-1 w-[280px] bg-surface border border-divider rounded-lg shadow-lg z-50"
+          >
+            <EditorExamples @select="loadExample" />
+          </div>
+        </div>
+
         <button
           aria-label="Toggle sidebar"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
@@ -114,7 +235,7 @@
     <Transition name="fade">
       <div v-if="isReady" class="editor-repl flex-1 min-h-0 p-2" :class="{ dark: isDark }">
         <div class="editor-wrapper">
-          <EditorFileTree v-if="sidebarOpen" :store="store" />
+          <EditorFileTree v-if="sidebarOpen" :key="fileTreeKey" :store="store" />
 
           <div class="editor-repl-container flex flex-col">
             <EditorTabs :store="store" />
