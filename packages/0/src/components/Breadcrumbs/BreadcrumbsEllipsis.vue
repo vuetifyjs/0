@@ -9,6 +9,9 @@
  */
 
 <script lang="ts">
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { Atom } from '#v0/components/Atom'
   import { useBreadcrumbsRoot } from './BreadcrumbsRoot.vue'
@@ -70,13 +73,21 @@
   watch(
     () => elRef.value?.element,
     element => {
-      context.overflow.measure(ticket.index, element ?? undefined)
+      if (!IN_BROWSER || !element) {
+        context.ellipsisWidth.value = 0
+        return
+      }
+
+      const el = element as HTMLElement
+      const style = getComputedStyle(el)
+      const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
+      context.ellipsisWidth.value = el.offsetWidth + marginX
     },
     { immediate: true },
   )
 
   onUnmounted(() => {
-    context.overflow.measure(ticket.index, undefined)
+    context.ellipsisWidth.value = 0
     context.group.unregister(ticket.id)
   })
 

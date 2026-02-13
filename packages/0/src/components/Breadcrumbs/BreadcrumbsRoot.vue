@@ -10,6 +10,9 @@
  */
 
 <script lang="ts">
+  // Constants
+  import { IN_BROWSER } from '#v0/constants/globals'
+
   // Components
   import { Atom } from '#v0/components/Atom'
 
@@ -23,12 +26,13 @@
   import { useLocale } from '#v0/composables/useLocale'
 
   // Utilities
-  import { toRef, useTemplateRef, watch } from 'vue'
+  import { shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
   import type { BreadcrumbsRootContext, BreadcrumbsTicket } from './types'
+  import type { ShallowRef } from 'vue'
 
   export type { BreadcrumbsRootContext, BreadcrumbsTicket, BreadcrumbsTicketType } from './types'
 
@@ -85,7 +89,7 @@
     renderless,
     divider = '/',
     ellipsis = '…',
-    gap = 6,
+    gap = 8,
     label,
   } = defineProps<BreadcrumbsRootProps>()
 
@@ -99,45 +103,155 @@
     multiple: true,
   })
 
+  // Reserved widths — first pair + ellipsis are excluded from the overflow
+  // measurement pool and tracked separately so capacity is accurate.
+  const ellipsisWidth = shallowRef(0)
+  const firstItemWidth = shallowRef(0)
+  const firstDividerWidth = shallowRef(0)
+
   const overflow = createOverflow({
     container: () => containerRef.value?.element as Element | undefined,
     gap,
+    reserved: () => {
+      let r = 0
+      if (firstItemWidth.value > 0) r += firstItemWidth.value + gap
+      if (firstDividerWidth.value > 0) r += firstDividerWidth.value + gap
+      if (ellipsisWidth.value > 0) r += ellipsisWidth.value + gap
+      return r
+    },
     reverse: true,
   })
 
   const isOverflowing = overflow.isOverflowing
 
+  // Element measurement routing — first item/divider write to reserved refs,
+  // everything else feeds into the overflow pool.
+  let _firstItemIndex: number | null = null
+  let _firstDividerIndex: number | null = null
+
+  function measureToRef (el: Element | undefined, target: ShallowRef<number>) {
+    if (!IN_BROWSER || !el) {
+      target.value = 0
+      return
+    }
+    const htmlEl = el as HTMLElement
+    const style = getComputedStyle(htmlEl)
+    const marginX = Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight)
+    target.value = htmlEl.offsetWidth + marginX
+  }
+
+  function measureElement (index: number, type: 'item' | 'divider', el: Element | undefined) {
+    if (type === 'item' && (_firstItemIndex === null || index <= _firstItemIndex)) {
+      _firstItemIndex = el ? index : null
+      measureToRef(el, firstItemWidth)
+      console.log(`[measure] RESERVED first item index=${index} width=${firstItemWidth.value}`)
+      return
+    }
+    if (type === 'divider' && (_firstDividerIndex === null || index <= _firstDividerIndex)) {
+      _firstDividerIndex = el ? index : null
+      measureToRef(el, firstDividerWidth)
+      console.log(`[measure] RESERVED first divider index=${index} width=${firstDividerWidth.value}`)
+      return
+    }
+    console.log(`[measure] POOL ${type} index=${index}`)
+    overflow.measure(index, el)
+  }
+
   watch(
     [() => overflow.capacity.value, () => group.size],
-    ([capacity, size]) => {
-      if (capacity === Infinity || capacity >= size) {
-        // Everything fits - select all items, hide ellipsis
-        for (const ticket of group.values()) {
-          if (ticket.type === 'ellipsis') {
-            group.unselect(ticket.id)
-          } else if (!ticket.isSelected.value) {
-            group.select(ticket.id)
-          }
+    ([capacity]) => {
+      const all = group.values()
+
+      // Separate ellipsis tickets from content (items + dividers)
+      type Ticket = typeof all[number]
+      const contentTickets: Ticket[] = []
+      const ellipsisTickets: Ticket[] = []
+
+      for (const ticket of all) {
+        if (ticket.type === 'ellipsis') {
+          ellipsisTickets.push(ticket)
+        } else {
+          contentTickets.push(ticket)
+        }
+      }
+
+      const contentSize = contentTickets.length
+      const measuredCount = Math.max(0, contentSize - 2)
+
+      const fI = firstItemWidth.value
+      const fD = firstDividerWidth.value
+      const eW = ellipsisWidth.value
+      const reserved = fI + gap + fD + gap + eW + gap
+
+      console.log(
+        `[watcher] containerWidth=${overflow.width.value} reserved=${reserved}`,
+        `available=${overflow.width.value - reserved}`,
+        `capacity=${capacity} measuredCount=${measuredCount} contentSize=${contentSize}`,
+        `\n  firstItem=${fI} firstDivider=${fD} ellipsis=${eW}`,
+      )
+
+      if (capacity === Infinity || capacity >= measuredCount) {
+        // Everything fits — show all content, hide ellipsis
+        for (const t of ellipsisTickets) group.unselect(t.id)
+        for (const t of contentTickets) {
+          if (!t.isSelected.value) group.select(t.id)
         }
         return
       }
 
-      const items = group.values()
-      const hiddenCount = size - capacity
+      for (const t of ellipsisTickets) group.select(t.id)
 
-      let hidden = 0
-      for (const ticket of items) {
-        if (ticket.type === 'ellipsis') {
-          group.select(ticket.id)
-        } else if (hidden < hiddenCount) {
-          group.unselect(ticket.id)
-          hidden++
+      for (let i = 0; i < 2 && i < contentSize; i++) {
+        if (!contentTickets[i]!.isSelected.value) group.select(contentTickets[i]!.id)
+      }
+
+      const lastIndex = contentSize - 1
+      const poolStart = 2
+      const poolSize = Math.max(0, lastIndex - poolStart + 1)
+      const toShow = Math.min(poolSize, capacity)
+      const showStart = lastIndex - toShow + 1
+
+      for (let i = poolStart; i <= lastIndex; i++) {
+        const t = contentTickets[i]!
+        if (i >= showStart) {
+          if (!t.isSelected.value) group.select(t.id)
         } else {
-          if (!ticket.isSelected.value) {
-            group.select(ticket.id)
-          }
+          group.unselect(t.id)
         }
       }
+
+      if (toShow > 0 && showStart > poolStart && contentTickets[showStart]!.type === 'item') {
+        const sep = showStart - 1
+        if (sep >= poolStart && contentTickets[sep]!.type === 'divider') {
+          if (!contentTickets[sep]!.isSelected.value) group.select(contentTickets[sep]!.id)
+          console.log(`[separator] added divider at content[${sep}]`)
+        }
+      }
+
+      if (capacity === 0) {
+        if (lastIndex >= poolStart && !contentTickets[lastIndex]!.isSelected.value) group.select(contentTickets[lastIndex]!.id)
+
+        const w = overflow.width.value
+
+        console.log(`[deficit] capacity=0 containerWidth=${w} reserved=${reserved}`)
+
+        if (w < reserved + fD) {
+          console.log(`[deficit] dropping first divider`)
+          if (contentSize > 1) group.unselect(contentTickets[1]!.id)
+        }
+        if (w < fI + gap + eW + gap) {
+          console.log(`[deficit] dropping ellipsis`)
+          for (const t of ellipsisTickets) group.unselect(t.id)
+        }
+        if (w < fI + gap) {
+          console.log(`[deficit] dropping first item`)
+          group.unselect(contentTickets[0]!.id)
+        }
+      }
+
+      const shown = contentTickets.filter(t => t.isSelected.value).map(t => t.type)
+      const ellipsisShown = ellipsisTickets.some(t => t.isSelected.value)
+      console.log(`[result] shown=[${shown.join(', ')}] ellipsis=${ellipsisShown}`)
     },
     { immediate: true },
   )
@@ -149,6 +263,8 @@
     divider: toRef(() => divider),
     ellipsis: toRef(() => ellipsis),
     isOverflowing,
+    ellipsisWidth,
+    measureElement,
   })
 
   const slotProps = toRef((): BreadcrumbsRootSlotProps => ({

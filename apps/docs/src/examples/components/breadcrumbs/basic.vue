@@ -4,32 +4,34 @@
 
 <template>
   <Breadcrumbs.Root divider="/">
-    <Breadcrumbs.List class="flex items-center gap-2 list-none m-0 p-0 text-sm">
-      <Breadcrumbs.Item class="list-none m-0">
+    <Breadcrumbs.List class="flex items-center gap-2 list-none text-sm">
+      <Breadcrumbs.Item>
         <Breadcrumbs.Link class="text-primary hover:underline" href="#">
           Home
         </Breadcrumbs.Link>
       </Breadcrumbs.Item>
 
-      <Breadcrumbs.Divider class="text-on-surface-variant list-none flex items-center m-0" />
+      <Breadcrumbs.Divider class="text-on-surface-variant" />
 
-      <Breadcrumbs.Item class="list-none m-0">
+      <Breadcrumbs.Ellipsis class="text-on-surface-variant" />
+
+      <Breadcrumbs.Item>
         <Breadcrumbs.Link class="text-primary hover:underline" href="#">
           Products
         </Breadcrumbs.Link>
       </Breadcrumbs.Item>
 
-      <Breadcrumbs.Divider class="text-on-surface-variant list-none flex items-center m-0" />
+      <Breadcrumbs.Divider class="text-on-surface-variant" />
 
-      <Breadcrumbs.Item class="list-none m-0">
+      <Breadcrumbs.Item>
         <Breadcrumbs.Link class="text-primary hover:underline" href="#">
           Electronics
         </Breadcrumbs.Link>
       </Breadcrumbs.Item>
 
-      <Breadcrumbs.Divider class="text-on-surface-variant list-none flex items-center m-0" />
+      <Breadcrumbs.Divider class="text-on-surface-variant" />
 
-      <Breadcrumbs.Item class="list-none m-0">
+      <Breadcrumbs.Item>
         <Breadcrumbs.Page class="text-on-surface-variant">
           Smartphones
         </Breadcrumbs.Page>
