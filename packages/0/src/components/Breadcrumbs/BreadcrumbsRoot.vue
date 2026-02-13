@@ -144,16 +144,13 @@
     if (type === 'item' && (_firstItemIndex === null || index <= _firstItemIndex)) {
       _firstItemIndex = el ? index : null
       measureToRef(el, firstItemWidth)
-      console.log(`[measure] RESERVED first item index=${index} width=${firstItemWidth.value}`)
       return
     }
     if (type === 'divider' && (_firstDividerIndex === null || index <= _firstDividerIndex)) {
       _firstDividerIndex = el ? index : null
       measureToRef(el, firstDividerWidth)
-      console.log(`[measure] RESERVED first divider index=${index} width=${firstDividerWidth.value}`)
       return
     }
-    console.log(`[measure] POOL ${type} index=${index}`)
     overflow.measure(index, el)
   }
 
@@ -182,13 +179,6 @@
       const fD = firstDividerWidth.value
       const eW = ellipsisWidth.value
       const reserved = fI + gap + fD + gap + eW + gap
-
-      console.log(
-        `[watcher] containerWidth=${overflow.width.value} reserved=${reserved}`,
-        `available=${overflow.width.value - reserved}`,
-        `capacity=${capacity} measuredCount=${measuredCount} contentSize=${contentSize}`,
-        `\n  firstItem=${fI} firstDivider=${fD} ellipsis=${eW}`,
-      )
 
       if (capacity === Infinity || capacity >= measuredCount) {
         // Everything fits — show all content, hide ellipsis
@@ -222,10 +212,7 @@
 
       if (toShow > 0 && showStart > poolStart && contentTickets[showStart]!.type === 'item') {
         const sep = showStart - 1
-        if (sep >= poolStart && contentTickets[sep]!.type === 'divider') {
-          if (!contentTickets[sep]!.isSelected.value) group.select(contentTickets[sep]!.id)
-          console.log(`[separator] added divider at content[${sep}]`)
-        }
+        if (sep >= poolStart && contentTickets[sep]!.type === 'divider' && !contentTickets[sep]!.isSelected.value) group.select(contentTickets[sep]!.id)
       }
 
       if (capacity === 0) {
@@ -233,25 +220,14 @@
 
         const w = overflow.width.value
 
-        console.log(`[deficit] capacity=0 containerWidth=${w} reserved=${reserved}`)
-
-        if (w < reserved + fD) {
-          console.log(`[deficit] dropping first divider`)
-          if (contentSize > 1) group.unselect(contentTickets[1]!.id)
-        }
+        if (w < reserved + fD && contentSize > 1) group.unselect(contentTickets[1]!.id)
         if (w < fI + gap + eW + gap) {
-          console.log(`[deficit] dropping ellipsis`)
           for (const t of ellipsisTickets) group.unselect(t.id)
         }
         if (w < fI + gap) {
-          console.log(`[deficit] dropping first item`)
           group.unselect(contentTickets[0]!.id)
         }
       }
-
-      const shown = contentTickets.filter(t => t.isSelected.value).map(t => t.type)
-      const ellipsisShown = ellipsisTickets.some(t => t.isSelected.value)
-      console.log(`[result] shown=[${shown.join(', ')}] ellipsis=${ellipsisShown}`)
     },
     { immediate: true },
   )
