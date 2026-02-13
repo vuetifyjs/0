@@ -35,6 +35,8 @@ declare global {
   const clamp: typeof import('../../packages/0/src/utilities/helpers').clamp
   const computed: typeof import('vue').computed
   const createApp: typeof import('vue').createApp
+  const createBreadcrumbs: typeof import('../../packages/0/src/composables/createBreadcrumbs/index').createBreadcrumbs
+  const createBreadcrumbsContext: typeof import('../../packages/0/src/composables/createBreadcrumbs/index').createBreadcrumbsContext
   const createBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpoints
   const createBreakpointsContext: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsContext
   const createBreakpointsPlugin: typeof import('../../packages/0/src/composables/useBreakpoints/index').createBreakpointsPlugin
@@ -179,6 +181,7 @@ declare global {
   const unref: typeof import('vue').unref
   const useAttrs: typeof import('vue').useAttrs
   const useBorder: typeof import('../../packages/paper/src/composables/useBorder/index').useBorder
+  const useBreadcrumbs: typeof import('../../packages/0/src/composables/createBreadcrumbs/index').useBreadcrumbs
   const useBreakpoints: typeof import('../../packages/0/src/composables/useBreakpoints/index').useBreakpoints
   const useClickOutside: typeof import('../../packages/0/src/composables/useClickOutside/index').useClickOutside
   const useColor: typeof import('../../packages/paper/src/composables/useColor/index').useColor
@@ -267,6 +270,9 @@ declare global {
   // @ts-ignore
   export type { Theme, ThemeProvider } from '../../packages/paper/src/composables/useTheme/index'
   import('../../packages/paper/src/composables/useTheme/index')
+  // @ts-ignore
+  export type { BreadcrumbTicketInput, BreadcrumbTicket, BreadcrumbsContext, BreadcrumbsOptions, BreadcrumbsContextOptions } from '../../packages/0/src/composables/createBreadcrumbs/index'
+  import('../../packages/0/src/composables/createBreadcrumbs/index')
   // @ts-ignore
   export type { ContextKey, CreateContextOptions } from '../../packages/0/src/composables/createContext/index'
   import('../../packages/0/src/composables/createContext/index')
@@ -412,6 +418,8 @@ declare module 'vue' {
     readonly clamp: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['clamp']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createBreadcrumbs: UnwrapRef<typeof import('../../packages/0/src/composables/createBreadcrumbs/index')['createBreadcrumbs']>
+    readonly createBreadcrumbsContext: UnwrapRef<typeof import('../../packages/0/src/composables/createBreadcrumbs/index')['createBreadcrumbsContext']>
     readonly createBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpoints']>
     readonly createBreakpointsContext: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsContext']>
     readonly createBreakpointsPlugin: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['createBreakpointsPlugin']>
@@ -554,6 +562,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
     readonly useBorder: UnwrapRef<typeof import('../../packages/paper/src/composables/useBorder/index')['useBorder']>
+    readonly useBreadcrumbs: UnwrapRef<typeof import('../../packages/0/src/composables/createBreadcrumbs/index')['useBreadcrumbs']>
     readonly useBreakpoints: UnwrapRef<typeof import('../../packages/0/src/composables/useBreakpoints/index')['useBreakpoints']>
     readonly useClickOutside: UnwrapRef<typeof import('../../packages/0/src/composables/useClickOutside/index')['useClickOutside']>
     readonly useColor: UnwrapRef<typeof import('../../packages/paper/src/composables/useColor/index')['useColor']>
