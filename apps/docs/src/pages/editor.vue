@@ -5,6 +5,11 @@
   // Framework
   import { useTheme } from '@vuetify/v0'
 
+  // Components
+  import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
+  import EditorFileTree from '@/components/editor/EditorFileTree.vue'
+  import EditorTabs from '@/components/editor/EditorTabs.vue'
+
   // Utilities
   import { Repl, useStore, useVueImportMap } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
@@ -56,6 +61,7 @@
   const previewHead = '<style>body{margin:0}#app{min-height:100vh}</style>'
 
   const isReady = shallowRef(false)
+  const sidebarOpen = shallowRef(true)
 
   onMounted(async () => {
     await store.setFiles(
@@ -66,6 +72,8 @@
       },
       'src/main.ts',
     )
+    store.files['src/main.ts']!.hidden = true
+    store.files['src/uno.config.ts']!.hidden = true
     store.setActive('src/App.vue')
     isReady.value = true
   })
@@ -88,25 +96,46 @@
         <span class="text-sm font-semibold text-on-surface">v0 Editor</span>
       </div>
 
-      <AppThemeToggle />
+      <div class="flex items-center gap-2">
+        <button
+          aria-label="Toggle sidebar"
+          class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
+          title="Toggle sidebar"
+          @click="sidebarOpen = !sidebarOpen"
+        >
+          <AppIcon icon="menu" :size="18" />
+        </button>
+
+        <AppThemeToggle />
+      </div>
     </header>
 
     <!-- REPL Editor -->
     <Transition name="fade">
       <div v-if="isReady" class="editor-repl flex-1 min-h-0 p-2" :class="{ dark: isDark }">
-        <Repl
-          :auto-resize="true"
-          :clear-console="true"
-          :editor="Monaco"
-          layout="horizontal"
-          :preview-options="{ headHTML: previewHead }"
-          :preview-theme="true"
-          :show-compile-output="false"
-          :show-import-map="false"
-          :show-ts-config="false"
-          :store="store"
-          :theme="replTheme"
-        />
+        <div class="editor-wrapper">
+          <EditorFileTree v-if="sidebarOpen" :store="store" />
+
+          <div class="editor-repl-container flex flex-col">
+            <EditorTabs :store="store" />
+            <EditorBreadcrumbs :store="store" />
+
+            <Repl
+              :auto-resize="true"
+              class="flex-1 min-h-0"
+              :clear-console="true"
+              :editor="Monaco"
+              layout="horizontal"
+              :preview-options="{ headHTML: previewHead }"
+              :preview-theme="true"
+              :show-compile-output="false"
+              :show-import-map="false"
+              :show-ts-config="false"
+              :store="store"
+              :theme="replTheme"
+            />
+          </div>
+        </div>
       </div>
     </Transition>
   </div>
@@ -114,15 +143,23 @@
 
 <style scoped>
   .editor-repl {
-    position: relative;
     overflow: hidden;
   }
 
-  .editor-repl :deep(.vue-repl) {
+  .editor-wrapper {
+    display: flex;
     height: 100%;
     border-radius: 8px;
     border: 1px solid var(--v0-divider);
     overflow: hidden;
+  }
+
+  .editor-repl-container {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .editor-repl :deep(.vue-repl) {
     --color-branding: var(--v0-primary);
     --color-branding-dark: var(--v0-primary);
   }
@@ -132,13 +169,9 @@
     display: none !important;
   }
 
-  /* Give editor panel more space */
-  .editor-repl :deep(.left) {
-    flex: 1.2 !important;
-  }
-
-  .editor-repl :deep(.right) {
-    flex: 0.8 !important;
+  /* Hide REPL's built-in file tabs */
+  .editor-repl :deep(.file-selector) {
+    display: none !important;
   }
 
   /* Dark theme overrides for @vue/repl */
