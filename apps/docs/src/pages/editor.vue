@@ -3,7 +3,7 @@
   import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
-  import { useEventListener, useHotkey, useStorage, useTheme, useToggleScope } from '@vuetify/v0'
+  import { clamp, useClickOutside, useEventListener, useHotkey, useStorage, useTheme, useToggleScope } from '@vuetify/v0'
 
   // Components
   import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
@@ -12,16 +12,13 @@
   import EditorTabs from '@/components/editor/EditorTabs.vue'
 
   // Composables
-  import { decodeEditorHash } from '@/composables/editorLink'
+  import { useEditorFiles } from '@/composables/useEditorFiles'
 
   // Utilities
   import { Repl, useStore, useVueImportMap } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
   import '@vue/repl/style.css'
-  import { computed, onMounted, shallowRef, watchEffect } from 'vue'
-
-  // Data
-  import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/editor-defaults'
+  import { computed, shallowRef, useTemplateRef } from 'vue'
 
   definePage({
     meta: {
@@ -85,15 +82,29 @@
 
   const previewOptions = computed(() => ({ headHTML: previewHead.value }))
 
-  const isReady = shallowRef(false)
+  // ── Editor files ─────────────────────────────────────────────────────
+  const { isReady, fileTreeKey, loadExample: _loadExample } = useEditorFiles(store, () => isDark.value)
+
   const sidebarOpen = shallowRef(true)
   useHotkey('ctrl+b', () => {
     sidebarOpen.value = !sidebarOpen.value
   }, { inputs: true })
   const showExamples = shallowRef(false)
-  const fileTreeKey = shallowRef(0)
-  const editorTabs = shallowRef<InstanceType<typeof EditorTabs> | null>(null)
-  const hasTabs = computed(() => editorTabs.value?.hasTabs ?? true)
+  const examplesContainer = useTemplateRef<HTMLElement>('examplesContainer')
+
+  useToggleScope(() => showExamples.value, () => {
+    useClickOutside(examplesContainer, () => {
+      showExamples.value = false
+    })
+    useHotkey('escape', () => {
+      showExamples.value = false
+    })
+  })
+
+  async function loadExample (files: Record<string, string>) {
+    showExamples.value = false
+    await _loadExample(files)
+  }
 
   // ── Sidebar resize ─────────────────────────────────────────────────────
   const storage = useStorage()
@@ -111,91 +122,11 @@
 
   useToggleScope(() => isResizing.value, () => {
     useEventListener(document, 'pointermove', (e: PointerEvent) => {
-      sidebarWidth.value = Math.max(140, Math.min(400, resizeStartWidth.value + e.clientX - resizeStartX.value))
+      sidebarWidth.value = clamp(resizeStartWidth.value + e.clientX - resizeStartX.value, 140, 400)
     })
     useEventListener(document, 'pointerup', () => {
       isResizing.value = false
     })
-  })
-
-  // Map nested file paths to their flat alias paths (e.g. src/dir/Foo.vue → src/Foo.vue)
-  // so edits to nested files propagate to the alias the REPL uses for imports
-  const aliasMap = shallowRef(new Map<string, string>())
-
-  onMounted(async () => {
-    const hash = window.location.hash.slice(1)
-    const decoded = hash ? decodeEditorHash(hash) : null
-
-    if (decoded) {
-      await loadExample(decoded)
-    } else {
-      await store.setFiles(
-        {
-          'src/main.ts': createMainTs(isDark.value ? 'dark' : 'light'),
-          'src/uno.config.ts': UNO_CONFIG_TS,
-          'src/App.vue': DEFAULT_CODE,
-        },
-        'src/main.ts',
-      )
-      store.files['src/main.ts']!.hidden = true
-      store.files['src/uno.config.ts']!.hidden = true
-      store.setActive('src/App.vue')
-    }
-
-    isReady.value = true
-  })
-
-  async function loadExample (files: Record<string, string>) {
-    showExamples.value = false
-
-    // Create hidden flat aliases for nested files so the REPL's runtime
-    // import resolution works. The REPL resolves all `./X` as `src/X`,
-    // so `src/dir/Foo.vue` needs a hidden `src/Foo.vue` alias.
-    const aliases: Record<string, string> = {}
-    const nextAliasMap = new Map<string, string>()
-
-    for (const [path, code] of Object.entries(files)) {
-      const rel = path.replace(/^src\//, '')
-      const parts = rel.split('/')
-      if (parts.length > 1) {
-        const flatPath = `src/${parts.at(-1)}`
-        if (!files[flatPath]) {
-          aliases[flatPath] = code
-          nextAliasMap.set(path, flatPath)
-        }
-      }
-    }
-
-    aliasMap.value = nextAliasMap
-
-    await store.setFiles(
-      {
-        'src/main.ts': createMainTs(isDark.value ? 'dark' : 'light'),
-        'src/uno.config.ts': UNO_CONFIG_TS,
-        ...files,
-        ...aliases,
-      },
-      'src/main.ts',
-    )
-    store.files['src/main.ts']!.hidden = true
-    store.files['src/uno.config.ts']!.hidden = true
-    for (const key of Object.keys(aliases)) {
-      if (store.files[key]) store.files[key]!.hidden = true
-    }
-
-    // Activate the first user file, not the generated App.vue wrapper
-    const userFile = Object.keys(files).find(f => f !== 'src/App.vue') ?? 'src/App.vue'
-    store.setActive(userFile)
-    fileTreeKey.value++
-  }
-
-  // Sync edits from nested files to their flat aliases
-  watchEffect(() => {
-    const file = store.activeFile
-    const flatPath = aliasMap.value.get(file.filename)
-    if (flatPath && store.files[flatPath]) {
-      store.files[flatPath]!.code = file.code
-    }
   })
 </script>
 
@@ -223,7 +154,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <div class="relative">
+        <div ref="examplesContainer" class="relative">
           <button
             aria-label="Load example"
             class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
@@ -232,12 +163,6 @@
           >
             <AppIcon icon="examples" :size="18" />
           </button>
-
-          <div
-            v-if="showExamples"
-            class="fixed inset-0 z-40"
-            @click="showExamples = false"
-          />
 
           <div
             v-if="showExamples"
@@ -280,11 +205,10 @@
           />
 
           <div class="editor-repl-container flex flex-col">
-            <EditorTabs ref="editorTabs" :store="store" />
-            <EditorBreadcrumbs v-if="hasTabs" :store="store" />
+            <EditorTabs :store="store" />
+            <EditorBreadcrumbs :store="store" />
 
             <Repl
-              v-show="hasTabs"
               :auto-resize="true"
               class="flex-1 min-h-0"
               :class="{ 'pointer-events-none': isResizing }"

@@ -122,6 +122,7 @@ declare module 'vue' {
     DocsSkillToggle: typeof import('./components/docs/meta/DocsSkillToggle.vue')['default']
     DocsToc: typeof import('./components/docs/DocsToc.vue')['default']
     EditorBreadcrumbs: typeof import('./components/editor/EditorBreadcrumbs.vue')['default']
+    EditorExamples: typeof import('./components/editor/EditorExamples.vue')['default']
     EditorFileTree: typeof import('./components/editor/EditorFileTree.vue')['default']
     EditorTabs: typeof import('./components/editor/EditorTabs.vue')['default']
     HomeAiFirst: typeof import('./components/home/HomeAiFirst.vue')['default']

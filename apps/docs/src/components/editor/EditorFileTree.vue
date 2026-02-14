@@ -2,11 +2,17 @@
   // Framework
   import { createNested, useProxyRegistry } from '@vuetify/v0'
 
+  // Composables
+  import { useFileTreeCrud } from '@/composables/useFileTreeCrud'
+
   // Utilities
-  import { computed, nextTick, shallowRef } from 'vue'
+  import { computed } from 'vue'
 
   // Types
   import type { ReplStore } from '@vue/repl'
+
+  // Data
+  import { INFRASTRUCTURE_FILES, REPL_BUILTIN_FILES } from '@/data/editor-defaults'
 
   const props = defineProps<{
     store: ReplStore
@@ -15,22 +21,22 @@
   const tree = createNested()
 
   // Derive tree from store.files so it works with any loaded file set
-  const BUILT_IN_PROJECT = ['import-map.json', 'tsconfig.json']
-
   // Build nested tree structure from file paths
   // e.g. 'src/pagination/basic.vue' → src > pagination > basic.vue
   const srcFiles: string[] = []
   const projectFiles: string[] = []
 
-  const HIDDEN_PROJECT = new Set(['src/main.ts', 'src/uno.config.ts'])
-
   for (const [filename, file] of Object.entries(props.store.files)) {
-    if (BUILT_IN_PROJECT.includes(filename)) continue
+    if (REPL_BUILTIN_FILES.includes(filename as typeof REPL_BUILTIN_FILES[number])) continue
 
     if (file.hidden) {
-      // Only show known infrastructure files in the project folder,
-      // skip alias files created for REPL import resolution
-      if (HIDDEN_PROJECT.has(filename)) projectFiles.push(filename)
+      // Show main.ts under src/, other infrastructure files under /
+      if (filename === 'src/main.ts') {
+        srcFiles.push(filename)
+      } else if (INFRASTRUCTURE_FILES.has(filename)) {
+        projectFiles.push(filename)
+      }
+      // Skip alias files created for REPL import resolution
     } else {
       srcFiles.push(filename)
     }
@@ -67,8 +73,8 @@
       })
     }
 
-    // Then direct files
-    children.push(...direct)
+    // Then direct files (sorted)
+    children.push(...direct.toSorted((a, b) => a.value.localeCompare(b.value)))
     return children
   }
 
@@ -79,11 +85,11 @@
       children: buildChildren(srcFiles, 'src'),
     },
     {
-      id: 'project',
-      value: 'project',
+      id: '/',
+      value: '/',
       children: [
         ...projectFiles.map(f => ({ id: f, value: f.split('/').pop()! })),
-        ...BUILT_IN_PROJECT.map(f => ({ id: f, value: f })),
+        ...REPL_BUILTIN_FILES.map(f => ({ id: f, value: f })),
       ],
     },
   ])
@@ -99,36 +105,12 @@
   }
 
   const proxy = useProxyRegistry(tree)
-  const activeFile = computed(() => props.store.activeFile.filename)
+  const activeFile = computed(() => props.store.activeFile?.filename)
 
-  // ── CRUD State ─────────────────────────────────────────────────────────
-  const creating = shallowRef<string | null>(null)
-  const creatingType = shallowRef<'file' | 'folder'>('file')
-  const pending = shallowRef('')
-  const input = shallowRef<HTMLInputElement | null>(null)
-  const targetFolder = shallowRef('src')
-
-  const PROTECTED = new Set(['src/App.vue', 'src/main.ts', 'src/uno.config.ts', 'import-map.json', 'tsconfig.json', 'src', 'project'])
-  const VALID_EXT = /\.(vue|jsx?|tsx?|css|json)$/
-
-  function isFile (id: string) {
-    return VALID_EXT.test(id)
-  }
-
-  const EXT_ICONS: Record<string, { icon: string, color: string }> = {
-    vue: { icon: 'lang-vue', color: '#4FC08D' },
-    ts: { icon: 'lang-ts', color: '#3179c7' },
-    tsx: { icon: 'lang-ts', color: '#3179c7' },
-    js: { icon: 'lang-js', color: '#d3b62a' },
-    jsx: { icon: 'lang-js', color: '#d3b62a' },
-    css: { icon: 'lang-css', color: '#1572B6' },
-    json: { icon: 'lang-json', color: '#a57b39' },
-  }
-
-  function fileExt (id: string) {
-    const ext = id.split('.').pop()
-    return ext ? EXT_ICONS[ext] : undefined
-  }
+  const {
+    creating, creatingType, pending, input, targetFolder,
+    isFile, fileExt, add, confirm, cancel, deletable, remove,
+  } = useFileTreeCrud(tree, props.store)
 
   // ── Tree helpers ───────────────────────────────────────────────────────
   function getVisibleNodes (parentId?: string): string[] {
@@ -177,83 +159,6 @@
     } else {
       tree.flip(id)
       targetFolder.value = id
-    }
-  }
-
-  // ── CRUD Operations ────────────────────────────────────────────────────
-  function add (type: 'file' | 'folder') {
-    creating.value = targetFolder.value
-    creatingType.value = type
-    pending.value = ''
-    tree.open(targetFolder.value)
-    nextTick(() => input.value?.focus())
-  }
-
-  function confirm () {
-    const raw = pending.value.trim()
-    const folder = creating.value
-    const type = creatingType.value
-
-    cancel()
-
-    if (!raw || !folder) return
-
-    const segments = raw.split('/').filter(Boolean)
-    const last = segments.pop()!
-    let parentId = folder
-
-    // Validate based on creation type
-    if (type === 'file' && !VALID_EXT.test(last)) return
-
-    // Create intermediate folders
-    for (const seg of segments) {
-      const folderId = `${parentId}/${seg}`
-      if (!tree.has(folderId)) {
-        tree.register({ id: folderId, value: seg, parentId })
-      }
-      tree.open(folderId)
-      parentId = folderId
-    }
-
-    const itemId = `${parentId}/${last}`
-    if (tree.has(itemId)) return
-
-    tree.register({ id: itemId, value: last, parentId })
-
-    if (type === 'file') {
-      props.store.addFile(itemId)
-      if (itemId.endsWith('.vue')) {
-        props.store.files[itemId]!.code = '<script setup lang="ts"><\/script>\n\n<template>\n  <div>\n    <slot />\n  </div>\n</template>\n'
-      }
-      props.store.setActive(itemId)
-    } else {
-      tree.open(itemId)
-    }
-  }
-
-  function cancel () {
-    creating.value = null
-    pending.value = ''
-  }
-
-  function deletable (id: string): boolean {
-    if (PROTECTED.has(id)) return false
-    if (tree.hasAncestor(id, 'project')) return false
-    if (!isFile(id) && (tree.children.get(id)?.length ?? 0) > 0) return false
-    return true
-  }
-
-  function remove (id: string) {
-    const wasActive = activeFile.value === id
-
-    if (isFile(id)) {
-      props.store.deleteFile(id)
-    }
-
-    tree.unregister(id)
-
-    if (wasActive) {
-      props.store.setActive('src/App.vue')
     }
   }
 </script>

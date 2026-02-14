@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Composables
+  import { generateAppWrapper } from '@/composables/editorLink'
+
   const raw = import.meta.glob('@/examples/**/*.{vue,ts,js}', {
     query: '?raw',
     import: 'default',
@@ -41,6 +44,15 @@
     dirMap.get(dir)!.push({ filename, loader })
   }
 
+  // Directories with non-vue helpers or PascalCase .vue files are
+  // multi-file examples (e.g. create-context/ with context.ts + NotificationConsumer.vue).
+  // Directories with only lowercase .vue files contain standalone examples.
+  function isMultiFileExample (files: ExampleFile[]) {
+    return files.some(f =>
+      !f.filename.endsWith('.vue') || /^[A-Z]/.test(f.filename),
+    )
+  }
+
   // Build categories
   const ORDER = ['components', 'composables', 'guide']
 
@@ -52,10 +64,24 @@
 
       const parts = dir.split('/')
       const topLevel = parts[0]
-      const label = parts.slice(1).join(' / ')
+      const dirLabel = parts.slice(1).join(' / ')
 
       if (!grouped.has(topLevel)) grouped.set(topLevel, [])
-      grouped.get(topLevel)!.push({ dir, label: label || dir, files })
+
+      if (isMultiFileExample(files)) {
+        // Group all files as one example entry
+        grouped.get(topLevel)!.push({ dir, label: dirLabel || dir, files })
+      } else {
+        // Each .vue file is its own example entry
+        for (const file of files) {
+          const name = file.filename.replace(/\.vue$/, '')
+          grouped.get(topLevel)!.push({
+            dir,
+            label: dirLabel ? `${dirLabel} / ${name}` : name,
+            files: [file],
+          })
+        }
+      }
     }
 
     return ORDER
@@ -65,23 +91,6 @@
         dirs: grouped.get(cat)!.toSorted((a, b) => a.label.localeCompare(b.label)),
       }))
   })()
-
-  function generateAppWrapper (entryPath: string): string {
-    const baseName = entryPath.split('/').pop()!.replace(/\.vue$/, '')
-    const pascalName = baseName.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')
-    return [
-      '<' + `script setup lang="ts">`,
-      `  import ${pascalName} from './${entryPath}'`,
-      '</' + 'script>',
-      '',
-      '<template>',
-      '  <div class="p-4">',
-      `    <${pascalName} />`,
-      '  </div>',
-      '</template>',
-      '',
-    ].join('\n')
-  }
 
   async function select (dir: ExampleDir) {
     // Load all file contents in parallel
@@ -126,7 +135,7 @@
 
       <button
         v-for="item in cat.dirs"
-        :key="item.dir"
+        :key="item.label"
         class="w-full text-left px-3 py-1.5 text-sm text-on-surface opacity-80 hover:opacity-100 hover:bg-surface-tint transition-colors cursor-pointer"
         @click="select(item)"
       >

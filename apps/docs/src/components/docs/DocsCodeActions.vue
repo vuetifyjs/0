@@ -29,13 +29,13 @@
     window.open(url, '_blank')
   }
 
-  function openInEditor () {
+  async function openInEditor () {
     let name = props.fileName
     // Ensure the file has a proper extension (e.g. "Anatomy" → "Anatomy.vue")
     if (name && !/\.\w+$/.test(name)) {
       name = `${name}.${props.language || 'vue'}`
     }
-    const url = useEditorLink(props.code, name)
+    const url = await useEditorLink(props.code, name)
     window.open(url, '_blank')
   }
 </script>

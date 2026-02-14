@@ -1,18 +1,26 @@
-import { strFromU8, strToU8, unzlibSync, zlibSync } from 'fflate'
-
 export interface EditorFile {
   name: string
   code: string
 }
 
-function utoa (data: string): string {
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let _fflate: typeof import('fflate') | undefined
+
+async function loadFflate () {
+  if (!_fflate) _fflate = await import('fflate')
+  return _fflate
+}
+
+async function utoa (data: string): Promise<string> {
+  const { strToU8, strFromU8, zlibSync } = await loadFflate()
   const buffer = strToU8(data)
   const zipped = zlibSync(buffer, { level: 9 })
   const binary = strFromU8(zipped, true)
   return btoa(binary)
 }
 
-function atou (base64: string): string {
+async function atou (base64: string): Promise<string> {
+  const { strToU8, strFromU8, unzlibSync } = await loadFflate()
   const binary = atob(base64)
   const buffer = strToU8(binary, true)
   const unzipped = unzlibSync(buffer)
@@ -44,20 +52,21 @@ function detectEntryFile (files: EditorFile[]): EditorFile | undefined {
 /**
  * Generate an App.vue wrapper that imports and renders the entry component.
  */
-function generateAppWrapper (entryPath: string): string {
+export function generateAppWrapper (entryPath: string): string {
   const baseName = entryPath.split('/').pop()!.replace(/\.vue$/, '')
   const pascalName = baseName.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')
-
-  return `<script setup lang="ts">
-  import ${pascalName} from './${entryPath}'
-</script>
-
-<template>
-  <div class="p-4">
-    <${pascalName} />
-  </div>
-</template>
-`
+  return [
+    '<' + `script setup lang="ts">`,
+    `  import ${pascalName} from './${entryPath}'`,
+    '</' + 'script>',
+    '',
+    '<template>',
+    '  <div class="p-4">',
+    `    <${pascalName} />`,
+    '  </div>',
+    '</template>',
+    '',
+  ].join('\n')
 }
 
 /**
@@ -88,7 +97,7 @@ function buildEditorFiles (inputFiles: EditorFile[], dir?: string): Record<strin
 /**
  * Get editor URL for a single file.
  */
-export function useEditorLink (code: string, fileName = 'Example.vue'): string {
+export async function useEditorLink (code: string, fileName = 'Example.vue'): Promise<string> {
   return useEditorLinkMulti([{ name: fileName, code }])
 }
 
@@ -96,18 +105,18 @@ export function useEditorLink (code: string, fileName = 'Example.vue'): string {
  * Get editor URL for multiple files.
  * When dir is provided, files are nested under src/{dir}/.
  */
-export function useEditorLinkMulti (inputFiles: EditorFile[], dir?: string): string {
+export async function useEditorLinkMulti (inputFiles: EditorFile[], dir?: string): Promise<string> {
   const files = buildEditorFiles(inputFiles, dir)
-  const hash = utoa(JSON.stringify(files))
+  const hash = await utoa(JSON.stringify(files))
   return `/editor#${hash}`
 }
 
 /**
  * Decode an editor hash back to a file record.
  */
-export function decodeEditorHash (hash: string): Record<string, string> | null {
+export async function decodeEditorHash (hash: string): Promise<Record<string, string> | null> {
   try {
-    return JSON.parse(atou(hash))
+    return JSON.parse(await atou(hash))
   } catch {
     return null
   }

@@ -162,11 +162,11 @@
     return parts.length >= 2 ? parts.at(-2) : undefined
   })
 
-  function openAllInEditor () {
+  async function openAllInEditor () {
     if (!resolvedFiles.value?.length) return
     // Reverse so dependencies compile before the files that import them
     const files = resolvedFiles.value.toReversed().map(f => ({ name: f.name, code: f.code }))
-    const url = useEditorLinkMulti(files, exampleDir.value)
+    const url = await useEditorLinkMulti(files, exampleDir.value)
     window.open(url, '_blank')
   }
 

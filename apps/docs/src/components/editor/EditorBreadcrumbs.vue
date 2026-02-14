@@ -13,7 +13,7 @@
   }>()
 
   const segments = computed(() => {
-    return props.store.activeFile.filename.split('/')
+    return props.store.activeFile?.filename?.split('/') ?? []
   })
 </script>
 
