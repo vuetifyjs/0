@@ -65,6 +65,7 @@
           bin
           :bin-title="binTitle"
           :code="decodedCode"
+          :file-name="title"
           :language
           :playground
           show-copy

@@ -106,6 +106,7 @@
         v-model:wrap="lineWrap"
         bin
         :code="code"
+        :file-name="fileName"
         :language="language"
         :playground="showPlayground"
         show-copy
