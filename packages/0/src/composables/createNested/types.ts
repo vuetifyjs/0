@@ -12,6 +12,8 @@ import type { ComputedRef, Reactive, Ref } from 'vue'
 export interface NestedTicketInput<V = unknown> extends GroupTicketInput<V> {
   /** ID of the parent ticket, or undefined if this is a root item */
   parentId?: ID
+  /** Whether this ticket is initially active */
+  active?: boolean
 }
 
 /**
@@ -25,6 +27,8 @@ export type NestedTicket<Z extends NestedTicketInput = NestedTicketInput> = Grou
   parentId: ID | undefined
   /** Whether this ticket is currently open/expanded */
   isOpen: Readonly<Ref<boolean>>
+  /** Whether this ticket is currently active/highlighted */
+  isActive: Readonly<Ref<boolean>>
   /** Whether this ticket is a leaf node (has no children) */
   isLeaf: Readonly<Ref<boolean>>
   /** Depth in tree (0 = root) */
@@ -37,6 +41,10 @@ export type NestedTicket<Z extends NestedTicketInput = NestedTicketInput> = Grou
   flip: () => void
   /** Reveal this ticket by opening all ancestors */
   reveal: () => void
+  /** Activate/highlight this ticket */
+  activate: () => void
+  /** Deactivate/unhighlight this ticket */
+  deactivate: () => void
   /** Get path from root to self (includes self) */
   getPath: () => ID[]
   /** Get ancestors excluding self */
@@ -116,6 +124,20 @@ export interface NestedContext<
   readonly openedIds: Reactive<Set<ID>>
   /** Computed Set of opened/expanded item instances */
   openedItems: ComputedRef<Set<E>>
+  /** Reactive Set of active/highlighted item IDs. Use activate/deactivate to modify. */
+  readonly activeIds: Reactive<Set<ID>>
+  /** Computed Set of active/highlighted item instances */
+  activeItems: ComputedRef<Set<E>>
+  /** Computed Set of active item indexes (position-based) */
+  activeIndexes: ComputedRef<Set<number>>
+  /** Activate/highlight one or more items by ID */
+  activate: (ids: ID | ID[]) => void
+  /** Deactivate/unhighlight one or more items by ID */
+  deactivate: (ids: ID | ID[]) => void
+  /** Check if an item is active by ID */
+  activated: (id: ID) => boolean
+  /** Deactivate all items */
+  deactivateAll: () => void
   /** Open/expand one or more items by ID */
   open: (ids: ID | ID[]) => void
   /** Close/collapse one or more items by ID */
@@ -196,6 +218,13 @@ export type NestedSelectionMode = 'cascade' | 'independent' | 'leaf'
 /**
  * Options for creating a nested instance.
  */
+/**
+ * Active mode for nested items.
+ * - `'single'` (default): Only one item can be active at a time
+ * - `'multiple'`: Multiple items can be active simultaneously
+ */
+export type NestedActiveMode = 'single' | 'multiple'
+
 export interface NestedOptions extends GroupOptions {
   /**
    * Controls how nodes expand/collapse.
@@ -220,6 +249,12 @@ export interface NestedOptions extends GroupOptions {
    * - `'leaf'`: Only leaf nodes selectable; parent selection selects leaf descendants
    */
   selection?: NestedSelectionMode
+  /**
+   * Controls how many items can be active/highlighted simultaneously.
+   * - `'single'` (default): Only one item active at a time
+   * - `'multiple'`: Multiple items can be active simultaneously
+   */
+  active?: NestedActiveMode
   /**
    * Advanced: Custom strategy for open behavior.
    * Overrides `open` option if provided.
@@ -255,6 +290,12 @@ export interface NestedContextOptions extends GroupContextOptions {
    * - `'leaf'`: Only leaf nodes selectable; parent selection selects leaf descendants
    */
   selection?: NestedSelectionMode
+  /**
+   * Controls how many items can be active/highlighted simultaneously.
+   * - `'single'` (default): Only one item active at a time
+   * - `'multiple'`: Multiple items can be active simultaneously
+   */
+  active?: NestedActiveMode
   /**
    * Advanced: Custom strategy for open behavior.
    * Overrides `open` option if provided.
