@@ -22,11 +22,15 @@
   const srcFiles: string[] = []
   const projectFiles: string[] = []
 
+  const HIDDEN_PROJECT = new Set(['src/main.ts', 'src/uno.config.ts'])
+
   for (const [filename, file] of Object.entries(props.store.files)) {
     if (BUILT_IN_PROJECT.includes(filename)) continue
 
     if (file.hidden) {
-      projectFiles.push(filename)
+      // Only show known infrastructure files in the project folder,
+      // skip alias files created for REPL import resolution
+      if (HIDDEN_PROJECT.has(filename)) projectFiles.push(filename)
     } else {
       srcFiles.push(filename)
     }
@@ -218,6 +222,9 @@
 
     if (type === 'file') {
       props.store.addFile(itemId)
+      if (itemId.endsWith('.vue')) {
+        props.store.files[itemId]!.code = '<script setup lang="ts"><\/script>\n\n<template>\n  <div>\n    <slot />\n  </div>\n</template>\n'
+      }
       props.store.setActive(itemId)
     } else {
       tree.open(itemId)
@@ -252,7 +259,7 @@
 </script>
 
 <template>
-  <nav class="w-[200px] border-r border-divider bg-surface overflow-y-auto shrink-0">
+  <nav class="border-r border-divider bg-surface overflow-y-auto shrink-0">
     <div class="flex items-center justify-between px-3 py-2">
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
 

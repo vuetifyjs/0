@@ -7,7 +7,7 @@
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
-  import { usePlaygroundMulti } from '@/composables/playground'
+  import { useEditorLinkMulti } from '@/composables/editorLink'
   import { useExamples } from '@/composables/useExamples'
 
   // Utilities
@@ -153,10 +153,20 @@
     props.file?.split('/').pop() || (props.filePath ? `${props.filePath.split('/').pop()}.vue` : ''),
   )
 
-  function openAllInPlayground () {
-    if (!displayFiles.value?.length) return
-    const files = displayFiles.value.map(f => ({ name: f.name, code: f.code }))
-    const url = usePlaygroundMulti(files)
+  // Extract the feature directory from the example path
+  // e.g. 'components/pagination/basic' → 'pagination'
+  const exampleDir = computed(() => {
+    const path = props.filePath ?? props.filePaths?.[0]
+    if (!path) return undefined
+    const parts = path.split('/')
+    return parts.length >= 2 ? parts.at(-2) : undefined
+  })
+
+  function openAllInEditor () {
+    if (!resolvedFiles.value?.length) return
+    // Reverse so dependencies compile before the files that import them
+    const files = resolvedFiles.value.toReversed().map(f => ({ name: f.name, code: f.code }))
+    const url = useEditorLinkMulti(files, exampleDir.value)
     window.open(url, '_blank')
   }
 
@@ -293,9 +303,9 @@
             <div class="ml-auto flex items-center gap-1">
               <button
                 class="size-[30px] rounded text-on-surface-variant hover:bg-surface-variant transition-colors inline-flex items-center justify-center"
-                title="Open in Playground"
+                title="Open in Editor"
                 type="button"
-                @click="openAllInPlayground"
+                @click="openAllInEditor"
               >
                 <AppIcon icon="vuetify-play" :size="16" />
               </button>

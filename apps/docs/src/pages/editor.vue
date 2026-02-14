@@ -3,7 +3,7 @@
   import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
-  import { useTheme } from '@vuetify/v0'
+  import { useEventListener, useHotkey, useStorage, useTheme, useToggleScope } from '@vuetify/v0'
 
   // Components
   import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
@@ -83,10 +83,40 @@
     dialog::backdrop { background: rgb(0 0 0 / 0.3) }
   </style>`)
 
+  const previewOptions = computed(() => ({ headHTML: previewHead.value }))
+
   const isReady = shallowRef(false)
   const sidebarOpen = shallowRef(true)
+  useHotkey('ctrl+b', () => {
+    sidebarOpen.value = !sidebarOpen.value
+  }, { inputs: true })
   const showExamples = shallowRef(false)
   const fileTreeKey = shallowRef(0)
+  const editorTabs = shallowRef<InstanceType<typeof EditorTabs> | null>(null)
+  const hasTabs = computed(() => editorTabs.value?.hasTabs ?? true)
+
+  // ── Sidebar resize ─────────────────────────────────────────────────────
+  const storage = useStorage()
+  const sidebarWidth = storage.get<number>('editor-sidebar-width', 250)
+  const isResizing = shallowRef(false)
+  const resizeStartX = shallowRef(0)
+  const resizeStartWidth = shallowRef(0)
+
+  function onResizeStart (e: PointerEvent) {
+    e.preventDefault()
+    resizeStartX.value = e.clientX
+    resizeStartWidth.value = sidebarWidth.value
+    isResizing.value = true
+  }
+
+  useToggleScope(() => isResizing.value, () => {
+    useEventListener(document, 'pointermove', (e: PointerEvent) => {
+      sidebarWidth.value = Math.max(140, Math.min(400, resizeStartWidth.value + e.clientX - resizeStartX.value))
+    })
+    useEventListener(document, 'pointerup', () => {
+      isResizing.value = false
+    })
+  })
 
   // Map nested file paths to their flat alias paths (e.g. src/dir/Foo.vue → src/Foo.vue)
   // so edits to nested files propagate to the alias the REPL uses for imports
@@ -97,7 +127,6 @@
     const decoded = hash ? decodeEditorHash(hash) : null
 
     if (decoded) {
-      history.replaceState(null, '', window.location.pathname)
       await loadExample(decoded)
     } else {
       await store.setFiles(
@@ -233,21 +262,36 @@
 
     <!-- REPL Editor -->
     <Transition name="fade">
-      <div v-if="isReady" class="editor-repl flex-1 min-h-0 p-2" :class="{ dark: isDark }">
-        <div class="editor-wrapper">
-          <EditorFileTree v-if="sidebarOpen" :key="fileTreeKey" :store="store" />
+      <div v-if="isReady" class="editor-repl flex-1 min-h-0 px-2 pt-2" :class="{ dark: isDark }">
+        <div class="editor-wrapper" :class="{ 'select-none': isResizing }">
+          <EditorFileTree
+            v-if="sidebarOpen"
+            :key="fileTreeKey"
+            :store="store"
+            :style="{ width: `${sidebarWidth}px` }"
+          />
+
+          <div
+            v-if="sidebarOpen"
+            class="editor-resize-handle"
+            :class="{ 'editor-resize-handle--active': isResizing }"
+            @dblclick="sidebarWidth = 250"
+            @pointerdown="onResizeStart"
+          />
 
           <div class="editor-repl-container flex flex-col">
-            <EditorTabs :store="store" />
-            <EditorBreadcrumbs :store="store" />
+            <EditorTabs ref="editorTabs" :store="store" />
+            <EditorBreadcrumbs v-if="hasTabs" :store="store" />
 
             <Repl
+              v-show="hasTabs"
               :auto-resize="true"
               class="flex-1 min-h-0"
+              :class="{ 'pointer-events-none': isResizing }"
               :clear-console="true"
               :editor="Monaco"
               layout="horizontal"
-              :preview-options="{ headHTML: previewHead }"
+              :preview-options="previewOptions"
               :preview-theme="true"
               :show-compile-output="false"
               :show-import-map="false"
@@ -270,9 +314,23 @@
   .editor-wrapper {
     display: flex;
     height: 100%;
-    border-radius: 8px;
+    border-radius: 8px 8px 0 0;
     border: 1px solid var(--v0-divider);
+    border-bottom: none;
     overflow: hidden;
+  }
+
+  .editor-resize-handle {
+    width: 4px;
+    cursor: col-resize;
+    background: transparent;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+
+  .editor-resize-handle:hover,
+  .editor-resize-handle--active {
+    background: var(--v0-primary);
   }
 
   .editor-repl-container {
@@ -283,6 +341,11 @@
   .editor-repl :deep(.vue-repl) {
     --color-branding: var(--v0-primary);
     --color-branding-dark: var(--v0-primary);
+  }
+
+  /* Ensure editor fills available height */
+  .editor-repl :deep(.editor-container) {
+    height: 100%;
   }
 
   /* Hide editor floating toggles (auto-save / show error) */
