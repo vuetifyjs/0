@@ -54,6 +54,9 @@ catalogs:
     '@vue/tsconfig':
       specifier: ^0.8.1
       version: 0.8.1
+    '@vuetify/auth':
+      specifier: 0.1.4
+      version: 0.1.4
     '@vuetify/github-releaser':
       specifier: ^4.0.3
       version: 4.0.3
@@ -286,6 +289,9 @@ importers:
       '@unhead/addons':
         specifier: 'catalog:'
         version: 2.0.19(rollup@2.79.2)
+      '@vuetify/auth':
+        specifier: 'catalog:'
+        version: 0.1.4(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
@@ -2723,6 +2729,12 @@ packages:
       vue:
         optional: true
 
+  '@vuetify/auth@0.1.4':
+    resolution: {integrity: sha512-PIXdGTxcCgce5q46svkuOAopcKhbtC95HcqVjATFXjUM9RvfwxNyg+g1uOBp86NS7i68KPZ+IvJjq/ZgN9b0Ig==}
+    peerDependencies:
+      pinia: ^3.0.0
+      vue: ^3.5.0
+
   '@vuetify/github-releaser@4.0.3':
     resolution: {integrity: sha512-5hMj2mlPVLFy4puRL07J/czJZVAAVrrZaWKbBU3p5xqW8LzSODORY8xG8gW0ahbOp9gFMCKoo4wpB6IrEHbHcg==}
     engines: {node: '>=22.0.0'}
@@ -4020,6 +4032,7 @@ packages:
   glob@11.1.0:
     resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   globals@11.12.0:
@@ -8937,6 +8950,11 @@ snapshots:
   '@vue/tsconfig@0.8.1(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3))':
     optionalDependencies:
       typescript: 5.9.3
+      vue: 3.5.24(typescript@5.9.3)
+
+  '@vuetify/auth@0.1.4(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))':
+    dependencies:
+      pinia: 3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3))
       vue: 3.5.24(typescript@5.9.3)
 
   '@vuetify/github-releaser@4.0.3(conventional-commits-filter@5.0.0)':

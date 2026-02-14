@@ -7,6 +7,7 @@ autoInstallPeers: true
 
 catalog:
   '@js-temporal/polyfill': 0.5.1
+  '@vuetify/auth': 0.1.4
   '@mdi/js': npm:mdi-js-es@7.4.47
   '@octokit/core': ^7.0.6
   '@octokit/openapi-types': ^27.0.0
@@ -76,6 +77,9 @@ catalog:
 catalogMode: strict
 
 minimumReleaseAge: 4320
+
+minimumReleaseAgeExclude:
+  - '@vuetify/auth'
 
 onlyBuiltDependencies:
   - '@parcel/watcher'
