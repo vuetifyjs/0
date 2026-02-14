@@ -12,19 +12,36 @@
     store: ReplStore
   }>()
 
+  function isTabbable (f: { filename: string, hidden?: boolean }) {
+    if (f.filename === 'src/main.ts') return true
+    if (INFRASTRUCTURE_FILES.has(f.filename)) return false
+    if (f.hidden) return false
+    return true
+  }
+
   // Start with only the active file's tab open
   const initialClosed = new Set<string>()
   const active = props.store.activeFile.filename
   for (const f of Object.values(props.store.files)) {
-    if (!f.hidden && !INFRASTRUCTURE_FILES.has(f.filename) && f.filename !== active) {
+    if (isTabbable(f) && f.filename !== active) {
       initialClosed.add(f.filename)
     }
   }
   const closedTabs = shallowRef(initialClosed)
 
+  // Track tab open order so new tabs appear at the end
+  const tabOrder = shallowRef<string[]>([active])
+
   const tabs = computed(() => {
-    return Object.values(props.store.files)
-      .filter(f => !f.hidden && !INFRASTRUCTURE_FILES.has(f.filename) && !closedTabs.value.has(f.filename))
+    const open = Object.values(props.store.files)
+      .filter(f => isTabbable(f) && !closedTabs.value.has(f.filename))
+    const order = tabOrder.value
+    return open
+      .toSorted((a, b) => {
+        const ai = order.indexOf(a.filename)
+        const bi = order.indexOf(b.filename)
+        return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi)
+      })
       .map(f => ({
         id: f.filename,
         label: f.filename.split('/').pop()!,
@@ -40,6 +57,9 @@
       const next = new Set(closedTabs.value)
       next.delete(file)
       closedTabs.value = next
+    }
+    if (!tabOrder.value.includes(file)) {
+      tabOrder.value = [...tabOrder.value, file]
     }
   })
 
