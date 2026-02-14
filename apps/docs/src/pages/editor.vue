@@ -3,7 +3,7 @@
   import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
-  import { clamp, useClickOutside, useEventListener, useHotkey, useStorage, useTheme, useToggleScope } from '@vuetify/v0'
+  import { clamp, useBreakpoints, useClickOutside, useEventListener, useHotkey, useStorage, useTheme, useToggleScope } from '@vuetify/v0'
 
   // Components
   import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
@@ -85,6 +85,8 @@
   // ── Editor files ─────────────────────────────────────────────────────
   const { isReady, fileTreeKey, loadExample: _loadExample } = useEditorFiles(store, () => isDark.value)
 
+  const breakpoints = useBreakpoints()
+  const isDesktop = computed(() => breakpoints.mdAndUp.value)
   const sidebarOpen = shallowRef(true)
   useHotkey('ctrl+b', () => {
     sidebarOpen.value = !sidebarOpen.value
@@ -106,8 +108,9 @@
     await _loadExample(files)
   }
 
-  // ── Sidebar resize ─────────────────────────────────────────────────────
+  // ── Persistent settings ────────────────────────────────────────────────
   const storage = useStorage()
+  const replLayout = storage.get<'horizontal' | 'vertical'>('editor-layout', 'horizontal')
   const sidebarWidth = storage.get<number>('editor-sidebar-width', 250)
   const isResizing = shallowRef(false)
   const resizeStartX = shallowRef(0)
@@ -173,6 +176,16 @@
         </div>
 
         <button
+          aria-label="Toggle layout"
+          class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
+          :title="replLayout === 'horizontal' ? 'Switch to vertical layout' : 'Switch to horizontal layout'"
+          @click="replLayout = replLayout === 'horizontal' ? 'vertical' : 'horizontal'"
+        >
+          <AppIcon :icon="replLayout === 'horizontal' ? 'layout-vertical' : 'layout-horizontal'" :size="18" />
+        </button>
+
+        <button
+          v-if="isDesktop"
           aria-label="Toggle sidebar"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
           title="Toggle sidebar"
@@ -190,14 +203,14 @@
       <div v-if="isReady" class="editor-repl flex-1 min-h-0 px-2 pt-2" :class="{ dark: isDark }">
         <div class="editor-wrapper" :class="{ 'select-none': isResizing }">
           <EditorFileTree
-            v-if="sidebarOpen"
+            v-if="sidebarOpen && isDesktop"
             :key="fileTreeKey"
             :store="store"
             :style="{ width: `${sidebarWidth}px` }"
           />
 
           <div
-            v-if="sidebarOpen"
+            v-if="sidebarOpen && isDesktop"
             class="editor-resize-handle"
             :class="{ 'editor-resize-handle--active': isResizing }"
             @dblclick="sidebarWidth = 250"
@@ -214,7 +227,7 @@
               :class="{ 'pointer-events-none': isResizing }"
               :clear-console="true"
               :editor="Monaco"
-              layout="horizontal"
+              :layout="replLayout"
               :preview-options="previewOptions"
               :preview-theme="true"
               :show-compile-output="false"
