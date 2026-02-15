@@ -1,4 +1,15 @@
 <script setup lang="ts">
+  // Framework
+  import { useTheme } from '@vuetify/v0'
+
+  // Components
+  import DocsCallout from '@/components/docs/DocsCallout.vue'
+  import DocsMarkup from '@/components/docs/DocsMarkup.vue'
+
+  // Utilities
+  import { decodeBase64 } from '@/utilities/decodeBase64'
+  import { computed, getCurrentInstance, h, nextTick, onBeforeUnmount, render, useTemplateRef, watch } from 'vue'
+
   const props = defineProps<{
     html: string
     stepLabel: string
@@ -10,6 +21,72 @@
     prev: []
     next: []
   }>()
+
+  const theme = useTheme()
+  const dataTheme = computed(() => theme.isDark.value ? 'dark' : 'light')
+
+  // ── Dynamic component mounting ───────────────────────────────────────
+  const contentRef = useTemplateRef<HTMLElement>('content')
+  const appContext = getCurrentInstance()?.appContext
+  const mountedWrappers = new Set<HTMLElement>()
+
+  watch(() => props.html, async () => {
+    await nextTick()
+    mountMarkupComponents()
+    mountAlertComponents()
+  })
+
+  onBeforeUnmount(() => {
+    for (const wrapper of mountedWrappers) {
+      render(null, wrapper)
+    }
+    mountedWrappers.clear()
+  })
+
+  function mountMarkupComponents () {
+    if (!contentRef.value) return
+
+    for (const el of contentRef.value.querySelectorAll<HTMLElement>('[data-markup]')) {
+      const code = el.dataset.code
+      const language = el.dataset.language
+      if (!code) continue
+
+      const highlighted = el.innerHTML
+      const wrapper = document.createElement('div')
+      el.replaceWith(wrapper)
+      mountedWrappers.add(wrapper)
+
+      const vnode = h(DocsMarkup, {
+        code,
+        language,
+      }, {
+        default: () => h('div', { innerHTML: highlighted }),
+      })
+      vnode.appContext = appContext ?? null
+      render(vnode, wrapper)
+    }
+  }
+
+  function mountAlertComponents () {
+    if (!contentRef.value) return
+
+    for (const el of contentRef.value.querySelectorAll<HTMLElement>('[data-alert]')) {
+      const type = el.dataset.type as 'tip' | 'info' | 'warning' | 'error'
+      const encodedContent = el.dataset.content
+      if (!type || !encodedContent) continue
+
+      const content = decodeBase64(encodedContent)
+      const wrapper = document.createElement('div')
+      el.replaceWith(wrapper)
+      mountedWrappers.add(wrapper)
+
+      const vnode = h(DocsCallout, { type }, {
+        default: () => h('div', { innerHTML: content }),
+      })
+      vnode.appContext = appContext ?? null
+      render(vnode, wrapper)
+    }
+  }
 </script>
 
 <template>
@@ -22,7 +99,7 @@
 
     <!-- Markdown content -->
     <div class="flex-1 overflow-y-auto px-5 py-4">
-      <div class="markdown-body tutorial-markdown" v-html="props.html" />
+      <div ref="content" class="markdown-body tutorial-markdown" :data-theme="dataTheme" v-html="props.html" />
     </div>
 
     <!-- Step navigation -->
@@ -97,16 +174,13 @@
     color: var(--v0-primary);
   }
 
-  .tutorial-markdown :deep(pre) {
-    margin-bottom: 0.75rem;
-    border-radius: 8px;
-    overflow-x: auto;
-  }
-
   .tutorial-markdown :deep(pre code) {
-    padding: 0;
     background: transparent;
     color: inherit;
+  }
+
+  .tutorial-markdown :deep(.docs-markup) {
+    margin: 0.75rem 0;
   }
 
   .tutorial-markdown :deep(strong) {
@@ -121,5 +195,12 @@
 
   .tutorial-markdown :deep(a:hover) {
     text-decoration: underline;
+  }
+</style>
+
+<style>
+  /* Unscoped — targets imperatively mounted DocsMarkup components */
+  .tutorial-markdown .docs-markup .shiki code {
+    padding: 0.75rem 1rem 1rem;
   }
 </style>

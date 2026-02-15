@@ -60,34 +60,71 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     stepper.prev()
   }
 
-  async function loadStep (stepIndex: number) {
+  // ── Step preloading ──────────────────────────────────────────────────
+  const stepCache = new Map<number, { md: string, files: Record<string, string> }>()
+
+  async function preloadSteps () {
+    const tutorial = getTutorial(tutorialId.value)
+    if (!tutorial) return
+
+    await Promise.all(tutorial.steps.map(async (step, i) => {
+      if (stepCache.has(i)) return
+      const fileEntries = Object.entries(step.files)
+      const [md, ...fileContents] = await Promise.all([
+        step.markdown(),
+        ...fileEntries.map(([, loader]) => loader()),
+      ])
+      const files: Record<string, string> = {}
+      for (const [j, fileEntry] of fileEntries.entries()) {
+        files[fileEntry[0]] = fileContents[j]
+      }
+      stepCache.set(i, { md, files })
+    }))
+  }
+
+  async function resolveStep (stepIndex: number): Promise<{ md: string, files: Record<string, string> } | undefined> {
+    const cached = stepCache.get(stepIndex)
+    if (cached) return cached
+
     const tutorial = getTutorial(tutorialId.value)
     if (!tutorial || !tutorial.steps[stepIndex]) return
 
     const step = tutorial.steps[stepIndex]
-
-    // Load markdown
-    markdown.value = await step.markdown()
-
-    // Load code files
+    const fileEntries = Object.entries(step.files)
+    const [md, ...fileContents] = await Promise.all([
+      step.markdown(),
+      ...fileEntries.map(([, loader]) => loader()),
+    ])
     const files: Record<string, string> = {}
-    for (const [path, loader] of Object.entries(step.files)) {
-      files[path] = await loader()
+    for (const [i, fileEntry] of fileEntries.entries()) {
+      files[fileEntry[0]] = fileContents[i]
     }
+    const result = { md, files }
+    stepCache.set(stepIndex, result)
+    return result
+  }
+
+  // ── Step loading ─────────────────────────────────────────────────────
+  async function loadStep (stepIndex: number) {
+    const data = await resolveStep(stepIndex)
+    if (!data) return
+
+    // Update markdown immediately
+    markdown.value = data.md
 
     const currentTheme = isDark.value ? 'dark' : 'light'
     await store.setFiles(
       {
         'src/main.ts': createMainTs(currentTheme),
         'src/uno.config.ts': UNO_CONFIG_TS,
-        ...files,
+        ...data.files,
       },
       'src/main.ts',
     )
     store.files['src/main.ts']!.hidden = true
     store.files['src/uno.config.ts']!.hidden = true
 
-    const firstFile = Object.keys(files)[0] ?? 'src/App.vue'
+    const firstFile = Object.keys(data.files)[0] ?? 'src/App.vue'
     store.setActive(firstFile)
     fileTreeKey.value++
   }
@@ -112,6 +149,9 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     // Load first step
     await loadStep(0)
     isReady.value = true
+
+    // Preload remaining steps in background
+    preloadSteps()
   })
 
   return {

@@ -14,4 +14,4 @@ On the right, you can see a code editor (top) and a live preview (bottom). The c
 
 Right now, the editor shows a simple Vue component with a heading. In the next step, we'll add interactivity using `createStep` — a composable for building step-based navigation.
 
-Try editing the text in `App.vue` and watch the preview update instantly!
+> [!TIP] Try editing the text in `App.vue` and watch the preview update instantly!

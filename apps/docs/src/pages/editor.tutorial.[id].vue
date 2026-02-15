@@ -3,7 +3,7 @@
   import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
-  import { useBreakpoints } from '@vuetify/v0'
+  import { clamp, useBreakpoints, useDocumentEventListener, useStorage, useToggleScope } from '@vuetify/v0'
 
   // Components
   import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
@@ -19,7 +19,7 @@
   import { Repl, Sandbox } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
   import '@vue/repl/style.css'
-  import { computed, shallowRef, watch } from 'vue'
+  import { computed, shallowRef, type ShallowRef, watch } from 'vue'
 
   definePage({
     meta: {
@@ -58,6 +58,80 @@
   watch(isDesktop, v => {
     sidebarOpen.value = v
   })
+
+  // ── Resizable panels ────────────────────────────────────────────────
+  const storage = useStorage()
+
+  function useResizeHandle (options: {
+    storageKey: string
+    defaultValue: number
+    min: number
+    max: number
+    direction: 'horizontal' | 'vertical'
+  }): {
+    size: ShallowRef<number>
+    isResizing: ShallowRef<boolean>
+    onPointerDown: (e: PointerEvent) => void
+    reset: () => void
+  } {
+    const stored = storage.get<number>(options.storageKey, options.defaultValue)
+    const size = shallowRef(stored.value)
+    const isResizing = shallowRef(false)
+    const startPos = shallowRef(0)
+    const startSize = shallowRef(0)
+    const containerSize = shallowRef(0)
+
+    function onPointerDown (e: PointerEvent) {
+      e.preventDefault()
+      startPos.value = options.direction === 'horizontal' ? e.clientX : e.clientY
+      startSize.value = size.value
+      if (options.direction === 'vertical') {
+        containerSize.value = (e.target as HTMLElement).parentElement?.offsetHeight ?? 1
+      }
+      isResizing.value = true
+    }
+
+    let rafId = 0
+
+    useToggleScope(() => isResizing.value, () => {
+      useDocumentEventListener('pointermove', (e: PointerEvent) => {
+        if (rafId) return
+        rafId = requestAnimationFrame(() => {
+          const pos = options.direction === 'horizontal' ? e.clientX : e.clientY
+          const delta = pos - startPos.value
+          size.value = options.direction === 'vertical' ? clamp(startSize.value + (delta / containerSize.value) * 100, options.min, options.max) : clamp(startSize.value + delta, options.min, options.max)
+          rafId = 0
+        })
+      })
+      useDocumentEventListener('pointerup', () => {
+        if (rafId) cancelAnimationFrame(rafId)
+        rafId = 0
+        stored.value = size.value
+        isResizing.value = false
+      })
+    })
+
+    function reset () {
+      size.value = options.defaultValue
+      stored.value = options.defaultValue
+    }
+
+    return { size, isResizing, onPointerDown, reset }
+  }
+
+  const markdownHandle = useResizeHandle({
+    storageKey: 'tutorial-markdown-width', defaultValue: 350, min: 200, max: 600, direction: 'horizontal',
+  })
+  const splitHandle = useResizeHandle({
+    storageKey: 'tutorial-split-percent', defaultValue: 50, min: 20, max: 80, direction: 'vertical',
+  })
+  const fileTreeHandle = useResizeHandle({
+    storageKey: 'tutorial-filetree-width', defaultValue: 200, min: 140, max: 400, direction: 'horizontal',
+  })
+
+  const anyResizing = computed(() =>
+    markdownHandle.isResizing.value || splitHandle.isResizing.value || fileTreeHandle.isResizing.value,
+  )
 </script>
 
 <template>
@@ -104,9 +178,20 @@
 
     <!-- Tutorial layout -->
     <Transition name="fade">
-      <div v-if="isReady" class="tutorial-layout flex-1 min-h-0" :class="{ dark: isDark }">
+      <div
+        v-if="isReady"
+        class="flex-1 min-h-0 flex overflow-hidden"
+        :class="[
+          { dark: isDark, 'select-none': anyResizing },
+          isDesktop ? 'flex-row' : 'flex-col',
+        ]"
+      >
         <!-- Markdown panel -->
-        <div class="tutorial-markdown-panel border-r border-divider">
+        <div
+          class="tutorial-markdown-panel overflow-hidden shrink-0"
+          :class="isDesktop ? 'border-r border-divider' : 'border-b border-divider max-h-[40vh]'"
+          :style="isDesktop ? { width: `${markdownHandle.size.value}px` } : undefined"
+        >
           <EditorMarkdownPanel
             :html="html"
             :is-first="isFirst"
@@ -117,17 +202,43 @@
           />
         </div>
 
-        <!-- Editor area (Repl with hidden preview) -->
-        <div class="tutorial-editor-area flex flex-col min-w-0 border-b border-divider">
-          <div class="flex min-h-0 flex-1">
+        <!-- Markdown ↔ Right column handle -->
+        <div
+          v-if="isDesktop"
+          class="tutorial-resize-handle tutorial-resize-handle--col"
+          :class="{ 'tutorial-resize-handle--active': markdownHandle.isResizing.value }"
+          @dblclick="markdownHandle.reset()"
+          @pointerdown="markdownHandle.onPointerDown"
+        />
+
+        <!-- Right column -->
+        <div class="flex flex-col flex-1 min-w-0 min-h-0">
+          <!-- Editor area -->
+          <div
+            class="flex min-h-0 min-w-0 overflow-hidden"
+            :style="isDesktop ? { height: `${splitHandle.size.value}%` } : { flex: '1' }"
+          >
             <EditorFileTree
               v-if="sidebarOpen && isDesktop"
               :key="fileTreeKey"
-              class="w-[200px]"
+              class="shrink-0"
               :store="store"
+              :style="{ width: `${fileTreeHandle.size.value}px` }"
             />
 
-            <div class="tutorial-repl-wrapper flex flex-col flex-1 min-w-0 editor-repl" :class="{ dark: isDark }">
+            <!-- File tree ↔ Editor handle -->
+            <div
+              v-if="sidebarOpen && isDesktop"
+              class="tutorial-resize-handle tutorial-resize-handle--col"
+              :class="{ 'tutorial-resize-handle--active': fileTreeHandle.isResizing.value }"
+              @dblclick="fileTreeHandle.reset()"
+              @pointerdown="fileTreeHandle.onPointerDown"
+            />
+
+            <div
+              class="tutorial-repl-wrapper flex flex-col flex-1 min-w-0 editor-repl"
+              :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
+            >
               <EditorTabs :store="store" />
               <EditorBreadcrumbs :store="store" />
 
@@ -146,17 +257,29 @@
               />
             </div>
           </div>
-        </div>
 
-        <!-- Preview area (standalone Sandbox) -->
-        <div class="tutorial-preview-area min-w-0 editor-repl" :class="{ dark: isDark }">
-          <Sandbox
-            :clear-console="false"
-            :preview-options="previewOptions"
-            :show="true"
-            :store="store"
-            :theme="replTheme"
+          <!-- Editor ↔ Preview handle -->
+          <div
+            v-if="isDesktop"
+            class="tutorial-resize-handle tutorial-resize-handle--row"
+            :class="{ 'tutorial-resize-handle--active': splitHandle.isResizing.value }"
+            @dblclick="splitHandle.reset()"
+            @pointerdown="splitHandle.onPointerDown"
           />
+
+          <!-- Preview area -->
+          <div
+            class="tutorial-preview flex-1 min-w-0 min-h-0 editor-repl overflow-hidden"
+            :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
+          >
+            <Sandbox
+              :clear-console="false"
+              :preview-options="previewOptions"
+              :show="true"
+              :store="store"
+              :theme="replTheme"
+            />
+          </div>
         </div>
       </div>
     </Transition>
@@ -164,31 +287,31 @@
 </template>
 
 <style scoped>
-  .tutorial-layout {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    grid-template-rows: 1fr 1fr;
-    overflow: hidden;
+  /* Resize handles */
+  .tutorial-resize-handle {
+    flex-shrink: 0;
+    background: transparent;
+    transition: background 0.15s;
   }
 
-  .tutorial-markdown-panel {
-    grid-row: 1 / -1;
-    grid-column: 1;
-    overflow: hidden;
+  .tutorial-resize-handle:hover,
+  .tutorial-resize-handle--active {
+    background: var(--v0-primary);
   }
 
-  .tutorial-editor-area {
-    grid-row: 1;
-    grid-column: 2;
+  .tutorial-resize-handle--col {
+    width: 4px;
+    cursor: col-resize;
   }
 
-  .tutorial-preview-area {
-    grid-row: 2;
-    grid-column: 2;
+  .tutorial-resize-handle--row {
+    height: 4px;
+    cursor: row-resize;
   }
 
-  /* Reuse REPL theme variables */
+  /* REPL theme variables */
   .editor-repl :deep(.vue-repl) {
+    --header-height: 0px;
     --color-branding: var(--v0-primary);
     --color-branding-dark: var(--v0-primary);
   }
@@ -225,11 +348,16 @@
   }
 
   /* Sandbox fills container */
-  .tutorial-preview-area :deep(.vue-repl),
-  .tutorial-preview-area :deep(.iframe-container),
-  .tutorial-preview-area :deep(iframe) {
+  .editor-repl :deep(.vue-repl),
+  .editor-repl :deep(.iframe-container),
+  .editor-repl :deep(iframe) {
     width: 100%;
     height: 100%;
+  }
+
+  /* Match iframe bg to preview body to prevent flash between steps */
+  .tutorial-preview :deep(iframe) {
+    background-color: var(--v0-background) !important;
   }
 
   /* Fade on mount */
@@ -241,30 +369,5 @@
   .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
-  }
-
-  @media (max-width: 768px) {
-    .tutorial-layout {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr 1fr;
-    }
-
-    .tutorial-markdown-panel {
-      grid-row: 1;
-      grid-column: 1;
-      max-height: 40vh;
-      border-right: none;
-      border-bottom: 1px solid var(--v0-divider);
-    }
-
-    .tutorial-editor-area {
-      grid-row: 2;
-      grid-column: 1;
-    }
-
-    .tutorial-preview-area {
-      grid-row: 3;
-      grid-column: 1;
-    }
   }
 </style>
