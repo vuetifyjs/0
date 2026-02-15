@@ -3,7 +3,7 @@
   import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
-  import { clamp, useBreakpoints, useClickOutside, useEventListener, useHotkey, useStorage, useTheme, useToggleScope } from '@vuetify/v0'
+  import { clamp, useBreakpoints, useClickOutside, useEventListener, useHotkey, useStack, useStorage, useTheme, useToggleScope } from '@vuetify/v0'
 
   // Components
   import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
@@ -18,7 +18,7 @@
   import { Repl, useStore, useVueImportMap } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
   import '@vue/repl/style.css'
-  import { computed, shallowRef, useTemplateRef } from 'vue'
+  import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 
   definePage({
     meta: {
@@ -88,6 +88,21 @@
   const breakpoints = useBreakpoints()
   const isDesktop = computed(() => breakpoints.mdAndUp.value)
   const sidebarOpen = shallowRef(true)
+  watch(isDesktop, v => {
+    sidebarOpen.value = v
+  })
+
+  const stack = useStack()
+  const ticket = stack.register({
+    onDismiss: () => {
+      sidebarOpen.value = false
+    },
+  })
+  watch(() => sidebarOpen.value && !isDesktop.value, open => {
+    if (open) ticket.select()
+    else ticket.unselect()
+  })
+
   useHotkey('ctrl+b', () => {
     sidebarOpen.value = !sidebarOpen.value
   }, { inputs: true })
@@ -176,12 +191,23 @@
         </div>
 
         <button
+          v-if="isDesktop"
           aria-label="Toggle layout"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
           :title="replLayout === 'horizontal' ? 'Switch to vertical layout' : 'Switch to horizontal layout'"
           @click="replLayout = replLayout === 'horizontal' ? 'vertical' : 'horizontal'"
         >
           <AppIcon :icon="replLayout === 'horizontal' ? 'layout-vertical' : 'layout-horizontal'" :size="18" />
+        </button>
+
+        <button
+          v-if="!isDesktop"
+          aria-label="Toggle files"
+          class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
+          title="Toggle files"
+          @click="sidebarOpen = !sidebarOpen"
+        >
+          <AppIcon icon="folder" :size="18" />
         </button>
 
         <button
@@ -202,19 +228,31 @@
     <Transition name="fade">
       <div v-if="isReady" class="editor-repl flex-1 min-h-0 px-2 pt-2" :class="{ dark: isDark }">
         <div class="editor-wrapper" :class="{ 'select-none': isResizing }">
-          <EditorFileTree
-            v-if="sidebarOpen && isDesktop"
-            :key="fileTreeKey"
-            :store="store"
-            :style="{ width: `${sidebarWidth}px` }"
-          />
+          <!-- Desktop: inline sidebar -->
+          <template v-if="isDesktop">
+            <EditorFileTree
+              v-if="sidebarOpen"
+              :key="fileTreeKey"
+              :store="store"
+              :style="{ width: `${sidebarWidth}px` }"
+            />
 
-          <div
-            v-if="sidebarOpen && isDesktop"
-            class="editor-resize-handle"
-            :class="{ 'editor-resize-handle--active': isResizing }"
-            @dblclick="sidebarWidth = 250"
-            @pointerdown="onResizeStart"
+            <div
+              v-if="sidebarOpen"
+              class="editor-resize-handle"
+              :class="{ 'editor-resize-handle--active': isResizing }"
+              @dblclick="sidebarWidth = 250"
+              @pointerdown="onResizeStart"
+            />
+          </template>
+
+          <!-- Mobile: fixed overlay -->
+          <EditorFileTree
+            v-if="!isDesktop && sidebarOpen"
+            :key="fileTreeKey"
+            class="fixed top-0 bottom-0 left-0 w-[260px]"
+            :store="store"
+            :style="{ zIndex: ticket.zIndex.value }"
           />
 
           <div class="editor-repl-container flex flex-col">

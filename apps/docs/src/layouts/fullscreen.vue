@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { Scrim } from '@vuetify/v0'
+
   // Composables
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
@@ -17,6 +20,8 @@
 <template>
   <div class="fixed inset-0 z-10 flex flex-col bg-background" data-layout="fullscreen">
     <router-view />
+
+    <Scrim class="fixed inset-0 bg-black/30 transition-opacity" :teleport="false" />
   </div>
 </template>
 
