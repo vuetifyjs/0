@@ -124,6 +124,7 @@ declare module 'vue' {
     EditorBreadcrumbs: typeof import('./components/editor/EditorBreadcrumbs.vue')['default']
     EditorExamples: typeof import('./components/editor/EditorExamples.vue')['default']
     EditorFileTree: typeof import('./components/editor/EditorFileTree.vue')['default']
+    EditorMarkdownPanel: typeof import('./components/editor/EditorMarkdownPanel.vue')['default']
     EditorTabs: typeof import('./components/editor/EditorTabs.vue')['default']
     HomeAiFirst: typeof import('./components/home/HomeAiFirst.vue')['default']
     HomeArchitecture: typeof import('./components/home/HomeArchitecture.vue')['default']

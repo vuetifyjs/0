@@ -33,7 +33,8 @@
         "src/skillz/tours/**/index.ts",
         "src/stores/skillz.ts",
         "src/data/**",
-        "src/examples/**"
+        "src/examples/**",
+        "src/tutorials/**"
       ],
       "ignoreDependencies": [
         "@vue/repl"

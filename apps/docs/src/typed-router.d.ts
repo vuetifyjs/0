@@ -464,6 +464,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/editor.tutorial.[id]': RouteRecordInfo<
+      '/editor.tutorial.[id]',
+      '/editor/tutorial/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -1076,6 +1083,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/editor.vue': {
       routes:
         | '/editor'
+      views:
+        | never
+    }
+    'src/pages/editor.tutorial.[id].vue': {
+      routes:
+        | '/editor.tutorial.[id]'
       views:
         | never
     }
