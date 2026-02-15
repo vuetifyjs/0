@@ -14,7 +14,7 @@ import type { ComputedRef, ShallowRef } from 'vue'
 
 import { createMainTs, UNO_CONFIG_TS } from '@/data/editor-defaults'
 // Tutorials
-import { getTutorial } from '@/tutorials'
+import { getTutorial } from '@/skillz/tutorials'
 
 export interface UseTutorialReturn {
   store: ReplStore

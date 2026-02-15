@@ -34,7 +34,7 @@
         "src/stores/skillz.ts",
         "src/data/**",
         "src/examples/**",
-        "src/tutorials/**"
+        "src/skillz/tutorials/**"
       ],
       "ignoreDependencies": [
         "@vue/repl"
