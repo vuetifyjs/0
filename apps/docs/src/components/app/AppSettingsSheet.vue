@@ -1,6 +1,9 @@
 <script setup lang="ts">
+  // Stores
+  import { useAuthStore } from '@vuetify/auth'
+
   // Framework
-  import { useFeatures, useStack, useStorage } from '@vuetify/v0'
+  import { Avatar, useFeatures, useStack, useStorage } from '@vuetify/v0'
 
   // Composables
   import { useCustomThemes } from '@/composables/useCustomThemes'
@@ -8,8 +11,9 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, onUnmounted, useTemplateRef, watch } from 'vue'
+  import { computed, onUnmounted, toRef, useTemplateRef, watch } from 'vue'
 
+  const auth = useAuthStore()
   const features = useFeatures()
   const storage = useStorage()
   const settings = useSettings()
@@ -25,6 +29,8 @@
     if (isOpen) ticket.select()
     else ticket.unselect()
   }, { immediate: true })
+
+  const initial = toRef(() => auth.user?.name?.charAt(0).toUpperCase() ?? '?')
 
   const hasChanges = computed(() => settings.hasChanges.value || levelFilter.hasChanges.value)
 
@@ -86,6 +92,36 @@
 
     <!-- Content -->
     <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <!-- Account -->
+      <div v-if="auth.isAuthenticated" class="flex items-center gap-3 pb-4 border-b border-divider">
+        <Avatar.Root class="size-8 rounded-full overflow-hidden shrink-0">
+          <Avatar.Image
+            alt="User avatar"
+            class="size-8 rounded-full object-cover"
+            :src="auth.user?.picture"
+          />
+
+          <Avatar.Fallback class="size-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium">
+            {{ initial }}
+          </Avatar.Fallback>
+        </Avatar.Root>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-on-surface truncate">{{ auth.user?.name }}</div>
+          <div class="text-xs text-on-surface-variant capitalize">{{ auth.user?.role }}</div>
+        </div>
+
+        <button
+          aria-label="Sign out"
+          class="pa-1 cursor-pointer bg-transparent border-0 inline-flex items-center justify-center rounded hover:bg-surface-variant transition-colors text-on-surface-variant hover:text-error"
+          title="Sign out"
+          type="button"
+          @click="auth.logout()"
+        >
+          <AppIcon icon="logout" :size="16" />
+        </button>
+      </div>
+
       <!-- Theme -->
       <AppSettingsTheme />
 

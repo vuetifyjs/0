@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Stores
+  import { useAuthStore } from '@vuetify/auth'
+
   // Framework
   import { Atom, useBreakpoints, useFeatures, useStorage, useTheme } from '@vuetify/v0'
 
@@ -19,6 +22,7 @@
 
   const { as = 'header' } = defineProps<AtomProps>()
 
+  const auth = useAuthStore()
   const navigation = useNavigation()
   const storage = useStorage()
   const route = useRoute()
@@ -118,7 +122,9 @@
         <AppIcon class="!opacity-100" icon="github" />
       </a>
 
-      <AppSettings v-if="!isHomePage" />
+      <AppAccount v-if="!isHomePage" />
+
+      <AppSettings v-if="!isHomePage && !auth.isAuthenticated" />
     </div>
   </Atom>
 </template>

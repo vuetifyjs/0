@@ -55,8 +55,8 @@ catalogs:
       specifier: ^0.8.1
       version: 0.8.1
     '@vuetify/auth':
-      specifier: 0.1.4
-      version: 0.1.4
+      specifier: 0.1.6
+      version: 0.1.6
     '@vuetify/github-releaser':
       specifier: ^4.0.3
       version: 4.0.3
@@ -291,7 +291,7 @@ importers:
         version: 2.0.19(rollup@2.79.2)
       '@vuetify/auth':
         specifier: 'catalog:'
-        version: 0.1.4(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))
+        version: 0.1.6(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
@@ -2729,8 +2729,8 @@ packages:
       vue:
         optional: true
 
-  '@vuetify/auth@0.1.4':
-    resolution: {integrity: sha512-PIXdGTxcCgce5q46svkuOAopcKhbtC95HcqVjATFXjUM9RvfwxNyg+g1uOBp86NS7i68KPZ+IvJjq/ZgN9b0Ig==}
+  '@vuetify/auth@0.1.6':
+    resolution: {integrity: sha512-7f03jF3qlcG6ueMF9n6AirgC+TFZYzkDxQ+rNGxfdY0EGKpKiGZCgaz2esYHGXaqU9RDCaIM8Zp+tBzIGvBFKQ==}
     peerDependencies:
       pinia: ^3.0.0
       vue: ^3.5.0
@@ -8952,7 +8952,7 @@ snapshots:
       typescript: 5.9.3
       vue: 3.5.24(typescript@5.9.3)
 
-  '@vuetify/auth@0.1.4(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))':
+  '@vuetify/auth@0.1.6(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))':
     dependencies:
       pinia: 3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3))
       vue: 3.5.24(typescript@5.9.3)
