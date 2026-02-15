@@ -6,21 +6,24 @@ import { useEditorStore } from '@/composables/useEditorStore'
 import { useMarkdown } from '@/composables/useMarkdown'
 
 // Utilities
+import { compileFile } from '@vue/repl'
 import { computed, onMounted, shallowRef, watch } from 'vue'
 
 // Types
+import type { StepOptions, TutorialMeta } from '@/skillz/tutorials'
 import type { ReplStore } from '@vue/repl'
 import type { ComputedRef, ShallowRef } from 'vue'
 
 import { createMainTs, UNO_CONFIG_TS } from '@/data/editor-defaults'
 // Tutorials
-import { getTutorial } from '@/skillz/tutorials'
+import { getTutorial, parseStepOptions } from '@/skillz/tutorials'
 
 export interface UseTutorialReturn {
   store: ReplStore
   isDark: ComputedRef<boolean>
   replTheme: ComputedRef<'dark' | 'light'>
   previewOptions: ComputedRef<{ headHTML: string }>
+  meta: ComputedRef<TutorialMeta | undefined>
   markdown: ShallowRef<string>
   html: ShallowRef<string>
   stepLabel: ComputedRef<string>
@@ -30,6 +33,7 @@ export interface UseTutorialReturn {
   isLast: ComputedRef<boolean>
   isReady: ShallowRef<boolean>
   fileTreeKey: ShallowRef<number>
+  stepOptions: ShallowRef<StepOptions>
   nextStep: () => void
   prevStep: () => void
 }
@@ -40,10 +44,12 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
 
   const { store, replTheme, previewOptions } = useEditorStore(isDark)
 
+  const meta = computed(() => getTutorial(tutorialId.value)?.meta)
   const markdown = shallowRef('')
   const { html } = useMarkdown(markdown)
   const isReady = shallowRef(false)
   const fileTreeKey = shallowRef(0)
+  const stepOptions = shallowRef<StepOptions>({})
 
   const stepper = createStep()
   const totalSteps = computed(() => stepper.size)
@@ -61,7 +67,7 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
   }
 
   // ── Step preloading ──────────────────────────────────────────────────
-  const stepCache = new Map<number, { md: string, files: Record<string, string> }>()
+  const stepCache = new Map<number, { md: string, files: Record<string, string>, options: StepOptions }>()
 
   async function preloadSteps () {
     const tutorial = getTutorial(tutorialId.value)
@@ -70,19 +76,20 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     await Promise.all(tutorial.steps.map(async (step, i) => {
       if (stepCache.has(i)) return
       const fileEntries = Object.entries(step.files)
-      const [md, ...fileContents] = await Promise.all([
+      const [rawMd, ...fileContents] = await Promise.all([
         step.markdown(),
         ...fileEntries.map(([, loader]) => loader()),
       ])
+      const { body, options } = parseStepOptions(rawMd)
       const files: Record<string, string> = {}
       for (const [j, fileEntry] of fileEntries.entries()) {
         files[fileEntry[0]] = fileContents[j]
       }
-      stepCache.set(i, { md, files })
+      stepCache.set(i, { md: body, files, options })
     }))
   }
 
-  async function resolveStep (stepIndex: number): Promise<{ md: string, files: Record<string, string> } | undefined> {
+  async function resolveStep (stepIndex: number): Promise<{ md: string, files: Record<string, string>, options: StepOptions } | undefined> {
     const cached = stepCache.get(stepIndex)
     if (cached) return cached
 
@@ -91,15 +98,16 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
 
     const step = tutorial.steps[stepIndex]
     const fileEntries = Object.entries(step.files)
-    const [md, ...fileContents] = await Promise.all([
+    const [rawMd, ...fileContents] = await Promise.all([
       step.markdown(),
       ...fileEntries.map(([, loader]) => loader()),
     ])
+    const { body, options } = parseStepOptions(rawMd)
     const files: Record<string, string> = {}
     for (const [i, fileEntry] of fileEntries.entries()) {
       files[fileEntry[0]] = fileContents[i]
     }
-    const result = { md, files }
+    const result = { md: body, files, options }
     stepCache.set(stepIndex, result)
     return result
   }
@@ -109,8 +117,9 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     const data = await resolveStep(stepIndex)
     if (!data) return
 
-    // Update markdown immediately
+    // Update markdown and options immediately
     markdown.value = data.md
+    stepOptions.value = data.options
 
     const currentTheme = isDark.value ? 'dark' : 'light'
     await store.setFiles(
@@ -136,6 +145,15 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     }
   })
 
+  // Sync theme into the preview's main.ts when toggled
+  watch(isDark, async () => {
+    if (!isReady.value) return
+    const file = store.files['src/main.ts']
+    if (!file) return
+    file.code = createMainTs(isDark.value ? 'dark' : 'light')
+    await compileFile(store, file)
+  })
+
   onMounted(async () => {
     const tutorial = getTutorial(tutorialId.value)
     if (!tutorial || tutorial.steps.length === 0) return
@@ -159,6 +177,7 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     isDark,
     replTheme,
     previewOptions,
+    meta,
     markdown,
     html,
     stepLabel,
@@ -168,6 +187,7 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     isLast,
     isReady,
     fileTreeKey,
+    stepOptions,
     nextStep,
     prevStep,
   }
