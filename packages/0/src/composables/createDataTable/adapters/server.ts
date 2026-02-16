@@ -20,14 +20,10 @@ import { computed, toValue, watch } from 'vue'
 import type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult } from './adapter'
 import type { MaybeRefOrGetter } from 'vue'
 
-// ---- Types ----
-
 export interface ServerAdapterOptions {
   /** Total number of items on the server (for pagination calculation) */
   totalItems: MaybeRefOrGetter<number>
 }
-
-// ---- Adapter ----
 
 export class ServerAdapter<T extends Record<string, unknown>> implements DataTableAdapterInterface<T> {
   private options: ServerAdapterOptions
@@ -59,6 +55,7 @@ export class ServerAdapter<T extends Record<string, unknown>> implements DataTab
       sortedItems: allItems,
       items: allItems,
       pagination,
+      total: computed(() => toValue(this.options.totalItems)),
     }
   }
 }

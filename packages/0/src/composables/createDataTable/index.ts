@@ -32,7 +32,7 @@ import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationContext, PaginationOptions } from '#v0/composables/createPagination'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { DataTableAdapterInterface, SortEntry } from './adapters/adapter'
+import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
 import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 
 // Re-export adapter types
@@ -55,6 +55,10 @@ export interface DataTableSort {
   entries: ComputedRef<SortEntry[]>
   /** Order of sort columns (for multi-sort priority) */
   order: readonly string[]
+  /** Get sort direction for a specific column key */
+  direction: (key: string) => SortDirection
+  /** Get sort priority index (0-based), or -1 if not sorted */
+  priority: (key: string) => number
   /** Reset all sort state */
   reset: () => void
 }
@@ -103,13 +107,13 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
 
 export interface DataTableContext<T extends Record<string, unknown>> {
   /** Final paginated items for rendering */
-  items: ComputedRef<T[]>
+  items: ComputedRef<readonly T[]>
   /** Raw unprocessed items */
-  allItems: ComputedRef<T[]>
+  allItems: ComputedRef<readonly T[]>
   /** Items after filtering */
-  filteredItems: ComputedRef<T[]>
+  filteredItems: ComputedRef<readonly T[]>
   /** Items after filtering and sorting */
-  sortedItems: ComputedRef<T[]>
+  sortedItems: ComputedRef<readonly T[]>
   /** Column definitions */
   columns: DataTableColumn[]
   /** Search query ref */
@@ -120,6 +124,8 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   pagination: PaginationContext
   /** Row selection controls */
   selection: DataTableSelection
+  /** Total row count for aria-rowcount */
+  total: ComputedRef<number>
 }
 
 export interface DataTableContextOptions<T extends Record<string, unknown>> extends DataTableOptions<T> {
@@ -231,6 +237,16 @@ export function createDataTable<T extends Record<string, unknown>> (
     return result
   })
 
+  function direction (key: string): SortDirection {
+    if (group.selectedIds.has(key)) return 'asc'
+    if (group.mixed(key)) return 'desc'
+    return 'none'
+  }
+
+  function priority (key: string): number {
+    return order.indexOf(key)
+  }
+
   function reset () {
     group.unselectAll()
     group.mixedIds.clear()
@@ -240,7 +256,9 @@ export function createDataTable<T extends Record<string, unknown>> (
   const sort: DataTableSort = {
     toggle,
     entries: sortBy,
-    order,
+    order: order as readonly string[],
+    direction,
+    priority,
     reset,
   }
 
@@ -254,6 +272,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     sortedItems,
     items: visible,
     pagination,
+    total,
   } = adapter.setup({
     items: _items,
     search,
@@ -330,6 +349,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     sort,
     pagination,
     selection,
+    total,
   }
 }
 

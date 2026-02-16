@@ -53,6 +53,7 @@ export class VirtualAdapter<T extends Record<string, unknown>> extends DataTable
       sortedItems,
       items: sortedItems,
       pagination,
+      total: computed(() => sortedItems.value.length),
     }
   }
 }

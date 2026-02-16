@@ -15,15 +15,13 @@
 import { createFilter } from '#v0/composables/createFilter'
 
 // Utilities
-import { isUndefined } from '#v0/utilities'
+import { isNaN, isNumber, isString, isUndefined } from '#v0/utilities'
 import { computed, toValue } from 'vue'
 
 // Types
 import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationContext, PaginationOptions } from '#v0/composables/createPagination'
 import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
-
-// ---- Types ----
 
 export type SortDirection = 'asc' | 'desc' | 'none'
 
@@ -51,23 +49,23 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
 /** Outputs returned by the adapter to createDataTable */
 export interface DataTableAdapterResult<T extends Record<string, unknown>> {
   /** Raw unprocessed items */
-  allItems: ComputedRef<T[]>
+  allItems: ComputedRef<readonly T[]>
   /** Items after filtering */
-  filteredItems: ComputedRef<T[]>
+  filteredItems: ComputedRef<readonly T[]>
   /** Items after filtering and sorting */
-  sortedItems: ComputedRef<T[]>
+  sortedItems: ComputedRef<readonly T[]>
   /** Final visible items (paginated or virtualized) */
-  items: ComputedRef<T[]>
+  items: ComputedRef<readonly T[]>
   /** Pagination controls */
   pagination: PaginationContext
+  /** Total row count for aria-rowcount */
+  total: ComputedRef<number>
 }
 
 /** Pipeline adapter interface for data table strategies */
 export interface DataTableAdapterInterface<T extends Record<string, unknown>> {
   setup: (context: DataTableAdapterContext<T>) => DataTableAdapterResult<T>
 }
-
-// ---- Helpers ----
 
 function getNestedValue (obj: Record<string, unknown>, key: string): unknown {
   const keys = key.split('.')
@@ -84,18 +82,18 @@ function compareValues (a: unknown, b: unknown): number {
   if (isUndefined(a) || a === null) return 1
   if (isUndefined(b) || b === null) return -1
 
-  if (typeof a === 'string' && typeof b === 'string') {
+  if (isString(a) && isString(b)) {
     return a.localeCompare(b)
   }
 
-  if (typeof a === 'number' && typeof b === 'number') {
+  if (isNumber(a) && isNumber(b)) {
+    if (isNaN(a)) return 1
+    if (isNaN(b)) return -1
     return a - b
   }
 
   return String(a).localeCompare(String(b))
 }
-
-// ---- Abstract Base ----
 
 export abstract class DataTableAdapter<T extends Record<string, unknown>> implements DataTableAdapterInterface<T> {
   /** Create the filter pipeline stage */
@@ -113,9 +111,9 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
 
   /** Create the sort pipeline stage */
   protected sort (
-    filteredItems: ComputedRef<T[]>,
+    filteredItems: ComputedRef<readonly T[]>,
     sortBy: ComputedRef<SortEntry[]>,
-  ): ComputedRef<T[]> {
+  ): ComputedRef<readonly T[]> {
     return computed(() => {
       const entries = sortBy.value
       if (entries.length === 0) return filteredItems.value

@@ -23,12 +23,8 @@ export class ClientAdapter<T extends Record<string, unknown>> extends DataTableA
   setup (context: DataTableAdapterContext<T>): DataTableAdapterResult<T> {
     const { search, sortBy, paginationOptions } = context
 
-    // ---- Filter + Sort ----
-
     const { allItems, filteredItems } = this.filter(context)
     const sortedItems = this.sort(filteredItems, sortBy)
-
-    // ---- Pagination ----
 
     const pagination = createPagination({
       ...paginationOptions,
@@ -38,8 +34,6 @@ export class ClientAdapter<T extends Record<string, unknown>> extends DataTableA
     const items = computed(() => {
       return sortedItems.value.slice(pagination.pageStart.value, pagination.pageStop.value)
     })
-
-    // ---- Page reset on filter/sort changes ----
 
     watch([search, sortBy], () => {
       pagination.first()
@@ -51,6 +45,7 @@ export class ClientAdapter<T extends Record<string, unknown>> extends DataTableA
       sortedItems,
       items,
       pagination,
+      total: computed(() => sortedItems.value.length),
     }
   }
 }
