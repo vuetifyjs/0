@@ -87,6 +87,23 @@ export interface DataTableSelection {
   isMixed: ComputedRef<boolean>
 }
 
+export interface DataTableExpansion {
+  /** Currently expanded row IDs */
+  expandedIds: ReadonlySet<ID>
+  /** Expand a row by ID */
+  expand: (id: ID) => void
+  /** Collapse a row by ID */
+  collapse: (id: ID) => void
+  /** Toggle a row's expanded state */
+  toggle: (id: ID) => void
+  /** Whether a row is expanded */
+  isExpanded: (id: ID) => boolean
+  /** Expand all visible (paginated) items */
+  expandAll: () => void
+  /** Collapse all items across all pages */
+  collapseAll: () => void
+}
+
 export interface DataTableOptions<T extends Record<string, unknown>> {
   /** Source items */
   items: MaybeRefOrGetter<T[]>
@@ -102,6 +119,8 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   pagination?: Omit<PaginationOptions, 'size'>
   /** Enable multi-column sort. @default false */
   sortMultiple?: boolean
+  /** Allow multiple rows expanded simultaneously. @default true */
+  expandMultiple?: boolean
   /** Locale for sorting (defaults to useLocale's selected locale or browser default) */
   locale?: string
   /** Pipeline adapter. @default ClientAdapter */
@@ -127,6 +146,8 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   pagination: PaginationContext
   /** Row selection controls */
   selection: DataTableSelection
+  /** Row expansion controls */
+  expansion: DataTableExpansion
   /** Total row count for aria-rowcount */
   total: ComputedRef<number>
   /** Loading state (managed by adapter) */
@@ -186,6 +207,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     filter: filterOptions = {},
     pagination: paginationOptions = {},
     sortMultiple = false,
+    expandMultiple = true,
     locale: initialLocale,
     adapter = new ClientAdapter<T>(),
   } = options
@@ -369,6 +391,38 @@ export function createDataTable<T extends Record<string, unknown>> (
     }),
   }
 
+  const expandedIds = shallowReactive(new Set<ID>())
+
+  const expansion: DataTableExpansion = {
+    expandedIds: expandedIds as ReadonlySet<ID>,
+    expand (id: ID) {
+      if (!expandMultiple) expandedIds.clear()
+      expandedIds.add(id)
+    },
+    collapse (id: ID) {
+      expandedIds.delete(id)
+    },
+    toggle (id: ID) {
+      if (expandedIds.has(id)) {
+        expandedIds.delete(id)
+      } else {
+        expansion.expand(id)
+      }
+    },
+    isExpanded (id: ID) {
+      return expandedIds.has(id)
+    },
+    expandAll () {
+      if (!expandMultiple) return
+      for (const item of visible.value) {
+        expandedIds.add(rowId(item))
+      }
+    },
+    collapseAll () {
+      expandedIds.clear()
+    },
+  }
+
   return {
     items: visible,
     allItems,
@@ -379,6 +433,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     sort,
     pagination,
     selection,
+    expansion,
     total,
     loading,
     error,
