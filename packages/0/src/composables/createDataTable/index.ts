@@ -3,14 +3,13 @@
  *
  * @remarks
  * Composable data table that composes existing v0 primitives rather than
- * reimplementing their logic. Uses createFilter for search, createGroup's
- * tri-state for sort direction, and createPagination for page navigation.
+ * reimplementing their logic. Uses createGroup's tri-state for sort direction
+ * and delegates the data pipeline (filter, sort, paginate) to an adapter.
  *
  * Key features:
- * - Pipeline: rawItems → filter → sort → paginate → visible items
+ * - Adapter pattern for pipeline strategy (client, server, virtual)
  * - Sort via createGroup tri-state: selected=asc, mixed=desc, unselected=none
  * - Row selection via lightweight Set (not registry-based)
- * - Auto page reset on filter/sort changes
  * - Trinity pattern for dependency injection
  */
 
@@ -19,24 +18,28 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
-import { createFilter } from '#v0/composables/createFilter'
 import { createGroup } from '#v0/composables/createGroup'
-import { createPagination } from '#v0/composables/createPagination'
+
+// Adapters
+import { ClientAdapter } from './adapters/v0'
 
 // Utilities
-import { isNumber, isString, isUndefined } from '#v0/utilities'
-import { computed, shallowReactive, shallowRef, toValue, watch } from 'vue'
+import { isNumber, isString } from '#v0/utilities'
+import { computed, shallowReactive, shallowRef } from 'vue'
 
 // Types
 import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationContext, PaginationOptions } from '#v0/composables/createPagination'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
+import type { DataTableAdapterInterface, SortEntry } from './adapters/adapter'
 import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 
-// ---- Types ----
-
-export type SortDirection = 'asc' | 'desc' | 'none'
+// Re-export adapter types
+export { DataTableAdapter } from './adapters'
+export type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult, SortDirection, SortEntry } from './adapters'
+export { ClientAdapter, ServerAdapter, VirtualAdapter } from './adapters'
+export type { ServerAdapterOptions } from './adapters'
 
 export interface DataTableColumn {
   key: string
@@ -49,7 +52,7 @@ export interface DataTableSort {
   /** Toggle sort for a column: none → asc → desc → none */
   toggle: (key: string) => void
   /** Current sort-by entries derived from group state */
-  sortBy: ComputedRef<Array<{ key: string, direction: SortDirection }>>
+  sortBy: ComputedRef<SortEntry[]>
   /** Order of sort columns (for multi-sort priority) */
   order: readonly string[]
   /** Reset all sort state */
@@ -94,6 +97,8 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   pagination?: Omit<PaginationOptions, 'size'>
   /** Enable multi-column sort. @default false */
   sortMultiple?: boolean
+  /** Pipeline adapter. @default ClientAdapter */
+  adapter?: DataTableAdapterInterface<T>
 }
 
 export interface DataTableContext<T extends Record<string, unknown>> {
@@ -121,38 +126,9 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
   namespace?: string
 }
 
-// ---- Helpers ----
-
-function getNestedValue (obj: Record<string, unknown>, key: string): unknown {
-  const keys = key.split('.')
-  let result: unknown = obj
-  for (const k of keys) {
-    if (isUndefined(result) || result === null) return undefined
-    result = (result as Record<string, unknown>)[k]
-  }
-  return result
-}
-
-function compareValues (a: unknown, b: unknown): number {
-  if (a === b) return 0
-  if (isUndefined(a) || a === null) return 1
-  if (isUndefined(b) || b === null) return -1
-
-  if (typeof a === 'string' && typeof b === 'string') {
-    return a.localeCompare(b)
-  }
-
-  if (typeof a === 'number' && typeof b === 'number') {
-    return a - b
-  }
-
-  return String(a).localeCompare(String(b))
-}
-
-// ---- Factory ----
-
 /**
- * Creates a data table instance composing filter, sort, and pagination primitives.
+ * Creates a data table instance with sort controls, selection, and an
+ * adapter-driven data pipeline.
  *
  * @param options Data table options
  * @returns Data table context with pipeline stages and controls
@@ -196,25 +172,10 @@ export function createDataTable<T extends Record<string, unknown>> (
     filter: filterOptions = {},
     pagination: paginationOptions = {},
     sortMultiple = false,
+    adapter = new ClientAdapter<T>(),
   } = options
 
-  // ---- Search / Filter ----
-
   const search = _search ?? shallowRef('')
-
-  const filterableKeys = columns
-    .filter(col => col.filterable !== false)
-    .map(col => col.key)
-
-  const filter = createFilter({
-    ...filterOptions,
-    keys: filterableKeys,
-  })
-
-  const allItems = computed(() => toValue(_items))
-  const { items: filteredItems } = filter.apply(search, allItems)
-
-  // ---- Sort via createGroup ----
 
   const sortableColumns = columns.filter(col => col.sortable === true)
 
@@ -255,8 +216,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     }
   }
 
-  const sortBy = computed(() => {
-    const entries: Array<{ key: string, direction: SortDirection }> = []
+  const sortBy = computed<SortEntry[]>(() => {
+    const entries: SortEntry[] = []
 
     for (const key of sortOrder) {
       if (sortGroup.selectedIds.has(key)) {
@@ -282,45 +243,24 @@ export function createDataTable<T extends Record<string, unknown>> (
     reset: resetSort,
   }
 
-  // ---- Sort pipeline ----
+  const filterableKeys = columns
+    .filter(col => col.filterable !== false)
+    .map(col => col.key)
 
-  const sortedItems = computed(() => {
-    const entries = sortBy.value
-    if (entries.length === 0) return filteredItems.value
-
-    const items = [...filteredItems.value]
-
-    items.sort((a, b) => {
-      for (const { key, direction } of entries) {
-        const aVal = getNestedValue(a, key)
-        const bVal = getNestedValue(b, key)
-        const cmp = compareValues(aVal, bVal)
-        if (cmp !== 0) return direction === 'desc' ? -cmp : cmp
-      }
-      return 0
-    })
-
-    return items
+  const {
+    allItems,
+    filteredItems,
+    sortedItems,
+    items: paginatedItems,
+    pagination,
+  } = adapter.setup({
+    items: _items,
+    search,
+    filterableKeys,
+    sortBy,
+    filterOptions,
+    paginationOptions,
   })
-
-  // ---- Pagination ----
-
-  const pagination = createPagination({
-    ...paginationOptions,
-    size: computed(() => sortedItems.value.length),
-  })
-
-  const paginatedItems = computed(() => {
-    return sortedItems.value.slice(pagination.pageStart.value, pagination.pageStop.value)
-  })
-
-  // ---- Page reset on filter/sort changes ----
-
-  watch([search, sortBy], () => {
-    pagination.first()
-  })
-
-  // ---- Row selection ----
 
   const selectedIds = shallowReactive(new Set<ID>())
 
