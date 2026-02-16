@@ -26,12 +26,12 @@ import { DataTableAdapter } from './adapter'
 
 export class VirtualAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
   setup (context: DataTableAdapterContext<T>): DataTableAdapterResult<T> {
-    const { search, sortBy, locale } = context
+    const { search, sortBy, locale, customSorts } = context
 
     // ---- Filter + Sort ----
 
     const { allItems, filteredItems } = this.filter(context)
-    const sortedItems = this.sort(filteredItems, sortBy, locale)
+    const sortedItems = this.sort(filteredItems, sortBy, locale, customSorts)
 
     // ---- Pagination (pass-through, all items on one page) ----
 

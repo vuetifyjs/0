@@ -9,6 +9,10 @@
  * Key features:
  * - Adapter pattern for pipeline strategy (client, server, virtual)
  * - Sort via createGroup tri-state: selected=asc, mixed=desc, unselected=none
+ * - Selection strategies: single, page, all
+ * - Per-column custom sort/filter functions
+ * - Row selectability control via itemSelectable
+ * - Sort options: mustSort, firstSortOrder
  * - Row selection via lightweight Set (not registry-based)
  * - Trinity pattern for dependency injection
  */
@@ -42,11 +46,17 @@ export type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapt
 export { ClientAdapter, ServerAdapter, VirtualAdapter } from './adapters'
 export type { ServerAdapterOptions } from './adapters'
 
+export type SelectStrategy = 'single' | 'page' | 'all'
+
 export interface DataTableColumn {
   readonly key: string
   readonly title?: string
   readonly sortable?: boolean
   readonly filterable?: boolean
+  /** Custom sort comparator for this column */
+  readonly sort?: (a: unknown, b: unknown) => number
+  /** Custom filter function for this column */
+  readonly filter?: (value: unknown, query: string) => boolean
 }
 
 export interface DataTableSort {
@@ -75,16 +85,44 @@ export interface DataTableSelection {
   toggle: (id: ID) => void
   /** Whether a row is selected */
   isSelected: (id: ID) => boolean
-  /** Select all visible (paginated) items */
+  /** Whether a row can be selected (based on itemSelectable) */
+  isSelectable: (id: ID) => boolean
+  /** Select all items within strategy scope */
   selectAll: () => void
   /** Unselect all items across all pages */
   unselectAll: () => void
-  /** Toggle all visible (paginated) items */
+  /** Toggle all items within strategy scope */
   toggleAll: () => void
-  /** Whether all visible (paginated) items are selected */
+  /** Whether all items within strategy scope are selected */
   isAllSelected: ComputedRef<boolean>
-  /** Whether some but not all visible (paginated) items are selected */
+  /** Whether some but not all items within strategy scope are selected */
   isMixed: ComputedRef<boolean>
+}
+
+export interface DataTableGroup<T extends Record<string, unknown>> {
+  /** Stringified group identifier */
+  key: string
+  /** Raw value of the groupBy column for this group */
+  value: unknown
+  /** Items belonging to this group */
+  items: readonly T[]
+}
+
+export interface DataTableGrouping<T extends Record<string, unknown>> {
+  /** Grouped items derived from sortedItems */
+  groups: ComputedRef<DataTableGroup<T>[]>
+  /** Toggle a group's open/closed state */
+  toggle: (groupKey: string) => void
+  /** Whether a group is open */
+  isOpen: (groupKey: string) => boolean
+  /** Open a group */
+  open: (groupKey: string) => void
+  /** Close a group */
+  close: (groupKey: string) => void
+  /** Open all groups */
+  openAll: () => void
+  /** Close all groups */
+  closeAll: () => void
 }
 
 export interface DataTableExpansion {
@@ -119,6 +157,16 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   pagination?: Omit<PaginationOptions, 'size'>
   /** Enable multi-column sort. @default false */
   sortMultiple?: boolean
+  /** Prevent clearing sort (asc → desc → asc cycle). @default false */
+  mustSort?: boolean
+  /** Direction for first sort click. @default 'asc' */
+  firstSortOrder?: 'asc' | 'desc'
+  /** Selection strategy: 'single' selects one row, 'page' operates on visible items, 'all' operates on all filtered items. @default 'page' */
+  selectStrategy?: SelectStrategy
+  /** Property that controls per-row selectability */
+  itemSelectable?: keyof T & string
+  /** Column key to group rows by */
+  groupBy?: string
   /** Allow multiple rows expanded simultaneously. @default true */
   expandMultiple?: boolean
   /** Locale for sorting (defaults to useLocale's selected locale or browser default) */
@@ -148,6 +196,8 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   selection: DataTableSelection
   /** Row expansion controls */
   expansion: DataTableExpansion
+  /** Row grouping controls (only present when groupBy is set) */
+  grouping: DataTableGrouping<T>
   /** Total row count for aria-rowcount */
   total: ComputedRef<number>
   /** Loading state (managed by adapter) */
@@ -207,6 +257,11 @@ export function createDataTable<T extends Record<string, unknown>> (
     filter: filterOptions = {},
     pagination: paginationOptions = {},
     sortMultiple = false,
+    mustSort = false,
+    firstSortOrder = 'asc',
+    selectStrategy = 'page',
+    itemSelectable,
+    groupBy,
     expandMultiple = true,
     locale: initialLocale,
     adapter = new ClientAdapter<T>(),
@@ -245,30 +300,51 @@ export function createDataTable<T extends Record<string, unknown>> (
   // Track sort order for multi-sort priority
   const order = shallowReactive<string[]>([])
 
+  // Sort cycle depends on firstSortOrder and mustSort:
+  // firstSortOrder='asc':  none → asc → desc → none  (or → asc with mustSort)
+  // firstSortOrder='desc': none → desc → asc → none  (or → desc with mustSort)
   function toggle (key: string) {
     if (!group.has(key)) return
 
-    const isSelected = group.selectedIds.has(key)
-    const isMixed = group.mixed(key)
+    const isAsc = group.selectedIds.has(key)
+    const isDesc = group.mixed(key)
 
-    if (!isSelected && !isMixed) {
-      // none → asc (select)
+    function clearOthers () {
       if (!sortMultiple) {
-        // Clear mixedIds since createGroup's select() only clears selectedIds
         group.mixedIds.clear()
         order.length = 0
       }
+    }
+
+    function setAsc () {
+      group.unmix(key)
       group.select(key)
-      order.push(key)
-    } else if (isSelected) {
-      // asc → desc (selected → mixed)
+    }
+    function setDesc () {
       group.unselect(key)
       group.mix(key)
-    } else {
-      // desc → none (mixed → unselected)
+    }
+    function setNone () {
+      group.unselect(key)
       group.unmix(key)
       const idx = order.indexOf(key)
       if (idx !== -1) order.splice(idx, 1)
+    }
+
+    if (!isAsc && !isDesc) {
+      // none → first direction
+      clearOthers()
+      if (firstSortOrder === 'desc') setDesc()
+      else setAsc()
+      order.push(key)
+    } else if (isAsc) {
+      // asc is last step when firstSortOrder='desc'
+      if (firstSortOrder === 'desc' && !mustSort) setNone()
+      else setDesc()
+    } else {
+      // desc is last step when firstSortOrder='asc'
+      if (firstSortOrder === 'asc' && !mustSort) setNone()
+      else setAsc()
     }
   }
 
@@ -315,6 +391,18 @@ export function createDataTable<T extends Record<string, unknown>> (
     .filter(col => col.filterable !== false)
     .map(col => col.key)
 
+  // Build per-column custom sort comparators
+  const customSorts: Record<string, (a: unknown, b: unknown) => number> = {}
+  for (const col of columns) {
+    if (col.sort) customSorts[col.key] = col.sort
+  }
+
+  // Build per-column custom filter functions
+  const customColumnFilters: Record<string, (value: unknown, query: string) => boolean> = {}
+  for (const col of columns) {
+    if (col.filter) customColumnFilters[col.key] = col.filter
+  }
+
   const {
     allItems,
     filteredItems,
@@ -332,6 +420,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     locale,
     filterOptions,
     paginationOptions,
+    customSorts,
+    customColumnFilters,
   })
 
   const selectedIds = shallowReactive(new Set<ID>())
@@ -342,9 +432,32 @@ export function createDataTable<T extends Record<string, unknown>> (
     throw new Error(`[v0:data-table] itemValue "${itemValue}" must resolve to a string or number`)
   }
 
+  function isSelectable (id: ID): boolean {
+    if (!itemSelectable) return true
+    // Search all items for the matching row
+    for (const item of allItems.value) {
+      if (rowId(item) === id) return !!item[itemSelectable]
+    }
+    return true
+  }
+
+  // Strategy-scoped items for selectAll/toggleAll/isAllSelected
+  // 'single': no bulk ops, 'page': visible items, 'all': all sorted (filtered) items
+  const scopeItems = computed(() => {
+    if (selectStrategy === 'single') return []
+    return selectStrategy === 'all' ? sortedItems.value : visible.value
+  })
+
+  const selectableScope = computed(() => {
+    if (!itemSelectable) return scopeItems.value
+    return scopeItems.value.filter(item => !!item[itemSelectable])
+  })
+
   const selection: DataTableSelection = {
     selectedIds: selectedIds as ReadonlySet<ID>,
     select (id: ID) {
+      if (!isSelectable(id)) return
+      if (selectStrategy === 'single') selectedIds.clear()
       selectedIds.add(id)
     },
     unselect (id: ID) {
@@ -354,14 +467,15 @@ export function createDataTable<T extends Record<string, unknown>> (
       if (selectedIds.has(id)) {
         selectedIds.delete(id)
       } else {
-        selectedIds.add(id)
+        selection.select(id)
       }
     },
     isSelected (id: ID) {
       return selectedIds.has(id)
     },
+    isSelectable,
     selectAll () {
-      for (const item of visible.value) {
+      for (const item of selectableScope.value) {
         selectedIds.add(rowId(item))
       }
     },
@@ -369,9 +483,9 @@ export function createDataTable<T extends Record<string, unknown>> (
       selectedIds.clear()
     },
     toggleAll () {
+      if (selectStrategy === 'single') return
       if (selection.isAllSelected.value) {
-        // Unselect only visible items
-        for (const item of visible.value) {
+        for (const item of selectableScope.value) {
           selectedIds.delete(rowId(item))
         }
       } else {
@@ -379,12 +493,12 @@ export function createDataTable<T extends Record<string, unknown>> (
       }
     },
     isAllSelected: computed(() => {
-      const items = visible.value
+      const items = selectableScope.value
       if (items.length === 0) return false
       return items.every(item => selectedIds.has(rowId(item)))
     }),
     isMixed: computed(() => {
-      const items = visible.value
+      const items = selectableScope.value
       if (items.length === 0) return false
       const some = items.some(item => selectedIds.has(rowId(item)))
       return some && !selection.isAllSelected.value
@@ -423,6 +537,62 @@ export function createDataTable<T extends Record<string, unknown>> (
     },
   }
 
+  // ---- Grouping ----
+
+  const openGroupKeys = shallowReactive(new Set<string>())
+
+  const groups = computed<DataTableGroup<T>[]>(() => {
+    if (!groupBy) return []
+
+    const map = new Map<string, { value: unknown, items: T[] }>()
+
+    for (const item of sortedItems.value) {
+      const raw = item[groupBy as keyof T]
+      const key = String(raw ?? '')
+
+      let entry = map.get(key)
+      if (!entry) {
+        entry = { value: raw, items: [] }
+        map.set(key, entry)
+      }
+      entry.items.push(item)
+    }
+
+    const result: DataTableGroup<T>[] = []
+    for (const [key, entry] of map) {
+      result.push({ key, value: entry.value, items: entry.items })
+    }
+    return result
+  })
+
+  const grouping: DataTableGrouping<T> = {
+    groups,
+    toggle (groupKey: string) {
+      if (openGroupKeys.has(groupKey)) {
+        openGroupKeys.delete(groupKey)
+      } else {
+        openGroupKeys.add(groupKey)
+      }
+    },
+    isOpen (groupKey: string) {
+      return openGroupKeys.has(groupKey)
+    },
+    open (groupKey: string) {
+      openGroupKeys.add(groupKey)
+    },
+    close (groupKey: string) {
+      openGroupKeys.delete(groupKey)
+    },
+    openAll () {
+      for (const group of groups.value) {
+        openGroupKeys.add(group.key)
+      }
+    },
+    closeAll () {
+      openGroupKeys.clear()
+    },
+  }
+
   return {
     items: visible,
     allItems,
@@ -434,6 +604,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     pagination,
     selection,
     expansion,
+    grouping,
     total,
     loading,
     error,

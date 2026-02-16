@@ -15,7 +15,7 @@
 import { createFilter } from '#v0/composables/createFilter'
 
 // Utilities
-import { isNaN, isNumber, isString, isUndefined } from '#v0/utilities'
+import { isNaN, isNumber, isObject, isString, isUndefined } from '#v0/utilities'
 import { computed, toValue } from 'vue'
 
 // Types
@@ -46,6 +46,10 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   filterOptions: Omit<FilterOptions, 'keys'>
   /** Pagination options (size excluded, derived from pipeline) */
   paginationOptions: Omit<PaginationOptions, 'size'>
+  /** Per-column custom sort comparators */
+  customSorts: Record<string, (a: unknown, b: unknown) => number>
+  /** Per-column custom filter functions */
+  customColumnFilters: Record<string, (value: unknown, query: string) => boolean>
 }
 
 /** Outputs returned by the adapter to createDataTable */
@@ -104,10 +108,38 @@ function compareValues (a: unknown, b: unknown, locale?: string): number {
 export abstract class DataTableAdapter<T extends Record<string, unknown>> implements DataTableAdapterInterface<T> {
   /** Create the filter pipeline stage */
   protected filter (context: DataTableAdapterContext<T>) {
-    const filter = createFilter({
-      ...context.filterOptions,
-      keys: context.filterableKeys,
-    })
+    const hasColumnFilters = Object.keys(context.customColumnFilters).length > 0
+
+    // When per-column filters exist and no global customFilter, compose them
+    const filterOptions: FilterOptions = hasColumnFilters && !context.filterOptions.customFilter
+      ? {
+          ...context.filterOptions,
+          keys: context.filterableKeys,
+          customFilter: (query, item) => {
+            if (!isObject(item)) return false
+            const q = String(Array.isArray(query) ? query[0] : query).toLowerCase()
+            if (!q) return true
+            const obj = item as Record<string, unknown>
+
+            for (const key of context.filterableKeys) {
+              const customFn = context.customColumnFilters[key]
+
+              if (customFn) {
+                if (customFn(obj[key], q)) return true
+              } else {
+                const val = obj[key]
+                if (!isUndefined(val) && val !== null && String(val).toLowerCase().includes(q)) return true
+              }
+            }
+            return false
+          },
+        }
+      : {
+          ...context.filterOptions,
+          keys: context.filterableKeys,
+        }
+
+    const filter = createFilter(filterOptions)
 
     const allItems = computed(() => toValue(context.items))
     const { items: filteredItems } = filter.apply(context.search, allItems)
@@ -120,6 +152,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
     filteredItems: ComputedRef<readonly T[]>,
     sortBy: ComputedRef<SortEntry[]>,
     locale?: ComputedRef<string | undefined>,
+    customSorts?: Record<string, (a: unknown, b: unknown) => number>,
   ): ComputedRef<readonly T[]> {
     return computed(() => {
       const entries = sortBy.value
@@ -132,7 +165,8 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
         for (const { key, direction } of entries) {
           const aVal = getNestedValue(a, key)
           const bVal = getNestedValue(b, key)
-          const cmp = compareValues(aVal, bVal, loc)
+          const customSort = customSorts?.[key]
+          const cmp = customSort ? customSort(aVal, bVal) : compareValues(aVal, bVal, loc)
           if (cmp !== 0) return direction === 'desc' ? -cmp : cmp
         }
         return 0
