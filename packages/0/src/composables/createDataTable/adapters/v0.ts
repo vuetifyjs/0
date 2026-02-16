@@ -21,10 +21,10 @@ import { DataTableAdapter } from './adapter'
 
 export class ClientAdapter<T extends Record<string, unknown>> extends DataTableAdapter<T> {
   setup (context: DataTableAdapterContext<T>): DataTableAdapterResult<T> {
-    const { search, sortBy, paginationOptions } = context
+    const { search, sortBy, locale, paginationOptions } = context
 
     const { allItems, filteredItems } = this.filter(context)
-    const sortedItems = this.sort(filteredItems, sortBy)
+    const sortedItems = this.sort(filteredItems, sortBy, locale)
 
     const pagination = createPagination({
       ...paginationOptions,

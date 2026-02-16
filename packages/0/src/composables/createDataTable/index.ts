@@ -19,12 +19,13 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Composables
 import { createGroup } from '#v0/composables/createGroup'
+import { useLocale } from '#v0/composables/useLocale'
 
 // Adapters
 import { ClientAdapter } from './adapters/v0'
 
 // Utilities
-import { isNumber, isString } from '#v0/utilities'
+import { instanceExists, isNumber, isNullOrUndefined, isString } from '#v0/utilities'
 import { computed, shallowReactive, shallowRef } from 'vue'
 
 // Types
@@ -33,7 +34,7 @@ import type { PaginationContext, PaginationOptions } from '#v0/composables/creat
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
-import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Re-export adapter types
 export { DataTableAdapter } from './adapters'
@@ -42,17 +43,17 @@ export { ClientAdapter, ServerAdapter, VirtualAdapter } from './adapters'
 export type { ServerAdapterOptions } from './adapters'
 
 export interface DataTableColumn {
-  key: string
-  title?: string
-  sortable?: boolean
-  filterable?: boolean
+  readonly key: string
+  readonly title?: string
+  readonly sortable?: boolean
+  readonly filterable?: boolean
 }
 
 export interface DataTableSort {
   /** Toggle sort for a column: none → asc → desc → none */
   toggle: (key: string) => void
-  /** Current sort entries derived from group state */
-  entries: ComputedRef<SortEntry[]>
+  /** Current sort columns derived from group state */
+  columns: ComputedRef<SortEntry[]>
   /** Order of sort columns (for multi-sort priority) */
   order: readonly string[]
   /** Get sort direction for a specific column key */
@@ -65,7 +66,7 @@ export interface DataTableSort {
 
 export interface DataTableSelection {
   /** Currently selected row IDs */
-  selectedIds: Set<ID>
+  selectedIds: ReadonlySet<ID>
   /** Select a row by ID */
   select: (id: ID) => void
   /** Unselect a row by ID */
@@ -74,15 +75,15 @@ export interface DataTableSelection {
   toggle: (id: ID) => void
   /** Whether a row is selected */
   isSelected: (id: ID) => boolean
-  /** Select all visible items */
+  /** Select all visible (paginated) items */
   selectAll: () => void
-  /** Unselect all items */
+  /** Unselect all items across all pages */
   unselectAll: () => void
-  /** Toggle all visible items */
+  /** Toggle all visible (paginated) items */
   toggleAll: () => void
-  /** Whether all visible items are selected */
+  /** Whether all visible (paginated) items are selected */
   isAllSelected: ComputedRef<boolean>
-  /** Whether some but not all visible items are selected */
+  /** Whether some but not all visible (paginated) items are selected */
   isMixed: ComputedRef<boolean>
 }
 
@@ -92,7 +93,7 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   /** Column definitions */
   columns: DataTableColumn[]
   /** Property used as row identifier. @default 'id' */
-  itemValue?: string
+  itemValue?: keyof T & string
   /** External search ref for v-model */
   search?: ShallowRef<string>
   /** Filter options (keys derived from columns) */
@@ -101,6 +102,8 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   pagination?: Omit<PaginationOptions, 'size'>
   /** Enable multi-column sort. @default false */
   sortMultiple?: boolean
+  /** Locale for sorting (defaults to useLocale's selected locale or browser default) */
+  locale?: string
   /** Pipeline adapter. @default ClientAdapter */
   adapter?: DataTableAdapterInterface<T>
 }
@@ -115,7 +118,7 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   /** Items after filtering and sorting */
   sortedItems: ComputedRef<readonly T[]>
   /** Column definitions */
-  columns: DataTableColumn[]
+  columns: readonly DataTableColumn[]
   /** Search query ref */
   search: ShallowRef<string>
   /** Sort controls */
@@ -126,6 +129,10 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   selection: DataTableSelection
   /** Total row count for aria-rowcount */
   total: ComputedRef<number>
+  /** Loading state (managed by adapter) */
+  loading: ComputedRef<boolean>
+  /** Error state (managed by adapter) */
+  error: ComputedRef<Error | null>
 }
 
 export interface DataTableContextOptions<T extends Record<string, unknown>> extends DataTableOptions<T> {
@@ -159,7 +166,7 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
  * table.sort.toggle('name')          // asc
  * table.sort.toggle('name')          // desc
  * table.sort.toggle('name')          // none
- * console.log(table.sort.entries.value) // [{ key: 'name', direction: 'asc' }]
+ * console.log(table.sort.columns.value) // [{ key: 'name', direction: 'asc' }]
  *
  * // Paginate
  * table.pagination.next()
@@ -174,15 +181,35 @@ export function createDataTable<T extends Record<string, unknown>> (
   const {
     items: _items,
     columns,
-    itemValue = 'id',
+    itemValue = 'id' as keyof T & string,
     search: _search,
     filter: filterOptions = {},
     pagination: paginationOptions = {},
     sortMultiple = false,
+    locale: initialLocale,
     adapter = new ClientAdapter<T>(),
   } = options
 
   const search = _search ?? shallowRef('')
+
+  // Resolve locale: useLocale selection > initial option > undefined (browser default)
+  let selectedLocaleId: Ref<ID | undefined> | undefined
+
+  try {
+    if (instanceExists()) {
+      selectedLocaleId = useLocale().selectedId
+    }
+  } catch {
+    // useLocale not available, use default
+  }
+
+  const locale = computed(() => {
+    const selected = selectedLocaleId?.value
+
+    if (!isNullOrUndefined(selected)) return String(selected)
+
+    return initialLocale
+  })
 
   const sortable = columns.filter(col => col.sortable === true)
 
@@ -255,7 +282,7 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   const sort: DataTableSort = {
     toggle,
-    entries: sortBy,
+    columns: sortBy,
     order: order as readonly string[],
     direction,
     priority,
@@ -273,11 +300,14 @@ export function createDataTable<T extends Record<string, unknown>> (
     items: visible,
     pagination,
     total,
+    loading = computed(() => false),
+    error = computed(() => null),
   } = adapter.setup({
     items: _items,
     search,
     filterableKeys: filterable,
     sortBy,
+    locale,
     filterOptions,
     paginationOptions,
   })
@@ -291,7 +321,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   }
 
   const selection: DataTableSelection = {
-    selectedIds,
+    selectedIds: selectedIds as ReadonlySet<ID>,
     select (id: ID) {
       selectedIds.add(id)
     },
@@ -344,12 +374,14 @@ export function createDataTable<T extends Record<string, unknown>> (
     allItems,
     filteredItems,
     sortedItems,
-    columns,
+    columns: columns as readonly DataTableColumn[],
     search,
     sort,
     pagination,
     selection,
     total,
+    loading,
+    error,
   }
 }
 

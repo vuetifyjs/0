@@ -40,6 +40,8 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   filterableKeys: string[]
   /** Current sort state derived from sort controls */
   sortBy: ComputedRef<SortEntry[]>
+  /** Locale for sorting (reactive, from useLocale or options) */
+  locale: ComputedRef<string | undefined>
   /** Filter options (keys excluded, derived from columns) */
   filterOptions: Omit<FilterOptions, 'keys'>
   /** Pagination options (size excluded, derived from pipeline) */
@@ -60,6 +62,10 @@ export interface DataTableAdapterResult<T extends Record<string, unknown>> {
   pagination: PaginationContext
   /** Total row count for aria-rowcount */
   total: ComputedRef<number>
+  /** Loading state (optional, for async adapters) */
+  loading?: ComputedRef<boolean>
+  /** Error state (optional, for async adapters) */
+  error?: ComputedRef<Error | null>
 }
 
 /** Pipeline adapter interface for data table strategies */
@@ -77,13 +83,13 @@ function getNestedValue (obj: Record<string, unknown>, key: string): unknown {
   return result
 }
 
-function compareValues (a: unknown, b: unknown): number {
+function compareValues (a: unknown, b: unknown, locale?: string): number {
   if (a === b) return 0
   if (isUndefined(a) || a === null) return 1
   if (isUndefined(b) || b === null) return -1
 
   if (isString(a) && isString(b)) {
-    return a.localeCompare(b)
+    return a.localeCompare(b, locale)
   }
 
   if (isNumber(a) && isNumber(b)) {
@@ -92,7 +98,7 @@ function compareValues (a: unknown, b: unknown): number {
     return a - b
   }
 
-  return String(a).localeCompare(String(b))
+  return String(a).localeCompare(String(b), locale)
 }
 
 export abstract class DataTableAdapter<T extends Record<string, unknown>> implements DataTableAdapterInterface<T> {
@@ -113,18 +119,20 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
   protected sort (
     filteredItems: ComputedRef<readonly T[]>,
     sortBy: ComputedRef<SortEntry[]>,
+    locale?: ComputedRef<string | undefined>,
   ): ComputedRef<readonly T[]> {
     return computed(() => {
       const entries = sortBy.value
       if (entries.length === 0) return filteredItems.value
 
+      const loc = locale?.value
       const items = [...filteredItems.value]
 
       items.sort((a, b) => {
         for (const { key, direction } of entries) {
           const aVal = getNestedValue(a, key)
           const bVal = getNestedValue(b, key)
-          const cmp = compareValues(aVal, bVal)
+          const cmp = compareValues(aVal, bVal, loc)
           if (cmp !== 0) return direction === 'desc' ? -cmp : cmp
         }
         return 0

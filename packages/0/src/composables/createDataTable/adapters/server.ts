@@ -23,6 +23,10 @@ import type { MaybeRefOrGetter } from 'vue'
 export interface ServerAdapterOptions {
   /** Total number of items on the server (for pagination calculation) */
   totalItems: MaybeRefOrGetter<number>
+  /** Loading state (e.g., from useFetch) */
+  loading?: MaybeRefOrGetter<boolean>
+  /** Error state from API */
+  error?: MaybeRefOrGetter<Error | null>
 }
 
 export class ServerAdapter<T extends Record<string, unknown>> implements DataTableAdapterInterface<T> {
@@ -56,6 +60,8 @@ export class ServerAdapter<T extends Record<string, unknown>> implements DataTab
       items: allItems,
       pagination,
       total: computed(() => toValue(this.options.totalItems)),
+      loading: computed(() => toValue(this.options.loading) ?? false),
+      error: computed(() => toValue(this.options.error) ?? null),
     }
   }
 }
