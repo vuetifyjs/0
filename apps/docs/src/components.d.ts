@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppAccount: typeof import('./components/app/AppAccount.vue')['default']
     AppAskInline: typeof import('./components/app/AppAskInline.vue')['default']
     AppBanner: typeof import('./components/app/AppBanner.vue')['default']
     AppBar: typeof import('./components/app/AppBar.vue')['default']
