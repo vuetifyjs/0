@@ -51,8 +51,8 @@ export interface DataTableColumn {
 export interface DataTableSort {
   /** Toggle sort for a column: none → asc → desc → none */
   toggle: (key: string) => void
-  /** Current sort-by entries derived from group state */
-  sortBy: ComputedRef<SortEntry[]>
+  /** Current sort entries derived from group state */
+  entries: ComputedRef<SortEntry[]>
   /** Order of sort columns (for multi-sort priority) */
   order: readonly string[]
   /** Reset all sort state */
@@ -150,9 +150,10 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
  * table.search.value = 'john'
  *
  * // Sort
- * table.sort.toggle('name') // asc
- * table.sort.toggle('name') // desc
- * table.sort.toggle('name') // none
+ * table.sort.toggle('name')          // asc
+ * table.sort.toggle('name')          // desc
+ * table.sort.toggle('name')          // none
+ * console.log(table.sort.entries.value) // [{ key: 'name', direction: 'asc' }]
  *
  * // Paginate
  * table.pagination.next()
@@ -177,73 +178,73 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   const search = _search ?? shallowRef('')
 
-  const sortableColumns = columns.filter(col => col.sortable === true)
+  const sortable = columns.filter(col => col.sortable === true)
 
-  const sortGroup = createGroup({ multiple: sortMultiple })
+  const group = createGroup({ multiple: sortMultiple })
 
   // Register sortable columns as tickets
-  sortGroup.onboard(
-    sortableColumns.map(col => ({ id: col.key, value: col.key })),
+  group.onboard(
+    sortable.map(col => ({ id: col.key, value: col.key })),
   )
 
   // Track sort order for multi-sort priority
-  const sortOrder = shallowReactive<string[]>([])
+  const order = shallowReactive<string[]>([])
 
-  function toggleSort (key: string) {
-    if (!sortGroup.has(key)) return
+  function toggle (key: string) {
+    if (!group.has(key)) return
 
-    const isSelected = sortGroup.selectedIds.has(key)
-    const isMixed = sortGroup.mixed(key)
+    const isSelected = group.selectedIds.has(key)
+    const isMixed = group.mixed(key)
 
     if (!isSelected && !isMixed) {
       // none → asc (select)
       if (!sortMultiple) {
         // Clear mixedIds since createGroup's select() only clears selectedIds
-        sortGroup.mixedIds.clear()
-        sortOrder.length = 0
+        group.mixedIds.clear()
+        order.length = 0
       }
-      sortGroup.select(key)
-      sortOrder.push(key)
+      group.select(key)
+      order.push(key)
     } else if (isSelected) {
       // asc → desc (selected → mixed)
-      sortGroup.unselect(key)
-      sortGroup.mix(key)
+      group.unselect(key)
+      group.mix(key)
     } else {
       // desc → none (mixed → unselected)
-      sortGroup.unmix(key)
-      const idx = sortOrder.indexOf(key)
-      if (idx !== -1) sortOrder.splice(idx, 1)
+      group.unmix(key)
+      const idx = order.indexOf(key)
+      if (idx !== -1) order.splice(idx, 1)
     }
   }
 
   const sortBy = computed<SortEntry[]>(() => {
-    const entries: SortEntry[] = []
+    const result: SortEntry[] = []
 
-    for (const key of sortOrder) {
-      if (sortGroup.selectedIds.has(key)) {
-        entries.push({ key, direction: 'asc' })
-      } else if (sortGroup.mixed(key)) {
-        entries.push({ key, direction: 'desc' })
+    for (const key of order) {
+      if (group.selectedIds.has(key)) {
+        result.push({ key, direction: 'asc' })
+      } else if (group.mixed(key)) {
+        result.push({ key, direction: 'desc' })
       }
     }
 
-    return entries
+    return result
   })
 
-  function resetSort () {
-    sortGroup.unselectAll()
-    sortGroup.mixedIds.clear()
-    sortOrder.length = 0
+  function reset () {
+    group.unselectAll()
+    group.mixedIds.clear()
+    order.length = 0
   }
 
   const sort: DataTableSort = {
-    toggle: toggleSort,
-    sortBy,
-    order: sortOrder,
-    reset: resetSort,
+    toggle,
+    entries: sortBy,
+    order,
+    reset,
   }
 
-  const filterableKeys = columns
+  const filterable = columns
     .filter(col => col.filterable !== false)
     .map(col => col.key)
 
@@ -251,12 +252,12 @@ export function createDataTable<T extends Record<string, unknown>> (
     allItems,
     filteredItems,
     sortedItems,
-    items: paginatedItems,
+    items: visible,
     pagination,
   } = adapter.setup({
     items: _items,
     search,
-    filterableKeys,
+    filterableKeys: filterable,
     sortBy,
     filterOptions,
     paginationOptions,
@@ -264,12 +265,10 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   const selectedIds = shallowReactive(new Set<ID>())
 
-  function getRowId (item: T): ID {
+  function rowId (item: T): ID {
     const value = item[itemValue]
-    if (!isString(value) && !isNumber(value)) {
-      throw new Error(`[v0:data-table] itemValue "${itemValue}" must resolve to a string or number`)
-    }
-    return value
+    if (isString(value) || isNumber(value)) return value
+    throw new Error(`[v0:data-table] itemValue "${itemValue}" must resolve to a string or number`)
   }
 
   const selection: DataTableSelection = {
@@ -291,8 +290,8 @@ export function createDataTable<T extends Record<string, unknown>> (
       return selectedIds.has(id)
     },
     selectAll () {
-      for (const item of paginatedItems.value) {
-        selectedIds.add(getRowId(item))
+      for (const item of visible.value) {
+        selectedIds.add(rowId(item))
       }
     },
     unselectAll () {
@@ -301,28 +300,28 @@ export function createDataTable<T extends Record<string, unknown>> (
     toggleAll () {
       if (selection.isAllSelected.value) {
         // Unselect only visible items
-        for (const item of paginatedItems.value) {
-          selectedIds.delete(getRowId(item))
+        for (const item of visible.value) {
+          selectedIds.delete(rowId(item))
         }
       } else {
         selection.selectAll()
       }
     },
     isAllSelected: computed(() => {
-      const visible = paginatedItems.value
-      if (visible.length === 0) return false
-      return visible.every(item => selectedIds.has(getRowId(item)))
+      const items = visible.value
+      if (items.length === 0) return false
+      return items.every(item => selectedIds.has(rowId(item)))
     }),
     isMixed: computed(() => {
-      const visible = paginatedItems.value
-      if (visible.length === 0) return false
-      const some = visible.some(item => selectedIds.has(getRowId(item)))
+      const items = visible.value
+      if (items.length === 0) return false
+      const some = items.some(item => selectedIds.has(rowId(item)))
       return some && !selection.isAllSelected.value
     }),
   }
 
   return {
-    items: paginatedItems,
+    items: visible,
     allItems,
     filteredItems,
     sortedItems,
