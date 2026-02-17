@@ -29,9 +29,9 @@
 
   function sortIcon (key: string) {
     const dir = table.sort.direction(key)
-    if (dir === 'asc') return '\u25B2'
-    if (dir === 'desc') return '\u25BC'
-    return '\u25BD'
+    if (dir === 'asc') return '‹'
+    if (dir === 'desc') return '›'
+    return '›'
   }
 </script>
 

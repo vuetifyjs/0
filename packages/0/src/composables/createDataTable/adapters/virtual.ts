@@ -16,7 +16,7 @@
 import { createPagination } from '#v0/composables/createPagination'
 
 // Utilities
-import { computed, watch } from 'vue'
+import { toRef, watch } from 'vue'
 
 // Types
 import type { DataTableAdapterContext, DataTableAdapterResult } from './adapter'
@@ -31,7 +31,7 @@ export class VirtualAdapter<T extends Record<string, unknown>> extends DataTable
     const { allItems, filteredItems } = this.filter(context)
     const sortedItems = this.sort(filteredItems, sortBy, locale, customSorts)
 
-    const size = computed(() => sortedItems.value.length)
+    const size = toRef(() => sortedItems.value.length)
 
     const pagination = createPagination({
       size,
@@ -49,7 +49,7 @@ export class VirtualAdapter<T extends Record<string, unknown>> extends DataTable
       sortedItems,
       items: sortedItems,
       pagination,
-      total: computed(() => sortedItems.value.length),
+      total: toRef(() => sortedItems.value.length),
     }
   }
 }

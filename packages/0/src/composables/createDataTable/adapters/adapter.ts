@@ -16,12 +16,12 @@ import { createFilter } from '#v0/composables/createFilter'
 
 // Utilities
 import { isNaN, isNullOrUndefined, isNumber, isObject, isString } from '#v0/utilities'
-import { computed, toValue } from 'vue'
+import { computed, toRef, toValue } from 'vue'
 
 // Types
 import type { FilterOptions } from '#v0/composables/createFilter'
 import type { PaginationContext, PaginationOptions } from '#v0/composables/createPagination'
-import type { ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 export type SortDirection = 'asc' | 'desc' | 'none'
 
@@ -39,9 +39,9 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   /** Column keys eligible for filtering */
   filterableKeys: string[]
   /** Current sort state derived from sort controls */
-  sortBy: ComputedRef<SortEntry[]>
+  sortBy: Readonly<Ref<SortEntry[]>>
   /** Locale for sorting (reactive, from useLocale or options) */
-  locale: ComputedRef<string | undefined>
+  locale: Readonly<Ref<string | undefined>>
   /** Filter options (keys excluded, derived from columns) */
   filterOptions: Omit<FilterOptions, 'keys'>
   /** Pagination options (size excluded, derived from pipeline) */
@@ -55,21 +55,21 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
 /** Outputs returned by the adapter to createDataTable */
 export interface DataTableAdapterResult<T extends Record<string, unknown>> {
   /** Raw unprocessed items */
-  allItems: ComputedRef<readonly T[]>
+  allItems: Readonly<Ref<readonly T[]>>
   /** Items after filtering */
-  filteredItems: ComputedRef<readonly T[]>
+  filteredItems: Readonly<Ref<readonly T[]>>
   /** Items after filtering and sorting */
-  sortedItems: ComputedRef<readonly T[]>
+  sortedItems: Readonly<Ref<readonly T[]>>
   /** Final visible items (paginated or virtualized) */
-  items: ComputedRef<readonly T[]>
+  items: Readonly<Ref<readonly T[]>>
   /** Pagination controls */
   pagination: PaginationContext
   /** Total row count for aria-rowcount */
-  total: ComputedRef<number>
+  total: Readonly<Ref<number>>
   /** Loading state (optional, for async adapters) */
-  loading?: ComputedRef<boolean>
+  loading?: Readonly<Ref<boolean>>
   /** Error state (optional, for async adapters) */
-  error?: ComputedRef<Error | null>
+  error?: Readonly<Ref<Error | null>>
 }
 
 /** Pipeline adapter interface for data table strategies */
@@ -141,7 +141,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
 
     const filter = createFilter(filterOptions)
 
-    const allItems = computed(() => toValue(context.items))
+    const allItems = toRef(() => toValue(context.items))
     const { items: filteredItems } = filter.apply(context.search, allItems)
 
     return { allItems, filteredItems }
@@ -149,19 +149,18 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
 
   /** Create the sort pipeline stage */
   protected sort (
-    filteredItems: ComputedRef<readonly T[]>,
-    sortBy: ComputedRef<SortEntry[]>,
-    locale?: ComputedRef<string | undefined>,
+    filteredItems: Readonly<Ref<readonly T[]>>,
+    sortBy: Readonly<Ref<SortEntry[]>>,
+    locale?: Readonly<Ref<string | undefined>>,
     customSorts?: Record<string, (a: unknown, b: unknown) => number>,
-  ): ComputedRef<readonly T[]> {
+  ): Readonly<Ref<readonly T[]>> {
     return computed(() => {
       const entries = sortBy.value
       if (entries.length === 0) return filteredItems.value
 
       const loc = locale?.value
-      const items = [...filteredItems.value]
 
-      items.sort((a, b) => {
+      return filteredItems.value.toSorted((a, b) => {
         for (const { key, direction } of entries) {
           const aVal = getNestedValue(a, key)
           const bVal = getNestedValue(b, key)
@@ -171,8 +170,6 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
         }
         return 0
       })
-
-      return items
     })
   }
 

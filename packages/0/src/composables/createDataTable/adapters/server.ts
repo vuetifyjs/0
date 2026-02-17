@@ -14,7 +14,7 @@
 import { createPagination } from '#v0/composables/createPagination'
 
 // Utilities
-import { computed, toValue, watch } from 'vue'
+import { toRef, toValue, watch } from 'vue'
 
 // Types
 import type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapterResult } from './adapter'
@@ -40,12 +40,12 @@ export class ServerAdapter<T extends Record<string, unknown>> implements DataTab
     const { items: _items, search, sortBy, paginationOptions } = context
 
     // Items are provided pre-processed by the server
-    const allItems = computed(() => toValue(_items))
+    const allItems = toRef(() => toValue(_items))
 
     // Pagination driven by server-provided total
     const pagination = createPagination({
       ...paginationOptions,
-      size: computed(() => toValue(this.options.total)),
+      size: toRef(() => toValue(this.options.total)),
     })
 
     // Reset to page 1 on filter/sort changes
@@ -59,9 +59,9 @@ export class ServerAdapter<T extends Record<string, unknown>> implements DataTab
       sortedItems: allItems,
       items: allItems,
       pagination,
-      total: computed(() => toValue(this.options.total)),
-      loading: computed(() => toValue(this.options.loading) ?? false),
-      error: computed(() => toValue(this.options.error) ?? null),
+      total: toRef(() => toValue(this.options.total)),
+      loading: toRef(() => toValue(this.options.loading) ?? false),
+      error: toRef(() => toValue(this.options.error) ?? null),
     }
   }
 }

@@ -11,7 +11,7 @@
 import { createPagination } from '#v0/composables/createPagination'
 
 // Utilities
-import { computed, watch } from 'vue'
+import { computed, toRef, watch } from 'vue'
 
 // Types
 import type { DataTableAdapterContext, DataTableAdapterResult } from './adapter'
@@ -28,7 +28,7 @@ export class ClientAdapter<T extends Record<string, unknown>> extends DataTableA
 
     const pagination = createPagination({
       ...paginationOptions,
-      size: computed(() => sortedItems.value.length),
+      size: toRef(() => sortedItems.value.length),
     })
 
     const items = computed(() => {
@@ -45,7 +45,7 @@ export class ClientAdapter<T extends Record<string, unknown>> extends DataTableA
       sortedItems,
       items,
       pagination,
-      total: computed(() => sortedItems.value.length),
+      total: toRef(() => sortedItems.value.length),
     }
   }
 }

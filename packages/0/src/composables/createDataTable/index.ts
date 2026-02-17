@@ -29,8 +29,8 @@ import { useLocale } from '#v0/composables/useLocale'
 import { ClientAdapter } from './adapters/v0'
 
 // Utilities
-import { instanceExists, isNumber, isNullOrUndefined, isString } from '#v0/utilities'
-import { computed, shallowReactive, shallowRef } from 'vue'
+import { isNumber, isNullOrUndefined, isString } from '#v0/utilities'
+import { computed, shallowReactive, shallowRef, toRef } from 'vue'
 
 // Types
 import type { FilterOptions } from '#v0/composables/createFilter'
@@ -38,7 +38,7 @@ import type { PaginationContext, PaginationOptions } from '#v0/composables/creat
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { DataTableAdapterInterface, SortDirection, SortEntry } from './adapters/adapter'
-import type { App, ComputedRef, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
+import type { App, MaybeRefOrGetter, Ref, ShallowRef } from 'vue'
 
 // Re-export adapter types
 export { DataTableAdapter } from './adapters'
@@ -66,7 +66,7 @@ export interface DataTableSort {
   /** Toggle sort for a column: none → asc → desc → none */
   toggle: (key: string) => void
   /** Current sort columns derived from group state */
-  columns: ComputedRef<SortEntry[]>
+  columns: Readonly<Ref<SortEntry[]>>
   /** Order of sort columns (for multi-sort priority) */
   order: readonly string[]
   /** Get sort direction for a specific column key */
@@ -97,9 +97,9 @@ export interface DataTableSelection {
   /** Toggle all items within strategy scope */
   toggleAll: () => void
   /** Whether all items within strategy scope are selected */
-  isAllSelected: ComputedRef<boolean>
+  isAllSelected: Readonly<Ref<boolean>>
   /** Whether some but not all items within strategy scope are selected */
-  isMixed: ComputedRef<boolean>
+  isMixed: Readonly<Ref<boolean>>
 }
 
 export interface DataTableGroup<T extends Record<string, unknown>> {
@@ -113,7 +113,7 @@ export interface DataTableGroup<T extends Record<string, unknown>> {
 
 export interface DataTableGrouping<T extends Record<string, unknown>> {
   /** Grouped items derived from sortedItems */
-  groups: ComputedRef<DataTableGroup<T>[]>
+  groups: Readonly<Ref<DataTableGroup<T>[]>>
   /** Toggle a group's open/closed state */
   toggle: (groupKey: string) => void
   /** Whether a group is opened */
@@ -178,13 +178,13 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
 
 export interface DataTableContext<T extends Record<string, unknown>> {
   /** Final paginated items for rendering */
-  items: ComputedRef<readonly T[]>
+  items: Readonly<Ref<readonly T[]>>
   /** Raw unprocessed items */
-  allItems: ComputedRef<readonly T[]>
+  allItems: Readonly<Ref<readonly T[]>>
   /** Items after filtering */
-  filteredItems: ComputedRef<readonly T[]>
+  filteredItems: Readonly<Ref<readonly T[]>>
   /** Items after filtering and sorting */
-  sortedItems: ComputedRef<readonly T[]>
+  sortedItems: Readonly<Ref<readonly T[]>>
   /** Column definitions */
   columns: readonly DataTableColumn<T>[]
   /** Set the search query */
@@ -202,11 +202,11 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   /** Row grouping controls (only present when groupBy is set) */
   grouping: DataTableGrouping<T>
   /** Total row count for aria-rowcount */
-  total: ComputedRef<number>
+  total: Readonly<Ref<number>>
   /** Loading state (managed by adapter) */
-  loading: ComputedRef<boolean>
+  loading: Readonly<Ref<boolean>>
   /** Error state (managed by adapter) */
-  error: ComputedRef<Error | null>
+  error: Readonly<Ref<Error | null>>
 }
 
 export interface DataTableContextOptions<T extends Record<string, unknown>> extends DataTableOptions<T> {
@@ -278,19 +278,10 @@ export function createDataTable<T extends Record<string, unknown>> (
     _query.value = value
   }
 
-  // Resolve locale: useLocale selection > initial option > undefined (browser default)
-  let selectedLocaleId: Ref<ID | undefined> | undefined
+  const { selectedId: selectedLocale } = useLocale()
 
-  try {
-    if (instanceExists()) {
-      selectedLocaleId = useLocale().selectedId
-    }
-  } catch {
-    // useLocale not available, use default
-  }
-
-  const locale = computed(() => {
-    const selected = selectedLocaleId?.value
+  const locale = toRef(() => {
+    const selected = selectedLocale?.value
 
     if (!isNullOrUndefined(selected)) return String(selected)
 
@@ -419,8 +410,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     items: visible,
     pagination,
     total,
-    loading = computed(() => false),
-    error = computed(() => null),
+    loading = toRef(() => false),
+    error = toRef(() => null),
   } = adapter.setup({
     items: _items,
     search: _query,
@@ -451,7 +442,7 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   // Strategy-scoped items for selectAll/toggleAll/isAllSelected
   // 'single': no bulk ops, 'page': visible items, 'all': all sorted (filtered) items
-  const scopeItems = computed(() => {
+  const scopeItems = toRef(() => {
     if (selectStrategy === 'single') return []
     return selectStrategy === 'all' ? sortedItems.value : visible.value
   })
