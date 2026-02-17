@@ -71,8 +71,6 @@ export interface DataTableSort {
   order: readonly string[]
   /** Get sort direction for a specific column key */
   direction: (key: string) => SortDirection
-  /** Get ARIA-ready sort value for a column key */
-  ariaSort: (key: string) => 'ascending' | 'descending' | 'none'
   /** Get sort priority index (0-based), or -1 if not sorted */
   priority: (key: string) => number
   /** Reset all sort state */
@@ -379,13 +377,6 @@ export function createDataTable<T extends Record<string, unknown>> (
     return 'none'
   }
 
-  function ariaSort (key: string): 'ascending' | 'descending' | 'none' {
-    const dir = direction(key)
-    if (dir === 'asc') return 'ascending'
-    if (dir === 'desc') return 'descending'
-    return 'none'
-  }
-
   function priority (key: string): number {
     return order.indexOf(key)
   }
@@ -401,7 +392,6 @@ export function createDataTable<T extends Record<string, unknown>> (
     columns: sortBy,
     order: order as readonly string[],
     direction,
-    ariaSort,
     priority,
     reset,
   }
