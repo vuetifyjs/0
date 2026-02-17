@@ -9,6 +9,8 @@
   // Types
   import type { SkillMeta } from '@/types/skill'
 
+  import { SKILL_TRACK_META } from '@/types/skill'
+
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
 
@@ -19,6 +21,10 @@
   const store = useSkillzStore()
   const done = computed(() => store.completed(props.skill.id))
   const isLocked = computed(() => store.locked(props.skill.id))
+  const href = computed(() => {
+    if (isLocked.value) return undefined
+    return `/skillz/${props.skill.id}`
+  })
 </script>
 
 <template>
@@ -27,7 +33,7 @@
     :class="{ 'border-success': done }"
     :disabled="isLocked"
     hoverable
-    :to="isLocked ? undefined : `/skillz/${skill.id}`"
+    :to="href"
   >
     <div class="flex justify-between items-center mb-2">
       <div class="flex items-center gap-2">
@@ -47,7 +53,9 @@
       <SkillPrerequisites class="mb-3" :prerequisites="skill.prerequisites" />
 
       <div class="flex justify-between items-center text-xs text-on-surface-variant">
-        <SkillCategoryTags :categories="skill.categories" />
+        <span class="px-2 py-1 text-[10px] font-medium tracking-wide rounded-lg bg-surface-variant-60 text-on-surface-variant border border-divider-50">
+          {{ SKILL_TRACK_META[skill.track].label }}
+        </span>
         <SkillDuration :minutes="skill.minutes" />
       </div>
     </div>

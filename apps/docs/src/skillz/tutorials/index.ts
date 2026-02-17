@@ -1,7 +1,22 @@
 // Types
+import type { SkillMeta } from '@/types/skill'
+
 export interface TutorialMeta {
   title: string
   description: string
+  level: 1 | 2 | 3
+  track: string
+  categories: string[]
+  order: number
+  minutes: number
+  prerequisites?: string[]
+  steps?: string[]
+}
+
+export interface StepOptions {
+  hideFiles?: boolean
+  hideTabs?: boolean
+  hideBreadcrumbs?: boolean
 }
 
 export interface TutorialStep {
@@ -21,12 +36,12 @@ const markdowns = import.meta.glob<string>('./**/step-*/README.md', { query: '?r
 const codeFiles = import.meta.glob<string>('./**/step-*/**/*.{vue,ts,js}', { query: '?raw', import: 'default' })
 
 function parseTutorialId (path: string): string {
-  // './getting-started/meta.json' → 'getting-started'
+  // './vue-basics/meta.json' → 'vue-basics'
   return path.split('/')[1]
 }
 
 function parseStepNumber (path: string): number {
-  // './getting-started/step-1/README.md' → 1
+  // './vue-basics/step-1/README.md' → 1
   const match = path.match(/step-(\d+)/)
   return match ? Number(match[1]) : 0
 }
@@ -54,7 +69,7 @@ function getTutorials (): Tutorial[] {
       if (!codePath.startsWith(`./${id}/`)) continue
       const stepNum = parseStepNumber(codePath)
       // Extract the file path relative to the step directory
-      // './getting-started/step-1/App.vue' → 'src/App.vue'
+      // './vue-basics/step-1/App.vue' → 'src/App.vue'
       const fileName = codePath.replace(new RegExp(String.raw`^\./${id}/step-${stepNum}/`), '')
       const replPath = `src/${fileName}`
 
@@ -75,6 +90,44 @@ function getTutorials (): Tutorial[] {
   return tutorials
 }
 
+export function parseStepOptions (raw: string): { body: string, options: StepOptions } {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
+  if (!match) return { body: raw, options: {} }
+
+  const options: StepOptions = {}
+  for (const line of match[1].split('\n')) {
+    const [key, val] = line.split(':').map(s => s.trim())
+    if (key === 'hideFiles' || key === 'hideTabs' || key === 'hideBreadcrumbs') {
+      options[key] = val === 'true'
+    }
+  }
+  return { body: match[2], options }
+}
+
 export function getTutorial (id: string): Tutorial | undefined {
   return getTutorials().find(t => t.id === id)
+}
+
+export function getTutorialSkills (): SkillMeta[] {
+  return getTutorials().map(t => ({
+    mode: 'tutorial' as const,
+    id: t.id,
+    name: t.meta.title,
+    level: t.meta.level,
+    track: t.meta.track,
+    categories: t.meta.categories,
+    order: t.meta.order,
+    prerequisites: t.meta.prerequisites ?? [],
+    description: t.meta.description,
+    minutes: t.meta.minutes,
+    startRoute: `/skillz/${t.id}`,
+    tutorialRoute: `/skillz/tutorial/${t.id}`,
+    steps: t.steps.map((_, i) => ({
+      id: `step-${i + 1}`,
+      title: `Step ${i + 1}`,
+      task: '',
+      hint: '',
+      learn: t.meta.steps?.[i] ?? `Step ${i + 1}`,
+    })),
+  }))
 }

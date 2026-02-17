@@ -11,6 +11,9 @@ import { computed, shallowRef } from 'vue'
 // Types
 import type { DiscoveryStepTicket } from '@/composables/useDiscovery'
 
+// Tutorials
+import { getTutorialSkills } from '@/skillz/tutorials'
+
 export type ProgressStatus = 'not-started' | 'in-progress' | 'completed'
 
 export interface TourProgress {
@@ -58,8 +61,8 @@ export const useSkillzStore = defineStore('skillz', () => {
   }
 
   function missing (id: string): string[] {
-    const tour = discovery.tours.get(id)
-    return tour?.prerequisites?.filter(p => !completed(p)) ?? []
+    const skill = discovery.tours.get(id) ?? tutorialSkills.find(s => s.id === id)
+    return skill?.prerequisites?.filter(p => !completed(p)) ?? []
   }
 
   function locked (id: string): boolean {
@@ -178,7 +181,8 @@ export const useSkillzStore = defineStore('skillz', () => {
     discovery.complete()
   }
 
-  const items = computed(() => discovery.tours.values())
+  const tutorialSkills = getTutorialSkills()
+  const items = computed(() => [...discovery.tours.values(), ...tutorialSkills])
   const done = computed(() => active.value ? steps(active.value) : [])
 
   // Find any tour that was started but not completed (and not currently active)
@@ -198,6 +202,7 @@ export const useSkillzStore = defineStore('skillz', () => {
     start,
     stop,
     complete,
+    finish,
     reset,
     dismiss,
 

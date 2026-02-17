@@ -25,7 +25,6 @@
 
   definePage({
     meta: {
-      layout: 'fullscreen',
       level: 1,
     },
   })
@@ -39,7 +38,10 @@
   const search = useSearch()
   const breakpoints = useBreakpoints()
   const router = useRouter()
-  const tour = computed(() => discovery.tours.get(params.value.id))
+  const tour = computed(() => {
+    return discovery.tours.get(params.value.id)
+      ?? store.items.find(s => s.id === params.value.id)
+  })
 
   const done = computed(() => store.steps(params.value.id))
   const progress = computed(() => store.get(params.value.id))
@@ -50,10 +52,10 @@
     return 'Resume'
   })
 
-  // Find next tour in the same track by order
+  // Find next skill in the same track by order
   const nextTour = computed(() => {
     if (!tour.value) return null
-    return discovery.tours.values()
+    return store.items
       .filter(t => t.track === tour.value!.track && t.order > tour.value!.order)
       .toSorted((a, b) => a.order - b.order)[0] ?? null
   })
@@ -70,6 +72,12 @@
   async function onClick (stepId?: string) {
     const currentTour = tour.value
     if (!currentTour) return
+
+    // Tutorials navigate directly to the editor
+    if (currentTour.mode === 'tutorial' && currentTour.tutorialRoute) {
+      await router.push(currentTour.tutorialRoute)
+      return
+    }
 
     await router.push(currentTour.startRoute)
 

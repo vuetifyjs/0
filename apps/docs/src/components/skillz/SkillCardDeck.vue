@@ -6,37 +6,43 @@
   import { computed } from 'vue'
 
   // Types
-  import type { SkillMeta, SkillTrack } from '@/types/skill'
+  import type { SkillLevel, SkillMeta } from '@/types/skill'
 
-  import { SKILL_TRACK_META } from '@/types/skill'
+  import { SKILL_LEVEL_META } from '@/types/skill'
+
+  // Stores
+  import { useSkillzStore } from '@/stores/skillz'
 
   const props = defineProps<{
     items: SkillMeta[]
   }>()
 
-  // Group skills by track
-  const tracks: SkillTrack[] = ['essentials', 'fundamentals', 'features', 'integration']
+  const store = useSkillzStore()
 
-  const skillsByTrack = computed(() => {
-    return tracks.map(track => ({
-      track,
-      meta: SKILL_TRACK_META[track],
+  // Group skills by level, available first then locked
+  const levels: SkillLevel[] = [1, 2, 3]
+
+  const skillsByLevel = computed(() => {
+    return levels.map(level => ({
+      level,
+      meta: SKILL_LEVEL_META[level],
       skills: props.items
-        .filter(s => s.track === track)
+        .filter(s => s.level === level)
         .toSorted((a, b) => {
-          const levelDiff = a.level - b.level
-          if (levelDiff !== 0) return levelDiff
+          const aLocked = store.locked(a.id) ? 1 : 0
+          const bLocked = store.locked(b.id) ? 1 : 0
+          if (aLocked !== bLocked) return aLocked - bLocked
           return a.order - b.order
         }),
-    })).filter(t => t.skills.length > 0)
+    })).filter(g => g.skills.length > 0)
   })
 </script>
 
 <template>
-  <div v-if="skillsByTrack.length > 0" class="mt-8 flex flex-col gap-10">
-    <div v-for="{ track, meta, skills } in skillsByTrack" :key="track">
+  <div v-if="skillsByLevel.length > 0" class="mt-8 flex flex-col gap-10">
+    <div v-for="{ level, meta, skills } in skillsByLevel" :key="level">
       <h2 class="m-0 mb-1 text-xl">{{ meta.label }}</h2>
-      <p class="m-0 mb-4 text-sm text-on-surface-variant">{{ meta.description }}</p>
+      <p class="m-0 mb-4 text-sm text-on-surface-variant">{{ meta.title }}</p>
       <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
         <SkillCard v-for="skill in skills" :key="skill.id" :skill="skill" />
       </div>
