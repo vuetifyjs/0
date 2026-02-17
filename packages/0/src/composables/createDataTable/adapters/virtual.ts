@@ -28,12 +28,8 @@ export class VirtualAdapter<T extends Record<string, unknown>> extends DataTable
   setup (context: DataTableAdapterContext<T>): DataTableAdapterResult<T> {
     const { search, sortBy, locale, customSorts } = context
 
-    // ---- Filter + Sort ----
-
     const { allItems, filteredItems } = this.filter(context)
     const sortedItems = this.sort(filteredItems, sortBy, locale, customSorts)
-
-    // ---- Pagination (pass-through, all items on one page) ----
 
     const size = computed(() => sortedItems.value.length)
 

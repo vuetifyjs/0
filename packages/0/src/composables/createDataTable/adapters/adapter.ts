@@ -15,7 +15,7 @@
 import { createFilter } from '#v0/composables/createFilter'
 
 // Utilities
-import { isNaN, isNumber, isObject, isString, isUndefined } from '#v0/utilities'
+import { isNaN, isNullOrUndefined, isNumber, isObject, isString } from '#v0/utilities'
 import { computed, toValue } from 'vue'
 
 // Types
@@ -81,7 +81,7 @@ function getNestedValue (obj: Record<string, unknown>, key: string): unknown {
   const keys = key.split('.')
   let result: unknown = obj
   for (const k of keys) {
-    if (isUndefined(result) || result === null) return undefined
+    if (isNullOrUndefined(result)) return undefined
     result = (result as Record<string, unknown>)[k]
   }
   return result
@@ -89,8 +89,8 @@ function getNestedValue (obj: Record<string, unknown>, key: string): unknown {
 
 function compareValues (a: unknown, b: unknown, locale?: string): number {
   if (a === b) return 0
-  if (isUndefined(a) || a === null) return 1
-  if (isUndefined(b) || b === null) return -1
+  if (isNullOrUndefined(a)) return 1
+  if (isNullOrUndefined(b)) return -1
 
   if (isString(a) && isString(b)) {
     return a.localeCompare(b, locale)
@@ -128,7 +128,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
                 if (customFn(obj[key], q)) return true
               } else {
                 const val = obj[key]
-                if (!isUndefined(val) && val !== null && String(val).toLowerCase().includes(q)) return true
+                if (!isNullOrUndefined(val) && String(val).toLowerCase().includes(q)) return true
               }
             }
             return false

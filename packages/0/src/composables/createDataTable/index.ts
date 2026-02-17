@@ -545,8 +545,6 @@ export function createDataTable<T extends Record<string, unknown>> (
     },
   }
 
-  // ---- Grouping ----
-
   const openGroupKeys = shallowReactive(new Set<string>())
 
   const groups = computed<DataTableGroup<T>[]>(() => {

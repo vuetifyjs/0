@@ -36,7 +36,7 @@
   }
 
   watch(
-    [table.query, table.sort.columns, () => table.pagination.page.value],
+    [table.query, table.sort.columns, table.pagination.page],
     () => loadData(),
     { immediate: true },
   )
