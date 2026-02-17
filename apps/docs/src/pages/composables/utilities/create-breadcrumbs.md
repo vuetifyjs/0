@@ -12,7 +12,7 @@ features:
   level: 2
 related:
   - /composables/selection/create-single
-  - /composables/utilities/create-pagination
+  - /composables/data/create-pagination
   - /components/semantic/breadcrumbs
 ---
 

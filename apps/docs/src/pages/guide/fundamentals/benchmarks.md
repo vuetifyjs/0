@@ -36,8 +36,8 @@ Headless UI libraries must be fast—they're foundational infrastructure. v0 ben
 | - | - |
 | [createRegistry](/composables/registration/create-registry) | Foundation for all collections—performance here affects everything |
 | [createTokens](/composables/registration/create-tokens) | Design tokens can grow large—alias resolution must scale |
-| [createFilter](/composables/utilities/create-filter) | Search/filter on large datasets must remain responsive |
-| [createVirtual](/composables/utilities/create-virtual) | Virtual scrolling is performance-critical by definition |
+| [createFilter](/composables/data/create-filter) | Search/filter on large datasets must remain responsive |
+| [createVirtual](/composables/data/create-virtual) | Virtual scrolling is performance-critical by definition |
 | [useDate](/composables/plugins/use-date) | Date operations are frequent in UIs |
 
 ### Operation Categories
@@ -153,7 +153,7 @@ Most v0 composables handle 10,000+ items at interactive speeds (>60fps). For typ
 - **<100 items** — Instant, no optimization needed
 - **100-1,000 items** — Smooth, standard usage
 - **1,000-10,000 items** — Consider virtual scrolling
-- **10,000+ items** — Use [createVirtual](/composables/utilities/create-virtual), paginate, or filter
+- **10,000+ items** — Use [createVirtual](/composables/data/create-virtual), paginate, or filter
 
 ??? Should I use events or polling?
 

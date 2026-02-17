@@ -14,11 +14,11 @@
   const { current: testCount } = useCountUp(sectionRef, 2600, { duration: 2000 })
 
   const composablePaths: Record<string, string> = {
-    createFilter: '/composables/utilities/create-filter',
+    createFilter: '/composables/data/create-filter',
     createNested: '/composables/selection/create-nested',
     createRegistry: '/composables/registration/create-registry',
     createTokens: '/composables/registration/create-tokens',
-    createVirtual: '/composables/utilities/create-virtual',
+    createVirtual: '/composables/data/create-virtual',
     useDate: '/composables/plugins/use-date',
   }
 

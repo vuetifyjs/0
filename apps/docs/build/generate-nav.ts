@@ -58,7 +58,7 @@ const SECTIONS: Record<string, { order: number, hasSubcategories: boolean, rootP
 const SUBCATEGORY_ORDER: Record<string, string[]> = {
   guide: ['essentials', 'fundamentals', 'features', 'integration', 'tooling'],
   components: ['primitives', 'providers', 'disclosure', 'forms', 'semantic'],
-  composables: ['foundation', 'registration', 'selection', 'forms', 'reactivity', 'system', 'plugins', 'utilities', 'transformers'],
+  composables: ['foundation', 'registration', 'selection', 'forms', 'data', 'reactivity', 'system', 'plugins', 'utilities', 'transformers'],
 }
 
 // Standalone pages that appear between sections
