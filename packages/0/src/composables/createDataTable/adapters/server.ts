@@ -22,7 +22,7 @@ import type { MaybeRefOrGetter } from 'vue'
 
 export interface ServerAdapterOptions {
   /** Total number of items on the server (for pagination calculation) */
-  totalItems: MaybeRefOrGetter<number>
+  total: MaybeRefOrGetter<number>
   /** Loading state (e.g., from useFetch) */
   loading?: MaybeRefOrGetter<boolean>
   /** Error state from API */
@@ -45,7 +45,7 @@ export class ServerAdapter<T extends Record<string, unknown>> implements DataTab
     // Pagination driven by server-provided total
     const pagination = createPagination({
       ...paginationOptions,
-      size: computed(() => toValue(this.options.totalItems)),
+      size: computed(() => toValue(this.options.total)),
     })
 
     // Reset to page 1 on filter/sort changes
@@ -59,7 +59,7 @@ export class ServerAdapter<T extends Record<string, unknown>> implements DataTab
       sortedItems: allItems,
       items: allItems,
       pagination,
-      total: computed(() => toValue(this.options.totalItems)),
+      total: computed(() => toValue(this.options.total)),
       loading: computed(() => toValue(this.options.loading) ?? false),
       error: computed(() => toValue(this.options.error) ?? null),
     }

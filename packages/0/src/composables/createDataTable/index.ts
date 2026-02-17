@@ -12,7 +12,7 @@
  * - Selection strategies: single, page, all
  * - Per-column custom sort/filter functions
  * - Row selectability control via itemSelectable
- * - Sort options: mustSort, firstSortOrder
+ * - Sort options: mandate, firstSortOrder
  * - Row selection via lightweight Set (not registry-based)
  * - Trinity pattern for dependency injection
  */
@@ -113,8 +113,8 @@ export interface DataTableGrouping<T extends Record<string, unknown>> {
   groups: ComputedRef<DataTableGroup<T>[]>
   /** Toggle a group's open/closed state */
   toggle: (groupKey: string) => void
-  /** Whether a group is open */
-  isOpen: (groupKey: string) => boolean
+  /** Whether a group is opened */
+  opened: (groupKey: string) => boolean
   /** Open a group */
   open: (groupKey: string) => void
   /** Close a group */
@@ -149,8 +149,6 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   columns: DataTableColumn[]
   /** Property used as row identifier. @default 'id' */
   itemValue?: keyof T & string
-  /** External search ref for v-model */
-  search?: ShallowRef<string>
   /** Filter options (keys derived from columns) */
   filter?: Omit<FilterOptions, 'keys'>
   /** Pagination options (size derived from pipeline) */
@@ -158,7 +156,7 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   /** Enable multi-column sort. @default false */
   sortMultiple?: boolean
   /** Prevent clearing sort (asc → desc → asc cycle). @default false */
-  mustSort?: boolean
+  mandate?: boolean
   /** Direction for first sort click. @default 'asc' */
   firstSortOrder?: 'asc' | 'desc'
   /** Selection strategy: 'single' selects one row, 'page' operates on visible items, 'all' operates on all filtered items. @default 'page' */
@@ -186,8 +184,10 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   sortedItems: ComputedRef<readonly T[]>
   /** Column definitions */
   columns: readonly DataTableColumn[]
-  /** Search query ref */
-  search: ShallowRef<string>
+  /** Set the search query */
+  search: (value: string) => void
+  /** Current search query (readonly) */
+  query: Readonly<ShallowRef<string>>
   /** Sort controls */
   sort: DataTableSort
   /** Pagination controls */
@@ -231,7 +231,7 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
  * })
  *
  * // Search
- * table.search.value = 'john'
+ * table.search('john')
  *
  * // Sort
  * table.sort.toggle('name')          // asc
@@ -253,11 +253,10 @@ export function createDataTable<T extends Record<string, unknown>> (
     items: _items,
     columns,
     itemValue = 'id' as keyof T & string,
-    search: _search,
     filter: filterOptions = {},
     pagination: paginationOptions = {},
     sortMultiple = false,
-    mustSort = false,
+    mandate = false,
     firstSortOrder = 'asc',
     selectStrategy = 'page',
     itemSelectable,
@@ -267,7 +266,11 @@ export function createDataTable<T extends Record<string, unknown>> (
     adapter = new ClientAdapter<T>(),
   } = options
 
-  const search = _search ?? shallowRef('')
+  const _query = shallowRef('')
+
+  function search (value: string) {
+    _query.value = value
+  }
 
   // Resolve locale: useLocale selection > initial option > undefined (browser default)
   let selectedLocaleId: Ref<ID | undefined> | undefined
@@ -300,9 +303,9 @@ export function createDataTable<T extends Record<string, unknown>> (
   // Track sort order for multi-sort priority
   const order = shallowReactive<string[]>([])
 
-  // Sort cycle depends on firstSortOrder and mustSort:
-  // firstSortOrder='asc':  none → asc → desc → none  (or → asc with mustSort)
-  // firstSortOrder='desc': none → desc → asc → none  (or → desc with mustSort)
+  // Sort cycle depends on firstSortOrder and mandate:
+  // firstSortOrder='asc':  none → asc → desc → none  (or → asc with mandate)
+  // firstSortOrder='desc': none → desc → asc → none  (or → desc with mandate)
   function toggle (key: string) {
     if (!group.has(key)) return
 
@@ -339,11 +342,11 @@ export function createDataTable<T extends Record<string, unknown>> (
       order.push(key)
     } else if (isAsc) {
       // asc is last step when firstSortOrder='desc'
-      if (firstSortOrder === 'desc' && !mustSort) setNone()
+      if (firstSortOrder === 'desc' && !mandate) setNone()
       else setDesc()
     } else {
       // desc is last step when firstSortOrder='asc'
-      if (firstSortOrder === 'asc' && !mustSort) setNone()
+      if (firstSortOrder === 'asc' && !mandate) setNone()
       else setAsc()
     }
   }
@@ -414,7 +417,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     error = computed(() => null),
   } = adapter.setup({
     items: _items,
-    search,
+    search: _query,
     filterableKeys: filterable,
     sortBy,
     locale,
@@ -574,7 +577,7 @@ export function createDataTable<T extends Record<string, unknown>> (
         openGroupKeys.add(groupKey)
       }
     },
-    isOpen (groupKey: string) {
+    opened (groupKey: string) {
       return openGroupKeys.has(groupKey)
     },
     open (groupKey: string) {
@@ -600,6 +603,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     sortedItems,
     columns: columns as readonly DataTableColumn[],
     search,
+    query: _query as Readonly<ShallowRef<string>>,
     sort,
     pagination,
     selection,
@@ -621,7 +625,7 @@ export function createDataTable<T extends Record<string, unknown>> (
  * ```ts
  * import { createDataTableContext } from '@vuetify/v0'
  *
- * const [useDataTable, provideDataTable, dataTable] = createDataTableContext({
+ * const [useDataTable, provideDataTable, context] = createDataTableContext({
  *   namespace: 'app:users',
  *   items: users,
  *   columns: [
