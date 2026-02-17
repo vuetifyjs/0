@@ -12,7 +12,7 @@ import { computed, onMounted, shallowRef, watch } from 'vue'
 // Types
 import type { StepOptions, TutorialMeta } from '@/skillz/tutorials'
 import type { ReplStore } from '@vue/repl'
-import type { ComputedRef, ShallowRef } from 'vue'
+import type { ComputedRef, Ref, ShallowRef } from 'vue'
 
 import { createMainTs, UNO_CONFIG_TS } from '@/data/editor-defaults'
 // Tutorials
@@ -20,7 +20,7 @@ import { getTutorial, parseStepOptions } from '@/skillz/tutorials'
 
 export interface UseTutorialReturn {
   store: ReplStore
-  isDark: ComputedRef<boolean>
+  isDark: Readonly<Ref<boolean>>
   replTheme: ComputedRef<'dark' | 'light'>
   previewOptions: ComputedRef<{ headHTML: string }>
   meta: ComputedRef<TutorialMeta | undefined>
@@ -40,7 +40,7 @@ export interface UseTutorialReturn {
 
 export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn {
   const theme = useTheme()
-  const isDark = computed(() => theme.isDark.value)
+  const isDark = theme.isDark
 
   const { store, replTheme, previewOptions } = useEditorStore(isDark)
 

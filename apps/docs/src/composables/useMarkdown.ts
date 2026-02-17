@@ -55,14 +55,14 @@ function getMarked (hl: Highlighter): Marked {
         return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
       },
       blockquote ({ raw }) {
-        // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR]
+        // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!TRY]
         const innerContent = raw
           .split('\n')
           .map(line => line.replace(/^>\s?/, ''))
           .join('\n')
           .trim()
 
-        const match = innerContent.match(/^\[!(TIP|INFO|WARNING|ERROR)\]\s*([\s\S]*)/)
+        const match = innerContent.match(/^\[!(TIP|INFO|WARNING|ERROR|TRY)\]\s*([\s\S]*)/)
         if (match) {
           const type = match[1].toLowerCase()
           const content = match[2].trim()

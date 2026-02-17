@@ -147,6 +147,8 @@ declare module 'vue' {
     SkillMetadata: typeof import('./components/skillz/SkillMetadata.vue')['default']
     SkillModeBadge: typeof import('./components/skillz/SkillModeBadge.vue')['default']
     SkillPrerequisites: typeof import('./components/skillz/SkillPrerequisites.vue')['default']
+    SkillzBadge: typeof import('./components/skillz/SkillzBadge.vue')['default']
+    SkillzComplete: typeof import('./components/skillz/SkillzComplete.vue')['default']
     SkillzResume: typeof import('./components/skillz/SkillzResume.vue')['default']
     SkillzTour: typeof import('./components/skillz/SkillzTour.vue')['default']
   }

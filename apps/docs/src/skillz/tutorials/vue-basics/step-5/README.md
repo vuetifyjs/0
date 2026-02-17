@@ -3,36 +3,36 @@ hideFiles: true
 hideTabs: true
 hideBreadcrumbs: true
 ---
-# Conditional rendering
+# Show and hide
 
-Vue provides directives to **conditionally render** elements. You'll see `v-if` throughout v0 examples to show and hide UI based on composable state.
+The contact card is getting crowded. Let's collapse it so it only shows the header by default, and expands to reveal details when clicked.
 
-## v-if / v-else
+## Conditional rendering
+
+[`v-if`](https://vuejs.org/guide/essentials/conditional.html) adds or **removes** elements from the DOM entirely. `v-else` provides the fallback:
 
 ```vue
 <template>
-  <p v-if="loggedIn">Welcome back!</p>
-  <p v-else>Please log in.</p>
+  <div v-if="open">
+    <!-- Full details -->
+  </div>
+
+  <p v-else>Click to expand</p>
 </template>
 ```
 
-`v-if` completely **adds or removes** the element from the DOM.
+When `open` is `false`, the details block doesn't exist in the DOM at all.
 
 ## v-show
 
+There's also `v-show`, which toggles CSS `display` instead of adding/removing from the DOM. Use `v-show` when you toggle something frequently:
+
 ```vue
 <template>
-  <p v-show="visible">I'm toggled with CSS</p>
+  <p v-show="email">{{ email }}</p>
 </template>
 ```
 
-`v-show` always renders the element but toggles `display: none`. Use it when something toggles frequently.
+The element is always in the DOM — it's just hidden with `display: none`.
 
-## Rule of thumb
-
-- **`v-if`** — for conditions that rarely change (cheaper initial render)
-- **`v-show`** — for things that toggle often (cheaper subsequent toggles)
-
-## Try it
-
-Click the toggle button to switch states. Try changing `v-if` to `v-show` and inspect the DOM to see the difference.
+> [!TRY] Try changing `v-if="open"` to `v-show="open"` and inspect the DOM in your browser's dev tools. You'll see the element is always present — just hidden. Then try clearing the email ref to an empty string and add `v-show="email"` to hide the empty email line.

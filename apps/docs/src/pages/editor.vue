@@ -19,7 +19,7 @@
   import { Repl } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
   import '@vue/repl/style.css'
-  import { computed, shallowRef, useTemplateRef, watch } from 'vue'
+  import { shallowRef, useTemplateRef, watch } from 'vue'
 
   definePage({
     meta: {
@@ -37,7 +37,7 @@
 
   // ── Theme ──────────────────────────────────────────────────────────────
   const theme = useTheme()
-  const isDark = computed(() => theme.isDark.value)
+  const isDark = theme.isDark
 
   // ── REPL Setup ─────────────────────────────────────────────────────────
   const { store, replTheme, previewOptions } = useEditorStore(isDark)
@@ -46,7 +46,7 @@
   const { isReady, fileTreeKey, loadExample: _loadExample } = useEditorFiles(store, () => isDark.value)
 
   const breakpoints = useBreakpoints()
-  const isDesktop = computed(() => breakpoints.mdAndUp.value)
+  const isDesktop = breakpoints.mdAndUp
   const sidebarOpen = shallowRef(true)
   watch(isDesktop, v => {
     sidebarOpen.value = v
@@ -68,13 +68,16 @@
   }, { inputs: true })
   const showExamples = shallowRef(false)
   const examplesContainer = useTemplateRef<HTMLElement>('examplesContainer')
+  const examplesButton = useTemplateRef<HTMLButtonElement>('examplesButton')
 
   useToggleScope(() => showExamples.value, () => {
     useClickOutside(examplesContainer, () => {
       showExamples.value = false
+      examplesButton.value?.focus()
     })
     useHotkey('escape', () => {
       showExamples.value = false
+      examplesButton.value?.focus()
     })
   })
 
@@ -136,13 +139,16 @@
           aria-label="Tutorial"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors no-underline text-on-surface"
           title="Tutorial"
-          to="/editor/tutorial/getting-started"
+          to="/skillz/tutorial/vue-basics"
         >
           <AppIcon icon="book" :size="18" />
         </RouterLink>
 
         <div ref="examplesContainer" class="relative">
           <button
+            ref="examplesButton"
+            :aria-expanded="showExamples"
+            aria-haspopup="listbox"
             aria-label="Load example"
             class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
             title="Load example"
@@ -153,7 +159,9 @@
 
           <div
             v-if="showExamples"
+            aria-label="Examples"
             class="absolute top-full right-0 mt-1 w-[280px] bg-surface border border-divider rounded-lg shadow-lg z-50"
+            role="listbox"
           >
             <EditorExamples @select="loadExample" />
           </div>
@@ -161,7 +169,7 @@
 
         <button
           v-if="isDesktop"
-          aria-label="Toggle layout"
+          :aria-label="replLayout === 'horizontal' ? 'Switch to vertical layout' : 'Switch to horizontal layout'"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
           :title="replLayout === 'horizontal' ? 'Switch to vertical layout' : 'Switch to horizontal layout'"
           @click="replLayout = replLayout === 'horizontal' ? 'vertical' : 'horizontal'"
@@ -171,7 +179,8 @@
 
         <button
           v-if="!isDesktop"
-          aria-label="Toggle files"
+          :aria-expanded="sidebarOpen"
+          :aria-label="sidebarOpen ? 'Close file browser' : 'Open file browser'"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
           title="Toggle files"
           @click="sidebarOpen = !sidebarOpen"
@@ -181,7 +190,8 @@
 
         <button
           v-if="isDesktop"
-          aria-label="Toggle sidebar"
+          :aria-expanded="sidebarOpen"
+          :aria-label="sidebarOpen ? 'Close sidebar' : 'Open sidebar'"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
           title="Toggle sidebar"
           @click="sidebarOpen = !sidebarOpen"
@@ -216,15 +226,31 @@
           </template>
 
           <!-- Mobile: fixed overlay -->
-          <EditorFileTree
+          <div
             v-if="!isDesktop && sidebarOpen"
-            :key="fileTreeKey"
-            class="fixed top-0 bottom-0 left-0 w-[260px]"
-            :store="store"
+            aria-label="File browser"
+            class="fixed top-0 bottom-0 left-0 w-[260px] flex flex-col bg-surface"
+            role="dialog"
             :style="{ zIndex: ticket.zIndex.value }"
-          />
+          >
+            <div class="flex items-center justify-end px-2 py-1">
+              <button
+                aria-label="Close file browser"
+                class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
+                @click="sidebarOpen = false"
+              >
+                <AppIcon icon="close" :size="18" />
+              </button>
+            </div>
 
-          <div class="editor-repl-container flex flex-col">
+            <EditorFileTree
+              :key="fileTreeKey"
+              class="flex-1 min-h-0"
+              :store="store"
+            />
+          </div>
+
+          <div class="editor-repl-container flex flex-col" :inert="!isDesktop && sidebarOpen ? true : undefined">
             <EditorTabs :store="store" />
             <EditorBreadcrumbs :store="store" />
 

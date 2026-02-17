@@ -8,10 +8,9 @@
   // Types
   import type { SkillLevel, SkillMeta } from '@/types/skill'
 
-  import { SKILL_LEVEL_META } from '@/types/skill'
-
   // Stores
   import { useSkillzStore } from '@/stores/skillz'
+  import { SKILL_LEVEL_META } from '@/types/skill'
 
   const props = defineProps<{
     items: SkillMeta[]

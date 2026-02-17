@@ -1,0 +1,10 @@
+{
+  "title": "Vue Intermediate",
+  "description": "Build a notification center while mastering watchers, template refs, lifecycle hooks, and component composition",
+  "level": 2,
+  "track": "essentials",
+  "categories": [],
+  "order": 20,
+  "minutes": 15,
+  "prerequisites": ["vue-basics"]
+}

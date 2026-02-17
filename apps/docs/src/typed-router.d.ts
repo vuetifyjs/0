@@ -464,13 +464,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/editor.tutorial.[id]': RouteRecordInfo<
-      '/editor.tutorial.[id]',
-      '/editor/tutorial/:id',
-      { id: ParamValue<true> },
-      { id: ParamValue<false> },
-      | never
-    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -677,6 +670,13 @@ declare module 'vue-router/auto-routes' {
     '/skillz.[id]': RouteRecordInfo<
       '/skillz.[id]',
       '/skillz/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    '/skillz.tutorial.[id]': RouteRecordInfo<
+      '/skillz.tutorial.[id]',
+      '/skillz/tutorial/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
       | never
@@ -1086,12 +1086,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/editor.tutorial.[id].vue': {
-      routes:
-        | '/editor.tutorial.[id]'
-      views:
-        | never
-    }
     'src/pages/guide/index.md': {
       routes:
         | '/guide/'
@@ -1269,6 +1263,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/skillz.[id].vue': {
       routes:
         | '/skillz.[id]'
+      views:
+        | never
+    }
+    'src/pages/skillz.tutorial.[id].vue': {
+      routes:
+        | '/skillz.tutorial.[id]'
       views:
         | never
     }

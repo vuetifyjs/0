@@ -256,7 +256,7 @@ export default async function MarkdownPlugin () {
         // Look ahead: blockquote_open -> paragraph_open -> inline
         const inlineToken = tokens[index + 2]
         if (inlineToken?.type === 'inline' && inlineToken.content) {
-          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI|DISCORD|TOUR)\]\s*(.*)/)
+          const match = inlineToken.content.match(/^\[!(TIP|INFO|WARNING|ERROR|ASKAI|DISCORD|TOUR|TRY)\]\s*(.*)/)
           if (match) {
             const type = match[1].toLowerCase()
             env._calloutType = type
@@ -292,8 +292,8 @@ export default async function MarkdownPlugin () {
             if (inlineToken.children?.length) {
               const firstChild = inlineToken.children[0]
               if (firstChild?.type === 'text') {
-                // Only TIP|INFO|WARNING|ERROR reach here - ASKAI, DISCORD, TOUR return early with cleared content
-                firstChild.content = firstChild.content.replace(/^\[!(TIP|INFO|WARNING|ERROR)\]\s*/, '')
+                // Only TIP|INFO|WARNING|ERROR|TRY reach here - ASKAI, DISCORD, TOUR return early with cleared content
+                firstChild.content = firstChild.content.replace(/^\[!(TIP|INFO|WARNING|ERROR|TRY)\]\s*/, '')
               }
             }
 

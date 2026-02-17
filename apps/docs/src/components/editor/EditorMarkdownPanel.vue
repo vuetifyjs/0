@@ -5,16 +5,21 @@
   // Components
   import DocsCallout from '@/components/docs/DocsCallout.vue'
   import DocsMarkup from '@/components/docs/DocsMarkup.vue'
+  import SkillzBadge from '@/components/skillz/SkillzBadge.vue'
 
   // Utilities
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed, getCurrentInstance, h, nextTick, onBeforeUnmount, render, useTemplateRef, watch } from 'vue'
+
+  // Types
+  import type { SkillLevel } from '@/types/skill'
 
   const props = defineProps<{
     html: string
     stepLabel: string
     isFirst: boolean
     isLast: boolean
+    level?: SkillLevel
   }>()
 
   const emit = defineEmits<{
@@ -27,11 +32,13 @@
 
   // ── Dynamic component mounting ───────────────────────────────────────
   const contentRef = useTemplateRef<HTMLElement>('content')
+  const scrollRef = useTemplateRef<HTMLElement>('scroll')
   const appContext = getCurrentInstance()?.appContext
   const mountedWrappers = new Set<HTMLElement>()
 
   watch(() => props.html, async () => {
     await nextTick()
+    scrollRef.value?.scrollTo(0, 0)
     mountMarkupComponents()
     mountAlertComponents()
   })
@@ -71,7 +78,7 @@
     if (!contentRef.value) return
 
     for (const el of contentRef.value.querySelectorAll<HTMLElement>('[data-alert]')) {
-      const type = el.dataset.type as 'tip' | 'info' | 'warning' | 'error'
+      const type = el.dataset.type as 'tip' | 'info' | 'warning' | 'error' | 'try'
       const encodedContent = el.dataset.content
       if (!type || !encodedContent) continue
 
@@ -93,12 +100,12 @@
   <div class="flex flex-col h-full overflow-hidden">
     <!-- Header -->
     <div class="flex items-center justify-between px-4 py-2 border-b border-divider bg-surface shrink-0">
-      <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Tutorial</span>
+      <SkillzBadge :level="props.level" />
       <span class="text-xs text-on-surface-variant">{{ props.stepLabel }}</span>
     </div>
 
     <!-- Markdown content -->
-    <div class="flex-1 overflow-y-auto px-5 py-4">
+    <div ref="scroll" class="flex-1 overflow-y-auto px-5 py-4">
       <div ref="content" class="markdown-body tutorial-markdown" :data-theme="dataTheme" v-html="props.html" />
     </div>
 
@@ -116,8 +123,7 @@
       </button>
 
       <button
-        class="px-3 py-1.5 text-sm rounded bg-primary text-on-primary disabled:opacity-40 transition-colors"
-        :disabled="props.isLast"
+        class="px-3 py-1.5 text-sm rounded bg-primary text-on-primary transition-colors"
         @click="emit('next')"
       >
         <span class="flex items-center gap-1">

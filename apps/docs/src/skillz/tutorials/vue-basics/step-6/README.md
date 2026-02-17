@@ -3,30 +3,39 @@ hideFiles: true
 hideTabs: true
 hideBreadcrumbs: true
 ---
-# List rendering
+# Rendering lists
 
-`v-for` renders a list of items from an array. v0 composables like `createSelection` and `createStep` work with arrays of items, so you'll use this pattern often.
+The skills array is in our data, but we're only showing the top skill. Let's render them all as chips using [`v-for`](https://vuejs.org/guide/essentials/list.html).
+
+## v-for
+
+`v-for` iterates over an array and renders an element for each item. Always provide a unique `:key`:
 
 ```vue
 <template>
-  <ul>
-    <li v-for="item in items" :key="item.id">
-      {{ item.text }}
-    </li>
-  </ul>
+  <span
+    v-for="item in items"
+    :key="item"
+  >
+    {{ item }}
+  </span>
 </template>
 ```
 
-The `:key` binding gives Vue a **stable identity** for each element so it can efficiently update the DOM when the list changes. Always provide a unique key.
+## Keys matter
 
-## Reactivity
+Vue uses `:key` to track which items changed, were added, or removed. Without keys, Vue reuses elements in place — which causes subtle bugs with stateful content.
 
-Since `items` is reactive, pushing to or splicing from the array automatically updates the rendered list:
+## Array reactivity
 
-```js
-items.value.push({ id: 3, text: 'New item' })
+Vue tracks changes to ref arrays. Methods like `push`, `splice`, and `pop` trigger re-renders automatically:
+
+```vue
+<script setup lang="ts">
+  function add () {
+    skills.value.push('New Skill')
+  }
+</script>
 ```
 
-## Try it
-
-Type in the input and click **Add** to add items. Try implementing a remove button on each item.
+> [!TRY] Add a remove button to each skill chip. You can use `skills.value.splice(index, 1)` to remove an item. Remember that `v-for` also provides the index: `v-for="(item, index) in items"`.

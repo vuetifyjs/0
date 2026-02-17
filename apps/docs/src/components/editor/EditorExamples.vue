@@ -106,7 +106,7 @@
     // Use the last directory segment as the nested folder name
     // e.g. 'components/dialog' → 'dialog'
     const parts = dir.dir.split('/')
-    const folder = parts.at(-1)
+    const folder = parts.at(-1) ?? dir.dir
 
     for (const file of loaded) {
       result[`src/${folder}/${file.filename}`] = file.code

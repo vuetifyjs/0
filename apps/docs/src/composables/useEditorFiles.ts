@@ -2,7 +2,7 @@
 import { decodeEditorHash } from '@/composables/editorLink'
 
 // Utilities
-import { onMounted, shallowRef, watchEffect } from 'vue'
+import { onMounted, shallowRef, watch } from 'vue'
 
 // Types
 import type { ReplStore } from '@vue/repl'
@@ -85,12 +85,11 @@ export function useEditorFiles (store: ReplStore, isDark: () => boolean) {
   }
 
   // Sync edits from nested files to their flat aliases
-  watchEffect(() => {
-    const file = store.activeFile
-    if (!file) return
-    const flatPath = aliasMap.value.get(file.filename)
-    if (flatPath && store.files[flatPath]) {
-      store.files[flatPath]!.code = file.code
+  watch(() => store.activeFile?.code, code => {
+    if (code === undefined) return
+    const flatPath = aliasMap.value.get(store.activeFile.filename)
+    if (flatPath && store.files[flatPath] && store.files[flatPath].code !== code) {
+      store.files[flatPath].code = code
     }
   })
 

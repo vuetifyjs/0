@@ -6,7 +6,7 @@
   import { useFileTreeCrud } from '@/composables/useFileTreeCrud'
 
   // Utilities
-  import { computed } from 'vue'
+  import { computed, nextTick, useTemplateRef } from 'vue'
 
   // Types
   import type { ReplStore } from '@vue/repl'
@@ -98,8 +98,8 @@
 
   // Auto-open all nested folders under src
   for (const id of tree.keys()) {
-    const s = id as string
-    if (s.startsWith('src/') && !/\.\w+$/.test(s)) {
+    if (typeof id !== 'string') continue
+    if (id.startsWith('src/') && !/\.\w+$/.test(id)) {
       tree.open(id)
     }
   }
@@ -118,10 +118,10 @@
       ? tree.children.get(parentId) ?? []
       : tree.roots.value.map(r => r.id)
 
-    return (ids as string[]).flatMap(id => {
-      const result = [id]
-      if (!isFile(id) && tree.opened(id)) {
-        result.push(...getVisibleNodes(id))
+    return (ids as readonly (string | number)[]).flatMap(id => {
+      const result = [String(id)]
+      if (!isFile(String(id)) && tree.opened(id)) {
+        result.push(...getVisibleNodes(String(id)))
       }
       return result
     })
@@ -129,6 +129,7 @@
 
   const visibleNodes = computed(() => {
     void proxy.keys.length
+    void tree.openedIds.size
     return getVisibleNodes()
   })
 
@@ -152,24 +153,93 @@
     return nodes[lastIdx]
   })
 
-  function onClick (id: string) {
+  const treeEl = useTemplateRef<HTMLElement>('treeEl')
+
+  function activate (id: string) {
     if (isFile(id)) {
       props.store.setActive(id)
-      targetFolder.value = (tree.parents.get(id) as string) ?? 'src'
+      const parent = tree.parents.get(id)
+      targetFolder.value = (typeof parent === 'string' ? parent : null) ?? 'src'
     } else {
       tree.flip(id)
       targetFolder.value = id
     }
   }
+
+  function focusNode (id: string) {
+    nextTick(() => {
+      const el = treeEl.value?.querySelector(`[data-id="${CSS.escape(id)}"]`) as HTMLElement | null
+      el?.focus()
+    })
+  }
+
+  function onKeydown (e: KeyboardEvent, id: string) {
+    const nodes = visibleNodes.value
+    const idx = nodes.indexOf(id)
+
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault()
+        const next = nodes[idx + 1]
+        if (next) focusNode(next)
+        break
+      }
+      case 'ArrowUp': {
+        e.preventDefault()
+        const prev = nodes[idx - 1]
+        if (prev) focusNode(prev)
+        break
+      }
+      case 'ArrowRight': {
+        e.preventDefault()
+        if (!isFile(id)) {
+          if (tree.opened(id)) {
+            const first = nodes[idx + 1]
+            if (first && tree.hasAncestor(first, id)) focusNode(first)
+          } else {
+            tree.open(id)
+          }
+        }
+        break
+      }
+      case 'ArrowLeft': {
+        e.preventDefault()
+        if (!isFile(id) && tree.opened(id)) {
+          tree.close(id)
+        } else {
+          const parent = tree.parents.get(id)
+          if (typeof parent === 'string' && parent !== 'src') focusNode(parent)
+        }
+        break
+      }
+      case 'Enter':
+      case ' ': {
+        e.preventDefault()
+        activate(id)
+        break
+      }
+      case 'Home': {
+        e.preventDefault()
+        if (nodes.length > 0) focusNode(nodes[0])
+        break
+      }
+      case 'End': {
+        e.preventDefault()
+        if (nodes.length > 0) focusNode(nodes.at(-1))
+        break
+      }
+    }
+  }
 </script>
 
 <template>
-  <nav class="border-r border-divider bg-surface overflow-y-auto shrink-0">
+  <nav ref="treeEl" aria-label="File browser" class="border-r border-divider bg-surface overflow-y-auto shrink-0">
     <div class="flex items-center justify-between px-3 py-2">
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
 
       <div class="flex items-center gap-1">
         <button
+          aria-label="New file"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="New file"
           @click="add('file')"
@@ -178,6 +248,7 @@
         </button>
 
         <button
+          aria-label="New folder"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="New folder"
           @click="add('folder')"
@@ -187,71 +258,80 @@
       </div>
     </div>
 
-    <template
-      v-for="id in visibleNodes"
-      :key="id"
-    >
-      <div
-        class="group/row flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none hover:bg-surface-tint transition-colors"
-        :class="isFile(id) && id === activeFile ? 'opacity-100 bg-surface-tint' : 'opacity-80'"
-        :style="{ paddingLeft: `${tree.getDepth(id) * 8 + 8}px` }"
-        @click="onClick(id)"
+    <div aria-label="Project files" role="tree">
+      <template
+        v-for="(id, index) in visibleNodes"
+        :key="id"
       >
-        <template v-if="!isFile(id)">
-          <AppIcon
-            class="transition-transform duration-150"
-            :class="{ 'rotate-90': tree.opened(id) }"
-            icon="chevron-right"
-            :size="14"
-          />
-          <AppIcon
-            :icon="tree.opened(id) ? 'folder-open' : 'folder'"
-            :size="14"
-          />
-        </template>
-        <template v-else>
+        <div
+          :aria-expanded="!isFile(id) ? tree.opened(id) : undefined"
+          :aria-selected="isFile(id) && id === activeFile ? true : undefined"
+          class="group/row flex items-center gap-1.5 py-1 pr-2 text-sm cursor-pointer select-none hover:bg-surface-tint transition-colors"
+          :class="isFile(id) && id === activeFile ? 'opacity-100 bg-surface-tint' : 'opacity-80'"
+          :data-id="id"
+          role="treeitem"
+          :style="{ paddingLeft: `${tree.getDepth(id) * 8 + 8}px` }"
+          :tabindex="index === 0 ? 0 : -1"
+          @click="activate(id)"
+          @keydown="onKeydown($event, id)"
+        >
+          <template v-if="!isFile(id)">
+            <AppIcon
+              class="transition-transform duration-150"
+              :class="{ 'rotate-90': tree.opened(id) }"
+              icon="chevron-right"
+              :size="14"
+            />
+            <AppIcon
+              :icon="tree.opened(id) ? 'folder-open' : 'folder'"
+              :size="14"
+            />
+          </template>
+          <template v-else>
+            <span class="w-[14px]" />
+            <AppIcon
+              v-if="fileExt(id)"
+              :icon="fileExt(id)!.icon"
+              :size="14"
+              :style="{ color: fileExt(id)!.color }"
+            />
+            <span v-else class="w-[14px]" />
+          </template>
+
+          <span class="flex-1 truncate" :class="isFile(id) ? 'opacity-80' : 'font-medium opacity-60'">
+            {{ tree.get(id)?.value }}
+          </span>
+
+          <!-- Delete item -->
+          <button
+            v-if="deletable(id)"
+            :aria-label="`Delete ${tree.get(id)?.value}`"
+            class="shrink-0 inline-flex items-center justify-center opacity-0 group-hover/row:opacity-60 hover:!opacity-100 transition-opacity"
+            title="Delete"
+            @click.stop="remove(id)"
+          >
+            <AppIcon icon="close" :size="14" />
+          </button>
+        </div>
+
+        <!-- Inline input at bottom of folder children -->
+        <div
+          v-if="inputAfter === id"
+          class="flex items-center gap-1.5 py-1 pr-2"
+          :style="{ paddingLeft: `${(tree.getDepth(creating!) + 1) * 8 + 8}px` }"
+        >
           <span class="w-[14px]" />
-          <AppIcon
-            v-if="fileExt(id)"
-            :icon="fileExt(id)!.icon"
-            :size="14"
-            :style="{ color: fileExt(id)!.color }"
-          />
-          <span v-else class="w-[14px]" />
-        </template>
-
-        <span class="flex-1 truncate" :class="isFile(id) ? 'opacity-80' : 'font-medium opacity-60'">
-          {{ tree.get(id)?.value }}
-        </span>
-
-        <!-- Delete item -->
-        <button
-          v-if="deletable(id)"
-          class="shrink-0 inline-flex items-center justify-center opacity-0 group-hover/row:opacity-60 hover:!opacity-100 transition-opacity"
-          title="Delete"
-          @click.stop="remove(id)"
-        >
-          <AppIcon icon="close" :size="14" />
-        </button>
-      </div>
-
-      <!-- Inline input at bottom of folder children -->
-      <div
-        v-if="inputAfter === id"
-        class="flex items-center gap-1.5 py-1 pr-2"
-        :style="{ paddingLeft: `${(tree.getDepth(creating!) + 1) * 8 + 8}px` }"
-      >
-        <span class="w-[14px]" />
-        <input
-          :ref="el => input = el as HTMLInputElement"
-          v-model="pending"
-          class="flex-1 min-w-0 bg-transparent text-sm text-on-surface outline-none border-b border-primary"
-          :placeholder="creatingType === 'file' ? 'filename.vue' : 'folder-name'"
-          @blur="confirm"
-          @keydown.enter="confirm"
-          @keydown.esc="cancel"
-        >
-      </div>
-    </template>
+          <input
+            :ref="el => input = el as HTMLInputElement"
+            v-model="pending"
+            class="flex-1 min-w-0 bg-transparent text-sm text-on-surface outline-none border-b border-primary"
+            :placeholder="creatingType === 'file' ? 'filename.vue' : 'folder-name'"
+            @blur="confirm"
+            @keydown.enter="confirm"
+            @keydown.esc="cancel"
+          >
+        </div>
+      </template>
+    </div>
   </nav>
 </template>

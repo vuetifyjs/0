@@ -66,7 +66,7 @@
   function closeTab (id: string) {
     // Find next tab before modifying state
     const idx = tabs.value.findIndex(t => t.id === id)
-    const nextTab = tabs.value[idx + 1] ?? tabs.value[idx - 1]
+    const nextTab = tabs.value[idx + 1] ?? tabs.value[idx - 1] ?? tabs.value[0]
 
     const next = new Set(closedTabs.value)
     next.add(id)
@@ -77,13 +77,48 @@
       props.store.setActive(nextTab.id)
     }
   }
+
+  function onTabKeydown (e: KeyboardEvent, index: number) {
+    const list = tabs.value
+    let target: number | null = null
+
+    switch (e.key) {
+      case 'ArrowRight': {
+        target = (index + 1) % list.length
+        break
+      }
+      case 'ArrowLeft': {
+        target = (index - 1 + list.length) % list.length
+        break
+      }
+      case 'Home': {
+        target = 0
+        break
+      }
+      case 'End': {
+        target = list.length - 1
+        break
+      }
+      default: {
+        return
+      }
+    }
+
+    e.preventDefault()
+    props.store.setActive(list[target].id)
+  }
 </script>
 
 <template>
-  <div class="flex items-end gap-px overflow-x-auto border-b border-divider bg-surface-variant/30">
+  <div
+    aria-label="Open files"
+    class="flex items-end gap-px overflow-x-auto border-b border-divider bg-surface-variant/30"
+    role="tablist"
+  >
     <div
-      v-for="tab in tabs"
+      v-for="(tab, index) in tabs"
       :key="tab.id"
+      :aria-selected="tab.id === activeFile"
       class="group/tab shrink-0 flex items-center gap-1 pl-3 py-1.5 text-xs transition-colors border-b-2 cursor-pointer"
       :class="[
         tab.id === activeFile
@@ -91,14 +126,18 @@
           : 'text-on-surface-variant border-transparent hover:text-on-surface hover:bg-surface-tint',
         tabs.length > 1 ? 'pr-1' : 'pr-3',
       ]"
+      role="tab"
+      :tabindex="tab.id === activeFile ? 0 : -1"
       @click="store.setActive(tab.id)"
+      @keydown="onTabKeydown($event, index)"
     >
       <span>{{ tab.label }}</span>
 
       <button
         v-if="tabs.length > 1"
-        aria-label="Close tab"
+        :aria-label="`Close ${tab.label}`"
         class="inline-flex items-center justify-center size-4 rounded-sm opacity-0 group-hover/tab:opacity-60 hover:!opacity-100 hover:bg-surface-variant focus-visible:opacity-100 focus-visible:outline-1 focus-visible:outline-primary transition-opacity"
+        tabindex="-1"
         @click.stop="closeTab(tab.id)"
       >
         <AppIcon icon="close" :size="12" />

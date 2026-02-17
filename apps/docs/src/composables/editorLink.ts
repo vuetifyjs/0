@@ -111,12 +111,22 @@ export async function useEditorLinkMulti (inputFiles: EditorFile[], dir?: string
   return `/editor#${hash}`
 }
 
+function isFileRecord (v: unknown): v is Record<string, string> {
+  return (
+    typeof v === 'object'
+    && v !== null
+    && !Array.isArray(v)
+    && Object.values(v as Record<string, unknown>).every(x => typeof x === 'string')
+  )
+}
+
 /**
  * Decode an editor hash back to a file record.
  */
 export async function decodeEditorHash (hash: string): Promise<Record<string, string> | null> {
   try {
-    return JSON.parse(await atou(hash))
+    const parsed: unknown = JSON.parse(await atou(hash))
+    return isFileRecord(parsed) ? parsed : null
   } catch {
     return null
   }

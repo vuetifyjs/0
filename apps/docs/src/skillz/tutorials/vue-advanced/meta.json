@@ -1,0 +1,10 @@
+{
+  "title": "Vue Advanced",
+  "description": "Build composables from scratch — shallowRef, effectScope, generics, defineModel, and scoped slots demystified",
+  "level": 3,
+  "track": "essentials",
+  "categories": [],
+  "order": 30,
+  "minutes": 15,
+  "prerequisites": ["vue-intermediate"]
+}

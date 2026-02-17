@@ -3,34 +3,43 @@ hideFiles: true
 hideTabs: true
 hideBreadcrumbs: true
 ---
-# Event handling
+# Responding to clicks
 
-Vue uses `@` (shorthand for `v-on`) to listen for DOM events. This is how you'll wire up user interactions to v0 state changes.
+A contact card isn't useful if you can't interact with it. Vue handles DOM events with the [`@` shorthand](https://vuejs.org/guide/essentials/event-handling.html) (short for `v-on:`).
+
+## Event handling
+
+Use `@click` to call a function when an element is clicked:
 
 ```vue
 <template>
-  <button @click="count++">
-    Clicked {{ count }} times
-  </button>
+  <button @click="toggle">Follow</button>
 </template>
 ```
 
-You can use inline expressions or call a function:
+The handler is a regular function declaration in `<script setup>`:
 
 ```vue
-<script setup>
-  import { ref } from 'vue'
-
-  const count = ref(0)
-
-  function increment() {
-    count.value++
+<script setup lang="ts">
+  function toggle () {
+    active.value = !active.value
   }
 </script>
 ```
 
-Notice that inside `<script setup>`, you access the ref with `.value`. Vue only auto-unwraps refs in templates.
+## Dynamic classes
 
-## Try it
+Use [`:class`](https://vuejs.org/guide/essentials/class-and-style.html) (short for `v-bind:class`) to apply classes conditionally:
 
-Click the button in the preview. Then try adding a **Reset** button that sets `count.value = 0`.
+```vue
+<template>
+  <button
+    :class="active ? 'bg-surface-tint' : 'bg-primary'"
+    @click="toggle"
+  >
+    {{ active ? 'Following' : 'Follow' }}
+  </button>
+</template>
+```
+
+> [!TRY] Add a `count` ref that tracks how many times the button has been toggled. Increment it inside `toggle` and display it somewhere on the card.

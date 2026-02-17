@@ -3,18 +3,22 @@ hideFiles: true
 hideTabs: true
 hideBreadcrumbs: true
 ---
-# Form inputs
+# Two-way binding
 
-Vue's `v-model` directive creates **two-way bindings** between form inputs and reactive state. v0's `useProxyModel` builds on this same concept for component props.
+The card displays data, but there's no way to edit it. Vue's [`v-model`](https://vuejs.org/guide/essentials/forms.html) directive creates a **two-way binding** between form inputs and reactive state.
+
+## v-model
+
+`v-model` is syntactic sugar for binding `:value` and listening for `@input` events:
 
 ```vue
 <template>
-  <input v-model="message">
-  <p>You typed: {{ message }}</p>
+  <input v-model="name">
+  <p>{{ name }}</p>
 </template>
 ```
 
-`v-model` works on `<input>`, `<textarea>`, `<select>`, and custom components. It's syntactic sugar for binding `:value` and listening for `@input` events.
+Type in the input, and the displayed name updates instantly — including the computed initials in the avatar.
 
 ## Modifiers
 
@@ -25,14 +29,26 @@ Vue's `v-model` directive creates **two-way bindings** between form inputs and r
 ```vue
 <template>
   <input v-model.trim="name">
-  <input v-model.number="age" type="number">
 </template>
 ```
 
-## Try it
+## Select elements
 
-Try typing, selecting, and toggling — watch how all the values stay in sync in the summary below.
+`v-model` works on `<select>` too. The bound ref updates to match the selected `<option>` value:
+
+```vue
+<template>
+  <select v-model="status">
+    <option value="available">Available</option>
+    <option value="busy">Busy</option>
+  </select>
+</template>
+```
+
+> [!TRY] Add `.trim` to the name and role inputs. Add a bio `<textarea>` with `v-model` in the edit form.
 
 ## What's next
 
-Now that you're familiar with Vue's fundamentals, you're ready to explore v0's composables. These building blocks use the same refs, computed properties, and template directives you just practiced — but handle the complex state management for you.
+You've built a fully interactive contact card using Vue's core features — refs, events, computed properties, conditionals, lists, and two-way binding. These are the same building blocks that power every v0 composable.
+
+> [!TIP] v0's `useProxyModel` extends this exact `v-model` concept, making it work seamlessly between parent and child components.

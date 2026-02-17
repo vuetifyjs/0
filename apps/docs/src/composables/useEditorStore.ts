@@ -4,16 +4,15 @@ import { computed, shallowRef } from 'vue'
 
 // Types
 import type { ReplStore } from '@vue/repl'
-import type { ComputedRef } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 export interface EditorStoreReturn {
   store: ReplStore
-  isDark: ComputedRef<boolean>
   replTheme: ComputedRef<'dark' | 'light'>
   previewOptions: ComputedRef<{ headHTML: string }>
 }
 
-export function useEditorStore (isDark: ComputedRef<boolean>): EditorStoreReturn {
+export function useEditorStore (isDark: Readonly<Ref<boolean>>): EditorStoreReturn {
   const replTheme = computed(() => isDark.value ? 'dark' : 'light')
 
   const { importMap: builtinImportMap, vueVersion } = useVueImportMap({
@@ -49,8 +48,8 @@ export function useEditorStore (isDark: ComputedRef<boolean>): EditorStoreReturn
     @property --un-border-style { syntax: "*"; inherits: false; initial-value: solid }
     *, ::before, ::after, ::backdrop { box-sizing: border-box; margin: 0; padding: 0; border: 0 solid }
     html, :host { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; -webkit-tap-highlight-color: transparent }
-    body { margin: 0; background-color: ${isDark.value ? '#121212' : '#ffffff'} }
-    #app { min-height: 100vh; opacity: 0; transition: opacity 0.15s }
+    body { margin: 0; background-color: var(--v0-background, ${isDark.value ? '#121212' : '#ffffff'}) }
+    #app { min-height: 100vh; opacity: 0 }
     button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer }
     *:focus-visible { outline: 2px solid var(--v0-primary); outline-offset: 2px }
     dialog::backdrop { background: rgb(0 0 0 / 0.3) }
@@ -60,7 +59,6 @@ export function useEditorStore (isDark: ComputedRef<boolean>): EditorStoreReturn
 
   return {
     store,
-    isDark,
     replTheme,
     previewOptions,
   }
