@@ -1,6 +1,7 @@
 import type { DataTableColumn } from '@vuetify/v0'
+import type { Employee } from './data'
 
-export const columns: DataTableColumn[] = [
+export const columns: DataTableColumn<Employee>[] = [
   { key: 'name', title: 'Name', sortable: true, filterable: true },
   { key: 'department', title: 'Department', sortable: true },
   {

@@ -46,10 +46,13 @@ export type { DataTableAdapterContext, DataTableAdapterInterface, DataTableAdapt
 export { ClientAdapter, ServerAdapter, VirtualAdapter } from './adapters'
 export type { ServerAdapterOptions } from './adapters'
 
+/** Extract keys of T whose value type extends V */
+type KeysOfType<T, V> = { [K in keyof T]: T[K] extends V ? K : never }[keyof T] & string
+
 export type SelectStrategy = 'single' | 'page' | 'all'
 
-export interface DataTableColumn {
-  readonly key: string
+export interface DataTableColumn<T extends Record<string, unknown> = Record<string, unknown>> {
+  readonly key: keyof T & string
   readonly title?: string
   readonly sortable?: boolean
   readonly filterable?: boolean
@@ -68,6 +71,8 @@ export interface DataTableSort {
   order: readonly string[]
   /** Get sort direction for a specific column key */
   direction: (key: string) => SortDirection
+  /** Get ARIA-ready sort value for a column key */
+  ariaSort: (key: string) => 'ascending' | 'descending' | 'none'
   /** Get sort priority index (0-based), or -1 if not sorted */
   priority: (key: string) => number
   /** Reset all sort state */
@@ -136,9 +141,9 @@ export interface DataTableExpansion {
   toggle: (id: ID) => void
   /** Whether a row is expanded */
   isExpanded: (id: ID) => boolean
-  /** Expand all visible (paginated) items */
+  /** Expand all visible (paginated) items. Requires expandMultiple=true. */
   expandAll: () => void
-  /** Collapse all items across all pages */
+  /** Collapse all expanded items across all pages (not page-scoped like expandAll) */
   collapseAll: () => void
 }
 
@@ -146,9 +151,9 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   /** Source items */
   items: MaybeRefOrGetter<T[]>
   /** Column definitions */
-  columns: DataTableColumn[]
-  /** Property used as row identifier. @default 'id' */
-  itemValue?: keyof T & string
+  columns: readonly DataTableColumn<T>[]
+  /** Property used as row identifier. Must resolve to a string or number value. @default 'id' */
+  itemValue?: KeysOfType<T, ID>
   /** Filter options (keys derived from columns) */
   filter?: Omit<FilterOptions, 'keys'>
   /** Pagination options (size derived from pipeline) */
@@ -164,7 +169,7 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   /** Property that controls per-row selectability */
   itemSelectable?: keyof T & string
   /** Column key to group rows by */
-  groupBy?: string
+  groupBy?: keyof T & string
   /** Allow multiple rows expanded simultaneously. @default true */
   expandMultiple?: boolean
   /** Locale for sorting (defaults to useLocale's selected locale or browser default) */
@@ -183,7 +188,7 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   /** Items after filtering and sorting */
   sortedItems: ComputedRef<readonly T[]>
   /** Column definitions */
-  columns: readonly DataTableColumn[]
+  columns: readonly DataTableColumn<T>[]
   /** Set the search query */
   search: (value: string) => void
   /** Current search query (readonly) */
@@ -213,6 +218,9 @@ export interface DataTableContextOptions<T extends Record<string, unknown>> exte
 /**
  * Creates a data table instance with sort controls, selection, and an
  * adapter-driven data pipeline.
+ *
+ * Must be called inside a component `setup()` or a Vue effect scope.
+ * Calling at module scope in SSR environments causes request state leakage.
  *
  * @param options Data table options
  * @returns Data table context with pipeline stages and controls
@@ -252,7 +260,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   const {
     items: _items,
     columns,
-    itemValue = 'id' as keyof T & string,
+    itemValue = 'id' as KeysOfType<T, ID>,
     filter: filterOptions = {},
     pagination: paginationOptions = {},
     sortMultiple = false,
@@ -371,6 +379,13 @@ export function createDataTable<T extends Record<string, unknown>> (
     return 'none'
   }
 
+  function ariaSort (key: string): 'ascending' | 'descending' | 'none' {
+    const dir = direction(key)
+    if (dir === 'asc') return 'ascending'
+    if (dir === 'desc') return 'descending'
+    return 'none'
+  }
+
   function priority (key: string): number {
     return order.indexOf(key)
   }
@@ -386,12 +401,13 @@ export function createDataTable<T extends Record<string, unknown>> (
     columns: sortBy,
     order: order as readonly string[],
     direction,
+    ariaSort,
     priority,
     reset,
   }
 
   const filterable = columns
-    .filter(col => col.filterable !== false)
+    .filter(col => col.filterable === true)
     .map(col => col.key)
 
   // Build per-column custom sort comparators
@@ -437,11 +453,10 @@ export function createDataTable<T extends Record<string, unknown>> (
 
   function isSelectable (id: ID): boolean {
     if (!itemSelectable) return true
-    // Search all items for the matching row
     for (const item of allItems.value) {
       if (rowId(item) === id) return !!item[itemSelectable]
     }
-    return true
+    return false
   }
 
   // Strategy-scoped items for selectAll/toggleAll/isAllSelected
@@ -550,7 +565,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     const map = new Map<string, { value: unknown, items: T[] }>()
 
     for (const item of sortedItems.value) {
-      const raw = item[groupBy as keyof T]
+      const raw = item[groupBy]
       const key = String(raw ?? '')
 
       let entry = map.get(key)
@@ -601,7 +616,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     allItems,
     filteredItems,
     sortedItems,
-    columns: columns as readonly DataTableColumn[],
+    columns,
     search,
     query: _query as Readonly<ShallowRef<string>>,
     sort,
