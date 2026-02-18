@@ -37,7 +37,7 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   /** Search query ref */
   search: ShallowRef<string>
   /** Column keys eligible for filtering */
-  filterableKeys: string[]
+  filterableKeys: ReadonlyArray<keyof T & string>
   /** Current sort state derived from sort controls */
   sortBy: Readonly<Ref<SortEntry[]>>
   /** Locale for sorting (reactive, from useLocale or options) */
@@ -47,9 +47,9 @@ export interface DataTableAdapterContext<T extends Record<string, unknown>> {
   /** Pagination options (size excluded, derived from pipeline) */
   paginationOptions: Omit<PaginationOptions, 'size'>
   /** Per-column custom sort comparators */
-  customSorts: Record<string, (a: unknown, b: unknown) => number>
+  customSorts: Partial<Record<keyof T & string, (a: unknown, b: unknown) => number>>
   /** Per-column custom filter functions */
-  customColumnFilters: Record<string, (value: unknown, query: string) => boolean>
+  customColumnFilters: Partial<Record<keyof T & string, (value: unknown, query: string) => boolean>>
 }
 
 /** Outputs returned by the adapter to createDataTable */
@@ -114,7 +114,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
     const filterOptions: FilterOptions = hasColumnFilters && !context.filterOptions.customFilter
       ? {
           ...context.filterOptions,
-          keys: context.filterableKeys,
+          keys: [...context.filterableKeys],
           customFilter: (query, item) => {
             if (!isObject(item)) return false
             const q = String(Array.isArray(query) ? query[0] : query).toLowerCase()
@@ -136,7 +136,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
         }
       : {
           ...context.filterOptions,
-          keys: context.filterableKeys,
+          keys: [...context.filterableKeys],
         }
 
     const filter = createFilter(filterOptions)
@@ -152,7 +152,7 @@ export abstract class DataTableAdapter<T extends Record<string, unknown>> implem
     filteredItems: Readonly<Ref<readonly T[]>>,
     sortBy: Readonly<Ref<SortEntry[]>>,
     locale?: Readonly<Ref<string | undefined>>,
-    customSorts?: Record<string, (a: unknown, b: unknown) => number>,
+    customSorts?: Partial<Record<string, (a: unknown, b: unknown) => number>>,
   ): Readonly<Ref<readonly T[]>> {
     return computed(() => {
       const entries = sortBy.value

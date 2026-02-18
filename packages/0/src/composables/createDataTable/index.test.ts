@@ -383,41 +383,41 @@ describe('createDataTable', () => {
     it('toggle/open/close', () => {
       const table = createTable({ groupBy: 'department' })
 
-      expect(table.grouping.opened('Engineering')).toBe(false)
+      expect(table.grouping.isOpen('Engineering')).toBe(false)
 
       table.grouping.open('Engineering')
-      expect(table.grouping.opened('Engineering')).toBe(true)
+      expect(table.grouping.isOpen('Engineering')).toBe(true)
 
       table.grouping.close('Engineering')
-      expect(table.grouping.opened('Engineering')).toBe(false)
+      expect(table.grouping.isOpen('Engineering')).toBe(false)
 
       table.grouping.toggle('Engineering')
-      expect(table.grouping.opened('Engineering')).toBe(true)
+      expect(table.grouping.isOpen('Engineering')).toBe(true)
 
       table.grouping.toggle('Engineering')
-      expect(table.grouping.opened('Engineering')).toBe(false)
+      expect(table.grouping.isOpen('Engineering')).toBe(false)
     })
 
     it('openAll/closeAll', () => {
       const table = createTable({ groupBy: 'department' })
 
       table.grouping.openAll()
-      expect(table.grouping.opened('Engineering')).toBe(true)
-      expect(table.grouping.opened('Design')).toBe(true)
-      expect(table.grouping.opened('Marketing')).toBe(true)
+      expect(table.grouping.isOpen('Engineering')).toBe(true)
+      expect(table.grouping.isOpen('Design')).toBe(true)
+      expect(table.grouping.isOpen('Marketing')).toBe(true)
 
       table.grouping.closeAll()
-      expect(table.grouping.opened('Engineering')).toBe(false)
-      expect(table.grouping.opened('Design')).toBe(false)
-      expect(table.grouping.opened('Marketing')).toBe(false)
+      expect(table.grouping.isOpen('Engineering')).toBe(false)
+      expect(table.grouping.isOpen('Design')).toBe(false)
+      expect(table.grouping.isOpen('Marketing')).toBe(false)
     })
 
     it('enroll auto-opens groups', () => {
       const table = createTable({ groupBy: 'department', enroll: true })
 
-      expect(table.grouping.opened('Engineering')).toBe(true)
-      expect(table.grouping.opened('Design')).toBe(true)
-      expect(table.grouping.opened('Marketing')).toBe(true)
+      expect(table.grouping.isOpen('Engineering')).toBe(true)
+      expect(table.grouping.isOpen('Design')).toBe(true)
+      expect(table.grouping.isOpen('Marketing')).toBe(true)
     })
 
     it('no groupBy returns empty groups', () => {

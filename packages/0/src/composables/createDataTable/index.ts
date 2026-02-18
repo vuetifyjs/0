@@ -30,7 +30,7 @@ import { ClientAdapter } from './adapters/v0'
 
 // Utilities
 import { isNumber, isNullOrUndefined, isString } from '#v0/utilities'
-import { computed, shallowReactive, shallowRef, toRef } from 'vue'
+import { computed, shallowReactive, shallowRef, toRef, watch } from 'vue'
 
 // Types
 import type { FilterOptions } from '#v0/composables/createFilter'
@@ -106,7 +106,7 @@ export interface DataTableGroup<T extends Record<string, unknown>> {
   /** Stringified group identifier */
   key: string
   /** Raw value of the groupBy column for this group */
-  value: unknown
+  value: T[keyof T & string]
   /** Items belonging to this group */
   items: readonly T[]
 }
@@ -116,8 +116,8 @@ export interface DataTableGrouping<T extends Record<string, unknown>> {
   groups: Readonly<Ref<DataTableGroup<T>[]>>
   /** Toggle a group's open/closed state */
   toggle: (groupKey: string) => void
-  /** Whether a group is opened */
-  opened: (groupKey: string) => boolean
+  /** Whether a group is open */
+  isOpen: (groupKey: string) => boolean
   /** Open a group */
   open: (groupKey: string) => void
   /** Close a group */
@@ -168,6 +168,8 @@ export interface DataTableOptions<T extends Record<string, unknown>> {
   itemSelectable?: keyof T & string
   /** Column key to group rows by */
   groupBy?: keyof T & string
+  /** Auto-open all groups on creation. @default false */
+  enroll?: boolean
   /** Allow multiple rows expanded simultaneously. @default true */
   expandMultiple?: boolean
   /** Locale for sorting (defaults to useLocale's selected locale or browser default) */
@@ -199,7 +201,7 @@ export interface DataTableContext<T extends Record<string, unknown>> {
   selection: DataTableSelection
   /** Row expansion controls */
   expansion: DataTableExpansion
-  /** Row grouping controls (only present when groupBy is set) */
+  /** Row grouping controls. When groupBy is not set, `groups` returns an empty array. */
   grouping: DataTableGrouping<T>
   /** Total row count for aria-rowcount */
   total: Readonly<Ref<number>>
@@ -267,6 +269,7 @@ export function createDataTable<T extends Record<string, unknown>> (
     selectStrategy = 'page',
     itemSelectable,
     groupBy,
+    enroll = false,
     expandMultiple = true,
     locale: initialLocale,
     adapter = new ClientAdapter<T>(),
@@ -392,13 +395,13 @@ export function createDataTable<T extends Record<string, unknown>> (
     .map(col => col.key)
 
   // Build per-column custom sort comparators
-  const customSorts: Record<string, (a: unknown, b: unknown) => number> = {}
+  const customSorts: Partial<Record<keyof T & string, (a: unknown, b: unknown) => number>> = {}
   for (const col of columns) {
     if (col.sort) customSorts[col.key] = col.sort
   }
 
   // Build per-column custom filter functions
-  const customColumnFilters: Record<string, (value: unknown, query: string) => boolean> = {}
+  const customColumnFilters: Partial<Record<keyof T & string, (value: unknown, query: string) => boolean>> = {}
   for (const col of columns) {
     if (col.filter) customColumnFilters[col.key] = col.filter
   }
@@ -410,8 +413,8 @@ export function createDataTable<T extends Record<string, unknown>> (
     items: visible,
     pagination,
     total,
-    loading = toRef(() => false),
-    error = toRef(() => null),
+    loading = toRef(() => false) as Readonly<Ref<boolean>>,
+    error = toRef(() => null) as Readonly<Ref<Error | null>>,
   } = adapter.setup({
     items: _items,
     search: _query,
@@ -432,12 +435,17 @@ export function createDataTable<T extends Record<string, unknown>> (
     throw new Error(`[v0:data-table] itemValue "${itemValue}" must resolve to a string or number`)
   }
 
-  function isSelectable (id: ID): boolean {
-    if (!itemSelectable) return true
+  const selectableIds = computed(() => {
+    if (!itemSelectable) return null
+    const ids = new Set<ID>()
     for (const item of allItems.value) {
-      if (rowId(item) === id) return !!item[itemSelectable]
+      if (item[itemSelectable]) ids.add(rowId(item))
     }
-    return false
+    return ids
+  })
+
+  function isSelectable (id: ID): boolean {
+    return !selectableIds.value || selectableIds.value.has(id)
   }
 
   // Strategy-scoped items for selectAll/toggleAll/isAllSelected
@@ -541,7 +549,7 @@ export function createDataTable<T extends Record<string, unknown>> (
   const groups = computed<DataTableGroup<T>[]>(() => {
     if (!groupBy) return []
 
-    const map = new Map<string, { value: unknown, items: T[] }>()
+    const map = new Map<string, { value: T[keyof T & string], items: T[] }>()
 
     for (const item of sortedItems.value) {
       const raw = item[groupBy]
@@ -562,6 +570,23 @@ export function createDataTable<T extends Record<string, unknown>> (
     return result
   })
 
+  if (enroll) {
+    for (const group of groups.value) {
+      openGroupKeys.add(group.key)
+    }
+
+    // Async items may not be available yet — watch for first non-empty groups
+    if (groups.value.length === 0) {
+      const stop = watch(groups, newGroups => {
+        if (newGroups.length === 0) return
+        for (const group of newGroups) {
+          openGroupKeys.add(group.key)
+        }
+        stop()
+      })
+    }
+  }
+
   const grouping: DataTableGrouping<T> = {
     groups,
     toggle (groupKey: string) {
@@ -571,7 +596,7 @@ export function createDataTable<T extends Record<string, unknown>> (
         openGroupKeys.add(groupKey)
       }
     },
-    opened (groupKey: string) {
+    isOpen (groupKey: string) {
       return openGroupKeys.has(groupKey)
     },
     open (groupKey: string) {
@@ -651,6 +676,9 @@ export function createDataTableContext<T extends Record<string, unknown>> (
 /**
  * Returns the current data table context from dependency injection.
  *
+ * @typeParam T - Must be provided explicitly; cannot be inferred from namespace.
+ *   Prefer the `useX` function from {@link createDataTableContext} for type-safe injection.
+ *
  * @param namespace The namespace for the data table context. @default 'v0:data-table'
  * @returns The current data table context
  *
@@ -659,7 +687,7 @@ export function createDataTableContext<T extends Record<string, unknown>> (
  * <script setup lang="ts">
  *   import { useDataTable } from '@vuetify/v0'
  *
- *   const table = useDataTable()
+ *   const table = useDataTable<User>()
  * </script>
  * ```
  */

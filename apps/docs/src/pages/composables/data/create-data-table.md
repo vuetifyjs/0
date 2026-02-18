@@ -208,6 +208,7 @@ table.sort.toggle('name')
 table.sort.direction('name')     // 'asc' | 'desc' | 'none'
 table.sort.priority('name')      // 0-based index, or -1
 table.sort.columns.value         // [{ key: 'name', direction: 'asc' }]
+table.sort.order                 // ['name'] — multi-sort priority array
 table.sort.reset()               // Clear all sort state
 ```
 
@@ -286,10 +287,30 @@ const table = createDataTable({
 
 table.grouping.groups.value  // [{ key: 'Engineering', value: 'Engineering', items: [...] }]
 table.grouping.toggle('Engineering')
-table.grouping.opened('Engineering')
+table.grouping.isOpen('Engineering')
 table.grouping.openAll()
 table.grouping.closeAll()
 ```
+
+## Options
+
+| Option | Type | Default | Description |
+| - | - | - | - |
+| `items` | `MaybeRefOrGetter<T[]>` | — | Source items (required) |
+| `columns` | `DataTableColumn<T>[]` | — | Column definitions (required) |
+| `itemValue` | `KeysOfType<T, ID>` | `'id'` | Property used as row identifier. Must resolve to `string \| number`. |
+| `filter` | `FilterOptions` | `{}` | Filter options (keys derived from columns) |
+| `pagination` | `PaginationOptions` | `{}` | Pagination options (size derived from pipeline) |
+| `sortMultiple` | `boolean` | `false` | Enable multi-column sort |
+| `mandate` | `boolean` | `false` | Prevent clearing sort (asc → desc → asc cycle) |
+| `firstSortOrder` | `'asc' \| 'desc'` | `'asc'` | Direction for first sort click |
+| `selectStrategy` | `'single' \| 'page' \| 'all'` | `'page'` | Selection scope for bulk operations |
+| `itemSelectable` | `KeysOfType<T, boolean>` | — | Property that controls per-row selectability |
+| `groupBy` | `keyof T & string` | — | Column key to group rows by |
+| `enroll` | `boolean` | `false` | Auto-open all groups on creation |
+| `expandMultiple` | `boolean` | `true` | Allow multiple rows expanded simultaneously |
+| `locale` | `string` | — | Locale for sorting (defaults to useLocale or browser default) |
+| `adapter` | `DataTableAdapterInterface<T>` | `ClientAdapter` | Pipeline adapter |
 
 ## Reactivity
 
@@ -357,7 +378,7 @@ A grouped table with row selection, custom numeric sort, and salary range filter
 **Key patterns:**
 
 - `groupBy: 'department'` groups rows automatically — `enroll: true` opens all groups on creation
-- `table.grouping.opened(key)` checks visibility, `toggle(key)` flips it
+- `table.grouping.isOpen(key)` checks visibility, `toggle(key)` flips it
 - `itemSelectable: 'active'` disables checkboxes for inactive employees
 - `mandate: true` ensures a sort column is always active (never clears to unsorted)
 
