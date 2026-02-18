@@ -26,6 +26,7 @@
     blazing: '100K+ ops/s — handles massive datasets with zero perceptible delay',
     fast: '10K–100K ops/s — smooth performance for typical application workloads',
     good: '1K–10K ops/s — reliable for standard use cases and smaller datasets',
+    slow: '<1K ops/s — performance bottleneck, needs investigation',
   }
 
   const showcaseComposables = computed(() =>

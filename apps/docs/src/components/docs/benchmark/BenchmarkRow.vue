@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Composables
-  import { TIER_BG, type NormalizedBenchmark, type Tier } from '@/composables/useBenchmarkData'
+  import { TIER_BG, type NormalizedBenchmark } from '@/composables/useBenchmarkData'
 
   // Utilities
   import { computed } from 'vue'
@@ -8,10 +8,9 @@
   const props = defineProps<{
     benchmark: NormalizedBenchmark
     isFastest: boolean
-    tier: Tier
   }>()
 
-  const barColor = computed(() => TIER_BG[props.tier])
+  const barColor = computed(() => TIER_BG[props.benchmark.tier])
 </script>
 
 <template>

@@ -30,7 +30,7 @@
   }
 
   interface MetricBenchmark {
-    tier: 'blazing' | 'fast' | 'good'
+    tier: 'blazing' | 'fast' | 'good' | 'slow'
   }
 
   interface MetricEntry {
@@ -140,6 +140,7 @@
     blazing: { icon: 'benchmark-blazing', color: 'text-error', label: 'Blazing Fast' },
     fast: { icon: 'benchmark-fast', color: 'text-warning', label: 'Fast' },
     good: { icon: 'benchmark-good', color: 'text-info', label: 'Good' },
+    slow: { icon: 'benchmark-slow', color: 'text-on-surface-variant', label: 'Slow' },
   } as const
 
   // Benchmark data (fastest operation)

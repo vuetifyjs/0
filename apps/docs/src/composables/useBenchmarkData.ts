@@ -52,6 +52,7 @@ export interface NormalizedBenchmark {
   meanLabel: string
   rme: number
   rank: number
+  tier: Tier
   /** 0–100, fastest in group = 100 */
   relativeHz: number
   /** Percentage slower than fastest. null if this IS fastest */
@@ -63,11 +64,12 @@ export interface NormalizedGroup {
   name: string
   fullName: string
   composable: string
+  tier: Tier
   benchmarks: NormalizedBenchmark[]
   fastest: NormalizedBenchmark
 }
 
-export type Tier = 'blazing' | 'fast' | 'good'
+export type Tier = 'blazing' | 'fast' | 'good' | 'slow'
 
 export interface NormalizedComposable {
   name: string
@@ -86,8 +88,8 @@ export interface BenchmarkSummary {
 }
 
 export interface UseBenchmarkDataOptions {
-  /** Restrict to a single composable (embed mode) */
-  composable?: string
+  /** Restrict to a single composable (embed mode). Accepts a reactive getter. */
+  composable?: string | (() => string | undefined)
 }
 
 export interface UseBenchmarkDataReturn {
@@ -111,12 +113,14 @@ export const TIER_CONFIG: Record<Tier, { icon: string, color: string, label: str
   blazing: { icon: 'benchmark-blazing', color: 'text-error', label: 'Blazing' },
   fast: { icon: 'benchmark-fast', color: 'text-warning', label: 'Fast' },
   good: { icon: 'benchmark-good', color: 'text-info', label: 'Good' },
+  slow: { icon: 'benchmark-slow', color: 'text-on-surface-variant', label: 'Slow' },
 }
 
 export const TIER_BG: Record<Tier, string> = {
   blazing: 'bg-error',
   fast: 'bg-warning',
   good: 'bg-info',
+  slow: 'bg-on-surface-variant',
 }
 
 /** Short descriptions for benchmark groups, keyed by extracted group name */
@@ -184,21 +188,24 @@ function extractGroupName (fullName: string): string {
 
 function normalizeFiles (
   files: RawBenchmarkFile[],
-  metricsData: Record<string, { benchmarks?: Record<string, { tier?: Tier }> }>,
+  metricsData: Record<string, { benchmarks?: Record<string, unknown> }>,
 ): NormalizedComposable[] {
   return files.map(file => {
     const composableName = extractComposableName(file.filepath)
     const metrics = metricsData[composableName]
-    const tier = (metrics?.benchmarks?._fastest as { tier?: Tier } | undefined)?.tier ?? 'good'
+    const metricsGroups = (metrics?.benchmarks as { _groups?: Record<string, { _tier?: Tier }> })?._groups
+    const tier = (metrics?.benchmarks as { _fastest?: { tier?: Tier } })?._fastest?.tier ?? 'good'
 
     const groups: NormalizedGroup[] = file.groups.map((group, gi) => {
       const groupName = extractGroupName(group.fullName)
+      const groupKey = group.fullName.split(' > ').pop()!
       const maxHz = Math.max(...group.benchmarks.map(b => b.hz))
 
       const benchmarks: NormalizedBenchmark[] = group.benchmarks
         .map(b => {
           const relativeHz = maxHz > 0 ? (b.hz / maxHz) * 100 : 0
           const isFastest = b.hz === maxHz
+          const benchTier = (metrics?.benchmarks as Record<string, { tier?: Tier }> | undefined)?.[b.name]?.tier ?? 'good'
           return {
             id: b.id,
             name: b.name,
@@ -208,17 +215,21 @@ function normalizeFiles (
             meanLabel: formatMean(b.mean),
             rme: b.rme,
             rank: b.rank,
+            tier: benchTier,
             relativeHz,
             diffFromFastest: isFastest ? null : ((maxHz - b.hz) / maxHz) * 100,
           }
         })
         .toSorted((a, b) => b.hz - a.hz)
 
+      const groupTier = metricsGroups?.[groupKey]?._tier ?? 'good'
+
       return {
         id: `${composableName}-${gi}`,
         name: groupName,
         fullName: group.fullName,
         composable: composableName,
+        tier: groupTier,
         benchmarks,
         fastest: benchmarks[0]!,
       }
@@ -288,8 +299,11 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
   const composables = computed<NormalizedComposable[]>(() => {
     if (!rawData.value) return []
     const all = normalizeFiles(rawData.value, metricsData.value)
-    if (options?.composable) {
-      return all.filter(c => c.name === options.composable)
+    const name = typeof options?.composable === 'function'
+      ? options.composable()
+      : options?.composable
+    if (name) {
+      return all.filter(c => c.name === name)
     }
     return all
   })
@@ -321,11 +335,7 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
 
     // Tier filter via createGroup selectedIds
     if (tierSelection.selectedIds.size > 0) {
-      const composableTiers = new Map(composables.value.map(c => [c.name, c.tier]))
-      groups = groups.filter(g => {
-        const tier = composableTiers.get(g.composable)
-        return tier && tierSelection.selectedIds.has(tier)
-      })
+      groups = groups.filter(g => tierSelection.selectedIds.has(g.tier))
     }
 
     // Sort benchmarks within each group
@@ -342,7 +352,7 @@ export function useBenchmarkData (options?: UseBenchmarkDataOptions): UseBenchma
 
   // Summary (unfiltered)
   const summary = computed<BenchmarkSummary>(() => {
-    const tierCounts: Record<Tier, number> = { blazing: 0, fast: 0, good: 0 }
+    const tierCounts: Record<Tier, number> = { blazing: 0, fast: 0, good: 0, slow: 0 }
     for (const c of composables.value) {
       tierCounts[c.tier]++
     }

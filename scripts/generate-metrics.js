@@ -79,15 +79,15 @@ function formatTime (ms) {
 function detectComplexity (name) {
   const lower = name.toLowerCase()
 
-  // O(1) indicators: single item operations
-  if (/single|one\s+(item|query|key)/.test(lower)) return 'O(1)'
-
   // O(n²) indicators: nested operations
   if (/nested|recursive|all.*all/.test(lower)) return 'O(n²)'
 
-  // O(n) indicators: batch operations with item counts
+  // O(n) indicators: collection size in name means scaling is under test
   if (/\d+[,\d]*\s*(items?|objects?|entries|elements)/.test(lower)) return 'O(n)'
   if (/all\s+(items?|keys?)/.test(lower)) return 'O(n)'
+
+  // O(1) indicators: single item operations without collection context
+  if (/single|one\s+(item|query|key)/.test(lower)) return 'O(1)'
 
   // Default to O(n) for safety
   return 'O(n)'
@@ -114,6 +114,25 @@ function getTier (hz, name) {
   if (hz >= fast) return 'fast'
   if (hz >= good) return 'good'
   return 'slow'
+}
+
+const TIER_SCORES = { blazing: 4, fast: 3, good: 2, slow: 1 }
+const SCORE_TIERS = [
+  [3.5, 'blazing'],
+  [2.5, 'fast'],
+  [1.5, 'good'],
+  [0, 'slow'],
+]
+
+/**
+ * Average individual tier scores into a group tier
+ * @param {string[]} tiers - Array of tier strings
+ * @returns {'blazing' | 'fast' | 'good' | 'slow'}
+ */
+function getGroupTier (tiers) {
+  if (tiers.length === 0) return 'good'
+  const avg = tiers.reduce((sum, t) => sum + TIER_SCORES[t], 0) / tiers.length
+  return SCORE_TIERS.find(([threshold]) => avg >= threshold)[1]
 }
 
 function main () {
@@ -173,11 +192,15 @@ function main () {
       if (!name) continue
 
       metrics[name] = metrics[name] || {}
-      metrics[name].benchmarks = {}
+      metrics[name].benchmarks = { _groups: {} }
 
       for (const group of file.groups || []) {
-        for (const b of group.benchmarks || []) {
-          metrics[name].benchmarks[b.name] = {
+        const groupName = group.fullName.split(' > ').pop()
+        const groupBenchmarks = group.benchmarks || []
+        const groupEntry = {}
+
+        for (const b of groupBenchmarks) {
+          const entry = {
             name: b.name,
             hz: Math.round(b.hz),
             hzLabel: formatHz(b.hz),
@@ -186,7 +209,36 @@ function main () {
             rme: Math.round(b.rme * 10) / 10,
             tier: getTier(b.hz, b.name),
           }
+          metrics[name].benchmarks[b.name] = entry
+          groupEntry[b.name] = entry
         }
+
+        const fastest = groupBenchmarks.reduce((a, b) => (!a || b.hz > a.hz) ? b : a, null)
+        const slowest = groupBenchmarks.reduce((a, b) => (!a || b.hz < a.hz) ? b : a, null)
+
+        const benchmarkTiers = groupBenchmarks.map(b => getTier(b.hz, b.name))
+
+        if (fastest && slowest) {
+          groupEntry._fastest = {
+            name: fastest.name,
+            hz: Math.round(fastest.hz),
+            hzLabel: formatHz(fastest.hz),
+            mean: fastest.mean,
+            meanLabel: formatTime(fastest.mean),
+            tier: getTier(fastest.hz, fastest.name),
+          }
+          groupEntry._slowest = {
+            name: slowest.name,
+            hz: Math.round(slowest.hz),
+            hzLabel: formatHz(slowest.hz),
+            mean: slowest.mean,
+            meanLabel: formatTime(slowest.mean),
+            tier: getTier(slowest.hz, slowest.name),
+          }
+          groupEntry._tier = getGroupTier(benchmarkTiers)
+        }
+
+        metrics[name].benchmarks._groups[groupName] = groupEntry
       }
 
       const allBenchmarks = (file.groups || []).flatMap(g => g.benchmarks || [])

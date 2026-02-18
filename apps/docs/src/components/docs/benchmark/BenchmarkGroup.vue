@@ -93,7 +93,6 @@
               :benchmark="b"
               class="px-4"
               :is-fastest="b.diffFromFastest === null"
-              :tier="tier"
             />
           </tbody>
         </table>
