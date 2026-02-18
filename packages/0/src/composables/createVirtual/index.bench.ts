@@ -107,17 +107,17 @@ describe('useVirtual benchmarks', () => {
   // Fresh fixture per iteration (required - we're measuring creation itself)
   // ===========================================================================
   describe('initialization', () => {
-    bench('Initialize with 1,000 items', () => {
+    bench('Create virtual (1,000 items)', () => {
       const items = ref(ITEMS_1K) as Ref<readonly BenchmarkItem[]>
       createVirtual(items, { itemHeight: 50, height: 600 })
     })
 
-    bench('Initialize with 10,000 items', () => {
+    bench('Create virtual (10,000 items)', () => {
       const items = ref(ITEMS_10K) as Ref<readonly BenchmarkItem[]>
       createVirtual(items, { itemHeight: 50, height: 600 })
     })
 
-    bench('Initialize with 100,000 items', () => {
+    bench('Create virtual (100,000 items)', () => {
       const items = ref(ITEMS_100K) as Ref<readonly BenchmarkItem[]>
       createVirtual(items, { itemHeight: 50, height: 600 })
     })
@@ -278,37 +278,37 @@ describe('useVirtual benchmarks', () => {
     ;(virtual10k.element.value as HTMLElement).scrollTop = SCROLL_MIDDLE_10K
     virtual10k.scroll()
 
-    bench('Access computed items 100 times (1,000 items, cached)', () => {
+    bench('Access items 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void virtual1k.items.value.length
       }
     })
 
-    bench('Access computed items 100 times (10,000 items, cached)', () => {
+    bench('Access items 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void virtual10k.items.value.length
       }
     })
 
-    bench('Access offset 100 times (1,000 items)', () => {
+    bench('Access offset 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void virtual1k.offset.value
       }
     })
 
-    bench('Access offset 100 times (10,000 items)', () => {
+    bench('Access offset 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void virtual10k.offset.value
       }
     })
 
-    bench('Access size 100 times (1,000 items)', () => {
+    bench('Access size 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void virtual1k.size.value
       }
     })
 
-    bench('Access size 100 times (10,000 items)', () => {
+    bench('Access size 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void virtual10k.size.value
       }

@@ -85,35 +85,35 @@ describe('createRegistry benchmarks', () => {
     const registry1k = createPopulatedRegistry(1000)
     const registry10k = createPopulatedRegistry(10_000)
 
-    bench('Get item by id (1,000 items)', () => {
+    bench('Get by id (1,000 items)', () => {
       registry1k.get(LOOKUP_ID_1K)
     })
 
-    bench('Get item by id (10,000 items)', () => {
+    bench('Get by id (10,000 items)', () => {
       registry10k.get(LOOKUP_ID_10K)
     })
 
-    bench('Lookup item by index (1,000 items)', () => {
+    bench('Lookup by index (1,000 items)', () => {
       registry1k.lookup(LOOKUP_INDEX_1K)
     })
 
-    bench('Lookup item by index (10,000 items)', () => {
+    bench('Lookup by index (10,000 items)', () => {
       registry10k.lookup(LOOKUP_INDEX_10K)
     })
 
-    bench('Browse item by value (1,000 items)', () => {
+    bench('Browse by value (1,000 items)', () => {
       registry1k.browse(LOOKUP_VALUE_1K)
     })
 
-    bench('Browse item by value (10,000 items)', () => {
+    bench('Browse by value (10,000 items)', () => {
       registry10k.browse(LOOKUP_VALUE_10K)
     })
 
-    bench('Check existence with has() (1,000 items)', () => {
+    bench('Check has (1,000 items)', () => {
       registry1k.has(LOOKUP_ID_1K)
     })
 
-    bench('Check existence with has() (10,000 items)', () => {
+    bench('Check has (10,000 items)', () => {
       registry10k.has(LOOKUP_ID_10K)
     })
   })
@@ -124,12 +124,12 @@ describe('createRegistry benchmarks', () => {
   // Measures: setup + operation cost (unavoidable for mutations)
   // ===========================================================================
   describe('mutation operations', () => {
-    bench('Upsert item (1,000 items)', () => {
+    bench('Upsert single item (1,000 items)', () => {
       const registry = createPopulatedRegistry(1000)
       registry.upsert(LOOKUP_ID_1K, { value: 'updated' })
     })
 
-    bench('Upsert item (10,000 items)', () => {
+    bench('Upsert single item (10,000 items)', () => {
       const registry = createPopulatedRegistry(10_000)
       registry.upsert(LOOKUP_ID_10K, { value: 'updated' })
     })
@@ -201,37 +201,37 @@ describe('createRegistry benchmarks', () => {
     const registry1k = createPopulatedRegistry(1000)
     const registry10k = createPopulatedRegistry(10_000)
 
-    bench('Access keys() 100 times (1,000 items, cached)', () => {
+    bench('Access keys 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         registry1k.keys()
       }
     })
 
-    bench('Access keys() 100 times (10,000 items, cached)', () => {
+    bench('Access keys 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         registry10k.keys()
       }
     })
 
-    bench('Access values() 100 times (1,000 items, cached)', () => {
+    bench('Access values 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         registry1k.values()
       }
     })
 
-    bench('Access values() 100 times (10,000 items, cached)', () => {
+    bench('Access values 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         registry10k.values()
       }
     })
 
-    bench('Access entries() 100 times (1,000 items, cached)', () => {
+    bench('Access entries 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         registry1k.entries()
       }
     })
 
-    bench('Access entries() 100 times (10,000 items, cached)', () => {
+    bench('Access entries 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         registry10k.entries()
       }
@@ -247,19 +247,19 @@ describe('createRegistry benchmarks', () => {
     const registry1k = createPopulatedRegistry(1000)
     const registry10k = createPopulatedRegistry(10_000)
 
-    bench('Seek first item (1,000 items)', () => {
+    bench('Seek first (1,000 items)', () => {
       registry1k.seek('first')
     })
 
-    bench('Seek first item (10,000 items)', () => {
+    bench('Seek first (10,000 items)', () => {
       registry10k.seek('first')
     })
 
-    bench('Seek last item (1,000 items)', () => {
+    bench('Seek last (1,000 items)', () => {
       registry1k.seek('last')
     })
 
-    bench('Seek last item (10,000 items)', () => {
+    bench('Seek last (10,000 items)', () => {
       registry10k.seek('last')
     })
 

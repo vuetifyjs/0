@@ -89,15 +89,15 @@ describe('useTokens benchmarks', () => {
   // Fresh fixture per iteration (required - we're measuring creation itself)
   // ===========================================================================
   describe('initialization', () => {
-    bench('Initialize with fixture tokens (~100 tokens)', () => {
+    bench('Create tokens (~100 tokens)', () => {
       createTokens(TOKENS)
     })
 
-    bench('Initialize with 1,000 tokens', () => {
+    bench('Create tokens (1,000 tokens)', () => {
       createTokens(TOKENS_1K)
     })
 
-    bench('Initialize with 10,000 tokens', () => {
+    bench('Create tokens (10,000 tokens)', () => {
       createTokens(TOKENS_10K)
     })
   })
@@ -200,19 +200,19 @@ describe('useTokens benchmarks', () => {
     tokens1k.resolve(LOOKUP_ID_1K)
     tokens10k.resolve(LOOKUP_ID_10K)
 
-    bench('Resolve cached token 100 times (fixture)', () => {
+    bench('Access token 100 times (fixture, cached)', () => {
       for (let i = 0; i < 100; i++) {
         fixtureTokens.resolve(FIXTURE_NESTED_PATH)
       }
     })
 
-    bench('Resolve cached token 100 times (1,000 tokens)', () => {
+    bench('Access token 100 times (1,000 tokens, cached)', () => {
       for (let i = 0; i < 100; i++) {
         tokens1k.resolve(LOOKUP_ID_1K)
       }
     })
 
-    bench('Resolve cached token 100 times (10,000 tokens)', () => {
+    bench('Access token 100 times (10,000 tokens, cached)', () => {
       for (let i = 0; i < 100; i++) {
         tokens10k.resolve(LOOKUP_ID_10K)
       }

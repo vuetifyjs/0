@@ -80,7 +80,7 @@ describe('useFilter benchmarks', () => {
   // Fresh fixture per iteration (required - we're measuring creation itself)
   // ===========================================================================
   describe('initialization', () => {
-    bench('Create filter with default options', () => {
+    bench('Create empty filter', () => {
       createFilter()
     })
 
@@ -183,7 +183,7 @@ describe('useFilter benchmarks', () => {
     const itemsRef1k = ref(OBJECTS_1K)
     const itemsRef10k = ref(OBJECTS_10K)
 
-    bench('Reactive filter: access computed 100 times (1,000 items)', () => {
+    bench('Access filtered 100 times (1,000 items, cached)', () => {
       const query = ref(LOOKUP_USER_1K)
       const filter = createFilter()
       const { items: filtered } = filter.apply(query, itemsRef1k)
@@ -192,7 +192,7 @@ describe('useFilter benchmarks', () => {
       }
     })
 
-    bench('Reactive filter: access computed 100 times (10,000 items)', () => {
+    bench('Access filtered 100 times (10,000 items, cached)', () => {
       const query = ref(LOOKUP_USER_10K)
       const filter = createFilter()
       const { items: filtered } = filter.apply(query, itemsRef10k)
@@ -201,7 +201,7 @@ describe('useFilter benchmarks', () => {
       }
     })
 
-    bench('Reactive filter: update query 10 times (1,000 items)', () => {
+    bench('Update query 10 times (1,000 items)', () => {
       const query = ref(LOOKUP_USER_1K)
       const filter = createFilter()
       const { items: filtered } = filter.apply(query, itemsRef1k)
@@ -211,7 +211,7 @@ describe('useFilter benchmarks', () => {
       }
     })
 
-    bench('Reactive filter: update query 10 times (10,000 items)', () => {
+    bench('Update query 10 times (10,000 items)', () => {
       const query = ref(LOOKUP_USER_10K)
       const filter = createFilter()
       const { items: filtered } = filter.apply(query, itemsRef10k)

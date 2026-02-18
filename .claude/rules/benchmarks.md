@@ -30,7 +30,7 @@ describe('lookup operations', () => {
   const registry1k = createPopulatedRegistry(1_000)
   const registry10k = createPopulatedRegistry(10_000)
 
-  bench('Get item by id (1,000 items)', () => {
+  bench('Get by id (1,000 items)', () => {
     registry1k.get('item-500')  // Measures ONLY the get() call
   })
 })
@@ -48,7 +48,7 @@ Create fresh fixtures per iteration for operations that modify state:
 
 ```ts
 describe('mutation operations', () => {
-  bench('Upsert item (1,000 items)', () => {
+  bench('Upsert single item (1,000 items)', () => {
     const registry = createPopulatedRegistry(1_000)  // Fresh per iteration
     registry.upsert('item-500', { value: 'updated' })
   })
@@ -113,14 +113,43 @@ Use lowercase category names:
 Sentence case with comma-formatted numbers:
 ```ts
 // Good
-bench('Get item by id (1,000 items)', ...)
+bench('Get by id (1,000 items)', ...)
 bench('Onboard then clear 10,000 items', ...)
-bench('Access keys() 100 times (1,000 items, cached)', ...)
+bench('Access keys 100 times (1,000 items, cached)', ...)
 
 // Bad
 bench('get item', ...)
 bench('clear 10000', ...)
 ```
+
+### Operation Pool
+
+Standard operation names that all bench files must use. This enables cross-composable comparison in the metrics pipeline.
+
+| Category | Operation | Format | Complexity |
+|----------|-----------|--------|------------|
+| initialization | Create empty | `Create empty {thing}` | O(1) |
+| initialization | Create populated | `Create {thing} ({N} items)` | O(n) |
+| initialization | Onboard | `Onboard {N} items` | O(n) |
+| lookup | Get by id | `Get by id ({N} items)` | O(1) |
+| lookup | Lookup by index | `Lookup by index ({N} items)` | O(1) |
+| lookup | Browse by value | `Browse by value ({N} items)` | O(1) |
+| lookup | Check has | `Check has ({N} items)` | O(1) |
+| mutation | Register | `Register single item ({N} items)` | O(1) |
+| mutation | Unregister | `Unregister single item ({N} items)` | O(1) |
+| mutation | Upsert | `Upsert single item ({N} items)` | O(1) |
+| batch | Clear | `Onboard then clear {N} items` | O(n) |
+| batch | Offboard | `Onboard {N} then offboard {M} items` | O(n) |
+| batch | Reindex | `Onboard then reindex {N} items` | O(n) |
+| computed | Access property | `Access {property} ({N} items)` | O(n) |
+| computed | Cached access | `Access {property} {count} times ({N} items, cached)` | O(n) |
+| seek | Seek direction | `Seek {direction} ({N} items)` | O(n) |
+| seek | Seek predicate | `Seek with predicate ({N} items)` | O(n) |
+
+**Cross-composable comparison** (benchmarking two access paths to the same data):
+- `{source}.{method}() ({N} items)` — e.g., `registry.keys() (1,000 items)` vs `proxy.keys (1,000 items)`
+
+**Domain-specific operations** are allowed but must follow the same `{Verb} {target} ({N} items)` pattern.
 
 ## Minimum Requirements
 
