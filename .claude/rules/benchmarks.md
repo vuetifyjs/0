@@ -162,21 +162,22 @@ const LOOKUP_ID_10K = 'item-5000'  // Middle of 10K registry
 
 ## Performance Tiers
 
-The tier is determined by the **fastest benchmark** in the file:
+Each benchmark gets its own tier. The `_fastest` and `_slowest` summaries surface the best and worst performers per composable.
 
-| Tier | O(1) threshold | O(n) threshold |
-|------|----------------|----------------|
-| `blazing` | ≥100,000 ops/s | ≥10,000 ops/s |
-| `fast` | ≥10,000 ops/s | ≥1,000 ops/s |
-| `good` | Below fast | Below fast |
+| Tier | O(1) threshold | O(n) threshold | O(n²) threshold |
+|------|----------------|----------------|-----------------|
+| `blazing` | ≥100,000 ops/s | ≥10,000 ops/s | ≥1,000 ops/s |
+| `fast` | ≥10,000 ops/s | ≥1,000 ops/s | ≥100 ops/s |
+| `good` | ≥1,000 ops/s | ≥100 ops/s | ≥10 ops/s |
+| `slow` | <1,000 ops/s | <100 ops/s | <10 ops/s |
 
 **Important**: Tiers are only meaningful with proper fixture isolation. A file that mixes setup costs into read-only benchmarks will show misleadingly low numbers.
 
 ### Complexity Detection
 
 Auto-detected from benchmark names:
-- `single item` / `single query` → O(1)
-- `1,000 items` / `all keys` → O(n)
+- `single item` / `single query` / `one item` → O(1)
+- `1,000 items` / `all items` / `all keys` → O(n)
 - `nested` / `recursive` → O(n²)
 
 ## Mocking Best Practices
