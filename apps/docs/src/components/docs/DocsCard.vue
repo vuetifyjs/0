@@ -61,7 +61,7 @@
     class="p-4 border border-divider rounded-lg bg-surface no-underline text-inherit transition-[border-color,box-shadow] duration-200"
     :class="{
       'opacity-60 cursor-not-allowed': disabled,
-      'hover:border-primary hover:shadow-md cursor-pointer': isInteractive && !disabled,
+      'hover:border-primary hover:shadow-md cursor-pointer focus-visible:outline-2 focus-visible:outline-primary focus-visible:-outline-offset-2': isInteractive && !disabled,
     }"
     v-bind="linkProps"
   >

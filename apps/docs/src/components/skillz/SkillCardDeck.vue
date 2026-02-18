@@ -9,7 +9,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, shallowRef, useTemplateRef } from 'vue'
+  import { computed, nextTick, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { SkillLevel, SkillMeta } from '@/types/skill'
@@ -43,15 +43,18 @@
     })).filter(g => g.skills.length > 0)
   })
 
-  // Calculate right offset to extend carousel to viewport edge
+  // Template refs
   const deckRef = useTemplateRef<HTMLElement>('deck')
+  const scrollerRefs = useTemplateRef<HTMLElement[]>('scrollers')
+
+  // Calculate right offset to extend carousel to viewport edge
   const rightOffset = shallowRef(16)
 
   useResizeObserver(deckRef, () => {
     if (!deckRef.value) return
     const rect = deckRef.value.getBoundingClientRect()
     rightOffset.value = document.documentElement.clientWidth - rect.right
-  })
+  }, { immediate: true })
 
   // Drag scroll state (non-reactive per-interaction tracking)
   let activeEl: HTMLElement | null = null
@@ -83,18 +86,76 @@
     dragging.value = false
   }
 
-  // Track which levels have been scrolled (for left fade mask)
+  // Track scroll state per level (for fade masks and arrow visibility)
   const scrolledLevels = shallowRef(new Set<SkillLevel>())
+  const atEndLevels = shallowRef(new Set<SkillLevel>())
 
-  function onScroll (e: Event, level: SkillLevel) {
-    const el = e.currentTarget as HTMLElement
+  function updateScrollState (el: HTMLElement, level: SkillLevel) {
     const isScrolled = el.scrollLeft > 0
+    const isAtEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1
+
     if (scrolledLevels.value.has(level) !== isScrolled) {
       const next = new Set(scrolledLevels.value)
       if (isScrolled) next.add(level)
       else next.delete(level)
       scrolledLevels.value = next
     }
+
+    if (atEndLevels.value.has(level) !== isAtEnd) {
+      const next = new Set(atEndLevels.value)
+      if (isAtEnd) next.add(level)
+      else next.delete(level)
+      atEndLevels.value = next
+    }
+  }
+
+  function checkAllCarousels () {
+    const scrollers = scrollerRefs.value
+    if (!scrollers) return
+    const levelList = skillsByLevel.value
+    for (const [i, el] of scrollers.entries()) {
+      if (levelList[i]) updateScrollState(el, levelList[i].level)
+    }
+  }
+
+  onMounted(() => nextTick(checkAllCarousels))
+  watch(rightOffset, () => nextTick(checkAllCarousels))
+
+  function maskImage (level: SkillLevel): string | undefined {
+    const left = scrolledLevels.value.has(level)
+    const end = atEndLevels.value.has(level)
+    if (left && end) return 'linear-gradient(to right, transparent, black 4rem)'
+    if (left) return 'linear-gradient(to right, transparent, black 4rem, black calc(100% - 4rem), transparent)'
+    if (!end) return 'linear-gradient(to right, black, black calc(100% - 4rem), transparent)'
+    return undefined
+  }
+
+  function onScroll (e: Event, level: SkillLevel) {
+    updateScrollState(e.currentTarget as HTMLElement, level)
+  }
+
+  function scrollCarousel (level: SkillLevel, direction: -1 | 1) {
+    const index = skillsByLevel.value.findIndex(g => g.level === level)
+    const el = index === -1 ? undefined : scrollerRefs.value?.[index]
+    if (el) {
+      el.scrollBy({ left: direction * 300, behavior: 'smooth' })
+    }
+  }
+
+  function onKeyDown (e: KeyboardEvent) {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+
+    const container = e.currentTarget as HTMLElement
+    const focusable = [...container.querySelectorAll<HTMLElement>('a, [tabindex="0"]')]
+    const current = focusable.indexOf(document.activeElement as HTMLElement)
+    if (current === -1) return
+
+    const next = e.key === 'ArrowRight' ? current + 1 : current - 1
+    if (next < 0 || next >= focusable.length) return
+
+    e.preventDefault()
+    focusable[next].focus()
+    focusable[next].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
   }
 
   function onClickCapture (e: MouseEvent) {
@@ -116,18 +177,77 @@
       <!-- Carousel layout -->
       <div
         v-if="carousel"
-        class="carousel-scroll flex gap-4 overflow-x-auto touch-pan-x"
-        :class="[dragging ? 'cursor-grabbing select-none' : 'cursor-grab', scrolledLevels.has(level) && 'is-scrolled']"
+        class="group relative"
         :style="{ marginRight: `-${rightOffset}px`, paddingRight: '1rem' }"
-        @click.capture="onClickCapture"
-        @dragstart.prevent
-        @pointercancel="onPointerUp"
-        @pointerdown="onPointerDown"
-        @pointermove="onPointerMove"
-        @pointerup="onPointerUp"
-        @scroll="onScroll($event, level)"
       >
-        <SkillCard v-for="skill in skills" :key="skill.id" class="shrink-0 w-[280px]" :skill="skill" />
+        <div
+          ref="scrollers"
+          :aria-label="`${meta.label} skills`"
+          class="hide-scrollbar flex gap-4 overflow-x-auto touch-pan-x [scrollbar-width:none]"
+          :class="[dragging ? 'cursor-grabbing select-none' : 'cursor-grab']"
+          role="list"
+          :style="{ maskImage: maskImage(level) }"
+          @click.capture="onClickCapture"
+          @dragstart.prevent
+          @keydown="onKeyDown"
+          @pointercancel="onPointerUp"
+          @pointerdown="onPointerDown"
+          @pointermove="onPointerMove"
+          @pointerup="onPointerUp"
+          @scroll="onScroll($event, level)"
+        >
+          <SkillCard
+            v-for="skill in skills"
+            :key="skill.id"
+            class="shrink-0 w-[280px]"
+            role="listitem"
+            :skill="skill"
+          />
+        </div>
+
+        <!-- Left arrow -->
+        <button
+          v-if="scrolledLevels.has(level)"
+          aria-label="Scroll left"
+          class="absolute left-2 top-50% -translate-y-50% z-1 flex items-center justify-center w-9 h-9 rounded-full border border-divider bg-surface text-on-surface cursor-pointer opacity-0 group-hover:opacity-100 focus-visible:opacity-100 shadow-sm hover:shadow-md transition-[opacity,box-shadow] duration-200"
+          @click="scrollCarousel(level, -1)"
+        >
+          <svg
+            fill="none"
+            height="20"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+
+        <!-- Right arrow -->
+        <button
+          v-if="!atEndLevels.has(level)"
+          aria-label="Scroll right"
+          class="absolute right-2 top-50% -translate-y-50% z-1 flex items-center justify-center w-9 h-9 rounded-full border border-divider bg-surface text-on-surface cursor-pointer opacity-0 group-hover:opacity-100 focus-visible:opacity-100 shadow-sm hover:shadow-md transition-[opacity,box-shadow] duration-200"
+          @click="scrollCarousel(level, 1)"
+        >
+          <svg
+            fill="none"
+            height="20"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
       </div>
 
       <!-- Grid layout -->
@@ -143,19 +263,7 @@
 </template>
 
 <style scoped>
-  .carousel-scroll {
-    scrollbar-width: none;
-  }
-
-  .carousel-scroll::-webkit-scrollbar {
+  .hide-scrollbar::-webkit-scrollbar {
     display: none;
-  }
-
-  .carousel-scroll {
-    mask-image: linear-gradient(to right, black, black calc(100% - 4rem), transparent);
-  }
-
-  .carousel-scroll.is-scrolled {
-    mask-image: linear-gradient(to right, transparent, black 4rem, black calc(100% - 4rem), transparent);
   }
 </style>
