@@ -259,8 +259,28 @@ export function createTokens<
     return result
   }
 
+  const { register: _register, upsert: _upsert, unregister: _unregister } = registry
+
+  function register (registration: Partial<Z>) {
+    cache.clear()
+    return _register(registration)
+  }
+
+  function upsert (id: string, registration: Partial<Z>) {
+    cache.clear()
+    return _upsert(id, registration)
+  }
+
+  function unregister (id: string) {
+    cache.clear()
+    return _unregister(id)
+  }
+
   return {
     ...registry,
+    register,
+    upsert,
+    unregister,
     resolve,
     isAlias,
     get size () {

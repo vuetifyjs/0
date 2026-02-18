@@ -153,19 +153,22 @@ export function createLocale<
     return adapter.n(value, registry.selectedId.value, ...params)
   }
 
-  function resolve (locale: ID, str: string): string {
+  function resolve (locale: ID, str: string, visited = new Set<string>()): string {
     return str.replace(/{([a-zA-Z0-9.-_]+)}/g, (match, key) => {
-      // Check if the key starts with a registered locale (cross-locale reference)
       const [prefix, ...rest] = key.split('.')
       const target = registry.has(prefix) ? prefix : locale
       const name = registry.has(prefix) ? rest.join('.') : key
 
-      // Look up the full flattened path in the token registry
       const path = `${target}.${name}`
+
+      if (visited.has(path)) return match
+
+      visited.add(path)
+
       const resolved = tokens.get(path)?.value
 
       if (isString(resolved)) {
-        return resolve(target, resolved)
+        return resolve(target, resolved, visited)
       }
 
       return match
