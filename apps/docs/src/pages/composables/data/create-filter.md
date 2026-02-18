@@ -11,8 +11,8 @@ features:
   github: /composables/createFilter/
   level: 2
 related:
-  - /composables/utilities/create-pagination
-  - /composables/utilities/create-virtual
+  - /composables/data/create-pagination
+  - /composables/data/create-virtual
 ---
 
 # createFilter

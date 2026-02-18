@@ -12,7 +12,7 @@ features:
   renderless: false
   level: 2
 related:
-  - /composables/utilities/create-pagination
+  - /composables/data/create-pagination
 ---
 
 # Pagination
@@ -23,7 +23,7 @@ A headless component for creating page navigation with proper ARIA support.
 
 ## Usage
 
-The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the [createPagination](/composables/utilities/create-pagination) and [createOverflow](/composables/utilities/create-overflow) composable internally.
+The Pagination component provides a compound component pattern for building page navigation interfaces. It uses the [createPagination](/composables/data/create-pagination) and [createOverflow](/composables/utilities/create-overflow) composable internally.
 
 ::: example
 /components/pagination/basic

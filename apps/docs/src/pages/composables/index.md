@@ -159,16 +159,25 @@ Application-level features installable via Vue plugins.
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 
+## Data
+
+Composables for filtering, sorting, paginating, and virtualizing collections.
+
+| Name | Description |
+| - | - |
+| [createDataTable](/composables/data/create-data-table) | Composable data table with sort, filter, paginate, select, and expand |
+| [createFilter](/composables/data/create-filter) | Filter arrays based on search queries |
+| [createPagination](/composables/data/create-pagination) | Pagination state with navigation methods |
+| [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |
+
 ## Utilities
 
 Standalone helpers for common UI patterns.
 
 | Name | Description |
 | - | - |
-| [createFilter](/composables/utilities/create-filter) | Filter arrays based on search queries |
+| [createBreadcrumbs](/composables/utilities/create-breadcrumbs) | Breadcrumb navigation with path truncation |
 | [createOverflow](/composables/utilities/create-overflow) | Compute item capacity for responsive truncation |
-| [createPagination](/composables/utilities/create-pagination) | Pagination state with navigation methods |
-| [createVirtual](/composables/utilities/create-virtual) | Virtual scrolling for large lists |
 
 ## Transformers
 
