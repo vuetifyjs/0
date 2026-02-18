@@ -172,7 +172,7 @@
 </script>
 
 <template>
-  <div class="h-screen flex flex-col">
+  <div class="h-screen flex flex-col overflow-hidden">
     <!-- Header -->
     <header class="flex items-center justify-between h-[48px] px-3 border-b border-divider bg-surface shrink-0">
       <div class="flex items-center gap-3">
@@ -331,7 +331,7 @@
         description="You've learned the Vue fundamentals that power every v0 composable. Go explore — or dive into another tutorial when you're ready."
         title="Tutorial Complete"
         @back="showComplete = false"
-        @complete="router.push('/skillz')"
+        @complete="router.push(`/skillz/${tutorialId}`)"
       />
     </div>
   </div>
