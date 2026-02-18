@@ -1,6 +1,7 @@
 // Composables
 export * from './createBreadcrumbs'
 export * from './createContext'
+export * from './createDataTable'
 export * from './createPlugin'
 export * from './createTrinity'
 export * from './toArray'

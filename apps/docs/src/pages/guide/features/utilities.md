@@ -9,9 +9,9 @@ meta:
   - name: keywords
     content: vuetify0, utilities, helpers, type guards, transformers, toArray, toReactive, Vue 3
 related:
-  - /composables/utilities/create-filter
-  - /composables/utilities/create-pagination
-  - /composables/utilities/create-virtual
+  - /composables/data/create-filter
+  - /composables/data/create-pagination
+  - /composables/data/create-virtual
   - /composables/utilities/create-overflow
 ---
 
@@ -25,9 +25,9 @@ Standalone helpers for common UI patterns. These composables don't depend on con
 
 | Utility | Purpose |
 | - | - |
-| [createFilter](/composables/utilities/create-filter) | Filter arrays with search queries |
-| [createPagination](/composables/utilities/create-pagination) | Page navigation state |
-| [createVirtual](/composables/utilities/create-virtual) | Virtual scrolling for large lists |
+| [createFilter](/composables/data/create-filter) | Filter arrays with search queries |
+| [createPagination](/composables/data/create-pagination) | Page navigation state |
+| [createVirtual](/composables/data/create-virtual) | Virtual scrolling for large lists |
 | [createOverflow](/composables/utilities/create-overflow) | Compute visible item capacity |
 
 > [!TIP]

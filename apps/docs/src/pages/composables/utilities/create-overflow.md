@@ -11,7 +11,7 @@ features:
   github: /composables/createOverflow/
   level: 2
 related:
-  - /composables/utilities/create-virtual
+  - /composables/data/create-virtual
 ---
 
 # createOverflow

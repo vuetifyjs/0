@@ -11,7 +11,7 @@ features:
   github: /composables/createVirtual/
   level: 2
 related:
-  - /composables/utilities/create-filter
+  - /composables/data/create-filter
   - /composables/utilities/create-overflow
 ---
 
