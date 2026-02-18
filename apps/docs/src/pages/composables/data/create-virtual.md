@@ -61,40 +61,6 @@ flowchart LR
   F --> H
 ```
 
-## API Pattern
-
-| Function | Purpose |
-|----------|---------|
-| `createVirtual(items, options)` | Factory - returns a virtual scrolling context |
-| `createVirtualContext(items, options)` | Factory with DI - returns `[useVirtual, provideVirtual, virtual]` trinity |
-| `useVirtual(namespace?)` | Injection getter - retrieves provided virtual context |
-
-### Basic Usage
-
-```ts
-import { ref } from 'vue'
-import { createVirtual } from '@vuetify/v0'
-
-const items = ref(Array.from({ length: 10000 }, (_, i) => ({ id: i })))
-const virtual = createVirtual(items, { itemHeight: 40 })
-```
-
-### With Dependency Injection
-
-```ts
-// Create context with DI support
-const [useVirtual, provideVirtual, virtual] = createVirtualContext(items, {
-  namespace: 'app:virtual',
-  overscan: 10,
-})
-
-// In parent component
-provideVirtual()
-
-// In child component
-const virtual = useVirtual()
-```
-
 ## Reactivity
 
 | Property/Method | Reactive | Notes |

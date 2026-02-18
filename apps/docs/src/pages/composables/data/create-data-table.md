@@ -162,30 +162,6 @@ const table = createDataTable({
 const virtual = createVirtual(table.items, { itemHeight: 40 })
 ```
 
-## API Pattern
-
-| Function | Purpose |
-| - | - |
-| `createDataTable(options)` | Factory — returns a data table context |
-| `createDataTableContext(options)` | Factory with DI — returns `[useDataTable, provideDataTable, context]` trinity |
-| `useDataTable(namespace?)` | Injection getter — retrieves provided data table context |
-
-### With Dependency Injection
-
-```ts
-const [useDataTable, provideDataTable, context] = createDataTableContext({
-  namespace: 'app:users',
-  items: users,
-  columns,
-})
-
-// Parent component
-provideDataTable()
-
-// Child component
-const table = useDataTable()
-```
-
 ## Features
 
 ### Sorting
@@ -291,26 +267,6 @@ table.grouping.isOpen('Engineering')
 table.grouping.openAll()
 table.grouping.closeAll()
 ```
-
-## Options
-
-| Option | Type | Default | Description |
-| - | - | - | - |
-| `items` | `MaybeRefOrGetter<T[]>` | — | Source items (required) |
-| `columns` | `DataTableColumn<T>[]` | — | Column definitions (required) |
-| `itemValue` | `KeysOfType<T, ID>` | `'id'` | Property used as row identifier. Must resolve to `string \| number`. |
-| `filter` | `FilterOptions` | `{}` | Filter options (keys derived from columns) |
-| `pagination` | `PaginationOptions` | `{}` | Pagination options (size derived from pipeline) |
-| `sortMultiple` | `boolean` | `false` | Enable multi-column sort |
-| `mandate` | `boolean` | `false` | Prevent clearing sort (asc → desc → asc cycle) |
-| `firstSortOrder` | `'asc' \| 'desc'` | `'asc'` | Direction for first sort click |
-| `selectStrategy` | `'single' \| 'page' \| 'all'` | `'page'` | Selection scope for bulk operations |
-| `itemSelectable` | `KeysOfType<T, boolean>` | — | Property that controls per-row selectability |
-| `groupBy` | `keyof T & string` | — | Column key to group rows by |
-| `enroll` | `boolean` | `false` | Auto-open all groups on creation |
-| `expandMultiple` | `boolean` | `true` | Allow multiple rows expanded simultaneously |
-| `locale` | `string` | — | Locale for sorting (defaults to useLocale or browser default) |
-| `adapter` | `DataTableAdapterInterface<T>` | `ClientAdapter` | Pipeline adapter |
 
 ## Reactivity
 

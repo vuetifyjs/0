@@ -59,42 +59,6 @@ flowchart LR
   page --> pageStart/pageStop
 ```
 
-## API Pattern
-
-| Function | Purpose |
-|----------|---------|
-| `createPagination(options)` | Factory - returns a pagination context |
-| `createPaginationContext(options)` | Factory with DI - returns `[usePagination, providePagination, pagination]` trinity |
-| `usePagination(namespace?)` | Injection getter - retrieves provided pagination context |
-
-### Basic Usage
-
-```ts
-const pagination = createPagination({
-  size: 100,
-  itemsPerPage: 10,
-})
-
-pagination.next() // Go to next page
-pagination.goto(5) // Go to page 5
-```
-
-### With Dependency Injection
-
-```ts
-// Create context with DI support
-const [usePagination, providePagination, pagination] = createPaginationContext({
-  namespace: 'app:pagination',
-  itemsPerPage: 20,
-})
-
-// In parent component
-providePagination()
-
-// In child component
-const pagination = usePagination()
-```
-
 ## Reactivity
 
 | Property/Method | Reactive | Notes |
