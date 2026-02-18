@@ -28,7 +28,7 @@
 
 <template>
   <DocsCard
-    class="flex flex-col h-full"
+    class="flex flex-col"
     :class="{ 'border-success': done }"
     :disabled="isLocked"
     hoverable
