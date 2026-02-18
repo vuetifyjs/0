@@ -83,11 +83,11 @@ describe('createDataTable benchmarks', () => {
   // Fresh fixture per iteration (required - we're measuring creation itself)
   // ===========================================================================
   describe('initialization', () => {
-    bench('Create table with 1,000 items', () => {
+    bench('Create table (1,000 items)', () => {
       createTable({ items: ROWS_1K })
     })
 
-    bench('Create table with 10,000 items', () => {
+    bench('Create table (10,000 items)', () => {
       createTable({ items: ROWS_10K })
     })
 
@@ -281,25 +281,25 @@ describe('createDataTable benchmarks', () => {
     const table1k = createTable({ items: ROWS_1K })
     const table10k = createTable({ items: ROWS_10K })
 
-    bench('Read items 100 times (1,000 items, cached)', () => {
+    bench('Access items 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void table1k.items.value
       }
     })
 
-    bench('Read items 100 times (10,000 items, cached)', () => {
+    bench('Access items 100 times (10,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void table10k.items.value
       }
     })
 
-    bench('Read sortedItems 100 times (1,000 items, cached)', () => {
+    bench('Access sortedItems 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void table1k.sortedItems.value
       }
     })
 
-    bench('Read total 100 times (1,000 items, cached)', () => {
+    bench('Access total 100 times (1,000 items, cached)', () => {
       for (let i = 0; i < 100; i++) {
         void table1k.total.value
       }
