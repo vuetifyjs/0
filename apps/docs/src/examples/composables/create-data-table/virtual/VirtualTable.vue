@@ -51,42 +51,44 @@
       </span>
     </div>
 
-    <div
-      ref="element"
-      class="h-[300px] overflow-y-auto border border-divider rounded-lg"
-      @scroll="scroll"
-    >
-      <table class="w-full text-sm">
-        <thead class="sticky top-0 z-10 bg-surface">
-          <tr class="border-b border-divider bg-surface-tint">
-            <th
-              v-for="col in columns"
-              :key="col.key"
-              class="px-4 py-3 text-left font-medium cursor-pointer select-none hover:text-primary transition-colors"
-              @click="table.sort.toggle(col.key)"
+    <div class="border border-divider rounded-lg overflow-clip">
+      <div
+        ref="element"
+        class="h-[300px] overflow-y-auto"
+        @scroll="scroll"
+      >
+        <table class="w-full text-sm">
+          <thead class="sticky top-0 z-10 bg-surface">
+            <tr class="border-b border-divider bg-surface-tint">
+              <th
+                v-for="col in columns"
+                :key="col.key"
+                class="px-4 py-3 text-left font-medium cursor-pointer select-none hover:text-primary transition-colors"
+                @click="table.sort.toggle(col.key)"
+              >
+                {{ col.title }}
+                <span class="ml-1 text-xs opacity-50">{{ sortIcon(col.key) }}</span>
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr :style="{ height: `${offset}px` }" />
+
+            <tr
+              v-for="item in virtualItems"
+              :key="item.raw.id"
+              class="h-[40px] hover:bg-surface-tint transition-colors"
             >
-              {{ col.title }}
-              <span class="ml-1 text-xs opacity-50">{{ sortIcon(col.key) }}</span>
-            </th>
-          </tr>
-        </thead>
+              <td class="px-4">{{ item.raw.name }}</td>
+              <td class="px-4 opacity-70">{{ item.raw.email }}</td>
+              <td class="px-4 font-mono">{{ item.raw.score }}</td>
+            </tr>
 
-        <tbody>
-          <tr :style="{ height: `${offset}px` }" />
-
-          <tr
-            v-for="item in virtualItems"
-            :key="item.raw.id"
-            class="h-[40px] hover:bg-surface-tint transition-colors"
-          >
-            <td class="px-4">{{ item.raw.name }}</td>
-            <td class="px-4 opacity-70">{{ item.raw.email }}</td>
-            <td class="px-4 font-mono">{{ item.raw.score }}</td>
-          </tr>
-
-          <tr :style="{ height: `${size}px` }" />
-        </tbody>
-      </table>
+            <tr :style="{ height: `${size}px` }" />
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

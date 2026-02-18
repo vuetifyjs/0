@@ -85,7 +85,7 @@
               @click="table.grouping.toggle(group.key)"
             >
               <td class="px-4 py-2 font-medium" :colspan="columns.length + 1">
-                <span class="mr-2 text-xs">{{ table.grouping.opened(group.key) ? '\u25BC' : '\u25B6' }}</span>
+                <span class="mr-2 text-xs">{{ table.grouping.opened(group.key) ? '−' : '+' }}</span>
                 {{ group.key }}
                 <span class="ml-2 text-xs opacity-50">({{ group.items.length }})</span>
               </td>
