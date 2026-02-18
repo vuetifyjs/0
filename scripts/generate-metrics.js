@@ -97,23 +97,23 @@ function detectComplexity (name) {
  * Determine performance tier based on throughput and complexity
  * @param {number} hz - Operations per second
  * @param {string} name - Benchmark name for complexity detection
- * @returns {'blazing' | 'fast' | 'good'}
+ * @returns {'blazing' | 'fast' | 'good' | 'slow'}
  */
 function getTier (hz, name) {
   const complexity = detectComplexity(name)
 
-  // Thresholds based on complexity
   const thresholds = {
-    'O(1)': { blazing: 100_000, fast: 10_000 },
-    'O(n)': { blazing: 10_000, fast: 1000 },
-    'O(n²)': { blazing: 1000, fast: 100 },
+    'O(1)': { blazing: 100_000, fast: 10_000, good: 1000 },
+    'O(n)': { blazing: 10_000, fast: 1000, good: 100 },
+    'O(n²)': { blazing: 1000, fast: 100, good: 10 },
   }
 
-  const { blazing, fast } = thresholds[complexity]
+  const { blazing, fast, good } = thresholds[complexity]
 
   if (hz >= blazing) return 'blazing'
   if (hz >= fast) return 'fast'
-  return 'good'
+  if (hz >= good) return 'good'
+  return 'slow'
 }
 
 function main () {
@@ -184,13 +184,14 @@ function main () {
             mean: b.mean,
             meanLabel: formatTime(b.mean),
             rme: Math.round(b.rme * 10) / 10,
+            tier: getTier(b.hz, b.name),
           }
         }
       }
 
-      // Add summary: fastest overall operation
       const allBenchmarks = (file.groups || []).flatMap(g => g.benchmarks || [])
-      const fastestOverall = allBenchmarks.reduce((a, b) => (a?.hz || 0) > (b?.hz || 0) ? a : b, null)
+
+      const fastestOverall = allBenchmarks.reduce((a, b) => (!a || b.hz > a.hz) ? b : a, null)
       if (fastestOverall) {
         metrics[name].benchmarks._fastest = {
           name: fastestOverall.name,
@@ -199,6 +200,18 @@ function main () {
           mean: fastestOverall.mean,
           meanLabel: formatTime(fastestOverall.mean),
           tier: getTier(fastestOverall.hz, fastestOverall.name),
+        }
+      }
+
+      const slowestOverall = allBenchmarks.reduce((a, b) => (!a || b.hz < a.hz) ? b : a, null)
+      if (slowestOverall) {
+        metrics[name].benchmarks._slowest = {
+          name: slowestOverall.name,
+          hz: Math.round(slowestOverall.hz),
+          hzLabel: formatHz(slowestOverall.hz),
+          mean: slowestOverall.mean,
+          meanLabel: formatTime(slowestOverall.mean),
+          tier: getTier(slowestOverall.hz, slowestOverall.name),
         }
       }
     }
