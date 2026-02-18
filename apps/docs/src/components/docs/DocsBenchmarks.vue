@@ -1,9 +1,14 @@
 <script setup lang="ts">
+  // Composables
+  import { TIER_CONFIG } from '@/composables/useBenchmarkData'
+
   // Utilities
   import { computed, toRef } from 'vue'
   import { useRoute } from 'vue-router'
 
   import metrics from '@/data/metrics.json'
+
+  const tiers = (['good', 'fast', 'blazing', 'slow'] as const).map(t => [t, TIER_CONFIG[t]] as const)
 
   const route = useRoute()
 
@@ -50,6 +55,20 @@
     class="markdown-body mt-8"
   >
     <DocsHeaderAnchor id="benchmarks" tag="h2">Benchmarks</DocsHeaderAnchor>
+
+    <p>
+      Every operation is profiled across multiple dataset sizes to measure real-world throughput.
+      Each benchmark is assigned a performance tier&mdash;<template
+        v-for="([tier, config], i) in tiers"
+        :key="tier"
+      ><span class="inline-flex items-center gap-0.5 align-baseline" :class="config.color"><AppIcon
+        :icon="config.icon"
+        :size="14"
+      />{{ config.label.toLowerCase() }}</span><template v-if="i < tiers.length - 2">, </template><template v-else-if="i === tiers.length - 2">, or </template></template>&mdash;and
+      groups are scored by averaging their individual results so you can spot bottlenecks at a glance.
+      This transparency helps you make informed decisions about which patterns scale for your use case.
+      Learn more in the <router-link class="v0-link" to="/guide/fundamentals/benchmarks">benchmarks guide</router-link>.
+    </p>
 
     <p v-if="githubLink" class="mb-4">
       <a

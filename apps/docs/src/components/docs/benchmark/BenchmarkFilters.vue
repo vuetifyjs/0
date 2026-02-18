@@ -23,7 +23,7 @@
     'clear-filters': []
   }>()
 
-  const tiers: Tier[] = ['blazing', 'fast', 'good']
+  const tiers: Tier[] = ['blazing', 'fast', 'good', 'slow']
 
   const sortOptions: { value: 'hz' | 'mean' | 'rme', label: string }[] = [
     { value: 'hz', label: 'Throughput' },

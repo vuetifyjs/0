@@ -59,15 +59,16 @@ Each benchmark file covers multiple operation types:
 
 ## Performance Tiers
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
   <div class="border border-divider rounded-lg p-4 bg-surface">
     <div class="flex items-center gap-2 mb-3">
       <AppIcon icon="benchmark-blazing" class="text-error" :size="20" />
-      <span class="font-semibold text-error">Blazing Fast</span>
+      <span class="font-semibold text-error">Blazing</span>
     </div>
     <div class="text-sm text-on-surface-variant space-y-1">
       <div>O(1): ≥100,000 ops/s</div>
       <div>O(n): ≥10,000 ops/s</div>
+      <div>O(n²): ≥1,000 ops/s</div>
     </div>
   </div>
   <div class="border border-divider rounded-lg p-4 bg-surface">
@@ -78,6 +79,7 @@ Each benchmark file covers multiple operation types:
     <div class="text-sm text-on-surface-variant space-y-1">
       <div>O(1): ≥10,000 ops/s</div>
       <div>O(n): ≥1,000 ops/s</div>
+      <div>O(n²): ≥100 ops/s</div>
     </div>
   </div>
   <div class="border border-divider rounded-lg p-4 bg-surface">
@@ -86,13 +88,25 @@ Each benchmark file covers multiple operation types:
       <span class="font-semibold text-info">Good</span>
     </div>
     <div class="text-sm text-on-surface-variant space-y-1">
-      <div>O(1): Below fast</div>
-      <div>O(n): Below fast</div>
+      <div>O(1): ≥1,000 ops/s</div>
+      <div>O(n): ≥100 ops/s</div>
+      <div>O(n²): ≥10 ops/s</div>
+    </div>
+  </div>
+  <div class="border border-divider rounded-lg p-4 bg-surface">
+    <div class="flex items-center gap-2 mb-3">
+      <AppIcon icon="benchmark-slow" class="text-on-surface-variant" :size="20" />
+      <span class="font-semibold text-on-surface-variant">Slow</span>
+    </div>
+    <div class="text-sm text-on-surface-variant space-y-1">
+      <div>O(1): &lt;1,000 ops/s</div>
+      <div>O(n): &lt;100 ops/s</div>
+      <div>O(n²): &lt;10 ops/s</div>
     </div>
   </div>
 </div>
 
-The tier is determined by the **fastest benchmark** in each file.
+Each benchmark is assigned a tier based on its throughput and detected complexity. Group tiers are the average of their individual benchmark tiers.
 
 ### Complexity Detection
 
@@ -106,7 +120,7 @@ Tiers adjust based on detected algorithmic complexity:
 
 ### Reading Results
 
-```
+```bash
 ✓ createRegistry/index.bench.ts
   lookup operations
     ✓ Get item by id (1,000 items)     1,234,567 ops/s

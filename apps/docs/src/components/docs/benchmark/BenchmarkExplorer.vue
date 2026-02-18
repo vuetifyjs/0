@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Composables
-  import { useBenchmarkData, type Tier } from '@/composables/useBenchmarkData'
+  import { useBenchmarkData } from '@/composables/useBenchmarkData'
 
   // Utilities
   import { computed, toRef, watch } from 'vue'
@@ -28,7 +28,7 @@
     expandedGroups,
     expandAll,
     collapseAll,
-  } = useBenchmarkData({ composable: props.composable })
+  } = useBenchmarkData({ composable: () => props.composable })
 
   // Default expand behavior: expand all when not collapsed
   const shouldCollapse = computed(() => props.collapsed ?? !!props.composable)
@@ -46,19 +46,6 @@
       expandAll()
     }
   }, { once: true })
-
-  // Composable tier lookup
-  const composableTiers = computed(() => {
-    const map = new Map<string, Tier>()
-    for (const c of composables.value) {
-      map.set(c.name, c.tier)
-    }
-    return map
-  })
-
-  function getGroupTier (composableName: string): Tier {
-    return composableTiers.value.get(composableName) ?? 'good'
-  }
 
   const allExpanded = computed(() =>
     filteredGroups.value.length > 0
@@ -143,7 +130,7 @@
           :key="group.id"
           :expanded="expandedGroups.selected(group.id)"
           :group="group"
-          :tier="getGroupTier(group.composable)"
+          :tier="group.tier"
           @update:expanded="handleGroupToggle(group.id)"
         />
       </div>
