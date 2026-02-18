@@ -118,6 +118,7 @@
 <template>
   <Atom
     ref="ref"
+    :as="props.as"
     :style
     v-bind="slotProps.attrs"
     @beforetoggle="onBeforeToggle"

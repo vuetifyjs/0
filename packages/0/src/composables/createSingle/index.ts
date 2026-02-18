@@ -141,9 +141,7 @@ export function createSingle<
   const selectedValue = computed(() => selectedItem.value?.value)
 
   function unselect (id: ID) {
-    if (mandatory && registry.selectedIds.size === 1) return
-
-    registry.selectedIds.delete(id)
+    registry.unselect(id)
   }
 
   function toggle (id: ID) {

@@ -143,10 +143,6 @@ export function createForm<
     return value.toLowerCase().split(/\s+/)
   }
 
-  function validatesOn (event: 'submit' | 'change'): boolean {
-    return parse(validateOn).includes(event)
-  }
-
   const isValidating = computed(() => {
     for (const ticket of registry.values()) {
       if (ticket.isValidating.value) return true
@@ -176,16 +172,10 @@ export function createForm<
 
   async function validate (id: ID | ID[]): Promise<boolean> {
     const validating = toArray(id)
-
-    if (validatesOn('submit')) {
-      const results = await Promise.all(
-        validating.map(async id => await registry.get(id)?.validate() ?? true),
-      )
-      return results.every(Boolean)
-    }
-
-    const tickets = validating.map(id => registry.get(id)).filter(Boolean) as E[]
-    return tickets.every(ticket => ticket.isValid.value === true)
+    const results = await Promise.all(
+      validating.map(async id => await registry.get(id)?.validate() ?? true),
+    )
+    return results.every(Boolean)
   }
 
   function register (registration: Partial<Z>): E {
@@ -210,12 +200,17 @@ export function createForm<
       isValid.value = null
     }
 
+    let validationGeneration = 0
+
     async function validate (silent = false): Promise<boolean> {
       if (rules.length === 0) return isValid.value = true
 
+      const generation = ++validationGeneration
       isValidating.value = true
       try {
         const results = await Promise.all(rules.map(rule => rule(model.value)))
+        if (generation !== validationGeneration) return isValid.value ?? false
+
         const errorMessages = results.filter(result => isString(result)) as string[]
 
         if (!silent) {
@@ -226,7 +221,9 @@ export function createForm<
 
         return errorMessages.length === 0
       } finally {
-        isValidating.value = false
+        if (generation === validationGeneration) {
+          isValidating.value = false
+        }
       }
     }
 
