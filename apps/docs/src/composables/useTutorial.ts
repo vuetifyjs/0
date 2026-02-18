@@ -6,7 +6,7 @@ import { useEditorStore } from '@/composables/useEditorStore'
 import { useMarkdown } from '@/composables/useMarkdown'
 
 // Utilities
-import { compileFile } from '@vue/repl'
+import { File as ReplFile, compileFile } from '@vue/repl'
 import { computed, onMounted, shallowRef, watch } from 'vue'
 
 // Types
@@ -113,28 +113,76 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
   }
 
   // ── Step loading ─────────────────────────────────────────────────────
+
+  // Files the REPL manages internally — never touch between steps or the
+  // sandbox watch will fire and recreate the iframe.
+  const REPL_PROTECTED = new Set(['import-map.json', 'tsconfig.json'])
+
   async function loadStep (stepIndex: number) {
     const data = await resolveStep(stepIndex)
     if (!data) return
 
-    // Update markdown and options immediately
+    // Update markdown and options immediately (sync, before async compile)
     markdown.value = data.md
     stepOptions.value = data.options
 
     const currentTheme = isDark.value ? 'dark' : 'light'
-    await store.setFiles(
-      {
-        'src/main.ts': createMainTs(currentTheme),
-        'src/uno.config.ts': UNO_CONFIG_TS,
-        ...data.files,
-      },
-      'src/main.ts',
-    )
+
+    // Ensure the sandbox entry point is main.ts, not the default src/App.vue.
+    // updatePreview() reads store.mainFile inside its watchEffect, so setting
+    // this before files are compiled means the sandbox will always bootstrap
+    // from main.ts rather than auto-wrapping App.vue with createApp.
+    store.mainFile = 'src/main.ts'
+
+    // Build normalized next file set (ensure src/ prefix)
+    const nextFiles: Record<string, string> = {}
+    for (const [name, code] of Object.entries({
+      'src/main.ts': createMainTs(currentTheme),
+      'src/uno.config.ts': UNO_CONFIG_TS,
+      ...data.files,
+    })) {
+      nextFiles[name.startsWith('src/') ? name : `src/${name}`] = code
+    }
+
+    // Remove files that belong to the previous step but not this one.
+    // Skipping protected REPL files avoids touching the import map, which
+    // would trigger the Sandbox watch and recreate the iframe.
+    for (const filename of Object.keys(store.files)) {
+      if (REPL_PROTECTED.has(filename)) continue
+      if (!(filename in nextFiles)) delete store.files[filename]
+    }
+
+    // Update existing files in-place or add new ones, compile only what changed.
+    // Mutating .code directly avoids replacing the files reactive object, so
+    // the Sandbox's getImportMap() watch never fires → no iframe recreation →
+    // no volar worker restart.
+    //
+    // IMPORTANT: always pass store.files[filename] (the reactive Proxy) to
+    // compileFile, never the raw ReplFile instance. compileFile destructures
+    // { compiled } from the file parameter — when it writes compiled.js through
+    // a Proxy, Vue tracks the change and re-triggers updatePreview. A raw write
+    // bypasses the Proxy and the preview never updates.
+    const compilePromises: Promise<(string | Error)[]>[] = []
+    for (const [filename, code] of Object.entries(nextFiles)) {
+      const existing = store.files[filename]
+      if (existing) {
+        if (existing.code !== code) {
+          existing.code = code
+          compilePromises.push(compileFile(store, existing))
+        }
+      } else {
+        store.files[filename] = new ReplFile(filename, code)
+        compilePromises.push(compileFile(store, store.files[filename]!))
+      }
+    }
+
     store.files['src/main.ts']!.hidden = true
     store.files['src/uno.config.ts']!.hidden = true
 
+    store.errors = (await Promise.all(compilePromises)).flat()
+
     const firstFile = Object.keys(data.files)[0] ?? 'src/App.vue'
-    store.setActive(firstFile)
+    store.setActive(firstFile.startsWith('src/') ? firstFile : `src/${firstFile}`)
     fileTreeKey.value++
   }
 
