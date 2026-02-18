@@ -21,10 +21,7 @@
   import Monaco from '@vue/repl/monaco-editor'
   import { computed, shallowRef, type ShallowRef, watch } from 'vue'
   import '@vue/repl/style.css'
-  import { useRouter } from 'vue-router'
-
-  // Stores
-  import { useSkillzStore } from '@/stores/skillz'
+  import { useRoute, useRouter } from 'vue-router'
 
   definePage({
     meta: {
@@ -32,8 +29,13 @@
     },
   })
 
+  const route = useRoute()
   const params = useParams<{ id: string }>()
   const tutorialId = computed(() => params.value.id)
+  const initialStep = computed(() => {
+    const s = Number.parseInt(String(route.query.step ?? '1'), 10)
+    return Number.isNaN(s) || s < 1 ? 1 : s
+  })
 
   const {
     store,
@@ -43,6 +45,7 @@
     meta,
     html,
     stepLabel,
+    currentStep,
     isFirst,
     isLast,
     isReady,
@@ -50,7 +53,16 @@
     stepOptions,
     nextStep,
     prevStep,
-  } = useTutorial(tutorialId)
+    complete,
+  } = useTutorial(tutorialId, initialStep)
+
+  // Keep ?step query param in sync so refresh/share preserves position
+  watch(currentStep, step => {
+    const current = Number.parseInt(String(route.query.step ?? '1'), 10)
+    if (current !== step) {
+      router.replace({ query: step > 1 ? { step } : undefined })
+    }
+  })
 
   function onNext () {
     if (isLast.value) {
@@ -149,7 +161,6 @@
   )
 
   // ── Completion ──────────────────────────────────────────────────────
-  const skillz = useSkillzStore()
   const stack = useStack()
   const showComplete = shallowRef(false)
   const router = useRouter()
@@ -166,7 +177,7 @@
   })
 
   function onComplete () {
-    skillz.finish(tutorialId.value)
+    complete()
     showComplete.value = true
   }
 </script>
@@ -177,10 +188,10 @@
     <header class="flex items-center justify-between h-[48px] px-3 border-b border-divider bg-surface shrink-0">
       <div class="flex items-center gap-3">
         <RouterLink
-          aria-label="Back to Skillz"
+          aria-label="Back to skill"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors no-underline text-on-surface"
-          title="Back to Skillz"
-          to="/skillz"
+          title="Back to skill"
+          :to="`/skillz/${tutorialId}`"
         >
           <AppIcon icon="arrow-left" :size="18" />
         </RouterLink>
@@ -190,7 +201,7 @@
 
       <div class="flex items-center gap-2">
         <button
-          v-if="!isDesktop"
+          v-if="!isDesktop && !stepOptions.hideFiles"
           aria-label="Toggle files"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
           title="Toggle files"
@@ -200,7 +211,7 @@
         </button>
 
         <button
-          v-if="isDesktop"
+          v-if="isDesktop && !stepOptions.hideFiles"
           aria-label="Toggle sidebar"
           class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
           title="Toggle sidebar"
@@ -249,7 +260,7 @@
       />
 
       <!-- Right column -->
-      <div class="flex flex-col flex-1 min-w-0 min-h-0">
+      <div class="flex flex-col flex-1 min-w-0 min-h-0 bg-background">
         <!-- Editor area -->
         <div
           class="flex min-h-0 min-w-0 overflow-hidden"

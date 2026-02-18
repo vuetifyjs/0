@@ -75,7 +75,14 @@
 
     // Tutorials navigate directly to the editor
     if (currentTour.mode === 'tutorial' && currentTour.tutorialRoute) {
-      await router.push(currentTour.tutorialRoute)
+      const prog = progress.value
+      const stepNum = prog?.status === 'in-progress' && prog.lastStep
+        ? Number.parseInt(prog.lastStep.replace('step-', ''), 10)
+        : 1
+      await router.push({
+        path: currentTour.tutorialRoute,
+        query: stepNum > 1 ? { step: stepNum } : undefined,
+      })
       return
     }
 

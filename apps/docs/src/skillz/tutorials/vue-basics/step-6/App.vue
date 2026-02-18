@@ -55,9 +55,11 @@
           class="w-4 h-4 text-on-surface-variant transition-transform duration-200"
           :class="{ 'rotate-180': open }"
           fill="none"
+          height="16"
           stroke="currentColor"
           stroke-width="2"
           viewBox="0 0 24 24"
+          width="16"
         >
           <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
         </svg>

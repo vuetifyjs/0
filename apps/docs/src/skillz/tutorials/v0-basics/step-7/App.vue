@@ -97,10 +97,24 @@
                     : 'border-divider bg-surface'"
                 >
                   <Checkbox.Indicator v-slot="{ isMixed }">
-                    <svg v-if="isMixed" class="w-3 h-3" fill="none" viewBox="0 0 12 12">
+                    <svg
+                      v-if="isMixed"
+                      class="w-3 h-3"
+                      fill="none"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      width="12"
+                    >
                       <path d="M2.5 6h7" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
                     </svg>
-                    <svg v-else class="w-3 h-3" fill="none" viewBox="0 0 12 12">
+                    <svg
+                      v-else
+                      class="w-3 h-3"
+                      fill="none"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      width="12"
+                    >
                       <path
                         d="M2 6l3 3 5-6"
                         stroke="currentColor"
@@ -128,7 +142,13 @@
                     : 'border-divider bg-surface'"
                 >
                   <Checkbox.Indicator>
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 12 12">
+                    <svg
+                      class="w-3 h-3"
+                      fill="none"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      width="12"
+                    >
                       <path
                         d="M2 6l3 3 5-6"
                         stroke="currentColor"
@@ -156,7 +176,13 @@
                     : 'border-divider bg-surface'"
                 >
                   <Checkbox.Indicator>
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 12 12">
+                    <svg
+                      class="w-3 h-3"
+                      fill="none"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      width="12"
+                    >
                       <path
                         d="M2 6l3 3 5-6"
                         stroke="currentColor"
@@ -184,7 +210,13 @@
                     : 'border-divider bg-surface'"
                 >
                   <Checkbox.Indicator>
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 12 12">
+                    <svg
+                      class="w-3 h-3"
+                      fill="none"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      width="12"
+                    >
                       <path
                         d="M2 6l3 3 5-6"
                         stroke="currentColor"
@@ -212,7 +244,13 @@
                     : 'border-divider bg-surface'"
                 >
                   <Checkbox.Indicator>
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 12 12">
+                    <svg
+                      class="w-3 h-3"
+                      fill="none"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      width="12"
+                    >
                       <path
                         d="M2 6l3 3 5-6"
                         stroke="currentColor"

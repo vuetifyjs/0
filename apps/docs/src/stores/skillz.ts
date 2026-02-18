@@ -112,6 +112,11 @@ export const useSkillzStore = defineStore('skillz', () => {
     update(id, { status: 'completed', completedAt: Date.now() })
   }
 
+  function setLastStep (id: string, stepId: string): void {
+    if (!data.value.tours[id]) return
+    update(id, { lastStep: stepId })
+  }
+
   function reset (id?: string): void {
     if (id) {
       delete data.value.tours[id]
@@ -185,12 +190,12 @@ export const useSkillzStore = defineStore('skillz', () => {
   const items = computed(() => [...discovery.tours.values(), ...tutorialSkills])
   const done = computed(() => active.value ? steps(active.value) : [])
 
-  // Find any tour that was started but not completed (and not currently active)
+  // Find any skill that was started but not completed (and not currently active)
   const pendingTour = computed(() => {
     if (active.value) return null
     for (const [id, progress] of Object.entries(data.value.tours)) {
       if (progress.status === 'in-progress') {
-        const tour = discovery.tours.get(id)
+        const tour = discovery.tours.get(id) ?? tutorialSkills.find(s => s.id === id)
         if (tour) return { tour, progress }
       }
     }
@@ -205,6 +210,9 @@ export const useSkillzStore = defineStore('skillz', () => {
     finish,
     reset,
     dismiss,
+    begin,
+    record,
+    setLastStep,
 
     // Queries
     get,

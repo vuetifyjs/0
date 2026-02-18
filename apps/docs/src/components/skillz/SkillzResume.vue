@@ -30,7 +30,18 @@
     const pending = store.pendingTour
     if (!pending) return
 
-    const { tour } = pending
+    const { tour, progress } = pending
+
+    if (tour.mode === 'tutorial' && tour.tutorialRoute) {
+      const stepNum = progress.lastStep
+        ? Number.parseInt(progress.lastStep.replace('step-', ''), 10)
+        : 1
+      await router.push({
+        path: tour.tutorialRoute,
+        query: stepNum > 1 ? { step: stepNum } : undefined,
+      })
+      return
+    }
 
     await router.push(tour.startRoute)
 

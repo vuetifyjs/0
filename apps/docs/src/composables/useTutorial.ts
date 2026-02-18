@@ -17,6 +17,8 @@ import type { ComputedRef, Ref, ShallowRef } from 'vue'
 import { createMainTs, UNO_CONFIG_TS } from '@/data/editor-defaults'
 // Tutorials
 import { getTutorial, parseStepOptions } from '@/skillz/tutorials'
+// Stores
+import { useSkillzStore } from '@/stores/skillz'
 
 export interface UseTutorialReturn {
   store: ReplStore
@@ -36,11 +38,13 @@ export interface UseTutorialReturn {
   stepOptions: ShallowRef<StepOptions>
   nextStep: () => void
   prevStep: () => void
+  complete: () => void
 }
 
-export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn {
+export function useTutorial (tutorialId: ComputedRef<string>, initialStep?: ComputedRef<number>): UseTutorialReturn {
   const theme = useTheme()
   const isDark = theme.isDark
+  const skillz = useSkillzStore()
 
   const { store, replTheme, previewOptions } = useEditorStore(isDark)
 
@@ -64,6 +68,11 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
 
   function prevStep () {
     stepper.prev()
+  }
+
+  function complete () {
+    skillz.record(tutorialId.value, `step-${currentStep.value}`)
+    skillz.finish(tutorialId.value)
   }
 
   // ── Step preloading ──────────────────────────────────────────────────
@@ -187,9 +196,15 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
   }
 
   // React to step changes
-  watch(() => stepper.selectedIndex.value, async index => {
-    if (index != null) {
-      await loadStep(index)
+  watch(() => stepper.selectedIndex.value, async (newIndex, oldIndex) => {
+    if (newIndex != null) {
+      // Record the previous step as completed when advancing forward
+      if (oldIndex != null && newIndex > oldIndex) {
+        skillz.record(tutorialId.value, `step-${oldIndex + 1}`)
+      }
+      // Track current position so resume can return here
+      skillz.setLastStep(tutorialId.value, `step-${newIndex + 1}`)
+      await loadStep(newIndex)
     }
   })
 
@@ -206,14 +221,22 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     const tutorial = getTutorial(tutorialId.value)
     if (!tutorial || tutorial.steps.length === 0) return
 
+    // Begin progress tracking
+    skillz.begin(tutorialId.value)
+
     // Register steps
     stepper.onboard(
       tutorial.steps.map((_, i) => ({ id: `step-${i + 1}`, value: i })),
     )
-    stepper.first()
 
-    // Load first step
-    await loadStep(0)
+    // Clamp the requested step to valid range (1-indexed from caller)
+    const startIndex = initialStep
+      ? Math.min(Math.max(0, initialStep.value - 1), tutorial.steps.length - 1)
+      : 0
+    stepper.select(`step-${startIndex + 1}`)
+
+    // Load the starting step
+    await loadStep(startIndex)
     isReady.value = true
 
     // Preload remaining steps in background
@@ -238,5 +261,6 @@ export function useTutorial (tutorialId: ComputedRef<string>): UseTutorialReturn
     stepOptions,
     nextStep,
     prevStep,
+    complete,
   }
 }
