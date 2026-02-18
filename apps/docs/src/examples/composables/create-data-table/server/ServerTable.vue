@@ -26,8 +26,8 @@
     const result = await fetchUsers(
       table.query.value,
       table.sort.columns.value,
-      table.pagination.pageStart.value,
-      table.pagination.pageStop.value,
+      table.pagination.page.value,
+      table.pagination.itemsPerPage,
     )
 
     totalCount.value = result.total
@@ -43,9 +43,9 @@
 
   function sortIcon (key: string) {
     const dir = table.sort.direction(key)
-    if (dir === 'asc') return '‹'
-    if (dir === 'desc') return '›'
-    return '›'
+    if (dir === 'asc') return '↑'
+    if (dir === 'desc') return '↓'
+    return ''
   }
 </script>
 

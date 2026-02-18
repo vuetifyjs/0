@@ -52,29 +52,68 @@ table.pagination.next()
 table.selection.toggle('user-1')
 ```
 
+::: example
+/composables/create-data-table/basic/BasicTable.vue
+/composables/create-data-table/basic/columns.ts
+/composables/create-data-table/basic/data.ts
+:::
+
 ## Adapters
 
 Adapters control the data pipeline strategy. Pass one via the `adapter` option.
 
 | Adapter | Pipeline | Use Case |
 | - | - | - |
-| `ClientAdapter` | filter → sort → paginate | Default. All processing client-side |
-| `ServerAdapter` | pass-through | API-driven. Server handles filter/sort/paginate |
-| `VirtualAdapter` | filter → sort → (no paginate) | Large lists rendered with createVirtual |
+| [ClientAdapter](#clientadapter-default) | filter → sort → paginate | Default. All processing client-side |
+| [ServerAdapter](#serveradapter) | pass-through | API-driven. Server handles filter/sort/paginate |
+| [VirtualAdapter](#virtualadapter) | filter → sort → (no paginate) | Large lists rendered with createVirtual |
 
 ### ClientAdapter (default)
 
+All processing happens client-side. No constructor options — just use `createDataTable` without an `adapter` option.
+
+```mermaid
+graph LR
+  A[Raw Items] --> B[Filter] --> C[Sort] --> D[Paginate] --> E[Visible Items]
+```
+
+**Behavior:**
+- Resets to page 1 on filter or sort changes
+- `total` reflects the sorted item count
+- No `loading` or `error` state (synchronous pipeline)
+
 ```ts
-import { createDataTable } from '@vuetify/v0'
+import { createDataTable, ClientAdapter } from '@vuetify/v0'
 
 const table = createDataTable({
   items: users,
   columns,
-  // ClientAdapter is the default — no adapter option needed
+  adapter: new ClientAdapter(), // default — not required
 })
 ```
 
 ### ServerAdapter
+
+Pass-through adapter for API-driven tables. The server handles all filtering, sorting, and pagination — the client only renders what it receives.
+
+```mermaid
+graph LR
+  A[Server Response] --> B[Items] --> C[Render]
+  D[query / sort / page] -->|watch| E[API Call] --> A
+```
+
+**Constructor options:**
+
+| Option | Type | Required | Description |
+| - | - | :-: | - |
+| `total` | `MaybeRefOrGetter<number>` | Yes | Total item count on the server (drives pagination) |
+| `loading` | `MaybeRefOrGetter<boolean>` | No | Loading state (e.g., from `useFetch`) |
+| `error` | `MaybeRefOrGetter<Error \| null>` | No | Error state from API calls |
+
+**Behavior:**
+- Resets to page 1 on filter or sort changes
+- `allItems`, `filteredItems`, `sortedItems`, and `items` all point to the same source (no client-side processing)
+- Exposes `loading` and `error` via `table.loading` and `table.error`
 
 ```ts
 import { createDataTable, ServerAdapter } from '@vuetify/v0'
@@ -97,6 +136,18 @@ watch(
 ```
 
 ### VirtualAdapter
+
+Client-side filtering and sorting without pagination slicing. All sorted items are returned for use with `createVirtual` at the rendering layer.
+
+```mermaid
+graph LR
+  A[Raw Items] --> B[Filter] --> C[Sort] --> D[All Items] --> E[createVirtual] --> F[Visible Window]
+```
+
+**Behavior:**
+- No constructor options — instantiate with `new VirtualAdapter()`
+- Resets on filter or sort changes
+- No `loading` or `error` state
 
 ```ts
 import { createDataTable, VirtualAdapter, createVirtual } from '@vuetify/v0'
@@ -230,6 +281,7 @@ const table = createDataTable({
   items,
   columns,
   groupBy: 'department',
+  enroll: true,  // Auto-open all groups
 })
 
 table.grouping.groups.value  // [{ key: 'Engineering', value: 'Engineering', items: [...] }]
@@ -259,31 +311,6 @@ table.grouping.closeAll()
 | `error` | <AppSuccessIcon /> | Computed — adapter error state |
 
 ## Examples
-
-::: example
-/composables/create-data-table/basic/BasicTable.vue
-/composables/create-data-table/basic/columns.ts
-/composables/create-data-table/basic/data.ts
-
-### Basic Table
-
-A searchable, sortable, paginated table built with `createDataTable`. Type a query to filter, click column headers to sort, and use the pagination controls to navigate pages.
-
-**File breakdown:**
-
-| File | Role |
-|------|------|
-| `BasicTable.vue` | Table component with search, sort indicators, and pagination |
-| `columns.ts` | Column definitions with sortable/filterable flags |
-| `data.ts` | Sample user dataset and `User` interface |
-
-**Key patterns:**
-
-- `table.search(query)` is called from the input handler — the query ref is read-only via `table.query`
-- Sort direction is read per-column with `table.sort.direction(key)` to render indicators
-- Pagination controls bind directly to `table.pagination.isFirst`, `isLast`, `prev()`, `next()`
-
-:::
 
 ::: example
 /composables/create-data-table/server/ServerTable.vue
@@ -329,7 +356,7 @@ A grouped table with row selection, custom numeric sort, and salary range filter
 
 **Key patterns:**
 
-- `groupBy: 'department'` groups rows automatically — `table.grouping.groups` provides the grouped items
+- `groupBy: 'department'` groups rows automatically — `enroll: true` opens all groups on creation
 - `table.grouping.opened(key)` checks visibility, `toggle(key)` flips it
 - `itemSelectable: 'active'` disables checkboxes for inactive employees
 - `mandate: true` ensures a sort column is always active (never clears to unsorted)

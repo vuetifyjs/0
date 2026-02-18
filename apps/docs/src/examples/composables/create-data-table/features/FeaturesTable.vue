@@ -7,6 +7,7 @@
     items: employees,
     columns,
     groupBy: 'department',
+    enroll: true,
     mandate: true,
     firstSortOrder: 'asc',
     selectStrategy: 'page',
@@ -14,14 +15,11 @@
     pagination: { itemsPerPage: 20 },
   })
 
-  // Open all groups initially
-  table.grouping.openAll()
-
   function sortIcon (key: string) {
     const dir = table.sort.direction(key)
-    if (dir === 'asc') return '‹'
-    if (dir === 'desc') return '›'
-    return '›'
+    if (dir === 'asc') return '↑'
+    if (dir === 'desc') return '↓'
+    return ''
   }
 
   function formatSalary (value: number) {

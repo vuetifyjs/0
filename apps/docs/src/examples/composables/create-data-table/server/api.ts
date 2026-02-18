@@ -26,8 +26,8 @@ export interface FetchResult {
 export function fetchUsers (
   query: string,
   sorts: SortEntry[],
-  pageStart: number,
-  pageStop: number,
+  page: number,
+  itemsPerPage: number,
 ): Promise<FetchResult> {
   return new Promise(resolve => {
     setTimeout(() => {
@@ -53,9 +53,10 @@ export function fetchUsers (
         })
       }
 
+      const start = (page - 1) * itemsPerPage
       resolve({
         total: result.length,
-        items: result.slice(pageStart, pageStop),
+        items: result.slice(start, start + itemsPerPage),
       })
     }, 400)
   })

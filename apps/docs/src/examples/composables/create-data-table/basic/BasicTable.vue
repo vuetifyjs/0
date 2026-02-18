@@ -11,9 +11,9 @@
 
   function sortIcon (key: string) {
     const dir = table.sort.direction(key)
-    if (dir === 'asc') return '‹'
-    if (dir === 'desc') return '›'
-    return '›'
+    if (dir === 'asc') return '↑'
+    if (dir === 'desc') return '↓'
+    return ''
   }
 </script>
 
