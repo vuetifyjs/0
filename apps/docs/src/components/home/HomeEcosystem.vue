@@ -21,10 +21,10 @@
     { name: 'useStorage', to: '/composables/plugins/use-storage', category: 'Plugins' },
     { name: 'createRegistry', to: '/composables/registration/create-registry', category: 'Registration' },
     { name: 'createTokens', to: '/composables/registration/create-tokens', category: 'Registration' },
-    { name: 'createPagination', to: '/composables/utilities/create-pagination', category: 'Utilities' },
-    { name: 'createFilter', to: '/composables/utilities/create-filter', category: 'Utilities' },
+    { name: 'createPagination', to: '/composables/data/create-pagination', category: 'Data' },
+    { name: 'createFilter', to: '/composables/data/create-filter', category: 'Data' },
     { name: 'createForm', to: '/composables/forms/create-form', category: 'Forms' },
-    { name: 'createVirtual', to: '/composables/utilities/create-virtual', category: 'Utilities' },
+    { name: 'createVirtual', to: '/composables/data/create-virtual', category: 'Data' },
     { name: 'createContext', to: '/composables/foundation/create-context', category: 'Foundation' },
   ]
 </script>

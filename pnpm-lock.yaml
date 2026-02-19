@@ -57,6 +57,9 @@ catalogs:
     '@vue/tsconfig':
       specifier: ^0.8.1
       version: 0.8.1
+    '@vuetify/auth':
+      specifier: 0.1.6
+      version: 0.1.6
     '@vuetify/github-releaser':
       specifier: ^4.0.3
       version: 4.0.3
@@ -297,6 +300,9 @@ importers:
       '@vue/repl':
         specifier: 'catalog:'
         version: 4.7.1(patch_hash=e26b00f869790271f46936e3539a934b376487e8db9a5a430447e624d3725d45)
+      '@vuetify/auth':
+        specifier: 'catalog:'
+        version: 0.1.6(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))
       '@vuetify/paper':
         specifier: workspace:*
         version: link:../../packages/paper
@@ -2736,6 +2742,12 @@ packages:
         optional: true
       vue:
         optional: true
+
+  '@vuetify/auth@0.1.6':
+    resolution: {integrity: sha512-7f03jF3qlcG6ueMF9n6AirgC+TFZYzkDxQ+rNGxfdY0EGKpKiGZCgaz2esYHGXaqU9RDCaIM8Zp+tBzIGvBFKQ==}
+    peerDependencies:
+      pinia: ^3.0.0
+      vue: ^3.5.0
 
   '@vuetify/github-releaser@4.0.3':
     resolution: {integrity: sha512-5hMj2mlPVLFy4puRL07J/czJZVAAVrrZaWKbBU3p5xqW8LzSODORY8xG8gW0ahbOp9gFMCKoo4wpB6IrEHbHcg==}
@@ -8954,6 +8966,11 @@ snapshots:
   '@vue/tsconfig@0.8.1(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3))':
     optionalDependencies:
       typescript: 5.9.3
+      vue: 3.5.24(typescript@5.9.3)
+
+  '@vuetify/auth@0.1.6(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))':
+    dependencies:
+      pinia: 3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3))
       vue: 3.5.24(typescript@5.9.3)
 
   '@vuetify/github-releaser@4.0.3(conventional-commits-filter@5.0.0)':

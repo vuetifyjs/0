@@ -14,11 +14,11 @@
   const { current: testCount } = useCountUp(sectionRef, 2600, { duration: 2000 })
 
   const composablePaths: Record<string, string> = {
-    createFilter: '/composables/utilities/create-filter',
+    createFilter: '/composables/data/create-filter',
     createNested: '/composables/selection/create-nested',
     createRegistry: '/composables/registration/create-registry',
     createTokens: '/composables/registration/create-tokens',
-    createVirtual: '/composables/utilities/create-virtual',
+    createVirtual: '/composables/data/create-virtual',
     useDate: '/composables/plugins/use-date',
   }
 
@@ -26,6 +26,7 @@
     blazing: '100K+ ops/s — handles massive datasets with zero perceptible delay',
     fast: '10K–100K ops/s — smooth performance for typical application workloads',
     good: '1K–10K ops/s — reliable for standard use cases and smaller datasets',
+    slow: '<1K ops/s — performance bottleneck, needs investigation',
   }
 
   const showcaseComposables = computed(() =>

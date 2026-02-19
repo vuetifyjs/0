@@ -999,7 +999,7 @@ describe('useTokens registry integration', () => {
       expect(context.size).toBe(2)
     })
 
-    it('should not automatically clear resolution cache on upsert', () => {
+    it('should clear resolution cache on upsert', () => {
       const tokens: TokenCollection = {
         primary: '#007BFF',
         accent: { $value: '{primary}' },
@@ -1011,9 +1011,8 @@ describe('useTokens registry integration', () => {
 
       context.upsert('primary', { value: '#FF0000' })
 
-      // Cache is not cleared by registry operations, so it returns the cached value
       const resolvedAfter = context.resolve('accent')
-      expect(resolvedAfter).toBe('#007BFF') // Still cached
+      expect(resolvedAfter).toBe('#FF0000')
     })
   })
 
@@ -1103,19 +1102,21 @@ describe('useTokens registry integration', () => {
       expect(context.keys().length).toBe(0)
     })
 
-    it('should not automatically clear resolution cache on unregister', () => {
+    it('should clear resolution cache on unregister', () => {
       const tokens: TokenCollection = {
         primary: '#007BFF',
         accent: { $value: '{primary}' },
       }
       const context = createTokens(tokens)
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       expect(context.resolve('accent')).toBe('#007BFF')
 
       context.unregister('primary')
 
-      // Cache is not cleared by registry operations, so it returns the cached value
-      expect(context.resolve('accent')).toBe('#007BFF') // Still cached
+      expect(context.resolve('accent')).toBeUndefined()
+
+      warnSpy.mockRestore()
     })
 
     it('should remove token with dependencies', () => {
@@ -3570,7 +3571,7 @@ describe('cache invalidation scenarios', () => {
     expect(first).toBe('#007BFF')
   })
 
-  it('should NOT clear cache when registry is mutated via upsert', () => {
+  it('should clear cache when registry is mutated via upsert', () => {
     const tokens: TokenCollection = {
       primary: '#007BFF',
       accent: { $value: '{primary}' },
@@ -3584,16 +3585,17 @@ describe('cache invalidation scenarios', () => {
     context.upsert('primary', { value: '#FF0000' })
 
     const resolvedAfter = context.resolve('accent')
-    expect(resolvedAfter).toBe('#007BFF')
+    expect(resolvedAfter).toBe('#FF0000')
   })
 
-  it('should NOT clear cache when registry is mutated via unregister', () => {
+  it('should clear cache when registry is mutated via unregister', () => {
     const tokens: TokenCollection = {
       primary: '#007BFF',
       accent: { $value: '{primary}' },
     }
 
     const context = createTokensContext({ namespace: 'test', tokens })[2]
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     const resolvedBefore = context.resolve('accent')
     expect(resolvedBefore).toBe('#007BFF')
@@ -3601,7 +3603,9 @@ describe('cache invalidation scenarios', () => {
     context.unregister('primary')
 
     const resolvedAfter = context.resolve('accent')
-    expect(resolvedAfter).toBe('#007BFF')
+    expect(resolvedAfter).toBeUndefined()
+
+    warnSpy.mockRestore()
   })
 
   it('should cache both curly-brace and plain token formats independently', () => {

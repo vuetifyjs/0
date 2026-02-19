@@ -30,6 +30,9 @@ export const createApp = ViteSSG(
       pinia.state.value = initialState.pinia || {}
 
     if (!import.meta.env.SSR) {
+      const { useAuthStore } = await import('@vuetify/auth')
+      useAuthStore().verify()
+
       const logger = useLogger()
 
       // Reload on chunk load failures (stale cache after deploy)

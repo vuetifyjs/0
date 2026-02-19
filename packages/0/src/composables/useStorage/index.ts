@@ -22,6 +22,9 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createPlugin } from '#v0/composables/createPlugin'
 import { createTrinity } from '#v0/composables/createTrinity'
 
+// Composables
+import { useWindowEventListener } from '#v0/composables/useEventListener'
+
 // Adapters
 import { MemoryAdapter } from '#v0/composables/useStorage/adapters'
 
@@ -139,7 +142,11 @@ export function createStorage<
       if (isNullOrUndefined(newValue)) {
         adapter?.removeItem(prefixedKey)
       } else {
-        adapter?.setItem(prefixedKey, serializer.write(newValue))
+        try {
+          adapter?.setItem(prefixedKey, serializer.write(newValue))
+        } catch (error) {
+          console.error(`[v0:storage] Failed to write key "${prefixedKey}":`, error)
+        }
       }
     }, { deep: true })
 
@@ -180,6 +187,33 @@ export function createStorage<
       }
       cache.clear()
     }
+  }
+
+  if (IN_BROWSER && adapter === window.localStorage) {
+    useWindowEventListener('storage', (e: StorageEvent) => {
+      if (!e.key?.startsWith(prefix)) return
+
+      const valueRef = cache.get(e.key)
+      if (!valueRef) return
+
+      watchers.get(e.key)?.()
+
+      valueRef.value = e.newValue == null ? undefined : serializer.read(e.newValue)
+
+      const stop = watch(valueRef, newValue => {
+        if (isNullOrUndefined(newValue)) {
+          adapter?.removeItem(e.key!)
+        } else {
+          try {
+            adapter?.setItem(e.key!, serializer.write(newValue))
+          } catch (error) {
+            console.error(`[v0:storage] Failed to write key "${e.key}":`, error)
+          }
+        }
+      }, { deep: true })
+
+      watchers.set(e.key, stop)
+    })
   }
 
   return {

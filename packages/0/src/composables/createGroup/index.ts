@@ -326,7 +326,7 @@ export function createGroup<
     const first = selection.selectedIds.values().next().value
     selection.selectedIds.clear()
 
-    if (!mandatory || !first) return
+    if (!toValue(mandatory) || !first) return
 
     selection.select(first)
   }

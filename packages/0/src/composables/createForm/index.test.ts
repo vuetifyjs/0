@@ -49,7 +49,7 @@ describe('useForm validateOn functionality', () => {
     expect(field.errors.value).toEqual(['Error message'])
   })
 
-  it('should not validate on submit when validateOn does not include submit', async () => {
+  it('should always validate on submit regardless of validateOn mode', async () => {
     const form = createForm({ validateOn: 'change' })
     const mockRule = vi.fn().mockResolvedValue('Error message')
 
@@ -61,9 +61,8 @@ describe('useForm validateOn functionality', () => {
 
     const result = await form.submit()
 
-    expect(mockRule).not.toHaveBeenCalled()
-    // Should return true since no validation was performed and field is in initial state
-    expect(result).toBe(false) // false because isValid is null initially
+    expect(mockRule).toHaveBeenCalled()
+    expect(result).toBe(false)
   })
 
   it('should validate on change when validateOn includes change', async () => {

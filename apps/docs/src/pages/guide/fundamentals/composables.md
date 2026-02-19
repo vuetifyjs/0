@@ -142,9 +142,9 @@ Standalone helpers:
 
 | Composable | Purpose |
 | - | - |
-| [createFilter](/composables/utilities/create-filter) | Array filtering |
-| [createPagination](/composables/utilities/create-pagination) | Page navigation |
-| [createVirtual](/composables/utilities/create-virtual) | Virtual scrolling |
+| [createFilter](/composables/data/create-filter) | Array filtering |
+| [createPagination](/composables/data/create-pagination) | Page navigation |
+| [createVirtual](/composables/data/create-virtual) | Virtual scrolling |
 
 ## Usage Patterns
 

@@ -114,11 +114,11 @@ describe('createNested benchmarks', () => {
     const tree1k = createPopulatedNested(TREE_1K)
     const tree10k = createPopulatedNested(TREE_10K)
 
-    bench('Get item by id (1,000 flat items)', () => {
+    bench('Get by id (1,000 flat items)', () => {
       flat1k.get(LOOKUP_ID_FLAT_1K)
     })
 
-    bench('Get item by id (10,000 flat items)', () => {
+    bench('Get by id (10,000 flat items)', () => {
       flat10k.get(LOOKUP_ID_FLAT_10K)
     })
 
@@ -180,11 +180,11 @@ describe('createNested benchmarks', () => {
       tree10k.getDescendants(LOOKUP_ROOT_TREE)
     })
 
-    bench('Access roots computed (1,000 tree items)', () => {
+    bench('Access roots (1,000 tree items)', () => {
       void tree1k.roots.value
     })
 
-    bench('Access leaves computed (1,000 tree items)', () => {
+    bench('Access leaves (1,000 tree items)', () => {
       void tree1k.leaves.value
     })
   })
