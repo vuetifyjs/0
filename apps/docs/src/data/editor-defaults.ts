@@ -131,33 +131,36 @@ defineConfig({
 
 // ── Default App.vue ─────────────────────────────────────────────────────
 
-export const DEFAULT_CODE = `<script setup lang="ts">
+export const DEFAULT_CODE = `<script lang="ts" setup>
   import { createSingle } from '@vuetify/v0'
 
-  const tabs = ['Overview', 'Details', 'Settings']
-  const active = createSingle()
-  active.onboard(tabs.map(label => ({ id: label, value: label })))
-  active.select('Overview')
+  const single = createSingle({ mandatory: 'force' })
+
+  single.onboard([
+    { id: 'home', value: 'Home' },
+    { id: 'profile', value: 'Profile' },
+    { id: 'settings', value: 'Settings' },
+  ])
 </script>
 
 <template>
-  <div class="p-6 font-sans bg-background text-on-background min-h-screen">
+  <div class="p-6">
     <div class="flex border-b border-divider mb-6">
       <button
-        v-for="tab in tabs"
-        :key="tab"
+        v-for="tab in single.values()"
+        :key="tab.id"
         class="px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors"
-        :class="active.selected(tab)
+        :class="tab.isSelected.value
           ? 'text-primary border-primary'
           : 'text-on-surface-variant border-transparent hover:text-on-surface'"
-        @click="active.select(tab)"
+        @click="tab.toggle()"
       >
-        {{ tab }}
+        {{ tab.value }}
       </button>
     </div>
 
     <p class="text-sm text-on-surface-variant">
-      Active tab: <strong class="text-on-surface">{{ active.selectedId.value }}</strong>
+      Active tab: <strong class="text-on-surface">{{ single.selectedId.value }}</strong>
     </p>
   </div>
 </template>
