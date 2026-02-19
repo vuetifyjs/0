@@ -1,6 +1,6 @@
 # Welcome to Vuetify0!
 
-@vuetify/v0 gives you headless composables — selection, registration, forms, theming — without any markup opinions. You bring the HTML and CSS; v0 handles the logic. This editor is where you build with them: a Monaco-powered workspace with live preview, type checking, and every v0 export ready to import.
+[@vuetify/v0](https://www.npmjs.com/package/@vuetify/v0) gives you headless composables — selection, registration, forms, theming — without any markup opinions. You bring the HTML and CSS; v0 handles the logic. This editor is where you build with them: a Monaco-powered workspace with live preview, type checking, and every v0 export ready to import.
 
 ## The environment
 
