@@ -50,14 +50,15 @@ export const Breadcrumbs = {
    *         <Breadcrumbs.Link href="/">Home</Breadcrumbs.Link>
    *       </Breadcrumbs.Item>
    *
-   *       <Breadcrumbs.Divider>/</Breadcrumbs.Divider>
+   *       <Breadcrumbs.Divider />
+   *
    *       <Breadcrumbs.Ellipsis />
    *
    *       <Breadcrumbs.Item text="Products">
    *         <Breadcrumbs.Link href="/products">Products</Breadcrumbs.Link>
    *       </Breadcrumbs.Item>
    *
-   *       <Breadcrumbs.Divider>/</Breadcrumbs.Divider>
+   *       <Breadcrumbs.Divider />
    *
    *       <Breadcrumbs.Item text="Shoes">
    *         <Breadcrumbs.Page>Shoes</Breadcrumbs.Page>
@@ -77,7 +78,7 @@ export const Breadcrumbs = {
    * @example
    * ```vue
    * <template>
-   *   <Breadcrumbs.List class="flex items-center gap-2">
+   *   <Breadcrumbs.List>
    *     <!-- Items, dividers, ellipsis go here -->
    *   </Breadcrumbs.List>
    * </template>
@@ -121,7 +122,9 @@ export const Breadcrumbs = {
    * ```vue
    * <template>
    *   <!-- Standard anchor -->
-   *   <Breadcrumbs.Link href="/products">Products</Breadcrumbs.Link>
+   *   <Breadcrumbs.Link href="/products">
+   *     Products
+   *   </Breadcrumbs.Link>
    *
    *   <!-- With RouterLink via :as -->
    *   <Breadcrumbs.Link :as="RouterLink" to="/products">
