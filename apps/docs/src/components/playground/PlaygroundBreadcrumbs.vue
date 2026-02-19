@@ -28,9 +28,10 @@
         v-for="(segment, i) in segments"
         :key="i"
       >
-        <Breadcrumbs.Divider v-if="i > 0">
-          <span class="text-on-surface-variant opacity-40">/</span>
-        </Breadcrumbs.Divider>
+        <Breadcrumbs.Divider
+          v-if="i > 0"
+          class="text-on-surface-variant opacity-40"
+        />
 
         <Breadcrumbs.Item :text="segment">
           <Breadcrumbs.Page

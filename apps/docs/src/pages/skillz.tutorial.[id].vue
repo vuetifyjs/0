@@ -8,6 +8,7 @@
   // Components
   import { Discovery } from '@/components/discovery'
   import PlaygroundMarkdownPanel from '@/components/playground/PlaygroundMarkdownPanel.vue'
+  import PlaygroundResizeHandle from '@/components/playground/PlaygroundResizeHandle.vue'
   import PlaygroundWorkspace from '@/components/playground/PlaygroundWorkspace.vue'
   import SkillzComplete from '@/components/skillz/SkillzComplete.vue'
 
@@ -180,10 +181,10 @@
       </Discovery.Activator>
 
       <!-- Markdown ↔ Right column handle -->
-      <div
+      <PlaygroundResizeHandle
         v-if="isDesktop"
-        class="tutorial-resize-handle"
-        :class="{ 'tutorial-resize-handle--active': markdownHandle.isResizing.value }"
+        direction="col"
+        :is-resizing="markdownHandle.isResizing.value"
         @dblclick="markdownHandle.reset()"
         @pointerdown="markdownHandle.onPointerDown"
       />
@@ -221,18 +222,3 @@
   </div>
 </template>
 
-<style scoped>
-  /* Markdown ↔ right column resize handle */
-  .tutorial-resize-handle {
-    flex-shrink: 0;
-    background: transparent;
-    transition: background 0.15s;
-    width: 4px;
-    cursor: col-resize;
-  }
-
-  .tutorial-resize-handle:hover,
-  .tutorial-resize-handle--active {
-    background: var(--v0-primary);
-  }
-</style>

@@ -145,6 +145,7 @@ declare module 'vue' {
     PlaygroundFileTree: typeof import('./components/playground/PlaygroundFileTree.vue')['default']
     PlaygroundIntroPanel: typeof import('./components/playground/PlaygroundIntroPanel.vue')['default']
     PlaygroundMarkdownPanel: typeof import('./components/playground/PlaygroundMarkdownPanel.vue')['default']
+    PlaygroundResizeHandle: typeof import('./components/playground/PlaygroundResizeHandle.vue')['default']
     PlaygroundTabs: typeof import('./components/playground/PlaygroundTabs.vue')['default']
     PlaygroundWorkspace: typeof import('./components/playground/PlaygroundWorkspace.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

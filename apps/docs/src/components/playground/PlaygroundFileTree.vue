@@ -152,7 +152,7 @@
     return nodes[lastIdx]
   })
 
-  const treeEl = useTemplateRef<HTMLElement>('tree')
+  const treeEl = useTemplateRef<HTMLElement>('tree-el')
 
   function activate (id: string) {
     if (isFile(id)) {
@@ -233,7 +233,7 @@
 
 <template>
   <nav
-    ref="tree"
+    ref="tree-el"
     aria-label="File browser"
     class="border-r border-divider bg-surface overflow-y-auto shrink-0 h-100%"
   >

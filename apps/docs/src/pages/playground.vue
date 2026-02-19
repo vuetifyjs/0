@@ -9,6 +9,7 @@
   import { Discovery } from '@/components/discovery'
   import PlaygroundExamples from '@/components/playground/PlaygroundExamples.vue'
   import PlaygroundIntroPanel from '@/components/playground/PlaygroundIntroPanel.vue'
+  import PlaygroundResizeHandle from '@/components/playground/PlaygroundResizeHandle.vue'
   import PlaygroundWorkspace from '@/components/playground/PlaygroundWorkspace.vue'
 
   // Composables
@@ -205,9 +206,9 @@
             <PlaygroundIntroPanel @close="pg.panel.close()" />
           </Discovery.Activator>
 
-          <div
-            class="playground-resize-handle"
-            :class="{ 'playground-resize-handle--active': panelHandle.isResizing.value }"
+          <PlaygroundResizeHandle
+            direction="col"
+            :is-resizing="panelHandle.isResizing.value"
             @dblclick="panelHandle.reset()"
             @pointerdown="panelHandle.onPointerDown"
           />
@@ -215,6 +216,7 @@
           <PlaygroundWorkspace
             :external-resizing="panelHandle.isResizing.value"
             :file-tree-key="fileTreeKey"
+            default-layout="vertical"
             :is-dark="isDark"
             :is-desktop="isDesktop"
             :preview-options="previewOptions"
@@ -243,21 +245,7 @@
 </template>
 
 <style scoped>
-  /* Panel → workspace resize handle */
-  .playground-resize-handle {
-    width: 4px;
-    cursor: col-resize;
-    background: transparent;
-    transition: background 0.15s;
-    flex-shrink: 0;
-  }
-
-  .playground-resize-handle:hover,
-  .playground-resize-handle--active {
-    background: var(--v0-primary);
-  }
-
-  /* Fade on mount */
+/* Fade on mount */
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.2s;
