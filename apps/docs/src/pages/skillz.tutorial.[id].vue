@@ -7,8 +7,8 @@
 
   // Components
   import { Discovery } from '@/components/discovery'
-  import EditorMarkdownPanel from '@/components/editor/EditorMarkdownPanel.vue'
-  import EditorWorkspace from '@/components/editor/EditorWorkspace.vue'
+  import PlaygroundMarkdownPanel from '@/components/playground/PlaygroundMarkdownPanel.vue'
+  import PlaygroundWorkspace from '@/components/playground/PlaygroundWorkspace.vue'
   import SkillzComplete from '@/components/skillz/SkillzComplete.vue'
 
   // Composables
@@ -70,7 +70,7 @@
     }
   }
 
-  // EditorWorkspace renders Sandbox separately. Setting showOutput=false prevents
+  // PlaygroundWorkspace renders Sandbox separately. Setting showOutput=false prevents
   // the Repl from creating its internal preview iframe (see patches/@vue__repl@4.7.1.patch),
   // avoiding a duplicate sandbox and the browser's allow-scripts+allow-same-origin warning.
   store.showOutput = false
@@ -173,7 +173,7 @@
         step="instructions"
         :style="isDesktop ? { width: `${markdownHandle.size.value}px` } : undefined"
       >
-        <EditorMarkdownPanel
+        <PlaygroundMarkdownPanel
           :html="html"
           :is-first="isFirst"
           :is-last="isLast"
@@ -194,7 +194,7 @@
       />
 
       <!-- Right column -->
-      <EditorWorkspace
+      <PlaygroundWorkspace
         :external-resizing="markdownHandle.isResizing.value"
         :file-tree-key="fileTreeKey"
         :hide-breadcrumbs="stepOptions.hideBreadcrumbs"

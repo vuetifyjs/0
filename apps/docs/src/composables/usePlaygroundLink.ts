@@ -1,4 +1,4 @@
-export interface EditorFile {
+export interface PlaygroundFile {
   name: string
   code: string
 }
@@ -30,7 +30,7 @@ async function atou (base64: string): Promise<string> {
 /**
  * Detect which file is the entry point for a multi-file example.
  */
-function detectEntryFile (files: EditorFile[]): EditorFile | undefined {
+function detectEntryFile (files: PlaygroundFile[]): PlaygroundFile | undefined {
   const vueFiles = files.filter(f => f.name.endsWith('.vue'))
 
   const entryNames = ['index.vue', 'App.vue', 'example.vue', 'main.vue']
@@ -73,7 +73,7 @@ export function generateAppWrapper (entryPath: string): string {
  * Build the src/-prefixed file record that loadExample expects.
  * When dir is provided, files are nested: src/{dir}/{name}
  */
-function buildEditorFiles (inputFiles: EditorFile[], dir?: string): Record<string, string> {
+function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Record<string, string> {
   const files: Record<string, string> = {}
   const prefix = dir ? `src/${dir}` : 'src'
 
@@ -97,16 +97,16 @@ function buildEditorFiles (inputFiles: EditorFile[], dir?: string): Record<strin
 /**
  * Get editor URL for a single file.
  */
-export async function useEditorLink (code: string, fileName = 'Example.vue'): Promise<string> {
-  return useEditorLinkMulti([{ name: fileName, code }])
+export async function usePlaygroundLink (code: string, fileName = 'Example.vue'): Promise<string> {
+  return usePlaygroundLinkMulti([{ name: fileName, code }])
 }
 
 /**
  * Get editor URL for multiple files.
  * When dir is provided, files are nested under src/{dir}/.
  */
-export async function useEditorLinkMulti (inputFiles: EditorFile[], dir?: string): Promise<string> {
-  const files = buildEditorFiles(inputFiles, dir)
+export async function usePlaygroundLinkMulti (inputFiles: PlaygroundFile[], dir?: string): Promise<string> {
+  const files = buildPlaygroundFiles(inputFiles, dir)
   const hash = await utoa(JSON.stringify(files))
   return `/playground#${hash}`
 }
@@ -120,7 +120,7 @@ function isFileRecord (v: unknown): v is Record<string, string> {
   )
 }
 
-export interface EditorHashData {
+export interface PlaygroundHashData {
   files: Record<string, string>
   active?: string
 }
@@ -128,7 +128,7 @@ export interface EditorHashData {
 /**
  * Encode editor state (files + active filename) to a URL hash string.
  */
-export async function encodeEditorHash (data: EditorHashData): Promise<string> {
+export async function encodePlaygroundHash (data: PlaygroundHashData): Promise<string> {
   return utoa(JSON.stringify(data))
 }
 
@@ -136,7 +136,7 @@ export async function encodeEditorHash (data: EditorHashData): Promise<string> {
  * Decode an editor hash back to editor state.
  * Handles both the current { files, active } format and the legacy plain Record<string, string> format.
  */
-export async function decodeEditorHash (hash: string): Promise<EditorHashData | null> {
+export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHashData | null> {
   try {
     const parsed: unknown = JSON.parse(await atou(hash))
     if (isFileRecord(parsed)) {

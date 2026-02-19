@@ -12,7 +12,7 @@
   import type { ReplStore } from '@vue/repl'
 
   // Data
-  import { INFRASTRUCTURE_FILES, REPL_BUILTIN_FILES } from '@/data/editor-defaults'
+  import { INFRASTRUCTURE_FILES, REPL_BUILTIN_FILES } from '@/data/playground-defaults'
 
   const props = defineProps<{
     store: ReplStore

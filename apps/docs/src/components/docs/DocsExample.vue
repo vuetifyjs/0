@@ -7,8 +7,8 @@
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
-  import { useEditorLinkMulti } from '@/composables/editorLink'
   import { useExamples } from '@/composables/useExamples'
+  import { usePlaygroundLinkMulti } from '@/composables/usePlaygroundLink'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
@@ -166,7 +166,7 @@
     if (!resolvedFiles.value?.length) return
     // Reverse so dependencies compile before the files that import them
     const files = resolvedFiles.value.toReversed().map(f => ({ name: f.name, code: f.code }))
-    const url = await useEditorLinkMulti(files, exampleDir.value)
+    const url = await usePlaygroundLinkMulti(files, exampleDir.value)
     window.open(url, '_blank')
   }
 

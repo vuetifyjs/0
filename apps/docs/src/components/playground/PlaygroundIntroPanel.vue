@@ -10,7 +10,7 @@
   import { useTemplateRef } from 'vue'
 
   // Content
-  import introMd from './EditorIntroPanel.md?raw'
+  import introMd from './PlaygroundIntroPanel.md?raw'
 
   defineEmits<{
     close: []

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Composables
-  import { generateAppWrapper } from '@/composables/editorLink'
+  import { generateAppWrapper } from '@/composables/usePlaygroundLink'
 
   const raw = import.meta.glob('@/examples/**/*.{vue,ts,js}', {
     query: '?raw',

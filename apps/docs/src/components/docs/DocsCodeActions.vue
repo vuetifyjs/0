@@ -1,8 +1,8 @@
 <script setup lang="ts">
   // Composables
   import { getBinUrl } from '@/composables/bin'
-  import { useEditorLink } from '@/composables/editorLink'
   import { useClipboard } from '@/composables/useClipboard'
+  import { usePlaygroundLink } from '@/composables/usePlaygroundLink'
 
   const props = defineProps<{
     code: string
@@ -35,7 +35,7 @@
     if (name && !/\.\w+$/.test(name)) {
       name = `${name}.${props.language || 'vue'}`
     }
-    const url = await useEditorLink(props.code, name)
+    const url = await usePlaygroundLink(props.code, name)
     window.open(url, '_blank')
   }
 </script>

@@ -1,28 +1,28 @@
 {
   "mode": "guided",
-  "id": "using-the-editor",
-  "name": "Using the Editor",
+  "id": "using-the-playground",
+  "name": "Using the Playground",
   "level": 1,
   "track": "essentials",
   "categories": ["meta"],
   "order": 1,
   "prerequisites": [],
-  "description": "Learn how the tutorial editor works before you start coding.",
+  "description": "Learn how the playground works before you start coding.",
   "minutes": 2,
   "startRoute": "/playground",
   "steps": [
     {
       "id": "welcome",
-      "title": "Welcome to the Editor",
+      "title": "Welcome to the Playground",
       "task": "This is where you write and run code. Let's take a quick look at what's here.",
       "hint": "",
-      "learn": "Understand the editor layout",
+      "learn": "Understand the playground layout",
       "noActivator": true
     },
     {
       "id": "panel-toggle",
       "title": "Intro Panel",
-      "task": "This button opens or closes the getting-started panel. It gives you a quick overview of what the editor offers.",
+      "task": "This button opens or closes the getting-started panel. It gives you a quick overview of what the playground offers.",
       "hint": "",
       "learn": "Toggle the intro panel",
       "placement": "bottom"
@@ -53,8 +53,8 @@
       "skipOnMobile": true
     },
     {
-      "id": "editor",
-      "title": "Code Editor",
+      "id": "playground",
+      "title": "Code Playground",
       "task": "Write your code on the left. The preview on the right updates instantly as you type.",
       "hint": "",
       "learn": "Write code and see it run live",
@@ -65,7 +65,7 @@
       "title": "Ready to Code",
       "task": "That's all there is to it. Load an example from the toolbar or start from scratch.",
       "hint": "",
-      "learn": "Use the editor with confidence",
+      "learn": "Use the playground with confidence",
       "noActivator": true
     }
   ]

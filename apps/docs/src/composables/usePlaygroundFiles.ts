@@ -1,5 +1,5 @@
 // Composables
-import { decodeEditorHash, encodeEditorHash } from '@/composables/editorLink'
+import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlaygroundLink'
 
 // Utilities
 import { onMounted, shallowRef, watch, watchEffect } from 'vue'
@@ -7,9 +7,9 @@ import { onMounted, shallowRef, watch, watchEffect } from 'vue'
 // Types
 import type { ReplStore } from '@vue/repl'
 
-import { createMainTs, DEFAULT_CODE, INFRASTRUCTURE_FILES, UNO_CONFIG_TS } from '@/data/editor-defaults'
+import { createMainTs, DEFAULT_CODE, INFRASTRUCTURE_FILES, UNO_CONFIG_TS } from '@/data/playground-defaults'
 
-export function useEditorFiles (store: ReplStore, isDark: () => boolean) {
+export function usePlaygroundFiles (store: ReplStore, isDark: () => boolean) {
   const isReady = shallowRef(false)
   const fileTreeKey = shallowRef(0)
 
@@ -19,7 +19,7 @@ export function useEditorFiles (store: ReplStore, isDark: () => boolean) {
 
   onMounted(async () => {
     const hash = window.location.hash.slice(1)
-    const decoded = hash ? await decodeEditorHash(hash) : null
+    const decoded = hash ? await decodePlaygroundHash(hash) : null
 
     if (decoded) {
       await loadExample(decoded.files, decoded.active)
@@ -103,7 +103,7 @@ export function useEditorFiles (store: ReplStore, isDark: () => boolean) {
       clearTimeout(hashTimer)
       hashTimer = setTimeout(async () => {
         if (Object.keys(files).length === 0) return
-        const hash = await encodeEditorHash({ files, active })
+        const hash = await encodePlaygroundHash({ files, active })
         history.replaceState(null, '', `#${hash}`)
       }, 500)
     })

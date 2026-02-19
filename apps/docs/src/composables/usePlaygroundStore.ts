@@ -6,13 +6,13 @@ import { computed, shallowRef } from 'vue'
 import type { ReplStore } from '@vue/repl'
 import type { ComputedRef, Ref } from 'vue'
 
-export interface EditorStoreReturn {
+export interface PlaygroundStoreReturn {
   store: ReplStore
   replTheme: ComputedRef<'dark' | 'light'>
   previewOptions: ComputedRef<{ headHTML: string }>
 }
 
-export function useEditorStore (isDark: Readonly<Ref<boolean>>): EditorStoreReturn {
+export function usePlaygroundStore (isDark: Readonly<Ref<boolean>>): PlaygroundStoreReturn {
   const replTheme = computed(() => isDark.value ? 'dark' : 'light')
 
   const { importMap: builtinImportMap, vueVersion } = useVueImportMap({

@@ -1,9 +1,9 @@
 <script setup lang="ts">
   // Components
   import { Discovery } from '@/components/discovery'
-  import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
-  import EditorFileTree from '@/components/editor/EditorFileTree.vue'
-  import EditorTabs from '@/components/editor/EditorTabs.vue'
+  import PlaygroundBreadcrumbs from '@/components/playground/PlaygroundBreadcrumbs.vue'
+  import PlaygroundFileTree from '@/components/playground/PlaygroundFileTree.vue'
+  import PlaygroundTabs from '@/components/playground/PlaygroundTabs.vue'
 
   // Composables
   import { useResizeHandle } from '@/composables/useResizeHandle'
@@ -75,7 +75,7 @@
         step="file-tree"
         :style="{ width: `${fileTreeHandle.size.value}px` }"
       >
-        <EditorFileTree
+        <PlaygroundFileTree
           :key="fileTreeKey"
           :store="store"
         />
@@ -97,8 +97,8 @@
         :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
         step="editor"
       >
-        <EditorTabs v-if="!hideTabs" :store="store" />
-        <EditorBreadcrumbs v-if="!hideBreadcrumbs" :store="store" />
+        <PlaygroundTabs v-if="!hideTabs" :store="store" />
+        <PlaygroundBreadcrumbs v-if="!hideBreadcrumbs" :store="store" />
 
         <Repl
           :auto-resize="true"

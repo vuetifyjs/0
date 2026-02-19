@@ -170,6 +170,34 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/data/create-data-table': RouteRecordInfo<
+      '/composables/data/create-data-table',
+      '/composables/data/create-data-table',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/data/create-filter': RouteRecordInfo<
+      '/composables/data/create-filter',
+      '/composables/data/create-filter',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/data/create-pagination': RouteRecordInfo<
+      '/composables/data/create-pagination',
+      '/composables/data/create-pagination',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/composables/data/create-virtual': RouteRecordInfo<
+      '/composables/data/create-virtual',
+      '/composables/data/create-virtual',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/forms/create-form': RouteRecordInfo<
       '/composables/forms/create-form',
       '/composables/forms/create-form',
@@ -429,30 +457,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/composables/utilities/create-filter': RouteRecordInfo<
-      '/composables/utilities/create-filter',
-      '/composables/utilities/create-filter',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/composables/utilities/create-overflow': RouteRecordInfo<
       '/composables/utilities/create-overflow',
       '/composables/utilities/create-overflow',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/utilities/create-pagination': RouteRecordInfo<
-      '/composables/utilities/create-pagination',
-      '/composables/utilities/create-pagination',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/composables/utilities/create-virtual': RouteRecordInfo<
-      '/composables/utilities/create-virtual',
-      '/composables/utilities/create-virtual',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -834,6 +841,30 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/composables/data/create-data-table.md': {
+      routes:
+        | '/composables/data/create-data-table'
+      views:
+        | never
+    }
+    'src/pages/composables/data/create-filter.md': {
+      routes:
+        | '/composables/data/create-filter'
+      views:
+        | never
+    }
+    'src/pages/composables/data/create-pagination.md': {
+      routes:
+        | '/composables/data/create-pagination'
+      views:
+        | never
+    }
+    'src/pages/composables/data/create-virtual.md': {
+      routes:
+        | '/composables/data/create-virtual'
+      views:
+        | never
+    }
     'src/pages/composables/forms/create-form.md': {
       routes:
         | '/composables/forms/create-form'
@@ -1056,27 +1087,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/composables/utilities/create-filter.md': {
-      routes:
-        | '/composables/utilities/create-filter'
-      views:
-        | never
-    }
     'src/pages/composables/utilities/create-overflow.md': {
       routes:
         | '/composables/utilities/create-overflow'
-      views:
-        | never
-    }
-    'src/pages/composables/utilities/create-pagination.md': {
-      routes:
-        | '/composables/utilities/create-pagination'
-      views:
-        | never
-    }
-    'src/pages/composables/utilities/create-virtual.md': {
-      routes:
-        | '/composables/utilities/create-virtual'
       views:
         | never
     }

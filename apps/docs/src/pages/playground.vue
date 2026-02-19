@@ -7,17 +7,17 @@
 
   // Components
   import { Discovery } from '@/components/discovery'
-  import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
-  import EditorExamples from '@/components/editor/EditorExamples.vue'
-  import EditorFileTree from '@/components/editor/EditorFileTree.vue'
-  import EditorIntroPanel from '@/components/editor/EditorIntroPanel.vue'
-  import EditorTabs from '@/components/editor/EditorTabs.vue'
-  import EditorWorkspace from '@/components/editor/EditorWorkspace.vue'
+  import PlaygroundBreadcrumbs from '@/components/playground/PlaygroundBreadcrumbs.vue'
+  import PlaygroundExamples from '@/components/playground/PlaygroundExamples.vue'
+  import PlaygroundFileTree from '@/components/playground/PlaygroundFileTree.vue'
+  import PlaygroundIntroPanel from '@/components/playground/PlaygroundIntroPanel.vue'
+  import PlaygroundTabs from '@/components/playground/PlaygroundTabs.vue'
+  import PlaygroundWorkspace from '@/components/playground/PlaygroundWorkspace.vue'
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
-  import { useEditorFiles } from '@/composables/useEditorFiles'
-  import { useEditorStore } from '@/composables/useEditorStore'
+  import { usePlaygroundFiles } from '@/composables/usePlaygroundFiles'
+  import { usePlaygroundStore } from '@/composables/usePlaygroundStore'
   import { useResizeHandle } from '@/composables/useResizeHandle'
 
   // Utilities
@@ -52,10 +52,10 @@
   const isDark = theme.isDark
 
   // ── REPL Setup ─────────────────────────────────────────────────────────
-  const { store, replTheme, previewOptions } = useEditorStore(isDark)
+  const { store, replTheme, previewOptions } = usePlaygroundStore(isDark)
 
   // ── Editor files ─────────────────────────────────────────────────────
-  const { isReady, fileTreeKey, loadExample: _loadExample } = useEditorFiles(store, () => isDark.value)
+  const { isReady, fileTreeKey, loadExample: _loadExample } = usePlaygroundFiles(store, () => isDark.value)
 
   const breakpoints = useBreakpoints()
   const isDesktop = breakpoints.mdAndUp
@@ -104,8 +104,8 @@
 
   // ── Persistent settings ────────────────────────────────────────────────
   const storage = useStorage()
-  const replLayout = storage.get<'horizontal' | 'vertical'>('editor-layout', 'horizontal')
-  const panelOpen = storage.get<boolean>('editor-panel-open', false)
+  const replLayout = storage.get<'horizontal' | 'vertical'>('playground-layout', 'horizontal')
+  const panelOpen = storage.get<boolean>('playground-panel-open', false)
 
   // Open panel when a tour becomes active or reaches the intro-panel step
   watch(discovery.isActive, active => {
@@ -117,7 +117,7 @@
 
   // Panel resize (panel mode)
   const panelHandle = useResizeHandle({
-    storageKey: 'editor-intro-width',
+    storageKey: 'playground-intro-width',
     defaultValue: 420,
     min: 280,
     max: 600,
@@ -126,7 +126,7 @@
 
   // Sidebar resize (normal mode, desktop)
   const sidebarHandle = useResizeHandle({
-    storageKey: 'editor-sidebar-width',
+    storageKey: 'playground-sidebar-width',
     defaultValue: 250,
     min: 140,
     max: 400,
@@ -135,7 +135,7 @@
 
   const isPanelMode = computed(() => isDesktop.value && panelOpen.value)
 
-  // EditorWorkspace renders Sandbox separately. showOutput=false prevents Repl from creating
+  // PlaygroundWorkspace renders Sandbox separately. showOutput=false prevents Repl from creating
   // its internal preview iframe (see patches/@vue__repl@4.7.1.patch), avoiding a duplicate
   // sandbox and the browser's allow-scripts+allow-same-origin warning.
   watch(isPanelMode, mode => {
@@ -199,7 +199,7 @@
               class="absolute top-full right-0 mt-1 w-[280px] bg-surface border border-divider rounded-lg shadow-lg z-50"
               role="listbox"
             >
-              <EditorExamples @select="loadExample" />
+              <PlaygroundExamples @select="loadExample" />
             </div>
           </div>
         </Discovery.Activator>
@@ -255,17 +255,17 @@
             step="intro-panel"
             :style="{ width: `${panelHandle.size.value}px` }"
           >
-            <EditorIntroPanel @close="panelOpen = false" />
+            <PlaygroundIntroPanel @close="panelOpen = false" />
           </Discovery.Activator>
 
           <div
-            class="editor-resize-handle"
-            :class="{ 'editor-resize-handle--active': panelHandle.isResizing.value }"
+            class="playground-resize-handle"
+            :class="{ 'playground-resize-handle--active': panelHandle.isResizing.value }"
             @dblclick="panelHandle.reset()"
             @pointerdown="panelHandle.onPointerDown"
           />
 
-          <EditorWorkspace
+          <PlaygroundWorkspace
             :external-resizing="panelHandle.isResizing.value"
             :file-tree-key="fileTreeKey"
             :is-dark="isDark"
@@ -280,11 +280,11 @@
         <!-- Normal mode: bordered editor with built-in Repl preview -->
         <div
           v-else
-          class="editor-repl h-full px-2 pt-2"
+          class="playground-repl h-full px-2 pt-2"
           :class="{ dark: isDark }"
         >
           <div
-            class="editor-wrapper"
+            class="playground-wrapper"
             :class="{ 'select-none': sidebarHandle.isResizing.value }"
           >
             <!-- Desktop: file tree -->
@@ -296,7 +296,7 @@
                 step="file-tree"
                 :style="{ width: `${sidebarHandle.size.value}px` }"
               >
-                <EditorFileTree
+                <PlaygroundFileTree
                   :key="fileTreeKey"
                   :store="store"
                 />
@@ -304,8 +304,8 @@
 
               <div
                 v-if="sidebarOpen"
-                class="editor-resize-handle"
-                :class="{ 'editor-resize-handle--active': sidebarHandle.isResizing.value }"
+                class="playground-resize-handle"
+                :class="{ 'playground-resize-handle--active': sidebarHandle.isResizing.value }"
                 @dblclick="sidebarHandle.reset()"
                 @pointerdown="sidebarHandle.onPointerDown"
               />
@@ -329,7 +329,7 @@
                 </button>
               </div>
 
-              <EditorFileTree
+              <PlaygroundFileTree
                 :key="fileTreeKey"
                 class="flex-1 min-h-0"
                 :store="store"
@@ -339,12 +339,12 @@
             <Discovery.Activator
               active-class="rounded-lg"
               as="div"
-              class="editor-repl-container flex flex-col"
+              class="playground-repl-container flex flex-col"
               :inert="!isDesktop && sidebarOpen ? true : undefined"
               step="editor"
             >
-              <EditorTabs :store="store" />
-              <EditorBreadcrumbs :store="store" />
+              <PlaygroundTabs :store="store" />
+              <PlaygroundBreadcrumbs :store="store" />
 
               <Repl
                 :auto-resize="true"
@@ -371,7 +371,7 @@
 
 <style scoped>
   /* Panel → workspace resize handle */
-  .editor-resize-handle {
+  .playground-resize-handle {
     width: 4px;
     cursor: col-resize;
     background: transparent;
@@ -379,17 +379,17 @@
     flex-shrink: 0;
   }
 
-  .editor-resize-handle:hover,
-  .editor-resize-handle--active {
+  .playground-resize-handle:hover,
+  .playground-resize-handle--active {
     background: var(--v0-primary);
   }
 
   /* Normal mode: bordered wrapper */
-  .editor-repl {
+  .playground-repl {
     overflow: hidden;
   }
 
-  .editor-wrapper {
+  .playground-wrapper {
     display: flex;
     height: 100%;
     border-radius: 8px 8px 0 0;
@@ -398,29 +398,29 @@
     overflow: hidden;
   }
 
-  .editor-repl-container {
+  .playground-repl-container {
     flex: 1;
     min-width: 0;
   }
 
-  .editor-repl :deep(.vue-repl) {
+  .playground-repl :deep(.vue-repl) {
     --color-branding: var(--v0-primary);
     --color-branding-dark: var(--v0-primary);
   }
 
-  .editor-repl :deep(.editor-container) {
+  .playground-repl :deep(.editor-container) {
     height: 100%;
   }
 
-  .editor-repl :deep(.editor-floating) {
+  .playground-repl :deep(.editor-floating) {
     display: none !important;
   }
 
-  .editor-repl :deep(.file-selector) {
+  .playground-repl :deep(.file-selector) {
     display: none !important;
   }
 
-  .editor-repl.dark :deep(.vue-repl) {
+  .playground-repl.dark :deep(.vue-repl) {
     --bg: var(--v0-background);
     --bg-soft: var(--v0-surface);
     --border: var(--v0-divider);
