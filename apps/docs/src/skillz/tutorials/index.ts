@@ -31,17 +31,23 @@ export interface Tutorial {
 }
 
 // Discover all tutorials via import.meta.glob
-const metas = import.meta.glob<TutorialMeta>('./*/meta.json', { eager: true, import: 'default' })
+const metas = import.meta.glob<TutorialMeta>('./*/*/meta.json', { eager: true, import: 'default' })
 const markdowns = import.meta.glob<string>('./**/step-*/README.md', { query: '?raw', import: 'default' })
 const codeFiles = import.meta.glob<string>('./**/step-*/**/*.{vue,ts,js}', { query: '?raw', import: 'default' })
 
 function parseTutorialId (path: string): string {
-  // './vue-basics/meta.json' → 'vue-basics'
-  return path.split('/')[1]
+  // './beginner/vue-basics/meta.json' → 'vue-basics'
+  return path.split('/')[2]
+}
+
+function parseTutorialPrefix (path: string): string {
+  // './beginner/vue-basics/meta.json' → './beginner/vue-basics'
+  const parts = path.split('/')
+  return `${parts[0]}/${parts[1]}/${parts[2]}`
 }
 
 function parseStepNumber (path: string): number {
-  // './vue-basics/step-1/README.md' → 1
+  // './beginner/vue-basics/step-1/README.md' → 1
   const match = path.match(/step-(\d+)/)
   return match ? Number(match[1]) : 0
 }
@@ -51,11 +57,12 @@ function getTutorials (): Tutorial[] {
 
   for (const [metaPath, meta] of Object.entries(metas)) {
     const id = parseTutorialId(metaPath)
+    const prefix = parseTutorialPrefix(metaPath)
     const stepsMap = new Map<number, TutorialStep>()
 
     // Collect markdown files for this tutorial
     for (const [mdPath, loader] of Object.entries(markdowns)) {
-      if (!mdPath.startsWith(`./${id}/`)) continue
+      if (!mdPath.startsWith(`${prefix}/`)) continue
       const stepNum = parseStepNumber(mdPath)
       if (stepsMap.has(stepNum)) {
         stepsMap.get(stepNum)!.markdown = loader
@@ -66,11 +73,11 @@ function getTutorials (): Tutorial[] {
 
     // Collect code files for this tutorial
     for (const [codePath, loader] of Object.entries(codeFiles)) {
-      if (!codePath.startsWith(`./${id}/`)) continue
+      if (!codePath.startsWith(`${prefix}/`)) continue
       const stepNum = parseStepNumber(codePath)
       // Extract the file path relative to the step directory
-      // './vue-basics/step-1/App.vue' → 'src/App.vue'
-      const fileName = codePath.replace(new RegExp(String.raw`^\./${id}/step-${stepNum}/`), '')
+      // './beginner/vue-basics/step-1/App.vue' → 'src/App.vue'
+      const fileName = codePath.replace(new RegExp(String.raw`^${prefix}/step-${stepNum}/`), '')
       const replPath = `src/${fileName}`
 
       if (!stepsMap.has(stepNum)) {
