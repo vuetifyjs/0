@@ -10,6 +10,7 @@ import { computed, shallowRef } from 'vue'
 
 // Types
 import type { DiscoveryStepTicket } from '@/composables/useDiscovery'
+import type { Ref } from 'vue'
 
 // Tutorials
 import { getTutorialSkills } from '@/skillz/tutorials'
@@ -23,12 +24,22 @@ export interface TourProgress {
   lastStep?: string
   startedAt?: number
   completedAt?: number
-  snoozedUntil?: number
 }
 
 export interface SkillzProgress {
   version: number
   tours: Record<string, TourProgress>
+}
+
+// Local-only UI preferences — never synced to the server
+interface LocalSkillzPrefs {
+  snoozed: Record<string, number> // tourId → snoozedUntil timestamp
+  dismissed: Record<string, boolean> // tourId → hidden from resume popup
+}
+
+// Adapter interface — swap for an API-backed implementation for Vuetify One subscribers
+export interface SkillzAdapter {
+  readonly data: Ref<SkillzProgress>
 }
 
 const VERSION = 1
@@ -37,10 +48,24 @@ function defaults (): SkillzProgress {
   return { version: VERSION, tours: {} }
 }
 
+function defaultPrefs (): LocalSkillzPrefs {
+  return { snoozed: {}, dismissed: {} }
+}
+
+function createLocalAdapter (storage: ReturnType<typeof useStorage>): SkillzAdapter {
+  return { data: storage.get<SkillzProgress>('skillz', defaults()) }
+}
+
 export const useSkillzStore = defineStore('skillz', () => {
   const discovery = useDiscovery()
   const storage = useStorage()
-  const data = storage.get<SkillzProgress>('skillz', defaults())
+
+  // Progress data — sourced through adapter for future API integration
+  const adapter = createLocalAdapter(storage)
+  const data = adapter.data
+
+  // UI preferences — always local-only
+  const prefs = storage.get<LocalSkillzPrefs>('skillz-prefs', defaultPrefs())
 
   const active = shallowRef<string | null>(null)
 
@@ -80,9 +105,15 @@ export const useSkillzStore = defineStore('skillz', () => {
       lastStep: existing?.lastStep,
       startedAt: existing?.startedAt,
       completedAt: existing?.completedAt,
-      snoozedUntil: existing?.snoozedUntil,
       ...changes,
     }
+  }
+
+  // Spread-reassign to ensure Vue's deep watch detects the removal and persists to localStorage
+  function clearPrefs (id: string): void {
+    const { [id]: _s, ...snoozed } = prefs.value.snoozed
+    const { [id]: _d, ...dismissed } = prefs.value.dismissed
+    prefs.value = { snoozed, dismissed }
   }
 
   function begin (id: string): void {
@@ -93,10 +124,12 @@ export const useSkillzStore = defineStore('skillz', () => {
       delete data.value.tours[id]
     }
 
+    // Clear local UI prefs so the resume popup shows again
+    clearPrefs(id)
+
     update(id, {
       status: 'in-progress',
       startedAt: data.value.tours[id]?.startedAt ?? Date.now(),
-      snoozedUntil: undefined,
     })
   }
 
@@ -123,19 +156,21 @@ export const useSkillzStore = defineStore('skillz', () => {
   function reset (id?: string): void {
     if (id) {
       delete data.value.tours[id]
+      clearPrefs(id)
     } else {
       data.value.tours = {}
       data.value.version = VERSION
+      prefs.value = defaultPrefs()
     }
   }
 
+  // Hides the resume popup without wiping progress — user can still resume from the skillz page
   function dismiss (id: string): void {
-    const { [id]: _, ...rest } = data.value.tours
-    data.value.tours = rest
+    prefs.value.dismissed[id] = true
   }
 
   function snooze (id: string): void {
-    update(id, { snoozedUntil: Date.now() + 60 * 60 * 1000 })
+    prefs.value.snoozed[id] = Date.now() + 60 * 60 * 1000
   }
 
   // Track current step on enter (for resume)
@@ -195,15 +230,16 @@ export const useSkillzStore = defineStore('skillz', () => {
   const items = computed(() => [...discovery.tours.values(), ...tutorialSkills])
   const done = computed(() => active.value ? steps(active.value) : [])
 
-  // Find any skill that was started but not completed (and not currently active or snoozed)
+  // Find any skill that was started but not completed (and not currently active, snoozed, or dismissed)
   const pendingTour = computed(() => {
     if (active.value) return null
     const now = Date.now()
     for (const [id, progress] of Object.entries(data.value.tours)) {
-      if (progress.status === 'in-progress' && !(progress.snoozedUntil && progress.snoozedUntil > now)) {
-        const tour = discovery.tours.get(id) ?? tutorialSkills.find(s => s.id === id)
-        if (tour) return { tour, progress }
-      }
+      if (progress.status !== 'in-progress') continue
+      if (prefs.value.dismissed[id]) continue
+      if (prefs.value.snoozed[id] && prefs.value.snoozed[id] > now) continue
+      const tour = discovery.tours.get(id) ?? tutorialSkills.find(s => s.id === id)
+      if (tour) return { tour, progress }
     }
     return null
   })
