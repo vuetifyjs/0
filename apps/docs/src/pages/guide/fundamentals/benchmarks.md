@@ -35,6 +35,7 @@ Headless UI libraries must be fast—they're foundational infrastructure. v0 ben
 | Composable | Why It's Benchmarked |
 | - | - |
 | [createRegistry](/composables/registration/create-registry) | Foundation for all collections—performance here affects everything |
+| [createSelection](/composables/selection/create-selection) | Base for all selection patterns—select, toggle, mandatory, batch |
 | [createTokens](/composables/registration/create-tokens) | Design tokens can grow large—alias resolution must scale |
 | [createFilter](/composables/data/create-filter) | Search/filter on large datasets must remain responsive |
 | [createVirtual](/composables/data/create-virtual) | Virtual scrolling is performance-critical by definition |
