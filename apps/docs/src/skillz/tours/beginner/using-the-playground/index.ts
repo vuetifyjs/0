@@ -1,21 +1,13 @@
-// Types
-import type { PlaygroundControl } from '@/stores/playground'
-
-interface PlaygroundContext {
-  panel: PlaygroundControl
-  sidebar: PlaygroundControl
-  examples: PlaygroundControl
-}
-
-interface TourContext {
-  playground: PlaygroundContext
-}
+// Stores
+import { usePlaygroundStore } from '@/stores/playground'
 
 /**
  * Tour definition for "Using the Playground".
  * Opens and closes playground panels so users see each feature in context.
  */
-export function defineTour ({ playground }: TourContext) {
+export function defineTour () {
+  const playground = usePlaygroundStore()
+
   return {
     handlers: {
       'welcome': {
