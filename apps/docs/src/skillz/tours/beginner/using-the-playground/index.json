@@ -30,7 +30,7 @@
     {
       "id": "intro-panel",
       "title": "Getting Started",
-      "task": "The intro panel gives you an overview of the editor's features and links to tutorials.",
+      "task": "The intro panel gives you an overview of the playground's features and links to tutorials.",
       "hint": "",
       "learn": "Use the intro panel for orientation",
       "placement": "right"
@@ -53,9 +53,9 @@
       "skipOnMobile": true
     },
     {
-      "id": "playground",
-      "title": "Code Playground",
-      "task": "Write your code on the left. The preview on the right updates instantly as you type.",
+      "id": "editor",
+      "title": "Code Editor",
+      "task": "Write your code here. The preview updates instantly as you type.",
       "hint": "",
       "learn": "Write code and see it run live",
       "placement": "left"

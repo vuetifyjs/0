@@ -46,7 +46,7 @@ export function defineTour ({ playground }: TourContext) {
           playground.sidebar.open()
         },
       },
-      'playground': {
+      'editor': {
         enter: () => playground.examples.close(),
       },
       'complete': {
