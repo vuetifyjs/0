@@ -10,7 +10,7 @@
   import { useMarkdownMount } from '@/composables/useMarkdownMount'
 
   // Utilities
-  import { computed, useTemplateRef, watch } from 'vue'
+  import { toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { SkillLevel } from '@/types/skill'
@@ -29,14 +29,13 @@
   }>()
 
   const theme = useTheme()
-  const dataTheme = computed(() => theme.isDark.value ? 'dark' : 'light')
+  const dataTheme = toRef(() => theme.isDark.value ? 'dark' : 'light')
 
-  // ── Dynamic component mounting ───────────────────────────────────────
   const contentRef = useTemplateRef<HTMLElement>('content')
   const scrollRef = useTemplateRef<HTMLElement>('scroll')
 
   // Mounts DocsCallout and DocsMarkup into the placeholder elements produced by useMarkdown
-  const htmlRef = computed(() => props.html)
+  const htmlRef = toRef(() => props.html)
   useMarkdownMount(contentRef, htmlRef)
 
   // Scroll to top on each step transition

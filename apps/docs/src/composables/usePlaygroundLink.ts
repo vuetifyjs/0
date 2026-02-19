@@ -1,3 +1,6 @@
+// Framework
+import { isObject, isString } from '@vuetify/v0'
+
 export interface PlaygroundFile {
   name: string
   code: string
@@ -112,12 +115,7 @@ export async function usePlaygroundLinkMulti (inputFiles: PlaygroundFile[], dir?
 }
 
 function isFileRecord (v: unknown): v is Record<string, string> {
-  return (
-    typeof v === 'object'
-    && v !== null
-    && !Array.isArray(v)
-    && Object.values(v as Record<string, unknown>).every(x => typeof x === 'string')
-  )
+  return isObject(v) && Object.values(v).every(x => isString(x))
 }
 
 export interface PlaygroundHashData {
@@ -150,7 +148,7 @@ export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHas
       && isFileRecord((parsed as { files: unknown }).files)
     ) {
       const { files, active } = parsed as { files: Record<string, string>, active?: unknown }
-      return { files, active: typeof active === 'string' ? active : undefined }
+      return { files, active: isString(active) ? active : undefined }
     }
     return null
   } catch {

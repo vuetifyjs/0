@@ -20,11 +20,9 @@
     size?: number
   }
 
-  const props = withDefaults(defineProps<AppBrowserIconProps>(), {
-    size: 18,
-  })
+  const { browser, size = 18 } = defineProps<AppBrowserIconProps>()
 
-  const config = computed(() => browsers[props.browser])
+  const config = computed(() => browsers[browser])
 </script>
 
 <template>

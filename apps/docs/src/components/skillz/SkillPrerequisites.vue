@@ -1,12 +1,10 @@
 <script setup lang="ts">
-  withDefaults(defineProps<{
+  const { prerequisites, variant = 'inline' } = defineProps<{
     /** Array of prerequisite skill IDs */
     prerequisites: string[]
     /** Display variant */
     variant?: 'inline' | 'box'
-  }>(), {
-    variant: 'inline',
-  })
+  }>()
 </script>
 
 <template>

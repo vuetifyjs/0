@@ -10,13 +10,13 @@
   import { useTemplateRef } from 'vue'
 
   // Content
-  import introMd from './PlaygroundIntroPanel.md?raw'
+  import PlaygroundIntroPanelRaw from './PlaygroundIntroPanel.md?raw'
 
   defineEmits<{
     close: []
   }>()
 
-  const { html } = useMarkdown(introMd)
+  const { html } = useMarkdown(PlaygroundIntroPanelRaw)
 
   const contentRef = useTemplateRef<HTMLElement>('content')
   useMarkdownMount(contentRef, html)

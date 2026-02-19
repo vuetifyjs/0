@@ -24,7 +24,7 @@
     language?: string
   }
 
-  const props = withDefaults(defineProps<{
+  const { file, filePath, filePaths, fileOrders, title, id, code, collapse, files, peek, peekLines = 6 } = defineProps<{
     file?: string
     filePath?: string
     filePaths?: string[]
@@ -36,31 +36,29 @@
     files?: ExampleFile[]
     peek?: boolean
     peekLines?: number
-  }>(), {
-    peekLines: 6,
-  })
+  }>()
 
   // Auto-resolve component and code from filePath(s)
   const examples = useExamples()
   const auto = computed(() => {
-    if (props.filePaths?.length) return examples.resolveMultiple(props.filePaths)
-    if (props.filePath) return examples.resolve(props.filePath)
+    if (filePaths?.length) return examples.resolveMultiple(filePaths)
+    if (filePath) return examples.resolve(filePath)
     return null
   })
 
   const resolvedCode = computed(() =>
-    props.code ?? ('code' in (auto.value || {}) ? (auto.value as { code?: string }).code : undefined),
+    code ?? ('code' in (auto.value || {}) ? (auto.value as { code?: string }).code : undefined),
   )
   const resolvedFiles = computed(() =>
-    props.files ?? ('files' in (auto.value || {}) ? (auto.value as { files?: ExampleFile[] }).files : undefined),
+    files ?? ('files' in (auto.value || {}) ? (auto.value as { files?: ExampleFile[] }).files : undefined),
   )
 
   // Sort files by display order if fileOrders specified
   const displayFiles = computed(() => {
-    const files = resolvedFiles.value
-    if (!files?.length || !props.fileOrders?.some(o => !isUndefined(o))) return files
-    return files
-      .map((f, i) => ({ file: f, order: props.fileOrders![i] ?? Infinity }))
+    const resolvedFilesList = resolvedFiles.value
+    if (!resolvedFilesList?.length || !fileOrders?.some(o => !isUndefined(o))) return resolvedFilesList
+    return resolvedFilesList
+      .map((f, i) => ({ file: f, order: fileOrders![i] ?? Infinity }))
       .toSorted((a, b) => a.order - b.order)
       .map(x => x.file)
   })
@@ -69,7 +67,7 @@
   const hasDescription = computed(() => !!slots.description)
   const descriptionExpanded = ref(false)
 
-  const anchorId = computed(() => props.id ?? (props.title ? `example-${toKebab(props.title)}` : undefined))
+  const anchorId = computed(() => id ?? (title ? `example-${toKebab(title)}` : undefined))
 
   const uid = useId()
   const showCode = ref(false)
@@ -150,13 +148,13 @@
   }
 
   const fileName = computed(() =>
-    props.file?.split('/').pop() || (props.filePath ? `${props.filePath.split('/').pop()}.vue` : ''),
+    file?.split('/').pop() || (filePath ? `${filePath.split('/').pop()}.vue` : ''),
   )
 
   // Extract the feature directory from the example path
   // e.g. 'components/pagination/basic' → 'pagination'
   const exampleDir = computed(() => {
-    const path = props.filePath ?? props.filePaths?.[0]
+    const path = filePath ?? filePaths?.[0]
     if (!path) return undefined
     const parts = path.split('/')
     return parts.length >= 2 ? parts.at(-2) : undefined
@@ -173,7 +171,7 @@
   function openAllInBin () {
     if (!displayFiles.value?.length) return
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code, language: f.language }))
-    const url = getMultiFileBinUrl(files, props.title)
+    const url = getMultiFileBinUrl(files, title)
     window.open(url, '_blank')
   }
 </script>

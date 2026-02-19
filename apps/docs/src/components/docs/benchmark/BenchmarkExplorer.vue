@@ -5,7 +5,7 @@
   // Utilities
   import { computed, toRef, watch } from 'vue'
 
-  const props = withDefaults(defineProps<{
+  const { composable, hideSummary, collapsed } = defineProps<{
     /** Restrict to a single composable (embed mode) */
     composable?: string
     /** Hide the filter bar */
@@ -14,9 +14,7 @@
     hideSummary?: boolean
     /** Start with groups collapsed */
     collapsed?: boolean
-  }>(), {
-    collapsed: undefined,
-  })
+  }>()
 
   const {
     isLoading,
@@ -28,10 +26,10 @@
     expandedGroups,
     expandAll,
     collapseAll,
-  } = useBenchmarkData({ composable: () => props.composable })
+  } = useBenchmarkData({ composable: () => composable })
 
   // Default expand behavior: expand all when not collapsed
-  const shouldCollapse = computed(() => props.collapsed ?? !!props.composable)
+  const shouldCollapse = computed(() => collapsed ?? !!composable)
 
   // Auto-expand groups when search is active
   watch(toRef(() => filter.query.value), query => {

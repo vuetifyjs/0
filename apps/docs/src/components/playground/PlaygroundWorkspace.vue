@@ -19,7 +19,10 @@
   // Types
   import type { ReplStore } from '@vue/repl'
 
-  const props = withDefaults(defineProps<{
+  const {
+    store, replTheme, previewOptions, isDark, fileTreeKey, sidebarOpen, isDesktop,
+    externalResizing = false, hideFiles = false, hideTabs = false, hideBreadcrumbs = false,
+  } = defineProps<{
     store: ReplStore
     replTheme: 'dark' | 'light'
     previewOptions: { headHTML: string }
@@ -31,12 +34,7 @@
     hideFiles?: boolean
     hideTabs?: boolean
     hideBreadcrumbs?: boolean
-  }>(), {
-    externalResizing: false,
-    hideFiles: false,
-    hideTabs: false,
-    hideBreadcrumbs: false,
-  })
+  }>()
 
   const emit = defineEmits<{
     'update:sidebarOpen': [value: boolean]
@@ -59,15 +57,15 @@
   })
 
   const anyResizing = computed(() =>
-    props.externalResizing || splitHandle.isResizing.value || fileTreeHandle.isResizing.value,
+    externalResizing || splitHandle.isResizing.value || fileTreeHandle.isResizing.value,
   )
 
   const showFileTree = computed(() =>
-    props.sidebarOpen && props.isDesktop && !props.hideFiles,
+    sidebarOpen && isDesktop && !hideFiles,
   )
 
   const showMobileOverlay = computed(() =>
-    !props.isDesktop && props.sidebarOpen && !props.hideFiles,
+    !isDesktop && sidebarOpen && !hideFiles,
   )
 
   // Mobile overlay z-index via stack

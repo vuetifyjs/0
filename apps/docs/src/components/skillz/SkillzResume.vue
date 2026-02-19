@@ -28,7 +28,7 @@
   const search = useSearch()
   const settings = useSettings()
 
-  const levelMeta = computed(() => {
+  const levelMeta = toRef(() => {
     const level = store.pendingTour?.tour.level ?? 1
     return SKILL_LEVEL_META[level]
   })

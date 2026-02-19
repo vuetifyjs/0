@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { createNested, useProxyRegistry } from '@vuetify/v0'
+  import { createNested, isString, useProxyRegistry } from '@vuetify/v0'
 
   // Composables
   import { useFileTreeCrud } from '@/composables/useFileTreeCrud'
@@ -98,7 +98,7 @@
 
   // Auto-open all nested folders under src
   for (const id of tree.keys()) {
-    if (typeof id !== 'string') continue
+    if (!isString(id)) continue
     if (id.startsWith('src/') && !/\.\w+$/.test(id)) {
       tree.open(id)
     }
@@ -112,7 +112,6 @@
     isFile, fileExt, add, confirm, cancel, deletable, remove,
   } = useFileTreeCrud(tree, props.store)
 
-  // ── Tree helpers ───────────────────────────────────────────────────────
   function getVisibleNodes (parentId?: string): string[] {
     const ids = parentId
       ? tree.children.get(parentId) ?? []
@@ -153,13 +152,13 @@
     return nodes[lastIdx]
   })
 
-  const treeEl = useTemplateRef<HTMLElement>('treeEl')
+  const treeEl = useTemplateRef<HTMLElement>('tree')
 
   function activate (id: string) {
     if (isFile(id)) {
       props.store.setActive(id)
       const parent = tree.parents.get(id)
-      targetFolder.value = (typeof parent === 'string' ? parent : null) ?? 'src'
+      targetFolder.value = (isString(parent) ? parent : null) ?? 'src'
     } else {
       tree.flip(id)
       targetFolder.value = id
@@ -208,7 +207,7 @@
           tree.close(id)
         } else {
           const parent = tree.parents.get(id)
-          if (typeof parent === 'string' && parent !== 'src') focusNode(parent)
+          if (isString(parent) && parent !== 'src') focusNode(parent)
         }
         break
       }
@@ -234,7 +233,7 @@
 
 <template>
   <nav
-    ref="treeEl"
+    ref="tree"
     aria-label="File browser"
     class="border-r border-divider bg-surface overflow-y-auto shrink-0 h-100%"
   >

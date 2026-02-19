@@ -4,7 +4,7 @@
   import DocsCard from '@/components/docs/DocsCard.vue'
 
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { SkillMeta } from '@/types/skill'
@@ -18,9 +18,9 @@
   }>()
 
   const store = useSkillzStore()
-  const done = computed(() => store.completed(props.skill.id))
-  const isLocked = computed(() => store.locked(props.skill.id))
-  const href = computed(() => {
+  const done = toRef(() => store.completed(props.skill.id))
+  const isLocked = toRef(() => store.locked(props.skill.id))
+  const href = toRef(() => {
     if (isLocked.value) return undefined
     return `/skillz/${props.skill.id}`
   })

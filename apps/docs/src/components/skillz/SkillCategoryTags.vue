@@ -4,14 +4,12 @@
 
   import { SKILL_CATEGORY_META } from '@/types/skill'
 
-  withDefaults(defineProps<{
+  const { categories, variant = 'default' } = defineProps<{
     /** Array of category identifiers */
     categories: SkillCategory[]
     /** Visual variant */
     variant?: 'default' | 'compact'
-  }>(), {
-    variant: 'default',
-  })
+  }>()
 </script>
 
 <template>

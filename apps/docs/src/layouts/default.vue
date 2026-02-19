@@ -5,6 +5,7 @@
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useDiscovery } from '@/composables/useDiscovery'
+  import { useIdleCallback } from '@/composables/useIdleCallback'
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
   import { useSearch } from '@/composables/useSearch'
@@ -63,15 +64,10 @@
   // Prefetch editor dependencies during idle time so
   // "Open in Editor" (new tab) loads from HTTP cache
   if (IN_BROWSER) {
-    function prefetchEditor () {
+    useIdleCallback(() => {
       import('@vue/repl').catch(() => {})
       import('@vue/repl/monaco-editor').catch(() => {})
-    }
-    if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(prefetchEditor)
-    } else {
-      setTimeout(prefetchEditor, 3000)
-    }
+    })
   }
 </script>
 

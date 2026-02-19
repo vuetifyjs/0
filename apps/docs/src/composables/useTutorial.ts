@@ -75,7 +75,6 @@ export function useTutorial (tutorialId: ComputedRef<string>, initialStep?: Comp
     skillz.finish(tutorialId.value)
   }
 
-  // ── Step preloading ──────────────────────────────────────────────────
   const stepCache = new Map<number, { md: string, files: Record<string, string>, options: StepOptions }>()
 
   async function preloadSteps () {
@@ -120,8 +119,6 @@ export function useTutorial (tutorialId: ComputedRef<string>, initialStep?: Comp
     stepCache.set(stepIndex, result)
     return result
   }
-
-  // ── Step loading ─────────────────────────────────────────────────────
 
   // Files the REPL manages internally — never touch between steps or the
   // sandbox watch will fire and recreate the iframe.

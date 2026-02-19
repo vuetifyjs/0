@@ -2,7 +2,7 @@
   /**
    * Simple progress bar component with percentage label.
    */
-  withDefaults(defineProps<{
+  const { value, color = 'primary', showLabel = true, size = 'sm' } = defineProps<{
     /** Progress value (0-100) */
     value: number
     /** Color variant */
@@ -11,11 +11,7 @@
     showLabel?: boolean
     /** Size variant */
     size?: 'sm' | 'md'
-  }>(), {
-    color: 'primary',
-    showLabel: true,
-    size: 'sm',
-  })
+  }>()
 </script>
 
 <template>

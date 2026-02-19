@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Utilities
-  import { computed } from 'vue'
+  import { toRef } from 'vue'
 
   // Types
   import type { SkillLevel } from '@/types/skill'
@@ -11,7 +11,7 @@
     level?: SkillLevel
   }>()
 
-  const levelMeta = computed(() => props.level ? SKILL_LEVEL_META[props.level] : undefined)
+  const levelMeta = toRef(() => props.level ? SKILL_LEVEL_META[props.level] : undefined)
 </script>
 
 <template>
