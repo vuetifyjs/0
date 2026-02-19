@@ -118,9 +118,9 @@
   // Panel resize (panel mode)
   const panelHandle = useResizeHandle({
     storageKey: 'editor-intro-width',
-    defaultValue: 300,
-    min: 200,
-    max: 500,
+    defaultValue: 420,
+    min: 280,
+    max: 600,
     direction: 'horizontal',
   })
 

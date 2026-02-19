@@ -23,6 +23,7 @@ export interface TourProgress {
   lastStep?: string
   startedAt?: number
   completedAt?: number
+  snoozedUntil?: number
 }
 
 export interface SkillzProgress {
@@ -79,6 +80,7 @@ export const useSkillzStore = defineStore('skillz', () => {
       lastStep: existing?.lastStep,
       startedAt: existing?.startedAt,
       completedAt: existing?.completedAt,
+      snoozedUntil: existing?.snoozedUntil,
       ...changes,
     }
   }
@@ -94,6 +96,7 @@ export const useSkillzStore = defineStore('skillz', () => {
     update(id, {
       status: 'in-progress',
       startedAt: data.value.tours[id]?.startedAt ?? Date.now(),
+      snoozedUntil: undefined,
     })
   }
 
@@ -127,10 +130,12 @@ export const useSkillzStore = defineStore('skillz', () => {
   }
 
   function dismiss (id: string): void {
-    const existing = data.value.tours[id]
-    if (existing?.status === 'in-progress') {
-      delete data.value.tours[id]
-    }
+    const { [id]: _, ...rest } = data.value.tours
+    data.value.tours = rest
+  }
+
+  function snooze (id: string): void {
+    update(id, { snoozedUntil: Date.now() + 60 * 60 * 1000 })
   }
 
   // Track current step on enter (for resume)
@@ -190,11 +195,12 @@ export const useSkillzStore = defineStore('skillz', () => {
   const items = computed(() => [...discovery.tours.values(), ...tutorialSkills])
   const done = computed(() => active.value ? steps(active.value) : [])
 
-  // Find any skill that was started but not completed (and not currently active)
+  // Find any skill that was started but not completed (and not currently active or snoozed)
   const pendingTour = computed(() => {
     if (active.value) return null
+    const now = Date.now()
     for (const [id, progress] of Object.entries(data.value.tours)) {
-      if (progress.status === 'in-progress') {
+      if (progress.status === 'in-progress' && !(progress.snoozedUntil && progress.snoozedUntil > now)) {
         const tour = discovery.tours.get(id) ?? tutorialSkills.find(s => s.id === id)
         if (tour) return { tour, progress }
       }
@@ -210,6 +216,7 @@ export const useSkillzStore = defineStore('skillz', () => {
     finish,
     reset,
     dismiss,
+    snooze,
     begin,
     record,
     setLastStep,
