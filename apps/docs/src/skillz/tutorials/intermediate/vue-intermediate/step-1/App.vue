@@ -33,7 +33,7 @@
 </script>
 
 <template>
-  <div class="p-8 font-sans min-h-screen bg-background text-on-background">
+  <div class="p-8">
     <div class="flex items-center gap-3 mb-6">
       <h1 class="text-2xl font-bold">
         Notifications
