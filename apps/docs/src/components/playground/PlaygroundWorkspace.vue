@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { useStack } from '@vuetify/v0'
+
   // Components
   import { Discovery } from '@/components/discovery'
   import PlaygroundBreadcrumbs from '@/components/playground/PlaygroundBreadcrumbs.vue'
@@ -11,7 +14,7 @@
   // Utilities
   import { Repl, Sandbox } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
-  import { computed } from 'vue'
+  import { computed, watch } from 'vue'
 
   // Types
   import type { ReplStore } from '@vue/repl'
@@ -34,6 +37,10 @@
     hideTabs: false,
     hideBreadcrumbs: false,
   })
+
+  const emit = defineEmits<{
+    'update:sidebarOpen': [value: boolean]
+  }>()
 
   const splitHandle = useResizeHandle({
     storageKey: 'workspace-split-percent',
@@ -58,10 +65,49 @@
   const showFileTree = computed(() =>
     props.sidebarOpen && props.isDesktop && !props.hideFiles,
   )
+
+  const showMobileOverlay = computed(() =>
+    !props.isDesktop && props.sidebarOpen && !props.hideFiles,
+  )
+
+  // Mobile overlay z-index via stack
+  const stack = useStack()
+  const ticket = stack.register({
+    onDismiss: () => emit('update:sidebarOpen', false),
+  })
+  watch(showMobileOverlay, open => {
+    if (open) ticket.select()
+    else ticket.unselect()
+  })
 </script>
 
 <template>
   <div class="flex flex-col flex-1 min-w-0 min-h-0 bg-background">
+    <!-- Mobile: file browser overlay -->
+    <div
+      v-if="showMobileOverlay"
+      aria-label="File browser"
+      class="fixed top-0 bottom-0 left-0 w-[260px] flex flex-col bg-surface border-r border-divider"
+      role="dialog"
+      :style="{ zIndex: ticket.zIndex.value }"
+    >
+      <div class="flex items-center justify-end px-2 py-1">
+        <button
+          aria-label="Close file browser"
+          class="pa-1 inline-flex rounded opacity-50 hover:opacity-80 hover:bg-surface-tint transition-colors"
+          @click="emit('update:sidebarOpen', false)"
+        >
+          <AppIcon icon="close" :size="18" />
+        </button>
+      </div>
+
+      <PlaygroundFileTree
+        :key="fileTreeKey"
+        class="flex-1 min-h-0"
+        :store="store"
+      />
+    </div>
+
     <!-- Editor area -->
     <div
       class="flex min-h-0 min-w-0 overflow-hidden"

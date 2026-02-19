@@ -31,6 +31,7 @@
         "src/components/app/AppBrowserIcon.vue",
         "src/components/docs/DocsBrowserSupport.vue",
         "src/skillz/tours/**/index.ts",
+        "src/stores/playground.ts",
         "src/stores/skillz.ts",
         "src/data/**",
         "src/examples/**",

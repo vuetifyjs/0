@@ -70,11 +70,6 @@
     }
   }
 
-  // PlaygroundWorkspace renders Sandbox separately. Setting showOutput=false prevents
-  // the Repl from creating its internal preview iframe (see patches/@vue__repl@4.7.1.patch),
-  // avoiding a duplicate sandbox and the browser's allow-scripts+allow-same-origin warning.
-  store.showOutput = false
-
   useHead({
     title: computed(() => meta.value ? `${meta.value.title} - Vuetify0` : 'Tutorial - Vuetify0'),
   })
@@ -206,6 +201,7 @@
         :repl-theme="replTheme"
         :sidebar-open="sidebarOpen"
         :store="store"
+        @update:sidebar-open="v => sidebarOpen = v"
       />
     </div>
 

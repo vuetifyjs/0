@@ -21,6 +21,7 @@
   import { useRouter } from 'vue-router'
 
   // Stores
+  import { usePlaygroundStore } from '@/stores/playground'
   import { useSkillzStore } from '@/stores/skillz'
 
   definePage({
@@ -33,6 +34,7 @@
   const params = useParams<{ id: string }>()
   const discovery = useDiscovery()
   const store = useSkillzStore()
+  const playground = usePlaygroundStore()
   const ask = useAsk()
   const navigation = useNavigation()
   const search = useSearch()
@@ -94,6 +96,7 @@
         ask,
         breakpoints,
         navigation,
+        playground,
         router,
         search,
         settings,

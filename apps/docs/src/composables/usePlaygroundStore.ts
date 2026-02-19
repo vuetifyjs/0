@@ -4,15 +4,26 @@ import { computed, shallowRef } from 'vue'
 
 // Types
 import type { ReplStore } from '@vue/repl'
-import type { ComputedRef, Ref } from 'vue'
+import type { ComputedRef, Ref, ShallowRef } from 'vue'
 
+export interface PlaygroundContext {
+  store: ReplStore
+  isDark: Readonly<Ref<boolean>>
+  replTheme: ComputedRef<'dark' | 'light'>
+  previewOptions: ComputedRef<{ headHTML: string }>
+  fileTreeKey: ShallowRef<number>
+  sidebarOpen: ShallowRef<boolean>
+  isDesktop: ComputedRef<boolean>
+}
+
+/** @deprecated Use usePlaygroundRepl */
 export interface PlaygroundStoreReturn {
   store: ReplStore
   replTheme: ComputedRef<'dark' | 'light'>
   previewOptions: ComputedRef<{ headHTML: string }>
 }
 
-export function usePlaygroundStore (isDark: Readonly<Ref<boolean>>): PlaygroundStoreReturn {
+export function usePlaygroundRepl (isDark: Readonly<Ref<boolean>>): PlaygroundStoreReturn {
   const replTheme = computed(() => isDark.value ? 'dark' : 'light')
 
   const { importMap: builtinImportMap, vueVersion } = useVueImportMap({
@@ -31,7 +42,9 @@ export function usePlaygroundStore (isDark: Readonly<Ref<boolean>>): PlaygroundS
   const store = useStore({
     builtinImportMap: importMap,
     vueVersion,
-    showOutput: shallowRef(true),
+    // Default false: PlaygroundWorkspace renders Sandbox separately, so the
+    // Repl's built-in preview iframe must stay suppressed to avoid duplicates.
+    showOutput: shallowRef(false),
   })
 
   // Wind4 preflight reset + @property defaults.

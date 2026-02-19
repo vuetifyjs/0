@@ -3,7 +3,7 @@ import { createStep, useTheme } from '@vuetify/v0'
 
 // Composables
 import { useMarkdown } from '@/composables/useMarkdown'
-import { usePlaygroundStore } from '@/composables/usePlaygroundStore'
+import { usePlaygroundRepl } from '@/composables/usePlaygroundStore'
 
 // Utilities
 import { File as ReplFile, compileFile } from '@vue/repl'
@@ -46,7 +46,7 @@ export function useTutorial (tutorialId: ComputedRef<string>, initialStep?: Comp
   const isDark = theme.isDark
   const skillz = useSkillzStore()
 
-  const { store, replTheme, previewOptions } = usePlaygroundStore(isDark)
+  const { store, replTheme, previewOptions } = usePlaygroundRepl(isDark)
 
   const meta = computed(() => getTutorial(tutorialId.value)?.meta)
   const markdown = shallowRef('')
