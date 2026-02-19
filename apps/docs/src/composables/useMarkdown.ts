@@ -36,6 +36,14 @@ export interface UseMarkdownReturn {
 let cachedMarked: Marked | null = null
 let cachedHighlighter: Highlighter | null = null
 
+// Separate synchronous instance used only for parseInline inside the blockquote renderer.
+// The main cachedMarked has async:true, which makes parseInline return a Promise — unusable
+// in a synchronous renderer. This instance is sync-only and has no extensions.
+let syncInlineMarked: Marked | null = null
+function getInlineMarked (): Marked {
+  return syncInlineMarked ??= new Marked({ async: false, gfm: true })
+}
+
 function getMarked (hl: Highlighter): Marked {
   // Return cached if highlighter is the same
   if (cachedMarked && cachedHighlighter === hl) return cachedMarked
@@ -50,23 +58,35 @@ function getMarked (hl: Highlighter): Marked {
   cachedMarked.use({
     renderer: {
       table ({ header, rows }) {
-        const thead = `<thead><tr>${header.map(cell => `<th${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</th>`).join('')}</tr></thead>`
-        const tbody = `<tbody>${rows.map(row => `<tr>${row.map(cell => `<td${cell.align ? ` align="${cell.align}"` : ''}>${cell.text}</td>`).join('')}</tr>`).join('')}</tbody>`
+        function parse (text: string) {
+          return getInlineMarked().parseInline(text)
+        }
+        const thead = `<thead><tr>${header.map(cell => `<th${cell.align ? ` align="${cell.align}"` : ''}>${parse(cell.text)}</th>`).join('')}</tr></thead>`
+        const tbody = `<tbody>${rows.map(row => `<tr>${row.map(cell => `<td${cell.align ? ` align="${cell.align}"` : ''}>${parse(cell.text)}</td>`).join('')}</tr>`).join('')}</tbody>`
         return `<div class="overflow-x-auto mb-4"><table>${thead}${tbody}</table></div>`
       },
       blockquote ({ raw }) {
-        // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!TRY]
+        // GitHub-style callouts: > [!TIP], > [!INFO], > [!WARNING], > [!ERROR], > [!TRY], > [!TOUR]
         const innerContent = raw
           .split('\n')
           .map(line => line.replace(/^>\s?/, ''))
           .join('\n')
           .trim()
 
-        const match = innerContent.match(/^\[!(TIP|INFO|WARNING|ERROR|TRY)\]\s*([\s\S]*)/)
+        const match = innerContent.match(/^\[!(TIP|INFO|WARNING|ERROR|TRY|TOUR)\]\s*([\s\S]*)/)
         if (match) {
           const type = match[1].toLowerCase()
-          const content = match[2].trim()
-          const encodedContent = btoa(unescape(encodeURIComponent(content)))
+          const rest = match[2].trim()
+
+          if (type === 'tour') {
+            // rest is the tour ID — no slot content needed, DocsCallout renders from registry
+            return `<div data-alert data-type="tour" data-tour-id="${rest}"></div>`
+          }
+
+          // Parse inline markdown so backticks, bold, links etc. render correctly in callouts.
+          // Must use the sync instance — cachedMarked has async:true, making parseInline a Promise.
+          const parsedContent = getInlineMarked().parseInline(rest)
+          const encodedContent = btoa(unescape(encodeURIComponent(parsedContent)))
           return `<div data-alert data-type="${type}" data-content="${encodedContent}"></div>`
         }
 

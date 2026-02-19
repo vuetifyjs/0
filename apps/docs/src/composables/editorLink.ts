@@ -108,7 +108,7 @@ export async function useEditorLink (code: string, fileName = 'Example.vue'): Pr
 export async function useEditorLinkMulti (inputFiles: EditorFile[], dir?: string): Promise<string> {
   const files = buildEditorFiles(inputFiles, dir)
   const hash = await utoa(JSON.stringify(files))
-  return `/editor#${hash}`
+  return `/playground#${hash}`
 }
 
 function isFileRecord (v: unknown): v is Record<string, string> {
@@ -120,13 +120,39 @@ function isFileRecord (v: unknown): v is Record<string, string> {
   )
 }
 
+export interface EditorHashData {
+  files: Record<string, string>
+  active?: string
+}
+
 /**
- * Decode an editor hash back to a file record.
+ * Encode editor state (files + active filename) to a URL hash string.
  */
-export async function decodeEditorHash (hash: string): Promise<Record<string, string> | null> {
+export async function encodeEditorHash (data: EditorHashData): Promise<string> {
+  return utoa(JSON.stringify(data))
+}
+
+/**
+ * Decode an editor hash back to editor state.
+ * Handles both the current { files, active } format and the legacy plain Record<string, string> format.
+ */
+export async function decodeEditorHash (hash: string): Promise<EditorHashData | null> {
   try {
     const parsed: unknown = JSON.parse(await atou(hash))
-    return isFileRecord(parsed) ? parsed : null
+    if (isFileRecord(parsed)) {
+      // Legacy format: plain file record with no active file
+      return { files: parsed }
+    }
+    if (
+      typeof parsed === 'object'
+      && parsed !== null
+      && 'files' in parsed
+      && isFileRecord((parsed as { files: unknown }).files)
+    ) {
+      const { files, active } = parsed as { files: Record<string, string>, active?: unknown }
+      return { files, active: typeof active === 'string' ? active : undefined }
+    }
+    return null
   } catch {
     return null
   }

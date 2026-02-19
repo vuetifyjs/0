@@ -3,23 +3,21 @@
   import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
-  import { clamp, useBreakpoints, useDocumentEventListener, useStack, useStorage, useToggleScope } from '@vuetify/v0'
+  import { useBreakpoints, useStack } from '@vuetify/v0'
 
   // Components
-  import EditorBreadcrumbs from '@/components/editor/EditorBreadcrumbs.vue'
-  import EditorFileTree from '@/components/editor/EditorFileTree.vue'
+  import { Discovery } from '@/components/discovery'
   import EditorMarkdownPanel from '@/components/editor/EditorMarkdownPanel.vue'
-  import EditorTabs from '@/components/editor/EditorTabs.vue'
+  import EditorWorkspace from '@/components/editor/EditorWorkspace.vue'
   import SkillzComplete from '@/components/skillz/SkillzComplete.vue'
 
   // Composables
+  import { useResizeHandle } from '@/composables/useResizeHandle'
   import { useParams } from '@/composables/useRoute'
   import { useTutorial } from '@/composables/useTutorial'
 
   // Utilities
-  import { Repl, Sandbox } from '@vue/repl'
-  import Monaco from '@vue/repl/monaco-editor'
-  import { computed, shallowRef, type ShallowRef, watch } from 'vue'
+  import { computed, shallowRef, watch } from 'vue'
   import '@vue/repl/style.css'
   import { useRoute, useRouter } from 'vue-router'
 
@@ -72,7 +70,9 @@
     }
   }
 
-  // Hide the Repl's built-in preview — we render Sandbox separately
+  // EditorWorkspace renders Sandbox separately. Setting showOutput=false prevents
+  // the Repl from creating its internal preview iframe (see patches/@vue__repl@4.7.1.patch),
+  // avoiding a duplicate sandbox and the browser's allow-scripts+allow-same-origin warning.
   store.showOutput = false
 
   useHead({
@@ -87,78 +87,9 @@
   })
 
   // ── Resizable panels ────────────────────────────────────────────────
-  const storage = useStorage()
-
-  function useResizeHandle (options: {
-    storageKey: string
-    defaultValue: number
-    min: number
-    max: number
-    direction: 'horizontal' | 'vertical'
-  }): {
-    size: ShallowRef<number>
-    isResizing: ShallowRef<boolean>
-    onPointerDown: (e: PointerEvent) => void
-    reset: () => void
-  } {
-    const stored = storage.get<number>(options.storageKey, options.defaultValue)
-    const size = shallowRef(stored.value)
-    const isResizing = shallowRef(false)
-    const startPos = shallowRef(0)
-    const startSize = shallowRef(0)
-    const containerSize = shallowRef(0)
-
-    function onPointerDown (e: PointerEvent) {
-      e.preventDefault()
-      startPos.value = options.direction === 'horizontal' ? e.clientX : e.clientY
-      startSize.value = size.value
-      if (options.direction === 'vertical') {
-        containerSize.value = (e.target as HTMLElement).parentElement?.offsetHeight ?? 1
-      }
-      isResizing.value = true
-    }
-
-    let rafId = 0
-
-    useToggleScope(() => isResizing.value, () => {
-      useDocumentEventListener('pointermove', (e: PointerEvent) => {
-        if (rafId) return
-        rafId = requestAnimationFrame(() => {
-          const pos = options.direction === 'horizontal' ? e.clientX : e.clientY
-          const delta = pos - startPos.value
-          size.value = options.direction === 'vertical' ? clamp(startSize.value + (delta / containerSize.value) * 100, options.min, options.max) : clamp(startSize.value + delta, options.min, options.max)
-          rafId = 0
-        })
-      })
-      useDocumentEventListener('pointerup', () => {
-        if (rafId) cancelAnimationFrame(rafId)
-        rafId = 0
-        stored.value = size.value
-        isResizing.value = false
-      })
-    })
-
-    function reset () {
-      size.value = options.defaultValue
-      stored.value = options.defaultValue
-    }
-
-    return { size, isResizing, onPointerDown, reset }
-  }
-
   const markdownHandle = useResizeHandle({
     storageKey: 'tutorial-markdown-width', defaultValue: 350, min: 200, max: 600, direction: 'horizontal',
   })
-  const splitHandle = useResizeHandle({
-    storageKey: 'tutorial-split-percent', defaultValue: 50, min: 20, max: 80, direction: 'vertical',
-  })
-  const fileTreeHandle = useResizeHandle({
-    storageKey: 'tutorial-filetree-width', defaultValue: 200, min: 140, max: 400, direction: 'horizontal',
-  })
-
-  const anyResizing = computed(() =>
-    markdownHandle.isResizing.value || splitHandle.isResizing.value || fileTreeHandle.isResizing.value,
-  )
 
   // ── Completion ──────────────────────────────────────────────────────
   const stack = useStack()
@@ -229,14 +160,17 @@
       v-if="isReady"
       class="flex-1 min-h-0 flex overflow-hidden"
       :class="[
-        { dark: isDark, 'select-none': anyResizing },
+        { dark: isDark, 'select-none': markdownHandle.isResizing.value },
         isDesktop ? 'flex-row' : 'flex-col',
       ]"
     >
       <!-- Markdown panel -->
-      <div
+      <Discovery.Activator
+        active-class="rounded-lg"
+        as="div"
         class="tutorial-markdown-panel overflow-hidden shrink-0"
         :class="isDesktop ? 'border-r border-divider' : 'border-b border-divider max-h-[40vh]'"
+        step="instructions"
         :style="isDesktop ? { width: `${markdownHandle.size.value}px` } : undefined"
       >
         <EditorMarkdownPanel
@@ -248,88 +182,31 @@
           @next="onNext"
           @prev="prevStep"
         />
-      </div>
+      </Discovery.Activator>
 
       <!-- Markdown ↔ Right column handle -->
       <div
         v-if="isDesktop"
-        class="tutorial-resize-handle tutorial-resize-handle--col"
+        class="tutorial-resize-handle"
         :class="{ 'tutorial-resize-handle--active': markdownHandle.isResizing.value }"
         @dblclick="markdownHandle.reset()"
         @pointerdown="markdownHandle.onPointerDown"
       />
 
       <!-- Right column -->
-      <div class="flex flex-col flex-1 min-w-0 min-h-0 bg-background">
-        <!-- Editor area -->
-        <div
-          class="flex min-h-0 min-w-0 overflow-hidden"
-          :style="isDesktop ? { height: `${splitHandle.size.value}%` } : { flex: '1' }"
-        >
-          <EditorFileTree
-            v-if="sidebarOpen && isDesktop && !stepOptions.hideFiles"
-            :key="fileTreeKey"
-            class="shrink-0"
-            :store="store"
-            :style="{ width: `${fileTreeHandle.size.value}px` }"
-          />
-
-          <!-- File tree ↔ Editor handle -->
-          <div
-            v-if="sidebarOpen && isDesktop && !stepOptions.hideFiles"
-            class="tutorial-resize-handle tutorial-resize-handle--col"
-            :class="{ 'tutorial-resize-handle--active': fileTreeHandle.isResizing.value }"
-            @dblclick="fileTreeHandle.reset()"
-            @pointerdown="fileTreeHandle.onPointerDown"
-          />
-
-          <div
-            class="tutorial-repl-wrapper flex flex-col flex-1 min-w-0 editor-repl"
-            :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
-          >
-            <EditorTabs v-if="!stepOptions.hideTabs" :store="store" />
-            <EditorBreadcrumbs v-if="!stepOptions.hideBreadcrumbs" :store="store" />
-
-            <Repl
-              :auto-resize="true"
-              class="flex-1 min-h-0"
-              :clear-console="true"
-              :editor="Monaco"
-              :editor-options="{ monacoOptions: { padding: { top: 16 } } }"
-              layout="horizontal"
-              :preview-options="previewOptions"
-              :show-compile-output="false"
-              :show-import-map="false"
-              :show-ts-config="false"
-              :store="store"
-              :theme="replTheme"
-            />
-          </div>
-        </div>
-
-        <!-- Editor ↔ Preview handle -->
-        <div
-          v-if="isDesktop"
-          class="tutorial-resize-handle tutorial-resize-handle--row"
-          :class="{ 'tutorial-resize-handle--active': splitHandle.isResizing.value }"
-          @dblclick="splitHandle.reset()"
-          @pointerdown="splitHandle.onPointerDown"
-        />
-
-        <!-- Preview area -->
-        <div
-          class="tutorial-preview flex-1 min-w-0 min-h-0 editor-repl overflow-hidden border-t border-divider"
-          :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
-        >
-          <Sandbox
-            :clear-console="false"
-            :preview-options="previewOptions"
-            :show="true"
-            :store="store"
-            :theme="replTheme"
-          />
-        </div>
-      </div>
+      <EditorWorkspace
+        :external-resizing="markdownHandle.isResizing.value"
+        :file-tree-key="fileTreeKey"
+        :hide-breadcrumbs="stepOptions.hideBreadcrumbs"
+        :hide-files="stepOptions.hideFiles"
+        :hide-tabs="stepOptions.hideTabs"
+        :is-dark="isDark"
+        :is-desktop="isDesktop"
+        :preview-options="previewOptions"
+        :repl-theme="replTheme"
+        :sidebar-open="sidebarOpen"
+        :store="store"
+      />
     </div>
 
     <!-- Completion overlay -->
@@ -349,83 +226,17 @@
 </template>
 
 <style scoped>
-  /* Resize handles */
+  /* Markdown ↔ right column resize handle */
   .tutorial-resize-handle {
     flex-shrink: 0;
     background: transparent;
     transition: background 0.15s;
+    width: 4px;
+    cursor: col-resize;
   }
 
   .tutorial-resize-handle:hover,
   .tutorial-resize-handle--active {
     background: var(--v0-primary);
   }
-
-  .tutorial-resize-handle--col {
-    width: 4px;
-    cursor: col-resize;
-  }
-
-  .tutorial-resize-handle--row {
-    height: 4px;
-    cursor: row-resize;
-  }
-
-  /* REPL theme variables */
-  .editor-repl :deep(.vue-repl) {
-    --header-height: 0px;
-    --color-branding: var(--v0-primary);
-    --color-branding-dark: var(--v0-primary);
-  }
-
-  .editor-repl.dark :deep(.vue-repl) {
-    --bg: var(--v0-background);
-    --bg-soft: var(--v0-surface);
-    --border: var(--v0-divider);
-    --text-light: var(--v0-on-surface-variant);
-  }
-
-  /* Hide REPL's built-in file tabs */
-  .editor-repl :deep(.file-selector) {
-    display: none !important;
-  }
-
-  /* Hide editor floating toggles */
-  .editor-repl :deep(.editor-floating) {
-    display: none !important;
-  }
-
-  /* Hide the Repl's preview pane — we render Sandbox separately */
-  .tutorial-repl-wrapper :deep(.split-pane .right) {
-    display: none !important;
-  }
-
-  .tutorial-repl-wrapper :deep(.split-pane .left) {
-    width: 100% !important;
-  }
-
-  /* Hide the SplitPane divider */
-  .tutorial-repl-wrapper :deep(.split-pane .divider) {
-    display: none !important;
-  }
-
-  /* Sandbox fills container */
-  .editor-repl :deep(.vue-repl),
-  .editor-repl :deep(.iframe-container),
-  .editor-repl :deep(iframe) {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Match iframe bg to preview body to prevent flash between steps */
-  .tutorial-preview :deep(iframe) {
-    background-color: var(--v0-background) !important;
-  }
-
-  /* Disable @vue/repl's built-in fade transition on preview iframe */
-  .tutorial-preview :deep(.fade-enter-active),
-  .tutorial-preview :deep(.fade-leave-active) {
-    transition: none !important;
-  }
-
 </style>

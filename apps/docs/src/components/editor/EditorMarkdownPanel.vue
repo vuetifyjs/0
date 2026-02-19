@@ -3,13 +3,14 @@
   import { useTheme } from '@vuetify/v0'
 
   // Components
-  import DocsCallout from '@/components/docs/DocsCallout.vue'
-  import DocsMarkup from '@/components/docs/DocsMarkup.vue'
+  import { Discovery } from '@/components/discovery'
   import SkillzBadge from '@/components/skillz/SkillzBadge.vue'
 
+  // Composables
+  import { useMarkdownMount } from '@/composables/useMarkdownMount'
+
   // Utilities
-  import { decodeBase64 } from '@/utilities/decodeBase64'
-  import { computed, getCurrentInstance, h, nextTick, onBeforeUnmount, render, useTemplateRef, watch } from 'vue'
+  import { computed, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { SkillLevel } from '@/types/skill'
@@ -33,67 +34,15 @@
   // ── Dynamic component mounting ───────────────────────────────────────
   const contentRef = useTemplateRef<HTMLElement>('content')
   const scrollRef = useTemplateRef<HTMLElement>('scroll')
-  const appContext = getCurrentInstance()?.appContext
-  const mountedWrappers = new Set<HTMLElement>()
 
-  watch(() => props.html, async () => {
-    await nextTick()
+  // Mounts DocsCallout and DocsMarkup into the placeholder elements produced by useMarkdown
+  const htmlRef = computed(() => props.html)
+  useMarkdownMount(contentRef, htmlRef)
+
+  // Scroll to top on each step transition
+  watch(() => props.html, () => {
     scrollRef.value?.scrollTo(0, 0)
-    mountMarkupComponents()
-    mountAlertComponents()
   })
-
-  onBeforeUnmount(() => {
-    for (const wrapper of mountedWrappers) {
-      render(null, wrapper)
-    }
-    mountedWrappers.clear()
-  })
-
-  function mountMarkupComponents () {
-    if (!contentRef.value) return
-
-    for (const el of contentRef.value.querySelectorAll<HTMLElement>('[data-markup]')) {
-      const code = el.dataset.code
-      const language = el.dataset.language
-      if (!code) continue
-
-      const highlighted = el.innerHTML
-      const wrapper = document.createElement('div')
-      el.replaceWith(wrapper)
-      mountedWrappers.add(wrapper)
-
-      const vnode = h(DocsMarkup, {
-        code,
-        language,
-      }, {
-        default: () => h('div', { innerHTML: highlighted }),
-      })
-      vnode.appContext = appContext ?? null
-      render(vnode, wrapper)
-    }
-  }
-
-  function mountAlertComponents () {
-    if (!contentRef.value) return
-
-    for (const el of contentRef.value.querySelectorAll<HTMLElement>('[data-alert]')) {
-      const type = el.dataset.type as 'tip' | 'info' | 'warning' | 'error' | 'try'
-      const encodedContent = el.dataset.content
-      if (!type || !encodedContent) continue
-
-      const content = decodeBase64(encodedContent)
-      const wrapper = document.createElement('div')
-      el.replaceWith(wrapper)
-      mountedWrappers.add(wrapper)
-
-      const vnode = h(DocsCallout, { type }, {
-        default: () => h('div', { innerHTML: content }),
-      })
-      vnode.appContext = appContext ?? null
-      render(vnode, wrapper)
-    }
-  }
 </script>
 
 <template>
@@ -110,7 +59,7 @@
     </div>
 
     <!-- Step navigation -->
-    <div class="flex items-center justify-between px-4 py-3 border-t border-divider bg-surface shrink-0">
+    <Discovery.Activator as="div" class="flex items-center justify-between px-4 py-3 border-t border-divider bg-surface shrink-0" step="step-nav">
       <button
         class="px-3 py-1.5 text-sm rounded bg-surface-tint text-on-surface disabled:opacity-40 transition-colors hover:bg-surface-variant"
         :disabled="props.isFirst"
@@ -131,7 +80,7 @@
           <AppIcon icon="right" :size="14" />
         </span>
       </button>
-    </div>
+    </Discovery.Activator>
   </div>
 </template>
 

@@ -457,13 +457,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/editor': RouteRecordInfo<
-      '/editor',
-      '/editor',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/guide/': RouteRecordInfo<
       '/guide/',
       '/guide',
@@ -642,6 +635,13 @@ declare module 'vue-router/auto-routes' {
     '/introduction/why-vuetify0': RouteRecordInfo<
       '/introduction/why-vuetify0',
       '/introduction/why-vuetify0',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/playground': RouteRecordInfo<
+      '/playground',
+      '/playground',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -1080,12 +1080,6 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/editor.vue': {
-      routes:
-        | '/editor'
-      views:
-        | never
-    }
     'src/pages/guide/index.md': {
       routes:
         | '/guide/'
@@ -1239,6 +1233,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/introduction/why-vuetify0.md': {
       routes:
         | '/introduction/why-vuetify0'
+      views:
+        | never
+    }
+    'src/pages/playground.vue': {
+      routes:
+        | '/playground'
       views:
         | never
     }

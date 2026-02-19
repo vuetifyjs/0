@@ -20,8 +20,8 @@ catalog:
   '@unhead/addons': 2.0.19
   '@unhead/vue': 2.0.19
   '@vitest/coverage-v8': ^4.0.16
-  '@vue/test-utils': ^2.4.6
   '@vue/repl': ^4.7.1
+  '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.8.1
   '@vuetify/github-releaser': ^4.0.3
   bumpp: ^10.3.2
@@ -88,3 +88,6 @@ overrides:
   '@storybook/builder-vite>vite': ^7.0.0
   '@storybook/vue3-vite>vite': ^7.0.0
   vite: npm:rolldown-vite@^7.3.0
+
+patchedDependencies:
+  '@vue/repl@4.7.1': patches/@vue__repl@4.7.1.patch

@@ -1,0 +1,72 @@
+{
+  "mode": "guided",
+  "id": "using-the-editor",
+  "name": "Using the Editor",
+  "level": 1,
+  "track": "essentials",
+  "categories": ["meta"],
+  "order": 1,
+  "prerequisites": [],
+  "description": "Learn how the tutorial editor works before you start coding.",
+  "minutes": 2,
+  "startRoute": "/playground",
+  "steps": [
+    {
+      "id": "welcome",
+      "title": "Welcome to the Editor",
+      "task": "This is where you write and run code. Let's take a quick look at what's here.",
+      "hint": "",
+      "learn": "Understand the editor layout",
+      "noActivator": true
+    },
+    {
+      "id": "panel-toggle",
+      "title": "Intro Panel",
+      "task": "This button opens or closes the getting-started panel. It gives you a quick overview of what the editor offers.",
+      "hint": "",
+      "learn": "Toggle the intro panel",
+      "placement": "bottom"
+    },
+    {
+      "id": "intro-panel",
+      "title": "Getting Started",
+      "task": "The intro panel gives you an overview of the editor's features and links to tutorials.",
+      "hint": "",
+      "learn": "Use the intro panel for orientation",
+      "placement": "right"
+    },
+    {
+      "id": "examples",
+      "title": "Load an Example",
+      "task": "Click here to browse and load example code snippets. A great way to see v0 composables in action.",
+      "hint": "",
+      "learn": "Load examples from the toolbar",
+      "placement": "bottom"
+    },
+    {
+      "id": "file-tree",
+      "title": "Project Files",
+      "task": "Your files live here. Click any file to open it in the editor.",
+      "hint": "",
+      "learn": "Switch between project files",
+      "placement": "right",
+      "skipOnMobile": true
+    },
+    {
+      "id": "editor",
+      "title": "Code Editor",
+      "task": "Write your code on the left. The preview on the right updates instantly as you type.",
+      "hint": "",
+      "learn": "Write code and see it run live",
+      "placement": "left"
+    },
+    {
+      "id": "complete",
+      "title": "Ready to Code",
+      "task": "That's all there is to it. Load an example from the toolbar or start from scratch.",
+      "hint": "",
+      "learn": "Use the editor with confidence",
+      "noActivator": true
+    }
+  ]
+}

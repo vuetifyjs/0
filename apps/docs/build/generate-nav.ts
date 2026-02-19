@@ -231,6 +231,9 @@ async function generateNav (): Promise<NavItem[]> {
     pages.get(key)!.push(pageInfo)
   }
 
+  // Inject non-markdown standalone routes (e.g. .vue pages with no backing .md file)
+  standalonePages.push({ item: { name: 'Playground', to: '/playground' }, order: 1.15 })
+
   const nav: NavItem[] = []
   const sectionEntries = Object.entries(SECTIONS).toSorted((a, b) => a[1].order - b[1].order)
   const standalonesSorted = standalonePages.toSorted((a, b) => a.order - b.order)

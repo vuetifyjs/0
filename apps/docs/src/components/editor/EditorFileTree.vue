@@ -233,7 +233,11 @@
 </script>
 
 <template>
-  <nav ref="treeEl" aria-label="File browser" class="border-r border-divider bg-surface overflow-y-auto shrink-0">
+  <nav
+    ref="treeEl"
+    aria-label="File browser"
+    class="border-r border-divider bg-surface overflow-y-auto shrink-0 h-100%"
+  >
     <div class="flex items-center justify-between px-3 py-2">
       <span class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">Files</span>
 
