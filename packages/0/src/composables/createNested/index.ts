@@ -117,12 +117,9 @@ export function createNested<
   const group = createGroup<GroupTicketInput, GroupTicket>(options)
   const logger = useLogger()
 
-  // Tree structure - use shallowReactive for proper reactivity
   const children = shallowReactive(new Map<ID, ID[]>())
   const parents = shallowReactive(new Map<ID, ID | undefined>())
   const openedIds = shallowReactive(new Set<ID>())
-
-  // Active state
   const activeIds = shallowReactive(new Set<ID>())
 
   // Computed collections
@@ -264,7 +261,6 @@ export function createNested<
     openedIds.clear()
   }
 
-  // Active state methods
   function activated (id: ID): boolean {
     return activeIds.has(id)
   }
@@ -576,7 +572,6 @@ export function createNested<
 
     const ticket = group.register(item as Partial<GroupTicketInput>) as unknown as E
 
-    // Set initial active state if specified
     if (registration.active) {
       activate(id)
     }
