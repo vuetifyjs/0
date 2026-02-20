@@ -327,6 +327,143 @@ describe('createNested', () => {
     })
   })
 
+  describe('active state management', () => {
+    it('should activate single node by ID', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'node', value: 'Node' })
+      nested.activate('node')
+
+      expect(nested.activated('node')).toBe(true)
+      expect(nested.activeIds.has('node')).toBe(true)
+    })
+
+    it('should activate array of nodes', () => {
+      const nested = createNested({ active: 'multiple' })
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+      nested.activate(['node-1', 'node-2'])
+
+      expect(nested.activated('node-1')).toBe(true)
+      expect(nested.activated('node-2')).toBe(true)
+    })
+
+    it('should deactivate single node by ID', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'node', value: 'Node' })
+      nested.activate('node')
+      nested.deactivate('node')
+
+      expect(nested.activated('node')).toBe(false)
+    })
+
+    it('should deactivate all nodes', () => {
+      const nested = createNested({ active: 'multiple' })
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+      nested.activate(['node-1', 'node-2'])
+
+      nested.deactivateAll()
+
+      expect(nested.activeIds.size).toBe(0)
+      expect(nested.activated('node-1')).toBe(false)
+      expect(nested.activated('node-2')).toBe(false)
+    })
+
+    it('should enforce single mode by default', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+
+      nested.activate('node-1')
+      nested.activate('node-2')
+
+      expect(nested.activated('node-1')).toBe(false)
+      expect(nested.activated('node-2')).toBe(true)
+      expect(nested.activeIds.size).toBe(1)
+    })
+
+    it('should allow multiple active in multiple mode', () => {
+      const nested = createNested({ active: 'multiple' })
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+
+      nested.activate('node-1')
+      nested.activate('node-2')
+
+      expect(nested.activated('node-1')).toBe(true)
+      expect(nested.activated('node-2')).toBe(true)
+      expect(nested.activeIds.size).toBe(2)
+    })
+
+    it('should compute activeItems', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'node', value: 'Node' })
+      nested.activate('node')
+
+      expect(nested.activeItems.value.size).toBe(1)
+    })
+
+    it('should compute activeIndexes', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'node-1', value: 'Node 1' })
+      nested.register({ id: 'node-2', value: 'Node 2' })
+      nested.activate('node-1')
+
+      expect(nested.activeIndexes.value.size).toBe(1)
+    })
+
+    it('should provide isActive ref on ticket', () => {
+      const nested = createNested()
+
+      const ticket = nested.register({ id: 'node', value: 'Node' })
+
+      expect(ticket.isActive.value).toBe(false)
+      nested.activate('node')
+      expect(ticket.isActive.value).toBe(true)
+    })
+
+    it('should provide ticket-level activate/deactivate methods', () => {
+      const nested = createNested()
+
+      const ticket = nested.register({ id: 'node', value: 'Node' })
+
+      ticket.activate()
+      expect(nested.activated('node')).toBe(true)
+
+      ticket.deactivate()
+      expect(nested.activated('node')).toBe(false)
+    })
+
+    it('should set initial active state via registration', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'node', value: 'Node', active: true })
+
+      expect(nested.activated('node')).toBe(true)
+    })
+
+    it('should clear active state on unregister', () => {
+      const nested = createNested()
+
+      nested.register({ id: 'root', value: 'Root' })
+      nested.register({ id: 'child', value: 'Child', parentId: 'root' })
+      nested.activate('child')
+
+      nested.unregister('child')
+
+      expect(nested.activated('child')).toBe(false)
+      expect(nested.activeIds.size).toBe(0)
+    })
+  })
+
   describe('computed properties', () => {
     it('should compute roots correctly', () => {
       const nested = createNested()
