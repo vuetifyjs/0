@@ -9,7 +9,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, toRef } from 'vue'
+  import { computed, onMounted, shallowRef, toRef } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
   // Stores
@@ -20,6 +20,11 @@
   const store = useSkillzStore()
   const route = useRoute()
   const router = useRouter()
+
+  const isVisible = shallowRef(false)
+  onMounted(() => setTimeout(() => {
+    isVisible.value = true
+  }, 3000))
 
   const isSkillzPage = toRef(() => route.path.startsWith('/skillz/'))
   const ask = useAsk()
@@ -86,7 +91,7 @@
   <Teleport to="body">
     <Transition name="slide-up">
       <div
-        v-if="store.pendingTour && !isSkillzPage"
+        v-if="isVisible && store.pendingTour && !isSkillzPage"
         class="fixed top-14 inset-x-0 mx-auto z-50 w-[300px] bg-surface border border-divider rounded-xl shadow-xl overflow-hidden"
       >
         <AppDotGrid :coverage="50" :density="14" origin="bottom left" />

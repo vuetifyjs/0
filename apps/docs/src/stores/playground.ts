@@ -29,7 +29,7 @@ export const usePlaygroundStore = defineStore('playground', () => {
   // Sync sidebar with desktop breakpoint
   watch(isDesktop, v => {
     sidebarOpen.value = v
-  })
+  }, { immediate: true })
 
   // Namespaced control objects for tour handlers
   const panel: PlaygroundControl = {

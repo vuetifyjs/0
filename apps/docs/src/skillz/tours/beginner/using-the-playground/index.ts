@@ -14,7 +14,27 @@ export function defineTour () {
         enter: () => {
           playground.panel.close()
           playground.examples.close()
+          playground.sidebar.close()
         },
+      },
+      'sidebar-toggle': {
+        enter: () => {
+          playground.panel.close()
+          playground.examples.close()
+        },
+      },
+      'file-tree': {
+        enter: () => {
+          playground.examples.close()
+          playground.sidebar.open()
+        },
+        back: () => playground.sidebar.close(),
+      },
+      'editor': {
+        enter: () => playground.examples.close(),
+      },
+      'preview': {
+        enter: () => playground.examples.close(),
       },
       'panel-toggle': {
         enter: () => {
@@ -31,15 +51,11 @@ export function defineTour () {
           playground.panel.close()
           playground.examples.close()
         },
+        back: () => playground.panel.open(),
       },
-      'file-tree': {
-        enter: () => {
-          playground.examples.close()
-          playground.sidebar.open()
-        },
-      },
-      'editor': {
-        enter: () => playground.examples.close(),
+      'examples-menu': {
+        enter: () => playground.examples.open(),
+        back: () => playground.examples.close(),
       },
       'complete': {
         enter: () => {

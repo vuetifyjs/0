@@ -12,6 +12,14 @@
   "startRoute": "/introduction/why-vuetify0",
   "steps": [
     {
+      "id": "welcome",
+      "title": "Navigating by Keyboard",
+      "task": "You can get anywhere in the docs without touching the mouse. This tour walks you through the key shortcuts.",
+      "hint": "",
+      "learn": "Navigate the docs hands-free",
+      "noActivator": true
+    },
+    {
       "id": "search",
       "title": "Open Search",
       "task": "Press Ctrl+K (or Cmd+K on Mac) to open search from anywhere.",

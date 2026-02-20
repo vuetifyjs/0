@@ -92,6 +92,11 @@ import defineConfig from 'https://esm.sh/@unocss/runtime'
 // @ts-expect-error - esm.sh import
 import presetWind4 from 'https://esm.sh/@unocss/preset-wind4'
 
+// Each recompile creates a fresh module instance with an empty internal style Map,
+// so the previous runtime's <style> elements are abandoned in the DOM. Remove them
+// before the new instance installs itself to prevent unbounded CSS rule accumulation.
+document.querySelectorAll('[data-unocss-runtime-layer]').forEach(el => el.remove())
+
 defineConfig({
   defaults: {
     presets: [presetWind4()],

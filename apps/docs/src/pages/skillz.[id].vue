@@ -3,7 +3,7 @@
   import { definePage } from 'unplugin-vue-router/runtime'
 
   // Framework
-  import { useBreakpoints } from '@vuetify/v0'
+  import { useBreakpoints, useFeatures } from '@vuetify/v0'
 
   // Components
   import SkillMasteredBadge from '@/components/skillz/SkillMasteredBadge.vue'
@@ -31,6 +31,7 @@
   })
 
   const settings = useSettings()
+  const devmode = useFeatures().get('devmode')!
   const params = useParams<{ id: string }>()
   const discovery = useDiscovery()
   const store = useSkillzStore()
@@ -131,19 +132,19 @@
     <!-- Skill detail -->
     <template v-else>
       <div class="max-w-3xl mx-auto p-4">
-        <header class="flex flex-wrap justify-between items-center gap-2 mb-4">
+        <header class="flex justify-between items-center gap-2 mb-4">
           <RouterLink class="flex items-center gap-2 text-on-surface-variant no-underline text-sm transition-colors hover:text-on-surface whitespace-nowrap" to="/skillz">
             <span class="text-xl">←</span>
             <span class="hidden sm:inline">Back to Skillz</span>
           </RouterLink>
 
-          <div class="flex items-center gap-4">
-            <SkillDuration class="text-sm text-on-surface-variant" :minutes="tour.minutes" />
+          <div class="flex items-center gap-2 min-w-0">
+            <SkillDuration class="hidden sm:flex text-sm text-on-surface-variant shrink-0" :minutes="tour.minutes" />
 
-            <!-- Reset button (shows when there's progress) -->
+            <!-- Reset button (dev mode only) -->
             <button
-              v-if="progress"
-              class="px-3 py-1.5 text-sm font-medium text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface whitespace-nowrap"
+              v-if="progress && devmode.isSelected.value"
+              class="hidden sm:block shrink-0 px-3 py-1.5 text-sm font-medium text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface"
               title="Reset progress"
               @click="onReset()"
             >
@@ -153,23 +154,23 @@
             <!-- Completed with next tour: Next is primary, Restart is secondary -->
             <template v-if="isCompleted && nextTour">
               <button
-                class="px-4 py-1.5 text-sm font-semibold text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface whitespace-nowrap"
+                class="shrink-0 px-4 py-1.5 text-sm font-semibold text-on-surface-variant bg-transparent border border-divider rounded-lg cursor-pointer transition-colors hover:bg-surface-variant hover:text-on-surface"
                 @click="onClick()"
               >
                 Restart
               </button>
               <button
-                class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110 whitespace-nowrap"
+                class="min-w-0 px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
                 @click="onClickNext()"
               >
-                Next: {{ nextTour.name }}
+                <span class="block truncate">Next: {{ nextTour.name }}</span>
               </button>
             </template>
 
             <!-- Otherwise: single primary button -->
             <button
               v-else
-              class="px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
+              class="shrink-0 px-4 py-1.5 text-sm font-semibold bg-primary text-on-primary border border-primary rounded-lg cursor-pointer transition-[filter] hover:brightness-110"
               @click="onClick()"
             >
               {{ label }}
@@ -198,7 +199,10 @@
             <SkillCategoryTags :categories="tour.categories" />
           </div> -->
 
-          <h1 class="text-2xl font-bold m-0 mb-3 text-on-surface">{{ tour.name }}</h1>
+          <h1
+            class="text-2xl font-bold m-0 mb-3 text-on-surface"
+            :class="isCompleted ? 'pr-20 md:pr-32' : ''"
+          >{{ tour.name }}</h1>
           <p class="text-base text-on-surface-variant m-0 mb-6 leading-relaxed md:pr-26">{{ tour.description }}</p>
 
           <h2 class="text-base font-semibold m-0 mb-4 text-on-surface">You'll learn how to:</h2>

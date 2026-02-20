@@ -8,16 +8,51 @@
   "order": 1,
   "prerequisites": [],
   "description": "Learn how the playground works before you start coding.",
-  "minutes": 2,
+  "minutes": 3,
   "startRoute": "/playground",
   "steps": [
     {
       "id": "welcome",
       "title": "Welcome to the Playground",
-      "task": "This is where you write and run code. Let's take a quick look at what's here.",
+      "task": "This is where you write and run code. Let's take a quick tour of what's here.",
       "hint": "",
       "learn": "Understand the playground layout",
       "noActivator": true
+    },
+    {
+      "id": "sidebar-toggle",
+      "title": "Toggle File Panel",
+      "task": "Show or hide the file panel with this button — or use Ctrl+B from anywhere in the editor.",
+      "hint": "",
+      "learn": "Toggle the file browser",
+      "placement": "bottom"
+    },
+    {
+      "id": "file-tree",
+      "title": "Project Files",
+      "task": "Your files live here. Click any file to open it in the editor.",
+      "hint": "",
+      "learn": "Switch between project files",
+      "placement": "right",
+      "skipOnMobile": true
+    },
+    {
+      "id": "editor",
+      "title": "Code Editor",
+      "task": "Write your code here. The preview updates instantly as you type.",
+      "hint": "",
+      "learn": "Write code and see it run live",
+      "placement": "right",
+      "placementMobile": "center"
+    },
+    {
+      "id": "preview",
+      "title": "Live Preview",
+      "task": "Your component renders here in real time. No build step — changes appear as you type.",
+      "hint": "",
+      "learn": "See code changes render instantly",
+      "placement": "left",
+      "placementMobile": "center"
     },
     {
       "id": "panel-toggle",
@@ -38,26 +73,17 @@
     {
       "id": "examples",
       "title": "Load an Example",
-      "task": "Click here to browse and load example code snippets. A great way to see v0 composables in action.",
+      "task": "Click here to browse and load example code snippets.",
       "hint": "",
       "learn": "Load examples from the toolbar",
       "placement": "bottom"
     },
     {
-      "id": "file-tree",
-      "title": "Project Files",
-      "task": "Your files live here. Click any file to open it in the editor.",
+      "id": "examples-menu",
+      "title": "Examples Library",
+      "task": "Browse ready-made examples for every v0 composable. Click one to load it instantly.",
       "hint": "",
-      "learn": "Switch between project files",
-      "placement": "right",
-      "skipOnMobile": true
-    },
-    {
-      "id": "editor",
-      "title": "Code Editor",
-      "task": "Write your code here. The preview updates instantly as you type.",
-      "hint": "",
-      "learn": "Write code and see it run live",
+      "learn": "Browse and load example projects",
       "placement": "left"
     },
     {

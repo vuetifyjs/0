@@ -15,7 +15,7 @@
   // Utilities
   import { Repl, Sandbox } from '@vue/repl'
   import Monaco from '@vue/repl/monaco-editor'
-  import { computed, watch } from 'vue'
+  import { computed, shallowRef, watch } from 'vue'
 
   // Types
   import type { ReplStore } from '@vue/repl'
@@ -42,6 +42,9 @@
   const emit = defineEmits<{
     'update:sidebarOpen': [value: boolean]
   }>()
+
+  // Mobile: which pane is visible (editor or preview)
+  const mobileView = shallowRef<'editor' | 'preview'>('editor')
 
   // Split layout preference — user's persistent choice (standard mode only)
   const splitLayout = useStorage().get<'vertical' | 'horizontal'>('workspace-split-layout', 'vertical')
@@ -101,7 +104,7 @@
   watch(showMobileOverlay, open => {
     if (open) ticket.select()
     else ticket.unselect()
-  })
+  }, { immediate: true })
 </script>
 
 <template>
@@ -254,11 +257,29 @@
 
       <!-- Main content: tabs + editor/preview split -->
       <div class="flex flex-col flex-1 min-w-0 min-h-0">
-        <!-- Tabs row with layout toggle -->
+        <!-- Tabs row with layout toggle (desktop) or code/preview toggle (mobile) -->
         <div v-if="!hideTabs" class="flex items-stretch">
           <PlaygroundTabs class="flex-1 min-w-0" :store="store" />
 
+          <template v-if="!isDesktop">
+            <button
+              class="px-3 text-xs font-medium border-b border-l border-divider transition-colors"
+              :class="mobileView === 'editor' ? 'bg-surface-tint text-on-surface' : 'bg-surface-variant/30 text-on-surface-variant'"
+              @click="mobileView = 'editor'"
+            >
+              Code
+            </button>
+            <button
+              class="px-3 text-xs font-medium border-b border-l border-divider transition-colors"
+              :class="mobileView === 'preview' ? 'bg-surface-tint text-on-surface' : 'bg-surface-variant/30 text-on-surface-variant'"
+              @click="mobileView = 'preview'"
+            >
+              Preview
+            </button>
+          </template>
+
           <button
+            v-else
             class="shrink-0 flex items-center justify-center w-9 border-b border-l border-divider bg-surface-variant/30 hover:bg-surface-tint transition-colors"
             :title="isVertical ? 'Switch to side-by-side layout' : 'Switch to stacked layout'"
             @click="toggleSplitLayout"
@@ -276,6 +297,7 @@
         >
           <!-- Editor -->
           <Discovery.Activator
+            v-show="isDesktop || mobileView === 'editor'"
             active-class="rounded-lg"
             as="div"
             class="workspace-repl-wrapper flex flex-col min-h-0 min-w-0 editor-repl"
@@ -314,6 +336,7 @@
 
           <!-- Preview -->
           <Discovery.Activator
+            v-show="isDesktop || mobileView === 'preview'"
             active-class="rounded-lg"
             as="div"
             class="workspace-preview flex-1 min-w-0 min-h-0 editor-repl overflow-hidden"
@@ -358,7 +381,7 @@
     display: none !important;
   }
 
-  /* Hide editor floating toggles */
+  /* Hide editor floating toggles — we render Sandbox separately */
   .editor-repl :deep(.editor-floating) {
     display: none !important;
   }

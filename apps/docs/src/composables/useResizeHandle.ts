@@ -34,6 +34,7 @@ export function useResizeHandle (options: UseResizeHandleOptions): UseResizeHand
     if (options.direction === 'vertical') {
       containerSize.value = (e.target as HTMLElement).parentElement?.offsetHeight ?? 1
     }
+    document.documentElement.style.cursor = 'grabbing'
     isResizing.value = true
   }
 
@@ -55,6 +56,7 @@ export function useResizeHandle (options: UseResizeHandleOptions): UseResizeHand
       if (rafId) cancelAnimationFrame(rafId)
       rafId = 0
       stored.value = size.value
+      document.documentElement.style.cursor = ''
       isResizing.value = false
     })
   })

@@ -31,8 +31,8 @@
 
   const breakpoints = useBreakpoints()
   const activePlacement = toRef(() => {
-    // Last step always uses center placement
-    if (discovery.isLast.value) return 'center'
+    // First and last steps always use center placement
+    if (discovery.isFirst.value || discovery.isLast.value) return 'center'
     if (!isNullOrUndefined(placementMobile) && breakpoints.smAndDown.value) return placementMobile
     return placement
   })
