@@ -106,6 +106,7 @@ export function createNested<
     openAll = false,
     reveal: revealOnOpen = false,
     selection: selectionMode = 'cascade',
+    active: activeMode = 'single',
     openStrategy,
     ...options
   } = _options
@@ -116,12 +117,28 @@ export function createNested<
   const group = createGroup<GroupTicketInput, GroupTicket>(options)
   const logger = useLogger()
 
-  // Tree structure - use shallowReactive for proper reactivity
   const children = shallowReactive(new Map<ID, ID[]>())
   const parents = shallowReactive(new Map<ID, ID | undefined>())
   const openedIds = shallowReactive(new Set<ID>())
+  const activeIds = shallowReactive(new Set<ID>())
 
   // Computed collections
+  const activeItems = computed(() => {
+    return new Set(
+      Array.from(activeIds)
+        .map(id => group.get(id))
+        .filter((item): item is E => !isUndefined(item)),
+    )
+  })
+
+  const activeIndexes = computed(() => {
+    return new Set(
+      Array.from(activeItems.value)
+        .map(item => item?.index)
+        .filter((index): index is number => !isUndefined(index)),
+    )
+  })
+
   const openedItems = computed(() => {
     return new Set(
       Array.from(openedIds)
@@ -242,6 +259,37 @@ export function createNested<
 
   function collapseAll (): void {
     openedIds.clear()
+  }
+
+  function activated (id: ID): boolean {
+    return activeIds.has(id)
+  }
+
+  function activate (ids: ID | ID[]): void {
+    for (const id of toArray(ids)) {
+      if (!group.has(id)) continue
+
+      // In single mode, clear other active items first
+      if (activeMode === 'single') {
+        for (const activeId of activeIds) {
+          if (activeId !== id) {
+            activeIds.delete(activeId)
+          }
+        }
+      }
+
+      activeIds.add(id)
+    }
+  }
+
+  function deactivate (ids: ID | ID[]): void {
+    for (const id of toArray(ids)) {
+      activeIds.delete(id)
+    }
+  }
+
+  function deactivateAll (): void {
+    activeIds.clear()
   }
 
   // Tree traversal methods (computed on-demand)
@@ -504,12 +552,15 @@ export function createNested<
       id,
       parentId: parents.get(id),
       isOpen: toRef(() => opened(id)),
+      isActive: toRef(() => activated(id)),
       isLeaf: toRef(() => isLeaf(id)),
       depth: toRef(() => getDepth(id)),
       open: () => open(id),
       close: () => close(id),
       flip: () => flip(id),
       reveal: () => reveal(id),
+      activate: () => activate(id),
+      deactivate: () => deactivate(id),
       getPath: () => getPath(id),
       getAncestors: () => getAncestors(id),
       getDescendants: () => getDescendants(id),
@@ -520,6 +571,10 @@ export function createNested<
     }
 
     const ticket = group.register(item as Partial<GroupTicketInput>) as unknown as E
+
+    if (registration.active) {
+      activate(id)
+    }
 
     // Recursively register nested children
     if (nested?.length) {
@@ -559,13 +614,15 @@ export function createNested<
           parents.delete(did)
           children.delete(did)
           openedIds.delete(did)
+          activeIds.delete(did)
           group.unregister(did)
         }
       } else {
         // Orphan children by setting their parent to undefined
-        // Clear open state for ALL descendants to prevent memory leaks
+        // Clear open and active state for ALL descendants to prevent memory leaks
         for (const did of getDescendants(id)) {
           openedIds.delete(did)
+          activeIds.delete(did)
         }
         for (const cid of list) {
           parents.set(cid, undefined)
@@ -577,6 +634,7 @@ export function createNested<
     parents.delete(id)
     children.delete(id)
     openedIds.delete(id)
+    activeIds.delete(id)
     group.unregister(id)
   }
 
@@ -594,6 +652,7 @@ export function createNested<
     children.clear()
     parents.clear()
     openedIds.clear()
+    activeIds.clear()
     group.reset()
   }
 
@@ -607,6 +666,9 @@ export function createNested<
     parents: parents as ReadonlyMap<ID, ID | undefined>,
     openedIds,
     openedItems,
+    activeIds,
+    activeItems,
+    activeIndexes,
     roots,
     leaves,
     getPath,
@@ -627,6 +689,10 @@ export function createNested<
     expand,
     expandAll,
     collapseAll,
+    activate,
+    deactivate,
+    activated,
+    deactivateAll,
     toFlat,
     openStrategy: resolvedOpenStrategy,
     select,
@@ -696,6 +762,6 @@ export function useNested<
   return useContext<R>(namespace)
 }
 
-export { type NestedContext, type NestedContextOptions, type NestedOpenMode, type NestedOptions, type NestedRegistration, type NestedSelectionMode, type NestedTicket, type NestedTicketInput, type OpenStrategy, type OpenStrategyContext } from './types'
+export { type NestedActiveMode, type NestedContext, type NestedContextOptions, type NestedOpenMode, type NestedOptions, type NestedRegistration, type NestedSelectionMode, type NestedTicket, type NestedTicketInput, type OpenStrategy, type OpenStrategyContext } from './types'
 
 export { multipleOpenStrategy, singleOpenStrategy } from './strategies'
