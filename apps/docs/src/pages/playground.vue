@@ -214,7 +214,7 @@
             step="intro-panel"
             :style="{ width: `${panelHandle.size.value}px` }"
           >
-            <PlaygroundIntroPanel @close="pg.panel.close()" />
+            <PlaygroundIntroPanel :is-resizing="panelHandle.isResizing.value" @close="pg.panel.close()" />
           </Discovery.Activator>
 
           <PlaygroundResizeHandle

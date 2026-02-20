@@ -12,6 +12,10 @@
   // Content
   import PlaygroundIntroPanelRaw from './PlaygroundIntroPanel.md?raw'
 
+  const { isResizing = false } = defineProps<{
+    isResizing?: boolean
+  }>()
+
   defineEmits<{
     close: []
   }>()
@@ -31,7 +35,7 @@
     </div>
 
     <!-- Content -->
-    <div class="flex-1 overflow-y-auto px-5 py-4">
+    <div class="flex-1 px-5 py-4" :class="isResizing ? 'overflow-y-scroll' : 'overflow-y-auto'">
       <div ref="content" class="markdown-body intro-content" v-html="html" />
     </div>
   </div>

@@ -30,6 +30,7 @@ export function useResizeHandle (options: UseResizeHandleOptions): UseResizeHand
   function onPointerDown (e: PointerEvent) {
     e.preventDefault()
     startPos.value = options.direction === 'horizontal' ? e.clientX : e.clientY
+    latestPos = startPos.value
     startSize.value = size.value
     if (options.direction === 'vertical') {
       containerSize.value = (e.target as HTMLElement).parentElement?.offsetHeight ?? 1
@@ -39,13 +40,14 @@ export function useResizeHandle (options: UseResizeHandleOptions): UseResizeHand
   }
 
   let rafId = 0
+  let latestPos = 0
 
   useToggleScope(() => isResizing.value, () => {
     useDocumentEventListener('pointermove', (e: PointerEvent) => {
+      latestPos = options.direction === 'horizontal' ? e.clientX : e.clientY
       if (rafId) return
       rafId = requestAnimationFrame(() => {
-        const pos = options.direction === 'horizontal' ? e.clientX : e.clientY
-        const delta = pos - startPos.value
+        const delta = latestPos - startPos.value
         size.value = options.direction === 'vertical'
           ? clamp(startSize.value + (delta / containerSize.value) * 100, options.min, options.max)
           : clamp(startSize.value + delta, options.min, options.max)

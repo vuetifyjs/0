@@ -180,11 +180,11 @@
             active-class="rounded-lg"
             as="div"
             class="workspace-repl-wrapper flex flex-col flex-1 min-h-0 min-w-0 editor-repl"
-            :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
+            :class="{ dark: isDark, 'pointer-events-none': anyResizing }"
             step="editor"
           >
             <Repl
-              :auto-resize="true"
+              :auto-resize="!anyResizing"
               class="flex-1 min-h-0"
               :clear-console="true"
               :editor="Monaco"
@@ -215,7 +215,7 @@
         active-class="rounded-lg"
         as="div"
         class="workspace-preview flex-1 min-w-0 min-h-0 editor-repl overflow-hidden"
-        :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
+        :class="{ dark: isDark, 'pointer-events-none': anyResizing }"
         step="preview"
       >
         <Sandbox
@@ -301,7 +301,7 @@
             active-class="rounded-lg"
             as="div"
             class="workspace-repl-wrapper flex flex-col min-h-0 min-w-0 editor-repl"
-            :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
+            :class="{ dark: isDark, 'pointer-events-none': anyResizing }"
             step="editor"
             :style="isDesktop
               ? (isVertical
@@ -310,7 +310,7 @@
               : { flex: '1' }"
           >
             <Repl
-              :auto-resize="true"
+              :auto-resize="!anyResizing"
               class="flex-1 min-h-0"
               :clear-console="true"
               :editor="Monaco"
@@ -340,7 +340,7 @@
             active-class="rounded-lg"
             as="div"
             class="workspace-preview flex-1 min-w-0 min-h-0 editor-repl overflow-hidden"
-            :class="{ dark: isDark, 'pointer-events-none': anyResizing, 'contain-strict': anyResizing }"
+            :class="{ dark: isDark, 'pointer-events-none': anyResizing }"
             step="preview"
           >
             <!-- auto-store-init=false: Repl already calls store.init(); a second call
