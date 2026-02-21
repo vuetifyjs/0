@@ -9,7 +9,7 @@ export interface CalloutConfig {
   classes: string
 }
 
-export type CalloutType = 'tip' | 'info' | 'warning' | 'error' | 'askai' | 'discord' | 'tour'
+export type CalloutType = 'tip' | 'info' | 'warning' | 'error' | 'askai' | 'discord' | 'tour' | 'try'
 
 const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
   tip: {
@@ -46,6 +46,11 @@ const CALLOUT_CONFIG: Record<CalloutType, CalloutConfig> = {
     icon: 'compass',
     title: 'Interactive Tour',
     classes: 'bg-tour-10 border-tour-50 text-tour cursor-pointer hover:bg-tour-20 transition-colors',
+  },
+  try: {
+    icon: 'code',
+    title: 'Try it',
+    classes: 'bg-accent-10 border-accent-50 text-accent',
   },
 }
 

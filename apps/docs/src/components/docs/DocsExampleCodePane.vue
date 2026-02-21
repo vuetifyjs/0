@@ -9,7 +9,7 @@
   // Utilities
   import { computed, onMounted, onScopeDispose, shallowRef, useTemplateRef, watch } from 'vue'
 
-  const props = withDefaults(defineProps<{
+  const { code, language = 'vue', fileName, title, peek, peekLines = 6, showPlayground = true } = defineProps<{
     code: string
     language?: string
     fileName?: string
@@ -17,11 +17,7 @@
     peek?: boolean
     peekLines?: number
     showPlayground?: boolean
-  }>(), {
-    language: 'vue',
-    peekLines: 6,
-    showPlayground: true,
-  })
+  }>()
 
   const expanded = defineModel<boolean>('expanded', { default: false })
 
@@ -41,10 +37,10 @@
   const { highlight: highlightCode } = useCodeHighlighter()
 
   async function highlight () {
-    if (highlightedCode.value || !props.code) return
+    if (highlightedCode.value || !code) return
     isLoading.value = true
     try {
-      const result = await highlightCode({ code: props.code, language: props.language })
+      const result = await highlightCode({ code, language })
       highlightedCode.value = result.html
     } catch (error) {
       logger.error('Failed to highlight code', error)
@@ -65,15 +61,15 @@
   )
 
   // Re-highlight when code changes
-  watch(() => props.code, () => {
+  watch(() => code, () => {
     highlightedCode.value = undefined
     highlight()
   })
 
   // Peek mode
-  const lineCount = computed(() => props.code?.split('\n').length ?? 0)
-  const shouldPeek = computed(() => props.peek && lineCount.value > props.peekLines)
-  const peekHeight = computed(() => `${props.peekLines * 1.5 + 1}rem`)
+  const lineCount = computed(() => code?.split('\n').length ?? 0)
+  const shouldPeek = computed(() => peek && lineCount.value > peekLines)
+  const peekHeight = computed(() => `${peekLines * 1.5 + 1}rem`)
 
   onScopeDispose(() => {
     highlightedCode.value = undefined
@@ -106,6 +102,7 @@
         v-model:wrap="lineWrap"
         bin
         :code="code"
+        :file-name="fileName"
         :language="language"
         :playground="showPlayground"
         show-copy

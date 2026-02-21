@@ -24,6 +24,7 @@ export interface DocSettings {
   showDotGrid: boolean
   showMeshTransition: boolean
   showBgGlass: boolean
+  carousel: boolean
 }
 
 export interface SettingsContext {
@@ -44,6 +45,7 @@ export interface SettingsContext {
   showDotGrid: ShallowRef<boolean>
   showMeshTransition: ShallowRef<boolean>
   showBgGlass: ShallowRef<boolean>
+  carousel: ShallowRef<boolean>
   hasChanges: ShallowRef<boolean>
   open: () => void
   close: () => void
@@ -63,6 +65,7 @@ const DEFAULTS: DocSettings = {
   showDotGrid: true,
   showMeshTransition: true,
   showBgGlass: true,
+  carousel: true,
 }
 
 // Create context
@@ -119,6 +122,7 @@ export function createSettingsContext (): SettingsContext {
   const showDotGrid = shallowRef(DEFAULTS.showDotGrid)
   const showMeshTransition = shallowRef(DEFAULTS.showMeshTransition)
   const showBgGlass = shallowRef(DEFAULTS.showBgGlass)
+  const carousel = shallowRef(DEFAULTS.carousel)
 
   // Load stored preferences
   loadSetting(storage, 'lineWrap', lineWrap)
@@ -132,9 +136,10 @@ export function createSettingsContext (): SettingsContext {
   loadSetting(storage, 'showDotGrid', showDotGrid)
   loadSetting(storage, 'showMeshTransition', showMeshTransition)
   loadSetting(storage, 'showBgGlass', showBgGlass)
+  loadSetting(storage, 'carousel', carousel)
 
   // Persist on change
-  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, showMeshTransition, showBgGlass }
+  const settings = { lineWrap, reduceMotion, packageManager, showInlineApi, showSkillFilter, showThemeToggle, showSocialLinks, collapsibleNav, showDotGrid, showMeshTransition, showBgGlass, carousel }
   for (const [key, ref] of Object.entries(settings)) {
     watch(ref, val => storage.set(key, val))
   }
@@ -163,7 +168,8 @@ export function createSettingsContext (): SettingsContext {
     collapsibleNav.value !== DEFAULTS.collapsibleNav ||
     showDotGrid.value !== DEFAULTS.showDotGrid ||
     showMeshTransition.value !== DEFAULTS.showMeshTransition ||
-    showBgGlass.value !== DEFAULTS.showBgGlass
+    showBgGlass.value !== DEFAULTS.showBgGlass ||
+    carousel.value !== DEFAULTS.carousel
   ))
 
   // Track trigger element for focus restoration
@@ -204,6 +210,7 @@ export function createSettingsContext (): SettingsContext {
     showDotGrid.value = DEFAULTS.showDotGrid
     showMeshTransition.value = DEFAULTS.showMeshTransition
     showBgGlass.value = DEFAULTS.showBgGlass
+    carousel.value = DEFAULTS.carousel
   }
 
   return {
@@ -222,6 +229,7 @@ export function createSettingsContext (): SettingsContext {
     showDotGrid,
     showMeshTransition,
     showBgGlass,
+    carousel,
     hasChanges,
     open,
     close,

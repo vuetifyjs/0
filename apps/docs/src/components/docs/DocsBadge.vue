@@ -6,7 +6,7 @@
    */
   import { computed } from 'vue'
 
-  const props = withDefaults(defineProps<{
+  const { label, icon, color, backgroundOpacity = 15, showIcon = true, showLabel = true, iconSize = 14, shape = 'rounded', title } = defineProps<{
     /** Badge text label */
     label: string
     /** Icon name (optional) */
@@ -25,23 +25,17 @@
     shape?: 'rounded' | 'pill'
     /** Tooltip text */
     title?: string
-  }>(), {
-    backgroundOpacity: 15,
-    showIcon: true,
-    showLabel: true,
-    iconSize: 14,
-    shape: 'rounded',
-  })
+  }>()
 
   const badgeStyle = computed(() => {
-    if (!props.color) return undefined
+    if (!color) return undefined
     return {
-      background: `color-mix(in srgb, ${props.color} ${props.backgroundOpacity}%, transparent)`,
-      color: props.color,
+      background: `color-mix(in srgb, ${color} ${backgroundOpacity}%, transparent)`,
+      color,
     }
   })
 
-  const shapeClass = computed(() => props.shape === 'pill' ? 'rounded-full' : 'rounded')
+  const shapeClass = computed(() => shape === 'pill' ? 'rounded-full' : 'rounded')
 </script>
 
 <template>

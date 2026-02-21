@@ -266,7 +266,7 @@ Hover over the code block to reveal action buttons:
 
 | Button | Action |
 |--------|--------|
-| <span class="whitespace-nowrap"><AppIcon icon="vuetify-play" :size="16" class="inline-block align-text-bottom" /> **Play**</span> | Open in Vuetify Play with full editing environment |
+| <span class="whitespace-nowrap"><AppIcon icon="editor" :size="16" class="inline-block align-text-bottom" /> **Editor**</span> | Open in the v0 Editor with full editing environment |
 | <span class="whitespace-nowrap"><AppIcon icon="vuetify-bin" :size="16" class="inline-block align-text-bottom" /> **Bin**</span> | Open in Vuetify Bin for sharing |
 | <span class="whitespace-nowrap"><AppIcon icon="wrap" :size="16" class="inline-block align-text-bottom" /> **Wrap**</span> | Toggle line wrapping for long lines |
 | <span class="whitespace-nowrap"><AppIcon icon="copy" :size="16" class="inline-block align-text-bottom" /> **Copy**</span> | Copy code to clipboard (checkmark confirms success) |

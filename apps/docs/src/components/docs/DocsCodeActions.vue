@@ -1,12 +1,13 @@
 <script setup lang="ts">
   // Composables
   import { getBinUrl } from '@/composables/bin'
-  import { usePlayground } from '@/composables/playground'
   import { useClipboard } from '@/composables/useClipboard'
+  import { usePlaygroundLink } from '@/composables/usePlaygroundLink'
 
   const props = defineProps<{
     code: string
     language?: string
+    fileName?: string
     title?: string
     binTitle?: string
     playground?: boolean
@@ -28,8 +29,13 @@
     window.open(url, '_blank')
   }
 
-  function openInPlayground () {
-    const url = usePlayground(props.code)
+  async function openInEditor () {
+    let name = props.fileName
+    // Ensure the file has a proper extension (e.g. "Anatomy" → "Anatomy.vue")
+    if (name && !/\.\w+$/.test(name)) {
+      name = `${name}.${props.language || 'vue'}`
+    }
+    const url = await usePlaygroundLink(props.code, name)
     window.open(url, '_blank')
   }
 </script>
@@ -38,11 +44,11 @@
   <div class="flex gap-1">
     <AppIconButton
       v-if="playground"
-      aria-label="Open in Vuetify Play"
+      aria-label="Open in Editor"
       icon="vuetify-play"
-      title="Open in Vuetify Play"
+      title="Open in Editor"
       type="button"
-      @click="openInPlayground"
+      @click="openInEditor"
     />
 
     <AppIconButton

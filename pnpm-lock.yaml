@@ -48,6 +48,9 @@ catalogs:
     '@vitest/coverage-v8':
       specifier: ^4.0.16
       version: 4.0.16
+    '@vue/repl':
+      specifier: ^4.7.1
+      version: 4.7.1
     '@vue/test-utils':
       specifier: ^2.4.6
       version: 2.4.6
@@ -210,6 +213,11 @@ overrides:
   '@storybook/vue3-vite>vite': ^7.0.0
   vite: npm:rolldown-vite@^7.3.0
 
+patchedDependencies:
+  '@vue/repl@4.7.1':
+    hash: e26b00f869790271f46936e3539a934b376487e8db9a5a430447e624d3725d45
+    path: patches/@vue__repl@4.7.1.patch
+
 importers:
 
   .:
@@ -289,6 +297,9 @@ importers:
       '@unhead/addons':
         specifier: 'catalog:'
         version: 2.0.19(rollup@2.79.2)
+      '@vue/repl':
+        specifier: 'catalog:'
+        version: 4.7.1(patch_hash=e26b00f869790271f46936e3539a934b376487e8db9a5a430447e624d3725d45)
       '@vuetify/auth':
         specifier: 'catalog:'
         version: 0.1.6(pinia@3.0.4(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(vue@3.5.24(typescript@5.9.3))
@@ -2694,6 +2705,9 @@ packages:
 
   '@vue/reactivity@3.5.26':
     resolution: {integrity: sha512-9EnYB1/DIiUYYnzlnUBgwU32NNvLp/nhxLXeWRhHUEeWNTn1ECxX8aGO7RTXeX6PPcxe3LLuNBFoJbV4QZ+CFQ==}
+
+  '@vue/repl@4.7.1':
+    resolution: {integrity: sha512-8w5Z3cyqBJ5ufzXO2eut2stzb7aX/ZnSva2d3ee8eEINEB7FG2JYwc14eAHHHGGuoXOGN5v4cyb5ti/YZGcwlg==}
 
   '@vue/runtime-core@3.5.24':
     resolution: {integrity: sha512-RYP/byyKDgNIqfX/gNb2PB55dJmM97jc9wyF3jK7QUInYKypK2exmZMNwnjueWwGceEkP6NChd3D2ZVEp9undQ==}
@@ -8917,6 +8931,8 @@ snapshots:
   '@vue/reactivity@3.5.26':
     dependencies:
       '@vue/shared': 3.5.26
+
+  '@vue/repl@4.7.1(patch_hash=e26b00f869790271f46936e3539a934b376487e8db9a5a430447e624d3725d45)': {}
 
   '@vue/runtime-core@3.5.24':
     dependencies:

@@ -1,0 +1,10 @@
+{
+  "title": "v0 Basics",
+  "description": "Build a settings panel with headless components — Tabs, Checkbox, Radio, ExpansionPanel, and Dialog styled with UnoCSS",
+  "level": 1,
+  "track": "fundamentals",
+  "categories": [],
+  "order": 10,
+  "minutes": 15,
+  "prerequisites": ["vue-basics"]
+}

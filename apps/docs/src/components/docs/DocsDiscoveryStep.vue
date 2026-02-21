@@ -25,15 +25,13 @@
   // Components
   import AppBurst from '@/components/app/AppBurst.vue'
   import { Discovery } from '@/components/discovery'
+  import SkillzBadge from '@/components/skillz/SkillzBadge.vue'
 
   // Composables
   import { useDiscovery } from '@/composables/useDiscovery'
 
   // Utilities
   import { computed, onBeforeUnmount, useAttrs, useTemplateRef, watch } from 'vue'
-
-  // Types
-  import { SKILL_LEVEL_META } from '@/types/skill'
 
   defineOptions({ name: 'DocsDiscoveryStep', inheritAttrs: false })
 
@@ -51,11 +49,7 @@
   const attrs = useAttrs()
   const discovery = useDiscovery()
 
-  const levelMeta = computed(() => {
-    // const tour = discovery.tours.selected.value
-    // if (!tour) return null
-    return SKILL_LEVEL_META[discovery.tours.selectedItem.value?.level || '']
-  })
+  const tourLevel = computed(() => discovery.tours.selectedItem.value?.level)
 
   const isLastStep = computed(() => {
     const index = discovery.steps.selectedIndex.value
@@ -96,14 +90,7 @@
     >
       <!-- Header -->
       <div v-if="!isLastStep" class="flex justify-between items-center mb-4">
-        <span
-          class="skillz-badge inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded"
-          :style="levelMeta ? { '--level-color': levelMeta.color } : undefined"
-          :title="levelMeta ? `${levelMeta.label} level` : undefined"
-        >
-          SKILLZ
-          <AppIcon v-if="levelMeta" :icon="levelMeta.icon" :size="14" />
-        </span>
+        <SkillzBadge :level="tourLevel" />
 
         <Discovery.Progress class="text-xs text-on-surface-variant" />
       </div>
@@ -162,10 +149,3 @@
     </Discovery.Content>
   </Discovery.Root>
 </template>
-
-<style scoped>
-.skillz-badge {
-  background: color-mix(in srgb, var(--level-color, var(--v0-primary)) 15%, transparent);
-  color: var(--level-color, var(--v0-primary));
-}
-</style>

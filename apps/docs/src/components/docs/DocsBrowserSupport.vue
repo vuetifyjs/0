@@ -26,34 +26,32 @@
     anchor?: string
   }
 
-  const props = withDefaults(defineProps<DocsBrowserSupportProps>(), {
-    anchor: undefined,
-  })
+  const { feature, versions, anchor } = defineProps<DocsBrowserSupportProps>()
 
   const browsers = computed(() => {
     const list: { browser: BrowserName, name: string, version: string }[] = []
 
-    if (props.versions.chrome) {
-      list.push({ browser: 'chrome', name: 'Chrome', version: props.versions.chrome })
+    if (versions.chrome) {
+      list.push({ browser: 'chrome', name: 'Chrome', version: versions.chrome })
     }
-    if (props.versions.edge) {
-      list.push({ browser: 'edge', name: 'Edge', version: props.versions.edge })
+    if (versions.edge) {
+      list.push({ browser: 'edge', name: 'Edge', version: versions.edge })
     }
-    if (props.versions.firefox) {
-      list.push({ browser: 'firefox', name: 'Firefox', version: props.versions.firefox })
+    if (versions.firefox) {
+      list.push({ browser: 'firefox', name: 'Firefox', version: versions.firefox })
     }
-    if (props.versions.safari) {
-      list.push({ browser: 'safari', name: 'Safari', version: props.versions.safari })
+    if (versions.safari) {
+      list.push({ browser: 'safari', name: 'Safari', version: versions.safari })
     }
-    if (props.versions.opera) {
-      list.push({ browser: 'opera', name: 'Opera', version: props.versions.opera })
+    if (versions.opera) {
+      list.push({ browser: 'opera', name: 'Opera', version: versions.opera })
     }
 
     return list
   })
 
   const hasLimitedSupport = computed(() => {
-    return !props.versions.safari || props.versions.safari === '—'
+    return !versions.safari || versions.safari === '—'
   })
 </script>
 

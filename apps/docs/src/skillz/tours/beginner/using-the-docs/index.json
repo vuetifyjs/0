@@ -12,6 +12,14 @@
   "startRoute": "/introduction/why-vuetify0",
   "steps": [
     {
+      "id": "welcome",
+      "title": "Using the Docs",
+      "task": "This tour shows you where everything lives — navigation, search, AI, and settings. Let's walk through it together.",
+      "hint": "",
+      "learn": "Understand the docs layout",
+      "noActivator": true
+    },
+    {
       "id": "search",
       "title": "Search",
       "task": "Find anything instantly. Search covers components, composables, guides—even deep API references.",

@@ -1,18 +1,16 @@
 <script setup lang="ts">
-  withDefaults(defineProps<{
+  const { prerequisites, variant = 'inline' } = defineProps<{
     /** Array of prerequisite skill IDs */
     prerequisites: string[]
     /** Display variant */
     variant?: 'inline' | 'box'
-  }>(), {
-    variant: 'inline',
-  })
+  }>()
 </script>
 
 <template>
   <div v-if="prerequisites.length > 0" class="skill-prerequisites" :class="`skill-prerequisites--${variant}`">
     <span class="skill-prerequisites__label">
-      {{ variant === 'box' ? 'Prerequisites:' : 'Requires:' }}
+      {{ variant === 'box' ? 'Prerequisites: ' : 'Requires: ' }}
     </span>
     <template v-if="variant === 'box'">
       <RouterLink

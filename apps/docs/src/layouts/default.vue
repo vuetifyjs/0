@@ -5,6 +5,7 @@
   // Composables
   import { useAsk } from '@/composables/useAsk'
   import { useDiscovery } from '@/composables/useDiscovery'
+  import { useIdleCallback } from '@/composables/useIdleCallback'
   import { createLevelFilter } from '@/composables/useLevelFilter'
   import { createNavConfig } from '@/composables/useNavConfig'
   import { useSearch } from '@/composables/useSearch'
@@ -59,6 +60,15 @@
     if (!IN_BROWSER) return
     document.body.style.overflow = ''
   })
+
+  // Prefetch editor dependencies during idle time so
+  // "Open in Editor" (new tab) loads from HTTP cache
+  if (IN_BROWSER) {
+    useIdleCallback(() => {
+      import('@vue/repl').catch(() => {})
+      import('@vue/repl/monaco-editor').catch(() => {})
+    })
+  }
 </script>
 
 <template>
@@ -70,7 +80,7 @@
       Skip to main content
     </a>
 
-    <div class="min-h-[calc(100vh-72px)] flex flex-col" :inert="isModalOpen || undefined">
+    <div class="min-h-[calc(100vh-72px)] pt-[72px] flex flex-col" :inert="isModalOpen || undefined">
       <AppBanner />
       <AppNav />
       <AppBar />

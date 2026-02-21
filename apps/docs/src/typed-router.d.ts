@@ -646,6 +646,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/playground': RouteRecordInfo<
+      '/playground',
+      '/playground',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/releases': RouteRecordInfo<
       '/releases',
       '/releases',
@@ -670,6 +677,13 @@ declare module 'vue-router/auto-routes' {
     '/skillz.[id]': RouteRecordInfo<
       '/skillz.[id]',
       '/skillz/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    '/skillz.tutorial.[id]': RouteRecordInfo<
+      '/skillz.tutorial.[id]',
+      '/skillz/tutorial/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
       | never
@@ -1235,6 +1249,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/playground.vue': {
+      routes:
+        | '/playground'
+      views:
+        | never
+    }
     'src/pages/releases.md': {
       routes:
         | '/releases'
@@ -1256,6 +1276,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/skillz.[id].vue': {
       routes:
         | '/skillz.[id]'
+      views:
+        | never
+    }
+    'src/pages/skillz.tutorial.[id].vue': {
+      routes:
+        | '/skillz.tutorial.[id]'
       views:
         | never
     }

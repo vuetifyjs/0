@@ -12,6 +12,14 @@
   "startRoute": "/introduction/getting-started",
   "steps": [
     {
+      "id": "welcome",
+      "title": "Using Search",
+      "task": "Search is the fastest way to find anything in the docs — components, composables, guides, and more. Let's see how it works.",
+      "hint": "",
+      "learn": "Get the most out of docs search",
+      "noActivator": true
+    },
+    {
       "id": "search",
       "title": "Search Button",
       "task": "Your fastest path to anything. Open search and start typing to find components, composables, and guides.",

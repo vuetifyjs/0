@@ -1,0 +1,18 @@
+{
+  "title": "Vue Basics",
+  "description": "Build a contact card while learning Vue 3 fundamentals — refs, events, computed, directives, and v-model",
+  "level": 1,
+  "track": "essentials",
+  "categories": [],
+  "order": 10,
+  "minutes": 15,
+  "steps": [
+    "Understand single-file components and templates",
+    "Make data dynamic with shallowRef",
+    "Handle click events and toggle state",
+    "Derive values with computed properties",
+    "Conditionally show and hide content",
+    "Render lists with v-for",
+    "Bind form inputs with v-model"
+  ]
+}

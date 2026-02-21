@@ -2,7 +2,7 @@
 export type SkillLevel = 1 | 2 | 3
 
 /** Skill interaction mode */
-export type SkillMode = 'guided' | 'interactive'
+export type SkillMode = 'guided' | 'interactive' | 'tutorial'
 
 /** Keys that advance to next step */
 export type SkillStepNext =
@@ -38,6 +38,8 @@ export interface SkillMeta {
   description: string
   minutes: number
   startRoute: string
+  /** Route to the tutorial editor (tutorials only) */
+  tutorialRoute?: string
   /** Route to navigate to after tour completion */
   completeRoute?: string
   steps: SkillStep[]
@@ -55,14 +57,15 @@ export type SkillCategory =
   // | 'library-building' // Build your own library (plugins, adapters, extending v0)
 
 export const SKILL_LEVEL_META: Record<SkillLevel, { label: string, icon: string, color: string, title: string }> = {
-  1: { label: 'Beginner', icon: 'level-beginner', color: 'var(--v0-success)', title: 'Beginner experience level' },
-  2: { label: 'Intermediate', icon: 'level-intermediate', color: 'var(--v0-info)', title: 'Intermediate experience level' },
-  3: { label: 'Advanced', icon: 'level-advanced', color: 'var(--v0-warning)', title: 'Advanced experience level' },
+  1: { label: 'Beginner', icon: 'level-beginner', color: 'var(--v0-success)', title: 'Start here — learn the docs, Vue fundamentals, and your first v0 components' },
+  2: { label: 'Intermediate', icon: 'level-intermediate', color: 'var(--v0-info)', title: 'Go deeper — watchers, lifecycle hooks, component composition, and real-world patterns' },
+  3: { label: 'Advanced', icon: 'level-advanced', color: 'var(--v0-warning)', title: 'Master the system — composables, generics, scoped slots, and library-grade abstractions' },
 }
 
 export const SKILL_MODE_META: Record<SkillMode, { label: string, icon: string, color: string, description: string }> = {
   guided: { label: 'Guided', icon: 'compass', color: 'var(--v0-primary)', description: 'A passive walkthrough. Just click next to continue.' },
   interactive: { label: 'Interactive', icon: 'keyboard', color: 'var(--v0-accent)', description: 'Hands-on practice. Complete tasks to progress.' },
+  tutorial: { label: 'Tutorial', icon: 'code', color: '#64748b', description: 'Learn by coding in a live editor with step-by-step instructions.' },
 }
 
 export const SKILL_TRACK_META: Record<SkillTrack, { label: string, description: string }> = {

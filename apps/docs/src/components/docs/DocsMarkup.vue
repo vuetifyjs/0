@@ -9,7 +9,7 @@
   import { decodeBase64 } from '@/utilities/decodeBase64'
   import { computed, ref, shallowRef, watch } from 'vue'
 
-  const props = withDefaults(defineProps<{
+  const { code, language, title, binTitle, playground, collapse, collapseLines = 15, hideFilename } = defineProps<{
     code: string // base64 encoded
     language?: string
     title?: string
@@ -18,9 +18,7 @@
     collapse?: boolean
     collapseLines?: number
     hideFilename?: boolean
-  }>(), {
-    collapseLines: 15,
-  })
+  }>()
 
   const theme = useTheme()
   const settings = useSettings()
@@ -33,13 +31,13 @@
     lineWrap.value = val
   })
 
-  const decodedCode = computed(() => decodeBase64(props.code))
+  const decodedCode = computed(() => decodeBase64(code))
 
   // Collapse state
   const expanded = ref(false)
   const lineCount = computed(() => decodedCode.value.split('\n').length)
-  const shouldCollapse = computed(() => props.collapse && lineCount.value > props.collapseLines)
-  const collapsedHeight = computed(() => `${props.collapseLines * 1.5 + 2.5}rem`)
+  const shouldCollapse = computed(() => collapse && lineCount.value > collapseLines)
+  const collapsedHeight = computed(() => `${collapseLines * 1.5 + 2.5}rem`)
 </script>
 
 <template>
@@ -65,6 +63,7 @@
           bin
           :bin-title="binTitle"
           :code="decodedCode"
+          :file-name="title"
           :language
           :playground
           show-copy
