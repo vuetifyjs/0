@@ -22,7 +22,7 @@ import { useLogger } from '#v0/composables/useLogger'
 
 // Utilities
 import { isUndefined, useId } from '#v0/utilities'
-import { computed, shallowReactive, toRef } from 'vue'
+import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -111,6 +111,9 @@ export function createNested<
     ...options
   } = _options
 
+  const mandatoryOption = _options.mandatory ?? false
+  const multipleOption = _options.multiple ?? true
+
   // Resolve open strategy: explicit openStrategy takes precedence over open mode
   const resolvedOpenStrategy = openStrategy ?? resolveOpenStrategy(openMode)
 
@@ -121,6 +124,12 @@ export function createNested<
   const parents = shallowReactive(new Map<ID, ID | undefined>())
   const openedIds = shallowReactive(new Set<ID>())
   const activeIds = shallowReactive(new Set<ID>())
+  const rootIds = shallowReactive(new Set<ID>())
+
+  let batching = false
+  let pendingChildren: Map<ID, ID[]> | undefined
+  let pendingParents: Map<ID, ID | undefined> | undefined
+  let pendingRoots: Set<ID> | undefined
 
   // Computed collections
   const activeItems = computed(() => {
@@ -148,7 +157,9 @@ export function createNested<
   })
 
   const roots = computed(() => {
-    return group.values().filter(item => isUndefined(parents.get(item.id)))
+    return Array.from(rootIds)
+      .map(id => group.get(id))
+      .filter((item): item is E => !isUndefined(item))
   })
 
   const leaves = computed(() => {
@@ -250,8 +261,8 @@ export function createNested<
   }
 
   function expandAll (): void {
-    for (const id of group.keys()) {
-      if (!isLeaf(id)) {
+    for (const [id, childList] of children) {
+      if (childList.length > 0) {
         openedIds.add(id)
       }
     }
@@ -312,13 +323,21 @@ export function createNested<
 
   function getDescendants (id: ID): ID[] {
     const descendants: ID[] = []
-    const queue: ID[] = [...(children.get(id) ?? [])]
+    const initial = children.get(id)
+    if (!initial) return descendants
+
+    const queue: ID[] = initial.slice()
     let index = 0
 
     while (index < queue.length) {
       const currentId = queue[index++]!
       descendants.push(currentId)
-      queue.push(...(children.get(currentId) ?? []))
+      const childIds = children.get(currentId)
+      if (childIds) {
+        for (const cid of childIds) {
+          queue.push(cid)
+        }
+      }
     }
 
     return descendants
@@ -385,25 +404,26 @@ export function createNested<
 
   // Cascading selection helpers (used when selectionMode === 'cascade')
   function updateAncestors (id: ID): void {
-    // Process from immediate parent up to root
-    const ancestorIds = getAncestors(id).toReversed()
-    for (const aid of ancestorIds) {
-      const childIds = children.get(aid) ?? []
-      if (childIds.length === 0) continue
+    const { selectedIds, mixedIds } = group
+    let parentId = parents.get(id)
+    while (!isUndefined(parentId)) {
+      const childIds = children.get(parentId)
+      if (childIds && childIds.length > 0) {
+        const allSelected = childIds.every(cid => selectedIds.has(cid))
+        const someSelected = !allSelected && childIds.some(cid => selectedIds.has(cid) || mixedIds.has(cid))
 
-      const allSelected = childIds.every(cid => group.selected(cid))
-      const someSelected = childIds.some(cid => group.selected(cid) || group.mixed(cid))
-
-      if (allSelected) {
-        group.unmix(aid)
-        group.select(aid)
-      } else if (someSelected) {
-        group.unselect(aid)
-        group.mix(aid)
-      } else {
-        group.unmix(aid)
-        group.unselect(aid)
+        if (allSelected) {
+          mixedIds.delete(parentId)
+          selectedIds.add(parentId)
+        } else if (someSelected) {
+          selectedIds.delete(parentId)
+          mixedIds.add(parentId)
+        } else {
+          mixedIds.delete(parentId)
+          selectedIds.delete(parentId)
+        }
       }
+      parentId = parents.get(parentId)
     }
   }
 
@@ -417,10 +437,8 @@ export function createNested<
       if (!group.has(id)) continue
 
       if (selectionMode === 'independent') {
-        // Independent: just select this node, no cascading
         group.select(id)
       } else if (selectionMode === 'leaf') {
-        // Leaf: only select leaf nodes; if parent, select all leaf descendants
         if (isLeaf(id)) {
           group.select(id)
         } else {
@@ -429,12 +447,16 @@ export function createNested<
           }
         }
       } else {
-        // Cascade (default): select this item and all descendants
-        group.unmix(id)
-        group.select(id)
+        if (!toValue(multipleOption)) {
+          group.select(id)
+          return
+        }
+        const { selectedIds, mixedIds } = group
+        mixedIds.delete(id)
+        selectedIds.add(id)
         for (const did of getDescendants(id)) {
-          group.unmix(did)
-          group.select(did)
+          mixedIds.delete(did)
+          selectedIds.add(did)
         }
         updateAncestors(id)
       }
@@ -446,10 +468,8 @@ export function createNested<
       if (!group.has(id)) continue
 
       if (selectionMode === 'independent') {
-        // Independent: just unselect this node, no cascading
         group.unselect(id)
       } else if (selectionMode === 'leaf') {
-        // Leaf: only unselect leaf nodes; if parent, unselect all leaf descendants
         if (isLeaf(id)) {
           group.unselect(id)
         } else {
@@ -458,12 +478,16 @@ export function createNested<
           }
         }
       } else {
-        // Cascade (default): unselect this item and all descendants
-        group.unmix(id)
-        group.unselect(id)
+        const { selectedIds, mixedIds } = group
+        if (toValue(mandatoryOption)) {
+          const toRemove = new Set<ID>([id, ...getDescendants(id)])
+          if ([...selectedIds].every(sid => toRemove.has(sid))) return
+        }
+        mixedIds.delete(id)
+        selectedIds.delete(id)
         for (const did of getDescendants(id)) {
-          group.unmix(did)
-          group.unselect(did)
+          mixedIds.delete(did)
+          selectedIds.delete(did)
         }
         updateAncestors(id)
       }
@@ -528,21 +552,33 @@ export function createNested<
 
     // Update parent-child relationships
     if (!isUndefined(parentId) && group.has(parentId)) {
-      parents.set(id, parentId)
-
-      const list = children.get(parentId)
-      if (list) {
-        list.push(id)
+      if (batching) {
+        pendingParents!.set(id, parentId)
+        const pending = pendingChildren!.get(parentId)
+        if (pending) {
+          pending.push(id)
+        } else {
+          const existing = children.get(parentId)
+          const list = existing ? [...existing, id] : [id]
+          pendingChildren!.set(parentId, list)
+        }
       } else {
-        children.set(parentId, [id])
+        parents.set(id, parentId)
+        const list = children.get(parentId)
+        children.set(parentId, list ? [...list, id] : [id])
       }
 
-      // Auto-open parent when child registers (if openAll enabled)
       if (openAll) {
         openedIds.add(parentId)
       }
     } else {
-      parents.set(id, undefined)
+      if (batching) {
+        pendingParents!.set(id, undefined)
+        pendingRoots!.add(id)
+      } else {
+        parents.set(id, undefined)
+        rootIds.add(id)
+      }
     }
 
     // Create ticket with nested-specific properties (exclude children from spreading)
@@ -550,7 +586,7 @@ export function createNested<
     const item = {
       ...rest,
       id,
-      parentId: parents.get(id),
+      parentId: batching ? pendingParents!.get(id) : parents.get(id),
       isOpen: toRef(() => opened(id)),
       isActive: toRef(() => activated(id)),
       isLeaf: toRef(() => isLeaf(id)),
@@ -609,14 +645,15 @@ export function createNested<
     const list = children.get(id)
     if (list?.length) {
       if (cascade) {
-        // Cascade delete to all descendants
-        for (const did of getDescendants(id)) {
+        const descendantIds = getDescendants(id)
+        for (const did of descendantIds) {
           parents.delete(did)
           children.delete(did)
           openedIds.delete(did)
           activeIds.delete(did)
-          group.unregister(did)
+          rootIds.delete(did)
         }
+        group.offboard(descendantIds)
       } else {
         // Orphan children by setting their parent to undefined
         // Clear open and active state for ALL descendants to prevent memory leaks
@@ -626,6 +663,7 @@ export function createNested<
         }
         for (const cid of list) {
           parents.set(cid, undefined)
+          rootIds.add(cid)
         }
       }
     }
@@ -635,6 +673,7 @@ export function createNested<
     children.delete(id)
     openedIds.delete(id)
     activeIds.delete(id)
+    rootIds.delete(id)
     group.unregister(id)
   }
 
@@ -645,7 +684,31 @@ export function createNested<
   }
 
   function onboard (registrations: NestedRegistration<Z>[]): E[] {
-    return group.batch(() => registrations.map(registration => register(registration)))
+    batching = true
+    pendingChildren = new Map()
+    pendingParents = new Map()
+    pendingRoots = new Set()
+
+    try {
+      const result = group.batch(() => registrations.map(registration => register(registration)))
+
+      for (const [id, list] of pendingChildren) {
+        children.set(id, list)
+      }
+      for (const [id, pid] of pendingParents) {
+        parents.set(id, pid)
+      }
+      for (const id of pendingRoots) {
+        rootIds.add(id)
+      }
+
+      return result
+    } finally {
+      batching = false
+      pendingChildren = undefined
+      pendingParents = undefined
+      pendingRoots = undefined
+    }
   }
 
   function clear (): void {
@@ -653,6 +716,7 @@ export function createNested<
     parents.clear()
     openedIds.clear()
     activeIds.clear()
+    rootIds.clear()
     group.reset()
   }
 
