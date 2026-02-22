@@ -670,6 +670,52 @@ describe('createNested', () => {
         expect(nested.selected('child-1')).toBe(true)
         expect(nested.mixed('root')).toBe(true)
       })
+
+      it('should not deselect last item when mandatory is true', () => {
+        const nested = createNested({ selection: 'cascade', mandatory: true })
+
+        nested.register({ id: 'root', value: 'Root' })
+        nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root' })
+        nested.register({ id: 'child-2', value: 'Child 2', parentId: 'root' })
+
+        nested.select('root')
+        nested.unselect('root')
+
+        expect(nested.selected('root')).toBe(true)
+        expect(nested.selected('child-1')).toBe(true)
+        expect(nested.selected('child-2')).toBe(true)
+      })
+
+      it('should allow deselecting non-last item when mandatory is true', () => {
+        const nested = createNested({ selection: 'cascade', mandatory: true })
+
+        nested.register({ id: 'root-1', value: 'Root 1' })
+        nested.register({ id: 'root-2', value: 'Root 2' })
+        nested.register({ id: 'child', value: 'Child', parentId: 'root-2' })
+
+        nested.select('root-1')
+        nested.select('root-2')
+        nested.unselect('root-2')
+
+        expect(nested.selected('root-1')).toBe(true)
+        expect(nested.selected('root-2')).toBe(false)
+        expect(nested.selected('child')).toBe(false)
+      })
+
+      it('should not accumulate selections when multiple is false', () => {
+        const nested = createNested({ selection: 'cascade', multiple: false })
+
+        nested.register({ id: 'root-1', value: 'Root 1' })
+        nested.register({ id: 'child-1', value: 'Child 1', parentId: 'root-1' })
+        nested.register({ id: 'root-2', value: 'Root 2' })
+
+        nested.select('root-1')
+        nested.select('root-2')
+
+        expect(nested.selected('root-2')).toBe(true)
+        expect(nested.selected('root-1')).toBe(false)
+        expect(nested.selected('child-1')).toBe(false)
+      })
     })
 
     describe('selection: independent', () => {
