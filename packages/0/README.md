@@ -71,6 +71,7 @@ import { ... } from '@vuetify/v0/composables' // Composables only
 import { ... } from '@vuetify/v0/utilities'  // Utilities only
 import { ... } from '@vuetify/v0/types'      // Types only
 import { ... } from '@vuetify/v0/constants'  // Constants only
+import { ... } from '@vuetify/v0/date'       // Date adapter and utilities
 ```
 
 ## What's Included
@@ -81,15 +82,19 @@ import { ... } from '@vuetify/v0/constants'  // Constants only
 |-----------|-------------|
 | **Atom** | Polymorphic base element. Renders as any HTML element via `as` prop with renderless mode support |
 | **Avatar** | Image with fallback display. Compound component with Root, Image, and Fallback sub-components |
-| **Checkbox** | Standalone or group checkbox with tri-state. Root, Group, Indicator, HiddenInput sub-components |
+| **Breadcrumbs** | Responsive navigation trail with overflow support. Root, List, Item, Link, Page, Divider, Ellipsis sub-components |
+| **Checkbox** | Standalone or group checkbox with tri-state. Root, Group, SelectAll, Indicator, HiddenInput sub-components |
 | **Dialog** | Modal dialog using native `<dialog>`. Root, Activator, Content, Title, Description, Close sub-components |
 | **ExpansionPanel** | Accordion/collapsible panels. Supports single (accordion) or multi-expand modes |
 | **Group** | Multi-selection with tri-state support. Provides `selectAll`, `unselectAll`, `toggleAll` |
-| **Pagination** | Page navigation with ellipsis. Root, Item, First, Prev, Next, Last, Ellipsis sub-components |
+| **Pagination** | Page navigation with ellipsis. Root, Item, First, Prev, Next, Last, Ellipsis, Status sub-components |
 | **Popover** | CSS anchor-positioned popup. Root, Anchor, and Content sub-components |
+| **Radio** | Radio button group with single-selection. Group, Root, Indicator, HiddenInput sub-components |
+| **Scrim** | Backdrop/scrim overlay for overlay systems |
 | **Selection** | Generic single/multi-selection. Configurable via `multiple` prop |
 | **Single** | Single-selection specialization of Selection |
 | **Step** | Navigation/stepper with first, last, next, prev controls |
+| **Tabs** | Accessible tab interface. Root, List, Item, Panel sub-components |
 
 ### Composables
 
@@ -109,6 +114,7 @@ Base data structures that most other composables build upon:
 - **`createQueue`** - FIFO queue with timeout management (notifications/toasts)
 - **`createTimeline`** - Bounded undo/redo history
 - **`createTokens`** - Design token registry with alias resolution
+- **`createDataTable`** - Data table with sort, filter, pagination, row selection, grouping, and adapter pattern
 
 #### Selection
 
@@ -118,6 +124,8 @@ Selection management composables built on `createRegistry`:
 - **`createGroup`** - Multi-selection with tri-state/mixed support
 - **`createSingle`** - Single-selection specialization
 - **`createStep`** - Navigation through items (first, last, next, prev)
+- **`createBreadcrumbs`** - Breadcrumb navigation model with depth tracking, truncation, and path traversal
+- **`createNested`** - Hierarchical tree management with parent-child relationships and open state
 
 #### Forms
 
@@ -146,6 +154,7 @@ Selection management composables built on `createRegistry`:
 - **`useEventListener`** - Lifecycle-managed event listeners
 - **`useHotkey`** - Hotkey combinations and sequences
 - **`useIntersectionObserver`** - Intersection observer with auto-cleanup
+- **`useLazy`** - Deferred content rendering for dialogs, menus, and tooltips
 - **`useMediaQuery`** - Reactive CSS media query matching
 - **`useMutationObserver`** - DOM mutation observation
 - **`useResizeObserver`** - Resize observer utilities
@@ -156,11 +165,13 @@ Selection management composables built on `createRegistry`:
 Plugin-capable composables following the trinity pattern:
 
 - **`useBreakpoints`** - Responsive breakpoint detection
+- **`useDate`** - Date manipulation with adapter pattern and locale sync
 - **`useFeatures`** - Feature flags with variations
 - **`useHydration`** - SSR hydration helpers
 - **`useLocale`** - Internationalization with message interpolation
 - **`useLogger`** - Logging adapter (consola/pino/custom)
 - **`usePermissions`** - RBAC/ABAC permission system
+- **`useStack`** - Overlay z-index stacking with automatic scrim coordination
 - **`useStorage`** - Storage adapter (localStorage/sessionStorage/memory)
 - **`useTheme`** - Theme management with CSS variable injection
 
@@ -192,11 +203,17 @@ pnpm dev:docs
 # Run tests
 pnpm test
 
+# Run tests (CI mode)
+pnpm test:run
+
 # Type check
 pnpm typecheck
 
 # Lint
-pnpm lint
+pnpm lint:fix
+
+# Full validation (lint + typecheck + test)
+pnpm validate
 ```
 
 ## Contributing
