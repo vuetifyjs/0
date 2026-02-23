@@ -26,6 +26,9 @@ import { getSkillzSlugs } from './build/skillz-tours'
 import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig({
+  optimizeDeps: {
+    exclude: ['@vue/repl', 'monaco-editor'],
+  },
   build: {
     sourcemap: true,
   },
@@ -128,7 +131,7 @@ export default defineConfig({
   },
   server: {
     fs: {
-      allow: ['../../packages/*', '.'],
+      allow: ['../../packages/*', '../../node_modules', '.'],
     },
   },
 })
