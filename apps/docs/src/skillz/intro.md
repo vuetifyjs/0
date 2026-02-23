@@ -27,7 +27,7 @@ The editor ships a complete single-file component setup. Your `App.vue` runs ins
 
 Open the **examples** menu in the toolbar and load any demo — you'll get a complete, working project with files, imports, and a live preview that updates as you type. Or skip that entirely: open `App.vue` in the editor and start writing a component from scratch. The preview hot-reloads on every keystroke, so you'll see the result before you finish the thought. Either way, you're writing real Vue 3 code against the full v0 API — no stubs, no simulations.
 
-> [!TOUR] using-the-playground
+<!-- > [!TOUR] using-the-playground -->
 
 ## Tips
 
@@ -37,4 +37,4 @@ Open the **examples** menu in the toolbar and load any demo — you'll get a com
 - Add new files in the file tree and import them normally — multi-file projects work out of the box
 - The URL updates as you edit — copy it to share exactly what you built
 
-> [!TRY] Build something in the editor, then copy the URL and open it in a new tab — it opens exactly what you built.
+<!-- > [!TRY] Build something in the editor, then copy the URL and open it in a new tab — it opens exactly what you built. -->
