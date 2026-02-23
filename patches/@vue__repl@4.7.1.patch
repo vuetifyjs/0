@@ -1,0 +1,42 @@
+diff --git a/dist/monaco-editor.js b/dist/monaco-editor.js
+index 0000000000000000000000000000000000000000..0000000000000000000000000000000000000001 100644
+--- a/dist/monaco-editor.js
++++ b/dist/monaco-editor.js
+@@ -190204,7 +190204,6 @@
+             editorInstance.setModel(model);
+             if (file.editorViewState) {
+               editorInstance.restoreViewState(file.editorViewState);
+-              editorInstance.focus();
+             }
+           },
+           { immediate: true }
+diff --git a/dist/vue-repl.js b/dist/vue-repl.js
+index 8443310ab473735513bae339f5e0876ff9b16059..f475486ab57fa22a77c4745ac5d1794f658d9616 100644
+--- a/dist/vue-repl.js
++++ b/dist/vue-repl.js
+@@ -500,7 +500,7 @@ const _sfc_main$7 = /* @__PURE__ */ defineComponent({
+   setup(__props, { expose: __expose }) {
+     const props = __props;
+     const { store, theme, clearConsole, previewOptions } = toRefs(props);
+-    const keyProps = inject(injectKeyProps);
++    const keyProps = inject(injectKeyProps, void 0);
+     if (keyProps === void 0 && props.autoStoreInit) {
+       props.store?.init?.();
+     }
+@@ -1218,14 +1218,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
+             createVNode(EditorContainer, { "editor-component": _ctx.editor }, null, 8, ["editor-component"])
+           ]),
+           [outputSlotName.value]: withCtx(() => [
+-            createVNode(Output, {
++            props.store.showOutput !== false ? createVNode(Output, {
+               ref: "output",
+               "editor-component": _ctx.editor,
+               "show-compile-output": props.showCompileOutput,
+               "show-open-source-map": props.showOpenSourceMap,
+               "show-ssr-output": props.showSsrOutput,
+               ssr: !!props.ssr
+-            }, null, 8, ["editor-component", "show-compile-output", "show-open-source-map", "show-ssr-output", "ssr"])
++            }, null, 8, ["editor-component", "show-compile-output", "show-open-source-map", "show-ssr-output", "ssr"]) : createCommentVNode("", true)
+           ]),
+           _: 2
+         }, 1032, ["layout"])

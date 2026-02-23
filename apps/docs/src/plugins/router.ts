@@ -27,14 +27,18 @@ const routerOptions: Omit<RouterOptions, 'history'> = {
     if (to.hash) {
       return new Promise(resolve => {
         setTimeout(() => {
-          const el = document.querySelector(to.hash)
-          if (el) {
-            const top = el.getBoundingClientRect().top + window.scrollY - 80
-            const behavior = getPrefersReducedMotion() ? 'auto' : 'smooth'
-            resolve({ top, behavior })
-          } else {
-            resolve({ top: 0 })
+          try {
+            const el = document.querySelector(to.hash)
+            if (el) {
+              const top = el.getBoundingClientRect().top + window.scrollY - 80
+              const behavior = getPrefersReducedMotion() ? 'auto' : 'smooth'
+              resolve({ top, behavior })
+              return
+            }
+          } catch {
+            // Hash is not a valid CSS selector (e.g. base64 store state)
           }
+          resolve({ top: 0 })
         }, 100)
       })
     }

@@ -646,6 +646,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/playground': RouteRecordInfo<
+      '/playground',
+      '/playground',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/releases': RouteRecordInfo<
       '/releases',
       '/releases',
@@ -1232,6 +1239,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/introduction/why-vuetify0.md': {
       routes:
         | '/introduction/why-vuetify0'
+      views:
+        | never
+    }
+    'src/pages/playground.vue': {
+      routes:
+        | '/playground'
       views:
         | never
     }
