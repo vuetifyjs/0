@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Framework
   import { useTheme } from '@vuetify/v0'
 
@@ -21,7 +21,6 @@
       :editor="Monaco"
       :editor-options="{ monacoOptions: { padding: { top: 16 } } }"
       layout="horizontal"
-      :preview-options="{}"
       :show-compile-output="false"
       :show-import-map="false"
       :show-ts-config="false"

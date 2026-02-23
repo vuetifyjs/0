@@ -1,12 +1,14 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { onUnmounted } from 'vue'
+  import { onMounted, onUnmounted } from 'vue'
 
   const playground = usePlayground()
   const ticket = playground.register({ id: 'workspace-bottom' })
+
+  onMounted(() => ticket.select())
 
   onUnmounted(() => {
     playground.unregister(ticket.id)

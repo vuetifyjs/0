@@ -15,7 +15,6 @@
   const store = playground.store
 
   function isTabbable (f: { filename: string, hidden?: boolean }) {
-    if (f.filename === 'src/main.ts') return true
     if (INFRASTRUCTURE_FILES.has(f.filename)) return false
     if (f.hidden) return false
     return true

@@ -9,7 +9,7 @@
     {
       title: 'Open Playground',
       description: 'Try v0 in your browser. No setup required.',
-      to: 'https://play.vuetifyjs.com',
+      to: '/playground',
       icon: 'vuetify-play',
     },
     {

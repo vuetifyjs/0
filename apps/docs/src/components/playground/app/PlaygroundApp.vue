@@ -25,7 +25,6 @@
     PlaygroundContext
   >({
     namespace: 'v0:playground',
-    enroll: true,
   })
 </script>
 

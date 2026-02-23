@@ -9,7 +9,7 @@ export interface PlaygroundFile {
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let _fflate: typeof import('fflate') | undefined
 
-async function loadFflate () {
+export async function loadFflate () {
   if (!_fflate) _fflate = await import('fflate')
   return _fflate
 }
@@ -33,7 +33,7 @@ async function atou (base64: string): Promise<string> {
 /**
  * Detect which file is the entry point for a multi-file example.
  */
-function detectEntryFile (files: PlaygroundFile[]): PlaygroundFile | undefined {
+export function detectEntryFile (files: PlaygroundFile[]): PlaygroundFile | undefined {
   const vueFiles = files.filter(f => f.name.endsWith('.vue'))
 
   const entryNames = ['index.vue', 'App.vue', 'example.vue', 'main.vue']
@@ -43,7 +43,7 @@ function detectEntryFile (files: PlaygroundFile[]): PlaygroundFile | undefined {
   }
 
   for (const file of vueFiles) {
-    const importsOthers = files.some(other =>
+    const importsOthers = vueFiles.some(other =>
       other !== file && file.code.includes(`./${other.name.replace(/\.\w+$/, '')}`),
     )
     if (importsOthers) return file
@@ -98,17 +98,10 @@ function buildPlaygroundFiles (inputFiles: PlaygroundFile[], dir?: string): Reco
 }
 
 /**
- * Get editor URL for a single file.
- */
-export async function usePlaygroundLink (code: string, fileName = 'Example.vue'): Promise<string> {
-  return usePlaygroundLinkMulti([{ name: fileName, code }])
-}
-
-/**
  * Get editor URL for multiple files.
  * When dir is provided, files are nested under src/{dir}/.
  */
-export async function usePlaygroundLinkMulti (inputFiles: PlaygroundFile[], dir?: string): Promise<string> {
+export async function usePlayground (inputFiles: PlaygroundFile[], dir?: string): Promise<string> {
   const files = buildPlaygroundFiles(inputFiles, dir)
   const hash = await utoa(JSON.stringify(files))
   return `/playground#${hash}`
@@ -138,7 +131,6 @@ export async function decodePlaygroundHash (hash: string): Promise<PlaygroundHas
   try {
     const parsed: unknown = JSON.parse(await atou(hash))
     if (isFileRecord(parsed)) {
-      // Legacy format: plain file record with no active file
       return { files: parsed }
     }
     if (

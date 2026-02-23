@@ -56,7 +56,7 @@ export function registerPlugins (app: App) {
             'success': '{palette.md.green.500}',
             'warning': '{palette.md.orange.500}',
             'background': '{palette.md.grey.50}',
-            'divider': '{palette.md.grey300}',
+            'divider': '{palette.md.grey.300}',
             'surface': '{palette.md.grey.100}',
             'surface-tint': '{palette.md.grey.200}',
           },

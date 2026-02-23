@@ -25,7 +25,7 @@
       icon: 'vuetify-play',
       title: 'Vuetify Play',
       description: 'Every example opens in a live playground. No setup, no CLI.',
-      to: 'https://play.vuetifyjs.com',
+      to: '/playground',
     },
     {
       icon: 'shield',

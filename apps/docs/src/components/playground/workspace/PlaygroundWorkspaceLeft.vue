@@ -1,9 +1,9 @@
-<script lang="ts" setup>
-// Components
+<script setup lang="ts">
+  // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { toRef, onUnmounted, shallowRef } from 'vue'
+  import { onMounted, onUnmounted, shallowRef, toRef } from 'vue'
 
   const DEFAULT_WIDTH = 300
   const DEFAULT_MIN_WIDTH = 200
@@ -12,6 +12,8 @@
   const playground = usePlayground()
 
   const ticket = playground.register({ id: 'workspace-left' })
+
+  onMounted(() => ticket.select())
 
   const modelValue = shallowRef(DEFAULT_WIDTH)
 
