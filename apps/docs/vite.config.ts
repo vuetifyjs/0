@@ -46,7 +46,7 @@ export default defineConfig({
       ])
       const apiRoutes = apiSlugs.map(slug => `/api/${slug}`)
       const skillzRoutes = skillzSlugs.map(slug => `/skillz/${slug}`)
-      return [...paths, ...apiRoutes, ...skillzRoutes]
+      return [...paths, ...apiRoutes, ...skillzRoutes].filter(p => p !== '/playground')
     },
     onFinished () {
       generateSitemap({
