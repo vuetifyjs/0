@@ -1,8 +1,8 @@
 <script setup lang="ts">
   // Composables
   import { getBinUrl } from '@/composables/bin'
-  import { usePlayground } from '@/composables/playground'
   import { useClipboard } from '@/composables/useClipboard'
+  import { usePlayground } from '@/composables/usePlayground'
 
   const props = defineProps<{
     code: string
@@ -28,8 +28,8 @@
     window.open(url, '_blank')
   }
 
-  function openInPlayground () {
-    const url = usePlayground(props.code)
+  async function openInPlayground () {
+    const url = await usePlayground([{ name: props.title ?? 'Example.vue', code: props.code }])
     window.open(url, '_blank')
   }
 </script>

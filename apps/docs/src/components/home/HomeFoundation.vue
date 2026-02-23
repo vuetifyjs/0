@@ -4,7 +4,7 @@
     { name: 'Nuxt', icon: 'nuxt', to: 'https://nuxt.com' },
     { name: 'Tailwind CSS', icon: 'tailwind', to: 'https://tailwindcss.com' },
     { name: 'UnoCSS', icon: 'unocss', to: 'https://unocss.dev' },
-    { name: 'Vuetify Play', icon: 'vuetify-play', to: 'https://play.vuetifyjs.com' },
+    { name: 'Vuetify Play', icon: 'vuetify-play', to: '/playground' },
     { name: 'Vuetify Create', icon: 'vuetify-create', to: '/guide/tooling/vuetify-cli' },
     { name: 'Vuetify CLI', icon: 'vuetify-cli', to: '/guide/tooling/vuetify-cli' },
     { name: 'Vuetify MCP', icon: 'vuetify-mcp', to: '/guide/tooling/vuetify-mcp' },

@@ -7,8 +7,8 @@
 
   // Composables
   import { getMultiFileBinUrl } from '@/composables/bin'
-  import { usePlaygroundMulti } from '@/composables/playground'
   import { useExamples } from '@/composables/useExamples'
+  import { usePlayground } from '@/composables/usePlayground'
 
   // Utilities
   import { toKebab } from '@/utilities/strings'
@@ -153,10 +153,10 @@
     props.file?.split('/').pop() || (props.filePath ? `${props.filePath.split('/').pop()}.vue` : ''),
   )
 
-  function openAllInPlayground () {
+  async function openAllInPlayground () {
     if (!displayFiles.value?.length) return
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code }))
-    const url = usePlaygroundMulti(files)
+    const url = await usePlayground(files)
     window.open(url, '_blank')
   }
 

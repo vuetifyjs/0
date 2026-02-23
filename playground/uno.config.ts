@@ -48,6 +48,7 @@ export default defineConfig({
       'on-warning': 'var(--v0-on-warning)',
       'on-background': 'var(--v0-on-background)',
       'on-surface': 'var(--v0-on-surface)',
+      'on-surface-variant': 'var(--v0-on-surface-variant)',
       'on-surface-tint': 'var(--v0-on-surface-tint)',
     },
   },

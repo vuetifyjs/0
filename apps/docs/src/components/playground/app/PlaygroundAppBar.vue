@@ -1,8 +1,8 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   import { IN_BROWSER } from '#v0/constants/globals'
 
   // Framework
-  import { useTheme } from '@vuetify/v0'
+  import { useStorage, useTheme } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from './PlaygroundApp.vue'
@@ -14,6 +14,13 @@
   const router = useRouter()
   const theme = useTheme()
   const playground = usePlayground()
+  const storage = useStorage()
+  const left = storage.get('playground-left-open', true)
+
+  function onToggleLeft () {
+    playground.toggle('playground-left')
+    left.value = playground.selected('playground-left')
+  }
 
   const backTo = computed(() =>
     router.currentRoute.value.redirectedFrom?.fullPath
@@ -43,7 +50,7 @@
         :class="playground.selected('playground-left') ? 'opacity-80' : 'opacity-50'"
         title="Toggle documentation panel"
         type="button"
-        @click="playground.toggle('playground-left')"
+        @click="onToggleLeft"
       >
         <AppIcon icon="book" />
       </button>

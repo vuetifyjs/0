@@ -2,7 +2,7 @@
 import { debounce, useTheme } from '@vuetify/v0'
 
 // Composables
-import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlaygroundLink'
+import { decodePlaygroundHash, encodePlaygroundHash } from '@/composables/usePlayground'
 
 // Utilities
 import { useStore, useVueImportMap } from '@vue/repl'
@@ -65,15 +65,25 @@ export function usePlaygroundFiles () {
     const aliases: Record<string, string> = {}
     const nextAliasMap = new Map<string, string>()
 
+    const usedFlats = new Set<string>()
     for (const [path, code] of Object.entries(files)) {
       const rel = path.replace(/^src\//, '')
       const parts = rel.split('/')
       if (parts.length > 1) {
-        const flatPath = `src/${parts.at(-1)}`
-        if (!files[flatPath]) {
-          aliases[flatPath] = code
-          nextAliasMap.set(path, flatPath)
+        const basename = parts.at(-1)!
+        let flatPath = `src/${basename}`
+        if (files[flatPath] || usedFlats.has(flatPath)) {
+          const ext = basename.includes('.') ? basename.slice(basename.lastIndexOf('.')) : ''
+          const name = basename.includes('.') ? basename.slice(0, basename.lastIndexOf('.')) : basename
+          let counter = 2
+          while (files[`src/${name}${counter}${ext}`] || usedFlats.has(`src/${name}${counter}${ext}`)) {
+            counter++
+          }
+          flatPath = `src/${name}${counter}${ext}`
         }
+        usedFlats.add(flatPath)
+        aliases[flatPath] = code
+        nextAliasMap.set(path, flatPath)
       }
     }
 

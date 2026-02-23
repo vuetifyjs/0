@@ -1,16 +1,18 @@
-<script lang="ts" setup>
+<script setup lang="ts">
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { onUnmounted, shallowRef, toRef } from 'vue'
+  import { onMounted, onUnmounted, shallowRef, toRef } from 'vue'
 
   const DEFAULT_HEIGHT = 60
 
   const playground = usePlayground()
   const ticket = playground.register({ id: 'workspace-top' })
 
-  const modelValue = shallowRef(60)
+  onMounted(() => ticket.select())
+
+  const modelValue = shallowRef(DEFAULT_HEIGHT)
 
   const hasBottom = toRef(() => playground.selectedIds.has('workspace-bottom'))
 

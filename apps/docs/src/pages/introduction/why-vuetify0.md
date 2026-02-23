@@ -31,7 +31,7 @@ Vuetify0 comes from the creators of [Vuetify](https://vuetifyjs.com)—the most 
 |:-:|---------|-------------|
 | <AppIcon icon="vuetify" :size="20" /> | **Battle-tested patterns** | Selection, registration, and theming systems derived from Vuetify's core patterns. Vuetify itself will be refactored to use Vuetify0 under the hood. |
 | <AppIcon icon="vuetify-create" :size="20" /> | **Quick scaffolding** | Get started in seconds with [Vuetify Create](https://github.com/vuetifyjs/create). One command sets up your project with v0 pre-configured and ready to build. |
-| <AppIcon icon="vuetify-play" :size="20" /> | **Interactive playground** | Every example runs live in [Vuetify Play](https://play.vuetifyjs.com). Edit code, see results instantly, and share your experiments with a single link. |
+| <AppIcon icon="vuetify-play" :size="20" /> | **Interactive playground** | Every example runs live in [Vuetify Play](/playground). Edit code, see results instantly, and share your experiments with a single link. |
 | <AppIcon icon="vuetify-mcp" :size="20" /> | **AI-powered assistance** | First-class [MCP server](/guide/tooling/vuetify-mcp) for Claude and other AI assistants. Get accurate answers about v0 APIs without hallucinations. |
 | <AppIcon icon="vuetify-cli" :size="20" /> | **Developer tooling** | Dedicated CLI for common workflows—component generation, project upgrades, and debugging utilities. Streamline your development process. |
 

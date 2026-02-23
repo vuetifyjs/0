@@ -1,5 +1,5 @@
-<script lang="ts" setup>
-// Framework
+<script setup lang="ts">
+  // Framework
   import { clamp, useDocumentEventListener, useStorage, useToggleScope } from '@vuetify/v0'
 
   // Utilities
