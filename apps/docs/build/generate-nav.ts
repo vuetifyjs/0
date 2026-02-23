@@ -231,6 +231,8 @@ async function generateNav (): Promise<NavItem[]> {
     pages.get(key)!.push(pageInfo)
   }
 
+  standalonePages.push({ item: { name: 'Playground', to: '/playground' }, order: 1.6 })
+
   const nav: NavItem[] = []
   const sectionEntries = Object.entries(SECTIONS).toSorted((a, b) => a[1].order - b[1].order)
   const standalonesSorted = standalonePages.toSorted((a, b) => a.order - b.order)
@@ -307,6 +309,12 @@ async function generateNav (): Promise<NavItem[]> {
     }
 
     nav.push(sectionItem)
+  }
+
+  // Add remaining standalone pages (after all sections)
+  if (standaloneIdx < standalonesSorted.length) {
+    if (nav.length > 0) nav.push({ divider: true })
+    nav.push(...standalonesSorted.slice(standaloneIdx).map(s => s.item))
   }
 
   // Add API section

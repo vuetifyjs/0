@@ -61,7 +61,7 @@
 <template>
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-top" />
   <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
-  <main class="min-h-screen pt-[72px] text-on-background" :class="{ 'dot-grid': settings.showDotGrid.value }">
+  <main class="min-h-screen text-on-background" :class="{ 'dot-grid': settings.showDotGrid.value }">
     <router-view />
   </main>
 

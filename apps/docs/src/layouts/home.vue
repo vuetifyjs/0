@@ -23,7 +23,7 @@
 </script>
 
 <template>
-  <div>
+  <div class="pt-[72px]">
     <AppBanner />
     <AppBar />
     <AppHomePage />
