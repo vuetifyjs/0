@@ -37,6 +37,10 @@
 
               <PlaygroundEditor />
             </PlaygroundWorkspaceRight>
+
+            <PlaygroundWorkspaceSide>
+              <PlaygroundEditorPreview />
+            </PlaygroundWorkspaceSide>
           </PlaygroundWorkspaceTop>
 
           <PlaygroundWorkspaceBottom>

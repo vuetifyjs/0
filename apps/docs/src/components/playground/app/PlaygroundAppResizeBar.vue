@@ -10,11 +10,13 @@
     storageKey,
     min = 100,
     max = 1000,
+    reverse = false,
   } = defineProps<{
     direction: 'horizontal' | 'vertical'
     min?: number
     max?: number
     storageKey?: string
+    reverse?: boolean
   }>()
 
   const isResizing = defineModel('resizing', { default: false })
@@ -63,7 +65,7 @@
         const delta = latestPos - startPosition.value
         modelValue.value = isVertical.value
           ? clamp(startSize.value + (delta / parentSize.value) * 100, min, max)
-          : clamp(startSize.value + delta, min, max)
+          : clamp(startSize.value + (reverse ? -delta : delta), min, max)
         rafId = 0
       })
     })

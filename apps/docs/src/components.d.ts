@@ -155,6 +155,7 @@ declare module 'vue' {
     PlaygroundWorkspaceBottom: typeof import('./components/playground/workspace/PlaygroundWorkspaceBottom.vue')['default']
     PlaygroundWorkspaceLeft: typeof import('./components/playground/workspace/PlaygroundWorkspaceLeft.vue')['default']
     PlaygroundWorkspaceRight: typeof import('./components/playground/workspace/PlaygroundWorkspaceRight.vue')['default']
+    PlaygroundWorkspaceSide: typeof import('./components/playground/workspace/PlaygroundWorkspaceSide.vue')['default']
     PlaygroundWorkspaceTop: typeof import('./components/playground/workspace/PlaygroundWorkspaceTop.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
