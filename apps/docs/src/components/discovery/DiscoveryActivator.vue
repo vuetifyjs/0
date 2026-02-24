@@ -29,7 +29,11 @@
   const activatorRef = useTemplateRef<HTMLElement>('activator')
 
   const steps = toArray(step)
-  const tickets = steps.map(id => discovery.activators.register({ id, element: activatorRef, padding }))
+  let tickets: ReturnType<typeof discovery.activators.register>[] = []
+
+  onMounted(() => {
+    tickets = steps.map(id => discovery.activators.register({ id, element: activatorRef, padding }))
+  })
 
   onBeforeUnmount(() => {
     for (const ticket of tickets) {
@@ -53,7 +57,7 @@
   // CSS anchor positioning: set anchor-name so Content can position relative to this
   // scroll-margin-bottom provides extra room when scrollIntoView with block: 'end'
   const style = toRef(() => ({
-    anchorName: tickets.map(t => `--discovery-${t.id}`).join(', '),
+    anchorName: steps.map(id => `--discovery-${id}`).join(', '),
     scrollMarginBottom: '100px',
   }))
 

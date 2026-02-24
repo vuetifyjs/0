@@ -3,7 +3,6 @@
   import { useTheme } from '@vuetify/v0'
 
   // Components
-  import { Discovery } from '@/components/discovery'
   import { usePlayground } from '@/components/playground/app/PlaygroundApp.vue'
 
   // Utilities
@@ -15,12 +14,7 @@
 </script>
 
 <template>
-  <Discovery.Activator
-    active-class="rounded-lg"
-    as="div"
-    class="flex-1 min-w-0 min-h-0"
-    step="preview"
-  >
+  <div class="flex-1 min-w-0 min-h-0">
     <Sandbox
       :auto-store-init="false"
       :clear-console="false"
@@ -28,5 +22,5 @@
       :store="store"
       :theme="theme.isDark.value ? 'dark' : 'light'"
     />
-  </Discovery.Activator>
+  </div>
 </template>
