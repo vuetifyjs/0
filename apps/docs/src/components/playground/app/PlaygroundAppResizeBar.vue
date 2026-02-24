@@ -81,7 +81,7 @@
 
 <template>
   <div
-    class="bg-divider relative hover:bg-primary transition-colors"
+    class="hidden md:block bg-divider relative hover:bg-primary transition-colors"
     :class="[
       !isResizing && (direction === 'horizontal' ? 'cursor-col-resize' : 'cursor-row-resize'),
       direction === 'horizontal' && 'w-[4px]',

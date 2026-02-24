@@ -15,9 +15,13 @@
   const modelValue = shallowRef(DEFAULT_HEIGHT)
 
   const hasBottom = toRef(() => playground.selectedIds.has('workspace-bottom'))
+  const hasContent = toRef(() =>
+    playground.selectedIds.has('workspace-right') ||
+    playground.selectedIds.has('preview-side'),
+  )
 
   const styles = toRef(() => ({
-    height: hasBottom.value ? `${modelValue.value}%` : '100%',
+    height: hasContent.value ? (hasBottom.value ? `${modelValue.value}%` : '100%') : '0',
   }))
 
   onUnmounted(() => {
@@ -39,7 +43,7 @@
     </div>
 
     <PlaygroundAppResizeBar
-      v-if="hasBottom"
+      v-if="hasBottom && hasContent"
       v-model="modelValue"
       direction="vertical"
       :max="80"

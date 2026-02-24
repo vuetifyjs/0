@@ -1,6 +1,6 @@
 <script setup lang="ts">
   // Framework
-  import { useStorage } from '@vuetify/v0'
+  import { useBreakpoints, useStorage } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
@@ -14,6 +14,7 @@
   const DEFAULT_MAX_WIDTH = 700
 
   const playground = usePlayground()
+  const breakpoints = useBreakpoints()
   const storage = useStorage()
   const side = storage.get('playground-preview-right', false)
   const left = storage.get('playground-left-open', true)
@@ -21,7 +22,7 @@
   const ticket = playground.register({ id: 'preview-side' })
 
   onMounted(() => {
-    if (side.value && !left.value) ticket.select()
+    if (breakpoints.width.value >= 768 && side.value && !left.value) ticket.select()
   })
 
   onUnmounted(() => {
