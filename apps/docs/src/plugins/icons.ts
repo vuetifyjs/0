@@ -190,6 +190,7 @@ export const [useIconContext, provideIconContext, context] = createTokensContext
     'level-beginner': mdiSignalCellular1,
     'level-intermediate': mdiSignalCellular2,
     'level-advanced': mdiSignalCellular3,
+    'eye': mdiEye,
     'renderless': mdiEyeOffOutline,
     'ssr': mdiServerNetwork,
     'vapor': mdiRocketLaunch,

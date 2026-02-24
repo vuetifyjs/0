@@ -14,7 +14,7 @@
 </script>
 
 <template>
-  <div class="flex-1 min-w-0 min-h-0">
+  <div class="relative flex-1 min-w-0 min-h-0">
     <Sandbox
       :auto-store-init="false"
       :clear-console="false"
@@ -24,3 +24,8 @@
     />
   </div>
 </template>
+
+<style>
+.toggler { display: none !important; }
+.iframe-container { position: absolute; inset: 0; }
+</style>
