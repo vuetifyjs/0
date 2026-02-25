@@ -3,18 +3,18 @@
   import { injectHead, useHead } from '@unhead/vue'
 
   // Framework
-  import { IN_BROWSER, useWindowEventListener } from '@vuetify/v0'
+  import { IN_BROWSER } from '@vuetify/v0'
 
   // Components
+  import AppMeshBg from '@/components/app/AppMeshBg.vue'
   import DocsHighlight from '@/components/docs/DocsHighlight.vue'
 
   // Composables
   import { useScrollPersist } from './composables/useScrollPersist'
   import { useSettings } from './composables/useSettings'
-  import { useThemeToggle } from './composables/useThemeToggle'
 
   // Utilities
-  import { shallowRef, toRef, watch } from 'vue'
+  import { watch } from 'vue'
   import { useRoute } from 'vue-router'
 
   useScrollPersist()
@@ -27,15 +27,6 @@
     if (to === from) return
     window.scrollTo({ top: 0, behavior: settings.prefersReducedMotion.value ? 'auto' : 'smooth' })
   })
-
-  const toggle = useThemeToggle()
-  const showMesh = toRef(() => toggle.preference.value !== 'high-contrast')
-  const showBottomMesh = shallowRef(false)
-
-  useWindowEventListener('scroll', () => {
-    if (!IN_BROWSER) return
-    showBottomMesh.value = settings.showMeshTransition.value && window.scrollY > 200
-  }, { passive: true })
 
   const head = injectHead()
   head.use(InferSeoMetaPlugin())
@@ -59,16 +50,14 @@
 </script>
 
 <template>
-  <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-top" />
-  <div v-if="showMesh" aria-hidden="true" class="mesh-bg mesh-bg-bottom" :class="{ visible: showBottomMesh }" />
+  <AppMeshBg />
+
   <main class="min-h-screen text-on-background" :class="{ 'dot-grid': settings.showDotGrid.value }">
     <router-view />
   </main>
 
-  <!-- API hover popovers for code blocks (v0 and Vue APIs) -->
   <DocsApiHover />
 
-  <!-- Discovery overlay -->
   <DocsHighlight />
 </template>
 
@@ -89,37 +78,6 @@
   /* Firefox */
   * {
     scrollbar-color: var(--v0-scrollbar-thumb) var(--v0-background);
-  }
-
-  .mesh-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .mesh-bg-top {
-    background:
-      radial-gradient(at 40% 20%, color-mix(in srgb, var(--v0-primary) 40%, transparent) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, color-mix(in srgb, var(--v0-info) 35%, transparent) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, color-mix(in srgb, var(--v0-error) 25%, transparent) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, color-mix(in srgb, var(--v0-success) 30%, transparent) 0px, transparent 50%),
-      radial-gradient(at 20% 80%, color-mix(in srgb, var(--v0-warning) 20%, transparent) 0px, transparent 50%);
-  }
-
-  .mesh-bg-bottom {
-    opacity: 0;
-    transition: opacity 0.5s ease-out;
-    background:
-      radial-gradient(at 60% 80%, color-mix(in srgb, var(--v0-primary) 40%, transparent) 0px, transparent 50%),
-      radial-gradient(at 20% 100%, color-mix(in srgb, var(--v0-info) 35%, transparent) 0px, transparent 50%),
-      radial-gradient(at 100% 50%, color-mix(in srgb, var(--v0-error) 25%, transparent) 0px, transparent 50%),
-      radial-gradient(at 20% 50%, color-mix(in srgb, var(--v0-success) 30%, transparent) 0px, transparent 50%),
-      radial-gradient(at 80% 20%, color-mix(in srgb, var(--v0-warning) 20%, transparent) 0px, transparent 50%);
-
-    &.visible {
-      opacity: 1;
-    }
   }
 
   #app > main {
