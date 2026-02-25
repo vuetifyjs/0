@@ -1,6 +1,9 @@
+import posthog from 'posthog-js'
+
 // Framework
 import { createBreakpointsPlugin, createDatePlugin, createFeaturesPlugin, createHydrationPlugin, createLocalePlugin, createLoggerPlugin, createPermissionsPlugin, createStackPlugin, createStoragePlugin, createThemePlugin, IN_BROWSER, useStorage } from '@vuetify/v0'
 import { Vuetify0DateAdapter } from '@vuetify/v0/date'
+import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
 
 // Composables
 import { createDiscoveryPlugin } from '@/composables/useDiscovery'
@@ -22,8 +25,11 @@ export default function zero (app: App) {
   app.use(createStoragePlugin())
   app.use(createStackPlugin())
   app.use(createDiscoveryPlugin())
+
+  posthog.init('phc_NNCtIDpiEgt5TsyxTItPnU9dA14asv6OR6IziSLQa97', { api_host: 'https://app.posthog.com' })
   app.use(
     createFeaturesPlugin({
+      adapter: new PostHogFeatureAdapter(posthog),
       features: {
         devmode: {
           $value: IN_BROWSER ? localStorage.getItem('v0:devmode') === 'true' : false,
