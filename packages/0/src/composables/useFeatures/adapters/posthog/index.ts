@@ -5,6 +5,9 @@
  * PostHog adapter for feature flags.
  */
 
+// Utilities
+import { IN_BROWSER } from '#v0/constants/globals'
+
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { PostHog } from 'posthog-js'
@@ -13,6 +16,8 @@ export class PostHogFeatureAdapter implements FeaturesAdapterInterface {
   constructor (private client: PostHog) {}
 
   setup (onUpdate: (flags: FeaturesAdapterFlags) => void): FeaturesAdapterFlags {
+    if (!IN_BROWSER) return {}
+
     const updateFlags = () => {
       const flags: FeaturesAdapterFlags = {}
       const activeFlags = this.client.featureFlags.getFlags()

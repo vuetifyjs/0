@@ -31,7 +31,7 @@ export default function zero (app: App) {
   }
   app.use(
     createFeaturesPlugin({
-      adapter: IN_BROWSER ? new PostHogFeatureAdapter(posthog) : undefined,
+      adapter: new PostHogFeatureAdapter(posthog),
       features: {
         devmode: {
           $value: IN_BROWSER ? localStorage.getItem('v0:devmode') === 'true' : false,
