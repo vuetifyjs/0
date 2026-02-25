@@ -87,7 +87,7 @@ Optionally register features at runtime:
 
 ### Built-in Adapters
 
-Vuetify0 includes adapters for popular feature flag services. All adapters are imported from the `@vuetify/v0/features` subpath.
+Vuetify0 includes adapters for popular feature flag services. Each adapter is imported from its own nested subpath under `@vuetify/v0/features/adapters/`.
 
 #### Flagsmith
 
@@ -95,7 +95,7 @@ Requires `flagsmith` package.
 
 ```ts
 import flagsmith from 'flagsmith'
-import { FlagsmithFeatureAdapter } from '@vuetify/v0/features'
+import { FlagsmithFeatureAdapter } from '@vuetify/v0/features/adapters/flagsmith'
 
 app.use(createFeaturesPlugin({
   adapter: new FlagsmithFeatureAdapter(flagsmith, {
@@ -111,7 +111,7 @@ Requires `launchdarkly-js-client-sdk` package.
 
 ```ts
 import * as LDClient from 'launchdarkly-js-client-sdk'
-import { LaunchDarklyFeatureAdapter } from '@vuetify/v0/features'
+import { LaunchDarklyFeatureAdapter } from '@vuetify/v0/features/adapters/launchdarkly'
 
 const client = LDClient.initialize('<YOUR_CLIENT_SIDE_ID>', { key: 'user-key' })
 
@@ -128,7 +128,7 @@ Requires `posthog-js` package.
 
 ```ts
 import posthog from 'posthog-js'
-import { PostHogFeatureAdapter } from '@vuetify/v0/features'
+import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
 
 posthog.init('<YOUR_PROJECT_API_KEY>', { api_host: 'https://app.posthog.com' })
 
@@ -142,7 +142,8 @@ app.use(createFeaturesPlugin({
 You can combine flags from multiple sources by passing an array of adapters. They are initialized in order, and flags are merged (last one wins for conflicting keys).
 
 ```ts
-import { FlagsmithFeatureAdapter, PostHogFeatureAdapter } from '@vuetify/v0/features'
+import { FlagsmithFeatureAdapter } from '@vuetify/v0/features/adapters/flagsmith'
+import { PostHogFeatureAdapter } from '@vuetify/v0/features/adapters/posthog'
 
 app.use(createFeaturesPlugin({
   adapter: [

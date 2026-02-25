@@ -84,7 +84,7 @@ graph LR
 
 ```ts
 import { createDataTable } from '@vuetify/v0'
-import { ClientAdapter } from '@vuetify/v0/data-table'
+import { ClientAdapter } from '@vuetify/v0/data-table/adapters/client'
 
 const table = createDataTable({
   items: users,
@@ -118,7 +118,7 @@ graph LR
 
 ```ts
 import { createDataTable } from '@vuetify/v0'
-import { ServerAdapter } from '@vuetify/v0/data-table'
+import { ServerAdapter } from '@vuetify/v0/data-table/adapters/server'
 
 const table = createDataTable({
   items: serverItems,
@@ -153,7 +153,7 @@ graph LR
 
 ```ts
 import { createDataTable, createVirtual } from '@vuetify/v0'
-import { VirtualAdapter } from '@vuetify/v0/data-table'
+import { VirtualAdapter } from '@vuetify/v0/data-table/adapters/virtual'
 
 const table = createDataTable({
   items: largeDataset,
