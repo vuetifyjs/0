@@ -49,6 +49,7 @@
     "mermaid": "catalog:",
     "minisearch": "catalog:",
     "pinia": "catalog:",
+    "posthog-js": "catalog:",
     "svg-pan-zoom": "catalog:",
     "swetrix": "catalog:",
     "vue": "catalog:"

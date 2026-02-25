@@ -32,6 +32,7 @@ declare module 'vue' {
     AppLink: typeof import('./components/app/AppLink.vue')['default']
     AppLoaderIcon: typeof import('./components/app/AppLoaderIcon.vue')['default']
     AppMain: typeof import('./components/app/AppMain.vue')['default']
+    AppMeshBg: typeof import('./components/app/AppMeshBg.vue')['default']
     AppNav: typeof import('./components/app/AppNav.vue')['default']
     AppNavLink: typeof import('./components/app/AppNavLink.vue')['default']
     AppSearchInline: typeof import('./components/app/AppSearchInline.vue')['default']
