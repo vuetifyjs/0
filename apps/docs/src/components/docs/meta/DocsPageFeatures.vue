@@ -290,8 +290,8 @@
         <DocsActionChip
           :color="copyError ? 'text-error' : clipboard.copied.value ? 'text-success' : 'text-on-surface'"
           :icon="loading ? 'loading' : copyError ? 'alert' : clipboard.copied.value ? 'success' : 'markdown'"
-          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : clipboard.copied.value ? 'Copied' : 'Copy Page as Markdown'"
-          title="Copy Page as Markdown"
+          :text="loading ? 'Copying...' : copyError ? 'Failed to copy' : clipboard.copied.value ? 'Copied' : 'Copy Markdown'"
+          title="Copy Markdown"
           @click="onClickCopy"
         />
       </div>
