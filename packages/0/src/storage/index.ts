@@ -2,13 +2,14 @@
  * @module storage
  *
  * @remarks
- * Storage adapters for useStorage.
- * Import from `@vuetify/v0/storage` to use.
+ * Storage composable for @vuetify/v0.
+ * Import adapters from `@vuetify/v0/storage/adapters`.
  *
  * @example
  * ```ts
- * import { MemoryAdapter } from '@vuetify/v0/storage'
+ * import { createStoragePlugin, useStorage } from '@vuetify/v0/storage'
+ * import { MemoryAdapter } from '@vuetify/v0/storage/adapters'
  * ```
  */
 
-export * from '#v0/composables/useStorage/adapters'
+export * from '#v0/composables/useStorage'
