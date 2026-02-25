@@ -2,13 +2,14 @@
  * @module permissions
  *
  * @remarks
- * Permission adapters for usePermissions.
- * Import from `@vuetify/v0/permissions` to use.
+ * Permissions composable for @vuetify/v0.
+ * Import adapters from `@vuetify/v0/permissions/adapters`.
  *
  * @example
  * ```ts
- * import { Vuetify0PermissionAdapter } from '@vuetify/v0/permissions'
+ * import { createPermissionsPlugin, usePermissions } from '@vuetify/v0/permissions'
+ * import { Vuetify0PermissionAdapter } from '@vuetify/v0/permissions/adapters'
  * ```
  */
 
-export * from '#v0/composables/usePermissions/adapters'
+export * from '#v0/composables/usePermissions'

@@ -2,13 +2,14 @@
  * @module theme
  *
  * @remarks
- * Theme adapters for useTheme.
- * Import from `@vuetify/v0/theme` to use.
+ * Theme composable for @vuetify/v0.
+ * Import adapters from `@vuetify/v0/theme/adapters`.
  *
  * @example
  * ```ts
- * import { Vuetify0ThemeAdapter } from '@vuetify/v0/theme'
+ * import { createThemePlugin, useTheme } from '@vuetify/v0/theme'
+ * import { Vuetify0ThemeAdapter } from '@vuetify/v0/theme/adapters'
  * ```
  */
 
-export * from '#v0/composables/useTheme/adapters'
+export * from '#v0/composables/useTheme'

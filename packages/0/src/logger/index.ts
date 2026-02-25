@@ -2,13 +2,14 @@
  * @module logger
  *
  * @remarks
- * Logger adapters for useLogger.
- * Import from `@vuetify/v0/logger` to use.
+ * Logger composable for @vuetify/v0.
+ * Import adapters from `@vuetify/v0/logger/adapters`.
  *
  * @example
  * ```ts
- * import { ConsolaLoggerAdapter } from '@vuetify/v0/logger'
+ * import { createLoggerPlugin, useLogger } from '@vuetify/v0/logger'
+ * import { ConsolaLoggerAdapter } from '@vuetify/v0/logger/adapters'
  * ```
  */
 
-export * from '#v0/composables/useLogger/adapters'
+export * from '#v0/composables/useLogger'

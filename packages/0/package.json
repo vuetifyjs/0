@@ -30,6 +30,32 @@
       "./date": "./dist/date/index.mjs",
       "./types": "./dist/types/index.mjs",
       "./utilities": "./dist/utilities/index.mjs",
+      "./data-table": "./dist/data-table/index.mjs",
+      "./features": "./dist/features/index.mjs",
+      "./features/adapters/posthog": "./dist/features/adapters/posthog/index.mjs",
+      "./features/adapters/flagsmith": "./dist/features/adapters/flagsmith/index.mjs",
+      "./features/adapters/launchdarkly": "./dist/features/adapters/launchdarkly/index.mjs",
+      "./locale": "./dist/locale/index.mjs",
+      "./locale/adapters": "./dist/locale/adapters/index.mjs",
+      "./locale/adapters/v0": "./dist/locale/adapters/v0/index.mjs",
+      "./logger": "./dist/logger/index.mjs",
+      "./logger/adapters": "./dist/logger/adapters/index.mjs",
+      "./logger/adapters/consola": "./dist/logger/adapters/consola/index.mjs",
+      "./logger/adapters/pino": "./dist/logger/adapters/pino/index.mjs",
+      "./logger/adapters/v0": "./dist/logger/adapters/v0/index.mjs",
+      "./permissions": "./dist/permissions/index.mjs",
+      "./permissions/adapters": "./dist/permissions/adapters/index.mjs",
+      "./permissions/adapters/v0": "./dist/permissions/adapters/v0/index.mjs",
+      "./storage": "./dist/storage/index.mjs",
+      "./storage/adapters": "./dist/storage/adapters/index.mjs",
+      "./storage/adapters/memory": "./dist/storage/adapters/memory/index.mjs",
+      "./theme": "./dist/theme/index.mjs",
+      "./theme/adapters": "./dist/theme/adapters/index.mjs",
+      "./theme/adapters/v0": "./dist/theme/adapters/v0/index.mjs",
+      "./data-table/adapters": "./dist/data-table/adapters/index.mjs",
+      "./data-table/adapters/client": "./dist/data-table/adapters/client/index.mjs",
+      "./data-table/adapters/server": "./dist/data-table/adapters/server/index.mjs",
+      "./data-table/adapters/virtual": "./dist/data-table/adapters/virtual/index.mjs",
       "./package.json": "./package.json",
       "./browser": "./dist/browser/index.js"
     }
@@ -101,25 +127,101 @@
       "development": "./src/features/index.ts",
       "default": "./dist/features/index.mjs"
     },
+    "./features/adapters/posthog": {
+      "development": "./src/features/adapters/posthog/index.ts",
+      "default": "./dist/features/adapters/posthog/index.mjs"
+    },
+    "./features/adapters/flagsmith": {
+      "development": "./src/features/adapters/flagsmith/index.ts",
+      "default": "./dist/features/adapters/flagsmith/index.mjs"
+    },
+    "./features/adapters/launchdarkly": {
+      "development": "./src/features/adapters/launchdarkly/index.ts",
+      "default": "./dist/features/adapters/launchdarkly/index.mjs"
+    },
     "./locale": {
       "development": "./src/locale/index.ts",
       "default": "./dist/locale/index.mjs"
+    },
+    "./locale/adapters": {
+      "development": "./src/locale/adapters/index.ts",
+      "default": "./dist/locale/adapters/index.mjs"
+    },
+    "./locale/adapters/v0": {
+      "development": "./src/locale/adapters/v0/index.ts",
+      "default": "./dist/locale/adapters/v0/index.mjs"
     },
     "./logger": {
       "development": "./src/logger/index.ts",
       "default": "./dist/logger/index.mjs"
     },
+    "./logger/adapters": {
+      "development": "./src/logger/adapters/index.ts",
+      "default": "./dist/logger/adapters/index.mjs"
+    },
+    "./logger/adapters/consola": {
+      "development": "./src/logger/adapters/consola/index.ts",
+      "default": "./dist/logger/adapters/consola/index.mjs"
+    },
+    "./logger/adapters/pino": {
+      "development": "./src/logger/adapters/pino/index.ts",
+      "default": "./dist/logger/adapters/pino/index.mjs"
+    },
+    "./logger/adapters/v0": {
+      "development": "./src/logger/adapters/v0/index.ts",
+      "default": "./dist/logger/adapters/v0/index.mjs"
+    },
     "./permissions": {
       "development": "./src/permissions/index.ts",
       "default": "./dist/permissions/index.mjs"
+    },
+    "./permissions/adapters": {
+      "development": "./src/permissions/adapters/index.ts",
+      "default": "./dist/permissions/adapters/index.mjs"
+    },
+    "./permissions/adapters/v0": {
+      "development": "./src/permissions/adapters/v0/index.ts",
+      "default": "./dist/permissions/adapters/v0/index.mjs"
     },
     "./storage": {
       "development": "./src/storage/index.ts",
       "default": "./dist/storage/index.mjs"
     },
+    "./storage/adapters": {
+      "development": "./src/storage/adapters/index.ts",
+      "default": "./dist/storage/adapters/index.mjs"
+    },
+    "./storage/adapters/memory": {
+      "development": "./src/storage/adapters/memory/index.ts",
+      "default": "./dist/storage/adapters/memory/index.mjs"
+    },
     "./theme": {
       "development": "./src/theme/index.ts",
       "default": "./dist/theme/index.mjs"
+    },
+    "./theme/adapters": {
+      "development": "./src/theme/adapters/index.ts",
+      "default": "./dist/theme/adapters/index.mjs"
+    },
+    "./theme/adapters/v0": {
+      "development": "./src/theme/adapters/v0/index.ts",
+      "default": "./dist/theme/adapters/v0/index.mjs"
+    },
+    "./data-table/adapters": {
+      "development": "./src/data-table/adapters/index.ts",
+      "default": "./dist/data-table/adapters/index.mjs"
+    },
+    "./data-table/adapters/client": {
+      "development": "./src/data-table/adapters/client/index.ts",
+      "default": "./dist/data-table/adapters/client/index.mjs"
+    },
+    "./data-table/adapters/server": {
+      "development": "./src/data-table/adapters/server/index.ts",
+      "default": "./dist/data-table/adapters/server/index.mjs"
+    },
+    "./data-table/adapters/virtual": {
+      "development": "./src/data-table/adapters/virtual/index.ts",
+      "default": "./dist/data-table/adapters/virtual/index.mjs"
     },
     "./browser": {
       "development": "./src/index.ts",

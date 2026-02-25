@@ -2,13 +2,14 @@
  * @module data-table
  *
  * @remarks
- * Data table adapters for createDataTable.
- * Import from `@vuetify/v0/data-table` to use.
+ * Data table composable for @vuetify/v0.
+ * Import adapters from `@vuetify/v0/data-table/adapters`.
  *
  * @example
  * ```ts
- * import { ClientAdapter, ServerAdapter, VirtualAdapter } from '@vuetify/v0/data-table'
+ * import { createDataTable, useDataTable } from '@vuetify/v0/data-table'
+ * import { ClientAdapter, ServerAdapter, VirtualAdapter } from '@vuetify/v0/data-table/adapters'
  * ```
  */
 
-export * from '#v0/composables/createDataTable/adapters'
+export * from '#v0/composables/createDataTable'
