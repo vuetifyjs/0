@@ -93,6 +93,34 @@
       "default": "./dist/utilities/index.mjs"
     },
     "./package.json": "./package.json",
+    "./data-table": {
+      "development": "./src/data-table/index.ts",
+      "default": "./dist/data-table/index.mjs"
+    },
+    "./features": {
+      "development": "./src/features/index.ts",
+      "default": "./dist/features/index.mjs"
+    },
+    "./locale": {
+      "development": "./src/locale/index.ts",
+      "default": "./dist/locale/index.mjs"
+    },
+    "./logger": {
+      "development": "./src/logger/index.ts",
+      "default": "./dist/logger/index.mjs"
+    },
+    "./permissions": {
+      "development": "./src/permissions/index.ts",
+      "default": "./dist/permissions/index.mjs"
+    },
+    "./storage": {
+      "development": "./src/storage/index.ts",
+      "default": "./dist/storage/index.mjs"
+    },
+    "./theme": {
+      "development": "./src/theme/index.ts",
+      "default": "./dist/theme/index.mjs"
+    },
     "./browser": {
       "development": "./src/index.ts",
       "default": "./dist/browser/index.js"
