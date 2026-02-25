@@ -25,7 +25,7 @@
     playground.toggle('playground-left')
     left.value = playground.selected('playground-left')
 
-    if (side.value && breakpoints.width.value >= 768) {
+    if (side.value && !breakpoints.isMobile.value) {
       playground.toggle('preview-side')
       playground.toggle('workspace-bottom')
     }
@@ -40,7 +40,7 @@
   function onView () {
     if (playground.selected('workspace-right')) {
       playground.toggle('workspace-right')
-      const preview = side.value && !playground.selected('playground-left') && breakpoints.width.value >= 768 ? 'preview-side' : 'workspace-bottom'
+      const preview = side.value && !playground.selected('playground-left') && !breakpoints.isMobile.value ? 'preview-side' : 'workspace-bottom'
       if (!playground.selected(preview)) playground.toggle(preview)
     } else {
       playground.toggle('workspace-right')
