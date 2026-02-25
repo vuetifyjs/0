@@ -96,8 +96,7 @@
     "./browser": {
       "development": "./src/index.ts",
       "default": "./dist/browser/index.js"
-    },
-    "./SKILL.md": "./SKILL.md"
+    }
   },
   "optionalDependencies": {
     "@js-temporal/polyfill": "catalog:"
