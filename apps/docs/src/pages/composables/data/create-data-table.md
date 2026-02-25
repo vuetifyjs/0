@@ -83,7 +83,8 @@ graph LR
 - No `loading` or `error` state (synchronous pipeline)
 
 ```ts
-import { createDataTable, ClientAdapter } from '@vuetify/v0'
+import { createDataTable } from '@vuetify/v0'
+import { ClientAdapter } from '@vuetify/v0/data-table'
 
 const table = createDataTable({
   items: users,
@@ -116,7 +117,8 @@ graph LR
 - Exposes `loading` and `error` via `table.loading` and `table.error`
 
 ```ts
-import { createDataTable, ServerAdapter } from '@vuetify/v0'
+import { createDataTable } from '@vuetify/v0'
+import { ServerAdapter } from '@vuetify/v0/data-table'
 
 const table = createDataTable({
   items: serverItems,
@@ -150,7 +152,8 @@ graph LR
 - No `loading` or `error` state
 
 ```ts
-import { createDataTable, VirtualAdapter, createVirtual } from '@vuetify/v0'
+import { createDataTable, createVirtual } from '@vuetify/v0'
+import { VirtualAdapter } from '@vuetify/v0/data-table'
 
 const table = createDataTable({
   items: largeDataset,

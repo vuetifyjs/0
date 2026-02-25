@@ -5,8 +5,6 @@
  * Flagsmith adapter for feature flags.
  */
 
-import flagsmith from 'flagsmith'
-
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from '../generic'
 import type { IFlagsmith, IInitConfig, IFlags, LoadingState, IRetrieveInfo } from 'flagsmith'
@@ -15,7 +13,7 @@ export class FlagsmithFeatureAdapter implements FeaturesAdapterInterface {
   private client: IFlagsmith
   private options: IInitConfig
 
-  constructor (client: IFlagsmith = flagsmith, options: IInitConfig) {
+  constructor (client: IFlagsmith, options: IInitConfig) {
     this.client = client
     this.options = options
   }
