@@ -77,13 +77,6 @@ const theme = createThemePlugin({
 const app = createApp(App)
 app.use(theme)
 app.mount('#app')
-
-// Reveal after UnoCSS runtime processes initial styles
-requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    document.getElementById('app')!.style.opacity = '1'
-  })
-})
 `
 }
 
