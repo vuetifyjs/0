@@ -1,12 +1,12 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useClickOutside, useStack, useStorage } from '@vuetify/v0'
+  import { useBreakpoints, useStack, useStorage } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from './PlaygroundApp.vue'
 
   // Utilities
-  import { onMounted, onUnmounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { onMounted, onUnmounted, shallowRef, toRef, watch } from 'vue'
 
   const DEFAULT_WIDTH = 400
   const DEFAULT_MIN_WIDTH = DEFAULT_WIDTH
@@ -47,11 +47,6 @@
     else stackTicket.unselect()
   }, { immediate: true })
 
-  const panelRef = useTemplateRef<HTMLElement>('panel')
-
-  useClickOutside(panelRef, () => {
-    if (ticket.isSelected.value && isMobile.value) playground.toggle('playground-left')
-  }, { ignore: ['[data-playground-bar]'] })
 </script>
 
 <template>
@@ -59,7 +54,6 @@
   <template v-if="!isMobile">
     <template v-if="ticket.isSelected.value">
       <div
-        ref="panel"
         class="bg-glass-surface h-full flex flex-col"
         :style="styles"
       >
@@ -81,8 +75,7 @@
   <!-- Mobile: always mounted fixed drawer -->
   <template v-else>
     <div
-      ref="panel"
-      class="fixed top-[48px] bottom-0 left-0 right-0 bg-surface border-r border-divider flex flex-col transition-transform duration-200"
+      class="fixed inset-0 bg-surface border-r border-divider flex flex-col transition-transform duration-200"
       :class="ticket.isSelected.value ? 'translate-x-0' : '-translate-x-full'"
       :inert="ticket.isSelected.value ? undefined : true"
       :style="{ zIndex: stackTicket.zIndex.value }"

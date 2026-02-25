@@ -1,12 +1,12 @@
 <script setup lang="ts">
   // Framework
-  import { useBreakpoints, useClickOutside, useStack } from '@vuetify/v0'
+  import { useBreakpoints, useStack } from '@vuetify/v0'
 
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
   // Utilities
-  import { onMounted, onUnmounted, shallowRef, toRef, useTemplateRef, watch } from 'vue'
+  import { onMounted, onUnmounted, shallowRef, toRef, watch } from 'vue'
 
   const DEFAULT_WIDTH = 300
   const DEFAULT_MIN_WIDTH = 200
@@ -45,11 +45,6 @@
     else stackTicket.unselect()
   }, { immediate: true })
 
-  const panelRef = useTemplateRef<HTMLElement>('panel')
-
-  useClickOutside(panelRef, () => {
-    if (ticket.isSelected.value && isMobile.value) playground.toggle('workspace-left')
-  }, { ignore: ['[data-playground-bar]'] })
 </script>
 
 <template>
@@ -57,7 +52,6 @@
   <template v-if="!isMobile">
     <template v-if="ticket.isSelected.value">
       <div
-        ref="panel"
         :style="styles"
       >
         <slot />
@@ -79,12 +73,20 @@
   <!-- Mobile: always mounted fixed drawer -->
   <template v-else>
     <div
-      ref="panel"
-      class="fixed top-[48px] bottom-0 left-0 w-[280px] bg-surface border-r border-divider flex flex-col transition-transform duration-200"
+      class="fixed top-0 bottom-0 left-0 w-[280px] bg-surface border-r border-divider flex flex-col transition-transform duration-200"
       :class="ticket.isSelected.value ? 'translate-x-0' : '-translate-x-full'"
       :inert="ticket.isSelected.value ? undefined : true"
       :style="{ zIndex: stackTicket.zIndex.value }"
     >
+      <header class="shrink-0 px-4 py-3 border-b border-divider flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <AppIcon aria-hidden="true" icon="folder" />
+          <span class="font-medium">Tree</span>
+        </div>
+
+        <AppCloseButton label="Close file tree" @click="playground.toggle('workspace-left')" />
+      </header>
+
       <slot />
     </div>
   </template>
