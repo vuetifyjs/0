@@ -260,9 +260,14 @@ export function createForm<
     return ticket
   }
 
+  function onboard (registrations: Partial<Z>[]): E[] {
+    return registry.batch(() => registrations.map(r => register(r)))
+  }
+
   return {
     ...registry,
     register,
+    onboard,
     reset,
     submit,
     validateOn,
