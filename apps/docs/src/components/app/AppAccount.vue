@@ -66,18 +66,24 @@
       class="m-auto rounded-xl bg-surface border border-divider max-w-sm w-full p-0 shadow-xl"
     >
       <div class="p-6">
-        <div class="flex items-center justify-between mb-2">
-          <Dialog.Title class="text-lg font-semibold text-on-surface">
-            Sign in
-          </Dialog.Title>
-
+        <div class="flex justify-end mb-4">
           <Dialog.Close class="pa-1 cursor-pointer bg-transparent border-0 inline-flex items-center justify-center rounded hover:bg-surface-variant transition-colors text-on-surface-variant">
             <AppIcon icon="close" :size="16" />
           </Dialog.Close>
         </div>
 
-        <Dialog.Description class="text-sm text-on-surface-variant mb-6">
-          Sign in with your preferred provider to access your account.
+        <img
+          alt="Vuetify One"
+          class="mb-4 h-24 w-auto mx-auto block"
+          src="https://cdn.vuetifyjs.com/docs/images/one/logos/vone.svg"
+        >
+
+        <Dialog.Title class="text-lg font-semibold text-on-surface text-center mb-1">
+          Sign in to Vuetify One
+        </Dialog.Title>
+
+        <Dialog.Description class="text-sm text-on-surface-variant mb-6 text-center px-9">
+          Access premium tools across the Vuetify ecosystem — Bin, Play, Studio, and more.
         </Dialog.Description>
 
         <div class="flex flex-col gap-2">
@@ -94,6 +100,16 @@
             <span>Continue with {{ p.name }}</span>
           </button>
         </div>
+
+        <p class="mt-6 text-xs text-on-surface-variant text-center">
+          Not a subscriber?
+          <a
+            class="text-primary underline underline-offset-2 hover:opacity-80"
+            href="https://vuetifyjs.com/one"
+            rel="noopener noreferrer"
+            target="_blank"
+          >See what's included</a>
+        </p>
       </div>
     </Dialog.Content>
   </Dialog.Root>
