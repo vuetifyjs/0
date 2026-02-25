@@ -18,7 +18,7 @@ export default function zero (app: App) {
   app.use(createIconPlugin())
   app.use(createLoggerPlugin())
   app.use(createHydrationPlugin())
-  app.use(createBreakpointsPlugin())
+  app.use(createBreakpointsPlugin({ mobileBreakpoint: 768 }))
   app.use(createStoragePlugin())
   app.use(createStackPlugin())
   app.use(createDiscoveryPlugin())

@@ -17,7 +17,7 @@
 
   const ticket = playground.register({ id: 'workspace-left' })
 
-  const isMobile = toRef(() => breakpoints.width.value < 768)
+  const isMobile = breakpoints.isMobile
 
   onMounted(() => {
     if (!isMobile.value) ticket.select()

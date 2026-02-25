@@ -22,7 +22,7 @@
   const ticket = playground.register({ id: 'preview-side' })
 
   onMounted(() => {
-    if (breakpoints.width.value >= 768 && side.value && !left.value) ticket.select()
+    if (!breakpoints.isMobile.value && side.value && !left.value) ticket.select()
   })
 
   onUnmounted(() => {

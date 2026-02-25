@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  // Framework
+  import { useBreakpoints } from '@vuetify/v0'
+
   // Components
   import { usePlayground } from '../app/PlaygroundApp.vue'
 
@@ -6,9 +9,12 @@
   import { onMounted, onUnmounted } from 'vue'
 
   const playground = usePlayground()
+  const breakpoints = useBreakpoints()
   const ticket = playground.register({ id: 'workspace-right' })
 
-  onMounted(() => ticket.select())
+  onMounted(() => {
+    if (!breakpoints.isMobile.value) ticket.select()
+  })
 
   onUnmounted(() => {
     playground.unregister(ticket.id)
