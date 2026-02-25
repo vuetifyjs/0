@@ -23,7 +23,7 @@ catalog:
   '@vue/repl': ^4.7.1
   '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.8.1
-  '@vuetify/auth': 0.1.6
+  '@vuetify/auth': 0.1.8
   '@vuetify/github-releaser': ^4.0.3
   bumpp: ^10.3.2
   conventional-changelog-vuetify: ^2.0.2
