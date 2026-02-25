@@ -26,7 +26,9 @@ export default function zero (app: App) {
   app.use(createStackPlugin())
   app.use(createDiscoveryPlugin())
 
-  posthog.init('phc_NNCtIDpiEgt5TsyxTItPnU9dA14asv6OR6IziSLQa97', { api_host: 'https://app.posthog.com' })
+  if (IN_BROWSER) {
+    posthog.init('phc_NNCtIDpiEgt5TsyxTItPnU9dA14asv6OR6IziSLQa97', { api_host: 'https://app.posthog.com' })
+  }
   app.use(
     createFeaturesPlugin({
       adapter: new PostHogFeatureAdapter(posthog),
