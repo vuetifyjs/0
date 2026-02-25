@@ -41,7 +41,7 @@
     "release:patch": "bumpp patch -r",
     "release:minor": "bumpp minor -r",
     "release:major": "bumpp major -r",
-    "postinstall": "tsx apps/docs/build/generate-api-whitelist.ts",
+    "postinstall": "tsx apps/docs/build/generate-api-whitelist.ts && node scripts/init-playground.js",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
