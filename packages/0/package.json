@@ -89,6 +89,12 @@
     "vue": "catalog:",
     "vue-component-meta": "catalog:"
   },
+  "imports": {
+    "#v0/*": {
+      "development": "./src/*",
+      "default": "./dist/*"
+    }
+  },
   "exports": {
     ".": {
       "development": "./src/index.ts",
