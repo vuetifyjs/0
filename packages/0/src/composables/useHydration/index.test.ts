@@ -255,9 +255,8 @@ describe('useHydration SSR', () => {
   })
 
   it('useHydration should return fallback when no Vue instance exists', async () => {
-    vi.doMock('#v0/utilities', () => ({
+    vi.doMock('#v0/utilities/instance', () => ({
       instanceExists: () => false,
-      isNull: (v: unknown) => v === null,
     }))
 
     const { useHydration: useHydrationSSR } = await import('./index')

@@ -15,9 +15,7 @@
  */
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { createSingle } from '#v0/composables/createSingle'
@@ -27,7 +25,7 @@ import { createTokens } from '#v0/composables/createTokens'
 import { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters/v0'
 
 // Utilities
-import { instanceExists, isString } from '#v0/utilities'
+import { isString } from '#v0/utilities'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
@@ -35,10 +33,8 @@ import { toArray } from '#v0/composables/toArray'
 // Types
 import type { SingleContext, SingleOptions, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { TokenCollection } from '#v0/composables/createTokens'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { LocaleAdapter } from './adapters'
-import type { App } from 'vue'
 
 // Exports
 export { Vuetify0LocaleAdapter } from '#v0/composables/useLocale/adapters'
@@ -201,99 +197,9 @@ export function createLocaleFallback<
   } as unknown as R
 }
 
-/**
- * Creates a new locale context.
- *
- * @param options The options for the locale context.
- * @template Z The type of the locale ticket.
- * @template E The type of the locale context.
- * @returns A new locale context.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-locale
- *
- * @example
- * ```ts
- * import { createLocaleContext } from '@vuetify/v0'
- *
- * export const [useAppLocale, provideAppLocale, appLocale] = createLocaleContext({
- *   namespace: 'app:locale',
- *   messages: {
- *     en: { hello: 'Hello' },
- *     es: { hello: 'Hola' },
- *   },
- * })
- *
- * // In a parent component:
- * provideAppLocale()
- *
- * // In a child component:
- * const locale = useAppLocale()
- * locale.select('es')
- * ```
- */
-export function createLocaleContext<
-  Z extends LocaleTicketInput = LocaleTicketInput,
-  E extends LocaleTicket<Z> = LocaleTicket<Z>,
-  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
-> (_options: LocaleContextOptions = {}): ContextTrinity<R> {
-  const { namespace = 'v0:locale', ...options } = _options
-  const [useLocaleContext, _provideLocaleContext] = createContext<R>(namespace)
-  const context = createLocale<Z, E, R>(options)
-
-  function provideLocaleContext (_context: R = context, app?: App): R {
-    return _provideLocaleContext(_context, app)
-  }
-
-  return createTrinity<R>(useLocaleContext, provideLocaleContext, context)
-}
-
-/**
- * Creates a new locale plugin.
- *
- * @param options The options for the locale plugin.
- * @template Z The type of the locale ticket.
- * @template E The type of the locale context.
- * @template R The type of the token ticket.
- * @template O The type of the token context.
- * @returns A new locale plugin.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-locale
- */
-export function createLocalePlugin<
-  Z extends LocaleTicketInput = LocaleTicketInput,
-  E extends LocaleTicket<Z> = LocaleTicket<Z>,
-  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
-> (_options: LocalePluginOptions = {}) {
-  const { namespace = 'v0:locale', adapter = new Vuetify0LocaleAdapter(), messages = {}, ...options } = _options
-  const [, provideLocaleContext, context] = createLocaleContext<Z, E, R>({ ...options, namespace, adapter, messages })
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      provideLocaleContext(context, app)
-    },
-  })
-}
-
-/**
- * Returns the current locale instance.
- *
- * @returns The current locale instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-locale
- */
-export function useLocale<
-  Z extends LocaleTicketInput = LocaleTicketInput,
-  E extends LocaleTicket<Z> = LocaleTicket<Z>,
-  R extends LocaleContext<Z, E> = LocaleContext<Z, E>,
-> (namespace = 'v0:locale'): R {
-  const fallback = createLocaleFallback<Z, E, R>()
-
-  if (!instanceExists()) return fallback
-
-  try {
-    return useContext<R>(namespace, fallback)
-  } catch {
-    return fallback
-  }
-}
+export const [createLocaleContext, createLocalePlugin, useLocale] =
+  createPluginContext<LocaleContextOptions, LocaleContext>(
+    'v0:locale',
+    options => createLocale(options),
+    { fallback: () => createLocaleFallback() },
+  )

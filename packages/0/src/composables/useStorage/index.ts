@@ -18,9 +18,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
@@ -33,9 +31,8 @@ import { isNullOrUndefined } from '#v0/utilities'
 import { ref, watch } from 'vue'
 
 // Types
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { StorageAdapter } from '#v0/composables/useStorage/adapters'
-import type { App, Ref } from 'vue'
+import type { Ref } from 'vue'
 
 export interface StorageContext {
   /** Check if a key exists in storage */
@@ -225,81 +222,8 @@ export function createStorage<
   } as E
 }
 
-export function createStorageContext<
-  E extends StorageContext = StorageContext,
-> (_options: StorageContextOptions = {}): ContextTrinity<E> {
-  const { namespace = 'v0:storage', ...options } = _options
-  const [useStorageContext, _provideStorageContext] = createContext<E>(namespace)
-  const context = createStorage<E>(options)
-
-  function provideStorageContext (_context: E = context, app?: App): E {
-    return _provideStorageContext(_context, app)
-  }
-
-  return createTrinity<E>(useStorageContext, provideStorageContext, context)
-}
-
-/**
- * Creates a new storage plugin.
- *
- * @param options The options for the storage plugin.
- * @returns A new storage plugin.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-storage
- *
- * @example
- * ```ts
- * import { createApp } from 'vue'
- * import { createStoragePlugin } from '@vuetify/v0'
- * import App from './App.vue'
- *
- * const app = createApp(App)
- *
- * app.use(createStoragePlugin())
- *
- * app.mount('#app')
- * ```
- */
-export function createStoragePlugin<
-  E extends StorageContext = StorageContext,
-> (_options: StoragePluginOptions = {}) {
-  const { namespace = 'v0:storage', ...options } = _options
-  const [, provideStorageContext, context] = createStorageContext<E>({ ...options, namespace })
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      provideStorageContext(context, app)
-    },
-  })
-}
-
-/**
- * Returns the current storage instance.
- *
- * @param namespace The namespace for the storage context. Defaults to `'v0:storage'`.
- * @returns The current storage instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-storage
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useStorage } from '@vuetify/v0'
- *
- *   const storage = useStorage()
- *   const username = storage.get('username', 'Guest')
- * </script>
- *
- * <template>
- *   <div>
- *     <p>Username: {{ username }}</p>
- *   </div>
- * </template>
- * ```
- */
-export function useStorage<
-  E extends StorageContext = StorageContext,
-> (namespace = 'v0:storage'): E {
-  return useContext<E>(namespace)
-}
+export const [createStorageContext, createStoragePlugin, useStorage] =
+  createPluginContext<StorageContextOptions, StorageContext>(
+    'v0:storage',
+    options => createStorage(options),
+  )

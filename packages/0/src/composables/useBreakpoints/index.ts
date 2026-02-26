@@ -21,9 +21,7 @@
 import { IN_BROWSER } from '#v0/constants/globals'
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { useWindowEventListener } from '#v0/composables/useEventListener'
@@ -34,8 +32,7 @@ import { isNull, isNumber, mergeDeep } from '#v0/utilities'
 import { onScopeDispose, readonly, shallowRef, watch } from 'vue'
 
 // Types
-import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ShallowRef } from 'vue'
+import type { ShallowRef } from 'vue'
 
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
 
@@ -213,144 +210,33 @@ export function createBreakpoints<
   } as E
 }
 
-/**
- * Creates a new breakpoints context.
- *
- * @param options The options for the breakpoints context.
- * @template E The type of the breakpoints context.
- * @returns A new breakpoints context.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
- *
- * @example
- * ```ts
- * import { createBreakpointsContext } from '@vuetify/v0'
- *
- * export const [useBreakpoints, provideBreakpoints, context] = createBreakpointsContext({
- *   namespace: 'v0:breakpoints',
- *   mobileBreakpoint: 'sm',
- * })
- * ```
- */
-export function createBreakpointsContext<
-  E extends BreakpointsContext = BreakpointsContext,
-> (_options: BreakpointsContextOptions = {}): ContextTrinity<E> {
-  const { namespace = 'v0:breakpoints', ...options } = _options
-  const [useBreakpointsContext, _provideBreakpointsContext] = createContext<E>(namespace)
-  const context = createBreakpoints<E>(options)
+export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints] =
+  createPluginContext<BreakpointsContextOptions, BreakpointsContext>(
+    'v0:breakpoints',
+    options => createBreakpoints(options),
+    {
+      setup: (context, app, _options) => {
+        app.mixin({
+          mounted () {
+            if (!isNull(this.$parent)) return
 
-  function provideBreakpointsContext (_context: E = context, app?: App): E {
-    return _provideBreakpointsContext(_context, app)
-  }
+            const hydration = useHydration()
 
-  return createTrinity<E>(useBreakpointsContext, provideBreakpointsContext, context)
-}
+            function listener () {
+              context.update()
+            }
 
-/**
- * Creates a new breakpoints plugin.
- *
- * @param options The options for the breakpoints plugin.
- * @template E The type of the breakpoints context.
- * @returns A new breakpoints plugin.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
- *
- * @example
- * ```ts
- * import { createApp } from 'vue'
- * import { createBreakpointsPlugin } from '@vuetify/v0'
- * import App from './App.vue'
- *
- * const app = createApp(App)
- *
- * app.use(
- *   createBreakpointsPlugin({
- *     namespace: 'v0:breakpoints',
- *     mobileBreakpoint: 'md',
- *     breakpoints: {
- *       xs: 0,
- *       sm: 600,
- *       md: 840,
- *       lg: 1145,
- *       xl: 1545,
- *       xxl: 2138,
- *     },
- *   })
- * )
- *
- * app.mount('#app')
- * ```
- */
-export function createBreakpointsPlugin<
-  E extends BreakpointsContext = BreakpointsContext,
-> (_options: BreakpointsPluginOptions = {}) {
-  const { namespace = 'v0:breakpoints', ...options } = _options
-  const [, provideBreakpointsContext, context] = createBreakpointsContext<E>({ ...options, namespace })
+            const unwatch = watch(hydration.isHydrated, hydrated => {
+              if (hydrated) listener()
+            }, { immediate: true })
 
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      provideBreakpointsContext(context, app)
+            const cleanup = useWindowEventListener('resize', listener, { passive: true })
+            onScopeDispose(() => {
+              cleanup()
+              unwatch()
+            }, true)
+          },
+        })
+      },
     },
-    setup: (app: App) => {
-      app.mixin({
-        mounted () {
-          if (!isNull(this.$parent)) return
-
-          const hydration = useHydration()
-
-          function listener () {
-            context.update()
-          }
-
-          const unwatch = watch(hydration.isHydrated, hydrated => {
-            if (hydrated) listener()
-          }, { immediate: true })
-
-          const cleanup = useWindowEventListener('resize', listener, { passive: true })
-          onScopeDispose(() => {
-            cleanup()
-            unwatch()
-          }, true)
-        },
-      })
-    },
-  })
-}
-
-/**
- * Returns the current breakpoints instance.
- *
- * @param namespace The namespace for the breakpoints context. Defaults to `v0:breakpoints`.
- * @returns The current breakpoints instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-breakpoints
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useBreakpoints } from '@vuetify/v0'
- *
- *   // Destructure for template auto-unwrapping
- *   const { isMobile, mdAndUp } = useBreakpoints()
- *
- *   // In script, use .value
- *   if (isMobile.value) {
- *     console.log('Mobile detected')
- *   }
- * </script>
- *
- * <template>
- *   <div class="pa-4">
- *     <!-- Destructured refs auto-unwrap in templates -->
- *     <p v-if="isMobile">Mobile layout active</p>
- *     <p v-else-if="mdAndUp">Medium and up layout active</p>
- *   </div>
- * </template>
- * ```
- */
-export function useBreakpoints<
-  E extends BreakpointsContext = BreakpointsContext,
-> (namespace = 'v0:breakpoints'): E {
-  return useContext<E>(namespace)
-}
+  )

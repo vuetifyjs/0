@@ -18,9 +18,7 @@
  */
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { createSingle } from '#v0/composables/createSingle'
@@ -36,10 +34,9 @@ import { computed, toRef } from 'vue'
 import type { RegistryOptions } from '#v0/composables/createRegistry'
 import type { SingleContext, SingleTicket, SingleTicketInput } from '#v0/composables/createSingle'
 import type { TokenCollection } from '#v0/composables/createTokens'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ThemeAdapter } from '#v0/composables/useTheme/adapters'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 // Exports
 export { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
@@ -311,143 +308,13 @@ export function createTheme<
   } as unknown as R
 }
 
-/**
- * Creates a new theme context trinity.
- *
- * @param options The options for the theme context.
- * @template Z The type of the theme ticket.
- * @template E The type of the theme context.
- * @returns A new theme context trinity.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-theme
- *
- * @example
- * ```ts
- * import { createThemeContext } from '@vuetify/v0'
- *
- * export const [useThemeContext, provideThemeContext, context] = createThemeContext({
- *   namespace: 'v0:theme',
- *   default: 'light',
- *   themes: {
- *     light: {
- *       dark: false,
- *       colors: {
- *         primary: '#3b82f6',
- *       },
- *     },
- *     dark: {
- *       dark: true,
- *       colors: {
- *         primary: '#675496',
- *       },
- *     },
- *   },
- * })
- * ```
- */
-export function createThemeContext<
-  Z extends ThemeTicketInput = ThemeTicketInput,
-  E extends ThemeTicket<Z> = ThemeTicket<Z>,
-  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
-> (_options: ThemeContextOptions = {}): ContextTrinity<R> {
-  const { namespace = 'v0:theme', ...options } = _options
-  const [useThemeContext, _provideThemeContext] = createContext<R>(namespace)
-  const context = createTheme<Z, E, R>(options)
-
-  function provideThemeContext (_context: R = context, app?: App): R {
-    return _provideThemeContext(_context, app)
-  }
-
-  return createTrinity<R>(useThemeContext, provideThemeContext, context)
-}
-
-/**
- * Creates a new theme plugin.
- *
- * @param options The options for the theme plugin.
- * @template Z The type of the theme ticket.
- * @template E The type of the theme context.
- * @returns A new theme plugin.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-theme
- *
- * @example
- * ```ts
- * import { createApp } from 'vue'
- * import { createThemePlugin } from '@vuetify/v0'
- * import App from './App.vue'
- *
- * const app = createApp(App)
- *
- * app.use(
- *   createThemePlugin({
- *     default: 'light',
- *     themes: {
- *       light: {
- *         dark: false,
- *         colors: {
- *           primary: '#3b82f6',
- *         },
- *       },
- *       dark: {
- *         dark: true,
- *         colors: {
- *           primary: '#675496',
- *         },
- *       },
- *     },
- *   })
- * )
- *
- * app.mount('#app')
- * ```
- */
-export function createThemePlugin<
-  Z extends ThemeTicketInput = ThemeTicketInput,
-  E extends ThemeTicket<Z> = ThemeTicket<Z>,
-  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
-> (_options: ThemePluginOptions = {}) {
-  const { adapter = new Vuetify0ThemeAdapter(), namespace = 'v0:theme', palette = {}, themes = {}, target, ...options } = _options
-  const [, provideThemeContext, context] = createThemeContext<Z, E, R>({ ...options, namespace, themes, palette })
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      provideThemeContext(context, app)
+export const [createThemeContext, createThemePlugin, useTheme] =
+  createPluginContext<ThemePluginOptions, ThemeContext>(
+    'v0:theme',
+    options => createTheme(options),
+    {
+      setup: (context, app, { adapter = new Vuetify0ThemeAdapter(), target }) => {
+        adapter.setup(app, context, target)
+      },
     },
-    setup: (app: App) => {
-      adapter.setup(app, context, target)
-    },
-  })
-}
-
-/**
- * Returns the current theme instance.
- *
- * @param namespace The namespace for the theme context. Defaults to `v0:theme`.
- * @returns The current theme instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-theme
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { useTheme } from '@vuetify/v0'
- *
- *   const theme = useTheme()
- * </script>
- *
- * <template>
- *   <div>
- *     <p>Current theme: {{ theme.selected.value }}</p>
- *   </div>
- * </template>
- * ```
- */
-export function useTheme<
-  Z extends ThemeTicketInput = ThemeTicketInput,
-  E extends ThemeTicket<Z> = ThemeTicket<Z>,
-  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
-> (namespace = 'v0:theme'): R {
-  return useContext<R>(namespace)
-}
+  )

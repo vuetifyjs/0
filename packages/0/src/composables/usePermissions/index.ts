@@ -17,9 +17,7 @@
  */
 
 // Foundational
-import { createContext, useContext } from '#v0/composables/createContext'
-import { createPlugin } from '#v0/composables/createPlugin'
-import { createTrinity } from '#v0/composables/createTrinity'
+import { createPluginContext } from '#v0/composables/createPlugin'
 
 // Composables
 import { createTokens } from '#v0/composables/createTokens'
@@ -32,10 +30,8 @@ import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { TokenContext, TokenOptions, TokenTicket } from '#v0/composables/createTokens'
-import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
 import type { ID } from '#v0/types'
-import type { App } from 'vue'
 
 // Exports
 export { PermissionAdapter } from '#v0/composables/usePermissions/adapters'
@@ -137,20 +133,11 @@ export function createPermissions<
  * })
  * ```
  */
-export function createPermissionsContext<
-  Z extends PermissionTicket = PermissionTicket,
-  E extends PermissionContext<Z> = PermissionContext<Z>,
-> (_options: PermissionContextOptions = {}): ContextTrinity<E> {
-  const { namespace = 'v0:permissions', ...options } = _options
-  const [usePermissionsContext, _providePermissionsContext] = createContext<E>(namespace)
-  const context = createPermissions<Z, E>(options)
-
-  function providePermissionsContext (_context: E = context, app?: App): E {
-    return _providePermissionsContext(_context, app)
-  }
-
-  return createTrinity<E>(usePermissionsContext, providePermissionsContext, context)
-}
+export const [createPermissionsContext, createPermissionsPlugin, usePermissions] =
+  createPluginContext<PermissionContextOptions, PermissionContext>(
+    'v0:permissions',
+    options => createPermissions(options),
+  )
 
 /**
  * Creates a new permissions plugin.
@@ -182,47 +169,3 @@ export function createPermissionsContext<
  * app.mount('#app')
  * ```
  */
-export function createPermissionsPlugin<
-  Z extends PermissionTicket = PermissionTicket,
-  E extends PermissionContext<Z> = PermissionContext<Z>,
-> (_options: PermissionPluginOptions = {}) {
-  const { namespace = 'v0:permissions', ...options } = _options
-  const [, providePermissionContext, context] = createPermissionsContext<Z, E>({ ...options, namespace })
-
-  return createPlugin({
-    namespace,
-    provide: (app: App) => {
-      providePermissionContext(context, app)
-    },
-  })
-}
-
-/**
- * Returns the current permissions instance.
- *
- * @template Z The type of the permission ticket.
- * @returns The current permissions instance.
- *
- * @see https://0.vuetifyjs.com/composables/plugins/use-permissions
- *
- * @example
- * ```vue
- * <script setup lang="ts">
- *   import { usePermissions } from '@vuetify/v0'
- *
- *   const { can } = usePermissions()
- * </script>
- *
- * <template>
- *   <div>
- *     <p v-if="can('admin', 'read', 'users')">Admin access</p>
- *   </div>
- * </template>
- * ```
- */
-export function usePermissions<
-  Z extends PermissionTicket = PermissionTicket,
-  E extends PermissionContext<Z> = PermissionContext<Z>,
-> (namespace = 'v0:permissions'): E {
-  return useContext<E>(namespace)
-}
