@@ -509,6 +509,76 @@
     opacity: 1 !important;
   }
 
+  /* Sequence diagram styling */
+  .docs-mermaid rect.actor {
+    rx: 8px;
+    ry: 8px;
+    fill: var(--v0-surface) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid text.actor > tspan {
+    fill: var(--v0-on-surface) !important;
+  }
+
+  .docs-mermaid .actor-line {
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid .messageLine0,
+  .docs-mermaid .messageLine1 {
+    stroke: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid .messageText {
+    fill: var(--v0-on-surface) !important;
+    stroke: none !important;
+  }
+
+  .docs-mermaid .activation {
+    fill: color-mix(in srgb, var(--v0-primary) 10%, transparent) !important;
+    stroke: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid .labelBox {
+    fill: var(--v0-surface-variant) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid .labelText,
+  .docs-mermaid .labelText > tspan {
+    fill: var(--v0-on-surface-variant) !important;
+  }
+
+  .docs-mermaid .loopLine {
+    stroke: var(--v0-divider) !important;
+    fill: none !important;
+  }
+
+  .docs-mermaid .loopText,
+  .docs-mermaid .loopText > tspan {
+    fill: var(--v0-on-surface-variant) !important;
+  }
+
+  .docs-mermaid .note {
+    fill: var(--v0-surface-variant) !important;
+    stroke: var(--v0-divider) !important;
+  }
+
+  .docs-mermaid .noteText,
+  .docs-mermaid .noteText > tspan {
+    fill: var(--v0-on-surface) !important;
+  }
+
+  .docs-mermaid #arrowhead path {
+    fill: var(--v0-primary) !important;
+    stroke: var(--v0-primary) !important;
+  }
+
+  .docs-mermaid .sequenceNumber {
+    fill: var(--v0-on-primary) !important;
+  }
+
   /* Semantic node classes (use with classDef in mermaid) */
   .docs-mermaid .node.primary rect,
   .docs-mermaid .node.primary polygon {
