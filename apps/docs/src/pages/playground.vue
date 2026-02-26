@@ -1,16 +1,8 @@
 <script setup lang="ts">
-  import { IN_BROWSER } from '#v0/constants/globals'
   import { useHead } from '@unhead/vue'
-  import { defineAsyncComponent, shallowRef } from 'vue'
 
-  const isLoaded = shallowRef(false)
-
-  const PlaygroundContent = IN_BROWSER
-    ? defineAsyncComponent({
-      loader: () => import('@/components/playground/PlaygroundContent.vue'),
-      onError: () => {},
-    })
-    : undefined
+  // Content
+  import IntroPanel from '@/skillz/intro.md'
 
   definePage({
     meta: {
@@ -30,25 +22,43 @@
 </script>
 
 <template>
-  <div class="h-screen flex flex-col bg-surface">
-    <!-- SSG/loading skeleton: shown until async component mounts -->
-    <template v-if="!PlaygroundContent">
-      <header class="flex items-center justify-between h-[48px] px-3 border-b border-divider bg-surface">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8" />
+  <PlaygroundApp>
+    <PlaygroundAppBar />
 
-          <img
-            alt="Vuetify Play"
-            class="h-7"
-            src="https://vuetifyjs.b-cdn.net/docs/images/one/logos/vplay-logo-dark.svg"
-          >
-        </div>
-      </header>
+    <PlaygroundAppContent>
+      <PlaygroundAppLeft>
+        <PlaygroundMarkdownHeader>
+          Introduction
+        </PlaygroundMarkdownHeader>
 
-      <div class="flex-1" />
-    </template>
+        <PlaygroundMarkdown :component="IntroPanel" />
+      </PlaygroundAppLeft>
 
-    <!-- Client-only: full playground -->
-    <component :is="PlaygroundContent" v-if="PlaygroundContent" />
-  </div>
+      <PlaygroundAppRight>
+        <PlaygroundWorkspace>
+          <PlaygroundWorkspaceTop>
+            <PlaygroundWorkspaceLeft>
+              <PlaygroundEditorFileTree />
+            </PlaygroundWorkspaceLeft>
+
+            <PlaygroundWorkspaceRight>
+              <PlaygroundEditorTabs />
+
+              <PlaygroundEditorBreadcrumbs />
+
+              <PlaygroundEditor />
+            </PlaygroundWorkspaceRight>
+
+            <PlaygroundWorkspaceSide>
+              <PlaygroundEditorPreview />
+            </PlaygroundWorkspaceSide>
+          </PlaygroundWorkspaceTop>
+
+          <PlaygroundWorkspaceBottom>
+            <PlaygroundEditorPreview />
+          </PlaygroundWorkspaceBottom>
+        </PlaygroundWorkspace>
+      </PlaygroundAppRight>
+    </PlaygroundAppContent>
+  </PlaygroundApp>
 </template>
