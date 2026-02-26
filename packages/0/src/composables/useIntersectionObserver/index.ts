@@ -19,13 +19,13 @@
 import { SUPPORTS_INTERSECTION_OBSERVER } from '#v0/constants/globals'
 
 // Composables
-import { useHydration } from '#v0/composables/useHydration'
+import { createObserver } from '#v0/composables/createObserver'
 
 // Utilities
-import { isNull } from '#v0/utilities'
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
+import type { ObserverReturn } from '#v0/composables/createObserver'
 import type { Ref, MaybeRef } from 'vue'
 
 export interface IntersectionObserverEntry {
@@ -46,36 +46,11 @@ export interface IntersectionObserverOptions {
   threshold?: number | number[]
 }
 
-export interface UseIntersectionObserverReturn {
-  /**
-   * Whether the observer is currently active (created and observing)
-   */
-  readonly isActive: Readonly<Ref<boolean>>
-
+export interface UseIntersectionObserverReturn extends ObserverReturn {
   /**
    * Whether the target element is currently intersecting with the viewport
    */
   readonly isIntersecting: Readonly<Ref<boolean>>
-
-  /**
-   * Whether the observer is currently paused
-   */
-  readonly isPaused: Readonly<Ref<boolean>>
-
-  /**
-   * Pause observation (disconnects observer but keeps it alive)
-   */
-  pause: () => void
-
-  /**
-   * Resume observation
-   */
-  resume: () => void
-
-  /**
-   * Stop observation and clean up (destroys observer)
-   */
-  stop: () => void
 }
 
 /**
@@ -122,124 +97,54 @@ export function useIntersectionObserver (
   callback: (entries: IntersectionObserverEntry[]) => void,
   options: IntersectionObserverOptions = {},
 ): UseIntersectionObserverReturn {
-  const { isHydrated } = useHydration()
-  const targetRef = toRef(target)
-  const observer = shallowRef<IntersectionObserver | null>()
-  const isPaused = shallowRef(false)
   const isIntersecting = shallowRef(false)
-  const isActive = toRef(() => !!observer.value)
 
-  function setup () {
-    // null = permanently stopped, undefined = not yet created
-    if (isNull(observer.value)) return
-    if (!isHydrated.value || !SUPPORTS_INTERSECTION_OBSERVER || !targetRef.value || isPaused.value) return
-
-    observer.value = new IntersectionObserver(entries => {
-      const transformedEntries: IntersectionObserverEntry[] = entries.map(entry => ({
-        boundingClientRect: entry.boundingClientRect,
-        intersectionRatio: entry.intersectionRatio,
-        intersectionRect: entry.intersectionRect,
-        isIntersecting: entry.isIntersecting,
-        rootBounds: entry.rootBounds,
-        target: entry.target,
-        time: entry.time,
-      }))
-
-      const latestEntry = transformedEntries.at(-1)
-      if (latestEntry) isIntersecting.value = latestEntry.isIntersecting
-
-      callback(transformedEntries)
-
-      if (options.once && latestEntry?.isIntersecting) {
-        stop()
-      }
+  const base = createObserver(target, callback, {
+    supports: SUPPORTS_INTERSECTION_OBSERVER,
+    once: options.once,
+    create: cb => new IntersectionObserver(entries => {
+      cb(entries.map(e => ({
+        boundingClientRect: e.boundingClientRect,
+        intersectionRatio: e.intersectionRatio,
+        intersectionRect: e.intersectionRect,
+        isIntersecting: e.isIntersecting,
+        rootBounds: e.rootBounds,
+        target: e.target,
+        time: e.time,
+      })))
     }, {
-      root: options.root || null,
-      rootMargin: options.rootMargin || '0px',
-      threshold: options.threshold || 0,
-    })
-
-    observer.value.observe(targetRef.value)
-
-    if (options.immediate) {
-      const rect = targetRef.value.getBoundingClientRect()
-      const syntheticEntry: IntersectionObserverEntry = {
-        boundingClientRect: rect,
-        intersectionRatio: 0,
-        intersectionRect: new DOMRect(0, 0, 0, 0),
-        isIntersecting: false,
-        rootBounds: null,
-        target: targetRef.value,
-        time: performance.now(),
-      }
-
-      callback([syntheticEntry])
-    }
-  }
-
-  // Watch target changes - cleanup when element changes or is removed
-  watch(
-    () => targetRef.value,
-    (el, oldEl) => {
-      // Cleanup if we had a previous element or if observer exists (handles paused state)
-      if (oldEl || observer.value) cleanup()
-
-      if (isHydrated.value && el) {
-        setup()
-      }
+      root: options.root ?? null,
+      rootMargin: options.rootMargin ?? '0px',
+      threshold: options.threshold ?? 0,
+    }),
+    observe: (obs, el) => obs.observe(el),
+    onEntry: entries => {
+      const latest = entries.at(-1)
+      if (latest) isIntersecting.value = latest.isIntersecting
     },
-    { immediate: true },
-  )
-
-  // Handle initial hydration - setup once when hydrated if target exists
-  let stopHydrationWatch: (() => void) | undefined
-  if (!isHydrated.value) {
-    stopHydrationWatch = watch(
-      () => isHydrated.value,
-      hydrated => {
-        if (hydrated && targetRef.value && !observer.value) {
-          setup()
-          stopHydrationWatch?.()
-          stopHydrationWatch = undefined
-        }
-      },
-    )
-  }
-
-  function cleanup () {
-    if (observer.value) {
-      observer.value.disconnect()
-      observer.value = undefined
-    }
-  }
-
-  function pause () {
-    isPaused.value = true
-    isIntersecting.value = false
-    observer.value?.disconnect()
-  }
-
-  function resume () {
-    isPaused.value = false
-    setup()
-  }
-
-  function stop () {
-    stopHydrationWatch?.()
-    stopHydrationWatch = undefined
-    cleanup()
-    observer.value = null
-  }
-
-  onScopeDispose(stop, true)
+    onPause: () => {
+      isIntersecting.value = false
+    },
+    shouldStop: entries => entries.at(-1)?.isIntersecting ?? false,
+    immediate: options.immediate
+      ? el => {
+        const rect = el.getBoundingClientRect()
+        return [{
+          boundingClientRect: rect,
+          intersectionRatio: 0,
+          intersectionRect: new DOMRect(0, 0, 0, 0),
+          isIntersecting: false,
+          rootBounds: null,
+          target: el,
+          time: performance.now(),
+        }]
+      }
+      : undefined,
+  })
 
   return {
-    isActive: shallowReadonly(isActive),
+    ...base,
     isIntersecting: shallowReadonly(isIntersecting),
-    isPaused: shallowReadonly(isPaused),
-    pause,
-    resume,
-    stop,
   }
 }
 

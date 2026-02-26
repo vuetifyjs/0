@@ -19,20 +19,24 @@
 import { SUPPORTS_MUTATION_OBSERVER } from '#v0/constants/globals'
 
 // Composables
-import { useHydration } from '#v0/composables/useHydration'
-
-// Utilities
-import { isNull } from '#v0/utilities'
-import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
+import { createObserver } from '#v0/composables/createObserver'
 
 // Types
-import type { Ref, MaybeRef } from 'vue'
+import type { ObserverReturn } from '#v0/composables/createObserver'
+import type { MaybeRef } from 'vue'
+
+export interface ObservableNodeList {
+  readonly length: number
+  item: (index: number) => Node | null
+  forEach: (callback: (node: Node, index: number, list: ObservableNodeList) => void) => void
+  [Symbol.iterator]: () => Iterator<Node>
+}
 
 export interface MutationObserverRecord {
   type: 'attributes' | 'childList' | 'characterData'
   target: Node
-  addedNodes: NodeList
-  removedNodes: NodeList
+  addedNodes: ObservableNodeList
+  removedNodes: ObservableNodeList
   previousSibling: Node | null
   nextSibling: Node | null
   attributeName: string | null
@@ -52,32 +56,7 @@ export interface UseMutationObserverOptions {
   attributeFilter?: string[]
 }
 
-export interface UseMutationObserverReturn {
-  /**
-   * Whether the observer is currently active (created and observing)
-   */
-  readonly isActive: Readonly<Ref<boolean>>
-
-  /**
-   * Whether the observer is currently paused
-   */
-  readonly isPaused: Readonly<Ref<boolean>>
-
-  /**
-   * Pause observation (disconnects observer but keeps it alive)
-   */
-  pause: () => void
-
-  /**
-   * Resume observation
-   */
-  resume: () => void
-
-  /**
-   * Stop observation and clean up (destroys observer)
-   */
-  stop: () => void
-}
+export interface UseMutationObserverReturn extends ObserverReturn {}
 
 /**
  * A composable that uses the Mutation Observer API to detect changes in the DOM.
@@ -127,12 +106,6 @@ export function useMutationObserver (
   callback: (entries: MutationObserverRecord[]) => void,
   options: UseMutationObserverOptions = {},
 ): UseMutationObserverReturn {
-  const { isHydrated } = useHydration()
-  const targetRef = toRef(target)
-  const observer = shallowRef<MutationObserver | null>()
-  const isPaused = shallowRef(false)
-  const isActive = toRef(() => !!observer.value)
-
   const observerOptions = {
     childList: options.childList ?? true,
     attributes: options.attributes ?? false,
@@ -143,121 +116,45 @@ export function useMutationObserver (
     attributeFilter: options.attributeFilter,
   }
 
-  function setup () {
-    // null = permanently stopped, undefined = not yet created
-    if (isNull(observer.value)) return
-    if (!isHydrated.value || !SUPPORTS_MUTATION_OBSERVER || !targetRef.value || isPaused.value) return
-
-    observer.value = new MutationObserver(mutations => {
-      const transformedEntries: MutationObserverRecord[] = mutations.map(mutation => ({
-        type: mutation.type,
-        target: mutation.target,
-        addedNodes: mutation.addedNodes,
-        removedNodes: mutation.removedNodes,
-        previousSibling: mutation.previousSibling,
-        nextSibling: mutation.nextSibling,
-        attributeName: mutation.attributeName,
-        attributeNamespace: mutation.attributeNamespace,
-        oldValue: mutation.oldValue,
-      }))
-
-      callback(transformedEntries)
-
-      if (options.once) {
-        stop()
-      }
-    })
-
-    observer.value.observe(targetRef.value, observerOptions)
-
-    if (options.immediate) {
-      const emptyNodeList = {
-        length: 0,
-        item: () => null,
-        forEach: () => {},
-        * [Symbol.iterator] () {},
-      } as unknown as NodeList
-
-      const syntheticEntry: MutationObserverRecord = {
-        type: 'childList',
-        target: targetRef.value,
-        addedNodes: emptyNodeList,
-        removedNodes: emptyNodeList,
-        previousSibling: null,
-        nextSibling: null,
-        attributeName: null,
-        attributeNamespace: null,
-        oldValue: null,
-      }
-
-      callback([syntheticEntry])
-
-      if (options.once) {
-        stop()
-      }
-    }
-  }
-
-  // Watch target changes - cleanup when element changes or is removed
-  watch(
-    () => targetRef.value,
-    (el, oldEl) => {
-      // Cleanup if we had a previous element or if observer exists (handles paused state)
-      if (oldEl || observer.value) cleanup()
-
-      if (isHydrated.value && el) {
-        setup()
-      }
-    },
-    { immediate: true },
-  )
-
-  // Handle initial hydration - setup once when hydrated if target exists
-  let stopHydrationWatch: (() => void) | undefined
-  if (!isHydrated.value) {
-    stopHydrationWatch = watch(
-      () => isHydrated.value,
-      hydrated => {
-        if (hydrated && targetRef.value && !observer.value) {
-          setup()
-          stopHydrationWatch?.()
-          stopHydrationWatch = undefined
+  return createObserver(target, callback, {
+    supports: SUPPORTS_MUTATION_OBSERVER,
+    once: options.once,
+    create: cb => new MutationObserver(mutations => {
+      cb(mutations.map(m => ({
+        type: m.type,
+        target: m.target,
+        addedNodes: m.addedNodes,
+        removedNodes: m.removedNodes,
+        previousSibling: m.previousSibling,
+        nextSibling: m.nextSibling,
+        attributeName: m.attributeName,
+        attributeNamespace: m.attributeNamespace,
+        oldValue: m.oldValue,
+      })))
+    }),
+    observe: (obs, el) => obs.observe(el, observerOptions),
+    immediate: options.immediate
+      ? el => {
+        const emptyNodeList: ObservableNodeList = {
+          length: 0,
+          item: () => null,
+          forEach: () => {},
+          * [Symbol.iterator] () {},
         }
-      },
-    )
-  }
 
-  function cleanup () {
-    if (observer.value) {
-      observer.value.disconnect()
-      observer.value = undefined
-    }
-  }
-
-  function pause () {
-    isPaused.value = true
-    observer.value?.disconnect()
-  }
-
-  function resume () {
-    isPaused.value = false
-    setup()
-  }
-
-  function stop () {
-    stopHydrationWatch?.()
-    stopHydrationWatch = undefined
-    cleanup()
-    observer.value = null
-  }
-
-  onScopeDispose(stop, true)
-
-  return {
-    isActive: shallowReadonly(isActive),
-    isPaused: shallowReadonly(isPaused),
-    pause,
-    resume,
-    stop,
-  }
+        return [{
+          type: 'childList' as const,
+          target: el,
+          addedNodes: emptyNodeList,
+          removedNodes: emptyNodeList,
+          previousSibling: null,
+          nextSibling: null,
+          attributeName: null,
+          attributeNamespace: null,
+          oldValue: null,
+        }]
+      }
+      : undefined,
+    onceIncludesImmediate: true,
+  })
 }
