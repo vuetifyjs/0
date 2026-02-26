@@ -32,12 +32,15 @@ import { toArray } from '#v0/composables/toArray'
 // Types
 import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
+import type { RuleAlias, RulesContext } from '#v0/composables/useRules'
 import type { ID } from '#v0/types'
 import type { App, ComputedRef, Ref, ShallowRef } from 'vue'
 
 export type FormValidationResult = string | true | Promise<string | true>
 
 export type FormValidationRule = (value: unknown) => FormValidationResult
+
+export type { RuleAlias } from '#v0/composables/useRules'
 
 export type FormValue = Ref<unknown> | ShallowRef<unknown>
 
@@ -48,8 +51,8 @@ export type FormValue = Ref<unknown> | ShallowRef<unknown>
  * @template V The type of the field value.
  */
 export interface FormTicketInput<V = unknown> extends RegistryTicket<V> {
-  /** Validation rules for this field */
-  rules?: FormValidationRule[]
+  /** Validation rules for this field (functions or aliases if RulesContext linked to form) */
+  rules?: (FormValidationRule | RuleAlias)[]
   /** When validation should trigger (inherits from form if not set) */
   validateOn?: 'submit' | 'change' | string
   /** Whether this field is disabled */
@@ -95,11 +98,15 @@ export interface FormContext<
 
 export interface FormOptions extends RegistryOptions {
   validateOn?: 'submit' | 'change' | string
+  /** Optional rules context for alias resolution in register() */
+  rules?: RulesContext
 }
 
 export interface FormContextOptions extends RegistryOptions {
   namespace?: string
   validateOn?: 'submit' | 'change' | string
+  /** Optional rules context for alias resolution in register() */
+  rules?: RulesContext
 }
 
 /**
@@ -180,7 +187,8 @@ export function createForm<
 
   function register (registration: Partial<Z>): E {
     const model = shallowRef(isNullOrUndefined(registration.value) ? '' : toValue(registration.value))
-    const rules = registration.rules || []
+    const raw = registration.rules || []
+    const rules = options?.rules ? options.rules.resolve(raw) : raw as FormValidationRule[]
     const errors = shallowRef<string[]>([])
     const isValidating = shallowRef(false)
     const initialValue = model.value

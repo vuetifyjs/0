@@ -275,6 +275,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/composables/plugins/use-rules': RouteRecordInfo<
+      '/composables/plugins/use-rules',
+      '/composables/plugins/use-rules',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/composables/plugins/use-stack': RouteRecordInfo<
       '/composables/plugins/use-stack',
       '/composables/plugins/use-stack',
@@ -921,6 +928,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/composables/plugins/use-permissions.md': {
       routes:
         | '/composables/plugins/use-permissions'
+      views:
+        | never
+    }
+    'src/pages/composables/plugins/use-rules.md': {
+      routes:
+        | '/composables/plugins/use-rules'
       views:
         | never
     }

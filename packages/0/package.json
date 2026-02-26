@@ -56,6 +56,9 @@
       "./data-table/adapters/client": "./dist/data-table/adapters/client/index.mjs",
       "./data-table/adapters/server": "./dist/data-table/adapters/server/index.mjs",
       "./data-table/adapters/virtual": "./dist/data-table/adapters/virtual/index.mjs",
+      "./rules": "./dist/rules/index.mjs",
+      "./rules/adapters/zod": "./dist/rules/adapters/zod/index.mjs",
+      "./rules/adapters/yup": "./dist/rules/adapters/yup/index.mjs",
       "./package.json": "./package.json",
       "./browser": "./dist/browser/index.js"
     }
@@ -222,6 +225,18 @@
     "./data-table/adapters/virtual": {
       "development": "./src/data-table/adapters/virtual/index.ts",
       "default": "./dist/data-table/adapters/virtual/index.mjs"
+    },
+    "./rules": {
+      "development": "./src/rules/index.ts",
+      "default": "./dist/rules/index.mjs"
+    },
+    "./rules/adapters/zod": {
+      "development": "./src/rules/adapters/zod/index.ts",
+      "default": "./dist/rules/adapters/zod/index.mjs"
+    },
+    "./rules/adapters/yup": {
+      "development": "./src/rules/adapters/yup/index.ts",
+      "default": "./dist/rules/adapters/yup/index.mjs"
     },
     "./browser": {
       "development": "./src/index.ts",
