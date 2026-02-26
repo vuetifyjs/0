@@ -3,6 +3,7 @@
   // import { createStackPlugin } from '@vuetify/v0'
   // app.use(createStackPlugin())
   import { createStack, Scrim } from '@vuetify/v0'
+  import { IN_BROWSER } from '@vuetify/v0/constants'
   import { computed, onScopeDispose, provide, shallowRef, watch } from 'vue'
   import { provideOverlays } from './context'
   import type { Overlay } from './context'
@@ -13,10 +14,12 @@
 
   // Block body scroll when overlays are active
   watch(() => stack.isActive.value, active => {
+    if (!IN_BROWSER) return
     document.body.style.overflow = active ? 'hidden' : ''
   }, { immediate: true })
 
   onScopeDispose(() => {
+    if (!IN_BROWSER) return
     document.body.style.overflow = ''
   })
 
