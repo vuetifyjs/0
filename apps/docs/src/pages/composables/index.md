@@ -156,6 +156,7 @@ Application-level features installable via Vue plugins.
 | [useLocale](/composables/plugins/use-locale) | Internationalization system |
 | [useLogger](/composables/plugins/use-logger) | Logging system with multiple adapters |
 | [usePermissions](/composables/plugins/use-permissions) | Role-based access control |
+| [useRules](/composables/plugins/use-rules) | Validation rule aliases with locale-aware messages |
 | [useStorage](/composables/plugins/use-storage) | Reactive browser storage interface |
 | [useTheme](/composables/plugins/use-theme) | Theme management with CSS custom properties |
 

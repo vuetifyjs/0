@@ -2,6 +2,9 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "workspaces": {
     ".": {
+      "entry": [
+        "scripts/**/*.{js,ts}"
+      ],
       "ignore": [
         "**/dist/**",
         "**/node_modules/**",
@@ -61,6 +64,11 @@
       ]
     },
     "packages/0": {
+      "entry": [
+        "src/*/adapters/**/*.ts",
+        "src/composables/*/adapters/**/*.ts",
+        "scripts/**/*.ts"
+      ],
       "project": [
         "src/**/*.{ts,vue}",
         "!src/**/*.test.ts",
@@ -70,6 +78,7 @@
         "src/**/*.bench.ts",
         "src/**/fixtures/**"
       ],
+
       "paths": {
         "#v0/*": [
           "src/*"
