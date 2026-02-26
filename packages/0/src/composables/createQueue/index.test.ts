@@ -618,7 +618,7 @@ describe('createQueueContext', () => {
   })
 
   it('should create a queue context with default options', () => {
-    const [, , context] = createQueueContext()
+    const [,, context] = createQueueContext()
 
     expect(context).toHaveProperty('register')
     expect(context).toHaveProperty('unregister')
@@ -630,7 +630,7 @@ describe('createQueueContext', () => {
   })
 
   it('should pass timeout option to queue', () => {
-    const [, , context] = createQueueContext({ timeout: 10_000 })
+    const [,, context] = createQueueContext({ timeout: 10_000 })
 
     const ticket = context.register({ value: 'test' })
 
@@ -684,7 +684,7 @@ describe('createQueueContext', () => {
   })
 
   it('should pass events option to underlying registry', () => {
-    const [, , context] = createQueueContext({ events: true })
+    const [,, context] = createQueueContext({ events: true })
 
     const callback = vi.fn()
     context.on('register:ticket', callback)

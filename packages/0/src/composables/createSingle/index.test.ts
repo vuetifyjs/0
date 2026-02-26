@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { inject, provide } from 'vue'
+import { type App, inject, provide, ref } from 'vue'
 
 // Types
 import type { SingleTicketInput } from './index'
@@ -342,6 +342,72 @@ describe('useSingle', () => {
     })
   })
 
+  describe('context-level disabled', () => {
+    it('should not select when context is disabled', () => {
+      const single = createSingle({ disabled: true })
+
+      single.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      single.select('item-1')
+
+      expect(single.selectedIds.size).toBe(0)
+    })
+
+    it('should not unselect when context is disabled', () => {
+      const single = createSingle({ disabled: true })
+
+      single.onboard([{ id: 'item-1', value: 'value-1' }])
+      single.selectedIds.add('item-1')
+
+      single.unselect('item-1')
+      expect(single.selectedIds.has('item-1')).toBe(true)
+    })
+
+    it('should not toggle when context is disabled', () => {
+      const single = createSingle({ disabled: true })
+
+      single.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      single.toggle('item-1')
+      expect(single.selectedIds.size).toBe(0)
+    })
+
+    it('should not auto-select with mandatory force when context is disabled', () => {
+      const single = createSingle({ disabled: true, mandatory: 'force' })
+
+      single.register({ id: 'item-1', value: 'value-1' })
+
+      expect(single.selectedIds.size).toBe(0)
+    })
+
+    it('should respect reactive disabled ref', () => {
+      const disabledRef = ref(false)
+      const single = createSingle({ disabled: disabledRef })
+
+      single.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      single.select('item-1')
+      expect(single.selectedIds.has('item-1')).toBe(true)
+
+      disabledRef.value = true
+
+      single.unselect('item-1')
+      expect(single.selectedIds.has('item-1')).toBe(true)
+
+      disabledRef.value = false
+
+      single.unselect('item-1')
+      expect(single.selectedIds.has('item-1')).toBe(false)
+    })
+  })
+
   describe('edge cases', () => {
     it('should handle empty registry', () => {
       const single = createSingle()
@@ -469,7 +535,7 @@ describe('createSingleContext', () => {
   it('should provide context at app level when app is passed', () => {
     const mockApp = {
       provide: vi.fn(),
-    } as any
+    } as unknown as App
     const [, provideSingleContext, context] = createSingleContext()
 
     provideSingleContext(context, mockApp)

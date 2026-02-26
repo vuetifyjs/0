@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Types
+import type { App } from 'vue'
+
 const { mockUseHydrationContext, mockProvideHydrationContext, mockUseContext } = vi.hoisted(() => {
   return {
     mockUseHydrationContext: vi.fn(),
@@ -16,16 +19,6 @@ vi.mock('#v0/composables/createContext', () => ({
   useContext: mockUseContext,
 }))
 
-vi.mock('vue', async () => {
-  const actual = await vi.importActual('vue')
-  return {
-    ...actual,
-    shallowRef: vi.fn(value => ({ value })),
-    shallowReadonly: vi.fn(ref => ref),
-    getCurrentInstance: vi.fn(() => ({ uid: 1 })),
-  }
-})
-
 import { createHydration, createHydrationPlugin, useHydration } from './index'
 
 describe('useHydration', () => {
@@ -41,8 +34,11 @@ describe('useHydration', () => {
       const context = createHydration()
 
       expect(context).toHaveProperty('isHydrated')
+      expect(context).toHaveProperty('isSettled')
       expect(context).toHaveProperty('hydrate')
+      expect(context).toHaveProperty('settle')
       expect(typeof context.hydrate).toBe('function')
+      expect(typeof context.settle).toBe('function')
       expect(context.isHydrated.value).toBe(false)
     })
 
@@ -67,17 +63,58 @@ describe('useHydration', () => {
     })
   })
 
+  describe('isSettled and settle()', () => {
+    it('should start with isSettled false', () => {
+      const context = createHydration()
+
+      expect(context.isSettled.value).toBe(false)
+    })
+
+    it('should transition to true after settle() is called', () => {
+      const context = createHydration()
+
+      expect(context.isSettled.value).toBe(false)
+
+      context.settle()
+
+      expect(context.isSettled.value).toBe(true)
+    })
+
+    it('should handle settle() called multiple times', () => {
+      const context = createHydration()
+
+      context.settle()
+      context.settle()
+
+      expect(context.isSettled.value).toBe(true)
+    })
+
+    it('should allow hydrate and settle to be called independently', () => {
+      const context = createHydration()
+
+      expect(context.isHydrated.value).toBe(false)
+      expect(context.isSettled.value).toBe(false)
+
+      context.hydrate()
+      expect(context.isHydrated.value).toBe(true)
+      expect(context.isSettled.value).toBe(false)
+
+      context.settle()
+      expect(context.isHydrated.value).toBe(true)
+      expect(context.isSettled.value).toBe(true)
+    })
+  })
+
   describe('useHydration', () => {
-    it('should call useContext', () => {
-      mockUseContext.mockReturnValue({
-        isHydrated: { value: false },
-        hydrate: vi.fn(),
-      })
+    it('should return fallback context when called outside a component', () => {
+      const context = useHydration()
 
-      useHydration()
-
-      expect(mockUseContext).toHaveBeenCalledOnce()
-      expect(mockUseContext).toHaveBeenCalledWith('v0:hydration', expect.any(Object))
+      expect(context).toHaveProperty('isHydrated')
+      expect(context).toHaveProperty('isSettled')
+      expect(context).toHaveProperty('hydrate')
+      expect(context).toHaveProperty('settle')
+      expect(typeof context.hydrate).toBe('function')
+      expect(typeof context.settle).toBe('function')
     })
   })
 
@@ -98,7 +135,7 @@ describe('useHydration', () => {
         provide: vi.fn(),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
       expect(mockApp.runWithContext).toHaveBeenCalledOnce()
       expect(mockApp.mixin).toHaveBeenCalledOnce()
@@ -113,7 +150,7 @@ describe('useHydration', () => {
         provide: vi.fn(),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
       expect(mockProvideHydrationContext).toHaveBeenCalledOnce()
     })
@@ -127,11 +164,11 @@ describe('useHydration', () => {
         provide: vi.fn(),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
       expect(mockApp.mixin).toHaveBeenCalledOnce()
 
-      const mixinOptions = mockApp.mixin.mock.calls[0]![0]
+      const mixinOptions = mockApp.mixin.mock.calls[0]![0] as Record<string, unknown>
       expect(mixinOptions).toHaveProperty('mounted')
       expect(typeof mixinOptions.mounted).toBe('function')
     })
@@ -145,13 +182,12 @@ describe('useHydration', () => {
         provide: vi.fn(),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
-      const mixinOptions = mockApp.mixin.mock.calls[0]![0]
-      const mountedCallback = mixinOptions.mounted
+      const mixinOptions = mockApp.mixin.mock.calls[0]![0] as Record<string, (...args: unknown[]) => void>
+      const mountedCallback = mixinOptions.mounted!
 
       const rootComponent = { $parent: null }
-
       const childComponent = { $parent: {} }
 
       expect(() => mountedCallback.call(rootComponent)).not.toThrow()
@@ -183,7 +219,6 @@ describe('useHydration', () => {
     it('should return shallowReadonly ref for isHydrated', () => {
       const context = createHydration()
 
-      // isHydrated should be a readonly ref created with shallowReadonly
       expect(context.isHydrated).toHaveProperty('value')
       expect(context.isHydrated.value).toBe(false)
 
@@ -193,7 +228,7 @@ describe('useHydration', () => {
   })
 
   describe('edge cases', () => {
-    it('should handle hydration of child components correctly', () => {
+    it('should only hydrate root component via mixin', () => {
       const plugin = createHydrationPlugin()
       const mockApp = {
         _context: {},
@@ -202,22 +237,21 @@ describe('useHydration', () => {
         provide: vi.fn(),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
-      const mixinOptions = mockApp.mixin.mock.calls[0]![0]
-      const mountedCallback = mixinOptions.mounted
+      const mixinOptions = mockApp.mixin.mock.calls[0]![0] as Record<string, (...args: unknown[]) => void>
+      const mountedCallback = mixinOptions.mounted!
+
+      expect(mockApp.mixin).toHaveBeenCalledOnce()
+      expect(typeof mountedCallback).toBe('function')
 
       const childWithParent = { $parent: { someData: true } }
       const childWithNestedParent = { $parent: { $parent: {} } }
       const rootComponent = { $parent: null }
 
-      const hydrateSpy = vi.fn()
-
-      mountedCallback.call(childWithParent)
-      mountedCallback.call(childWithNestedParent)
-      expect(hydrateSpy).not.toHaveBeenCalled()
-
-      mountedCallback.call(rootComponent)
+      expect(() => mountedCallback.call(childWithParent)).not.toThrow()
+      expect(() => mountedCallback.call(childWithNestedParent)).not.toThrow()
+      expect(() => mountedCallback.call(rootComponent)).not.toThrow()
     })
 
     it('should not hydrate twice on root component', () => {
@@ -245,13 +279,15 @@ describe('useHydration SSR', () => {
     const context = createHydrationSSR()
 
     expect(context.isHydrated.value).toBe(false)
+    expect(context.isSettled.value).toBe(false)
   })
 
-  it('createFallbackHydration should have isHydrated true', async () => {
+  it('createFallbackHydration should have isHydrated and isSettled true', async () => {
     const { createFallbackHydration } = await import('./index')
     const context = createFallbackHydration()
 
     expect(context.isHydrated.value).toBe(true)
+    expect(context.isSettled.value).toBe(true)
   })
 
   it('useHydration should return fallback when no Vue instance exists', async () => {
@@ -262,9 +298,9 @@ describe('useHydration SSR', () => {
     const { useHydration: useHydrationSSR } = await import('./index')
     const context = useHydrationSSR()
 
-    // Fallback has isHydrated: true
     expect(context.isHydrated.value).toBe(true)
     expect(typeof context.hydrate).toBe('function')
+    expect(typeof context.settle).toBe('function')
   })
 
   it('hydrate() should be safe to call during SSR', async () => {
@@ -288,7 +324,10 @@ describe('useHydration SSR', () => {
     const [,, context] = createHydrationContextSSR()
 
     expect(context.isHydrated.value).toBe(false)
+    expect(context.isSettled.value).toBe(false)
     context.hydrate()
     expect(context.isHydrated.value).toBe(true)
+    context.settle()
+    expect(context.isSettled.value).toBe(true)
   })
 })

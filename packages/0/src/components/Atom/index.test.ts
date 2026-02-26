@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest'
+import { renderToString } from 'vue/server-renderer'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { type Component, h } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick } from 'vue'
+
+// Types
+import type { Component } from 'vue'
 
 import { Atom } from './index'
 
@@ -416,6 +420,62 @@ describe('atom', () => {
         })
         expect(wrapper.find(as).exists()).toBe(true)
       }
+    })
+  })
+
+  describe('sSR / Hydration', () => {
+    it('should render to string on server without errors', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () => h(Atom as unknown as Component, { as: 'div' }, () => 'Hello'),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toBeTruthy()
+      expect(html).toContain('Hello')
+    })
+
+    it('should render custom element on server', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () => h(Atom as unknown as Component, { as: 'section', class: 'wrapper' }, () => 'Content'),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('<section')
+      expect(html).toContain('Content')
+    })
+
+    it('should render self-closing tags on server', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () => h(Atom as unknown as Component, { as: 'img', src: '/test.png', alt: 'Test' }),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toContain('src="/test.png"')
+    })
+
+    it('should hydrate without mismatches', async () => {
+      const TestComponent = defineComponent({
+        render: () => h(Atom as unknown as Component, { as: 'span' }, () => 'Hydrated'),
+      })
+
+      const ssrApp = createSSRApp(TestComponent)
+      const serverHtml = await renderToString(ssrApp)
+
+      const container = document.createElement('div')
+      container.innerHTML = serverHtml
+
+      const wrapper = mount(TestComponent, {
+        attachTo: container,
+      })
+
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Hydrated')
+
+      wrapper.unmount()
     })
   })
 })

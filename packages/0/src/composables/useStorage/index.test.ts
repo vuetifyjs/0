@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { createApp, inject, nextTick, provide } from 'vue'
+import { inject, nextTick, provide } from 'vue'
+
+// Types
+import type { createApp } from 'vue'
 
 import { createStorage, createStorageContext, createStoragePlugin, useStorage } from './index'
 
@@ -287,18 +290,18 @@ describe('createStoragePlugin', () => {
   })
 
   it('should provide storage context when installed', () => {
-    const app = createApp({
-      template: '<div>Test</div>',
-    })
+    const mockApp = { provide: vi.fn(), runWithContext: vi.fn((fn: () => void) => fn()), _context: {} } as unknown as ReturnType<typeof createApp>
 
-    app.use(createStoragePlugin())
+    const plugin = createStoragePlugin()
+    plugin.install(mockApp)
 
-    const container = document.createElement('div')
-    app.mount(container)
-    app.unmount()
-
-    // Plugin installs without error
-    expect(true).toBe(true)
+    expect(mockApp.provide).toHaveBeenCalledWith('v0:storage', expect.objectContaining({
+      get: expect.any(Function),
+      set: expect.any(Function),
+      has: expect.any(Function),
+      remove: expect.any(Function),
+      clear: expect.any(Function),
+    }))
   })
 })
 
@@ -336,7 +339,7 @@ describe('useStorage consumer', () => {
   })
 })
 
-describe('useStorage SSR', () => {
+describe('useStorage SSR safety', () => {
   beforeEach(() => {
     vi.resetModules()
     vi.clearAllMocks()

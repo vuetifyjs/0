@@ -242,7 +242,7 @@ describe('checkbox', () => {
       })
     })
 
-    describe('a11y attrs', () => {
+    describe('accessibility', () => {
       it.each([
         ['role', {}, 'checkbox'],
         ['tabindex', {}, 0],
@@ -754,7 +754,7 @@ describe('checkbox', () => {
     })
   })
 
-  describe('ssr/hydration', () => {
+  describe('sSR / Hydration', () => {
     it.each([
       ['standalone', { modelValue: true }, ['role="checkbox"', 'aria-checked="true"', 'data-state="checked"']],
       ['group', {}, ['role="checkbox"']],
@@ -977,7 +977,7 @@ describe('checkbox', () => {
       })
     })
 
-    describe('ssr rendering', () => {
+    describe('sSR rendering', () => {
       it('should render to string without errors', async () => {
         const app = createSSRApp(defineComponent({
           render: () => h(Checkbox.Group as any, {}, () => [

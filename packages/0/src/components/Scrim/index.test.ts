@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderToString } from 'vue/server-renderer'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { computed, h, nextTick, shallowRef } from 'vue'
+import { computed, createSSRApp, defineComponent, h, nextTick, shallowRef } from 'vue'
 
 // Types
 import type { StackTicket } from '#v0/composables/useStack'
@@ -406,6 +407,60 @@ describe('scrim', () => {
       expect((layers[0]!.element as HTMLElement).style.zIndex).toBe('1999')
       expect((layers[1]!.element as HTMLElement).style.zIndex).toBe('2009')
       expect((layers[2]!.element as HTMLElement).style.zIndex).toBe('2019')
+    })
+  })
+
+  describe('sSR / Hydration', () => {
+    it('should render to string on server without errors', async () => {
+      const ticket = createMockTicket({ id: 'ssr-ticket', zIndex: 2000 })
+      mockSelectedItems.value = new Set([ticket])
+
+      const app = createSSRApp(defineComponent({
+        render: () => h(Scrim, { teleport: false }, () => 'Backdrop'),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toBeTruthy()
+      expect(html).toContain('Backdrop')
+    })
+
+    it('should render empty when no tickets on server', async () => {
+      mockSelectedItems.value = new Set()
+
+      const app = createSSRApp(defineComponent({
+        render: () => h(Scrim, { teleport: false }, () => 'Backdrop'),
+      }))
+
+      const html = await renderToString(app)
+
+      expect(html).toBeTruthy()
+      expect(html).not.toContain('Backdrop')
+    })
+
+    it('should hydrate without mismatches', async () => {
+      const ticket = createMockTicket({ id: 'hydrate-ticket', zIndex: 2000 })
+      mockSelectedItems.value = new Set([ticket])
+
+      const Component = defineComponent({
+        render: () => h(Scrim, { teleport: false }, () => 'Backdrop'),
+      })
+
+      const ssrApp = createSSRApp(Component)
+      const serverHtml = await renderToString(ssrApp)
+
+      const container = document.createElement('div')
+      container.innerHTML = serverHtml
+
+      const wrapper = mount(Component, {
+        attachTo: container,
+      })
+
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Backdrop')
+
+      wrapper.unmount()
     })
   })
 })
