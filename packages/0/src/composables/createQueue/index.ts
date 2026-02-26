@@ -26,7 +26,7 @@ import { isUndefined, useId } from '#v0/utilities'
 import { onScopeDispose } from 'vue'
 
 // Types
-import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
+import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { App } from 'vue'
@@ -37,7 +37,7 @@ import type { App } from 'vue'
  *
  * @template V The type of the ticket value.
  */
-export interface QueueTicketInput<V = unknown> extends RegistryTicket<V> {
+export interface QueueTicketInput<V = unknown> extends RegistryTicketInput<V> {
   /**
    * Timeout in milliseconds
    *
@@ -55,7 +55,7 @@ export interface QueueTicketInput<V = unknown> extends RegistryTicket<V> {
  *
  * @template Z The input ticket type that extends QueueTicketInput.
  */
-export type QueueTicket<Z extends QueueTicketInput = QueueTicketInput> = Z & {
+export type QueueTicket<Z extends QueueTicketInput = QueueTicketInput> = RegistryTicket & Z & {
   /**
    * Timeout in milliseconds (resolved from input or default)
    */

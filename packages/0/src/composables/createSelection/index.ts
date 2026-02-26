@@ -26,7 +26,7 @@ import { isUndefined, useId } from '#v0/utilities'
 import { computed, shallowReactive, toRef, toValue } from 'vue'
 
 // Types
-import type { RegistryContext, RegistryOptions, RegistryTicket } from '#v0/composables/createRegistry'
+import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
 import type { MaybeRefOrGetter, App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
@@ -49,7 +49,7 @@ import type { MaybeRefOrGetter, App, ComputedRef, MaybeRef, Reactive, Ref } from
  * selection.register({ label: 'Item 1' })
  * ```
  */
-export interface SelectionTicketInput<V = unknown> extends RegistryTicket<V> {
+export interface SelectionTicketInput<V = unknown> extends RegistryTicketInput<V> {
   /** Disabled state of the ticket (optional on input, defaults to false) */
   disabled?: MaybeRef<boolean>
 }
@@ -68,7 +68,7 @@ export interface SelectionTicketInput<V = unknown> extends RegistryTicket<V> {
  * - `unselect()` - Method to unselect this ticket
  * - `toggle()` - Method to toggle selection state
  */
-export type SelectionTicket<Z extends SelectionTicketInput = SelectionTicketInput> = Z & {
+export type SelectionTicket<Z extends SelectionTicketInput = SelectionTicketInput> = RegistryTicket & Z & {
   /** Disabled state of the ticket (guaranteed to exist on output) */
   disabled: MaybeRef<boolean>
   /** Whether the ticket is currently selected */
