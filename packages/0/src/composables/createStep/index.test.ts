@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { inject, provide } from 'vue'
+import { type App, inject, provide } from 'vue'
 
 // Types
 import type { StepTicketInput } from './index'
@@ -453,6 +453,19 @@ describe('useStep', () => {
       expect(stepper.selectedId.value).toBeUndefined()
     })
 
+    it('should select from index -1 when no initial selection', () => {
+      const stepper = createStep()
+
+      stepper.onboard([
+        { id: 'step-1', value: 'Step 1' },
+        { id: 'step-2', value: 'Step 2' },
+        { id: 'step-3', value: 'Step 3' },
+      ])
+
+      stepper.step(2)
+      expect(stepper.selectedId.value).toBe('step-2')
+    })
+
     it('should do nothing when registry is empty', () => {
       const stepper = createStep()
 
@@ -842,7 +855,7 @@ describe('createStepContext', () => {
   it('should provide context at app level when app is passed', () => {
     const mockApp = {
       provide: vi.fn(),
-    } as any
+    } as unknown as App
     const [, provideStepContext, context] = createStepContext()
 
     provideStepContext(context, mockApp)

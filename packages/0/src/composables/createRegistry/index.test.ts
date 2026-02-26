@@ -705,339 +705,339 @@ describe('createRegistry', () => {
       expect(registry.size).toBe(0)
     })
   })
-})
 
-describe('batch operations', () => {
-  it('should return the value from the batched function', () => {
-    const registry = createRegistry()
+  describe('batch operations', () => {
+    it('should return the value from the batched function', () => {
+      const registry = createRegistry()
 
-    const result = registry.batch(() => {
-      registry.register({ id: 'item-1' })
-      return 'batch-result'
+      const result = registry.batch(() => {
+        registry.register({ id: 'item-1' })
+        return 'batch-result'
+      })
+
+      expect(result).toBe('batch-result')
+      expect(registry.size).toBe(1)
     })
 
-    expect(result).toBe('batch-result')
-    expect(registry.size).toBe(1)
-  })
+    it('should defer event emission until batch completes', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
+      const callOrder: string[] = []
 
-  it('should defer event emission until batch completes', () => {
-    const registry = createRegistry({ events: true })
-    const listener = vi.fn()
-    const callOrder: string[] = []
+      registry.on('register:ticket', () => {
+        callOrder.push('event')
+        listener()
+      })
 
-    registry.on('register:ticket', () => {
-      callOrder.push('event')
-      listener()
-    })
-
-    registry.batch(() => {
-      registry.register({ id: 'item-1' })
-      callOrder.push('after-register-1')
-      registry.register({ id: 'item-2' })
-      callOrder.push('after-register-2')
-    })
-    callOrder.push('after-batch')
-
-    // Events should be emitted AFTER all operations, not during
-    expect(listener).toHaveBeenCalledTimes(2)
-    expect(callOrder).toEqual([
-      'after-register-1',
-      'after-register-2',
-      'event',
-      'event',
-      'after-batch',
-    ])
-  })
-
-  it('should only invalidate cache once at end of batch', () => {
-    const registry = createRegistry()
-    registry.register({ id: 'initial' })
-
-    const keys1 = registry.keys()
-
-    registry.batch(() => {
-      registry.register({ id: 'item-1' })
-      const keysDuringBatch = registry.keys()
-      // During batch, cache should still be valid (same reference)
-      expect(keysDuringBatch).toBe(keys1)
-
-      registry.register({ id: 'item-2' })
-    })
-
-    const keys2 = registry.keys()
-    // After batch, cache should be invalidated
-    expect(keys2).not.toBe(keys1)
-    expect(keys2.length).toBe(3)
-  })
-
-  it('should handle nested batch calls correctly', () => {
-    const registry = createRegistry({ events: true })
-    const listener = vi.fn()
-
-    registry.on('register:ticket', listener)
-
-    registry.batch(() => {
-      registry.register({ id: 'item-1' })
-
-      // Nested batch should just execute, not reset outer batch
       registry.batch(() => {
+        registry.register({ id: 'item-1' })
+        callOrder.push('after-register-1')
+        registry.register({ id: 'item-2' })
+        callOrder.push('after-register-2')
+      })
+      callOrder.push('after-batch')
+
+      // Events should be emitted AFTER all operations, not during
+      expect(listener).toHaveBeenCalledTimes(2)
+      expect(callOrder).toEqual([
+        'after-register-1',
+        'after-register-2',
+        'event',
+        'event',
+        'after-batch',
+      ])
+    })
+
+    it('should only invalidate cache once at end of batch', () => {
+      const registry = createRegistry()
+      registry.register({ id: 'initial' })
+
+      const keys1 = registry.keys()
+
+      registry.batch(() => {
+        registry.register({ id: 'item-1' })
+        const keysDuringBatch = registry.keys()
+        // During batch, cache should still be valid (same reference)
+        expect(keysDuringBatch).toBe(keys1)
+
         registry.register({ id: 'item-2' })
       })
 
-      registry.register({ id: 'item-3' })
+      const keys2 = registry.keys()
+      // After batch, cache should be invalidated
+      expect(keys2).not.toBe(keys1)
+      expect(keys2.length).toBe(3)
     })
 
-    // All 3 events should be emitted after outer batch completes
-    expect(listener).toHaveBeenCalledTimes(3)
-    expect(registry.size).toBe(3)
-  })
+    it('should handle nested batch calls correctly', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
 
-  it('should cleanup batching state on error', () => {
-    const registry = createRegistry({ events: true })
-    const listener = vi.fn()
+      registry.on('register:ticket', listener)
 
-    registry.on('register:ticket', listener)
-
-    expect(() => {
       registry.batch(() => {
         registry.register({ id: 'item-1' })
-        throw new Error('Test error')
+
+        // Nested batch should just execute, not reset outer batch
+        registry.batch(() => {
+          registry.register({ id: 'item-2' })
+        })
+
+        registry.register({ id: 'item-3' })
       })
-    }).toThrow('Test error')
 
-    // Batching state should be reset
-    // Next register should emit immediately
-    registry.register({ id: 'item-2' })
-    expect(listener).toHaveBeenCalledOnce()
-  })
-
-  it('should batch multiple different operations', () => {
-    const registry = createRegistry({ events: true })
-    const registerListener = vi.fn()
-    const unregisterListener = vi.fn()
-    const updateListener = vi.fn()
-
-    registry.on('register:ticket', registerListener)
-    registry.on('unregister:ticket', unregisterListener)
-    registry.on('update:ticket', updateListener)
-
-    registry.register({ id: 'existing', value: 'initial' })
-    registerListener.mockClear()
-
-    registry.batch(() => {
-      registry.register({ id: 'new-item' })
-      registry.upsert('existing', { value: 'updated' })
-      registry.unregister('new-item')
+      // All 3 events should be emitted after outer batch completes
+      expect(listener).toHaveBeenCalledTimes(3)
+      expect(registry.size).toBe(3)
     })
 
-    expect(registerListener).toHaveBeenCalledOnce()
-    expect(updateListener).toHaveBeenCalledOnce()
-    expect(unregisterListener).toHaveBeenCalledOnce()
-  })
+    it('should cleanup batching state on error', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
 
-  it('should work with onboard and offboard in batch', () => {
-    const registry = createRegistry({ events: true })
-    const listener = vi.fn()
+      registry.on('register:ticket', listener)
 
-    registry.on('register:ticket', listener)
+      expect(() => {
+        registry.batch(() => {
+          registry.register({ id: 'item-1' })
+          throw new Error('Test error')
+        })
+      }).toThrow('Test error')
 
-    registry.batch(() => {
-      registry.onboard([
-        { id: 'item-1' },
-        { id: 'item-2' },
-        { id: 'item-3' },
-      ])
-      registry.offboard(['item-2'])
+      // Batching state should be reset
+      // Next register should emit immediately
+      registry.register({ id: 'item-2' })
+      expect(listener).toHaveBeenCalledOnce()
     })
 
-    // Should emit 3 register events (offboard emits unregister, not register)
-    expect(listener).toHaveBeenCalledTimes(3)
-    expect(registry.size).toBe(2)
-  })
+    it('should batch multiple different operations', () => {
+      const registry = createRegistry({ events: true })
+      const registerListener = vi.fn()
+      const unregisterListener = vi.fn()
+      const updateListener = vi.fn()
 
-  it('should maintain correct state during batch', () => {
-    const registry = createRegistry()
+      registry.on('register:ticket', registerListener)
+      registry.on('unregister:ticket', unregisterListener)
+      registry.on('update:ticket', updateListener)
 
-    registry.batch(() => {
-      registry.register({ id: 'item-1', value: 'a' })
+      registry.register({ id: 'existing', value: 'initial' })
+      registerListener.mockClear()
 
-      // State should be immediately available during batch
-      expect(registry.size).toBe(1)
-      expect(registry.has('item-1')).toBe(true)
-      expect(registry.get('item-1')?.value).toBe('a')
+      registry.batch(() => {
+        registry.register({ id: 'new-item' })
+        registry.upsert('existing', { value: 'updated' })
+        registry.unregister('new-item')
+      })
 
-      registry.register({ id: 'item-2', value: 'b' })
+      expect(registerListener).toHaveBeenCalledOnce()
+      expect(updateListener).toHaveBeenCalledOnce()
+      expect(unregisterListener).toHaveBeenCalledOnce()
+    })
+
+    it('should work with onboard and offboard in batch', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
+
+      registry.on('register:ticket', listener)
+
+      registry.batch(() => {
+        registry.onboard([
+          { id: 'item-1' },
+          { id: 'item-2' },
+          { id: 'item-3' },
+        ])
+        registry.offboard(['item-2'])
+      })
+
+      // Should emit 3 register events (offboard emits unregister, not register)
+      expect(listener).toHaveBeenCalledTimes(3)
       expect(registry.size).toBe(2)
     })
-  })
 
-  it('should defer user-called emit() during batch', () => {
-    const registry = createRegistry({ events: true })
-    const listener = vi.fn()
-    const callOrder: string[] = []
+    it('should maintain correct state during batch', () => {
+      const registry = createRegistry()
 
-    registry.on('custom-event', () => {
-      callOrder.push('custom')
-      listener()
+      registry.batch(() => {
+        registry.register({ id: 'item-1', value: 'a' })
+
+        // State should be immediately available during batch
+        expect(registry.size).toBe(1)
+        expect(registry.has('item-1')).toBe(true)
+        expect(registry.get('item-1')?.value).toBe('a')
+
+        registry.register({ id: 'item-2', value: 'b' })
+        expect(registry.size).toBe(2)
+      })
     })
 
-    registry.batch(() => {
-      registry.emit('custom-event', 'payload')
-      callOrder.push('after-emit')
-    })
-    callOrder.push('after-batch')
+    it('should defer user-called emit() during batch', () => {
+      const registry = createRegistry({ events: true })
+      const listener = vi.fn()
+      const callOrder: string[] = []
 
-    expect(listener).toHaveBeenCalledOnce()
-    expect(callOrder).toEqual([
-      'after-emit',
-      'custom',
-      'after-batch',
-    ])
-  })
+      registry.on('custom-event', () => {
+        callOrder.push('custom')
+        listener()
+      })
 
-  it('should defer clear() events during batch', () => {
-    const registry = createRegistry({ events: true })
-    const clearListener = vi.fn()
+      registry.batch(() => {
+        registry.emit('custom-event', 'payload')
+        callOrder.push('after-emit')
+      })
+      callOrder.push('after-batch')
 
-    registry.register({ id: 'item-1' })
-    registry.register({ id: 'item-2' })
-
-    registry.on('clear:registry', clearListener)
-
-    registry.batch(() => {
-      registry.clear()
-
-      // State is immediately cleared
-      expect(registry.size).toBe(0)
-      // Events not yet emitted
-      expect(clearListener).not.toHaveBeenCalled()
+      expect(listener).toHaveBeenCalledOnce()
+      expect(callOrder).toEqual([
+        'after-emit',
+        'custom',
+        'after-batch',
+      ])
     })
 
-    // Events emitted after batch completes
-    expect(clearListener).toHaveBeenCalledOnce()
-  })
+    it('should defer clear() events during batch', () => {
+      const registry = createRegistry({ events: true })
+      const clearListener = vi.fn()
 
-  it('should update valueIsIndex and catalog on upsert', () => {
-    const registry = createRegistry()
+      registry.register({ id: 'item-1' })
+      registry.register({ id: 'item-2' })
 
-    // Register with no value - valueIsIndex should be true
-    const ticket = registry.register({ id: 'item-1' })
-    expect(ticket.valueIsIndex).toBe(true)
-    expect(ticket.value).toBe(0)
+      registry.on('clear:registry', clearListener)
 
-    // Upsert with explicit value - valueIsIndex should become false
-    const updated = registry.upsert('item-1', { value: 'explicit' })
-    expect(updated.valueIsIndex).toBe(false)
-    expect(updated.value).toBe('explicit')
+      registry.batch(() => {
+        registry.clear()
 
-    // Catalog should reflect the new value
-    expect(registry.browse('explicit')).toEqual(['item-1'])
-    // Old index-based value should no longer be in catalog
-    expect(registry.browse(0)).toBeUndefined()
-  })
-})
+        // State is immediately cleared
+        expect(registry.size).toBe(0)
+        // Events not yet emitted
+        expect(clearListener).not.toHaveBeenCalled()
+      })
 
-describe('createRegistryContext', () => {
-  it('should create a context trinity with default namespace', () => {
-    const [useRegistryContext, provideRegistryContext, defaultContext] = createRegistryContext()
-
-    expect(useRegistryContext).toBeDefined()
-    expect(typeof useRegistryContext).toBe('function')
-    expect(provideRegistryContext).toBeDefined()
-    expect(typeof provideRegistryContext).toBe('function')
-    expect(defaultContext).toBeDefined()
-    expect(defaultContext.collection).toBeInstanceOf(Map)
-  })
-
-  it('should create a context with custom namespace', () => {
-    const [, , context] = createRegistryContext({ namespace: 'custom:registry' })
-
-    expect(context.size).toBe(0)
-    context.register({ id: 'test' })
-    expect(context.size).toBe(1)
-  })
-
-  it('should pass events option through to registry', () => {
-    const [, , context] = createRegistryContext({ events: true })
-    const listener = vi.fn()
-
-    context.on('register:ticket', listener)
-    context.register({ id: 'test' })
-
-    expect(listener).toHaveBeenCalledOnce()
-  })
-
-  it('should create independent contexts', () => {
-    const [, , context1] = createRegistryContext({ namespace: 'context-1' })
-    const [, , context2] = createRegistryContext({ namespace: 'context-2' })
-
-    context1.register({ id: 'item-1' })
-
-    expect(context1.size).toBe(1)
-    expect(context2.size).toBe(0)
-  })
-})
-
-describe('reactive option', () => {
-  it('should create reactive collection when enabled', () => {
-    const registry = createRegistry({ reactive: true })
-    expect(isReactive(registry.collection)).toBe(true)
-  })
-
-  it('should not create reactive collection when disabled', () => {
-    const registry = createRegistry({ reactive: false })
-    expect(isReactive(registry.collection)).toBe(false)
-  })
-
-  it('should create reactive tickets when enabled', () => {
-    const registry = createRegistry({ reactive: true })
-    const ticket = registry.register({ id: 'test' })
-    expect(isReactive(ticket)).toBe(true)
-  })
-
-  it('should not create reactive tickets when disabled', () => {
-    const registry = createRegistry({ reactive: false })
-    const ticket = registry.register({ id: 'test' })
-    expect(isReactive(ticket)).toBe(false)
-  })
-
-  it('should trigger reactivity on collection changes', async () => {
-    const registry = createRegistry({ reactive: true })
-    const sizes: number[] = []
-
-    watchEffect(() => {
-      sizes.push(registry.collection.size)
+      // Events emitted after batch completes
+      expect(clearListener).toHaveBeenCalledOnce()
     })
 
-    expect(sizes).toEqual([0])
+    it('should update valueIsIndex and catalog on upsert', () => {
+      const registry = createRegistry()
 
-    registry.register({ id: 'item-1' })
-    await nextTick()
-    expect(sizes).toEqual([0, 1])
+      // Register with no value - valueIsIndex should be true
+      const ticket = registry.register({ id: 'item-1' })
+      expect(ticket.valueIsIndex).toBe(true)
+      expect(ticket.value).toBe(0)
 
-    registry.register({ id: 'item-2' })
-    await nextTick()
-    expect(sizes).toEqual([0, 1, 2])
+      // Upsert with explicit value - valueIsIndex should become false
+      const updated = registry.upsert('item-1', { value: 'explicit' })
+      expect(updated.valueIsIndex).toBe(false)
+      expect(updated.value).toBe('explicit')
 
-    registry.unregister('item-1')
-    await nextTick()
-    expect(sizes).toEqual([0, 1, 2, 1])
+      // Catalog should reflect the new value
+      expect(registry.browse('explicit')).toEqual(['item-1'])
+      // Old index-based value should no longer be in catalog
+      expect(registry.browse(0)).toBeUndefined()
+    })
   })
 
-  it('should trigger reactivity when getting updated ticket from collection', async () => {
-    const registry = createRegistry({ reactive: true })
-    registry.register({ id: 'test', value: 'initial' })
-    const values: unknown[] = []
+  describe('createRegistryContext', () => {
+    it('should create a context trinity with default namespace', () => {
+      const [useRegistryContext, provideRegistryContext, defaultContext] = createRegistryContext()
 
-    watchEffect(() => {
-      const ticket = registry.get('test')
-      values.push(ticket?.value)
+      expect(useRegistryContext).toBeDefined()
+      expect(typeof useRegistryContext).toBe('function')
+      expect(provideRegistryContext).toBeDefined()
+      expect(typeof provideRegistryContext).toBe('function')
+      expect(defaultContext).toBeDefined()
+      expect(defaultContext.collection).toBeInstanceOf(Map)
     })
 
-    expect(values).toEqual(['initial'])
+    it('should create a context with custom namespace', () => {
+      const [, , context] = createRegistryContext({ namespace: 'custom:registry' })
 
-    registry.upsert('test', { value: 'updated' })
-    await nextTick()
-    expect(values).toEqual(['initial', 'updated'])
+      expect(context.size).toBe(0)
+      context.register({ id: 'test' })
+      expect(context.size).toBe(1)
+    })
+
+    it('should pass events option through to registry', () => {
+      const [, , context] = createRegistryContext({ events: true })
+      const listener = vi.fn()
+
+      context.on('register:ticket', listener)
+      context.register({ id: 'test' })
+
+      expect(listener).toHaveBeenCalledOnce()
+    })
+
+    it('should create independent contexts', () => {
+      const [, , context1] = createRegistryContext({ namespace: 'context-1' })
+      const [, , context2] = createRegistryContext({ namespace: 'context-2' })
+
+      context1.register({ id: 'item-1' })
+
+      expect(context1.size).toBe(1)
+      expect(context2.size).toBe(0)
+    })
+  })
+
+  describe('reactive option', () => {
+    it('should create reactive collection when enabled', () => {
+      const registry = createRegistry({ reactive: true })
+      expect(isReactive(registry.collection)).toBe(true)
+    })
+
+    it('should not create reactive collection when disabled', () => {
+      const registry = createRegistry({ reactive: false })
+      expect(isReactive(registry.collection)).toBe(false)
+    })
+
+    it('should create reactive tickets when enabled', () => {
+      const registry = createRegistry({ reactive: true })
+      const ticket = registry.register({ id: 'test' })
+      expect(isReactive(ticket)).toBe(true)
+    })
+
+    it('should not create reactive tickets when disabled', () => {
+      const registry = createRegistry({ reactive: false })
+      const ticket = registry.register({ id: 'test' })
+      expect(isReactive(ticket)).toBe(false)
+    })
+
+    it('should trigger reactivity on collection changes', async () => {
+      const registry = createRegistry({ reactive: true })
+      const sizes: number[] = []
+
+      watchEffect(() => {
+        sizes.push(registry.collection.size)
+      })
+
+      expect(sizes).toEqual([0])
+
+      registry.register({ id: 'item-1' })
+      await nextTick()
+      expect(sizes).toEqual([0, 1])
+
+      registry.register({ id: 'item-2' })
+      await nextTick()
+      expect(sizes).toEqual([0, 1, 2])
+
+      registry.unregister('item-1')
+      await nextTick()
+      expect(sizes).toEqual([0, 1, 2, 1])
+    })
+
+    it('should trigger reactivity when getting updated ticket from collection', async () => {
+      const registry = createRegistry({ reactive: true })
+      registry.register({ id: 'test', value: 'initial' })
+      const values: unknown[] = []
+
+      watchEffect(() => {
+        const ticket = registry.get('test')
+        values.push(ticket?.value)
+      })
+
+      expect(values).toEqual(['initial'])
+
+      registry.upsert('test', { value: 'updated' })
+      await nextTick()
+      expect(values).toEqual(['initial', 'updated'])
+    })
   })
 })

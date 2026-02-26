@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { inject, provide, ref } from 'vue'
+import { inject, provide, ref, shallowRef } from 'vue'
 
 // Types
 import type { Primitive } from './index'
@@ -21,7 +21,7 @@ const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
 describe('createFilter.apply', () => {
-  const items = ref([
+  const items = shallowRef([
     { name: 'apple', color: 'green', type: 'fruit' },
     { name: 'apple', color: 'red', type: 'fruit' },
     { name: 'carrot', color: 'orange', type: 'vegetable' },
@@ -72,7 +72,7 @@ describe('createFilter.apply', () => {
   })
 
   it('should handle primitive items', () => {
-    const prim = ref(['apple', 'banana', 'carrot', 'apple pie'])
+    const prim = shallowRef(['apple', 'banana', 'carrot', 'apple pie'])
     const filter = createFilter()
     const { items: filtered } = filter.apply('apple', prim)
     expect(filtered.value).toEqual(['apple', 'apple pie'])
@@ -108,7 +108,7 @@ describe('createFilter.apply', () => {
   })
 
   it('should handle numeric values in filter', () => {
-    const numItems = ref([
+    const numItems = shallowRef([
       { id: 1, name: 'item1' },
       { id: 2, name: 'item2' },
       { id: 12, name: 'item12' },
@@ -120,7 +120,7 @@ describe('createFilter.apply', () => {
   })
 
   it('should handle empty items array', () => {
-    const emptyItems = ref<Array<{ name: string }>>([])
+    const emptyItems = shallowRef<Array<{ name: string }>>([])
     const filter = createFilter()
     const { items: filtered } = filter.apply('test', emptyItems)
     expect(filtered.value).toHaveLength(0)
@@ -177,7 +177,7 @@ describe('createFilter.apply', () => {
   })
 
   it('should handle boolean values in items', () => {
-    const boolItems = ref([
+    const boolItems = shallowRef([
       { name: 'item1', active: true },
       { name: 'item2', active: false },
     ])
@@ -188,7 +188,7 @@ describe('createFilter.apply', () => {
   })
 
   it('should reactively update when items change', () => {
-    const dynamicItems = ref([
+    const dynamicItems = shallowRef([
       { name: 'apple', color: 'red', type: 'fruit' },
     ])
     const filter = createFilter()
@@ -196,7 +196,7 @@ describe('createFilter.apply', () => {
 
     expect(filtered.value).toHaveLength(1)
 
-    dynamicItems.value.push({ name: 'apple pie', color: 'brown', type: 'dessert' })
+    dynamicItems.value = [...dynamicItems.value, { name: 'apple pie', color: 'brown', type: 'dessert' }]
 
     expect(filtered.value).toHaveLength(2)
   })
@@ -219,7 +219,7 @@ describe('createFilter', () => {
     const filter = createFilter({
       keys: ['name'],
     })
-    const items = ref([
+    const items = shallowRef([
       { name: 'apple', type: 'fruit' },
       { name: 'banana', type: 'fruit' },
       { name: 'carrot', type: 'vegetable' },
@@ -273,7 +273,7 @@ describe('createFilterContext', () => {
     const [,, context] = createFilterContext({
       keys: ['name'],
     })
-    const items = ref([
+    const items = shallowRef([
       { name: 'apple' },
       { name: 'banana' },
     ])

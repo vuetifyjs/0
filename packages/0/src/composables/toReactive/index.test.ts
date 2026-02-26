@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 // Utilities
-import { isReactive, ref } from 'vue'
+import { isReactive, ref, watchEffect } from 'vue'
 
 import { toReactive } from './index'
 
@@ -94,7 +94,7 @@ describe('toReactive', () => {
   })
 
   it('should handle empty objects', () => {
-    const objRef = ref({} as Record<string, any>)
+    const objRef = ref({} as Record<string, unknown>)
     const result = toReactive(objRef)
 
     expect(isReactive(result)).toBe(true)
@@ -112,7 +112,6 @@ describe('toReactive', () => {
     expect(result[0]).toBe(1)
     expect(result.length).toBe(3)
 
-    // Manually set array elements instead of using push to avoid stack overflow
     result[3] = 4
     expect(arrRef.value[3]).toBe(4)
     expect(arrRef.value.length).toBe(4)
@@ -217,7 +216,7 @@ describe('toReactive', () => {
       const mapRef = ref(new Map([['a', 1], ['b', 2]]))
       const result = toReactive(mapRef)
 
-      const collected: Array<[any, any]> = []
+      const collected: Array<[unknown, unknown]> = []
       for (const [key, value] of result.entries()) {
         collected.push([key, value])
       }
@@ -229,9 +228,9 @@ describe('toReactive', () => {
       const mapRef = ref(new Map([['a', 1], ['b', 2]]))
       const result = toReactive(mapRef)
 
-      const collected: Array<[any, any]> = []
+      const collected: Array<[unknown, unknown]> = []
       // eslint-disable-next-line unicorn/no-array-for-each -- testing forEach method
-      result.forEach((value: any, key: any) => {
+      result.forEach((value: unknown, key: unknown) => {
         collected.push([key, value])
       })
 
@@ -242,7 +241,7 @@ describe('toReactive', () => {
       const mapRef = ref(new Map([['a', 1], ['b', 2]]))
       const result = toReactive(mapRef)
 
-      const collected: Array<[any, any]> = []
+      const collected: Array<[unknown, unknown]> = []
       for (const [key, value] of result) {
         collected.push([key, value])
       }
@@ -255,7 +254,7 @@ describe('toReactive', () => {
       const mapRef = ref(new Map([['key', refValue]]))
       const result = toReactive(mapRef)
 
-      const collected: Array<[any, any]> = []
+      const collected: Array<[unknown, unknown]> = []
       for (const [key, value] of result) {
         collected.push([key, value])
       }
@@ -317,7 +316,7 @@ describe('toReactive', () => {
       const setRef = ref(new Set(['a', 'b']))
       const result = toReactive(setRef)
 
-      const collected: any[] = []
+      const collected: unknown[] = []
       for (const value of result) {
         collected.push(value)
       }
@@ -329,9 +328,9 @@ describe('toReactive', () => {
       const setRef = ref(new Set(['a', 'b']))
       const result = toReactive(setRef)
 
-      const collected: Array<[any, any]> = []
+      const collected: Array<[unknown, unknown]> = []
       // eslint-disable-next-line unicorn/no-array-for-each -- testing forEach method
-      result.forEach((value: any, value2: any) => {
+      result.forEach((value: unknown, value2: unknown) => {
         collected.push([value, value2])
       })
 
@@ -370,13 +369,13 @@ describe('toReactive', () => {
 
   describe('edge cases', () => {
     it('should handle circular references', () => {
-      const obj: any = { name: 'test' }
+      const obj: Record<string, unknown> = { name: 'test' }
       obj.self = obj
       const objRef = ref(obj)
       const result = toReactive(objRef)
 
       expect(result.name).toBe('test')
-      expect(result.self.name).toBe('test')
+      expect((result.self as Record<string, unknown>).name).toBe('test')
     })
 
     it('should handle deeply nested refs', () => {
@@ -399,6 +398,25 @@ describe('toReactive', () => {
       const result = toReactive(objRef)
 
       expect(result.key).toBe('value')
+    })
+  })
+
+  describe('reactive dependency tracking', () => {
+    it('should trigger watchEffect when ref value changes', async () => {
+      const objRef = ref({ count: 0 })
+      const result = toReactive(objRef)
+
+      let tracked = 0
+      watchEffect(() => {
+        tracked = result.count as number
+      })
+
+      expect(tracked).toBe(0)
+
+      objRef.value = { count: 42 }
+      await Promise.resolve()
+
+      expect(tracked).toBe(42)
     })
   })
 

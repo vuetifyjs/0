@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Adapters
+import { Vuetify0ThemeAdapter } from './adapters/v0'
+
 // Utilities
 import { createApp, nextTick } from 'vue'
 
+// Types
+import type { ThemeContext } from './index'
+
 import { createTheme, createThemePlugin, useTheme } from './index'
 
-// Mock IN_BROWSER global
 vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: true,
 }))
@@ -277,7 +282,6 @@ describe('createTheme', () => {
         },
       })
 
-      // No theme selected initially
       context.cycle(['light', 'dark'])
       expect(context.selectedId.value).toBe('light')
     })
@@ -303,15 +307,59 @@ describe('createTheme', () => {
       expect(context.collection.has('custom')).toBe(true)
     })
   })
+
+  describe('isDark reactivity', () => {
+    it('should update isDark when switching from light to dark theme', () => {
+      const context = createTheme({
+        default: 'light',
+        themes: {
+          light: {
+            dark: false,
+            colors: { primary: '#1976d2' },
+          },
+          dark: {
+            dark: true,
+            colors: { primary: '#90caf9' },
+          },
+        },
+      })
+
+      expect(context.isDark.value).toBe(false)
+
+      context.select('dark')
+
+      expect(context.isDark.value).toBe(true)
+    })
+
+    it('should update isDark when switching from dark to light theme', () => {
+      const context = createTheme({
+        default: 'dark',
+        themes: {
+          light: {
+            dark: false,
+            colors: { primary: '#1976d2' },
+          },
+          dark: {
+            dark: true,
+            colors: { primary: '#90caf9' },
+          },
+        },
+      })
+
+      expect(context.isDark.value).toBe(true)
+
+      context.select('light')
+
+      expect(context.isDark.value).toBe(false)
+    })
+  })
 })
 
 describe('createThemePlugin', () => {
   beforeEach(() => {
-    // Clear any existing style elements
     const existing = document.querySelector('#v0-theme-stylesheet')
     if (existing) existing.remove()
 
-    // Clear theme classes from body
     document.body.className = ''
   })
 
@@ -404,7 +452,7 @@ describe('createThemePlugin', () => {
     targetEl.id = 'theme-target'
     document.body.append(targetEl)
 
-    let themeContext: any
+    let themeContext: ThemeContext | undefined
 
     const app = createApp({
       setup () {
@@ -436,8 +484,7 @@ describe('createThemePlugin', () => {
 
     expect(targetEl.dataset.theme).toBe('light')
 
-    // Switch theme using the context from setup
-    themeContext.select('dark')
+    themeContext!.select('dark')
 
     await nextTick()
 
@@ -470,7 +517,6 @@ describe('createThemePlugin', () => {
 
     await nextTick()
 
-    // Should apply to container or body
     const hasDataTheme = container.dataset.theme === 'light' ||
       document.body.dataset.theme === 'light'
     expect(hasDataTheme).toBe(true)
@@ -541,6 +587,56 @@ describe('createThemePlugin', () => {
 
     app.unmount()
   })
+
+  describe('nested theme context', () => {
+    it('should allow child component to override parent theme', () => {
+      let parentTheme: ThemeContext | undefined
+      let childTheme: ThemeContext | undefined
+
+      const ChildComponent = {
+        setup () {
+          childTheme = useTheme()
+          return {}
+        },
+        template: '<div>Child</div>',
+      }
+
+      const app = createApp({
+        components: { ChildComponent },
+        setup () {
+          parentTheme = useTheme()
+          return {}
+        },
+        template: '<div><ChildComponent /></div>',
+      })
+
+      app.use(
+        createThemePlugin({
+          default: 'light',
+          themes: {
+            light: {
+              dark: false,
+              colors: { primary: '#1976d2' },
+            },
+            dark: {
+              dark: true,
+              colors: { primary: '#90caf9' },
+            },
+          },
+        }),
+      )
+
+      const container = document.createElement('div')
+      app.mount(container)
+
+      expect(parentTheme).toBeDefined()
+      expect(childTheme).toBeDefined()
+      expect(parentTheme!.selectedId.value).toBe('light')
+      expect(childTheme!.selectedId.value).toBe('light')
+
+      app.unmount()
+    })
+  })
 })
 
 describe('useTheme', () => {
@@ -561,7 +657,7 @@ describe('useTheme', () => {
   })
 
   it('should access theme context when provided', () => {
-    let themeFromSetup: any
+    let themeFromSetup: ThemeContext | undefined
 
     const app = createApp({
       setup () {
@@ -586,38 +682,79 @@ describe('useTheme', () => {
     app.mount(container)
 
     expect(themeFromSetup).toBeDefined()
-    expect(themeFromSetup.selectedId.value).toBe('light')
+    expect(themeFromSetup!.selectedId.value).toBe('light')
+
+    app.unmount()
+  })
+
+  it('should update isDark when switching themes', () => {
+    let themeFromSetup: ThemeContext | undefined
+
+    const app = createApp({
+      setup () {
+        themeFromSetup = useTheme()
+        return {}
+      },
+      template: '<div>Test</div>',
+    })
+
+    app.use(
+      createThemePlugin({
+        default: 'light',
+        themes: {
+          light: {
+            dark: false,
+            colors: { primary: '#1976d2' },
+          },
+          dark: {
+            dark: true,
+            colors: { primary: '#90caf9' },
+          },
+        },
+      }),
+    )
+
+    const container = document.createElement('div')
+    app.mount(container)
+
+    expect(themeFromSetup!.isDark.value).toBe(false)
+
+    themeFromSetup!.select('dark')
+
+    expect(themeFromSetup!.isDark.value).toBe(true)
 
     app.unmount()
   })
 })
 
 describe('themeAdapter', () => {
-  it('should generate CSS with correct format', () => {
-    createTheme({
-      themes: {
+  it('should generate CSS with data-theme selectors and variables', () => {
+    const adapter = new Vuetify0ThemeAdapter()
+
+    const css = adapter.generate(
+      {
         light: {
-          colors: {
-            primary: '#1976d2',
-            secondary: '#424242',
-          },
+          primary: '#1976d2',
+          secondary: '#424242',
         },
       },
-    })
+      false,
+    )
 
-    // Access the adapter through the plugin
-    const plugin = createThemePlugin({
-      themes: {
-        light: {
-          colors: {
-            primary: '#1976d2',
-            secondary: '#424242',
-          },
-        },
-      },
-    })
+    expect(css).toContain('[data-theme="light"]')
+    expect(css).toContain('--v0-primary: #1976d2')
+    expect(css).toContain('--v0-secondary: #424242')
+    expect(css).toContain('color-scheme: light')
+  })
 
-    // The adapter is private, but we can test via the plugin's behavior
-    expect(plugin).toBeDefined()
+  it('should generate dark color-scheme when isDark is true', () => {
+    const adapter = new Vuetify0ThemeAdapter()
+
+    const css = adapter.generate(
+      { dark: { primary: '#90caf9' } },
+      true,
+    )
+
+    expect(css).toContain('color-scheme: dark')
   })
 })

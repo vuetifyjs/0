@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Adapters
 import { Vuetify0PermissionAdapter } from './adapters/v0'
@@ -21,6 +21,10 @@ const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
 describe('usePermissions', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('createPermissions', () => {
     it('should create permissions instance with default options', () => {
       const defaultPermissions = createPermissions()
@@ -170,6 +174,28 @@ describe('usePermissions', () => {
       expect(permissions.can('nonexistent', 'read', 'users')).toBe(false)
       expect(permissions.can('admin', 'nonexistent', 'users')).toBe(false)
       expect(permissions.can('admin', 'read', 'nonexistent')).toBe(false)
+    })
+
+    it('should return permission value via get()', () => {
+      const permissions = createPermissions({
+        permissions: {
+          admin: [
+            ['read', 'users'],
+            ['write', 'posts', (ctx: Record<string, unknown>) => ctx.isOwner === true],
+          ],
+        },
+      })
+
+      const readTicket = permissions.get('admin.read.users')
+      expect(readTicket).toBeDefined()
+      expect(readTicket!.value).toBe(true)
+
+      const writeTicket = permissions.get('admin.write.posts')
+      expect(writeTicket).toBeDefined()
+      expect(typeof writeTicket!.value).toBe('function')
+
+      const missing = permissions.get('admin.delete.users')
+      expect(missing).toBeUndefined()
     })
   })
 

@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Composables
-import { useHydration } from '../useHydration'
+import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
 import { getCurrentInstance, onMounted, onScopeDispose, shallowRef } from 'vue'
+
+// Types
+import type { App } from 'vue'
 
 import { createBreakpoints, createBreakpointsPlugin, useBreakpoints } from './index'
 
@@ -21,7 +24,7 @@ vi.mock('vue', async () => {
 })
 
 // Mock useHydration
-vi.mock('../useHydration', () => ({
+vi.mock('#v0/composables/useHydration', () => ({
   useHydration: vi.fn(),
 }))
 
@@ -30,31 +33,18 @@ vi.mock('#v0/constants/globals', () => ({
   IN_BROWSER: true,
 }))
 
-// Mock helpers
-vi.mock('#v0/utilities', async importOriginal => {
-  const actual = await importOriginal()
-  return {
-    ...actual as any,
-    mergeDeep: vi.fn((defaults, options) => ({
-      ...defaults,
-      ...options,
-    })),
-  }
-})
-
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
 const mockOnMounted = vi.mocked(onMounted)
 const mockOnScopeDispose = vi.mocked(onScopeDispose)
 const mockUseHydration = vi.mocked(useHydration)
 
 describe('useBreakpoints', () => {
-  let originalWindow: any
-  let mockWindow: any
+  let originalWindow: Window & typeof globalThis
+  let mockWindow: Record<string, unknown>
 
   beforeEach(() => {
     vi.clearAllMocks()
 
-    // Mock window object
     originalWindow = globalThis.window
     mockWindow = {
       innerWidth: 1024,
@@ -62,9 +52,8 @@ describe('useBreakpoints', () => {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
     }
-    globalThis.window = mockWindow
+    globalThis.window = mockWindow as unknown as Window & typeof globalThis
 
-    // Mock hydration
     mockUseHydration.mockReturnValue({
       isHydrated: shallowRef(true),
       isSettled: shallowRef(true),
@@ -150,7 +139,7 @@ describe('useBreakpoints', () => {
     })
 
     it('should not call onMounted directly in createBreakpoints', () => {
-      mockGetCurrentInstance.mockReturnValue({} as any)
+      mockGetCurrentInstance.mockReturnValue({} as ReturnType<typeof getCurrentInstance>)
 
       createBreakpoints()
 
@@ -165,7 +154,7 @@ describe('useBreakpoints', () => {
     })
 
     it('should not register resize listener directly in createBreakpoints', () => {
-      mockGetCurrentInstance.mockReturnValue({} as any)
+      mockGetCurrentInstance.mockReturnValue({} as ReturnType<typeof getCurrentInstance>)
 
       createBreakpoints()
 
@@ -245,7 +234,7 @@ describe('useBreakpoints', () => {
 
       expect(context.name.value).toBe('md')
       expect(context.md.value).toBe(true)
-      expect(context.isMobile.value).toBe(true) // lg is default mobile breakpoint
+      expect(context.isMobile.value).toBe(true)
       expect(context.mdAndUp.value).toBe(true)
       expect(context.mdAndDown.value).toBe(true)
     })
@@ -345,9 +334,15 @@ describe('useBreakpoints', () => {
       expect(typeof useBreakpoints).toBe('function')
     })
 
-    // Note: Full testing of useBreakpoints requires component context
-    // since it uses inject/provide. This would typically be tested
-    // in component tests or with a testing harness.
+    it('should return provided context via inject', async () => {
+      const { inject } = vi.mocked(await import('vue'))
+      const mockContext = createBreakpoints()
+      inject.mockReturnValue(mockContext)
+
+      const result = useBreakpoints()
+
+      expect(result).toBe(mockContext)
+    })
   })
 
   describe('createBreakpointsPlugin', () => {
@@ -379,7 +374,7 @@ describe('useBreakpoints', () => {
         mixin: vi.fn(),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
       expect(mockApp.runWithContext).toHaveBeenCalledOnce()
       expect(typeof mockApp.runWithContext.mock.calls[0]![0]).toBe('function')
@@ -394,7 +389,7 @@ describe('useBreakpoints', () => {
         mixin: vi.fn(),
       }
 
-      expect(() => plugin.install(mockApp as any)).not.toThrow()
+      expect(() => plugin.install(mockApp as unknown as App)).not.toThrow()
     })
   })
 
@@ -427,7 +422,7 @@ describe('useBreakpoints', () => {
 
       context.update()
 
-      expect(context.isMobile.value).toBe(true) // 1100 < 1145 (lg breakpoint)
+      expect(context.isMobile.value).toBe(true)
     })
 
     it('should handle custom mobile breakpoint as number', () => {
@@ -440,7 +435,7 @@ describe('useBreakpoints', () => {
 
       context.update()
 
-      expect(context.isMobile.value).toBe(true) // 1000 < 1200
+      expect(context.isMobile.value).toBe(true)
     })
 
     it('should fallback to md breakpoint when custom mobile breakpoint is not found', () => {
@@ -448,12 +443,12 @@ describe('useBreakpoints', () => {
 
       const context = createBreakpoints({
         namespace: 'v0:breakpoints',
-        mobileBreakpoint: 'invalid' as any,
+        mobileBreakpoint: 'invalid' as 'xs',
       })
 
       context.update()
 
-      expect(context.isMobile.value).toBe(false) // 1000 >= 840 (md breakpoint)
+      expect(context.isMobile.value).toBe(false)
     })
   })
 
@@ -501,7 +496,7 @@ describe('useBreakpoints', () => {
     })
 
     it('should handle breakpoint exactly at threshold', () => {
-      mockWindow.innerWidth = 840 // Exactly at md breakpoint
+      mockWindow.innerWidth = 840
 
       const context = createBreakpoints()
       context.update()
@@ -521,9 +516,8 @@ describe('useBreakpoints', () => {
         mixin: vi.fn(),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
-      // Mixin should be registered
       expect(mockApp.mixin).toHaveBeenCalled()
       const mixinArg = mockApp.mixin.mock.calls[0]![0]
       expect(mixinArg).toHaveProperty('mounted')
@@ -531,84 +525,78 @@ describe('useBreakpoints', () => {
 
     it('should skip mixin mounted logic when component has parent', () => {
       const plugin = createBreakpointsPlugin()
-      let registeredMixin: any
+      let registeredMixin: Record<string, (...args: unknown[]) => void>
 
       const mockApp = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: any) => {
+        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
           registeredMixin = mixin
         }),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
-      // Call mounted with a parent
       const mockComponentWithParent = {
         $parent: {},
       }
 
-      // Mounted should return early when $parent exists
-      expect(() => registeredMixin.mounted.call(mockComponentWithParent)).not.toThrow()
+      expect(() => registeredMixin!.mounted!.call(mockComponentWithParent)).not.toThrow()
     })
 
     it('should setup resize listener for root component', () => {
       const plugin = createBreakpointsPlugin()
-      let registeredMixin: any
+      let registeredMixin: Record<string, (...args: unknown[]) => void>
 
       const mockApp = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: any) => {
+        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
           registeredMixin = mixin
         }),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
-      // Call mounted for root component (no parent)
       const mockRootComponent = {
         $parent: null,
       }
 
-      // Mounted should run for root component
-      expect(() => registeredMixin.mounted.call(mockRootComponent)).not.toThrow()
+      expect(() => registeredMixin!.mounted!.call(mockRootComponent)).not.toThrow()
 
-      // useHydration and onScopeDispose should have been called
       expect(mockUseHydration).toHaveBeenCalled()
     })
 
     it('should register cleanup on scope dispose', () => {
       const plugin = createBreakpointsPlugin()
-      let registeredMixin: any
+      let registeredMixin: Record<string, (...args: unknown[]) => void>
 
       const mockApp = {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: any) => {
+        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
           registeredMixin = mixin
         }),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
       const mockRootComponent = {
         $parent: null,
       }
 
-      registeredMixin.mounted.call(mockRootComponent)
+      registeredMixin!.mounted!.call(mockRootComponent)
 
-      // onScopeDispose should have been called to register cleanup
       expect(mockOnScopeDispose).toHaveBeenCalled()
-      expect(mockOnScopeDispose.mock.calls[0]![1]).toBe(true) // Second arg is true for onUnmounted
+      expect(mockOnScopeDispose.mock.calls[0]![1]).toBe(true)
     })
 
     it('should call cleanup function when scope is disposed', () => {
       const plugin = createBreakpointsPlugin()
-      let registeredMixin: any
+      let registeredMixin: Record<string, (...args: unknown[]) => void>
       let cleanupFn: (() => void) | undefined
 
       mockOnScopeDispose.mockImplementation((fn: () => void) => {
@@ -619,23 +607,21 @@ describe('useBreakpoints', () => {
         _context: {},
         runWithContext: vi.fn((callback: () => void) => callback()),
         provide: vi.fn(),
-        mixin: vi.fn((mixin: any) => {
+        mixin: vi.fn((mixin: Record<string, (...args: unknown[]) => void>) => {
           registeredMixin = mixin
         }),
       }
 
-      plugin.install(mockApp as any)
+      plugin.install(mockApp as unknown as App)
 
       const mockRootComponent = {
         $parent: null,
       }
 
-      registeredMixin.mounted.call(mockRootComponent)
+      registeredMixin!.mounted!.call(mockRootComponent)
 
-      // Cleanup should have been registered
       expect(cleanupFn).toBeDefined()
 
-      // Calling cleanup should not throw
       expect(() => cleanupFn!()).not.toThrow()
     })
   })

@@ -423,7 +423,7 @@ describe('single', () => {
     })
   })
 
-  describe('sSR/Hydration', () => {
+  describe('sSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

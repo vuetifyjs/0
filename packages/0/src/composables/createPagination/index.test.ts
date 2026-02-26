@@ -17,7 +17,7 @@ vi.mock('vue', async () => {
 const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
-describe('usePagination', () => {
+describe('createPagination', () => {
   describe('navigation', () => {
     describe('first', () => {
       it('should set page to 1', () => {

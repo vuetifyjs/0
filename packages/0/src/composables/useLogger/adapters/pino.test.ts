@@ -1,108 +1,132 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { PinoLoggerAdapter } from './pino'
 
 describe('pinoLoggerAdapter', () => {
-  it('should throw if pino instance is not provided', () => {
-    expect(() => new PinoLoggerAdapter(null)).toThrow(
-      'Pino instance is required for PinoLoggerAdapter',
-    )
-    expect(() => new PinoLoggerAdapter(undefined)).toThrow(
-      'Pino instance is required for PinoLoggerAdapter',
-    )
+  let mockPino: Record<string, ReturnType<typeof vi.fn>>
+
+  beforeEach(() => {
+    mockPino = {
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      trace: vi.fn(),
+      fatal: vi.fn(),
+    }
   })
 
-  it('should format message-only calls correctly', () => {
-    const mockPino = { info: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
-
-    adapter.info('test message')
-
-    expect(mockPino.info).toHaveBeenCalledWith({ msg: 'test message' })
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
-  it('should merge object metadata with message', () => {
-    const mockPino = { info: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
+  describe('constructor', () => {
+    it('should initialize with a pino instance', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
 
-    adapter.info('test message', { userId: 123, action: 'login' })
+      adapter.info('test message')
 
-    expect(mockPino.info).toHaveBeenCalledWith({
-      userId: 123,
-      action: 'login',
-      msg: 'test message',
+      expect(mockPino.info).toHaveBeenCalledWith({ msg: 'test message' })
+    })
+
+    it('should throw if pino instance is not provided', () => {
+      expect(() => new PinoLoggerAdapter(null)).toThrow(
+        'Pino instance is required for PinoLoggerAdapter',
+      )
+      expect(() => new PinoLoggerAdapter(undefined)).toThrow(
+        'Pino instance is required for PinoLoggerAdapter',
+      )
     })
   })
 
-  it('should include non-object args in metadata', () => {
-    const mockPino = { info: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
+  describe('log methods', () => {
+    it('should call debug', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
 
-    adapter.info('test message', 'arg1', 'arg2')
+      adapter.debug('debug message')
 
-    expect(mockPino.info).toHaveBeenCalledWith({
-      msg: 'test message',
-      args: ['arg1', 'arg2'],
+      expect(mockPino.debug).toHaveBeenCalledWith({ msg: 'debug message' })
+    })
+
+    it('should call info', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
+
+      adapter.info('test message')
+
+      expect(mockPino.info).toHaveBeenCalledWith({ msg: 'test message' })
+    })
+
+    it('should call warn', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
+
+      adapter.warn('warning message')
+
+      expect(mockPino.warn).toHaveBeenCalledWith({ msg: 'warning message' })
+    })
+
+    it('should call error', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
+
+      adapter.error('error message', { errorCode: 500 })
+
+      expect(mockPino.error).toHaveBeenCalledWith({
+        errorCode: 500,
+        msg: 'error message',
+      })
     })
   })
 
-  it('should forward debug calls', () => {
-    const mockPino = { debug: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
+  describe('trace and fatal', () => {
+    it('should call trace', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
 
-    adapter.debug('debug message')
+      adapter.trace('trace message')
 
-    expect(mockPino.debug).toHaveBeenCalledWith({ msg: 'debug message' })
-  })
+      expect(mockPino.trace).toHaveBeenCalledWith({ msg: 'trace message' })
+    })
 
-  it('should forward warn calls', () => {
-    const mockPino = { warn: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
+    it('should call fatal', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
 
-    adapter.warn('warning message')
+      adapter.fatal('fatal message')
 
-    expect(mockPino.warn).toHaveBeenCalledWith({ msg: 'warning message' })
-  })
-
-  it('should forward error calls', () => {
-    const mockPino = { error: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
-
-    adapter.error('error message', { errorCode: 500 })
-
-    expect(mockPino.error).toHaveBeenCalledWith({
-      errorCode: 500,
-      msg: 'error message',
+      expect(mockPino.fatal).toHaveBeenCalledWith({ msg: 'fatal message' })
     })
   })
 
-  it('should forward trace calls', () => {
-    const mockPino = { trace: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
+  describe('metadata formatting', () => {
+    it('should merge object metadata with message', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
 
-    adapter.trace('trace message')
+      adapter.info('test message', { userId: 123, action: 'login' })
 
-    expect(mockPino.trace).toHaveBeenCalledWith({ msg: 'trace message' })
-  })
+      expect(mockPino.info).toHaveBeenCalledWith({
+        userId: 123,
+        action: 'login',
+        msg: 'test message',
+      })
+    })
 
-  it('should forward fatal calls', () => {
-    const mockPino = { fatal: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
+    it('should include non-object args in metadata', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
 
-    adapter.fatal('fatal message')
+      adapter.info('test message', 'arg1', 'arg2')
 
-    expect(mockPino.fatal).toHaveBeenCalledWith({ msg: 'fatal message' })
-  })
+      expect(mockPino.info).toHaveBeenCalledWith({
+        msg: 'test message',
+        args: ['arg1', 'arg2'],
+      })
+    })
 
-  it('should handle mixed arguments with first object', () => {
-    const mockPino = { info: vi.fn() }
-    const adapter = new PinoLoggerAdapter(mockPino)
+    it('should handle mixed arguments with first object', () => {
+      const adapter = new PinoLoggerAdapter(mockPino)
 
-    adapter.info('message', { metadata: true }, 'extra')
+      adapter.info('message', { metadata: true }, 'extra')
 
-    expect(mockPino.info).toHaveBeenCalledWith({
-      msg: 'message',
-      args: [{ metadata: true }, 'extra'],
+      expect(mockPino.info).toHaveBeenCalledWith({
+        msg: 'message',
+        args: [{ metadata: true }, 'extra'],
+      })
     })
   })
 })

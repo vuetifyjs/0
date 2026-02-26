@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
 // Utilities
-import { nextTick, ref } from 'vue'
+import { nextTick, readonly, ref, type Ref, shallowRef } from 'vue'
 
 import { useMutationObserver } from './index'
 
@@ -18,7 +18,7 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 describe('useMutationObserver', () => {
-  let mockObserver: any
+  let mockObserver: { observe: Mock, disconnect: Mock }
   let element: HTMLDivElement
 
   beforeEach(() => {
@@ -94,6 +94,56 @@ describe('useMutationObserver', () => {
       attributeNamespace: null,
       oldValue: null,
     }])
+  })
+
+  it('should call immediate callback when already hydrated at initialization', async () => {
+    mockIsHydrated.value = true
+
+    const target = ref<Element | undefined>(element)
+    const callback = vi.fn()
+
+    useMutationObserver(target, callback, { immediate: true })
+    await nextTick()
+
+    expect(callback).toHaveBeenCalledWith([{
+      type: 'childList',
+      target: element,
+      addedNodes: expect.objectContaining({
+        length: 0,
+      }),
+      removedNodes: expect.objectContaining({
+        length: 0,
+      }),
+      previousSibling: null,
+      nextSibling: null,
+      attributeName: null,
+      attributeNamespace: null,
+      oldValue: null,
+    }])
+  })
+
+  it('should accept readonly refs (useTemplateRef compatibility)', async () => {
+    mockIsHydrated.value = true
+    const target = readonly(shallowRef<Element | null>(element)) as Readonly<Ref<Element | null>>
+    const callback = vi.fn()
+
+    useMutationObserver(target, callback)
+    await nextTick()
+
+    expect(globalThis.MutationObserver).toHaveBeenCalled()
+    expect(mockObserver.observe).toHaveBeenCalledWith(element, expect.any(Object))
+  })
+
+  it('should accept shallowRef targets', async () => {
+    mockIsHydrated.value = true
+    const target = shallowRef<Element | null>(element)
+    const callback = vi.fn()
+
+    useMutationObserver(target, callback)
+    await nextTick()
+
+    expect(globalThis.MutationObserver).toHaveBeenCalled()
+    expect(mockObserver.observe).toHaveBeenCalledWith(element, expect.any(Object))
   })
 
   it('should handle pause and resume functionality', async () => {
@@ -413,10 +463,10 @@ describe('useMutationObserver SSR', () => {
     }))
 
     const { useMutationObserver: useMutationObserverSSR } = await import('./index')
-    const target = { value: undefined }
+    const target = ref<Element | undefined>(undefined)
     const callback = vi.fn()
 
-    const result = useMutationObserverSSR(target as any, callback)
+    const result = useMutationObserverSSR(target, callback)
 
     expect(result).toHaveProperty('isActive')
     expect(result).toHaveProperty('isPaused')
@@ -441,10 +491,10 @@ describe('useMutationObserver SSR', () => {
     const { useMutationObserver: useMutationObserverSSR } = await import('./index')
 
     const element = document.createElement('div')
-    const target = { value: element }
+    const target = ref<Element | undefined>(element)
     const callback = vi.fn()
 
-    const { isActive } = useMutationObserverSSR(target as any, callback)
+    const { isActive } = useMutationObserverSSR(target, callback)
 
     expect(isActive.value).toBe(false)
   })
@@ -462,10 +512,10 @@ describe('useMutationObserver SSR', () => {
     }))
 
     const { useMutationObserver: useMutationObserverSSR } = await import('./index')
-    const target = { value: undefined }
+    const target = ref<Element | undefined>(undefined)
     const callback = vi.fn()
 
-    const { pause, resume, stop } = useMutationObserverSSR(target as any, callback)
+    const { pause, resume, stop } = useMutationObserverSSR(target, callback)
 
     expect(() => pause()).not.toThrow()
     expect(() => resume()).not.toThrow()

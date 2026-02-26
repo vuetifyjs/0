@@ -17,24 +17,38 @@ vi.mock('vue', async () => {
 const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
-describe('useForm validateOn functionality', () => {
-  it('should default to submit validation only', () => {
+describe('createForm disabled fields', () => {
+  it('should register disabled fields', () => {
     const form = createForm()
-    expect(form.validateOn).toBe('submit')
+    const field = form.register({
+      id: 'test',
+      value: 'test',
+      disabled: true,
+      rules: [],
+    })
+
+    expect(field.disabled).toBe(true)
   })
 
-  it('should accept custom validateOn option', () => {
-    const form = createForm({ validateOn: 'change' })
-    expect(form.validateOn).toBe('change')
+  it('should default to enabled when disabled is not specified', () => {
+    const form = createForm()
+    const field = form.register({
+      id: 'test',
+      value: 'test',
+      rules: [],
+    })
+
+    expect(field.disabled).toBe(false)
+  })
+})
+
+describe('createForm integration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('should support multiple triggers', () => {
-    const form = createForm({ validateOn: 'submit change' })
-    expect(form.validateOn).toBe('submit change')
-  })
-
-  it('should validate on submit when validateOn includes submit', async () => {
-    const form = createForm({ validateOn: 'submit' })
+  it('should validate all fields on submit', async () => {
+    const form = createForm()
     const mockRule = vi.fn().mockResolvedValue('Error message')
 
     const field = form.register({
@@ -49,96 +63,8 @@ describe('useForm validateOn functionality', () => {
     expect(field.errors.value).toEqual(['Error message'])
   })
 
-  it('should always validate on submit regardless of validateOn mode', async () => {
-    const form = createForm({ validateOn: 'change' })
-    const mockRule = vi.fn().mockResolvedValue('Error message')
-
-    form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'test-value',
-    })
-
-    const result = await form.submit()
-
-    expect(mockRule).toHaveBeenCalled()
-    expect(result).toBe(false)
-  })
-
-  it('should validate on change when validateOn includes change', async () => {
-    const form = createForm({ validateOn: 'change' })
-    const mockRule = vi.fn().mockResolvedValue(true)
-
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'initial',
-    })
-
-    field.value = 'changed'
-    expect(form.isValidating.value).toBe(true)
-    await nextTick()
-
-    expect(mockRule).toHaveBeenCalledWith('changed')
-  })
-
-  it('should not validate on change when validateOn does not include change', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const mockRule = vi.fn().mockResolvedValue(true)
-
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'initial',
-    })
-
-    field.value = 'changed'
-    await nextTick()
-
-    expect(mockRule).not.toHaveBeenCalled()
-  })
-
-  it('should support field-level validateOn override', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const mockRule = vi.fn().mockResolvedValue(true)
-
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'initial',
-      validateOn: 'change',
-    })
-
-    field.value = 'changed'
-    await nextTick()
-
-    expect(mockRule).toHaveBeenCalledWith('changed')
-    expect(field.validateOn).toBe('change')
-  })
-
-  it('should support custom string triggers', () => {
-    const form = createForm({ validateOn: 'blur focus custom' })
-    expect(form.validateOn).toBe('blur focus custom')
-  })
-
-  it('should be case insensitive', async () => {
-    const form = createForm({ validateOn: 'SUBMIT Change' })
-    const mockRule = vi.fn().mockResolvedValue(true)
-
-    const field = form.register({
-      id: 'test',
-      rules: [mockRule],
-      value: 'initial',
-    })
-
-    field.value = 'changed'
-    await nextTick()
-
-    expect(mockRule).toHaveBeenCalledWith('changed')
-  })
-
   it('should correctly compute isValid and isValidating', async () => {
-    const form = createForm({ validateOn: 'submit' })
+    const form = createForm()
     const mockRule = vi.fn().mockResolvedValue(true)
 
     form.register({
@@ -157,42 +83,7 @@ describe('useForm validateOn functionality', () => {
     expect(form.isValid.value).toBe(true)
     expect(form.isValidating.value).toBe(false)
   })
-})
 
-describe('use form validations', () => {
-  it('should successfully validate when no rules are provided', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const ticket = form.register({
-      id: 'test',
-      value: 'test-value',
-    })
-
-    await ticket.validate()
-
-    expect(ticket.isValid.value).toBe(true)
-    expect(ticket.errors.value).toEqual([])
-    expect(form.isValid.value).toBe(true)
-  })
-
-  it('should fail validation when a rule returns an error message', async () => {
-    const form = createForm({ validateOn: 'submit' })
-    const ticket = form.register({
-      id: 'test',
-      value: 'test-value',
-      rules: [
-        value => value === 'valid-value' || 'Invalid value provided',
-      ],
-    })
-
-    await ticket.validate()
-
-    expect(ticket.isValid.value).toBe(false)
-    expect(ticket.errors.value).toEqual(['Invalid value provided'])
-    expect(form.isValid.value).toBe(false)
-  })
-})
-
-describe('useForm edge cases', () => {
   describe('isValid computation', () => {
     it('should return null when no fields are registered', () => {
       const form = createForm()
@@ -267,6 +158,68 @@ describe('useForm edge cases', () => {
     })
   })
 
+  it('should reset all fields when form.reset() is called', async () => {
+    const form = createForm()
+    const field1 = form.register({
+      id: 'field1',
+      value: 'initial1',
+      rules: [v => (v as string).length > 0 || 'Required'],
+    })
+    const field2 = form.register({
+      id: 'field2',
+      value: 'initial2',
+      rules: [v => (v as string).length > 0 || 'Required'],
+    })
+
+    field1.value = 'changed1'
+    field2.value = 'changed2'
+    await field1.validate()
+    await field2.validate()
+
+    form.reset()
+
+    expect(field1.value).toBe('initial1')
+    expect(field2.value).toBe('initial2')
+    expect(field1.isPristine.value).toBe(true)
+    expect(field2.isPristine.value).toBe(true)
+    expect(field1.isValid.value).toBe(null)
+    expect(field2.isValid.value).toBe(null)
+    expect(field1.errors.value).toEqual([])
+    expect(field2.errors.value).toEqual([])
+  })
+
+  it('should support programmatic register outside component context', () => {
+    const form = createForm()
+
+    const field = form.register({
+      id: 'programmatic',
+      value: 'hello',
+      rules: [v => (v as string).length > 0 || 'Required'],
+    })
+
+    expect(field.value).toBe('hello')
+    expect(field.disabled).toBe(false)
+    expect(typeof field.validate).toBe('function')
+    expect(typeof field.reset).toBe('function')
+  })
+
+  it('should register declarative and programmatic fields in the same registry', () => {
+    const form = createForm()
+
+    const field1 = form.register({
+      id: 'field-a',
+      value: 'a',
+    })
+    const field2 = form.register({
+      id: 'field-b',
+      value: 'b',
+    })
+
+    expect(form.size).toBe(2)
+    expect(form.get('field-a')).toBe(field1)
+    expect(form.get('field-b')).toBe(field2)
+  })
+
   describe('isPristine tracking', () => {
     it('should be pristine initially', () => {
       const form = createForm()
@@ -324,260 +277,85 @@ describe('useForm edge cases', () => {
     })
   })
 
-  describe('async validation', () => {
-    it('should handle async validation rules', async () => {
+  describe('generation counter race', () => {
+    it('should only write state from the latest validation', async () => {
       const form = createForm()
-      async function asyncRule (v: unknown) {
-        await new Promise(resolve => setTimeout(resolve, 10))
-        return (v as string).length > 5 || 'Must be longer than 5 characters'
+      let callCount = 0
+      async function slowRule (v: unknown) {
+        const call = ++callCount
+        await new Promise(resolve => setTimeout(resolve, call === 1 ? 100 : 10))
+        return (v as string).length > 3 || `Error from call ${call}`
       }
 
-      const field = form.register({
-        id: 'test',
-        value: 'short',
-        rules: [asyncRule],
-      })
-
-      await field.validate()
-
-      expect(field.isValid.value).toBe(false)
-      expect(field.errors.value).toEqual(['Must be longer than 5 characters'])
-    })
-
-    it('should handle mixed sync and async rules', async () => {
-      const form = createForm()
-      function syncRule (v: unknown) {
-        return (v as string).length > 0 || 'Required'
-      }
-      async function asyncRule (v: unknown) {
-        await new Promise(resolve => setTimeout(resolve, 10))
-        return (v as string).length > 5 || 'Must be longer than 5 characters'
-      }
-
-      const field = form.register({
-        id: 'test',
-        value: 'test',
-        rules: [syncRule, asyncRule],
-      })
-
-      await field.validate()
-
-      expect(field.isValid.value).toBe(false)
-      expect(field.errors.value).toEqual(['Must be longer than 5 characters'])
-    })
-
-    it('should track isValidating state during async validation', async () => {
-      const form = createForm()
-      async function asyncRule (_v: unknown) {
-        await new Promise(resolve => setTimeout(resolve, 50))
-        return true as const
-      }
-
-      const field = form.register({
-        id: 'test',
-        value: 'test',
-        rules: [asyncRule],
-      })
-
-      expect(field.isValidating.value).toBe(false)
-
-      const validatePromise = field.validate()
-      await nextTick()
-
-      expect(field.isValidating.value).toBe(true)
-
-      await validatePromise
-
-      expect(field.isValidating.value).toBe(false)
-    })
-  })
-
-  describe('silent validation', () => {
-    it('should not update errors when silent is true', async () => {
-      const form = createForm()
-      const field = form.register({
-        id: 'test',
-        value: '',
-        rules: [v => (v as string).length > 0 || 'Required'],
-      })
-
-      const result = await field.validate(true)
-
-      expect(result).toBe(false)
-      expect(field.errors.value).toEqual([])
-      expect(field.isValid.value).toBe(null)
-    })
-
-    it('should not update isValid when silent is true', async () => {
-      const form = createForm()
-      const field = form.register({
-        id: 'test',
-        value: 'valid',
-        rules: [v => (v as string).length > 0 || 'Required'],
-      })
-
-      const result = await field.validate(true)
-
-      expect(result).toBe(true)
-      expect(field.errors.value).toEqual([])
-      expect(field.isValid.value).toBe(null)
-    })
-  })
-
-  describe('form reset', () => {
-    it('should reset all fields when form.reset() is called', async () => {
-      const form = createForm()
-      const field1 = form.register({
-        id: 'field1',
-        value: 'initial1',
-        rules: [v => (v as string).length > 0 || 'Required'],
-      })
-      const field2 = form.register({
-        id: 'field2',
-        value: 'initial2',
-        rules: [v => (v as string).length > 0 || 'Required'],
-      })
-
-      field1.value = 'changed1'
-      field2.value = 'changed2'
-      await field1.validate()
-      await field2.validate()
-
-      form.reset()
-
-      expect(field1.value).toBe('initial1')
-      expect(field2.value).toBe('initial2')
-      expect(field1.isPristine.value).toBe(true)
-      expect(field2.isPristine.value).toBe(true)
-      expect(field1.isValid.value).toBe(null)
-      expect(field2.isValid.value).toBe(null)
-      expect(field1.errors.value).toEqual([])
-      expect(field2.errors.value).toEqual([])
-    })
-  })
-
-  describe('multiple validation rules', () => {
-    it('should collect all error messages from failing rules', async () => {
-      const form = createForm()
       const field = form.register({
         id: 'test',
         value: 'ab',
-        rules: [
-          v => (v as string).length > 3 || 'Must be longer than 3 characters',
-          v => (v as string).length < 10 || 'Must be shorter than 10 characters',
-          v => /^[a-z]+$/.test(v as string) || 'Must contain only lowercase letters',
-        ],
+        rules: [slowRule],
       })
 
-      await field.validate()
+      const first = field.validate()
+      const second = field.validate()
 
-      expect(field.isValid.value).toBe(false)
-      expect(field.errors.value).toEqual(['Must be longer than 3 characters'])
+      await Promise.all([first, second])
+
+      expect(field.errors.value).toEqual(['Error from call 2'])
     })
+  })
 
-    it('should return true when all rules pass', async () => {
+  describe('reset during async validation', () => {
+    it('should discard in-flight result after reset', async () => {
       const form = createForm()
-      const field = form.register({
-        id: 'test',
-        value: 'valid',
-        rules: [
-          v => (v as string).length > 3 || 'Must be longer than 3 characters',
-          v => (v as string).length < 10 || 'Must be shorter than 10 characters',
-          v => /^[a-z]+$/.test(v as string) || 'Must contain only lowercase letters',
-        ],
-      })
-
-      await field.validate()
-
-      expect(field.isValid.value).toBe(true)
-      expect(field.errors.value).toEqual([])
-    })
-  })
-
-  describe('validateOn change mode', () => {
-    it('should trigger validation on value change', async () => {
-      const form = createForm({ validateOn: 'change' })
-      const field = form.register({
-        id: 'test',
-        value: 'initial',
-        rules: [v => (v as string).length > 10 || 'Must be longer than 10 characters'],
-      })
-
-      field.value = 'short'
-      // Wait for the async validation to complete
-      await vi.waitFor(() => {
-        expect(field.isValid.value).toBe(false)
-      }, { timeout: 500 })
-      expect(field.errors.value).toEqual(['Must be longer than 10 characters'])
-    })
-
-    it('should update validation on subsequent changes', async () => {
-      const form = createForm({ validateOn: 'change' })
-      const field = form.register({
-        id: 'test',
-        value: 'initial',
-        rules: [v => (v as string).length > 10 || 'Must be longer than 10 characters'],
-      })
-
-      field.value = 'short'
-      await vi.waitFor(() => {
-        expect(field.isValid.value).toBe(false)
-      }, { timeout: 500 })
-
-      field.value = 'long enough value'
-      await vi.waitFor(() => {
-        expect(field.isValid.value).toBe(true)
-      }, { timeout: 500 })
-      expect(field.errors.value).toEqual([])
-    })
-  })
-
-  describe('combined validation modes', () => {
-    it('should validate on both submit and change', async () => {
-      const form = createForm({ validateOn: 'submit change' })
-      const mockRule = vi.fn(v => v.length > 5 || 'Too short')
+      let resolve: () => void
+      async function asyncRule (_v: unknown) {
+        await new Promise<void>(r => {
+          resolve = r
+        })
+        return 'Error'
+      }
 
       const field = form.register({
         id: 'test',
         value: 'test',
-        rules: [mockRule],
+        rules: [asyncRule],
       })
 
-      // Should validate on change
-      field.value = 'new'
+      const validatePromise = field.validate()
       await nextTick()
-      expect(mockRule).toHaveBeenCalledWith('new')
+      expect(field.isValidating.value).toBe(true)
 
-      mockRule.mockClear()
+      field.reset()
+      expect(field.isValidating.value).toBe(false)
+      expect(field.isValid.value).toBe(null)
+      expect(field.errors.value).toEqual([])
 
-      // Should also validate on submit
-      await form.submit()
-      expect(mockRule).toHaveBeenCalledWith('new')
+      resolve!()
+      await validatePromise
+
+      expect(field.isValid.value).toBe(null)
+      expect(field.errors.value).toEqual([])
+      expect(field.isValidating.value).toBe(false)
     })
   })
 
-  describe('disabled fields', () => {
-    it('should register disabled fields', () => {
+  describe('value defaults', () => {
+    it('should default undefined value to empty string', () => {
       const form = createForm()
       const field = form.register({
         id: 'test',
-        value: 'test',
-        disabled: true,
-        rules: [],
+        value: undefined,
       })
 
-      expect(field.disabled).toBe(true)
+      expect(field.value).toBe('')
     })
 
-    it('should default to enabled when disabled is not specified', () => {
+    it('should default null value to empty string', () => {
       const form = createForm()
       const field = form.register({
         id: 'test',
-        value: 'test',
-        rules: [],
+        value: null,
       })
 
-      expect(field.disabled).toBe(false)
+      expect(field.value).toBe('')
     })
   })
 })
@@ -585,7 +363,6 @@ describe('useForm edge cases', () => {
 describe('createFormContext', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.resetAllMocks()
   })
 
   it('should return a trinity tuple', () => {
@@ -593,9 +370,9 @@ describe('createFormContext', () => {
 
     expect(Array.isArray(result)).toBe(true)
     expect(result).toHaveLength(3)
-    expect(typeof result[0]).toBe('function') // useFormContext
-    expect(typeof result[1]).toBe('function') // provideFormContext
-    expect(result[2]).toBeDefined() // default context
+    expect(typeof result[0]).toBe('function')
+    expect(typeof result[1]).toBe('function')
+    expect(result[2]).toBeDefined()
   })
 
   it('should create context with default namespace', () => {
@@ -619,14 +396,13 @@ describe('createFormContext', () => {
   it('should create a default form context', () => {
     const [,, context] = createFormContext()
 
-    // Context should exist with at least validateOn property
     expect(context).toBeDefined()
-    expect(context.validateOn).toBe('submit')
+    expect(typeof context.submit).toBe('function')
   })
 
   it('should allow providing custom context', () => {
     const [, provideFormContext] = createFormContext()
-    const customContext = createForm({ validateOn: 'change' })
+    const customContext = createForm()
 
     provideFormContext(customContext)
 

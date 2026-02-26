@@ -5,6 +5,7 @@ import { createApp, watchEffect } from 'vue'
 
 // Types
 import type { FeaturesAdapterFlags, FeaturesAdapterInterface } from './adapters'
+import type { FeatureContext } from './index'
 
 import { createFeatures, createFeaturesPlugin, useFeatures } from './index'
 
@@ -260,7 +261,6 @@ describe('createFeatures', () => {
       const enabledFeature = context.collection.get('enabled')
       const disabledFeature = context.collection.get('disabled')
 
-      // isSelected is a computed ref, need to access .value
       expect(enabledFeature?.isSelected.value).toBe(true)
       expect(disabledFeature?.isSelected.value).toBe(false)
     })
@@ -307,9 +307,8 @@ describe('createFeatures', () => {
         },
       })
 
-      // Without $variation, the whole object is the value
       const variation = context.variation('config', 'default')
-      expect(variation).toBe('default') // Falls back because no $variation
+      expect(variation).toBe('default')
     })
 
     it('should handle null and undefined variation values', () => {
@@ -320,14 +319,13 @@ describe('createFeatures', () => {
         },
       })
 
-      // Null is treated as nullish by the ?? operator, so it falls back to default
       expect(context.variation('null-feature', 'default')).toBe('default')
       expect(context.variation('undefined-feature', 'default')).toBe('default')
     })
 
     it('should handle null feature value', () => {
       const context = createFeatures({})
-      context.register({ id: 'null-val', value: null as any })
+      context.register({ id: 'null-val', value: null as unknown as boolean })
       expect(context.variation('null-val', 'fallback')).toBe('fallback')
     })
   })
@@ -346,7 +344,7 @@ describe('createFeaturesPlugin', () => {
   })
 
   it('should provide features context to app', () => {
-    let featuresFromSetup: any
+    let featuresFromSetup: FeatureContext | undefined
 
     const app = createApp({
       setup () {
@@ -369,14 +367,14 @@ describe('createFeaturesPlugin', () => {
     app.mount(container)
 
     expect(featuresFromSetup).toBeDefined()
-    expect(featuresFromSetup.collection.size).toBe(2)
-    expect(featuresFromSetup.selectedIds.has('dark-mode')).toBe(true)
+    expect(featuresFromSetup!.collection.size).toBe(2)
+    expect(featuresFromSetup!.selectedIds.has('dark-mode')).toBe(true)
 
     app.unmount()
   })
 
   it('should allow accessing variations from plugin context', () => {
-    let featuresFromSetup: any
+    let featuresFromSetup: FeatureContext | undefined
 
     const app = createApp({
       setup () {
@@ -398,8 +396,8 @@ describe('createFeaturesPlugin', () => {
     const container = document.createElement('div')
     app.mount(container)
 
-    expect(featuresFromSetup.variation('theme-color')).toBe('blue')
-    expect(featuresFromSetup.variation('layout-mode')).toBe('compact')
+    expect(featuresFromSetup!.variation('theme-color')).toBe('blue')
+    expect(featuresFromSetup!.variation('layout-mode')).toBe('compact')
 
     app.unmount()
   })
@@ -648,7 +646,7 @@ describe('useFeatures', () => {
   })
 
   it('should access features context when provided', () => {
-    let featuresFromSetup: any
+    let featuresFromSetup: FeatureContext | undefined
 
     const app = createApp({
       setup () {
@@ -670,7 +668,7 @@ describe('useFeatures', () => {
     app.mount(container)
 
     expect(featuresFromSetup).toBeDefined()
-    expect(featuresFromSetup.selectedIds.has('dark-mode')).toBe(true)
+    expect(featuresFromSetup!.selectedIds.has('dark-mode')).toBe(true)
 
     app.unmount()
   })

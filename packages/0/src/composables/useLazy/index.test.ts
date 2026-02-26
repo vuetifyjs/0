@@ -8,6 +8,28 @@ import type { LazyContext } from './index'
 
 import { useLazy } from './index'
 
+describe('useLazy SSR', () => {
+  it('should return proper defaults without browser APIs', () => {
+    const { isBooted, hasContent } = useLazy(false)
+
+    expect(isBooted.value).toBe(false)
+    expect(hasContent.value).toBe(false)
+  })
+
+  it('should boot when active is true without browser APIs', () => {
+    const { isBooted, hasContent } = useLazy(true)
+
+    expect(isBooted.value).toBe(true)
+    expect(hasContent.value).toBe(true)
+  })
+
+  it('should return eager content without browser APIs', () => {
+    const { hasContent } = useLazy(false, { eager: true })
+
+    expect(hasContent.value).toBe(true)
+  })
+})
+
 describe('useLazy', () => {
   it('should not boot initially when inactive', () => {
     const active = ref(false)

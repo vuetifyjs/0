@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { nextTick, ref } from 'vue'
+import { mount } from '@vue/test-utils'
+import { effectScope, nextTick, shallowRef, defineComponent } from 'vue'
 
-import { createVirtual } from './index'
+import { createVirtual, createVirtualContext, useVirtual } from './index'
+
+const realDocument = globalThis.document
 
 // Mock useHydration
-const mockIsHydrated = ref(true)
+const mockIsHydrated = shallowRef(true)
 vi.mock('#v0/composables/useHydration', () => ({
   useHydration: () => ({
     isHydrated: mockIsHydrated,
@@ -28,14 +31,13 @@ describe('createVirtual', () => {
   let mockContainer: HTMLElement
 
   beforeEach(() => {
-    // Reset hydration state
+    vi.clearAllMocks()
+
     mockIsHydrated.value = true
 
-    // Mock ResizeObserver as a proper constructor
     const mockObserver = {
-      observe: vi.fn((element: any) => {
-        // Immediately trigger the callback with mock dimensions
-        const callback = (globalThis.ResizeObserver as any).mock.calls[0][0]
+      observe: vi.fn((element: HTMLElement) => {
+        const callback = (globalThis.ResizeObserver as ReturnType<typeof vi.fn>).mock.calls[0]![0]
         if (callback && element) {
           const rect = element.getBoundingClientRect?.() || { width: 400, height: 500 }
           callback([{
@@ -50,12 +52,11 @@ describe('createVirtual', () => {
       unobserve: vi.fn(),
       disconnect: vi.fn(),
     }
-    globalThis.ResizeObserver = vi.fn(function (this: any, callback: any) {
-      (this as any).callback = callback
+    globalThis.ResizeObserver = vi.fn(function (this: Record<string, unknown>, callback: unknown) {
+      this.callback = callback
       return mockObserver
-    }) as any
+    }) as unknown as typeof ResizeObserver
 
-    // Mock container element
     let scrollTopValue = 0
     mockContainer = {
       get scrollTop () {
@@ -81,24 +82,23 @@ describe('createVirtual', () => {
       })),
     } as unknown as HTMLElement
 
-    // Mock window for IN_BROWSER
     globalThis.window = {
       innerHeight: 800,
       requestAnimationFrame: vi.fn(cb => {
-        queueMicrotask(() => cb(0))
+        queueMicrotask(() => (cb as (time: number) => void)(0))
         return 0
       }),
       clearTimeout: vi.fn(),
       setTimeout: vi.fn(cb => {
-        cb()
+        (cb as () => void)()
         return 0
       }),
-    } as any
+    } as unknown as Window & typeof globalThis
 
     globalThis.cancelAnimationFrame = vi.fn()
     globalThis.document = {
-      documentElement: {} as any,
-    } as any
+      documentElement: {} as HTMLElement,
+    } as unknown as Document
   })
 
   afterEach(() => {
@@ -106,7 +106,7 @@ describe('createVirtual', () => {
   })
 
   it('should create a virtual context with required properties', () => {
-    const items = ref([1, 2, 3, 4, 5])
+    const items = shallowRef([1, 2, 3, 4, 5])
     const virtual = createVirtual(items)
 
     expect(virtual).toHaveProperty('element')
@@ -117,10 +117,12 @@ describe('createVirtual', () => {
     expect(virtual).toHaveProperty('scroll')
     expect(virtual).toHaveProperty('scrollend')
     expect(virtual).toHaveProperty('resize')
+    expect(virtual).toHaveProperty('reset')
+    expect(virtual).toHaveProperty('state')
   })
 
   it('should handle empty items array', () => {
-    const items = ref<number[]>([])
+    const items = shallowRef<number[]>([])
     const virtual = createVirtual(items)
 
     expect(virtual.items.value).toEqual([])
@@ -129,74 +131,66 @@ describe('createVirtual', () => {
   })
 
   it('should render initial visible items with fixed height', async () => {
-    const items = ref(Array.from({ length: 100 }, (_, i) => i))
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
-    // Assign refs
     virtual.element.value = mockContainer
 
     await nextTick()
     await nextTick()
 
-    // Should have computed items
     expect(virtual.items.value.length).toBeGreaterThan(0)
+    expect(virtual.items.value[0]!.raw).toBe(0)
+    expect(virtual.items.value[0]!.index).toBe(0)
   })
 
   it('should update visible range when items change', async () => {
-    const items = ref([1, 2, 3])
-    const virtual = createVirtual(items, { itemHeight: 50 })
+    const items = shallowRef([1, 2, 3])
+    const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
     virtual.element.value = mockContainer
 
     await nextTick()
 
-    const initialLength = virtual.items.value.length
-
-    // Change items
     items.value = Array.from({ length: 100 }, (_, i) => i)
     await nextTick()
 
-    // Should update
-    expect(virtual.items.value.length).toBeGreaterThanOrEqual(initialLength)
+    expect(virtual.items.value.length).toBeGreaterThan(3)
   })
 
   it('should handle item resize', async () => {
-    const items = ref(Array.from({ length: 10 }, (_, i) => i))
+    const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
     await nextTick()
 
-    // Resize first item
     virtual.resize(0, 100)
 
     await nextTick()
 
-    // Should have updated (no error thrown)
-    expect(virtual.items.value).toBeDefined()
+    expect(virtual.items.value.length).toBeGreaterThan(0)
   })
 
   it('should handle scroll events', async () => {
-    const items = ref(Array.from({ length: 100 }, (_, i) => i))
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
 
     await nextTick()
 
-    // Simulate scroll
     mockContainer.scrollTop = 500
     virtual.scroll()
 
     await nextTick()
 
-    // Should have updated visible range
-    expect(virtual.items.value).toBeDefined()
+    expect(virtual.items.value.length).toBeGreaterThan(0)
   })
 
   it('should handle scrollend events', async () => {
-    const items = ref(Array.from({ length: 100 }, (_, i) => i))
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: 50 })
 
     virtual.element.value = mockContainer
@@ -207,12 +201,12 @@ describe('createVirtual', () => {
 
     await nextTick()
 
-    expect(virtual.items.value).toBeDefined()
+    expect(virtual.items.value.length).toBeGreaterThan(0)
   })
 
-  it('scrolls to index', async () => {
-    const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtual = createVirtual(items, { itemHeight: 50 })
+  it('scrolls to exact index position', async () => {
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+    const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
     virtual.element.value = mockContainer
 
@@ -220,38 +214,35 @@ describe('createVirtual', () => {
 
     virtual.scrollTo(50)
 
-    // Container should have scrollTop updated (or deferred)
-    expect(mockContainer.scrollTop).toBeGreaterThanOrEqual(0)
+    expect(mockContainer.scrollTop).toBe(2500)
   })
 
-  it('should calculate padding correctly', async () => {
-    const items = ref(Array.from({ length: 100 }, (_, i) => i))
-    const virtual = createVirtual(items, { itemHeight: 50 })
+  it('should calculate offset and size correctly', async () => {
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+    const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
     virtual.element.value = mockContainer
 
     await nextTick()
+    await nextTick()
 
-    // With 100 items at 50px each, total height is 5000px
-    // Padding should account for offscreen items
-    expect(virtual.offset.value).toBeGreaterThanOrEqual(0)
-    expect(virtual.size.value).toBeGreaterThanOrEqual(0)
+    expect(virtual.offset.value).toBe(0)
+    expect(virtual.size.value).toBeGreaterThan(0)
   })
 
   it('should work with dynamic heights (null itemHeight)', async () => {
-    const items = ref(Array.from({ length: 10 }, (_, i) => i))
+    const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: null })
 
     virtual.element.value = mockContainer
 
     await nextTick()
 
-    // Should still work
-    expect(virtual.items.value).toBeDefined()
+    expect(virtual.items.value).toEqual([])
   })
 
   it('should include index in computed items', async () => {
-    const items = ref([{ id: 1 }, { id: 2 }, { id: 3 }])
+    const items = shallowRef([{ id: 1 }, { id: 2 }, { id: 3 }])
     const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
     virtual.element.value = mockContainer
@@ -261,65 +252,63 @@ describe('createVirtual', () => {
 
     const firstItem = virtual.items.value[0]
     expect(firstItem).toBeDefined()
-    expect(firstItem).toHaveProperty('raw')
-    expect(firstItem).toHaveProperty('index')
     expect(firstItem!.raw).toEqual({ id: 1 })
-    expect(typeof firstItem!.index).toBe('number')
+    expect(firstItem!.index).toBe(0)
   })
 
-  it('should handle force recalculation', async () => {
-    const items = ref(Array.from({ length: 10 }, (_, i) => i))
-    const virtual = createVirtual(items, { itemHeight: 50 })
+  it('should trigger rebuild when items change', async () => {
+    const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
+    const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
     virtual.element.value = mockContainer
 
     await nextTick()
 
-    // Force recalculation
+    const initialItems = virtual.items.value.length
 
+    items.value = Array.from({ length: 20 }, (_, i) => i)
     await nextTick()
 
-    expect(virtual.items.value).toBeDefined()
+    expect(virtual.items.value.length).toBeGreaterThanOrEqual(initialItems)
   })
 
   it('should parse string itemHeight', async () => {
-    const items = ref(Array.from({ length: 10 }, (_, i) => i))
-    const virtual = createVirtual(items, { itemHeight: '50' })
+    const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
+    const virtual = createVirtual(items, { itemHeight: '50', height: 500 })
 
     virtual.element.value = mockContainer
 
     await nextTick()
+    await nextTick()
 
-    expect(virtual.items.value).toBeDefined()
+    expect(virtual.items.value.length).toBeGreaterThan(0)
   })
 
   it('should parse string container height', async () => {
-    const items = ref(Array.from({ length: 10 }, (_, i) => i))
+    const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: 50, height: '600' })
 
     virtual.element.value = mockContainer
 
     await nextTick()
 
-    expect(virtual.items.value).toBeDefined()
+    expect(virtual.items.value.length).toBeGreaterThan(0)
   })
 
   it('should respect custom overscan option', async () => {
-    const items = ref(Array.from({ length: 100 }, (_, i) => i))
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
     const virtual = createVirtual(items, { itemHeight: 50, height: 500, overscan: 10 })
 
     virtual.element.value = mockContainer
 
     await nextTick()
+    await nextTick()
 
-    // With overscan of 10, should render more items than visible
-    // Viewport is 500px, item height is 50px = 10 visible items
-    // With overscan of 10 on each side, should have ~30 items
     expect(virtual.items.value.length).toBeGreaterThan(10)
   })
 
   it('should use default overscan when not specified', async () => {
-    const items = ref(Array.from({ length: 100 }, (_, i) => i))
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
     const virtualDefault = createVirtual(items, { itemHeight: 50, height: 500 })
     const virtualExplicit = createVirtual(items, { itemHeight: 50, height: 500, overscan: 5 })
 
@@ -328,25 +317,23 @@ describe('createVirtual', () => {
 
     await nextTick()
 
-    // Both should render the same number of items (default is 5)
     expect(virtualDefault.items.value.length).toBe(virtualExplicit.items.value.length)
   })
 
   describe('reverse direction', () => {
     it('scrolls to bottom initially with reverse direction', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500, direction: 'reverse' })
 
       virtual.element.value = mockContainer
 
       await nextTick()
 
-      // For reverse direction, should scroll to bottom (total height)
       expect(mockContainer.scrollTop).toBe(5000)
     })
 
     it('should maintain scroll position at bottom when new items added in reverse mode', async () => {
-      const items = ref(Array.from({ length: 10 }, (_, i) => ({ id: i, text: `Message ${i}` })))
+      const items = shallowRef(Array.from({ length: 10 }, (_, i) => ({ id: i, text: `Message ${i}` })))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500, direction: 'reverse' })
 
       virtual.element.value = mockContainer
@@ -355,20 +342,18 @@ describe('createVirtual', () => {
 
       const initialScrollTop = mockContainer.scrollTop
 
-      // Add more items (simulating new messages)
       items.value = [...items.value, { id: 10, text: 'Message 10' }]
 
       await nextTick()
 
-      // In reverse mode, adding items should maintain position
-      expect(virtual.items.value).toBeDefined()
+      expect(virtual.items.value.length).toBeGreaterThan(0)
       expect(mockContainer.scrollTop).toBeGreaterThanOrEqual(initialScrollTop)
     })
   })
 
   describe('scroll anchoring', () => {
     it('should maintain scroll position when prepending items with anchor="start"', async () => {
-      const items = ref(Array.from({ length: 20 }, (_, i) => ({ id: i, text: `Item ${i}` })))
+      const items = shallowRef(Array.from({ length: 20 }, (_, i) => ({ id: i, text: `Item ${i}` })))
       const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
@@ -378,14 +363,12 @@ describe('createVirtual', () => {
       virtual.element.value = mockContainer
       await nextTick()
 
-      // Scroll down a bit
       mockContainer.scrollTop = 250
       virtual.scroll()
       await nextTick()
 
       const scrollBefore = mockContainer.scrollTop
 
-      // Prepend new items
       items.value = [
         ...Array.from({ length: 10 }, (_, i) => ({ id: i + 100, text: `New ${i}` })),
         ...items.value,
@@ -393,12 +376,11 @@ describe('createVirtual', () => {
 
       await nextTick()
 
-      // With anchor="start", should maintain position relative to first item
       expect(mockContainer.scrollTop).toBeGreaterThanOrEqual(scrollBefore)
     })
 
     it('should maintain scroll position at end with anchor="end"', async () => {
-      const items = ref(Array.from({ length: 20 }, (_, i) => ({ id: i, text: `Item ${i}` })))
+      const items = shallowRef(Array.from({ length: 20 }, (_, i) => ({ id: i, text: `Item ${i}` })))
       const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
@@ -408,22 +390,19 @@ describe('createVirtual', () => {
       virtual.element.value = mockContainer
       await nextTick()
 
-      // Scroll to bottom
       mockContainer.scrollTop = 500
       virtual.scroll()
       await nextTick()
 
-      // Add items at the end
       items.value = [...items.value, { id: 20, text: 'Item 20' }]
 
       await nextTick()
 
-      // Should maintain position at end
-      expect(virtual.items.value).toBeDefined()
+      expect(virtual.items.value.length).toBeGreaterThan(0)
     })
 
     it('supports custom anchor function', async () => {
-      const items = ref(Array.from({ length: 50 }, (_, i) => ({ id: i, text: `Item ${i}` })))
+      const items = shallowRef(Array.from({ length: 50 }, (_, i) => ({ id: i, text: `Item ${i}` })))
 
       const anchorFn = vi.fn((_items: readonly unknown[]) => 10)
 
@@ -436,11 +415,9 @@ describe('createVirtual', () => {
       virtual.element.value = mockContainer
       await nextTick()
 
-      // Trigger item change
       items.value = [...items.value, { id: 50, text: 'Item 50' }]
       await nextTick()
 
-      // Anchor function should be called
       expect(anchorFn).toHaveBeenCalled()
     })
   })
@@ -448,7 +425,7 @@ describe('createVirtual', () => {
   describe('edge detection', () => {
     it('calls onStartReached when scrolled near top', async () => {
       const onStartReached = vi.fn()
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
 
       const virtual = createVirtual(items, {
         itemHeight: 50,
@@ -461,24 +438,21 @@ describe('createVirtual', () => {
 
       await nextTick()
 
-      // Set scrollTop within threshold
       mockContainer.scrollTop = 50
 
       virtual.scroll()
 
-      // Wait for RAF callbacks to complete
       await vi.waitFor(() => {
         expect(onStartReached).toHaveBeenCalled()
       }, { timeout: 100 })
 
-      // The last call should have distance = 50
       const lastCall = onStartReached.mock.calls.at(-1)!
       expect(lastCall[0]).toBe(50)
     })
 
     it('calls onEndReached when scrolled near bottom', async () => {
       const onEndReached = vi.fn()
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
 
       const virtual = createVirtual(items, {
         itemHeight: 50,
@@ -491,17 +465,13 @@ describe('createVirtual', () => {
 
       await nextTick()
 
-      // scrollHeight = 5000, clientHeight = 500
-      // For distance from end = 50: scrollTop should be 5000 - 500 - 50 = 4450
       mockContainer.scrollTop = 4450
       virtual.scroll()
 
-      // Wait for RAF callbacks to complete
       await vi.waitFor(() => {
         expect(onEndReached).toHaveBeenCalled()
       }, { timeout: 100 })
 
-      // The last call should have distance = 50
       const lastCall = onEndReached.mock.calls.at(-1)!
       expect(lastCall[0]).toBe(50)
     })
@@ -509,7 +479,7 @@ describe('createVirtual', () => {
     it('should not call edge callbacks when outside threshold', async () => {
       const onStartReached = vi.fn()
       const onEndReached = vi.fn()
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
 
       const virtual = createVirtual(items, {
         itemHeight: 50,
@@ -524,13 +494,11 @@ describe('createVirtual', () => {
 
       await nextTick()
 
-      // Scroll in the middle (far from edges)
       mockContainer.scrollTop = 2500
       virtual.scroll()
 
       await nextTick()
 
-      // Should not trigger any callbacks
       expect(onStartReached).not.toHaveBeenCalled()
       expect(onEndReached).not.toHaveBeenCalled()
     })
@@ -538,38 +506,34 @@ describe('createVirtual', () => {
 
   describe('state management', () => {
     it('should initialize with ok state', () => {
-      const items = ref(Array.from({ length: 10 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50 })
 
       expect(virtual.state.value).toBe('ok')
     })
 
     it('should reset state and scroll position', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
 
       await nextTick()
 
-      // Change state
       virtual.state.value = 'loading'
 
-      // Scroll down
       mockContainer.scrollTop = 500
       virtual.scroll()
 
       await nextTick()
 
-      // Reset
       virtual.reset()
 
-      // State should be reset to 'ok'
       expect(virtual.state.value).toBe('ok')
     })
 
     it('should reset to bottom for reverse direction', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, {
         itemHeight: 50,
         height: 500,
@@ -580,22 +544,19 @@ describe('createVirtual', () => {
 
       await nextTick()
 
-      // Scroll away from bottom
       mockContainer.scrollTop = 1000
 
-      // Reset
       virtual.reset()
 
       await nextTick()
 
-      // Should scroll back to bottom
       expect(mockContainer.scrollTop).toBe(5000)
     })
   })
 
   describe('enhanced scrollTo', () => {
     it('scrolls to index with smooth behavior', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
@@ -605,13 +566,13 @@ describe('createVirtual', () => {
       virtual.scrollTo(50, { behavior: 'smooth' })
 
       expect(mockContainer.scrollTo).toHaveBeenCalledWith({
-        top: expect.any(Number),
+        top: 2500,
         behavior: 'smooth',
       })
     })
 
     it('scrolls with block="center" positioning', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
@@ -620,14 +581,14 @@ describe('createVirtual', () => {
 
       virtual.scrollTo(50, { block: 'center', behavior: 'smooth' })
 
-      // Should calculate center position
-      expect(mockContainer.scrollTo).toHaveBeenCalledWith(expect.objectContaining({
+      expect(mockContainer.scrollTo).toHaveBeenCalledWith({
+        top: 2275,
         behavior: 'smooth',
-      }))
+      })
     })
 
     it('scrolls with block="end" positioning', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
@@ -636,12 +597,11 @@ describe('createVirtual', () => {
 
       virtual.scrollTo(50, { block: 'end' })
 
-      // Should scroll to position where item is at bottom of viewport
-      expect(mockContainer.scrollTop).toBeGreaterThan(0)
+      expect(mockContainer.scrollTop).toBe(2050)
     })
 
     it('scrolls with custom offset', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
@@ -650,86 +610,48 @@ describe('createVirtual', () => {
 
       virtual.scrollTo(50, { offset: 100 })
 
-      // Should add offset to calculated position
-      expect(mockContainer.scrollTop).toBeGreaterThan(0)
+      expect(mockContainer.scrollTop).toBe(2600)
     })
 
     it('skips scrolling with block="nearest" when already visible', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
 
       await nextTick()
 
-      // Item 5 should already be visible (items 0-9 visible in 500px viewport)
       const initialScrollTop = mockContainer.scrollTop
       virtual.scrollTo(5, { block: 'nearest' })
 
-      // Should not change scroll position (already visible)
       expect(mockContainer.scrollTop).toBe(initialScrollTop)
     })
 
     it('scrolls to exact index without off-by-one error', async () => {
-      const items = ref(Array.from({ length: 10_000 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 10_000 }, (_, i) => i))
       const { element, items: virtualItems, offset, scrollTo } = createVirtual(items, { itemHeight: 80, height: 600, overscan: 1 })
 
       element.value = mockContainer
 
       await nextTick()
 
-      // Scroll to index 1500
       scrollTo(1500)
 
       await nextTick()
 
-      // Check the scrollTop value
-      const expectedScrollTop = 1500 * 80 // 120000
-      expect(mockContainer.scrollTop).toBe(expectedScrollTop)
+      expect(mockContainer.scrollTop).toBe(120_000)
 
-      // Check what items are actually rendered
       const renderedIndices = virtualItems.value.map(item => item.index)
-      const firstRendered = renderedIndices[0]
-      const lastRendered = renderedIndices.at(-1)
-
-      // With overscan=1, first rendered should be 1499 (1500 - 1)
-      // Item at index 1500 should definitely be in the rendered range
       expect(renderedIndices).toContain(1500)
-
-      // The first visible item (after overscan) should be exactly 1500
-      // Since overscan=1, start = visibleStart - 1 = 1500 - 1 = 1499
-      // So first rendered is 1499, but first truly visible is 1500
-      expect(firstRendered).toBe(1499)
-      expect(lastRendered).toBeGreaterThanOrEqual(1500)
-
-      // Most importantly: the offset should point to the first rendered item (1499)
-      // And scrollTop should be at item 1500
+      expect(renderedIndices[0]).toBe(1499)
+      expect(renderedIndices.at(-1)).toBeGreaterThanOrEqual(1500)
       expect(offset.value).toBe(1499 * 80)
     })
   })
 
   describe('scrollTo with auto behavior', () => {
     it('should not scroll when item is already visible', async () => {
-      const sourceItems = ref(Array.from({ length: 100 }, (_, i) => i))
-
-      const { element, items, scrollTo } = createVirtual(sourceItems, {
-        itemHeight: 50,
-        overscan: 1,
-      })
-
-      element.value = mockContainer
-      await nextTick()
-
-      // Scroll to item 0 which should already be visible
-      mockContainer.scrollTop = 0
-      scrollTo(1, { behavior: 'auto' })
-
-      // Item 1 should already be visible, so no scroll needed
-      expect(items.value).toBeDefined()
-    })
-
-    it('should scroll up when item is above viewport', async () => {
-      const sourceItems = ref(Array.from({ length: 100 }, (_, i) => i))
+      const sourceItems = shallowRef(Array.from({ length: 100 }, (_, i) => i))
 
       const { element, scrollTo } = createVirtual(sourceItems, {
         itemHeight: 50,
@@ -739,7 +661,23 @@ describe('createVirtual', () => {
       element.value = mockContainer
       await nextTick()
 
-      // Set scroll position to show items 10+
+      mockContainer.scrollTop = 0
+      scrollTo(1, { behavior: 'auto' })
+
+      expect(element.value).toBeDefined()
+    })
+
+    it('should scroll up when item is above viewport', async () => {
+      const sourceItems = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+
+      const { element, scrollTo } = createVirtual(sourceItems, {
+        itemHeight: 50,
+        overscan: 1,
+      })
+
+      element.value = mockContainer
+      await nextTick()
+
       mockContainer.scrollTop = 500
       Object.defineProperty(mockContainer, 'scrollTop', {
         value: 500,
@@ -747,17 +685,15 @@ describe('createVirtual', () => {
         configurable: true,
       })
 
-      // Try to scroll to item 2 which is above the viewport
       scrollTo(2, { behavior: 'auto' })
 
-      // Scroll function should execute without error
       expect(element.value).toBeDefined()
     })
   })
 
   describe('reset with reverse direction', () => {
     it('should scroll to end when reset in reverse mode', async () => {
-      const sourceItems = ref(Array.from({ length: 100 }, (_, i) => i))
+      const sourceItems = shallowRef(Array.from({ length: 100 }, (_, i) => i))
 
       const { element, reset } = createVirtual(sourceItems, {
         itemHeight: 50,
@@ -768,15 +704,13 @@ describe('createVirtual', () => {
       element.value = mockContainer
       await nextTick()
 
-      // Reset should scroll to the end in reverse mode
       reset()
 
-      // In reverse mode, reset scrolls to totalHeight (100 items * 50px = 5000)
       expect(mockContainer.scrollTop).toBe(5000)
     })
 
     it('should handle reset with empty items in reverse mode', async () => {
-      const sourceItems = ref<number[]>([])
+      const sourceItems = shallowRef<number[]>([])
 
       const { element, reset } = createVirtual(sourceItems, {
         itemHeight: 50,
@@ -787,71 +721,160 @@ describe('createVirtual', () => {
       element.value = mockContainer
       await nextTick()
 
-      // Reset should not throw with empty items
       expect(() => reset()).not.toThrow()
     })
   })
 
   describe('scrollTo with block="nearest"', () => {
     it('should scroll down when item is below viewport', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
       await nextTick()
 
-      // Start at the top (items 0-9 visible)
       mockContainer.scrollTop = 0
 
-      // Item 20 is well below the viewport
       virtual.scrollTo(20, { block: 'nearest' })
 
-      // Should scroll to bring item 20 into view at the bottom of the viewport
-      // Item 20 is at offset 20*50 = 1000, viewport is 500px
-      // scrollTop should be set so item 20's bottom edge aligns with viewport bottom
-      expect(mockContainer.scrollTop).toBeGreaterThan(0)
+      expect(mockContainer.scrollTop).toBe(550)
     })
 
     it('should scroll up when item is above viewport', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
       const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
 
       virtual.element.value = mockContainer
       await nextTick()
 
-      // Start scrolled down (items 50-60 visible)
       mockContainer.scrollTop = 2500
 
-      // Item 10 is above the viewport
       virtual.scrollTo(10, { block: 'nearest' })
 
-      // Should scroll to bring item 10 into view at the top of the viewport
-      expect(mockContainer.scrollTop).toBe(500) // 10 * 50 = 500
+      expect(mockContainer.scrollTop).toBe(500)
     })
   })
 
   describe('scope disposal', () => {
     it('should clean up animation frames on dispose', async () => {
-      const items = ref(Array.from({ length: 100 }, (_, i) => i))
+      const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
 
-      // Create a scope we can dispose
-      const { effectScope } = await import('vue')
       const scope = effectScope()
 
-      let virtual: ReturnType<typeof createVirtual>
-
       scope.run(() => {
-        virtual = createVirtual(items, { itemHeight: 50, height: 500 })
+        const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
         virtual.element.value = mockContainer
       })
 
       await nextTick()
 
-      // Dispose the scope - should call cancelAnimationFrame
       scope.stop()
 
-      // cancelAnimationFrame should have been called
       expect(globalThis.cancelAnimationFrame).toHaveBeenCalled()
     })
+  })
+})
+
+describe('createVirtualContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return trinity tuple', () => {
+    const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
+    const result = createVirtualContext(items)
+
+    expect(result).toHaveLength(3)
+    expect(typeof result[0]).toBe('function')
+    expect(typeof result[1]).toBe('function')
+    expect(result[2]).toBeDefined()
+    expect(result[2]).toHaveProperty('element')
+    expect(result[2]).toHaveProperty('items')
+    expect(result[2]).toHaveProperty('offset')
+    expect(result[2]).toHaveProperty('size')
+    expect(result[2]).toHaveProperty('scrollTo')
+    expect(result[2]).toHaveProperty('scroll')
+    expect(result[2]).toHaveProperty('resize')
+    expect(result[2]).toHaveProperty('reset')
+  })
+
+  it('should pass options to createVirtual', () => {
+    const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
+    const [,, context] = createVirtualContext(items, { overscan: 10 })
+
+    expect(context.state.value).toBe('ok')
+  })
+})
+
+describe('useVirtual consumer', () => {
+  beforeEach(() => {
+    globalThis.document = realDocument
+  })
+
+  afterEach(() => {
+    globalThis.document = { documentElement: {} as HTMLElement } as unknown as Document
+  })
+
+  it('should inject provided context', () => {
+    const items = shallowRef([1, 2, 3])
+    const [,, context] = createVirtualContext(items, {
+      itemHeight: 50,
+    })
+
+    let injected: ReturnType<typeof useVirtual> | undefined
+
+    const TestComponent = defineComponent({
+      setup () {
+        injected = useVirtual()
+        return () => null
+      },
+    })
+
+    mount(TestComponent, {
+      global: {
+        provide: { 'v0:virtual': context },
+      },
+    })
+
+    expect(injected).toBeDefined()
+    expect(injected!.state.value).toBe('ok')
+  })
+
+  it('should throw when context is not provided', () => {
+    expect(() => {
+      const TestComponent = defineComponent({
+        setup () {
+          useVirtual()
+          return () => null
+        },
+      })
+
+      mount(TestComponent)
+    }).toThrow()
+  })
+})
+
+describe('createVirtual SSR safety', () => {
+  it('should return safe defaults without element assignment', () => {
+    const items = shallowRef(Array.from({ length: 100 }, (_, i) => i))
+    const virtual = createVirtual(items, { itemHeight: 50, height: 500 })
+
+    expect(virtual.state.value).toBe('ok')
+    expect(virtual.offset.value).toBe(0)
+    expect(virtual.size.value).toBe(0)
+    expect(virtual.items.value).toEqual([])
+    expect(typeof virtual.scroll).toBe('function')
+    expect(typeof virtual.scrollTo).toBe('function')
+    expect(typeof virtual.resize).toBe('function')
+    expect(typeof virtual.reset).toBe('function')
+  })
+
+  it('should not throw when calling methods without element', () => {
+    const items = shallowRef(Array.from({ length: 10 }, (_, i) => i))
+    const virtual = createVirtual(items, { itemHeight: 50 })
+
+    expect(() => virtual.scroll()).not.toThrow()
+    expect(() => virtual.scrollTo(5)).not.toThrow()
+    expect(() => virtual.reset()).not.toThrow()
   })
 })

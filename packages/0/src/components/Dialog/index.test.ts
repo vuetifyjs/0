@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderToString } from 'vue/server-renderer'
 
 // Composables
 import { createStackPlugin } from '#v0/composables/useStack'
 
 // Utilities
 import { mount } from '@vue/test-utils'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 
 import { Dialog } from './index'
 
@@ -847,6 +848,65 @@ describe('dialog', () => {
 
       const close = wrapper.findComponent(Dialog.Close as any)
       expect(close.exists()).toBe(true)
+    })
+  })
+
+  describe('sSR / Hydration', () => {
+    it('should render to string on server without errors', async () => {
+      const app = createSSRApp(defineComponent({
+        render: () =>
+          h(Dialog.Root as never, { id: 'test-dialog' }, {
+            default: () => [
+              h(Dialog.Activator as never, {}, () => 'Open'),
+              h(Dialog.Content as never, {}, () => [
+                h(Dialog.Title as never, {}, () => 'Title'),
+                h(Dialog.Description as never, {}, () => 'Description'),
+                h(Dialog.Close as never, {}, () => 'Close'),
+              ]),
+            ],
+          }),
+      }))
+
+      app.use(createStackPlugin())
+
+      const html = await renderToString(app)
+
+      expect(html).toBeTruthy()
+      expect(html).toContain('Open')
+      expect(html).toContain('Title')
+      expect(html).toContain('Description')
+    })
+
+    it('should hydrate without mismatches', async () => {
+      const Component = defineComponent({
+        render: () =>
+          h(Dialog.Root as never, { id: 'test-dialog' }, {
+            default: () => [
+              h(Dialog.Activator as never, {}, () => 'Open'),
+              h(Dialog.Content as never, {}, () => 'Content'),
+            ],
+          }),
+      })
+
+      const ssrApp = createSSRApp(Component)
+      ssrApp.use(createStackPlugin())
+      const serverHtml = await renderToString(ssrApp)
+
+      const container = document.createElement('div')
+      container.innerHTML = serverHtml
+
+      const wrapper = mount(Component, {
+        attachTo: container,
+        global: {
+          plugins: [stackPlugin],
+        },
+      })
+
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Open')
+
+      wrapper.unmount()
     })
   })
 })

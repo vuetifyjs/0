@@ -166,7 +166,7 @@ describe('tabs', () => {
   })
 
   describe('tab', () => {
-    describe('aria attributes', () => {
+    describe('accessibility', () => {
       it('should have correct ARIA attributes', async () => {
         let tabProps: any
 
@@ -450,7 +450,7 @@ describe('tabs', () => {
   })
 
   describe('panel', () => {
-    describe('aria attributes', () => {
+    describe('accessibility', () => {
       it('should have correct ARIA attributes', async () => {
         let panelProps: any
 
@@ -1410,7 +1410,7 @@ describe('tabs', () => {
     })
   })
 
-  describe('sSR/Hydration', () => {
+  describe('sSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

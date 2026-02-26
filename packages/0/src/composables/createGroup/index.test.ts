@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { inject, provide, ref } from 'vue'
+import { type App, inject, provide, ref } from 'vue'
 
 // Types
 import type { GroupTicketInput } from './index'
@@ -337,6 +337,86 @@ describe('useGroup', () => {
       expect(group.selectedIds.has('item-1')).toBe(true)
       expect(group.selectedIds.has('item-2')).toBe(false)
       expect(group.selectedIds.has('item-3')).toBe(true)
+    })
+  })
+
+  describe('context-level disabled', () => {
+    it('should not select when context is disabled', () => {
+      const group = createGroup({ disabled: true })
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.select('item-1')
+
+      expect(group.selectedIds.size).toBe(0)
+    })
+
+    it('should not select multiple when context is disabled', () => {
+      const group = createGroup({ disabled: true })
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.select(['item-1', 'item-2'])
+
+      expect(group.selectedIds.size).toBe(0)
+    })
+
+    it('should not unselect when context is disabled', () => {
+      const group = createGroup({ disabled: true })
+
+      group.onboard([{ id: 'item-1', value: 'value-1' }])
+      group.selectedIds.add('item-1')
+
+      group.unselect('item-1')
+      expect(group.selectedIds.has('item-1')).toBe(true)
+    })
+
+    it('should not toggle when context is disabled', () => {
+      const group = createGroup({ disabled: true })
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+      ])
+
+      group.toggle('item-1')
+      expect(group.selectedIds.size).toBe(0)
+    })
+
+    it('should not auto-select with mandatory force when context is disabled', () => {
+      const group = createGroup({ disabled: true, mandatory: 'force' })
+
+      group.register({ id: 'item-1', value: 'value-1' })
+
+      expect(group.selectedIds.size).toBe(0)
+    })
+
+    it('should respect reactive disabled ref', () => {
+      const disabledRef = ref(false)
+      const group = createGroup({ disabled: disabledRef })
+
+      group.onboard([
+        { id: 'item-1', value: 'value-1' },
+        { id: 'item-2', value: 'value-2' },
+      ])
+
+      group.select(['item-1', 'item-2'])
+      expect(group.selectedIds.size).toBe(2)
+
+      disabledRef.value = true
+
+      group.unselect('item-1')
+      expect(group.selectedIds.has('item-1')).toBe(true)
+
+      disabledRef.value = false
+
+      group.unselect('item-1')
+      expect(group.selectedIds.has('item-1')).toBe(false)
     })
   })
 
@@ -1017,7 +1097,7 @@ describe('createGroupContext', () => {
   it('should provide context at app level when app is passed', () => {
     const mockApp = {
       provide: vi.fn(),
-    } as any
+    } as unknown as App
     const [, provideGroupContext, context] = createGroupContext()
 
     provideGroupContext(context, mockApp)

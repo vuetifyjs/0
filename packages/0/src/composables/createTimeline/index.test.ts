@@ -18,6 +18,10 @@ const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
 
 describe('createTimeline', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('should register to the timeline buffer', () => {
     const timeline = createTimeline({ size: 15 })
     for (let i = 0; i <= 20; i++) {
@@ -281,6 +285,37 @@ describe('createTimeline', () => {
     // Verify 'a' is in overflow by undoing
     timeline.undo()
     expect(timeline.values().map(t => t.value)).toEqual(['A', 'B'])
+  })
+
+  describe('clear', () => {
+    it('should empty the timeline', () => {
+      const timeline = createTimeline({ size: 5 })
+
+      timeline.register({ id: 'a', value: 'A' })
+      timeline.register({ id: 'b', value: 'B' })
+      timeline.register({ id: 'c', value: 'C' })
+
+      expect(timeline.size).toBe(3)
+
+      timeline.clear()
+
+      expect(timeline.size).toBe(0)
+      expect(timeline.values()).toEqual([])
+    })
+
+    it('should allow registering after clear', () => {
+      const timeline = createTimeline({ size: 3 })
+
+      timeline.register({ id: 'a', value: 'A' })
+      timeline.register({ id: 'b', value: 'B' })
+
+      timeline.clear()
+
+      const ticket = timeline.register({ id: 'c', value: 'C' })
+
+      expect(timeline.size).toBe(1)
+      expect(ticket.value).toBe('C')
+    })
   })
 })
 

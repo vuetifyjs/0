@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
 import { computed, nextTick, ref, watch } from 'vue'
@@ -15,7 +15,8 @@ describe('useEventListener', () => {
   let mockWindow: Window
 
   beforeEach(() => {
-    // Create mock element
+    vi.clearAllMocks()
+
     mockElement = {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
@@ -35,13 +36,8 @@ describe('useEventListener', () => {
       innerHeight: 768,
     } as any
 
-    // Set global mocks
     globalThis.document = mockDocument
     globalThis.window = mockWindow as any
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
   })
 
   describe('basic functionality', () => {
@@ -142,6 +138,54 @@ describe('useEventListener', () => {
       }).not.toThrow()
 
       expect(mockDocument.addEventListener).not.toHaveBeenCalled()
+    })
+
+    it('should update listeners when reactive target changes', async () => {
+      const handler = vi.fn()
+      const elementA = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      } as unknown as HTMLElement
+      const elementB = {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      } as unknown as HTMLElement
+      const target = ref<HTMLElement | null>(elementA)
+
+      useEventListener(target, 'click', handler)
+      await nextTick()
+
+      expect(elementA.addEventListener).toHaveBeenCalledWith('click', handler, undefined)
+
+      target.value = elementB
+      await nextTick()
+
+      expect(elementA.removeEventListener).toHaveBeenCalledWith('click', handler, undefined)
+      expect(elementB.addEventListener).toHaveBeenCalledWith('click', handler, undefined)
+    })
+
+    it('should pass once option through correctly', async () => {
+      const handler = vi.fn()
+      const options = { once: true }
+      useEventListener(mockDocument, 'click', handler, options)
+
+      expect(mockDocument.addEventListener).toHaveBeenCalledWith('click', handler, options)
+    })
+
+    it('should remove all events when stop is called with array events', async () => {
+      const handler = vi.fn()
+      const stop = useEventListener(mockElement, ['click', 'mousedown', 'mouseup'], handler)
+      await nextTick()
+
+      expect(mockElement.addEventListener).toHaveBeenCalledWith('click', handler, undefined)
+      expect(mockElement.addEventListener).toHaveBeenCalledWith('mousedown', handler, undefined)
+      expect(mockElement.addEventListener).toHaveBeenCalledWith('mouseup', handler, undefined)
+
+      stop()
+
+      expect(mockElement.removeEventListener).toHaveBeenCalledWith('click', handler, undefined)
+      expect(mockElement.removeEventListener).toHaveBeenCalledWith('mousedown', handler, undefined)
+      expect(mockElement.removeEventListener).toHaveBeenCalledWith('mouseup', handler, undefined)
     })
   })
 

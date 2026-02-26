@@ -13,10 +13,14 @@ vi.mock('#v0/composables/useHydration', () => ({
   }),
 }))
 
-vi.mock('#v0/constants/globals', () => ({
-  IN_BROWSER: true,
-  SUPPORTS_OBSERVER: true,
-}))
+vi.mock('#v0/constants/globals', async () => {
+  const actual = await vi.importActual('#v0/constants/globals')
+  return {
+    ...actual,
+    IN_BROWSER: true,
+    SUPPORTS_OBSERVER: true,
+  }
+})
 
 describe('createOverflow', () => {
   let mockObserver: { observe: ReturnType<typeof vi.fn>, disconnect: ReturnType<typeof vi.fn> }
@@ -694,6 +698,32 @@ describe('createOverflowContext', () => {
 describe('useOverflow', () => {
   it('should be a function that accepts namespace', () => {
     expect(typeof useOverflow).toBe('function')
-    expect(useOverflow.length).toBe(0) // optional parameter
+    expect(useOverflow.length).toBe(0)
+  })
+})
+
+describe('createOverflow SSR', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.clearAllMocks()
+  })
+
+  it('should return safe defaults when IN_BROWSER is false', async () => {
+    vi.doMock('#v0/constants/globals', async () => {
+      const actual = await vi.importActual('#v0/constants/globals')
+      return {
+        ...actual,
+        IN_BROWSER: false,
+        SUPPORTS_OBSERVER: false,
+      }
+    })
+
+    const { createOverflow: createOverflowSSR } = await import('./index')
+    const result = createOverflowSSR()
+
+    expect(result.capacity.value).toBe(Infinity)
+    expect(result.width.value).toBe(0)
+    expect(result.total.value).toBe(0)
+    expect(result.isOverflowing.value).toBe(false)
   })
 })

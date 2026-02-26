@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Adapters
-import { Vuetify0LoggerAdapter } from './adapters/v0'
-
 // Utilities
 import { createApp, defineComponent } from 'vue'
 
@@ -10,7 +7,6 @@ import { createLogger, createLoggerContext, createLoggerPlugin, useLogger } from
 
 describe('useLogger', () => {
   beforeEach(() => {
-    // Mock console methods
     vi.spyOn(console, 'debug').mockImplementation(() => {})
     vi.spyOn(console, 'info').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -33,6 +29,12 @@ describe('useLogger', () => {
       expect(typeof logger.error).toBe('function')
       expect(typeof logger.trace).toBe('function')
       expect(typeof logger.fatal).toBe('function')
+    })
+
+    it('should default to info log level', () => {
+      const logger = createLogger()
+
+      expect(logger.current()).toBe('info')
     })
 
     it('should respect log levels', () => {
@@ -94,65 +96,6 @@ describe('useLogger', () => {
     })
   })
 
-  describe('vuetify0LoggerAdapter', () => {
-    it('should format messages with prefix and level', () => {
-      const adapter = new Vuetify0LoggerAdapter({ prefix: 'test' })
-
-      adapter.info('test message')
-
-      const call = vi.mocked(console.info).mock.calls[0]
-      expect(call?.[0]).toContain('[test info]')
-      expect(call?.[0]).toContain('test message')
-    })
-
-    it('should handle additional arguments', () => {
-      const adapter = new Vuetify0LoggerAdapter()
-      const data = { key: 'value' }
-
-      adapter.error('error message', data)
-
-      const call = vi.mocked(console.error).mock.calls[0]
-      expect(call?.[0]).toContain('error message')
-      expect(call?.[2]).toEqual(data)
-    })
-
-    it('should support different log levels', () => {
-      const adapter = new Vuetify0LoggerAdapter()
-
-      adapter.debug('debug')
-      adapter.info('info')
-      adapter.warn('warn')
-      adapter.error('error')
-      adapter.trace('trace')
-      adapter.fatal('fatal')
-
-      expect(console.debug).toHaveBeenCalled()
-      expect(console.info).toHaveBeenCalled()
-      expect(console.warn).toHaveBeenCalled()
-      expect(console.error).toHaveBeenCalledTimes(2) // error + fatal
-      expect(console.trace).toHaveBeenCalled()
-    })
-
-    it('should allow disabling timestamps', () => {
-      const adapter = new Vuetify0LoggerAdapter({ timestamps: false })
-
-      adapter.info('test message')
-
-      const call = vi.mocked(console.info).mock.calls[0]
-      expect(call?.[0]).not.toMatch(/\d{2}:\d{2}:\d{2}/)
-    })
-
-    it('should allow custom prefix', () => {
-      const adapter = new Vuetify0LoggerAdapter({ prefix: 'custom' })
-
-      adapter.info('test message')
-
-      const call = vi.mocked(console.info).mock.calls[0]
-      expect(call?.[0]).toContain('[custom info]')
-      expect(call?.[0]).toContain('test message')
-    })
-  })
-
   describe('createLoggerPlugin', () => {
     it('should create a Vue plugin', () => {
       const plugin = createLoggerPlugin()
@@ -176,12 +119,10 @@ describe('useLogger', () => {
     it('should respect log level hierarchy correctly', () => {
       const logger = createLogger({ level: 'warn' })
 
-      // Should not log
       logger.trace('trace')
       logger.debug('debug')
       logger.info('info')
 
-      // Should log
       logger.warn('warn')
       logger.error('error')
       logger.fatal('fatal')
@@ -190,7 +131,7 @@ describe('useLogger', () => {
       expect(console.debug).not.toHaveBeenCalled()
       expect(console.info).not.toHaveBeenCalled()
       expect(console.warn).toHaveBeenCalled()
-      expect(console.error).toHaveBeenCalledTimes(2) // error + fatal
+      expect(console.error).toHaveBeenCalledTimes(2)
     })
 
     it('should handle silent level', () => {
@@ -251,24 +192,21 @@ describe('useLogger', () => {
 
       app.use(plugin)
 
-      // Plugin should install without errors
       expect(plugin).toBeDefined()
     })
 
     it('should expose logger on window in dev mode', () => {
-      const originalDev = (globalThis as any).__DEV__
-      ;(globalThis as any).__DEV__ = true
+      const originalDev = (globalThis as unknown as Record<string, unknown>).__DEV__
+      ;(globalThis as unknown as Record<string, unknown>).__DEV__ = true
 
       const plugin = createLoggerPlugin()
       const app = createApp({ template: '<div />' })
 
       app.use(plugin)
 
-      // In browser dev mode, logger should be exposed
-      // Note: window assignment happens in setup callback
-      expect((window as any).__v0Logger__).toBeDefined()
+      expect((window as unknown as Record<string, unknown>).__v0Logger__).toBeDefined()
 
-      ;(globalThis as any).__DEV__ = originalDev
+      ;(globalThis as unknown as Record<string, unknown>).__DEV__ = originalDev
     })
   })
 
@@ -315,7 +253,6 @@ describe('useLogger', () => {
     it('should fallback logger functions work correctly', () => {
       const logger = useLogger('fallback:test')
 
-      // All methods should work
       logger.debug('debug msg')
       logger.info('info msg')
       logger.warn('warn msg')
@@ -326,14 +263,13 @@ describe('useLogger', () => {
       expect(console.debug).toHaveBeenCalled()
       expect(console.info).toHaveBeenCalled()
       expect(console.warn).toHaveBeenCalled()
-      expect(console.error).toHaveBeenCalledTimes(2) // error + fatal
+      expect(console.error).toHaveBeenCalledTimes(2)
       expect(console.trace).toHaveBeenCalled()
     })
 
     it('fallback logger level and enable methods should be no-ops', () => {
       const logger = useLogger()
 
-      // These should not throw
       logger.level('debug')
       logger.enable()
       logger.disable()

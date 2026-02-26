@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Utilities
 import { inject, provide } from 'vue'
 
+// Types
+import type { App, InjectionKey } from 'vue'
+
 import { createContext, provideContext, useContext } from './index'
 
 vi.mock('vue', () => ({
@@ -36,7 +39,7 @@ describe('createContext', () => {
     })
 
     it('should provide context value with InjectionKey', () => {
-      const injectionKey = Symbol('test-key') as any
+      const injectionKey = Symbol('test-key') as InjectionKey<{ data: string }>
       const [, provideContext] = createContext(injectionKey)
       const testValue = { data: 'test' }
 
@@ -70,7 +73,7 @@ describe('createContext', () => {
       const symbolKey = Symbol('symbol-key')
       mockInject.mockReturnValue(undefined)
 
-      const [injectContext] = createContext(symbolKey as any)
+      const [injectContext] = createContext(symbolKey as InjectionKey<unknown>)
 
       expect(() => injectContext()).toThrow(
         'Context "Symbol(symbol-key)" not found. Ensure it\'s provided by an ancestor.',
@@ -109,7 +112,7 @@ describe('createContext', () => {
     it('should provide context at app level when app is provided', () => {
       const mockApp = {
         provide: vi.fn().mockReturnValue(true),
-      } as any
+      } as unknown as App
 
       const [, provideContext] = createContext('app-level-test')
       const testValue = { data: 'app-level' }
@@ -192,7 +195,7 @@ describe('createContext', () => {
     it('should provide context at app level when app is provided', () => {
       const mockApp = {
         provide: vi.fn().mockReturnValue(true),
-      } as any
+      } as unknown as App
 
       const [, provideContext] = createContext()
       const testValue = { data: 'app-level' }
@@ -226,7 +229,7 @@ describe('useContext', () => {
     const testValue = { data: 'test' }
     mockInject.mockReturnValue(testValue)
 
-    const result = useContext(symbolKey as any)
+    const result = useContext(symbolKey as InjectionKey<{ data: string }>)
 
     expect(mockInject).toHaveBeenCalledWith(symbolKey, undefined)
     expect(result).toBe(testValue)
@@ -278,7 +281,7 @@ describe('useContext', () => {
     const symbolKey = Symbol('test-symbol')
     mockInject.mockReturnValue(undefined)
 
-    expect(() => useContext(symbolKey as any)).toThrow(
+    expect(() => useContext(symbolKey as InjectionKey<unknown>)).toThrow(
       'Context "Symbol(test-symbol)" not found.',
     )
   })
@@ -302,7 +305,7 @@ describe('provideContext', () => {
     const symbolKey = Symbol('my-key')
     const testValue = { data: 'test' }
 
-    const result = provideContext(symbolKey as any, testValue)
+    const result = provideContext(symbolKey as InjectionKey<{ data: string }>, testValue)
 
     expect(mockProvide).toHaveBeenCalledWith(symbolKey, testValue)
     expect(result).toBe(testValue)
@@ -320,7 +323,7 @@ describe('provideContext', () => {
   it('should provide context at app level when app is passed', () => {
     const mockApp = {
       provide: vi.fn(),
-    } as any
+    } as unknown as App
     const testValue = { data: 'test' }
 
     provideContext('app-key', testValue, mockApp)
@@ -338,16 +341,16 @@ describe('provideContext', () => {
   })
 
   it('should handle falsy context values', () => {
-    provideContext('zero', 0 as any)
+    provideContext('zero', 0 as never)
     expect(mockProvide).toHaveBeenCalledWith('zero', 0)
 
-    provideContext('empty', '' as any)
+    provideContext('empty', '' as never)
     expect(mockProvide).toHaveBeenCalledWith('empty', '')
 
-    provideContext('false', false as any)
+    provideContext('false', false as never)
     expect(mockProvide).toHaveBeenCalledWith('false', false)
 
-    provideContext('null', null as any)
+    provideContext('null', null as never)
     expect(mockProvide).toHaveBeenCalledWith('null', null)
   })
 })

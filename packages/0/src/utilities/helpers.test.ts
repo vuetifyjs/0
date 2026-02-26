@@ -258,8 +258,8 @@ describe('helpers', () => {
     describe('isNaN', () => {
       it('should return true for NaN', () => {
         expect(isNaN(Number.NaN)).toBe(true)
-        expect(isNaN(Number.NaN)).toBe(true)
         expect(isNaN(0 / 0)).toBe(true)
+        expect(isNaN(Number('not a number'))).toBe(true)
       })
 
       it('should return false for numbers that are not NaN', () => {

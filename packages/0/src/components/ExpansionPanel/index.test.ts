@@ -346,7 +346,7 @@ describe('expansionPanel', () => {
   })
 
   describe('activator', () => {
-    describe('aRIA attributes', () => {
+    describe('accessibility', () => {
       it('should set correct ARIA attributes when not expanded', () => {
         const wrapper = mount(ExpansionPanel.Root, {
           slots: {
@@ -594,7 +594,7 @@ describe('expansionPanel', () => {
   })
 
   describe('content', () => {
-    describe('aRIA attributes', () => {
+    describe('accessibility', () => {
       it('should set correct ARIA attributes', () => {
         const wrapper = mount(ExpansionPanel.Root, {
           slots: {
@@ -938,7 +938,7 @@ describe('expansionPanel', () => {
     })
   })
 
-  describe('sSR/Hydration', () => {
+  describe('sSR / Hydration', () => {
     it('should render to string on server without errors', async () => {
       const app = createSSRApp(defineComponent({
         render: () =>

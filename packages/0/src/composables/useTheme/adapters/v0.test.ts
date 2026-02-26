@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { computed, effectScope, ref } from 'vue'
+import { computed, effectScope, nextTick, ref } from 'vue'
 
 // Types
 import type { ThemeAdapterSetupContext } from './adapter'
@@ -9,7 +9,6 @@ import type { App } from 'vue'
 
 import { Vuetify0ThemeAdapter } from './v0'
 
-// Mock IN_BROWSER - start with false for SSR tests
 const mockInBrowser = vi.hoisted(() => ({ value: false }))
 
 vi.mock('#v0/constants/globals', () => ({
@@ -127,7 +126,7 @@ describe('vuetify0ThemeAdapter', () => {
 
     it('should not throw when head is not available', () => {
       mockInBrowser.value = false
-      const app = createMockApp() // no head mock
+      const app = createMockApp()
       const context = createMockContext()
       const adapter = new Vuetify0ThemeAdapter()
 
@@ -145,7 +144,6 @@ describe('vuetify0ThemeAdapter', () => {
       mockInBrowser.value = false
       const adapter = new Vuetify0ThemeAdapter()
 
-      // Should not throw, just early return
       expect(() => {
         adapter.update({ light: { primary: '#000' } }, false)
       }).not.toThrow()
@@ -280,7 +278,6 @@ describe('vuetify0ThemeAdapter', () => {
         adapter.setup(app, context, targetEl)
       })
 
-      // data-theme should not be set when id is empty
       expect(targetEl.dataset.theme).toBeUndefined()
 
       targetEl.remove()
@@ -307,9 +304,109 @@ describe('vuetify0ThemeAdapter', () => {
 
       expect(CSSStyleSheetMock).toHaveBeenCalled()
       expect(replaceSyncMock).toHaveBeenCalledWith(styles)
-      expect((document as any).adoptedStyleSheets).toHaveLength(1)
+      expect((document as unknown as Record<string, unknown>).adoptedStyleSheets).toHaveLength(1)
 
       vi.unstubAllGlobals()
+    })
+
+    it('should generate CSS with data-theme selectors and variables', () => {
+      const adapter = new Vuetify0ThemeAdapter()
+
+      const css = adapter.generate(
+        { light: { primary: '#1976d2', secondary: '#424242' } },
+        false,
+      )
+
+      expect(css).toContain('[data-theme="light"]')
+      expect(css).toContain('--v0-primary: #1976d2')
+      expect(css).toContain('--v0-secondary: #424242')
+      expect(css).toContain('color-scheme: light')
+    })
+
+    it('should generate dark color-scheme when isDark is true', () => {
+      const adapter = new Vuetify0ThemeAdapter()
+
+      const css = adapter.generate(
+        { dark: { primary: '#90caf9' } },
+        true,
+      )
+
+      expect(css).toContain('color-scheme: dark')
+    })
+
+    it('should use custom prefix in CSS variables', () => {
+      const adapter = new Vuetify0ThemeAdapter({ prefix: 'custom' })
+
+      const css = adapter.generate(
+        { light: { primary: '#1976d2' } },
+        false,
+      )
+
+      expect(css).toContain('--custom-primary: #1976d2')
+    })
+
+    it('should update isDark reactively', async () => {
+      const app = createMockApp()
+      const selectedId = ref<string | null>('light')
+      const isDark = ref(false)
+      const context: ThemeAdapterSetupContext = {
+        selectedId,
+        colors: computed(() => ({
+          light: { primary: '#1976d2' },
+          dark: { primary: '#90caf9' },
+        })),
+        isDark,
+      }
+      const adapter = new Vuetify0ThemeAdapter()
+      const updateSpy = vi.spyOn(adapter, 'update')
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, null)
+      })
+
+      expect(updateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ light: { primary: '#1976d2' } }),
+        false,
+      )
+
+      isDark.value = true
+      await nextTick()
+
+      expect(updateSpy).toHaveBeenLastCalledWith(
+        expect.anything(),
+        true,
+      )
+
+      scope.stop()
+    })
+
+    it('should stop watcher on scope dispose', async () => {
+      const app = createMockApp()
+      const isDark = ref(false)
+      const context: ThemeAdapterSetupContext = {
+        selectedId: ref('light'),
+        colors: computed(() => ({
+          light: { primary: '#1976d2' },
+        })),
+        isDark,
+      }
+      const adapter = new Vuetify0ThemeAdapter()
+      const updateSpy = vi.spyOn(adapter, 'update')
+
+      const scope = effectScope()
+      scope.run(() => {
+        adapter.setup(app, context, null)
+      })
+
+      const callCount = updateSpy.mock.calls.length
+
+      scope.stop()
+
+      isDark.value = true
+      await nextTick()
+
+      expect(updateSpy.mock.calls.length).toBe(callCount)
     })
   })
 })
