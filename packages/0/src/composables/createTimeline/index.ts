@@ -125,7 +125,7 @@ export function createTimeline<
   E extends TimelineContext<Z> = TimelineContext<Z>,
 > (_options: TimelineOptions = {}): E {
   const { size = 10, ...options } = _options
-  const registry = createRegistry<Z, E>(options)
+  const registry = createRegistry<Z>(options)
 
   const stack: Z[] = []
   const overflow: Z[] = []

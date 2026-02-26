@@ -159,7 +159,7 @@ export function createTokens<
   options: TokenOptions = {},
 ): E {
   const logger = useLogger()
-  const registry = createRegistry<Z, E>(options)
+  const registry = createRegistry<Z>(options)
 
   const cache = new Map<string, unknown | undefined>()
 
