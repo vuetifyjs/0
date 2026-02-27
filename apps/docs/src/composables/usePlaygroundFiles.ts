@@ -9,7 +9,7 @@ import { useStore, useVueImportMap } from '@vue/repl'
 import { computed, onMounted, shallowRef, watch, watchEffect } from 'vue'
 
 // Data
-import { createMainTs, DEFAULT_CODE, INFRASTRUCTURE_FILES, UNO_CONFIG_TS } from '@/data/playground-defaults'
+import { createMainTs, DEFAULT_CODE, UNO_CONFIG_TS } from '@/data/playground-defaults'
 
 export function usePlaygroundFiles () {
   const theme = useTheme()
@@ -120,9 +120,10 @@ export function usePlaygroundFiles () {
   watch(isReady, ready => {
     if (!ready) return
     watchEffect(() => {
+      const aliases = new Set(aliasMap.value.values())
       const files: Record<string, string> = {}
       for (const [path, file] of Object.entries(store.files)) {
-        if (!INFRASTRUCTURE_FILES.has(path) && !file.hidden) {
+        if (!aliases.has(path)) {
           files[path] = file.code
         }
       }
