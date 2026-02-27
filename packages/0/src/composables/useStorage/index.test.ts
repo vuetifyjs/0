@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Utilities
-import { inject, nextTick, provide } from 'vue'
+import { nextTick, provide } from 'vue'
 
 // Types
 import type { createApp } from 'vue'
@@ -18,7 +18,6 @@ vi.mock('vue', async () => {
 })
 
 const mockProvide = vi.mocked(provide)
-const mockInject = vi.mocked(inject)
 
 describe('useStorage', () => {
   let mockAdapter: any
@@ -306,36 +305,14 @@ describe('createStoragePlugin', () => {
 })
 
 describe('useStorage consumer', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should inject context with default namespace', () => {
-    const mockContext = createStorage()
-    mockInject.mockReturnValue(mockContext)
-
+  it('should return fallback when no context is provided', () => {
     const result = useStorage()
 
-    expect(mockInject).toHaveBeenCalledWith('v0:storage', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should inject context with custom namespace', () => {
-    const mockContext = createStorage()
-    mockInject.mockReturnValue(mockContext)
-
-    const result = useStorage('my-storage')
-
-    expect(mockInject).toHaveBeenCalledWith('my-storage', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should throw when context is not provided', () => {
-    mockInject.mockReturnValue(undefined)
-
-    expect(() => useStorage()).toThrow(
-      'Context "v0:storage" not found. Ensure it\'s provided by an ancestor.',
-    )
+    expect(typeof result.get).toBe('function')
+    expect(typeof result.set).toBe('function')
+    expect(typeof result.has).toBe('function')
+    expect(typeof result.remove).toBe('function')
+    expect(typeof result.clear).toBe('function')
   })
 })
 

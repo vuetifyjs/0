@@ -210,11 +210,43 @@ export function createBreakpoints<
   } as E
 }
 
+function createBreakpointsFallback<
+  E extends BreakpointsContext = BreakpointsContext,
+> (): E {
+  const defaults = createDefaultBreakpoints()
+
+  return {
+    breakpoints: defaults.breakpoints,
+    name: readonly(shallowRef<BreakpointName>('xs')),
+    width: readonly(shallowRef(0)),
+    height: readonly(shallowRef(0)),
+    isMobile: readonly(shallowRef(false)),
+    xs: readonly(shallowRef(false)),
+    sm: readonly(shallowRef(false)),
+    md: readonly(shallowRef(false)),
+    lg: readonly(shallowRef(false)),
+    xl: readonly(shallowRef(false)),
+    xxl: readonly(shallowRef(false)),
+    smAndUp: readonly(shallowRef(false)),
+    mdAndUp: readonly(shallowRef(false)),
+    lgAndUp: readonly(shallowRef(false)),
+    xlAndUp: readonly(shallowRef(false)),
+    xxlAndUp: readonly(shallowRef(false)),
+    smAndDown: readonly(shallowRef(false)),
+    mdAndDown: readonly(shallowRef(false)),
+    lgAndDown: readonly(shallowRef(false)),
+    xlAndDown: readonly(shallowRef(false)),
+    xxlAndDown: readonly(shallowRef(false)),
+    update: () => {},
+  } as E
+}
+
 export const [createBreakpointsContext, createBreakpointsPlugin, useBreakpoints] =
   createPluginContext<BreakpointsContextOptions, BreakpointsContext>(
     'v0:breakpoints',
     options => createBreakpoints(options),
     {
+      fallback: () => createBreakpointsFallback(),
       setup: (context, app, _options) => {
         app.mixin({
           mounted () {

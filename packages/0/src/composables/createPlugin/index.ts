@@ -19,7 +19,7 @@ import { createContext, useContext } from '#v0/composables/createContext'
 import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
-import { instanceExists } from '#v0/utilities/instance'
+import { hasInjectionContext } from 'vue'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
@@ -166,12 +166,8 @@ export function createPluginContext<
   function useX<_E extends E = E> (namespace = defaultNamespace): _E {
     if (config?.fallback) {
       const instance = config.fallback(namespace) as _E
-      if (!instanceExists()) return instance
-      try {
-        return useContext<_E>(namespace, instance)
-      } catch {
-        return instance
-      }
+      if (!hasInjectionContext()) return instance
+      return useContext<_E>(namespace, instance)
     }
     return useContext<_E>(namespace)
   }

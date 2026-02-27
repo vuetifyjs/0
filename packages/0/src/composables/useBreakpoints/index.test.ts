@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { getCurrentInstance, onMounted, onScopeDispose, shallowRef } from 'vue'
+import { getCurrentInstance, hasInjectionContext, onMounted, onScopeDispose, shallowRef } from 'vue'
 
 // Types
 import type { App } from 'vue'
@@ -17,6 +17,7 @@ vi.mock('vue', async () => {
   return {
     ...actual,
     getCurrentInstance: vi.fn(),
+    hasInjectionContext: vi.fn(),
     onMounted: vi.fn(),
     onScopeDispose: vi.fn(),
     inject: vi.fn(),
@@ -34,6 +35,7 @@ vi.mock('#v0/constants/globals', () => ({
 }))
 
 const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
+const mockHasInjectionContext = vi.mocked(hasInjectionContext)
 const mockOnMounted = vi.mocked(onMounted)
 const mockOnScopeDispose = vi.mocked(onScopeDispose)
 const mockUseHydration = vi.mocked(useHydration)
@@ -337,6 +339,7 @@ describe('useBreakpoints', () => {
     it('should return provided context via inject', async () => {
       const { inject } = vi.mocked(await import('vue'))
       const mockContext = createBreakpoints()
+      mockHasInjectionContext.mockReturnValue(true)
       inject.mockReturnValue(mockContext)
 
       const result = useBreakpoints()

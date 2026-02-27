@@ -133,10 +133,21 @@ export function createPermissions<
  * })
  * ```
  */
+function createPermissionsFallback<
+  Z extends PermissionTicket = PermissionTicket,
+  E extends PermissionContext<Z> = PermissionContext<Z>,
+> (): E {
+  return {
+    size: 0,
+    can: () => false,
+  } as unknown as E
+}
+
 export const [createPermissionsContext, createPermissionsPlugin, usePermissions] =
   createPluginContext<PermissionContextOptions, PermissionContext>(
     'v0:permissions',
     options => createPermissions(options),
+    { fallback: () => createPermissionsFallback() },
   )
 
 /**

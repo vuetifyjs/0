@@ -197,11 +197,24 @@ export function createFeatures<
   } as unknown as R
 }
 
+function createFeaturesFallback<
+  Z extends FeatureTicketInput = FeatureTicketInput,
+  E extends FeatureTicket<Z> = FeatureTicket<Z>,
+  R extends FeatureContext<Z, E> = FeatureContext<Z, E>,
+> (): R {
+  return {
+    size: 0,
+    variation: (_id: ID, fallback: unknown = null) => fallback,
+    sync: () => {},
+  } as unknown as R
+}
+
 export const [createFeaturesContext, createFeaturesPlugin, useFeatures] =
   createPluginContext<FeaturePluginOptions, FeatureContext>(
     'v0:features',
     options => createFeatures(options),
     {
+      fallback: () => createFeaturesFallback(),
       setup: (context, app, { adapter }) => {
         if (!adapter) return
 

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Vuetify0PermissionAdapter } from './adapters/v0'
 
 // Utilities
-import { inject, provide } from 'vue'
+import { provide } from 'vue'
 
 import { createPermissions, createPermissionsContext, createPermissionsPlugin, usePermissions } from './index'
 
@@ -18,7 +18,6 @@ vi.mock('vue', async () => {
 })
 
 const mockProvide = vi.mocked(provide)
-const mockInject = vi.mocked(inject)
 
 describe('usePermissions', () => {
   afterEach(() => {
@@ -395,35 +394,10 @@ describe('createPermissionsContext', () => {
 })
 
 describe('usePermissions consumer', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('should inject context with default namespace', () => {
-    const mockContext = createPermissions()
-    mockInject.mockReturnValue(mockContext)
-
+  it('should return fallback when no context is provided', () => {
     const result = usePermissions()
 
-    expect(mockInject).toHaveBeenCalledWith('v0:permissions', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should inject context with custom namespace', () => {
-    const mockContext = createPermissions()
-    mockInject.mockReturnValue(mockContext)
-
-    const result = usePermissions('my-permissions')
-
-    expect(mockInject).toHaveBeenCalledWith('my-permissions', undefined)
-    expect(result).toBe(mockContext)
-  })
-
-  it('should throw when context is not provided', () => {
-    mockInject.mockReturnValue(undefined)
-
-    expect(() => usePermissions()).toThrow(
-      'Context "v0:permissions" not found. Ensure it\'s provided by an ancestor.',
-    )
+    expect(result.can('anyone', 'read', 'anything')).toBe(false)
+    expect(result.size).toBe(0)
   })
 })

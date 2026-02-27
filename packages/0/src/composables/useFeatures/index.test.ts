@@ -629,12 +629,12 @@ describe('createFeaturesPlugin', () => {
 })
 
 describe('useFeatures', () => {
-  it('should throw when used without provider', () => {
+  it('should return fallback when no context is provided', () => {
+    let features: ReturnType<typeof useFeatures> | undefined
+
     const app = createApp({
       setup () {
-        expect(() => {
-          useFeatures()
-        }).toThrow()
+        features = useFeatures()
         return {}
       },
       template: '<div>Test</div>',
@@ -642,6 +642,10 @@ describe('useFeatures', () => {
 
     const container = document.createElement('div')
     app.mount(container)
+
+    expect(features).toBeDefined()
+    expect(features!.size).toBe(0)
+
     app.unmount()
   })
 
