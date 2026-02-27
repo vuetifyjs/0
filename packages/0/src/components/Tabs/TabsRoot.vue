@@ -14,14 +14,14 @@
   // Types
   import type { StepContext, StepTicket } from '#v0/composables/createStep'
   import type { Activation, ID } from '#v0/types'
-  import type { MaybeRef, Ref } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   export type TabsOrientation = 'horizontal' | 'vertical'
 
   /** Ticket for tab items with element reference for focus management */
   export interface TabsTicket extends StepTicket {
     /** Element reference for roving tabindex focus management */
-    el?: MaybeRef<HTMLElement | null | undefined>
+    el?: MaybeRefOrGetter<HTMLElement | null | undefined>
   }
 
   /** Activation mode alias for Tabs component API */

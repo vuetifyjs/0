@@ -10,7 +10,7 @@
 
 <script lang="ts">
   // Types
-  import type { MaybeRef } from 'vue'
+  import type { MaybeRefOrGetter } from 'vue'
 
   export interface GroupItemProps<V = unknown> {
     /** Unique identifier (auto-generated if not provided) */
@@ -20,9 +20,9 @@
     /** Value associated with this item */
     value?: V
     /** Disables this specific item */
-    disabled?: MaybeRef<boolean>
+    disabled?: MaybeRefOrGetter<boolean>
     /** Sets the indeterminate state (for checkboxes) */
-    indeterminate?: MaybeRef<boolean>
+    indeterminate?: MaybeRefOrGetter<boolean>
     /** Namespace for dependency injection */
     namespace?: string
   }

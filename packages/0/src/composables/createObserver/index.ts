@@ -20,7 +20,7 @@ import { isNull } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
-import type { MaybeRef, Ref } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 
 export interface ObserverReturn {
   /**
@@ -58,7 +58,7 @@ interface ObserverConfig<O extends { disconnect: () => void }, E> {
 }
 
 export function createObserver<O extends { disconnect: () => void }, E> (
-  target: MaybeRef<Element | null | undefined>,
+  target: MaybeRefOrGetter<Element | null | undefined>,
   userCallback: (entries: E[]) => void,
   config: ObserverConfig<O, E>,
 ): ObserverReturn {
