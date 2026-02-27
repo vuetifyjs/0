@@ -44,7 +44,7 @@ export default defineConfig([{
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
     __VERSION__,
   },
-  entry: ['./src/*/index.ts', './src/index.ts'],
+  entry: ['./src/*/index.ts', './src/*/adapters/**/index.ts', './src/index.ts'],
   name: 'vuetify/v0',
   exports: {
     devExports: 'development',
