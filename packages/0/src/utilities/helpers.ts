@@ -353,7 +353,7 @@ export function useId (): string {
     return vueUseId()
   }
 
-  if (__DEV__ && !IN_BROWSER) {
+  if (!isUndefined(__DEV__) && __DEV__ && !IN_BROWSER) {
     console.warn('[v0 warn] useId() called outside component context during SSR. Provide explicit ID to avoid hydration mismatch.')
   }
 

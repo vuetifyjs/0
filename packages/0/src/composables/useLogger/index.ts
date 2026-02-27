@@ -25,6 +25,9 @@ import { createPluginContext } from '#v0/composables/createPlugin'
 // Adapters
 import { Vuetify0LoggerAdapter } from '#v0/composables/useLogger/adapters'
 
+// Utilities
+import { isUndefined } from '#v0/utilities'
+
 // Types
 import type { LoggerAdapter } from '#v0/composables/useLogger/adapters'
 import type { LogLevel } from '#v0/composables/useLogger/types'
@@ -232,7 +235,7 @@ export const [createLoggerContext, createLoggerPlugin, useLogger] =
     {
       fallback: ns => createFallbackLogger(ns),
       setup: (context, _app, _options) => {
-        if (__DEV__ && IN_BROWSER) {
+        if (!isUndefined(__DEV__) && __DEV__ && IN_BROWSER) {
           ;(window as any).__v0Logger__ = context
         }
       },
