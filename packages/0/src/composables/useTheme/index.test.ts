@@ -640,12 +640,12 @@ describe('createThemePlugin', () => {
 })
 
 describe('useTheme', () => {
-  it('should throw when used without provider', () => {
+  it('should return fallback when no context is provided', () => {
+    let theme: ReturnType<typeof useTheme> | undefined
+
     const app = createApp({
       setup () {
-        expect(() => {
-          useTheme()
-        }).toThrow()
+        theme = useTheme()
         return {}
       },
       template: '<div>Test</div>',
@@ -653,6 +653,11 @@ describe('useTheme', () => {
 
     const container = document.createElement('div')
     app.mount(container)
+
+    expect(theme).toBeDefined()
+    expect(theme!.isDark.value).toBe(false)
+    expect(theme!.size).toBe(0)
+
     app.unmount()
   })
 

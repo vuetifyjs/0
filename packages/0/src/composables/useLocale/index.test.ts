@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Vuetify0LocaleAdapter } from './adapters/v0'
 
 // Utilities
-import { getCurrentInstance, inject, provide } from 'vue'
+import { hasInjectionContext, inject, provide } from 'vue'
 
 import { createLocale, createLocaleContext, createLocalePlugin, useLocale } from './index'
 
@@ -14,13 +14,13 @@ vi.mock('vue', async () => {
     ...actual,
     provide: vi.fn(),
     inject: vi.fn(),
-    getCurrentInstance: vi.fn(),
+    hasInjectionContext: vi.fn(),
   }
 })
 
 const mockProvide = vi.mocked(provide)
 const mockInject = vi.mocked(inject)
-const mockGetCurrentInstance = vi.mocked(getCurrentInstance)
+const mockHasInjectionContext = vi.mocked(hasInjectionContext)
 
 describe('useLocale', () => {
   afterEach(() => {
@@ -431,12 +431,10 @@ describe('useLocale consumer', () => {
     vi.clearAllMocks()
   })
 
-  it('should return fallback when not in component instance', () => {
-    mockGetCurrentInstance.mockReturnValue(null)
-
+  it('should return fallback when no injection context', () => {
     const result = useLocale()
 
-    // Should return fallback without calling inject
+    // hasInjectionContext() is false by default → returns fallback without calling inject
     expect(result).toBeDefined()
     expect(typeof result.t).toBe('function')
     expect(mockInject).not.toHaveBeenCalled()
@@ -444,7 +442,7 @@ describe('useLocale consumer', () => {
 
   it('should inject context when in component instance', () => {
     const mockContext = createLocale()
-    mockGetCurrentInstance.mockReturnValue({} as any)
+    mockHasInjectionContext.mockReturnValue(true)
     mockInject.mockReturnValue(mockContext)
 
     const result = useLocale()
@@ -454,7 +452,7 @@ describe('useLocale consumer', () => {
 
   it('should inject context with custom namespace', () => {
     const mockContext = createLocale()
-    mockGetCurrentInstance.mockReturnValue({} as any)
+    mockHasInjectionContext.mockReturnValue(true)
     mockInject.mockReturnValue(mockContext)
 
     const result = useLocale('my-locale')
@@ -463,10 +461,10 @@ describe('useLocale consumer', () => {
   })
 
   it('should return fallback when context is not provided', () => {
-    mockGetCurrentInstance.mockReturnValue({} as any)
-    mockInject.mockReturnValue(undefined)
+    mockHasInjectionContext.mockReturnValue(true)
+    // Simulate Vue's inject: return the defaultValue when key is not found
+    mockInject.mockImplementation((_key: unknown, def: unknown) => def)
 
-    // useLocale uses useContext with fallback, so it returns the fallback instead of throwing
     const result = useLocale()
     expect(result).toBeDefined()
     expect(typeof result.t).toBe('function')

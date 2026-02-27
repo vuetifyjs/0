@@ -222,8 +222,15 @@ export function createStorage<
   } as E
 }
 
+function createStorageFallback<
+  E extends StorageContext = StorageContext,
+> (): E {
+  return createStorage<E>({ adapter: new MemoryAdapter() })
+}
+
 export const [createStorageContext, createStoragePlugin, useStorage] =
   createPluginContext<StorageContextOptions, StorageContext>(
     'v0:storage',
     options => createStorage(options),
+    { fallback: () => createStorageFallback() },
   )

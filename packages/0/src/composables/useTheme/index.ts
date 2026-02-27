@@ -28,7 +28,7 @@ import { createTokens } from '#v0/composables/createTokens'
 import { Vuetify0ThemeAdapter } from '#v0/composables/useTheme/adapters'
 
 // Utilities
-import { computed, toRef } from 'vue'
+import { computed, shallowRef, toRef } from 'vue'
 
 // Types
 import type { RegistryOptions } from '#v0/composables/createRegistry'
@@ -308,11 +308,25 @@ export function createTheme<
   } as unknown as R
 }
 
+function createThemeFallback<
+  Z extends ThemeTicketInput = ThemeTicketInput,
+  E extends ThemeTicket<Z> = ThemeTicket<Z>,
+  R extends ThemeContext<Z, E> = ThemeContext<Z, E>,
+> (): R {
+  return {
+    size: 0,
+    colors: computed(() => ({})),
+    isDark: shallowRef(false),
+    cycle: () => {},
+  } as unknown as R
+}
+
 export const [createThemeContext, createThemePlugin, useTheme] =
   createPluginContext<ThemePluginOptions, ThemeContext>(
     'v0:theme',
     options => createTheme(options),
     {
+      fallback: () => createThemeFallback(),
       setup: (context, app, { adapter = new Vuetify0ThemeAdapter(), target }) => {
         adapter.setup(app, context, target)
       },
