@@ -27,14 +27,16 @@
       "./components": "./dist/components/index.mjs",
       "./composables": "./dist/composables/index.mjs",
       "./constants": "./dist/constants/index.mjs",
-      "./date": "./dist/date/index.mjs",
-      "./types": "./dist/types/index.mjs",
-      "./utilities": "./dist/utilities/index.mjs",
       "./data-table": "./dist/data-table/index.mjs",
+      "./data-table/adapters": "./dist/data-table/adapters/index.mjs",
+      "./data-table/adapters/client": "./dist/data-table/adapters/client/index.mjs",
+      "./data-table/adapters/server": "./dist/data-table/adapters/server/index.mjs",
+      "./data-table/adapters/virtual": "./dist/data-table/adapters/virtual/index.mjs",
+      "./date": "./dist/date/index.mjs",
       "./features": "./dist/features/index.mjs",
-      "./features/adapters/posthog": "./dist/features/adapters/posthog/index.mjs",
       "./features/adapters/flagsmith": "./dist/features/adapters/flagsmith/index.mjs",
       "./features/adapters/launchdarkly": "./dist/features/adapters/launchdarkly/index.mjs",
+      "./features/adapters/posthog": "./dist/features/adapters/posthog/index.mjs",
       "./locale": "./dist/locale/index.mjs",
       "./locale/adapters": "./dist/locale/adapters/index.mjs",
       "./locale/adapters/v0": "./dist/locale/adapters/v0/index.mjs",
@@ -52,10 +54,8 @@
       "./theme": "./dist/theme/index.mjs",
       "./theme/adapters": "./dist/theme/adapters/index.mjs",
       "./theme/adapters/v0": "./dist/theme/adapters/v0/index.mjs",
-      "./data-table/adapters": "./dist/data-table/adapters/index.mjs",
-      "./data-table/adapters/client": "./dist/data-table/adapters/client/index.mjs",
-      "./data-table/adapters/server": "./dist/data-table/adapters/server/index.mjs",
-      "./data-table/adapters/virtual": "./dist/data-table/adapters/virtual/index.mjs",
+      "./types": "./dist/types/index.mjs",
+      "./utilities": "./dist/utilities/index.mjs",
       "./package.json": "./package.json",
       "./browser": "./dist/browser/index.js"
     }
@@ -112,30 +112,33 @@
       "development": "./src/constants/index.ts",
       "default": "./dist/constants/index.mjs"
     },
-    "./date": {
-      "development": "./src/date/index.ts",
-      "default": "./dist/date/index.mjs"
-    },
-    "./types": {
-      "development": "./src/types/index.ts",
-      "default": "./dist/types/index.mjs"
-    },
-    "./utilities": {
-      "development": "./src/utilities/index.ts",
-      "default": "./dist/utilities/index.mjs"
-    },
-    "./package.json": "./package.json",
     "./data-table": {
       "development": "./src/data-table/index.ts",
       "default": "./dist/data-table/index.mjs"
     },
+    "./data-table/adapters": {
+      "development": "./src/data-table/adapters/index.ts",
+      "default": "./dist/data-table/adapters/index.mjs"
+    },
+    "./data-table/adapters/client": {
+      "development": "./src/data-table/adapters/client/index.ts",
+      "default": "./dist/data-table/adapters/client/index.mjs"
+    },
+    "./data-table/adapters/server": {
+      "development": "./src/data-table/adapters/server/index.ts",
+      "default": "./dist/data-table/adapters/server/index.mjs"
+    },
+    "./data-table/adapters/virtual": {
+      "development": "./src/data-table/adapters/virtual/index.ts",
+      "default": "./dist/data-table/adapters/virtual/index.mjs"
+    },
+    "./date": {
+      "development": "./src/date/index.ts",
+      "default": "./dist/date/index.mjs"
+    },
     "./features": {
       "development": "./src/features/index.ts",
       "default": "./dist/features/index.mjs"
-    },
-    "./features/adapters/posthog": {
-      "development": "./src/features/adapters/posthog/index.ts",
-      "default": "./dist/features/adapters/posthog/index.mjs"
     },
     "./features/adapters/flagsmith": {
       "development": "./src/features/adapters/flagsmith/index.ts",
@@ -144,6 +147,10 @@
     "./features/adapters/launchdarkly": {
       "development": "./src/features/adapters/launchdarkly/index.ts",
       "default": "./dist/features/adapters/launchdarkly/index.mjs"
+    },
+    "./features/adapters/posthog": {
+      "development": "./src/features/adapters/posthog/index.ts",
+      "default": "./dist/features/adapters/posthog/index.mjs"
     },
     "./locale": {
       "development": "./src/locale/index.ts",
@@ -213,22 +220,15 @@
       "development": "./src/theme/adapters/v0/index.ts",
       "default": "./dist/theme/adapters/v0/index.mjs"
     },
-    "./data-table/adapters": {
-      "development": "./src/data-table/adapters/index.ts",
-      "default": "./dist/data-table/adapters/index.mjs"
+    "./types": {
+      "development": "./src/types/index.ts",
+      "default": "./dist/types/index.mjs"
     },
-    "./data-table/adapters/client": {
-      "development": "./src/data-table/adapters/client/index.ts",
-      "default": "./dist/data-table/adapters/client/index.mjs"
+    "./utilities": {
+      "development": "./src/utilities/index.ts",
+      "default": "./dist/utilities/index.mjs"
     },
-    "./data-table/adapters/server": {
-      "development": "./src/data-table/adapters/server/index.ts",
-      "default": "./dist/data-table/adapters/server/index.mjs"
-    },
-    "./data-table/adapters/virtual": {
-      "development": "./src/data-table/adapters/virtual/index.ts",
-      "default": "./dist/data-table/adapters/virtual/index.mjs"
-    },
+    "./package.json": "./package.json",
     "./browser": {
       "development": "./src/index.ts",
       "default": "./dist/browser/index.js"
