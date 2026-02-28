@@ -198,6 +198,8 @@ export function createForm<
       errors.value = []
       isPristine.value = true
       isValid.value = null
+      isValidating.value = false
+      validationGeneration++
     }
 
     let validationGeneration = 0
