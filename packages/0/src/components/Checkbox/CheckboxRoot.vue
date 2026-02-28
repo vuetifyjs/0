@@ -20,7 +20,7 @@
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
-  import type { MaybeRef, Ref } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   /** Visual state of the checkbox for styling purposes */
   export type CheckboxState = 'checked' | 'unchecked' | 'indeterminate'
@@ -66,9 +66,9 @@
     /** Associate with form by ID */
     form?: string
     /** Disables this checkbox */
-    disabled?: MaybeRef<boolean>
+    disabled?: MaybeRefOrGetter<boolean>
     /** Sets the indeterminate state */
-    indeterminate?: MaybeRef<boolean>
+    indeterminate?: MaybeRefOrGetter<boolean>
     /** Namespace for context provision to children (Indicator, HiddenInput) */
     namespace?: string
     /** Namespace for connecting to parent Checkbox.Group */

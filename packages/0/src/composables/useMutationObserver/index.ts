@@ -23,7 +23,7 @@ import { createObserver } from '#v0/composables/createObserver'
 
 // Types
 import type { ObserverReturn } from '#v0/composables/createObserver'
-import type { MaybeRef } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
 
 export interface ObservableNodeList {
   readonly length: number
@@ -102,7 +102,7 @@ export interface UseMutationObserverReturn extends ObserverReturn {}
  * ```
  */
 export function useMutationObserver (
-  target: MaybeRef<Element | null | undefined>,
+  target: MaybeRefOrGetter<Element | null | undefined>,
   callback: (entries: MutationObserverRecord[]) => void,
   options: UseMutationObserverOptions = {},
 ): UseMutationObserverReturn {

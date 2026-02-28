@@ -38,7 +38,7 @@ import { toArray } from '#v0/composables/toArray'
 import type { SelectionContext, SelectionContextOptions, SelectionOptions, SelectionTicket, SelectionTicketInput } from '#v0/composables/createSelection'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, Reactive, Ref } from 'vue'
 
 /**
  * Input type for group tickets.
@@ -46,7 +46,7 @@ import type { App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
  */
 export interface GroupTicketInput<V = unknown> extends SelectionTicketInput<V> {
   /** Whether the ticket should start in mixed/indeterminate state */
-  indeterminate?: MaybeRef<boolean>
+  indeterminate?: MaybeRefOrGetter<boolean>
 }
 
 /**

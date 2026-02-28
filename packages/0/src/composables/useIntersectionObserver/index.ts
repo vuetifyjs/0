@@ -26,7 +26,7 @@ import { shallowReadonly, shallowRef } from 'vue'
 
 // Types
 import type { ObserverReturn } from '#v0/composables/createObserver'
-import type { Ref, MaybeRef } from 'vue'
+import type { Ref, MaybeRefOrGetter } from 'vue'
 
 export interface IntersectionObserverEntry {
   boundingClientRect: DOMRectReadOnly
@@ -93,7 +93,7 @@ export interface UseIntersectionObserverReturn extends ObserverReturn {
  * ```
  */
 export function useIntersectionObserver (
-  target: MaybeRef<Element | null | undefined>,
+  target: MaybeRefOrGetter<Element | null | undefined>,
   callback: (entries: IntersectionObserverEntry[]) => void,
   options: IntersectionObserverOptions = {},
 ): UseIntersectionObserverReturn {
@@ -184,7 +184,7 @@ export interface UseElementIntersectionReturn extends UseIntersectionObserverRet
  * ```
  */
 export function useElementIntersection (
-  target: MaybeRef<Element | null | undefined>,
+  target: MaybeRefOrGetter<Element | null | undefined>,
   options: IntersectionObserverOptions = {},
 ): UseElementIntersectionReturn {
   const isIntersecting = shallowRef(false)

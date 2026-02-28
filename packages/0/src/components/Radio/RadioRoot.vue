@@ -17,7 +17,7 @@
   // Types
   import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { ID } from '#v0/types'
-  import type { MaybeRef, Ref } from 'vue'
+  import type { MaybeRefOrGetter, Ref } from 'vue'
 
   /** Visual state of the radio for styling purposes */
   export type RadioState = 'checked' | 'unchecked'
@@ -86,7 +86,7 @@
      * </template>
      * ```
      */
-    disabled?: MaybeRef<boolean>
+    disabled?: MaybeRefOrGetter<boolean>
     /** Namespace for context provision to children (Indicator, HiddenInput) */
     namespace?: string
     /** Namespace for connecting to parent Radio.Group */
