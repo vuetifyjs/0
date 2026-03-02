@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import AppSwitch from '@/components/app/AppSwitch.vue'
   import { toRef } from 'vue'
   import { useDashboard } from './plugin'
 
@@ -66,15 +67,7 @@
         >
           {{ ticket.value }}
         </span>
-        <div
-          class="w-8 h-4.5 rounded-full relative transition-colors duration-200"
-          :class="ticket.isSelected.value ? 'bg-primary' : 'bg-divider'"
-        >
-          <div
-            class="absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform duration-200"
-            :class="ticket.isSelected.value ? 'translate-x-3.75' : 'translate-x-0.5'"
-          />
-        </div>
+        <AppSwitch as="span" :model-value="ticket.isSelected.value" small />
       </button>
     </div>
 
