@@ -49,7 +49,39 @@ console.log(timeline.size) // 3
 ## Examples
 
 ::: example
-/composables/create-timeline/canvas
+/composables/create-timeline/context.ts 2
+/composables/create-timeline/CanvasProvider.vue 3
+/composables/create-timeline/CanvasConsumer.vue 4
+/composables/create-timeline/canvas.vue 1
+
+### Drawing Canvas
+
+A freehand drawing canvas split into four files demonstrating timeline-powered undo/redo:
+
+| File | Role |
+|------|------|
+| `context.ts` | Defines `Point`, `Stroke`, `CanvasContext` types and the DI pair |
+| `CanvasProvider.vue` | Creates the timeline, tracks redo state, exposes `add`/`undo`/`redo`/`clear` |
+| `CanvasConsumer.vue` | Owns the `<canvas>` element, mouse/touch handlers, and render loop |
+| `canvas.vue` | Entry point — wraps Provider around Consumer |
+
+```mermaid "Provider/Consumer Data Flow"
+graph LR
+  A["context.ts"]:::info -->|"provideCanvas()"| B["CanvasProvider"]:::success
+  A -->|"useCanvas()"| C["CanvasConsumer"]:::warning
+  B -->|"wraps"| C
+```
+
+**Key patterns:**
+
+- Provider owns `createTimeline` + `useProxyRegistry` — consumer never touches the timeline directly
+- `strokes` computed maps `proxy.values` to raw `Stroke[]` — consumer only sees domain data
+- `redoStackSize` tracked manually via `shallowRef` since redo stack is internal to the timeline
+- `watchEffect` in consumer reads `strokes.value` for reactive canvas re-rendering
+- History bar visualizes the 20-slot bounded timeline capacity
+
+Draw on the canvas, then use Undo/Redo to time-travel through your strokes.
+
 :::
 
 ## Reactivity
