@@ -26,7 +26,7 @@ This composable allows you to create a Vue plugin with specific functionality th
 
 Use in conjunction with the [createContext](/composables/foundation/create-context "createContext Documentation") composable to make [Vue plugins](https://vuejs.org/guide/reusability/plugins "Vue Plugins Documentation") that work seemlessly with [Vue Provide / Inject](https://vuejs.org/guide/components/provide-inject "Vue Provide / Inject Documentation").
 
-```ts
+```ts collapse
 import { createContext, createPlugin } from '@vuetify/v0'
 
 interface MyPluginContext {
@@ -99,5 +99,43 @@ flowchart LR
   C --> install
   install --> app.runWithContext
 ```
+
+## Examples
+
+::: example
+/composables/create-plugin/plugin.ts 2
+/composables/create-plugin/DashboardProvider.vue 3
+/composables/create-plugin/DashboardConsumer.vue 4
+/composables/create-plugin/dashboard.vue 1
+
+### Dashboard Features
+
+This example demonstrates how to create a plugin that manages feature flag state using `createPlugin`, `createContext`, and `createGroup`. The plugin composes a group for selection state instead of reimplementing toggle logic.
+
+```mermaid "Plugin Architecture"
+graph LR
+  A["plugin.ts"]:::info -->|"provideDashboard()"| B["DashboardProvider"]:::success
+  A -->|"useDashboard()"| C["DashboardConsumer"]:::warning
+  A -->|"composes"| D["createGroup"]:::info
+  B -->|"wraps"| C
+```
+
+**File breakdown:**
+
+| File | Role |
+|------|------|
+| `plugin.ts` | Defines the `DashboardContext` (wrapping a `GroupContext`), creates the context tuple, and exports the `createDashboardPlugin` factory |
+| `DashboardProvider.vue` | Creates the plugin instance and provides the context, rendering only a slot |
+| `DashboardConsumer.vue` | Consumes the context via `useDashboard()` and uses the group's `toggle()`, `selectAll()`, and `unselectAll()` methods |
+| `dashboard.vue` | Entry point that composes Provider around Consumer |
+
+**Key patterns:**
+
+- Provider components are invisible wrappers that render only a slot
+- The plugin composes `createGroup` — each feature is a ticket with selection state built in
+- In a real app, the factory would return a plugin for `app.use()` — here it returns `context` directly for the sandbox
+- Consumers import only from `plugin.ts`, never from the Provider
+
+:::
 
 <DocsApi />
