@@ -21,14 +21,14 @@ import { createTrinity } from '#v0/composables/createTrinity'
 
 // Utilities
 import { isObject } from '#v0/utilities'
-import { computed, isRef, toRef, toValue } from 'vue'
+import { computed, shallowRef, toValue } from 'vue'
 
 // Transformers
 import { toArray } from '#v0/composables/toArray'
 
 // Types
 import type { ContextTrinity } from '#v0/composables/createTrinity'
-import type { App, ComputedRef, MaybeRef, MaybeRefOrGetter, ShallowRef } from 'vue'
+import type { App, ComputedRef, MaybeRefOrGetter, ShallowRef } from 'vue'
 
 export type Primitive = string | number | boolean
 export type FilterQuery = MaybeRefOrGetter<Primitive | Primitive[]>
@@ -62,7 +62,7 @@ export interface FilterContext<Z extends FilterItem = FilterItem> {
    * @param items The items to filter
    * @returns The filtered items as a computed ref
    */
-  apply: <T extends Z>(query: FilterQuery, items: MaybeRef<T[]>) => FilterResult<T>
+  apply: <T extends Z>(query: FilterQuery, items: MaybeRefOrGetter<T[]>) => FilterResult<T>
 }
 
 export interface FilterContextOptions extends FilterOptions {
@@ -135,24 +135,21 @@ export function createFilter<
 > (options: FilterOptions = {}): E {
   const { customFilter, keys, mode = 'some' } = options
   const filterFunction = customFilter ?? ((q, i) => defaultFilter(q, i, keys, mode))
-  const query = toRef<Primitive | Primitive[]>('')
+  const query = shallowRef<Primitive | Primitive[]>('')
 
   function apply<T extends Z> (
     _query: FilterQuery,
-    items: MaybeRef<T[]>,
+    items: MaybeRefOrGetter<T[]>,
   ): FilterResult<T> {
-    const itemsRef = isRef(items) ? items : toRef(() => items)
-    const queryRef = toRef(_query)
-
     const filteredItems = computed(() => {
-      const q = toValue(queryRef)
+      const q = toValue(_query)
       query.value = q
       const queries = toArray(q).filter(q => String(q).trim())
 
-      if (queries.length === 0) return itemsRef.value
+      if (queries.length === 0) return toValue(items)
 
       const queryParam = queries.length === 1 ? queries[0]! : queries
-      return itemsRef.value.filter(item =>
+      return toValue(items).filter(item =>
         filterFunction(queryParam, item),
       )
     })

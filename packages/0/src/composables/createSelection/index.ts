@@ -29,7 +29,7 @@ import { computed, shallowReactive, toRef, toValue } from 'vue'
 import type { RegistryContext, RegistryOptions, RegistryTicket, RegistryTicketInput } from '#v0/composables/createRegistry'
 import type { ContextTrinity } from '#v0/composables/createTrinity'
 import type { ID } from '#v0/types'
-import type { MaybeRefOrGetter, App, ComputedRef, MaybeRef, Reactive, Ref } from 'vue'
+import type { MaybeRefOrGetter, App, ComputedRef, Reactive, Ref } from 'vue'
 
 /**
  * Input type for selection tickets - what users provide to register().
@@ -51,7 +51,7 @@ import type { MaybeRefOrGetter, App, ComputedRef, MaybeRef, Reactive, Ref } from
  */
 export interface SelectionTicketInput<V = unknown> extends RegistryTicketInput<V> {
   /** Disabled state of the ticket (optional on input, defaults to false) */
-  disabled?: MaybeRef<boolean>
+  disabled?: MaybeRefOrGetter<boolean>
 }
 
 /**
@@ -70,7 +70,7 @@ export interface SelectionTicketInput<V = unknown> extends RegistryTicketInput<V
  */
 export type SelectionTicket<Z extends SelectionTicketInput = SelectionTicketInput> = RegistryTicket & Z & {
   /** Disabled state of the ticket (guaranteed to exist on output) */
-  disabled: MaybeRef<boolean>
+  disabled: MaybeRefOrGetter<boolean>
   /** Whether the ticket is currently selected */
   isSelected: Readonly<Ref<boolean, boolean>>
   /** Select self */
@@ -98,7 +98,7 @@ export interface SelectionContext<
   /** Set of selected ticket values */
   selectedValues: ComputedRef<Set<unknown>>
   /** Disable state for the entire selection instance */
-  disabled: MaybeRef<boolean>
+  disabled: MaybeRefOrGetter<boolean>
   /** Clear all selected IDs and reindexes */
   reset: () => void
   /** Select a ticket by ID (Toggle ON) */
