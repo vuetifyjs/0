@@ -8,10 +8,21 @@
  */
 
 <script lang="ts">
+  // Components
+  import { useSwitchRoot } from './SwitchRoot.vue'
+
+  // Utilities
+  import { isNullOrUndefined, isObject } from '#v0/utilities'
+  import { toRef } from 'vue'
+
   export interface SwitchHiddenInputProps {
+    /** Namespace for connecting to parent Switch.Root */
     namespace?: string
+    /** Form field name (overrides Root's name) */
     name?: string
+    /** Form field value (overrides Root's value, defaults to 'on') */
     value?: string
+    /** Associate with form by ID (overrides Root's form) */
     form?: string
   }
 
@@ -29,13 +40,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { useSwitchRoot } from './SwitchRoot.vue'
-
-  // Utilities
-  import { isNullOrUndefined, isObject } from '#v0/utilities'
-  import { toRef } from 'vue'
-
   defineOptions({ name: 'SwitchHiddenInput' })
 
   const {

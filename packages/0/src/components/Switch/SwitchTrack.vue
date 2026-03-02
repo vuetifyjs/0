@@ -9,18 +9,26 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { useSwitchRoot } from './SwitchRoot.vue'
+
+  // Utilities
+  import { toRef, toValue } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SwitchState } from './SwitchRoot.vue'
 
   export interface SwitchTrackProps extends AtomProps {
+    /** Namespace for connecting to parent Switch.Root */
     namespace?: string
   }
 
   export interface SwitchTrackSlotProps {
+    /** Whether the parent switch is on */
     isChecked: boolean
+    /** Whether the parent switch is in a mixed/indeterminate state */
     isMixed: boolean
+    /** Pre-computed data attributes for styling */
     attrs: {
       'data-state': SwitchState
     }
@@ -28,12 +36,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { useSwitchRoot } from './SwitchRoot.vue'
-
-  // Utilities
-  import { toRef, toValue } from 'vue'
-
   defineOptions({ name: 'SwitchTrack' })
 
   defineSlots<{

@@ -13,12 +13,18 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { useSwitchGroup } from './SwitchGroup.vue'
+  import SwitchHiddenInput from './SwitchHiddenInput.vue'
 
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
+  // Utilities
+  import { onUnmounted, toRef, toValue, useAttrs, useId } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
   import type { ID } from '#v0/types'
   import type { MaybeRef, Ref } from 'vue'
 
@@ -26,48 +32,85 @@
   export type SwitchState = 'checked' | 'unchecked' | 'indeterminate'
 
   export interface SwitchRootContext<V = unknown> {
+    /** Unique identifier */
     readonly id: ID
+    /** Optional display label */
     readonly label?: string
+    /** Value associated with this switch */
     readonly value: V | undefined
+    /** Form field name (triggers auto hidden input when provided) */
     readonly name?: string
+    /** Associate with form by ID */
     readonly form?: string
+    /** Whether this switch is currently on */
     isChecked: Readonly<Ref<boolean>>
+    /** Whether this switch is in a mixed/indeterminate state */
     isMixed: Readonly<Ref<boolean>>
+    /** Whether this switch is disabled */
     isDisabled: Readonly<Ref<boolean>>
+    /** Turn this switch on */
     select: () => void
+    /** Turn this switch off */
     unselect: () => void
+    /** Toggle this switch's state */
     toggle: () => void
+    /** Set this switch to mixed/indeterminate state (group mode only) */
     mix: () => void
+    /** Clear mixed/indeterminate state (group mode only) */
     unmix: () => void
   }
 
   export interface SwitchRootProps<V = unknown> extends AtomProps {
+    /** Unique identifier (auto-generated if not provided) */
     id?: ID
+    /** Optional display label (passed through to slot) */
     label?: string
+    /** Value associated with this switch (used in group mode and form submission) */
     value?: V
+    /** Form field name - triggers auto hidden input when provided */
     name?: string
+    /** Associate with form by ID */
     form?: string
+    /** Disables this switch */
     disabled?: MaybeRef<boolean>
+    /** Sets the indeterminate state */
     indeterminate?: MaybeRef<boolean>
+    /** Namespace for context provision to children (Track, Thumb, HiddenInput) */
     namespace?: string
+    /** Namespace for connecting to parent Switch.Group */
     groupNamespace?: string
+    /** ID of element that labels this switch */
     ariaLabelledby?: string
+    /** ID of element that describes this switch */
     ariaDescribedby?: string
+    /** Whether the switch has an invalid value */
     ariaInvalid?: boolean
   }
 
   export interface SwitchRootSlotProps<V = unknown> {
+    /** Unique identifier */
     id: ID
+    /** Optional display label */
     label?: string
+    /** Value associated with this switch */
     value: V | undefined
+    /** Whether this switch is currently on */
     isChecked: boolean
+    /** Whether this switch is in a mixed/indeterminate state */
     isMixed: boolean
+    /** Whether this switch is disabled */
     isDisabled: boolean
+    /** Turn this switch on */
     select: () => void
+    /** Turn this switch off */
     unselect: () => void
+    /** Toggle this switch's state */
     toggle: () => void
+    /** Set this switch to mixed/indeterminate state (group mode only) */
     mix: () => void
+    /** Clear mixed/indeterminate state (group mode only) */
     unmix: () => void
+    /** Pre-computed ARIA and data attributes for the root element */
     attrs: {
       'type': 'button' | undefined
       'role': 'switch'
@@ -87,16 +130,6 @@
 </script>
 
 <script setup lang="ts" generic="V = unknown">
-  // Components
-  import { useSwitchGroup } from './SwitchGroup.vue'
-  import SwitchHiddenInput from './SwitchHiddenInput.vue'
-
-  // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs, useId } from 'vue'
-
-  // Types
-  import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
-
   defineOptions({ name: 'SwitchRoot', inheritAttrs: false })
 
   const attrs = useAttrs()

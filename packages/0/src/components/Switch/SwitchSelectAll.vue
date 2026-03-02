@@ -12,28 +12,47 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  import { useSwitchGroup } from './SwitchGroup.vue'
+  import { provideSwitchRoot } from './SwitchRoot.vue'
+
+  // Utilities
+  import { toRef, toValue, useAttrs, useId } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { SwitchRootContext, SwitchState } from './SwitchRoot.vue'
 
   export interface SwitchSelectAllProps extends AtomProps {
+    /** Accessible label for the select-all toggle */
     label?: string
+    /** Disables this toggle */
     disabled?: boolean
+    /** Namespace for context provision to children (Track, Thumb) */
     namespace?: string
+    /** Namespace for connecting to parent Switch.Group */
     groupNamespace?: string
+    /** ID of element that labels this toggle */
     ariaLabelledby?: string
+    /** ID of element that describes this toggle */
     ariaDescribedby?: string
   }
 
   export interface SwitchSelectAllSlotProps {
+    /** Accessible label */
     label?: string
+    /** Whether all switches in the group are on */
     isAllSelected: boolean
+    /** Whether some but not all switches are on */
     isMixed: boolean
+    /** Whether this toggle is disabled */
     isDisabled: boolean
+    /** Turn on all switches in the group */
     selectAll: () => void
+    /** Turn off all switches in the group */
     unselectAll: () => void
+    /** Toggle all switches in the group */
     toggleAll: () => void
+    /** Pre-computed ARIA and data attributes for the root element */
     attrs: {
       'type': 'button' | undefined
       'role': 'switch'
@@ -50,13 +69,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import { useSwitchGroup } from './SwitchGroup.vue'
-  import { provideSwitchRoot } from './SwitchRoot.vue'
-
-  // Utilities
-  import { toRef, toValue, useAttrs, useId } from 'vue'
-
   defineOptions({ name: 'SwitchSelectAll', inheritAttrs: false })
 
   const attrs = useAttrs()

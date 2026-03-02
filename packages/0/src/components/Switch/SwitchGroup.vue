@@ -14,32 +14,57 @@
   // Foundational
   import { createContext } from '#v0/composables/createContext'
 
+  // Composables
+  import { createGroup } from '#v0/composables/createGroup'
+  import { useProxyModel } from '#v0/composables/useProxyModel'
+
+  // Utilities
+  import { toRef, toValue } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
   import type { GroupContext, GroupTicket } from '#v0/composables/createGroup'
   import type { ID } from '#v0/types'
 
   export interface SwitchGroupProps extends AtomProps {
+    /** Namespace for context provision to children */
     namespace?: string
+    /** Disables all switches in the group */
     disabled?: boolean
+    /** Auto-select items on registration */
     enroll?: boolean
+    /** Require at least one switch to be on. `'force'` prevents deselecting the last item */
     mandatory?: boolean | 'force'
+    /** Accessible group label */
     label?: string
+    /** ID of element that labels this group */
     ariaLabelledby?: string
+    /** ID of element that describes this group */
     ariaDescribedby?: string
   }
 
   export interface SwitchGroupSlotProps {
+    /** Whether the group is disabled */
     isDisabled: boolean
+    /** Whether no switches are on */
     isNoneSelected: boolean
+    /** Whether all switches are on */
     isAllSelected: boolean
+    /** Whether some but not all switches are on */
     isMixed: boolean
+    /** Turn on specific switches by ID */
     select: (id: ID | ID[]) => void
+    /** Turn off specific switches by ID */
     unselect: (id: ID | ID[]) => void
+    /** Toggle specific switches by ID */
     toggle: (id: ID | ID[]) => void
+    /** Turn on all switches */
     selectAll: () => void
+    /** Turn off all switches */
     unselectAll: () => void
+    /** Toggle all switches */
     toggleAll: () => void
+    /** Pre-computed ARIA attributes for the group element */
     attrs: {
       'role': 'group'
       'aria-label': string | undefined
@@ -52,13 +77,6 @@
 </script>
 
 <script setup lang="ts" generic="T = unknown">
-  // Composables
-  import { createGroup } from '#v0/composables/createGroup'
-  import { useProxyModel } from '#v0/composables/useProxyModel'
-
-  // Utilities
-  import { toRef, toValue } from 'vue'
-
   defineOptions({ name: 'SwitchGroup' })
 
   defineSlots<{
