@@ -11,7 +11,7 @@
 </script>
 
 <template>
-  <div ref="menu" class="inline-block">
+  <div ref="menu" class="inline-block relative">
     <button
       class="px-4 py-2 bg-primary text-on-primary rounded"
       @click="isOpen = !isOpen"
@@ -21,7 +21,7 @@
 
     <div
       v-if="isOpen"
-      class="absolute mt-2 w-48 py-2 bg-surface border border-divider rounded shadow-lg"
+      class="mt-2 w-48 py-2 bg-surface border border-divider rounded shadow-lg"
     >
       <button class="w-full text-left px-4 py-2 text-sm hover:bg-surface-tint">
         Profile
