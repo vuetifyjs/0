@@ -100,6 +100,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/components/forms/switch': RouteRecordInfo<
+      '/components/forms/switch',
+      '/components/forms/switch',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/components/primitives/atom': RouteRecordInfo<
       '/components/primitives/atom',
       '/components/primitives/atom',
@@ -771,6 +778,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/components/forms/radio.md': {
       routes:
         | '/components/forms/radio'
+      views:
+        | never
+    }
+    'src/pages/components/forms/switch.md': {
+      routes:
+        | '/components/forms/switch'
       views:
         | never
     }
