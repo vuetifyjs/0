@@ -138,10 +138,17 @@
         <span class="text-[10px] font-mono text-on-surface-variant/40">#{{ task.index }}</span>
 
         <button
-          class="opacity-0 group-hover:opacity-100 text-on-surface-variant hover:text-error transition-all"
+          class="opacity-0 group-hover:opacity-100 text-on-surface-variant"
           @click="remove(task.id)"
         >
-          ×
+          <svg
+            class="size-3.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="2"
+            viewBox="0 0 14 14"
+          ><line x1="3" x2="11" y1="3" y2="11" /><line x1="11" x2="3" y1="3" y2="11" /></svg>
         </button>
       </div>
 
