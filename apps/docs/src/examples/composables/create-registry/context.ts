@@ -11,11 +11,11 @@ export type TaskTicket = RegistryTicket<string> & TaskTicketInput
 
 export interface TaskContext {
   tasks: ComputedRef<readonly TaskTicket[]>
-  eventLog: ShallowRef<string[]>
-  addTask: (text: string, priority: TaskTicketInput['priority']) => void
-  removeTask: (id: ID) => void
-  toggleDone: (id: ID) => void
-  clearCompleted: () => void
+  events: ShallowRef<string[]>
+  add: (text: string, priority: TaskTicketInput['priority']) => void
+  remove: (id: ID) => void
+  toggle: (id: ID) => void
+  clear: () => void
 }
 
 export const [useTaskRegistry, provideTaskRegistry] = createContext<TaskContext>('v0:task-registry')
