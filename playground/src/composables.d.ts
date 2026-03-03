@@ -179,7 +179,7 @@ declare global {
   const singleOpenStrategy: typeof import('../../packages/0/src/composables/createNested/index').singleOpenStrategy
   const toArray: typeof import('../../packages/0/src/composables/toArray/index').toArray
   const toCamelCase: typeof import('../../packages/paper/src/utilities/helpers').toCamelCase
-  const toElement: typeof import('../../packages/0/src/utilities/helpers').toElement
+  const toElement: typeof import('../../packages/0/src/composables/toElement/index').toElement
   const toKebabCase: typeof import('../../packages/paper/src/utilities/helpers').toKebabCase
   const toRaw: typeof import('vue').toRaw
   const toReactive: typeof import('../../packages/0/src/composables/toReactive/index').toReactive
@@ -296,6 +296,9 @@ declare global {
   export type { ContextTrinity } from '../../packages/0/src/composables/createTrinity/index'
   import('../../packages/0/src/composables/createTrinity/index')
   // @ts-ignore
+  export type { MaybeElementRef } from '../../packages/0/src/composables/toElement/index'
+  import('../../packages/0/src/composables/toElement/index')
+  // @ts-ignore
   export type { BreakpointName, BreakpointsContext, BreakpointsOptions, BreakpointsPluginOptions, BreakpointsContextOptions } from '../../packages/0/src/composables/useBreakpoints/index'
   import('../../packages/0/src/composables/useBreakpoints/index')
   // @ts-ignore
@@ -400,9 +403,6 @@ declare global {
   // @ts-ignore
   export type { HTMLElementName, SelfClosingElement } from '../../packages/0/src/constants/htmlElements'
   import('../../packages/0/src/constants/htmlElements')
-  // @ts-ignore
-  export type { MaybeElementRef } from '../../packages/0/src/utilities/helpers'
-  import('../../packages/0/src/utilities/helpers')
 }
 
 // for vue template auto import
@@ -576,7 +576,7 @@ declare module 'vue' {
     readonly singleOpenStrategy: UnwrapRef<typeof import('../../packages/0/src/composables/createNested/index')['singleOpenStrategy']>
     readonly toArray: UnwrapRef<typeof import('../../packages/0/src/composables/toArray/index')['toArray']>
     readonly toCamelCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toCamelCase']>
-    readonly toElement: UnwrapRef<typeof import('../../packages/0/src/utilities/helpers')['toElement']>
+    readonly toElement: UnwrapRef<typeof import('../../packages/0/src/composables/toElement/index')['toElement']>
     readonly toKebabCase: UnwrapRef<typeof import('../../packages/paper/src/utilities/helpers')['toKebabCase']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toReactive: UnwrapRef<typeof import('../../packages/0/src/composables/toReactive/index')['toReactive']>

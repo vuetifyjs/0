@@ -19,8 +19,12 @@ import { useHydration } from '#v0/composables/useHydration'
 import { isElement, isNull } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
+// Transformers
+import { toElement } from '#v0/composables/toElement'
+
 // Types
-import type { MaybeRef, Ref } from 'vue'
+import type { MaybeElementRef } from '#v0/composables/toElement'
+import type { Ref } from 'vue'
 
 export interface ObserverReturn {
   /**
@@ -58,12 +62,12 @@ interface ObserverConfig<O extends { disconnect: () => void }, E> {
 }
 
 export function createObserver<O extends { disconnect: () => void }, E> (
-  target: MaybeRef<Element | null | undefined>,
+  target: MaybeElementRef,
   userCallback: (entries: E[]) => void,
   config: ObserverConfig<O, E>,
 ): ObserverReturn {
   const { isHydrated } = useHydration()
-  const targetRef = toRef(target)
+  const resolved = toRef(() => toElement(target))
   const observer = shallowRef<O | null | undefined>(undefined)
   const isPaused = shallowRef(false)
   const isActive = toRef(() => !!observer.value)
@@ -80,13 +84,14 @@ export function createObserver<O extends { disconnect: () => void }, E> (
 
   function setup () {
     if (isNull(observer.value)) return
-    if (!isHydrated.value || !config.supports || !isElement(targetRef.value) || isPaused.value) return
+    const el = resolved.value
+    if (!isHydrated.value || !config.supports || !isElement(el) || isPaused.value) return
 
     observer.value = config.create(invoke)
-    config.observe(observer.value, targetRef.value)
+    config.observe(observer.value, el)
 
     if (config.immediate) {
-      const entries = config.immediate(targetRef.value)
+      const entries = config.immediate(el)
       if (config.onceIncludesImmediate) {
         invoke(entries)
       } else {
@@ -97,7 +102,7 @@ export function createObserver<O extends { disconnect: () => void }, E> (
   }
 
   watch(
-    () => targetRef.value,
+    resolved,
     (el, oldEl) => {
       if (oldEl || observer.value) cleanup()
       if (isHydrated.value && isElement(el)) setup()
@@ -110,7 +115,7 @@ export function createObserver<O extends { disconnect: () => void }, E> (
     stopHydrationWatch = watch(
       () => isHydrated.value,
       hydrated => {
-        if (hydrated && isElement(targetRef.value) && !observer.value) {
+        if (hydrated && isElement(resolved.value) && !observer.value) {
           setup()
           stopHydrationWatch?.()
           stopHydrationWatch = undefined
