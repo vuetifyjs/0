@@ -16,7 +16,7 @@
 import { useHydration } from '#v0/composables/useHydration'
 
 // Utilities
-import { isNull } from '#v0/utilities'
+import { isElement, isNull } from '#v0/utilities'
 import { onScopeDispose, shallowReadonly, shallowRef, toRef, watch } from 'vue'
 
 // Types
@@ -80,7 +80,7 @@ export function createObserver<O extends { disconnect: () => void }, E> (
 
   function setup () {
     if (isNull(observer.value)) return
-    if (!isHydrated.value || !config.supports || !targetRef.value || isPaused.value) return
+    if (!isHydrated.value || !config.supports || !isElement(targetRef.value) || isPaused.value) return
 
     observer.value = config.create(invoke)
     config.observe(observer.value, targetRef.value)
@@ -100,7 +100,7 @@ export function createObserver<O extends { disconnect: () => void }, E> (
     () => targetRef.value,
     (el, oldEl) => {
       if (oldEl || observer.value) cleanup()
-      if (isHydrated.value && el) setup()
+      if (isHydrated.value && isElement(el)) setup()
     },
     { immediate: true },
   )
@@ -110,7 +110,7 @@ export function createObserver<O extends { disconnect: () => void }, E> (
     stopHydrationWatch = watch(
       () => isHydrated.value,
       hydrated => {
-        if (hydrated && targetRef.value && !observer.value) {
+        if (hydrated && isElement(targetRef.value) && !observer.value) {
           setup()
           stopHydrationWatch?.()
           stopHydrationWatch = undefined

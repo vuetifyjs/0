@@ -129,6 +129,24 @@ export function isArray (item: unknown): item is unknown[] {
 }
 
 /**
+ * Checks if a value is a DOM Element
+ *
+ * @param item The value to check
+ * @returns True if the value is a DOM Element
+ *
+ * @example
+ * ```ts
+ * isElement(document.body) // true
+ * isElement('string')      // false
+ * isElement(null)          // false
+ * ```
+ */
+/* #__NO_SIDE_EFFECTS__ */
+export function isElement (item: unknown): item is Element {
+  return item instanceof Element
+}
+
+/**
  * Checks if a value is null
  *
  * @param item The value to check
