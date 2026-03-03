@@ -63,12 +63,6 @@ The `useHotkey` composable registers hotkey handlers on the window with automati
 </template>
 ```
 
-## Examples
-
-::: example
-/composables/use-hotkey/command-palette
-:::
-
 ## Architecture
 
 `useHotkey` builds on `useEventListener` for keyboard event handling:
@@ -88,5 +82,11 @@ flowchart TD
 | `isActive` | <AppSuccessIcon /> | Computed from cleanup ref |
 | `isPaused` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `keys` | <AppSuccessIcon /> | Accepts MaybeRefOrGetter, watched for changes |
+
+## Examples
+
+::: example
+/composables/use-hotkey/command-palette
+:::
 
 <DocsApi />

@@ -73,8 +73,6 @@ Once the plugin is installed, use the `useDate` composable in any component:
 /composables/use-date/basic
 :::
 
-<DocsApi />
-
 ### DateAdapter Interface
 
 The adapter provides a comprehensive API compatible with [date-io](https://github.com/dmtrKovalenko/date-io):
@@ -223,6 +221,15 @@ The `formatByString()` method supports these tokens:
 | `s` | Seconds | 45 |
 | `A` | AM/PM | AM |
 | `a` | am/pm | am |
+
+## Reactivity
+
+The date context provides minimal reactivity, with the adapter being a static instance.
+
+| Property | Reactive | Notes |
+| - | :-: | - |
+| `locale` | <AppSuccessIcon /> | Computed from `useLocale` if available |
+| `adapter` | <AppErrorIcon /> | Static adapter instance |
 
 ## Examples
 
@@ -411,11 +418,4 @@ This is intentional to prevent hydration mismatches. For SSR apps needing curren
 
 3. **Server timezone:** Set `TZ=UTC` environment variable on your server for consistent baseline
 
-## Reactivity
-
-The date context provides minimal reactivity, with the adapter being a static instance.
-
-| Property | Reactive | Notes |
-| - | :-: | - |
-| `locale` | <AppSuccessIcon /> | Computed from `useLocale` if available |
-| `adapter` | <AppErrorIcon /> | Static adapter instance |
+<DocsApi />

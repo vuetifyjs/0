@@ -51,12 +51,6 @@ group.unselect('apple')
 console.log(group.selectedIndexes.value) // Set {}
 ```
 
-## Examples
-
-::: example
-/composables/create-group/chip-filter
-:::
-
 ## Architecture
 
 `createGroup` extends `createSelection` with multi-select and tri-state capabilities:
@@ -85,5 +79,11 @@ Group selection state is **always reactive**, including the tri-state `mixedIds`
 
 > [!TIP] Tri-state support
 > `mixedIds` is reactive and updates automatically for indeterminate checkbox states in tree structures.
+
+## Examples
+
+::: example
+/composables/create-group/chip-filter
+:::
 
 <DocsApi />

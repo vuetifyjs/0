@@ -51,12 +51,6 @@ The `useIntersectionObserver` composable wraps the Intersection Observer API to 
 </template>
 ```
 
-## Examples
-
-::: example
-/composables/use-intersection-observer/scroll-reveal
-:::
-
 ## Architecture
 
 `useIntersectionObserver` wraps the native IntersectionObserver API with Vue reactivity:
@@ -85,5 +79,11 @@ flowchart TD
 | - | :-: | - |
 | `isIntersecting` | <AppSuccessIcon /> | ShallowRef, readonly |
 | `intersectionRatio` | <AppSuccessIcon /> | ShallowRef, readonly (0.0 to 1.0) |
+
+## Examples
+
+::: example
+/composables/use-intersection-observer/scroll-reveal
+:::
 
 <DocsApi />

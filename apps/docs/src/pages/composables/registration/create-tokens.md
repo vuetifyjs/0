@@ -27,7 +27,7 @@ A utility for managing design tokens with support for hierarchical collections, 
 
 The `createTokens` composable allows you to define a collection of design tokens, which can be primitive values or aliases that reference other tokens. It provides a context for resolving these tokens, making it easy to access design values throughout your application.
 
-```ts
+```ts collapse
 import { createTokens } from '@vuetify/v0'
 
 // Default behavior (depth = Infinity): fully flatten nested objects
@@ -56,6 +56,25 @@ const features = createTokens({
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
+## Architecture
+
+`createTokens` extends `createRegistry` and powers token-based systems:
+
+```mermaid "Tokens Hierarchy"
+flowchart TD
+  createTokens --> useTheme
+  createTokens --> useLocale
+  createTokens --> useFeatures
+  createTokens --> usePermissions
+```
+
+## Reactivity
+
+`createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
+
+> [!TIP] For reactive theming
+> Use [useTheme](/composables/plugins/use-theme) which builds on `createTokens` with proper reactivity for theme switching.
+
 ## Examples
 
 ::: example
@@ -79,25 +98,6 @@ A design system with four token categories — color palettes, semantic aliases,
 - Click any token to resolve it in the Alias Resolver panel
 
 :::
-
-## Reactivity
-
-`createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
-
-> [!TIP] For reactive theming
-> Use [useTheme](/composables/plugins/use-theme) which builds on `createTokens` with proper reactivity for theme switching.
-
-## Architecture
-
-`createTokens` extends `createRegistry` and powers token-based systems:
-
-```mermaid "Tokens Hierarchy"
-flowchart TD
-  createTokens --> useTheme
-  createTokens --> useLocale
-  createTokens --> useFeatures
-  createTokens --> usePermissions
-```
 
 <DocsApi />
 

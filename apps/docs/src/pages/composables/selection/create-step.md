@@ -57,12 +57,6 @@ carousel.next()   // Wraps to slide1
 carousel.prev()   // Wraps to slide3
 ```
 
-## Examples
-
-::: example
-/composables/create-step/stepper
-:::
-
 ## Architecture
 
 `createStep` extends `createSingle` with directional navigation:
@@ -92,5 +86,11 @@ Step navigation state is **always reactive**. Navigation guards (`canPrev`, `can
 
 > [!TIP] Navigation guards
 > Use `canPrev` and `canNext` to disable navigation buttons. They respect the `circular` option automatically.
+
+## Examples
+
+::: example
+/composables/create-step/stepper
+:::
 
 <DocsApi />

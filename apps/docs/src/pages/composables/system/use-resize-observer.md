@@ -49,12 +49,6 @@ The `useResizeObserver` composable wraps the Resize Observer API to detect when 
 </template>
 ```
 
-## Examples
-
-::: example
-/composables/use-resize-observer/responsive-grid
-:::
-
 ## Architecture
 
 `useResizeObserver` wraps the native ResizeObserver API with Vue reactivity:
@@ -82,5 +76,11 @@ flowchart TD
 | - | :-: | - |
 | `width` | <AppSuccessIcon /> | ShallowRef |
 | `height` | <AppSuccessIcon /> | ShallowRef |
+
+## Examples
+
+::: example
+/composables/use-resize-observer/responsive-grid
+:::
 
 <DocsApi />
