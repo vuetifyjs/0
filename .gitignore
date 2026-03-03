@@ -45,5 +45,7 @@ storybook-static
 # Auto-generated files
 apps/docs/build/generated/
 
-# Claude Code worktrees
+# Claude Code
 .claude/worktrees/
+.claude/plans/
+.playwright-mcp/

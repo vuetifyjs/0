@@ -14,7 +14,7 @@ Before writing new helpers, check `#v0/utilities`. Use these instead of creating
 |--------|---------|
 | `isFunction`, `isString`, `isNumber`, `isBoolean` | Type guards |
 | `isObject`, `isArray`, `isNull`, `isUndefined` | Type guards |
-| `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN` | Type guards |
+| `isNullOrUndefined`, `isPrimitive`, `isSymbol`, `isNaN`, `isElement` | Type guards |
 | `mergeDeep` | Deep object merge with `DeepPartial<T>` |
 | `useId()` | SSR-safe ID generation |
 | `clamp(value, min, max)` | Clamp number to range |

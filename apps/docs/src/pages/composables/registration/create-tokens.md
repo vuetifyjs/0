@@ -56,6 +56,30 @@ const features = createTokens({
 features.resolve('rtl') // { value: true, variation: 'toggle' }
 ```
 
+## Examples
+
+::: example
+/composables/create-tokens/tokens.ts 1
+/composables/create-tokens/design-system.vue 2
+
+### Design Token Explorer
+
+A design system with four token categories — color palettes, semantic aliases, spacing, and radius — split across two files:
+
+| File | Role |
+|------|------|
+| `tokens.ts` | Defines the token collection with nested color scales and semantic aliases |
+| `design-system.vue` | Explorer UI with category tabs, search, and an alias resolver |
+
+**Key patterns:**
+
+- Nested objects flatten to dot-notation IDs: `color.blue.500`, `spacing.md`
+- Alias syntax `{color.blue.500}` references other tokens — `resolve()` follows the chain
+- `isAlias()` distinguishes alias references from direct values
+- Click any token to resolve it in the Alias Resolver panel
+
+:::
+
 ## Reactivity
 
 `createTokens` uses **minimal reactivity** like its parent `createRegistry`. Token resolution is cached but not reactive.
@@ -75,7 +99,7 @@ flowchart TD
   createTokens --> usePermissions
 ```
 
-<DocsApi name="createTokens" />
+<DocsApi />
 
 ## Frequently Asked Questions
 
