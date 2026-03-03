@@ -46,6 +46,25 @@ timeline.redo()
 console.log(timeline.size) // 3
 ```
 
+## Architecture
+
+`createTimeline` extends `createRegistry` with bounded history and overflow management:
+
+```mermaid "Timeline Hierarchy"
+flowchart TD
+  createRegistry --> createTimeline
+  createTimeline --> undo/redo
+  createTimeline --> overflow[overflow buffer]
+  createTimeline --> cursor[history cursor]
+```
+
+## Reactivity
+
+`createTimeline` uses **minimal reactivity** like its parent `createRegistry`. History state is managed internally without reactive primitives.
+
+> [!TIP] Need reactive history?
+> Wrap with `useProxyRegistry(timeline)` for full template reactivity on the active timeline.
+
 ## Examples
 
 ::: example
@@ -83,24 +102,5 @@ graph LR
 Draw on the canvas, then use Undo/Redo to time-travel through your strokes.
 
 :::
-
-## Reactivity
-
-`createTimeline` uses **minimal reactivity** like its parent `createRegistry`. History state is managed internally without reactive primitives.
-
-> [!TIP] Need reactive history?
-> Wrap with `useProxyRegistry(timeline)` for full template reactivity on the active timeline.
-
-## Architecture
-
-`createTimeline` extends `createRegistry` with bounded history and overflow management:
-
-```mermaid "Timeline Hierarchy"
-flowchart TD
-  createRegistry --> createTimeline
-  createTimeline --> undo/redo
-  createTimeline --> overflow[overflow buffer]
-  createTimeline --> cursor[history cursor]
-```
 
 <DocsApi />

@@ -29,6 +29,21 @@ The `createNested` composable manages hierarchical tree structures with parent-c
 /composables/create-nested/basic
 :::
 
+## Architecture
+
+`createNested` extends `createGroup` with hierarchical tree management:
+
+```mermaid "Nested Hierarchy"
+flowchart TD
+  createRegistry --> createSelection
+  createSelection --> createGroup
+  createGroup --> createNested
+  createNested --> children[children Map]
+  createNested --> parents[parents Map]
+  createNested --> openedIds[openedIds Set]
+  createNested --> OpenStrategy[OpenStrategy]
+```
+
 ## Reactivity
 
 `createNested` uses **shallowReactive** for tree state, making structural changes reactive while keeping traversal methods non-reactive for performance.
@@ -44,21 +59,6 @@ The `createNested` composable manages hierarchical tree structures with parent-c
 | `ticket.isOpen` | <AppSuccessIcon /> | Ref via toRef() |
 | `ticket.isLeaf` | <AppSuccessIcon /> | Ref via toRef() |
 | `ticket.depth` | <AppSuccessIcon /> | Ref via toRef() |
-
-## Architecture
-
-`createNested` extends `createGroup` with hierarchical tree management:
-
-```mermaid "Nested Hierarchy"
-flowchart TD
-  createRegistry --> createSelection
-  createSelection --> createGroup
-  createGroup --> createNested
-  createNested --> children[children Map]
-  createNested --> parents[parents Map]
-  createNested --> openedIds[openedIds Set]
-  createNested --> OpenStrategy[OpenStrategy]
-```
 
 <DocsApi />
 
