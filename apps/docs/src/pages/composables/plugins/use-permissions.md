@@ -20,11 +20,11 @@ Manage role-based permissions across your app. Register permissions for roles, a
 
 <DocsPageFeatures :frontmatter />
 
-## Usage
+## Installation
 
-Install the Permissions plugin once, then access the context anywhere via `createPermissions`.
+Install the Permissions plugin in your app's entry point:
 
-```ts
+```ts main.ts
 import { createApp } from 'vue'
 import { createPermissionsPlugin } from '@vuetify/v0'
 import App from './App.vue'
@@ -54,9 +54,11 @@ app.use(
 app.mount('#app')
 ```
 
-Now in any component, check permissions for specific roles:
+## Usage
 
-```vue UsePermissions
+Once the plugin is installed, check permissions for specific roles in any component:
+
+```vue collapse UsePermissions
 <script setup lang="ts">
   import { usePermissions } from '@vuetify/v0'
 
@@ -85,7 +87,7 @@ Now in any component, check permissions for specific roles:
 
 Optionally register permissions at runtime:
 
-```vue UsePermissions
+```vue collapse UsePermissions
 <script setup lang="ts">
   import { usePermissions } from '@vuetify/v0'
 
