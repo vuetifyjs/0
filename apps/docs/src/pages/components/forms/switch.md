@@ -34,7 +34,7 @@ The Switch component supports two modes:
 
 ## Anatomy
 
-```vue Anatomy playground collapse no-file
+```vue Anatomy playground collapse no-filename
 <script setup lang="ts">
   import { Switch } from '@vuetify/v0'
 </script>
