@@ -57,30 +57,22 @@ describe('createVirtual', () => {
       return mockObserver
     }) as unknown as typeof ResizeObserver
 
-    let scrollTopValue = 0
-    mockContainer = {
-      get scrollTop () {
-        return scrollTopValue
-      },
-      set scrollTop (value: number) {
-        scrollTopValue = value
-      },
-      scrollHeight: 5000,
-      clientHeight: 500,
-      offsetHeight: 500,
-      scrollTo: vi.fn(),
-      getBoundingClientRect: vi.fn(() => ({
-        width: 400,
-        height: 500,
-        top: 0,
-        left: 0,
-        right: 400,
-        bottom: 500,
-        x: 0,
-        y: 0,
-        toJSON: () => ({}),
-      })),
-    } as unknown as HTMLElement
+    mockContainer = realDocument.createElement('div')
+    Object.defineProperty(mockContainer, 'scrollHeight', { value: 5000, writable: true })
+    Object.defineProperty(mockContainer, 'clientHeight', { value: 500, writable: true })
+    Object.defineProperty(mockContainer, 'offsetHeight', { value: 500, writable: true })
+    mockContainer.scrollTo = vi.fn() as any
+    mockContainer.getBoundingClientRect = vi.fn(() => ({
+      width: 400,
+      height: 500,
+      top: 0,
+      left: 0,
+      right: 400,
+      bottom: 500,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }))
 
     globalThis.window = {
       innerHeight: 800,
