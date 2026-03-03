@@ -9,13 +9,6 @@
 
   const model = defineModel<boolean>({ required: true })
   const slots = useSlots()
-
-  function onKeydown (e: KeyboardEvent) {
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault()
-      model.value = !model.value
-    }
-  }
 </script>
 
 <template>
@@ -27,24 +20,6 @@
         <p v-if="description" class="text-xs text-on-surface-variant/60">{{ description }}</p>
       </div>
     </div>
-    <button
-      :aria-checked="model"
-      :aria-label="`Toggle ${label.toLowerCase()}`"
-      :class="[
-        'relative w-11 h-6 rounded-full transition-colors shrink-0',
-        model ? 'bg-primary' : 'bg-on-surface/20',
-      ]"
-      role="switch"
-      type="button"
-      @click="model = !model"
-      @keydown="onKeydown"
-    >
-      <span
-        :class="[
-          'absolute top-1 left-0 w-4 h-4 rounded-full bg-white shadow transition-transform',
-          model ? 'translate-x-6' : 'translate-x-1',
-        ]"
-      />
-    </button>
+    <AppSwitch v-model="model" :label="`Toggle ${label.toLowerCase()}`" />
   </label>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { Switch } from '@vuetify/v0'
   import { toRef } from 'vue'
   import { useDashboard } from './plugin'
 
@@ -66,15 +67,15 @@
         >
           {{ ticket.value }}
         </span>
-        <div
-          class="w-8 h-4.5 rounded-full relative transition-colors duration-200"
-          :class="ticket.isSelected.value ? 'bg-primary' : 'bg-divider'"
-        >
-          <div
-            class="absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform duration-200"
-            :class="ticket.isSelected.value ? 'translate-x-3.75' : 'translate-x-0.5'"
-          />
-        </div>
+        <Switch.Root as="span" class="inline-flex items-center" :model-value="ticket.isSelected.value">
+          <Switch.Track
+            class="relative inline-flex items-center w-8 h-4.5 rounded-full transition-colors bg-on-surface/20 data-[state=checked]:bg-primary"
+          >
+            <Switch.Thumb
+              class="![visibility:visible] block size-3.5 rounded-full bg-white shadow-sm transition-transform translate-x-0.5 data-[state=checked]:translate-x-3.75"
+            />
+          </Switch.Track>
+        </Switch.Root>
       </button>
     </div>
 
