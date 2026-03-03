@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import AppIcon from '@/components/app/AppIcon.vue'
   import { computed, shallowRef } from 'vue'
+  import { Checkbox } from '@vuetify/v0'
 
   import { useTaskRegistry, type TaskTicket } from './context'
 
@@ -104,15 +105,16 @@
           ? 'border-divider/50 bg-surface-variant/20'
           : 'border-divider hover:border-primary/30'"
       >
-        <button
+        <Checkbox.Root
           class="size-4.5 rounded border-2 flex items-center justify-center transition-all"
           :class="task.done
             ? 'border-primary bg-primary'
             : 'border-divider hover:border-primary'"
-          @click="toggleDone(task.id)"
+          :model-value="task.done"
+          @update:model-value="toggleDone(task.id)"
         >
-          <AppIcon v-if="task.done" class="text-on-primary" icon="check" :size="12" />
-        </button>
+          <Checkbox.Indicator class="text-on-primary text-xs">✓</Checkbox.Indicator>
+        </Checkbox.Root>
 
         <span
           class="size-2 rounded-full flex-shrink-0"
