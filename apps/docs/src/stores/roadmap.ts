@@ -3,9 +3,11 @@
 import { createStorage, useLogger } from '@vuetify/v0'
 
 // Utilities
+import { isCacheValid } from '@/utilities/cache'
 import { defineStore } from 'pinia'
 
 // Types
+import type { CacheEntry } from '@/utilities/cache'
 import type { components as octokitComponents } from '@octokit/openapi-types'
 
 type GitHubMilestone = octokitComponents['schemas']['milestone']
@@ -19,11 +21,6 @@ export interface Milestone extends GitHubMilestone {
   issuesLoading?: boolean
 }
 
-interface CacheEntry<T> {
-  data: T
-  timestamp: number
-}
-
 interface State {
   milestones: Milestone[]
   isLoading: boolean
@@ -32,15 +29,9 @@ interface State {
 
 const GITHUB_API = 'https://api.github.com'
 const REPO = 'vuetifyjs/0'
-const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
 
 const storage = createStorage({ prefix: 'v0-roadmap:' })
 const logger = useLogger()
-
-function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
-  if (!entry) return false
-  return Date.now() - entry.timestamp < CACHE_TTL
-}
 
 /**
  * Assigns horizons based on due date order:
