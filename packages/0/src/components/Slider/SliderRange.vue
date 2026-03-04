@@ -40,9 +40,11 @@
 
 <script setup lang="ts">
   // Utilities
-  import { toRef, toValue } from 'vue'
+  import { toRef, toValue, useAttrs } from 'vue'
 
   defineOptions({ name: 'SliderRange', inheritAttrs: false })
+
+  const attrs = useAttrs()
 
   defineSlots<{
     default: (props: SliderRangeSlotProps) => any
@@ -90,7 +92,7 @@
 
 <template>
   <Atom
-    v-bind="slotProps.attrs"
+    v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
   >
