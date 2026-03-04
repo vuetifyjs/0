@@ -11,9 +11,18 @@
 <script lang="ts">
   // Components
   import { Atom } from '#v0/components/Atom'
+  import SliderHiddenInput from './SliderHiddenInput.vue'
 
   // Foundational
   import { createContext } from '#v0/composables/createContext'
+
+  // Composables
+  import { createSlider } from '#v0/composables/createSlider'
+  import { useDocumentEventListener } from '#v0/composables/useEventListener'
+  import { useToggleScope } from '#v0/composables/useToggleScope'
+
+  // Utilities
+  import { shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -90,17 +99,6 @@
 </script>
 
 <script setup lang="ts">
-  // Components
-  import SliderHiddenInput from './SliderHiddenInput.vue'
-
-  // Composables
-  import { createSlider } from '#v0/composables/createSlider'
-  import { useDocumentEventListener } from '#v0/composables/useEventListener'
-  import { useToggleScope } from '#v0/composables/useToggleScope'
-
-  // Utilities
-  import { shallowRef, toRef, toValue, useAttrs, useId, watch } from 'vue'
-
   defineOptions({ name: 'SliderRoot', inheritAttrs: false })
 
   const attrs = useAttrs()

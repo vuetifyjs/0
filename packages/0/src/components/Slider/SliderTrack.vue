@@ -12,6 +12,9 @@
   import { Atom } from '#v0/components/Atom'
   import { useSliderRoot } from './SliderRoot.vue'
 
+  // Utilities
+  import { toRef, toValue, useAttrs, useTemplateRef, watchEffect } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -31,9 +34,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { toRef, toValue, useAttrs, useTemplateRef, watchEffect } from 'vue'
-
   defineOptions({ name: 'SliderTrack', inheritAttrs: false })
 
   const attrs = useAttrs()

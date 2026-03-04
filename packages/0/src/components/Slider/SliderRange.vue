@@ -16,6 +16,9 @@
   import { Atom } from '#v0/components/Atom'
   import { useSliderRoot } from './SliderRoot.vue'
 
+  // Utilities
+  import { toRef, toValue, useAttrs } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -39,9 +42,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { toRef, toValue, useAttrs } from 'vue'
-
   defineOptions({ name: 'SliderRange', inheritAttrs: false })
 
   const attrs = useAttrs()

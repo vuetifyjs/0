@@ -12,6 +12,9 @@
   import { Atom } from '#v0/components/Atom'
   import { useSliderRoot } from './SliderRoot.vue'
 
+  // Utilities
+  import { onUnmounted, toRef, toValue, useAttrs } from 'vue'
+
   // Types
   import type { AtomProps } from '#v0/components/Atom'
 
@@ -59,9 +62,6 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs } from 'vue'
-
   defineOptions({ name: 'SliderThumb', inheritAttrs: false })
 
   const attrs = useAttrs()
