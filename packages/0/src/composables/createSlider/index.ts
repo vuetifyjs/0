@@ -26,6 +26,8 @@ export interface SliderOptions {
   step?: number
   /** Whether the slider is disabled */
   disabled?: MaybeRefOrGetter<boolean>
+  /** Whether the slider is readonly (focusable but not editable) */
+  readonly?: MaybeRefOrGetter<boolean>
   /** Slider orientation */
   orientation?: MaybeRefOrGetter<'horizontal' | 'vertical'>
   /** Flip the percent axis */
@@ -51,6 +53,8 @@ export interface SliderContext {
   readonly crossover: boolean
   /** Whether disabled */
   disabled: Ref<boolean>
+  /** Whether readonly */
+  readonly: Ref<boolean>
   /** Orientation */
   orientation: Ref<'horizontal' | 'vertical'>
   /** Whether inverted */
@@ -93,6 +97,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     max = 100,
     step = 1,
     disabled: disabledProp = false,
+    readonly: readonlyProp = false,
     orientation: orientationProp = 'horizontal',
     inverted: invertedProp = false,
     minStepsBetweenThumbs = 0,
@@ -101,6 +106,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
 
   const values = ref<number[]>([])
   const disabled = toRef(() => toValue(disabledProp))
+  const readonly = toRef(() => toValue(readonlyProp))
   const orientation = toRef(() => toValue(orientationProp))
   const inverted = toRef(() => toValue(invertedProp))
 
@@ -125,6 +131,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
   }
 
   function setValue (index: number, value: number): void {
+    if (readonly.value) return
     const snapped = snap(value)
     const next = [...values.value]
 
@@ -173,6 +180,7 @@ export function createSlider (options: SliderOptions = {}): SliderContext {
     minStepsBetweenThumbs,
     crossover,
     disabled,
+    readonly,
     orientation,
     inverted,
     snap,

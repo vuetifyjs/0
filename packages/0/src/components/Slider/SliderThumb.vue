@@ -13,7 +13,7 @@
   import { useSliderRoot } from './SliderRoot.vue'
 
   // Utilities
-  import { onUnmounted, toRef, toValue, useAttrs } from 'vue'
+  import { onUnmounted, toRef, toValue, useAttrs, useTemplateRef } from 'vue'
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
@@ -50,10 +50,12 @@
       'aria-valuetext': string | undefined
       'aria-orientation': 'horizontal' | 'vertical'
       'aria-disabled': true | undefined
+      'aria-readonly': true | undefined
       'aria-label': string | undefined
       'aria-labelledby': string | undefined
       'data-state': SliderThumbState
       'data-disabled': true | undefined
+      'data-readonly': true | undefined
       'style': Record<string, string>
       'onKeydown': (e: KeyboardEvent) => void
       'onPointerdown': (e: PointerEvent) => void
@@ -80,6 +82,7 @@
   } = defineProps<SliderThumbProps>()
 
   const root = useSliderRoot(namespace)
+  const thumbRef = useTemplateRef<{ element: HTMLElement | null }>('thumb')
 
   const index = root.registerThumb()
 
@@ -91,6 +94,7 @@
   const pct = toRef(() => root.percent(value.value))
   const isDragging = toRef(() => root.dragging.value === index)
   const isDisabled = toRef(() => toValue(root.disabled))
+  const isReadonly = toRef(() => toValue(root.readonly))
   const isVertical = toRef(() => toValue(root.orientation) === 'vertical')
 
   // Per-thumb constrained range for ARIA (WAI-ARIA multi-thumb slider pattern)
@@ -106,11 +110,11 @@
   })
 
   function onPointerdown (e: PointerEvent) {
-    root.startDrag(index, e)
+    root.startDrag(index, e, thumbRef.value?.element ?? undefined)
   }
 
   function onKeydown (e: KeyboardEvent) {
-    if (isDisabled.value) return
+    if (isDisabled.value || isReadonly.value) return
 
     const isInverted = toValue(root.inverted)
 
@@ -161,10 +165,12 @@
       'aria-valuetext': ariaValuetext || undefined,
       'aria-orientation': toValue(root.orientation),
       'aria-disabled': isDisabled.value ? true : undefined,
+      'aria-readonly': isReadonly.value ? true : undefined,
       'aria-label': ariaLabel || undefined,
       'aria-labelledby': ariaLabelledby || undefined,
       'data-state': dataState.value,
       'data-disabled': isDisabled.value ? true : undefined,
+      'data-readonly': isReadonly.value ? true : undefined,
       'style': {
         [isVertical.value ? 'bottom' : 'left']: `${pct.value}%`,
         '--v0-slider-thumb-percent': `${pct.value}%`,
@@ -177,6 +183,7 @@
 
 <template>
   <Atom
+    ref="thumb"
     v-bind="{ ...attrs, ...slotProps.attrs }"
     :as
     :renderless
