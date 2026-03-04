@@ -31,7 +31,7 @@ The Treeview component provides a compound pattern for building accessible tree 
 
 ## Anatomy
 
-```vue Anatomy playground no-filename
+```vue Anatomy playground no-filename collapse
 <script setup lang="ts">
   import { Treeview } from '@vuetify/v0'
 </script>
@@ -60,7 +60,7 @@ The Treeview component provides a compound pattern for building accessible tree 
 
 For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treeview.Indicator](#treeviewindicator):
 
-```vue AnatomyWithSelection playground no-filename
+```vue AnatomyWithSelection playground no-filename collapse
 <script setup lang="ts">
   import { Treeview } from '@vuetify/v0'
 </script>
@@ -93,22 +93,61 @@ For trees with selection, add [Treeview.Checkbox](#treeviewcheckbox) and [Treevi
 ## Examples
 
 ::: example
-/components/treeview/file-explorer
+/components/treeview/SettingNode.vue 2
+/components/treeview/settings-panel.vue 1
 
-### File Explorer
+### Settings Panel
 
-A project directory tree with folder and file icons, three levels of nesting, and extension-based color coding.
+A settings tree with functional controls built from reactive data. Click any setting to activate it and view its description in the detail pane.
+
+- **Activation** — `activate` from the `Item` slot highlights the current item. Style the active row with `[data-active]`.
+- **Functional controls** — toggles and `<select>` dropdowns modify the reactive data directly.
+- **Disabled** — `:disabled` on `Treeview.Item` greys out the "Experimental" category. Style with `[data-disabled]`.
+- **Depth indentation** — `--v0-treeview-depth` CSS variable on each item drives `padding-left`, no manual nesting needed.
+- **Open/closed** — `isOpen` slot prop on `Item` rotates the chevron via a CSS class.
+- **Recursive rendering** — `SettingNode.vue` handles both categories and leaves, recursing through `Treeview.Group` for nested children.
 
 :::
 
-::: example
-/components/treeview/selection
+## Recipes
 
-### Selection
+### Cascade Selection
 
-The default selection mode is `cascade` — selecting a parent selects all descendants, and partially-selected parents show an indeterminate state. Use `selection="independent"` for flat, per-item selection without cascade behavior.
+Add `v-model` to `Treeview.Root` for cascade selection. Use `Treeview.Checkbox` and `Treeview.Indicator` for tri-state checkboxes. Root exposes `selectAll`, `unselectAll`, and `isAllSelected` via its slot.
 
-:::
+```vue CascadeSelection playground no-filename collapse
+<script setup lang="ts">
+  import { Treeview } from '@vuetify/v0'
+  import { ref } from 'vue'
+
+  const selected = ref<string[]>([])
+</script>
+
+<template>
+  <Treeview.Root v-slot="{ selectAll, unselectAll }" v-model="selected">
+    <Treeview.List>
+      <Treeview.Item value="users">
+        <Treeview.Checkbox>
+          <Treeview.Indicator />
+        </Treeview.Checkbox>
+        Users
+
+        <Treeview.Group>
+          <Treeview.Item value="users:view">
+            <Treeview.Checkbox><Treeview.Indicator /></Treeview.Checkbox>
+            View
+          </Treeview.Item>
+
+          <Treeview.Item value="users:create">
+            <Treeview.Checkbox><Treeview.Indicator /></Treeview.Checkbox>
+            Create
+          </Treeview.Item>
+        </Treeview.Group>
+      </Treeview.Item>
+    </Treeview.List>
+  </Treeview.Root>
+</template>
+```
 
 ## Styling with Data Attributes
 
