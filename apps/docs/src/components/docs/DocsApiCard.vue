@@ -5,9 +5,10 @@
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
+  import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed, shallowRef, watch } from 'vue'
+  import { computed } from 'vue'
 
   // Types
   import type { ApiEvent, ApiFunction, ApiMethod, ApiOption, ApiProp, ApiProperty, ApiSlot } from '@build/generate-api'
@@ -24,11 +25,7 @@
   const theme = useTheme()
   const settings = useSettings()
 
-  const lineWrap = shallowRef(settings.lineWrap.value)
-
-  watch(settings.lineWrap, val => {
-    lineWrap.value = val
-  })
+  const lineWrap = useSyncedRef(settings.lineWrap)
 
   const key = `${props.kind}-${props.item.name}`
 

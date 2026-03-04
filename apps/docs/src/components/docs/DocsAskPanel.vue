@@ -14,7 +14,7 @@
   import { useSettings } from '@/composables/useSettings'
 
   // Utilities
-  import { computed, nextTick, useTemplateRef, watch } from 'vue'
+  import { nextTick, toRef, useTemplateRef, watch } from 'vue'
 
   // Types
   import type { Message } from '@/composables/useAsk'
@@ -43,7 +43,7 @@
   const messagesRef = useTemplateRef<{ $el: HTMLElement } | null>('messages')
   const formRef = useTemplateRef<{ focus: () => void }>('form')
 
-  const isDesktop = computed(() => breakpoints.lgAndUp.value)
+  const isDesktop = toRef(() => !breakpoints.isMobile.value)
 
   // Auto-scroll until response fills the viewport
   let shouldAutoScroll = true

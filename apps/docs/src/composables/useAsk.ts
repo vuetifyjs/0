@@ -8,7 +8,7 @@
  */
 
 // Framework
-import { IN_BROWSER } from '@vuetify/v0/constants'
+import { IN_BROWSER, useDocumentEventListener } from '@vuetify/v0'
 
 // Composables
 import { useSettings } from './useSettings'
@@ -261,6 +261,7 @@ const isLoading = shallowRef(false)
 const error: ShallowRef<string | null> = shallowRef(null)
 const focusTrigger = shallowRef(0)
 let abortController: AbortController | null = null
+let keyboardRegistered = false
 
 /**
  * Controls the Ask AI feature.
@@ -285,6 +286,22 @@ let abortController: AbortController | null = null
 export function useAsk (): UseAskReturn {
   const route = useRoute()
   const { packageManager } = useSettings()
+
+  // Register global keyboard shortcuts once (needs component context for useDocumentEventListener)
+  if (!keyboardRegistered) {
+    keyboardRegistered = true
+    useDocumentEventListener('keydown', (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault()
+        if (isOpen.value) isOpen.value = false
+        else focusTrigger.value++
+      }
+      if (e.key === 'Escape' && isOpen.value) {
+        e.preventDefault()
+        isOpen.value = false
+      }
+    })
+  }
 
   function open () {
     isOpen.value = true

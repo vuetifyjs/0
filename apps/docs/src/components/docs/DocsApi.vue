@@ -4,9 +4,10 @@
   // Composables
   import { useApiHelpers } from '@/composables/useApiHelpers'
   import { useSettings } from '@/composables/useSettings'
+  import { useSyncedRef } from '@/composables/useSyncedRef'
 
   // Utilities
-  import { computed, shallowRef, watch } from 'vue'
+  import { computed } from 'vue'
   import { useRoute } from 'vue-router'
 
   // Types
@@ -18,15 +19,9 @@
 
   const route = useRoute()
   const data = apiData as ApiData
-  const { showInlineApi: defaultInlineApi } = useSettings()
+  const settings = useSettings()
   const helpers = useApiHelpers()
-
-  // Local state initialized from global default, syncs when global changes
-  const showInlineApi = shallowRef(defaultInlineApi.value)
-
-  watch(defaultInlineApi, val => {
-    showInlineApi.value = val
-  })
+  const showInlineApi = useSyncedRef(settings.showInlineApi)
 
   const pageType = computed(() => {
     const path = route.path
