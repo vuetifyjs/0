@@ -14,10 +14,10 @@
   type Rating = 'amazing' | 'helpful' | 'unhelpful' | 'confusing'
 
   const RATING_OPTIONS: { value: Rating, emoji: string, label: string }[] = [
-    { value: 'amazing', emoji: '😀', label: 'Amazing' },
-    { value: 'helpful', emoji: '🙂', label: 'Helpful' },
-    { value: 'unhelpful', emoji: '🙁', label: 'Unhelpful' },
     { value: 'confusing', emoji: '😕', label: 'Confusing' },
+    { value: 'unhelpful', emoji: '🙁', label: 'Unhelpful' },
+    { value: 'helpful', emoji: '🙂', label: 'Helpful' },
+    { value: 'amazing', emoji: '😀', label: 'Amazing' },
   ]
 
   const API_URL = `${import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'}/docs/feedback`
