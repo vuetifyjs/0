@@ -34,6 +34,7 @@
     code?: string
     collapse?: boolean
     files?: ExampleFile[]
+    imports?: Record<string, string>
     peek?: boolean
     peekLines?: number
   }>(), {
@@ -156,7 +157,7 @@
   async function openAllInPlayground () {
     if (!displayFiles.value?.length) return
     const files = displayFiles.value.map(f => ({ name: f.name, code: f.code }))
-    const url = await usePlayground(files)
+    const url = await usePlayground(files, undefined, props.imports)
     window.open(url, '_blank')
   }
 

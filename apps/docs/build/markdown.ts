@@ -82,6 +82,7 @@ export default async function MarkdownPlugin () {
             env._inExample = true
             env._exampleFilePaths = [] as string[]
             env._exampleFileOrders = [] as (number | undefined)[]
+            env._exampleImports = {} as Record<string, string>
             env._exampleCollapse = isCollapse
             return '' // Defer opening tag until we know the file path(s)
           }
@@ -92,15 +93,20 @@ export default async function MarkdownPlugin () {
           const orders = env._exampleFileOrders as (number | undefined)[]
           const hasOrders = orders?.some(o => o !== undefined)
           const collapse = env._exampleCollapse
+          const imports = env._exampleImports as Record<string, string>
 
           delete env._inExample
           delete env._exampleFilePaths
           delete env._exampleFileOrders
+          delete env._exampleImports
           delete env._exampleOpened
           delete env._examplePathPara
           delete env._exampleCollapse
 
           const collapseAttr = collapse ? ' collapse' : ''
+          const importsAttr = Object.keys(imports).length > 0
+            ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
+            : ''
 
           // If opened with description, close the description template
           if (wasOpened) {
@@ -109,11 +115,11 @@ export default async function MarkdownPlugin () {
 
           // If we have paths but no description content, emit simple peek version
           if (paths?.length === 1) {
-            return `<DocsExample file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'} />\n`
+            return `<DocsExample file-path="${paths[0]}"${collapse ? collapseAttr : ' peek'}${importsAttr} />\n`
           } else if (paths?.length > 1) {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
             const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr} />\n`
+            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr} />\n`
           }
 
           return ''
@@ -148,16 +154,20 @@ export default async function MarkdownPlugin () {
           const hasOrders = orders?.some(o => o !== undefined)
           const collapse = env._exampleCollapse
           const collapseAttr = collapse ? ' collapse' : ''
+          const imports = env._exampleImports as Record<string, string>
+          const importsAttr = Object.keys(imports).length > 0
+            ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
+            : ''
           const defaultRender = defaultHeadingOpen
             ? defaultHeadingOpen(tokens, index, options, env, self)
             : self.renderToken(tokens, index, options)
 
           if (paths.length === 1) {
-            return `<DocsExample file-path="${paths[0]}"${collapseAttr}>\n<template #description>\n${defaultRender}`
+            return `<DocsExample file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n${defaultRender}`
           } else {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
             const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}>\n<template #description>\n${defaultRender}`
+            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr}>\n<template #description>\n${defaultRender}`
           }
         }
 
@@ -175,8 +185,9 @@ export default async function MarkdownPlugin () {
 
         // Handle example container: lines starting with / are file paths
         // Multiple paths may be in one paragraph separated by newlines
-        if (env._inExample && inlineToken?.type === 'inline' && inlineToken.content?.startsWith('/')) {
-          const lines = inlineToken.content.split('\n')
+        const content = inlineToken?.content?.trim() ?? ''
+        if (env._inExample && inlineToken?.type === 'inline' && (content.startsWith('/') || content.startsWith('@import'))) {
+          const lines = inlineToken.content!.split('\n')
           for (const line of lines) {
             const trimmed = line.trim()
             if (trimmed.startsWith('/') && trimmed.length > 1) {
@@ -188,6 +199,14 @@ export default async function MarkdownPlugin () {
               } else {
                 ;(env._exampleFilePaths as string[]).push(trimmed.slice(1))
                 ;(env._exampleFileOrders as (number | undefined)[]).push(undefined)
+              }
+            } else if (trimmed.startsWith('@import ')) {
+              const rest = trimmed.slice(8).trim()
+              const space = rest.indexOf(' ')
+              if (space > 0) {
+                ;(env._exampleImports as Record<string, string>)[rest.slice(0, space)] = rest.slice(space + 1).trim()
+              } else if (rest) {
+                ;(env._exampleImports as Record<string, string>)[rest] = `https://esm.sh/${rest}`
               }
             }
           }
@@ -205,12 +224,16 @@ export default async function MarkdownPlugin () {
           const hasOrders = orders?.some(o => o !== undefined)
           const collapse = env._exampleCollapse
           const collapseAttr = collapse ? ' collapse' : ''
+          const imports = env._exampleImports as Record<string, string>
+          const importsAttr = Object.keys(imports).length > 0
+            ? ` :imports="${JSON.stringify(imports).replace(/"/g, '\'')}"`
+            : ''
           if (paths.length === 1) {
-            return `<DocsExample file-path="${paths[0]}"${collapseAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+            return `<DocsExample file-path="${paths[0]}"${collapseAttr}${importsAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
           } else {
             const pathsJson = JSON.stringify(paths).replace(/"/g, '\'')
             const ordersAttr = hasOrders ? ` :file-orders="${JSON.stringify(orders)}"` : ''
-            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
+            return `<DocsExample :file-paths="${pathsJson}"${ordersAttr}${collapseAttr}${importsAttr}>\n<template #description>\n` + (defaultParagraphOpen ? defaultParagraphOpen(tokens, index, options, env, self) : '<p>')
           }
         }
 
