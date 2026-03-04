@@ -15,6 +15,7 @@
   import { clamp } from '#v0/utilities'
 
   // Types
+  import type { AtomExpose, AtomProps } from '#v0/components/Atom'
   import type { Ref } from 'vue'
 
   export type SplitterOrientation = 'horizontal' | 'vertical'
@@ -28,15 +29,18 @@
     orientation: Ref<SplitterOrientation>
     disabled: Ref<boolean>
     sizes: Ref<number[]>
+    panels: Ref<SplitterPanelState[]>
+    panelIds: Ref<string[]>
     dragging: Ref<boolean>
+    draggingHandle: Ref<number | null>
     rootEl: Ref<HTMLElement | null>
-    register: (panel: SplitterPanelState, defaultSize: number) => number
+    register: (panel: SplitterPanelState, defaultSize: number, id: string) => number
     unregister: (index: number) => void
     registerHandle: () => number
     resize: (handleIndex: number, delta: number) => void
   }
 
-  export interface SplitterRootProps {
+  export interface SplitterRootProps extends AtomProps {
     orientation?: SplitterOrientation
     disabled?: boolean
   }
@@ -56,38 +60,52 @@
 </script>
 
 <script setup lang="ts">
-  // Utilities
-  import { ref, toRef, useTemplateRef } from 'vue'
+  // Components
+  import { Atom } from '#v0/components/Atom'
 
-  defineOptions({ name: 'SplitterRoot' })
+  // Utilities
+  import { ref, shallowRef, toRef, useAttrs, useTemplateRef } from 'vue'
+
+  defineOptions({ name: 'SplitterRoot', inheritAttrs: false })
+
+  const attrs = useAttrs()
 
   defineSlots<{
     default: (props: SplitterRootSlotProps) => any
   }>()
 
   const {
+    as = 'div',
+    renderless,
     orientation = 'horizontal',
     disabled = false,
   } = defineProps<SplitterRootProps>()
 
-  const rootEl = useTemplateRef<HTMLElement>('root')
+  const rootAtom = useTemplateRef<AtomExpose>('root')
+  // Vue auto-unwraps exposed refs when accessed via template ref,
+  // but TypeScript doesn't reflect this - cast corrects the type
+  const rootEl = toRef(() => (rootAtom.value?.element as HTMLElement | null | undefined) ?? null)
   const sizes = ref<number[]>([])
   const panels = ref<SplitterPanelState[]>([])
-  const dragging = ref(false)
+  const panelIds = ref<string[]>([])
+  const draggingHandle = shallowRef<number | null>(null)
+  const dragging = toRef(() => draggingHandle.value !== null)
 
   let panelCount = 0
   let handleCount = 0
 
-  function register (panel: SplitterPanelState, defaultSize: number) {
+  function register (panel: SplitterPanelState, defaultSize: number, id: string) {
     const index = panelCount++
     panels.value.push(panel)
     sizes.value.push(defaultSize)
+    panelIds.value.push(id)
     return index
   }
 
   function unregister (index: number) {
     panels.value.splice(index, 1)
     sizes.value.splice(index, 1)
+    panelIds.value.splice(index, 1)
     panelCount--
   }
 
@@ -110,10 +128,10 @@
 
     const total = size1 + size2
 
-    const newSize1 = clamp(size1 + delta, panel1.minSize, Math.min(panel1.maxSize, total - panel2.minSize))
+    const lower = Math.max(panel1.minSize, total - panel2.maxSize)
+    const upper = Math.min(panel1.maxSize, total - panel2.minSize)
+    const newSize1 = clamp(size1 + delta, lower, upper)
     const newSize2 = total - newSize1
-
-    if (newSize2 < panel2.minSize || newSize2 > panel2.maxSize) return
 
     sizes.value[before] = newSize1
     sizes.value[after] = newSize2
@@ -123,7 +141,10 @@
     orientation: toRef(() => orientation),
     disabled: toRef(() => disabled),
     sizes,
+    panels,
+    panelIds,
     dragging,
+    draggingHandle,
     rootEl,
     register,
     unregister,
@@ -146,14 +167,16 @@
 </script>
 
 <template>
-  <div
+  <Atom
     ref="root"
+    v-bind="{ ...attrs, ...slotProps.attrs }"
+    :as
+    :renderless
     :style="{
       display: 'flex',
       flexDirection: orientation === 'horizontal' ? 'row' : 'column',
     }"
-    v-bind="slotProps.attrs"
   >
     <slot v-bind="slotProps" />
-  </div>
+  </Atom>
 </template>

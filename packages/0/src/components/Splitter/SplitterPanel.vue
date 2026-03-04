@@ -13,6 +13,7 @@
 
   // Types
   import type { AtomProps } from '#v0/components/Atom'
+  import type { SplitterOrientation } from './SplitterRoot.vue'
 
   export interface SplitterPanelProps extends AtomProps {
     defaultSize: number
@@ -23,7 +24,8 @@
   export interface SplitterPanelSlotProps {
     size: number
     attrs: {
-      'data-orientation': string
+      'id': string
+      'data-orientation': SplitterOrientation
       'data-panel-index': number
     }
   }
@@ -34,7 +36,8 @@
   import { Atom } from '#v0/components/Atom'
 
   // Utilities
-  import { onUnmounted, toRef, useAttrs } from 'vue'
+  import { useId } from '#v0/utilities'
+  import { onUnmounted, toRef, useAttrs, watchEffect } from 'vue'
 
   defineOptions({ name: 'SplitterPanel', inheritAttrs: false })
 
@@ -53,8 +56,18 @@
   } = defineProps<SplitterPanelProps>()
 
   const splitter = useSplitterRoot()
+  const panelId = useId()
 
-  const index = splitter.register({ minSize, maxSize }, defaultSize)
+  // Panel registration uses array indices — assumes static panel ordering
+  const index = splitter.register({ minSize, maxSize }, defaultSize, panelId)
+
+  watchEffect(() => {
+    const panel = splitter.panels.value[index]
+    if (panel) {
+      panel.minSize = minSize
+      panel.maxSize = maxSize
+    }
+  })
 
   onUnmounted(() => {
     splitter.unregister(index)
@@ -65,6 +78,7 @@
   const slotProps = toRef((): SplitterPanelSlotProps => ({
     size: size.value,
     attrs: {
+      'id': panelId,
       'data-orientation': splitter.orientation.value,
       'data-panel-index': index,
     },
