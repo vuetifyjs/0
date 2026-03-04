@@ -3,9 +3,11 @@
 import { createStorage, useLogger } from '@vuetify/v0'
 
 // Utilities
+import { isCacheValid } from '@/utilities/cache'
 import { defineStore } from 'pinia'
 
 // Types
+import type { CacheEntry } from '@/utilities/cache'
 import type { components as octokitComponents } from '@octokit/openapi-types'
 
 type GitHubRelease = octokitComponents['schemas']['release']
@@ -17,11 +19,6 @@ export interface Release extends GitHubRelease {
   }
 }
 
-interface CacheEntry<T> {
-  data: T
-  timestamp: number
-}
-
 interface State {
   releases: Release[]
   isLoading: boolean
@@ -30,14 +27,8 @@ interface State {
 }
 
 const url = import.meta.env.VITE_API_SERVER_URL || 'https://api.vuetifyjs.com'
-const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000 // 30s dev, 5min prod
 const storage = createStorage({ prefix: 'v0-releases:' })
 const logger = useLogger()
-
-function isCacheValid<T> (entry: CacheEntry<T> | null): entry is CacheEntry<T> {
-  if (!entry) return false
-  return Date.now() - entry.timestamp < CACHE_TTL
-}
 
 export const useReleasesStore = defineStore('releases', {
   state: (): State => ({
