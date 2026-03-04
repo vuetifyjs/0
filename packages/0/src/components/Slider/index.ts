@@ -138,6 +138,29 @@ export const Slider = {
    *
    * @see https://0.vuetifyjs.com/components/slider#form-integration
    * @internal
+   *
+   * @example
+   * ```vue
+   * <script setup lang="ts">
+   *   import { Slider } from '@vuetify/v0'
+   *   import { ref } from 'vue'
+   *
+   *   const value = ref([50])
+   * </script>
+   *
+   * <template>
+   *   <!-- You don't need to do this — Root auto-renders hidden
+   *        inputs when the `name` prop is set. This is only needed
+   *        for custom form integration. -->
+   *   <Slider.Root v-model="value">
+   *     <Slider.Track>
+   *       <Slider.Range />
+   *     </Slider.Track>
+   *     <Slider.Thumb />
+   *     <Slider.HiddenInput name="volume" :index="0" />
+   *   </Slider.Root>
+   * </template>
+   * ```
    */
   HiddenInput,
 }

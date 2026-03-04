@@ -59,12 +59,14 @@ The Slider component supports two modes:
   </Slider.Root>
 
   <!-- With form submission -->
-  <Slider.Root name="volume">
+  <Slider.Root>
     <Slider.Track>
       <Slider.Range />
     </Slider.Track>
 
     <Slider.Thumb />
+
+    <Slider.HiddenInput />
   </Slider.Root>
 </template>
 ```
